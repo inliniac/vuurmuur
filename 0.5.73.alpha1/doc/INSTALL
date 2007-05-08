@@ -1,0 +1,35 @@
+Installation instructions for Vuurmuur
+======================================
+
+This is a far from finished installation script for Vuurmuur.
+
+Unpack the installer package with:
+gzip -cd Vuurmuur-0.5.66.tar.gz | tar -xvf -
+
+After this run install.sh like this:
+'sh install.sh --install' for a new installation.
+'sh install.sh --upgrade' for upgrading an installation.
+
+During the installation you will be asked a number of questions. Pressing <enter>
+will select the default. This is recommended. The default value is printed between
+the braces after the question. If you are sure you want to select all the default
+options you can run the installer like this:
+'sh install.sh --install --defaults'
+
+This will install Vuurmuur into '/usr' (/usr/bin, /usr/lib, /usr/include, /usr/share/vuurmuur)
+and will use '/etc/vuurmuur' as configdir and '/var/log/vuurmuur' as logdir.
+
+New (versions of) services will be installed in the services map in $PREFIX/share/vuurmuur.
+Please copy them to your services map if you need them.
+
+The process takes about 3 minutes on a Celeron 2.2Ghz and about 10 minutes on a
+166Mhz Pentium I.
+
+If anything goes wrong see the install.log. It will (hopefully) contain pointers
+to what went wrong. Please contact me at victor@nk.nl if you run into trouble.
+
+
+TROUBLESHOOTING:
+
+- If building vuurmuur_conf fails with a message of an missing macro AM_GNU_GETTEXT, then
+  make sure gettext is installed.

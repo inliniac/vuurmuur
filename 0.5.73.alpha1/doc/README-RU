@@ -1,0 +1,24 @@
+Обратитесь, пожалуйста, к файлу INSTALL за информацией по установке Vuurmuur.
+
+Смотрите файл INSTALL.DEBIAN для получения информации по установке на
+системе с Debian, INSTALL.MANDRAKE для Mandrake, INSTALL.SUSE для SUSE Linux.
+
+Прочая документация сейчас доступна только в режиме online на сайте Vuurmuur
+по адресу http://vuurmuur.sourceforge.net/.
+
+Wiki сайт доступен по адресу http://vuurmuur.twc-net.com/tiki/.
+
+В особенности обратите Ваше внимание на раздел 'Руководство по быстрой установке'
+(QuickSetupGuide) написанный Филиппом Баумгартом(Philippe Baumgart), который 
+идет вместе с возможной конфигурацией. Руководство находится по адресу:
+http://sourceforge.net/project/showfiles.php?group_id=114382&package_id=150383
+
+Vuurmuur поддерживает использование IPTrafficVolume (http://iptrafficvolume.sourceforge.net/)
+для хранение истории по объему трафика на каждом интерфейсе. Для получения
+информации по его установке обращайтесь по адресу:
+http://sourceforge.net/docman/display_doc.php?docid=26869&group_id=114382
+
+Для использования Vuurmuur с Portscan Attack Detector (http://www.cipherdyne.org/),
+читайте инструкции по адресу:
+http://sourceforge.net/docman/display_doc.php?docid=25631&group_id=114382
+
