@@ -1,0 +1,43 @@
+Instructions for creating Debian packages for Vuurmuur
+======================================================
+
+On the Sourceforge.net projectpage debian packages for i386 are
+provided. They are build on Debian Testing (Sarge). However, if
+you have another architecture (e.g. amd64) or you want to run
+Vuurmuur on Woody, you can create your own debs using the following
+instructions.
+
+Dependencies:
+libtool
+debhelper
+automake
+autoconf
+gcc
+g++
+libc6-dev
+libncurses5-dev
+
+First unpack the installer package with:
+gzip -cd Vuurmuur-0.5.65.tar.gz | tar -xvf -
+
+After this run install.sh like this:
+'sh install.sh --unpack' this will unpack the archives.
+
+1. Then go to the libvuurmuur directory and run: 'dpkg-buildpackage'
+   If all goes well go back one directorylevel and you will see
+   'libvuurmuur_0.5.61-1_amd64.deb'
+2. Now install this deb using dpkg --install libvuurmuur_0.5.61-1_amd64.deb.
+   Do this now because the other packages will depend on this one.
+
+Repeat the above two steps for the other packages (in order):
+vuurmuur
+vuurmuur_conf
+
+Done!
+
+Now try to run vuurmuur_conf first, as it will enable you to configure Vuurmuur.
+
+
+Please contact me at victor@nk.nl if you run into trouble. Please append as
+much information and output to your mail as possible.
+

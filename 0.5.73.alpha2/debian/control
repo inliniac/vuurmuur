@@ -1,0 +1,13 @@
+Source: libvuurmuur
+Priority: optional
+Maintainer: Victor Julien <victor@nk.nl>
+Section: contrib/net
+Standards-Version: 3.6.2.1
+Build-Depends: debhelper, libtool
+
+Package: libvuurmuur
+Architecture: any
+Depends: ${shlibs:Depends}
+Recommends: vuurmuur, vuurmuur-conf
+Conflicts: vuurmuur-plugins
+Description: Iptables frontend. Common library and plugins.
