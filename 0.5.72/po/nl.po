@@ -1,0 +1,3066 @@
+# translation of nl.po to Nederlands
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# Dutch translations for vuurmuur_conf package.
+# Copyright (C) 2005 Victor Julien
+# This file is distributed under the same license as the vuurmuur_conf package.
+#
+# Victor Julien <victor@nk.nl>, 2005.
+# Victor Julien <v.p.p.julien@student.rug.nl>, 2005, 2006.
+# Victor Julien <victor@vuurmuur.org>, 2006.
+msgid ""
+msgstr ""
+"Project-Id-Version: nl\n"
+"Report-Msgid-Bugs-To: http://vuurmuur.sourceforge.net/\n"
+"POT-Creation-Date: 2006-12-15 22:18+0100\n"
+"PO-Revision-Date: 2006-12-15 22:22+0100\n"
+"Last-Translator: Victor Julien <victor@vuurmuur.org>\n"
+"Language-Team: Nederlands\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: KBabel 1.11.2\n"
+
+#: src/bw_sec.c:87 src/help.c:86 src/help.c:95 src/help.c:123 src/help.c:171
+#: src/help.c:180 src/help.c:207 src/if_sec.c:1178 src/logview_section.c:897
+#: src/logview_section.c:935 src/logview_section.c:976
+#: src/logview_section.c:1083 src/logview_section.c:1142
+#: src/logview_section.c:1196 src/rules_form.c:953 src/rules_form.c:1465
+#: src/rules_form.c:2644 src/rules_form.c:2668 src/rules_form.c:2695
+#: src/rules_form.c:2715 src/rules_form.c:2751 src/rules_form.c:2796
+#: src/rules_form.c:2829 src/rules_form.c:2864 src/rules_form.c:2891
+#: src/rules_form.c:2912 src/rules_form.c:2933 src/rules_form.c:2952
+#: src/rules_form.c:2972 src/rules_form.c:2992 src/rules_form.c:3012
+#: src/rules_form.c:3031 src/rules_form.c:3057 src/rules_form.c:4160
+#: src/rules_form.c:4207 src/rules_form.c:4673 src/services_section.c:660
+#: src/services_section.c:673 src/services_section.c:770
+#: src/services_section.c:896 src/services_section.c:908
+#: src/services_section.c:1001 src/services_section.c:1364
+#: src/services_section.c:1685 src/services_section.c:1693 src/templates.c:218
+#: src/templates.c:314 src/zones_section.c:1323 src/zones_section.c:1350
+#: src/zones_section.c:1403 src/zones_section.c:1462 src/zones_section.c:1555
+#: src/zones_section.c:2641 src/zones_section.c:2888 src/zones_section.c:2915
+#: src/zones_section.c:2994 src/zones_section.c:3016 src/zones_section.c:3096
+#: src/zones_section.c:3274 src/zones_section.c:5151 src/zones_section.c:5403
+#: src/zones_section.c:5428 src/zones_section.c:5606 src/zones_section.c:5662
+#: src/zones_section.c:6802
+#, c-format
+msgid "malloc failed: %s (in: %s:%d)."
+msgstr "malloc mislukt: %s (in: %s:%d)."
+
+#: src/bw_sec.c:222 src/stat_sec.c:222
+#, c-format
+msgid "opening '%s' failed: %s (in: %s:%d)."
+msgstr "kon '%s' niet openen: %s (in: %s:%d)."
+
+#: src/bw_sec.c:345
+#, c-format
+msgid "could not parse month '%s' (in: %s:%d)."
+msgstr "kon de maand '%s' niet verwerken (in: %s:%d)."
+
+#: src/bw_sec.c:403
+#, c-format
+msgid "closing of '%s' failed: %s (in: %s:%d)."
+msgstr "afsluiten van '%s' mislukt: %s (in: %s:%d)."
+
+#: src/bw_sec.c:412
+#, c-format
+msgid "removing '%s' failed (unlink): %s (in: %s:%d)."
+msgstr "verwijderen van '%s' mislukt (unlink): %s (in: %s:%d)."
+
+#: src/bw_sec.c:463 src/if_sec.c:1156 src/rules_form.c:1490
+#: src/rules_form.c:3251 src/rules_form.c:4312 src/rules_form.c:4418
+#: src/rules_form.c:4477 src/rules_form.c:4786 src/services_section.c:401
+#: src/services_section.c:632 src/services_section.c:637
+#: src/services_section.c:642 src/services_section.c:869
+#: src/services_section.c:875 src/services_section.c:881
+#: src/services_section.c:1116 src/services_section.c:1649
+#: src/services_section.c:2171 src/stat_sec.c:319 src/zones_section.c:215
+#: src/zones_section.c:807 src/zones_section.c:1646 src/zones_section.c:1884
+#: src/zones_section.c:2140 src/zones_section.c:2619 src/zones_section.c:3559
+#: src/zones_section.c:3642 src/zones_section.c:4310 src/zones_section.c:5126
+#: src/zones_section.c:5746 src/zones_section.c:6122 src/zones_section.c:6553
+#: src/filter.c:177
+#, c-format
+msgid "calloc failed: %s (in: %s:%d)."
+msgstr "calloc mislukt: %s (in: %s:%d)."
+
+#: src/bw_sec.c:525
+msgid "Traffic Volume Section"
+msgstr "Verkeers Volume Afdeling"
+
+#: src/bw_sec.c:528 src/if_sec.c:1257 src/if_sec.c:1268
+#: src/logview_section.c:874 src/logview_section.c:1037
+#: src/logview_section.c:1047 src/logview_section.c:1059
+#: src/logview_section.c:1417 src/mainmenu.c:1057 src/rules_form.c:284
+#: src/rules_form.c:1456 src/rules_form.c:1475 src/rules_form.c:3747
+#: src/rules_form.c:4812 src/services_section.c:2679
+#: src/services_section.c:2690 src/templates.c:861 src/templates.c:872
+#: src/zones_section.c:284 src/zones_section.c:916 src/zones_section.c:927
+#: src/zones_section.c:1731 src/zones_section.c:1742 src/zones_section.c:2721
+#: src/zones_section.c:2732 src/zones_section.c:3726 src/zones_section.c:3737
+#: src/zones_section.c:5241 src/zones_section.c:5252 src/zones_section.c:6215
+#: src/zones_section.c:6226 src/zones_section.c:6660 src/zones_section.c:6671
+#: src/filter.c:161
+msgid "creating window failed."
+msgstr "creeëren van een scherm is mislukt"
+
+#: src/bw_sec.c:534 src/rules_form.c:3753 src/rules_form.c:4818
+#: src/zones_section.c:289 src/filter.c:168
+msgid "creating panel failed."
+msgstr "creeëren van het paneel is mislukt."
+
+#: src/bw_sec.c:556 src/rules_form.c:3760 src/rules_form.c:4825
+#: src/zones_section.c:313
+msgid "creating form failed."
+msgstr "creeëren van het formulier is mislukt."
+
+#: src/bw_sec.c:568
+msgid "posting the form failed."
+msgstr "plaatsen van het formulier mislukt."
+
+#: src/bw_sec.c:572 src/strings.h:38
+msgid "Interface"
+msgstr "Interface"
+
+#: src/bw_sec.c:573
+msgid "Today"
+msgstr "Vandaag"
+
+#. TRANSLATORS: max 6 chars.
+#: src/bw_sec.c:574 src/bw_sec.c:577 src/bw_sec.c:580 src/bw_sec.c:583
+#: src/bw_sec.c:586 src/stat_sec.c:496
+msgid "In"
+msgstr "In"
+
+#. TRANSLATORS: max 6 chars.
+#: src/bw_sec.c:575 src/bw_sec.c:578 src/bw_sec.c:581 src/bw_sec.c:584
+#: src/bw_sec.c:587 src/stat_sec.c:498
+msgid "Out"
+msgstr "Uit"
+
+#: src/bw_sec.c:576
+msgid "Yesterday"
+msgstr "Gisteren"
+
+#: src/bw_sec.c:579
+msgid "7-days"
+msgstr "7-dagen"
+
+#: src/bw_sec.c:582
+msgid "This month"
+msgstr "Deze maand"
+
+#: src/bw_sec.c:585
+msgid "Last month"
+msgstr "Vorige mnd"
+
+#: src/bw_sec.c:731 src/config_section.c:1788 src/config_section.c:2637
+#: src/conn_sec.c:675 src/if_sec.c:899 src/if_sec.c:1528
+#: src/logview_section.c:732 src/logview_section.c:750 src/mainmenu.c:1526
+#: src/rules_form.c:1420 src/rules_form.c:3209 src/services_section.c:1868
+#: src/services_section.c:2354 src/services_section.c:2750 src/stat_sec.c:773
+#: src/zones_section.c:571 src/zones_section.c:1216 src/zones_section.c:2388
+#: src/zones_section.c:2795 src/zones_section.c:4865 src/zones_section.c:5958
+#: src/zones_section.c:6288 src/zones_section.c:6871 src/statevent.c:475
+#: src/statevent.c:748 src/statevent.c:1067
+msgid "help"
+msgstr "hulp"
+
+#: src/bw_sec.c:732 src/config_section.c:1789 src/config_section.c:2638
+#: src/conn_sec.c:686 src/help.c:1153 src/if_sec.c:901 src/if_sec.c:1533
+#: src/logview_section.c:739 src/logview_section.c:755 src/mainmenu.c:184
+#: src/rules_form.c:1426 src/rules_form.c:3211 src/services_section.c:1872
+#: src/services_section.c:2356 src/services_section.c:2755 src/stat_sec.c:774
+#: src/zones_section.c:572 src/zones_section.c:1222 src/zones_section.c:2390
+#: src/zones_section.c:2801 src/zones_section.c:4867 src/zones_section.c:5959
+#: src/zones_section.c:6294 src/zones_section.c:6874 src/statevent.c:476
+#: src/statevent.c:749 src/statevent.c:1069
+msgid "back"
+msgstr "terug"
+
+#: src/bw_sec.c:737 src/zones_section.c:3552
+msgid "no interfaces found. Please define an interface first."
+msgstr "er zijn geen interfaces gevonden. Definieer aub eerst een interface."
+
+#: src/bw_sec.c:743
+msgid "please set the location of the iptrafvol.pl command in the Settings."
+msgstr "stel aub de locatie van het iptrafvol.pl commando in in de Instellingen."
+
+#: src/bw_sec.c:776 src/mainmenu.c:1462
+msgid "Traffic Volume"
+msgstr "Vekeers Volume"
+
+#: src/bw_sec.c:866 src/bw_sec.c:867 src/bw_sec.c:898 src/bw_sec.c:899
+#: src/bw_sec.c:930 src/bw_sec.c:931 src/bw_sec.c:962 src/bw_sec.c:963
+#: src/bw_sec.c:1009 src/bw_sec.c:1010 src/stat_sec.c:825 src/stat_sec.c:841
+#: src/stat_sec.c:886 src/stat_sec.c:887 src/stat_sec.c:888 src/stat_sec.c:889
+#: src/topmenu.c:82
+#, c-format
+msgid "error"
+msgstr "fout"
+
+#: src/config.c:376
+msgid "rewritten Vuurmuur_conf config file."
+msgstr "Vuurmuur_conf configuratiebestand herschreven."
+
+#: src/config_section.c:25
+msgid "General"
+msgstr "Algemeen"
+
+#. TRANSLATORS: max 11 chars.
+#: src/config_section.c:26 src/conn_sec.c:725 src/conn_sec.c:893
+#: src/conn_sec.c:933 src/conn_sec.c:1112 src/mainmenu.c:1461
+#: src/stat_sec.c:468
+msgid "Connections"
+msgstr "Verbindingen"
+
+#. TRANSLATORS: max 11 chars.
+#: src/config_section.c:27 src/if_sec.c:1235 src/if_sec.c:1541
+#: src/if_sec.c:1643 src/if_sec.c:1718 src/mainmenu.c:1456 src/stat_sec.c:489
+#: src/zones_section.c:3708
+msgid "Interfaces"
+msgstr "Interfaces"
+
+#: src/config_section.c:28 src/sys_sec.c:60
+msgid "System Protection"
+msgstr "Systeem Bescherming"
+
+#: src/config_section.c:29
+msgid "Logging"
+msgstr "Logboek"
+
+#: src/config_section.c:30
+msgid "Modules"
+msgstr "Modules"
+
+#: src/config_section.c:31
+msgid "Plugins"
+msgstr "Plugins"
+
+#: src/config_section.c:32
+msgid "Capabilities"
+msgstr "Mogelijkheden"
+
+#: src/config_section.c:102
+msgid "Edit Config: General"
+msgstr "Configuratie bewerken: Algemeen"
+
+#: src/config_section.c:131
+msgid "Iptables location (full path):"
+msgstr "Iptables locatie (volledig pad):"
+
+#: src/config_section.c:132
+msgid "Iptables-restore location (full path):"
+msgstr "Iptables-restore locatie (volledig pad):"
+
+#: src/config_section.c:133
+msgid "Conntrack location (full path):"
+msgstr "Conntrack locatie (volledig pad):"
+
+#: src/config_section.c:271 src/config_section.c:534 src/config_section.c:816
+#: src/config_section.c:1090 src/config_section.c:2337
+msgid "Saving config failed"
+msgstr "Opslaan van configuratie is mislukt."
+
+#: src/config_section.c:271 src/config_section.c:534 src/config_section.c:816
+#: src/config_section.c:1090 src/config_section.c:2337
+msgid "Saving the config failed. Sure you want to quit?"
+msgstr "Opslaan van configuratie is mislukt. Weet u zeker dat u wilt afsluiten?"
+
+#: src/config_section.c:335 src/config_section.c:598 src/config_section.c:880
+#: src/config_section.c:1154 src/config_section.c:1551
+#: src/config_section.c:1909 src/config_section.c:2402 src/sys_sec.c:287
+msgid "writing configfile failed."
+msgstr "het wegschrijven van het configuratiebestand is mislukt."
+
+#: src/config_section.c:375
+msgid "Edit Config: Interfaces"
+msgstr "Configuratie bewerken: Interfaces"
+
+#: src/config_section.c:409
+msgid "check dynamic interfaces for changes."
+msgstr "controleer dynamische interfaces op veranderingen."
+
+#: src/config_section.c:410
+msgid "Check interval:"
+msgstr "Controle interval:"
+
+#: src/config_section.c:411
+msgid "sec."
+msgstr "sec."
+
+#: src/config_section.c:641
+msgid "Edit Config: Modules"
+msgstr "Configuratie bewerken: Modules"
+
+#: src/config_section.c:675
+msgid "Modprobe location (full path)"
+msgstr "Modprobe locatie (volledig pad):"
+
+#: src/config_section.c:678
+msgid "load modules"
+msgstr "laad modules"
+
+#: src/config_section.c:679
+msgid "waittime after loading a module (in 1/10 th of a second)"
+msgstr "wachttijd na het laden van een module (10 is één seconde)"
+
+#: src/config_section.c:921
+msgid "Edit Config: Plugins"
+msgstr "Configuratie bewerken: Plugins"
+
+#: src/config_section.c:951
+msgid "Services Backend:"
+msgstr "Services Backend:"
+
+#: src/config_section.c:952
+msgid "Zones Backend:"
+msgstr "Zones Backend:"
+
+#: src/config_section.c:953
+msgid "Interfaces Backend:"
+msgstr "Interfaces Backend:"
+
+#: src/config_section.c:954
+msgid "Rules Backend:"
+msgstr "Regels Backend:"
+
+#: src/config_section.c:1203
+msgid "Edit Config: Connections"
+msgstr "Configuratie bewerken: Verbindingen"
+
+#: src/config_section.c:1263
+msgid "You can limit the number of new connections per second:"
+msgstr "U kan het aantal nieuwe tcp verbindingen per seconde limiteren:"
+
+#: src/config_section.c:1267
+msgid "Limit new TCP connections."
+msgstr "Limiteer nieuwe TCP verbindingen."
+
+#: src/config_section.c:1268
+msgid "Number of SYN-packets per second"
+msgstr "Aantal SYN-pakketten per seconde"
+
+#: src/config_section.c:1269 src/config_section.c:1276
+msgid "Burst-rate"
+msgstr "Piek"
+
+#: src/config_section.c:1273
+msgid "Limit new udp 'connections'."
+msgstr "Limiteer nieuwe udp 'verbindingen'."
+
+#: src/config_section.c:1275
+msgid "Number of new UDP 'connections' per second"
+msgstr "Aantal nieuwe UDP 'connecties' per seconde"
+
+#: src/config_section.c:1604 src/config_section.c:1808 src/mainmenu.c:1463
+msgid "Vuurmuur_conf Settings"
+msgstr "Vuurmuur_conf Instellingen"
+
+#: src/config_section.c:1659
+msgid "Defaults for creating new rules:"
+msgstr "Standaardinstellingen voor creatie nieuwe regels:"
+
+#: src/config_section.c:1661
+msgid "Log the rule"
+msgstr "Log de regel"
+
+#: src/config_section.c:1665
+msgid "Loglimit per second"
+msgstr "Loglimiet per seconde"
+
+#: src/config_section.c:1667
+msgid "Buffersize logviewer (number of lines):"
+msgstr "Buffergrootte logboek inzage (in regels):"
+
+#: src/config_section.c:1668
+msgid "Advanced mode by default:"
+msgstr "Standaard geavanceerde modus:"
+
+#: src/config_section.c:1672
+msgid "Draw status in Main Menu:"
+msgstr "Geef status weer in hoofdmenu:"
+
+#: src/config_section.c:1676
+msgid "iptrafvol.pl location (full path)"
+msgstr "iptrafvol.pl locatie (volledig pad):"
+
+#: src/config_section.c:1972
+msgid "Edit Config: Logging"
+msgstr "Configuratie bewerken: Logboek"
+
+#: src/config_section.c:2029
+msgid "Vuurmuur logfiles location (full path):"
+msgstr "Vuurmuur logboeken lokatie (volledig pad):"
+
+#: src/config_section.c:2030
+msgid "Loglevel (for use with syslog, requires vuurmuur restart):"
+msgstr "Logniveau (voor gebruik met syslog, vereist een herstart van Vuurmuur):"
+
+#: src/config_section.c:2031
+msgid "Logfile containing IPtables/Netfilter logs:"
+msgstr "Logbestand dat de IPtables/netfilter logs bevat:"
+
+#: src/config_section.c:2033
+msgid "Log the default policy? (DROP):"
+msgstr "Log de standaard policy? (DROP):"
+
+#: src/config_section.c:2037
+msgid "Limit of the number of logs per second (0 for no limit):"
+msgstr "Maximaal aantal logs per seconde (0 voor geen limiet):"
+
+#: src/config_section.c:2039
+msgid "Log TCP options (for use with PSAD):"
+msgstr "Log TCP opties (voor gebruik met PSAD):"
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2044
+msgid "Log blocklist violations:"
+msgstr "Log blokkeerlijst overtredingen:"
+
+#. TRANSLATORS: max 55 chars, don't translate 'INVALID'
+#: src/config_section.c:2049
+msgid "Log packets with state INVALID:"
+msgstr "Log pakketten met als status INVALID:"
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2054
+msgid "Log new TCP packets with no SYN flag set:"
+msgstr "Log nieuwe TCP pakketten zonder SYN-vlag ingesteld:"
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2059
+msgid "Log scan probe packets:"
+msgstr "Log scanpoging pakketten:"
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2064
+msgid "Log Fragments:"
+msgstr "Log fragmenten:"
+
+#: src/config_section.c:2111
+msgid ""
+"changing the logdir requires applying changes to get into effect in the "
+"logviewer."
+msgstr ""
+"het veranderen van de logdir vereist het toepassen van de wijzigingen om "
+"effectief te worden in de logboek inzage."
+
+#: src/config_section.c:2164
+msgid "limit must be between 0-999."
+msgstr "limiet moet binnen 0-999 vallen."
+
+#: src/config_section.c:2426
+msgid "View Capabilities"
+msgstr "Bekijk Mogelijkheden"
+
+#: src/config_section.c:2449 src/config_section.c:2471
+#: src/config_section.c:2486
+msgid "Could not check."
+msgstr "Kon niet controleren."
+
+#: src/config_section.c:2520 src/config_section.c:2539
+msgid "checking capabilities failed."
+msgstr "controleren van mogelijkheden mislukt."
+
+#: src/config_section.c:2531
+msgid "Iptables Capabilities"
+msgstr "Iptables Mogelijkheden"
+
+#: src/config_section.c:2531
+msgid ""
+"Essential capabilities are not loaded, missing, or not properly detected. "
+"Try loading modules?"
+msgstr ""
+"Essentiele mogelijkheden zijn niet geladen, missen of niet goed "
+"gedetecteerd. Pogen modules te laden?"
+
+#: src/config_section.c:2616 src/config_section.c:2754 src/mainmenu.c:196
+#: src/mainmenu.c:314
+msgid "Back"
+msgstr "Terug"
+
+#: src/config_section.c:2662
+msgid "Configuration Menu"
+msgstr "Configuratie Menu"
+
+#: src/config_section.c:2678
+msgid "Select a section."
+msgstr "Selecteer een afdeling."
+
+#: src/config_section.c:2680 src/mainmenu.c:1458
+msgid "Vuurmuur Config"
+msgstr "Vuurmuur Configuratie"
+
+#. TRANSLATORS: max 4 chars: CONNECTING, like building a new connection.
+#: src/conn_sec.c:245
+msgid "CONN"
+msgstr "OPBW"
+
+#. TRANSLATORS: max 4 chars: ESTABLISHED, an existing connection.
+#: src/conn_sec.c:261
+msgid "ESTA"
+msgstr "VERB"
+
+#. TRANSLATORS: max 4 chars: DISCONNECTING, an existing connection is shutting down.
+#: src/conn_sec.c:277
+msgid "DISC"
+msgstr "AFSL"
+
+#. TRANSLATORS: max 3 chars: INCOMING, an incoming connection.
+#: src/conn_sec.c:313
+msgid "IN"
+msgstr "IN"
+
+#. TRANSLATORS: max 3 chars: OUTGOING, an outgoing connection.
+#: src/conn_sec.c:328
+msgid "OUT"
+msgstr "UIT"
+
+#. TRANSLATORS: max 3 chars: FORWARDING, an forwarding connection.
+#: src/conn_sec.c:343
+msgid "FWD"
+msgstr "DR"
+
+#: src/conn_sec.c:597
+msgid "getting the connections failed."
+msgstr "ophalen van verbindingen mislukt."
+
+#: src/conn_sec.c:676 src/logview_section.c:733
+msgid "manage"
+msgstr "beheer"
+
+#: src/conn_sec.c:678
+msgid "in/out/fw"
+msgstr "in/uit/door"
+
+#: src/conn_sec.c:679
+msgid "connect"
+msgstr "verbinding"
+
+#: src/conn_sec.c:681
+msgid "grp"
+msgstr "grp"
+
+#: src/conn_sec.c:682
+msgid "unknown ip"
+msgstr "onbekend ip"
+
+#: src/conn_sec.c:683 src/logview_section.c:735 src/logview_section.c:752
+#: src/rules_form.c:1425
+msgid "filter"
+msgstr "filter"
+
+#: src/conn_sec.c:684
+msgid "account"
+msgstr "verkeer"
+
+#: src/conn_sec.c:685
+msgid "details"
+msgstr "details"
+
+#. TRANSLATORS: max 5 chars.
+#: src/conn_sec.c:894 src/conn_sec.c:934 src/stat_sec.c:457
+msgid "Total"
+msgstr "Totaal"
+
+#: src/conn_sec.c:895
+msgid "Incoming"
+msgstr "Inkomende"
+
+#: src/conn_sec.c:896
+msgid "Forwarding"
+msgstr "Doorsturen"
+
+#: src/conn_sec.c:897
+msgid "Outgoing"
+msgstr "Uitgaand"
+
+#: src/conn_sec.c:909
+msgid "Established Connections"
+msgstr "Gevestigde Verbindingen"
+
+#: src/conn_sec.c:916
+msgid "Connections Initializing"
+msgstr "Opbouwende Verbindingen"
+
+#: src/conn_sec.c:922
+msgid "Connections Closing"
+msgstr "Afsluitende Verbindingen"
+
+#: src/conn_sec.c:935
+msgid "Connecting"
+msgstr "Verbinden"
+
+#: src/conn_sec.c:936
+msgid "Established"
+msgstr "Gevestigd"
+
+#: src/conn_sec.c:937
+msgid "Disconnecting"
+msgstr "Afsluiten"
+
+#: src/conn_sec.c:948
+msgid "Forwarded Connections"
+msgstr "Doorgestuurde Verbindingen"
+
+#: src/conn_sec.c:955
+msgid "Incoming Connections"
+msgstr "Inkomende Verbindingen"
+
+#: src/conn_sec.c:961
+msgid "Outgoing Connections"
+msgstr "Uitgaande Verbindingen"
+
+#: src/conn_sec.c:1092 src/logview_section.c:1392
+#, c-format
+msgid "Active filter: '%s' (press 'enter' to clear)."
+msgstr "Huidig filter: '%s' (druk 'enter' om filter te verwijderen)."
+
+#: src/conn_sec.c:1097 src/logview_section.c:1397 src/rules_form.c:2130
+msgid "Filter removed."
+msgstr "Filter verwijderd."
+
+#: src/conn_sec.c:1191
+msgid "killing connections is only supported for TCP and UDP."
+msgstr "afsluiten van connecties wordt alleen ondersteund voor TCP en UDP"
+
+#: src/conn_sec.c:1220 src/conn_sec.c:1285 src/strings.h:195
+msgid ""
+"'conntrack' location not set. To be able to kill connections, set the "
+"location of the 'conntrack' tool in 'Vuurmuur Options -> General'. Note that "
+"the tool requires kernel version 2.6.14 or higher."
+msgstr ""
+"'conntrack' lokatie niet ingesteld. Om verbindingen te kunnen afsluiten, "
+"moet de lokatie van 'conntrack' worden ingesteld in 'Vuurmuur Configuratie -"
+"> Algemeen'. Het 'conntrack' programma vereist kernel versie 2.6.14 of hoger."
+
+#: src/conn_sec.c:1259 src/conn_sec.c:1319
+msgid "all connections already gone, none killed."
+msgstr "alle verbindingen zijn al weg, geen afgesloten."
+
+#: src/conn_sec.c:1262 src/conn_sec.c:1322
+#, c-format
+msgid "killing of %d out of %d connections failed."
+msgstr "afsluiten van %d verbindingen van een totaal van %d is mislukt."
+
+#: src/conn_sec.c:1265 src/conn_sec.c:1325
+#, c-format
+msgid "killing of all %d connections failed."
+msgstr "afsluiten van alle %d verbindingen mislukt."
+
+#: src/conn_sec.c:1355
+#, c-format
+msgid "ipaddress belongs to interface '%s'. It will not be added to the blocklist."
+msgstr ""
+"IP Adres behoort toe aan interface '%s'. Het zal niet aan de blocklist "
+"worden toegevoegd."
+
+#: src/help.c:264 src/help.c:392
+msgid "vuurmuur.hlp"
+msgstr "vuurmuur-nl_NL.hlp"
+
+#: src/help.c:362
+msgid "vuurmuur.UTF-8.hlp"
+msgstr "vuurmuur-nl_NL.UTF-8.hlp"
+
+#: src/help.c:902 src/help.c:904
+msgid "Press <F10> to close this window."
+msgstr "Druk <F10> om dit scherm te sluiten."
+
+#: src/help.c:913
+msgid "The requested helptext was not found.\n"
+msgstr "De gezochte hulptekst is niet gevonden.\n"
+
+#: src/help.c:1049 src/help.c:1068
+msgid "Help"
+msgstr "Hulp"
+
+#: src/help.c:1097
+msgid "No problems were detected in the current setup.\n"
+msgstr "Er zijn geen problemen gedetecteerd in uw systeem.\n"
+
+#: src/help.c:1103 src/mainmenu.c:1460 src/vuurmuur_conf.c:260
+msgid "Status"
+msgstr "Status"
+
+#: src/help.c:1215 src/help.c:1217 src/mainmenu.c:1465
+msgid "About"
+msgstr "Over"
+
+#: src/if_sec.c:254
+msgid "Protection"
+msgstr "Bescherming"
+
+#: src/if_sec.c:336 src/rules_form.c:3459 src/services_section.c:2207
+#: src/zones_section.c:255 src/zones_section.c:2156 src/zones_section.c:4550
+#: src/zones_section.c:5760
+msgid "Comment"
+msgstr "Opmerking"
+
+#: src/if_sec.c:345 src/services_section.c:2216 src/zones_section.c:267
+#: src/zones_section.c:2168 src/zones_section.c:4572
+msgid "error while loading the comment."
+msgstr "fout bij het laden van de opmerking."
+
+#. TRANSLATORS: max 18 chars
+#: src/if_sec.c:359
+msgid "Is interface up?"
+msgstr "Is interface op?"
+
+#: src/if_sec.c:374 src/if_sec.c:934
+msgid "Edit Interface"
+msgstr "Interface Bewerken"
+
+#: src/if_sec.c:437 src/services_section.c:2261 src/zones_section.c:322
+#: src/zones_section.c:2222 src/zones_section.c:4617 src/zones_section.c:5813
+msgid "Name"
+msgstr "Naam"
+
+#: src/if_sec.c:900 src/rules_form.c:3210
+msgid "advanced"
+msgstr "geavanceerd"
+
+#. TRANSLATORS: max 4 chars
+#: src/if_sec.c:1263 src/if_sec.c:1274 src/rules_form.c:1481
+#: src/services_section.c:2685 src/services_section.c:2696 src/templates.c:867
+#: src/templates.c:878 src/zones_section.c:922 src/zones_section.c:933
+#: src/zones_section.c:1737 src/zones_section.c:1748 src/zones_section.c:2727
+#: src/zones_section.c:2738 src/zones_section.c:3732 src/zones_section.c:3743
+#: src/zones_section.c:5247 src/zones_section.c:5258 src/zones_section.c:6221
+#: src/zones_section.c:6232 src/zones_section.c:6666 src/zones_section.c:6677
+msgid "more"
+msgstr "meer"
+
+#: src/if_sec.c:1384 src/services_section.c:2051 src/services_section.c:2080
+#: src/services_section.c:2102 src/services_section.c:2118
+#: src/zones_section.c:394 src/zones_section.c:437 src/zones_section.c:502
+#: src/zones_section.c:519 src/zones_section.c:2302 src/zones_section.c:2316
+#: src/zones_section.c:4025 src/zones_section.c:4051 src/zones_section.c:4060
+#: src/zones_section.c:4277 src/zones_section.c:4678 src/zones_section.c:4702
+#: src/zones_section.c:4726 src/zones_section.c:4741 src/zones_section.c:5053
+#: src/zones_section.c:5872 src/zones_section.c:5888
+#, c-format
+msgid "saving to backend failed (in: %s:%d)."
+msgstr "opslaan naar het backend mislukt (in: %s:%d)."
+
+#: src/if_sec.c:1453 src/rules_form.c:2214 src/services_section.c:2602
+#: src/zones_section.c:1088 src/zones_section.c:3517
+msgid "saving rules failed."
+msgstr "opslaan van de regels is mislukt."
+
+#: src/if_sec.c:1529 src/rules_form.c:1421 src/services_section.c:1869
+#: src/services_section.c:2751 src/zones_section.c:1217
+#: src/zones_section.c:2796 src/zones_section.c:6289 src/zones_section.c:6872
+#: src/strings.h:157
+msgid "new"
+msgstr "nieuw"
+
+#: src/if_sec.c:1530 src/rules_form.c:1422 src/services_section.c:1871
+#: src/services_section.c:2752 src/zones_section.c:1218
+#: src/zones_section.c:2797 src/zones_section.c:6290 src/zones_section.c:6873
+msgid "del"
+msgstr "verw"
+
+#: src/if_sec.c:1531 src/services_section.c:2753 src/zones_section.c:1219
+#: src/zones_section.c:2798 src/zones_section.c:6291 src/strings.h:160
+msgid "rename"
+msgstr "hernoem"
+
+#: src/if_sec.c:1532 src/rules_form.c:1423 src/services_section.c:1870
+#: src/services_section.c:2754 src/zones_section.c:1221
+#: src/zones_section.c:2800 src/zones_section.c:6293 src/strings.h:159
+msgid "edit"
+msgstr "bewerk"
+
+#: src/if_sec.c:1602
+msgid "Rename Interface"
+msgstr "Hernoem Interface"
+
+#: src/if_sec.c:1631
+msgid "New Interface"
+msgstr "Nieuwe Interface"
+
+#: src/if_sec.c:1649
+msgid "creating new interface failed."
+msgstr "creeëren van een interface is mislukt."
+
+#: src/if_sec.c:1667 src/services_section.c:2895 src/zones_section.c:1447
+#: src/zones_section.c:3010 src/zones_section.c:5522 src/zones_section.c:6420
+msgid "Delete"
+msgstr "Verwijderen"
+
+#: src/if_sec.c:1667 src/rules_form.c:2285 src/services_section.c:1569
+#: src/services_section.c:2895 src/statevent.c:591 src/statevent.c:601
+#: src/statevent.c:617 src/statevent.c:630 src/statevent.c:643
+#: src/statevent.c:657 src/statevent.c:667 src/statevent.c:675
+#: src/statevent.c:683 src/statevent.c:879 src/statevent.c:895
+#: src/statevent.c:908 src/statevent.c:921 src/statevent.c:935
+#: src/statevent.c:945 src/statevent.c:953 src/statevent.c:961
+msgid "Are you sure?"
+msgstr "Weet u het zeker?"
+
+#: src/if_sec.c:1673
+#, c-format
+msgid "deleting interface %s failed."
+msgstr "verwijderen van interface %s is mislukt."
+
+#: src/logview_section.c:221
+#, c-format
+msgid "Filter: %s"
+msgstr "Filter: %s"
+
+#: src/logview_section.c:240
+#, c-format
+msgid "Search: %s"
+msgstr "Zoeken: %s"
+
+#: src/logview_section.c:259
+#, c-format
+msgid "checking failed for '%s': %s."
+msgstr "controleren mislukt voor '%s': %s."
+
+#: src/logview_section.c:266
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not allow following "
+"symbolic-links."
+msgstr ""
+"openen van bestand '%s': Om beveiligingsredenen zal Vuurmuur geen "
+"symbolische links volgen."
+
+#: src/logview_section.c:273
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not allow opening "
+"anything other than a file or a directory."
+msgstr ""
+"openen van bestand '%s': Om beveiligingsredenen zal Vuurmuur niets anders "
+"dan een bestand of een map openen."
+
+#: src/logview_section.c:280
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not open files that "
+"are writable by 'group' or 'other'. Check the file content & permissions."
+msgstr ""
+"openen van bestand '%s': Om beveiligingsredenen zal Vuurmuur geen bestanden "
+"openen die beschrijfbaar zijn door 'groep' en 'anderen'. Controleer de "
+"inhoud en de rechten."
+
+#: src/logview_section.c:287
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not open files that "
+"are not owned by root."
+msgstr ""
+"openen van bestand '%s': Om beveiligingsredenen zal Vuurmuur geen bestanden "
+"openen die niet aan root toehoren."
+
+#: src/logview_section.c:734 src/logview_section.c:751
+msgid "search"
+msgstr "zoek"
+
+#: src/logview_section.c:736 src/logview_section.c:753
+msgid "pause"
+msgstr "pauze"
+
+#: src/logview_section.c:737 src/logview_section.c:754
+msgid "clear"
+msgstr "wissen"
+
+#: src/logview_section.c:738
+msgid "hide"
+msgstr "verberg"
+
+#: src/logview_section.c:826
+#, c-format
+msgid "opening logfile '%s' failed: %s."
+msgstr "openen van logbestand '%s' mislukt: %s."
+
+#: src/logview_section.c:850
+#, c-format
+msgid "could not examine the logfile: %s."
+msgstr "kon het logbestand niet onderzoeken: %s."
+
+#: src/logview_section.c:863
+#, c-format
+msgid "fseek failed: %s."
+msgstr "fseek mislukt: %s."
+
+#: src/logview_section.c:867
+#, c-format
+msgid "Loading loglines into memory (trying to load %u lines)..."
+msgstr "Naar het geheugen laden van logregels (probeer regels %u te laden)..."
+
+#: src/logview_section.c:871 src/logview_section.c:1415 src/mainmenu.c:1055
+msgid "One moment please..."
+msgstr "Een moment aub..."
+
+#: src/logview_section.c:881 src/logview_section.c:883
+#: src/logview_section.c:1754 src/mainmenu.c:233 src/mainmenu.c:251
+#: src/mainmenu.c:318 src/mainmenu.c:1459
+msgid "Logview"
+msgstr "Logboek inzage"
+
+#: src/logview_section.c:885
+msgid "Loading log ..."
+msgstr "Laden logboek ..."
+
+#: src/logview_section.c:1026
+#, c-format
+msgid "Loading loglines into memory... loaded %d lines."
+msgstr "Naar het geheugen laden van logregels... %d regels geladen."
+
+#: src/logview_section.c:1067
+msgid "Logview starting.\n"
+msgstr "Logboek start.\n"
+
+#: src/logview_section.c:1287
+#, c-format
+msgid "closing search pipe failed: %s."
+msgstr "sluiten van de zoek-pipe mislukt: %s."
+
+#: src/logview_section.c:1299
+msgid "Search canceled. Press SPACE to return to normal logging."
+msgstr "Zoeken geannuleerd. Druk SPATIE om terug te keren naar normaal loggen."
+
+#: src/logview_section.c:1304
+msgid "Search ERROR. Press SPACE to return to normal logging."
+msgstr "Zoek FOUT. Druk SPATIEBALK om terug te keren naar het normale loggen."
+
+#: src/logview_section.c:1314
+#, c-format
+msgid "Search done: %lu matches. Press SPACE to return to normal logging."
+msgstr "Zoeken gereed:%lu resultaten. SPATIE om terug te keren naar normaal loggen."
+
+#: src/logview_section.c:1422
+msgid "Applying changed filter..."
+msgstr "Gewijzigd filter toepassen ..."
+
+#: src/logview_section.c:1496
+msgid "Search in progress. Press 'S' to stop current search."
+msgstr "Zoekopdracht in behandeling. Druk 'S' om de huidge opdracht te stoppen."
+
+#: src/logview_section.c:1501 src/logview_section.c:1646
+msgid "Please first close the current search by pressing SPACE."
+msgstr "Sluit eerst de huidige zoekopdracht af door SPATIEBALK te drukken."
+
+#: src/logview_section.c:1533
+msgid "Continue viewing the log."
+msgstr "Doorgaan met het bekijken van het logboek."
+
+#: src/logview_section.c:1535
+msgid "Continue searching."
+msgstr "Doorgaan met zoeken."
+
+#: src/logview_section.c:1547
+msgid "*** PAUSED *** (press 'p' to continue)"
+msgstr "*** GEPAUZEERD *** (druk 'p' om door te gaan)"
+
+#: src/logview_section.c:1560 src/logview_section.c:1572
+#: src/logview_section.c:1584 src/logview_section.c:1596
+#: src/logview_section.c:1608 src/logview_section.c:1620
+#: src/logview_section.c:1632
+msgid "hidden"
+msgstr "verborgen"
+
+#: src/logview_section.c:1560 src/logview_section.c:1572
+#: src/logview_section.c:1584 src/logview_section.c:1596
+#: src/logview_section.c:1608 src/logview_section.c:1620
+#: src/logview_section.c:1632
+msgid "visible"
+msgstr "zichtbaar"
+
+#: src/logview_section.c:1641
+msgid "Already searching. Press 'S' to stop current search."
+msgstr "Al aan het zoeken. Druk 'S' om de huidige zoekopdracht af te breken."
+
+#: src/logview_section.c:1671
+msgid "Search"
+msgstr "Zoek"
+
+#: src/logview_section.c:1671
+msgid "What do you want to search for?"
+msgstr "Waar wilt u naar zoeken?"
+
+#: src/logview_section.c:1696
+#, c-format
+msgid "opening pipe failed: %s."
+msgstr "openen van pipe mislukt: %s."
+
+#: src/logview_section.c:1706
+msgid "Search started. Press 'S' to stop searching."
+msgstr "Zoekopdracht begonnen. Druk 'S' om te stoppen."
+
+#: src/logview_section.c:1718
+msgid "search script was not ok, search is disabled."
+msgstr "zoekscript was niet in orde, zoeken is uitgeschakeld."
+
+#: src/logview_section.c:1730
+msgid "No search in progress."
+msgstr "Geen zoekopdracht bezig."
+
+#: src/logview_section.c:1888
+#, c-format
+msgid "Search in progress: %lu matches so far. SPACE to pause, 'S' to stop."
+msgstr "Zoeken bezig: %lu resultaten. SPATIE voor pauze, 'S' voor stoppen."
+
+#: src/logview_section.c:1890
+#, c-format
+msgid "Search PAUSED: %lu matches so far. SPACE to continue, 'S' to stop."
+msgstr "Zoeken GEPAUZEERD: %lu resultaten. SPATIE voor doorgaan, 'S' voor stoppen."
+
+#: src/logview_section.c:1982
+#, c-format
+msgid "closing logfile failed: %s."
+msgstr "sluiten van logbestand mislukt: %s."
+
+#: src/logview_section.c:2002 src/mainmenu.c:1704 src/mainmenu.c:1730
+#: src/rules_form.c:1612 src/rules_form.c:2015 src/rules_form.c:2046
+#: src/rules_form.c:4619 src/rules_form.c:4924 src/services_section.c:570
+#: src/services_section.c:1272 src/zones_section.c:752
+#: src/zones_section.c:1609 src/zones_section.c:2083 src/zones_section.c:2555
+#: src/zones_section.c:3140 src/zones_section.c:5064 src/zones_section.c:5702
+#: src/zones_section.c:6074 src/zones_section.c:6524 src/zones_section.c:7067
+#: src/strings.h:90
+msgid "Ready."
+msgstr "Gereed."
+
+#: src/mainmenu.c:71
+msgid "saving rules failed"
+msgstr "opslaan van de regels is mislukt"
+
+#: src/mainmenu.c:78
+msgid "cannot rename rulesfile because its location is not set"
+msgstr "kan het regelsbestand niet hernoemen omdat de locatie ervan niet is ingesteld"
+
+#: src/mainmenu.c:93 src/mainmenu.c:161
+#, c-format
+msgid "renaming '%s' to '%s' failed: %s."
+msgstr "hernoemen van '%s' naar '%s' is mislukt: %s."
+
+#: src/mainmenu.c:139
+msgid "saving blocklist failed"
+msgstr "opslaan van blokkeerlijst is mislukt."
+
+#: src/mainmenu.c:146
+msgid "cannot rename blocklistfile because its location is not set"
+msgstr "kan de blokkeerlijst niet hernoemen omdat de locatie ervan niet is ingesteld"
+
+#: src/mainmenu.c:249
+msgid "Select a log to view."
+msgstr "Selecteer een logbestand."
+
+#: src/mainmenu.c:381 src/mainmenu.c:426
+#, c-format
+msgid "attaching to shared memory failed: %s."
+msgstr "koppelen met gedeeld geheugen mislukt: %s."
+
+#: src/mainmenu.c:466
+msgid "(fail).\n"
+msgstr "(fout).\n"
+
+#: src/mainmenu.c:468
+msgid "(warn).\n"
+msgstr "(let op).\n"
+
+#: src/mainmenu.c:491
+msgid ""
+"- The path to the Vuurmuur helpfile was not specified, please do so in the "
+"Vuurmuur_conf Settings\n"
+msgstr ""
+"- Het pad naar het Vuurmuur hulpbestand is niet gespecifieerd. Voert u het "
+"aub in in de Vuurmuur_conf Instellingen\n"
+
+#: src/mainmenu.c:498
+msgid "- Opening the helpfile failed. Please check the file\n"
+msgstr "- Het openen van het hulpbestand is mislukt. Controleert u aub het bestand\n"
+
+#: src/mainmenu.c:520
+msgid ""
+"- The last time the changes were applied, applying the changes failed for "
+"Vuurmuur. Please check the Error.log\n"
+msgstr ""
+"- De laatste keer dat de wijzigingen zijn toegepast, is het toepassen "
+"mislukt voor Vuurmuur. Controleert u Error.log\n"
+
+#: src/mainmenu.c:525
+msgid ""
+"- The last time the changes were applied, applying the changes failed for "
+"Vuurmuur_log. Please check the Error.log\n"
+msgstr ""
+"- De laatste keer dat de wijzigingen zijn toegepast, is het toepassen "
+"mislukt voor Vuurmuur_log. Controleert u Error.log\n"
+
+#: src/mainmenu.c:533
+msgid ""
+"- No connection could be established with Vuurmuur. Please make sure that it "
+"is running\n"
+msgstr ""
+"- Er kon geen verbinding worden gemaakt met Vuurmuur. Verzeker u ervan dat "
+"het programma draait\n"
+
+#: src/mainmenu.c:540
+msgid ""
+"- The connection with Vuurmuur seems to be lost. Please make sure that it is "
+"running\n"
+msgstr ""
+"- De verbinding met Vuurmuur lijkt verloren te zijn gegaan. Controleer aub "
+"of het programma draait\n"
+
+#: src/mainmenu.c:550
+msgid ""
+"- No connection could be established with Vuurmuur_log. Please make sure "
+"that it is running\n"
+msgstr ""
+"- Er kon geen verbinding worden gemaakt met Vuurmuur_log. Verzeker u ervan "
+"dat het programma draait\n"
+
+#: src/mainmenu.c:557
+msgid ""
+"- The connection with Vuurmuur_log seems to be lost. Please make sure that "
+"it is running\n"
+msgstr ""
+"- De verbinding met Vuurmuur_log lijkt verloren te zijn gegaan. Controleer "
+"aub of het programma draait\n"
+
+#: src/mainmenu.c:580
+msgid ""
+"- The path to the 'iptables'-command is not yet specified. Please do so in "
+"the 'Vuurmuur Config' section\n"
+msgstr ""
+"- Het pad naar het 'iptables'-commando is niet gespecifieerd. Voert u het "
+"aub in in Vuurmuur Configuratie\n"
+
+#: src/mainmenu.c:587
+msgid ""
+"- The path to the 'iptables'-command seems to be wrong. There was an error "
+"while testing it. Please check it in your system and correct it in the "
+"'Vuurmuur Config' section\n"
+msgstr ""
+"- Het pad naar het 'iptables'-commando lijkt fout te zijn. Er was een fout "
+"bij het testen ervan. Controleer het pad en voer het correcte pad in in de "
+"Vuurmuur Configuratie\n"
+
+#: src/mainmenu.c:596
+msgid ""
+"- The path to the 'iptables-restore'-command is not yet specified. Please do "
+"so in the 'Vuurmuur Config' section\n"
+msgstr ""
+"- Het pad naar het 'iptables-restore'-commando is niet gespecifieerd. Voer "
+"het aub in in Vuurmuur Configuratie\n"
+
+#: src/mainmenu.c:603
+msgid ""
+"- The path to the 'iptables-restore'-command seems to be wrong. There was an "
+"error while testing it. Please check it in your system and correct it in the "
+"'Vuurmuur Config' section\n"
+msgstr ""
+"- Het pad naar het 'iptables-restore'-commando lijkt fout te zijn. Er was "
+"een fout bij het testen ervan. Controleer het pad en voer het correcte pad "
+"in in de Vuurmuur Configuratie\n"
+
+#: src/mainmenu.c:648
+#, c-format
+msgid "- No portranges/protocols defined in service '%s'\n"
+msgstr "- Geen poortbereiken/protocollen toegewezen aan service '%s'\n"
+
+#: src/mainmenu.c:685
+msgid "- No interfaces are defined. Please define one or more interfaces\n"
+msgstr "- Er zijn geen interfaces gedefinieerd. Definieer één of meer interfaces\n"
+
+#: src/mainmenu.c:706
+#, c-format
+msgid ""
+"- The interface '%s' does not have a device. Please enter a device in the "
+"Interfaces Section\n"
+msgstr ""
+"- De interface '%s' heeft geen apparaat. Voert u aub een apparaat in in de "
+"Interfaces Afdeling\n"
+
+#: src/mainmenu.c:738
+#, c-format
+msgid "- The ipaddress '%s' of interface '%s' is invalid\n"
+msgstr "- Het IP Adres '%s' van interface '%s' is ongeldig\n"
+
+#: src/mainmenu.c:770
+#, c-format
+msgid ""
+"- The ipaddress '%s' of interface '%s' (%s) does not match the ipaddress of "
+"the actual interface (%s)\n"
+msgstr ""
+"- Het IP Adres '%s' van interface '%s' (%s) komt niet overeen met het IP "
+"Adres van de werkelijke interface (%s)\n"
+
+#: src/mainmenu.c:781
+msgid ""
+"- No interfaces are active. Please make sure that at least one of the "
+"interfaces is active\n"
+msgstr ""
+"- Er zijn geen actieve interfaces. Zorg ervoor dat er tenminste één "
+"interface actief is\n"
+
+#: src/mainmenu.c:818
+msgid ""
+"- No zones are defined. Please define one or more zones, and at least one "
+"network\n"
+msgstr ""
+"- Er zijn geen zones gedefinieerd. Zorg ervoor dat er tenminste één zone en "
+"één netwerk zijn gedefinieerd\n"
+
+#: src/mainmenu.c:844
+#, c-format
+msgid "- The host '%s' does not have an IPAddress\n"
+msgstr "- De host '%s' heeft geen IP Adres\n"
+
+#: src/mainmenu.c:861
+#, c-format
+msgid "- The IPAddress '%s' of host '%s' is invalid\n"
+msgstr "- Het IP Adres '%s' van host '%s' is ongeldig\n"
+
+#: src/mainmenu.c:870
+#, c-format
+msgid ""
+"- The IPAddress '%s' of host '%s' does not belong to network '%s' with "
+"netmask '%s'\n"
+msgstr ""
+"- Het IP Adres '%s' van host '%s' behoort niet tot het network '%s' met "
+"netmask '%s'\n"
+
+#: src/mainmenu.c:884
+#, c-format
+msgid ""
+"- The network '%s' as no interfaces attached to it. Please attach one or "
+"more interfaces to it in the Zones Section\n"
+msgstr ""
+"- Aan het netwerk '%s' zijn geen interfaces toegewezen. Wijst u aub één of "
+"meer interfaces toe in de Zones Afdeling\n"
+
+#: src/mainmenu.c:893
+#, c-format
+msgid "- The network address for network '%s' is missing. See the Zones Section\n"
+msgstr ""
+"- Het netwerk adres van netwerk '%s' is niet ingevuld. Zie de Zones "
+"Afdeling\n"
+
+#: src/mainmenu.c:905
+#, c-format
+msgid "- The network address '%s' of network '%s' is invalid."
+msgstr "- Het netwerk adres '%s' van netwerk '%s' is ongeldig."
+
+#: src/mainmenu.c:915
+#, c-format
+msgid "- The netmask for network '%s' is missing. See the Zones Section\n"
+msgstr "- Het netmask van netwerk '%s' is niet ingevuld. Zie de Zones Afdeling\n"
+
+#: src/mainmenu.c:927
+#, c-format
+msgid "- The netmask '%s' of network '%s' is invalid. See the Zones Section\n"
+msgstr "- Het netmask '%s' van netwerk '%s' is ongeldig. Zie de Zones Afdeling\n"
+
+#: src/mainmenu.c:937
+msgid ""
+"- No networks are defined. Please make sure that you define at least one "
+"network. See the Zones Section\n"
+msgstr ""
+"- Er zijn geen netwerken gedefinieerd. Zorg ervoor dat er tenminste één "
+"netwerk is gedefinieerd . Zie de Zones afdeling\n"
+
+#: src/mainmenu.c:942
+msgid ""
+"- No networks are active. Please make sure that at least one of the networks "
+"is active. See the Zones Section\n"
+msgstr ""
+"- Er zijn geen actieve netwerken. Zorg ervoor dat tenminste één netwerk "
+"actief is. Zie de Zones afdeling\n"
+
+#: src/mainmenu.c:1018
+msgid "Not connected"
+msgstr "Niet verbonden"
+
+#: src/mainmenu.c:1019
+msgid "Success"
+msgstr "Gelukt"
+
+#: src/mainmenu.c:1020
+msgid "No changes"
+msgstr "Geen veranderingen"
+
+#: src/mainmenu.c:1021 src/templates.c:592 src/strings.h:97
+msgid "Error"
+msgstr "Fout"
+
+#: src/mainmenu.c:1022
+msgid "Timed out"
+msgstr "Tijd verstreken"
+
+#: src/mainmenu.c:1084 src/mainmenu.c:1091
+msgid "Applying changes ..."
+msgstr "Bezig met toepassen ..."
+
+#: src/mainmenu.c:1293
+msgid "applying changes failed. Please check error.log."
+msgstr "toepassen van de wijzigingen is mislukt. Controleert u error.log."
+
+#. TRANSLATORS: max 6 characters
+#: src/mainmenu.c:1351
+msgid "  OK  "
+msgstr "  OK  "
+
+#. TRANSLATORS: max 6 characters
+#: src/mainmenu.c:1357
+msgid " Warn "
+msgstr "Let op"
+
+#. TRANSLATORS: max 6 characters
+#: src/mainmenu.c:1363
+msgid " Fail "
+msgstr " Fout "
+
+#: src/mainmenu.c:1418 src/mainmenu.c:1464
+msgid "Apply Changes"
+msgstr "Wijzigingen toepassen"
+
+#: src/mainmenu.c:1419
+msgid "The overall status is not OK. Apply anyway?"
+msgstr "De algemene status is niet OK? Toch toepassen?"
+
+#: src/mainmenu.c:1433
+msgid "will not apply changes if the overall status is 'fail'."
+msgstr "zal niet toepassen als de algemene status 'fout' is."
+
+#: src/mainmenu.c:1453 src/rules_form.c:1606 src/rules_form.c:1871
+#: src/rules_form.c:1980
+msgid "Rules"
+msgstr "Regels"
+
+#: src/mainmenu.c:1454 src/zones_section.c:6622 src/zones_section.c:6892
+msgid "BlockList"
+msgstr "Blokkeerlijst"
+
+#: src/mainmenu.c:1455 src/zones_section.c:6193 src/zones_section.c:6307
+#: src/zones_section.c:6398 src/zones_section.c:6485 src/zones_section.c:6504
+msgid "Zones"
+msgstr "Zones"
+
+#: src/mainmenu.c:1457 src/services_section.c:2658 src/services_section.c:2775
+#: src/services_section.c:2876 src/services_section.c:2949
+msgid "Services"
+msgstr "Services"
+
+#: src/mainmenu.c:1466
+msgid "Quit"
+msgstr "Afsluiten"
+
+#: src/mainmenu.c:1562
+#, c-format
+msgid "calloc failed: %s."
+msgstr "calloc mislukt: %s."
+
+#: src/mainmenu.c:1576
+msgid "Main Menu"
+msgstr "Hoofdmenu"
+
+#: src/mainmenu.c:1628 src/mainmenu.c:1664
+#, c-format
+msgid "Welcome to Vuurmuur_conf %s"
+msgstr "Welkom bij Vuurmuur_conf %s"
+
+#: src/mainmenu.c:1630
+msgid "Overall"
+msgstr "Algemeen"
+
+#: src/mainmenu.c:1633
+msgid "Backend"
+msgstr "Backend"
+
+#: src/mainmenu.c:1635
+msgid "Config"
+msgstr "Configuratie"
+
+#: src/mainmenu.c:1637
+msgid "Settings"
+msgstr "Instellingen"
+
+#: src/mainmenu.c:1640
+msgid "Daemons"
+msgstr "Processen"
+
+#: src/mainmenu.c:1643
+msgid "System"
+msgstr "Systeem"
+
+#. TRANSLATORS: max 27 chars.
+#: src/mainmenu.c:1650
+msgid "Press F5 for details."
+msgstr "Druk F5 voor details."
+
+#: src/mainmenu.c:1679
+msgid "Main"
+msgstr "Hoofdmenu"
+
+#: src/mainmenu.c:1684
+msgid "Convert Rules"
+msgstr "Converteer Regels"
+
+#: src/mainmenu.c:1685
+msgid "Convert the rules to the new format (recommended)?"
+msgstr "Regels naar het nieuwe formaat converteren (aangeraden)?"
+
+#: src/mainmenu.c:1691
+msgid "converting rules failed."
+msgstr "converteren van de regels is mislukt."
+
+#: src/mainmenu.c:1695
+msgid "Rules converted successfully."
+msgstr "Regels met succes geconverteerd."
+
+#: src/mainmenu.c:1710
+msgid "Convert BlockList"
+msgstr "Converteer Blokkeerlijst"
+
+#: src/mainmenu.c:1711
+msgid "Convert the BlockList to the new format (recommended)?"
+msgstr "Blokkeerlijst naar het nieuwe formaat converteren (aangeraden)?"
+
+#: src/mainmenu.c:1717
+msgid "converting BlockList failed."
+msgstr "converteren van Blokkeerlijst mislukt."
+
+#: src/mainmenu.c:1721
+msgid "BlockList converted successfully."
+msgstr "Blokkeerlijst met succes geconverteerd."
+
+#: src/mainmenu.c:2074
+msgid "One or more problems were detected in your current setup. Below is a list\n"
+msgstr ""
+"Er zijn één of meer problemen gedetecteerd in uw systeem. Hieronder volgt "
+"een lijst\n"
+
+#: src/mainmenu.c:2110
+msgid "No problems were detected in your setup\n"
+msgstr "Er zijn geen problemen gedetecteerd in uw systeem\n"
+
+#: src/navigation.c:362
+msgid "the double quote sign \" is not allowed in the commentfield."
+msgstr "het trema teken \" is niet toegestaan in het commentaarveld."
+
+#: src/navigation.c:367
+msgid "the percent sign is not allowed in the commentfield."
+msgstr "het procentteken is niet toegestaan in het commentaarveld."
+
+#: src/rules_form.c:212
+msgid "Moving rule..."
+msgstr "Verplaatsen regel..."
+
+#: src/rules_form.c:282
+msgid "Move Rule"
+msgstr "Verplaats Regel"
+
+#: src/rules_form.c:308
+msgid "Enter the new rule number:"
+msgstr "Voer het nieuwe regelnummer in:"
+
+#: src/rules_form.c:309
+#, c-format
+msgid "Cur: %d, Min: 1, Max: %d"
+msgstr "Huidig: %d, Min: 1, Max: %d"
+
+#: src/rules_form.c:1424
+msgid "move"
+msgstr "verplaats"
+
+#: src/rules_form.c:1454
+msgid "Rules Section"
+msgstr "Regel Afdeling"
+
+#. TRANSLATORS: max 3 chars
+#: src/rules_form.c:1595
+msgid "Nr."
+msgstr "Nr."
+
+#: src/rules_form.c:1596 src/rules_form.c:3261 src/rules_form.c:4123
+msgid "Action"
+msgstr "Actie"
+
+#: src/rules_form.c:1597 src/rules_form.c:3340 src/strings.h:40
+msgid "Service"
+msgstr "Service"
+
+#: src/rules_form.c:1598 src/services_section.c:451
+msgid "Source"
+msgstr "Bron"
+
+#: src/rules_form.c:1599 src/services_section.c:457
+msgid "Destination"
+msgstr "Doel"
+
+#: src/rules_form.c:1600
+msgid "Options"
+msgstr "Opties"
+
+#: src/rules_form.c:1884
+msgid "Delete rule cancelled."
+msgstr "Verwijderen van regel geannuleerd."
+
+#: src/rules_form.c:1887
+#, c-format
+msgid "rule %d removed."
+msgstr "regel %d verwijderd."
+
+#: src/rules_form.c:2092
+msgid "Set the filter"
+msgstr "Stel filter in"
+
+#: src/rules_form.c:2092 src/filter.c:203
+msgid "Enter filter (leave empty for no filter)"
+msgstr "Voer filter in (laat leeg voor geen filter)"
+
+#: src/rules_form.c:2114
+#, c-format
+msgid "Active filter: '%s' (press 'f' and then just 'enter' to clear)."
+msgstr ""
+"Huidige filter: '%s' (druk 'f' en dan gewoon 'enter' om filter te "
+"verwijderen)."
+
+#: src/rules_form.c:2159
+msgid "Showing only forward rules."
+msgstr "Alleen doorstuurregels worden getoond."
+
+#: src/rules_form.c:2160 src/rules_form.c:2178 src/rules_form.c:2196
+msgid "Showing all rules."
+msgstr "Alle regels worden getoond."
+
+#: src/rules_form.c:2177
+msgid "Showing only input rules."
+msgstr "Alleen inkomende regels worden getoond."
+
+#: src/rules_form.c:2195
+msgid "Showing only output rules."
+msgstr "Alleen uitgaande regels worden getoond."
+
+#: src/rules_form.c:2285
+msgid "Delete rule"
+msgstr "Verwijderen regel"
+
+#: src/rules_form.c:2413
+msgid "new rule inserted."
+msgstr "nieuwe regel ingevoerd."
+
+#. TRANSLATORS: don't translate 'redirectport'.
+#: src/rules_form.c:2682
+msgid "redirectport must be 1-65535."
+msgstr "redirectport moet binnen 1-65536 vallen."
+
+#. TRANSLATORS: don't translate 'loglimit'.
+#: src/rules_form.c:2878
+msgid "loglimit must be 0-999."
+msgstr "loglimit moet binnen 0-999 vallen."
+
+#: src/rules_form.c:3044
+msgid "new connection limit must be 0-9999."
+msgstr "nieuwe connecties limiet moet binnen 0-9999 vallen."
+
+#: src/rules_form.c:3070
+msgid "new connection limit burst must be 0-9999."
+msgstr "nieuwe connecties limiet piek moet binnen 0-999 vallen."
+
+#: src/rules_form.c:3278
+msgid "Queue"
+msgstr "Queue"
+
+#: src/rules_form.c:3309
+msgid "Mark IptState"
+msgstr "Markeer IptState"
+
+#. TRANSLATORS: max 7 chars
+#: src/rules_form.c:3357
+msgid "Mark"
+msgstr "Markeer"
+
+#: src/rules_form.c:3382
+msgid "From"
+msgstr "Van"
+
+#: src/rules_form.c:3398
+msgid "Listen Interface"
+msgstr "Luister Interface"
+
+#: src/rules_form.c:3420
+msgid "To"
+msgstr "Naar"
+
+#: src/rules_form.c:3436
+msgid "Outgoing Interface"
+msgstr "Uitgaande Interface"
+
+#: src/rules_form.c:3477
+msgid "Log"
+msgstr "Log"
+
+#: src/rules_form.c:3505
+msgid "Prefix"
+msgstr "Invoeg"
+
+#: src/rules_form.c:3522
+msgid "Limit"
+msgstr "Limiet"
+
+#: src/rules_form.c:3546
+msgid "Rule Limit"
+msgstr "Regel Limiet"
+
+#: src/rules_form.c:3574
+msgid "Burst"
+msgstr "Piek"
+
+#: src/rules_form.c:3601
+msgid "Chain"
+msgstr "Chain"
+
+#: src/rules_form.c:3623
+msgid "Via"
+msgstr "Via"
+
+#: src/rules_form.c:3645 src/rules_form.c:4247
+msgid "Reject type"
+msgstr "Reject type"
+
+#: src/rules_form.c:3668
+msgid "Redirect port"
+msgstr "Redirect poort"
+
+#: src/rules_form.c:3693
+msgid "Listen port"
+msgstr "Luister prt"
+
+#: src/rules_form.c:3717
+msgid "Remote port"
+msgstr "Doel poort"
+
+#: src/rules_form.c:3744
+#, c-format
+msgid "Edit Rule: %d"
+msgstr "Bewerk Regel: %d"
+
+#: src/rules_form.c:3768
+msgid "Edit Rule"
+msgstr "Regel Bewerken"
+
+#: src/rules_form.c:4028
+msgid "Press SPACE to select an action."
+msgstr "Druk SPATIE om een actie te selecteren."
+
+#: src/rules_form.c:4030
+msgid "Press SPACE to select a service."
+msgstr "Druk SPATIE om een service te selecteren."
+
+#: src/rules_form.c:4032
+msgid "Press SPACE to select a host, group or network, or the firewall."
+msgstr "Druk SPATIE om een host, groep, netwerk of de firewall te selecteren."
+
+#: src/rules_form.c:4034
+msgid "Enter a text to be included in the log message."
+msgstr "Voer een tekst in die in het logbericht wordt ingevoegd."
+
+#: src/rules_form.c:4036
+msgid "Press SPACE to select a reject type."
+msgstr "Druk SPATIE om een 'reject type' te selecteren."
+
+#: src/rules_form.c:4038
+msgid "Enter a portnumber to redirect to."
+msgstr "Geef een poortnummer naar om te leiden (redirect)."
+
+#: src/rules_form.c:4040
+msgid "Enter a comma-sepparated list of ports for the firewall to listen on."
+msgstr "Voer een komma-gescheiden lijst in van poorten waar op wordt geluisterd."
+
+#: src/rules_form.c:4042
+msgid "Enter a comma-sepparated list of ports for the firewall to forward to."
+msgstr "Voer een komma-gescheiden lijst in van poorten waar naar wordt doorgestuurd."
+
+#: src/rules_form.c:4044 src/zones_section.c:725
+msgid "Enter a optional comment."
+msgstr "Voer een optioneel commentaar in."
+
+#: src/rules_form.c:4046
+msgid "Maximum number of loglines per second (to prevent DoS), 0 for no limit."
+msgstr "Maximaal aantal logregels per seconde (tegen DoS), 0 voor geen limiet."
+
+#: src/rules_form.c:4048
+msgid "Press SPACE to toggle logging of this rule."
+msgstr "Druk SPATIE om het loggen van deze regel te regelen."
+
+#: src/rules_form.c:4050
+msgid "Press SPACE to toggle marking the state of this rule (snort_inline)."
+msgstr "Druk SPATIE om de 'state' van deze regel te markeren (snort_inline)."
+
+#: src/rules_form.c:4052
+msgid "Press SPACE to toggle queue'ing of this rule."
+msgstr "Druk SPATIE om deze regel te 'queue-en'."
+
+#: src/rules_form.c:4054 src/rules_form.c:4056
+msgid "Press SPACE to select an interface to limit this rule to."
+msgstr "Druk SPATIE om een interface te selecteren voor het limiteren van de regel."
+
+#: src/rules_form.c:4058
+msgid "Press SPACE to select an interface. Read help for more info."
+msgstr "Druk SPATIE om een interface te selecteren. Lees hulp voor meer info."
+
+#: src/rules_form.c:4060
+msgid "Enter a nfmark. Use > 20.000.000 when using the QUEUE action."
+msgstr "Voer een nfmark in. Gebruik > 20.000.000 als de actie QUEUE wordt gebruikt."
+
+#: src/rules_form.c:4062
+msgid "Average new connections per second (to prevent DoS), 0 for no limit."
+msgstr "Gem. aantal nieuwe verbindingen per seconde (tegen DoS), 0 voor geen limiet."
+
+#: src/rules_form.c:4064
+msgid "Maximum new connections per second (to prevent DoS), 0 for no limit."
+msgstr "Max. aantal nieuwe verbindingen per seconde (tegen DoS), 0 voor geen limiet."
+
+#: src/rules_form.c:4124
+msgid "Select action"
+msgstr "Selecteer een actie"
+
+#: src/rules_form.c:4191 src/rules_form.c:4230 src/zones_section.c:5588
+#: src/zones_section.c:6736 src/zones_section.c:6823
+msgid "Select"
+msgstr "Selecteer"
+
+#: src/rules_form.c:4191
+msgid "Select a host, group or network"
+msgstr "Selecteer een host, groep of netwerk"
+
+#: src/rules_form.c:4230
+msgid "Select a service"
+msgstr "Selecteer een service."
+
+#: src/rules_form.c:4247
+msgid "Select reject type"
+msgstr "Selecteer reject type"
+
+#: src/rules_form.c:4258
+msgid "no from zone, please select one first."
+msgstr "geen van zone, selecteer er aub eerst een."
+
+#: src/rules_form.c:4329 src/rules_form.c:4344 src/rules_form.c:4437
+#: src/rules_form.c:4452
+msgid "Any"
+msgstr "Alle"
+
+#: src/rules_form.c:4337 src/rules_form.c:4445
+msgid "Set interface filter"
+msgstr "Voer interfacefilter in"
+
+#: src/rules_form.c:4337 src/rules_form.c:4445
+msgid "Select an interface ('Any' to disable filter)"
+msgstr "Selecteer een interface ('Alle' voor geen filter)"
+
+#: src/rules_form.c:4362
+msgid "no 'to' zone, please select one first."
+msgstr "geen 'naar' zone, selecteer er aub eerst een."
+
+#: src/rules_form.c:4501
+msgid "Set Via interface"
+msgstr "Selecteer Via interface"
+
+#: src/rules_form.c:4501 src/zones_section.c:3579
+msgid "Select an interface"
+msgstr "Selecteer een interface"
+
+#: src/rules_form.c:4531
+msgid "Not all required fields are filled in"
+msgstr "Niet alle verplichte velden zijn ingevuld"
+
+#: src/rules_form.c:4532
+msgid "Do you want to look at the rule again? (no will delete the rule)"
+msgstr "Wilt u er opnieuw naar kijken? ('nee' verwijderd de regel)"
+
+#: src/rules_form.c:4548
+msgid "An error was detected in the rule"
+msgstr "Er is een fout gedetecteerd in de regel"
+
+#: src/rules_form.c:4549
+msgid "Do you want to look at it again? (no will delete the rule)"
+msgstr "Wilt u er opnieuw naar kijken? (nee verwijderd de regel)"
+
+#: src/rules_form.c:4810
+msgid "Enter comment (optional)"
+msgstr "Voer een optioneel commentaar in."
+
+#: src/rules_form.c:4850
+msgid "Enter an optional comment."
+msgstr "Voer een optioneel commentaar in."
+
+#: src/services_section.c:133
+msgid ""
+"one of the ports is too low or too high. Valid port values for tcp and udp "
+"are 1-65535."
+msgstr ""
+"één van de poorten is te hoog of te laag. Geldige poort waarden voor tcp en "
+"udp zijn 1-65535."
+
+#: src/services_section.c:143
+msgid "please make sure that the 'high'-port is actually higher than the 'low'-port."
+msgstr "zorg er aub voor dat de 'hoge'-poort ook echt hoger is dan de 'lage'-poort."
+
+#: src/services_section.c:155
+msgid ""
+"one of the values is too high. Valid icmp-types values are 1-255 (note that "
+"41-255 are reserved). Valid icmp-codes are 0-16 (note that not all "
+"combinations of types and codes are valid. See http://www.iana.org/"
+"assignments/icmp-parameters for details)."
+msgstr ""
+"één van de waarden is te hoog. Geldige icmp-types zijn 1-255 (let op 41-255 "
+"zijn gereserveerd). Geldige icmp-codes zijn 0-16 (let op: niet alle "
+"combinaties van types en codes zijn geldig. Zie http://www.iana.org/"
+"assignments/icmp-parameters voor details)."
+
+#: src/services_section.c:206 src/services_section.c:223
+#: src/services_section.c:242 src/services_section.c:263
+#, c-format
+msgid "only one %s portrange is allowed."
+msgstr "er is slechts één portrange %s toegestaan."
+
+#: src/services_section.c:315 src/services_section.c:1592
+#, c-format
+msgid "saving the portranges failed (in: %s:%d)."
+msgstr "opslaan van de poortbereiken mislukt (in: %s:%d)."
+
+#: src/services_section.c:381
+msgid "TCP Portrange"
+msgstr "TCP poortbereik"
+
+#: src/services_section.c:383
+msgid "UDP Portrange"
+msgstr "UDP poortbereik"
+
+#: src/services_section.c:452 src/services_section.c:458
+msgid "Low"
+msgstr "Laag"
+
+#: src/services_section.c:453 src/services_section.c:459
+msgid "High"
+msgstr "Hoog"
+
+#: src/services_section.c:477 src/services_section.c:481
+msgid "Enter a portnumber (1-65535)."
+msgstr "Geef een poortnummer op (1-65535)."
+
+#: src/services_section.c:479 src/services_section.c:483
+msgid "Enter a portnumber (1-65535). This is the high-end of the range."
+msgstr "Geef een poortnummer op (1-65535). Dit is het hoge deel van het bereik."
+
+#: src/services_section.c:719
+msgid "ICMP Types"
+msgstr "ICMP Types"
+
+#: src/services_section.c:858
+#, c-format
+msgid "no ICMP-codes with selected ICMP-type (%d)."
+msgstr "er zijn geen bijbehorende ICMP-codes voor het geselecteerde ICMP-type (%d)."
+
+#: src/services_section.c:960
+msgid "ICMP Codes"
+msgstr "ICMP Codes"
+
+#: src/services_section.c:1148
+msgid "Type"
+msgstr "Type"
+
+#: src/services_section.c:1149
+msgid "Code"
+msgstr "Code"
+
+#: src/services_section.c:1162
+msgid "Press SPACE to select an ICMP-type."
+msgstr "Druk SPATIE om een ICMP-type te selecteren."
+
+#: src/services_section.c:1164
+msgid "Press SPACE to select an ICMP-code."
+msgstr "Druk SPATIE om een ICMP-code te selecteren."
+
+#: src/services_section.c:1371
+msgid "New portrange"
+msgstr "Nieuw poortbereik"
+
+#: src/services_section.c:1371
+msgid "Select a Protocol"
+msgstr "Selecteer een protocol"
+
+#: src/services_section.c:1528
+msgid "this protocol can only be removed or added."
+msgstr "dit protocol kan alleen worden verwijderd en toegevoegd."
+
+#: src/services_section.c:1533
+#, c-format
+msgid "edit of protocol %d not supported."
+msgstr "bewerken van protocol %d wordt niet ondersteund."
+
+#: src/services_section.c:1569
+msgid "Delete portrange"
+msgstr "Verwijderen poortbereik"
+
+#: src/services_section.c:1885 src/services_section.c:1926
+#: src/services_section.c:1957
+msgid "Edit Portrange"
+msgstr "Bewerk Poortbereik"
+
+#. TRANSLATORS: is an object active or in-active?
+#: src/services_section.c:2177 src/zones_section.c:2146
+#: src/zones_section.c:4317 src/zones_section.c:5751 src/strings.h:53
+msgid "Active"
+msgstr "Actief"
+
+#: src/services_section.c:2187 src/strings.h:55
+msgid "Broadcast"
+msgstr "Broadcast"
+
+#: src/services_section.c:2197
+msgid "Protocol helper"
+msgstr "Protocol Hulp"
+
+#: src/services_section.c:2223
+msgid "Warning: no port(range)s defined!"
+msgstr "Let op: geen poort(bereik) gedefinieerd!"
+
+#: src/services_section.c:2249 src/services_section.c:2387
+#: src/services_section.c:2434
+msgid "Edit Service"
+msgstr "Service Bewerken"
+
+#: src/services_section.c:2262
+msgid "Press <F6> to manage the portranges of this service."
+msgstr "Druk <F6> om de poortbereiken te beheren."
+
+#: src/services_section.c:2266
+msgid "List of portranges:"
+msgstr "Lijst van poortbereiken:"
+
+#: src/services_section.c:2268
+msgid "No portranges defined yet."
+msgstr "Nog geen poortbereiken toegewezen."
+
+#: src/services_section.c:2309
+msgid "uses no ports."
+msgstr "gebruikt geen poorten."
+
+#: src/services_section.c:2317
+msgid "unknown."
+msgstr "onbekend"
+
+#: src/services_section.c:2324
+#, c-format
+msgid "There are %d more portranges. Press F6 to manage."
+msgstr "Er zijn nog %d poortbereiken. Druk <F6> om te beheren."
+
+#: src/services_section.c:2355 src/strings.h:44
+msgid "portranges"
+msgstr "poortbereiken"
+
+#: src/services_section.c:2832
+msgid "Rename Service"
+msgstr "Hernoem Service"
+
+#: src/services_section.c:2856
+msgid "New Service"
+msgstr "Nieuwe Service"
+
+#: src/services_section.c:2856
+msgid "Please enter the name of the new service"
+msgstr "Voer aub de naam van de nieuwe service in:"
+
+#: src/services_section.c:2863
+#, c-format
+msgid "service %s already exists."
+msgstr "service %s bestaat al."
+
+#: src/services_section.c:2880
+msgid "creating new service failed."
+msgstr "creeëren van een service is mislukt."
+
+#: src/stat_sec.c:394
+msgid "Status Section"
+msgstr "Status Afdeling"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:440
+msgid "Hostname"
+msgstr "Hostnaam"
+
+#. TRANSLATORS: max 3 chars.
+#: src/stat_sec.c:444
+msgid "day"
+msgstr "dag"
+
+#. TRANSLATORS: this must be exactly the same regarding positions.
+#: src/stat_sec.c:446
+msgid "h  m  s"
+msgstr "u  m  s"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:450
+msgid "Uptime"
+msgstr "Uptime"
+
+#. TRANSLATORS: max 10 chars.
+#: src/stat_sec.c:455
+msgid "Load"
+msgstr "Belasting"
+
+#. TRANSLATORS: max 5 chars.
+#: src/stat_sec.c:459
+msgid "Free"
+msgstr "Vrij"
+
+#. TRANSLATORS: max 5 chars.
+#: src/stat_sec.c:461
+msgid "Cache"
+msgstr "Cache"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:463
+msgid "Buffer"
+msgstr "Buffer"
+
+#. TRANSLATORS: max 9 chars.
+#: src/stat_sec.c:465
+msgid "Memory(MB)"
+msgstr "Geheug(MB)"
+
+#. TRANSLATORS: max 7 chars.
+#: src/stat_sec.c:474
+msgid "Other"
+msgstr "Overig"
+
+#. TRANSLATORS: max 7 chars.
+#: src/stat_sec.c:477
+msgid "Current"
+msgstr "Huidig"
+
+#. TRANSLATORS: max 7 chars.
+#: src/stat_sec.c:479
+msgid "Maximal"
+msgstr "Maximaal"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:482
+msgid "Speed/s"
+msgstr "Snelheid/s"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:484
+msgid "Firewall"
+msgstr "Firewall"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:486
+msgid "Forwarded"
+msgstr "Doorgestuurd"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:492
+msgid "Down"
+msgstr "Omlaag"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:494
+msgid "Up"
+msgstr "Omhoog"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:500
+msgid "Recv"
+msgstr "Ontvangen"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:502
+msgid "Send"
+msgstr "Verzonden"
+
+#: src/stat_sec.c:845
+msgid "System Status"
+msgstr "Systeem Status"
+
+#: src/sys_sec.c:86
+msgid "Syn-flood protection"
+msgstr "Syn-overspoeling bescherming"
+
+#: src/sys_sec.c:90
+msgid "Echo-broadcast protect"
+msgstr "Echo-broadcast bescherming"
+
+#: src/templates.c:271
+msgid "Note: whitespaces not allowed."
+msgstr "Let op: geen spaties toegestaan."
+
+#: src/templates.c:529 src/vuurmuur_conf.c:463 src/strings.h:100
+msgid "Warning"
+msgstr "Waarschuwing"
+
+#: src/templates.c:530 src/templates.c:593
+msgid "Press any key to continue..."
+msgstr "Druk op een toets om door te gaan..."
+
+#: src/vuurmuur_conf.c:167
+msgid "commandline argument too long for option -c."
+msgstr "commandoregel argument te lang voor optie -c."
+
+#: src/vuurmuur_conf.c:178
+msgid "commandline debuglevel out of range."
+msgstr "commandoregel debugniveau buiten de limieten."
+
+#: src/vuurmuur_conf.c:195
+msgid "unknown commandline option."
+msgstr "onbekende commandoregel optie."
+
+#: src/vuurmuur_conf.c:278
+#, c-format
+msgid "This is Vuurmuur_conf %s, Copyright (c) 2003-2006 by Victor Julien"
+msgstr "Dit is Vuurmuur_conf %s, Copyright (c) 2003-2006 door Victor Julien"
+
+#: src/vuurmuur_conf.c:370
+#, c-format
+msgid "unloading the backends failed (in: %s:%d)."
+msgstr "afkoppelen van de backends mislukt (in: %s:%d)."
+
+#: src/vuurmuur_conf.c:463
+#, c-format
+msgid "title '%s' too long, window will be drawn without a title."
+msgstr "titel '%s' is te lang, scherm wordt getekend zonder titel."
+
+#: src/vuurmuur_conf.c:534
+#, c-format
+msgid "Version: %s"
+msgstr "Versie: %s"
+
+#: src/vuurmuur_conf.c:556
+msgid "Problem with the Vuurmuur config"
+msgstr "Probleem met de Vuurmuur configuratie"
+
+#: src/vuurmuur_conf.c:557
+msgid "Do you want to edit the config now?"
+msgstr "Wilt u de configuratie nu bewerken?"
+
+#: src/vuurmuur_conf.c:639
+msgid "Problem with the Vuurmuur_conf settings"
+msgstr "Probleem met de GUI instellingen..."
+
+#: src/vuurmuur_conf.c:640
+msgid "Do you want to edit the settings now?"
+msgstr "Wilt u de instellingen nu bewerken?"
+
+#: src/vuurmuur_conf.c:688
+msgid "loading the plugins failed."
+msgstr "laden van de plugins is mislukt."
+
+#: src/vuurmuur_conf.c:701
+msgid "intializing the services failed."
+msgstr "initialiseren van de services mislukt."
+
+#: src/vuurmuur_conf.c:714
+msgid "intializing the interfaces failed."
+msgstr "initialiseren van de interfaces mislukt."
+
+#: src/vuurmuur_conf.c:727
+msgid "intializing the zones failed."
+msgstr "initialiseren van de zones mislukt."
+
+#: src/vuurmuur_conf.c:780
+#, c-format
+msgid "attaching to shared memory failed: %s (in: %s:%d)."
+msgstr "koppelen met gedeeld geheugen mislukt: %s (in: %s:%d)."
+
+#: src/zones_section.c:282
+msgid "Edit Zone: Host"
+msgstr "Zone: Host Bewerken"
+
+#: src/zones_section.c:451
+#, c-format
+msgid "ipaddress '%s' doesn't belong in the network %s/%s."
+msgstr "IP Adres '%s' past niet in het netwerk %s/%s."
+
+#: src/zones_section.c:485
+#, c-format
+msgid "MAC Address '%s' is invalid."
+msgstr "MAC Adres '%s' is ongeldig."
+
+#: src/zones_section.c:538
+msgid "empty IP address. No rules will be created for this host."
+msgstr "leeg IP Adres. Er zullen er geen regels worden gecreeërd voor deze host."
+
+#: src/zones_section.c:618 src/zones_section.c:731 src/zones_section.c:2419
+#: src/zones_section.c:2524
+msgid "Note: parent zone/network is inactive."
+msgstr "Let op: onderliggende zone/netwerk is inactief."
+
+#: src/zones_section.c:623
+msgid "Edit Host"
+msgstr "Host Bewerken"
+
+#: src/zones_section.c:685
+msgid "saving host failed."
+msgstr "opslaan van de host is mislukt."
+
+#: src/zones_section.c:686
+msgid "Look at the host again?"
+msgstr "De host opnieuw bekijken?"
+
+#: src/zones_section.c:719
+msgid "Please enter an ipaddress (mandatory)."
+msgstr "Voer aub een IP Adres in (verplicht)."
+
+#: src/zones_section.c:721
+msgid "Please enter the macaddress (optional)."
+msgstr "Voer aub het MAC Adres in (optioneel)."
+
+#: src/zones_section.c:723
+msgid "If set to 'No' no rules will be created for it."
+msgstr ""
+"Als hier voor 'Nee' wordt gekozen zullen er geen regels voor worden "
+"gecreeërd."
+
+#: src/zones_section.c:877 src/zones_section.c:1239 src/zones_section.c:1425
+#: src/zones_section.c:1572 src/zones_section.c:4624 src/zones_section.c:5313
+#: src/zones_section.c:5591 src/zones_section.c:5817
+msgid "Hosts"
+msgstr "Hosts"
+
+#: src/zones_section.c:1178
+msgid "saving changed group to backend failed."
+msgstr "opslaan van de veranderde groep naar het backend mislukt."
+
+#: src/zones_section.c:1220 src/zones_section.c:2799 src/zones_section.c:6292
+msgid "open"
+msgstr "open"
+
+#: src/zones_section.c:1335
+msgid "Rename Host"
+msgstr "Hernoem Host"
+
+#: src/zones_section.c:1335
+msgid "Enter the new name of the host"
+msgstr "Voer de nieuwe naam van de host in"
+
+#: src/zones_section.c:1340 src/zones_section.c:1363 src/zones_section.c:1393
+#: src/zones_section.c:1416
+#, c-format
+msgid "invalid hostname '%s'."
+msgstr "ongeldige hostnaam '%s'."
+
+#: src/zones_section.c:1388
+msgid "New Host"
+msgstr "Nieuwe Host"
+
+#: src/zones_section.c:1388
+msgid "Enter the name of the new host"
+msgstr "Voer de naam van de nieuwe host in"
+
+#: src/zones_section.c:1447
+msgid "This host?"
+msgstr "Deze host?"
+
+#: src/zones_section.c:1483
+#, c-format
+msgid "host '%s' is still a member of %u group(s)."
+msgstr "host '%s' is nog lid van %u groep(en)."
+
+#: src/zones_section.c:1488
+#, c-format
+msgid "host '%s' is still in the blocklist (%u times)."
+msgstr "host '%s' staat nog in de BlokkeerLijst (%u keer)."
+
+#: src/zones_section.c:1495
+msgid "deleting zone failed."
+msgstr "verwijderen van zone is mislukt."
+
+#: src/zones_section.c:1711 src/zones_section.c:2424 src/zones_section.c:2534
+msgid "Members"
+msgstr "Leden"
+
+#: src/zones_section.c:1877
+msgid "please add some hosts to the network first."
+msgstr "voegt u aub eerst een host aan het netwerk toe."
+
+#: src/zones_section.c:1911
+msgid "New member"
+msgstr "Nieuw lid"
+
+#: src/zones_section.c:1911
+msgid "Select a host"
+msgstr "Selecteer een host"
+
+#: src/zones_section.c:2041
+msgid "removing groupmember failed."
+msgstr "verwijderen van het lid van de groep mislukt."
+
+#: src/zones_section.c:2182
+msgid "Edit Zone: Group"
+msgstr "Zone: Groep Bewerken"
+
+#: src/zones_section.c:2223
+msgid "Press <F6> to manage the members of this group."
+msgstr "Druk <F6> om de leden van de groep te beheren."
+
+#: src/zones_section.c:2227
+msgid "List of members:"
+msgstr "Lijst van leden:"
+
+#: src/zones_section.c:2229
+msgid "No members assigned yet."
+msgstr "Nog geen leden toegewezen."
+
+#: src/zones_section.c:2244
+#, c-format
+msgid "There are %d more members. Press F6 to manage."
+msgstr "Er zijn nog %d leden. Druk <F6> om te beheren."
+
+#: src/zones_section.c:2389 src/zones_section.c:2636
+msgid "members"
+msgstr "leden"
+
+#: src/zones_section.c:2414 src/zones_section.c:2517
+msgid "Warning: no members!"
+msgstr "Let op: geen leden!"
+
+#: src/zones_section.c:2430 src/zones_section.c:2476
+msgid "Edit Group"
+msgstr "Groep Bewerken"
+
+#: src/zones_section.c:2689 src/zones_section.c:2818 src/zones_section.c:2978
+#: src/zones_section.c:3110 src/zones_section.c:4626 src/zones_section.c:5314
+#: src/zones_section.c:5595 src/zones_section.c:5819
+msgid "Groups"
+msgstr "Groepen"
+
+#: src/zones_section.c:2900
+msgid "Rename Group"
+msgstr "Hernoem Groep"
+
+#: src/zones_section.c:2900
+msgid "Enter the new name of the group"
+msgstr "Voer de nieuwe naam van de groep in"
+
+#: src/zones_section.c:2905 src/zones_section.c:2928 src/zones_section.c:2956
+#, c-format
+msgid "invalid groupname '%s'."
+msgstr "groepsnaam '%s' is ongeldig."
+
+#: src/zones_section.c:2951
+msgid "New Group"
+msgstr "Nieuwe Groep"
+
+#: src/zones_section.c:2951
+msgid "Enter the name of the new group"
+msgstr "Voer de naam van de nieuwe groep in:"
+
+#: src/zones_section.c:2982
+msgid "failed to create new group."
+msgstr "creatie van nieuwe groep is mislukt."
+
+#: src/zones_section.c:2989
+#, c-format
+msgid "groupname '%s' is invalid."
+msgstr "groepsnaam '%s' is ongeldig."
+
+#: src/zones_section.c:3010
+msgid "This group?"
+msgstr "Deze groep?"
+
+#: src/zones_section.c:3035
+#, c-format
+msgid "group '%s' is still in the blocklist (%u times)."
+msgstr "groep '%s' staat nog in de BlokkeerLijst (%u keer)."
+
+#: src/zones_section.c:3043
+msgid "deleting group failed."
+msgstr "verwijderen van de groep is mislukt."
+
+#: src/zones_section.c:3579
+msgid "New interface"
+msgstr "Nieuwe Interface"
+
+#: src/zones_section.c:3600
+msgid "saving the interfaces failed."
+msgstr "opslaan van de interfaces is mislukt."
+
+#: src/zones_section.c:4327 src/zones_section.c:5315 src/strings.h:34
+msgid "Network"
+msgstr "Netwerk"
+
+#: src/zones_section.c:4338
+msgid "Netmask"
+msgstr "Netmask"
+
+#: src/zones_section.c:4350
+msgid "Loopback"
+msgstr "Loopback"
+
+#: src/zones_section.c:4365
+msgid "Class A"
+msgstr "Class A"
+
+#: src/zones_section.c:4380
+msgid "Class B"
+msgstr "Class B"
+
+#: src/zones_section.c:4395
+msgid "Class C"
+msgstr "Class C"
+
+#: src/zones_section.c:4410
+msgid "Class D"
+msgstr "Class D"
+
+#: src/zones_section.c:4425
+msgid "Class E"
+msgstr "Class E"
+
+#: src/zones_section.c:4440
+msgid "Test-net"
+msgstr "Test-net"
+
+#: src/zones_section.c:4455
+msgid "Link local net"
+msgstr "Link local net"
+
+#: src/zones_section.c:4470
+msgid "0.0.0.0/8 res."
+msgstr "0.0.0.0/8 res."
+
+#: src/zones_section.c:4485
+msgid "Broadcast src."
+msgstr "Broadcast src."
+
+#: src/zones_section.c:4500
+msgid "Broadcast dst."
+msgstr "Broadcast dst."
+
+#: src/zones_section.c:4515
+msgid "DHCP Server"
+msgstr "DHCP Server"
+
+#: src/zones_section.c:4530
+msgid "DHCP Client"
+msgstr "DHCP Client"
+
+#: src/zones_section.c:4577
+msgid "Edit Zone: Network"
+msgstr "Zone: Netwerk Bewerken"
+
+#: src/zones_section.c:4618
+msgid "Anti-spoofing"
+msgstr "Anti-spoofing"
+
+#: src/zones_section.c:4866
+msgid "interfaces"
+msgstr "interfaces"
+
+#: src/zones_section.c:4901 src/zones_section.c:5025
+msgid "Warning: no interfaces attached!"
+msgstr "Let op: geen interfaces toegewezen!"
+
+#: src/zones_section.c:4907 src/zones_section.c:5033
+msgid "Note: parent zone is inactive."
+msgstr "Let op: onderliggende zone is inactief."
+
+#: src/zones_section.c:4916 src/zones_section.c:4984 src/zones_section.c:5220
+#: src/zones_section.c:5815
+msgid "Networks"
+msgstr "Netwerken"
+
+#. TRANSLATORS: max 32 chars
+#: src/zones_section.c:5144
+#, c-format
+msgid "No network/netmask defined."
+msgstr "Geen netwerk/netmask opgegeven."
+
+#: src/zones_section.c:5233
+msgid "to enter the hosts/groups of this network"
+msgstr "om de hosts/groepen binnen te gaan"
+
+#: src/zones_section.c:5413
+msgid "Rename Network"
+msgstr "Hernoem Netwerk"
+
+#: src/zones_section.c:5413
+msgid "Enter the new name of the network"
+msgstr "Voer de nieuwe naam van het netwerk in"
+
+#: src/zones_section.c:5418 src/zones_section.c:5472
+#, c-format
+msgid "invalid networkname '%s'."
+msgstr "ongeldige netwerknaam '%s'."
+
+#: src/zones_section.c:5442
+msgid "renaming network failed."
+msgstr "hernoemen van het netwerk is mislukt."
+
+#: src/zones_section.c:5452 src/zones_section.c:5503
+#, c-format
+msgid "'%s' is an invalid name for a network."
+msgstr "'%s' is een ongeldige naam voor een netwerk."
+
+#: src/zones_section.c:5467
+msgid "New Network"
+msgstr "Nieuw Netwerk"
+
+#: src/zones_section.c:5467
+msgid "Enter the name of the new network"
+msgstr "Voer de naam van het nieuwe netwerk in"
+
+#: src/zones_section.c:5489
+msgid "adding network failed."
+msgstr "creeëren van het netwerk is mislukt."
+
+#: src/zones_section.c:5522
+msgid "This network?"
+msgstr "Dit netwerk?"
+
+#: src/zones_section.c:5535
+msgid "deleting network failed."
+msgstr "verwijderen van netwerk is mislukt."
+
+#: src/zones_section.c:5550
+msgid "unable to delete: network not empty."
+msgstr "kan niet verwijderen: netwerk niet leeg."
+
+#: src/zones_section.c:5588
+msgid "Hosts, Groups or this Network"
+msgstr "Hosts, Groepen of dit Netwerk"
+
+#: src/zones_section.c:5779
+msgid "Edit Zone: Zone"
+msgstr "Zone: Zone Bewerken"
+
+#: src/zones_section.c:5991
+msgid "Edit Zone"
+msgstr "Zone Bewerken"
+
+#: src/zones_section.c:6207
+msgid "to enter the networks of this zone"
+msgstr "om de netwerken binnen te gaan."
+
+#: src/zones_section.c:6356
+msgid "Rename Zone"
+msgstr "Hernoem Zone"
+
+#: src/zones_section.c:6356
+msgid "Enter the new name of the zone"
+msgstr "Voer de nieuwe naam van de zone in"
+
+#: src/zones_section.c:6377
+msgid "New Zone"
+msgstr "Nieuwe Zone"
+
+#: src/zones_section.c:6377
+msgid "Enter the name of the new zone"
+msgstr "Voer de naam van de nieuwe zone in"
+
+#: src/zones_section.c:6420
+msgid "This zone?"
+msgstr "Deze zone?"
+
+#: src/zones_section.c:6428
+#, c-format
+msgid "deleting zone failed (in: %s:%d)."
+msgstr "verwijderen van zone is mislukt (in: %s:%d)."
+
+#: src/zones_section.c:6442
+msgid "unable to delete: zone not empty."
+msgstr "kan niet verwijderen: zone niet leeg."
+
+#: src/zones_section.c:6717 src/zones_section.c:6739
+msgid "IPAddress"
+msgstr "IP Adres"
+
+#: src/zones_section.c:6718 src/zones_section.c:6770 src/zones_section.c:6775
+#: src/strings.h:30
+msgid "Host"
+msgstr "Host"
+
+#: src/zones_section.c:6719 src/zones_section.c:6770 src/strings.h:32
+msgid "Group"
+msgstr "Groep"
+
+#: src/zones_section.c:6736
+msgid "What do you want to block?"
+msgstr "Wat wilt u blokkeren?"
+
+#: src/zones_section.c:6741
+msgid "New IPAddress"
+msgstr "Nieuw IP Adres"
+
+#: src/zones_section.c:6741
+msgid "Enter the IPAddress to be blocked"
+msgstr "Voer het IP Adres in dat geblokkeerd moet worden"
+
+#: src/zones_section.c:6747
+#, c-format
+msgid "'%s' is not a valid ipaddress."
+msgstr "'%s' is geen geldig IP Adres."
+
+#: src/zones_section.c:6796
+msgid "please create one or more hosts/groups first."
+msgstr "creeërt u aub eerst één of meer hosts/groepen."
+
+#: src/zones_section.c:6823
+msgid "Select a host or group to block"
+msgstr "Selecteer een host of groep om te blokkeren"
+
+#: src/zones_section.c:6828
+#, c-format
+msgid "adding host/group to list failed (in: %s:%d)."
+msgstr "toevoegen van de host/groep aan de lijst is mislukt (in: %s:%d)."
+
+#: src/zones_section.c:6979
+msgid "Remove"
+msgstr "Verwijder"
+
+#: src/zones_section.c:6979
+msgid "This IP/Host/Group?"
+msgstr "Dit IP/Host/Groep?"
+
+#: src/strings.h:29
+msgid "host"
+msgstr "host"
+
+#: src/strings.h:31
+msgid "group"
+msgstr "groep"
+
+#: src/strings.h:33
+msgid "network"
+msgstr "netwerk"
+
+#: src/strings.h:35
+msgid "zone"
+msgstr "zone"
+
+#: src/strings.h:36
+msgid "Zone"
+msgstr "Zone"
+
+#: src/strings.h:37
+msgid "interface"
+msgstr "interface"
+
+#: src/strings.h:39
+msgid "service"
+msgstr "service"
+
+#: src/strings.h:42
+msgid "portrange"
+msgstr "poortbereik"
+
+#: src/strings.h:43
+msgid "Portrange"
+msgstr "Poortbereik"
+
+#: src/strings.h:45
+msgid "Portranges"
+msgstr "Poortbereiken"
+
+#. TRANSLATORS: is an object active or in-active?
+#: src/strings.h:51
+msgid "active"
+msgstr "actief"
+
+#: src/strings.h:54
+msgid "broadcast"
+msgstr "broadcast"
+
+#: src/strings.h:56
+msgid "protocol helper"
+msgstr "protocol Hulp"
+
+#: src/strings.h:57
+msgid "Protocol Helper"
+msgstr "Protocol Hulp"
+
+#: src/strings.h:58
+msgid "IP address"
+msgstr "IP Adres"
+
+#: src/strings.h:59
+msgid "MAC address"
+msgstr "MAC Adres"
+
+#. TRANSLATORS: max 18 chars
+#: src/strings.h:61
+msgid "dynamic IP Address"
+msgstr "dynamisch IP Adres"
+
+#. TRANSLATORS: max 18 chars
+#: src/strings.h:63
+msgid "Dynamic IP Address"
+msgstr "Dynamisch IP Adres"
+
+#. TRANSLATORS: e.g. eth0 or ppp0
+#: src/strings.h:65
+msgid "device"
+msgstr "apparaat"
+
+#. TRANSLATORS: e.g. eth0 or ppp0
+#: src/strings.h:67
+msgid "Device"
+msgstr "Apparaat"
+
+#. TRANSLATORS: e.g. eth0:0 is a virtual device
+#: src/strings.h:69
+msgid "virtual"
+msgstr "virtueel"
+
+#. TRANSLATORS: e.g. eth0:0 is a virtual device
+#: src/strings.h:71
+msgid "Virtual"
+msgstr "Virtueel"
+
+#: src/strings.h:72
+msgid "network address"
+msgstr "netwerk adres"
+
+#: src/strings.h:73
+msgid "netmask"
+msgstr "netmask"
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: src/strings.h:76
+msgid "rules are changed"
+msgstr "regels zijn aangepast"
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: src/strings.h:78
+msgid "number of rules"
+msgstr "aantal regels"
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: src/strings.h:80
+msgid "listed below"
+msgstr "lijst hieronder"
+
+#: src/strings.h:82
+msgid "rename failed"
+msgstr "hernoemen mislukt"
+
+#: src/strings.h:83
+msgid "delete failed"
+msgstr "verwijderen mislukt."
+
+#: src/strings.h:84
+msgid "invalid name"
+msgstr "ongeldige naam"
+
+#: src/strings.h:85
+msgid "Please enter the name"
+msgstr "Voer aub de naam in"
+
+#: src/strings.h:91
+msgid "Yes"
+msgstr "Ja"
+
+#: src/strings.h:92
+msgid "No"
+msgstr "Nee"
+
+#: src/strings.h:94
+msgid "OK"
+msgstr "OK"
+
+#: src/strings.h:95
+msgid "FAILED"
+msgstr "MISLUKT"
+
+#: src/strings.h:98
+msgid "Internal Error"
+msgstr "Interne Fout"
+
+#: src/strings.h:99
+msgid "Info"
+msgstr "Info"
+
+#: src/strings.h:102
+msgid "saving to backend failed"
+msgstr "opslaan naar het backend mislukt"
+
+#: src/strings.h:104
+msgid "opening file failed"
+msgstr "openen bestand is mislukt"
+
+#: src/strings.h:106
+msgid "only ASCII is allowed in the prefix field."
+msgstr "alleen ASCII is toegestaan in het invoeg veld."
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: src/strings.h:112
+msgid "has been changed"
+msgstr "is aangepast"
+
+#. TRANSLATORS: example: service 'http' has been changed: portrange 'TCP: 1024:65535->80' has been added.
+#: src/strings.h:114
+msgid "has been added"
+msgstr "is toegevoegd"
+
+#. TRANSLATORS: example: service 'http' has been created.
+#: src/strings.h:116
+msgid "has been created"
+msgstr "is aangemaakt"
+
+#. TRANSLATORS: example: service 'htpt' has been renamed to 'http'.
+#: src/strings.h:118
+msgid "has been renamed to"
+msgstr "is hernoemd naar"
+
+#. TRANSLATORS: example: service 'http' has been changed: portrange 'TCP: 1024:65535->80' has been removed.
+#: src/strings.h:120
+msgid "has been removed"
+msgstr "is verwijderd"
+
+#. TRANSLATORS: example: service 'http' has been deleted.
+#: src/strings.h:122
+msgid "has been deleted"
+msgstr "is verwijderd"
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: src/strings.h:124
+msgid "is now set to"
+msgstr "is nu ingesteld op"
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: src/strings.h:126
+msgid "was"
+msgstr "was"
+
+#. TRANSLATORS: example: service '%s' has been changed: the comment has been changed.
+#: src/strings.h:129
+msgid "the comment has been changed"
+msgstr "het commentaar is aangepast"
+
+#: src/strings.h:134
+msgid "this protocol doesn't use ports."
+msgstr "dit protocol gebruikt geen poorten."
+
+#: src/strings.h:139
+msgid "a member has been added"
+msgstr "een lid is toegevoegd"
+
+#: src/strings.h:140
+msgid "a member has been removed"
+msgstr "een lid is verwijderd"
+
+#: src/strings.h:145
+msgid "an interface has been added"
+msgstr "een interface is toegevoegd"
+
+#: src/strings.h:146
+msgid "an interface has been removed"
+msgstr "een interface is verwijderd"
+
+#: src/strings.h:151 src/strings.h:152
+msgid "has been added to the blocklist"
+msgstr "is toegevoegd aan de blokkeerlijst"
+
+#: src/strings.h:158
+msgid "remove"
+msgstr "verwijder"
+
+#: src/strings.h:165
+msgid "Initializing Services"
+msgstr "Initialiseren Services"
+
+#: src/strings.h:166
+msgid "Initializing Interfaces"
+msgstr "Initialiseren Interfaces"
+
+#: src/strings.h:167
+msgid "Initializing Zones"
+msgstr "Initialiseren Zones"
+
+#: src/strings.h:168
+msgid "Initializing Rules"
+msgstr "Initialiseren Regels"
+
+#: src/strings.h:169
+msgid "Initializing BlockList"
+msgstr "Initialiseren Blokkeerlijst"
+
+#: src/strings.h:170
+msgid "Loading plugins"
+msgstr "Laden plugins"
+
+#: src/strings.h:171
+msgid "Loading Vuurmuur_conf settings"
+msgstr "Laden GUI instellingen"
+
+#: src/strings.h:172
+msgid "Loading Vuurmuur config"
+msgstr "Laden Vuurmuur Configuratie"
+
+#: src/strings.h:174
+msgid "Connecting to"
+msgstr "Verbinden met"
+
+#: src/strings.h:179
+msgid "The date is now"
+msgstr "De datum is nu"
+
+#: src/strings.h:180
+msgid "The action is now"
+msgstr "De actie is nu"
+
+#: src/strings.h:181
+msgid "The service is now"
+msgstr "De service is nu"
+
+#: src/strings.h:182
+msgid "The source is now"
+msgstr "De bron is nu"
+
+#: src/strings.h:183
+msgid "The destination is now"
+msgstr "Het doel is nu"
+
+#: src/strings.h:184
+msgid "The prefix is now"
+msgstr "De invoeg is nu"
+
+#: src/strings.h:185
+msgid "The details are now"
+msgstr "De details zijn nu"
+
+#: src/strings.h:186
+msgid "logging options are only available for the traffic.log."
+msgstr "logging opties zijn alleen beschikbaar voor de traffic.log."
+
+#: src/strings.h:191
+msgid "the action 'Bounce' requires the 'via' option to be set."
+msgstr "de 'Bounce' actie vereist het instellen van de 'via' optie."
+
+#: src/strings.h:192
+msgid "the action 'Redirect' requires the 'Redirect port' option to be set."
+msgstr "de 'Redirect' actie vereist het instellen van de 'Redirect poort' optie. "
+
+#: src/filter.c:158
+msgid "Filter"
+msgstr "Filter"
+
+#: src/filter.c:207
+msgid "show lines that don't match"
+msgstr "toon regels die niet overeen komen"
+
+#: src/filter.c:300
+msgid "setting filter failed."
+msgstr "instellen van filter mislukt."
+
+#: src/gui.c:35
+msgid "Please Wait"
+msgstr "Even geduld a.u.b."
+
+#: src/statevent.c:481
+msgid "Manage Connection"
+msgstr "Beheer Verbinding"
+
+#: src/statevent.c:520 src/statevent.c:806
+msgid "Kill this connection"
+msgstr "Sluit deze verbinding af"
+
+#: src/statevent.c:521
+msgid "Kill all connections with this service/source/destination"
+msgstr "Alle verbindingen met deze service/bron/doel afsluiten"
+
+#: src/statevent.c:524 src/statevent.c:810
+msgid "Kill options"
+msgstr "Afsluit opties"
+
+#: src/statevent.c:527 src/statevent.c:813
+#, c-format
+msgid "Kill all connections with source %s"
+msgstr "Sluit alle verbindingen met bron %s"
+
+#: src/statevent.c:530 src/statevent.c:816
+#, c-format
+msgid "Kill all connections with destination %s"
+msgstr "Sluit alle verbindingen met doel %s"
+
+#: src/statevent.c:533 src/statevent.c:536 src/statevent.c:819
+#: src/statevent.c:822
+#, c-format
+msgid "Kill all connections of %s"
+msgstr "Sluit alle verbindingen van %s"
+
+#: src/statevent.c:539 src/statevent.c:825
+msgid "BlockList options"
+msgstr "Blokkeerlijst opties"
+
+#: src/statevent.c:542 src/statevent.c:828
+#, c-format
+msgid "Add source %s to BlockList"
+msgstr "Voeg bron %s toe aan Blokkeerlijst"
+
+#: src/statevent.c:545 src/statevent.c:831
+#, c-format
+msgid "Add destination %s to BlockList"
+msgstr "Voeg doel %s toe aan Blokkeerlijst"
+
+#: src/statevent.c:548 src/statevent.c:834
+msgid "Add both source and destination to BlockList"
+msgstr "Voeg zowel bron als doel toe aan Blokkeerlijst"
+
+#: src/statevent.c:591
+msgid "Kill connection"
+msgstr "Sluit verbinding af"
+
+#: src/statevent.c:601 src/statevent.c:617 src/statevent.c:630
+#: src/statevent.c:643 src/statevent.c:657 src/statevent.c:879
+#: src/statevent.c:895 src/statevent.c:908 src/statevent.c:921
+#: src/statevent.c:935
+msgid "Kill connections"
+msgstr "Sluit verbindingen af"
+
+#: src/statevent.c:667 src/statevent.c:675 src/statevent.c:683
+#: src/statevent.c:945 src/statevent.c:953 src/statevent.c:961
+msgid "Add to BlockList and Apply Changes"
+msgstr "Voeg toe aan Blokkeerlijst en pas veranderingen toe."
+
+#: src/statevent.c:755
+msgid "Manage Log"
+msgstr "Beheer Log"
+
+#: src/statevent.c:1019
+msgid "Manage Connections"
+msgstr "Beheer Verbindingen"
+
+#: src/statevent.c:1020
+msgid "connection actions"
+msgstr "verbinding acties"
+
+#: src/statevent.c:1021
+msgid "No connections to act on."
+msgstr "Geen verbindingen om te beheren."
+
+#: src/statevent.c:1029
+msgid "Manage Logging"
+msgstr "Beheer Logging"
+
+#: src/statevent.c:1030
+msgid "logging actions"
+msgstr "logging acties"
+
+#: src/statevent.c:1031
+msgid "No logs to act on."
+msgstr "Geen logregels om te beheren."
+

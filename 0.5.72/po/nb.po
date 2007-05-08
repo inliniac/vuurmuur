@@ -1,0 +1,3791 @@
+# translation of nl.po to 
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# translation of nl.po to
+# German translations for vuurmuur_conf package.
+# Copyright (C) 2005 Holger Ohmacht
+# This file is distributed under the same license as the vuurmuur_conf package.
+# Holger Ohmacht <info@holger-ohmacht.de>, 2005.
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: de\n"
+"Report-Msgid-Bugs-To: http://vuurmuur.sourceforge.net/\n"
+"POT-Creation-Date: 2006-12-15 22:18+0100\n"
+"PO-Revision-Date: 2005-12-06 21:36+0100\n"
+"Last-Translator: Per Olav Siggerud <perolav (at) siggerud dot net>\n"
+"Language-Team: <>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: KBabel 1.9.1\n"
+"X-Poedit-Bookmarks: 568,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
+
+#: src/bw_sec.c:87 src/help.c:86 src/help.c:95 src/help.c:123 src/help.c:171
+#: src/help.c:180 src/help.c:207 src/if_sec.c:1178 src/logview_section.c:897
+#: src/logview_section.c:935 src/logview_section.c:976
+#: src/logview_section.c:1083 src/logview_section.c:1142
+#: src/logview_section.c:1196 src/rules_form.c:953 src/rules_form.c:1465
+#: src/rules_form.c:2644 src/rules_form.c:2668 src/rules_form.c:2695
+#: src/rules_form.c:2715 src/rules_form.c:2751 src/rules_form.c:2796
+#: src/rules_form.c:2829 src/rules_form.c:2864 src/rules_form.c:2891
+#: src/rules_form.c:2912 src/rules_form.c:2933 src/rules_form.c:2952
+#: src/rules_form.c:2972 src/rules_form.c:2992 src/rules_form.c:3012
+#: src/rules_form.c:3031 src/rules_form.c:3057 src/rules_form.c:4160
+#: src/rules_form.c:4207 src/rules_form.c:4673 src/services_section.c:660
+#: src/services_section.c:673 src/services_section.c:770
+#: src/services_section.c:896 src/services_section.c:908
+#: src/services_section.c:1001 src/services_section.c:1364
+#: src/services_section.c:1685 src/services_section.c:1693 src/templates.c:218
+#: src/templates.c:314 src/zones_section.c:1323 src/zones_section.c:1350
+#: src/zones_section.c:1403 src/zones_section.c:1462 src/zones_section.c:1555
+#: src/zones_section.c:2641 src/zones_section.c:2888 src/zones_section.c:2915
+#: src/zones_section.c:2994 src/zones_section.c:3016 src/zones_section.c:3096
+#: src/zones_section.c:3274 src/zones_section.c:5151 src/zones_section.c:5403
+#: src/zones_section.c:5428 src/zones_section.c:5606 src/zones_section.c:5662
+#: src/zones_section.c:6802
+#, c-format
+msgid "malloc failed: %s (in: %s:%d)."
+msgstr "malloc-feil: %s (in: %s:%d)."
+
+#: src/bw_sec.c:222 src/stat_sec.c:222
+#, c-format
+msgid "opening '%s' failed: %s (in: %s:%d)."
+msgstr "kunne ikke åpne '%s': %s (in: %s:%d)."
+
+#: src/bw_sec.c:345
+#, c-format
+msgid "could not parse month '%s' (in: %s:%d)."
+msgstr "kunne ikke lese måned '%s': (in: %s:%d)."
+
+#: src/bw_sec.c:403
+#, c-format
+msgid "closing of '%s' failed: %s (in: %s:%d)."
+msgstr "Lukking av '%s' feilet: %s (in: %s:%d)."
+
+#: src/bw_sec.c:412
+#, c-format
+msgid "removing '%s' failed (unlink): %s (in: %s:%d)."
+msgstr "fjerning av '%s' feilet (unlink): %s (in: %s:%d)."
+
+#: src/bw_sec.c:463 src/if_sec.c:1156 src/rules_form.c:1490
+#: src/rules_form.c:3251 src/rules_form.c:4312 src/rules_form.c:4418
+#: src/rules_form.c:4477 src/rules_form.c:4786 src/services_section.c:401
+#: src/services_section.c:632 src/services_section.c:637
+#: src/services_section.c:642 src/services_section.c:869
+#: src/services_section.c:875 src/services_section.c:881
+#: src/services_section.c:1116 src/services_section.c:1649
+#: src/services_section.c:2171 src/stat_sec.c:319 src/zones_section.c:215
+#: src/zones_section.c:807 src/zones_section.c:1646 src/zones_section.c:1884
+#: src/zones_section.c:2140 src/zones_section.c:2619 src/zones_section.c:3559
+#: src/zones_section.c:3642 src/zones_section.c:4310 src/zones_section.c:5126
+#: src/zones_section.c:5746 src/zones_section.c:6122 src/zones_section.c:6553
+#: src/filter.c:177
+#, c-format
+msgid "calloc failed: %s (in: %s:%d)."
+msgstr "calloc-feil: %s (in: %s:%d)."
+
+#: src/bw_sec.c:525
+msgid "Traffic Volume Section"
+msgstr "Trafikkmengde avsnitt"
+
+#: src/bw_sec.c:528 src/if_sec.c:1257 src/if_sec.c:1268
+#: src/logview_section.c:874 src/logview_section.c:1037
+#: src/logview_section.c:1047 src/logview_section.c:1059
+#: src/logview_section.c:1417 src/mainmenu.c:1057 src/rules_form.c:284
+#: src/rules_form.c:1456 src/rules_form.c:1475 src/rules_form.c:3747
+#: src/rules_form.c:4812 src/services_section.c:2679
+#: src/services_section.c:2690 src/templates.c:861 src/templates.c:872
+#: src/zones_section.c:284 src/zones_section.c:916 src/zones_section.c:927
+#: src/zones_section.c:1731 src/zones_section.c:1742 src/zones_section.c:2721
+#: src/zones_section.c:2732 src/zones_section.c:3726 src/zones_section.c:3737
+#: src/zones_section.c:5241 src/zones_section.c:5252 src/zones_section.c:6215
+#: src/zones_section.c:6226 src/zones_section.c:6660 src/zones_section.c:6671
+#: src/filter.c:161
+msgid "creating window failed."
+msgstr "kunne ikke tegne vindu"
+
+#: src/bw_sec.c:534 src/rules_form.c:3753 src/rules_form.c:4818
+#: src/zones_section.c:289 src/filter.c:168
+msgid "creating panel failed."
+msgstr "kunne ikke lage panel"
+
+#: src/bw_sec.c:556 src/rules_form.c:3760 src/rules_form.c:4825
+#: src/zones_section.c:313
+msgid "creating form failed."
+msgstr "kunne ikke generere skjema"
+
+#: src/bw_sec.c:568
+msgid "posting the form failed."
+msgstr "kunne ikke vise skjema"
+
+#: src/bw_sec.c:572 src/strings.h:38
+msgid "Interface"
+msgstr "Nettverksadapter"
+
+#: src/bw_sec.c:573
+msgid "Today"
+msgstr "I dag"
+
+#. TRANSLATORS: max 6 chars.
+#: src/bw_sec.c:574 src/bw_sec.c:577 src/bw_sec.c:580 src/bw_sec.c:583
+#: src/bw_sec.c:586 src/stat_sec.c:496
+msgid "In"
+msgstr "Inn"
+
+#. TRANSLATORS: max 6 chars.
+#: src/bw_sec.c:575 src/bw_sec.c:578 src/bw_sec.c:581 src/bw_sec.c:584
+#: src/bw_sec.c:587 src/stat_sec.c:498
+msgid "Out"
+msgstr "Ut"
+
+#: src/bw_sec.c:576
+msgid "Yesterday"
+msgstr "I går"
+
+#: src/bw_sec.c:579
+msgid "7-days"
+msgstr "7-dager"
+
+#: src/bw_sec.c:582
+msgid "This month"
+msgstr "Denne måned"
+
+#: src/bw_sec.c:585
+msgid "Last month"
+msgstr "Forrige måned"
+
+#: src/bw_sec.c:731 src/config_section.c:1788 src/config_section.c:2637
+#: src/conn_sec.c:675 src/if_sec.c:899 src/if_sec.c:1528
+#: src/logview_section.c:732 src/logview_section.c:750 src/mainmenu.c:1526
+#: src/rules_form.c:1420 src/rules_form.c:3209 src/services_section.c:1868
+#: src/services_section.c:2354 src/services_section.c:2750 src/stat_sec.c:773
+#: src/zones_section.c:571 src/zones_section.c:1216 src/zones_section.c:2388
+#: src/zones_section.c:2795 src/zones_section.c:4865 src/zones_section.c:5958
+#: src/zones_section.c:6288 src/zones_section.c:6871 src/statevent.c:475
+#: src/statevent.c:748 src/statevent.c:1067
+msgid "help"
+msgstr "hjelp"
+
+#: src/bw_sec.c:732 src/config_section.c:1789 src/config_section.c:2638
+#: src/conn_sec.c:686 src/help.c:1153 src/if_sec.c:901 src/if_sec.c:1533
+#: src/logview_section.c:739 src/logview_section.c:755 src/mainmenu.c:184
+#: src/rules_form.c:1426 src/rules_form.c:3211 src/services_section.c:1872
+#: src/services_section.c:2356 src/services_section.c:2755 src/stat_sec.c:774
+#: src/zones_section.c:572 src/zones_section.c:1222 src/zones_section.c:2390
+#: src/zones_section.c:2801 src/zones_section.c:4867 src/zones_section.c:5959
+#: src/zones_section.c:6294 src/zones_section.c:6874 src/statevent.c:476
+#: src/statevent.c:749 src/statevent.c:1069
+msgid "back"
+msgstr "tilbake"
+
+#: src/bw_sec.c:737 src/zones_section.c:3552
+msgid "no interfaces found. Please define an interface first."
+msgstr "Ingen nettverksadaptere funnet. Definer en nettverksadapter først."
+
+#: src/bw_sec.c:743
+msgid "please set the location of the iptrafvol.pl command in the Settings."
+msgstr "Fyll inn lokasjon for iptrafvol-pl i Innstillinger."
+
+#: src/bw_sec.c:776 src/mainmenu.c:1462
+msgid "Traffic Volume"
+msgstr "Trafikkkmengde"
+
+#: src/bw_sec.c:866 src/bw_sec.c:867 src/bw_sec.c:898 src/bw_sec.c:899
+#: src/bw_sec.c:930 src/bw_sec.c:931 src/bw_sec.c:962 src/bw_sec.c:963
+#: src/bw_sec.c:1009 src/bw_sec.c:1010 src/stat_sec.c:825 src/stat_sec.c:841
+#: src/stat_sec.c:886 src/stat_sec.c:887 src/stat_sec.c:888 src/stat_sec.c:889
+#: src/topmenu.c:82
+#, c-format
+msgid "error"
+msgstr "feil"
+
+#: src/config.c:376
+msgid "rewritten Vuurmuur_conf config file."
+msgstr "oppdatert Vuurmuur_conf konfigurasjonsfil."
+
+#: src/config_section.c:25
+msgid "General"
+msgstr "Generelt"
+
+#. TRANSLATORS: max 11 chars.
+#: src/config_section.c:26 src/conn_sec.c:725 src/conn_sec.c:893
+#: src/conn_sec.c:933 src/conn_sec.c:1112 src/mainmenu.c:1461
+#: src/stat_sec.c:468
+msgid "Connections"
+msgstr "Tilkolinger"
+
+#. TRANSLATORS: max 11 chars.
+#: src/config_section.c:27 src/if_sec.c:1235 src/if_sec.c:1541
+#: src/if_sec.c:1643 src/if_sec.c:1718 src/mainmenu.c:1456 src/stat_sec.c:489
+#: src/zones_section.c:3708
+msgid "Interfaces"
+msgstr "Interfaces"
+
+#: src/config_section.c:28 src/sys_sec.c:60
+msgid "System Protection"
+msgstr "Systembeskyttelse"
+
+#: src/config_section.c:29
+msgid "Logging"
+msgstr "Logging"
+
+#: src/config_section.c:30
+msgid "Modules"
+msgstr "Moduler"
+
+#: src/config_section.c:31
+msgid "Plugins"
+msgstr "Plugins"
+
+#: src/config_section.c:32
+msgid "Capabilities"
+msgstr "Funksjoner"
+
+#: src/config_section.c:102
+msgid "Edit Config: General"
+msgstr "Endre konfigurasjon: Generelt"
+
+#: src/config_section.c:131
+msgid "Iptables location (full path):"
+msgstr "Iptables lokasjon (full filbane):"
+
+#: src/config_section.c:132
+msgid "Iptables-restore location (full path):"
+msgstr "Iptables-restore lokasjon (full filbane):"
+
+#: src/config_section.c:133
+#, fuzzy
+msgid "Conntrack location (full path):"
+msgstr "Iptables lokasjon (full filbane):"
+
+#: src/config_section.c:271 src/config_section.c:534 src/config_section.c:816
+#: src/config_section.c:1090 src/config_section.c:2337
+msgid "Saving config failed"
+msgstr "Lagring av konfigurasjon mislyktes"
+
+#: src/config_section.c:271 src/config_section.c:534 src/config_section.c:816
+#: src/config_section.c:1090 src/config_section.c:2337
+msgid "Saving the config failed. Sure you want to quit?"
+msgstr ""
+"Lagring av konfigurasjon mislyktes. Er du sikker på at du vil avslutte?"
+
+#: src/config_section.c:335 src/config_section.c:598 src/config_section.c:880
+#: src/config_section.c:1154 src/config_section.c:1551
+#: src/config_section.c:1909 src/config_section.c:2402 src/sys_sec.c:287
+msgid "writing configfile failed."
+msgstr "Lagring av konfigurasjonsfil mislyktes."
+
+#: src/config_section.c:375
+msgid "Edit Config: Interfaces"
+msgstr "Endre konfigurasjon: Nettverksadaptere"
+
+#: src/config_section.c:409
+msgid "check dynamic interfaces for changes."
+msgstr "Sjekk dynamiske nettverksadaptere for endringer."
+
+#: src/config_section.c:410
+msgid "Check interval:"
+msgstr "Intervall"
+
+#: src/config_section.c:411
+msgid "sec."
+msgstr "sek."
+
+#: src/config_section.c:641
+msgid "Edit Config: Modules"
+msgstr "Endre konfigurasjon: Moduler"
+
+#: src/config_section.c:675
+msgid "Modprobe location (full path)"
+msgstr "Full filbane til 'modprobe'"
+
+#: src/config_section.c:678
+msgid "load modules"
+msgstr "last moduler"
+
+#: src/config_section.c:679
+msgid "waittime after loading a module (in 1/10 th of a second)"
+msgstr "Ventetid etter lasting av en modul (i 1/10 sekunder)"
+
+#: src/config_section.c:921
+msgid "Edit Config: Plugins"
+msgstr "Endre konfigurasjon: Plugins"
+
+#: src/config_section.c:951
+msgid "Services Backend:"
+msgstr "Services Backend: "
+
+#: src/config_section.c:952
+msgid "Zones Backend:"
+msgstr "Soner Backend:"
+
+#: src/config_section.c:953
+msgid "Interfaces Backend:"
+msgstr "Nettverksadapter Backend:"
+
+#: src/config_section.c:954
+msgid "Rules Backend:"
+msgstr "Regler backend."
+
+#: src/config_section.c:1203
+msgid "Edit Config: Connections"
+msgstr "Endre konfigurasjon: Tilkoblinger"
+
+#: src/config_section.c:1263
+msgid "You can limit the number of new connections per second:"
+msgstr "Du kan begrense antall nye tilkoblinger per sekund:"
+
+#: src/config_section.c:1267
+#, fuzzy
+msgid "Limit new TCP connections."
+msgstr "Begrens antall nye TCP tilkoblinger."
+
+#: src/config_section.c:1268
+msgid "Number of SYN-packets per second"
+msgstr "Antall SYN-packets per sekund"
+
+#: src/config_section.c:1269 src/config_section.c:1276
+msgid "Burst-rate"
+msgstr "Burst-Rate"
+
+#: src/config_section.c:1273
+msgid "Limit new udp 'connections'."
+msgstr "Begrens antall nye UDP tilkoblinger."
+
+#: src/config_section.c:1275
+msgid "Number of new UDP 'connections' per second"
+msgstr "Antall nye UDP-tilkoblinger per sekund"
+
+#: src/config_section.c:1604 src/config_section.c:1808 src/mainmenu.c:1463
+msgid "Vuurmuur_conf Settings"
+msgstr "Vuurmuur_conf Innstillinger"
+
+#: src/config_section.c:1659
+msgid "Defaults for creating new rules:"
+msgstr "Standard ved oppretting av nye regler:"
+
+#: src/config_section.c:1661
+msgid "Log the rule"
+msgstr "Logg regelen"
+
+#: src/config_section.c:1665
+msgid "Loglimit per second"
+msgstr "Max antall logginger per sekund"
+
+#: src/config_section.c:1667
+msgid "Buffersize logviewer (number of lines):"
+msgstr "Bufferstørrelse for logviewer (antall linjer):"
+
+#: src/config_section.c:1668
+msgid "Advanced mode by default:"
+msgstr "Avansert modus som standard:"
+
+#: src/config_section.c:1672
+msgid "Draw status in Main Menu:"
+msgstr "Vis status i hovedmeny:"
+
+#: src/config_section.c:1676
+msgid "iptrafvol.pl location (full path)"
+msgstr "Full filbane til iptrafvol.pl :"
+
+#: src/config_section.c:1972
+msgid "Edit Config: Logging"
+msgstr "Endre konfigurasjon: Logging"
+
+#: src/config_section.c:2029
+msgid "Vuurmuur logfiles location (full path):"
+msgstr "Plassering av Vuurmuurs loggfiler (fill filbane):"
+
+#: src/config_section.c:2030
+msgid "Loglevel (for use with syslog, requires vuurmuur restart):"
+msgstr "Loglevel (for bruk med syslog, krever omstart av vuurmuur):"
+
+#: src/config_section.c:2031
+msgid "Logfile containing IPtables/Netfilter logs:"
+msgstr ""
+
+#: src/config_section.c:2033
+msgid "Log the default policy? (DROP):"
+msgstr "Logge standard policy? (DROP):"
+
+#: src/config_section.c:2037
+msgid "Limit of the number of logs per second (0 for no limit):"
+msgstr "Maksimalt antall logger per sekund (0 for ingen grense):"
+
+#: src/config_section.c:2039
+#, fuzzy
+msgid "Log TCP options (for use with PSAD):"
+msgstr "Logge TCP options (for bruk sammen med PSAD)"
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2044
+msgid "Log blocklist violations:"
+msgstr "Logge blocklist-overtredelser?"
+
+#. TRANSLATORS: max 55 chars, don't translate 'INVALID'
+#: src/config_section.c:2049
+msgid "Log packets with state INVALID:"
+msgstr ""
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2054
+msgid "Log new TCP packets with no SYN flag set:"
+msgstr ""
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2059
+msgid "Log scan probe packets:"
+msgstr ""
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2064
+msgid "Log Fragments:"
+msgstr ""
+
+#: src/config_section.c:2111
+msgid ""
+"changing the logdir requires applying changes to get into effect in the "
+"logviewer."
+msgstr ""
+"endring av logdir krever at man tilfører endringer før de kan vises i "
+"logviewer."
+
+#: src/config_section.c:2164
+msgid "limit must be between 0-999."
+msgstr "grense må være mellom 0 og 999."
+
+#: src/config_section.c:2426
+msgid "View Capabilities"
+msgstr "Vis funksjoner"
+
+#: src/config_section.c:2449 src/config_section.c:2471
+#: src/config_section.c:2486
+msgid "Could not check."
+msgstr "Sjekking mislyktes"
+
+#: src/config_section.c:2520 src/config_section.c:2539
+msgid "checking capabilities failed."
+msgstr "kontroll av funksjoner mislyktes."
+
+#: src/config_section.c:2531
+#, fuzzy
+msgid "Iptables Capabilities"
+msgstr "Vis funksjoner"
+
+#: src/config_section.c:2531
+msgid ""
+"Essential capabilities are not loaded, missing, or not properly detected. "
+"Try loading modules?"
+msgstr ""
+"Nødvendige funksjoner er ikke lastet, borte, eller ikke oppdaget. Prøv å "
+"laste moduler?"
+
+#: src/config_section.c:2616 src/config_section.c:2754 src/mainmenu.c:196
+#: src/mainmenu.c:314
+msgid "Back"
+msgstr "Tilbake"
+
+#: src/config_section.c:2662
+msgid "Configuration Menu"
+msgstr "Konfigurasjonsmeny"
+
+#: src/config_section.c:2678
+msgid "Select a section."
+msgstr "Velg et avsnitt:"
+
+#: src/config_section.c:2680 src/mainmenu.c:1458
+msgid "Vuurmuur Config"
+msgstr "Vuurmuur Konfigurasjon"
+
+#. TRANSLATORS: max 4 chars: CONNECTING, like building a new connection.
+#: src/conn_sec.c:245
+#, fuzzy
+msgid "CONN"
+msgstr "TILKOBLET"
+
+#. TRANSLATORS: max 4 chars: ESTABLISHED, an existing connection.
+#: src/conn_sec.c:261
+msgid "ESTA"
+msgstr ""
+
+#. TRANSLATORS: max 4 chars: DISCONNECTING, an existing connection is shutting down.
+#: src/conn_sec.c:277
+msgid "DISC"
+msgstr ""
+
+#. TRANSLATORS: max 3 chars: INCOMING, an incoming connection.
+#: src/conn_sec.c:313
+msgid "IN"
+msgstr ""
+
+#. TRANSLATORS: max 3 chars: OUTGOING, an outgoing connection.
+#: src/conn_sec.c:328
+msgid "OUT"
+msgstr ""
+
+#. TRANSLATORS: max 3 chars: FORWARDING, an forwarding connection.
+#: src/conn_sec.c:343
+msgid "FWD"
+msgstr ""
+
+#: src/conn_sec.c:597
+msgid "getting the connections failed."
+msgstr "Kunne ikke få liste over tilkoblinger."
+
+#: src/conn_sec.c:676 src/logview_section.c:733
+msgid "manage"
+msgstr ""
+
+#: src/conn_sec.c:678
+msgid "in/out/fw"
+msgstr "inn/ut/vs"
+
+#: src/conn_sec.c:679
+msgid "connect"
+msgstr "koble"
+
+#: src/conn_sec.c:681
+#, fuzzy
+msgid "grp"
+msgstr "gruppe"
+
+#: src/conn_sec.c:682
+#, fuzzy
+msgid "unknown ip"
+msgstr "Ukjent."
+
+#: src/conn_sec.c:683 src/logview_section.c:735 src/logview_section.c:752
+#: src/rules_form.c:1425
+msgid "filter"
+msgstr "filter"
+
+#: src/conn_sec.c:684
+msgid "account"
+msgstr ""
+
+#: src/conn_sec.c:685
+#, fuzzy
+msgid "details"
+msgstr "sletting mislyktes"
+
+#. TRANSLATORS: max 5 chars.
+#: src/conn_sec.c:894 src/conn_sec.c:934 src/stat_sec.c:457
+msgid "Total"
+msgstr "Total"
+
+#: src/conn_sec.c:895
+msgid "Incoming"
+msgstr "Innkommende"
+
+#: src/conn_sec.c:896
+msgid "Forwarding"
+msgstr "Videresender"
+
+#: src/conn_sec.c:897
+msgid "Outgoing"
+msgstr "Utgående"
+
+#: src/conn_sec.c:909
+msgid "Established Connections"
+msgstr "Opprettede tilkoblinger"
+
+#: src/conn_sec.c:916
+msgid "Connections Initializing"
+msgstr "Tilkoblinger som opprettes"
+
+#: src/conn_sec.c:922
+msgid "Connections Closing"
+msgstr "Tilkoblinger som avsluttes"
+
+#: src/conn_sec.c:935
+msgid "Connecting"
+msgstr "Kobler til"
+
+#: src/conn_sec.c:936
+msgid "Established"
+msgstr "Opprettet"
+
+#: src/conn_sec.c:937
+msgid "Disconnecting"
+msgstr "Kobler fra"
+
+#: src/conn_sec.c:948
+msgid "Forwarded Connections"
+msgstr "Videresendte tilkoblinger."
+
+#: src/conn_sec.c:955
+msgid "Incoming Connections"
+msgstr "Innkommende tilkoblinger"
+
+#: src/conn_sec.c:961
+msgid "Outgoing Connections"
+msgstr "Utgående tilkoblinger"
+
+#: src/conn_sec.c:1092 src/logview_section.c:1392
+#, c-format
+msgid "Active filter: '%s' (press 'enter' to clear)."
+msgstr "Aktivt filter: '%s' (trykk <enter> for å fjerne)."
+
+#: src/conn_sec.c:1097 src/logview_section.c:1397 src/rules_form.c:2130
+msgid "Filter removed."
+msgstr "Filter fjernet."
+
+#: src/conn_sec.c:1191
+msgid "killing connections is only supported for TCP and UDP."
+msgstr ""
+
+#: src/conn_sec.c:1220 src/conn_sec.c:1285 src/strings.h:195
+msgid ""
+"'conntrack' location not set. To be able to kill connections, set the "
+"location of the 'conntrack' tool in 'Vuurmuur Options -> General'. Note that "
+"the tool requires kernel version 2.6.14 or higher."
+msgstr ""
+
+#: src/conn_sec.c:1259 src/conn_sec.c:1319
+msgid "all connections already gone, none killed."
+msgstr ""
+
+#: src/conn_sec.c:1262 src/conn_sec.c:1322
+#, fuzzy, c-format
+msgid "killing of %d out of %d connections failed."
+msgstr "Kunne ikke få liste over tilkoblinger."
+
+#: src/conn_sec.c:1265 src/conn_sec.c:1325
+#, fuzzy, c-format
+msgid "killing of all %d connections failed."
+msgstr "Kunne ikke få liste over tilkoblinger."
+
+#: src/conn_sec.c:1355
+#, c-format
+msgid ""
+"ipaddress belongs to interface '%s'. It will not be added to the blocklist."
+msgstr ""
+
+#: src/help.c:264 src/help.c:392
+msgid "vuurmuur.hlp"
+msgstr "vuurmuur-no.hlp"
+
+#: src/help.c:362
+#, fuzzy
+msgid "vuurmuur.UTF-8.hlp"
+msgstr "vuurmuur-no.hlp"
+
+#: src/help.c:902 src/help.c:904
+msgid "Press <F10> to close this window."
+msgstr "Trykk <F10> for å lukke dette vinduet."
+
+#: src/help.c:913
+msgid "The requested helptext was not found.\n"
+msgstr "Den angitte hjelpeteksten ble ikke funnet.\n"
+
+#: src/help.c:1049 src/help.c:1068
+msgid "Help"
+msgstr "Hjelp"
+
+#: src/help.c:1097
+msgid "No problems were detected in the current setup.\n"
+msgstr "Ingen problemer ble funnet med nåværende oppsett.\n"
+
+#: src/help.c:1103 src/mainmenu.c:1460 src/vuurmuur_conf.c:260
+msgid "Status"
+msgstr "Status"
+
+#: src/help.c:1215 src/help.c:1217 src/mainmenu.c:1465
+msgid "About"
+msgstr "Om"
+
+#: src/if_sec.c:254
+msgid "Protection"
+msgstr "Beskyttelse"
+
+#: src/if_sec.c:336 src/rules_form.c:3459 src/services_section.c:2207
+#: src/zones_section.c:255 src/zones_section.c:2156 src/zones_section.c:4550
+#: src/zones_section.c:5760
+msgid "Comment"
+msgstr "Kommentar"
+
+#: src/if_sec.c:345 src/services_section.c:2216 src/zones_section.c:267
+#: src/zones_section.c:2168 src/zones_section.c:4572
+msgid "error while loading the comment."
+msgstr "Feil ved lasting av kommentar."
+
+#. TRANSLATORS: max 18 chars
+#: src/if_sec.c:359
+msgid "Is interface up?"
+msgstr "Er nettverksadapteren aktiv?"
+
+#: src/if_sec.c:374 src/if_sec.c:934
+msgid "Edit Interface"
+msgstr "Endre nettverksadapter"
+
+#: src/if_sec.c:437 src/services_section.c:2261 src/zones_section.c:322
+#: src/zones_section.c:2222 src/zones_section.c:4617 src/zones_section.c:5813
+msgid "Name"
+msgstr "Navn"
+
+#: src/if_sec.c:900 src/rules_form.c:3210
+msgid "advanced"
+msgstr "avansert"
+
+#. TRANSLATORS: max 4 chars
+#: src/if_sec.c:1263 src/if_sec.c:1274 src/rules_form.c:1481
+#: src/services_section.c:2685 src/services_section.c:2696 src/templates.c:867
+#: src/templates.c:878 src/zones_section.c:922 src/zones_section.c:933
+#: src/zones_section.c:1737 src/zones_section.c:1748 src/zones_section.c:2727
+#: src/zones_section.c:2738 src/zones_section.c:3732 src/zones_section.c:3743
+#: src/zones_section.c:5247 src/zones_section.c:5258 src/zones_section.c:6221
+#: src/zones_section.c:6232 src/zones_section.c:6666 src/zones_section.c:6677
+msgid "more"
+msgstr "mer"
+
+#: src/if_sec.c:1384 src/services_section.c:2051 src/services_section.c:2080
+#: src/services_section.c:2102 src/services_section.c:2118
+#: src/zones_section.c:394 src/zones_section.c:437 src/zones_section.c:502
+#: src/zones_section.c:519 src/zones_section.c:2302 src/zones_section.c:2316
+#: src/zones_section.c:4025 src/zones_section.c:4051 src/zones_section.c:4060
+#: src/zones_section.c:4277 src/zones_section.c:4678 src/zones_section.c:4702
+#: src/zones_section.c:4726 src/zones_section.c:4741 src/zones_section.c:5053
+#: src/zones_section.c:5872 src/zones_section.c:5888
+#, c-format
+msgid "saving to backend failed (in: %s:%d)."
+msgstr "lagring til 'backend' mislyktes (i: %s:%d)!"
+
+#: src/if_sec.c:1453 src/rules_form.c:2214 src/services_section.c:2602
+#: src/zones_section.c:1088 src/zones_section.c:3517
+msgid "saving rules failed."
+msgstr "lagring av regler feilet."
+
+#: src/if_sec.c:1529 src/rules_form.c:1421 src/services_section.c:1869
+#: src/services_section.c:2751 src/zones_section.c:1217
+#: src/zones_section.c:2796 src/zones_section.c:6289 src/zones_section.c:6872
+#: src/strings.h:157
+msgid "new"
+msgstr "ny"
+
+#: src/if_sec.c:1530 src/rules_form.c:1422 src/services_section.c:1871
+#: src/services_section.c:2752 src/zones_section.c:1218
+#: src/zones_section.c:2797 src/zones_section.c:6290 src/zones_section.c:6873
+msgid "del"
+msgstr "slett"
+
+#: src/if_sec.c:1531 src/services_section.c:2753 src/zones_section.c:1219
+#: src/zones_section.c:2798 src/zones_section.c:6291 src/strings.h:160
+msgid "rename"
+msgstr "gi nytt navn"
+
+#: src/if_sec.c:1532 src/rules_form.c:1423 src/services_section.c:1870
+#: src/services_section.c:2754 src/zones_section.c:1221
+#: src/zones_section.c:2800 src/zones_section.c:6293 src/strings.h:159
+msgid "edit"
+msgstr "endre"
+
+#: src/if_sec.c:1602
+msgid "Rename Interface"
+msgstr "Gi nytt navn til nettverksadapter"
+
+#: src/if_sec.c:1631
+msgid "New Interface"
+msgstr "Ny nettverksadapter."
+
+#: src/if_sec.c:1649
+msgid "creating new interface failed."
+msgstr "Oppretting av ny nettverksadapter mislyktes."
+
+#: src/if_sec.c:1667 src/services_section.c:2895 src/zones_section.c:1447
+#: src/zones_section.c:3010 src/zones_section.c:5522 src/zones_section.c:6420
+msgid "Delete"
+msgstr "Slett"
+
+#: src/if_sec.c:1667 src/rules_form.c:2285 src/services_section.c:1569
+#: src/services_section.c:2895 src/statevent.c:591 src/statevent.c:601
+#: src/statevent.c:617 src/statevent.c:630 src/statevent.c:643
+#: src/statevent.c:657 src/statevent.c:667 src/statevent.c:675
+#: src/statevent.c:683 src/statevent.c:879 src/statevent.c:895
+#: src/statevent.c:908 src/statevent.c:921 src/statevent.c:935
+#: src/statevent.c:945 src/statevent.c:953 src/statevent.c:961
+msgid "Are you sure?"
+msgstr "Er du sikker?"
+
+#: src/if_sec.c:1673
+#, c-format
+msgid "deleting interface %s failed."
+msgstr "sletting av nettverksadapter %s mislyktes."
+
+#: src/logview_section.c:221
+#, c-format
+msgid "Filter: %s"
+msgstr "Filter: %s"
+
+#: src/logview_section.c:240
+#, c-format
+msgid "Search: %s"
+msgstr "Søk: %s"
+
+#: src/logview_section.c:259
+#, c-format
+msgid "checking failed for '%s': %s."
+msgstr "Sjekking av '%s' mislyktes: %s."
+
+#: src/logview_section.c:266
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not allow following "
+"symbolic-links."
+msgstr ""
+"åpner fil '%s': Av sikkerhetsmessige grunner, vil Vuurmuur ikke tillate/"
+"følge 'symbolic-links'"
+
+#: src/logview_section.c:273
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not allow opening "
+"anything other than a file or a directory."
+msgstr ""
+"åpner fil '%s': Av sikkerhetsmessige grunner, vil Vuurmuur ikke åpne noe "
+"annet enn en fil eller en mappe"
+
+#: src/logview_section.c:280
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not open files that "
+"are writable by 'group' or 'other'. Check the file content & permissions."
+msgstr ""
+"åpner fil '%s': Av sikkerhetsmessige grunner, vil Vuurmuur ikke åpne filer "
+"som er skrivbare for 'group' eller 'other'. Sjekk filens innhold og "
+"rettigheter."
+
+#: src/logview_section.c:287
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not open files that "
+"are not owned by root."
+msgstr ""
+"åpner fil '%s': Av sikkerhetsmessige grunner, vil Vuurmuur ikke åpne filer "
+"som ikke eies av root."
+
+#: src/logview_section.c:734 src/logview_section.c:751
+msgid "search"
+msgstr "søk"
+
+#: src/logview_section.c:736 src/logview_section.c:753
+msgid "pause"
+msgstr "pause"
+
+#: src/logview_section.c:737 src/logview_section.c:754
+msgid "clear"
+msgstr "fjern"
+
+#: src/logview_section.c:738
+msgid "hide"
+msgstr "skjul"
+
+#: src/logview_section.c:826
+#, c-format
+msgid "opening logfile '%s' failed: %s."
+msgstr "åpning av logg '%s' mislyktes: %s."
+
+#: src/logview_section.c:850
+#, c-format
+msgid "could not examine the logfile: %s."
+msgstr "kunne ikke undersøke loggfilen: %s."
+
+#: src/logview_section.c:863
+#, c-format
+msgid "fseek failed: %s."
+msgstr "fseek() mislyktes: %s."
+
+#: src/logview_section.c:867
+#, c-format
+msgid "Loading loglines into memory (trying to load %u lines)..."
+msgstr "Laster logg inn i minne. (prøver å laste %u linjer)"
+
+#: src/logview_section.c:871 src/logview_section.c:1415 src/mainmenu.c:1055
+msgid "One moment please..."
+msgstr "Et øyeblikk."
+
+#: src/logview_section.c:881 src/logview_section.c:883
+#: src/logview_section.c:1754 src/mainmenu.c:233 src/mainmenu.c:251
+#: src/mainmenu.c:318 src/mainmenu.c:1459
+msgid "Logview"
+msgstr "Logview"
+
+#: src/logview_section.c:885
+msgid "Loading log ..."
+msgstr "Laster logg ..."
+
+#: src/logview_section.c:1026
+#, c-format
+msgid "Loading loglines into memory... loaded %d lines."
+msgstr "Laster logg inn i minne. %d linjer totalt."
+
+#: src/logview_section.c:1067
+msgid "Logview starting.\n"
+msgstr "Logview starter.\n"
+
+#: src/logview_section.c:1287
+#, c-format
+msgid "closing search pipe failed: %s."
+msgstr "Lukking av søk 'pipe' mislyktes: %s."
+
+#: src/logview_section.c:1299
+msgid "Search canceled. Press SPACE to return to normal logging."
+msgstr "Søk avbrutt. Trykk SPACE for å gå tilbake til normal logging."
+
+#: src/logview_section.c:1304
+msgid "Search ERROR. Press SPACE to return to normal logging."
+msgstr "Søk mislyktes. Trykk SPACE for å gå tilbake til normal logging."
+
+#: src/logview_section.c:1314
+#, c-format
+msgid "Search done: %lu matches. Press SPACE to return to normal logging."
+msgstr ""
+"Søk ferdig: %lu treff. Trykk SPACE for å gå tilbake til normal logging."
+
+#: src/logview_section.c:1422
+msgid "Applying changed filter..."
+msgstr "Tilfører endret filter..."
+
+#: src/logview_section.c:1496
+msgid "Search in progress. Press 'S' to stop current search."
+msgstr "Søk pågår. Trykk 'S' for å stoppe nåværende søk."
+
+#: src/logview_section.c:1501 src/logview_section.c:1646
+msgid "Please first close the current search by pressing SPACE."
+msgstr "Lukk nåværende søk først med SPACE."
+
+#: src/logview_section.c:1533
+msgid "Continue viewing the log."
+msgstr "Fortsett visning av logg."
+
+#: src/logview_section.c:1535
+msgid "Continue searching."
+msgstr "Fortsett søket."
+
+#: src/logview_section.c:1547
+msgid "*** PAUSED *** (press 'p' to continue)"
+msgstr "*** PAUSE *** (trykk 'P' for å fortsette)"
+
+#: src/logview_section.c:1560 src/logview_section.c:1572
+#: src/logview_section.c:1584 src/logview_section.c:1596
+#: src/logview_section.c:1608 src/logview_section.c:1620
+#: src/logview_section.c:1632
+msgid "hidden"
+msgstr "skjult"
+
+#: src/logview_section.c:1560 src/logview_section.c:1572
+#: src/logview_section.c:1584 src/logview_section.c:1596
+#: src/logview_section.c:1608 src/logview_section.c:1620
+#: src/logview_section.c:1632
+msgid "visible"
+msgstr "synlig"
+
+#: src/logview_section.c:1641
+msgid "Already searching. Press 'S' to stop current search."
+msgstr "Søk pågår allerede. Trykk 'S' for å stoppe nåværende søk."
+
+#: src/logview_section.c:1671
+msgid "Search"
+msgstr "Søk"
+
+#: src/logview_section.c:1671
+msgid "What do you want to search for?"
+msgstr "Hva vil du søke etter?"
+
+#: src/logview_section.c:1696
+#, c-format
+msgid "opening pipe failed: %s."
+msgstr "åpning av 'pipe' mislyktes: %s."
+
+#: src/logview_section.c:1706
+msgid "Search started. Press 'S' to stop searching."
+msgstr "Søk startet. Trykk 'S' for å stoppe."
+
+#: src/logview_section.c:1718
+msgid "search script was not ok, search is disabled."
+msgstr "søke-script feilet. Søk deaktivert."
+
+#: src/logview_section.c:1730
+msgid "No search in progress."
+msgstr "Ingen søk pågår."
+
+#: src/logview_section.c:1888
+#, c-format
+msgid "Search in progress: %lu matches so far. SPACE to pause, 'S' to stop."
+msgstr "Søk pågår: %lu treff så langt. SPACE for pause, 'S' for å stoppe."
+
+#: src/logview_section.c:1890
+#, c-format
+msgid "Search PAUSED: %lu matches so far. SPACE to continue, 'S' to stop."
+msgstr ""
+"Søk pauset: %lu treff så langt. Trykk SPACE for å fortsette, 'S' for å "
+"stoppe."
+
+#: src/logview_section.c:1982
+#, c-format
+msgid "closing logfile failed: %s."
+msgstr "Lukking av loggfil mislyktes: %s."
+
+#: src/logview_section.c:2002 src/mainmenu.c:1704 src/mainmenu.c:1730
+#: src/rules_form.c:1612 src/rules_form.c:2015 src/rules_form.c:2046
+#: src/rules_form.c:4619 src/rules_form.c:4924 src/services_section.c:570
+#: src/services_section.c:1272 src/zones_section.c:752
+#: src/zones_section.c:1609 src/zones_section.c:2083 src/zones_section.c:2555
+#: src/zones_section.c:3140 src/zones_section.c:5064 src/zones_section.c:5702
+#: src/zones_section.c:6074 src/zones_section.c:6524 src/zones_section.c:7067
+#: src/strings.h:90
+msgid "Ready."
+msgstr "Klar."
+
+#: src/mainmenu.c:71
+msgid "saving rules failed"
+msgstr "lagring av regler mislyktes"
+
+#: src/mainmenu.c:78
+msgid "cannot rename rulesfile because its location is not set"
+msgstr "Kan ikke fjerne regelfil fordi dens lokalisering ikke er satt"
+
+#: src/mainmenu.c:93 src/mainmenu.c:161
+#, c-format
+msgid "renaming '%s' to '%s' failed: %s."
+msgstr "Omdøring av '%s' til '%s' feilet: %s."
+
+#: src/mainmenu.c:139
+msgid "saving blocklist failed"
+msgstr "lagring av blokkeringslist fielet"
+
+#: src/mainmenu.c:146
+msgid "cannot rename blocklistfile because its location is not set"
+msgstr "Kan ikke fjerne blockliste-fil fordi dens lokalisering ikke er satt"
+
+#: src/mainmenu.c:249
+msgid "Select a log to view."
+msgstr "Velg en logg."
+
+#: src/mainmenu.c:381 src/mainmenu.c:426
+#, c-format
+msgid "attaching to shared memory failed: %s."
+msgstr "attaching to shared memory failed: %s."
+
+#: src/mainmenu.c:466
+msgid "(fail).\n"
+msgstr "(Feil).\n"
+
+#: src/mainmenu.c:468
+msgid "(warn).\n"
+msgstr "(Advarsel).\n"
+
+#: src/mainmenu.c:491
+msgid ""
+"- The path to the Vuurmuur helpfile was not specified, please do so in the "
+"Vuurmuur_conf Settings\n"
+msgstr ""
+"- Filbanen til Vuurmuurs hjelpefil er ikke spesifisert. Gjør dette i "
+"'Vuurmuur_conf Settings'\n"
+
+#: src/mainmenu.c:498
+msgid "- Opening the helpfile failed. Please check the file\n"
+msgstr "- Kunne ikke åpne hjelpefilen. Sjekk at den er tilstede.\n"
+
+#: src/mainmenu.c:520
+msgid ""
+"- The last time the changes were applied, applying the changes failed for "
+"Vuurmuur. Please check the Error.log\n"
+msgstr ""
+"- Forrige gang endringene ble tilført, feilet de for Vuurmuur. Sjekk 'Error."
+"log'\n"
+
+#: src/mainmenu.c:525
+msgid ""
+"- The last time the changes were applied, applying the changes failed for "
+"Vuurmuur_log. Please check the Error.log\n"
+msgstr ""
+"- Forrige gang endringene ble tilført, feilet de for Vuurmuur_log. Sjekk "
+"'Error.log'\n"
+
+#: src/mainmenu.c:533
+msgid ""
+"- No connection could be established with Vuurmuur. Please make sure that it "
+"is running\n"
+msgstr ""
+"- Kunne ikke opprette tilkobling til Vuurmuur. Sjekk at den faktisk er i "
+"gang\n"
+
+#: src/mainmenu.c:540
+msgid ""
+"- The connection with Vuurmuur seems to be lost. Please make sure that it is "
+"running\n"
+msgstr ""
+"- Tilkoblingen til Vuurmuur ser ut til å være borte. Sjekk at den faktisk er "
+"i gang\n"
+
+#: src/mainmenu.c:550
+msgid ""
+"- No connection could be established with Vuurmuur_log. Please make sure "
+"that it is running\n"
+msgstr ""
+"- Kunne ikke opprette tilkobling til Vuurmuur_log. Sjekk at den faktisk er i "
+"gang\n"
+
+#: src/mainmenu.c:557
+msgid ""
+"- The connection with Vuurmuur_log seems to be lost. Please make sure that "
+"it is running\n"
+msgstr ""
+"- Tilkoblingen til Vuurmuur_log ser ut til å være borte. Sjekk at den "
+"faktisk er i gang\n"
+
+#: src/mainmenu.c:580
+msgid ""
+"- The path to the 'iptables'-command is not yet specified. Please do so in "
+"the 'Vuurmuur Config' section\n"
+msgstr ""
+"- Filbanen til 'iptables' er ikke spesifisert. Sett denne i 'Vuurmuur "
+"Config' avsnittet\n"
+
+#: src/mainmenu.c:587
+msgid ""
+"- The path to the 'iptables'-command seems to be wrong. There was an error "
+"while testing it. Please check it in your system and correct it in the "
+"'Vuurmuur Config' section\n"
+msgstr ""
+"- Filbanen til 'iptables' ser ut til å være feil. Det ble funnet en feil "
+"under testing. Sjekk den i systemet ditt, og rett feilen i 'Vuurmuur Config' "
+"avsnittet\n"
+
+#: src/mainmenu.c:596
+msgid ""
+"- The path to the 'iptables-restore'-command is not yet specified. Please do "
+"so in the 'Vuurmuur Config' section\n"
+msgstr ""
+"- Filbanen til 'iptables-restore' er ikke spesifisert. Sett denne i "
+"'Vuurmuur Config' avsnittet\n"
+
+#: src/mainmenu.c:603
+msgid ""
+"- The path to the 'iptables-restore'-command seems to be wrong. There was an "
+"error while testing it. Please check it in your system and correct it in the "
+"'Vuurmuur Config' section\n"
+msgstr ""
+"- Filbanen til 'iptables-restore'  ser ut til å være feil. Det ble funnet en "
+"feil under testing. Sjekk den i systemet ditt, og rett feilen i 'Vuurmuur "
+"Config' avsnittet\n"
+
+#: src/mainmenu.c:648
+#, c-format
+msgid "- No portranges/protocols defined in service '%s'\n"
+msgstr "- Ingen port-områder/protokoller definert for tjenste '%s'\n"
+
+#: src/mainmenu.c:685
+msgid "- No interfaces are defined. Please define one or more interfaces\n"
+msgstr ""
+"- Ingen nettverksadapter er definert. Definer en eller flere adaptere\n"
+
+#: src/mainmenu.c:706
+#, c-format
+msgid ""
+"- The interface '%s' does not have a device. Please enter a device in the "
+"Interfaces Section\n"
+msgstr ""
+"- Nettverksadaperen '%s' er ikke bundet til en enhet. Vennligst velg en "
+"enhet i Nettverksadaptere avdelingen\n"
+
+#: src/mainmenu.c:738
+#, c-format
+msgid "- The ipaddress '%s' of interface '%s' is invalid\n"
+msgstr "- IP adressen '%s' for nettverksadapter '%s' er ugyldig\n"
+
+#: src/mainmenu.c:770
+#, c-format
+msgid ""
+"- The ipaddress '%s' of interface '%s' (%s) does not match the ipaddress of "
+"the actual interface (%s)\n"
+msgstr ""
+"- IP adressen '%s' til nettverksadapter '%s' (%s) stemmer ikke med IP "
+"adressen som adapteren faktisk har (%s)\n"
+
+#: src/mainmenu.c:781
+msgid ""
+"- No interfaces are active. Please make sure that at least one of the "
+"interfaces is active\n"
+msgstr ""
+"- Ingen nettverksadaptere er aktive. Sørg for at minst en av adapterne er "
+"aktive\n"
+
+#: src/mainmenu.c:818
+msgid ""
+"- No zones are defined. Please define one or more zones, and at least one "
+"network\n"
+msgstr ""
+"- Ingen soner er definert. Definer en eller flere soner, og minst ett "
+"nettverk\n"
+
+#: src/mainmenu.c:844
+#, c-format
+msgid "- The host '%s' does not have an IPAddress\n"
+msgstr "-Verten '%s' har ingen IP adresse\n"
+
+#: src/mainmenu.c:861
+#, c-format
+msgid "- The IPAddress '%s' of host '%s' is invalid\n"
+msgstr "- IP adressen '%s' for verten '%s' er ugyldig\n"
+
+#: src/mainmenu.c:870
+#, c-format
+msgid ""
+"- The IPAddress '%s' of host '%s' does not belong to network '%s' with "
+"netmask '%s'\n"
+msgstr ""
+"- IP adressen '%s' til verten '%s' hører ikke til nettverk '%s' med "
+"nettmaske '%s'\n"
+
+#: src/mainmenu.c:884
+#, c-format
+msgid ""
+"- The network '%s' as no interfaces attached to it. Please attach one or "
+"more interfaces to it in the Zones Section\n"
+msgstr ""
+"- Nettverket '%s' har ingen nettverksadaptere definert. Vennligst gjør dette "
+"i 'Soner' avdelingen.\n"
+
+#: src/mainmenu.c:893
+#, c-format
+msgid ""
+"- The network address for network '%s' is missing. See the Zones Section\n"
+msgstr ""
+"- Nettverksadressen for nettverk '%s' mangler. Se 'Soner' avdelingen.\n"
+
+#: src/mainmenu.c:905
+#, c-format
+msgid "- The network address '%s' of network '%s' is invalid."
+msgstr "- Nettverksadressen '%s' i nettverk '%s' er ugyldig."
+
+#: src/mainmenu.c:915
+#, c-format
+msgid "- The netmask for network '%s' is missing. See the Zones Section\n"
+msgstr "- Nettverksmaske til nettverk '%s' mangler. Se Soner-avdelingen\n"
+
+#: src/mainmenu.c:927
+#, c-format
+msgid "- The netmask '%s' of network '%s' is invalid. See the Zones Section\n"
+msgstr ""
+"- Nettverksmasken '%s' til nettverk '%s' er ugyldig. Se Soner-avdelingen\n"
+
+#: src/mainmenu.c:937
+msgid ""
+"- No networks are defined. Please make sure that you define at least one "
+"network. See the Zones Section\n"
+msgstr ""
+"- Ingen nettverk er definert. Sørg for at minst ett nettverk er definert. Se "
+"'Soner'-avsnittet\n"
+
+#: src/mainmenu.c:942
+msgid ""
+"- No networks are active. Please make sure that at least one of the networks "
+"is active. See the Zones Section\n"
+msgstr ""
+"- Ingen nettverk er aktive. Sørg for at minst ett av nettverkene er aktive. "
+"Se 'Soner'-avsnittet\n"
+
+#: src/mainmenu.c:1018
+msgid "Not connected"
+msgstr "Ikke tilkoblet"
+
+#: src/mainmenu.c:1019
+msgid "Success"
+msgstr "Vellykket"
+
+#: src/mainmenu.c:1020
+msgid "No changes"
+msgstr "Ingen endringer"
+
+#: src/mainmenu.c:1021 src/templates.c:592 src/strings.h:97
+msgid "Error"
+msgstr "Feil"
+
+#: src/mainmenu.c:1022
+msgid "Timed out"
+msgstr "Timed out"
+
+#: src/mainmenu.c:1084 src/mainmenu.c:1091
+msgid "Applying changes ..."
+msgstr "Tilfører endringer..."
+
+#: src/mainmenu.c:1293
+msgid "applying changes failed. Please check error.log."
+msgstr "Kunne ikke tilføre endringer. Sjekk error.log for mer informasjon"
+
+#. TRANSLATORS: max 6 characters
+#: src/mainmenu.c:1351
+msgid "  OK  "
+msgstr "  OK"
+
+#. TRANSLATORS: max 6 characters
+#: src/mainmenu.c:1357
+msgid " Warn "
+msgstr "WARN "
+
+#. TRANSLATORS: max 6 characters
+#: src/mainmenu.c:1363
+msgid " Fail "
+msgstr "Feil"
+
+#: src/mainmenu.c:1418 src/mainmenu.c:1464
+msgid "Apply Changes"
+msgstr "Bruk"
+
+#: src/mainmenu.c:1419
+msgid "The overall status is not OK. Apply anyway?"
+msgstr "Statusen er ikke OK. Oppdatere endringer likevel?"
+
+#: src/mainmenu.c:1433
+msgid "will not apply changes if the overall status is 'fail'."
+msgstr "oppdaterer ikke endringer dersom status er: 'FEIL'"
+
+#: src/mainmenu.c:1453 src/rules_form.c:1606 src/rules_form.c:1871
+#: src/rules_form.c:1980
+msgid "Rules"
+msgstr "Regler"
+
+#: src/mainmenu.c:1454 src/zones_section.c:6622 src/zones_section.c:6892
+msgid "BlockList"
+msgstr "Blokkeringsliste"
+
+#: src/mainmenu.c:1455 src/zones_section.c:6193 src/zones_section.c:6307
+#: src/zones_section.c:6398 src/zones_section.c:6485 src/zones_section.c:6504
+msgid "Zones"
+msgstr "Soner"
+
+#: src/mainmenu.c:1457 src/services_section.c:2658 src/services_section.c:2775
+#: src/services_section.c:2876 src/services_section.c:2949
+msgid "Services"
+msgstr "Services"
+
+#: src/mainmenu.c:1466
+msgid "Quit"
+msgstr "Avslutt program"
+
+#: src/mainmenu.c:1562
+#, c-format
+msgid "calloc failed: %s."
+msgstr "'calloc()' feilet: %s."
+
+#: src/mainmenu.c:1576
+msgid "Main Menu"
+msgstr "Hovedmeny"
+
+#: src/mainmenu.c:1628 src/mainmenu.c:1664
+#, c-format
+msgid "Welcome to Vuurmuur_conf %s"
+msgstr "Velkommen til Vuurmuur_conf %s"
+
+#: src/mainmenu.c:1630
+msgid "Overall"
+msgstr "Generell"
+
+#: src/mainmenu.c:1633
+msgid "Backend"
+msgstr "Backend"
+
+#: src/mainmenu.c:1635
+msgid "Config"
+msgstr "Konfigurasjon"
+
+#: src/mainmenu.c:1637
+msgid "Settings"
+msgstr "Innstillinger"
+
+#: src/mainmenu.c:1640
+msgid "Daemons"
+msgstr "Daemons"
+
+#: src/mainmenu.c:1643
+msgid "System"
+msgstr "System"
+
+#. TRANSLATORS: max 27 chars.
+#: src/mainmenu.c:1650
+msgid "Press F5 for details."
+msgstr "Trykk <F5> for detaljer."
+
+#: src/mainmenu.c:1679
+msgid "Main"
+msgstr "Hovedmeny"
+
+#: src/mainmenu.c:1684
+msgid "Convert Rules"
+msgstr "Konverter regler"
+
+#: src/mainmenu.c:1685
+msgid "Convert the rules to the new format (recommended)?"
+msgstr "Konverter reglene til nytt format? (anbefales)"
+
+#: src/mainmenu.c:1691
+msgid "converting rules failed."
+msgstr "convertering av regler feilet."
+
+#: src/mainmenu.c:1695
+msgid "Rules converted successfully."
+msgstr "Regler konvertert uten feil."
+
+#: src/mainmenu.c:1710
+msgid "Convert BlockList"
+msgstr "Konverter blokkeringsliste."
+
+#: src/mainmenu.c:1711
+msgid "Convert the BlockList to the new format (recommended)?"
+msgstr "Konverter BlockList til nytt format? (anbefalt)"
+
+#: src/mainmenu.c:1717
+msgid "converting BlockList failed."
+msgstr "convertering av blokkeringsliste feilet."
+
+#: src/mainmenu.c:1721
+msgid "BlockList converted successfully."
+msgstr "BlockList konvertert uten feil."
+
+#: src/mainmenu.c:2074
+msgid ""
+"One or more problems were detected in your current setup. Below is a list\n"
+msgstr "Ett eller flere problemer ble funnet i oppsettet. Her er en liste:\n"
+
+#: src/mainmenu.c:2110
+msgid "No problems were detected in your setup\n"
+msgstr "Det ble ikke funnet noen problemer med oppsettet\n"
+
+#: src/navigation.c:362
+msgid "the double quote sign \" is not allowed in the commentfield."
+msgstr "Anførselstegn er ikke tillatt i kommentarfeltet."
+
+#: src/navigation.c:367
+msgid "the percent sign is not allowed in the commentfield."
+msgstr "Prosent-tegnet er ikke tillatt i kommentarfeltet."
+
+#: src/rules_form.c:212
+msgid "Moving rule..."
+msgstr "Flytter regel..."
+
+#: src/rules_form.c:282
+msgid "Move Rule"
+msgstr "Flytt regel"
+
+#: src/rules_form.c:308
+msgid "Enter the new rule number:"
+msgstr "Fyll inn nytt nummer på regelen:"
+
+#: src/rules_form.c:309
+#, c-format
+msgid "Cur: %d, Min: 1, Max: %d"
+msgstr "I dag: %d, Min: 1, Max: %d"
+
+#: src/rules_form.c:1424
+msgid "move"
+msgstr "flytt"
+
+#: src/rules_form.c:1454
+msgid "Rules Section"
+msgstr "Regler"
+
+#. TRANSLATORS: max 3 chars
+#: src/rules_form.c:1595
+msgid "Nr."
+msgstr "Nr."
+
+#: src/rules_form.c:1596 src/rules_form.c:3261 src/rules_form.c:4123
+msgid "Action"
+msgstr "Handling"
+
+#: src/rules_form.c:1597 src/rules_form.c:3340 src/strings.h:40
+msgid "Service"
+msgstr "Service"
+
+#: src/rules_form.c:1598 src/services_section.c:451
+msgid "Source"
+msgstr "Kilde"
+
+#: src/rules_form.c:1599 src/services_section.c:457
+msgid "Destination"
+msgstr "Mål"
+
+#: src/rules_form.c:1600
+msgid "Options"
+msgstr "Valg"
+
+#: src/rules_form.c:1884
+msgid "Delete rule cancelled."
+msgstr "Sletting av regelen avbrutt."
+
+#: src/rules_form.c:1887
+#, c-format
+msgid "rule %d removed."
+msgstr "Regel %d fjernet."
+
+#: src/rules_form.c:2092
+msgid "Set the filter"
+msgstr "Sett filter."
+
+#: src/rules_form.c:2092 src/filter.c:203
+msgid "Enter filter (leave empty for no filter)"
+msgstr "Fyll inn filter (La være tomt for ingen filter)"
+
+#: src/rules_form.c:2114
+#, c-format
+msgid "Active filter: '%s' (press 'f' and then just 'enter' to clear)."
+msgstr "Aktivt filter: '%s' (Trykk 'F' og ENTER for å fjerne)."
+
+#: src/rules_form.c:2159
+msgid "Showing only forward rules."
+msgstr "Viser bare 'Forward'-regler"
+
+#: src/rules_form.c:2160 src/rules_form.c:2178 src/rules_form.c:2196
+msgid "Showing all rules."
+msgstr "Viser alle regler."
+
+#: src/rules_form.c:2177
+msgid "Showing only input rules."
+msgstr "Viser bare 'input'-regler."
+
+#: src/rules_form.c:2195
+msgid "Showing only output rules."
+msgstr "Viser bare 'output' regler."
+
+#: src/rules_form.c:2285
+msgid "Delete rule"
+msgstr "Slett regel."
+
+#: src/rules_form.c:2413
+msgid "new rule inserted."
+msgstr "Ny regel lagt til."
+
+#. TRANSLATORS: don't translate 'redirectport'.
+#: src/rules_form.c:2682
+msgid "redirectport must be 1-65535."
+msgstr "'redirectport' må være 1-65536"
+
+#. TRANSLATORS: don't translate 'loglimit'.
+#: src/rules_form.c:2878
+msgid "loglimit must be 0-999."
+msgstr "loglimit må være 0-999."
+
+#: src/rules_form.c:3044
+msgid "new connection limit must be 0-9999."
+msgstr "Grense for nye tilkoblinger må være 0-9999."
+
+#: src/rules_form.c:3070
+msgid "new connection limit burst must be 0-9999."
+msgstr "Grensen må være mellom 0-9999."
+
+#: src/rules_form.c:3278
+msgid "Queue"
+msgstr "Kø"
+
+#: src/rules_form.c:3309
+msgid "Mark IptState"
+msgstr "Merk IptState"
+
+#. TRANSLATORS: max 7 chars
+#: src/rules_form.c:3357
+msgid "Mark"
+msgstr "Merke"
+
+#: src/rules_form.c:3382
+msgid "From"
+msgstr "Fra"
+
+#: src/rules_form.c:3398
+msgid "Listen Interface"
+msgstr "Nettverksadapter som skal lyttes på."
+
+#: src/rules_form.c:3420
+msgid "To"
+msgstr "Til"
+
+#: src/rules_form.c:3436
+msgid "Outgoing Interface"
+msgstr "Utgående nettverksadapter"
+
+#: src/rules_form.c:3477
+msgid "Log"
+msgstr "Log"
+
+#: src/rules_form.c:3505
+msgid "Prefix"
+msgstr "Prefiks"
+
+#: src/rules_form.c:3522
+msgid "Limit"
+msgstr "Begrens"
+
+#: src/rules_form.c:3546
+msgid "Rule Limit"
+msgstr "Regel begrensning"
+
+#: src/rules_form.c:3574
+msgid "Burst"
+msgstr "Burst-Rate"
+
+#: src/rules_form.c:3601
+msgid "Chain"
+msgstr "Kjede"
+
+#: src/rules_form.c:3623
+#, fuzzy
+msgid "Via"
+msgstr "Virtuell"
+
+#: src/rules_form.c:3645 src/rules_form.c:4247
+msgid "Reject type"
+msgstr "'Reject'-type"
+
+#: src/rules_form.c:3668
+msgid "Redirect port"
+msgstr "Port som skal redirectes til"
+
+#: src/rules_form.c:3693
+msgid "Listen port"
+msgstr "Port som skal lyttes på"
+
+#: src/rules_form.c:3717
+msgid "Remote port"
+msgstr "Fjernport"
+
+#: src/rules_form.c:3744
+#, c-format
+msgid "Edit Rule: %d"
+msgstr "Endre regel %d"
+
+#: src/rules_form.c:3768
+msgid "Edit Rule"
+msgstr "Endre regel"
+
+#: src/rules_form.c:4028
+msgid "Press SPACE to select an action."
+msgstr "Trykk SPACE for å velge en handling."
+
+#: src/rules_form.c:4030
+msgid "Press SPACE to select a service."
+msgstr "Trykk space for å velge en 'service'"
+
+#: src/rules_form.c:4032
+msgid "Press SPACE to select a host, group or network, or the firewall."
+msgstr "Trykk SPACE for å velge en vert, gruppe, nettverk, eller brannmuren."
+
+#: src/rules_form.c:4034
+msgid "Enter a text to be included in the log message."
+msgstr "Fyll inn tekst som skal inkluderes i logg."
+
+#: src/rules_form.c:4036
+msgid "Press SPACE to select a reject type."
+msgstr "Trykk SPACE for å velge en 'reject'-type"
+
+#: src/rules_form.c:4038
+msgid "Enter a portnumber to redirect to."
+msgstr "Velg en port å 'redirecte' til."
+
+#: src/rules_form.c:4040
+msgid "Enter a comma-sepparated list of ports for the firewall to listen on."
+msgstr ""
+"Fyll inn en komma-separert liste med porter som brannmuren skal lytte på."
+
+#: src/rules_form.c:4042
+msgid "Enter a comma-sepparated list of ports for the firewall to forward to."
+msgstr ""
+"Fyll inn en komma-separert liste med porter som brannmuren skal forwarde."
+
+#: src/rules_form.c:4044 src/zones_section.c:725
+msgid "Enter a optional comment."
+msgstr "Fyll inn en kommentar (valgfritt)."
+
+#: src/rules_form.c:4046
+msgid "Maximum number of loglines per second (to prevent DoS), 0 for no limit."
+msgstr ""
+"Maksimum antall logg-linjer per sekund (for å forhindre DoS), 0 for ingen "
+"grense"
+
+#: src/rules_form.c:4048
+msgid "Press SPACE to toggle logging of this rule."
+msgstr "Trykk space for å velge logging av denne regelen."
+
+#: src/rules_form.c:4050
+msgid "Press SPACE to toggle marking the state of this rule (snort_inline)."
+msgstr "Press SPACE to toggle marking the state of this rule (snort_inline)."
+
+#: src/rules_form.c:4052
+msgid "Press SPACE to toggle queue'ing of this rule."
+msgstr "Trykk SPACE for å velge 'queueing' av denne regelen."
+
+#: src/rules_form.c:4054 src/rules_form.c:4056
+msgid "Press SPACE to select an interface to limit this rule to."
+msgstr ""
+"Velg SPACE for å velge en nettverksadapter som denne regelen skal gjelde for."
+
+#: src/rules_form.c:4058
+#, fuzzy
+msgid "Press SPACE to select an interface. Read help for more info."
+msgstr ""
+"Velg SPACE for å velge en nettverksadapter som denne regelen skal gjelde for."
+
+#: src/rules_form.c:4060
+msgid "Enter a nfmark. Use > 20.000.000 when using the QUEUE action."
+msgstr "Fyll inn 'nfmark'. Bruk > 20.000.000 for QUEUE-Handling!"
+
+#: src/rules_form.c:4062
+msgid "Average new connections per second (to prevent DoS), 0 for no limit."
+msgstr ""
+"Gjennomsnittlig antall nye tilkoblinger per sekund (for å forhindre DoS), 0 "
+"for ingen grense."
+
+#: src/rules_form.c:4064
+msgid "Maximum new connections per second (to prevent DoS), 0 for no limit."
+msgstr ""
+"Maksimum antall nye tilkoblinger per sekund (for å forhindre DoS), 0 for "
+"ingen grense."
+
+#: src/rules_form.c:4124
+msgid "Select action"
+msgstr "Velg en handling"
+
+#: src/rules_form.c:4191 src/rules_form.c:4230 src/zones_section.c:5588
+#: src/zones_section.c:6736 src/zones_section.c:6823
+msgid "Select"
+msgstr "Velg"
+
+#: src/rules_form.c:4191
+msgid "Select a host, group or network"
+msgstr "Velg en vert, gruppe, eller nettverk."
+
+#: src/rules_form.c:4230
+msgid "Select a service"
+msgstr "Velg en tjeneste."
+
+#: src/rules_form.c:4247
+msgid "Select reject type"
+msgstr "Velg 'Reject'-type"
+
+#: src/rules_form.c:4258
+msgid "no from zone, please select one first."
+msgstr "Ingen sone. Velg en først."
+
+#: src/rules_form.c:4329 src/rules_form.c:4344 src/rules_form.c:4437
+#: src/rules_form.c:4452
+msgid "Any"
+msgstr "Alle"
+
+#: src/rules_form.c:4337 src/rules_form.c:4445
+msgid "Set interface filter"
+msgstr "Sett filter på nettverksadapter"
+
+#: src/rules_form.c:4337 src/rules_form.c:4445
+msgid "Select an interface ('Any' to disable filter)"
+msgstr "Velg en nettverksadapter. ('Alle' for å fjerne filter)."
+
+#: src/rules_form.c:4362
+msgid "no 'to' zone, please select one first."
+msgstr "ingen 'til' sone, vennligst velg en først."
+
+#: src/rules_form.c:4501
+#, fuzzy
+msgid "Set Via interface"
+msgstr "Velg en nettverksadapter"
+
+#: src/rules_form.c:4501 src/zones_section.c:3579
+msgid "Select an interface"
+msgstr "Velg en nettverksadapter"
+
+#: src/rules_form.c:4531
+#, fuzzy
+msgid "Not all required fields are filled in"
+msgstr "Alle feltene er ikke fylt ut"
+
+#: src/rules_form.c:4532
+msgid "Do you want to look at the rule again? (no will delete the rule)"
+msgstr "Vil du se på regelen igjen? (Nei vil slette regelen)"
+
+#: src/rules_form.c:4548
+msgid "An error was detected in the rule"
+msgstr "En feil ble funnet i regelen"
+
+#: src/rules_form.c:4549
+msgid "Do you want to look at it again? (no will delete the rule)"
+msgstr "Vil du se på den igjen? (Nei vil slette regelen)."
+
+#: src/rules_form.c:4810
+msgid "Enter comment (optional)"
+msgstr "Fyll inn kommentar (valgfritt)"
+
+#: src/rules_form.c:4850
+msgid "Enter an optional comment."
+msgstr "Fyll inn en kommentar (valgfritt)"
+
+#: src/services_section.c:133
+msgid ""
+"one of the ports is too low or too high. Valid port values for tcp and udp "
+"are 1-65535."
+msgstr ""
+"en av portene er for høye, eller for lave. Gyldige områder for TCP og UDP er "
+"1-65535."
+
+#: src/services_section.c:143
+msgid ""
+"please make sure that the 'high'-port is actually higher than the 'low'-port."
+msgstr "sørg for at den øvre porten faktisk er høyere enn den nedre."
+
+#: src/services_section.c:155
+msgid ""
+"one of the values is too high. Valid icmp-types values are 1-255 (note that "
+"41-255 are reserved). Valid icmp-codes are 0-16 (note that not all "
+"combinations of types and codes are valid. See http://www.iana.org/"
+"assignments/icmp-parameters for details)."
+msgstr ""
+"En av verdiene er for høye. Gyldig verdi for ICMP-type er 1-255 (Merk: 41-"
+"255 er reservert). Gyldige  ICMP-koder er 0-16 (Merk: Ikke alle "
+"kombinasjoner av typer og koder er gyldige. Se  \"http://www.iana.org/"
+"assignments/icmp-parameters\" for mer informasjon)."
+
+#: src/services_section.c:206 src/services_section.c:223
+#: src/services_section.c:242 src/services_section.c:263
+#, c-format
+msgid "only one %s portrange is allowed."
+msgstr "Bare et %s port-område er tillatt!"
+
+#: src/services_section.c:315 src/services_section.c:1592
+#, c-format
+msgid "saving the portranges failed (in: %s:%d)."
+msgstr "lagring av port-områder mislyktes  (i: %s:%d)."
+
+#: src/services_section.c:381
+msgid "TCP Portrange"
+msgstr "TCP Port-område"
+
+#: src/services_section.c:383
+msgid "UDP Portrange"
+msgstr "UDP Port-område"
+
+#: src/services_section.c:452 src/services_section.c:458
+msgid "Low"
+msgstr "Nedre"
+
+#: src/services_section.c:453 src/services_section.c:459
+msgid "High"
+msgstr "Øvre"
+
+#: src/services_section.c:477 src/services_section.c:481
+msgid "Enter a portnumber (1-65535)."
+msgstr "Fyll inn et port-nummer (1-65535)."
+
+#: src/services_section.c:479 src/services_section.c:483
+msgid "Enter a portnumber (1-65535). This is the high-end of the range."
+msgstr "Fyll inn et port-nummer (1-65535). Dette er det øvre området."
+
+#: src/services_section.c:719
+msgid "ICMP Types"
+msgstr "ICMP typer"
+
+#: src/services_section.c:858
+#, c-format
+msgid "no ICMP-codes with selected ICMP-type (%d)."
+msgstr "Kombinasjonen av ICMP-Kode og Type er ugyldig (%d)."
+
+#: src/services_section.c:960
+msgid "ICMP Codes"
+msgstr "ICMP koder"
+
+#: src/services_section.c:1148
+msgid "Type"
+msgstr "Type"
+
+#: src/services_section.c:1149
+msgid "Code"
+msgstr "Kode"
+
+#: src/services_section.c:1162
+msgid "Press SPACE to select an ICMP-type."
+msgstr "Trykk SPACE for å velge en ICMP-type"
+
+#: src/services_section.c:1164
+msgid "Press SPACE to select an ICMP-code."
+msgstr "Trykk SPACE for å velge en ICMP-kode"
+
+#: src/services_section.c:1371
+msgid "New portrange"
+msgstr "Nytt port-område"
+
+#: src/services_section.c:1371
+msgid "Select a Protocol"
+msgstr "Velg en protokoll"
+
+#: src/services_section.c:1528
+msgid "this protocol can only be removed or added."
+msgstr "denne protokollen kan bare fjernes eller legges til."
+
+#: src/services_section.c:1533
+#, c-format
+msgid "edit of protocol %d not supported."
+msgstr "endring av protokoll %d er ikke støttet."
+
+#: src/services_section.c:1569
+msgid "Delete portrange"
+msgstr "Slett port-område"
+
+#: src/services_section.c:1885 src/services_section.c:1926
+#: src/services_section.c:1957
+msgid "Edit Portrange"
+msgstr "Endre port-område"
+
+#. TRANSLATORS: is an object active or in-active?
+#: src/services_section.c:2177 src/zones_section.c:2146
+#: src/zones_section.c:4317 src/zones_section.c:5751 src/strings.h:53
+msgid "Active"
+msgstr "Aktiv"
+
+#: src/services_section.c:2187 src/strings.h:55
+msgid "Broadcast"
+msgstr "Kringkast"
+
+#: src/services_section.c:2197
+msgid "Protocol helper"
+msgstr "Protokoll hjelper"
+
+#: src/services_section.c:2223
+msgid "Warning: no port(range)s defined!"
+msgstr "Advarsel: ingen port(områd)er er definert!"
+
+#: src/services_section.c:2249 src/services_section.c:2387
+#: src/services_section.c:2434
+msgid "Edit Service"
+msgstr "Endre tjeneste."
+
+#: src/services_section.c:2262
+msgid "Press <F6> to manage the portranges of this service."
+msgstr "Trykk <F6> for å definere port-områdene i denne tjenesten."
+
+#: src/services_section.c:2266
+msgid "List of portranges:"
+msgstr "Liste over portområder:"
+
+#: src/services_section.c:2268
+msgid "No portranges defined yet."
+msgstr "Ingen port-omåder er definert enda."
+
+#: src/services_section.c:2309
+msgid "uses no ports."
+msgstr "bruker ingen porter."
+
+#: src/services_section.c:2317
+msgid "unknown."
+msgstr "Ukjent."
+
+#: src/services_section.c:2324
+#, c-format
+msgid "There are %d more portranges. Press F6 to manage."
+msgstr "Det er %d flere portområde(r). Trykk <F6> for å behandle"
+
+#: src/services_section.c:2355 src/strings.h:44
+msgid "portranges"
+msgstr "Port-områder"
+
+#: src/services_section.c:2832
+msgid "Rename Service"
+msgstr "Gi nytt navn til tjeneste."
+
+#: src/services_section.c:2856
+msgid "New Service"
+msgstr "Ny tjeneste"
+
+#: src/services_section.c:2856
+msgid "Please enter the name of the new service"
+msgstr "Fyll inn navn for den nye tjenesten:"
+
+#: src/services_section.c:2863
+#, c-format
+msgid "service %s already exists."
+msgstr "tjenesten %s finnes allerede."
+
+#: src/services_section.c:2880
+msgid "creating new service failed."
+msgstr "Oppretting av ny tjeneste mislyktes."
+
+#: src/stat_sec.c:394
+msgid "Status Section"
+msgstr "Status"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:440
+msgid "Hostname"
+msgstr "Vertsnavn"
+
+#. TRANSLATORS: max 3 chars.
+#: src/stat_sec.c:444
+msgid "day"
+msgstr "dag"
+
+#. TRANSLATORS: this must be exactly the same regarding positions.
+#: src/stat_sec.c:446
+msgid "h  m  s"
+msgstr "h  m  s"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:450
+msgid "Uptime"
+msgstr "Uptime"
+
+#. TRANSLATORS: max 10 chars.
+#: src/stat_sec.c:455
+msgid "Load"
+msgstr "Last"
+
+#. TRANSLATORS: max 5 chars.
+#: src/stat_sec.c:459
+msgid "Free"
+msgstr "Ledig"
+
+#. TRANSLATORS: max 5 chars.
+#: src/stat_sec.c:461
+msgid "Cache"
+msgstr "Cache"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:463
+msgid "Buffer"
+msgstr "Buffer"
+
+#. TRANSLATORS: max 9 chars.
+#: src/stat_sec.c:465
+#, fuzzy
+msgid "Memory(MB)"
+msgstr "Minne"
+
+#. TRANSLATORS: max 7 chars.
+#: src/stat_sec.c:474
+msgid "Other"
+msgstr "Andre"
+
+#. TRANSLATORS: max 7 chars.
+#: src/stat_sec.c:477
+msgid "Current"
+msgstr "Current"
+
+#. TRANSLATORS: max 7 chars.
+#: src/stat_sec.c:479
+msgid "Maximal"
+msgstr "Maksimal"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:482
+msgid "Speed/s"
+msgstr "Speed/s"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:484
+msgid "Firewall"
+msgstr "Brannmur"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:486
+msgid "Forwarded"
+msgstr "Videresendt"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:492
+msgid "Down"
+msgstr "Nede"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:494
+msgid "Up"
+msgstr "Oppe"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:500
+msgid "Recv"
+msgstr "Motta"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:502
+msgid "Send"
+msgstr "Send"
+
+#: src/stat_sec.c:845
+msgid "System Status"
+msgstr "System status"
+
+#: src/sys_sec.c:86
+msgid "Syn-flood protection"
+msgstr "Syn-flood beskyttelse"
+
+#: src/sys_sec.c:90
+msgid "Echo-broadcast protect"
+msgstr "Echo-broadcast beskyttelse"
+
+#: src/templates.c:271
+msgid "Note: whitespaces not allowed."
+msgstr "Merk: mellomrom er ikke tillatt."
+
+#: src/templates.c:529 src/vuurmuur_conf.c:463 src/strings.h:100
+msgid "Warning"
+msgstr "Advarsel"
+
+#: src/templates.c:530 src/templates.c:593
+msgid "Press any key to continue..."
+msgstr "Trykk en tast for å fortsette..."
+
+#: src/vuurmuur_conf.c:167
+msgid "commandline argument too long for option -c."
+msgstr "Kommandolinjeargument for lang for Option -c."
+
+#: src/vuurmuur_conf.c:178
+msgid "commandline debuglevel out of range."
+msgstr "debugnivå i kommandolinje er utenfor grensene"
+
+#: src/vuurmuur_conf.c:195
+msgid "unknown commandline option."
+msgstr "ukjent kommando."
+
+#: src/vuurmuur_conf.c:278
+#, fuzzy, c-format
+msgid "This is Vuurmuur_conf %s, Copyright (c) 2003-2006 by Victor Julien"
+msgstr "Dette er Vuurmuur_conf %s, Copyright (c) 2003-2005 Victor Julien"
+
+#: src/vuurmuur_conf.c:370
+#, c-format
+msgid "unloading the backends failed (in: %s:%d)."
+msgstr "utlasting av backends mislyktes (in: %s:%d)."
+
+#: src/vuurmuur_conf.c:463
+#, c-format
+msgid "title '%s' too long, window will be drawn without a title."
+msgstr "'%s' er for lang tittel - Vinduet vil bli tegnet uten tittel."
+
+#: src/vuurmuur_conf.c:534
+#, c-format
+msgid "Version: %s"
+msgstr "Versjon: %s"
+
+#: src/vuurmuur_conf.c:556
+msgid "Problem with the Vuurmuur config"
+msgstr "Problem med konfigurasjonen av Vuurmuur."
+
+#: src/vuurmuur_conf.c:557
+msgid "Do you want to edit the config now?"
+msgstr "Vil du endre konfigurasjonen nå?"
+
+#: src/vuurmuur_conf.c:639
+msgid "Problem with the Vuurmuur_conf settings"
+msgstr "Problem med innstillingene i Vuurmuur_conf "
+
+#: src/vuurmuur_conf.c:640
+msgid "Do you want to edit the settings now?"
+msgstr "Vil du endre innstillingene nå?"
+
+#: src/vuurmuur_conf.c:688
+#, fuzzy
+msgid "loading the plugins failed."
+msgstr "lagring av nettverksadapter feilet."
+
+#: src/vuurmuur_conf.c:701
+msgid "intializing the services failed."
+msgstr "Initialisering av tjenester mislyktes."
+
+#: src/vuurmuur_conf.c:714
+msgid "intializing the interfaces failed."
+msgstr "Initialisering av nettverksadaptere mislyktes."
+
+#: src/vuurmuur_conf.c:727
+msgid "intializing the zones failed."
+msgstr "Initialisering av soner mislyktes."
+
+#: src/vuurmuur_conf.c:780
+#, c-format
+msgid "attaching to shared memory failed: %s (in: %s:%d)."
+msgstr "attaching to shared memory failed: %s (in: %s:%d)."
+
+#: src/zones_section.c:282
+msgid "Edit Zone: Host"
+msgstr "Sone: endre vert"
+
+#: src/zones_section.c:451
+#, c-format
+msgid "ipaddress '%s' doesn't belong in the network %s/%s."
+msgstr "IP adressen '%s' tilhører ikke i nettverket %s/%s."
+
+#: src/zones_section.c:485
+#, c-format
+msgid "MAC Address '%s' is invalid."
+msgstr "'%s' er en ugyldig MAC adresse"
+
+#: src/zones_section.c:538
+msgid "empty IP address. No rules will be created for this host."
+msgstr "Tom IP adresse. Ingen regler vil bli opprettet for denne verten"
+
+#: src/zones_section.c:618 src/zones_section.c:731 src/zones_section.c:2419
+#: src/zones_section.c:2524
+msgid "Note: parent zone/network is inactive."
+msgstr "Merk: Tilhørende sone/nettverk er inaktivt."
+
+#: src/zones_section.c:623
+msgid "Edit Host"
+msgstr "Endre vert."
+
+#: src/zones_section.c:685
+msgid "saving host failed."
+msgstr "lagrin av vert mislyktes."
+
+#: src/zones_section.c:686
+msgid "Look at the host again?"
+msgstr "Se på verten igjen?"
+
+#: src/zones_section.c:719
+msgid "Please enter an ipaddress (mandatory)."
+msgstr "Fyll inn IP adresse (påkrevd)"
+
+#: src/zones_section.c:721
+msgid "Please enter the macaddress (optional)."
+msgstr "Fyll inn MAC adresse (valgfritt)."
+
+#: src/zones_section.c:723
+msgid "If set to 'No' no rules will be created for it."
+msgstr "Hvis satt til \"Nei\", så vil ingen regler bli laget for den."
+
+#: src/zones_section.c:877 src/zones_section.c:1239 src/zones_section.c:1425
+#: src/zones_section.c:1572 src/zones_section.c:4624 src/zones_section.c:5313
+#: src/zones_section.c:5591 src/zones_section.c:5817
+msgid "Hosts"
+msgstr "Verter"
+
+#: src/zones_section.c:1178
+msgid "saving changed group to backend failed."
+msgstr "lagring av endret gruppe til backend mislyktes."
+
+#: src/zones_section.c:1220 src/zones_section.c:2799 src/zones_section.c:6292
+msgid "open"
+msgstr "åpne"
+
+#: src/zones_section.c:1335
+msgid "Rename Host"
+msgstr "Gi njytt navn til vert."
+
+#: src/zones_section.c:1335
+msgid "Enter the new name of the host"
+msgstr "Fyll inn det nye navnet på verten:"
+
+#: src/zones_section.c:1340 src/zones_section.c:1363 src/zones_section.c:1393
+#: src/zones_section.c:1416
+#, c-format
+msgid "invalid hostname '%s'."
+msgstr "Ugyldig vertsnavn '%s'."
+
+#: src/zones_section.c:1388
+msgid "New Host"
+msgstr "Ny vert"
+
+#: src/zones_section.c:1388
+msgid "Enter the name of the new host"
+msgstr "Fyll inn navn på den nye verten:"
+
+#: src/zones_section.c:1447
+msgid "This host?"
+msgstr "Denne verten?"
+
+#: src/zones_section.c:1483
+#, c-format
+msgid "host '%s' is still a member of %u group(s)."
+msgstr "verten '%s' er fortsatt medlem av %ugruppe(r)."
+
+#: src/zones_section.c:1488
+#, c-format
+msgid "host '%s' is still in the blocklist (%u times)."
+msgstr "Vert '%s' er fortsatt i blokkeinglisten (%u ganger)."
+
+#: src/zones_section.c:1495
+msgid "deleting zone failed."
+msgstr "sletting av sone mislyktes."
+
+#: src/zones_section.c:1711 src/zones_section.c:2424 src/zones_section.c:2534
+msgid "Members"
+msgstr "Medlemmer"
+
+#: src/zones_section.c:1877
+msgid "please add some hosts to the network first."
+msgstr "vennligst legg til noen verter i nettverket først"
+
+#: src/zones_section.c:1911
+msgid "New member"
+msgstr "Ny medlem"
+
+#: src/zones_section.c:1911
+msgid "Select a host"
+msgstr "Velg en vert"
+
+#: src/zones_section.c:2041
+msgid "removing groupmember failed."
+msgstr "fjerning av gruppemedlem mislyktes."
+
+#: src/zones_section.c:2182
+msgid "Edit Zone: Group"
+msgstr "Sone: Endre gruppe"
+
+#: src/zones_section.c:2223
+msgid "Press <F6> to manage the members of this group."
+msgstr "Trykk <F6> for å behandle medlemmene i denne gruppen"
+
+#: src/zones_section.c:2227
+msgid "List of members:"
+msgstr "Liste over medlemmer:"
+
+#: src/zones_section.c:2229
+msgid "No members assigned yet."
+msgstr "Ingen medlemmer tilordnet enda."
+
+#: src/zones_section.c:2244
+#, c-format
+msgid "There are %d more members. Press F6 to manage."
+msgstr "Det er %d medlemmer til. Trykk <F6> for å plassere."
+
+#: src/zones_section.c:2389 src/zones_section.c:2636
+msgid "members"
+msgstr "medlemmer"
+
+#: src/zones_section.c:2414 src/zones_section.c:2517
+msgid "Warning: no members!"
+msgstr "Advarsel: ingen medlemmer!"
+
+#: src/zones_section.c:2430 src/zones_section.c:2476
+msgid "Edit Group"
+msgstr "Endre gruppe"
+
+#: src/zones_section.c:2689 src/zones_section.c:2818 src/zones_section.c:2978
+#: src/zones_section.c:3110 src/zones_section.c:4626 src/zones_section.c:5314
+#: src/zones_section.c:5595 src/zones_section.c:5819
+msgid "Groups"
+msgstr "Grupper"
+
+#: src/zones_section.c:2900
+msgid "Rename Group"
+msgstr "Gi nytt navn til gruppe"
+
+#: src/zones_section.c:2900
+msgid "Enter the new name of the group"
+msgstr "Fyll inn det nye navnet for gruppen"
+
+#: src/zones_section.c:2905 src/zones_section.c:2928 src/zones_section.c:2956
+#, c-format
+msgid "invalid groupname '%s'."
+msgstr "'%s' er et ugyldig gruppenavn."
+
+#: src/zones_section.c:2951
+msgid "New Group"
+msgstr "Ny gruppe"
+
+#: src/zones_section.c:2951
+msgid "Enter the name of the new group"
+msgstr "Fyll inn navn for den nye gruppen"
+
+#: src/zones_section.c:2982
+msgid "failed to create new group."
+msgstr "Kunne ikke opprette ny gruppe."
+
+#: src/zones_section.c:2989
+#, c-format
+msgid "groupname '%s' is invalid."
+msgstr "'%s' er et ugyldig gruppenavn."
+
+#: src/zones_section.c:3010
+msgid "This group?"
+msgstr "Denne gruppen?"
+
+#: src/zones_section.c:3035
+#, c-format
+msgid "group '%s' is still in the blocklist (%u times)."
+msgstr "gruppe '%s' er fortsatt i blokkeringsliste (%u ganger)."
+
+#: src/zones_section.c:3043
+msgid "deleting group failed."
+msgstr "sletting av gruppe mislyktes."
+
+#: src/zones_section.c:3579
+msgid "New interface"
+msgstr "Ny nettverksadapter"
+
+#: src/zones_section.c:3600
+msgid "saving the interfaces failed."
+msgstr "lagring av nettverksadapter feilet."
+
+#: src/zones_section.c:4327 src/zones_section.c:5315 src/strings.h:34
+msgid "Network"
+msgstr "Nettverk"
+
+#: src/zones_section.c:4338
+msgid "Netmask"
+msgstr "Nettverksmaske"
+
+#: src/zones_section.c:4350
+msgid "Loopback"
+msgstr "Loopback"
+
+#: src/zones_section.c:4365
+msgid "Class A"
+msgstr "Klasse A"
+
+#: src/zones_section.c:4380
+msgid "Class B"
+msgstr "Klasse B"
+
+#: src/zones_section.c:4395
+msgid "Class C"
+msgstr "Klasse C"
+
+#: src/zones_section.c:4410
+msgid "Class D"
+msgstr "Klasse D"
+
+#: src/zones_section.c:4425
+msgid "Class E"
+msgstr "Klasse E"
+
+#: src/zones_section.c:4440
+msgid "Test-net"
+msgstr "Test-nett"
+
+#: src/zones_section.c:4455
+msgid "Link local net"
+msgstr "Link local net"
+
+#: src/zones_section.c:4470
+msgid "0.0.0.0/8 res."
+msgstr "0.0.0.0/8 res."
+
+#: src/zones_section.c:4485
+msgid "Broadcast src."
+msgstr "Broadcast src."
+
+#: src/zones_section.c:4500
+msgid "Broadcast dst."
+msgstr "Broadcast dst."
+
+#: src/zones_section.c:4515
+msgid "DHCP Server"
+msgstr "DHCP server"
+
+#: src/zones_section.c:4530
+msgid "DHCP Client"
+msgstr "DHCP klient"
+
+#: src/zones_section.c:4577
+msgid "Edit Zone: Network"
+msgstr "Sone: Endre nettverk"
+
+#: src/zones_section.c:4618
+msgid "Anti-spoofing"
+msgstr "Anti-spoofing"
+
+#: src/zones_section.c:4866
+msgid "interfaces"
+msgstr "nettverksadaptere"
+
+#: src/zones_section.c:4901 src/zones_section.c:5025
+msgid "Warning: no interfaces attached!"
+msgstr "Advarsel: ingen nettverksadapter(e) er valgt"
+
+#: src/zones_section.c:4907 src/zones_section.c:5033
+msgid "Note: parent zone is inactive."
+msgstr "Merk: tilhørende sone er inaktiv."
+
+#: src/zones_section.c:4916 src/zones_section.c:4984 src/zones_section.c:5220
+#: src/zones_section.c:5815
+msgid "Networks"
+msgstr "Nettverk"
+
+#. TRANSLATORS: max 32 chars
+#: src/zones_section.c:5144
+#, c-format
+msgid "No network/netmask defined."
+msgstr "Ingen nettverk/nettmaske definert."
+
+#: src/zones_section.c:5233
+msgid "to enter the hosts/groups of this network"
+msgstr "for å legge til verter/grupper i dette nettverket"
+
+#: src/zones_section.c:5413
+msgid "Rename Network"
+msgstr "Gi nytt navn til nettverk"
+
+#: src/zones_section.c:5413
+msgid "Enter the new name of the network"
+msgstr "Fyll inn det nye navnet på nettverket"
+
+#: src/zones_section.c:5418 src/zones_section.c:5472
+#, c-format
+msgid "invalid networkname '%s'."
+msgstr "Ugyldig navn på nettverk '%s'."
+
+#: src/zones_section.c:5442
+msgid "renaming network failed."
+msgstr "Kunne ikke gi nytt navn til nettverket"
+
+#: src/zones_section.c:5452 src/zones_section.c:5503
+#, c-format
+msgid "'%s' is an invalid name for a network."
+msgstr "'%s' er et ugyldig navn på et nettverk"
+
+#: src/zones_section.c:5467
+msgid "New Network"
+msgstr "Nytt nettverk"
+
+#: src/zones_section.c:5467
+msgid "Enter the name of the new network"
+msgstr "Fyll inn navn på det nye nettverket"
+
+#: src/zones_section.c:5489
+msgid "adding network failed."
+msgstr "Tillegging av nettverk mislyktes"
+
+#: src/zones_section.c:5522
+msgid "This network?"
+msgstr "Dette nettverket?"
+
+#: src/zones_section.c:5535
+msgid "deleting network failed."
+msgstr "Sletting av nettverk mislyktes"
+
+#: src/zones_section.c:5550
+msgid "unable to delete: network not empty."
+msgstr "Kan ikke slette: nettverket er ikke tomt"
+
+#: src/zones_section.c:5588
+msgid "Hosts, Groups or this Network"
+msgstr "Verter, grupper eller dette nettverket"
+
+#: src/zones_section.c:5779
+msgid "Edit Zone: Zone"
+msgstr "Endre sone: sone"
+
+#: src/zones_section.c:5991
+msgid "Edit Zone"
+msgstr "Endre Sone"
+
+#: src/zones_section.c:6207
+msgid "to enter the networks of this zone"
+msgstr "for å legge til nettverk til denne sonen"
+
+#: src/zones_section.c:6356
+msgid "Rename Zone"
+msgstr "Gi nytt navn til sone"
+
+#: src/zones_section.c:6356
+msgid "Enter the new name of the zone"
+msgstr "Fyll inn det nye navnet på sonen"
+
+#: src/zones_section.c:6377
+msgid "New Zone"
+msgstr "Ny sone"
+
+#: src/zones_section.c:6377
+msgid "Enter the name of the new zone"
+msgstr "Fyll inn navn på den nye sonen"
+
+#: src/zones_section.c:6420
+msgid "This zone?"
+msgstr "Denne sonen?"
+
+#: src/zones_section.c:6428
+#, c-format
+msgid "deleting zone failed (in: %s:%d)."
+msgstr "Sletting av sone feilet (i: %s:%d)."
+
+#: src/zones_section.c:6442
+#, fuzzy
+msgid "unable to delete: zone not empty."
+msgstr "Kan ikke slette: nettverket er ikke tomt"
+
+#: src/zones_section.c:6717 src/zones_section.c:6739
+msgid "IPAddress"
+msgstr "IP adresse"
+
+#: src/zones_section.c:6718 src/zones_section.c:6770 src/zones_section.c:6775
+#: src/strings.h:30
+msgid "Host"
+msgstr "Host"
+
+#: src/zones_section.c:6719 src/zones_section.c:6770 src/strings.h:32
+msgid "Group"
+msgstr "Gruppe"
+
+#: src/zones_section.c:6736
+msgid "What do you want to block?"
+msgstr "Hva vil du blokkere?"
+
+#: src/zones_section.c:6741
+msgid "New IPAddress"
+msgstr "Ny IP adresse"
+
+#: src/zones_section.c:6741
+msgid "Enter the IPAddress to be blocked"
+msgstr "IP adresse som skal blokkeres"
+
+#: src/zones_section.c:6747
+#, c-format
+msgid "'%s' is not a valid ipaddress."
+msgstr "'%s' er ikke en gyldig IP adresse"
+
+#: src/zones_section.c:6796
+msgid "please create one or more hosts/groups first."
+msgstr "vennligst opprett en eller flere verter/grupper først."
+
+#: src/zones_section.c:6823
+msgid "Select a host or group to block"
+msgstr "Velg vert eller gruppe som skal blokkeres"
+
+#: src/zones_section.c:6828
+#, c-format
+msgid "adding host/group to list failed (in: %s:%d)."
+msgstr "kunne ikke legge til vert/gruppe i listen (i: %s:%d)."
+
+#: src/zones_section.c:6979
+msgid "Remove"
+msgstr "Fjern"
+
+#: src/zones_section.c:6979
+msgid "This IP/Host/Group?"
+msgstr "Denne IP/Vert/Gruppe?"
+
+#: src/strings.h:29
+msgid "host"
+msgstr "vert"
+
+#: src/strings.h:31
+msgid "group"
+msgstr "gruppe"
+
+#: src/strings.h:33
+msgid "network"
+msgstr "nettverk"
+
+#: src/strings.h:35
+msgid "zone"
+msgstr "sone"
+
+#: src/strings.h:36
+msgid "Zone"
+msgstr "Sone"
+
+#: src/strings.h:37
+msgid "interface"
+msgstr "nettverksadapter"
+
+#: src/strings.h:39
+msgid "service"
+msgstr "tjeneste"
+
+#: src/strings.h:42
+msgid "portrange"
+msgstr "port-område"
+
+#: src/strings.h:43
+msgid "Portrange"
+msgstr "Port-område"
+
+#: src/strings.h:45
+msgid "Portranges"
+msgstr "Porter"
+
+#. TRANSLATORS: is an object active or in-active?
+#: src/strings.h:51
+msgid "active"
+msgstr "Aktiv"
+
+#: src/strings.h:54
+msgid "broadcast"
+msgstr "kringkast"
+
+#: src/strings.h:56
+msgid "protocol helper"
+msgstr "protokoll-hjeper"
+
+#: src/strings.h:57
+msgid "Protocol Helper"
+msgstr "Protokoll-hjelper"
+
+#: src/strings.h:58
+msgid "IP address"
+msgstr "IP adresse"
+
+#: src/strings.h:59
+msgid "MAC address"
+msgstr "MAC adresse"
+
+#. TRANSLATORS: max 18 chars
+#: src/strings.h:61
+#, fuzzy
+msgid "dynamic IP Address"
+msgstr "dynamisk IP adresse"
+
+#. TRANSLATORS: max 18 chars
+#: src/strings.h:63
+#, fuzzy
+msgid "Dynamic IP Address"
+msgstr "Dynamisk IP adresse"
+
+#. TRANSLATORS: e.g. eth0 or ppp0
+#: src/strings.h:65
+msgid "device"
+msgstr "enhet"
+
+#. TRANSLATORS: e.g. eth0 or ppp0
+#: src/strings.h:67
+msgid "Device"
+msgstr "Enhet"
+
+#. TRANSLATORS: e.g. eth0:0 is a virtual device
+#: src/strings.h:69
+msgid "virtual"
+msgstr "virtuell"
+
+#. TRANSLATORS: e.g. eth0:0 is a virtual device
+#: src/strings.h:71
+msgid "Virtual"
+msgstr "Virtuell"
+
+#: src/strings.h:72
+msgid "network address"
+msgstr "nettverks-adresse"
+
+#: src/strings.h:73
+msgid "netmask"
+msgstr "nettmaske"
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: src/strings.h:76
+msgid "rules are changed"
+msgstr "reglene er endret"
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: src/strings.h:78
+msgid "number of rules"
+msgstr "antall regler"
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: src/strings.h:80
+msgid "listed below"
+msgstr "listet under"
+
+#: src/strings.h:82
+msgid "rename failed"
+msgstr "kunne ikke gi nytt navn"
+
+#: src/strings.h:83
+msgid "delete failed"
+msgstr "sletting mislyktes"
+
+#: src/strings.h:84
+msgid "invalid name"
+msgstr "ugyldig navn"
+
+#: src/strings.h:85
+msgid "Please enter the name"
+msgstr "Fyll inn navn for den nye tjenesten"
+
+#: src/strings.h:91
+msgid "Yes"
+msgstr "Ja"
+
+#: src/strings.h:92
+msgid "No"
+msgstr "Nei"
+
+#: src/strings.h:94
+msgid "OK"
+msgstr "OK"
+
+#: src/strings.h:95
+msgid "FAILED"
+msgstr "FEILET"
+
+#: src/strings.h:98
+msgid "Internal Error"
+msgstr "Intern feil"
+
+#: src/strings.h:99
+msgid "Info"
+msgstr "Info"
+
+#: src/strings.h:102
+msgid "saving to backend failed"
+msgstr "lagring til backends mislyktes (in: %s:%d)!"
+
+#: src/strings.h:104
+#, fuzzy
+msgid "opening file failed"
+msgstr "åpning av 'pipe' mislyktes: %s."
+
+#: src/strings.h:106
+#, fuzzy
+msgid "only ASCII is allowed in the prefix field."
+msgstr "Prosent-tegnet er ikke tillatt i kommentarfeltet."
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: src/strings.h:112
+msgid "has been changed"
+msgstr "er forandret"
+
+#. TRANSLATORS: example: service 'http' has been changed: portrange 'TCP: 1024:65535->80' has been added.
+#: src/strings.h:114
+msgid "has been added"
+msgstr "er lagt til"
+
+#. TRANSLATORS: example: service 'http' has been created.
+#: src/strings.h:116
+msgid "has been created"
+msgstr "er opprettet"
+
+#. TRANSLATORS: example: service 'htpt' has been renamed to 'http'.
+#: src/strings.h:118
+msgid "has been renamed to"
+msgstr "har endrete navn til"
+
+#. TRANSLATORS: example: service 'http' has been changed: portrange 'TCP: 1024:65535->80' has been removed.
+#: src/strings.h:120
+msgid "has been removed"
+msgstr "er fjernet"
+
+#. TRANSLATORS: example: service 'http' has been deleted.
+#: src/strings.h:122
+msgid "has been deleted"
+msgstr "er slettet"
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: src/strings.h:124
+msgid "is now set to"
+msgstr "er nå satt til"
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: src/strings.h:126
+msgid "was"
+msgstr "var"
+
+#. TRANSLATORS: example: service '%s' has been changed: the comment has been changed.
+#: src/strings.h:129
+msgid "the comment has been changed"
+msgstr "kommentarfeltet er endret"
+
+#: src/strings.h:134
+msgid "this protocol doesn't use ports."
+msgstr "Denne protokollen bruker ikke porter"
+
+#: src/strings.h:139
+msgid "a member has been added"
+msgstr "et medlem har blitt lagt til"
+
+#: src/strings.h:140
+msgid "a member has been removed"
+msgstr "filter fjernet"
+
+#: src/strings.h:145
+msgid "an interface has been added"
+msgstr "en nettverksadapter har blitt lagt til"
+
+#: src/strings.h:146
+msgid "an interface has been removed"
+msgstr "en nettverksadapter har blitt fjernet"
+
+#: src/strings.h:151 src/strings.h:152
+msgid "has been added to the blocklist"
+msgstr "er lagt til i blokkeringslisten"
+
+#: src/strings.h:158
+msgid "remove"
+msgstr "fjerne"
+
+#: src/strings.h:165
+msgid "Initializing Services"
+msgstr "Initialiserer tjenester"
+
+#: src/strings.h:166
+msgid "Initializing Interfaces"
+msgstr "Initialiserer nettverksadaptere"
+
+#: src/strings.h:167
+msgid "Initializing Zones"
+msgstr "Initialiserer soner"
+
+#: src/strings.h:168
+msgid "Initializing Rules"
+msgstr "Initialiserer regler"
+
+#: src/strings.h:169
+msgid "Initializing BlockList"
+msgstr "Initialiserer blokkeringsliste"
+
+#: src/strings.h:170
+msgid "Loading plugins"
+msgstr "Laster plugins"
+
+#: src/strings.h:171
+msgid "Loading Vuurmuur_conf settings"
+msgstr "Laster Vuurmuur_conf innstillinger"
+
+#: src/strings.h:172
+msgid "Loading Vuurmuur config"
+msgstr "Laster Vuurmuur konfigurasjon"
+
+#: src/strings.h:174
+msgid "Connecting to"
+msgstr "Kobler til"
+
+#: src/strings.h:179
+msgid "The date is now"
+msgstr "Datoen nå"
+
+#: src/strings.h:180
+msgid "The action is now"
+msgstr "Handling nå"
+
+#: src/strings.h:181
+msgid "The service is now"
+msgstr "Tjeneste nå"
+
+#: src/strings.h:182
+msgid "The source is now"
+msgstr "Opprinnelse nå"
+
+#: src/strings.h:183
+msgid "The destination is now"
+msgstr "Mål nå"
+
+#: src/strings.h:184
+msgid "The prefix is now"
+msgstr "Prefix nå"
+
+#: src/strings.h:185
+msgid "The details are now"
+msgstr "Detaljer nå"
+
+#: src/strings.h:186
+msgid "logging options are only available for the traffic.log."
+msgstr ""
+
+#: src/strings.h:191
+msgid "the action 'Bounce' requires the 'via' option to be set."
+msgstr ""
+
+#: src/strings.h:192
+msgid "the action 'Redirect' requires the 'Redirect port' option to be set."
+msgstr ""
+
+#: src/filter.c:158
+#, fuzzy
+msgid "Filter"
+msgstr "filter"
+
+#: src/filter.c:207
+msgid "show lines that don't match"
+msgstr ""
+
+#: src/filter.c:300
+#, fuzzy
+msgid "setting filter failed."
+msgstr "åpning av 'pipe' mislyktes: %s."
+
+#: src/gui.c:35
+msgid "Please Wait"
+msgstr ""
+
+#: src/statevent.c:481
+#, fuzzy
+msgid "Manage Connection"
+msgstr "Tilkolinger"
+
+#: src/statevent.c:520 src/statevent.c:806
+#, fuzzy
+msgid "Kill this connection"
+msgstr "Kobler fra"
+
+#: src/statevent.c:521
+msgid "Kill all connections with this service/source/destination"
+msgstr ""
+
+#: src/statevent.c:524 src/statevent.c:810
+#, fuzzy
+msgid "Kill options"
+msgstr "Valg"
+
+#: src/statevent.c:527 src/statevent.c:813
+#, c-format
+msgid "Kill all connections with source %s"
+msgstr ""
+
+#: src/statevent.c:530 src/statevent.c:816
+#, c-format
+msgid "Kill all connections with destination %s"
+msgstr ""
+
+#: src/statevent.c:533 src/statevent.c:536 src/statevent.c:819
+#: src/statevent.c:822
+#, c-format
+msgid "Kill all connections of %s"
+msgstr ""
+
+#: src/statevent.c:539 src/statevent.c:825
+#, fuzzy
+msgid "BlockList options"
+msgstr "Blokkeringsliste"
+
+#: src/statevent.c:542 src/statevent.c:828
+#, fuzzy, c-format
+msgid "Add source %s to BlockList"
+msgstr "Konverter blokkeringsliste."
+
+#: src/statevent.c:545 src/statevent.c:831
+#, fuzzy, c-format
+msgid "Add destination %s to BlockList"
+msgstr "Das Datum ist nun sichtbar."
+
+#: src/statevent.c:548 src/statevent.c:834
+msgid "Add both source and destination to BlockList"
+msgstr ""
+
+#: src/statevent.c:591
+#, fuzzy
+msgid "Kill connection"
+msgstr "Kobler fra"
+
+#: src/statevent.c:601 src/statevent.c:617 src/statevent.c:630
+#: src/statevent.c:643 src/statevent.c:657 src/statevent.c:879
+#: src/statevent.c:895 src/statevent.c:908 src/statevent.c:921
+#: src/statevent.c:935
+#, fuzzy
+msgid "Kill connections"
+msgstr "Tilkolinger"
+
+#: src/statevent.c:667 src/statevent.c:675 src/statevent.c:683
+#: src/statevent.c:945 src/statevent.c:953 src/statevent.c:961
+msgid "Add to BlockList and Apply Changes"
+msgstr ""
+
+#: src/statevent.c:755
+#, fuzzy
+msgid "Manage Log"
+msgstr "Logging"
+
+#: src/statevent.c:1019
+#, fuzzy
+msgid "Manage Connections"
+msgstr "Tilkolinger"
+
+#: src/statevent.c:1020
+#, fuzzy
+msgid "connection actions"
+msgstr "Kobler til"
+
+#: src/statevent.c:1021
+msgid "No connections to act on."
+msgstr ""
+
+#: src/statevent.c:1029
+#, fuzzy
+msgid "Manage Logging"
+msgstr "Logging"
+
+#: src/statevent.c:1030
+#, fuzzy
+msgid "logging actions"
+msgstr "Blokkeringsliste"
+
+#: src/statevent.c:1031
+msgid "No logs to act on."
+msgstr ""
+
+#~ msgid "Systemlog filename (full path (for vuurmuur_log)):"
+#~ msgstr "Filnavn for systemlog (full filbane (for vuurmuur_log)):"
+
+#, fuzzy
+#~ msgid "Connection Options"
+#~ msgstr "Kobler til"
+
+#, fuzzy
+#~ msgid "Log Options"
+#~ msgstr "Valg"
+
+#, fuzzy
+#~ msgid "Iptables Capabilities missing or not loaded"
+#~ msgstr "Iptables funksjoner"
+
+#, fuzzy
+#~ msgid "Try loading modules?"
+#~ msgstr "last moduler"
+
+#~ msgid "status"
+#~ msgstr "status"
+
+#~ msgid "grp unknown"
+#~ msgstr "Gruppèr ukjente"
+
+#~ msgid "the source of a portfw-rule cannot be 'firewall'."
+#~ msgstr "kilden til en portfw-regel kan ikke være 'firewall'."
+
+#~ msgid "the destination of a snat-rule cannot be 'any'."
+#~ msgstr "mål for en SNAT-regel kan ikke være 'alle'."
+
+#~ msgid "CONNECTING"
+#~ msgstr "KOBLER TIL"
+
+#~ msgid "DISCONNECTING"
+#~ msgstr "KOBLER FRA"
+
+#~ msgid "INCOMING"
+#~ msgstr "INNKOMMENDE"
+
+#~ msgid "OUTGOING"
+#~ msgstr "UTGÅENDE"
+
+#~ msgid "FORWARDING"
+#~ msgstr "VIDERESENDER"
+
+#~ msgid "Problem with the plugins"
+#~ msgstr "Problemer med plugins"
+
+#~ msgid ""
+#~ "changing the loglevel requires restarting of Vuurmuur to take effect."
+#~ msgstr ""
+#~ "Die Veränderung der Logging-Stufe benötigt den Neustart von Vuurmuur!"
+
+#~ msgid "the loglimit value must be bigger than 0."
+#~ msgstr "Die Logging-Grenze muß größer als 0 sein!"
+
+#~ msgid "helpfile could not be opened."
+#~ msgstr "Hilfedatei konnte nicht geöffnet werden."
+
+#~ msgid "could not open configfile '%s': %s (in: %s:%d)."
+#~ msgstr "konnte Konfigurationsdatei '%s' nicht öffnen  %s (in: %s:%d)."
+
+#~ msgid "unable to open configfile for writing: %s (in: %s)."
+#~ msgstr "Konfigurationsdatei konnte nicht geschrieben werden: %s (in: %s)."
+
+#~ msgid ""
+#~ "changing the rule creation method requires restarting of Vuurmuur to take "
+#~ "effect."
+#~ msgstr ""
+#~ "Das Verändern der Regel-Erstellungsmethode benötigt einen Neustart von "
+#~ "Vuurmuur."
+
+#~ msgid "opening helpfile '%s' failed: %s (in: %s:%d)."
+#~ msgstr "Konnte die Hilfedatei '%s' nicht öffnen %s (in: %s:%d)."
+
+#~ msgid "The date is now visible."
+#~ msgstr "Das Datum ist nun sichtbar."
+
+#, fuzzy
+#~ msgid "The action is now visible."
+#~ msgstr "Das Datum ist nun sichtbar."
+
+#, fuzzy
+#~ msgid "The service is now visible."
+#~ msgstr "Das Datum ist nun sichtbar."
+
+#, fuzzy
+#~ msgid "The source is now visible."
+#~ msgstr "Das Datum ist nun sichtbar."
+
+#, fuzzy
+#~ msgid "The prefix is now visible."
+#~ msgstr "Das Datum ist nun sichtbar."
+
+#, fuzzy
+#~ msgid "The details are now visible."
+#~ msgstr "Das Datum ist nun sichtbar."
+
+#~ msgid "MAC Address"
+#~ msgstr "MAC Adresse"
+
+#~ msgid "Dynamic"
+#~ msgstr "Dynamisch"
+
+#~ msgid "Please enter the new name of the interface:"
+#~ msgstr "Bitte geben Sie den neuen Namen des Interface ein:"
+
+#~ msgid "renaming interface failed."
+#~ msgstr "Umbenennung des Interface fehlgeschlagen."
+
+#, fuzzy
+#~ msgid "invalid interface name."
+#~ msgstr "Umbenennung des Interface fehlgeschlagen."
+
+#~ msgid "Please enter the name of the new interface:"
+#~ msgstr "Bitte geben Sie den Namen des neuen Interface ein:"
+
+#~ msgid "Please enter the new name of the service"
+#~ msgstr "Bitte geben Sie den Namen des neuen Services ein:"
+
+#~ msgid "the interval value must be positive."
+#~ msgstr "Der Intervallwert muß positiv sein!"
+
+#~ msgid "the interval value must be bigger than 0."
+#~ msgstr "Der Intervallwert muß grösser als 0 sein!"
+
+#~ msgid "the wait time value must be positive."
+#~ msgstr "Wartezeit-Wert muß positiv sein!"
+
+#~ msgid "the SYN-limit value must be positive."
+#~ msgstr "Das SYN-Limit muß positiv sein!"
+
+#~ msgid "the SYN-limit value must be bigger than 0."
+#~ msgstr "Das SYN-Limit muß größer als 0 sein!"
+
+#~ msgid "the SYN-limit-burst value must be positive."
+#~ msgstr "Der SYN-Limit-Burst-Wert muß positiv sein!"
+
+#~ msgid "the SYN-limit-burst value must be bigger than 0."
+#~ msgstr "Der SYN-Limit-Burst-Wert muß größer als 0 sein!"
+
+#~ msgid "the UDP-limit value must be positive."
+#~ msgstr "Die UDP-Grenzwert muß positiv sein!"
+
+#~ msgid "the UDP-limit value must be bigger than 0."
+#~ msgstr "Der UDP-Grenzwert muß größer als 0 sein!"
+
+#~ msgid "the UDP-limit-burst value must be positive."
+#~ msgstr "Der UDP-Burstgrenzwert muß positiv sein!."
+
+#~ msgid "the UDP-limit-burst value must be bigger than 0."
+#~ msgstr "Der UDP-Burstgrenzwert muß größer als 0 sein!"
+
+#~ msgid "the buffersize value must be positive."
+#~ msgstr "Die Buffergröße muß positiv sein!"
+
+#~ msgid "the buffersize value must be bigger than 0."
+#~ msgstr "Die Buffergröße muß größer als 0 sein!"
+
+#~ msgid "Not sure what to make of ADVANCED_MODE '%s', using default (%s)."
+#~ msgstr ""
+#~ "Unsicher über Status von ADVANCED_MODE '%s'; Es werden Standardwerte "
+#~ "verwendet (%s)."
+
+#~ msgid "Variable ADVANCED_MODE not found in '%s'. Using default (%s)."
+#~ msgstr ""
+#~ "Variable ADVANCED_MODE ist nicht in '%s' gefunden worden. Es werden "
+#~ "Standardwerteverwendet (%s)."
+
+#~ msgid "Not sure what to make of MAINMENU_STATUS '%s', using default (%s)."
+#~ msgstr ""
+#~ "Unsicher über Status von MAINMENU_STATUS '%s'; Es werden Standartwerte "
+#~ "verwendet (%s)."
+
+#~ msgid "Variable MAINMENU_STATUS not found in '%s'. Using default (%s)."
+#~ msgstr ""
+#~ "Variable MAINMENU_STATUS wurde nicht in '%s' gefunden. Es werden "
+#~ "Standardwerte verwendet (%s)."
+
+#~ msgid "Not sure what to make of NEWRULE_LOG '%s', using default (%s)."
+#~ msgstr ""
+#~ "Nicht sicher über NEWRULE_LOG '%s'; Es werden Standardwerte verwendet (%"
+#~ "s)."
+
+#~ msgid "Variable NEWRULE_LOG not found in '%s'. Using default (%s)."
+#~ msgstr ""
+#~ "Variable NEWRULE_LOG nicht in '%s' gefunden. Es werden Standardwerte "
+#~ "verwendet (%s)."
+
+#~ msgid "A negative LOG-limit (%d) can not be used, using default (%d)."
+#~ msgstr ""
+#~ "Ein negatives LOG-Limit (%d) ist ungültig; Es werden Standardwerte "
+#~ "verwendet (%d)"
+
+#~ msgid "Variable NEWRULE_LOGLIMIT not found in '%s'. Using default (%d)."
+#~ msgstr ""
+#~ "Variable NEWRULE_LOGLIMIT wurde nicht in '%s' gefunden. Es werden "
+#~ "Standardwerte verwendet (%d)"
+
+#~ msgid "A negative buffersize (%d) can not be used, using default (%d)."
+#~ msgstr ""
+#~ "Eine negative Buffergrösse (%d) ist nicht gültig, daher wirdder "
+#~ "Standardwert (%d) verwendet."
+
+#~ msgid "Variable LOGVIEW_BUFSIZE not found in '%s'. Using default (%d)."
+#~ msgstr ""
+#~ "Variable LOGVIEW_BUFSIZE wurde nicht in '%s' gefunden.Es wird der "
+#~ "Standardwert (%d) verwendet ."
+
+#~ msgid "unknown logfile '%s'."
+#~ msgstr "Unbekannte Logdatei '%s'."
+
+#~ msgid "to edit an interface"
+#~ msgstr "um Interface zu ändern"
+
+#~ msgid "to add an interface"
+#~ msgstr "um Interface hinzuzufügen"
+
+#~ msgid "to remove an interface"
+#~ msgstr "um Interface zu entfernen"
+
+#~ msgid "setting up regular expressions failed (in: %s:%d)."
+#~ msgstr "Aufsetzen eines regulären Ausdrucks fehlgeschlagen (in: %s:%d)!"
+
+#~ msgid "to edit the host"
+#~ msgstr "um den Host zu ändern"
+
+#~ msgid "to add a new host"
+#~ msgstr "um einen neuen Host hinzuzufügen"
+
+#~ msgid "to remove the host"
+#~ msgstr "um den Host zu löschen"
+
+#~ msgid "to add a member"
+#~ msgstr "um ein Mitglied hinzuzufügen"
+
+#~ msgid "to remove a member"
+#~ msgstr "um ein Mitglied zu löschen"
+
+#~ msgid "to edit the group"
+#~ msgstr "um die Gruppe zu ändern"
+
+#~ msgid "to add a new group"
+#~ msgstr "um eine neue Gruppe hinzuzufügen"
+
+#~ msgid "to remove the group"
+#~ msgstr "um die Gruppe zu löschen"
+
+#~ msgid "to add a new network"
+#~ msgstr "um einen neuen Netzwerkeintrag hinzuzufügen"
+
+#~ msgid "to remove the network"
+#~ msgstr "um den Netzwerkeintrag zu löschen"
+
+#~ msgid "to edit the network"
+#~ msgstr "um den Netzwerkeintrag zu ändern"
+
+#~ msgid "to add a new zone"
+#~ msgstr "um eine neue Zone hinzuzufügen"
+
+#~ msgid "to remove the zone"
+#~ msgstr "um die Zone zu löschen"
+
+#~ msgid "to edit the zone"
+#~ msgstr "um die Zone zu ändern"
+
+#~ msgid "to add a new item"
+#~ msgstr "um einen neuen Eintrag hinzuzufügen"
+
+#~ msgid "to remove the item"
+#~ msgstr "um den Eintrag zu löschen"
+
+#, fuzzy
+#~ msgid "to add a"
+#~ msgstr "um ein Mitglied hinzuzufügen"
+
+#, fuzzy
+#~ msgid "to add an"
+#~ msgstr "um einen neuen Eintrag hinzuzufügen"
+
+#, fuzzy
+#~ msgid "to remove a"
+#~ msgstr "um ein Mitglied zu löschen"
+
+#, fuzzy
+#~ msgid "to remove an"
+#~ msgstr "um die Zone zu löschen"
+
+#, fuzzy
+#~ msgid "to edit a"
+#~ msgstr "um Portrange zu ändern"
+
+#, fuzzy
+#~ msgid "to edit an"
+#~ msgstr "um die Zone zu ändern"
+
+#, fuzzy
+#~ msgid "to rename a"
+#~ msgstr "Umbenennen"
+
+#, fuzzy
+#~ msgid "to rename an"
+#~ msgstr "Umbenennen"
+
+#~ msgid "Connecting to Vuurmuur..."
+#~ msgstr "Verbinde zu Vuurmuur..."
+
+#~ msgid "Connecting to Vuurmuur... OK"
+#~ msgstr "Verbinde zu Vuurmuur... OK"
+
+#~ msgid "Connecting to Vuurmuur... FAILED"
+#~ msgstr "Verbinde zu Vuurmuur... FEHLER"
+
+#~ msgid "Connecting to Vuurmuur_log..."
+#~ msgstr "Verbinde zu Vuurmuur_log..."
+
+#~ msgid "Connecting to Vuurmuur_log... OK"
+#~ msgstr "Verbinde zu Vuurmuur_log... OK"
+
+#~ msgid "Connecting to Vuurmuur_log... FAILED"
+#~ msgstr "Verbinde zu Vuurmuur_log... FEHLER"
+
+#~ msgid "'use syn limit' is now set to '%s'."
+#~ msgstr "'Verwende SYN-Limit' ist nun '%s'."
+
+#~ msgid "'protect against synflood' is now set to '%s'."
+#~ msgstr "'Schutz gegen SYN-Flooding' ist nun '%s'."
+
+#~ msgid "'protect against echo broadcast' is now set to '%s'."
+#~ msgstr "'Schutz gegen ECHO-Boradcast' ist nun '%s'."
+
+#~ msgid "Loading Vuurmuur config... OK"
+#~ msgstr "Lade Vuurmuur Konfiguration... OK"
+
+#~ msgid "Reloading Vuurmuur config..."
+#~ msgstr "Neuladen der Vuurmuur Konfiguration..."
+
+#~ msgid "Loading Vuurmuur_conf settings... OK"
+#~ msgstr "Lade GUI Konfiguration... OK"
+
+#~ msgid "Reloading Vuurmuur_conf settings..."
+#~ msgstr "Neuladen Vuurmuur_conf Konfiguration..."
+
+#~ msgid "Loading plugins... OK"
+#~ msgstr "Lade Plugins... OK"
+
+#~ msgid "Initializing Services... OK"
+#~ msgstr "Initialisierung der Services... OK"
+
+#~ msgid "Initializing Interfaces... OK"
+#~ msgstr "Initialisierung der Interfaces... OK"
+
+#~ msgid "Initializing Zones... OK"
+#~ msgstr "Initialisierung der Zonen... OK"
+
+#~ msgid "Initializing Rules... FAILED"
+#~ msgstr "Initialisierung Regeln... FEHLER"
+
+#~ msgid "Initializing Rules... OK"
+#~ msgstr "Initialisierung der Regeln... OK"
+
+#~ msgid "Initializing BlockList... FAILED"
+#~ msgstr "Initialisierung Blockierliste... FEHLER"
+
+#~ msgid "Initializing BlockList... OK"
+#~ msgstr "Initialisierung Blockierliste... OK"
+
+#~ msgid "'iptables location' is now set to '%s'."
+#~ msgstr "Pfad von iptables ist nun '%s'."
+
+#~ msgid "'iptables-restore location' is now set to '%s'."
+#~ msgstr "Pfad der iptables-Kopie ist nun '%s'."
+
+#~ msgid "'old create method' is now set to '%s'."
+#~ msgstr "alte Methode der Regelerstellung ist nun '%s'."
+
+#~ msgid "'dynamic changes interval' is now set to '%u'."
+#~ msgstr "Intervallwert 'Dynamische Veränderungen' ist nun '%u'."
+
+#~ msgid "'check dynamic interfaces for changes' is now set to '%s'."
+#~ msgstr "'Überprüfe dynamische Interfaces auf Veränderungen' ist nun '%s'."
+
+#~ msgid "'modprobe location' is now set to '%s'."
+#~ msgstr "'modprobe Pfad' ist nun '%s'."
+
+#~ msgid "'load modules' is now set to '%s'."
+#~ msgstr "'Lade Module' ist nun '%s'."
+
+#~ msgid "'modules wait time' is now set to '%u'."
+#~ msgstr "'Modul-Wartezeit' ist nun '%u'."
+
+#~ msgid "'service backend name' is now set to '%s'."
+#~ msgstr "'Service backend Name' ist nun '%s'."
+
+#~ msgid "'zone backend name' is now set to '%s'."
+#~ msgstr "'Zone backend Name' ist nun '%s'."
+
+#~ msgid "'interface backend name' is now set to '%s'."
+#~ msgstr "'Interface backend Name' ist nun '%s'."
+
+#, fuzzy
+#~ msgid "'rule backend name' is now set to '%s'."
+#~ msgstr "'Zone backend Name' ist nun '%s'."
+
+#~ msgid "'syn limit' is now set to '%u'."
+#~ msgstr "'SYN-Limit' ist nun '%u'."
+
+#~ msgid "'syn limit burst' is now set to '%u'."
+#~ msgstr "'SYN-Limit-Burst-Wert' ist nun '%u'."
+
+#~ msgid "'use udp limit' is now set to '%s'."
+#~ msgstr "'Verwende UDP-Begrenzung' ist nun '%s'."
+
+#~ msgid "'udp limit' is now set to '%u'."
+#~ msgstr "'UDP Grenzwert' ist nun '%u'."
+
+#~ msgid "'udp limit burst' is now set to '%u'."
+#~ msgstr "'Der 'UDP-Burstgrenzwert' ist nun '%u'."
+
+#~ msgid "'logdir location' is now set to '%s'."
+#~ msgstr "'Logverzeichnis Pfad' ist nun '%s'."
+
+#~ msgid "'log level' is now set to '%s'."
+#~ msgstr "'Logging-Stufe' ist nun '%s'."
+
+#~ msgid "'systemlog location' is now set to '%s'."
+#~ msgstr "'Systemlog Pfad' ist nun '%s'."
+
+#~ msgid "'log policy' is now set to '%s'."
+#~ msgstr "'Logge Standardregel' ist nun '%s'."
+
+#~ msgid "'log policy limit' is now set to '%d'."
+#~ msgstr "'Logge Regelgrenze' ist nun '%d'."
+
+#~ msgid "'log tcp options' is now set to '%s'."
+#~ msgstr "'Logge TCP-Optionen' ist nun '%s'."
+
+#~ msgid "'log blocklist' is now set to '%s'."
+#~ msgstr "'Logge Verstöße gegen Blockierlisten' ist nun '%s'."
+
+#, fuzzy
+#~ msgid "network '%s' has been changed: active is now set to '%s'."
+#~ msgstr "Gruppe '%s' wurde geändert: Active ist nun '%s'."
+
+#, fuzzy
+#~ msgid ""
+#~ "network '%s' has been changed: network address is now set to '%s' (was: '%"
+#~ "s')."
+#~ msgstr ""
+#~ "Host '%s' wurde geändert: IP Adresse ist nun '%s' (war vorher: '%s')."
+
+#, fuzzy
+#~ msgid ""
+#~ "network '%s' has been changed: netmask address is now set to '%s' (was: '%"
+#~ "s')."
+#~ msgstr ""
+#~ "Host '%s' wurde geändert: MAC Adresse ist nun '%s' (war vorher: '%s')."
+
+#, fuzzy
+#~ msgid "network '%s' has been changed: the comment was changed."
+#~ msgstr "Host '%s' geändert: Die Anmerkungen wurden geändert."
+
+#, fuzzy
+#~ msgid ""
+#~ "network '%s' has been changed: rules are changed: now %d rules (listed "
+#~ "below)."
+#~ msgstr "Host '%s' geändert: Die Anmerkungen wurden geändert."
+
+#, fuzzy
+#~ msgid "zone '%s' has been changed: active is now set to '%s'."
+#~ msgstr "Gruppe '%s' wurde geändert: Active ist nun '%s'."
+
+#, fuzzy
+#~ msgid "zone '%s' has been changed: the comment was changed."
+#~ msgstr "Host '%s' geändert: Die Anmerkungen wurden geändert."
+
+#, fuzzy
+#~ msgid "group '%s' has been changed: member '%s' was removed."
+#~ msgstr "Gruppe '%s' wurde geändert: Anmerkungen wurden geändert."
+
+#, fuzzy
+#~ msgid "group '%s' has been changed: member '%s' was added."
+#~ msgstr "Gruppe '%s' wurde geändert: Anmerkungen wurden geändert."
+
+#~ msgid "group '%s' has been changed: active is now set to '%s'."
+#~ msgstr "Gruppe '%s' wurde geändert: Active ist nun '%s'."
+
+#~ msgid "group '%s' has been changed: the comment was changed."
+#~ msgstr "Gruppe '%s' wurde geändert: Anmerkungen wurden geändert."
+
+#, fuzzy
+#~ msgid "group '%s' was created."
+#~ msgstr "Gruppenname '%s' ist ungültig!"
+
+#, fuzzy
+#~ msgid "group '%s' was deleted."
+#~ msgstr "Gruppenname '%s' ist ungültig!"
+
+#, fuzzy
+#~ msgid "network '%s' has been changed: interface '%s' was added."
+#~ msgstr "Host '%s' geändert: Die Anmerkungen wurden geändert."
+
+#, fuzzy
+#~ msgid "network '%s' has been changed: interface '%s' was removed."
+#~ msgstr "Host '%s' geändert: Die Anmerkungen wurden geändert."
+
+#~ msgid "host '%s' has been changed: active is now set to '%s' (was: '%s')."
+#~ msgstr "Host '%s' wurde geändert: active ist nun '%s' (war vorher: '%s')."
+
+#~ msgid ""
+#~ "host '%s' has been changed: ipaddress is now set to '%s' (was: '%s')."
+#~ msgstr ""
+#~ "Host '%s' wurde geändert: IP Adresse ist nun '%s' (war vorher: '%s')."
+
+#~ msgid ""
+#~ "host '%s' has been changed: macaddress is now set to '%s' (was: '%s')."
+#~ msgstr ""
+#~ "Host '%s' wurde geändert: MAC Adresse ist nun '%s' (war vorher: '%s')."
+
+#~ msgid "host '%s' has been changed: the comment was changed."
+#~ msgstr "Host '%s' geändert: Die Anmerkungen wurden geändert."
+
+#, fuzzy
+#~ msgid "group '%s' was renamed to '%s'."
+#~ msgstr "Gruppe '%s' wurde geändert: Active ist nun '%s'."
+
+#, fuzzy
+#~ msgid ""
+#~ "interface '%s' has been changed: active is now set to '%s' (was: '%s')."
+#~ msgstr "Host '%s' wurde geändert: active ist nun '%s' (war vorher: '%s')."
+
+#, fuzzy
+#~ msgid ""
+#~ "interface '%s' has been changed: IPAddress is now set to '%s' (was: '%s')."
+#~ msgstr ""
+#~ "Host '%s' wurde geändert: IP Adresse ist nun '%s' (war vorher: '%s')."
+
+#, fuzzy
+#~ msgid ""
+#~ "interface '%s' has been changed: IPAddress-dynamic is now set to '%"
+#~ "s' (was: '%s')."
+#~ msgstr ""
+#~ "Host '%s' wurde geändert: IP Adresse ist nun '%s' (war vorher: '%s')."
+
+#, fuzzy
+#~ msgid ""
+#~ "interface '%s' has been changed: device is now set to '%s' (was: '%s')."
+#~ msgstr "Host '%s' wurde geändert: active ist nun '%s' (war vorher: '%s')."
+
+#, fuzzy
+#~ msgid "interface '%s' has been changed: the comment was changed."
+#~ msgstr "Host '%s' geändert: Die Anmerkungen wurden geändert."
+
+#, fuzzy
+#~ msgid ""
+#~ "interface '%s' has been changed: virtual is now set to '%s' (was: '%s')."
+#~ msgstr "Host '%s' wurde geändert: active ist nun '%s' (war vorher: '%s')."
+
+#, fuzzy
+#~ msgid ""
+#~ "interface '%s' has been changed: rules are changed: now %d rules (listed "
+#~ "below)."
+#~ msgstr "Host '%s' geändert: Die Anmerkungen wurden geändert."
+
+#~ msgid "to edit the service"
+#~ msgstr "um Service zu ändern"
+
+#~ msgid "to add a new service"
+#~ msgstr "um neuen Service hinzuzufügen"
+
+#~ msgid "to removes the service"
+#~ msgstr "um den Service zu löschen"
+
+#, fuzzy
+#~ msgid "interface '%s' was renamed to '%s'."
+#~ msgstr "'Interface backend Name' ist nun '%s'."
+
+#, fuzzy
+#~ msgid "interface '%s' was deleted."
+#~ msgstr "Löschen des Interface %s fehlgeschlagen!"
+
+#, fuzzy
+#~ msgid "service '%s' has been changed: portrange '%s' was added."
+#~ msgstr ""
+#~ "Service '%s' wurde geändert: Protokoll-Hilfe ist nun '%s' (war vorher: '%"
+#~ "s')."
+
+#~ msgid "to add a portrange"
+#~ msgstr "um Portrange hinzuzufügen"
+
+#~ msgid "to remove a portrange"
+#~ msgstr "um Portrange zu löschen"
+
+#, fuzzy
+#~ msgid ""
+#~ "service '%s' has been changed: active is now set to '%s' (was: '%s')."
+#~ msgstr "Host '%s' wurde geändert: active ist nun '%s' (war vorher: '%s')."
+
+#, fuzzy
+#~ msgid ""
+#~ "service '%s' has been changed: broadcast is now set to '%s' (was: '%s')."
+#~ msgstr "Host '%s' wurde geändert: active ist nun '%s' (war vorher: '%s')."
+
+#~ msgid ""
+#~ "service '%s' has been changed: protocol helper is set to '%s' (was: '%s')."
+#~ msgstr ""
+#~ "Service '%s' wurde geändert: Protokoll-Hilfe ist nun '%s' (war vorher: '%"
+#~ "s')."
+
+#, fuzzy
+#~ msgid "service '%s' has been changed: the comment was changed."
+#~ msgstr "Host '%s' geändert: Die Anmerkungen wurden geändert."
+
+#, fuzzy
+#~ msgid "service '%s' was renamed to '%s'."
+#~ msgstr "'Service backend Name' ist nun '%s'."
+
+#, fuzzy
+#~ msgid "service '%s' has been changed: portrange '%s' was removed."
+#~ msgstr ""
+#~ "Service '%s' wurde geändert: Protokoll-Hilfe ist nun '%s' (war vorher: '%"
+#~ "s')."
+
+#~ msgid "old rule creation method (requires vuurmuur restart)"
+#~ msgstr ""
+#~ "veraltete Methode Regelerstellung (benötigt den Neustart von Vuurmuur!)"
+
+#~ msgid "Bandwidth Section"
+#~ msgstr "Bandbreiten-Abschnitt"
+
+#~ msgid "Bandwidth"
+#~ msgstr "Bandbreite"
+
+#~ msgid "Scripts location (full path):"
+#~ msgstr "Script-Dateien (Vollständiger Pfad):"
+
+#~ msgid "Variable HELPFILE not found in '%s', using default value: %s"
+#~ msgstr ""
+#~ "Variable HELPFILE wurde nicht in '%s' gefunden. Es werden Standardwerte "
+#~ "verwendet (%s)."
+
+#~ msgid "'scripts location' is now set to '%s'."
+#~ msgstr "Pfad der Scriptdateien ist nun '%s'."
+
+#~ msgid "Plugin directory (full path):"
+#~ msgstr "Plugin-Verzeichnis (Vollständiger Pfad):"
+
+#~ msgid "'plugindir location' is now set to '%s'."
+#~ msgstr "'Plugin-Pfad' ist nun '%s'."
+
+#~ msgid "Helpfile location (full path)"
+#~ msgstr "Vollständiger Pfad Hilfedatei:"
+
+#~ msgid "Rulesfile (full path):"
+#~ msgstr "Regeldateien (Vollständiger Pfad):"
+
+#~ msgid "BlockList file (full path):"
+#~ msgstr "Blockierlistendatei (Vollständiger Pfad):"
+
+#~ msgid "'rulesfile location' is now set to '%s'."
+#~ msgstr "Pfad der Regeldatei ist nun '%s'."
+
+#~ msgid "'blocklist location' is now set to '%s'."
+#~ msgstr "Pfad der Blockierlisten-Datei ist nun '%s'."
+
+#~ msgid "Edit Services"
+#~ msgstr "Services ändern"
+
+#~ msgid "sort by:"
+#~ msgstr "Sortier durch:"
+
+#~ msgid "Edit Config"
+#~ msgstr "Konfiguration ändern"
+
+#~ msgid "unable to load backends."
+#~ msgstr "Konnte die Backends nicht laden!"
+
+#~ msgid "Type away! ;-)"
+#~ msgstr "Einfach tippen ;-)"
+
+#~ msgid "please set the blocklist filelocation in the configuration first."
+#~ msgstr ""
+#~ "Ändern Sie bitte zuerst den Blockierlistenpfad in der Konfiguration."
