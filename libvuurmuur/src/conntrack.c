@@ -30,6 +30,7 @@ struct ConntrackLine
 	char			dst_ip[16];
 	char			alt_src_ip[16];
 	char			alt_dst_ip[16];
+	char			orig_dst_ip[16];
 	int			src_port;
 	int			dst_port;
 	int			alt_src_port;
@@ -331,10 +332,21 @@ conn_line_to_data(	const int debuglvl,
 	}
 
 	/* dst ip */
-	if(strlcpy(conndata_ptr->dst_ip, connline_ptr->dst_ip, sizeof(conndata_ptr->dst_ip)) >= sizeof(conndata_ptr->dst_ip))
+	if(strlcpy(conndata_ptr->dst_ip, connline_ptr->dst_ip,
+			sizeof(conndata_ptr->dst_ip))
+				>= sizeof(conndata_ptr->dst_ip))
 	{
 		(void)vrprint.error(-1, "Internal Error", "string overflow "
 			"(in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+	/* dst ip */
+	if(strlcpy(conndata_ptr->orig_dst_ip, connline_ptr->orig_dst_ip,
+	   sizeof(conndata_ptr->orig_dst_ip))
+		  >= sizeof(conndata_ptr->orig_dst_ip))
+	{
+		(void)vrprint.error(-1, "Internal Error", "string overflow "
+				"(in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
 	/* then the to name */
@@ -903,9 +915,20 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
 	}
 	else if(strcmp(connline_ptr->src_ip,connline_ptr->alt_dst_ip) == 0)
 	{
+		/* store the original dst_ip as orig_dst_ip */
+		if(strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
+				sizeof(connline_ptr->orig_dst_ip))
+					>= sizeof(connline_ptr->orig_dst_ip))
+		{
+			(void)vrprint.error(-1, "Internal Error",
+			"string overflow (in: %s:%d).",
+			__FUNC__, __LINE__);
+			return(-1);
+		}
 		/* DNAT, we use alt_source_ip as dest */
 		if(strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
-				sizeof(connline_ptr->dst_ip)) >= sizeof(connline_ptr->dst_ip))
+				sizeof(connline_ptr->dst_ip))
+					>= sizeof(connline_ptr->dst_ip))
 		{
 			(void)vrprint.error(-1, "Internal Error",
 				"string overflow (in: %s:%d).",
@@ -916,9 +939,20 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
 	else if(strcmp(connline_ptr->src_ip,connline_ptr->alt_src_ip) != 0 &&
 		strcmp(connline_ptr->dst_ip,connline_ptr->alt_dst_ip) != 0)
 	{
+		/* store the original dst_ip as orig_dst_ip */
+		if(strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
+				sizeof(connline_ptr->orig_dst_ip))
+					>= sizeof(connline_ptr->orig_dst_ip))
+		{
+			(void)vrprint.error(-1, "Internal Error",
+			"string overflow (in: %s:%d).",
+			__FUNC__, __LINE__);
+			return(-1);
+		}
 		/* DNAT, we use alt_source_ip as dest */
 		if(strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
-				sizeof(connline_ptr->dst_ip)) >= sizeof(connline_ptr->dst_ip))
+				sizeof(connline_ptr->dst_ip))
+					>= sizeof(connline_ptr->dst_ip))
 		{
 			(void)vrprint.error(-1, "Internal Error",
 				"string overflow (in: %s:%d).",
@@ -945,9 +979,20 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
 	else if(strcmp(connline_ptr->src_ip,connline_ptr->alt_src_ip) != 0 &&
 		strcmp(connline_ptr->dst_ip,connline_ptr->alt_dst_ip) == 0)
 	{
+		/* store the original dst_ip as orig_dst_ip */
+		if(strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
+		   sizeof(connline_ptr->orig_dst_ip))
+				 >= sizeof(connline_ptr->orig_dst_ip))
+		{
+			(void)vrprint.error(-1, "Internal Error",
+			"string overflow (in: %s:%d).",
+			__FUNC__, __LINE__);
+			return(-1);
+		}
 		/* DNAT, we use alt_source_ip as dest */
 		if(strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
-				sizeof(connline_ptr->dst_ip)) >= sizeof(connline_ptr->dst_ip))
+				sizeof(connline_ptr->dst_ip))
+				 	>= sizeof(connline_ptr->dst_ip))
 		{
 			(void)vrprint.error(-1, "Internal Error",
 				"string overflow (in: %s:%d).",

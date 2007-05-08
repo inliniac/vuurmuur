@@ -1,3 +1,9 @@
+libvuurmuur (0.5.73-0a1) testing; urgency=low
+
+  * update to 0.5.73.alpha1
+
+ -- Victor Julien <victor@nk.nl>  Wed, 19 Oct 2005 01:22:00 +0100
+
 libvuurmuur (0.5.72-1) testing; urgency=low
 
   * update to 0.5.72

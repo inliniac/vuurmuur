@@ -49,14 +49,14 @@
 
 #define LIBVUURMUUR_VERSION_MAJOR	0
 #define LIBVUURMUUR_VERSION_MINOR	5
-#define LIBVUURMUUR_VERSION_SUB		72
+#define LIBVUURMUUR_VERSION_SUB		73
 
 /* the minimal version of vuurmuur for this lib */
 #define MIN_VUURMUUR_VERSION_MAJOR	0
 #define MIN_VUURMUUR_VERSION_MINOR	5
 #define MIN_VUURMUUR_VERSION_SUB	65
 
-#define VUURMUUR_PRERELEASE_VERSION	0
+#define VUURMUUR_PRERELEASE_VERSION	1
 
 /* we need this to stringify the VUURMUUR_CONFIGDIR which is supplied at compiletime see:
    http://gcc.gnu.org/onlinedocs/gcc-3.4.1/cpp/Stringification.html#Stringification */
@@ -870,8 +870,6 @@ struct ConntrackData
 {
 	int			protocol;
 
-//	char			*status;
-
 	/*	the service
 		
 		sername is a pointer to service->name unless service is NULL
@@ -879,10 +877,10 @@ struct ConntrackData
 	char			*sername;
 	struct ServicesData_	*service;
 
-	/*	this is for hashing the service. It is also supplied in struct ServicesData_,
-		but we need it also for undefined services, so we suppy it here.
-		We only hash on protocol and dst_port, because the src_port is almost always
-		different.
+	/*	this is for hashing the service. It is also supplied in
+		struct ServicesData_, but we need it also for undefined
+		services, so we suppy it here. We only hash on protocol and
+		dst_port, because the src_port is almost always different.
 	*/
 	int			dst_port;
 
@@ -899,6 +897,7 @@ struct ConntrackData
 	char			*toname;
 	struct ZoneData_	*to;
 	char			dst_ip[16];
+	char			orig_dst_ip[16]; /* ip before nat correction */
 
 	/* counter */
 	int			cnt;

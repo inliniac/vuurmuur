@@ -163,17 +163,12 @@ rules_print_list(const Rules *rules)
 	{
 		rule_ptr = d_node->data;
 
-		(void)vrprint.debug(__FUNC__, "%3d, %-8s, %s, %s, %s, %s, %s, %s, status: %d, delta: %d",
-							rule_ptr->number,
-							rules_itoaction(rule_ptr->action),
-							rule_ptr->service,
-							rule_ptr->from,
-							rule_ptr->to,
-							rule_ptr->who,
-							rule_ptr->source,
-							rule_ptr->danger,
-							rule_ptr->status,
-							rule_ptr->number);
+		(void)vrprint.debug(__FUNC__, "%3d, %-8s, %s, %s, %s, %s, %s, %s, status: %d",
+				rule_ptr->number, rules_itoaction(rule_ptr->action),
+				rule_ptr->service, rule_ptr->from,
+				rule_ptr->to, rule_ptr->who,
+				rule_ptr->source, rule_ptr->danger,
+				rule_ptr->status);
 	}
 
 	return;
