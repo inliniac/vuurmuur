@@ -1,0 +1,6 @@
+ACTIVE="yes"
+TCP="1723*1024:65535"
+BROADCAST="no"
+UDP=""
+GRE=""
+ICMP=""

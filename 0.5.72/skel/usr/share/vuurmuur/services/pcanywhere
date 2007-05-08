@@ -1,0 +1,7 @@
+ACTIVE="Yes"
+TCP="5631*1024:65535"
+UDP="5631:5632*1024:65535"
+ICMP=""
+GRE=""
+BROADCAST="No"
+COMMENT="PcAnywhere, for remote control of the desktop of Windows(tm) pc's."

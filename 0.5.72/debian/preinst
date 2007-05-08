@@ -1,0 +1,71 @@
+#!/bin/bash
+#
+# pre-install script for vuurmuur
+#  (http://vuurmuur.sf.net)
+#
+# 2005-06-01	adi	initial release
+# 2005-06-02	victor	debhelper, /var/backups check, permissions, /etc/vuurmuur check, simpler backup date/time string
+# 2005-06-12	victor	moved from libvuurmuur to vuurmuur
+
+# define constants
+ACTION=$1
+OLD_VERSION=$2
+
+# define useful functions
+exit_message() {
+        echo $1
+        exit 1
+}
+
+case $ACTION in
+	upgrade)
+		#
+		# create a backup of a previous version of vuurmuur
+		#
+		if [ ! -d /var/backups ]; then
+		        mkdir /var/backups || \
+				exit_message "error creating /var/backups"
+		        echo "backup directory /var/backups created."
+		fi
+		
+		if [ ! -d /var/backups/vuurmuur ]; then
+		        mkdir /var/backups/vuurmuur || \
+				exit_message "error creating /var/backups/vuurmuur"
+		        echo "backup directory /var/backups/vuurmuur created."
+		fi
+		
+		BACKUP_DIR="/var/backups/vuurmuur/${OLD_VERSION}-$(date +'%Y.%m.%d-%H.%M')"
+		
+		if [ ! -d $BACKUP_DIR ]; then
+		        mkdir ${BACKUP_DIR} || \
+				exit_message "error creating ${BACKUP_DIR}"
+		        echo "backup directory ${BACKUP_DIR} created."
+		else
+		        exit_message "error: directory ${BACKUP_DIR} already exists?! -- I am confused!"
+		fi
+		
+		# set strict permissions on our backup since it contains sensitive data
+		chmod 0700 ${BACKUP_DIR} || \
+			exit_message "settings permissions on backup directory failed!"
+		echo "changed permissions of ${BACKUP_DIR} to 0700."
+
+		if [ -d /etc/vuurmuur ]; then
+		    cp -a /etc/vuurmuur/* ${BACKUP_DIR} || \
+			    exit_message "copying vuurmuur configuration failed!"
+		    echo "copied vuurmuur configuration to ${BACKUP_DIR}."
+		else
+		    echo "no vuurmuur config found (no /etc/vuurmuur directory)!"
+		fi
+		;;
+	install)
+		# nothing to do here?!
+		;;
+	*)
+		# whatever... (remove, ...)
+		;;
+esac
+
+# make sure dephelper can modify this script
+#DEBHELPER#
+
+exit 0
