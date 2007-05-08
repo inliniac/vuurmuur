@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2002-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2002-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -194,7 +194,8 @@ LockSHM(int lock, int sem_id)
 }
 
 void
-tell_libvuurmuur_version(int *major, int *minor, int *sub, int *min_vuur_major, int *min_vuur_minor, int *min_vuur_sub)
+tell_libvuurmuur_version(int *major, int *minor, int *sub, int *min_vuur_major,
+			 int *min_vuur_minor, int *min_vuur_sub)
 {
 	*major = LIBVUURMUUR_VERSION_MAJOR;
 	*minor = LIBVUURMUUR_VERSION_MINOR;
@@ -268,8 +269,8 @@ setup_rgx(int action, struct rgx_ *reg)
 
 	if(action < 0 || action > 1 || reg == NULL)
 	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-								__FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+				"(in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -278,135 +279,153 @@ setup_rgx(int action, struct rgx_ *reg)
 		/* regex setup */
 		if(!(reg->zonename = malloc(sizeof(regex_t))))
 		{
-			(void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-									strerror(errno), __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "malloc "
+					"failed: %s (in: %s:%d).",
+					strerror(errno), __FUNC__, __LINE__);
 			return(-1);
 		}
 
 		if(regcomp(reg->zonename, ZONE_REGEX, REG_EXTENDED) != 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-									__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "regcomp() "
+					"failed (in: %s:%d).",
+					__FUNC__, __LINE__);
 			return(-1);
 		}
 
 		/* regex setup */
 		if(!(reg->zone_part = malloc(sizeof(regex_t))))
 		{
-			(void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-									strerror(errno), __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "malloc "
+					"failed: %s (in: %s:%d).",
+					strerror(errno), __FUNC__, __LINE__);
 			return(-1);
 		}
 
 		if(regcomp(reg->zone_part, ZONE_REGEX_ZONEPART, REG_EXTENDED) != 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-									__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "regcomp() "
+					"failed (in: %s:%d).",
+					__FUNC__, __LINE__);
 			return(-1);
 		}
 
 		/* regex setup */
 		if(!(reg->network_part = malloc(sizeof(regex_t))))
 		{
-			(void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-									strerror(errno), __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "malloc "
+					"failed: %s (in: %s:%d).",
+					strerror(errno), __FUNC__, __LINE__);
 			return(-1);
 		}
 
 		if(regcomp(reg->network_part, ZONE_REGEX_NETWORKPART, REG_EXTENDED) != 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-									__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "regcomp() "
+					"failed (in: %s:%d).",
+					__FUNC__, __LINE__);
 			return(-1);
 		}
 
 		/* regex setup */
 		if(!(reg->host_part = malloc(sizeof(regex_t))))
 		{
-			(void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-									strerror(errno), __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "malloc "
+					"failed: %s (in: %s:%d).",
+					strerror(errno), __FUNC__, __LINE__);
 			return(-1);
 		}
 
 		if(regcomp(reg->host_part, ZONE_REGEX_HOSTPART, REG_EXTENDED) != 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-									__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "regcomp() "
+					"failed (in: %s:%d).",
+					__FUNC__, __LINE__);
 			return(-1);
 		}
 
 		/* regex setup */
 		if(!(reg->servicename = malloc(sizeof(regex_t))))
 		{
-			(void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-									strerror(errno), __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "malloc "
+					"failed: %s (in: %s:%d).",
+					strerror(errno), __FUNC__, __LINE__);
 			return(-1);
 		}
 
 		if(regcomp(reg->servicename, SERV_REGEX, REG_EXTENDED) != 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-									__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "regcomp() "
+					"failed (in: %s:%d).",
+					__FUNC__, __LINE__);
 			return(-1);
 		}
 
 		/* regex setup */
 		if(!(reg->interfacename = malloc(sizeof(regex_t))))
 		{
-			(void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-									strerror(errno), __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "malloc "
+					"failed: %s (in: %s:%d).",
+					strerror(errno), __FUNC__, __LINE__);
 			return(-1);
 		}
 
 		if(regcomp(reg->interfacename, IFAC_REGEX, REG_EXTENDED) != 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-									__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "regcomp() "
+					"failed (in: %s:%d).",
+					__FUNC__, __LINE__);
 			return(-1);
 		}
 
 		/* regex setup */
 		if(!(reg->macaddr = malloc(sizeof(regex_t))))
 		{
-			(void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-									strerror(errno), __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "malloc "
+					"failed: %s (in: %s:%d).",
+					strerror(errno), __FUNC__, __LINE__);
 			return(-1);
 		}
 
 		if(regcomp(reg->macaddr, MAC_REGEX, REG_EXTENDED) != 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-									__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "regcomp() "
+					"failed (in: %s:%d).",
+					__FUNC__, __LINE__);
 			return(-1);
 		}
 
 		/* regex setup */
 		if(!(reg->configline = malloc(sizeof(regex_t))))
 		{
-			(void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-									strerror(errno), __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "malloc "
+					"failed: %s (in: %s:%d).",
+					strerror(errno), __FUNC__, __LINE__);
 			return(-1);
 		}
 
 		if(regcomp(reg->configline, CONFIG_REGEX, REG_EXTENDED) != 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-									__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "regcomp() "
+					"failed (in: %s:%d).",
+					__FUNC__, __LINE__);
 			return(-1);
 		}
 
 		/* regex setup */
 /*		if(!(reg->comment = malloc(sizeof(regex_t))))
 		{
-			(void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-									strerror(errno), __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "malloc "
+					"failed: %s (in: %s:%d).",
+					strerror(errno), __FUNC__, __LINE__);
 			return(-1);
 		}
 
 		if(regcomp(reg->comment, TEXTFIELD_REGEX, REG_EXTENDED) != 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-									__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "regcomp() "
+					"failed (in: %s:%d).",
+					__FUNC__, __LINE__);
 			return(-1);
 		}
 */

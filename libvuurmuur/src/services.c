@@ -500,8 +500,8 @@ split_portrange(char *portrange, int *lowport, int *highport)
 	size_t	count=0,
 		low_count=0,
 		high_count=0;
-	char	low[6],
-		high[6];
+	char	low[6] = "",
+		high[6] = "";
 
 	/* safety */
 	if(portrange == NULL)
@@ -1396,7 +1396,7 @@ init_services(const int debuglvl, Services *services, struct rgx_ *reg)
 {
 	int	retval=0,
 		result=0;
-	char	name[MAX_SERVICE];
+	char	name[MAX_SERVICE]="";
 	int	zonetype=0;
 
 	/* safety */

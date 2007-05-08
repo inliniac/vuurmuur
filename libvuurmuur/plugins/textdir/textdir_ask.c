@@ -172,7 +172,7 @@ ask_textdir(	const int debuglvl,
 			}
 
 			/* if the last character is a'"' we strip it. */
-			if (value[val_pos - 1] == '\"')
+			if (val_pos > 0 && value[val_pos - 1] == '\"')
 				value[val_pos - 1]='\0';
 			else
 				value[val_pos]='\0';

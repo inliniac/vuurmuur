@@ -272,12 +272,9 @@ interfaces_print_list(const Interfaces *interfaces)
 	for(d_node = interfaces->list.top; d_node ; d_node = d_node->next)
 	{
 		iface_ptr = d_node->data;
-		fprintf(stdout, "iface: %s, status: %d, active: %d, device: %s, ipaddress: %s\n",
-										iface_ptr->name,
-										iface_ptr->status,
-										iface_ptr->active,
-										iface_ptr->device,
-										iface_ptr->ipv4.ipaddress);
+		fprintf(stdout, "iface: %s, active: %d, device: %s, ipaddress: %s\n",
+				iface_ptr->name, iface_ptr->active,
+				iface_ptr->device, iface_ptr->ipv4.ipaddress);
 	}
 
 	return;

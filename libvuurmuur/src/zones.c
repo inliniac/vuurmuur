@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2003-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2003-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -37,32 +37,34 @@
 		 0: ok
  */
 int
-zones_split_zonename(const int debuglvl, Zones *zones, struct ZoneData_ *zone_ptr, regex_t *reg_ex)
+zones_split_zonename(const int debuglvl, Zones *zones,
+			struct ZoneData_ *zone_ptr, regex_t *reg_ex)
 {
-	int	retval = 0,
-		arg_count = 0;
-	char	check_str[MAX_HOST_NET_ZONE];
-	char	zonename[MAX_ZONE],
-		netname[MAX_NETWORK],
-		hostname[MAX_HOST];
+	int	arg_count = 0;
+	char	check_str[MAX_HOST_NET_ZONE] = "";
+	char	zonename[MAX_ZONE] = "",
+		netname[MAX_NETWORK] = "",
+		hostname[MAX_HOST] = "";
 
 	/* safety */
 	if(zone_ptr == NULL || zones == NULL || reg_ex == NULL)
 	{
-		(void)vrprint.error(-1, "Interal Error", "parameter problem (in: %s:%d).",
-									__FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Interal Error", "parameter problem "
+				"(in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
 
 	if(debuglvl >= MEDIUM)
 		(void)vrprint.debug(__FUNC__, "start: zone_ptr->name = '%s'",
-									zone_ptr->name);
+				zone_ptr->name);
 
 	/* validate and split up */
-	if(validate_zonename(debuglvl, zone_ptr->name, 0, zonename, netname, hostname, reg_ex, VALNAME_VERBOSE) != 0)
+	if(validate_zonename(debuglvl, zone_ptr->name, 0, zonename, netname,
+	   			hostname, reg_ex, VALNAME_VERBOSE) != 0)
 	{
-		(void)vrprint.error(-1, "Internal Error", "name '%s' not valid (in: %s:%d).",
-									zone_ptr->name, __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "name '%s' not "
+				"valid (in: %s:%d).", zone_ptr->name,
+				__FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -78,7 +80,8 @@ zones_split_zonename(const int debuglvl, Zones *zones, struct ZoneData_ *zone_pt
 	/* zone or firewall */
 	if(arg_count == 0)
 	{
-		if(strlcpy(zone_ptr->zone_name, zonename, sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
+		if(strlcpy(zone_ptr->zone_name, zonename,
+		   sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
 		{
 			(void)vrprint.error(-1, "Internal Error", "string "
 				"overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -89,13 +92,15 @@ zones_split_zonename(const int debuglvl, Zones *zones, struct ZoneData_ *zone_pt
 	/* network */
 	if(arg_count == 1)
 	{
-		if(strlcpy(zone_ptr->network_name, netname, sizeof(zone_ptr->network_name)) >= sizeof(zone_ptr->network_name))
+		if(strlcpy(zone_ptr->network_name, netname,
+		   sizeof(zone_ptr->network_name)) >= sizeof(zone_ptr->network_name))
 		{
 			(void)vrprint.error(-1, "Internal Error", "string "
 				"overflow (in: %s:%d).", __FUNC__, __LINE__);
 			return(-1);
 		}
-		if(strlcpy(zone_ptr->zone_name, zonename, sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
+		if(strlcpy(zone_ptr->zone_name, zonename,
+		   sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
 		{
 			(void)vrprint.error(-1, "Internal Error", "string "
 				"overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -105,7 +110,8 @@ zones_split_zonename(const int debuglvl, Zones *zones, struct ZoneData_ *zone_pt
 		zone_ptr->zone_parent = search_zonedata(debuglvl, zones, zone_ptr->zone_name);
 		if(zone_ptr->zone_parent == NULL)
 		{
-			(void)vrprint.error(-1, "Error", "unable to find the zone '%s' in memory.", zone_ptr->zone_name);
+			(void)vrprint.error(-1, "Error", "unable to find the "
+					"zone '%s' in memory.", zone_ptr->zone_name);
 			return(-1);
 		}
 	}
@@ -113,19 +119,22 @@ zones_split_zonename(const int debuglvl, Zones *zones, struct ZoneData_ *zone_pt
 	/* host or group */
 	if(arg_count == 2)
 	{
-		if(strlcpy(zone_ptr->host_name, hostname, sizeof(zone_ptr->host_name)) >= sizeof(zone_ptr->host_name))
+		if(strlcpy(zone_ptr->host_name, hostname,
+		   sizeof(zone_ptr->host_name)) >= sizeof(zone_ptr->host_name))
 		{
 			(void)vrprint.error(-1, "Internal Error", "string "
 				"overflow (in: %s:%d).", __FUNC__, __LINE__);
 			return(-1);
 		}
-		if(strlcpy(zone_ptr->network_name, netname, sizeof(zone_ptr->network_name)) >= sizeof(zone_ptr->network_name))
+		if(strlcpy(zone_ptr->network_name, netname,
+		   sizeof(zone_ptr->network_name)) >= sizeof(zone_ptr->network_name))
 		{
 			(void)vrprint.error(-1, "Internal Error", "string "
 				"overflow (in: %s:%d).", __FUNC__, __LINE__);
 			return(-1);
 		}
-		if(strlcpy(zone_ptr->zone_name, zonename, sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
+		if(strlcpy(zone_ptr->zone_name, zonename,
+		   sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
 		{
 			(void)vrprint.error(-1, "Internal Error", "string "
 				"overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -135,21 +144,24 @@ zones_split_zonename(const int debuglvl, Zones *zones, struct ZoneData_ *zone_pt
 		zone_ptr->zone_parent = search_zonedata(debuglvl, zones, zone_ptr->zone_name);
 		if(zone_ptr->zone_parent == NULL)
 		{
-			(void)vrprint.error(-1, "Error", "unable to find the zone '%s' in memory.", zone_ptr->zone_name);
+			(void)vrprint.error(-1, "Error", "unable to find the "
+					"zone '%s' in memory.", zone_ptr->zone_name);
 			return(-1);
 		}
 
-		snprintf(check_str, sizeof(check_str), "%s.%s", zone_ptr->network_name, zone_ptr->zone_name);
+		snprintf(check_str, sizeof(check_str), "%s.%s",
+			 zone_ptr->network_name, zone_ptr->zone_name);
 
 		zone_ptr->network_parent = search_zonedata(debuglvl, zones, check_str);
 		if(zone_ptr->network_parent == NULL)
 		{
-			(void)vrprint.error(-1, "Error", "Unable to find the network '%s' in memory.", check_str);
-			retval=-1;
+			(void)vrprint.error(-1, "Error", "Unable to find the "
+					"network '%s' in memory.", check_str);
+			return(-1);
 		}
 	}
 
-	return(retval);
+	return(0);
 }
 
 
@@ -173,7 +185,8 @@ zones_split_zonename(const int debuglvl, Zones *zones, struct ZoneData_ *zone_pt
 		-1: (serious) error
 */
 int
-insert_zonedata_list(const int debuglvl, Zones *zones, const struct ZoneData_ *zone_ptr)
+insert_zonedata_list(const int debuglvl, Zones *zones,
+		     const struct ZoneData_ *zone_ptr)
 {
 	struct ZoneData_	*check_zone_ptr = NULL,
 				*cur_zone = NULL,
@@ -184,13 +197,11 @@ insert_zonedata_list(const int debuglvl, Zones *zones, const struct ZoneData_ *z
 
 
 	/* safety first */
-	if(!zones || !zone_ptr)
-	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-									__FUNC__, __LINE__);
+	if(zones == NULL || zone_ptr == NULL) {
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+				"(in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
-
 
 	/* if the list is empty, just insert */
 	if(zones->list.len == 0)
@@ -202,13 +213,17 @@ insert_zonedata_list(const int debuglvl, Zones *zones, const struct ZoneData_ *z
 		{
 			if(!(check_zone_ptr = d_node->data))
 			{
-				(void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-										__FUNC__, __LINE__);
+				(void)vrprint.error(-1, "Internal Error",
+						"NULL pointer (in: %s:%d).",
+						__FUNC__, __LINE__);
 				return(-1);
 			}
 
 			if(debuglvl >= HIGH)
-				(void)vrprint.debug(__FUNC__, "check_zone_ptr: name: %s, type: %d.", check_zone_ptr->name, check_zone_ptr->type);
+				(void)vrprint.debug(__FUNC__, "check_zone_ptr: "
+						"name: %s, type: %d.",
+						check_zone_ptr->name,
+						check_zone_ptr->type);
 
 			/* store the last zone and network so we can determine the scope */
 			if(check_zone_ptr->type == TYPE_ZONE)
@@ -224,7 +239,8 @@ insert_zonedata_list(const int debuglvl, Zones *zones, const struct ZoneData_ *z
 			)
 			{
 				if(debuglvl >= HIGH)
-					(void)vrprint.debug(__FUNC__, "in the right scope %s", zone_ptr->name);
+					(void)vrprint.debug(__FUNC__, "in the "
+						"right scope %s", zone_ptr->name);
 
 				/* we are in the right scope */
 				in_the_right_scope = 1;
@@ -233,7 +249,8 @@ insert_zonedata_list(const int debuglvl, Zones *zones, const struct ZoneData_ *z
 				if(zone_ptr->type == check_zone_ptr->type)
 				{
 					if(debuglvl >= HIGH)
-						(void)vrprint.debug(__FUNC__, "same type %s", zone_ptr->name);
+						(void)vrprint.debug(__FUNC__,
+							"same type %s", zone_ptr->name);
 
 					/*	now compare the name.
 
@@ -272,7 +289,9 @@ insert_zonedata_list(const int debuglvl, Zones *zones, const struct ZoneData_ *z
 
 		if(d_list_prepend(debuglvl, &zones->list, zone_ptr) < 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "prepending zonedata into the list failed (in: %s:%d).", __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error",
+				"d_list_prepend() failed (in: %s:%d).",
+				__FUNC__, __LINE__);
 			return(-1);
 		}
 	}
@@ -284,7 +303,9 @@ insert_zonedata_list(const int debuglvl, Zones *zones, const struct ZoneData_ *z
 
 		if(d_list_insert_before(debuglvl, &zones->list, d_node, zone_ptr) < 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "inserting zonedata into the list failed (in: %s:%d).", __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error",
+				"d_list_insert_before() failed (in: %s:%d).",
+				__FUNC__, __LINE__);
 			return(-1);
 		}
 	}
@@ -296,7 +317,9 @@ insert_zonedata_list(const int debuglvl, Zones *zones, const struct ZoneData_ *z
 
 		if(d_list_append(debuglvl, &zones->list, zone_ptr) == NULL)
 		{
-			(void)vrprint.error(-1, "Internal Error", "appending zonedata into the list failed (in: %s:%d).", __FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error",
+				"d_list_append() failed (in: %s:%d).",
+				__FUNC__, __LINE__);
 			return(-1);
 		}
 	}
@@ -308,11 +331,14 @@ insert_zonedata_list(const int debuglvl, Zones *zones, const struct ZoneData_ *z
 		{
 			if(!(check_zone_ptr = d_node->data))
 			{
-				(void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
+				(void)vrprint.error(-1, "Internal Error",
+				"NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
 				return(-1);
 			}
 
-			(void)vrprint.debug(__FUNC__, "list: check_zone_ptr: name: %s, type: %d.", check_zone_ptr->name, check_zone_ptr->type);
+			(void)vrprint.debug(__FUNC__, "list: check_zone_ptr: "
+				"name: %s, type: %d.", check_zone_ptr->name,
+				check_zone_ptr->type);
 		}
 	}
 
@@ -329,21 +355,20 @@ insert_zonedata_list(const int debuglvl, Zones *zones, const struct ZoneData_ *z
 		 0: succes
 */
 int
-insert_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, char *name, int type, struct rgx_ *reg)
+insert_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces,
+		char *name, int type, struct rgx_ *reg)
 {
 	struct ZoneData_	*zone_ptr = NULL;
 
-	/*
-		please put on your safetybelt
-	*/
-	if(!zones || !name || !reg || !interfaces)
-	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
+	/* please put on your safetybelt */
+	if(zones == NULL || name == NULL || reg == NULL || interfaces == NULL) {
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+				"(in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
 
-	/*
-		claiming the memory we need, in case of error zone_malloc will tell the user
+	/* claiming the memory we need, in case of error
+	   zone_malloc will tell the user
 	*/
 	if(!(zone_ptr = zone_malloc(debuglvl)))
 		return(-1);
@@ -353,8 +378,6 @@ insert_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, char *
 	*/
 	if(read_zonedata(debuglvl, zones, interfaces, name, type, zone_ptr, reg) < 0)
 	{
-//		(void)vrprint.error(-1, "Error", "Reading the data for zone '%s' failed (in: insert_zonedata).", name);
-
 		free(zone_ptr);
 		return(-1);
 	}
@@ -364,8 +387,9 @@ insert_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, char *
 	*/
 	if(insert_zonedata_list(debuglvl, zones, zone_ptr) < 0)
 	{
-		(void)vrprint.error(-1, "Internal Error", "inserting zone '%s' failed (in: %s:%d).",
-									name, __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error",
+				"insert_zonedata_list() failed (in: %s:%d).",
+				__FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -384,42 +408,40 @@ insert_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, char *
 		-1: error
 */
 int
-read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, char *name, int type, struct ZoneData_ *zone_ptr, struct rgx_ *reg)
+read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces,
+	      char *name, int type, struct ZoneData_ *zone_ptr, struct rgx_ *reg)
 {
 	int	result = 0;
 	char	network[MAX_NET_ZONE];
 
-
 	/* safety */
-	if(name == NULL || zone_ptr == NULL || zones == NULL || reg == NULL || interfaces == NULL)
-	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-									__FUNC__, __LINE__);
+	if(name == NULL || zone_ptr == NULL || zones == NULL || reg == NULL ||
+		  interfaces == NULL) {
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+				"(in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
 
-	if(	type != TYPE_ZONE &&
-		type != TYPE_NETWORK &&
-		type != TYPE_HOST &&
-		type != TYPE_GROUP)
+	if(	type != TYPE_ZONE && type != TYPE_NETWORK &&
+		type != TYPE_HOST && type != TYPE_GROUP)
 	{
-		(void)vrprint.error(-1, "Interal Error", "wrong zonetype %d (in: %s:%d).",
-									type, __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Interal Error", "wrong zonetype %d "
+				"(in: %s:%d).", type, __FUNC__, __LINE__);
 		return(-1);
 	}
 
 	if(validate_zonename(debuglvl, name, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) != 0)
 	{
-		(void)vrprint.error(-1, "Internal Error", "invalid zonename: '%s' (in: %s:%d).",
-									name, __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "invalid zonename "
+				"'%s' (in: %s:%d).", name, __FUNC__, __LINE__);
 		return(-1);
 	}
 
 	/* copy the name to the structure */
 	if(strlcpy(zone_ptr->name, name, sizeof(zone_ptr->name)) >= sizeof(zone_ptr->name))
 	{
-		(void)vrprint.error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
-									__FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "buffer overflow "
+				"(in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -431,8 +453,8 @@ read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, char *na
 	if(result < 0)
 	{
 		/* error */
-		(void)vrprint.error(-1, "Internal Error", "zones_split_zonename() failed (in: %s:%d).",
-										__FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "zones_split_zonename() "
+				"failed (in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -440,19 +462,18 @@ read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, char *na
 	result = check_active(debuglvl, zone_ptr->name, zone_ptr->type);
 	if(result == -1)
 	{
+		/* set false to be sure */
+		zone_ptr->active = FALSE;
+
 		/* error */
-		(void)vrprint.error(-1, "Internal Error", "check_active() failed (in: %s:%d).",
-										__FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "check_active() "
+				"failed (in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
 	else if(result == 1)
-	{
 		zone_ptr->active = TRUE;
-	}
 	else
-	{
 		zone_ptr->active = FALSE;
-	}
 
 
 	if(zone_ptr->type != TYPE_ZONE && zone_ptr->type != TYPE_GROUP)
@@ -460,14 +481,15 @@ read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, char *na
 		/* for get_interface */
 		if(zone_ptr->type == TYPE_HOST)
 		{
-			snprintf(network, sizeof(network), "%s.%s", zone_ptr->network_name, zone_ptr->zone_name);
+			snprintf(network, sizeof(network), "%s.%s",
+				 zone_ptr->network_name, zone_ptr->zone_name);
 		}
 		else
 		{
 			if(strlcpy(network, name, sizeof(network)) >= sizeof(network))
 			{
-				(void)vrprint.error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
-											__FUNC__, __LINE__);
+				(void)vrprint.error(-1, "Internal Error", "buffer "
+						"overflow (in: %s:%d).", __FUNC__, __LINE__);
 				return(-1);
 			}
 		}
@@ -477,16 +499,18 @@ read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, char *na
 			result = zones_network_get_interfaces(debuglvl, zone_ptr, interfaces);
 			if(result < 0)
 			{
-				(void)vrprint.error(-1, "Internal Error", "zones_network_get_interfaces() failed (in: %s:%d).",
-											__FUNC__, __LINE__);
+				(void)vrprint.error(-1, "Internal Error",
+						"zones_network_get_interfaces() "
+						"failed (in: %s:%d).", __FUNC__, __LINE__);
 				return(-1);
 			}
 
 			result = zones_network_get_protectrules(debuglvl, zone_ptr);
 			if(result < 0)
 			{
-				(void)vrprint.error(-1, "Internal Error", "zones_network_get_protectrules() failed (in: %s:%d).",
-											__FUNC__, __LINE__);
+				(void)vrprint.error(-1, "Internal Error",
+						"zones_network_get_protectrules() "
+						"failed (in: %s:%d).", __FUNC__, __LINE__);
 				return(-1);
 			}
 		}
@@ -497,8 +521,8 @@ read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, char *na
 		result = get_ip_info(debuglvl, name, zone_ptr, reg);
 		if(result != 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "get_ip_info() failed (in: %s:%d).",
-											__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "get_ip_info() "
+					"failed (in: %s:%d).", __FUNC__, __LINE__);
 			return(-1);
 		}
 	}
@@ -508,8 +532,8 @@ read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, char *na
 		result = get_group_info(debuglvl, zones, name, zone_ptr);
 		if(result != 0)
 		{
-			(void)vrprint.error(-1, "Internal Error", "get_group_info() failed (in: %s:%d).",
-											__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "get_group_info() "
+					"failed (in: %s:%d).", __FUNC__, __LINE__);
 			return(-1);
 		}
 	}
@@ -534,8 +558,8 @@ search_zonedata(const int debuglvl, const Zones *zones, char *name)
 	/* safety */
 	if(name == NULL || zones == NULL)
 	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-									__FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+				"(in: %s:%d).", __FUNC__, __LINE__);
 		return(NULL);
 	}
 
@@ -545,8 +569,8 @@ search_zonedata(const int debuglvl, const Zones *zones, char *name)
 	{
 		if(!(zonedata_ptr = d_node->data))
 		{
-			(void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-									__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "NULL pointer "
+					"(in: %s:%d).", __FUNC__, __LINE__);
 			return(NULL);
 		}
 
@@ -584,7 +608,8 @@ zonedata_print_list(const Zones *zones)
 	{
 		zone_ptr = d_node->data;
 
-		fprintf(stdout, "zone: %s, status: %d, active: %d, type: %d\n", zone_ptr->name, zone_ptr->status, zone_ptr->active, zone_ptr->type);
+		fprintf(stdout, "zone: %s, status: %d, active: %d, type: %d\n",
+			zone_ptr->name, zone_ptr->status, zone_ptr->active, zone_ptr->type);
 	}
 
 	return;
@@ -599,9 +624,6 @@ zonedata_print_list(const Zones *zones)
 		 0: succes
 		 1: succes with one or more zonedata entries failed
 		-1: error
-
-	TODO:
-		input validation
 */
 int
 init_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, struct rgx_ *reg)
@@ -610,7 +632,6 @@ init_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, struct r
 		result = 0,
 		zonetype = 0;
 	char	zonename[MAX_HOST_NET_ZONE] = "";
-
 
 	/* safety */
 	if(zones == NULL || interfaces == NULL || reg == NULL)
@@ -631,21 +652,25 @@ init_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, struct r
 	while(zf->list(debuglvl, zone_backend, zonename, &zonetype, CAT_ZONES) != NULL)
 	{
 		if(debuglvl >= MEDIUM)
-			(void)vrprint.debug(__FUNC__, "loading zone: '%s', type: %d", zonename, zonetype);
+			(void)vrprint.debug(__FUNC__, "loading zone: '%s', "
+					"type: %d", zonename, zonetype);
 
 		if(validate_zonename(debuglvl, zonename, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == 0)
 		{
 			result = insert_zonedata(debuglvl, zones, interfaces, zonename, zonetype, reg);
 			if(result < 0)
 			{
-				(void)vrprint.error(-1, "Internal Error", "insert_zonedata() failed (in: %s:%d).",
-												__FUNC__, __LINE__);
+				(void)vrprint.error(-1, "Internal Error",
+					"insert_zonedata() failed (in: %s:%d).",
+					__FUNC__, __LINE__);
 				return(-1);
 			}
 			else
 			{
 				if(debuglvl >= LOW)
-					(void)vrprint.debug(__FUNC__, "loading zone succes: '%s' (type %d).", zonename, zonetype);
+					(void)vrprint.debug(__FUNC__, "loading "
+						"zone succes: '%s' (type %d).",
+						zonename, zonetype);
 			}
 		}
 	}
@@ -670,8 +695,8 @@ destroy_zonedatalist(const int debuglvl, Zones *zones)
 	{
 		if(!(zone_ptr = d_node->data))
 		{
-			(void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-										__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "NULL "
+					"pointer (in: %s:%d).", __FUNC__, __LINE__);
 			return;
 		}
 
@@ -688,18 +713,19 @@ delete_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
 	struct ZoneData_	*zone_ptr = NULL,
 				*zone_list_ptr = NULL;
 	d_list_node		*d_node = NULL;
-	char			name[MAX_HOST_NET_ZONE];
+	char			name[MAX_HOST_NET_ZONE] = "";
 	struct InterfaceData_	*iface_ptr = NULL;
 
 	/* safety */
-	if(!zonename || !zones)
+	if(zonename == NULL || zones == NULL)
 	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-									__FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+				"(in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
 
-	/* copy the name to an array so we can display the name after the deletion is complete */
+	/* copy the name to an array so we can display the name after
+	   the deletion is complete */
 	if(strlcpy(name, zonename, sizeof(name)) >= sizeof(name))
 	{
 		(void)vrprint.error(-1, "Internal Error", "string "
@@ -708,45 +734,49 @@ delete_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
 	}
 
 	/* check zonetype */
-	if(zonetype != TYPE_ZONE && zonetype != TYPE_NETWORK && zonetype != TYPE_HOST && zonetype != TYPE_GROUP)
+	if(zonetype != TYPE_ZONE && zonetype != TYPE_NETWORK &&
+		  zonetype != TYPE_HOST && zonetype != TYPE_GROUP)
 	{
-		(void)vrprint.error(-1, "Internal Error", "expected a zone, network, host or group, but got a %d (in: %s:%d).",
-									zonetype, __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "expected a zone, "
+				"network, host or group, but got a %d (in: %s:%d).",
+				zonetype, __FUNC__, __LINE__);
 		return(-1);
 	}
 
 	/* search the zone */
 	if(!(zone_ptr = search_zonedata(debuglvl, zones, zonename)))
 	{
-		(void)vrprint.error(-1, "Internal Error", "zone '%s' not found in memory (in: %s:%d).",
-									zonename, __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "zone '%s' not found "
+				"in memory (in: %s:%d).", zonename,
+				__FUNC__, __LINE__);
 		return(-1);
 	}
-
 
 	/* check the refernce counters */
 	if(zone_ptr->type == TYPE_HOST && zone_ptr->refcnt_group > 0)
 	{
-		(void)vrprint.error(-1, "Internal Error", "host '%s' is still a member of %u group(s) (in: %s:%d).",
-									zone_ptr->name, zone_ptr->refcnt_group,
-									__FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "host '%s' is still "
+				"a member of %u group(s) (in: %s:%d).",
+				zone_ptr->name, zone_ptr->refcnt_group,
+				__FUNC__, __LINE__);
 		return(-1);
 	}
 	if(zone_ptr->type == TYPE_HOST && zone_ptr->refcnt_blocklist > 0)
 	{
-		(void)vrprint.error(-1, "Internal Error", "host '%s' is still in the blocklist (%u times) (in: %s:%d).",
-									zone_ptr->name, zone_ptr->refcnt_blocklist,
-									__FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "host '%s' is still "
+				"in the blocklist (%u times) (in: %s:%d).",
+				zone_ptr->name, zone_ptr->refcnt_blocklist,
+				__FUNC__, __LINE__);
 		return(-1);
 	}
 	if(zone_ptr->type == TYPE_GROUP && zone_ptr->refcnt_blocklist > 0)
 	{
-		(void)vrprint.error(-1, "Internal Error", "group '%s' is still in the blocklist (%u times) (in: %s:%d).",
-									zone_ptr->name, zone_ptr->refcnt_blocklist,
-									__FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "group '%s' is still "
+				"in the blocklist (%u times) (in: %s:%d).",
+				zone_ptr->name, zone_ptr->refcnt_blocklist,
+				__FUNC__, __LINE__);
 		return(-1);
 	}
-
 
 	/* if the zone to delete is a group, decrease the refcnt_group of all members */
 	if(zone_ptr->type == TYPE_GROUP)
@@ -755,8 +785,9 @@ delete_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
 		{
 			if(!(zone_list_ptr = d_node->data))
 			{
-				(void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-									__FUNC__, __LINE__);
+				(void)vrprint.error(-1, "Internal Error",
+						"NULL pointer (in: %s:%d).",
+						__FUNC__, __LINE__);
 				return(-1);
 			}
 
@@ -770,8 +801,9 @@ delete_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
 		{
 			if(!(iface_ptr = d_node->data))
 			{
-				(void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-									__FUNC__, __LINE__);
+				(void)vrprint.error(-1, "Internal Error",
+						"NULL pointer (in: %s:%d).",
+						__FUNC__, __LINE__);
 				return(-1);
 			}
 
@@ -782,8 +814,8 @@ delete_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
 	/* delete the zone from the backend */
 	if(zf->del(debuglvl, zone_backend, zonename, zonetype, 1) < 0)
 	{
-		(void)vrprint.error(-1, "Internal Error", "zone '%s' could not be deleted (in: %s:%d).",
-									zonename, __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "zone '%s' could not "
+				"be deleted (in: %s:%d).", zonename, __FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -792,8 +824,8 @@ delete_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
 	{
 		if(!(zone_list_ptr = d_node->data))
 		{
-			(void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-									__FUNC__, __LINE__);
+			(void)vrprint.error(-1, "Internal Error", "NULL pointer "
+					"(in: %s:%d).", __FUNC__, __LINE__);
 			return(-1);
 		}
 
@@ -802,21 +834,22 @@ delete_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
 			/* remove from list */
 			if(d_list_remove_node(debuglvl, &zones->list, d_node) < 0)
 			{
-				(void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-									__FUNC__, __LINE__);
+				(void)vrprint.error(-1, "Internal Error",
+						"NULL pointer (in: %s:%d).",
+						__FUNC__, __LINE__);
+				return(-1);
 			}
 
 			/* remove from memory */
 			zone_free(debuglvl, zone_list_ptr);
-			
 			/* we're done */
 			return(0);
 		}
 	}
 
 	/* we should never get here */
-	(void)vrprint.error(-1, "Internal Error", "zone not found in memory (in: %s:%d).",
-									__FUNC__, __LINE__);
+	(void)vrprint.error(-1, "Internal Error", "zone not found in memory "
+			"(in: %s:%d).", __FUNC__, __LINE__);
 	return(-1);
 }
 
