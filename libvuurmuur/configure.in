@@ -1,0 +1,36 @@
+AC_INIT(configure.in)
+
+AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE(libvuurmuur, 0.6)
+
+AC_LANG_C
+AC_PROG_CC
+AM_PROG_LIBTOOL
+
+AC_ARG_ENABLE(binreloc,
+        [  --enable-binreloc        enable binreloc support (for autopackage)],
+            CFLAGS="$CFLAGS -DBINRELOC_ENABLED"
+        ,)
+
+AC_ARG_WITH(plugindir,
+        [  --with-plugindir=DIR    plugins directory (default $libdir/vuurmuur)],
+        [plugindir="$withval"],[plugindir=no])
+
+if test "$plugindir" != "no"; then
+    CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"${plugindir}\""
+else
+    CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"${libdir}/vuurmuur\""
+fi
+
+# shared dir option for rpm building
+AC_ARG_WITH(shareddir,
+       [  --with-shareddir=DIR  vuurmuur shared dir (default $datadir/vuurmuur)],
+       [shareddir="$withval"],[shareddir=no])
+
+if test "$shareddir" != "no"; then
+   CPPFLAGS="${CPPFLAGS} -DDATADIR=\"${shareddir}\""
+else
+   CPPFLAGS="${CPPFLAGS} -DDATADIR=\"${datadir}/vuurmuur\""
+fi
+
+AC_OUTPUT(Makefile src/Makefile plugins/Makefile plugins/textdir/Makefile doc/Makefile)

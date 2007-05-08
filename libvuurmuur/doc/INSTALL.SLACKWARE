@@ -1,0 +1,105 @@
+Building Vuurmuur on Slackware
+============================================
+
+   I. Needed Packages
+   II. Install from the Source (automatic)
+   III. Install from source (manual)
+   IV. Configuration 
+
+
+I. Needed Packages:
+------------------
+
+To install Vuurmuur on SlackWare, please check these packages are installed:
+
+autoconf       : /d/autoconf-x.xx-noarch-1
+automake       : /d/automake-x.x.x-noarch-1
+binutils       : /d/binutils-x.x.x.x.x-i486-3
+gcc            : /d/gcc-x.x.x-i486-1
+gcc-g++        : /d/gcc-g++-x.x.x-i486-1
+gettext        : /a/gettext-x.x.x-i486-1
+gettext-tools  : /d/gettext-tools-x.x.x-i486-1
+kernel-headers : /d/kernel-headers-x.x.x-i386-1
+libtool        : /d/libtool-x.x.x-i486-1
+m4             : /d/m4-x.x.x-i486-1
+make           : /d/make-x.xx-i386-1
+ncurses        : /l/ncurses-x.x-i486-2
+perl           : /d/perl-x.x.x-i486-1
+
+(Install from CD or download from ftp.slackware.com or mirror
+(cf http://www.slackware.com/getslack/ ) )
+
+II. Install from source (automatic):
+-----------------------------------
+
+Installing from source is an easy task with the install script:
+
+1. download the archive, e.g. Vuurmuur-0.5.68.tar.gz, and store it on your disk
+2. log as root
+3. unpack the archive with the command
+            # tar -xvzf Vuurmuur-0.5.68.tar.gz
+4. enter the directory Vuurmuur-0.5.68
+            # cd Vuurmuur-0.5.68
+5. Now run the install script:
+            # sh ./install.sh --install
+6. Specify '/usr/local' as the install directory (/usr is the default one)
+7. Specify '/etc' as the config directory (which is the default one)
+8. Specify '/var/log/vuurmuur' as the logs directory (which is the default one)
+9. After some waiting you should get a success message. If errors
+occurs, check the logs files or try the manual way.
+
+III. Install from source (manual):
+---------------------------------
+
+1. download the archive, e.g. Vuurmuur-0.5.68.tar.gz, and store it on your disk
+2. log as root
+3. unpack the archive with the command
+            # tar -xvzf Vuurmuur-0.5.68.tar.gz
+4. enter the directory Vuurmuur-0.5.68
+            # cd Vuurmuur-0.5.68
+5. unpack the archives with the command
+            # sh ./install.sh --unpack
+6a. enter the 'libvuurmuur' directory
+6b. run the configure script, make then install
+            # cd libvuurmuur
+	    # ./configure --prefix=/usr/local --sysconfdir=/etc
+	    # make
+	    # make install
+	    # cd ..
+7a. enter the 'vuurmuur' directory
+7b. run the configure script, make then install
+            # cd vuurmuur
+	    # ./configure --prefix=/usr/local --sysconfdir=/etc \
+	      --with-libvuurmuur-includes=/usr/local/include \
+	      --with-libvuurmuur-libraries=/usr/local/lib
+	    # make
+	    # make install
+	    # cd ..
+( hey...why do you think an install.sh script exists ;-) )
+
+8a. enter the 'vuurmuur_conf' directory
+8b. run the configure script, make then install
+            # cd vuurmuur_conf
+            # ./configure --prefix=/usr/local --sysconfdir=/etc \
+              --with-libvuurmuur-includes=/usr/local/include \
+              --with-libvuurmuur-libraries=/usr/local/lib
+            # make
+            # make install
+            # cd ..
+
+IV. Configuration:
+-----------------
+
+Copy the 'rc.vuurmuur' script into /etc/rc.d
+This script could be found in /usr/local/share/vuurmuur/scripts
+
+add in the /etc/rc.d/rc.local script:
+------------------------------------------
+if [ -x /etc/rc.d/rc.vuurmuur ]; then
+  /etc/rc.d/rc.vuurmuur start
+fi
+------------------------------------------
+
+And last you could install the logrotate script.
+Simply copy /usr/local/share/vuurmuur/scripts/vuurmuur-logrotate
+into /etc/logrotate.d/
