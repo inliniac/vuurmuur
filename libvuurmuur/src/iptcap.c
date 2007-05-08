@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2002-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2002-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -36,14 +36,16 @@ iptcap_get_one_cap_from_proc(const int debuglvl, char *procpath, char *request)
 	/* safety */
 	if(procpath == NULL || request == NULL)
 	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 
 	/* open the matches */
 	if(!(fp = fopen(procpath, "r")))
 	{
-		(void)vrprint.error(-1, "Error", "could not open '%s': %s (in: %s:%d).", procpath, strerror(errno), __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Error", "could not open '%s': %s (in: %s:%d).",
+			procpath, strerror(errno), __FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -71,7 +73,8 @@ iptcap_get_one_cap_from_proc(const int debuglvl, char *procpath, char *request)
 	/* close the file */
 	if(fclose(fp) == -1)
 	{
-		(void)vrprint.error(-1, "Error", "could not close '%s': %s (in: %s:%d).", procpath, strerror(errno), __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Error", "could not close '%s': %s (in: %s:%d).",
+			procpath, strerror(errno), __FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -92,14 +95,16 @@ iptcap_load_module(const int debuglvl, struct vuurmuur_config *cnf, char *module
 	/* safety */
 	if(modulename == NULL || cnf == NULL)
 	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 
 	/* create the commandstring */
 	if(snprintf(cmd, sizeof(cmd), "%s -q %s &> /dev/null", conf.modprobe_location, modulename) >= (int)sizeof(cmd))
 	{
-		(void)vrprint.error(-1, "Error", "commandstring overflow (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Error", "commandstring overflow (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 	if(debuglvl >= HIGH)
@@ -129,7 +134,8 @@ iptcap_check_cap(const int debuglvl, struct vuurmuur_config *cnf, char *procpath
 	/* safety */
 	if(procpath == NULL || request == NULL || modulename == NULL || cnf == NULL)
 	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -137,7 +143,8 @@ iptcap_check_cap(const int debuglvl, struct vuurmuur_config *cnf, char *procpath
 	result = iptcap_get_one_cap_from_proc(debuglvl, procpath, request);
 	if(result < 0)
 	{
-		(void)vrprint.error(-1, "Error", "getting iptcap for '%s' failed (in: %s:%d).", request, __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Error", "getting iptcap for '%s' failed (in: %s:%d).",
+			request, __FUNC__, __LINE__);
 		return(-1);
 	}
 	else if(result == 0)
@@ -166,7 +173,7 @@ iptcap_check_cap(const int debuglvl, struct vuurmuur_config *cnf, char *procpath
 	{
 		if(debuglvl >= LOW)
 			(void)vrprint.debug(__FUNC__, "after loading the module, usleep for %lu.",
-								(unsigned long)(cnf->modules_wait_time * 10000));
+				(unsigned long)(cnf->modules_wait_time * 10000));
 
 		usleep(cnf->modules_wait_time * 10000);
 	}
@@ -175,7 +182,8 @@ iptcap_check_cap(const int debuglvl, struct vuurmuur_config *cnf, char *procpath
 	result = iptcap_get_one_cap_from_proc(debuglvl, procpath, request);
 	if(result < 0)
 	{
-		(void)vrprint.error(-1, "Error", "getting iptcap for '%s' failed (in: %s:%d).", request, __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Error", "getting iptcap for '%s' failed (in: %s:%d).",
+			request, __FUNC__, __LINE__);
 		return(-1);
 	}
 	else if(result == 0)
@@ -207,7 +215,8 @@ iptcap_check_file(const int debuglvl, char *path)
 	/* safety */
 	if(path == NULL)
 	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -233,21 +242,24 @@ iptcap_get_queue_peer_pid(const int debuglvl, IptCap *iptcap)
 	/* safety */
 	if(iptcap == NULL)
 	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 
 	/* open the file */
 	if(!(fp = fopen(proc_net_ipqueue, "r")))
 	{
-		(void)vrprint.error(-1, "Error", "opening file '%s' failed: %s (in: %s:%d).", proc_net_ipqueue, strerror(errno), __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Error", "opening file '%s' failed: %s (in: %s:%d).",
+			proc_net_ipqueue, strerror(errno), __FUNC__, __LINE__);
 		return(-1);
 	}
 
 	/* get the first line */
 	if(fgets(line, (int)sizeof(line), fp) == NULL)
 	{
-		(void)vrprint.error(-1, "Error", "reading line from ip_queue failed (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Error", "reading line from ip_queue failed (in: %s:%d).",
+			__FUNC__, __LINE__);
 
 		fclose(fp);
 		return(-1);
@@ -298,7 +310,8 @@ check_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, c
 	/* safety */
 	if(iptcap == NULL || cnf == NULL)
 	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -306,7 +319,8 @@ check_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, c
 	result = load_iptcaps(debuglvl, cnf, iptcap, load_modules);
 	if(result == -1)
 	{
-		(void)vrprint.error(-1, "Error", "loading iptables capabilities failed (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Error", "loading iptables capabilities failed (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -327,7 +341,7 @@ check_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, c
 	if(iptcap->proc_net_names == TRUE && iptcap->table_filter == FALSE)
 	{
 		(void)vrprint.error(-1, "Error", "no iptables-support in the kernel: filter table missing (in: %s:%d).",
-							__FUNC__, __LINE__);
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 	if(iptcap->proc_net_names == TRUE && iptcap->table_nat == FALSE)
@@ -338,21 +352,24 @@ check_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, c
 	/* require conntrack */
 	if(iptcap->conntrack == FALSE)
 	{
-		(void)vrprint.error(-1, "Error", "no connection tracking support in the kernel (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Error", "no connection tracking support in the kernel (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 
 	/* require tcp, udp, icmp */
 	if(iptcap->proc_net_matches == TRUE && (iptcap->match_tcp == FALSE || iptcap->match_udp == FALSE || iptcap->match_icmp == FALSE))
 	{
-		(void)vrprint.error(-1, "Error", "incomplete iptables-support in the kernel: tcp, udp or icmp support missing (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Error", "incomplete iptables-support in the kernel: tcp, udp or icmp support missing (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 
 	/* require state match */
 	if(iptcap->proc_net_matches == TRUE && iptcap->match_state == FALSE)
 	{
-		(void)vrprint.error(-1, "Error", "incomplete iptables-support in the kernel: state support missing (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Error", "incomplete iptables-support in the kernel: state support missing (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 
@@ -379,7 +396,8 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 	/* safety */
 	if(iptcap == NULL || cnf == NULL)
 	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+			__FUNC__, __LINE__);
 		return(-1);
 	}
 	/* init */
@@ -393,7 +411,8 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 	if(!(iptcap_check_file(debuglvl, proc_net_match)))
 	{
 		if(debuglvl >= LOW)
-			(void)vrprint.debug(__FUNC__, "%s not found: load_modules: %s.", proc_net_match, load_modules ? "Yes" : "No");
+			(void)vrprint.debug(__FUNC__, "%s not found: load_modules: %s.",
+				proc_net_match, load_modules ? "Yes" : "No");
 
 		if(load_modules == TRUE)
 		{
@@ -424,7 +443,8 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 	if(!(iptcap_check_file(debuglvl, proc_net_target)))
 	{
 		if(debuglvl >= LOW)
-			(void)vrprint.debug(__FUNC__, "%s not found: load_modules: %s.", proc_net_target, load_modules ? "Yes" : "No");
+			(void)vrprint.debug(__FUNC__, "%s not found: load_modules: %s.", 
+				proc_net_target, load_modules ? "Yes" : "No");
 
 		if(load_modules == TRUE)
 		{
@@ -516,7 +536,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 
 			/* check again */
 			if(!(iptcap_check_file(debuglvl, proc_net_ipconntrack)))
-				iptcap->conntrack = 0;
+				iptcap->conntrack = FALSE;
 			else
 				iptcap->conntrack = TRUE;
 		}
@@ -601,32 +621,62 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 		/* state match */
 		result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "state", "ipt_state", load_modules);
 		if(result == 1)	iptcap->match_state = TRUE;
-		else		iptcap->match_state = FALSE;
+		else {
+			iptcap->match_state = FALSE;
+		
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "state", "xt_state", load_modules);
+			if(result == 1)	iptcap->match_state = TRUE;
+		}
 
 		/* length match */
 		result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "length", "ipt_length", load_modules);
 		if(result == 1)	iptcap->match_length = TRUE;
-		else		iptcap->match_length = FALSE;
+		else {
+			iptcap->match_length = FALSE;
+		
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "length", "xt_length", load_modules);
+			if(result == 1)	iptcap->match_length = TRUE;
+		}
 
 		/* limit match */
 		result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "limit", "ipt_limit", load_modules);
 		if(result == 1)	iptcap->match_limit = TRUE;
-		else		iptcap->match_limit = FALSE;
+		else {
+			iptcap->match_limit = FALSE;
+		
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "limit", "xt_limit", load_modules);
+			if(result == 1)	iptcap->match_limit = TRUE;
+		}
 
 		/* mark match */
 		result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "mark", "ipt_mark", load_modules);
 		if(result == 1)	iptcap->match_mark = TRUE;
-		else		iptcap->match_mark = FALSE;
+		else {
+			iptcap->match_mark = FALSE;
+		
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "mark", "xt_mark", load_modules);
+			if(result == 1)	iptcap->match_mark = TRUE;
+		}
 
 		/* mac match */
 		result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "mac", "ipt_mac", load_modules);
 		if(result == 1)	iptcap->match_mac = TRUE;
-		else		iptcap->match_mac = FALSE;
+		else {
+			iptcap->match_mac = FALSE;
+		
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "mac", "xt_mac", load_modules);
+			if(result == 1)	iptcap->match_mac = TRUE;
+		}
 
 		/* helper match */
 		result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "helper", "ipt_helper", load_modules);
 		if(result == 1)	iptcap->match_helper = TRUE;
-		else		iptcap->match_helper = FALSE;
+		else {
+			iptcap->match_helper = FALSE;
+		
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "helper", "xt_helper", load_modules);
+			if(result == 1)	iptcap->match_helper = TRUE;
+		}
 	}
 	else
 	{
@@ -676,12 +726,22 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 		/* REJECT target */
 		result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "REJECT", "ipt_REJECT", load_modules);
 		if(result == 1)	iptcap->target_reject = TRUE;
-		else		iptcap->target_reject = FALSE;
+		else {
+			iptcap->target_reject = FALSE;
+
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "REJECT", "xt_REJECT", load_modules);
+			if(result == 1)	iptcap->target_reject = TRUE;
+		}
 
 		/* LOG target */
 		result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "LOG", "ipt_LOG", load_modules);
 		if(result == 1)	iptcap->target_log = TRUE;
-		else		iptcap->target_log = FALSE;
+		else {
+			iptcap->target_log = FALSE;
+
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "LOG", "xt_LOG", load_modules);
+			if(result == 1)	iptcap->target_log = TRUE;
+		}
 
 		/* mangle stuff */
 		if(iptcap->table_mangle == TRUE)
@@ -689,7 +749,12 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 			/* MARK target */
 			result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "MARK", "ipt_MARK", load_modules);
 			if(result == 1)	iptcap->target_mark = TRUE;
-			else		iptcap->target_mark = FALSE;
+			else {
+				iptcap->target_mark = FALSE;
+
+				result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "MARK", "xt_MARK", load_modules);
+				if(result == 1)	iptcap->target_mark = TRUE;
+			}
 		}
 	}
 	else
@@ -714,3 +779,4 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 
 	return(0);
 }
+
