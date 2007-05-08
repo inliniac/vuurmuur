@@ -1,0 +1,15 @@
+# begin of file
+
+ACTIVE="Yes"
+
+TCP=""
+
+UDP="33434:33523*1024:65535"
+
+ICMP=""
+
+GRE=""
+
+BROADCAST="No"
+
+# end of file

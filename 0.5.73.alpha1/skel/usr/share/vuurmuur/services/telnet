@@ -1,0 +1,11 @@
+# begin of file
+
+ACTIVE="Yes"
+TCP="23*1024:65535"
+UDP=""
+ICMP=""
+GRE=""
+BROADCAST="No"
+COMMENT="Protocol for remote management. Depreciated on insecure networks. Use SSH instead."
+
+# end of file

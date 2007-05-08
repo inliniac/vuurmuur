@@ -1,0 +1,15 @@
+# begin of file
+
+ACTIVE="Yes"
+TCP="139*1024:65535"
+TCP="445*1024:65535"
+UDP="137*137"
+UDP="138*138"
+UDP="137*1024:65535"
+UDP="1024:65535*137"
+ICMP=""
+GRE=""
+BROADCAST="Yes"
+COMMENT="Samba, the Windows Network."
+
+# end of file
