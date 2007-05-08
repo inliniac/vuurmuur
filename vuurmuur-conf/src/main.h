@@ -435,10 +435,10 @@ typedef struct ct_
 	unsigned int		prev_list_size;
 } Conntrack;
 
-int kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, char *srcip, char *dstip, char *sername);
-int block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones, BlockList *blocklist, Interfaces *interfaces, char *kill_ip, char *block_ip);
+int kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, char *srcip, char *dstip, char *sername, char connect_status);
+int block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones, BlockList *blocklist, Interfaces *interfaces, char *ip);
 int kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int proto, int sp, int dp);
-int kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, char *srcname, char *dstname, char *sername);
+int kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, char *srcname, char *dstname, char *sername, char connect_status);
 
 Conntrack *conn_init_ct(const int debuglvl, Zones *zones, Interfaces *interfaces, Services *services, BlockList *blocklist );
 void conn_free_ct(const int debuglvl, Conntrack **ct, Zones *zones);

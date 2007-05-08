@@ -1176,6 +1176,7 @@ kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int pro
 {
 	char buf[256] = "";
 
+
 	if(proto == VR_PROTO_TCP)
 	{
 		snprintf(buf, sizeof(buf), "%s -D -s %s -d %s -p tcp --orig-port-src %d --orig-port-dst %d",
@@ -1205,14 +1206,13 @@ kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int pro
 int
 kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf,
 				Conntrack *ct, char *srcname, char *dstname,
-				char *sername)
+				char *sername, char connect_status)
 {
 	d_list_node		*d_node = NULL;
 	struct ConntrackData	*cd_ptr = NULL;
 	int			cnt = 0,
 				failed = 0;
-
-	(void)vrprint.warning(VR_WARN,"src: %s, dst %s, ser: %s", srcname, dstname, sername);
+	char			*dip = NULL;
 
 	/* check if the conntrack tool is set */
 	if(cnf->conntrack_location[0] == '\0')
@@ -1228,27 +1228,33 @@ kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf,
 	for(d_node = ct->conn_list.top; d_node; d_node = d_node->next)
 	{
 		cd_ptr = d_node->data;
-		(void)vrprint.debug(__FUNC__, "ct: s:%s d:%s s:%s (%d)",
-				cd_ptr->fromname, cd_ptr->toname, cd_ptr->sername, cd_ptr->cnt);
+		if (debuglvl >= LOW)
+			(void)vrprint.debug(__FUNC__, "ct: s:%s d:%s s:%s (%d)",
+				cd_ptr->fromname, cd_ptr->toname,
+				cd_ptr->sername, cd_ptr->cnt);
 
 		if(srcname == NULL || strcmp(srcname, cd_ptr->fromname) == 0)
 		{
 			if(dstname == NULL || strcmp(dstname, cd_ptr->toname) == 0)
 			{
+				/* for DNATted connections we use the
+				   orig_dst_ip */
+				dip = cd_ptr->orig_dst_ip[0] ?
+					cd_ptr->orig_dst_ip : cd_ptr->dst_ip;
+
 				if(sername == NULL || strcmp(sername, cd_ptr->sername) == 0)
 				{
-					(void)vrprint.debug(__FUNC__, "ct: s:%s d:%s s:%s: KILL!!!",
-						cd_ptr->fromname, cd_ptr->toname, cd_ptr->sername);
+					if(connect_status == CONN_UNUSED || connect_status == cd_ptr->connect_status) {
+		    				if(kill_connection(debuglvl, cnf->conntrack_location,
+							cd_ptr->src_ip,  dip,
+							cd_ptr->protocol, cd_ptr->src_port,
+							cd_ptr->dst_port) == -1)
+						{
+							failed++;
+						}
 
-		    			if(kill_connection(debuglvl, cnf->conntrack_location,
-						cd_ptr->src_ip,  cd_ptr->dst_ip,
-						cd_ptr->protocol, cd_ptr->src_port,
-						cd_ptr->dst_port) == -1)
-					{
-						failed++;
+						cnt++;
 					}
-
-					cnt++;
 				}
 			}
 		}
@@ -1272,13 +1278,14 @@ kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf,
 
 int
 kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
-			Conntrack *ct, char *srcip, char *dstip, char *sername)
+			Conntrack *ct, char *srcip, char *dstip, char *sername,
+			char connect_status)
 {
 	d_list_node		*d_node = NULL;
 	struct ConntrackData	*cd_ptr = NULL;
 	int			cnt = 0,
 				failed = 0;
-	char			*dip = dstip;
+	char			*dip = NULL;
 
 	/* check if the conntrack tool is set */
 	if(cnf->conntrack_location[0] == '\0')
@@ -1301,20 +1308,23 @@ kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
 			    (cd_ptr->orig_dst_ip[0] == '\0' && strcmp(dstip, cd_ptr->dst_ip) == 0) ||
 			    (cd_ptr->orig_dst_ip[0] != '\0' && strcmp(dstip, cd_ptr->orig_dst_ip) == 0))
 			{
-				if (dip == NULL)
-					dip = cd_ptr->orig_dst_ip[0] ?
-						cd_ptr->orig_dst_ip : cd_ptr->dst_ip;
+				/* for DNATted connections we use the
+				orig_dst_ip */
+				dip = cd_ptr->orig_dst_ip[0] ?
+					cd_ptr->orig_dst_ip : cd_ptr->dst_ip;
 
 				if(sername == NULL || strcmp(sername, cd_ptr->sername) == 0)
 				{
-					if(kill_connection(debuglvl, cnf->conntrack_location,
-						cd_ptr->src_ip, dip, cd_ptr->protocol,
-						cd_ptr->src_port, cd_ptr->dst_port) == -1)
-					{
-						failed++;
-					}
+					if(connect_status == CONN_UNUSED || connect_status == cd_ptr->connect_status) {
+						if(kill_connection(debuglvl, cnf->conntrack_location,
+							cd_ptr->src_ip, dip, cd_ptr->protocol,
+							cd_ptr->src_port, cd_ptr->dst_port) == -1)
+						{
+							failed++;
+						}
 
-					cnt++;
+						cnt++;
+					}
 				}
 			}
 		}
@@ -1335,7 +1345,6 @@ kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
 	return(0);
 }
 
-
 /*
 	Steps:
 	1. check if the ipaddress doesn't belong to one of our own interfaces
@@ -1349,14 +1358,13 @@ kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
 */
 int
 block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
-		BlockList *blocklist, Interfaces *interfaces,
-		char *kill_ip, char *block_ip)
+		BlockList *blocklist, Interfaces *interfaces, char *ip)
 {
 	struct InterfaceData_   *iface_ptr = NULL;
 
 	VrBusyWinShow();
 
-	iface_ptr = search_interface_by_ip(debuglvl, interfaces, block_ip);
+	iface_ptr = search_interface_by_ip(debuglvl, interfaces, ip);
 	if(iface_ptr != NULL)
 	{
 		(void)vrprint.error(-1, VR_ERR, gettext("ipaddress belongs to "
@@ -1368,7 +1376,7 @@ block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
 
 	/* add to list */
 	if(blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE,
-		/*no_refcnt*/FALSE, block_ip) < 0)
+		/*no_refcnt*/FALSE, ip) < 0)
 	{
 		(void)vrprint.error(-1, VR_INTERR, "blocklist_add_one() "
 			"failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -1387,7 +1395,7 @@ block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
 
 	/* audit logging */
 	(void)vrprint.audit("%s '%s' %s.",
-		STR_IPADDRESS, block_ip, STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
+		STR_IPADDRESS, ip, STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
 
 	/* apply the changes */
 	vc_apply_changes(debuglvl);
@@ -1397,8 +1405,8 @@ block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
 	if(conf.conntrack_location[0] != '\0')
 	{
 		/* kill all connections for this ip */
-		kill_connections_by_ip(debuglvl, &conf, ct, NULL, kill_ip, NULL);
-		kill_connections_by_ip(debuglvl, &conf, ct, kill_ip, NULL, NULL);
+		kill_connections_by_ip(debuglvl, &conf, ct, NULL, ip, NULL, CONN_UNUSED);
+		kill_connections_by_ip(debuglvl, &conf, ct, ip, NULL, NULL, CONN_UNUSED);
 	}
 
 	VrBusyWinHide();

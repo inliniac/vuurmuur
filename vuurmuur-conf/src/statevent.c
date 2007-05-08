@@ -64,7 +64,6 @@ typedef struct StatEventConn_
 
 	char src_ip[16];
 	char dst_ip[16];
-	char orig_dst_ip[16];
 	int  protocol;
 	int  dst_port;
 	int  src_port;
@@ -229,7 +228,6 @@ statevent_convert_conn(const int debuglvl, StatEventCtl *ctl, d_list *list)
 
 		strlcpy(conn->src_ip, cd_ptr->src_ip, sizeof(conn->src_ip));
 		strlcpy(conn->dst_ip, cd_ptr->dst_ip, sizeof(conn->dst_ip));
-		strlcpy(conn->orig_dst_ip, cd_ptr->orig_dst_ip, sizeof(conn->orig_dst_ip));
 		conn->protocol = cd_ptr->protocol;
 		conn->src_port = cd_ptr->src_port;
 		conn->dst_port = cd_ptr->dst_port;
@@ -454,6 +452,19 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, d_list *list)
 	return(TRUE);
 }
 
+/* wrapper around ip and name killing */
+int kill_connections(const int debuglvl, struct vuurmuur_config *cnf,
+		VR_ConntrackRequest *connreq, Conntrack *ct, StatEventConn *conn) {
+	if (connreq->unknown_ip_as_net) {
+		return (kill_connections_by_name(debuglvl, cnf, ct, conn->src,
+			conn->dst, conn->ser, conn->connect_status));
+	} else {
+		return (kill_connections_by_ip(debuglvl, cnf, ct, conn->src_ip,
+			conn->dst_ip, conn->ser, conn->connect_status));
+	}
+}
+
+
 /*	Display the menu that allows the user to act
 	on a connection.
 
@@ -578,16 +589,6 @@ statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack
 				ITEM *cur = current_item(menu->m);
 				if(cur != NULL)
 				{
-					/* DNAT/PORTFW connections need some
-					   extra lovin. */
-					char *act_dst_ip = NULL;
-					if (con->orig_dst_ip[0] != '\0')
-						act_dst_ip = con->orig_dst_ip;
-					else
-						act_dst_ip = con->dst_ip;
-						
-					//vrprint.debug(__FUNC__, "act_dst_ip %s", act_dst_ip);
-
 					int act = atoi((char *)item_name(cur));
 					switch(act)
 					{
@@ -604,17 +605,21 @@ statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack
 									(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 								{
 									kill_connection(debuglvl, conf.conntrack_location,
-										con->src_ip, act_dst_ip, con->protocol,
+										con->src_ip, con->dst_ip, con->protocol,
 										con->src_port, con->dst_port);
 								}
 							}
 							else
 							{
+								vrprint.debug(__FUNC__, "cnt %u, src %s srcip %s dst %s dstip %s ser %s",
+										con->cnt, con->src, con->src_ip, con->dst,
+										con->dst_ip, con->ser);
+								
+								
 								if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
 									(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 								{
-									kill_connections_by_ip(debuglvl, &conf, ct,
-										con->src_ip, act_dst_ip, con->ser);
+									kill_connections(debuglvl, &conf, connreq, ct, con);
 								}
 							}
 							break;
@@ -629,7 +634,7 @@ statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack
 							else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL);
+								kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL, CONN_UNUSED);
 							}
 							break;
 
@@ -642,7 +647,7 @@ statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack
 							else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								kill_connections_by_ip(debuglvl, &conf, ct, NULL, act_dst_ip, NULL);
+								kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->dst_ip, NULL, CONN_UNUSED);
 							}
 							break;
 
@@ -655,8 +660,8 @@ statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack
 							else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->src_ip, NULL);
-								kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL);
+								kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->src_ip, NULL, CONN_UNUSED);
+								kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL, CONN_UNUSED);
 							}
 							break;
 				
@@ -669,8 +674,8 @@ statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack
 							else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								kill_connections_by_ip(debuglvl, &conf, ct, NULL, act_dst_ip, NULL);
-								kill_connections_by_ip(debuglvl, &conf, ct, act_dst_ip, NULL, NULL);
+								kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->dst_ip, NULL, CONN_UNUSED);
+								kill_connections_by_ip(debuglvl, &conf, ct, con->dst_ip, NULL, NULL, CONN_UNUSED);
 							}
 							break;
 
@@ -679,7 +684,7 @@ statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack
 							if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								block_and_kill(debuglvl, ct, zones, blocklist, interfaces, con->src_ip, con->src_ip);
+								block_and_kill(debuglvl, ct, zones, blocklist, interfaces, con->src_ip);
 							}
 							break;
 
@@ -687,7 +692,7 @@ statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack
 							if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								block_and_kill(debuglvl, ct, zones, blocklist, interfaces, act_dst_ip, con->dst_ip);
+								block_and_kill(debuglvl, ct, zones, blocklist, interfaces, con->dst_ip);
 							}
 							break;
 
@@ -695,8 +700,8 @@ statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack
 							if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								block_and_kill(debuglvl, ct, zones, blocklist, interfaces, con->src_ip, con->src_ip);
-								block_and_kill(debuglvl, ct, zones, blocklist, interfaces, act_dst_ip, con->dst_ip);
+								block_and_kill(debuglvl, ct, zones, blocklist, interfaces, con->src_ip);
+								block_and_kill(debuglvl, ct, zones, blocklist, interfaces, con->dst_ip);
 							}
 							break;
 
@@ -892,7 +897,7 @@ statevent_interactivemenu_log(	const int debuglvl, StatEventCtl *ctl, Conntrack 
 									(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 								{
 									kill_connections_by_ip(debuglvl, &conf, ctr,
-										log->src_ip, log->dst_ip, log->ser);
+										log->src_ip, log->dst_ip, log->ser, CONN_UNUSED);
 								}
 							}
 							break;
@@ -907,7 +912,7 @@ statevent_interactivemenu_log(	const int debuglvl, StatEventCtl *ctl, Conntrack 
 							else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL);
+								kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL, CONN_UNUSED);
 							}
 							break;
 
@@ -920,7 +925,7 @@ statevent_interactivemenu_log(	const int debuglvl, StatEventCtl *ctl, Conntrack 
 							else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL);
+								kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL, CONN_UNUSED);
 							}
 							break;
 
@@ -933,8 +938,8 @@ statevent_interactivemenu_log(	const int debuglvl, StatEventCtl *ctl, Conntrack 
 							else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->src_ip, NULL);
-								kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL);
+								kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->src_ip, NULL, CONN_UNUSED);
+								kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL, CONN_UNUSED);
 							}
 							break;
 				
@@ -947,8 +952,8 @@ statevent_interactivemenu_log(	const int debuglvl, StatEventCtl *ctl, Conntrack 
 							else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL);
-								kill_connections_by_ip(debuglvl, &conf, ctr, log->dst_ip, NULL, NULL);
+								kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL, CONN_UNUSED);
+								kill_connections_by_ip(debuglvl, &conf, ctr, log->dst_ip, NULL, NULL, CONN_UNUSED);
 							}
 							break;
 
@@ -957,7 +962,7 @@ statevent_interactivemenu_log(	const int debuglvl, StatEventCtl *ctl, Conntrack 
 							if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->src_ip, log->src_ip);
+								block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->src_ip);
 							}
 							break;
 
@@ -965,7 +970,7 @@ statevent_interactivemenu_log(	const int debuglvl, StatEventCtl *ctl, Conntrack 
 							if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->dst_ip, log->dst_ip);
+								block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->dst_ip);
 							}
 							break;
 
@@ -973,8 +978,8 @@ statevent_interactivemenu_log(	const int debuglvl, StatEventCtl *ctl, Conntrack 
 							if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
 								(chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
 							{
-								block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->src_ip, log->src_ip);
-								block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->dst_ip, log->dst_ip);
+								block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->src_ip);
+								block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->dst_ip);
 							}
 							break;
 
