@@ -1278,6 +1278,7 @@ kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
 	struct ConntrackData	*cd_ptr = NULL;
 	int			cnt = 0,
 				failed = 0;
+	char			*dip = dstip;
 
 	/* check if the conntrack tool is set */
 	if(cnf->conntrack_location[0] == '\0')
@@ -1296,13 +1297,18 @@ kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
 	
 		if(srcip == NULL || strcmp(srcip, cd_ptr->src_ip) == 0)
 		{
-			if(dstip == NULL || strcmp(dstip, cd_ptr->dst_ip) == 0)
+			if(  dstip == NULL ||
+			    (cd_ptr->orig_dst_ip[0] == '\0' && strcmp(dstip, cd_ptr->dst_ip) == 0) ||
+			    (cd_ptr->orig_dst_ip[0] != '\0' && strcmp(dstip, cd_ptr->orig_dst_ip) == 0))
 			{
+				if (dip == NULL)
+					dip = cd_ptr->orig_dst_ip[0] ?
+						cd_ptr->orig_dst_ip : cd_ptr->dst_ip;
+
 				if(sername == NULL || strcmp(sername, cd_ptr->sername) == 0)
 				{
-/* TODO retval */
 					if(kill_connection(debuglvl, cnf->conntrack_location,
-						cd_ptr->src_ip, cd_ptr->dst_ip, cd_ptr->protocol,
+						cd_ptr->src_ip, dip, cd_ptr->protocol,
 						cd_ptr->src_port, cd_ptr->dst_port) == -1)
 					{
 						failed++;
@@ -1343,13 +1349,14 @@ kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
 */
 int
 block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
-		BlockList *blocklist, Interfaces *interfaces, char *ip)
+		BlockList *blocklist, Interfaces *interfaces,
+		char *kill_ip, char *block_ip)
 {
 	struct InterfaceData_   *iface_ptr = NULL;
 
 	VrBusyWinShow();
 
-	iface_ptr = search_interface_by_ip(debuglvl, interfaces, ip);
+	iface_ptr = search_interface_by_ip(debuglvl, interfaces, block_ip);
 	if(iface_ptr != NULL)
 	{
 		(void)vrprint.error(-1, VR_ERR, gettext("ipaddress belongs to "
@@ -1361,7 +1368,7 @@ block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
 
 	/* add to list */
 	if(blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE,
-		/*no_refcnt*/FALSE, ip) < 0)
+		/*no_refcnt*/FALSE, block_ip) < 0)
 	{
 		(void)vrprint.error(-1, VR_INTERR, "blocklist_add_one() "
 			"failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -1380,7 +1387,7 @@ block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
 
 	/* audit logging */
 	(void)vrprint.audit("%s '%s' %s.",
-		STR_IPADDRESS, ip, STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
+		STR_IPADDRESS, block_ip, STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
 
 	/* apply the changes */
 	vc_apply_changes(debuglvl);
@@ -1390,8 +1397,8 @@ block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
 	if(conf.conntrack_location[0] != '\0')
 	{
 		/* kill all connections for this ip */
-		kill_connections_by_ip(debuglvl, &conf, ct, NULL, ip, NULL);
-		kill_connections_by_ip(debuglvl, &conf, ct, ip, NULL, NULL);
+		kill_connections_by_ip(debuglvl, &conf, ct, NULL, kill_ip, NULL);
+		kill_connections_by_ip(debuglvl, &conf, ct, kill_ip, NULL, NULL);
 	}
 
 	VrBusyWinHide();

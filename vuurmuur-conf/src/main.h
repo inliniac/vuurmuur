@@ -75,7 +75,7 @@
 
 #define VUURMUURCONF_VERSION_MAJOR	0
 #define VUURMUURCONF_VERSION_MINOR	5
-#define VUURMUURCONF_VERSION_SUB	72
+#define VUURMUURCONF_VERSION_SUB	73
 
 #define MIN_LIBVUURMUUR_VERSION_MAJOR	0
 #define MIN_LIBVUURMUUR_VERSION_MINOR	5
@@ -436,7 +436,7 @@ typedef struct ct_
 } Conntrack;
 
 int kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, char *srcip, char *dstip, char *sername);
-int block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones, BlockList *blocklist, Interfaces *interfaces, char *ip);
+int block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones, BlockList *blocklist, Interfaces *interfaces, char *kill_ip, char *block_ip);
 int kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int proto, int sp, int dp);
 int kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, char *srcname, char *dstname, char *sername);
 
