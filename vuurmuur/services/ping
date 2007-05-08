@@ -1,0 +1,11 @@
+# begin of file
+
+ACTIVE="Yes"
+TCP=""
+UDP=""
+ICMP="8:0*0:0"
+GRE=""
+BROADCAST="No"
+COMMENT=""
+
+# end of file
