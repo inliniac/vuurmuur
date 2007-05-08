@@ -1,0 +1,34 @@
+Инструкции по установке Vuurmuur на SUSE Linux 9.1 Personal
+===========================================================
+
+По умолчанию SUSE Linux 9.1 Personal не имеет все необходимые для 
+построения и установки Vuurmuur инструменты. По крайней мере, Вам
+необходимы пакеты перечисленные ниже. Вы можете их загрузить с 
+ftp-сервера Suse.
+
+Url:
+ftp://ftp.suse.com/pub/suse/i386/9.1/suse/i586/
+ftp://ftp.suse.com/pub/suse/i386/update/9.1/rpm/i586/
+
+
+Вот пакеты, которые Вам нужны (в порядке их зависимости):
+
+ftp://ftp.suse.com/pub/suse/i386/9.1/suse/i586/automake-1.8.3-23.i586.rpm
+ftp://ftp.suse.com/pub/suse/i386/9.1/suse/i586/m4-1.4o-622.i586.rpm
+ftp://ftp.suse.com/pub/suse/i386/9.1/suse/i586/autoconf-2.59-75.i586.rpm
+
+ftp://ftp.suse.com/pub/suse/i386/9.1/suse/i586/libtool-1.5.2-56.i586.rpm
+ftp://ftp.suse.com/pub/suse/i386/9.1/suse/i586/make-3.80-184.i586.rpm
+
+ftp://ftp.suse.com/pub/suse/i386/9.1/suse/i586/glibc-devel-2.3.3-98.i586.rpm
+ftp://ftp.suse.com/pub/suse/i386/9.1/suse/i586/gcc-3.3.3-41.i586.rpm
+
+ftp://ftp.suse.com/pub/suse/i386/9.1/suse/i586/ncurses-5.4-59.i586.rpm
+ftp://ftp.suse.com/pub/suse/i386/9.1/suse/i586/ncurses-devel-5.4-59.i586.rpm
+
+Также необходим gettext:
+ftp://ftp.suse.com/pub/suse/i386/9.1/suse/i586/gettext-0.14.1-30.i586.rpm
+
+Установите его используя команду 'rpm -ivh <filename>'.
+
+После этого следуйте процедуре установке, описанной в файле INSTALL.
