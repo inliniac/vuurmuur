@@ -1,0 +1,932 @@
+:[VUURMUUR:CONFIG:GENERAL]:
+Config General
+
+
+Vuurmuur needs the paths to the 'iptables'-command and to the 'iptables-restore'
+-command. Please give the full path here.
+
+For some operations Vuurmuur uses a script. Scripts are stored in the 'Scripts
+location'. Please give the full path to it.
+
+As of Vuurmuur 0.5.57 a new method for creating rules was introduced, using
+iptables-restore, resulting in much faster rule creating. If you run into
+problems, or liked the old way better for some reason, you can still use the
+old method.
+
+Keys:
+
+F10/Q: back.
+
+:[END]:
+
+:[VUURMUUR:CONFIG:CONNECTIONS]:
+Config Connections
+
+
+Here the number of new TCP and UDP connections can be limited. For TCP this is
+done by limiting the packets with the SYN-flag set. For UDP the state 'NEW' is
+used. The burst value allows the connections to go over the limit for a short
+time.
+
+Both the TCP and the UDP limits can be disabled if desired.
+
+Keys:
+
+F10/Q: back.
+
+:[END]:
+
+:[VUURMUUR:CONFIG:INTERFACES]:
+Config Interfaces
+
+
+A lot of (internet) connections have a dynamic ipaddress. Here an option can be
+enabled that checks the ipaddress of the interface every x seconds, and reloads
+the firewall rules if needed. The 'x' seconds can be configured.
+
+If the ipaddress is changed, Vuurmuur will automaticly inform vuurmuur-log of
+this change, by sending it a SIGHUP signal.
+
+Keys:
+
+F10/Q: back.
+
+:[END]:
+
+:[VUURMUUR:CONFIG:LOGGING]:
+Config Logging
+
+
+Logging is an important part of the firewall, as it allows the administrator to
+check trafficrules. Vuurmuur reads the log from the system and converts it to a
+more readable logformat. Therefore the location of the systemlogfile needs to be
+supplied (e.g. /var/log/messages). When Vuurmuur loads the firewall rules, it
+can set the loglevel of logrules, so syslog can determine where to store the
+rules. See 'man syslog' for more information.
+
+Vuurmuur does some logging itself: debug.log for debug messages, vuurmuur.log
+for general information, error.log for errors and traffic.log for the
+traffic. In the audit.log all changes to the firewall configuration are
+logged. The administrator must set the directory where those logfiles are
+stored. Please note: the files can get pretty big, so it is adviced to use some
+form of logrotation. Furthermore, it is adviced to use a separate partition or
+disk for logging.
+
+If none of the traffic rules match the traffic, the traffic will be handled by
+the default policy, which is DROP. Here logging of the default policy can be
+enabled. Also, a limit per second on this logging can be set.
+
+The 'Log TCP options' setting is not used by Vuurmuur itself but is intended for
+use with the PSAD portscan detector. This option enables PSAD to perform passive
+OS fingerprinting.
+
+If an item on the BlockList attempts to generate some traffic this is logged by
+default. The 'log blocklist' option allows you to disable this.
+
+Packets with the state INVALID belong to no known connection and are
+dropped. By default this is logged. Uncheck option 'Log packets with state
+INVALID' to disable logging.
+
+TCP connections are initiated with the three-way-handshake, where the first
+packet has the SYN flag set. If a new packet (in other words not belonging to
+and existing connection) is received that has no SYN flag set, it is
+dropped. This type of packet can be used in portscanning. Toggle the option
+'Log new TCP packets with no SYN flag set' to enable or disable the logging.
+
+The option 'Log scan probe packets' enables or disables the logging of a number
+of invalid TCP flag combinations, commonly used for portscanning.
+
+Fragments can be used for portscans as well. Toggle 'Log Fragments' to log
+the dropped fragments.
+
+Keys:
+
+F10/Q: back.
+Space: toggle option.
+
+:[END]:
+
+:[VUURMUUR:CONFIG:MODULES]:
+Config Modules
+
+
+If needed Vuurmuur can try to load all modules it might need on startup. It uses
+the modprobe command for it, so set it's path here.
+
+On some systems Vuurmuur tries to check if the loading of the module succeded to
+fast. So you can supply a little delay. This is meassured in tenths of a second.
+
+
+Keys:
+
+F10/Q: back.
+
+:[END]:
+
+
+:[VUURMUUR:CONFIG:PLUGINS]:
+Config Plugins
+
+
+Vuurmuur loads its configuration information through the use of
+plugins. Currently only one plugin is developed: 'textdir'. So choose textdir
+for the services, zones, interfaces.
+
+
+Keys:
+
+F10/Q: back.
+
+:[END]:
+
+
+:[VUURMUUR:CONFIG:CAPABILITIES]:
+View Capabilities
+
+
+Vuurmuur can try to determine if the system supports all features Vuurmuur
+needs. A report of the investigation in shown.
+
+It's not unusual that one or more of the options show 'could not check'. This
+means the kernel does not support the checking of capabilities.
+
+Keys:
+
+F10/Q: back.
+
+:[END]:
+
+
+:[VUURMUUR:CONFIG:SYSSEC]:
+Config System
+
+
+Syn-flood protection is a protection mechanism against syn-flooding. It enables
+syn-cookies. Normally you want to enable this.
+
+Echo-broadcast protect means this machine will not respond to
+echo-broadcasts, which are used to discover active hosts on a network. Normally
+safe to enable.
+
+
+Keys:
+
+F10/Q: back.
+
+:[END]:
+
+:[VUURMUURCONF:SETTINGS]:
+Vuurmuur-conf Settings
+
+
+In the Settings you can adjust the way the Gui works.
+
+New rule defaults: when creating a new rule these settings will be set
+automaticly.
+
+The buffersize of the logviewer determines how many lines of logs will be in the
+buffer. Filtering and browsing is done in this buffer. Searching is not affected
+by this. When you start the LogViewer Vuurmuur attempt to load the loglines into
+memory.
+
+Some part of the Gui have some extra 'advanced' option that are hidden by
+default. The purpose is not to overwhelm the user with choices. Here you can
+enable showing those options by default.
+
+The main menu can show the status of Vuurmuur. If checks for common
+configuration mistakes, checks if the connections to the daemons (vuurmuur and
+vuurmuur_log) are established, and several other checks.
+
+If you read this, the helpfile is loaded correctly, so no need to tell you how
+to enter it's path ;-).
+
+If you want to use bandwidth monitoring, you need to have the iptrafvol.pl
+script installed. It does not come with Vuurmuur. You can get IPTrafVol from
+here: http://iptrafficvolume.sourceforge.net/ and instructions to use it with
+Vuurmuur can be found here:
+http://sourceforge.net/docman/display_doc.php?docid=26869&group_id=114382
+
+
+:[END]:
+
+:[VUURMUUR:TRAFVOL]:
+Traffic Volume
+
+
+Shown here is the traffic volume used per interface today, yesterday, the last
+seven days, this month and last month. A '-' is shown if no data is
+available. If you see 'error' instead of a value check the following:
+
+1. make sure iptrafvol.pl is installed and the path is set in the Settings.
+2. make sure you can run iptrafvol -d from the commandline.
+
+See this URL for instructions about setting it all up:
+http://sourceforge.net/docman/display_doc.php?docid=25631&group_id=114382
+
+:[END]:
+
+:[VUURMUUR:BLOCKLIST]:
+Blocklist
+
+
+The blocklist can contain ipaddresses, hosts and groups. The blocklist is loaded
+before most other rules. If you add an item to the blocklist you need to apply
+changes before the item will be blocked. Note that current connections by that
+item will not be disconnected.
+
+Keys:
+
+INS/I: add a new ip/host/group to be blocked.
+DEL/D: remove this item from the blocklist.
+F10/Q: back.
+
+:[END]:
+
+:[VUURMUUR:ZONES:ZONES]:
+Zones Section
+
+
+Zones currently are only containers for networks which are similar. For
+example, if you have multiple vpn-connections to your firewall, create a zone
+'vpn' and add the networks in this zone.
+
+TIP: keep the names of your zones short to increase the usability of the
+logviewer and the connectionsviewer on small screens.
+
+Keys:
+
+RET/B: enter the networks of this zone.
+INS/I: add a new zone.
+DEL/D: remove the zone.
+Space/E: edit the zone.
+r: rename the zone.
+F10/Q: back.
+
+:[END]:
+
+:[VUURMUUR:ZONES:ZONE:EDIT]:
+Edit Zone
+
+
+A zone currenly only can be de-activated or activated. When in-active _all_
+networks, hosts and groups of this zone are inactive. This means that no rules
+will be created for any of those objects.
+
+:[END]:
+
+:[VUURMUUR:ZONES:NETWORKS]:
+Networks Section
+
+
+Networks are pretty complex objects. They are containers for hosts and
+groups, and can be edited themselves. Networks have 'interfaces' attached to
+them.
+
+
+Keys:
+
+RET/B: enter/browse the hosts or groups of this network.
+INS/I: add a new network.
+DEL/D: remove the network.
+Space/E: edit the network.
+r: rename the network.
+F10/Q: back.
+
+
+:[END]:
+
+:[VUURMUUR:ZONES:NETWORK:EDIT]:
+Edit Network
+
+
+Networks are pretty complex objects. They are containers for hosts and
+groups, interfaces are assigned to them, they have a lot of options...
+
+The network address and the netmask are mandatory. For the internet use
+'0.0.0.0/0.0.0.0' for a class-c lan for example '192.168.1.0/255.255.255.0'.
+
+After this, at least one (active) interface needs be assigned to the
+network. To do this press F6 to see a list of the assiged interfaces. There
+press INS to add one. Make sure you created at least one interface before
+this.
+
+Especially if the network is external you may want to enable the anti-spoofing
+protection.
+
+Loopback: 127.0.0.0/8.
+Class-A: 10.0.0.0/8.
+Class-B: 172.16.0.0/12.
+Class-C: 192.168.0.0/16.
+Class-D: 224.0.0.0/4.
+Class-E: 240.0.0.0/5.
+
+Test-net: 192.0.2.0/24.
+Link local net: 169.254.0.0/16.
+0.0.0.0/8 reserved by Iana: 0.0.0.0/8.
+Broadcast source: 0.0.0.0/32.
+Broadcast destination: 255.255.255.255.
+
+Note: the last three might interfere with DHCP.
+
+
+Keys:
+
+F6/E: edit interfaces.
+F10/Q: back to Networks.
+
+:[END]:
+
+:[VUURMUUR:ZONES:HOSTS]:
+Hosts Section
+
+
+A host is an object to give a name to an IPAddress and optionally a MAC
+address. Hosts can be grouped together in Groups.
+
+Keys:
+
+RET/E: edit the host.
+INS/I: add a new host.
+DEL/D: remove the host.
+r: rename the host.
+F10/Q: back to Networks.
+
+:[END]:
+
+:[VUURMUUR:ZONES:HOST:EDIT]:
+Edit Host
+
+
+A host is an object to give a name to an IPAddress. A host can be active or
+in-active. When you supply an macaddress, this will also be used for creating
+the rules. Please note however, that the mac address is only used on
+ethernet-networks and in rules directed to the firewall.
+
+The IPAddress must fit in the network/netmask combination of the underlying
+network.
+
+Keys:
+
+F10/Q: back to Hosts.
+
+:[END]:
+
+:[VUURMUUR:ZONES:GROUPS]:
+Group Section
+
+
+A group is an object to group hosts within a network.
+
+Keys:
+
+RET/E: edit the group.
+INS/I: add a new group.
+DEL/D: remove the group.
+r: rename the group.
+F10/Q: back to Networks.
+
+:[END]:
+
+:[VUURMUUR:ZONES:GROUP:EDIT]:
+Edit Group
+
+
+A group is an object to group several hosts together. A group can be active or
+in-active. If a group is inactive no rules will be created for it. If one of the
+members of a group is inactive, no rules will be created for the member, but
+they will be created for the active members. Only hosts from the same network as
+the group can be members.
+
+Keys:
+
+F6/E: edit the members.
+F10/Q: back to Groups.
+
+:[END]:
+
+
+:[VUURMUUR:SERVICES]:
+Services
+
+
+A service is a combination of protocols and ports, used to enable different
+sorts of traffic. For example, http traffic normally uses TCP, on port 80. The
+client connects to this port 80 from a random port higher than or equal to 1024.
+
+RET/E: edit the service.
+INS/I: add a new service.
+DEL/D: remove the service.
+r: rename the service.
+F10/Q: back.
+
+:[END]:
+
+
+:[VUURMUUR:SERVICE:EDIT]:
+Edit Service
+
+
+A service is a combination of protocols and ports, used to enable different
+sorts of traffic. For example, http traffic normally uses TCP, on port 80. The
+client connects to this port 80 from a random port higher than or equal to 1024.
+In Vuurmuur such a combination of protocol and ports is called a portrange.
+Multiple portranges together form a 'service'.
+
+F6/E: manage port(range)s.
+F10/Q: back.
+
+:[END]:
+
+
+:[VUURMUUR:SERVICE:EDIT:PORTRANGE]:
+Portranges
+
+
+Here the portranges for the service can be managed. The number of ranges is
+unlimited, and all types of ranges can be combined.
+
+INS/I: add a portrange.
+DEL/D: remove a portrange.
+RET/E: edit a portrange.
+F10/Q: back.
+
+:[END]:
+
+
+:[VUURMUUR:SERVICE:EDIT:PORTRANGE:TCPUDP]:
+TCP or UDP portrange
+
+
+Here the ports of the portrange can be entered. A sourceport (or range) must be
+entered and a destinationport (or range). If the intention is adding a single
+port the 'low' port must be used. The 'high' port can be left empty.
+
+Example: say you want to add a portrange for POP3. POP3 uses serverport 110 and
+clients connect from a random port above 1023. This would result in
+Source: low: 1024 high: 65535 and Destination: low 110 and high empty.
+
+F10/Q: back.
+
+:[END]:
+
+
+:[VUURMUUR:SERVICE:EDIT:PORTRANGE:ICMP]:
+ICMP
+
+
+ICMP consists of a type and an optional code. See
+http://www.iana.org/assignments/icmp-parameters for more information.
+
+Example: if you want to add 'ping'. You need type 8: echo request. It has no
+code, so the code field can be left empty or 0.
+
+Space: select ICMP type or code.
+F10/Q: back.
+
+:[END]:
+
+
+:[VUURMUUR:INTERFACES]:
+Interfaces
+
+
+An interface defines the device Vuurmuur will use when creating
+rules. Interfaces are attached to networks. This way Vuurmuur knows which device
+to use when creating rules for a network.
+
+Keys:
+
+INS/I: add new interface.
+DEL/D: delete interface.
+RET/E: edit an interface.
+r: rename the interface.
+F10/Q: back.
+
+
+:[END]:
+
+:[VUURMUUR:INTERFACES:EDIT]:
+Edit Interface
+
+
+An interface defines the device Vuurmuur will use when creating rules. For all
+configuration applying changes is required before getting into effect. Press F5
+to see the advanced options.
+
+Note: this will NOT change the actual device as it is known to the OS.
+
+
+Settings:
+
+Active: Is the interface active yes or no? Determines if rules will be created
+for this interface.
+
+Ipaddress: The ipaddress that belongs to this interface. If it is dynamic please
+tag it so.
+
+Device: The device as it is known to the system. For example 'eth0' or
+'ppp0'. Note that when using virtual interfaces with a notation like 'eth0:0' it
+ will not be used in the iptables rules. Iptables doesn't support the syntax.
+
+
+You can see if the interface is up and running by 'is interface up'. Also you
+put in your own comment about the interface. The interface cannot be brought up
+or down from inside Vuurmuur.
+
+Keys:
+
+F5: show advanced options..
+F10/Q: back.
+
+:[END]:
+
+:[VUURMUUR:RULES]:
+Rules
+
+
+With a rule one can allow or disallow certain traffic. All rules are build from
+four main parts: an Action, a Service, a Source and a Destination. A fifth and
+optional part are the options. An action can be ACCEPT (for allowing
+something), DROP, and several others. See the help in the Edit Rule
+section. Services are defined in the Services Section and Zones in the Zones
+Section. A rule can be active or inactive. An inactive rule is not loaded into
+the system.
+
+Keys:
+
+INS/I: insert new rule.
+DEL/D: delete rule.
+RET/E: edit a rule.
+m: move rule.
+SPACE: toggle active/inactive for a rule.
+
+N: show only INPUT rules.
+U: show only OUTPUT rules.
+O: show only FORWARD rules.
+f: filter.
+
+-: move current rule one up.
++: move current rule one down.
+c: copy current rule.
+L: insert a horizonal line
+
+F10/Q: back.
+
+:[END]:
+
+:[VUURMUUR:RULES:EDIT]:
+Edit Rule
+
+
+In the Edit Rule window a rule can be configured. Below the options are
+explained. Note that not all rules are valid. Setting both 'from' and 'to' to
+firewall is not valid for example. The rule can have numerous options, like
+logging. See below.
+
+By default not all options are shown. Press F5 to see them all.
+
+Action (press space to select an action):
+
+ACCEPT	allow the traffic.
+DROP	block and ignore the traffic.
+REJECT	block and send a TCP-reset or an ICMP-message.
+QUEUE	send traffic to userspace (e.g. Snort_inline).
+LOG	log the traffic.
+PORTFW	portforward a localport to a remote box (aka DNAT).
+REDIRECT redirect traffic to a local port to another local port.
+SNAT	NAT outgoing traffic to the interface of the firewall.
+MASQ	same as SNAT, only MASQ determines outgoing ip itself.
+CHAIN	send traffic to a custom chain which needs to be supplied.
+DNAT	Same as PORTFW with only nat rules, no ACCEPT/QUEUE.
+BOUNCE	Bounce traffic to server on your lan that is called by its external ip.
+
+The service can be selected by pressing the Spacebar on the service field. A
+menu with the Services will appear.
+
+The source ('from') and destination ('to') can also be selected by pressing the
+Spacebar on the fields. A menu with Networks, Groups and Hosts and the Firewall
+itself will appear. There are two special cases: 'any' will match any traffic
+both on the INPUT chain as on the FORWARD chain. 'firewall(any)' will match any
+interface on the firewall.
+
+A comment can be added to describe the purpose of the rule.
+
+
+Rule Options:
+
+Log: logs the rule (cannot be used when action is LOG).
+Prefix: this text will be added to the trafficlog for this rule.
+Limit(log): a limitation per second of the number of logmessages for this rule.
+Rule Limit: a limitation per second of the number of new connections on this
+rule. This is to prevent DoS attacks.
+Burst: a burst value for the 'Rule Limit'.
+
+
+Mark: a mark is set on the packets that match this rule. The mark never leaves
+the firewall, but can be used for traffic shaping or routing. Because of the way
+Vuurmuur handles ESTABLISHED packets for ACCEPT and for QUEUE, all packets rules
+with action ACCEPT need to have a mark between 0 and 9.999.999. QUEUE rules need
+to have a mark between 20.000.000 and 29.999.999. If no mark is set, ACCEPT
+rules will have no mark (which equals mark 0) and QUEUE rules will have
+20.000.000.
+
+Reject-type: when the action is REJECT the user can select a type of reject:
+
+tcp-reset (resets a tcp-connection).
+icmp-net-unreachable.
+icmp-host-unreachable.
+icmp-proto-unreachable.
+icmp-port-unreachable.
+icmp-net-prohibited.
+icmp-host-prohibited.
+
+Listen port and Remote port: when using PORTFW the firewall can be told to
+listen on another port than issued by the service. For example, you can let the
+firewall listen on port 1022 and portfw this to a remote machine on port 22. The
+other way around is also possible.
+
+Markiptstate: this option is for use with QUEUE and is especially designed for
+use with Snort_inline 2.2.0. It is a way to help the TCP-state-engine of Snort
+(Note: Snort_inline 2.3.x won't use this).
+
+Queue: by default PORTFW and REDIRECT create ACCEPT rules in addition to the
+DNAT/REDIRECT rules. This option forces Vuurmuur to use 'QUEUE' instead of
+ACCEPT.
+
+Listen Interface: if your firewall has more than one interface in the same
+network, you might want to use portforwarding/redirecting on only one of
+them. Press SPACE to select the one you want.
+
+Outgoing Interface: if your firewall has more than one interface in the same
+network, you might want to use snat on only one of them. Press SPACE to select
+the one you want.
+
+Via interface: the interface with the external ipaddress of the server that
+the lan client tries to connect to. Connections to this ipaddress will be
+'bounced' to the host in the destination field.
+
+Keys:
+
+F5/A: show advanced options.
+F10/Q: back.
+
+:[END]:
+
+:[VUURMUUR:LOGVIEW]:
+Logview
+
+
+The logviewer allows you to view the log in real-time. To make the
+interpretation more easy colors are used. In the 'Settings' the size of the
+buffer can be set. A larger buffer will allow for scrolling back more
+lines, at the cost of memory.
+
+This is an example rule of a dropped connection attempt to Vuurmuur:
+Feb  6 01:32:51: DROP   http  81.53.89.170 -> firewall(adsl)  'drop http'
+(in: ppp0 81.53.89.170:3836 -> 62.92.11.107:80 TCP flags: ****S* len:48
+ttl:113).
+
+It starts with the date and the time. After this the action is mentioned. The
+action is followed by the name of the service as it is known to Vuurmuur. If the
+ports don't belong to a service Vuurmuur knows, Vuurmuur will print it like
+this: 3836->80(tcp).
+
+After this the source and the destination of the packet are shown. If the
+ipaddress is known as a host or an interface by Vuurmuur, it prints the name of
+the host or firewall(interface).  This is because if a packet is directed to our
+local interface, it is directed to the firewall. So Vuurmuur prints
+firewall(interface name).
+
+After this ('drop http') shows the user-defined logprefix, that can be set in
+the 'Edit Rule' screen.
+
+Next between the brackets are more details. in: ppp0 is the incoming device on
+the system, out: eth0 the outgoing (note that on an input rule you only see
+'in:', on an output rule you only see 'out:'. The real ipaddresses and ports are
+shown after this.
+
+The TCP flags show which of the flags were set on the package. If you see a
+character, it is set, otherwise it's not.
+U: URG.
+P: PSH.
+A: ACK.
+S: SYN.
+R: RST.
+F: FIN.
+So in this example only the SYN-flag is set.
+
+The len:48 shows the size of the packet, the ttl:113 the time to live
+value, which defines how many hops this packet can still pass before it will be
+discarded.
+
+
+Keys:
+
+m: manage logs
+
+f: filter.
+s: search.
+c: clear buffer.
+p: pause.
+space: pause.
+b: block an ipaddress, host or group (in X copy-paste can be used).
+1-7: hide/show colums (default all are shown).
+arrow up/down: scroll up/down.
+page up/page down: scroll up/down in bigger steps.
+home/end: scroll to top/bottom of the buffer.
+
+When searching the search can be stopped by pressing 'S'. When you are done
+viewing the search results, press Spacebar to return to normal log viewing.
+
+
+:[END]:
+
+:[VUURMUUR:LOGVIEW:MANAGE]:
+Manage logs
+
+
+Shows the current logs to, from and through the firewall in a menu. The 
+same grouping and/or filtering is done as the parent screen. By pressing ENTER
+the actions menu will be opened.
+
+Keys:
+
+ENTER: actions menu
+F10: quit.
+F12: help.
+
+:[END]:
+
+:[VUURMUUR:LOGVIEW:ACTIONS]:
+Log actions
+
+
+With the log actions several 'actions' can be taken on a log, with killing the
+connection associated with the log being the first option. Additionally, 
+connections of all source and or destination ipaddresses of the log can be
+killed. Next to this, the ipaddresses can also be added to the blocklist, in
+which case all connections will be killed for these ips as well, and the
+changes will be loaded to the system too.
+
+Note: connection killing requires the 'conntrack' tool to be installed. This
+requires at least Linux kernel version 2.6.14.
+
+
+Keys:
+
+ENTER: take action
+F10: quit.
+F12: help.
+
+:[END]:
+
+
+:[VUURMUUR:GENERAL]:
+Vuurmuur Help
+
+
+Welcome to Vuurmuur-conf. This the Ncurses-based configurationtool for
+Vuurmuur. It can be run from the console and X, but also from Windows with
+Putty. Make sure you use an fixed-width font, otherwise the interface won't look
+as intended.
+
+In most parts of this program you can get help by pressing F12.
+
+In Vuurmuur the administrator controls the firewall by creating traffic
+rules. Those rules are build with two main components:
+1. Services.
+2. Zones.
+
+You can manage both in the 'Services' section and the 'Zones' section. A Zone is
+a container for Networks, Hosts and Groups. A Zone is used to group networks
+that are similar together. The firewall can have multiple interfaces in the same
+network, for example an ADSL internet-connection, and an ISDN
+backup-connection. Therefore interfaces need to be defined seperately and need
+to be attached to a Network. Managing interfaces can be done in the 'Interfaces'
+section.
+
+Managing a firewall is impossible without good information about what is
+currently going on. Therefore three tools are available:
+1. logviewer.
+2. connectionsviewer.
+3. statusviewer.
+
+The Logviewer allows the administrator to view the logs in real-time. The log
+uses the same names for Zones, Services and Interfaces as the rules. Filtering
+and searching through the logs is also possible.
+
+The Connectionviewer, like the logviewer, allows for viewing in realtime. The
+current connections are shown and can be sorted by connection state and by
+direction.
+
+The Statusviewer shows some statistics about the system. It also shows the
+current speed of downloading and uploading of the interfaces.
+
+In the Configuration all settings of Vuurmuur can be changed.
+
+After making changes in the Zones, Interfaces, Services, Rules or Configuration
+you need to 'Apply Changes' before they will be effective. This will send a
+signal to Vuurmuur (the rule-creating program), and Vuurmuur-log (the
+log-parsing program) to refresh.
+
+
+Keys:
+
+l: go directly to the trafficlog.
+F5: view status messages.
+F10: quit.
+F11: apply changes.
+F12: help.
+
+
+:[END]:
+
+:[VUURMUUR:STATUS]:
+System Status
+
+
+Here information about the system is presented.
+
+Keys:
+
+F10: quit.
+F12: help.
+
+
+:[END]:
+
+:[VUURMUUR:CONNECTIONS]:
+Connections Viewer
+
+
+Shows the current connections to, from and through the firewall.
+
+The (optional) grouping of connections is done on the service, source and 
+destination. If an ipaddress is unknown and it is displayed as the network it 
+belongs to (see key 'u' below), then it can be grouped in that network. Below
+is an example.
+
+These are not grouped:
+http 1.2.3.4 -> webserver.local.lan.
+http 4.3.2.1 -> webserver.local.lan.
+
+But if an unknown ipaddress is displayed as the network it belongs to, it will
+be grouped to:
+2: http internet.ext -> webserver.local.lan.
+
+Keys:
+
+m: manage connections
+
+c: sort connections by their connection status.
+i: sort connections by their direction.
+
+g: group similar connections
+u: display unknown ipaddresses as the network they belong to.
+a: draw accounting data (if available, depends on kernel).
+d: draw connection details.
+f: filter.
+
+F10: quit.
+F12: help.
+
+:[END]:
+
+:[VUURMUUR:CONNECTIONS:MANAGE]:
+Manage connections
+
+
+Shows the current connections to, from and through the firewall in a menu. The 
+same grouping and/or filtering is done as the parent screen. By pressing ENTER
+the actions menu will be opened.
+
+Keys:
+
+ENTER: actions menu
+F10: quit.
+F12: help.
+
+:[END]:
+
+:[VUURMUUR:CONNECTIONS:ACTIONS]:
+Connection actions
+
+
+With the connection actions several 'actions' can be taken on a connection, 
+with killing the connection being the first option. Additionally, connections
+of all source and or destination ipaddresses of the connection can be
+killed. Next to this, the ipaddresses can also be added to the blocklist, in
+which case all connections will be killed for these ips as well, and the
+changes will be loaded to the system too.
+
+Note: connection killing requires the 'conntrack' tool to be installed. This
+requires at least Linux kernel version 2.6.14.
+
+
+Keys:
+
+ENTER: take action
+F10: quit.
+F12: help.
+
+:[END]:
