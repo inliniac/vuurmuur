@@ -1,0 +1,860 @@
+:[VUURMUUR:CONFIG:GENERAL]:
+Configuration > Général
+
+
+Vuurmuur a besoin des chemins vers les commandes 'iptables' et
+'iptables-restore'. Veuillez préciser ici les chemins absolus.
+
+Pour certaines opérations Vuurmuur utilises des scripts. Ces scripts
+sont stockés dans les répertoire 'Scripts location'. Veuillez préciser
+le chemin absolu de ce répertoire.
+
+
+Depuis la version 0.5.57 de Vuurmuur, l'introduction d'une nouvelle
+méthode de création des règles, utilisant la commande
+iptables-restore, a permis de créer plus rapidement des règles. Si
+vous avez des problèmes, ou si vous préférez l'ancienne manière, vous
+pouvez utiliser la vieille méthode.
+
+Touches:
+
+<F10>/<Q>: retour.
+
+:[END]:
+
+:[VUURMUUR:CONFIG:CONNECTIONS]:
+Configuration > Connections
+
+Ici, le nombre de nouvelles connexions TCP et UDP peut être
+limité. Pour les TCP ceci est fait en limitant les paquets portant le
+drapeau SYN; pour les UDP, en utilisant l'état 'NEW'. La valeur
+'Extra' permet de dépasser temporairement les limites imposées.
+
+Les limites des protocoles TCP et UDP peuvent être désactivées si
+besoin est.
+
+Touches:
+
+<F10>/<Q>: retour.
+
+:[END]:
+
+:[VUURMUUR:CONFIG:INTERFACES]:
+Configuration > Interfaces
+
+
+La plupart des connexions (internet) ont une adresse IP dynamique. Ici
+une option peut être activée qui vérifiera l'adresse IP toutes les x
+secondes, et rechargera les règles si nécessaire. Le nombre de
+secondes 'x' peut être configuré.
+
+Si l'adresse IP a changé, Vuurmuur va automatiquement informer
+vuurmuur_log de ce changement, en y envoyant un signal 'SIGHUP'.
+
+Touches:
+
+<F10>/<Q>: retour.
+
+:[END]:
+
+:[VUURMUUR:CONFIG:LOGGING]:
+Configuration > Rapports
+
+
+Les rapports constituent une partie très importante du pare-feu,
+puisqu'ils permettent à l'administrateur de vérifier la gestion des
+règles de trafic. Vuurmuur lit les rapports depuis le système et les
+convertis en un format plus lisible. Ainsi le chemin des fichiers de
+rapport du système doivent être spécifié (ex:
+/var/log/messages). Lorsque Vuurmuur charge les règles du pare-feu
+il peut définir le niveau de verbosité (loglevel), ainsi 'syslog' peut
+déterminer où stocker les règles. Voir 'man syslog' pour plus d'informations.
+
+Vuurmuur archive quelques entrées dans les journaux de rapports:
+'debug.log' pour les messages de débogage, 'vuurmuur.log' pour les
+informations générales, 'error.log' pour les erreurs et 'traffic.log'
+pour le trafic. L'administrateur doit définir le répertoire où ces
+fichiers-rapports seront stockés.
+Remarque: ces fichiers peuvent devenir d'une taille conséquente, il
+est dont conseillé d'utiliser une forme de 'logrotate' (cf les scripts
+$INSTALL_DIR/share/vuurmuur/scripts)
+Remarque: il est conseillé d'utiliser une partition ou un disque
+séparé pour la création de ces fichiers-rapports.
+
+Si aucune règle ne gère explicitement le trafic réseau en cours, la
+politique par défaut sera appliquée : Refus - 'DROP'. Ici la
+journalisation de la politique par défaut peut être activée. De plus,
+une fréquence limite d'ajout sur ces journaux peut être définie.
+
+L'option 'Rapport des options TCP' n'est pas utilisé par Vuurmuur
+lui-même, mais est prévu pour une utilisation avec le détecteur de
+scan PSAD. Cette option autorise PSAD à réaliser des "prises
+d'empreintes" passives d'OS.
+
+Si un élément de la liste noire essaie de générer du trafic sur le
+pare-feu, c'est événement est archiver par défaut. L'option 'Rapport
+des viols de la Liste Noire' permet de désactiver cet archivage.
+
+Touches:
+
+<F10>/<Q>: Retour.
+<Espace>: commuter l'option.
+
+:[END]:
+
+:[VUURMUUR:CONFIG:MODULES]:
+Configuration > Modules
+
+
+Si besoin est, Vuurmuur peut essayer de charger tous les modules qui
+peuvent être nécessaire au démarrage. Vuurmuur utilise la commande
+'modprobe', on définit son chemin ici.
+
+Sur certains systèmes, Vuurmuur vérifie trop rapidement si le chargement
+des modules à réussi. On peut ajouter un léger délai ici (mesuré en
+dixième de seconde).
+
+
+Touches:
+
+<F10>/<Q>: Retour.
+
+:[END]:
+
+
+:[VUURMUUR:CONFIG:PLUGINS]:
+Configuration > Plugins
+
+
+Vuurmuur charge ses informations de configuration à travers
+l'utilisation de plugins. Actuellement un seul de ses plugins est
+développé: 'textdir'. Choisissez donc textdir pour les services,
+zones, interfaces. Définissez donc le chemin des plugins, et de leur
+fichier de configuration.
+
+
+Touches:
+
+<F10>/<Q>: Retour.
+
+:[END]:
+
+
+:[VUURMUUR:CONFIG:CAPABILITIES]:
+  Possibilités
+
+
+Vuurmuur peut essayer de déterminer si le système supporte toutes les
+fonctionnalités dont Vuurmuur peut avoir besoin. On trouve ici ce
+rapport de vérification.
+
+Ce n'est pas inhabituel que l'une ou plus des options affichent
+'Impossible de vérifier'. Ceci signifie que le noyau ne supporte la
+vérification des fonctionnalités.
+
+Touches:
+
+<F10>/<Q>: Retour.
+
+:[END]:
+
+
+:[VUURMUUR:CONFIG:SYSSEC]:
+Configuration > Protection du système
+
+
+La protection 'SYN-flood' est un mécanisme de protection contre les
+attaques 'syn-flooding' (attaque par déni de service). Cela autorise
+les 'SYN-cookies'. Normalement, option à cocher.
+
+La protection 'echo-broadcast' signifie que cette machine ne répondra
+pas aux 'echo-broadcasts' (tests de ping), ce qui est fréquemment
+utilisé pour déterminer quel hôte est actif sur un
+réseau. Normalement, option à cocher.
+
+
+Touches:
+
+<F10>/<Q>: Retour.
+
+:[END]:
+
+:[VUURMUURCONF:SETTINGS]:
+Paramètres (Vuurmuur-conf)
+
+
+Dans les paramètres, vous pouvez modifier la façon que l'interface
+graphique a de fonctionner.
+
+"Paramètre par défaut lors de la création de nouvelles règles:"
+Lorsqu'une nouvelle règle est créée, ces paramètres seront définis par
+défaut automatiquement.
+
+la 'Taille des rapports (nombre de ligne)' détermine combien de ligne
+de journal seront stocké dans le buffer. C'est ce buffer qui est
+filtré et parcouru dans le menu 'Rapports'. L'option 'Recherche' n'est
+pas affectée par cette valeur. Lorsque vous accédez aux rapport,
+Vuurmuur essaie de charger ces lignes de rapport en mémoire.
+
+Quelques menu de l'interface graphique disposent d'options 'avancées'
+qui sont cachées par défaut. L'intérêt de cette option est de ne pas
+submerger l'utilisateur avec la quantité de choix. Ici vous pouvez
+choisir d'afficher ou de masquer ses options par défaut.
+
+Le menu principal peut montrer l'état de Vuurmuur. Cela vérifie les
+erreurs de configuration classiques, vérifie si les connexions avec
+les démons (vuurmuur et vuurmuur_log) sont établies, ainsi que
+d'autres vérifications mineures.
+
+Si vous lisez ceci, c'est que le fichier d'aide est correctement
+chargé, inutile donc de vous dire comment rentrer le chemin vers ce fichier ;-).
+
+Si vous utilisez le contrôle de la bande passante, vous devez avoir
+installer le script 'iptrafvol.pl'. Il n'est pas installé par défaut
+avec Vuurmuur. Vous pouvez télécharger IPTrafVol   depuis: 
+http://iptrafficvolume.sourceforge.net/ et les instruction pour
+l'utiliser avec Vuurmuur sont fournit ici:
+http://sourceforge.net/docman/display_doc.php?docid=26869&group_id=114382
+
+
+:[END]:
+
+:[VUURMUUR:TRAFVOL]:
+Statistiques du trafic
+
+
+Ici on peut voir les statistiques du trafic sur la journée, hier, la
+semaine, le mois courant, le mois dernier.
+Si aucune donnée n'est disponible un '-' s'affichera. Si vous voyez
+la mention 'erreur' affichée au lieu d'une valeur, veuillez vérifier:
+
+1. que le script 'iptrafvol.pl' est installé et que le chemin correct
+est défini dans les 'Paramètres (Vuurmuur_conf)'.
+2. que vous pouvez lancé le script 'iptrafvol.pl -d' depuis la ligne de commande.
+
+cf. cette adresse pour plus d'instruction concernant la configuration:
+http://sourceforge.net/docman/display_doc.php?docid=25631&group_id=114382
+
+:[END]:
+
+:[VUURMUUR:BLOCKLIST]:
+Liste Noire
+
+
+La liste noire peut contenir des adresses IP, des hôtes et des
+groupes. La liste noire est chargée AVANT toutes les autres règles. Si
+vous ajoutez un élément à la liste noire, vous devrez 'Appliquer les
+Modifications' avant que cet élément ne soit bloqué.
+Rq : les connections courantes avec cet élément ne seront pas terminées.
+
+
+Touches:
+
+<INS>/I: Ajouter un nouvel élément à bloquer (IP/hôte/groupe).
+<DEL>/D: Supprimer cet élément de la liste noire
+<F10>/<Q>: Retour.
+
+:[END]:
+
+:[VUURMUUR:ZONES:ZONES]:
+Menu Zones
+
+
+Les Zones sont actuellement des containers pour des réseaux
+similaires. Par exemple, si vous avez plusieurs connexions 'vpn'
+(Virtual Private Network) à votre pare-feu, créez une zone vpn et
+ajoutez les réseaux de cette zones.
+
+Astuce: gardez des noms de zones courts, pour augmenter la lisibilité
+sur les petits écran dans les Rapports et le Contrôle des connexions.
+
+Touches:
+
+<Entrée>/B: Entrer dans le réseau de cette zone.
+<Insert>/I: Ajouter une zone.
+<DEL>/D: Supprimer une zone.
+<Espace>/E: Modifier une zone.
+r: Renommer une zone.
+<F10>/<Q>: Retour.
+
+:[END]:
+
+:[VUURMUUR:ZONES:ZONE:EDIT]:
+Menu Zones > Modifier
+
+
+Actuellement, une zone peut être activé ou désactivé. Désactivée, ***
+TOUS *** les réseaux, hôtes et groupes de cette zones sont
+implicitement désactivés. Cela signifie donc qu'aucune règle ne sera
+créée pour aucun de ces éléments.
+
+:[END]:
+
+:[VUURMUUR:ZONES:NETWORKS]:
+Menu Zone > Menu Réseaux
+
+
+Les réseaux sont des objets relativement complexes. Ils contiennent
+des hôtes, des groupes et peuvent être eux-mêmes modifier. Des
+'interfaces' sont attachés aux réseaux.
+
+
+Touches:
+
+<Entrée>/B: Entrer/Parcourir les hôtes ou groupes de ce réseau.
+<Insert>/I: Ajouter un nouveau réseau.
+<DEL>/D: Supprimer un réseau.
+<Espace>/E: Modifier un réseau.
+r: Renommer un réseau.
+<F10>/<Q>: Retour.
+
+
+:[END]:
+
+:[VUURMUUR:ZONES:NETWORK:EDIT]:
+Menu Zone > Menu Réseaux > Modifier Réseau
+
+
+Les réseaux sont des objets relativement complexes. Ils contiennent
+des hôtes, des groupes et sont attachés à des 'interfaces' , ils ont
+pas mal d'options.
+
+L'adresse du réseau et le masque sont obligatoires. Pour le réseau
+Internet utilisez '0.0.0.0/0.0.0.0', pour un réseau local de classe-C
+par exemple '192.168.1.0/255.255.255.0'.
+
+Après cela, au moins une interface (active) doit être assignée au
+réseau. Appuyez sur <F6> pour voir la liste des interfaces assignées à
+ce réseau; appuyez alors sur <Insert> pour en ajouter une. Créez donc
+au moins une interface avant les réseaux.
+
+Particulièrement si le réseau est externe, vous devriez activer la
+protection 'anti-spoofing'.
+
+Loopback: 127.0.0.0/8.
+Classe-A: 10.0.0.0/8.
+Classe-B: 172.16.0.0/12.
+Classe-C: 192.168.0.0/16.
+Classe-D: 224.0.0.0/4.
+Classe-E: 240.0.0.0/5.
+
+Test-net: 192.0.2.0/24.
+Link local net: 169.254.0.0/16.
+0.0.0.0/8 réservé par l'IANA: 0.0.0.0/8.
+Broadcast source: 0.0.0.0/32.
+Broadcast destination: 255.255.255.255.
+
+Rq: les trois dernier peuvent interférer avec les connexions DHCP.
+
+
+Touches:
+
+F6/E: Modifier les interfaces.
+<F10>/<Q>: Retour aux Réseaux.
+
+:[END]:
+
+:[VUURMUUR:ZONES:HOSTS]:
+Menu Zone > Menu Réseaux > Menu Hôtes
+
+
+Un hôte est un élément pour nommer une adresse IP et en option
+une adresse MAC. Les hôtes peuvent être regroupés dans des 'Groupes'.
+
+Touches:
+
+<Entrée>/E: Modifier l'hôte.
+<Insert>/I: Ajouter un hôte.
+<DEL>/D: Supprimer un hôte.
+r: Renommer l'hôte.
+<F10>/<Q>: Retour au Menu Réseau.
+
+:[END]:
+
+:[VUURMUUR:ZONES:HOST:EDIT]:
+Menu Zone > Menu Réseaux > Menu Hôtes > Modifier Hôte
+
+
+Un hôte est un objet permettant de nommer une adresse IP. Un hôte peut
+être activé ou désactivé. Si l'on fournit une adresse MAC, elle sera
+également utilisée lors de la création des règles. Il faut noter
+cependant, que l'adresse MAC est utilisée pour les réseaux Ethernet et
+les règles de redirection vers le pare-feu.
+
+L'adresse IP doit correspondre à la combinaison réseau/masque du réseau
+sous-jacent.
+
+Touches:
+
+<F10>/<Q>: Retour au Menu Hôtes.
+
+:[END]:
+
+:[VUURMUUR:ZONES:GROUPS]:
+Menu Zone > Menu Réseaux > Menu Groupes
+
+
+A groupe est un élément qui "groupe" les hôtes d'un réseau.
+
+Touches:
+
+<Entrée>/E: Modifier le groupe.
+<Insert>/I: Ajouter le groupe.
+<DEL>/D: Supprimer un groupe.
+r: Renommer le groupe.
+<F10>/<Q>: Retour au Menu Réseau.
+
+:[END]:
+
+:[VUURMUUR:ZONES:GROUP:EDIT]:
+Menu Zone > Menu Réseaux > Menu Groupes > Modifier Groupe
+
+
+A groupe est un élément qui regroupe plusieurs hôtes. Un groupe peut
+être activé ou désactivé. Si un groupe est désactivé, aucune règle de
+filtrage ne sera créé pour cet élément, mais elles seront créées pour
+les membres activés. Seuls les hôtes du réseau dont fait parti le
+groupe peuvent être membre du groupe.
+
+Touches:
+
+F6/E: Modifier les membres.
+<F10>/<Q>: Retour aux Groupes.
+
+:[END]:
+
+
+:[VUURMUUR:SERVICES]:
+Services
+
+
+Un service est une combinaison de protocoles et de ports, utilisée
+pour autoriser toute sorte de trafic. Par exemple, le trafic HTTP
+s'utilise normalement sur le port TCP 80. Les clients se connecte à ce
+port 80 depuis un port de valeur aléatoire supérieur ou égale à 1024.
+
+<Entrée>/E: Modifier le service.
+<Insert>/I: Ajouter un nouveau service.
+<DEL>/D: Supprimer le service.
+r: Renommer le service.
+<F10>/<Q>: Retour.
+
+:[END]:
+
+
+:[VUURMUUR:SERVICE:EDIT]:
+Services > Modifier Service
+
+
+Un service est une combinaison de protocoles et de ports, utilisée
+pour autoriser toute sorte de trafic. Par exemple, le trafic HTTP
+s'utilise normalement sur le port TCP 80. Les clients se connecte à ce
+port 80 depuis un port de valeur aléatoire supérieur ou égale à 1024.
+Dans Vuurmuur une telle combinaison de protocole et de port est appelé
+une plage. Plusieurs plages ensemble forment un 'service'.
+
+F6/E: Gérer les (plages de) ports.
+<F10>/<Q>: Retour.
+
+:[END]:
+
+
+:[VUURMUUR:SERVICE:EDIT:PORTRANGE]:
+Services > Modifier Service > Plage de ports
+
+
+Ici les plages d'un service peuvent être gérer. Le nombre de plages
+est illimité et tous les types (ou presque) de plages peuvent être combinés.
+
+<Insert>/I: Ajouter une plage.
+<DEL>/D: Supprimer une plage.
+<Entrée>/E: Modifier une plage.
+<F10>/<Q>: Retour.
+
+:[END]:
+
+
+:[VUURMUUR:SERVICE:EDIT:PORTRANGE:TCPUDP]:
+Les plages TCP ou UDP
+
+
+On peut ici ajouter les plages de ports. Un port source (ou une plage
+de port source) doit être entré ainsi qu'un port de destination (ou une
+plage de port destination). Si le but est de fournir un seul port,
+c'est le port 'Bas' qui doit être utilisé. Le port 'Haut' peut être
+laissé vide.
+
+Exemple: Disons que vous voulez ajouter la plage pour POP3. Pour POP3,
+le serveur utilise le port 110  et les clients se connectent depuis un
+port aléatoire de valeur supérieure à 1023. Ceci constitue donc la
+plage Source: 'Bas': 1024 'Haut': 65535 et Destination: 'Bas' 110 et
+'Haut' vide.
+
+<F10>/<Q>: Retour.
+
+:[END]:
+
+
+:[VUURMUUR:SERVICE:EDIT:PORTRANGE:ICMP]:
+ICMP
+
+
+L'ICMP est constitué d'un type et d'un code optionnel.
+cf http://www.iana.org/assignments/icmp-parameters pour plus d'informations.
+
+Exemple: si vous voulez ajouter 'ping'; vous avez besoin du type 8:
+"echo request", et il n'y a pas de code, ainsi la valeur du champs
+code peut être laissée vide et mise à 0.
+
+<Espace>: Choisissez un type ou un code ICMP.
+<F10>/<Q>: Retour.
+
+:[END]:
+
+
+:[VUURMUUR:INTERFACES]:
+Interfaces
+
+
+Une interface défini le périphérique que Vuurmuur va utiliser
+lorsqu'il créera ses règles. Les interfaces sont attachées à des
+réseaux. De cette manière, Vuurmuur sait quel périphérique doit être
+utilisé lorsqu'il créera les règles pour un réseau.
+
+Touches:
+
+<Insert>/I: Ajouter une nouvelle interface.
+<DEL>/D: Supprimer l'interface.
+<Entrée>/E: Modifier l'interface.
+r: Renommer l'interface.
+<F10>/<Q>: Retour.
+
+
+:[END]:
+
+:[VUURMUUR:INTERFACES:EDIT]:
+Interfaces > Modifier une Interface
+
+
+Une interface définit le périphérique que Vuurmuur va utiliser pour
+créer ses règles. Appuyez sur <F5> pour voir les options avancées..
+
+Rq: ceci ne changera PAS le périphérique actuel tel qu'il est connu
+par l'OS.
+
+Paramètres:
+
+Actif: L'interface est-elle active ou non? Ce paramètre détermine si
+les règles seront créées pour cette interface.
+
+Adresse IP: L'adresse IP qui appartient à cette interface. Si cette
+adresse est dynamique, cochez l'option en conséquence.
+
+Périphérique: le nom du 'device' tel qu'il est connu par le
+système. Par exemple 'eth0' ou 'ppp0'.
+Rq: l'utilisation d'interfaces virtuelles comme 'eth0:0' ne sera pas
+utilisée dans les règles 'iptables'. 'iptables' ne supporte pas cette syntaxe.
+
+
+Vous pouvez voir si l'interface est monté par 'Interface montée'. Vous
+pouvez également mettre vos propres commentaires au sujet de cette
+interface. Une interface ne peut pas être montée ou démontée depuis Vuurmuur.
+
+Touches:
+
+<F5>: Options avancées...
+<F10>/<Q>: Retour.
+
+:[END]:
+
+:[VUURMUUR:RULES]:
+Règles
+
+
+Avec les règles, on peut autoriser ou interdire un certain type de
+trafic. Toutes les règles sont construites à partir de quatre parties
+principales: une 'Action', un 'Service', une 'Origine' et une
+'Destination'. Une cinquième et optionnelle partie consiste en les
+options. Une action peut être 'ACCEPT' (pour autoriser quelque chose),
+'DROP', et bien d'autres. Voir l'aide dans le menu 'Modification des
+Règles'. Les services sont définis dans le menu 'Services' et les
+Zones dans le menu 'Zones'. Une règle peut être active ou
+inactive. Une règle inactive n'est pas chargée dans le système.
+
+Touches:
+
+<Insert>/I: Ajouter une règle.
+<DEL>/D: Supprimer une règle.
+<Entrée>/E: Modifier une règle.
+m: Déplacer une règle.
+<Espace>: Activer/Désactiver une règle.
+
+<N>: Afficher uniquement les règles 'INPUT'.
+<U>: Afficher uniquement les règles 'OUTPUT'.
+<O>: Afficher uniquement les règles 'FORWARD'.
+<f>: Filtrer
+
+<->: déplacer une règle d'un rang vers le haut.
+<+>: déplacer la règle d'un rang vers le bas.
+<c>: copier la règle courante.
+<L>: insérer une ligne horizontale (un titre peut être inséré)
+
+<F10>/<Q>: Retour.
+
+:[END]:
+
+:[VUURMUUR:RULES:EDIT]:
+Règles > Modifier Règles
+
+
+En bas de la fenêtre 'Modifier Règles', les options sont
+expliquées. Rq: toutes les règles ne sont pas valides. Par exemple
+définir 'Orig.' et 'Dest.' comme étant 'firewall' n'est pas
+valide. Une règle peut avoir de nombreuses options, comme de faire
+figurer sont utilisation dans les rapports.
+
+Par défaut, toutes les options ne sont pas affichées. Appuyez sur <F5>
+pour les voir toutes.
+
+Action (Appuyez sur <Espace> pour choisir une action):
+
+ACCEPT	autoriser le trafic.
+DROP	bloquer et ignorer le trafic.
+REJECT	bloquer et envoyer un paquet 'tcp-reset' ou un 'icmp-message'.
+QUEUE	envoyé le trafic vers l'espace des utilisateur (ex: snort_inline).
+LOG	Rapporter le trafic.
+PORTFW	Transfert d'un port local, vers un port distant (appelé DNAT).
+REDIRECT redirige le trafic d'un port local, vers un autre port local.
+SNAT	'NAT' le trafic sortant vers l'interface du pare-feu
+MASQ	idem que 'SNAT', mais 'MASQ' détermine l'IP de destination.
+CHAIN	envoi le trafic vers un type personnelle qui doit être précisée.
+
+Le service peut être choisi en appuyant sur la barre d'espace dans le
+champs service. Un menu avec les 'Services' apparaîtra.
+
+La source ('Orig.') et destination ('Dest.') peuvent également être
+choisi en appuyant sur la barre d'espace depuis ces champs. Un menu
+avec les Réseaux, Groupes, Hôtes et le pare-feu lui-même
+apparaîtra. Il y a deux cas spéciaux: 'any' qui correspond à tous
+types de trafic sur les types 'INPUT' et 'FORWARD'. 'firewall(any)'
+correspond à toutes les interfaces du pare-feu.
+
+Un commentaire peut être ajouté pour décrire l'intérêt de la règle.
+
+
+Options des règles:
+
+Rap.: Rapporte l'utilisation de la règle (ne peut pas être utilisée si
+l'action est 'LOG').
+Préfixe: ce texte sera ajouté au rapport 'traffic.log'.
+Limite: Une limite en nombre de messages dans le rapport par seconde.
+Limite Règle: Une limite en nombre d'utilisation de cette par
+seconde. Ceci est pour prévenir des attaque DoS (par déni de service).
+Extra: une valeur d'extra pour outrepasser temporairement la 'Limite de Règle'.
+
+
+Marque: une marque est placé sur un paquet qui correspond ) cette
+règle. Ce marqueur ne quitte jamais le pare-feu, mais peut être
+utilisé pour arranger ou router le trafic réseau. A cause de la
+manière dont Vuurmuur manipule les paquets 'ESTABLISHED' pour les
+actions 'ACCEPT' et 'QUEUE', toutes les règles dont l'action est
+'ACCEPT' doit avoir une marque entre 0 et 9.999.999. Les règles
+'QUEUE'  doivent avoir une marque entre 20.000.000 et 29.999.999. Si
+aucun marqueur n'est fourni, les règles 'ACCEPT' n'auront aucune
+marque (soit un marqueur 0) et les règles 'QUEUE' auront un marqueur à
+20.000.000.
+
+Type de Refus: si l'action est 'REJECT', l'utilisateur peut spécifier
+un type de rejet:
+
+tcp-reset (réinitialise une connexion TCP).
+icmp-net-unreachable.
+icmp-host-unreachable.
+icmp-proto-unreachable.
+icmp-port-unreachable.
+icmp-net-prohibited.
+icmp-host-prohibited.
+
+'Port d'entrée' et 'Port distant': utilisés avec l'action 'PORTFW' le
+pare-feu peut attendre une connexion sur un autre port que celui
+défini par le service. Par exemple, vous pouvez faire attendre le
+pare-feu d'une connexion sur le port 1022 puis rediriger cette
+connexion sur le port 22 d'un hôte distant. L'inverse est également possible.
+
+'Sélectionnez l'état': cette option est présente uniquement avec
+l'action 'QUEUE' et est spécifiquement destiné pour être utilisé avec
+Snort_inline 2.2.0. C'est une manière d'aider la fonction
+"tcp-state-engine" de Snort (Rq: Snort_inline 2.3.x n'utilise pas
+cette option).
+
+Queue: par défaut 'PORTFW' et 'REDIRECT' créées les règles 'ACCEPT'
+en plus des règles 'DNAT'/'REDIRECT'. Cette option force Vuurmuur
+d'utiliser 'QUEUE' au lieu d' 'ACCEPT'.
+
+Interface entrée: Si votre pare-feu à plus d'une interface au sein
+d'un même réseau, vous pouvez souhaiter utilisez les actions
+'PORTFW'/'REDIRECT' sur une seule d'entre elles. Appuyez sur <Espace>
+pour en choisir une.
+
+Interface Sortie: Si votre pare-feu à plus d'une interface au sein
+d'un même réseau, vous pouvez souhaiter utilisez l'action 'SNAT' sur
+une seule d'entre elles. Appuyez sur <Espace> pour en choisir une.
+
+Touches:
+
+<F5>/<A>: afficher les options avancées.
+<F10>/<Q>: Retour.
+
+:[END]:
+
+:[VUURMUUR:LOGVIEW]:
+Rapports
+
+
+Les rapport vous permettent de parcourir les archives en
+temps réel. Des couleurs sont utilisées pour en rendre
+l'interprétation plus facile. Dans les 'Paramètres (Vuurmuur_conf)' la
+taille du buffer peut être définie. Un buffer plus large permettra de
+parcourir un peu de ligne et de remonter un peu plus dans le temps au
+détriment de la mémoire.
+
+Voici l'exemple du connexion rejetée par Vuurmuur:
+Feb  6 01:32:51: DROP   http  81.53.89.170 -> firewall(adsl)  'drop http'
+(in: ppp0 81.53.89.170:3836 -> 62.92.11.107:80 TCP flags: ****S* len:48
+ttl:113).
+
+Cette ligne de rapport commence par la date et l'heure; ensuite on
+affiche l'action effectuée par Vuurmuur; suit alors le nom du service
+tel qu'il est connu par Vuurmuur. Si le port n'appartient à aucune
+service connu de Vuurmuur, Vuurmuur affichera alors de cette manière:
+3836->80(tcp).
+
+Ensuite, l'origine et la destination du paquet sont affichées. Si
+l'adresse IP est connue par Vuurmuur en tant qu'hôte ou interface, il
+affichera le nom de l'hôte ou 'firewall(interface)'. Comme le
+paquet est dirigé vers une interface locale, il est dirigé vers le
+pare-feu; donc Vuurmuur affiche 'firewall(nom de l'interface)'.
+
+Ensuite, ('drop http') montre le préfixe choisi par l'utilisateur, ce
+préfixe peut être choisi dans le menu 'Modifier une Règle'.
+
+Vient alors entre parenthèses, des détails sur la connexion. 'in:
+ppp0' et le périphérique d'entrée du paquet sur le système, 'out:
+eth0' le périphérique de sortie (Rq: sur une règle d'entrée, on ne
+peut voir que 'in:', et sur une règle de sortie uniquement
+'out:'). L'adresse IP réelle et les ports sont affichées à la suite.
+
+Les drapeaux TCP montrent quel drapeau était placé sur le paquet. Si
+vous voyez un caractère, le paquet était marqué, sinon il ne l'était pas.
+U: URG.
+P: PSH.
+A: ACK.
+S: SYN.
+R: RST.
+F: FIN.
+Dans l'exemple, seul le drapeau SYN-flag était défini.
+
+La mention 'len:48' montre la taille du paquet, et 'ttl:113' sa durée
+de vie, ce qui défini combien de fois le paquet peut passer avant
+d'être refoulé.
+
+
+Touches:
+
+<f>: filtre.
+<s>: recherche.
+<c>: vider le buffer.
+<p>: pause.
+<Espace>: pause.
+<b>: Bloque une adresse IP, un hôte ou un groupe (sous X la fonction copier-coller
+peut être utilisée).
+<1-7>: cache/affiche les colonnes (par défaut tout est affiché).
+<flèche haut/bas>: parcourir vers le haut/bas.
+<page up/page down>: parcourir d'une page vers le haut/bas.
+<home/end>: atteindre le début/fin du buffer.
+
+Si une recherche a été lancée, elle peut être stoppée en appuyant sur
+'S'. Lorsque vous avez fini d'afficher les résultats, appuyer sur
+<Espace> pour revenir au mode normal.
+
+
+:[END]:
+
+:[VUURMUUR:GENERAL]:
+Aide Générale pour Vuurmuur
+
+
+Bienvenue dans Vuurmuur-conf. C'est un outil de configuration pour
+Vuurmuur basé sur Ncurses. Il peut être lancé depuis la console ou
+sous X, mais également depuis Windows avec Putty. Assurez vous
+d'utiliser une police 'fixed-width font', sinon l'interface
+n'apparaîtra pas telle que prévu.
+
+Dans la plupart des menus, vous pouvez obtenir l'aide en appuyant sur <F12>.
+
+Avec Vuurmuur, l'administrateur contrôle le pare-feu en créant des
+règles de trafic. Ces règles sont construites avec deux parties principales:
+1. Les Services.
+2. Les Zones.
+
+Vous pouvez gérer à la fois les 'Services' et les 'Zones'. Une zone
+est un container de réseaux, hôtes et groupes. Une Zone est utilisée
+pour regrouper les réseaux similaires. Le pare-feu peut avoir
+plusieurs interfaces pour un même réseau, par exemple une connexion
+ADSL et une connexion de secours RTC. Ainsi, les interfaces doivent
+être définie séparément et doivent être attachées à un réseau. La
+gestion des interfaces s'effectue à partir du menu 'Interface'.
+
+La gestion d'un pare-feu est impossible sans informations sur ce qu'il
+se passe actuellement. Ainsi trois outils sont disponibles:
+1. les Rapports.
+2. les Connexions.
+3. le Statut.
+
+Les Rapports permette à l'administrateur de voir les lignes de rapport
+(log) en temps réel. Les Rapports utilisent les mêmes noms pour les
+Zones, Services et Interfaces que les règles. Il est également
+possible de filtrer ou de chercher à travers ces rapports.
+
+Les Connexions, comme les Rapports, sont en temps réel. Les connexions
+en cours sont affichées et peuvent être triées par état de la
+connexion ou par direction.
+
+Le Statut affiche quelques statistique sur le système. Il montre
+également le débit montant et descendant des interfaces.
+
+Dans 'Configuration (Vuurmuur)' les paramètres de Vuurmuur peuvent
+être changés.
+
+Après avoir fait des modifications dans les Zones, Interfaces,
+Services, Règles ou les paramètres, vous devez 'Appliquer les
+Modifications' avant que ces changements ne soient effectifs. Ceci
+enverra un signal à Vuurmuur (le programme de création des règles),
+ainsi qu'un Vuurmuur_log (le programme de traitements des rapports)
+pour qu'ils se mettent à jour.
+
+
+Touches:
+
+<l>: aller directement dans le rapport de trafic (trafficlog).
+<F5>: Afficher les messages de 'Statut général'.
+<F10>: retour.
+<F11>: Appliquer les Modifications.
+<F12>: aide.
+
+
+:[END]:
+
+:[VUURMUUR:STATUS]:
+Statut général
+
+
+Voici quelques informations sur l'état actuel du système.
+
+Touches:
+
+<F10>: retour.
+<F12>: aide.
+
+
+:[END]:
