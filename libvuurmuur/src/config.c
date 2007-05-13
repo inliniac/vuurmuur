@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2003-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2003-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -142,7 +142,7 @@ config_check_vuurmuurdir(const int debuglvl, const char *logdir)
 		return(-1);
 	}
 
-	/* this isn't the right approach _at all_ but i'm don't really know how to do it better */
+	/* this isn't the right approach _at all_ but I don't really know how to do it better */
 	if(	strcmp(logdir, "/bin") == 0 ||
 		strcmp(logdir, "/boot") == 0 ||
 		strcmp(logdir, "/dev") == 0 ||
