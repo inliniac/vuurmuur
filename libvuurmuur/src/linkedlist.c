@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2004-2006 by Victor Julien                                   *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2002-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
