@@ -2465,6 +2465,8 @@ view_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
 		mvwprintw(ConfigSection.win, 10, 27, "DNAT\t\t%s", iptcap->target_dnat ? STR_YES : STR_NO);
 		mvwprintw(ConfigSection.win, 11, 27, "REDIRECT\t%s", iptcap->target_redirect ? STR_YES : STR_NO);
 		mvwprintw(ConfigSection.win, 12, 27, "MARK\t\t%s", iptcap->target_mark ? STR_YES : STR_NO);
+		mvwprintw(ConfigSection.win, 13, 27, "CONNMARK\t%s", iptcap->target_connmark ? STR_YES : STR_NO);
+		mvwprintw(ConfigSection.win, 14, 27, "NFQUEUE\t%s", iptcap->target_nfqueue ? STR_YES : STR_NO);
 	}
 	else
 	{
@@ -2480,6 +2482,7 @@ view_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
 		mvwprintw(ConfigSection.win, 7,  52, "limit\t%s", iptcap->match_limit ? STR_YES : STR_NO);
 		mvwprintw(ConfigSection.win, 8,  52, "helper\t%s", iptcap->match_helper ? STR_YES : STR_NO);
 		mvwprintw(ConfigSection.win, 9,  52, "length\t%s", iptcap->match_length ? STR_YES : STR_NO);
+		mvwprintw(ConfigSection.win, 10, 52, "connmark\t%s", iptcap->match_connmark ? STR_YES : STR_NO);
 	}
 	else
 	{
@@ -2519,6 +2522,17 @@ view_caps(const int debuglvl)
 	{
 		(void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
 		return(-1);
+	}
+
+	if (debuglvl >= LOW) {
+		(void)vrprint.debug(__FUNC__, "iptcap.proc_net_names %d "
+			"iptcap.proc_net_matches %d iptcap.proc_net_targets %d "
+			"iptcap.table_filter %d iptcap.conntrack %d "
+			"iptcap.match_tcp %d iptcap.match_udp %d iptcap.match_icmp %d "
+	                "iptcap.match_state %d", iptcap.proc_net_names,
+			iptcap.proc_net_matches, iptcap.proc_net_targets,
+	                iptcap.table_filter, iptcap.conntrack, iptcap.match_tcp,
+			iptcap.match_udp, iptcap.match_icmp, iptcap.match_state);
 	}
 
 	/* check if the caps make sense */
