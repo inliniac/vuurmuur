@@ -985,6 +985,9 @@ typedef struct
 	char	target_queue;
 	pid_t	queue_peer_pid;
 
+	char	target_nfqueue;
+	char	target_connmark;
+
 	/* matches */
 	char	match_tcp;
 	char	match_udp;
@@ -996,6 +999,7 @@ typedef struct
 	char	match_length;
 	char	match_limit;
 	char	match_mac;
+	char	match_connmark;
 
 } IptCap;
 

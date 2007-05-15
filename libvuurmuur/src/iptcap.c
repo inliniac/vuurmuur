@@ -677,6 +677,16 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 			result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "helper", "xt_helper", load_modules);
 			if(result == 1)	iptcap->match_helper = TRUE;
 		}
+
+		/* connmark match */
+		result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "connmark", "ipt_connmark", load_modules);
+		if(result == 1)	iptcap->match_connmark = TRUE;
+		else {
+			iptcap->match_connmark = FALSE;
+		
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "connmark", "xt_connmark", load_modules);
+			if(result == 1)	iptcap->match_connmark = TRUE;
+		}
 	}
 	else
 	{
@@ -691,6 +701,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 		iptcap->match_length = TRUE;
 		iptcap->match_limit = TRUE;
 		iptcap->match_mac = TRUE;
+		iptcap->match_connmark = TRUE;
 	}
 
 
@@ -743,6 +754,16 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 			if(result == 1)	iptcap->target_log = TRUE;
 		}
 
+		/* NFQUEUE target - this one is listed in /proc/net/ip_tables_targets */
+		result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "NFQUEUE", "ipt_NFQUEUE", load_modules);
+		if(result == 1)	iptcap->target_nfqueue = TRUE;
+		else {
+			iptcap->target_nfqueue = FALSE;
+
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "NFQUEUE", "xt_NFQUEUE", load_modules);
+			if(result == 1)	iptcap->target_nfqueue = TRUE;
+		}
+
 		/* mangle stuff */
 		if(iptcap->table_mangle == TRUE)
 		{
@@ -754,6 +775,16 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 
 				result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "MARK", "xt_MARK", load_modules);
 				if(result == 1)	iptcap->target_mark = TRUE;
+			}
+
+			/* CONNMARK target */
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "CONNMARK", "ipt_CONNMARK", load_modules);
+			if(result == 1)	iptcap->target_connmark = TRUE;
+			else {
+				iptcap->target_connmark = FALSE;
+
+				result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "CONNMARK", "xt_CONNMARK", load_modules);
+				if(result == 1)	iptcap->target_connmark = TRUE;
 			}
 		}
 	}
@@ -770,10 +801,12 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 
 		iptcap->target_reject = TRUE;
 		iptcap->target_log = TRUE;
+		iptcap->target_nfqueue = TRUE;
 
 		if(iptcap->table_mangle == TRUE)
 		{
 			iptcap->target_mark = TRUE;
+			iptcap->target_connmark = TRUE;
 		}
 	}
 
