@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2002-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2002-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -197,6 +197,8 @@ typedef struct
 	d_list		filter_tcpresettarget;		/* list with rules */
 	d_list		filter_newaccepttarget;		/* list with rules */
 	d_list		filter_newqueuetarget;		/* list with rules */
+	d_list		filter_newnfqueuetarget;	/* list with rules */
+	d_list		filter_estrelnfqueuetarget;	/* list with rules */
 	d_list		filter_accounting;		/* list with rules */
 
 	/*
@@ -248,6 +250,9 @@ int post_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
 int update_synlimit_rules(const int, /*@null@*/RuleSet *, IptCap *);
 int update_udplimit_rules(const int, /*@null@*/RuleSet *, IptCap *);
 int create_block_rules(const int, /*@null@*/RuleSet *, BlockList *);
+
+int create_newnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *);
+int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *);
 
 int create_network_protect_rules(const int, /*@null@*/RuleSet *, Zones *, IptCap *);
 int create_interface_rules(const int, /*@null@*/RuleSet *, Interfaces *);

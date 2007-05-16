@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2002-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2002-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -248,10 +248,8 @@ apply_changes(const int debuglvl,	Services *services,
 		(void)vrprint.error(-1, "Internal Error", "old_rulecreation_method == TRUE");
 		return(-1);
 	}
-	else
-	{
-		return(apply_changes_ruleset(debuglvl, services, zones, interfaces, rules, blocklist, iptcap, reg));
-	}
+
+	return(apply_changes_ruleset(debuglvl, services, zones, interfaces, rules, blocklist, iptcap, reg));
 }
 
 

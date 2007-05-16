@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2002-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2002-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -40,6 +40,8 @@
 #define CH_TCPRESETTARGET	"-A TCPRESET"
 #define CH_NEWACCEPT		"-A NEWACCEPT"
 #define CH_NEWQUEUE		"-A NEWQUEUE"
+#define CH_NEWNFQUEUE		"-A NEWNFQUEUE"
+#define CH_ESTRELNFQUEUE	"-A ESTRELNFQUEUE"
 
 #define SRCDST_SOURCE		(char)0
 #define SRCDST_DESTINATION	(char)1
@@ -290,6 +292,10 @@ process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, char *table,
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_newaccepttarget, chain, cmd, packets, bytes));
 		else if(chain == CH_NEWQUEUE)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_newqueuetarget, chain, cmd, packets, bytes));
+		else if(chain == CH_NEWNFQUEUE)
+			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_newnfqueuetarget, chain, cmd, packets, bytes));
+		else if(chain == CH_ESTRELNFQUEUE)
+			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_estrelnfqueuetarget, chain, cmd, packets, bytes));
 
 		else if(chain == CH_TCPRESETTARGET)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_tcpresettarget, chain, cmd, packets, bytes));
@@ -399,6 +405,14 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 					"this system.");
 			return(0); /* this is not an error */
 		}
+		else if(iptcap->target_nfqueue == FALSE &&
+			strcmp(rule->action, "NEWNFQUEUE") == 0)
+		{
+			(void)vrprint.warning("Warning", "input rule not "
+					"created: NFQUEUE not supported by "
+					"this system.");
+			return(0); /* this is not an error */
+		}
 		else if(iptcap->target_log == FALSE &&
 			strncmp(rule->action, "LOG", 3) == 0)
 		{
@@ -442,6 +456,83 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 		return(-1);
 
 	create->iptcount.input++;
+
+	/*	if the target is NEWQUEUE we connmark the traffic */
+	if(strcasecmp(rule->action, "NEWNFQUEUE") == 0)
+	{
+		if(debuglvl >= MEDIUM)
+			(void)vrprint.debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
+
+		/* check cap */
+		if(conf.check_iptcaps == TRUE)
+		{
+			if(iptcap->target_connmark == FALSE)
+			{
+				(void)vrprint.warning("Warning", "connmark rules not created: CONNMARK not supported by this system.");
+				return(0); /* this is not an error */
+			}
+		}
+
+		/* create mangle rules for NFQUEUE using CONNMARK */
+
+		/* new, related */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW,RELATED -j CONNMARK --set-mark %lu",
+			input_device, rule->proto, rule->temp_src,
+			rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
+			rule->from_mac, create->option.nfqueue_num + 1);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+			return(-1);
+
+		/* related, established */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -j CONNMARK --set-mark %lu",
+			reverse_input_device, rule->proto, rule->temp_src,
+			temp_dst_port, rule->temp_dst, temp_src_port,
+			create->option.nfqueue_num + 1);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+			return(-1);
+
+		if(strcmp(rule->helper, "") != 0)
+		{
+			/* check cap */
+			if(conf.check_iptcaps == TRUE)
+			{
+				if(iptcap->match_helper == FALSE)
+				{
+					(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
+					return(0); /* this is not an error */
+				}
+			}
+
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %lu",
+				input_device, rule->proto, rule->temp_src,
+				rule->temp_dst, rule->from_mac, rule->helper,
+				create->option.nfqueue_num + 1);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+				return(-1);
+
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %lu",
+				reverse_input_device, rule->proto, rule->temp_src,
+				rule->temp_dst, rule->helper, create->option.nfqueue_num + 1);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+				return(-1);
+		}
+	}
 
 	/*	if the target is NEWQUEUE we mark the traffic
 
@@ -712,6 +803,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 		}
 	}
 
+
 	return(retval);
 }
 
@@ -757,6 +849,14 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 					"this system.");
 			return(0); /* this is not an error */
 		}
+		else if(iptcap->target_nfqueue == FALSE && 
+			strcmp(rule->action, "NEWNFQUEUE") == 0)
+		{
+			(void)vrprint.warning("Warning", "output rule not "
+					"created: NFQUEUE not supported by "
+					"this system.");
+			return(0); /* this is not an error */
+		}
 		else if(iptcap->target_log == FALSE &&
 			strncmp(rule->action, "LOG", 3) == 0)
 		{
@@ -798,6 +898,84 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 	/* update rule counter */
 	create->iptcount.output++;
+
+	if (strcasecmp(rule->action, "NEWNFQUEUE") == 0)
+	{
+		if(debuglvl >= MEDIUM)
+			(void)vrprint.debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
+
+		/* check cap */
+		if(conf.check_iptcaps == TRUE)
+		{
+			if(iptcap->target_connmark == FALSE)
+			{
+				(void)vrprint.warning("Warning", "connmark rules not created: CONNMARK not supported by this system.");
+				return(0); /* this is not an error */
+			}
+		}
+
+		/* create mangle rules for NFQUEUE using CONNMARK */
+
+		/* new, related, established */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW,RELATED -j CONNMARK --set-mark %lu",
+			output_device, rule->proto, rule->temp_src,
+			rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
+			create->option.nfqueue_num + 1);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+			return(-1);
+
+		/* REVERSE! related */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -j CONNMARK --set-mark %lu",
+			reverse_output_device, rule->proto, rule->temp_src,
+			temp_dst_port, rule->temp_dst, temp_src_port,
+			create->option.nfqueue_num + 1);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+			return(-1);
+
+		/* helperrrr */
+		if(strcmp(rule->helper, "") != 0)
+		{
+			/* check cap */
+			if(conf.check_iptcaps == TRUE)
+			{
+				if(iptcap->match_helper == FALSE)
+				{
+					(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
+					return(0); /* this is not an error */
+				}
+			}
+
+			/* RELATED */
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %lu",
+					output_device, rule->proto, rule->temp_src,
+					rule->temp_dst, rule->helper, create->option.nfqueue_num + 1);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+				return(-1);
+
+			/* REVERSE! */
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %lu",
+				reverse_output_device, rule->proto, rule->temp_src,
+				rule->temp_dst, rule->helper, create->option.nfqueue_num + 1);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+				return(-1);
+		}
+	}
 
 	/*	if the target is QUEUE we mark the traffic
 	
@@ -1105,6 +1283,14 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 					"this system.");
 			return(0); /* this is not an error */
 		}
+		else if(iptcap->target_nfqueue == FALSE &&
+			strcmp(rule->action, "NEWNFQUEUE") == 0)
+		{
+			(void)vrprint.warning("Warning", "forward rule not "
+					"created: NFQUEUE not supported by "
+					"this system.");
+			return(0); /* this is not an error */
+		}
 		else if(iptcap->target_log == FALSE && 
 			strncmp(rule->action, "LOG", 3) == 0)
 		{
@@ -1149,6 +1335,88 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 		return(-1);
 
 	create->iptcount.forward++;
+
+	if (strcasecmp(rule->action, "NEWNFQUEUE") == 0)
+	{
+		if(debuglvl >= MEDIUM)
+			(void)vrprint.debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
+
+		/* check cap */
+		if(conf.check_iptcaps == TRUE)
+		{
+			if(iptcap->target_connmark == FALSE)
+			{
+				(void)vrprint.warning("Warning", "connmark rules not created: CONNMARK not supported by this system.");
+				return(0); /* this is not an error */
+			}
+		}
+
+		/* create mangle rules for NFQUEUE using CONNMARK */
+
+		/* new,related */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW,RELATED -j CONNMARK --set-mark %lu",
+			input_device, output_device, rule->proto,
+			rule->temp_src, rule->temp_src_port, rule->temp_dst,
+			rule->temp_dst_port, rule->from_mac, create->option.nfqueue_num + 1);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+			return(-1);
+
+		/* REVERSE! related */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+			
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED -j CONNMARK --set-mark %lu",
+			reverse_output_device, reverse_input_device, rule->proto,
+			rule->temp_src, temp_dst_port, rule->temp_dst,
+			temp_src_port, create->option.nfqueue_num + 1);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+			return(-1);
+
+		
+		if(strcmp(rule->helper, "") != 0)
+		{
+			/* check cap */
+			if(conf.check_iptcaps == TRUE)
+			{
+				if(iptcap->match_helper == FALSE)
+				{
+					(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
+					return(0); /* this is not an error */
+				}
+			}
+
+			/* RELATED */
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %lu",
+				input_device, output_device, stripped_proto,
+				rule->temp_src, rule->temp_dst, rule->from_mac,
+				rule->helper, create->option.nfqueue_num + 1);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+				return(-1);
+
+			/* REVERSE! */
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %lu",
+				reverse_output_device, reverse_input_device, stripped_proto,
+				rule->temp_src, rule->temp_dst, rule->helper,
+				create->option.nfqueue_num + 1);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+				return(-1);
+		}
+	}
+
+
 
 	/*	if the target is QUEUE we mark the traffic
 	
@@ -2165,7 +2433,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
 	if(ruleset == NULL)
 	{
-	  snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null", conf.iptables_location, TB_MANGLE);
+		snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null", conf.iptables_location, TB_MANGLE);
 		(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 	}
 
@@ -2740,25 +3008,28 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 	*/
 	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Setting up NEWQUEUE target...\n");
 	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Setting up NEWQUEUE target...");
-
-	if(ruleset == NULL)
+	if(conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE)
 	{
-		snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null", conf.iptables_location);
-		(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null", conf.iptables_location);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
+		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
+			retval=-1;
+
+		snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
+		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
+			retval=-1;
+
+		snprintf(cmd, sizeof(cmd), "-j QUEUE");
+		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
+			retval=-1;
+	} else {
+		(void)vrprint.info("Info", "NEWQUEUE target not setup. QUEUE-target not supported by system.");
 	}
-
-	snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
-	if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-		retval=-1;
-
-	snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
-	if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-		retval=-1;
-
-	snprintf(cmd, sizeof(cmd), "-j QUEUE");
-	if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-		retval=-1;
-
 
 	/*
 		set up connectiontracking including mark target range
@@ -2869,6 +3140,53 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 		(void)vrprint.info("Info", "connection tracking for QUEUE not setup. QUEUE-target and/or mark-match not supported by system.");
 	}
 
+	/*
+		create the NEWNFQUEUE target: the content of the chain
+		is handled by create_newnfqueue_rules()
+	*/
+	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Setting up NEWNFQUEUE target...\n");
+	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Setting up NEWNFQUEUE target...");
+	if(conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE)
+	{
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null", conf.iptables_location);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+	} else {
+		(void)vrprint.info("Info", "NEWNFQUEUE target not setup. NFQUEUE-target not supported by system.");
+	}
+
+	/*
+		Setup NFQUEUE connection tracking
+	*/
+	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Setting up connection-tracking for NFQUEUE targets...\n");
+	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Setting up connection-tracking for NFQUEUE targets...");
+
+	if(conf.check_iptcaps == FALSE || (iptcap->target_nfqueue == TRUE && iptcap->match_connmark == TRUE))
+	{
+		if(ruleset == NULL)
+		{
+			/* create the chain and insert it into input, output and forward.
+		
+				NOTE: we ignore the returncode and want no output (although we get some
+				in the errorlog) because if we start vuurmuur when a ruleset is already in
+				place, the chain will exist and iptables will complain.
+			*/
+			snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null", conf.iptables_location);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-m connmark ! --mark 0 -j ESTRELNFQUEUE");
+		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+			retval=-1;
+
+		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+			retval=-1;
+
+		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+			retval=-1;
+	}
 
 	/*
 		invalid input
@@ -3948,3 +4266,137 @@ create_block_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, BlockList *bl
 
 	return(retval);
 }
+
+/* create_estrelnfqueue_rules
+ *
+ * Create the rules for RELATED and ESTABLISHED traffic for nfqueue.
+ *
+ * Return:	 0: ok
+ * 		-1: error
+ */
+int
+create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *rules)
+{
+	char		cmd[MAX_PIPE_COMMAND] = "";
+	d_list_node	*d_node = NULL;
+	int		retval = 0;
+	struct RuleData_ *rule_ptr = NULL;
+
+	/* safety */
+	if(rules == NULL)
+	{
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+			"(in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	if(conf.bash_out == TRUE)
+		fprintf(stdout, "\n# Setting up NFQueue state rules...\n");
+
+	if(rules->list.len == 0)
+	{
+		if(debuglvl >= HIGH)
+			(void)vrprint.debug(__FUNC__, "no items in ruleslist.");
+
+		return(0);
+	}
+
+	/* create two rules for each ipaddress */
+	for(d_node = rules->list.top; d_node; d_node = d_node->next)
+	{
+		if(!(rule_ptr = d_node->data))
+		{
+			(void)vrprint.error(-1, "Internal Error", "NULL pointer "
+				"(in: %s:%d).", __FUNC__, __LINE__);
+			return(-1);
+		}
+
+		if (rule_ptr->action == AT_NFQUEUE)
+		{
+			/* ESTABLISHED */
+			snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+				"-m state --state ESTABLISHED -j NFQUEUE --queue-num %u",
+				rule_ptr->opt->nfqueue_num + 1, rule_ptr->opt->nfqueue_num);
+			if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
+				retval=-1;
+
+			/* RELATED */
+			snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+				"-m state --state RELATED -j NEWNFQUEUE",
+				rule_ptr->opt->nfqueue_num + 1);
+			if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
+				retval=-1;
+		}
+	}
+
+	return(retval);
+}
+
+/* create_newnfqueue_rules
+ *
+ * Create the rules for the NEWQUEUE target.
+ *
+ * Return:	 0: ok
+ * 		-1: error
+ */
+int
+create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *rules)
+{
+	char		cmd[MAX_PIPE_COMMAND] = "";
+	d_list_node	*d_node = NULL;
+	int		retval = 0;
+	struct RuleData_ *rule_ptr = NULL;
+
+
+	/* safety */
+	if(rules == NULL)
+	{
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+			"(in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	if(conf.bash_out == TRUE)
+		fprintf(stdout, "\n# Setting up NFQueue NEWNFQUEUE target rules...\n");
+
+	/* TCP and UDP limits */
+	snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
+	if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
+		retval=-1;
+
+	snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
+	if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
+		retval=-1;
+
+	if(rules->list.len == 0)
+	{
+		if(debuglvl >= HIGH)
+			(void)vrprint.debug(__FUNC__, "no items in ruleslist.");
+
+		return(0);
+	}
+
+	/* create two rules for each ipaddress */
+	for(d_node = rules->list.top; d_node; d_node = d_node->next)
+	{
+		if(!(rule_ptr = d_node->data))
+		{
+			(void)vrprint.error(-1, "Internal Error", "NULL pointer "
+				"(in: %s:%d).", __FUNC__, __LINE__);
+			return(-1);
+		}
+
+		if (rule_ptr->action == AT_NFQUEUE)
+		{
+			/* NEW */
+			snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+				"-m state --state NEW -j NFQUEUE --queue-num %u",
+				rule_ptr->opt->nfqueue_num + 1, rule_ptr->opt->nfqueue_num);
+			if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
+				retval=-1;
+		}
+	}
+
+	return(retval);
+}
+

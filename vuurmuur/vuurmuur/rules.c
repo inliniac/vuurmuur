@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2006 by Victor Julien                              *
+ *   Copyright (C) 2002-2007 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -112,6 +112,8 @@ create_logprefix_string(const int debuglvl, char *resultstr, size_t size,
 		(void)strlcat(str, "ACCEPT", LOGPREFIX_LOG_MAXLEN);
 	else if(strcmp(action, "NEWQUEUE") == 0)
 		(void)strlcat(str, "QUEUE", LOGPREFIX_LOG_MAXLEN);
+	else if(strcmp(action, "NEWNFQUEUE") == 0)
+		(void)strlcat(str, "NFQUEUE", LOGPREFIX_LOG_MAXLEN);
 	else if(strncmp(action, "DNAT", 4) == 0)
 	{
 		if(ruletype == RT_PORTFW)
@@ -472,6 +474,16 @@ create_all_rules(	const int debuglvl,
 		result = pre_rules(debuglvl, NULL, interfaces, iptcap);
 		if(result < 0)
 			return(-1);
+	}
+
+	/* create the nfqueue state rules */
+	if(create_newnfqueue_rules(debuglvl, NULL, rules) < 0)
+	{
+		(void)vrprint.error(-1, "Error", "create nfqueue state failed.");
+	}
+	if(create_estrelnfqueue_rules(debuglvl, NULL, rules) < 0)
+	{
+		(void)vrprint.error(-1, "Error", "create nfqueue state failed.");
 	}
 
 	/* create the blocklist */
