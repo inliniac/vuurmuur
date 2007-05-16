@@ -570,6 +570,9 @@ struct options
 	/* limit for this rule */
 	unsigned int	limit;
 	unsigned int	burst;
+
+	/* queue num for the NFQUEUE action. There can be 65536: 0-65535 */
+	u_int16_t	nfqueue_num;
 };
 
 
@@ -818,8 +821,7 @@ struct RuleData_
 	struct RuleCache_	rulecache;
 
 	char			filtered;		/* used by vuurmuur_conf */
-}
-RuleData;
+} RuleData;
 
 
 typedef struct VR_filter_
@@ -1139,6 +1141,7 @@ enum actiontypes
 	AT_CHAIN,	/* custom chain */
 	AT_DNAT,	/* DNAT */
 	AT_BOUNCE,	/* DNAT+SNAT */
+	AT_NFQUEUE,	/* NFQUEUE */
 
 	/* special for networks and interfaces */
 	AT_PROTECT,

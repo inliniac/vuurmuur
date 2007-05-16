@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 /*************************************************************************** 
- * Here we try to analize the actual rule.                                  *
+ * Load, parse, analyze and save the rules.                                *
  ***************************************************************************/
 #include "vuurmuur.h"
 
@@ -1720,6 +1720,8 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 	char	interfacestr[MAX_INTERFACE+11] = "";
 	char	chainstr[48] = "";
 	int	action_type = 0;
+	/* nfqueue="50000" : nfqueue (7) = (1) " (1) 65535 (5) " (1) \0 (1) = 16 */
+	char	nfqueue_string[16] = "";
 
 	/* safety - this is not an error! */
 	if(opt == NULL || action == NULL)
@@ -1777,6 +1779,19 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 				"out_int=\"%s\",", opt->out_int);
 
 		if(strlcat(options, interfacestr, sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+	}
+
+	if(AT_NFQUEUE)
+	{
+		snprintf(nfqueue_string, sizeof(nfqueue_string),
+				"nfqueue=\"%u\",", opt->nfqueue_num);
+
+		if(strlcat(options, nfqueue_string, sizeof(options)) >= sizeof(options))
 		{
 			(void)vrprint.error(-1, "Internal Error", "string "
 				"overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -2414,7 +2429,12 @@ rules_read_options(const int debuglvl, char *optstr, struct options *op)
 
 				op->markiptstate = 1;
 			}
-			/* queue instead of accept (portfw and redirect) */
+			/* queue instead of accept (portfw and redirect)
+                         *
+                         * TODO: just a nat rule + separate queue rule is
+                         * a better solution. 
+                         * */
+
 			else if(strcmp(curopt, "queue") == 0)
 			{
 				if(debuglvl >= MEDIUM)
@@ -2608,7 +2628,7 @@ rules_read_options(const int debuglvl, char *optstr, struct options *op)
 				if(debuglvl >= MEDIUM)
 					(void)vrprint.debug(__FUNC__, "redirectport: %d, %s", op->redirectport, portstring);
 			}
-			/* redirectport */
+			/* nfmark */
 			else if(strncmp(curopt, "nfmark", strlen("nfmark")) == 0)
 			{
 				for(	p = 0, o = strlen("nfmark") + 1;
@@ -2682,6 +2702,26 @@ rules_read_options(const int debuglvl, char *optstr, struct options *op)
 				}
 				op->chain[p] = '\0';
 			}
+			/* nfqueuenum */
+			else if(strncmp(curopt, "nfqueuenum", strlen("nfqueuenum")) == 0)
+			{
+				for(	p = 0, o = strlen("nfqueuenum") + 1;
+					o < strlen(curopt) && p < sizeof(portstring);
+					o++)
+				{
+					if(curopt[o] != '\"')
+					{
+						portstring[p] = curopt[o];
+						p++;
+					}
+				}
+				portstring[p] = '\0';
+
+				op->nfqueue_num = atoi(portstring);
+
+				if(debuglvl >= MEDIUM)
+					(void)vrprint.debug(__FUNC__, "nfqueuenum: %d, %s", op->nfqueue_num, portstring);
+			}
 			/* unknown option */
 			else
 			{
@@ -2728,6 +2768,7 @@ char *actions[] =
 	"Chain",
 	"Dnat",
 	"Bounce",
+	"NFQueue",
 	"Protect",
 	"Separator",
 	"ERROR",
@@ -2759,6 +2800,7 @@ char *actions_cap[] =
 	"CHAIN",
 	"DNAT",
 	"BOUNCE",
+	"NFQUEUE",
 	"PROTECT",
 	"SEPARATOR",
 	"ERROR",
@@ -2814,6 +2856,8 @@ rules_actiontoi(const char *action)
 		return(AT_DNAT);
 	else if(strcasecmp(action, "bounce") == 0)
 		return(AT_BOUNCE);
+	else if(strcasecmp(action, "nfqueue") == 0)
+		return(AT_NFQUEUE);
 	else if(strcasecmp(action, "sepparator") == 0 ||
 		strcasecmp(action, "separator") == 0)
 		return(AT_SEPARATOR);
