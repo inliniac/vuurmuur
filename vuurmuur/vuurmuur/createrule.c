@@ -4404,7 +4404,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
 			snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
 				"-m state --state NEW -j NFQUEUE --queue-num %u",
 				queue_num + 1, queue_num);
-			if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
+			if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
 				retval=-1;
 		}
 	}
