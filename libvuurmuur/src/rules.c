@@ -1720,8 +1720,8 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 	char	interfacestr[MAX_INTERFACE+11] = "";
 	char	chainstr[48] = "";
 	int	action_type = 0;
-	/* nfqueue="50000" : nfqueue (7) = (1) " (1) 65535 (5) " (1) \0 (1) = 16 */
-	char	nfqueue_string[16] = "";
+	/* nfqueuenum="50000" : nfqueue (10) = (1) " (1) 65535 (5) " (1) \0 (1) = 19 */
+	char	nfqueue_string[19] = "";
 
 	/* safety - this is not an error! */
 	if(opt == NULL || action == NULL)
@@ -1786,10 +1786,10 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 		}
 	}
 
-	if(AT_NFQUEUE)
+	if(action_type == AT_NFQUEUE)
 	{
 		snprintf(nfqueue_string, sizeof(nfqueue_string),
-				"nfqueue=\"%u\",", opt->nfqueue_num);
+				"nfqueuenum=\"%u\",", opt->nfqueue_num);
 
 		if(strlcat(options, nfqueue_string, sizeof(options)) >= sizeof(options))
 		{

@@ -136,6 +136,10 @@ determine_action(const int debuglvl, char *query, char *action, size_t size, str
 	{
 		(void)strlcpy(action, "NEWQUEUE", size);
 	}
+	else if(action_type == AT_NFQUEUE)
+	{
+		(void)strlcpy(action, "NEWNFQUEUE", size);
+	}
 	else
 	{
 		(void)vrprint.error(-1, "Error", "unknown action '%s' "
