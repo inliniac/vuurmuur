@@ -4281,6 +4281,7 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules
 	d_list_node	*d_node = NULL;
 	int		retval = 0;
 	struct RuleData_ *rule_ptr = NULL;
+	u_int16_t	queue_num = 0;
 
 	/* safety */
 	if(rules == NULL)
@@ -4313,17 +4314,22 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules
 
 		if (rule_ptr->action == AT_NFQUEUE)
 		{
+			if (rule_ptr->opt != NULL)
+				queue_num = rule_ptr->opt->nfqueue_num;
+			else
+				queue_num = 0;
+
 			/* ESTABLISHED */
 			snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
 				"-m state --state ESTABLISHED -j NFQUEUE --queue-num %u",
-				rule_ptr->opt->nfqueue_num + 1, rule_ptr->opt->nfqueue_num);
+				queue_num + 1, queue_num);
 			if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
 				retval=-1;
 
 			/* RELATED */
 			snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
 				"-m state --state RELATED -j NEWNFQUEUE",
-				rule_ptr->opt->nfqueue_num + 1);
+				queue_num + 1);
 			if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
 				retval=-1;
 		}
@@ -4346,6 +4352,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
 	d_list_node	*d_node = NULL;
 	int		retval = 0;
 	struct RuleData_ *rule_ptr = NULL;
+	u_int16_t	queue_num = 0;
 
 
 	/* safety */
@@ -4388,10 +4395,15 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
 
 		if (rule_ptr->action == AT_NFQUEUE)
 		{
+			if (rule_ptr->opt != NULL)
+				queue_num = rule_ptr->opt->nfqueue_num;
+			else
+				queue_num = 0;
+
 			/* NEW */
 			snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
 				"-m state --state NEW -j NFQUEUE --queue-num %u",
-				rule_ptr->opt->nfqueue_num + 1, rule_ptr->opt->nfqueue_num);
+				queue_num + 1, queue_num);
 			if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
 				retval=-1;
 		}
