@@ -733,16 +733,8 @@ ruleset_fill_file(	const int debuglvl,
 		snprintf(cmd, sizeof(cmd), "--new NEWQUEUE\n");
 		ruleset_writeprint(ruleset_fd, cmd);
 
-		if(rules_chain_in_list(debuglvl, &rules->system_chain_filter, "NEWNFQUEUE"))
-		{
-			snprintf(cmd, sizeof(cmd), "--flush NEWNFQUEUE\n");
-			ruleset_writeprint(ruleset_fd, cmd);
-			snprintf(cmd, sizeof(cmd), "--delete-chain NEWNFQUEUE\n");
-			ruleset_writeprint(ruleset_fd, cmd);
-		}
-		snprintf(cmd, sizeof(cmd), "--new NEWNFQUEUE\n");
-		ruleset_writeprint(ruleset_fd, cmd);
-
+		/* Do this before NEWNFQUEUE because it references
+		 * to it. */
 		if(rules_chain_in_list(debuglvl, &rules->system_chain_filter, "ESTRELNFQUEUE"))
 		{
 			snprintf(cmd, sizeof(cmd), "--flush ESTRELNFQUEUE\n");
@@ -751,6 +743,16 @@ ruleset_fill_file(	const int debuglvl,
 			ruleset_writeprint(ruleset_fd, cmd);
 		}
 		snprintf(cmd, sizeof(cmd), "--new ESTRELNFQUEUE\n");
+		ruleset_writeprint(ruleset_fd, cmd);
+
+		if(rules_chain_in_list(debuglvl, &rules->system_chain_filter, "NEWNFQUEUE"))
+		{
+			snprintf(cmd, sizeof(cmd), "--flush NEWNFQUEUE\n");
+			ruleset_writeprint(ruleset_fd, cmd);
+			snprintf(cmd, sizeof(cmd), "--delete-chain NEWNFQUEUE\n");
+			ruleset_writeprint(ruleset_fd, cmd);
+		}
+		snprintf(cmd, sizeof(cmd), "--new NEWNFQUEUE\n");
 		ruleset_writeprint(ruleset_fd, cmd);
 
 		if(rules_chain_in_list(debuglvl, &rules->system_chain_filter, "SYNLIMIT"))
