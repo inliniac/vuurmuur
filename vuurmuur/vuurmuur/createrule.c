@@ -3032,6 +3032,57 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 	}
 
 	/*
+		create the NEWNFQUEUE target: the content of the chain
+		is handled by create_newnfqueue_rules()
+	*/
+	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Setting up NEWNFQUEUE target...\n");
+	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Setting up NEWNFQUEUE target...");
+	if(conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE)
+	{
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null", conf.iptables_location);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+	} else {
+		(void)vrprint.info("Info", "NEWNFQUEUE target not setup. NFQUEUE-target not supported by system.");
+	}
+
+	/*
+		Setup NFQUEUE connection tracking
+
+		All connmarked traffic with state ESTABLISHED and RELATED is
+		send to a special chain to handle it: ESTRELNFQUEUE
+	*/
+	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Setting up connection-tracking for NFQUEUE targets...\n");
+	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Setting up connection-tracking for NFQUEUE targets...");
+
+	if(conf.check_iptcaps == FALSE || (iptcap->target_nfqueue == TRUE && iptcap->match_connmark == TRUE))
+	{
+		if(ruleset == NULL)
+		{
+			/* create the chain and insert it into input, output and forward.
+		
+				NOTE: we ignore the returncode and want no output (although we get some
+				in the errorlog) because if we start vuurmuur when a ruleset is already in
+				place, the chain will exist and iptables will complain.
+			*/
+			snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null", conf.iptables_location);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED,RELATED -m connmark ! --mark 0 -j ESTRELNFQUEUE");
+		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+			retval=-1;
+
+		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+			retval=-1;
+
+		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+			retval=-1;
+	}
+
+	/*
 		set up connectiontracking including mark target range
 
 		 mark 0x0/0xff000000 means:
@@ -3138,54 +3189,6 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 	else
 	{
 		(void)vrprint.info("Info", "connection tracking for QUEUE not setup. QUEUE-target and/or mark-match not supported by system.");
-	}
-
-	/*
-		create the NEWNFQUEUE target: the content of the chain
-		is handled by create_newnfqueue_rules()
-	*/
-	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Setting up NEWNFQUEUE target...\n");
-	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Setting up NEWNFQUEUE target...");
-	if(conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE)
-	{
-		if(ruleset == NULL)
-		{
-			snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null", conf.iptables_location);
-			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-		}
-	} else {
-		(void)vrprint.info("Info", "NEWNFQUEUE target not setup. NFQUEUE-target not supported by system.");
-	}
-
-	/*
-		Setup NFQUEUE connection tracking
-	*/
-	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Setting up connection-tracking for NFQUEUE targets...\n");
-	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Setting up connection-tracking for NFQUEUE targets...");
-
-	if(conf.check_iptcaps == FALSE || (iptcap->target_nfqueue == TRUE && iptcap->match_connmark == TRUE))
-	{
-		if(ruleset == NULL)
-		{
-			/* create the chain and insert it into input, output and forward.
-		
-				NOTE: we ignore the returncode and want no output (although we get some
-				in the errorlog) because if we start vuurmuur when a ruleset is already in
-				place, the chain will exist and iptables will complain.
-			*/
-			snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null", conf.iptables_location);
-			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-		}
-
-		snprintf(cmd, sizeof(cmd), "-m connmark ! --mark 0 -j ESTRELNFQUEUE");
-		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-			retval=-1;
-
-		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-			retval=-1;
-
-		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-			retval=-1;
 	}
 
 	/*
