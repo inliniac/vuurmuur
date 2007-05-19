@@ -534,7 +534,8 @@ rulebar_setcolor(	FIELD *active,
 		else
 			set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
 	}
-	else if(strncasecmp(field_buffer(action, 0), "queue", 5) == 0)
+	else if(strncasecmp(field_buffer(action, 0), "queue", 5) == 0 ||
+	 	strncasecmp(field_buffer(action, 0), "nfqueue", 6) == 0)
 	{
 		if(color == COLOR_BLUE && active_rule)
 			set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
@@ -2545,9 +2546,8 @@ struct RuleFlds_
 		*remote_label_fld_ptr,
 		*remote_fld_ptr,
 
-		*markiptstate_brackets_fld_ptr,
-		*markiptstate_label_fld_ptr,
-		*markiptstate_fld_ptr,
+		*nfqueuenum_label_fld_ptr,
+		*nfqueuenum_fld_ptr,
 
 		*nfmark_label_fld_ptr,
 		*nfmark_fld_ptr,
@@ -2575,6 +2575,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 	char	port_one[6] = "",
 		nfmarkstr[9] = "";
 	char	limit_str[6] = "";
+	char	nfqueuenum_str[6] = "";
 	int	last_char = 0;
 	char	action_str[32] = "";
 	size_t	i = 0;
@@ -2900,9 +2901,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
 				retval=1;
 			}
-			else if(fields[i] == RuleFlds.markiptstate_fld_ptr)
+			else if(fields[i] == RuleFlds.nfqueuenum_fld_ptr)
 			{
-				/* markiptstate */
+				/* nfqueuenum */
 
 				/* if needed alloc the opt struct */
 				if(rule_ptr->opt == NULL)
@@ -2914,10 +2915,12 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 					}
 				}
 
-				if(strncmp(field_buffer(fields[i], 0), "X", 1) == 0)
-					rule_ptr->opt->markiptstate = 1;
-				else
-					rule_ptr->opt->markiptstate = 0;
+				if(!(copy_field2buf(	nfqueuenum_str,
+							field_buffer(fields[i], 0),
+							sizeof(nfqueuenum_str))))
+					return(-1);
+
+				rule_ptr->opt->nfqueue_num = atoi(nfqueuenum_str);
 
 				retval=1;
 			}
@@ -3154,7 +3157,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 				i = 0;
 	char			redirect_port[6]   = "",
 				loglimit_string[4] = "",
-				nfmark_string[9] = "";
+				nfmark_string[9] = "",
+				nfqueuenum_string[6] = "0";
 	int			height,
 				width,
 				startx,
@@ -3171,6 +3175,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 							"Masq",
 							"Dnat",
 							"Queue",
+							"NFQueue",
 							"Chain",
 							"Bounce", },
 				*action_ptr=NULL,
@@ -3183,7 +3188,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 							"tcp-reset" },
 				*reject_ptr=NULL;
 	char			select_choice[MAX_HOST_NET_ZONE] = "";
-	size_t			action_choices_n = 12,
+	size_t			action_choices_n = 13,
 				reject_types_n = 7;
 	char			**zone_choices,
 				**choices,
@@ -3245,7 +3250,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 		starty = 2;
 
 	/* set number of fields */
-	n_fields = 45;
+	n_fields = 44;
 	if(!(fields = (FIELD **)calloc(n_fields + 1, sizeof(FIELD *))))
 	{
 		(void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
@@ -3304,35 +3309,29 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 	field_opts_off(RuleFlds.queue_brackets_fld_ptr, O_VISIBLE);
 
 
-	/* markiptstate (queue) label */
-	RuleFlds.markiptstate_label_fld_ptr = (fields[field_num] = new_field(1, 18, 5, 10, 0, 0));
-	set_field_buffer_wrap(debuglvl, RuleFlds.markiptstate_label_fld_ptr, 0, gettext("Mark IptState"));
-	field_opts_off(RuleFlds.markiptstate_label_fld_ptr, O_ACTIVE);
-	set_field_back(RuleFlds.markiptstate_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-	set_field_fore(RuleFlds.markiptstate_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+	/* nfqueuenum label */
+	RuleFlds.nfqueuenum_label_fld_ptr = (fields[field_num] = new_field(1, 18, 3, 10, 0, 0));
+	set_field_buffer_wrap(debuglvl, RuleFlds.nfqueuenum_label_fld_ptr, 0, gettext("Queue number"));
+	field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_ACTIVE);
+	set_field_back(RuleFlds.nfqueuenum_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+	set_field_fore(RuleFlds.nfqueuenum_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
 	field_num++;
 
-	RuleFlds.markiptstate_brackets_fld_ptr = (fields[field_num] = new_field(1, 3, 5, 29, 0, 0));
-	set_field_buffer_wrap(debuglvl, RuleFlds.markiptstate_brackets_fld_ptr, 0, "[ ]");
-	field_opts_off(RuleFlds.markiptstate_brackets_fld_ptr, O_ACTIVE);
-	set_field_back(RuleFlds.markiptstate_brackets_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-	set_field_fore(RuleFlds.markiptstate_brackets_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+	/* nfqueuenum */
+	RuleFlds.nfqueuenum_fld_ptr = (fields[field_num] = new_field(1, 6, 3, 30, 0, 0));
+	set_field_back(RuleFlds.nfqueuenum_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+	set_field_fore(RuleFlds.nfqueuenum_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
 	field_num++;
 
-	/* markiptstate */
-	RuleFlds.markiptstate_fld_ptr = (fields[field_num] = new_field(1, 1, 5, 30, 0, 0));
-	set_field_back(RuleFlds.markiptstate_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-	set_field_fore(RuleFlds.markiptstate_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-	field_num++;
+	/* enable nfqueuenum option */
+	if(rule_ptr->opt != NULL)
+		snprintf(nfqueuenum_string, sizeof(nfqueuenum_string), "%u", rule_ptr->opt->nfqueue_num);
 
-	/* enable markiptstate option */
-	if(rule_ptr->opt != NULL && rule_ptr->opt->markiptstate == 1)
-		set_field_buffer_wrap(debuglvl, RuleFlds.markiptstate_fld_ptr, 0, "X");
+	set_field_buffer_wrap(debuglvl, RuleFlds.nfqueuenum_fld_ptr, 0, nfqueuenum_string);
 
 	/* start disabled  */
-	field_opts_off(RuleFlds.markiptstate_fld_ptr, O_VISIBLE);
-	field_opts_off(RuleFlds.markiptstate_label_fld_ptr, O_VISIBLE);
-	field_opts_off(RuleFlds.markiptstate_brackets_fld_ptr, O_VISIBLE);
+	field_opts_off(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
+	field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_VISIBLE);
 
 
 	/* service label */
@@ -3365,7 +3364,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 	set_field_fore(RuleFlds.nfmark_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
 	field_num++;
 
-	/* enable markiptstate option */
+	/* enable nfmark option */
 	if(rule_ptr->opt != NULL && rule_ptr->opt->nfmark > 0)
 	{
 		snprintf(nfmark_string, sizeof(nfmark_string), "%lu", rule_ptr->opt->nfmark);
@@ -3811,6 +3810,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 			rule_ptr->action != AT_PORTFW &&
 			rule_ptr->action != AT_ACCEPT &&
 			rule_ptr->action != AT_QUEUE &&
+			rule_ptr->action != AT_NFQUEUE &&
 			rule_ptr->action != AT_CHAIN &&
 			rule_ptr->action != AT_BOUNCE &&
 			rule_ptr->action != AT_LOG) || !advanced_mode)
@@ -3835,21 +3835,11 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 		{
 			field_opts_off(RuleFlds.log_fld_ptr, O_ACTIVE);
 		}
-		if(	((rule_ptr->action != AT_QUEUE &&
-			 rule_ptr->action != AT_PORTFW &&
-			 rule_ptr->action != AT_REDIRECT) ||
-			 
-			 (rule_ptr->action == AT_PORTFW &&
-				field_buffer(RuleFlds.queue_fld_ptr,0)[0] != 'X') ||
-
-			 (rule_ptr->action == AT_REDIRECT &&
-				field_buffer(RuleFlds.queue_fld_ptr,0)[0] != 'X')) ||
+		if(	((rule_ptr->action != AT_NFQUEUE)) ||
 			!advanced_mode)
 		{
-			/* first the label, because it overlaps the normal field */
-			field_opts_off(RuleFlds.markiptstate_brackets_fld_ptr, O_VISIBLE);
-			field_opts_off(RuleFlds.markiptstate_label_fld_ptr, O_VISIBLE);
-			field_opts_off(RuleFlds.markiptstate_fld_ptr, O_VISIBLE);
+			field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_VISIBLE);
+			field_opts_off(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
 		}
 		if(rule_ptr->action != AT_LOG || !advanced_mode)
 		{
@@ -3922,21 +3912,18 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 			field_opts_on(RuleFlds.queue_label_fld_ptr, O_VISIBLE);
 			field_opts_on(RuleFlds.queue_fld_ptr, O_VISIBLE);
 		}
-		if(	(rule_ptr->action == AT_QUEUE ||
-			(rule_ptr->action == AT_PORTFW && field_buffer(RuleFlds.queue_fld_ptr,0)[0] == 'X') ||
-			(rule_ptr->action == AT_REDIRECT && field_buffer(RuleFlds.queue_fld_ptr,0)[0] == 'X'))
+		if(	rule_ptr->action == AT_NFQUEUE
 			&& advanced_mode)
 		{
-			/* first the label, because it overlaps the normal field */
-			field_opts_on(RuleFlds.markiptstate_brackets_fld_ptr, O_VISIBLE);
-			field_opts_on(RuleFlds.markiptstate_label_fld_ptr, O_VISIBLE);
-			field_opts_on(RuleFlds.markiptstate_fld_ptr, O_VISIBLE);
+			field_opts_on(RuleFlds.nfqueuenum_label_fld_ptr, O_VISIBLE);
+			field_opts_on(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
 		}
 
 		if((	rule_ptr->action == AT_REDIRECT ||
 			rule_ptr->action == AT_PORTFW ||
 			rule_ptr->action == AT_ACCEPT ||
 			rule_ptr->action == AT_QUEUE ||
+			rule_ptr->action == AT_NFQUEUE ||
 			rule_ptr->action == AT_CHAIN ||
 			rule_ptr->action == AT_BOUNCE ||
 			rule_ptr->action == AT_LOG) && 
@@ -4046,8 +4033,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 			status_print(status_win, gettext("Maximum number of loglines per second (to prevent DoS), 0 for no limit."));
 		else if(cur == RuleFlds.log_fld_ptr)
 			status_print(status_win, gettext("Press SPACE to toggle logging of this rule."));
-		else if(cur == RuleFlds.markiptstate_fld_ptr)
-			status_print(status_win, gettext("Press SPACE to toggle marking the state of this rule (snort_inline)."));
+		else if(cur == RuleFlds.nfqueuenum_fld_ptr)
+			status_print(status_win, gettext("Queue number to use. Possible values: 0-65535."));
 		else if(cur == RuleFlds.queue_fld_ptr)
 			status_print(status_win, gettext("Press SPACE to toggle queue'ing of this rule."));
 		else if(cur == RuleFlds.in_int_fld_ptr)
@@ -4075,13 +4062,13 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 			cur == RuleFlds.nfmark_fld_ptr    ||
 			cur == RuleFlds.chain_fld_ptr     ||
 			cur == RuleFlds.limit_fld_ptr     ||
+			cur == RuleFlds.nfqueuenum_fld_ptr ||
 			cur == RuleFlds.burst_fld_ptr)
 		{
 			if(nav_field_simpletext(debuglvl, form, ch) < 0)
 				not_defined = 1;
 		}
-		else if(cur == RuleFlds.markiptstate_fld_ptr  ||
-			cur == RuleFlds.queue_fld_ptr         ||
+		else if(cur == RuleFlds.queue_fld_ptr         ||
 			cur == RuleFlds.log_fld_ptr)
 		{
 			if(nav_field_toggleX(debuglvl, form, ch) < 0)

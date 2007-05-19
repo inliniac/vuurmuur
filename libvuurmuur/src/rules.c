@@ -1716,12 +1716,12 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 	char	redirect_port[6] = "",
 		limit_string[6] = "",
 		nfmark_string[9] = "";
-	/* out_int="rtl8193" : out_int (7) = (1) " (1) " (1) \0 (1) = 11 */
-	char	interfacestr[MAX_INTERFACE+11] = "";
+	/* out_int="rtl8193", : out_int (7) = (1) " (1) " (1) , (1) \0 (1) = 12 */
+	char	interfacestr[MAX_INTERFACE+12] = "";
 	char	chainstr[48] = "";
 	int	action_type = 0;
-	/* nfqueuenum="50000" : nfqueue (10) = (1) " (1) 65535 (5) " (1) \0 (1) = 19 */
-	char	nfqueue_string[19] = "";
+	/* nfqueuenum="50000", : nfqueue (10) = (1) " (1) 65535 (5) " (1) , (1) \0 (1) = 20 */
+	char	nfqueue_string[20] = "";
 
 	/* safety - this is not an error! */
 	if(opt == NULL || action == NULL)
@@ -1980,19 +1980,6 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 				return(NULL);
 			}
 			if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
-			{
-				(void)vrprint.error(-1, "Internal Error", "string "
-					"overflow (in: %s:%d).", __FUNC__, __LINE__);
-				return(NULL);
-			}
-		}
-	}
-
-	if(opt->markiptstate == 1)
-	{
-		if(action_type == AT_QUEUE)
-		{
-			if(strlcat(options, "markiptstate,", sizeof(options)) >= sizeof(options))
 			{
 				(void)vrprint.error(-1, "Internal Error", "string "
 					"overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -2421,20 +2408,17 @@ rules_read_options(const int debuglvl, char *optstr, struct options *op)
 				if(debuglvl >= MEDIUM)
 					(void)vrprint.debug(__FUNC__, "burst: %d.", op->burst);
 			}
-			/* mark the iptablesstate? */
+			/* obsolete: mark the iptablesstate? */
 			else if(strcmp(curopt, "markiptstate") == 0)
 			{
 				if(debuglvl >= MEDIUM)
-					(void)vrprint.debug(__FUNC__, "marking iptstate enabled.");
-
-				op->markiptstate = 1;
+					(void)vrprint.debug(__FUNC__, "obsolete option 'markiptstate'.");
 			}
 			/* queue instead of accept (portfw and redirect)
                          *
                          * TODO: just a nat rule + separate queue rule is
                          * a better solution. 
                          * */
-
 			else if(strcmp(curopt, "queue") == 0)
 			{
 				if(debuglvl >= MEDIUM)

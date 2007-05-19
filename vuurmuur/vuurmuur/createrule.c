@@ -578,231 +578,71 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 			reverse_input_device[1] = 'o';
 		}
 
-		/* create mangle rules for markiptstate */
-		if(create->option.markiptstate == TRUE && (strcasecmp(rule->action, "NEWQUEUE") == 0))
-		{
-			/* new, related */
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW,RELATED -j MARK --set-mark 19999998",
-								input_device,
-								rule->proto,
-								rule->temp_src,
-								rule->temp_src_port,
-								rule->temp_dst,
-								rule->temp_dst_port,
-								rule->from_mac);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-				return(-1);
-
-			/* related */
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -j MARK --set-mark 19999998",
-								reverse_input_device,
-								rule->proto,
-								rule->temp_src,
-								temp_dst_port,
-								rule->temp_dst,
-								temp_src_port);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-				return(-1);
-	
-			/* we dont want --syn in the next rules */
-			if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
-				(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
-			else
-				(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
-
-			/* establised */
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state ESTABLISHED -j MARK --set-mark 19999999",
-								input_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_src_port,
-								rule->temp_dst,
-								rule->temp_dst_port,
-								rule->from_mac);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-				return(-1);
-
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state ESTABLISHED -j MARK --set-mark 19999999",
-								reverse_input_device,
-								stripped_proto,
-								rule->temp_src,
-								temp_dst_port,
-								rule->temp_dst,
-								temp_src_port);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-				return(-1);
-
-			if(strcmp(rule->helper, "") != 0)
-			{
-				/* check cap */
-				if(conf.check_iptcaps == TRUE)
-				{
-					if(iptcap->match_helper == FALSE)
-					{
-						(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
-						return(0); /* this is not an error */
-					}
-				}
-
-				/* RELATED */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j MARK --set-mark 19999998",
-								input_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->from_mac,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-					return(-1);
-
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j MARK --set-mark 19999998",
-								reverse_input_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-					return(-1);
-									
-				/* ESTABLISHED */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED -j MARK --set-mark 19999999",
-								input_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->from_mac,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-					return(-1);
-
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED -j MARK --set-mark 19999999",
-								reverse_input_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-					return(-1);
-			}
-		}
 		/* create mangle rules for 'normal' QUEUE, or just set nfmark */
-		else
-		{
-			/* we dont want '--syn' in the next rules */
-			if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
-				(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
-			else
-				(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
 
-			/* new, related, established */
+		/* we dont want '--syn' in the next rules */
+		if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
+			(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
+		else
+			(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
+
+		/* new, related, established */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
+			input_device, stripped_proto, rule->temp_src,
+			rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
+			rule->from_mac, nfmark);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+			return(-1);
+
+		/* related, established */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j MARK --set-mark %lu",
+			reverse_input_device, stripped_proto, rule->temp_src,
+			temp_dst_port, rule->temp_dst, temp_src_port, nfmark);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+			return(-1);
+
+		if(strcmp(rule->helper, "") != 0)
+		{
+			/* check cap */
+			if(conf.check_iptcaps == TRUE)
+			{
+				if(iptcap->match_helper == FALSE)
+				{
+					(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
+					return(0); /* this is not an error */
+				}
+			}
+
 			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
 			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
-							input_device,
-							stripped_proto,
-							rule->temp_src,
-							rule->temp_src_port,
-							rule->temp_dst,
-							rule->temp_dst_port,
-							rule->from_mac,
-							nfmark);
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+				input_device, stripped_proto, rule->temp_src,
+				rule->temp_dst, rule->from_mac, rule->helper,
+				nfmark);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
 				return(-1);
 
-			/* related, established */
 			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
 			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j MARK --set-mark %lu",
-							reverse_input_device,
-							stripped_proto,
-							rule->temp_src,
-							temp_dst_port,
-							rule->temp_dst,
-							temp_src_port,
-							nfmark);
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+				reverse_input_device, stripped_proto, rule->temp_src,
+				rule->temp_dst, rule->helper, nfmark);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
 				return(-1);
-
-			if(strcmp(rule->helper, "") != 0)
-			{
-				/* check cap */
-				if(conf.check_iptcaps == TRUE)
-				{
-					if(iptcap->match_helper == FALSE)
-					{
-						(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
-						return(0); /* this is not an error */
-					}
-				}
-
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
-								input_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->from_mac,
-								rule->helper,
-								nfmark);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-					return(-1);
-
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
-								reverse_input_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper,
-								nfmark);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-					return(-1);
-			}
 		}
 	}
-
 
 	return(retval);
 }
@@ -1019,56 +859,58 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 			reverse_output_device[1] = 'i';
 		}
 
-		/* create mangle rules for markiptstate */
-		if(create->option.markiptstate && (strcasecmp(rule->action, "NEWQUEUE") == 0))
+		/* create mangle rules for 'normal' QUEUE, or for setting nfmark */
+
+		/* we dont want --syn in the next rules */
+		if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
+			(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
+		else
+			(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
+		
+		/* new, related, established */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
+			output_device, stripped_proto, rule->temp_src,
+			rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
+			nfmark);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+			return(-1);
+
+		/* REVERSE! related, established */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j MARK --set-mark %lu",
+			reverse_output_device, stripped_proto, rule->temp_src,
+			temp_dst_port, rule->temp_dst, temp_src_port,
+			nfmark);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+			return(-1);
+
+		/* helperrrr */
+		if(strcmp(rule->helper, "") != 0)
 		{
-			/* new, related */
+			/* check cap */
+			if(conf.check_iptcaps == TRUE)
+			{
+				if(iptcap->match_helper == FALSE)
+				{
+					(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
+					return(0); /* this is not an error */
+				}
+			}
+
+			/* RELATED,ESTABLISHED */
 			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
 			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW,RELATED -j MARK --set-mark 19999998",
-							output_device,
-							rule->proto,
-							rule->temp_src,
-							rule->temp_src_port,
-							rule->temp_dst,
-							rule->temp_dst_port);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-				return(-1);
-
-			/* REVERSE! related */
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -j MARK --set-mark 19999998",
-							reverse_output_device,
-							rule->proto,
-							rule->temp_src,
-							temp_dst_port,
-							rule->temp_dst,
-							temp_src_port);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-				return(-1);
-		
-			/* we dont want --syn in the next rules */
-			if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
-				(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
-			else
-				(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
-		
-			/* established */
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state ESTABLISHED -j MARK --set-mark 19999998",
-							output_device,
-							stripped_proto,
-							rule->temp_src,
-							rule->temp_src_port,
-							rule->temp_dst,
-							rule->temp_dst_port);
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+				output_device, stripped_proto, rule->temp_src,
+				rule->temp_dst, rule->helper, nfmark);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
 				return(-1);
@@ -1077,172 +919,12 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
 			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state ESTABLISHED -j MARK --set-mark 19999999",
-							reverse_output_device,
-							stripped_proto,
-							rule->temp_src,
-							temp_dst_port,
-							rule->temp_dst,
-							temp_src_port);
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+				reverse_output_device, stripped_proto, rule->temp_src,
+				rule->temp_dst, rule->helper, nfmark);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
 				return(-1);
-
-			if(strcmp(rule->helper, "") != 0)
-			{
-				/* check cap */
-				if(conf.check_iptcaps == TRUE)
-				{
-					if(iptcap->match_helper == FALSE)
-					{
-						(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
-						return(0); /* this is not an error */
-					}
-				}
-
-				/* RELATED */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j MARK --set-mark 19999998",
-								output_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-					return(-1);
-
-				/* REVERSE! */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s -%s -m helper --helper \"%s\" -m state --state RELATED -j MARK --set-mark 19999998",
-								reverse_output_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-					return(-1);
-
-				/* ESTABLISHED */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED -j MARK --set-mark 19999999",
-								output_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-					return(-1);
-
-				/* REVERSE! */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED -j MARK --set-mark 19999999",
-								reverse_output_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-					return(-1);
-
-			}
-		}
-		/* create mangle rules for 'normal' QUEUE, or for setting nfmark */
-		else
-		{
-			/* we dont want --syn in the next rules */
-			if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
-				(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
-			else
-				(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
-		
-			/* new, related, established */
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
-							output_device,
-							stripped_proto,
-							rule->temp_src,
-							rule->temp_src_port,
-							rule->temp_dst,
-							rule->temp_dst_port,
-							nfmark);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-				return(-1);
-
-			/* REVERSE! related, established */
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j MARK --set-mark %lu",
-							reverse_output_device,
-							stripped_proto,
-							rule->temp_src,
-							temp_dst_port,
-							rule->temp_dst,
-							temp_src_port,
-							nfmark);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-				return(-1);
-
-
-			/* helperrrr */
-			if(strcmp(rule->helper, "") != 0)
-			{
-				/* check cap */
-				if(conf.check_iptcaps == TRUE)
-				{
-					if(iptcap->match_helper == FALSE)
-					{
-						(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
-						return(0); /* this is not an error */
-					}
-				}
-
-				/* RELATED,ESTABLISHED */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
-								output_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper,
-								nfmark);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-					return(-1);
-
-				/* REVERSE! */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
-								reverse_output_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper,
-								nfmark);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-					return(-1);
-			}
 		}
 	}
 
@@ -1467,62 +1149,59 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 			reverse_output_device[1] = 'i';
 		}
 
-		/* create mangle rules for markiptstate */
-		if(create->option.markiptstate && (strcasecmp(rule->action, "NEWQUEUE") == 0))
+		/* create mangle rules for 'normal' QUEUE */
+
+		/* we dont want --syn in the next rules */
+		if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
+			(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
+		else
+			(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
+
+		/* new,related,established */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
+			input_device, output_device, stripped_proto,
+			rule->temp_src, rule->temp_src_port, rule->temp_dst,
+			rule->temp_dst_port, rule->from_mac, nfmark);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+			return(-1);
+
+		/* REVERSE! related,established */
+		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+			
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j MARK --set-mark %lu",
+			reverse_output_device, reverse_input_device, stripped_proto,
+			rule->temp_src, temp_dst_port, rule->temp_dst,
+			temp_src_port, nfmark);
+
+		if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+			return(-1);
+
+		
+		if(strcmp(rule->helper, "") != 0)
 		{
-			/* new, related. from -> dst */
+			/* check cap */
+			if(conf.check_iptcaps == TRUE)
+			{
+				if(iptcap->match_helper == FALSE)
+				{
+					(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
+					return(0); /* this is not an error */
+				}
+			}
+
+			/* RELATED & ESTABLISHED */
 			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
 			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW,RELATED -j MARK --set-mark 19999998",
-							input_device,
-							output_device,
-							rule->proto,
-							rule->temp_src,
-							rule->temp_src_port,
-							rule->temp_dst,
-							rule->temp_dst_port,
-							rule->from_mac);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-				return(-1);
-
-			/* REVERSE! related. dst -> from  */
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED -j MARK --set-mark 19999998",
-							reverse_output_device,
-							reverse_input_device,
-							rule->proto,
-							rule->temp_src,
-							temp_dst_port,
-							rule->temp_dst,
-							temp_src_port);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-				return(-1);
-
-	
-			/* we dont want --syn in the next rules */
-			if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
-				(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
-			else
-				(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
-
-			/* established. both ways */
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state ESTABLISHED -j MARK --set-mark 19999999",
-							input_device,
-							output_device,
-							stripped_proto,
-							rule->temp_src,
-							rule->temp_src_port,
-							rule->temp_dst,
-							rule->temp_dst_port,
-							rule->from_mac);
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+				input_device, output_device, stripped_proto,
+				rule->temp_src, rule->temp_dst, rule->from_mac,
+				rule->helper, nfmark);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
 				return(-1);
@@ -1531,185 +1210,12 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
 			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state ESTABLISHED -j MARK --set-mark 19999999",
-							reverse_output_device,
-							reverse_input_device,
-							stripped_proto,
-							rule->temp_src,
-							temp_dst_port,
-							rule->temp_dst,
-							temp_src_port);
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+				reverse_output_device, reverse_input_device, stripped_proto,
+				rule->temp_src, rule->temp_dst, rule->helper, nfmark);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
 				return(-1);
-
-		
-			if(strcmp(rule->helper, "") != 0)
-			{
-				/* check cap */
-				if(conf.check_iptcaps == TRUE)
-				{
-					if(iptcap->match_helper == FALSE)
-					{
-						(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
-						return(0); /* this is not an error */
-					}
-				}
-
-				/* RELATED */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j MARK --set-mark 19999998",
-								input_device,
-								output_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->from_mac,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-					return(-1);
-
-				/* REVERSE! */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j MARK --set-mark 19999998",
-								reverse_output_device,
-								reverse_input_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-					return(-1);
-
-
-				/* ESTABLISHED */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED -j MARK --set-mark 19999999",
-								input_device,
-								output_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->from_mac,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-					return(-1);
-
-				/* REVERSE! */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED -j MARK --set-mark 19999999",
-								reverse_output_device,
-								reverse_input_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-					return(-1);
-			}
-		}
-		/* create mangle rules for 'normal' QUEUE */
-		else
-		{
-			/* we dont want --syn in the next rules */
-			if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
-				(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
-			else
-				(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
-
-			/* new,related,established */
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
-							input_device,
-							output_device,
-							stripped_proto,
-							rule->temp_src,
-							rule->temp_src_port,
-							rule->temp_dst,
-							rule->temp_dst_port,
-							rule->from_mac,
-							nfmark);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-				return(-1);
-
-			/* REVERSE! related,established */
-			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-			
-			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j MARK --set-mark %lu",
-							reverse_output_device,
-							reverse_input_device,
-							stripped_proto,
-							rule->temp_src,
-							temp_dst_port,
-							rule->temp_dst,
-							temp_src_port,
-							nfmark);
-
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-				return(-1);
-
-		
-			if(strcmp(rule->helper, "") != 0)
-			{
-				/* check cap */
-				if(conf.check_iptcaps == TRUE)
-				{
-					if(iptcap->match_helper == FALSE)
-					{
-						(void)vrprint.warning("Warning", "mark rules not created: helper-match not supported by this system.");
-						return(0); /* this is not an error */
-					}
-				}
-
-				/* RELATED & ESTABLISHED */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
-								input_device,
-								output_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->from_mac,
-								rule->helper,
-								nfmark);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-					return(-1);
-
-				/* REVERSE! */
-				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-
-				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
-								reverse_output_device,
-								reverse_input_device,
-								stripped_proto,
-								rule->temp_src,
-								rule->temp_dst,
-								rule->helper,
-								nfmark);
-
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-					return(-1);
-			}
 		}
 	}
 

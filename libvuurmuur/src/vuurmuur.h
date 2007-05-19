@@ -559,9 +559,6 @@ struct options
 	char		reject_option;		/* 0 = don't use reject_type, 1 = use reject_type */
 	char		reject_type[23];	/* icmp-proto-unreachable = 22 + 1 */
 
-	/* TODO: remove when snort_inline 2.3 is out */
-	char		markiptstate;		/* set to 1 if you want to mark iptstate */
-
 	unsigned long	nfmark;			/* netfilter mark to set */
 
 	/* custom chain, for use with the chain action */
