@@ -389,6 +389,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 		proc_net_target[]	= "/proc/net/ip_tables_targets",
 		proc_net_names[]	= "/proc/net/ip_tables_names",
 		proc_net_ipqueue[]	= "/proc/net/ip_queue",
+		proc_net_netfilter_nfnetlink_queue[] = "/proc/net/netfilter/nfnetlink_queue",
 		proc_net_ipconntrack[]	= "/proc/net/ip_conntrack";
 	int	result = 0;
 
@@ -582,6 +583,26 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 		}
 	}
 
+	/* check for the /proc/net/netfilter/nfnetlink_queue */
+	if(!(iptcap_check_file(debuglvl, proc_net_netfilter_nfnetlink_queue)))
+	{
+		if(load_modules == TRUE)
+		{
+			/* try to load the module, if it fails, return 0 */
+			(void)iptcap_load_module(debuglvl, cnf, "nfnetlink_queue");
+
+			/* check again */
+			if((iptcap_check_file(debuglvl, proc_net_netfilter_nfnetlink_queue)))
+			{
+				iptcap->proc_net_netfilter_nfnetlink_queue = TRUE;
+			}
+
+		}
+	}
+	else
+	{
+		iptcap->proc_net_netfilter_nfnetlink_queue = TRUE;
+	}
 
 	/*
 		MATCHES (uncapitalized)

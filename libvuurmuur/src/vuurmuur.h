@@ -986,6 +986,7 @@ typedef struct
 
 	char	target_nfqueue;
 	char	target_connmark;
+	char	proc_net_netfilter_nfnetlink_queue;
 
 	/* matches */
 	char	match_tcp;
