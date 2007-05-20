@@ -1928,7 +1928,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
 
 	/*
-		BEGIN -- PRE-VUURMUUR-CHAINS feature - by(as).
+		BEGIN -- PRE-VUURMUUR-CHAINS feature.
 		Allow to make some specials rules before the Vuurmuur rules kick in.
 	*/
 
@@ -1937,56 +1937,58 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Making specials PRE-VRMR-{PREROUTING,INPUT,FORWARD,POSTROUTING,OUTPUT} CHAINS in mangle table...\n");
 	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Making specials PRE-VRMR-{PREROUTING,INPUT,FORWARD,POSTROUTING,OUTPUT} CHAINS in mangle table...");
 
-	if(ruleset == NULL)
+	if(conf.check_iptcaps == FALSE || iptcap->table_mangle == TRUE)
 	{
-		snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null", conf.iptables_location, TB_MANGLE);
-		(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null", conf.iptables_location, TB_MANGLE);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-PREROUTING");
+		if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_PREROUTING, cmd, 0, 0) < 0)
+			retval = -1;
+
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-INPUT 2>/dev/null", conf.iptables_location, TB_MANGLE);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-INPUT");
+		if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+			retval = -1;
+
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-FORWARD 2>/dev/null", conf.iptables_location, TB_MANGLE);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-FORWARD");
+		if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+			retval=-1;
+
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-POSTROUTING 2>/dev/null", conf.iptables_location, TB_MANGLE);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-POSTROUTING");
+		if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_POSTROUTING, cmd, 0, 0) < 0)
+			retval = -1;
+
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null", conf.iptables_location, TB_MANGLE);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-OUTPUT");
+		if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+			retval=-1;
 	}
-
-	snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-PREROUTING");
-	if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_PREROUTING, cmd, 0, 0) < 0)
-		retval = -1;
-
-	if(ruleset == NULL)
-	{
-		snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-INPUT 2>/dev/null", conf.iptables_location, TB_MANGLE);
-		(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-	}
-
-	snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-INPUT");
-	if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-		retval = -1;
-
-	if(ruleset == NULL)
-	{
-		snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-FORWARD 2>/dev/null", conf.iptables_location, TB_MANGLE);
-		(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-	}
-
-	snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-FORWARD");
-	if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-		retval=-1;
-
-	if(ruleset == NULL)
-	{
-		snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-POSTROUTING 2>/dev/null", conf.iptables_location, TB_MANGLE);
-		(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-	}
-
-	snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-POSTROUTING");
-	if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_POSTROUTING, cmd, 0, 0) < 0)
-		retval = -1;
-
-	if(ruleset == NULL)
-	{
-		snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null", conf.iptables_location, TB_MANGLE);
-		(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-	}
-
-	snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-OUTPUT");
-	if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-		retval=-1;
-
 
 	/* filter table uses {INPUT,FORWARD,OUTPUT} hooks */
 
@@ -2029,37 +2031,40 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Making specials PRE-VRMR-{PREROUTING,POSTROUTING,OUTPUT} CHAINS in nat table...\n");
 	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Making specials PRE-VRMR-{PREROUTING,POSTROUTING,OUTPUT} CHAINS in nat table...");
 
-	if(ruleset == NULL)
+	if(conf.check_iptcaps == FALSE || iptcap->table_nat == TRUE)
 	{
-		snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null", conf.iptables_location, TB_NAT);
-		(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null", conf.iptables_location, TB_NAT);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-PREROUTING");
+		if(process_rule(debuglvl, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
+			retval = -1;
+
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-POSTROUTING 2>/dev/null", conf.iptables_location, TB_NAT);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-POSTROUTING");
+		if(process_rule(debuglvl, ruleset, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
+			retval=-1;
+
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null", conf.iptables_location, TB_NAT);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-OUTPUT");
+		if(process_rule(debuglvl, ruleset, TB_NAT, CH_OUTPUT, cmd, 0, 0) < 0)
+			retval=-1;
 	}
 
-	snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-PREROUTING");
-	if(process_rule(debuglvl, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
-		retval = -1;
-
-	if(ruleset == NULL)
-	{
-		snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-POSTROUTING 2>/dev/null", conf.iptables_location, TB_NAT);
-		(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-	}
-
-	snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-POSTROUTING");
-	if(process_rule(debuglvl, ruleset, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
-		retval=-1;
-
-	if(ruleset == NULL)
-	{
-		snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null", conf.iptables_location, TB_NAT);
-		(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-	}
-
-	snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-OUTPUT");
-	if(process_rule(debuglvl, ruleset, TB_NAT, CH_OUTPUT, cmd, 0, 0) < 0)
-		retval=-1;
-
-	/* END -- PRE-VUURMUUR-CHAINS feature - by(as). */
+	/* END -- PRE-VUURMUUR-CHAINS feature */
 
 
 	/*
