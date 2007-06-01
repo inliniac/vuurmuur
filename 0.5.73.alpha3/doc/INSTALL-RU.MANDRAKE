@@ -1,0 +1,34 @@
+Инструкции по установке Vuurmuur на Mandrake Linux
+==================================================
+
+Установка Vuurmuur на Mandrake Linux 10.1 требует некоторого
+дополнительного внимания. Это вызвано тем, что по каким-то
+причинам Mandrake решило не включать два основных иструмента
+в свободную редакцию Mandrake.
+
+Для успешного построения и установки Vuurmuur на Mandrake 10.1
+Вам необходимо установить по крайней мере следующие пакеты:
+
+libtool
+automake
+autoconf
+glibc-devel
+libgpm1-devel
+libncurses5-devel
+libbinutils
+binutils
+gcc-cpp
+gcc
+m4
+gettext
+gettext-devel
+libgettextmisc
+
+По крайней мере двух пакетов из этих нет в свободной редакции. Они
+находятся на CD4...
+
+Однако, Вы можете скачать их отсюда:
+ftp://ftp.linux.cz/pub/linux/mandrakelinux/official/10.1/i586/media/main/
+
+Если на Вашей системе они уже установлены, Вы можете следовать нормальной
+процедуре установки.

@@ -1,0 +1,233 @@
+/***************************************************************************
+ *   Copyright (C) 2002-2006 by Victor Julien                              *
+ *   victor@nk.nl                                                          *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
+#include "textdir_plugin.h"
+
+/*
+	asking from and telling to the backend (TODO: name)
+
+	returns
+		-1 error
+		
+*/
+int
+ask_textdir(	const int debuglvl,
+		void *backend,
+		char *name,
+		char *question,
+		char *answer,
+		size_t max_answer,
+		int type,
+		int multi)
+{
+	int			retval = 0;
+	char			*file_location = NULL;
+	char			line[MAX_LINE_LENGTH] = "",
+				variable[64] = "",
+				value[512] = "";
+	size_t			i = 0,
+				j = 0,
+				k = 0,
+				line_pos = 0,
+				val_pos = 0;
+	char			delt = 'a' - 'A';
+	size_t			line_length = 0;
+	struct TextdirBackend_	*ptr = NULL;
+	size_t			len = 0;
+
+	/* better safe than sorry */
+	if(!backend || !name || !question)
+	{
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+			"(in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	if(debuglvl >= HIGH)
+		(void)vrprint.debug(__FUNC__, "question: %s, name: %s, multi: %d", question, name, multi);
+
+	if(!(ptr = (struct TextdirBackend_ *)backend))
+		return(-1);
+	
+	/* check if backend is open */
+	if(!ptr->backend_open)
+	{
+		(void)vrprint.error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
+		return(-1);
+	}
+
+	/* convert question to uppercase: see pp 197 of 'sams teach yourself c in 24 hours' */
+	while(question[i])
+	{
+		if((question[i] >= 'a') && (question[i] <= 'z')) question[i] -= delt;
+		++i;
+	}
+
+	/* determine the location of the file */
+	if(!(file_location = get_filelocation(debuglvl, backend, name, type)))
+		return(-1);
+
+	/* check if we are clean */
+	if(ptr->file != NULL && multi == 0)
+	{
+		(void)vrprint.warning("Warning", "the last 'multi' call to '%s' probably failed, because the file is still open when it shouldn't.", __FUNC__);
+
+		fclose(ptr->file);
+		ptr->file = NULL;
+	}
+
+	/* now open and read the file, but only if it is not already open */
+	if(ptr->file == NULL)
+	{
+		if(!(ptr->file = vuurmuur_fopen(file_location, "r")))
+		{
+			(void)vrprint.error(-1, "Error", "Unable to open file '%s'.", file_location);
+
+			free(file_location);
+			return(-1);
+		}
+	}
+
+	/* start (or continue) looping trough the file */
+	while(fgets(line, (int)sizeof(line), ptr->file) != NULL)
+	{
+		line_length=0, k=0; line_pos=0, val_pos=0, j=0;
+
+		line_length = strlen(line);
+		if(line_length < 0)
+		{
+			(void)vrprint.error(-1, "Internal Error", "unable to determine the length of 'line' (in: %s).", __FUNC__);
+
+			free(file_location);
+			fclose(ptr->file);
+			ptr->file = NULL;
+
+			return(-1);
+		}
+		else if(line_length > MAX_LINE_LENGTH)
+		{
+			(void)vrprint.error(-1, "Error", "line is longer than allowed (line: %d, max: %d) (in: %s).", line_length, MAX_LINE_LENGTH, __FUNC__);
+
+			free(file_location);
+			fclose(ptr->file);
+			ptr->file = NULL;
+
+			return(-1);
+		}
+
+		/* first check if the line is a comment. */
+		if(line_length == 0 || line[0] == '#' || line[0] == ' ' || line[0] == '\0' || line[0] == '\n')
+		{
+			/* do nothing, its a comment or an empty line. */
+		}
+		else
+		{
+			/*	variable
+				
+				before the '=' we consider variable
+			*/
+			while((line[k] != '=' && (k < MAX_LINE_LENGTH))) //
+			{
+				variable[j]=line[k];
+				k++;
+				j++;
+			}
+			variable[j]='\0';
+
+			/*
+				after that the rest is the value
+			*/
+			val_pos = 0; line_pos = k + 1;
+
+			while(line[line_pos] != '\0' && line[line_pos] != '\n' && line_length < MAX_LINE_LENGTH && val_pos < max_answer)
+			{
+				/* if the first character is a '"' we strip it. */
+				if((val_pos == 0) && (line[line_pos] == '\"'))
+					line_pos++;
+				/* otherwise copy the char */
+				else
+				{
+					value[val_pos]=line[line_pos];
+
+					line_pos++;
+					val_pos++;
+				}
+			}
+
+			/* if the last character is a'"' we strip it. */
+			if (val_pos > 0 && value[val_pos - 1] == '\"')
+				value[val_pos - 1]='\0';
+			else
+				value[val_pos]='\0';
+
+			/* now see if this was what we were looking for */
+			if(strcmp(question, variable) == 0)
+			{
+				if(debuglvl >= MEDIUM)
+					(void)vrprint.debug(__FUNC__, "question '%s' matched, value: '%s'", question, value);
+
+				len = strlcpy(answer, value, max_answer);
+				if(len >= max_answer)
+				{
+					(void)vrprint.error(-1, "Error", "buffer overrun when reading file '%s', question '%s': len %u, max: %u (in: %s:%d).",
+											file_location, question, len, max_answer, __FUNC__, __LINE__);
+					
+					free(file_location);
+					fclose(ptr->file);
+					ptr->file = NULL;
+					return(-1);
+				}
+				
+				/* only return when bigger than 0 */
+				if(strlen(answer) > 0)
+					retval = 1;
+					
+				/* break out of the loop so when we call multi again we continue where we were */
+				break;
+			}
+		}
+	}
+
+	/* cleanup */
+	if((multi == 1 && retval != 1) || multi == 0)
+	{
+		if(debuglvl >= HIGH)
+			(void)vrprint.debug(__FUNC__, "close the file.");
+		
+		if(fclose(ptr->file) != 0)
+		{
+			(void)vrprint.error(-1, "Error", "closing file '%s' failed: %s (in: %s).", file_location, strerror(errno), __FUNC__);
+			retval = -1;
+		}
+		ptr->file = NULL;
+	}
+
+	/* cleanup filelocation */
+	free(file_location);
+
+	if(debuglvl >= HIGH)
+	{
+		(void)vrprint.debug(__FUNC__, "at exit: ptr->file: %p (retval: %d).", ptr->file, retval);
+		(void)vrprint.debug(__FUNC__, "** end **, retval=%d", retval);
+	}
+	
+	return(retval);
+}
+
