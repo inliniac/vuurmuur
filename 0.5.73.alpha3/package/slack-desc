@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+        |-----handy-ruler----------------------------------------------------|
+vuurmuur:      Vuurmuur-0.5.72
+vuurmuur:
+vuurmuur: Vuurmuur is a powerful middle-end/front-end for netfilter/iptables
+vuurmuur:    aimed at system-administrators who need a decent firewall, but 
+vuurmuur:    don't have netfilter specific knowledge. It is distributed under
+vuurmuur:    the terms of the GNU GPL.
+vuurmuur: 
+vuurmuur: Documentations available 
+vuurmuur:    http://vuurmuur.sourceforge.net/
+vuurmuur:    http://wiki.vuurmuur.org/
+vuurmuur:
