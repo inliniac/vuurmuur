@@ -1,0 +1,7 @@
+ACTIVE="Yes"
+TCP="5900*1024:65535"
+UDP=""
+ICMP=""
+GRE=""
+BROADCAST="No"
+COMMENT="Vnc: Linux remote desktop-like tool."
