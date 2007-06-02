@@ -3837,7 +3837,7 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules
 				queue_num = 0;
 
 			/* check if we already handled this queue num */
-			if (!(queues[(queue_num/8)] & (1<<(queue_num/8))))
+			if (!(queues[(queue_num/8)] & (1<<(queue_num%8))))
 			{
 				/* ESTABLISHED */
 				snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
@@ -3928,7 +3928,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
 				queue_num = 0;
 
 			/* check if we already handled this queue num */
-			if (!(queues[(queue_num/8)] & (1<<(queue_num/8))))
+			if (!(queues[(queue_num/8)] & (1<<(queue_num%8))))
 			{
 				/* NEW */
 				snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
