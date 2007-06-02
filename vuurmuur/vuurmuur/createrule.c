@@ -3796,6 +3796,7 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules
 	int		retval = 0;
 	struct RuleData_ *rule_ptr = NULL;
 	u_int16_t	queue_num = 0;
+	char		queues[65536/8];
 
 	/* safety */
 	if(rules == NULL)
@@ -3816,6 +3817,8 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules
 		return(0);
 	}
 
+	memset(&queues, 0, sizeof(queues));
+
 	/* create two rules for each ipaddress */
 	for(d_node = rules->list.top; d_node; d_node = d_node->next)
 	{
@@ -3833,19 +3836,26 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules
 			else
 				queue_num = 0;
 
-			/* ESTABLISHED */
-			snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
-				"-m state --state ESTABLISHED -j NFQUEUE --queue-num %u",
-				queue_num + 1, queue_num);
-			if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
-				retval=-1;
+			/* check if we already handled this queue num */
+			if (!(queues[(queue_num/8)] & (1<<(queue_num/8))))
+			{
+				/* ESTABLISHED */
+				snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+					"-m state --state ESTABLISHED -j NFQUEUE --queue-num %u",
+					queue_num + 1, queue_num);
+				if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
+					retval=-1;
 
-			/* RELATED */
-			snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
-				"-m state --state RELATED -j NEWNFQUEUE",
-				queue_num + 1);
-			if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
-				retval=-1;
+				/* RELATED */
+				snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+					"-m state --state RELATED -j NEWNFQUEUE",
+					queue_num + 1);
+				if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
+					retval=-1;
+
+				/* mark this queue num processed */
+				queues[(queue_num/8)] |= 1<<(queue_num%8);
+			}
 		}
 	}
 
@@ -3867,6 +3877,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
 	int		retval = 0;
 	struct RuleData_ *rule_ptr = NULL;
 	u_int16_t	queue_num = 0;
+	char		queues[65536/8];
 
 
 	/* safety */
@@ -3897,6 +3908,8 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
 		return(0);
 	}
 
+	memset(&queues, 0, sizeof(queues));
+
 	/* create two rules for each ipaddress */
 	for(d_node = rules->list.top; d_node; d_node = d_node->next)
 	{
@@ -3914,12 +3927,19 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
 			else
 				queue_num = 0;
 
-			/* NEW */
-			snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
-				"-m state --state NEW -j NFQUEUE --queue-num %u",
-				queue_num + 1, queue_num);
-			if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
-				retval=-1;
+			/* check if we already handled this queue num */
+			if (!(queues[(queue_num/8)] & (1<<(queue_num/8))))
+			{
+				/* NEW */
+				snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+					"-m state --state NEW -j NFQUEUE --queue-num %u",
+					queue_num + 1, queue_num);
+				if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
+					retval=-1;
+
+				/* mark this queue num processed */
+				queues[(queue_num/8)] |= 1<<(queue_num%8);
+			}
 		}
 	}
 
