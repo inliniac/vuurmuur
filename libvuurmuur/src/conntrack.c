@@ -1246,6 +1246,7 @@ conn_list_cleanup(int debuglvl, d_list *conn_dlist)
 */
 int
 conn_get_connections(	const int debuglvl,
+			struct vuurmuur_config *cnf,
 			const unsigned int prev_conn_cnt,
 			Hash *serv_hash,
 			Hash *zone_hash,
@@ -1272,7 +1273,8 @@ conn_get_connections(	const int debuglvl,
 
 
 	/* safety */
-	if(!serv_hash || !zone_hash || prev_conn_cnt < 0)
+	if(serv_hash == NULL || zone_hash == NULL ||
+		cnf == NULL || prev_conn_cnt < 0)
 	{
 		(void)vrprint.error(-1, "Internal Error", "parameter problem "
 					"(in: %s:%d).", __FUNC__, __LINE__);
@@ -1294,12 +1296,19 @@ conn_get_connections(	const int debuglvl,
 	}
 
 	/* open conntrack file (fopen) */
-	if(!(fp = fopen(PROC_IPCONNTRACK, "r")))
+	if(cnf->use_nfconntrack == TRUE || (!(fp = fopen(PROC_IPCONNTRACK, "r"))))
 	{
-		(void)vrprint.error(-1, "Error", "unable to open %s: %s "
-					"(in: %s:%d).", PROC_IPCONNTRACK,
-					strerror(errno), __FUNC__, __LINE__);
-		return(-1);
+		if((fp = fopen(PROC_NFCONNTRACK, "r")))
+		{
+			cnf->use_nfconntrack = TRUE;
+		}
+		else
+		{
+			(void)vrprint.error(-1, "Error", "unable to open proc "
+				"conntrack: %s (in: %s:%d).", strerror(errno),
+				__FUNC__, __LINE__);
+			return(-1);
+		}
 	}
 
 	/* set stat counters to zero */

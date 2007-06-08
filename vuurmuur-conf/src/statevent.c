@@ -97,7 +97,7 @@ typedef struct StatEventCtl_
 
 	char   (*convert   )(const int debuglvl, struct StatEventCtl_ *, d_list *);
 	/* ptr to interactive menu function */
-	void   (*menu      )(const int debuglvl, struct StatEventCtl_ *, Conntrack *, VR_ConntrackRequest *, Zones *, BlockList *, Interfaces *, Services *, StatEventGen *);
+	void   (*menu      )(const int debuglvl, struct vuurmuur_config *, struct StatEventCtl_ *, Conntrack *, VR_ConntrackRequest *, Zones *, BlockList *, Interfaces *, Services *, StatEventGen *);
 	//build menu func?
 
 	/* GUI names and texts */
@@ -470,7 +470,8 @@ int kill_connections(const int debuglvl, struct vuurmuur_config *cnf,
 
 */
 static void
-statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack *ct,
+statevent_interactivemenu_conn(	const int debuglvl, struct vuurmuur_config *cnf,
+				StatEventCtl *ctl, Conntrack *ct,
 				VR_ConntrackRequest *connreq, Zones *zones,
 				BlockList *blocklist, Interfaces *interfaces,
 				Services *services, StatEventGen *gen_ptr)
@@ -500,11 +501,12 @@ statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack
 
 		connreq->group_conns = FALSE;
 
-		privct = conn_init_ct(debuglvl, zones, interfaces, services, blocklist);
+		privct = conn_init_ct(debuglvl, zones, interfaces,
+			services, blocklist);
 		if(privct == NULL)
 			return;
 
-		conn_ct_get_connections(debuglvl, privct, connreq);
+		conn_ct_get_connections(debuglvl, cnf, privct, connreq);
 
 		ct = privct;
 	}
@@ -747,7 +749,8 @@ statevent_interactivemenu_conn(	const int debuglvl, StatEventCtl *ctl, Conntrack
 
 */
 static void
-statevent_interactivemenu_log(	const int debuglvl, StatEventCtl *ctl, Conntrack *ct,
+statevent_interactivemenu_log(	const int debuglvl, struct vuurmuur_config *cnf,
+				StatEventCtl *ctl, Conntrack *ct,
 				VR_ConntrackRequest *connreqnull, Zones *zones,
 				BlockList *blocklist, Interfaces *interfaces,
 				Services *services, StatEventGen *gen_ptr)
@@ -791,7 +794,7 @@ statevent_interactivemenu_log(	const int debuglvl, StatEventCtl *ctl, Conntrack 
 
 	/* get the connections for killing them later if the user chooses to */
 	ctr = conn_init_ct(debuglvl, zones, interfaces, services, blocklist);
-	conn_ct_get_connections(debuglvl, ctr, &connreq);
+	conn_ct_get_connections(debuglvl, cnf, ctr, &connreq);
 
 	action = rules_actiontoi(log->action);
 	if(action == AT_DROP || action == AT_REJECT)
@@ -1066,7 +1069,8 @@ statevent_free_ctl(const int debuglvl, StatEventCtl **ctl)
 
 
 int
-statevent_menu(const int debuglvl, int type, StatEventCtl *ctl, Conntrack *ct,
+statevent_menu(const int debuglvl, struct vuurmuur_config *cnf, int type,
+		StatEventCtl *ctl, Conntrack *ct,
 		VR_ConntrackRequest *connreq, Zones *zones, BlockList *blocklist,
 		Interfaces *interfaces, Services *services)
 {
@@ -1232,7 +1236,7 @@ statevent_menu(const int debuglvl, int type, StatEventCtl *ctl, Conntrack *ct,
 					{
 						/* call the interactive menu
 						   function */
-						ctl->menu(debuglvl, ctl, ct,
+						ctl->menu(debuglvl, cnf, ctl, ct,
 							connreq, zones, blocklist,
 							interfaces, services,
 							gen_ptr);
@@ -1272,7 +1276,8 @@ statevent_menu(const int debuglvl, int type, StatEventCtl *ctl, Conntrack *ct,
 }
 
 void
-statevent(const int debuglvl, int type, d_list *list, Conntrack *ct,
+statevent(const int debuglvl, struct vuurmuur_config *cnf, int type,
+		d_list *list, Conntrack *ct,
 		VR_ConntrackRequest *connreq, Zones *zones,
 		BlockList *blocklist, Interfaces *interfaces,
 		Services *services)
@@ -1296,7 +1301,7 @@ statevent(const int debuglvl, int type, d_list *list, Conntrack *ct,
 	}
 	//vrprint.warning(VR_WARN,"list %u", ctl->list.len);
 
-	statevent_menu(debuglvl, type, ctl, ct, connreq, zones, blocklist,
+	statevent_menu(debuglvl, cnf, type, ctl, ct, connreq, zones, blocklist,
 			interfaces, services);
 
 	statevent_free_ctl(debuglvl, &ctl);

@@ -168,7 +168,7 @@ convert_blocklistfile_to_backend(const int debuglvl, BlockList *blocklist, struc
 
 
 int
-mm_select_logfile(const int debuglvl, Zones *zones, BlockList *blocklist, Interfaces *interfaces, Services *services)
+mm_select_logfile(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, BlockList *blocklist, Interfaces *interfaces, Services *services)
 {
 	size_t	i = 0,
 		n_choices = 6;
@@ -293,23 +293,23 @@ mm_select_logfile(const int debuglvl, Zones *zones, BlockList *blocklist, Interf
 
 			if(strncasecmp(choice_ptr, "traffic.log", 11) == 0)
 			{
-				logview_section(debuglvl, zones, blocklist, interfaces, services, "traffic.log");
+				logview_section(debuglvl, cnf, zones, blocklist, interfaces, services, "traffic.log");
 			}
 			else if(strncasecmp(choice_ptr, "error.log", 9) == 0)
 			{
-				logview_section(debuglvl, zones, blocklist, interfaces, services, "error.log");
+				logview_section(debuglvl, cnf, zones, blocklist, interfaces, services, "error.log");
 			}
 			else if(strncasecmp(choice_ptr, "audit.log", 9) == 0)
 			{
-				logview_section(debuglvl, zones, blocklist, interfaces, services, "audit.log");
+				logview_section(debuglvl, cnf, zones, blocklist, interfaces, services, "audit.log");
 			}
 			else if(strncasecmp(choice_ptr, "vuurmuur.log", 12) == 0)
 			{
-				logview_section(debuglvl, zones, blocklist, interfaces, services, "vuurmuur.log");
+				logview_section(debuglvl, cnf, zones, blocklist, interfaces, services, "vuurmuur.log");
 			}
 			else if(strncasecmp(choice_ptr, "debug.log", 9) == 0)
 			{
-				logview_section(debuglvl, zones, blocklist, interfaces, services, "debug.log");
+				logview_section(debuglvl, cnf, zones, blocklist, interfaces, services, "debug.log");
 			}
 			else if(strncasecmp(choice_ptr, gettext("Back"), StrLen(gettext("Back"))) == 0)
 			{
@@ -1951,19 +1951,19 @@ main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces
 			}
 			else if(strcmp(choice_ptr, "traffic") == 0)
 			{
-				logview_section(debuglvl, zones, blocklist, interfaces, services, NULL);
+				logview_section(debuglvl, &conf, zones, blocklist, interfaces, services, NULL);
 			}
 			else if(strcmp(choice_ptr, MM_ITEM_LOGVIEW) == 0)
 			{
-				mm_select_logfile(debuglvl, zones, blocklist, interfaces, services);
+				mm_select_logfile(debuglvl, &conf, zones, blocklist, interfaces, services);
 			}	
 			else if(strcmp(choice_ptr, MM_ITEM_STATUS) == 0)
 			{
-				status_section(debuglvl, zones, interfaces, services);
+				status_section(debuglvl, &conf, zones, interfaces, services);
 			}
 			else if(strcmp(choice_ptr, MM_ITEM_CONNECTIONS) == 0)
 			{
-				connections_section(debuglvl, zones, interfaces, services, blocklist);
+				connections_section(debuglvl, &conf, zones, interfaces, services, blocklist);
 			}
 			else if(strcmp(choice_ptr, MM_ITEM_BLOCKLIST) == 0)
 			{

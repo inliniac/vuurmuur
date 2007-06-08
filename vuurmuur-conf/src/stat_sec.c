@@ -146,18 +146,21 @@ int count_host_udp_conn(int *udp_count, int *udp_list_count)
 	return(0);
 }
 
-int count_conntrack_conn(int *conntrack_count, int *tcp_count, int *udp_count, int *other_count)
+int count_conntrack_conn(struct vuurmuur_config *cnf, int *conntrack_count,
+			int *tcp_count, int *udp_count, int *other_count)
 {
 	FILE		*fp=NULL;
-	char		proc_net_ipconntrack[] = "/proc/net/ip_conntrack",
-			line[512];
+	char		line[512];
 	int		i=0,
 			tcp=0,
 			udp=0,
 			other=0;
 
-	if(!(fp = fopen(proc_net_ipconntrack, "r")))
-		return(-1);
+	if(cnf->use_nfconntrack == TRUE || (!(fp = fopen(PROC_IPCONNTRACK, "r"))))
+	{
+		if (!(fp = fopen(PROC_NFCONNTRACK, "r")))
+			return(-1);
+	}
 
 	while(fgets(line, (int)sizeof(line), fp) != NULL)
 	{
@@ -649,7 +652,7 @@ int status_section_destroy(void)
 		-1: error
 */
 int
-status_section(const int debuglvl, Zones *zones, Interfaces *interfaces, Services *services)
+status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, Interfaces *interfaces, Services *services)
 {
 	FIELD		*cur = NULL;
 	int		retval = 0;
@@ -881,7 +884,7 @@ status_section(const int debuglvl, Zones *zones, Interfaces *interfaces, Service
 				return(-1);
 			}
 
-			if(count_conntrack_conn(&conntrack_conn_total, &conntrack_conn_tcp, &conntrack_conn_udp, &conntrack_conn_other) < 0)
+			if(count_conntrack_conn(cnf, &conntrack_conn_total, &conntrack_conn_tcp, &conntrack_conn_udp, &conntrack_conn_other) < 0)
 			{
 				snprintf(conn_total, sizeof(conn_total), gettext("error"));
 				snprintf(conn_tcp,   sizeof(conn_tcp),   gettext("error"));

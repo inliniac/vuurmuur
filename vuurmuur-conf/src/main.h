@@ -330,7 +330,7 @@ int edit_sysopt(int debuglvl);
 /*
 	logview section
 */
-int logview_section(const int, Zones *, BlockList *, Interfaces *, Services *, /*@null@*/ char *);
+int logview_section(const int, struct vuurmuur_config *, Zones *, BlockList *, Interfaces *, Services *, /*@null@*/ char *);
 
 
 /*
@@ -352,13 +352,13 @@ int validate_commentfield(const int, char *, regex_t *);
 /*
 	status section
 */
-int status_section(const int, Zones *, Interfaces *, Services *);
+int status_section(const int, struct vuurmuur_config *, Zones *, Interfaces *, Services *);
 
 
 /*
 	connections
 */
-int connections_section(const int, Zones *, Interfaces *, Services *, BlockList *);
+int connections_section(const int, struct vuurmuur_config *, Zones *, Interfaces *, Services *, BlockList *);
 
 
 /*
@@ -442,10 +442,10 @@ int kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf, Co
 
 Conntrack *conn_init_ct(const int debuglvl, Zones *zones, Interfaces *interfaces, Services *services, BlockList *blocklist );
 void conn_free_ct(const int debuglvl, Conntrack **ct, Zones *zones);
-int conn_ct_get_connections(const int debuglvl, Conntrack *ct, VR_ConntrackRequest *req);
+int conn_ct_get_connections(const int, struct vuurmuur_config *, Conntrack *, VR_ConntrackRequest *);
 void conn_ct_clear_connections(const int debuglvl, Conntrack *ct);
 
-void statevent(const int, int, d_list *, Conntrack *, VR_ConntrackRequest *, Zones *, BlockList *, Interfaces *, Services *);
+void statevent(const int, struct vuurmuur_config *, int, d_list *, Conntrack *, VR_ConntrackRequest *, Zones *, BlockList *, Interfaces *, Services *);
 
 
 /* length in chars (be it wide chars or normal chars) */

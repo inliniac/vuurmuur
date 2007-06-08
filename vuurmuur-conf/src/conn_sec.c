@@ -578,7 +578,7 @@ conn_free_ct(const int debuglvl, Conntrack **ct, Zones *zones)
 }
 
 int
-conn_ct_get_connections(const int debuglvl, Conntrack *ct, VR_ConntrackRequest *req)
+conn_ct_get_connections(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, VR_ConntrackRequest *req)
 {
 	if(d_list_setup(debuglvl, &ct->conn_list, NULL) < 0)
 	{
@@ -588,7 +588,7 @@ conn_ct_get_connections(const int debuglvl, Conntrack *ct, VR_ConntrackRequest *
 	}
 
 	/* get the connections from the proc */
-	if(conn_get_connections(debuglvl, ct->prev_list_size,
+	if(conn_get_connections(debuglvl, cnf, ct->prev_list_size,
 			&ct->service_hash, &ct->zone_hash,
 			&ct->conn_list, &ct->network_list,
 			req, &ct->conn_stats) < 0)
@@ -612,7 +612,8 @@ conn_ct_clear_connections(const int debuglvl, Conntrack *ct)
 
 
 int
-connections_section(const int debuglvl, Zones *zones, Interfaces *interfaces,
+connections_section(const int debuglvl, struct vuurmuur_config *cnf,
+			Zones *zones, Interfaces *interfaces,
 			Services *services, BlockList *blocklist)
 {
 	int			retval=0;
@@ -745,7 +746,7 @@ connections_section(const int debuglvl, Zones *zones, Interfaces *interfaces,
 			slept_so_far = 0;
 
 			/* TODO retval */
-			conn_ct_get_connections(debuglvl, ct, &connreq);
+			conn_ct_get_connections(debuglvl, cnf, ct, &connreq);
 
 			/* determine how many lines we can draw for each section */
 			if(connreq.sort_conn_status)
@@ -1105,8 +1106,8 @@ connections_section(const int debuglvl, Zones *zones, Interfaces *interfaces,
 			case 'M':	
 			case 'k':
 
-				conn_ct_get_connections(debuglvl, ct, &connreq);
-				statevent(debuglvl, STATEVENTTYPE_CONN, &ct->conn_list, ct, &connreq, zones, blocklist, interfaces, services);
+				conn_ct_get_connections(debuglvl, cnf, ct, &connreq);
+				statevent(debuglvl, cnf, STATEVENTTYPE_CONN, &ct->conn_list, ct, &connreq, zones, blocklist, interfaces, services);
 				conn_ct_clear_connections(debuglvl, ct);
 
 				draw_top_menu(debuglvl, top_win, gettext("Connections"), key_choices_n,

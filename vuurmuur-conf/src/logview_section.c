@@ -614,7 +614,9 @@ sanitize_search_str(const int debuglvl, char *str, size_t size)
 #define	READLINE_LEN	512
 
 int
-logview_section(const int debuglvl, Zones *zones, BlockList *blocklist, Interfaces *interfaces, Services *services, /*@null@*/ char *logname)
+logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
+		BlockList *blocklist, Interfaces *interfaces,
+		Services *services, /*@null@*/ char *logname)
 {
 	int		result=0;
 	WINDOW		*log_win = NULL,
@@ -1744,7 +1746,7 @@ logview_section(const int debuglvl, Zones *zones, BlockList *blocklist, Interfac
 			case 'M':
 				if(traffic_log == 1)
 				{
-					statevent(debuglvl, STATEVENTTYPE_LOG,
+					statevent(debuglvl, cnf, STATEVENTTYPE_LOG,
 						&LogBufferList, /* no ct */NULL,
 						/* no connreq*/NULL,
 						zones, blocklist, interfaces,

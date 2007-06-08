@@ -390,7 +390,8 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 		proc_net_names[]	= "/proc/net/ip_tables_names",
 		proc_net_ipqueue[]	= "/proc/net/ip_queue",
 		proc_net_netfilter_nfnetlink_queue[] = "/proc/net/netfilter/nfnetlink_queue",
-		proc_net_ipconntrack[]	= "/proc/net/ip_conntrack";
+		proc_net_ipconntrack[]	= PROC_IPCONNTRACK,
+		proc_net_nfconntrack[]  = PROC_NFCONNTRACK;
 	int	result = 0;
 
 
@@ -545,6 +546,27 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 	else
 	{
 		iptcap->conntrack = TRUE;
+	}
+	/* try nf_conntrack if ip_conntrack failed */
+	if(iptcap->conntrack == FALSE) {
+		if(!(iptcap_check_file(debuglvl, proc_net_nfconntrack)))
+		{
+			if(load_modules == TRUE)
+			{
+				/* try to load the module, if it fails, return 0 */
+				(void)iptcap_load_module(debuglvl, cnf, "nf_conntrack_ipv4");
+
+				/* check again */
+				if(!(iptcap_check_file(debuglvl, proc_net_nfconntrack)))
+					iptcap->conntrack = FALSE;
+				else
+					iptcap->conntrack = TRUE;
+			}
+		}
+		else
+		{
+			iptcap->conntrack = TRUE;
+		}
 	}
 
 

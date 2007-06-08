@@ -153,6 +153,7 @@
 #define MAX_RULECOMMENT_LEN		64				/* length in characters (for widec) */
 
 #define PROC_IPCONNTRACK		"/proc/net/ip_conntrack"
+#define PROC_NFCONNTRACK		"/proc/net/nf_conntrack"
 
 
 /*
@@ -423,6 +424,10 @@ struct vuurmuur_config
 	char		bash_out;
 	char		verbose_out;
 	char		test_mode;
+
+
+	/* this is detected at runtime */
+	char		use_nfconntrack;
 
 } conf;
 
@@ -950,7 +955,6 @@ typedef struct
 
 	char		draw_acc_data;
 	char		draw_details;
-
 } VR_ConntrackRequest;
 
 
@@ -1440,7 +1444,7 @@ int list_icmp_codes(int type, int *code, int *number);
 unsigned int conn_hash_name(const void *key);
 int conn_match_name(const void *ser1, const void *ser2);
 void conn_list_print(const d_list *conn_list);
-int conn_get_connections(const int, unsigned int, Hash *, Hash *, d_list *, d_list *, VR_ConntrackRequest *, struct ConntrackStats_ *);
+int conn_get_connections(const int, struct vuurmuur_config *, unsigned int, Hash *, Hash *, d_list *, d_list *, VR_ConntrackRequest *, struct ConntrackStats_ *);
 void conn_print_dlist(const d_list *dlist);
 void conn_list_cleanup(const int debuglvl, d_list *conn_dlist);
 void VR_connreq_setup(const int debuglvl, VR_ConntrackRequest *connreq);
