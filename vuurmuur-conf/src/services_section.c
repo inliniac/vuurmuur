@@ -502,6 +502,7 @@ edit_tcpudp(const int debuglvl, struct portdata *port_ptr)
 
 				case KEY_DOWN:
 				case 10: // enter
+				case 9: // tab
 
 					form_driver(my_form, REQ_NEXT_FIELD);
 					form_driver(my_form, REQ_END_LINE);
