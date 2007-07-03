@@ -2015,16 +2015,32 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 	/* limit */
 	if(opt->limit > 0)
 	{
-		if(	action_type == AT_ACCEPT ||
-			action_type == AT_QUEUE ||
-			action_type == AT_PORTFW ||
-			action_type == AT_REDIRECT ||
-			action_type == AT_CHAIN ||
-			action_type == AT_LOG)
-		{
-			snprintf(limit_string, sizeof(limit_string), "%u", opt->limit);
+		snprintf(limit_string, sizeof(limit_string), "%u", opt->limit);
 
-			if(strlcat(options, "limit=\"", sizeof(options)) >= sizeof(options))
+		if(strlcat(options, "limit=\"", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, limit_string, sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+
+		if(opt->burst > 0)
+		{
+			snprintf(limit_string, sizeof(limit_string), "%u", opt->burst);
+
+			if(strlcat(options, "burst=\"", sizeof(options)) >= sizeof(options))
 			{
 				(void)vrprint.error(-1, "Internal Error", "string "
 					"overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -2041,30 +2057,6 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 				(void)vrprint.error(-1, "Internal Error", "string "
 					"overflow (in: %s:%d).", __FUNC__, __LINE__);
 				return(NULL);
-			}
-
-			if(opt->burst > 0)
-			{
-				snprintf(limit_string, sizeof(limit_string), "%u", opt->burst);
-
-				if(strlcat(options, "burst=\"", sizeof(options)) >= sizeof(options))
-				{
-					(void)vrprint.error(-1, "Internal Error", "string "
-						"overflow (in: %s:%d).", __FUNC__, __LINE__);
-					return(NULL);
-				}
-				if(strlcat(options, limit_string, sizeof(options)) >= sizeof(options))
-				{
-					(void)vrprint.error(-1, "Internal Error", "string "
-						"overflow (in: %s:%d).", __FUNC__, __LINE__);
-					return(NULL);
-				}
-				if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
-				{
-					(void)vrprint.error(-1, "Internal Error", "string "
-						"overflow (in: %s:%d).", __FUNC__, __LINE__);
-					return(NULL);
-				}
 			}
 		}
 	}

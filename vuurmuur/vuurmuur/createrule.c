@@ -1254,14 +1254,10 @@ create_rule_masq(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
 	create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
 	/* assemble the string */
-	snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -j %s",
-					output_device,
-					rule->proto,
-					rule->temp_src,
-					rule->temp_src_port,
-					rule->temp_dst,
-					rule->temp_dst_port,
-					rule->action);
+	snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -j %s",
+		output_device, rule->proto, rule->temp_src,
+		rule->temp_src_port, rule->temp_dst,
+		rule->temp_dst_port, rule->limit, rule->action);
 
 	if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
 		return(-1);
@@ -1313,14 +1309,10 @@ create_rule_snat(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
 	create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
 	/* assemble the string */
-	snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -j %s",
-					output_device,
-					rule->proto,
-					rule->temp_src,
-					rule->temp_src_port,
-					rule->temp_dst,
-					rule->temp_dst_port,
-					rule->action);
+	snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -j %s",
+		output_device, rule->proto, rule->temp_src,
+		rule->temp_src_port, rule->temp_dst,
+		rule->temp_dst_port, rule->limit, rule->action);
 
 	if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
 		return(-1);
@@ -1416,15 +1408,11 @@ create_rule_portfw(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCr
 		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
 		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->serverip, "255.255.255.255", rule->temp_dst, sizeof(rule->temp_dst));
 
-		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW -j %s",
-						input_device,
-						rule->proto,
-						rule->temp_src,
-						rule->temp_src_port,
-						rule->temp_dst,
-						rule->temp_dst_port,
-						rule->from_mac,
-						rule->action);
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW -j %s",
+			input_device, rule->proto, rule->temp_src,
+			rule->temp_src_port, rule->temp_dst,
+			rule->temp_dst_port, rule->from_mac,
+			rule->limit, rule->action);
 
 		if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
 			return(-1);
@@ -1521,15 +1509,11 @@ create_rule_redirect(const int debuglvl, /*@null@*/RuleSet *ruleset, struct Rule
 		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
 		create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW -j %s",
-						input_device,
-						rule->proto,
-						rule->temp_src,
-						rule->temp_src_port,
-						rule->temp_dst,
-						rule->temp_dst_port,
-						rule->from_mac,
-						rule->action);
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW -j %s",
+			input_device, rule->proto, rule->temp_src,
+			rule->temp_src_port, rule->temp_dst,
+			rule->temp_dst_port, rule->from_mac,
+			rule->limit, rule->action);
 
 		if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
 			return(-1);
@@ -1684,15 +1668,10 @@ create_rule_dnat(	const int debuglvl, /*@null@*/RuleSet *ruleset,
 	create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
 	create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->serverip, "255.255.255.255", rule->temp_dst, sizeof(rule->temp_dst));
 
-	snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW -j %s",
-					input_device,
-					rule->proto,
-					rule->temp_src,
-					rule->temp_src_port,
-					rule->temp_dst,
-					rule->temp_dst_port,
-					rule->from_mac,
-					rule->action);
+	snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW -j %s",
+		input_device, rule->proto, rule->temp_src,
+		rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
+		rule->from_mac, rule->limit, rule->action);
 
 	if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
 		return(-1);
@@ -1771,15 +1750,11 @@ create_rule_bounce(	const int debuglvl, /*@null@*/RuleSet *ruleset,
 		create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
 		create_srcdst_string(debuglvl, SRCDST_DESTINATION, create->via_int->ipv4.ipaddress, "255.255.255.255", rule->temp_dst, sizeof(rule->temp_dst));
 
-		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW -j %s",
-						input_device,
-						rule->proto,
-						rule->temp_src,
-						rule->temp_src_port,
-						rule->temp_dst,
-						rule->temp_dst_port,
-						rule->from_mac,
-						rule->action);
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW -j %s",
+			input_device, rule->proto, rule->temp_src,
+			rule->temp_src_port, rule->temp_dst,
+			rule->temp_dst_port, rule->from_mac,
+			rule->limit, rule->action);
 
 		if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
 			return(-1);
@@ -1799,14 +1774,10 @@ create_rule_bounce(	const int debuglvl, /*@null@*/RuleSet *ruleset,
 		if(rule->from_int[0] != '\0')
 			snprintf(input_device, sizeof(input_device), "-o %s", rule->from_int);
 
-		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW -j %s",
-						input_device,
-						rule->proto,
-						rule->temp_src,
-						rule->temp_src_port,
-						rule->temp_dst,
-						rule->temp_dst_port,
-						rule->action);
+		snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW -j %s",
+			input_device, rule->proto, rule->temp_src,
+			rule->temp_src_port, rule->temp_dst,
+			rule->temp_dst_port, rule->limit, rule->action);
 
 		if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
 			return(-1);

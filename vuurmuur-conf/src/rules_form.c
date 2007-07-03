@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2003-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2003-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -3640,7 +3640,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 
 
 	/* Reject type label */
-	RuleFlds.reject_label_fld_ptr = (fields[field_num] = new_field(1, 12, 3, 29, 0, 0));
+	RuleFlds.reject_label_fld_ptr = (fields[field_num] = new_field(1, 12, 5, 29, 0, 0));
 	set_field_buffer_wrap(debuglvl, RuleFlds.reject_label_fld_ptr, 0, gettext("Reject type"));
 	field_opts_off(RuleFlds.reject_label_fld_ptr, O_ACTIVE);
 	set_field_back(RuleFlds.reject_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
@@ -3648,7 +3648,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 	field_num++;
 
 	/* Reject type */
-	RuleFlds.reject_fld_ptr = (fields[field_num] = new_field(1, 23, 3, 48, 0, 0));
+	RuleFlds.reject_fld_ptr = (fields[field_num] = new_field(1, 23, 5, 48, 0, 0));
 
 	if(rule_ptr->opt != NULL && rule_ptr->opt->reject_option == 1)
 		set_field_buffer_wrap(debuglvl, RuleFlds.reject_fld_ptr, 0, rule_ptr->opt->reject_type);
@@ -3806,14 +3806,16 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 			field_opts_off(RuleFlds.queue_label_fld_ptr, O_VISIBLE);
 			field_opts_off(RuleFlds.queue_fld_ptr, O_VISIBLE);
 		}
-		if((	rule_ptr->action != AT_REDIRECT &&
+		if(
+/*(	rule_ptr->action != AT_REDIRECT &&
 			rule_ptr->action != AT_PORTFW &&
 			rule_ptr->action != AT_ACCEPT &&
 			rule_ptr->action != AT_QUEUE &&
 			rule_ptr->action != AT_NFQUEUE &&
 			rule_ptr->action != AT_CHAIN &&
 			rule_ptr->action != AT_BOUNCE &&
-			rule_ptr->action != AT_LOG) || !advanced_mode)
+			rule_ptr->action != AT_LOG) || */
+			!advanced_mode)
 		{
 			field_opts_off(RuleFlds.burst_fld_ptr, O_VISIBLE|O_STATIC);
 			field_opts_off(RuleFlds.burst_label_fld_ptr, O_VISIBLE);
@@ -3919,7 +3921,9 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 			field_opts_on(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
 		}
 
-		if((	rule_ptr->action == AT_REDIRECT ||
+		if(
+/*
+		(	rule_ptr->action == AT_REDIRECT ||
 			rule_ptr->action == AT_PORTFW ||
 			rule_ptr->action == AT_ACCEPT ||
 			rule_ptr->action == AT_QUEUE ||
@@ -3927,6 +3931,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 			rule_ptr->action == AT_CHAIN ||
 			rule_ptr->action == AT_BOUNCE ||
 			rule_ptr->action == AT_LOG) && 
+*/
 			advanced_mode)
 		{
 			field_opts_on(RuleFlds.burst_fld_ptr, O_VISIBLE|O_STATIC);
