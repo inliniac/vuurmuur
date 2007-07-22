@@ -615,6 +615,7 @@ create_rule_set_action_and_ip(const int debuglvl, struct RuleCreateData_ *rule, 
 	char		logprefix[64] = "";
 	unsigned int	limit = 0;
 	unsigned int	burst = 0;
+	char		*unit = NULL;
 
 	/* safety */
 	if(!rule || !create)
@@ -640,23 +641,26 @@ create_rule_set_action_and_ip(const int debuglvl, struct RuleCreateData_ *rule, 
 		/* create the limitstring */
 		if(conf.check_iptcaps == FALSE || iptcap->match_limit == TRUE)
 		{
-			if(create->option.loglimit > 0 && create->option.loglimit < create->option.limit)
+			if(create->option.loglimit > 0) {
 				limit = create->option.loglimit;
-			else
+                                unit = "sec";
+                        } else {
 				limit = create->option.limit;
+                                unit = create->option.limit_unit;
+                        }
 
-			if(create->option.logburst > 0 && create->option.logburst < create->option.burst)
+			if(create->option.logburst > 0)
 				burst = create->option.logburst;
 			else
 				burst = create->option.burst;
 
 			/* set the limit */
 			if(limit > 0 && burst > 0)
-				snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/s --limit-burst %u",
-											limit, burst);
+				snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s --limit-burst %u",
+											limit, unit, burst);
 			else if(limit > 0 && burst == 0)
-				snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/s",
-											limit);
+				snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s",
+											limit, unit);
 		}
 
 		/* create the logprefix string */
@@ -691,14 +695,15 @@ create_rule_set_action_and_ip(const int debuglvl, struct RuleCreateData_ *rule, 
 			{
 				limit = create->option.limit;
 				burst = create->option.burst;
+                                unit  = create->option.limit_unit;
 
 				/* set the limit */
 				if(limit > 0 && burst > 0)
-					snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/s --limit-burst %u",
-												limit, burst);
+					snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s --limit-burst %u",
+												limit, unit, burst);
 				else if(limit > 0 && burst == 0)
-					snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/s",
-												limit);
+					snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s",
+												limit, unit);
 			}
 
 			snprintf(rule->action, sizeof(rule->action), "%s %s",
@@ -711,14 +716,15 @@ create_rule_set_action_and_ip(const int debuglvl, struct RuleCreateData_ *rule, 
 			{
 				limit = create->option.limit;
 				burst = create->option.burst;
+                                unit  = create->option.limit_unit;
 
 				/* set the limit */
 				if(limit > 0 && burst > 0)
-					snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/s --limit-burst %u",
-												limit, burst);
+					snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s --limit-burst %u",
+												limit, unit, burst);
 				else if(limit > 0 && burst == 0)
-					snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/s",
-												limit);
+					snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s",
+												limit, unit);
 			}
 
 			(void)strlcpy(rule->action, create->action, sizeof(rule->action));
@@ -739,23 +745,26 @@ create_rule_set_action_and_ip(const int debuglvl, struct RuleCreateData_ *rule, 
 
 		if(conf.check_iptcaps == 0 || iptcap->match_limit == 1)
 		{
-			if(create->option.loglimit > 0 && create->option.loglimit < create->option.limit)
+			if(create->option.loglimit > 0) {
 				limit = create->option.loglimit;
-			else
+				unit = "sec";
+                        } else {
 				limit = create->option.limit;
+                                unit = create->option.limit_unit;
+                        }
 
-			if(create->option.logburst > 0 && create->option.logburst < create->option.burst)
+			if(create->option.logburst > 0)
 				burst = create->option.logburst;
 			else
 				burst = create->option.burst;
 
 			/* set the limit */
 			if(limit > 0 && burst > 0)
-				snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/s --limit-burst %u",
-											limit, burst);
+				snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s --limit-burst %u",
+											limit, unit, burst);
 			else if(limit > 0 && burst == 0)
-				snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/s",
-											limit);
+				snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s",
+											limit, unit);
 		}
 
 		/* create the logprefix string */

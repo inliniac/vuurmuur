@@ -571,6 +571,7 @@ struct options
 
 	/* limit for this rule */
 	unsigned int	limit;
+	char		limit_unit[5];		/* sec, min, hour, day */
 	unsigned int	burst;
 
 	/* queue num for the NFQUEUE action. There can be 65536: 0-65535 */

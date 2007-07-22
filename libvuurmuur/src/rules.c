@@ -1714,7 +1714,7 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 		options[MAX_OPTIONS_LENGTH] = "",
 		*ports_ptr = NULL;
 	char	redirect_port[6] = "",
-		limit_string[6] = "",
+		limit_string[11] = "", /* 6 for the number, 1 for / 4 for hour = 11 */
 		nfmark_string[9] = "";
 	/* out_int="rtl8193", : out_int (7) = (1) " (1) " (1) , (1) \0 (1) = 12 */
 	char	interfacestr[MAX_INTERFACE+12] = "";
@@ -2015,7 +2015,7 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 	/* limit */
 	if(opt->limit > 0)
 	{
-		snprintf(limit_string, sizeof(limit_string), "%u", opt->limit);
+		snprintf(limit_string, sizeof(limit_string), "%u/%s", opt->limit, opt->limit_unit[0] ? opt->limit_unit : "sec");
 
 		if(strlcat(options, "limit=\"", sizeof(options)) >= sizeof(options))
 		{
@@ -2363,8 +2363,38 @@ rules_read_options(const int debuglvl, char *optstr, struct options *op)
 			/* limit */
 			else if(strncmp(curopt, "limit", strlen("limit")) == 0)
 			{
+				char *ptr = NULL;
+
+				ptr = strstr(curopt, "/");
+
+				if(ptr == NULL) {
+					strlcpy(op->limit_unit,"sec",sizeof(op->limit_unit));
+				} else {
+					for(	p = 0, o = ptr - curopt + 1;
+						o < strlen(curopt) && p < sizeof(op->limit_unit);
+						o++)
+					{
+						if(curopt[o] != '\"')
+						{
+							op->limit_unit[p] = curopt[o];
+							p++;
+						}
+					}
+					op->limit_unit[p] = '\0';
+
+                                        if (strcasecmp(op->limit_unit,"sec") != 0  &&
+					    strcasecmp(op->limit_unit,"min") != 0 &&
+					    strcasecmp(op->limit_unit,"hour") != 0 &&
+					    strcasecmp(op->limit_unit,"day") != 0)
+					{
+						(void)vrprint.error(-1, "Error", "parsing limit option timeunit failed. Please check the syntax of the rule.");
+						op->limit_unit[0] = '\0';
+						return(-1);
+                                        }
+				}
+
 				for(	p = 0, o = strlen("limit") + 1;
-					o < strlen(curopt) && p < sizeof(portstring);
+					o < strlen(curopt) && p < sizeof(portstring) && curopt[0] != '/';
 					o++)
 				{
 					if(curopt[o] != '\"')
@@ -2378,7 +2408,7 @@ rules_read_options(const int debuglvl, char *optstr, struct options *op)
 				op->limit = (unsigned int)atoi(portstring);
 
 				if(debuglvl >= MEDIUM)
-					(void)vrprint.debug(__FUNC__, "limit: %d.", op->limit);
+					(void)vrprint.debug(__FUNC__, "limit: %d / %s.", op->limit, op->limit_unit);
 			}
 			/* burst */
 			else if(strncmp(curopt, "burst", strlen("burst")) == 0)

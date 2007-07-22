@@ -2524,6 +2524,9 @@ struct RuleFlds_
 		*limit_label_fld_ptr,
 		*limit_fld_ptr,
 
+		*limit_unit_label_fld_ptr,
+		*limit_unit_fld_ptr,
+
 		*burst_label_fld_ptr,
 		*burst_fld_ptr,
 
@@ -3026,7 +3029,6 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 			}
 			else if(fields[i] == RuleFlds.limit_fld_ptr)
 			{
-				/* option redirect port */
 				if(rule_ptr->opt == NULL)
 				{
 					if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
@@ -3050,9 +3052,26 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
 				retval = 1;
 			}
+			else if(fields[i] == RuleFlds.limit_unit_fld_ptr)
+			{
+				if(rule_ptr->opt == NULL)
+				{
+					if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+					{
+						(void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+						return(-1);
+					}
+				}
+
+				if(!(copy_field2buf(	rule_ptr->opt->limit_unit,
+							field_buffer(fields[i], 0),
+							sizeof(rule_ptr->opt->limit_unit))))
+					return(-1);
+
+				retval = 1;
+			}
 			else if(fields[i] == RuleFlds.burst_fld_ptr)
 			{
-				/* option redirect port */
 				if(rule_ptr->opt == NULL)
 				{
 					if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
@@ -3068,9 +3087,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 					return(-1);
 
 				rule_ptr->opt->burst = (unsigned int)atoi(limit_str);
-				if(rule_ptr->opt->burst > 9999)
+				if(rule_ptr->opt->burst > 9999 || rule_ptr->opt->burst == 0)
 				{
-					(void)vrprint.warning(VR_WARN, gettext("new connection limit burst must be 0-9999."));
+					(void)vrprint.warning(VR_WARN, gettext("new connection limit burst must be 1-9999."));
 					rule_ptr->opt->burst = 0;
 				}
 
@@ -3250,7 +3269,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 		starty = 2;
 
 	/* set number of fields */
-	n_fields = 44;
+	n_fields = 46;
 	if(!(fields = (FIELD **)calloc(n_fields + 1, sizeof(FIELD *))))
 	{
 		(void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
@@ -3310,7 +3329,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 
 
 	/* nfqueuenum label */
-	RuleFlds.nfqueuenum_label_fld_ptr = (fields[field_num] = new_field(1, 18, 3, 10, 0, 0));
+	RuleFlds.nfqueuenum_label_fld_ptr = (fields[field_num] = new_field(1, 18, 5, 10, 0, 0));
 	set_field_buffer_wrap(debuglvl, RuleFlds.nfqueuenum_label_fld_ptr, 0, gettext("Queue number"));
 	field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_ACTIVE);
 	set_field_back(RuleFlds.nfqueuenum_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
@@ -3318,7 +3337,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 	field_num++;
 
 	/* nfqueuenum */
-	RuleFlds.nfqueuenum_fld_ptr = (fields[field_num] = new_field(1, 6, 3, 30, 0, 0));
+	RuleFlds.nfqueuenum_fld_ptr = (fields[field_num] = new_field(1, 6, 5, 30, 0, 0));
 	set_field_back(RuleFlds.nfqueuenum_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
 	set_field_fore(RuleFlds.nfqueuenum_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
 	field_num++;
@@ -3541,7 +3560,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 
 	/* log prefix label */
 	/* TRANSLATORS: max 7 chars */
-	RuleFlds.limit_label_fld_ptr = (fields[field_num] = new_field(1, 12, 3, 39, 0, 0));
+	RuleFlds.limit_label_fld_ptr = (fields[field_num] = new_field(1, 12, 3, 29, 0, 0));
 	set_field_buffer_wrap(debuglvl, RuleFlds.limit_label_fld_ptr, 0, gettext("Rule Limit"));
 	field_opts_off(RuleFlds.limit_label_fld_ptr, O_ACTIVE);
 	set_field_back(RuleFlds.limit_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
@@ -3549,7 +3568,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 	field_num++;
 
 	/* log prefix */
-	RuleFlds.limit_fld_ptr = (fields[field_num] = new_field(1, 4, 3, 53, 0, 0));
+	RuleFlds.limit_fld_ptr = (fields[field_num] = new_field(1, 4, 3, 42, 0, 0));
 	if(rule_ptr->opt != NULL)
 	{
 		if(rule_ptr->opt->limit > 0)
@@ -3566,6 +3585,28 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 	field_opts_off(RuleFlds.limit_fld_ptr, O_VISIBLE|O_STATIC);
 	field_opts_off(RuleFlds.limit_label_fld_ptr, O_VISIBLE);
 
+	/* Limit Unit Label */
+	RuleFlds.limit_unit_label_fld_ptr = (fields[field_num] = new_field(1, 1, 3, 48, 0, 0));
+	set_field_buffer_wrap(debuglvl, RuleFlds.limit_unit_label_fld_ptr, 0, "/");
+	field_opts_off(RuleFlds.limit_unit_label_fld_ptr, O_ACTIVE);
+	set_field_back(RuleFlds.limit_unit_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+	set_field_fore(RuleFlds.limit_unit_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+	field_num++;
+
+	/* Limit Unit  */
+	RuleFlds.limit_unit_fld_ptr = (fields[field_num] = new_field(1, 4, 3, 51, 0, 0));
+	if(rule_ptr->opt != NULL)
+	{
+		set_field_buffer_wrap(debuglvl, RuleFlds.limit_unit_fld_ptr, 0,
+			rule_ptr->opt->limit_unit);
+	}
+	set_field_back(RuleFlds.limit_unit_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+	set_field_fore(RuleFlds.limit_unit_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+	field_num++;
+
+	/* start disabled and set the field to dynamic */
+	field_opts_off(RuleFlds.limit_fld_ptr, O_VISIBLE|O_STATIC);
+	field_opts_off(RuleFlds.limit_label_fld_ptr, O_VISIBLE);
 
 	/* burst label */
 	/* TRANSLATORS: max 6 chars */
@@ -3806,20 +3847,14 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 			field_opts_off(RuleFlds.queue_label_fld_ptr, O_VISIBLE);
 			field_opts_off(RuleFlds.queue_fld_ptr, O_VISIBLE);
 		}
-		if(
-/*(	rule_ptr->action != AT_REDIRECT &&
-			rule_ptr->action != AT_PORTFW &&
-			rule_ptr->action != AT_ACCEPT &&
-			rule_ptr->action != AT_QUEUE &&
-			rule_ptr->action != AT_NFQUEUE &&
-			rule_ptr->action != AT_CHAIN &&
-			rule_ptr->action != AT_BOUNCE &&
-			rule_ptr->action != AT_LOG) || */
-			!advanced_mode)
+		if(	!advanced_mode)
 		{
 			field_opts_off(RuleFlds.burst_fld_ptr, O_VISIBLE|O_STATIC);
 			field_opts_off(RuleFlds.burst_label_fld_ptr, O_VISIBLE);
 	
+			field_opts_off(RuleFlds.limit_unit_fld_ptr, O_VISIBLE|O_STATIC);
+			field_opts_off(RuleFlds.limit_unit_label_fld_ptr, O_VISIBLE);
+
 			field_opts_off(RuleFlds.limit_fld_ptr, O_VISIBLE|O_STATIC);
 			field_opts_off(RuleFlds.limit_label_fld_ptr, O_VISIBLE);
 		}
@@ -3858,15 +3893,12 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 		}
 		if(!advanced_mode ||
 		   strncmp(field_buffer(RuleFlds.fromzone_fld_ptr,0), "firewall", 8) == 0)
-		   // ||
-		   //strncmp(field_buffer(RuleFlds.fromzone_fld_ptr,0), "any", 3) == 0)
 		{
 			field_opts_off(RuleFlds.in_int_label_fld_ptr, O_VISIBLE);
 			field_opts_off(RuleFlds.in_int_fld_ptr, O_VISIBLE);
 		}
 		if(!advanced_mode ||
-		   strncmp(field_buffer(RuleFlds.tozone_fld_ptr,0), "firewall", 8) == 0)// ||
-		   //strncmp(field_buffer(RuleFlds.tozone_fld_ptr,0), "any", 3) == 0)
+		   strncmp(field_buffer(RuleFlds.tozone_fld_ptr,0), "firewall", 8) == 0)
 		{
 			field_opts_off(RuleFlds.out_int_label_fld_ptr, O_VISIBLE);
 			field_opts_off(RuleFlds.out_int_fld_ptr, O_VISIBLE);
@@ -3909,7 +3941,10 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 
 			field_opts_on(RuleFlds.remote_fld_ptr, O_VISIBLE);
 			field_opts_on(RuleFlds.remote_label_fld_ptr, O_VISIBLE);
-
+		}
+		if(	rule_ptr->action == AT_PORTFW &&
+			advanced_mode)
+		{
 			field_opts_on(RuleFlds.queue_brackets_fld_ptr, O_VISIBLE);
 			field_opts_on(RuleFlds.queue_label_fld_ptr, O_VISIBLE);
 			field_opts_on(RuleFlds.queue_fld_ptr, O_VISIBLE);
@@ -3921,21 +3956,13 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 			field_opts_on(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
 		}
 
-		if(
-/*
-		(	rule_ptr->action == AT_REDIRECT ||
-			rule_ptr->action == AT_PORTFW ||
-			rule_ptr->action == AT_ACCEPT ||
-			rule_ptr->action == AT_QUEUE ||
-			rule_ptr->action == AT_NFQUEUE ||
-			rule_ptr->action == AT_CHAIN ||
-			rule_ptr->action == AT_BOUNCE ||
-			rule_ptr->action == AT_LOG) && 
-*/
-			advanced_mode)
+		if(	advanced_mode)
 		{
 			field_opts_on(RuleFlds.burst_fld_ptr, O_VISIBLE|O_STATIC);
 			field_opts_on(RuleFlds.burst_label_fld_ptr, O_VISIBLE);
+	
+			field_opts_on(RuleFlds.limit_unit_fld_ptr, O_VISIBLE|O_STATIC);
+			field_opts_on(RuleFlds.limit_unit_label_fld_ptr, O_VISIBLE);
 	
 			field_opts_on(RuleFlds.limit_fld_ptr, O_VISIBLE|O_STATIC);
 			field_opts_on(RuleFlds.limit_label_fld_ptr, O_VISIBLE);
@@ -3960,15 +3987,13 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 		}
 		if(advanced_mode)
 		{
-			if(strncmp(field_buffer(RuleFlds.fromzone_fld_ptr,0), "firewall", 8) != 0)// &&
-			   //strncmp(field_buffer(RuleFlds.fromzone_fld_ptr,0), "any", 3) != 0)
+			if(strncmp(field_buffer(RuleFlds.fromzone_fld_ptr,0), "firewall", 8) != 0)
 			{
 				field_opts_on(RuleFlds.in_int_label_fld_ptr, O_VISIBLE);
 				field_opts_on(RuleFlds.in_int_fld_ptr, O_VISIBLE);
 			}
 
-			if(strncmp(field_buffer(RuleFlds.tozone_fld_ptr,0), "firewall", 8) != 0)// &&
-			   //strncmp(field_buffer(RuleFlds.tozone_fld_ptr,0), "any", 3) != 0)
+			if(strncmp(field_buffer(RuleFlds.tozone_fld_ptr,0), "firewall", 8) != 0)
 			{
 				field_opts_on(RuleFlds.out_int_label_fld_ptr, O_VISIBLE);
 				field_opts_on(RuleFlds.out_int_fld_ptr, O_VISIBLE);
@@ -4051,7 +4076,9 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 		else if(cur == RuleFlds.nfmark_fld_ptr)
 			status_print(status_win, gettext("Enter a nfmark. Use > 20.000.000 when using the QUEUE action."));
 		else if(cur == RuleFlds.limit_fld_ptr)
-			status_print(status_win, gettext("Average new connections per second (to prevent DoS), 0 for no limit."));
+			status_print(status_win, gettext("Average new connections per amount of time (to prevent DoS), 0 for no limit."));
+		else if(cur == RuleFlds.limit_unit_fld_ptr)
+			status_print(status_win, gettext("Unit for the limit: sec, min, hour, day."));
 		else if(cur == RuleFlds.burst_fld_ptr)
 			status_print(status_win, gettext("Maximum new connections per second (to prevent DoS), 0 for no limit."));
 
@@ -4502,6 +4529,30 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 
 							/* cleanup */
 							free(choices);
+						}
+					}
+					else if(cur == RuleFlds.limit_unit_fld_ptr)
+					{
+						char	*limit_unit_choices[] = {
+								"Sec", "Min", "Hour", "Day", },
+							*limit_unit_ptr = NULL;
+						size_t	limit_unit_choices_n = 4;
+
+						if(!(copy_field2buf(	select_choice,
+									field_buffer(cur, 0),
+									sizeof(select_choice))))
+							return(-1);
+
+						/* ask the user about the new action */
+						if((limit_unit_ptr = selectbox(	gettext("Unit"),
+										gettext("Select time unit"),
+										limit_unit_choices_n,
+										limit_unit_choices,
+										1, /* 1 column */
+										select_choice)))
+						{
+							set_field_buffer_wrap(debuglvl, cur, 0, limit_unit_ptr);
+							free(limit_unit_ptr);
 						}
 					}
 					else
