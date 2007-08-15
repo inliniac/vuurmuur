@@ -1372,67 +1372,33 @@ create_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
 	*/
 
 	/* from zone */
-	if(	create->from != NULL &&
+	if(	create->from_firewall == TRUE) {
+		/* nothing: interfaces of 'to' are used */
+	}
+	else if(create->from != NULL &&
 		(create->from->type == TYPE_HOST || create->from->type == TYPE_GROUP))
 	{
-		/* check for counting interfaces twice */
-//		if(	create->from != NULL && create->to != NULL &&
-//			create->to->type == TYPE_NETWORK && create->to == create->from->network_parent)
-//		{
-			/* do nothing */
-//		}
-//		else
-//		{
-			if(create->from != NULL)
-				from_loop_cnt = from_loop_cnt * create->from->network_parent->InterfaceList.len;
-//		}
+		from_loop_cnt = from_loop_cnt * create->from->network_parent->InterfaceList.len;
 	}
-	else if(	create->from != NULL &&
-			create->from->type == TYPE_NETWORK)
+	else if(create->from != NULL &&
+		create->from->type == TYPE_NETWORK)
 	{
-		if(create->from != NULL)
-			from_loop_cnt = from_loop_cnt * create->from->InterfaceList.len;
+		from_loop_cnt = from_loop_cnt * create->from->InterfaceList.len;
 	}
 
 	/* to zone */
-	if(	create->to != NULL &&
+	if(	create->to_firewall == TRUE) {
+		/* nothing: interfaces of 'from' are used */
+	}
+	else if(create->to != NULL &&
 		(create->to->type == TYPE_HOST || create->to->type == TYPE_GROUP))
 	{
-//		/* check for counting twice: compare from parentnetwork with our to parentnetwork */
-//		if(	create->from != NULL && create->to != NULL &&
-//			(create->from->type == TYPE_HOST || create->from->type == TYPE_GROUP) &&
-//			create->from->network_parent == create->to->network_parent)
-//		{
-//			/* do nothing */
-//		}
-//		/* check for twice:  compare from network with our parentnetwork */
-//		else if(	create->from != NULL && create->to != NULL &&
-//				create->from->type == TYPE_NETWORK && create->from == create->to->network_parent)
-//		{
-//			/* do nothing */
-//		}
-//		/* check for counting twice: else multiply */
-//		else
-//		{
-			if(create->to != NULL)
-				to_loop_cnt = to_loop_cnt * create->to->network_parent->InterfaceList.len;
-//		}
+		to_loop_cnt = to_loop_cnt * create->to->network_parent->InterfaceList.len;
 	}
 	else if(create->to != NULL &&
 		create->to->type == TYPE_NETWORK)
 	{
-//		/* check for counting twice: compare from network with our network */
-//		if(	create->from != NULL && create->to != NULL &&
-//			create->from->type == TYPE_NETWORK && create->from == create->to)
-//		{
-//			/* do nothing */
-//		}
-//		/* check for counting twice:  else multiply */
-//		else
-//		{
-			if(create->to != NULL)
-				to_loop_cnt = to_loop_cnt * create->to->InterfaceList.len;
-//		}
+		to_loop_cnt = to_loop_cnt * create->to->InterfaceList.len;
 	}
 
 
