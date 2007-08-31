@@ -22,8 +22,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nl\n"
 "Report-Msgid-Bugs-To: http://vuurmuur.sourceforge.net/\n"
-"POT-Creation-Date: 2007-07-30 21:06+0200\n"
-"PO-Revision-Date: 2007-07-30 21:09+0200\n"
+"POT-Creation-Date: 2007-08-31 21:57+0200\n"
+"PO-Revision-Date: 2007-08-31 21:58+0200\n"
 "Last-Translator: Victor Julien <victor@vuurmuur.org>\n"
 "Language-Team: Nederlands <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -168,7 +168,7 @@ msgstr "Vorige mnd"
 
 #: src/bw_sec.c:731 src/config_section.c:1788 src/config_section.c:2651
 #: src/conn_sec.c:676 src/if_sec.c:899 src/if_sec.c:1528
-#: src/logview_section.c:734 src/logview_section.c:752 src/mainmenu.c:1526
+#: src/logview_section.c:734 src/logview_section.c:752 src/mainmenu.c:1531
 #: src/rules_form.c:1421 src/rules_form.c:3233 src/services_section.c:1869
 #: src/services_section.c:2355 src/services_section.c:2751 src/stat_sec.c:776
 #: src/zones_section.c:571 src/zones_section.c:1216 src/zones_section.c:2388
@@ -198,7 +198,7 @@ msgstr "er zijn geen interfaces gevonden. Definieer aub eerst een interface."
 msgid "please set the location of the iptrafvol.pl command in the Settings."
 msgstr "stel aub de locatie van het iptrafvol.pl commando in in de Instellingen."
 
-#: src/bw_sec.c:776 src/mainmenu.c:1462
+#: src/bw_sec.c:776 src/mainmenu.c:1467
 msgid "Traffic Volume"
 msgstr "Vekeers Volume"
 
@@ -221,14 +221,14 @@ msgstr "Algemeen"
 
 #. TRANSLATORS: max 11 chars.
 #: src/config_section.c:26 src/conn_sec.c:726 src/conn_sec.c:894
-#: src/conn_sec.c:934 src/conn_sec.c:1113 src/mainmenu.c:1461
+#: src/conn_sec.c:934 src/conn_sec.c:1113 src/mainmenu.c:1466
 #: src/stat_sec.c:471
 msgid "Connections"
 msgstr "Verbindingen"
 
 #. TRANSLATORS: max 11 chars.
 #: src/config_section.c:27 src/if_sec.c:1235 src/if_sec.c:1541
-#: src/if_sec.c:1643 src/if_sec.c:1718 src/mainmenu.c:1456 src/stat_sec.c:492
+#: src/if_sec.c:1643 src/if_sec.c:1718 src/mainmenu.c:1461 src/stat_sec.c:492
 #: src/zones_section.c:3708
 msgid "Interfaces"
 msgstr "Interfaces"
@@ -365,7 +365,7 @@ msgstr "Limiteer nieuwe udp 'verbindingen'."
 msgid "Number of new UDP 'connections' per second"
 msgstr "Aantal nieuwe UDP 'connecties' per seconde"
 
-#: src/config_section.c:1604 src/config_section.c:1808 src/mainmenu.c:1463
+#: src/config_section.c:1604 src/config_section.c:1808 src/mainmenu.c:1468
 msgid "Vuurmuur_conf Settings"
 msgstr "Vuurmuur_conf Instellingen"
 
@@ -500,7 +500,7 @@ msgstr "Configuratie Menu"
 msgid "Select a section."
 msgstr "Selecteer een afdeling."
 
-#: src/config_section.c:2694 src/mainmenu.c:1458
+#: src/config_section.c:2694 src/mainmenu.c:1463
 msgid "Vuurmuur Config"
 msgstr "Vuurmuur Configuratie"
 
@@ -692,11 +692,11 @@ msgstr "Hulp"
 msgid "No problems were detected in the current setup.\n"
 msgstr "Er zijn geen problemen gedetecteerd in uw systeem.\n"
 
-#: src/help.c:1103 src/mainmenu.c:1460 src/vuurmuur_conf.c:260
+#: src/help.c:1103 src/mainmenu.c:1465 src/vuurmuur_conf.c:260
 msgid "Status"
 msgstr "Status"
 
-#: src/help.c:1215 src/help.c:1217 src/mainmenu.c:1465
+#: src/help.c:1215 src/help.c:1217 src/mainmenu.c:1470
 msgid "About"
 msgstr "Over"
 
@@ -911,7 +911,7 @@ msgstr "Een moment aub..."
 
 #: src/logview_section.c:883 src/logview_section.c:885
 #: src/logview_section.c:1756 src/mainmenu.c:233 src/mainmenu.c:251
-#: src/mainmenu.c:318 src/mainmenu.c:1459
+#: src/mainmenu.c:318 src/mainmenu.c:1464
 msgid "Logview"
 msgstr "Logboek inzage"
 
@@ -1028,7 +1028,7 @@ msgstr "Zoeken GEPAUZEERD: %lu resultaten. SPATIE voor doorgaan, 'S' voor stoppe
 msgid "closing logfile failed: %s."
 msgstr "sluiten van logbestand mislukt: %s."
 
-#: src/logview_section.c:2004 src/mainmenu.c:1704 src/mainmenu.c:1730
+#: src/logview_section.c:2004 src/mainmenu.c:1709 src/mainmenu.c:1735
 #: src/rules_form.c:1613 src/rules_form.c:2016 src/rules_form.c:2047
 #: src/rules_form.c:4662 src/rules_form.c:4967 src/services_section.c:571
 #: src/services_section.c:1273 src/zones_section.c:752
@@ -1330,127 +1330,133 @@ msgstr "Let op"
 msgid " Fail "
 msgstr " Fout "
 
-#: src/mainmenu.c:1418 src/mainmenu.c:1464
+#: src/mainmenu.c:1418
+msgid ""
+"Vuurmuur daemon not running. Can't notify it of any changes. Please start it "
+"first."
+msgstr "Vuurmuur daemon niet actief. Kan het niet op de hoogte stellen van de wijzigingen. Start het a.u.b. eerst. "
+
+#: src/mainmenu.c:1423 src/mainmenu.c:1469
 msgid "Apply Changes"
 msgstr "Wijzigingen toepassen"
 
-#: src/mainmenu.c:1419
+#: src/mainmenu.c:1424
 msgid "The overall status is not OK. Apply anyway?"
 msgstr "De algemene status is niet OK? Toch toepassen?"
 
-#: src/mainmenu.c:1433
+#: src/mainmenu.c:1438
 msgid "will not apply changes if the overall status is 'fail'."
 msgstr "zal niet toepassen als de algemene status 'fout' is."
 
-#: src/mainmenu.c:1453 src/rules_form.c:1607 src/rules_form.c:1872
+#: src/mainmenu.c:1458 src/rules_form.c:1607 src/rules_form.c:1872
 #: src/rules_form.c:1981
 msgid "Rules"
 msgstr "Regels"
 
-#: src/mainmenu.c:1454 src/zones_section.c:6622 src/zones_section.c:6892
+#: src/mainmenu.c:1459 src/zones_section.c:6622 src/zones_section.c:6892
 msgid "BlockList"
 msgstr "Blokkeerlijst"
 
-#: src/mainmenu.c:1455 src/zones_section.c:6193 src/zones_section.c:6307
+#: src/mainmenu.c:1460 src/zones_section.c:6193 src/zones_section.c:6307
 #: src/zones_section.c:6398 src/zones_section.c:6485 src/zones_section.c:6504
 msgid "Zones"
 msgstr "Zones"
 
-#: src/mainmenu.c:1457 src/services_section.c:2659 src/services_section.c:2776
+#: src/mainmenu.c:1462 src/services_section.c:2659 src/services_section.c:2776
 #: src/services_section.c:2877 src/services_section.c:2950
 msgid "Services"
 msgstr "Services"
 
-#: src/mainmenu.c:1466
+#: src/mainmenu.c:1471
 msgid "Quit"
 msgstr "Afsluiten"
 
-#: src/mainmenu.c:1562
+#: src/mainmenu.c:1567
 #, c-format
 msgid "calloc failed: %s."
 msgstr "calloc mislukt: %s."
 
-#: src/mainmenu.c:1576
+#: src/mainmenu.c:1581
 msgid "Main Menu"
 msgstr "Hoofdmenu"
 
-#: src/mainmenu.c:1628 src/mainmenu.c:1664
+#: src/mainmenu.c:1633 src/mainmenu.c:1669
 #, c-format
 msgid "Welcome to Vuurmuur_conf %s"
 msgstr "Welkom bij Vuurmuur_conf %s"
 
-#: src/mainmenu.c:1630
+#: src/mainmenu.c:1635
 msgid "Overall"
 msgstr "Algemeen"
 
-#: src/mainmenu.c:1633
+#: src/mainmenu.c:1638
 msgid "Backend"
 msgstr "Backend"
 
-#: src/mainmenu.c:1635
+#: src/mainmenu.c:1640
 msgid "Config"
 msgstr "Configuratie"
 
-#: src/mainmenu.c:1637
+#: src/mainmenu.c:1642
 msgid "Settings"
 msgstr "Instellingen"
 
-#: src/mainmenu.c:1640
+#: src/mainmenu.c:1645
 msgid "Daemons"
 msgstr "Processen"
 
-#: src/mainmenu.c:1643
+#: src/mainmenu.c:1648
 msgid "System"
 msgstr "Systeem"
 
 #. TRANSLATORS: max 27 chars.
-#: src/mainmenu.c:1650
+#: src/mainmenu.c:1655
 msgid "Press F5 for details."
 msgstr "Druk F5 voor details."
 
-#: src/mainmenu.c:1679
+#: src/mainmenu.c:1684
 msgid "Main"
 msgstr "Hoofdmenu"
 
-#: src/mainmenu.c:1684
+#: src/mainmenu.c:1689
 msgid "Convert Rules"
 msgstr "Converteer Regels"
 
-#: src/mainmenu.c:1685
+#: src/mainmenu.c:1690
 msgid "Convert the rules to the new format (recommended)?"
 msgstr "Regels naar het nieuwe formaat converteren (aangeraden)?"
 
-#: src/mainmenu.c:1691
+#: src/mainmenu.c:1696
 msgid "converting rules failed."
 msgstr "converteren van de regels is mislukt."
 
-#: src/mainmenu.c:1695
+#: src/mainmenu.c:1700
 msgid "Rules converted successfully."
 msgstr "Regels met succes geconverteerd."
 
-#: src/mainmenu.c:1710
+#: src/mainmenu.c:1715
 msgid "Convert BlockList"
 msgstr "Converteer Blokkeerlijst"
 
-#: src/mainmenu.c:1711
+#: src/mainmenu.c:1716
 msgid "Convert the BlockList to the new format (recommended)?"
 msgstr "Blokkeerlijst naar het nieuwe formaat converteren (aangeraden)?"
 
-#: src/mainmenu.c:1717
+#: src/mainmenu.c:1722
 msgid "converting BlockList failed."
 msgstr "converteren van Blokkeerlijst mislukt."
 
-#: src/mainmenu.c:1721
+#: src/mainmenu.c:1726
 msgid "BlockList converted successfully."
 msgstr "Blokkeerlijst met succes geconverteerd."
 
-#: src/mainmenu.c:2074
+#: src/mainmenu.c:2078
 msgid "One or more problems were detected in your current setup. Below is a list\n"
 msgstr ""
 "Er zijn één of meer problemen gedetecteerd in uw systeem. Hieronder volgt "
 "een lijst\n"
 
-#: src/mainmenu.c:2110
+#: src/mainmenu.c:2114
 msgid "No problems were detected in your setup\n"
 msgstr "Er zijn geen problemen gedetecteerd in uw systeem\n"
 
@@ -1726,7 +1732,9 @@ msgstr "Voer een nfmark in. Gebruik > 20.000.000 als de actie QUEUE wordt gebrui
 
 #: src/rules_form.c:4079
 msgid "Average new connections per amount of time (to prevent DoS), 0 for no limit."
-msgstr "Gem. aantal nieuwe verbindingen per tijdseenheid (tegen DoS), 0 voor geen limiet."
+msgstr ""
+"Gem. aantal nieuwe verbindingen per tijdseenheid (tegen DoS), 0 voor geen "
+"limiet."
 
 #: src/rules_form.c:4081
 msgid "Unit for the limit: sec, min, hour, day."

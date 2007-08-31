@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2003-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2003-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -1413,6 +1413,11 @@ vc_apply_changes(const int debuglvl)
 		   configuration changes made by the user */
 		(void)config_set_log_names(debuglvl, &conf);
 	}
+	else if(VuurmuurStatus.vuurmuur != 1)
+	{
+		(void)vrprint.error(-1, VR_ERR, gettext("Vuurmuur daemon not running. Can't notify it of any changes. Please start it first."));
+		reload_result = 0;
+	}
 	else if(VuurmuurStatus.overall == 0)
 	{
 		if((confirm(gettext("Apply Changes"),
@@ -2065,8 +2070,7 @@ mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, Rules *ru
 {
 	unsigned int	list_len = 0;
 
-
-	/* if we one, manage the list */
+	/* if we have one, manage the list */
 	if(status_list != NULL)
 	{
 		d_list_cleanup(debuglvl, status_list);
