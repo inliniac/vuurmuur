@@ -806,6 +806,7 @@ parse_icmp_line(const int debuglvl, const char *line,
 /*
 	unknown  41 585 src=<ip> dst=<ip> src=<ip> dst=<ip> use=1
 	unknown  47 599 src=<ip> dst=<ip> src=<ip> dst=<ip> use=1
+        unknown 41 575 src=<ip> dst=<ip> packets=6 bytes=600 [UNREPLIED] src=<ip> dst=<ip> packets=0 bytes=0 mark=0 use=1
 */
 static void
 parse_unknown_line(const int debuglvl, const char *line,
@@ -832,7 +833,25 @@ parse_unknown_line(const int debuglvl, const char *line,
 				connline_ptr->to_src_bytes_str);
 		if(result != 11)
 		{
-			(void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+			result = sscanf(line,	"%16s %d %d src=%s dst=%s "
+					"packets=%s bytes=%s %s src=%s "
+					"dst=%s packets=%s bytes=%s",
+					tmp,
+					&connline_ptr->protocol,
+					&connline_ptr->ttl,
+					connline_ptr->src_ip,
+					connline_ptr->dst_ip,
+					connline_ptr->to_dst_packets_str,
+					connline_ptr->to_dst_bytes_str,
+					connline_ptr->status,
+					connline_ptr->alt_src_ip,
+					connline_ptr->alt_dst_ip,
+					connline_ptr->to_src_packets_str,
+					connline_ptr->to_src_bytes_str);
+			if(result != 12)
+			{
+				(void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+			}
 		}
 
 		if(debuglvl >= LOW)
@@ -855,7 +874,20 @@ parse_unknown_line(const int debuglvl, const char *line,
 				connline_ptr->alt_dst_ip);
 		if(result != 7)
 		{
-			(void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+			result = sscanf(line,	"%16s %d %d src=%s dst=%s %s "
+						"src=%s dst=%s",
+					tmp,
+					&connline_ptr->protocol,
+					&connline_ptr->ttl,
+					connline_ptr->src_ip,
+					connline_ptr->dst_ip,
+					connline_ptr->status,
+					connline_ptr->alt_src_ip,
+					connline_ptr->alt_dst_ip);
+			if (result != 8)
+			{
+				(void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+			}
 		}
 	}
 
