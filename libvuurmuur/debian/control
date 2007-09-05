@@ -1,6 +1,6 @@
 Source: libvuurmuur
 Priority: optional
-Maintainer: Victor Julien <victor@nk.nl>
+Maintainer: Victor Julien <victor@vuurmuur.org>
 Section: contrib/net
 Standards-Version: 3.6.2.1
 Build-Depends: debhelper, libtool
