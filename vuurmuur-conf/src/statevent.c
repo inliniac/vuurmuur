@@ -1266,7 +1266,6 @@ statevent_menu(const int debuglvl, struct vuurmuur_config *cnf, int type,
 		}
 	}
 	
-	VrBusyWinDelete(debuglvl);
 	VrDelMenu(debuglvl, menu);
 	VrDelWin(win);
 	update_panels();
@@ -1284,8 +1283,6 @@ statevent(const int debuglvl, struct vuurmuur_config *cnf, int type,
 {
 	StatEventCtl	*ctl = NULL;
 
-	//vrprint.warning(VR_WARN,"list %u", list->len);
-	VrBusyWinCreate(debuglvl);
 	VrBusyWinShow();
 
 	ctl = statevent_init_ctl(debuglvl, type);

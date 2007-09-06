@@ -286,6 +286,9 @@ main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
+	/* setup the global busywin */
+	VrBusyWinCreate(debuglvl);
+
 	/* startup_screen inits the config, loads the zones, rules, etc */
 	if(startup_screen(debuglvl, &rules, &zones, &services, &interfaces, &blocklist, &reg) < 0)
 	{
@@ -339,6 +342,9 @@ main(int argc, char *argv[])
 		}
 		(void)shmdt(vuurmuurlog_shmp);
 	}
+
+	/* destroy the global busywin */
+	VrBusyWinDelete(debuglvl);
 
 	/* delete panels and windows */
 	(void)del_panel(main_panels[0]);

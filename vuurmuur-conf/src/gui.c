@@ -38,7 +38,9 @@ VrBusyWinCreate(const int debuglvl)
 void
 VrBusyWinShow(void)
 {
-	show_panel(vr_busywin->p);
+	if (vr_busywin != NULL && vr_busywin->p != NULL) {
+		show_panel(vr_busywin->p);
+	}
 	update_panels();
 	doupdate();
 }
@@ -46,7 +48,9 @@ VrBusyWinShow(void)
 void
 VrBusyWinHide(void)
 {
-	hide_panel(vr_busywin->p);
+	if (vr_busywin != NULL && vr_busywin->p != NULL) {
+		hide_panel(vr_busywin->p);
+	}
 	update_panels();
 	doupdate();
 }
