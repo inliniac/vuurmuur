@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2004 by Victor Julien                              *
+ *   Copyright (C) 2003-2007 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -231,16 +231,29 @@ VrMenuSetDescFreeFunc(VrMenu *menu, void (*free_func)(void *ptr))
 void
 VrDelMenu(const int debuglvl, VrMenu *menu)
 {
+	int i = 0;
+
+	if (menu->m) {
+		unpost_menu(menu->m);
+		free_menu(menu->m);
+	}
+
+	if (menu->dw)
+		destroy_win(menu->dw);
+	
+	for (i = 0; i < menu->nitems; i++) {
+		free_item(menu->i[i]);
+	}
+	/* free items */
+	if(menu->i != NULL)
+		free(menu->i);
+
 	/* clear the lists if used */
 	if(menu->use_namelist == TRUE)
 		d_list_cleanup(debuglvl, &menu->name);
 	if(menu->use_desclist == TRUE)
 		d_list_cleanup(debuglvl, &menu->desc);
 
-	/* free items */
-	if(menu->i != NULL)
-		free(menu->i);
-	
 	/* free memory */
 	free(menu);
 }
@@ -333,14 +346,14 @@ VrMenuConnectToWin(const int debuglvl, VrMenu *menu, VrWin *win)
 		return(-1);
 	}
 	
-	WINDOW *sub = derwin(win->w, menu->h, menu->w, menu->y, menu->x);
-	if(sub == NULL)
+	menu->dw = derwin(win->w, menu->h, menu->w, menu->y, menu->x);
+	if(menu->dw == NULL)
 	{
 		(void)vrprint.error(-1, VR_ERR, "derwin failed");
 		return(-1);
 	}
 
-	result = set_menu_sub(menu->m, sub);
+	result = set_menu_sub(menu->m, menu->dw);
 	if(result != E_OK)
 	{
 		(void)vrprint.error(-1, VR_ERR, "set_menu_sub failed");

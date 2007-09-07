@@ -33,7 +33,7 @@ confirm(char *title, char *text, chtype forecolor, chtype backcolor, int def)
 	ITEM	**menu_items;
 	MENU	*confirm_menu;
 	PANEL 	*my_panels[1];
-	WINDOW	*confirm_win;
+	WINDOW	*confirm_win, *dw;
 	ITEM	*cur;
 
 	int	height = 7,
@@ -97,7 +97,8 @@ confirm(char *title, char *text, chtype forecolor, chtype backcolor, int def)
 	my_panels[0] = new_panel(confirm_win);
 
 	set_menu_win(confirm_menu, confirm_win);
-	set_menu_sub(confirm_menu, derwin(confirm_win, height-4, 10, 4, (width)/2-5));
+	dw = derwin(confirm_win, height-4, 10, 4, (width)/2-5);
+	set_menu_sub(confirm_menu, dw);
 
 	set_menu_format(confirm_menu, height-4, 2);
 
@@ -178,6 +179,8 @@ confirm(char *title, char *text, chtype forecolor, chtype backcolor, int def)
 		free_item(menu_items[i]);
 
 	free(menu_items);
+
+	destroy_win(dw);
 
 	del_panel(my_panels[0]);
 

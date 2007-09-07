@@ -728,6 +728,7 @@ statevent_interactivemenu_conn(	const int debuglvl, struct vuurmuur_config *cnf,
 		}
 	}
 
+	VrDelMenu(debuglvl, menu);
 	VrDelWin(win);
 	update_panels();
 	doupdate();
@@ -738,7 +739,7 @@ statevent_interactivemenu_conn(	const int debuglvl, struct vuurmuur_config *cnf,
 		connreq->group_conns = TRUE;
 
 		conn_ct_clear_connections(debuglvl, privct);
-		conn_free_ct(debuglvl, &privct, zones);
+		conn_free_ct(debuglvl, &privct, NULL);
 	}
 
 	return;
@@ -1010,6 +1011,7 @@ statevent_interactivemenu_log(	const int debuglvl, struct vuurmuur_config *cnf,
 	conn_ct_clear_connections(debuglvl, ctr);
 	conn_free_ct(debuglvl, &ctr, zones);
 
+	VrDelMenu(debuglvl, menu);
 	VrDelWin(win);
 	update_panels();
 	doupdate();

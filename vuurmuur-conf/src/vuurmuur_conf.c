@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2006 by Victor Julien                              *
+ *   Copyright (C) 2003-2007 by Victor Julien                              *
  *   victor@nk.nl                                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -186,7 +186,7 @@ main(int argc, char *argv[])
 			case 'V' :
 				/* print version */
 				fprintf(stdout, "Vuurmuur_conf %s\n", version_string);
-				fprintf(stdout, "Copyright (C) 2002-2006 by Victor Julien\n");
+				fprintf(stdout, "Copyright (C) 2002-2007 by Victor Julien\n");
 
 				exit(EXIT_SUCCESS);
 
@@ -275,7 +275,7 @@ main(int argc, char *argv[])
 	vrprint.error = vuumuurconf_print_error;
 	vrprint.warning = vuumuurconf_print_warning;
 
-	if(status_print(status_win, gettext("This is Vuurmuur_conf %s, Copyright (c) 2003-2006 by Victor Julien"), version_string) < 0)
+	if(status_print(status_win, gettext("This is Vuurmuur_conf %s, Copyright (c) 2003-2007 by Victor Julien"), version_string) < 0)
 		exit(EXIT_FAILURE);
 
 	/* setup regexes */
@@ -288,6 +288,7 @@ main(int argc, char *argv[])
 
 	/* setup the global busywin */
 	VrBusyWinCreate(debuglvl);
+	VrBusyWinHide();
 
 	/* startup_screen inits the config, loads the zones, rules, etc */
 	if(startup_screen(debuglvl, &rules, &zones, &services, &interfaces, &blocklist, &reg) < 0)
@@ -304,6 +305,7 @@ main(int argc, char *argv[])
 		(void)destroy_win(top_win);
 		(void)destroy_win(main_win);
 		(void)destroy_win(status_win);
+		(void)destroy_win(status_frame_win);
 		/* clear screen */
 		(void)refresh();
 		/* end ncurses mode */
@@ -357,6 +359,7 @@ main(int argc, char *argv[])
 	(void)destroy_win(top_win);
 	(void)destroy_win(main_win);
 	(void)destroy_win(status_win);
+	(void)destroy_win(status_frame_win);
 	/* clear screen */
 	(void)refresh();
 
@@ -536,7 +539,7 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
 	mvwprintw(startup_win, 5, 4, "    \\//  \\/| \\/| |\\ ||   || \\/| \\/| |\\ ");
 	mvwprintw(startup_win, 6, 4, "                                Config ");
 	mvwprintw(startup_win, 7, 4, "  ------------------------------------ ");
-	mvwprintw(startup_win, 9, 4, "  Copyright (c) 2003-2006 by Victor Julien ");
+	mvwprintw(startup_win, 9, 4, "  Copyright (c) 2003-2007 by Victor Julien ");
 	mvwprintw(startup_win, 10, 6, gettext("Version: %s"), version_string);
 	mvwprintw(startup_win, 12, 4, "[");
 	mvwprintw(startup_win, 12, 4+print_pan_width+1, "]");

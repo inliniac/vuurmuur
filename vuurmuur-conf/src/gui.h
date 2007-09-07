@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2004 by Victor Julien                              *
+ *   Copyright (C) 2003-2007 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -47,6 +47,7 @@ typedef struct
 							to win */
 			x;			/*	x start relative
 							to win */
+	WINDOW		*dw;			/* used by derwin */
 
 } VrMenu;
 
@@ -60,7 +61,7 @@ typedef struct
 	int	height,
 		width;
 
-	/* TODO: add menu */
+	/* TODO: add menu? */
 
 } VrWin;
 

@@ -557,13 +557,16 @@ conn_init_ct(const int debuglvl, Zones *zones, Interfaces *interfaces,
 void
 conn_free_ct(const int debuglvl, Conntrack **ct, Zones *zones)
 {
-	/*	remove the interfaces inserted as TYPE_FIREWALL's into the zonelist
-		this also removes zones added by add_broadcasts_zonelist()
-	*/
-	if(rem_iface_from_zonelist(debuglvl, &zones->list) < 0)
-	{
-		(void)vrprint.error(-1, VR_INTERR, "rem_iface_from_zonelist() "
-			"failed (in: %s:%d).", __FUNC__, __LINE__);
+	/* zones may be NULL if we have multiple ct's */
+	if (zones != NULL) {
+		/*	remove the interfaces inserted as TYPE_FIREWALL's into the zonelist
+			this also removes zones added by add_broadcasts_zonelist()
+		*/
+		if(rem_iface_from_zonelist(debuglvl, &zones->list) < 0)
+		{
+			(void)vrprint.error(-1, VR_INTERR, "rem_iface_from_zonelist() "
+				"failed (in: %s:%d).", __FUNC__, __LINE__);
+		}
 	}
 
 
@@ -575,6 +578,8 @@ conn_free_ct(const int debuglvl, Conntrack **ct, Zones *zones)
 	*/
 	hash_cleanup(debuglvl, &(*ct)->zone_hash);
 	hash_cleanup(debuglvl, &(*ct)->service_hash);
+
+	free(*ct);
 }
 
 int
