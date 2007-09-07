@@ -1,0 +1,3074 @@
+# Russian translations for vuurmuur_conf package
+# Английские переводы для пакета vuurmuur_conf.
+# Copyright (C) 2005 Victor Julien <victor@nk.nl>
+# This file is distributed under the same license as the vuurmuur_conf package.
+# Aleksandr <alshu@tut.by>, 2005.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: vuurmuur_conf 0.6\n"
+"Report-Msgid-Bugs-To: http://vuurmuur.sourceforge.net/\n"
+"POT-Creation-Date: 2007-09-05 12:13+0300\n"
+"PO-Revision-Date: 2005-04-15 15:25+0300\n"
+"Last-Translator: Aleksandr <alshu@tut.by>\n"
+"Language-Team: Russian <ru@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=KOI8-R\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#. TRANSLATORS: max 6 characters
+#: src/mainmenu.c:1351
+msgid "  OK  "
+msgstr "  OK  "
+
+#. TRANSLATORS: max 6 characters
+#: src/mainmenu.c:1363
+msgid " Fail "
+msgstr " Сбой "
+
+#. TRANSLATORS: max 6 characters
+#: src/mainmenu.c:1357
+msgid " Warn "
+msgstr "Предуп"
+
+#: src/zones_section.c:5452 src/zones_section.c:5503
+#, c-format
+msgid "'%s' is an invalid name for a network."
+msgstr "'%s' недопустимое имя сети."
+
+#: src/zones_section.c:6747
+#, c-format
+msgid "'%s' is not a valid ipaddress."
+msgstr "'%s' не допустим."
+
+#: src/conn_sec.c:1221 src/conn_sec.c:1294 src/strings.h:195
+msgid ""
+"'conntrack' location not set. To be able to kill connections, set the "
+"location of the 'conntrack' tool in 'Vuurmuur Options -> General'. Note that "
+"the tool requires kernel version 2.6.14 or higher."
+msgstr ""
+"не задано размещение 'conntrack'. Чтобы разорвать соединения, установите "
+"размещение инструмента 'conntrack' в 'Настройки Vuurmuur -> Основные'. "
+"Имейте в виду, что для этого инструмента необходимо ядро не ниже версии "
+"2.6.14."
+
+#: src/mainmenu.c:466
+msgid "(fail).\n"
+msgstr "(сбой).\n"
+
+#: src/mainmenu.c:468
+msgid "(warn).\n"
+msgstr "(предупр.).\n"
+
+#: src/logview_section.c:1549
+msgid "*** PAUSED *** (press 'p' to continue)"
+msgstr "*** ПРИОСТАНОВЛЕНО *** (нажмите 'p' для продолжения)"
+
+#: src/mainmenu.c:533
+msgid ""
+"- No connection could be established with Vuurmuur. Please make sure that it "
+"is running\n"
+msgstr "- Невозможно соединиться с Vuurmuur. Убедитесь, что он запущен\n"
+
+#: src/mainmenu.c:550
+msgid ""
+"- No connection could be established with Vuurmuur_log. Please make sure "
+"that it is running\n"
+msgstr "- Невозможно соединиться с Vuurmuur_log. Убедитесь, что он запущен\n"
+
+#: src/mainmenu.c:781
+msgid ""
+"- No interfaces are active. Please make sure that at least one of the "
+"interfaces is active\n"
+msgstr ""
+"- Нет активных интерфейсов. Убедитесь в наличии хотя бы одного активного "
+"интерфейса\n"
+
+#: src/mainmenu.c:685
+msgid "- No interfaces are defined. Please define one or more interfaces\n"
+msgstr "- Интерфейсы не определены. Укажите хотя бы один интерфейс\n"
+
+#: src/mainmenu.c:942
+msgid ""
+"- No networks are active. Please make sure that at least one of the networks "
+"is active. See the Zones Section\n"
+msgstr ""
+"- Нет активных сетей. Убедитесь в наличии хотя бы одной активной сети (см. "
+"раздел Зоны)\n"
+
+#: src/mainmenu.c:937
+msgid ""
+"- No networks are defined. Please make sure that you define at least one "
+"network. See the Zones Section\n"
+msgstr "- Не определены сети. Укажите хотя бы одну сеть (см. раздел Зоны)\n"
+
+#: src/mainmenu.c:648
+#, c-format
+msgid "- No portranges/protocols defined in service '%s'\n"
+msgstr "- Не определены диапазоны портов/протоколы для службы '%s'\n"
+
+#: src/mainmenu.c:818
+msgid ""
+"- No zones are defined. Please define one or more zones, and at least one "
+"network\n"
+msgstr "- Не определены зоны. Укажите хотя бы одну зону и сеть\n"
+
+#: src/mainmenu.c:498
+msgid "- Opening the helpfile failed. Please check the file\n"
+msgstr "- Ошибка открытия файла помощи. Пожалуйста, проверьте файл\n"
+
+#: src/mainmenu.c:870
+#, c-format
+msgid ""
+"- The IPAddress '%s' of host '%s' does not belong to network '%s' with "
+"netmask '%s'\n"
+msgstr ""
+"- IP-адрес '%s' хоста '%s' не принадлежит сети '%s' с сетевой маской '%s'\n"
+
+#: src/mainmenu.c:861
+#, c-format
+msgid "- The IPAddress '%s' of host '%s' is invalid\n"
+msgstr "- IP-адрес '%s' хоста '%s' недопустим\n"
+
+#: src/mainmenu.c:540
+msgid ""
+"- The connection with Vuurmuur seems to be lost. Please make sure that it is "
+"running\n"
+msgstr "- Соединение с Vuurmuur потеряно. Убедитесь, что он запущен\n"
+
+#: src/mainmenu.c:557
+msgid ""
+"- The connection with Vuurmuur_log seems to be lost. Please make sure that "
+"it is running\n"
+msgstr "- Соединение с Vuurmuur_log потеряно. Убедитесь, что он запущен\n"
+
+#: src/mainmenu.c:844
+#, c-format
+msgid "- The host '%s' does not have an IPAddress\n"
+msgstr "- Хост '%s' не имеет IP-адрес\n"
+
+#: src/mainmenu.c:706
+#, c-format
+msgid ""
+"- The interface '%s' does not have a device. Please enter a device in the "
+"Interfaces Section\n"
+msgstr ""
+"- Интерфейс '%s' не имеет устройства. Введите устройство в разделе "
+"Интерфейсы\n"
+
+#: src/mainmenu.c:770
+#, c-format
+msgid ""
+"- The ipaddress '%s' of interface '%s' (%s) does not match the ipaddress of "
+"the actual interface (%s)\n"
+msgstr ""
+"- IP-адрес '%s' интерфейса '%s' (%s) не соответствует IP-адресу настоящего "
+"интерфейса (%s)\n"
+
+#: src/mainmenu.c:738
+#, c-format
+msgid "- The ipaddress '%s' of interface '%s' is invalid\n"
+msgstr "- IP-адрес '%s' интерфейса '%s' недопустим\n"
+
+#: src/mainmenu.c:520
+msgid ""
+"- The last time the changes were applied, applying the changes failed for "
+"Vuurmuur. Please check the Error.log\n"
+msgstr ""
+"- Ошибка применения последних изменеий Vuurmuur. Подробности смотрите в "
+"файле Error.log\n"
+
+#: src/mainmenu.c:525
+msgid ""
+"- The last time the changes were applied, applying the changes failed for "
+"Vuurmuur_log. Please check the Error.log\n"
+msgstr ""
+"- Ошибка применения последних изменеий Vuurmuur_log. Подробности смотрите в "
+"файле Error.log\n"
+
+#: src/mainmenu.c:927
+#, c-format
+msgid "- The netmask '%s' of network '%s' is invalid. See the Zones Section\n"
+msgstr "- Сетевая маска '%s' сети '%s' недопустима. Смотрите раздел Зоны\n"
+
+#: src/mainmenu.c:915
+#, c-format
+msgid "- The netmask for network '%s' is missing. See the Zones Section\n"
+msgstr "- Отсутствует сетевая маска сети '%s'. Смотрите раздел Зоны\n"
+
+#: src/mainmenu.c:884
+#, c-format
+msgid ""
+"- The network '%s' as no interfaces attached to it. Please attach one or "
+"more interfaces to it in the Zones Section\n"
+msgstr ""
+"- Сеть '%s' не имеет подключенных интерфейсов. Подключите хотя бы один "
+"интерфейс к ней в разделе Зоны\n"
+
+#: src/mainmenu.c:905
+#, c-format
+msgid "- The network address '%s' of network '%s' is invalid."
+msgstr "- Сетевой адрес '%s' сети '%s' недопустим."
+
+#: src/mainmenu.c:893
+#, c-format
+msgid ""
+"- The network address for network '%s' is missing. See the Zones Section\n"
+msgstr "- Отсутствует сетевой адрес сети '%s'. Смотрите раздел Зоны\n"
+
+#: src/mainmenu.c:580
+msgid ""
+"- The path to the 'iptables'-command is not yet specified. Please do so in "
+"the 'Vuurmuur Config' section\n"
+msgstr ""
+"Не указан путь для команды 'iptables'. Введите его в разделе 'Настройки "
+"Vuurmuur'\n"
+
+#: src/mainmenu.c:587
+msgid ""
+"- The path to the 'iptables'-command seems to be wrong. There was an error "
+"while testing it. Please check it in your system and correct it in the "
+"'Vuurmuur Config' section\n"
+msgstr ""
+"- Неверный путь для команды 'iptables'. Ошибка во время тестирования. "
+"Убедитесь в наличии 'iptables' на Вашей системе и введите правильный путь в "
+"разделе 'Настройки Vuurmuur'\n"
+
+#: src/mainmenu.c:596
+msgid ""
+"- The path to the 'iptables-restore'-command is not yet specified. Please do "
+"so in the 'Vuurmuur Config' section\n"
+msgstr ""
+"- Не указан путь для команды 'iptables-restore'. Введите его в разделе "
+"'Настройки Vuurmuur'\n"
+
+#: src/mainmenu.c:603
+msgid ""
+"- The path to the 'iptables-restore'-command seems to be wrong. There was an "
+"error while testing it. Please check it in your system and correct it in the "
+"'Vuurmuur Config' section\n"
+msgstr ""
+"- Неверный путь для команды 'iptables-restore'. Ошибка во время "
+"тестирования. Убедитесь в наличии 'iptables-restore' на Вашей системе и "
+"введите правильный путьв разделе 'Настройки Vuurmuur'\n"
+
+#: src/mainmenu.c:491
+msgid ""
+"- The path to the Vuurmuur helpfile was not specified, please do so in the "
+"Vuurmuur_conf Settings\n"
+msgstr ""
+"- Не указан путь в файлу помощи Vuurmuur. Введите его в разделе 'Настройки "
+"Vuurmuur_conf'\n"
+
+#: src/zones_section.c:4470
+msgid "0.0.0.0/8 res."
+msgstr "0.0.0.0/8 рзв."
+
+#: src/bw_sec.c:579
+msgid "7-days"
+msgstr "7-дней"
+
+#: src/help.c:1215 src/help.c:1217 src/mainmenu.c:1470
+msgid "About"
+msgstr "О программе"
+
+#: src/rules_form.c:1597 src/rules_form.c:3285 src/rules_form.c:4142
+msgid "Action"
+msgstr "Действие"
+
+#. TRANSLATORS: is an object active or in-active?
+#: src/services_section.c:2178 src/zones_section.c:2146
+#: src/zones_section.c:4317 src/zones_section.c:5751 src/strings.h:53
+msgid "Active"
+msgstr "Активно"
+
+#: src/conn_sec.c:1093 src/logview_section.c:1394
+#, c-format
+msgid "Active filter: '%s' (press 'enter' to clear)."
+msgstr "Активный фильтр: '%s' (нажмите <Enter> для очистки)."
+
+#: src/rules_form.c:2115
+#, c-format
+msgid "Active filter: '%s' (press 'f' and then just 'enter' to clear)."
+msgstr "Активный фильтр: '%s' (нажмите <f> и затем только <Enter> для отмены)."
+
+#: src/statevent.c:563 src/statevent.c:854
+msgid "Add both source and destination to BlockList"
+msgstr "Добавить в список запрета и источника и адресата"
+
+#: src/statevent.c:560 src/statevent.c:851
+#, c-format
+msgid "Add destination %s to BlockList"
+msgstr "Добавить адресата %s в список запрета"
+
+#: src/statevent.c:557 src/statevent.c:848
+#, c-format
+msgid "Add source %s to BlockList"
+msgstr "Добавить источник %s в список запрета"
+
+#: src/statevent.c:686 src/statevent.c:694 src/statevent.c:702
+#: src/statevent.c:965 src/statevent.c:973 src/statevent.c:981
+msgid "Add to BlockList and Apply Changes"
+msgstr "Добавить в список запрета и применить изменения"
+
+#: src/config_section.c:1668
+msgid "Advanced mode by default:"
+msgstr "Расширенный режим по умолчанию:"
+
+#: src/logview_section.c:1643
+msgid "Already searching. Press 'S' to stop current search."
+msgstr "Поиск уже идет. Нажмите 'S' для остановки."
+
+#: src/rules_form.c:4591
+msgid "An error was detected in the rule"
+msgstr "Обнаружена ошибка в правиле."
+
+#: src/zones_section.c:4618
+msgid "Anti-spoofing"
+msgstr "Предотвр. подлога"
+
+#: src/rules_form.c:4348 src/rules_form.c:4363 src/rules_form.c:4456
+#: src/rules_form.c:4471
+msgid "Any"
+msgstr "Any"
+
+#: src/mainmenu.c:1423 src/mainmenu.c:1469
+msgid "Apply Changes"
+msgstr "Применить изменения"
+
+#: src/logview_section.c:1424
+msgid "Applying changed filter..."
+msgstr "Установка измененного фильтра..."
+
+#: src/mainmenu.c:1084 src/mainmenu.c:1091
+msgid "Applying changes ..."
+msgstr "Применение изменений..."
+
+#: src/if_sec.c:1667 src/rules_form.c:2286 src/services_section.c:1570
+#: src/services_section.c:2896 src/statevent.c:606 src/statevent.c:621
+#: src/statevent.c:636 src/statevent.c:649 src/statevent.c:662
+#: src/statevent.c:676 src/statevent.c:686 src/statevent.c:694
+#: src/statevent.c:702 src/statevent.c:899 src/statevent.c:915
+#: src/statevent.c:928 src/statevent.c:941 src/statevent.c:955
+#: src/statevent.c:965 src/statevent.c:973 src/statevent.c:981
+msgid "Are you sure?"
+msgstr "Вы уверены?"
+
+#: src/rules_form.c:4079
+msgid ""
+"Average new connections per amount of time (to prevent DoS), 0 for no limit."
+msgstr ""
+"Среднее число нов. соед-ий в ед. времени (для предотвр. DoS-атак), 0 без огран-я."
+
+#: src/config_section.c:2630 src/config_section.c:2768 src/mainmenu.c:196
+#: src/mainmenu.c:314
+msgid "Back"
+msgstr "Выход"
+
+#: src/mainmenu.c:1638
+msgid "Backend"
+msgstr "Хранилище"
+
+#: src/mainmenu.c:1459 src/zones_section.c:6622 src/zones_section.c:6892
+msgid "BlockList"
+msgstr "Список запрета"
+
+#: src/mainmenu.c:1726
+msgid "BlockList converted successfully."
+msgstr "Список запрета преобразован успешно."
+
+#: src/statevent.c:554 src/statevent.c:845
+msgid "BlockList options"
+msgstr "Настройки cписка запрета"
+
+#: src/services_section.c:2188 src/strings.h:55
+msgid "Broadcast"
+msgstr "Широковещание"
+
+#: src/zones_section.c:4500
+msgid "Broadcast dst."
+msgstr "Широков.адресат"
+
+#: src/zones_section.c:4485
+msgid "Broadcast src."
+msgstr "Широков.ист-к"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:466
+msgid "Buffer"
+msgstr "Буфер"
+
+#: src/config_section.c:1667
+msgid "Buffersize logviewer (number of lines):"
+msgstr "Размер буфера просмотра журнала (число строк):"
+
+#: src/rules_form.c:3614
+msgid "Burst"
+msgstr "Заброс"
+
+#: src/config_section.c:1269 src/config_section.c:1276
+msgid "Burst-rate"
+msgstr "Степень заброса"
+
+#. TRANSLATORS: max 4 chars: CONNECTING, like building a new connection.
+#: src/conn_sec.c:245
+msgid "CONN"
+msgstr "СОЕД"
+
+#. TRANSLATORS: max 5 chars.
+#: src/stat_sec.c:464
+msgid "Cache"
+msgstr "Кэш"
+
+#: src/config_section.c:32
+msgid "Capabilities"
+msgstr "Возможности"
+
+#: src/rules_form.c:3641
+msgid "Chain"
+msgstr "Цепочка"
+
+#: src/config_section.c:410
+msgid "Check interval:"
+msgstr "Интервал проверки:"
+
+#: src/zones_section.c:4365
+msgid "Class A"
+msgstr "Класс A"
+
+#: src/zones_section.c:4380
+msgid "Class B"
+msgstr "Класс B"
+
+#: src/zones_section.c:4395
+msgid "Class C"
+msgstr "Класс C"
+
+#: src/zones_section.c:4410
+msgid "Class D"
+msgstr "Класс D"
+
+#: src/zones_section.c:4425
+msgid "Class E"
+msgstr "Класс E"
+
+#: src/services_section.c:1150
+msgid "Code"
+msgstr "Код"
+
+#: src/if_sec.c:336 src/rules_form.c:3477 src/services_section.c:2208
+#: src/zones_section.c:255 src/zones_section.c:2156 src/zones_section.c:4550
+#: src/zones_section.c:5760
+msgid "Comment"
+msgstr "Описание"
+
+#: src/mainmenu.c:1640
+msgid "Config"
+msgstr "Настройки"
+
+#: src/config_section.c:2676
+msgid "Configuration Menu"
+msgstr "Меню настроек"
+
+#: src/conn_sec.c:936
+msgid "Connecting"
+msgstr "Подсоединение"
+
+#: src/strings.h:174
+msgid "Connecting to"
+msgstr "Соединение с"
+
+#. TRANSLATORS: max 11 chars.
+#: src/config_section.c:26 src/conn_sec.c:726 src/conn_sec.c:894
+#: src/conn_sec.c:934 src/conn_sec.c:1113 src/mainmenu.c:1466
+#: src/stat_sec.c:471
+msgid "Connections"
+msgstr "Соединения"
+
+#: src/conn_sec.c:923
+msgid "Connections Closing"
+msgstr "Закрываемые соединения"
+
+#: src/conn_sec.c:917
+msgid "Connections Initializing"
+msgstr "Инициализируемые соединения"
+
+#: src/config_section.c:133
+msgid "Conntrack location (full path):"
+msgstr "Местоположение conntrack (полный путь):"
+
+#: src/logview_section.c:1537
+msgid "Continue searching."
+msgstr "Продолжение поиска."
+
+#: src/logview_section.c:1535
+msgid "Continue viewing the log."
+msgstr "Продолжение просмотра журнала."
+
+#: src/mainmenu.c:1715
+msgid "Convert BlockList"
+msgstr "Преобразование списка запрета"
+
+#: src/mainmenu.c:1689
+msgid "Convert Rules"
+msgstr "Преобразование правил"
+
+#: src/mainmenu.c:1716
+msgid "Convert the BlockList to the new format (recommended)?"
+msgstr "Преобразовать список запрета в новый формат (рекоммендуется)?"
+
+#: src/mainmenu.c:1690
+msgid "Convert the rules to the new format (recommended)?"
+msgstr "Преобразовать правила в новый формат (рекоммендуется)?"
+
+#: src/config_section.c:2449 src/config_section.c:2473
+#: src/config_section.c:2489
+msgid "Could not check."
+msgstr "Не смог проверить."
+
+#: src/rules_form.c:309
+#, c-format
+msgid "Cur: %d, Min: 1, Max: %d"
+msgstr "Текущ.: %d, Мин.: 1, Макс.: %d"
+
+#. TRANSLATORS: max 7 chars.
+#: src/stat_sec.c:480
+msgid "Current"
+msgstr "Текущие"
+
+#: src/zones_section.c:4530
+msgid "DHCP Client"
+msgstr "DHCP клиент"
+
+#: src/zones_section.c:4515
+msgid "DHCP Server"
+msgstr "DHCP сервер"
+
+#. TRANSLATORS: max 4 chars: DISCONNECTING, an existing connection is shutting down.
+#: src/conn_sec.c:277
+msgid "DISC"
+msgstr "РАСС"
+
+#: src/mainmenu.c:1645
+msgid "Daemons"
+msgstr "Демоны"
+
+#: src/config_section.c:1659
+msgid "Defaults for creating new rules:"
+msgstr "Значение по умолчанию для нового правила:"
+
+#: src/if_sec.c:1667 src/services_section.c:2896 src/zones_section.c:1447
+#: src/zones_section.c:3010 src/zones_section.c:5522 src/zones_section.c:6420
+msgid "Delete"
+msgstr "Удаление"
+
+#: src/services_section.c:1570
+msgid "Delete portrange"
+msgstr "Удалить диапазон портов"
+
+#: src/rules_form.c:2286
+msgid "Delete rule"
+msgstr "Удалить правило"
+
+#: src/rules_form.c:1885
+msgid "Delete rule cancelled."
+msgstr "Удаление правила прервано."
+
+#: src/rules_form.c:1600 src/services_section.c:457
+msgid "Destination"
+msgstr "Адресат"
+
+#. TRANSLATORS: e.g. eth0 or ppp0
+#: src/strings.h:67
+msgid "Device"
+msgstr "Устр-во"
+
+#: src/conn_sec.c:938
+msgid "Disconnecting"
+msgstr "Рассоединение"
+
+#: src/vuurmuur_conf.c:557
+msgid "Do you want to edit the config now?"
+msgstr "Хотите изменить настройки Vuurmuur сейчас?"
+
+#: src/vuurmuur_conf.c:640
+msgid "Do you want to edit the settings now?"
+msgstr "Хотите изменить настройки Vuurmuur_conf сейчас?"
+
+#: src/rules_form.c:4592
+msgid "Do you want to look at it again? (no will delete the rule)"
+msgstr "Хотите взглянуть на него снова? (иначе правило будет удалено)"
+
+#: src/rules_form.c:4575
+msgid "Do you want to look at the rule again? (no will delete the rule)"
+msgstr "Хотите взглянуть на правило снова? (иначе правило будет удалено)"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:495
+msgid "Down"
+msgstr "В"
+
+#: src/config_section.c:1672
+msgid "Draw status in Main Menu:"
+msgstr "Отображать статус в главном меню:"
+
+#. TRANSLATORS: max 18 chars
+#: src/strings.h:63
+msgid "Dynamic IP Address"
+msgstr "Динамич. IP-адрес"
+
+#. TRANSLATORS: max 4 chars: ESTABLISHED, an existing connection.
+#: src/conn_sec.c:261
+msgid "ESTA"
+msgstr "УСТА"
+
+#: src/sys_sec.c:90
+msgid "Echo-broadcast protect"
+msgstr "Защита от широковещательного Echo"
+
+#: src/config_section.c:1203
+msgid "Edit Config: Connections"
+msgstr "Изменение настроек: Соединения"
+
+#: src/config_section.c:102
+msgid "Edit Config: General"
+msgstr "Изменение настроек: Общие"
+
+#: src/config_section.c:375
+msgid "Edit Config: Interfaces"
+msgstr "Изменение настроек: Интерфейсы"
+
+#: src/config_section.c:1972
+msgid "Edit Config: Logging"
+msgstr "Изменение настроек: Ведение журналов"
+
+#: src/config_section.c:641
+msgid "Edit Config: Modules"
+msgstr "Изменение настроек: Модули"
+
+#: src/config_section.c:921
+msgid "Edit Config: Plugins"
+msgstr "Изменение настроек: Плагины"
+
+#: src/zones_section.c:2430 src/zones_section.c:2476
+msgid "Edit Group"
+msgstr "Изменение группы"
+
+#: src/zones_section.c:623
+msgid "Edit Host"
+msgstr "Изменение хоста"
+
+#: src/if_sec.c:374 src/if_sec.c:934
+msgid "Edit Interface"
+msgstr "Изменение интерфейса"
+
+#: src/services_section.c:1886 src/services_section.c:1927
+#: src/services_section.c:1958
+msgid "Edit Portrange"
+msgstr "Изменение диапазона портов"
+
+#: src/rules_form.c:3808
+msgid "Edit Rule"
+msgstr "Изменение правила"
+
+#: src/rules_form.c:3784
+#, c-format
+msgid "Edit Rule: %d"
+msgstr "Изменение правила: %d"
+
+#: src/services_section.c:2250 src/services_section.c:2388
+#: src/services_section.c:2435
+msgid "Edit Service"
+msgstr "Изменение службы"
+
+#: src/zones_section.c:5991
+msgid "Edit Zone"
+msgstr "Изменение зоны"
+
+#: src/zones_section.c:2182
+msgid "Edit Zone: Group"
+msgstr "Изменение зоны: Группа"
+
+#: src/zones_section.c:282
+msgid "Edit Zone: Host"
+msgstr "Изменение зоны: Хост"
+
+#: src/zones_section.c:4577
+msgid "Edit Zone: Network"
+msgstr "Изменение зоны: Сеть"
+
+#: src/zones_section.c:5779
+msgid "Edit Zone: Zone"
+msgstr "Изменение зоны: Зона"
+
+#: src/rules_form.c:4059
+msgid "Enter a comma-sepparated list of ports for the firewall to forward to."
+msgstr ""
+"Введите разделенный запятыми список портов, на которые файервол будет "
+"переправлять."
+
+#: src/rules_form.c:4057
+msgid "Enter a comma-sepparated list of ports for the firewall to listen on."
+msgstr ""
+"Введите разделенный запятыми список портов, которые файервол будет слушать."
+
+#: src/rules_form.c:4077
+msgid "Enter a nfmark. Use > 20.000.000 when using the QUEUE action."
+msgstr ""
+"Введите nfmark. Используйте > 20.000.000 когда применяется действие QUEUE."
+
+#: src/rules_form.c:4061 src/zones_section.c:725
+msgid "Enter a optional comment."
+msgstr "Введите необязательное описание."
+
+#: src/services_section.c:477 src/services_section.c:481
+msgid "Enter a portnumber (1-65535)."
+msgstr "Введите номер порта (1-65535)."
+
+#: src/services_section.c:479 src/services_section.c:483
+msgid "Enter a portnumber (1-65535). This is the high-end of the range."
+msgstr "Введите номер порта (1-65535). Это верхний предел диапазона."
+
+#: src/rules_form.c:4055
+msgid "Enter a portnumber to redirect to."
+msgstr "Введите номер порта для перенаправления."
+
+#: src/rules_form.c:4051
+msgid "Enter a text to be included in the log message."
+msgstr "Введите текст, который будет включен в сообщение журнала."
+
+#: src/rules_form.c:4893
+msgid "Enter an optional comment."
+msgstr "Введите необязательное описание."
+
+#: src/rules_form.c:4853
+msgid "Enter comment (optional)"
+msgstr "Введите описание (необязательно)"
+
+#: src/rules_form.c:2093 src/filter.c:203
+msgid "Enter filter (leave empty for no filter)"
+msgstr "Введите фильтр (оставьте пустым без фильтра)"
+
+#: src/zones_section.c:6741
+msgid "Enter the IPAddress to be blocked"
+msgstr "Введите IP-адрес для запрета"
+
+#: src/zones_section.c:2951
+msgid "Enter the name of the new group"
+msgstr "Введите имя новой группы:"
+
+#: src/zones_section.c:1388
+msgid "Enter the name of the new host"
+msgstr "Введите имя нового хоста:"
+
+#: src/zones_section.c:5467
+msgid "Enter the name of the new network"
+msgstr "Введите имя новой сети:"
+
+#: src/zones_section.c:6377
+msgid "Enter the name of the new zone"
+msgstr "Введите имя новой зоны:"
+
+#: src/zones_section.c:2900
+msgid "Enter the new name of the group"
+msgstr "Введите новое имя группы:"
+
+#: src/zones_section.c:1335
+msgid "Enter the new name of the host"
+msgstr "Введите новое имя хоста:"
+
+#: src/zones_section.c:5413
+msgid "Enter the new name of the network"
+msgstr "Введите новое имя сети:"
+
+#: src/zones_section.c:6356
+msgid "Enter the new name of the zone"
+msgstr "Введите новое имя зоны:"
+
+#: src/rules_form.c:308
+msgid "Enter the new rule number:"
+msgstr "Введите нов.номер правила:"
+
+#: src/mainmenu.c:1021 src/templates.c:592 src/strings.h:97
+msgid "Error"
+msgstr "Ошибка"
+
+#: src/config_section.c:2545
+msgid ""
+"Essential capabilities are not loaded, missing, or not properly detected. "
+"Try loading modules?"
+msgstr ""
+"Существенные способности не были загружены, отсутствуют или не былиправильно "
+"обнаружены. Попытаться загрузить модули?"
+
+#: src/conn_sec.c:937
+msgid "Established"
+msgstr "Установлено"
+
+#: src/conn_sec.c:910
+msgid "Established Connections"
+msgstr "Усстановленные соединения"
+
+#: src/strings.h:95
+msgid "FAILED"
+msgstr "СБОЙ"
+
+#. TRANSLATORS: max 3 chars: FORWARDING, an forwarding connection.
+#: src/conn_sec.c:343
+msgid "FWD"
+msgstr "ПЕР"
+
+#: src/filter.c:158
+msgid "Filter"
+msgstr "Фильтр"
+
+#: src/conn_sec.c:1098 src/logview_section.c:1399 src/rules_form.c:2131
+msgid "Filter removed."
+msgstr "Фильтр удален."
+
+#: src/logview_section.c:221
+#, c-format
+msgid "Filter: %s"
+msgstr "Фильтр: %s"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:487
+msgid "Firewall"
+msgstr "Файервол"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:489
+msgid "Forwarded"
+msgstr "Переправлено"
+
+#: src/conn_sec.c:949
+msgid "Forwarded Connections"
+msgstr "Соединений пересылки"
+
+#: src/conn_sec.c:897
+msgid "Forwarding"
+msgstr "Пересылаемые"
+
+#. TRANSLATORS: max 5 chars.
+#: src/stat_sec.c:462
+msgid "Free"
+msgstr "Своб."
+
+#: src/rules_form.c:3400
+msgid "From"
+msgstr "Из"
+
+#: src/config_section.c:25
+msgid "General"
+msgstr "Основные"
+
+#: src/zones_section.c:6719 src/zones_section.c:6770 src/strings.h:32
+msgid "Group"
+msgstr "Группа"
+
+#: src/zones_section.c:2689 src/zones_section.c:2818 src/zones_section.c:2978
+#: src/zones_section.c:3110 src/zones_section.c:4626 src/zones_section.c:5314
+#: src/zones_section.c:5595 src/zones_section.c:5819
+msgid "Groups"
+msgstr "Групп"
+
+#: src/help.c:1049 src/help.c:1068
+msgid "Help"
+msgstr "Помощь"
+
+#: src/services_section.c:453 src/services_section.c:459
+msgid "High"
+msgstr "Верхний"
+
+#: src/zones_section.c:6718 src/zones_section.c:6770 src/zones_section.c:6775
+#: src/strings.h:30
+msgid "Host"
+msgstr "Хост"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:443
+msgid "Hostname"
+msgstr "Имя хоста"
+
+#: src/zones_section.c:877 src/zones_section.c:1239 src/zones_section.c:1425
+#: src/zones_section.c:1572 src/zones_section.c:4624 src/zones_section.c:5313
+#: src/zones_section.c:5591 src/zones_section.c:5817
+msgid "Hosts"
+msgstr "Хостов"
+
+#: src/zones_section.c:5588
+msgid "Hosts, Groups or this Network"
+msgstr "Хосты, группы или эта сеть"
+
+#: src/services_section.c:961
+msgid "ICMP Codes"
+msgstr "Коды ICMP"
+
+#: src/services_section.c:720
+msgid "ICMP Types"
+msgstr "Типы ICMP"
+
+#. TRANSLATORS: max 3 chars: INCOMING, an incoming connection.
+#: src/conn_sec.c:313
+msgid "IN"
+msgstr "ВХД"
+
+#: src/strings.h:58
+msgid "IP address"
+msgstr "IP-адрес"
+
+#: src/zones_section.c:6717 src/zones_section.c:6739
+msgid "IPAddress"
+msgstr "IP-адрес"
+
+#: src/zones_section.c:723
+msgid "If set to 'No' no rules will be created for it."
+msgstr "Если установить в 'Нет', для него не будет создано правил."
+
+#. TRANSLATORS: max 6 chars.
+#: src/bw_sec.c:574 src/bw_sec.c:577 src/bw_sec.c:580 src/bw_sec.c:583
+#: src/bw_sec.c:586 src/stat_sec.c:499
+msgid "In"
+msgstr "Вхд"
+
+#: src/conn_sec.c:896
+msgid "Incoming"
+msgstr "Входящие"
+
+#: src/conn_sec.c:956
+msgid "Incoming Connections"
+msgstr "Входящих соединений"
+
+#: src/strings.h:99
+msgid "Info"
+msgstr "Инфо"
+
+#: src/strings.h:169
+msgid "Initializing BlockList"
+msgstr "Инициализация списка запрета"
+
+#: src/strings.h:166
+msgid "Initializing Interfaces"
+msgstr "Инициализация интерфейсов"
+
+#: src/strings.h:168
+msgid "Initializing Rules"
+msgstr "Инициализация правил"
+
+#: src/strings.h:165
+msgid "Initializing Services"
+msgstr "Инициализация сервисов"
+
+#: src/strings.h:167
+msgid "Initializing Zones"
+msgstr "Инициализация зон"
+
+#: src/bw_sec.c:572 src/strings.h:38
+msgid "Interface"
+msgstr "Интерфейс"
+
+#. TRANSLATORS: max 11 chars.
+#: src/config_section.c:27 src/if_sec.c:1235 src/if_sec.c:1541
+#: src/if_sec.c:1643 src/if_sec.c:1718 src/mainmenu.c:1461 src/stat_sec.c:492
+#: src/zones_section.c:3708
+msgid "Interfaces"
+msgstr "Интерфейсы"
+
+#: src/config_section.c:953
+msgid "Interfaces Backend:"
+msgstr "Хранилище интерфейсов:"
+
+#: src/strings.h:98
+msgid "Internal Error"
+msgstr "Внутр. ошибка"
+
+#: src/config_section.c:2545
+msgid "Iptables Capabilities"
+msgstr "Возможностей iptables"
+
+#: src/config_section.c:131
+msgid "Iptables location (full path):"
+msgstr "Местоположение iptables (полный путь):"
+
+#: src/config_section.c:132
+msgid "Iptables-restore location (full path):"
+msgstr "Местоположение iptables-restore (полный путь):"
+
+#. TRANSLATORS: max 18 chars
+#: src/if_sec.c:359
+msgid "Is interface up?"
+msgstr "Интерф. включен?"
+
+#: src/statevent.c:548 src/statevent.c:551 src/statevent.c:839
+#: src/statevent.c:842
+#, c-format
+msgid "Kill all connections of %s"
+msgstr "Разорвать все соединения %s"
+
+#: src/statevent.c:545 src/statevent.c:836
+#, c-format
+msgid "Kill all connections with destination %s"
+msgstr "Разорвать все соединения с адресатом %s"
+
+#: src/statevent.c:542 src/statevent.c:833
+#, c-format
+msgid "Kill all connections with source %s"
+msgstr "Разорвать все соединения с источником %s"
+
+#: src/statevent.c:536
+msgid "Kill all connections with this service/source/destination"
+msgstr "Разорвать все соединения с данными служба/источник/адресат"
+
+#: src/statevent.c:606
+msgid "Kill connection"
+msgstr "Разорвать соединение"
+
+#: src/statevent.c:621 src/statevent.c:636 src/statevent.c:649
+#: src/statevent.c:662 src/statevent.c:676 src/statevent.c:899
+#: src/statevent.c:915 src/statevent.c:928 src/statevent.c:941
+#: src/statevent.c:955
+msgid "Kill connections"
+msgstr "Разорвать соединения"
+
+#: src/statevent.c:539 src/statevent.c:830
+msgid "Kill options"
+msgstr "Настройки разрыва"
+
+#: src/statevent.c:535 src/statevent.c:826
+msgid "Kill this connection"
+msgstr "Разорвать данное соединение"
+
+#: src/bw_sec.c:585
+msgid "Last month"
+msgstr "Посл. месяц"
+
+#: src/rules_form.c:3540
+msgid "Limit"
+msgstr "Предел"
+
+#: src/config_section.c:1267
+msgid "Limit new TCP connections."
+msgstr "Ограничение новых TCP-соединений."
+
+#: src/config_section.c:1273
+msgid "Limit new udp 'connections'."
+msgstr "Ограничение новых UDP-соединений."
+
+#: src/config_section.c:2037
+msgid "Limit of the number of logs per second (0 for no limit):"
+msgstr "Ограничение числа событий в сек. (0 - без огран-ий):"
+
+#: src/zones_section.c:4455
+msgid "Link local net"
+msgstr "Соед.лок.сети"
+
+#: src/zones_section.c:2227
+msgid "List of members:"
+msgstr "Список членов:"
+
+#: src/services_section.c:2267
+msgid "List of portranges:"
+msgstr "Список диапазонов портов:"
+
+#: src/rules_form.c:3416
+msgid "Listen Interface"
+msgstr "Слушаемый интерфейс"
+
+#: src/rules_form.c:3733
+msgid "Listen port"
+msgstr "Слушаем.порт"
+
+#. TRANSLATORS: max 10 chars.
+#: src/stat_sec.c:458
+msgid "Load"
+msgstr "Нагрузка"
+
+#: src/strings.h:172
+msgid "Loading Vuurmuur config"
+msgstr "Загрузка настроек Vuurmuur"
+
+#: src/strings.h:171
+msgid "Loading Vuurmuur_conf settings"
+msgstr "Загрузка настроек Vuurmuur_log"
+
+#: src/logview_section.c:887
+msgid "Loading log ..."
+msgstr "Загрузка журнала..."
+
+#: src/logview_section.c:869
+#, c-format
+msgid "Loading loglines into memory (trying to load %u lines)..."
+msgstr "Загрузка строк журнала в память (пытаюсь загрузить %u строк)..."
+
+#: src/logview_section.c:1028
+#, c-format
+msgid "Loading loglines into memory... loaded %d lines."
+msgstr "Загрузка строк журнала в память... загружено %d строк."
+
+#: src/strings.h:170
+msgid "Loading plugins"
+msgstr "Загрузка плагинов"
+
+#: src/rules_form.c:3495
+msgid "Log"
+msgstr "Журнал"
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2064
+msgid "Log Fragments:"
+msgstr "Вести журнал фрагментов:"
+
+#: src/config_section.c:2039
+msgid "Log TCP options (for use with PSAD):"
+msgstr "Сохранять в журнале настройки TCP (используется с PSAD):"
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2044
+msgid "Log blocklist violations:"
+msgstr "Вести журнал нарушений списка запрета:"
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2054
+msgid "Log new TCP packets with no SYN flag set:"
+msgstr "Вести журнал новых пакетов TCP без флага SYN:"
+
+#. TRANSLATORS: max 55 chars, don't translate 'INVALID'
+#: src/config_section.c:2049
+msgid "Log packets with state INVALID:"
+msgstr "Вести журнал пакетов в состоянии INVALID:"
+
+#. TRANSLATORS: max 55 chars
+#: src/config_section.c:2059
+msgid "Log scan probe packets:"
+msgstr "Вести журнал пакетов попыток сканирования:"
+
+#: src/config_section.c:2033
+msgid "Log the default policy? (DROP):"
+msgstr "Вести журнал политики по умолчанию? (DROP):"
+
+#: src/config_section.c:1661
+msgid "Log the rule"
+msgstr "Журнал для правила"
+
+#: src/config_section.c:2031
+msgid "Logfile containing IPtables/Netfilter logs:"
+msgstr "Файл, содержащий журналы IPtables/Netfilter:"
+
+#: src/config_section.c:29
+msgid "Logging"
+msgstr "Ведение журналов"
+
+#: src/config_section.c:2030
+msgid "Loglevel (for use with syslog, requires vuurmuur restart):"
+msgstr "Уровень протоколир-я (исп-ся с syslog, нужен перезапуск Vuurmuur):"
+
+#: src/config_section.c:1665
+msgid "Loglimit per second"
+msgstr "Предел числа событий в секунду"
+
+#: src/logview_section.c:883 src/logview_section.c:885
+#: src/logview_section.c:1756 src/mainmenu.c:233 src/mainmenu.c:251
+#: src/mainmenu.c:318 src/mainmenu.c:1464
+msgid "Logview"
+msgstr "Просмотр журнала"
+
+#: src/logview_section.c:1069
+msgid "Logview starting.\n"
+msgstr "Запуск просмотра журнала.\n"
+
+#: src/zones_section.c:686
+msgid "Look at the host again?"
+msgstr "Взглянуть на этот хост снова?"
+
+#: src/zones_section.c:4350
+msgid "Loopback"
+msgstr "Loopback"
+
+#: src/services_section.c:452 src/services_section.c:458
+msgid "Low"
+msgstr "Нижний"
+
+#: src/zones_section.c:485
+#, c-format
+msgid "MAC Address '%s' is invalid."
+msgstr "MAC-адрес '%s' недопустим."
+
+#: src/strings.h:59
+msgid "MAC address"
+msgstr "MAC-адрес"
+
+#: src/mainmenu.c:1684
+msgid "Main"
+msgstr "Главное"
+
+#: src/mainmenu.c:1581
+msgid "Main Menu"
+msgstr "Главное меню"
+
+#: src/statevent.c:495
+msgid "Manage Connection"
+msgstr "Управление соединением"
+
+#: src/statevent.c:1039
+msgid "Manage Connections"
+msgstr "Управление соединениями"
+
+#: src/statevent.c:775
+msgid "Manage Log"
+msgstr "Управление журналом"
+
+#: src/statevent.c:1049
+msgid "Manage Logging"
+msgstr "Управление ведением журналов"
+
+#. TRANSLATORS: max 7 chars
+#: src/rules_form.c:3375
+msgid "Mark"
+msgstr "Метка"
+
+#. TRANSLATORS: max 7 chars.
+#: src/stat_sec.c:482
+msgid "Maximal"
+msgstr "Максим."
+
+#: src/rules_form.c:4083
+msgid "Maximum new connections per second (to prevent DoS), 0 for no limit."
+msgstr ""
+"Макс. число нов. соед-ий в сек. (для предотвр. DoS-атак), 0 без огран-я."
+
+#: src/rules_form.c:4063
+msgid "Maximum number of loglines per second (to prevent DoS), 0 for no limit."
+msgstr ""
+"Макс. число журнал-х событий в сек. (для предотвр. DoS-атак), 0 без огран-я."
+
+#: src/zones_section.c:1711 src/zones_section.c:2424 src/zones_section.c:2534
+msgid "Members"
+msgstr "Члены"
+
+#. TRANSLATORS: max 9 chars.
+#: src/stat_sec.c:468
+msgid "Memory(MB)"
+msgstr "Память(МБ)"
+
+#: src/config_section.c:675
+msgid "Modprobe location (full path)"
+msgstr "Местоположение modprobe (полный путь):"
+
+#: src/config_section.c:30
+msgid "Modules"
+msgstr "Модули"
+
+#: src/rules_form.c:282
+msgid "Move Rule"
+msgstr "Переместить правило"
+
+#: src/rules_form.c:212
+msgid "Moving rule..."
+msgstr "Перемещаю правило..."
+
+#: src/if_sec.c:437 src/services_section.c:2262 src/zones_section.c:322
+#: src/zones_section.c:2222 src/zones_section.c:4617 src/zones_section.c:5813
+msgid "Name"
+msgstr "Имя"
+
+#: src/zones_section.c:4338
+msgid "Netmask"
+msgstr "Маска"
+
+#: src/zones_section.c:4327 src/zones_section.c:5315 src/strings.h:34
+msgid "Network"
+msgstr "Сеть"
+
+#: src/zones_section.c:4916 src/zones_section.c:4984 src/zones_section.c:5220
+#: src/zones_section.c:5815
+msgid "Networks"
+msgstr "Сети"
+
+#: src/zones_section.c:2951
+msgid "New Group"
+msgstr "Новая группа"
+
+#: src/zones_section.c:1388
+msgid "New Host"
+msgstr "Новый хост"
+
+#: src/zones_section.c:6741
+msgid "New IPAddress"
+msgstr "Новый IP-адрес"
+
+#: src/if_sec.c:1631
+msgid "New Interface"
+msgstr "Новый интерфейс"
+
+#: src/zones_section.c:5467
+msgid "New Network"
+msgstr "Новая сеть"
+
+#: src/services_section.c:2857
+msgid "New Service"
+msgstr "Новая служба"
+
+#: src/zones_section.c:6377
+msgid "New Zone"
+msgstr "Новая зона"
+
+#: src/zones_section.c:3579
+msgid "New interface"
+msgstr "Новый интерфейс"
+
+#: src/zones_section.c:1911
+msgid "New member"
+msgstr "Новый член"
+
+#: src/services_section.c:1372
+msgid "New portrange"
+msgstr "Новый диапазон портов"
+
+#: src/strings.h:92
+msgid "No"
+msgstr "Нет"
+
+#: src/mainmenu.c:1020
+msgid "No changes"
+msgstr "Изменений нет"
+
+#: src/statevent.c:1041
+msgid "No connections to act on."
+msgstr "Нет установленных соединений."
+
+#: src/statevent.c:1051
+msgid "No logs to act on."
+msgstr "Нет журналов для обработки."
+
+#: src/zones_section.c:2229
+msgid "No members assigned yet."
+msgstr "Члены еще не назначены."
+
+#. TRANSLATORS: max 32 chars
+#: src/zones_section.c:5144
+#, c-format
+msgid "No network/netmask defined."
+msgstr "Не определена сеть/сетевая маска"
+
+#: src/services_section.c:2269
+msgid "No portranges defined yet."
+msgstr "Диапазоны портов еще не определены."
+
+#: src/help.c:1097
+msgid "No problems were detected in the current setup.\n"
+msgstr "Проблем в текущих настройках не обнаружено.\n"
+
+#: src/mainmenu.c:2114
+msgid "No problems were detected in your setup\n"
+msgstr "Настройки в норме\n"
+
+#: src/logview_section.c:1732
+msgid "No search in progress."
+msgstr "Поиск не выполняется."
+
+#: src/rules_form.c:4574
+msgid "Not all required fields are filled in"
+msgstr "Не все требуемые поля заполнены"
+
+#: src/mainmenu.c:1018
+msgid "Not connected"
+msgstr "Не соединен"
+
+#: src/zones_section.c:4907 src/zones_section.c:5033
+msgid "Note: parent zone is inactive."
+msgstr "Внимание: родительская зона неактивна."
+
+#: src/zones_section.c:618 src/zones_section.c:731 src/zones_section.c:2419
+#: src/zones_section.c:2524
+msgid "Note: parent zone/network is inactive."
+msgstr "Внимание: родительская зона/сеть неактивна."
+
+#: src/templates.c:271
+msgid "Note: whitespaces not allowed."
+msgstr "Внимание: пробелы не допустимы."
+
+#. TRANSLATORS: max 3 chars
+#: src/rules_form.c:1596
+msgid "Nr."
+msgstr "No"
+
+#: src/config_section.c:1268
+msgid "Number of SYN-packets per second"
+msgstr "Число SYN-пакетов в секунду"
+
+#: src/config_section.c:1275
+msgid "Number of new UDP 'connections' per second"
+msgstr "Число новых UDP-соединений в секунду"
+
+#: src/strings.h:94
+msgid "OK"
+msgstr "OK"
+
+#. TRANSLATORS: max 3 chars: OUTGOING, an outgoing connection.
+#: src/conn_sec.c:328
+msgid "OUT"
+msgstr "ИСХ"
+
+#: src/logview_section.c:873 src/logview_section.c:1417 src/mainmenu.c:1055
+msgid "One moment please..."
+msgstr "Пожалуйста, ждите..."
+
+#: src/mainmenu.c:2078
+msgid ""
+"One or more problems were detected in your current setup. Below is a list\n"
+msgstr "Обнаружены проблемы в текущих настройках. Список указан ниже\n"
+
+#: src/rules_form.c:1601
+msgid "Options"
+msgstr "Настройки"
+
+#. TRANSLATORS: max 7 chars.
+#: src/stat_sec.c:477
+msgid "Other"
+msgstr "Другие"
+
+#. TRANSLATORS: max 6 chars.
+#: src/bw_sec.c:575 src/bw_sec.c:578 src/bw_sec.c:581 src/bw_sec.c:584
+#: src/bw_sec.c:587 src/stat_sec.c:501
+msgid "Out"
+msgstr "Исх"
+
+#: src/conn_sec.c:898
+msgid "Outgoing"
+msgstr "Исходящие"
+
+#: src/conn_sec.c:962
+msgid "Outgoing Connections"
+msgstr "Исходящих соединений"
+
+#: src/rules_form.c:3454
+msgid "Outgoing Interface"
+msgstr "Исход. интерфейс"
+
+#: src/mainmenu.c:1635
+msgid "Overall"
+msgstr "Общие"
+
+#: src/gui.c:35
+msgid "Please Wait"
+msgstr "Ждите..."
+
+#: src/zones_section.c:719
+msgid "Please enter an ipaddress (mandatory)."
+msgstr "Введите IP-адрес (обязательно):"
+
+#: src/zones_section.c:721
+msgid "Please enter the macaddress (optional)."
+msgstr "Введите MAC-адрес (необязательно):"
+
+#: src/strings.h:85
+msgid "Please enter the name"
+msgstr "Пожалуйста, введите имя"
+
+#: src/services_section.c:2857
+msgid "Please enter the name of the new service"
+msgstr "Введите имя новой службы:"
+
+#: src/logview_section.c:1503 src/logview_section.c:1648
+msgid "Please first close the current search by pressing SPACE."
+msgstr "Пожалуйста, закройте сначала текущий поиск нажав <ПРОБЕЛ>."
+
+#: src/config_section.c:31
+msgid "Plugins"
+msgstr "Плагины"
+
+#: src/strings.h:43
+msgid "Portrange"
+msgstr "Диапазон портов"
+
+#: src/strings.h:45
+msgid "Portranges"
+msgstr "Диапазоны портов"
+
+#: src/rules_form.c:3523
+msgid "Prefix"
+msgstr "Префикс"
+
+#: src/help.c:902 src/help.c:904
+msgid "Press <F10> to close this window."
+msgstr "Нажмите <F10>, чтобы закрыть это окно."
+
+#: src/zones_section.c:2223
+msgid "Press <F6> to manage the members of this group."
+msgstr "Нажмите <F6> для изменения членов группы."
+
+#: src/services_section.c:2263
+msgid "Press <F6> to manage the portranges of this service."
+msgstr "Нажмите <F6> для указания диапазона портов службы."
+
+#. TRANSLATORS: max 27 chars.
+#: src/mainmenu.c:1655
+msgid "Press F5 for details."
+msgstr "Нажмите <F5> для деталей."
+
+#: src/rules_form.c:4049
+msgid "Press SPACE to select a host, group or network, or the firewall."
+msgstr "Нажмите <ПРОБЕЛ> для выбора хоста, группы, сети или файервола."
+
+#: src/rules_form.c:4053
+msgid "Press SPACE to select a reject type."
+msgstr "Нажмите <ПРОБЕЛ> для выбора типа отказа."
+
+#: src/rules_form.c:4047
+msgid "Press SPACE to select a service."
+msgstr "Нажмите <ПРОБЕЛ> для выбора службы."
+
+#: src/services_section.c:1165
+msgid "Press SPACE to select an ICMP-code."
+msgstr "Нажмите <ПРОБЕЛ>, чтобы выбрать код ICMP."
+
+#: src/services_section.c:1163
+msgid "Press SPACE to select an ICMP-type."
+msgstr "Нажмите <ПРОБЕЛ>, чтобы выбрать тип ICMP."
+
+#: src/rules_form.c:4045
+msgid "Press SPACE to select an action."
+msgstr "Нажмите <ПРОБЕЛ> для выбора действия."
+
+#: src/rules_form.c:4071 src/rules_form.c:4073
+msgid "Press SPACE to select an interface to limit this rule to."
+msgstr ""
+"Нажмите <ПРОБЕЛ> для выбора интерфейса, к которому будет применено это "
+"правило."
+
+#: src/rules_form.c:4075
+msgid "Press SPACE to select an interface. Read help for more info."
+msgstr ""
+"Нажмите <ПРОБЕЛ> для выбора интерфейса. Для дополнительной информации "
+"смотрите Помощь."
+
+#: src/rules_form.c:4065
+msgid "Press SPACE to toggle logging of this rule."
+msgstr "Нажмите <ПРОБЕЛ> для изменения ведения журнала этого правила."
+
+#: src/rules_form.c:4069
+msgid "Press SPACE to toggle queue'ing of this rule."
+msgstr "Нажмите <ПРОБЕЛ> для изменения постановки этого правила в очередь."
+
+#: src/templates.c:530 src/templates.c:593
+msgid "Press any key to continue..."
+msgstr "Для продолжения нажмите любую клавишу..."
+
+#: src/vuurmuur_conf.c:556
+msgid "Problem with the Vuurmuur config"
+msgstr "Проблема в настройках Vuurmuur"
+
+#: src/vuurmuur_conf.c:639
+msgid "Problem with the Vuurmuur_conf settings"
+msgstr "Проблема в настройках Vuurmuur_conf"
+
+#: src/if_sec.c:254
+msgid "Protection"
+msgstr "Защита"
+
+#: src/strings.h:57
+msgid "Protocol Helper"
+msgstr "Помощник прот-ла"
+
+#: src/services_section.c:2198
+msgid "Protocol helper"
+msgstr "Помощник прот-ла"
+
+#: src/rules_form.c:3302
+msgid "Queue"
+msgstr "Очередь"
+
+#: src/rules_form.c:3333
+msgid "Queue number"
+msgstr "Номер очереди"
+
+#: src/rules_form.c:4067
+msgid "Queue number to use. Possible values: 0-65535."
+msgstr "Исп. номер очереди. Возможные значения: 0-65535."
+
+#: src/mainmenu.c:1471
+msgid "Quit"
+msgstr "Выйти"
+
+#: src/logview_section.c:2004 src/mainmenu.c:1709 src/mainmenu.c:1735
+#: src/rules_form.c:1613 src/rules_form.c:2016 src/rules_form.c:2047
+#: src/rules_form.c:4662 src/rules_form.c:4967 src/services_section.c:571
+#: src/services_section.c:1273 src/zones_section.c:752
+#: src/zones_section.c:1609 src/zones_section.c:2083 src/zones_section.c:2555
+#: src/zones_section.c:3140 src/zones_section.c:5064 src/zones_section.c:5702
+#: src/zones_section.c:6074 src/zones_section.c:6524 src/zones_section.c:7067
+#: src/strings.h:90
+msgid "Ready."
+msgstr "Готов."
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:503
+msgid "Recv"
+msgstr "Принято"
+
+#: src/rules_form.c:3708
+msgid "Redirect port"
+msgstr "Порт перенапр."
+
+#: src/rules_form.c:3685 src/rules_form.c:4266
+msgid "Reject type"
+msgstr "Тип отказа"
+
+#: src/rules_form.c:3757
+msgid "Remote port"
+msgstr "Удален. порт"
+
+#: src/zones_section.c:6979
+msgid "Remove"
+msgstr "Удалить"
+
+#: src/zones_section.c:2900
+msgid "Rename Group"
+msgstr "Переименование группы"
+
+#: src/zones_section.c:1335
+msgid "Rename Host"
+msgstr "Переименование хоста"
+
+#: src/if_sec.c:1602
+msgid "Rename Interface"
+msgstr "Переименование интерфейса"
+
+#: src/zones_section.c:5413
+msgid "Rename Network"
+msgstr "Переименование сети"
+
+#: src/services_section.c:2833
+msgid "Rename Service"
+msgstr "Переименование службы"
+
+#: src/zones_section.c:6356
+msgid "Rename Zone"
+msgstr "Переименование зоны"
+
+#: src/rules_form.c:3564
+msgid "Rule Limit"
+msgstr "Предел правила"
+
+#: src/mainmenu.c:1458 src/rules_form.c:1607 src/rules_form.c:1872
+#: src/rules_form.c:1981
+msgid "Rules"
+msgstr "Правила"
+
+#: src/config_section.c:954
+msgid "Rules Backend:"
+msgstr "Хранилище правил:"
+
+#: src/rules_form.c:1455
+msgid "Rules Section"
+msgstr "Список правил"
+
+#: src/mainmenu.c:1700
+msgid "Rules converted successfully."
+msgstr "Правила преобразованы успешно."
+
+#: src/config_section.c:271 src/config_section.c:534 src/config_section.c:816
+#: src/config_section.c:1090 src/config_section.c:2337
+msgid "Saving config failed"
+msgstr "Сохраняю настройки"
+
+#: src/config_section.c:271 src/config_section.c:534 src/config_section.c:816
+#: src/config_section.c:1090 src/config_section.c:2337
+msgid "Saving the config failed. Sure you want to quit?"
+msgstr "Ошибка сохранения настроек. Вы уверены, что хотите выйти?"
+
+#: src/logview_section.c:1673
+msgid "Search"
+msgstr "Поиск"
+
+#: src/logview_section.c:1306
+msgid "Search ERROR. Press SPACE to return to normal logging."
+msgstr "Ошибка поиска. Нажмите <ПРОБЕЛ> для возврата к просмотру журнала."
+
+#: src/logview_section.c:1892
+#, c-format
+msgid "Search PAUSED: %lu matches so far. SPACE to continue, 'S' to stop."
+msgstr ""
+"Поиск ПРИОСТАНОВЛЕН: %lu совпадений найдено. <ПРОБЕЛ> - продолжение, <S> - "
+"отмена."
+
+#: src/logview_section.c:1301
+msgid "Search canceled. Press SPACE to return to normal logging."
+msgstr "Поиск прерван. Нажмите <ПРОБЕЛ> для возврата к просмотру журнала."
+
+#: src/logview_section.c:1316
+#, c-format
+msgid "Search done: %lu matches. Press SPACE to return to normal logging."
+msgstr ""
+"Поиск завершен: %lu совпадений. Нажмите <ПРОБЕЛ> для возврата к просмотру "
+"журнала."
+
+#: src/logview_section.c:1498
+msgid "Search in progress. Press 'S' to stop current search."
+msgstr "Идет поиск. Нажмите 'S' для остановки."
+
+#: src/logview_section.c:1890
+#, c-format
+msgid "Search in progress: %lu matches so far. SPACE to pause, 'S' to stop."
+msgstr "Идет поиск: %lu совпадений найдено. <ПРОБЕЛ> - пауза, <S> - отмена."
+
+#: src/logview_section.c:1708
+msgid "Search started. Press 'S' to stop searching."
+msgstr "Поиск начат. Нажмите 'S' для остановки."
+
+#: src/logview_section.c:240
+#, c-format
+msgid "Search: %s"
+msgstr "Поиск: %s"
+
+#: src/rules_form.c:4210 src/rules_form.c:4249 src/zones_section.c:5588
+#: src/zones_section.c:6736 src/zones_section.c:6823
+msgid "Select"
+msgstr "Выберите"
+
+#: src/services_section.c:1372
+msgid "Select a Protocol"
+msgstr "Выберите протокол"
+
+#: src/zones_section.c:1911
+msgid "Select a host"
+msgstr "Выберите хост"
+
+#: src/zones_section.c:6823
+msgid "Select a host or group to block"
+msgstr "Выберите хост или группу для запрета"
+
+#: src/rules_form.c:4210
+msgid "Select a host, group or network"
+msgstr "Выберите хост, группу или сеть."
+
+#: src/mainmenu.c:249
+msgid "Select a log to view."
+msgstr "Выберите журнал для просмотра."
+
+#: src/config_section.c:2692
+msgid "Select a section."
+msgstr "Выберите раздел."
+
+#: src/rules_form.c:4249
+msgid "Select a service"
+msgstr "Выберите службу"
+
+#: src/rules_form.c:4143
+msgid "Select action"
+msgstr "Выберите действие"
+
+#: src/rules_form.c:4520 src/zones_section.c:3579
+msgid "Select an interface"
+msgstr "Выберите интерфейс"
+
+#: src/rules_form.c:4356 src/rules_form.c:4464
+msgid "Select an interface ('Any' to disable filter)"
+msgstr "Выберите интерфейс ('Any' для отмены фильтра)"
+
+#: src/rules_form.c:4266
+msgid "Select reject type"
+msgstr "Выберите тип отказа"
+
+#: src/rules_form.c:4548
+msgid "Select time unit"
+msgstr "Выберите единицу времени"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:505
+msgid "Send"
+msgstr "Послано"
+
+#: src/rules_form.c:1598 src/rules_form.c:3358 src/strings.h:40
+msgid "Service"
+msgstr "Служба"
+
+#: src/mainmenu.c:1462 src/services_section.c:2659 src/services_section.c:2776
+#: src/services_section.c:2877 src/services_section.c:2950
+msgid "Services"
+msgstr "Службы"
+
+#: src/config_section.c:951
+msgid "Services Backend:"
+msgstr "Хранилище служб:"
+
+#: src/rules_form.c:4520
+msgid "Set Via interface"
+msgstr "Установите интерфейс Через"
+
+#: src/rules_form.c:4356 src/rules_form.c:4464
+msgid "Set interface filter"
+msgstr "Установить фильтр интерфейса"
+
+#: src/rules_form.c:2093
+msgid "Set the filter"
+msgstr "Установить фильтр"
+
+#: src/mainmenu.c:1642
+msgid "Settings"
+msgstr "Установки"
+
+#: src/rules_form.c:2161 src/rules_form.c:2179 src/rules_form.c:2197
+msgid "Showing all rules."
+msgstr "Видны все правила."
+
+#: src/rules_form.c:2160
+msgid "Showing only forward rules."
+msgstr "Видны только правила пересылки."
+
+#: src/rules_form.c:2178
+msgid "Showing only input rules."
+msgstr "Видны только вход. правила."
+
+#: src/rules_form.c:2196
+msgid "Showing only output rules."
+msgstr "Видны только исход. правила."
+
+#: src/rules_form.c:1599 src/services_section.c:451
+msgid "Source"
+msgstr "Источник"
+
+#. TRANSLATORS: max 11 chars.
+#: src/stat_sec.c:485
+msgid "Speed/s"
+msgstr "Скор-ть/сек"
+
+#: src/help.c:1103 src/mainmenu.c:1465 src/vuurmuur_conf.c:260
+msgid "Status"
+msgstr "Статус"
+
+#: src/stat_sec.c:397
+msgid "Status Section"
+msgstr "Раздел статуса"
+
+#: src/mainmenu.c:1019
+msgid "Success"
+msgstr "Успех"
+
+#: src/sys_sec.c:86
+msgid "Syn-flood protection"
+msgstr "Защина от SYN-затопления"
+
+#: src/mainmenu.c:1648
+msgid "System"
+msgstr "Система"
+
+#: src/config_section.c:28 src/sys_sec.c:60
+msgid "System Protection"
+msgstr "Защита системы"
+
+#: src/stat_sec.c:848
+msgid "System Status"
+msgstr "Статус системы"
+
+#: src/services_section.c:381
+msgid "TCP Portrange"
+msgstr "Диапазон портов TCP"
+
+#: src/zones_section.c:4440
+msgid "Test-net"
+msgstr "Тестовая сеть"
+
+#: src/strings.h:180
+msgid "The action is now"
+msgstr "Действие сейчас"
+
+#: src/strings.h:179
+msgid "The date is now"
+msgstr "Дата сейчас"
+
+#: src/strings.h:183
+msgid "The destination is now"
+msgstr "Адресат сейчас"
+
+#: src/strings.h:185
+msgid "The details are now"
+msgstr "Детали сейчас"
+
+#: src/mainmenu.c:1424
+msgid "The overall status is not OK. Apply anyway?"
+msgstr "Общий статус не в норме. Применить все-равно?"
+
+#: src/strings.h:184
+msgid "The prefix is now"
+msgstr "Префикс сейчас"
+
+#: src/help.c:913
+msgid "The requested helptext was not found.\n"
+msgstr "Требуемый раздел помощи не найден.\n"
+
+#: src/strings.h:181
+msgid "The service is now"
+msgstr "Служба сейчас"
+
+#: src/strings.h:182
+msgid "The source is now"
+msgstr "Источник сейчас"
+
+#: src/zones_section.c:2244
+#, c-format
+msgid "There are %d more members. Press F6 to manage."
+msgstr "Назначено %d членов. Нажмите <F6> для изменения."
+
+#: src/services_section.c:2325
+#, c-format
+msgid "There are %d more portranges. Press F6 to manage."
+msgstr "Есть %d диапазонов портов. Нажмите <F6> для изменения."
+
+#: src/zones_section.c:6979
+msgid "This IP/Host/Group?"
+msgstr "Этот IP/Хост/Группу?"
+
+#: src/zones_section.c:3010
+msgid "This group?"
+msgstr "Эта группа?"
+
+#: src/zones_section.c:1447
+msgid "This host?"
+msgstr "Этот хост?"
+
+#: src/vuurmuur_conf.c:278
+#, c-format
+msgid "This is Vuurmuur_conf %s, Copyright (c) 2003-2006 by Victor Julien"
+msgstr "Это Vuurmuur_conf %s, Copyright (c) 2003-2006 by Victor Julien"
+
+#: src/bw_sec.c:582
+msgid "This month"
+msgstr "Этот месяц"
+
+#: src/zones_section.c:5522
+msgid "This network?"
+msgstr "Эта сеть?"
+
+#: src/zones_section.c:6420
+msgid "This zone?"
+msgstr "Эту зону"
+
+#: src/mainmenu.c:1022
+msgid "Timed out"
+msgstr "Время вышло"
+
+#: src/rules_form.c:3438
+msgid "To"
+msgstr "В"
+
+#: src/bw_sec.c:573
+msgid "Today"
+msgstr "Сегодня"
+
+#. TRANSLATORS: max 5 chars.
+#: src/conn_sec.c:895 src/conn_sec.c:935 src/stat_sec.c:460
+msgid "Total"
+msgstr "Итого"
+
+#: src/bw_sec.c:776 src/mainmenu.c:1467
+msgid "Traffic Volume"
+msgstr "Объем трафика"
+
+#: src/bw_sec.c:525
+msgid "Traffic Volume Section"
+msgstr "Раздел объем трафика"
+
+#: src/services_section.c:1149
+msgid "Type"
+msgstr "Тип"
+
+#: src/services_section.c:383
+msgid "UDP Portrange"
+msgstr "Диапазон портов UDP"
+
+#: src/rules_form.c:4547
+msgid "Unit"
+msgstr "Единица"
+
+#: src/rules_form.c:4081
+msgid "Unit for the limit: sec, min, hour, day."
+msgstr "Единица изм. для ограничения: сек, мин, час, день"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:497
+msgid "Up"
+msgstr "Из"
+
+#. TRANSLATORS: max 6 chars.
+#: src/stat_sec.c:453
+msgid "Uptime"
+msgstr "Вр.раб"
+
+#: src/vuurmuur_conf.c:534
+#, c-format
+msgid "Version: %s"
+msgstr "Версия: %s"
+
+#: src/rules_form.c:3663
+msgid "Via"
+msgstr "Через"
+
+#: src/config_section.c:2426
+msgid "View Capabilities"
+msgstr "Просмотр возможностей"
+
+#. TRANSLATORS: e.g. eth0:0 is a virtual device
+#: src/strings.h:71
+msgid "Virtual"
+msgstr "Вирт-ное"
+
+#: src/config_section.c:2694 src/mainmenu.c:1463
+msgid "Vuurmuur Config"
+msgstr "Настройки Vuurmuur"
+
+#: src/mainmenu.c:1418
+msgid ""
+"Vuurmuur daemon not running. Can't notify it of any changes. Please start it "
+"first."
+msgstr "Демон Vuurmuur не запущен. Невозможно оповестить его об изменениях."
+" Пожалуйста, запустите его сначала."
+
+#: src/config_section.c:2029
+msgid "Vuurmuur logfiles location (full path):"
+msgstr "Местоположение журналов Vuurmuur (полный путь):"
+
+#: src/config_section.c:1604 src/config_section.c:1808 src/mainmenu.c:1468
+msgid "Vuurmuur_conf Settings"
+msgstr "Настройки Vuurmuur_conf"
+
+#: src/templates.c:529 src/vuurmuur_conf.c:463 src/strings.h:100
+msgid "Warning"
+msgstr "Предупреждение"
+
+#: src/zones_section.c:4901 src/zones_section.c:5025
+msgid "Warning: no interfaces attached!"
+msgstr "Предупр: нет подсоед-х интерф-в!"
+
+#: src/zones_section.c:2414 src/zones_section.c:2517
+msgid "Warning: no members!"
+msgstr "Предупреждение: нет членов!"
+
+#: src/services_section.c:2224
+msgid "Warning: no port(range)s defined!"
+msgstr "Предупреждение: не указан диапазон портов!"
+
+#: src/mainmenu.c:1633 src/mainmenu.c:1669
+#, c-format
+msgid "Welcome to Vuurmuur_conf %s"
+msgstr "Добро пожаловать в Vuurmuur_conf %s"
+
+#: src/zones_section.c:6736
+msgid "What do you want to block?"
+msgstr "Что Вы хотите запретить?"
+
+#: src/logview_section.c:1673
+msgid "What do you want to search for?"
+msgstr "Что Вы хотите найти?"
+
+#: src/strings.h:91
+msgid "Yes"
+msgstr "Да"
+
+#: src/bw_sec.c:576
+msgid "Yesterday"
+msgstr "Вчера"
+
+#: src/config_section.c:1263
+msgid "You can limit the number of new connections per second:"
+msgstr "Вы можете ограничить число новых соединений в секунду:"
+
+#: src/strings.h:36
+msgid "Zone"
+msgstr "Зона"
+
+#: src/mainmenu.c:1460 src/zones_section.c:6193 src/zones_section.c:6307
+#: src/zones_section.c:6398 src/zones_section.c:6485 src/zones_section.c:6504
+msgid "Zones"
+msgstr "Зоны"
+
+#: src/config_section.c:952
+msgid "Zones Backend:"
+msgstr "Хранилище зон:"
+
+#: src/strings.h:139
+msgid "a member has been added"
+msgstr "добавлен член"
+
+#: src/strings.h:140
+msgid "a member has been removed"
+msgstr "член удален"
+
+#: src/conn_sec.c:685
+msgid "account"
+msgstr "счетчик"
+
+#. TRANSLATORS: is an object active or in-active?
+#: src/strings.h:51
+msgid "active"
+msgstr "активно"
+
+#: src/zones_section.c:6828
+#, c-format
+msgid "adding host/group to list failed (in: %s:%d)."
+msgstr "ошибка добавления хоста/группы в список (в: %s:%d)."
+
+#: src/zones_section.c:5489
+msgid "adding network failed."
+msgstr "ошибка создания сети."
+
+#: src/if_sec.c:900 src/rules_form.c:3234
+msgid "advanced"
+msgstr "расширенный"
+
+#: src/conn_sec.c:1266 src/conn_sec.c:1336
+msgid "all connections already gone, none killed."
+msgstr "все соединения уже завершены, нечего разрывать."
+
+#: src/strings.h:145
+msgid "an interface has been added"
+msgstr "добавлен интерфейс"
+
+#: src/strings.h:146
+msgid "an interface has been removed"
+msgstr "интерфейс удален"
+
+#: src/mainmenu.c:1293
+msgid "applying changes failed. Please check error.log."
+msgstr "ошибка применения изменений. Смотрите файл error.log."
+
+#: src/vuurmuur_conf.c:780
+#, c-format
+msgid "attaching to shared memory failed: %s (in: %s:%d)."
+msgstr "ошибка подсоединения к разделяемой памяти: %s (в: %s:%d)."
+
+#: src/mainmenu.c:381 src/mainmenu.c:426
+#, c-format
+msgid "attaching to shared memory failed: %s."
+msgstr "ошибка присоединения к разделяемой памяти: %s."
+
+#: src/bw_sec.c:732 src/config_section.c:1789 src/config_section.c:2652
+#: src/conn_sec.c:687 src/help.c:1153 src/if_sec.c:901 src/if_sec.c:1533
+#: src/logview_section.c:741 src/logview_section.c:757 src/mainmenu.c:184
+#: src/rules_form.c:1427 src/rules_form.c:3235 src/services_section.c:1873
+#: src/services_section.c:2357 src/services_section.c:2756 src/stat_sec.c:777
+#: src/zones_section.c:572 src/zones_section.c:1222 src/zones_section.c:2390
+#: src/zones_section.c:2801 src/zones_section.c:4867 src/zones_section.c:5959
+#: src/zones_section.c:6294 src/zones_section.c:6874 src/statevent.c:490
+#: src/statevent.c:769 src/statevent.c:1090
+msgid "back"
+msgstr "назад"
+
+#: src/strings.h:54
+msgid "broadcast"
+msgstr "широковещание"
+
+#: src/bw_sec.c:463 src/if_sec.c:1156 src/rules_form.c:1491
+#: src/rules_form.c:3275 src/rules_form.c:4331 src/rules_form.c:4437
+#: src/rules_form.c:4496 src/rules_form.c:4829 src/services_section.c:401
+#: src/services_section.c:633 src/services_section.c:638
+#: src/services_section.c:643 src/services_section.c:870
+#: src/services_section.c:876 src/services_section.c:882
+#: src/services_section.c:1117 src/services_section.c:1650
+#: src/services_section.c:2172 src/stat_sec.c:322 src/zones_section.c:215
+#: src/zones_section.c:807 src/zones_section.c:1646 src/zones_section.c:1884
+#: src/zones_section.c:2140 src/zones_section.c:2619 src/zones_section.c:3559
+#: src/zones_section.c:3642 src/zones_section.c:4310 src/zones_section.c:5126
+#: src/zones_section.c:5746 src/zones_section.c:6122 src/zones_section.c:6553
+#: src/filter.c:177
+#, c-format
+msgid "calloc failed: %s (in: %s:%d)."
+msgstr "сбой calloc: %s (в: %s:%d)."
+
+#: src/mainmenu.c:1567
+#, c-format
+msgid "calloc failed: %s."
+msgstr " сбой calloc: %s."
+
+#: src/mainmenu.c:146
+msgid "cannot rename blocklistfile because its location is not set"
+msgstr ""
+"невозможно переименовать файл списка запрета, так как не указано его "
+"месторасположение"
+
+#: src/mainmenu.c:78
+msgid "cannot rename rulesfile because its location is not set"
+msgstr ""
+"невозможно переименовать файл правил, так как не указано его "
+"месторасположение"
+
+#: src/config_section.c:2111
+msgid ""
+"changing the logdir requires applying changes to get into effect in the "
+"logviewer."
+msgstr ""
+"изменение каталога журналов требует перезапуска Vuurmuur для вступленияв "
+"силу."
+
+#: src/config_section.c:409
+msgid "check dynamic interfaces for changes."
+msgstr "проверка изменения динамических интерфейсов."
+
+#: src/config_section.c:2523 src/config_section.c:2553
+msgid "checking capabilities failed."
+msgstr "ошибка проверки возможностей."
+
+#: src/logview_section.c:259
+#, c-format
+msgid "checking failed for '%s': %s."
+msgstr "ошибка проверки для '%s': %s."
+
+#: src/logview_section.c:739 src/logview_section.c:756
+msgid "clear"
+msgstr "очистить"
+
+#: src/logview_section.c:1984
+#, c-format
+msgid "closing logfile failed: %s."
+msgstr "ошибка закрытия файла журнала: %s."
+
+#: src/bw_sec.c:403
+#, c-format
+msgid "closing of '%s' failed: %s (in: %s:%d)."
+msgstr "ошибка закрытия '%s': %s (в: %s:%d)."
+
+#: src/logview_section.c:1289
+#, c-format
+msgid "closing search pipe failed: %s."
+msgstr "ошибка закрытия канала поиска: %s."
+
+#: src/vuurmuur_conf.c:167
+msgid "commandline argument too long for option -c."
+msgstr "аргумент в командной строке слишком велик для настройки -c."
+
+#: src/vuurmuur_conf.c:178
+msgid "commandline debuglevel out of range."
+msgstr "уровень отладки в командной строке вне диапазона."
+
+#: src/conn_sec.c:680
+msgid "connect"
+msgstr "соединения"
+
+#: src/statevent.c:1040
+msgid "connection actions"
+msgstr "действия"
+
+#: src/mainmenu.c:1722
+msgid "converting BlockList failed."
+msgstr "ошибка преобразования списка запрета."
+
+#: src/mainmenu.c:1696
+msgid "converting rules failed."
+msgstr "ошибка преобразования правил."
+
+#: src/logview_section.c:852
+#, c-format
+msgid "could not examine the logfile: %s."
+msgstr "не могу разобрать журнал: %s."
+
+#: src/bw_sec.c:345
+#, c-format
+msgid "could not parse month '%s' (in: %s:%d)."
+msgstr "месяц указан неверно '%s' (в: %s:%d)."
+
+#: src/bw_sec.c:556 src/rules_form.c:3800 src/rules_form.c:4868
+#: src/zones_section.c:313
+msgid "creating form failed."
+msgstr "ошибка создания формы."
+
+#: src/if_sec.c:1649
+msgid "creating new interface failed."
+msgstr "ошибка создания интерфейса."
+
+#: src/services_section.c:2881
+msgid "creating new service failed."
+msgstr "ошибка создания новой служба."
+
+#: src/bw_sec.c:534 src/rules_form.c:3793 src/rules_form.c:4861
+#: src/zones_section.c:289 src/filter.c:168
+msgid "creating panel failed."
+msgstr "ошибка создания панели."
+
+#: src/bw_sec.c:528 src/if_sec.c:1257 src/if_sec.c:1268
+#: src/logview_section.c:876 src/logview_section.c:1039
+#: src/logview_section.c:1049 src/logview_section.c:1061
+#: src/logview_section.c:1419 src/mainmenu.c:1057 src/rules_form.c:284
+#: src/rules_form.c:1457 src/rules_form.c:1476 src/rules_form.c:3787
+#: src/rules_form.c:4855 src/services_section.c:2680
+#: src/services_section.c:2691 src/templates.c:861 src/templates.c:872
+#: src/zones_section.c:284 src/zones_section.c:916 src/zones_section.c:927
+#: src/zones_section.c:1731 src/zones_section.c:1742 src/zones_section.c:2721
+#: src/zones_section.c:2732 src/zones_section.c:3726 src/zones_section.c:3737
+#: src/zones_section.c:5241 src/zones_section.c:5252 src/zones_section.c:6215
+#: src/zones_section.c:6226 src/zones_section.c:6660 src/zones_section.c:6671
+#: src/filter.c:161
+msgid "creating window failed."
+msgstr "ошибка создания окна."
+
+#. TRANSLATORS: max 3 chars.
+#: src/stat_sec.c:447
+msgid "day"
+msgstr "дней"
+
+#: src/if_sec.c:1530 src/rules_form.c:1423 src/services_section.c:1872
+#: src/services_section.c:2753 src/zones_section.c:1218
+#: src/zones_section.c:2797 src/zones_section.c:6290 src/zones_section.c:6873
+msgid "del"
+msgstr "удалить"
+
+#: src/strings.h:83
+msgid "delete failed"
+msgstr "ошибка удаления"
+
+#: src/zones_section.c:3043
+msgid "deleting group failed."
+msgstr "ошибка удаления группы."
+
+#: src/if_sec.c:1673
+#, c-format
+msgid "deleting interface %s failed."
+msgstr "ошибка удаления интерфейса %s."
+
+#: src/zones_section.c:5535
+msgid "deleting network failed."
+msgstr "ошибка удаления сети."
+
+#: src/zones_section.c:6428
+#, c-format
+msgid "deleting zone failed (in: %s:%d)."
+msgstr "ошибка удаления зоны (в: %s:%d)."
+
+#: src/zones_section.c:1495
+msgid "deleting zone failed."
+msgstr "ошибка удаления зоны."
+
+#: src/conn_sec.c:686
+msgid "details"
+msgstr "детали"
+
+#. TRANSLATORS: e.g. eth0 or ppp0
+#: src/strings.h:65
+msgid "device"
+msgstr "устр-во"
+
+#. TRANSLATORS: max 18 chars
+#: src/strings.h:61
+msgid "dynamic IP Address"
+msgstr "динамич. IP-адрес"
+
+#: src/if_sec.c:1532 src/rules_form.c:1424 src/services_section.c:1871
+#: src/services_section.c:2755 src/zones_section.c:1221
+#: src/zones_section.c:2800 src/zones_section.c:6293 src/strings.h:159
+msgid "edit"
+msgstr "изменить"
+
+#: src/services_section.c:1534
+#, c-format
+msgid "edit of protocol %d not supported."
+msgstr "изменение протокола %d не поддерживается."
+
+#: src/zones_section.c:538
+msgid "empty IP address. No rules will be created for this host."
+msgstr "Не задан IP-адрес. Для этого хоста не будут созданы правила."
+
+#: src/bw_sec.c:866 src/bw_sec.c:867 src/bw_sec.c:898 src/bw_sec.c:899
+#: src/bw_sec.c:930 src/bw_sec.c:931 src/bw_sec.c:962 src/bw_sec.c:963
+#: src/bw_sec.c:1009 src/bw_sec.c:1010 src/stat_sec.c:828 src/stat_sec.c:844
+#: src/stat_sec.c:889 src/stat_sec.c:890 src/stat_sec.c:891 src/stat_sec.c:892
+#: src/topmenu.c:82
+#, c-format
+msgid "error"
+msgstr "ошибка"
+
+#: src/if_sec.c:345 src/services_section.c:2217 src/zones_section.c:267
+#: src/zones_section.c:2168 src/zones_section.c:4572
+msgid "error while loading the comment."
+msgstr "ошибка загрузки описания."
+
+#: src/zones_section.c:2982
+msgid "failed to create new group."
+msgstr "ошибка создания группы."
+
+#: src/conn_sec.c:684 src/logview_section.c:737 src/logview_section.c:754
+#: src/rules_form.c:1426
+msgid "filter"
+msgstr "фильтр"
+
+#: src/logview_section.c:865
+#, c-format
+msgid "fseek failed: %s."
+msgstr "сбой fseek: %s."
+
+#: src/conn_sec.c:597
+msgid "getting the connections failed."
+msgstr "ошибка установки соединения."
+
+#: src/strings.h:31
+msgid "group"
+msgstr "группа"
+
+#: src/zones_section.c:3035
+#, c-format
+msgid "group '%s' is still in the blocklist (%u times)."
+msgstr "группа '%s' все еще в списке запрета (%u раз)."
+
+#: src/zones_section.c:2989
+#, c-format
+msgid "groupname '%s' is invalid."
+msgstr "имя группы '%s' недопустимо."
+
+#: src/conn_sec.c:682
+msgid "grp"
+msgstr "группа"
+
+#. TRANSLATORS: this must be exactly the same regarding positions.
+#: src/stat_sec.c:449
+msgid "h  m  s"
+msgstr " ч  м  с"
+
+#. TRANSLATORS: example: service 'http' has been changed: portrange 'TCP: 1024:65535->80' has been added.
+#: src/strings.h:114
+msgid "has been added"
+msgstr "добавлен"
+
+#: src/strings.h:151 src/strings.h:152
+msgid "has been added to the blocklist"
+msgstr "добавлен в список запрета"
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: src/strings.h:112
+msgid "has been changed"
+msgstr "изменен"
+
+#. TRANSLATORS: example: service 'http' has been created.
+#: src/strings.h:116
+msgid "has been created"
+msgstr "создан"
+
+#. TRANSLATORS: example: service 'http' has been deleted.
+#: src/strings.h:122
+msgid "has been deleted"
+msgstr "удален"
+
+#. TRANSLATORS: example: service 'http' has been changed: portrange 'TCP: 1024:65535->80' has been removed.
+#: src/strings.h:120
+msgid "has been removed"
+msgstr "удален"
+
+#. TRANSLATORS: example: service 'htpt' has been renamed to 'http'.
+#: src/strings.h:118
+msgid "has been renamed to"
+msgstr "переименован в"
+
+#: src/bw_sec.c:731 src/config_section.c:1788 src/config_section.c:2651
+#: src/conn_sec.c:676 src/if_sec.c:899 src/if_sec.c:1528
+#: src/logview_section.c:734 src/logview_section.c:752 src/mainmenu.c:1531
+#: src/rules_form.c:1421 src/rules_form.c:3233 src/services_section.c:1869
+#: src/services_section.c:2355 src/services_section.c:2751 src/stat_sec.c:776
+#: src/zones_section.c:571 src/zones_section.c:1216 src/zones_section.c:2388
+#: src/zones_section.c:2795 src/zones_section.c:4865 src/zones_section.c:5958
+#: src/zones_section.c:6288 src/zones_section.c:6871 src/statevent.c:489
+#: src/statevent.c:768 src/statevent.c:1088
+msgid "help"
+msgstr "помощь"
+
+#: src/logview_section.c:1562 src/logview_section.c:1574
+#: src/logview_section.c:1586 src/logview_section.c:1598
+#: src/logview_section.c:1610 src/logview_section.c:1622
+#: src/logview_section.c:1634
+msgid "hidden"
+msgstr "спрятан"
+
+#: src/logview_section.c:740
+msgid "hide"
+msgstr "спрятать"
+
+#: src/strings.h:29
+msgid "host"
+msgstr "хост"
+
+#: src/zones_section.c:1483
+#, c-format
+msgid "host '%s' is still a member of %u group(s)."
+msgstr "хост '%s' все еще член %u групп(ы)."
+
+#: src/zones_section.c:1488
+#, c-format
+msgid "host '%s' is still in the blocklist (%u times)."
+msgstr "хост '%s' все еще в списке запрета (%u раз)."
+
+#: src/conn_sec.c:679
+msgid "in/out/fw"
+msgstr "вх/исх/пер"
+
+#: src/strings.h:37
+msgid "interface"
+msgstr "интерфейс"
+
+#: src/zones_section.c:4866
+msgid "interfaces"
+msgstr "интерфейсы"
+
+#: src/vuurmuur_conf.c:714
+msgid "intializing the interfaces failed."
+msgstr "ошибка инициализация интерфейсов."
+
+#: src/vuurmuur_conf.c:701
+msgid "intializing the services failed."
+msgstr "ошибка инициализация сервисов."
+
+#: src/vuurmuur_conf.c:727
+msgid "intializing the zones failed."
+msgstr "ошибка инициализация зон."
+
+#: src/zones_section.c:2905 src/zones_section.c:2928 src/zones_section.c:2956
+#, c-format
+msgid "invalid groupname '%s'."
+msgstr "недопустимое имя группы '%s'."
+
+#: src/zones_section.c:1340 src/zones_section.c:1363 src/zones_section.c:1393
+#: src/zones_section.c:1416
+#, c-format
+msgid "invalid hostname '%s'."
+msgstr "недопустимое имя хоста '%s'."
+
+#: src/strings.h:84
+msgid "invalid name"
+msgstr "недопустимое имя"
+
+#: src/zones_section.c:5418 src/zones_section.c:5472
+#, c-format
+msgid "invalid networkname '%s'."
+msgstr "недопустимое имя сети '%s'."
+
+#: src/zones_section.c:451
+#, c-format
+msgid "ipaddress '%s' doesn't belong in the network %s/%s."
+msgstr "IP-адрес '%s' не принадлежит сети %s/%s."
+
+#: src/conn_sec.c:1371
+#, c-format
+msgid ""
+"ipaddress belongs to interface '%s'. It will not be added to the blocklist."
+msgstr ""
+"IP-адрес принадлежит интерфейсу '%s'. Он не будет добавлен в список запрета."
+
+#: src/config_section.c:1676
+msgid "iptrafvol.pl location (full path)"
+msgstr "Местоположение iptrafvol.pl (полный путь):"
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: src/strings.h:124
+msgid "is now set to"
+msgstr "установлен в"
+
+#: src/conn_sec.c:1193
+msgid "killing connections is only supported for TCP and UDP."
+msgstr "разрыв соединений поддерживается только для TCP и UDP."
+
+#: src/conn_sec.c:1269 src/conn_sec.c:1339
+#, c-format
+msgid "killing of %d out of %d connections failed."
+msgstr "ошибка разрыва %d из %d соединений."
+
+#: src/conn_sec.c:1272 src/conn_sec.c:1342
+#, c-format
+msgid "killing of all %d connections failed."
+msgstr "ошибка разрыва всех %d соединений."
+
+#: src/config_section.c:2164
+msgid "limit must be between 0-999."
+msgstr "Предел должен быть между 0-999"
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: src/strings.h:80
+msgid "listed below"
+msgstr "список указан ниже"
+
+#: src/config_section.c:678
+msgid "load modules"
+msgstr "загрузить модули"
+
+#: src/vuurmuur_conf.c:688
+msgid "loading the plugins failed."
+msgstr "ошибка загрузки плагинов."
+
+#: src/statevent.c:1050
+msgid "logging actions"
+msgstr "действия журналирования"
+
+#: src/strings.h:186
+msgid "logging options are only available for the traffic.log."
+msgstr "настройки ведения журнала доступны только для traffic.log."
+
+#. TRANSLATORS: don't translate 'loglimit'.
+#: src/rules_form.c:2882
+msgid "loglimit must be 0-999."
+msgstr "loglimit должен быть 0-999."
+
+#: src/bw_sec.c:87 src/help.c:86 src/help.c:95 src/help.c:123 src/help.c:171
+#: src/help.c:180 src/help.c:207 src/if_sec.c:1178 src/logview_section.c:899
+#: src/logview_section.c:937 src/logview_section.c:978
+#: src/logview_section.c:1085 src/logview_section.c:1144
+#: src/logview_section.c:1198 src/rules_form.c:954 src/rules_form.c:1466
+#: src/rules_form.c:2648 src/rules_form.c:2672 src/rules_form.c:2699
+#: src/rules_form.c:2719 src/rules_form.c:2755 src/rules_form.c:2800
+#: src/rules_form.c:2833 src/rules_form.c:2868 src/rules_form.c:2895
+#: src/rules_form.c:2916 src/rules_form.c:2939 src/rules_form.c:2958
+#: src/rules_form.c:2978 src/rules_form.c:2998 src/rules_form.c:3018
+#: src/rules_form.c:3036 src/rules_form.c:3061 src/rules_form.c:3079
+#: src/rules_form.c:4179 src/rules_form.c:4226 src/rules_form.c:4716
+#: src/services_section.c:661 src/services_section.c:674
+#: src/services_section.c:771 src/services_section.c:897
+#: src/services_section.c:909 src/services_section.c:1002
+#: src/services_section.c:1365 src/services_section.c:1686
+#: src/services_section.c:1694 src/templates.c:218 src/templates.c:314
+#: src/zones_section.c:1323 src/zones_section.c:1350 src/zones_section.c:1403
+#: src/zones_section.c:1462 src/zones_section.c:1555 src/zones_section.c:2641
+#: src/zones_section.c:2888 src/zones_section.c:2915 src/zones_section.c:2994
+#: src/zones_section.c:3016 src/zones_section.c:3096 src/zones_section.c:3274
+#: src/zones_section.c:5151 src/zones_section.c:5403 src/zones_section.c:5428
+#: src/zones_section.c:5606 src/zones_section.c:5662 src/zones_section.c:6802
+#, c-format
+msgid "malloc failed: %s (in: %s:%d)."
+msgstr "сбой malloc: %s (в: %s:%d)."
+
+#: src/conn_sec.c:677 src/logview_section.c:735
+msgid "manage"
+msgstr "управлять"
+
+#: src/zones_section.c:2389 src/zones_section.c:2636
+msgid "members"
+msgstr "члены"
+
+#. TRANSLATORS: max 4 chars
+#: src/if_sec.c:1263 src/if_sec.c:1274 src/rules_form.c:1482
+#: src/services_section.c:2686 src/services_section.c:2697 src/templates.c:867
+#: src/templates.c:878 src/zones_section.c:922 src/zones_section.c:933
+#: src/zones_section.c:1737 src/zones_section.c:1748 src/zones_section.c:2727
+#: src/zones_section.c:2738 src/zones_section.c:3732 src/zones_section.c:3743
+#: src/zones_section.c:5247 src/zones_section.c:5258 src/zones_section.c:6221
+#: src/zones_section.c:6232 src/zones_section.c:6666 src/zones_section.c:6677
+msgid "more"
+msgstr "еще"
+
+#: src/rules_form.c:1425
+msgid "move"
+msgstr "переместить"
+
+#: src/strings.h:73
+msgid "netmask"
+msgstr "маска сети"
+
+#: src/strings.h:33
+msgid "network"
+msgstr "сеть"
+
+#: src/strings.h:72
+msgid "network address"
+msgstr "адрес сети"
+
+#: src/if_sec.c:1529 src/rules_form.c:1422 src/services_section.c:1870
+#: src/services_section.c:2752 src/zones_section.c:1217
+#: src/zones_section.c:2796 src/zones_section.c:6289 src/zones_section.c:6872
+#: src/strings.h:157
+msgid "new"
+msgstr "новый"
+
+#: src/rules_form.c:3092
+msgid "new connection limit burst must be 1-9999."
+msgstr "новый предел заброса соединений должен быть 1-9999."
+
+#: src/rules_form.c:3049
+msgid "new connection limit must be 0-9999."
+msgstr "новый предел соединений должен быть 0-999."
+
+#: src/rules_form.c:2414
+msgid "new rule inserted."
+msgstr "новое правило добавлено."
+
+#: src/rules_form.c:4381
+msgid "no 'to' zone, please select one first."
+msgstr "нет исх. зоны, выберите хоть одну сначала."
+
+#: src/services_section.c:859
+#, c-format
+msgid "no ICMP-codes with selected ICMP-type (%d)."
+msgstr "нет кодов ICMP для выбранного типа ICMP (%d)."
+
+#: src/rules_form.c:4277
+msgid "no from zone, please select one first."
+msgstr "нет исх. зоны, выберите хоть одну сначала."
+
+#: src/bw_sec.c:737 src/zones_section.c:3552
+msgid "no interfaces found. Please define an interface first."
+msgstr "не найдены интерфейсы. Сначала необходимо определить интерфейс."
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: src/strings.h:78
+msgid "number of rules"
+msgstr "количество правил"
+
+#: src/services_section.c:133
+msgid ""
+"one of the ports is too low or too high. Valid port values for tcp and udp "
+"are 1-65535."
+msgstr ""
+"один из портов слишком мал или слишком велик. Допустимые значения портов TCP "
+"и UDP:  1-65535."
+
+#: src/services_section.c:155
+msgid ""
+"one of the values is too high. Valid icmp-types values are 1-255 (note that "
+"41-255 are reserved). Valid icmp-codes are 0-16 (note that not all "
+"combinations of types and codes are valid. See http://www.iana.org/"
+"assignments/icmp-parameters for details)."
+msgstr ""
+"одно из значений слишком велико. Допустимые значения типов ICMP: 1-255 (41-"
+"255 зарезервированы). Допустимые значения кодов ICMP: 0-16 (но не "
+"всекомбинации типов и кодов допустимы. Смотрите http://www.iana.org/"
+"assignments/icmp-parameters для подробностей)."
+
+#: src/strings.h:106
+msgid "only ASCII is allowed in the prefix field."
+msgstr "в поле префикса разрешены только символы ASCII."
+
+#: src/services_section.c:206 src/services_section.c:223
+#: src/services_section.c:242 src/services_section.c:263
+#, c-format
+msgid "only one %s portrange is allowed."
+msgstr "только один %s диапазон портов допустим."
+
+#: src/zones_section.c:1220 src/zones_section.c:2799 src/zones_section.c:6292
+msgid "open"
+msgstr "открыть"
+
+#: src/bw_sec.c:222 src/stat_sec.c:225
+#, c-format
+msgid "opening '%s' failed: %s (in: %s:%d)."
+msgstr "ошибка открытия '%s': %s (в: %s:%d)."
+
+#: src/logview_section.c:266
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not allow following "
+"symbolic-links."
+msgstr ""
+"открытие файла '%s': В целях безопасности Vuurmuur не дает следовать по "
+"символическим ссылкам."
+
+#: src/logview_section.c:273
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not allow opening "
+"anything other than a file or a directory."
+msgstr ""
+"открытие файла '%s': В целях безопасности Vuurmuur не дает открывать что-"
+"либо кроме файла или каталога."
+
+#: src/logview_section.c:287
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not open files that "
+"are not owned by root."
+msgstr ""
+"открытие файла '%s': В целях безопасности Vuurmuur не дает открывать файлы,"
+"которые не принадлежат root'у."
+
+#: src/logview_section.c:280
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not open files that "
+"are writable by 'group' or 'other'. Check the file content & permissions."
+msgstr ""
+"открытие файла '%s': В целях безопасности Vuurmuur не дает открывать файлы, "
+"которые открыты для записи 'группе' или 'другим'. Проверьте разрешения для "
+"файла."
+
+#: src/strings.h:104
+msgid "opening file failed"
+msgstr "ошибка открытия файла"
+
+#: src/logview_section.c:828
+#, c-format
+msgid "opening logfile '%s' failed: %s."
+msgstr "ошибка открытия файла журнала '%s': %s."
+
+#: src/logview_section.c:1698
+#, c-format
+msgid "opening pipe failed: %s."
+msgstr "ошибка открытия канала: %s."
+
+#: src/logview_section.c:738 src/logview_section.c:755
+msgid "pause"
+msgstr "пауза"
+
+#: src/zones_section.c:1877
+msgid "please add some hosts to the network first."
+msgstr "сначала добавьте хосты в сеть."
+
+#: src/zones_section.c:6796
+msgid "please create one or more hosts/groups first."
+msgstr "сначала создайте хотя бы один хост/одну группу."
+
+#: src/services_section.c:143
+msgid ""
+"please make sure that the 'high'-port is actually higher than the 'low'-port."
+msgstr ""
+"убедитесь в том, что 'верхний' порт действительно выше чем 'нижний' порт."
+
+#: src/bw_sec.c:743
+msgid "please set the location of the iptrafvol.pl command in the Settings."
+msgstr "пожалуйста, укажите местоположение команды iptrafvol.pl в Настройках"
+
+#: src/strings.h:42
+msgid "portrange"
+msgstr "диапазон портов"
+
+#: src/services_section.c:2356 src/strings.h:44
+msgid "portranges"
+msgstr "диапазоны портов"
+
+#: src/bw_sec.c:568
+msgid "posting the form failed."
+msgstr "ошибка отправки панели."
+
+#: src/strings.h:56
+msgid "protocol helper"
+msgstr "помощник прот-ла"
+
+#. TRANSLATORS: don't translate 'redirectport'.
+#: src/rules_form.c:2686
+msgid "redirectport must be 1-65535."
+msgstr "redirectport должен быть 1-65535."
+
+#: src/strings.h:158
+msgid "remove"
+msgstr "удалить"
+
+#: src/bw_sec.c:412
+#, c-format
+msgid "removing '%s' failed (unlink): %s (in: %s:%d)."
+msgstr "ошибка удаления(unlink) '%s': %s (в: %s:%d)."
+
+#: src/zones_section.c:2041
+msgid "removing groupmember failed."
+msgstr "ошибка удаления члена группы."
+
+#: src/if_sec.c:1531 src/services_section.c:2754 src/zones_section.c:1219
+#: src/zones_section.c:2798 src/zones_section.c:6291 src/strings.h:160
+msgid "rename"
+msgstr "переименовать"
+
+#: src/strings.h:82
+msgid "rename failed"
+msgstr "ошибка переименования"
+
+#: src/mainmenu.c:93 src/mainmenu.c:161
+#, c-format
+msgid "renaming '%s' to '%s' failed: %s."
+msgstr "ошибка переименования '%s' в '%s': %s."
+
+#: src/zones_section.c:5442
+msgid "renaming network failed."
+msgstr "ошибка переименования сети."
+
+#: src/config.c:376
+msgid "rewritten Vuurmuur_conf config file."
+msgstr "перезаписан конфиг. файл Vuurmuur_conf."
+
+#: src/rules_form.c:1888
+#, c-format
+msgid "rule %d removed."
+msgstr "правило %d удалено."
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: src/strings.h:76
+msgid "rules are changed"
+msgstr "изменены правила"
+
+#: src/mainmenu.c:139
+msgid "saving blocklist failed"
+msgstr "ошибка сохранения списка запрета."
+
+#: src/zones_section.c:1178
+msgid "saving changed group to backend failed."
+msgstr "ошибка записи изменений группы в хранилище."
+
+#: src/zones_section.c:685
+msgid "saving host failed."
+msgstr "ошибка записи хоста."
+
+#: src/mainmenu.c:71
+msgid "saving rules failed"
+msgstr "ошибка сохранения правил"
+
+#: src/if_sec.c:1453 src/rules_form.c:2215 src/services_section.c:2603
+#: src/zones_section.c:1088 src/zones_section.c:3517
+msgid "saving rules failed."
+msgstr "ошибка сохранения правил."
+
+#: src/zones_section.c:3600
+msgid "saving the interfaces failed."
+msgstr "ошибка сохранения интерфейсов."
+
+#: src/services_section.c:315 src/services_section.c:1593
+#, c-format
+msgid "saving the portranges failed (in: %s:%d)."
+msgstr "ошибка сохранения диапазона портов (в: %s:%d)."
+
+#: src/strings.h:102
+msgid "saving to backend failed"
+msgstr "ошибка сохранения в хранилище"
+
+#: src/if_sec.c:1384 src/services_section.c:2052 src/services_section.c:2081
+#: src/services_section.c:2103 src/services_section.c:2119
+#: src/zones_section.c:394 src/zones_section.c:437 src/zones_section.c:502
+#: src/zones_section.c:519 src/zones_section.c:2302 src/zones_section.c:2316
+#: src/zones_section.c:4025 src/zones_section.c:4051 src/zones_section.c:4060
+#: src/zones_section.c:4277 src/zones_section.c:4678 src/zones_section.c:4702
+#: src/zones_section.c:4726 src/zones_section.c:4741 src/zones_section.c:5053
+#: src/zones_section.c:5872 src/zones_section.c:5888
+#, c-format
+msgid "saving to backend failed (in: %s:%d)."
+msgstr "ошибка сохранения в хранилище (в: %s:%d)."
+
+#: src/logview_section.c:736 src/logview_section.c:753
+msgid "search"
+msgstr "поиск"
+
+#: src/logview_section.c:1720
+msgid "search script was not ok, search is disabled."
+msgstr "ошибка сценария поиска, поиск отключен."
+
+#: src/config_section.c:411
+msgid "sec."
+msgstr "сек."
+
+#: src/strings.h:39
+msgid "service"
+msgstr "служба"
+
+#: src/services_section.c:2864
+#, c-format
+msgid "service %s already exists."
+msgstr "служба %s уже существует."
+
+#: src/filter.c:300
+msgid "setting filter failed."
+msgstr "ошибка установки фильтра"
+
+#: src/filter.c:207
+msgid "show lines that don't match"
+msgstr "показать несоотв-щие записи"
+
+#: src/strings.h:191
+msgid "the action 'Bounce' requires the 'via' option to be set."
+msgstr "действие 'Bounce' требует установки настройки 'Через'."
+
+#: src/strings.h:192
+msgid "the action 'Redirect' requires the 'Redirect port' option to be set."
+msgstr "действие 'Redirect' требует установки настройки 'Порт перенапр.'."
+
+#. TRANSLATORS: example: service '%s' has been changed: the comment has been changed.
+#: src/strings.h:129
+msgid "the comment has been changed"
+msgstr "изменено описание"
+
+#: src/navigation.c:362
+msgid "the double quote sign \" is not allowed in the commentfield."
+msgstr "Символ двойных кавычек \" недопустим в описании."
+
+#: src/navigation.c:367
+msgid "the percent sign is not allowed in the commentfield."
+msgstr "Символ процента недопустим в описании."
+
+#: src/services_section.c:1529
+msgid "this protocol can only be removed or added."
+msgstr "этот протокол может быть только удален или добавлен."
+
+#: src/strings.h:134
+msgid "this protocol doesn't use ports."
+msgstr "этот протокол не использует порты."
+
+#: src/vuurmuur_conf.c:463
+#, c-format
+msgid "title '%s' too long, window will be drawn without a title."
+msgstr "Заголовок '%s' слишком велик, окно будет отображено без заголовка."
+
+#: src/zones_section.c:5233
+msgid "to enter the hosts/groups of this network"
+msgstr "ввести хост/группу для этой сети"
+
+#: src/zones_section.c:6207
+msgid "to enter the networks of this zone"
+msgstr "ввести сеть этой зоны"
+
+#: src/zones_section.c:5550
+msgid "unable to delete: network not empty."
+msgstr "удаление невозможно: сеть не пуста."
+
+#: src/zones_section.c:6442
+msgid "unable to delete: zone not empty."
+msgstr "удаление невозможно: зона не пуста."
+
+#: src/vuurmuur_conf.c:195
+msgid "unknown commandline option."
+msgstr "настройка в командной строке неизвестна."
+
+#: src/conn_sec.c:683
+msgid "unknown ip"
+msgstr "неизв. IP"
+
+#: src/services_section.c:2318
+msgid "unknown."
+msgstr "неизвестен."
+
+#: src/vuurmuur_conf.c:370
+#, c-format
+msgid "unloading the backends failed (in: %s:%d)."
+msgstr "ошибка выгрузки хранилищ (в: %s:%d)."
+
+#: src/services_section.c:2310
+msgid "uses no ports."
+msgstr "не использует порты."
+
+#. TRANSLATORS: e.g. eth0:0 is a virtual device
+#: src/strings.h:69
+msgid "virtual"
+msgstr "вирт-ное"
+
+#: src/logview_section.c:1562 src/logview_section.c:1574
+#: src/logview_section.c:1586 src/logview_section.c:1598
+#: src/logview_section.c:1610 src/logview_section.c:1622
+#: src/logview_section.c:1634
+msgid "visible"
+msgstr "видим"
+
+#: src/help.c:362
+msgid "vuurmuur.UTF-8.hlp"
+msgstr "vuurmuur-ru.UTF-8.hlp"
+
+#: src/help.c:264 src/help.c:392
+msgid "vuurmuur.hlp"
+msgstr "vuurmuur-ru.hlp"
+
+#: src/config_section.c:679
+msgid "waittime after loading a module (in 1/10 th of a second)"
+msgstr "задержка после загрузки модулей (в 1/10-ой секунды)"
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: src/strings.h:126
+msgid "was"
+msgstr "было"
+
+#: src/mainmenu.c:1438
+msgid "will not apply changes if the overall status is 'fail'."
+msgstr "Изменения не будут применены, так как общий статус не в норме."
+
+#: src/config_section.c:335 src/config_section.c:598 src/config_section.c:880
+#: src/config_section.c:1154 src/config_section.c:1551
+#: src/config_section.c:1909 src/config_section.c:2402 src/sys_sec.c:287
+msgid "writing configfile failed."
+msgstr "ошибка записи конфиг. файла."
+
+#: src/strings.h:35
+msgid "zone"
+msgstr "зона"
