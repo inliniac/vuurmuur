@@ -1,0 +1,10 @@
+#
+# Vuurmuur - firewall configuration daemon
+#
+
+# automatically start vuurmuur. Disabled by default to prevent you from
+# beeing locked out of your box. Please first configure vuurmuur (using
+# vuurmuur_conf). When you are done, set this value to 1, and try starting
+# vuurmuur again.
+#
+VUURMUUR_START=0
