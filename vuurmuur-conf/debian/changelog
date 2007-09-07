@@ -1,3 +1,9 @@
+vuurmuur-conf (0.5.73-0a7) testing; urgency=low
+
+  * update to 0.5.73.alpha7
+
+ -- Victor Julien <victor@vuurmuur.org>  Fri, 1 Jun 2007 01:22:00 +0100
+
 vuurmuur-conf (0.5.73-0a6) testing; urgency=low
 
   * update to 0.5.73.alpha6
