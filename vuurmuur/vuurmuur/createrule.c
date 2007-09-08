@@ -264,66 +264,66 @@ process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, char *table,
 	if(debuglvl >= HIGH)
 		(void)vrprint.debug(__FUNC__, "packets: %llu, bytes: %llu.", packets, bytes);
 
-	if(table == TB_FILTER)
+	if(strcmp(table, TB_FILTER) == 0)
 	{
-		if(chain == CH_INPUT)
+		if(strcmp(chain, CH_INPUT) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_input, chain, cmd, packets, bytes));
-		else if(chain == CH_FORWARD)
+		else if(strcmp(chain, CH_FORWARD) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_forward, chain, cmd, packets, bytes));
-		else if(chain == CH_OUTPUT)
+		else if(strcmp(chain, CH_OUTPUT) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_output, chain, cmd, packets, bytes));
 
-		else if(chain == CH_BLOCKTARGET)
+		else if(strcmp(chain, CH_BLOCKTARGET) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_blocktarget, chain, cmd, packets, bytes));
-		else if(chain == CH_BLOCKLIST)
+		else if(strcmp(chain, CH_BLOCKLIST) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_blocklist, chain, cmd, packets, bytes));
 
-		else if(chain == CH_BADTCP)
+		else if(strcmp(chain, CH_BADTCP) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_badtcp, chain, cmd, packets, bytes));
-		else if(chain == CH_ANTISPOOF)
+		else if(strcmp(chain, CH_ANTISPOOF) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_antispoof, chain, cmd, packets, bytes));
 
-		else if(chain == CH_SYNLIMITTARGET)
+		else if(strcmp(chain, CH_SYNLIMITTARGET) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_synlimittarget, chain, cmd, packets, bytes));
-		else if(chain == CH_UDPLIMITTARGET)
+		else if(strcmp(chain, CH_UDPLIMITTARGET) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_udplimittarget, chain, cmd, packets, bytes));
 
-		else if(chain == CH_NEWACCEPT)
+		else if(strcmp(chain, CH_NEWACCEPT) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_newaccepttarget, chain, cmd, packets, bytes));
-		else if(chain == CH_NEWQUEUE)
+		else if(strcmp(chain, CH_NEWQUEUE) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_newqueuetarget, chain, cmd, packets, bytes));
-		else if(chain == CH_NEWNFQUEUE)
+		else if(strcmp(chain, CH_NEWNFQUEUE) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_newnfqueuetarget, chain, cmd, packets, bytes));
-		else if(chain == CH_ESTRELNFQUEUE)
+		else if(strcmp(chain, CH_ESTRELNFQUEUE) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_estrelnfqueuetarget, chain, cmd, packets, bytes));
 
-		else if(chain == CH_TCPRESETTARGET)
+		else if(strcmp(chain, CH_TCPRESETTARGET) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_tcpresettarget, chain, cmd, packets, bytes));
 
 		/* accounting have dynamic chain names */
 		else if(strncmp(chain, "-A ACC-", 7) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_accounting, chain, cmd, packets, bytes));
 	}
-	else if(table == TB_MANGLE)
+	else if(strcmp(table, TB_MANGLE) == 0)
 	{
-		if(chain == CH_PREROUTING)
+		if(strcmp(chain, CH_PREROUTING) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_preroute, chain, cmd, packets, bytes));
-		else if(chain == CH_INPUT)
+		else if(strcmp(chain, CH_INPUT) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_input, chain, cmd, packets, bytes));
-		else if(chain == CH_FORWARD)
+		else if(strcmp(chain, CH_FORWARD) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_forward, chain, cmd, packets, bytes));
-		else if(chain == CH_OUTPUT)
+		else if(strcmp(chain, CH_OUTPUT) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_output, chain, cmd, packets, bytes));
-		else if(chain == CH_POSTROUTING)
+		else if(strcmp(chain, CH_POSTROUTING) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_postroute, chain, cmd, packets, bytes));
 	}
-	else if(table == TB_NAT)
+	else if(strcmp(table, TB_NAT) == 0)
 	{
-		if(chain == CH_PREROUTING)
+		if(strcmp(chain, CH_PREROUTING) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->nat_preroute, chain, cmd, packets, bytes));
-		else if(chain == CH_OUTPUT)
+		else if(strcmp(chain, CH_OUTPUT) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->nat_output, chain, cmd, packets, bytes));
-		else if(chain == CH_POSTROUTING)
+		else if(strcmp(chain, CH_POSTROUTING) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->nat_postroute, chain, cmd, packets, bytes));
 	}
 
