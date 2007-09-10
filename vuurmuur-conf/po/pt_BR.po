@@ -1,6 +1,4 @@
 # translation of pt_BR.po to Brazilian Portuguese
-# translation of pt_BR.po to
-# translation of pt_BR.po to
 # Portuguese translations for vuurmuur_conf package.
 # Copyright (C) 2005 Victor Julien <victor@nk.nl>
 # This file is distributed under the same license as the vuurmuur_conf package.
@@ -11,7 +9,7 @@ msgstr ""
 "Project-Id-Version: pt_BR\n"
 "Report-Msgid-Bugs-To: http://vuurmuur.sourceforge.net/\n"
 "POT-Creation-Date: 2006-12-15 22:18+0100\n"
-"PO-Revision-Date: 2006-11-08 10:33-0300\n"
+"PO-Revision-Date: 2007-09-10 17:51-0300\n"
 "Last-Translator: Hugo Ribeiro <hugo@vuurmuur.org>\n"
 "Language-Team: Brazilian Portuguese\n"
 "MIME-Version: 1.0\n"
@@ -20,34 +18,77 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: KBabel 1.2beta3\n"
 
-#: src/bw_sec.c:87 src/help.c:86 src/help.c:95 src/help.c:123 src/help.c:171
-#: src/help.c:180 src/help.c:207 src/if_sec.c:1178 src/logview_section.c:897
-#: src/logview_section.c:935 src/logview_section.c:976
-#: src/logview_section.c:1083 src/logview_section.c:1142
-#: src/logview_section.c:1196 src/rules_form.c:953 src/rules_form.c:1465
-#: src/rules_form.c:2644 src/rules_form.c:2668 src/rules_form.c:2695
-#: src/rules_form.c:2715 src/rules_form.c:2751 src/rules_form.c:2796
-#: src/rules_form.c:2829 src/rules_form.c:2864 src/rules_form.c:2891
-#: src/rules_form.c:2912 src/rules_form.c:2933 src/rules_form.c:2952
-#: src/rules_form.c:2972 src/rules_form.c:2992 src/rules_form.c:3012
-#: src/rules_form.c:3031 src/rules_form.c:3057 src/rules_form.c:4160
-#: src/rules_form.c:4207 src/rules_form.c:4673 src/services_section.c:660
-#: src/services_section.c:673 src/services_section.c:770
-#: src/services_section.c:896 src/services_section.c:908
-#: src/services_section.c:1001 src/services_section.c:1364
-#: src/services_section.c:1685 src/services_section.c:1693 src/templates.c:218
-#: src/templates.c:314 src/zones_section.c:1323 src/zones_section.c:1350
-#: src/zones_section.c:1403 src/zones_section.c:1462 src/zones_section.c:1555
-#: src/zones_section.c:2641 src/zones_section.c:2888 src/zones_section.c:2915
-#: src/zones_section.c:2994 src/zones_section.c:3016 src/zones_section.c:3096
-#: src/zones_section.c:3274 src/zones_section.c:5151 src/zones_section.c:5403
-#: src/zones_section.c:5428 src/zones_section.c:5606 src/zones_section.c:5662
+#: src/bw_sec.c:87
+#: src/help.c:86
+#: src/help.c:95
+#: src/help.c:123
+#: src/help.c:171
+#: src/help.c:180
+#: src/help.c:207
+#: src/if_sec.c:1178
+#: src/logview_section.c:897
+#: src/logview_section.c:935
+#: src/logview_section.c:976
+#: src/logview_section.c:1083
+#: src/logview_section.c:1142
+#: src/logview_section.c:1196
+#: src/rules_form.c:953
+#: src/rules_form.c:1465
+#: src/rules_form.c:2644
+#: src/rules_form.c:2668
+#: src/rules_form.c:2695
+#: src/rules_form.c:2715
+#: src/rules_form.c:2751
+#: src/rules_form.c:2796
+#: src/rules_form.c:2829
+#: src/rules_form.c:2864
+#: src/rules_form.c:2891
+#: src/rules_form.c:2912
+#: src/rules_form.c:2933
+#: src/rules_form.c:2952
+#: src/rules_form.c:2972
+#: src/rules_form.c:2992
+#: src/rules_form.c:3012
+#: src/rules_form.c:3031
+#: src/rules_form.c:3057
+#: src/rules_form.c:4160
+#: src/rules_form.c:4207
+#: src/rules_form.c:4673
+#: src/services_section.c:660
+#: src/services_section.c:673
+#: src/services_section.c:770
+#: src/services_section.c:896
+#: src/services_section.c:908
+#: src/services_section.c:1001
+#: src/services_section.c:1364
+#: src/services_section.c:1685
+#: src/services_section.c:1693
+#: src/templates.c:218
+#: src/templates.c:314
+#: src/zones_section.c:1323
+#: src/zones_section.c:1350
+#: src/zones_section.c:1403
+#: src/zones_section.c:1462
+#: src/zones_section.c:1555
+#: src/zones_section.c:2641
+#: src/zones_section.c:2888
+#: src/zones_section.c:2915
+#: src/zones_section.c:2994
+#: src/zones_section.c:3016
+#: src/zones_section.c:3096
+#: src/zones_section.c:3274
+#: src/zones_section.c:5151
+#: src/zones_section.c:5403
+#: src/zones_section.c:5428
+#: src/zones_section.c:5606
+#: src/zones_section.c:5662
 #: src/zones_section.c:6802
 #, c-format
 msgid "malloc failed: %s (in: %s:%d)."
 msgstr "falha na malloc: %s (em: %s:%d)."
 
-#: src/bw_sec.c:222 src/stat_sec.c:222
+#: src/bw_sec.c:222
+#: src/stat_sec.c:222
 #, c-format
 msgid "opening '%s' failed: %s (in: %s:%d)."
 msgstr "falha ao abrir '%s': %s (em: %s:%d)."
@@ -67,18 +108,38 @@ msgstr "falha ao fechar '%s': %s (em: %s:%d)."
 msgid "removing '%s' failed (unlink): %s (in: %s:%d)."
 msgstr "falha ao remover '%s' (desligando): %s (em: %s:%d)."
 
-#: src/bw_sec.c:463 src/if_sec.c:1156 src/rules_form.c:1490
-#: src/rules_form.c:3251 src/rules_form.c:4312 src/rules_form.c:4418
-#: src/rules_form.c:4477 src/rules_form.c:4786 src/services_section.c:401
-#: src/services_section.c:632 src/services_section.c:637
-#: src/services_section.c:642 src/services_section.c:869
-#: src/services_section.c:875 src/services_section.c:881
-#: src/services_section.c:1116 src/services_section.c:1649
-#: src/services_section.c:2171 src/stat_sec.c:319 src/zones_section.c:215
-#: src/zones_section.c:807 src/zones_section.c:1646 src/zones_section.c:1884
-#: src/zones_section.c:2140 src/zones_section.c:2619 src/zones_section.c:3559
-#: src/zones_section.c:3642 src/zones_section.c:4310 src/zones_section.c:5126
-#: src/zones_section.c:5746 src/zones_section.c:6122 src/zones_section.c:6553
+#: src/bw_sec.c:463
+#: src/if_sec.c:1156
+#: src/rules_form.c:1490
+#: src/rules_form.c:3251
+#: src/rules_form.c:4312
+#: src/rules_form.c:4418
+#: src/rules_form.c:4477
+#: src/rules_form.c:4786
+#: src/services_section.c:401
+#: src/services_section.c:632
+#: src/services_section.c:637
+#: src/services_section.c:642
+#: src/services_section.c:869
+#: src/services_section.c:875
+#: src/services_section.c:881
+#: src/services_section.c:1116
+#: src/services_section.c:1649
+#: src/services_section.c:2171
+#: src/stat_sec.c:319
+#: src/zones_section.c:215
+#: src/zones_section.c:807
+#: src/zones_section.c:1646
+#: src/zones_section.c:1884
+#: src/zones_section.c:2140
+#: src/zones_section.c:2619
+#: src/zones_section.c:3559
+#: src/zones_section.c:3642
+#: src/zones_section.c:4310
+#: src/zones_section.c:5126
+#: src/zones_section.c:5746
+#: src/zones_section.c:6122
+#: src/zones_section.c:6553
 #: src/filter.c:177
 #, c-format
 msgid "calloc failed: %s (in: %s:%d)."
@@ -88,28 +149,54 @@ msgstr "falha no calloc: %s (em: %s:%d)."
 msgid "Traffic Volume Section"
 msgstr "Seção de Volume de Tráfego"
 
-#: src/bw_sec.c:528 src/if_sec.c:1257 src/if_sec.c:1268
-#: src/logview_section.c:874 src/logview_section.c:1037
-#: src/logview_section.c:1047 src/logview_section.c:1059
-#: src/logview_section.c:1417 src/mainmenu.c:1057 src/rules_form.c:284
-#: src/rules_form.c:1456 src/rules_form.c:1475 src/rules_form.c:3747
-#: src/rules_form.c:4812 src/services_section.c:2679
-#: src/services_section.c:2690 src/templates.c:861 src/templates.c:872
-#: src/zones_section.c:284 src/zones_section.c:916 src/zones_section.c:927
-#: src/zones_section.c:1731 src/zones_section.c:1742 src/zones_section.c:2721
-#: src/zones_section.c:2732 src/zones_section.c:3726 src/zones_section.c:3737
-#: src/zones_section.c:5241 src/zones_section.c:5252 src/zones_section.c:6215
-#: src/zones_section.c:6226 src/zones_section.c:6660 src/zones_section.c:6671
+#: src/bw_sec.c:528
+#: src/if_sec.c:1257
+#: src/if_sec.c:1268
+#: src/logview_section.c:874
+#: src/logview_section.c:1037
+#: src/logview_section.c:1047
+#: src/logview_section.c:1059
+#: src/logview_section.c:1417
+#: src/mainmenu.c:1057
+#: src/rules_form.c:284
+#: src/rules_form.c:1456
+#: src/rules_form.c:1475
+#: src/rules_form.c:3747
+#: src/rules_form.c:4812
+#: src/services_section.c:2679
+#: src/services_section.c:2690
+#: src/templates.c:861
+#: src/templates.c:872
+#: src/zones_section.c:284
+#: src/zones_section.c:916
+#: src/zones_section.c:927
+#: src/zones_section.c:1731
+#: src/zones_section.c:1742
+#: src/zones_section.c:2721
+#: src/zones_section.c:2732
+#: src/zones_section.c:3726
+#: src/zones_section.c:3737
+#: src/zones_section.c:5241
+#: src/zones_section.c:5252
+#: src/zones_section.c:6215
+#: src/zones_section.c:6226
+#: src/zones_section.c:6660
+#: src/zones_section.c:6671
 #: src/filter.c:161
 msgid "creating window failed."
 msgstr "falha ao criar janela."
 
-#: src/bw_sec.c:534 src/rules_form.c:3753 src/rules_form.c:4818
-#: src/zones_section.c:289 src/filter.c:168
+#: src/bw_sec.c:534
+#: src/rules_form.c:3753
+#: src/rules_form.c:4818
+#: src/zones_section.c:289
+#: src/filter.c:168
 msgid "creating panel failed."
 msgstr "falha ao criar painel."
 
-#: src/bw_sec.c:556 src/rules_form.c:3760 src/rules_form.c:4825
+#: src/bw_sec.c:556
+#: src/rules_form.c:3760
+#: src/rules_form.c:4825
 #: src/zones_section.c:313
 msgid "creating form failed."
 msgstr "falha ao criar formulário."
@@ -118,7 +205,8 @@ msgstr "falha ao criar formulário."
 msgid "posting the form failed."
 msgstr "falha ao postar formulário."
 
-#: src/bw_sec.c:572 src/strings.h:38
+#: src/bw_sec.c:572
+#: src/strings.h:38
 msgid "Interface"
 msgstr "Interface"
 
@@ -127,14 +215,22 @@ msgid "Today"
 msgstr "Hoje"
 
 #. TRANSLATORS: max 6 chars.
-#: src/bw_sec.c:574 src/bw_sec.c:577 src/bw_sec.c:580 src/bw_sec.c:583
-#: src/bw_sec.c:586 src/stat_sec.c:496
+#: src/bw_sec.c:574
+#: src/bw_sec.c:577
+#: src/bw_sec.c:580
+#: src/bw_sec.c:583
+#: src/bw_sec.c:586
+#: src/stat_sec.c:496
 msgid "In"
 msgstr "Ent."
 
 #. TRANSLATORS: max 6 chars.
-#: src/bw_sec.c:575 src/bw_sec.c:578 src/bw_sec.c:581 src/bw_sec.c:584
-#: src/bw_sec.c:587 src/stat_sec.c:498
+#: src/bw_sec.c:575
+#: src/bw_sec.c:578
+#: src/bw_sec.c:581
+#: src/bw_sec.c:584
+#: src/bw_sec.c:587
+#: src/stat_sec.c:498
 msgid "Out"
 msgstr "Saída"
 
@@ -154,31 +250,67 @@ msgstr "Este mês"
 msgid "Last month"
 msgstr "Último mês"
 
-#: src/bw_sec.c:731 src/config_section.c:1788 src/config_section.c:2637
-#: src/conn_sec.c:675 src/if_sec.c:899 src/if_sec.c:1528
-#: src/logview_section.c:732 src/logview_section.c:750 src/mainmenu.c:1526
-#: src/rules_form.c:1420 src/rules_form.c:3209 src/services_section.c:1868
-#: src/services_section.c:2354 src/services_section.c:2750 src/stat_sec.c:773
-#: src/zones_section.c:571 src/zones_section.c:1216 src/zones_section.c:2388
-#: src/zones_section.c:2795 src/zones_section.c:4865 src/zones_section.c:5958
-#: src/zones_section.c:6288 src/zones_section.c:6871 src/statevent.c:475
-#: src/statevent.c:748 src/statevent.c:1067
+#: src/bw_sec.c:731
+#: src/config_section.c:1788
+#: src/config_section.c:2637
+#: src/conn_sec.c:675
+#: src/if_sec.c:899
+#: src/if_sec.c:1528
+#: src/logview_section.c:732
+#: src/logview_section.c:750
+#: src/mainmenu.c:1526
+#: src/rules_form.c:1420
+#: src/rules_form.c:3209
+#: src/services_section.c:1868
+#: src/services_section.c:2354
+#: src/services_section.c:2750
+#: src/stat_sec.c:773
+#: src/zones_section.c:571
+#: src/zones_section.c:1216
+#: src/zones_section.c:2388
+#: src/zones_section.c:2795
+#: src/zones_section.c:4865
+#: src/zones_section.c:5958
+#: src/zones_section.c:6288
+#: src/zones_section.c:6871
+#: src/statevent.c:475
+#: src/statevent.c:748
+#: src/statevent.c:1067
 msgid "help"
 msgstr "ajuda"
 
-#: src/bw_sec.c:732 src/config_section.c:1789 src/config_section.c:2638
-#: src/conn_sec.c:686 src/help.c:1153 src/if_sec.c:901 src/if_sec.c:1533
-#: src/logview_section.c:739 src/logview_section.c:755 src/mainmenu.c:184
-#: src/rules_form.c:1426 src/rules_form.c:3211 src/services_section.c:1872
-#: src/services_section.c:2356 src/services_section.c:2755 src/stat_sec.c:774
-#: src/zones_section.c:572 src/zones_section.c:1222 src/zones_section.c:2390
-#: src/zones_section.c:2801 src/zones_section.c:4867 src/zones_section.c:5959
-#: src/zones_section.c:6294 src/zones_section.c:6874 src/statevent.c:476
-#: src/statevent.c:749 src/statevent.c:1069
+#: src/bw_sec.c:732
+#: src/config_section.c:1789
+#: src/config_section.c:2638
+#: src/conn_sec.c:686
+#: src/help.c:1153
+#: src/if_sec.c:901
+#: src/if_sec.c:1533
+#: src/logview_section.c:739
+#: src/logview_section.c:755
+#: src/mainmenu.c:184
+#: src/rules_form.c:1426
+#: src/rules_form.c:3211
+#: src/services_section.c:1872
+#: src/services_section.c:2356
+#: src/services_section.c:2755
+#: src/stat_sec.c:774
+#: src/zones_section.c:572
+#: src/zones_section.c:1222
+#: src/zones_section.c:2390
+#: src/zones_section.c:2801
+#: src/zones_section.c:4867
+#: src/zones_section.c:5959
+#: src/zones_section.c:6294
+#: src/zones_section.c:6874
+#: src/statevent.c:476
+#: src/statevent.c:749
+#: src/statevent.c:1069
 msgid "back"
 msgstr "voltar"
 
-#: src/bw_sec.c:737 src/zones_section.c:3552
+#: src/bw_sec.c:737
+#: src/zones_section.c:3552
 msgid "no interfaces found. Please define an interface first."
 msgstr "nenhuma interface encontrada. Por favor defina uma interface primeiro."
 
@@ -186,14 +318,27 @@ msgstr "nenhuma interface encontrada. Por favor defina uma interface primeiro."
 msgid "please set the location of the iptrafvol.pl command in the Settings."
 msgstr "por favor ajuste o local do arquivo iptrafvol.pl"
 
-#: src/bw_sec.c:776 src/mainmenu.c:1462
+#: src/bw_sec.c:776
+#: src/mainmenu.c:1462
 msgid "Traffic Volume"
 msgstr "Volume de Tráfego"
 
-#: src/bw_sec.c:866 src/bw_sec.c:867 src/bw_sec.c:898 src/bw_sec.c:899
-#: src/bw_sec.c:930 src/bw_sec.c:931 src/bw_sec.c:962 src/bw_sec.c:963
-#: src/bw_sec.c:1009 src/bw_sec.c:1010 src/stat_sec.c:825 src/stat_sec.c:841
-#: src/stat_sec.c:886 src/stat_sec.c:887 src/stat_sec.c:888 src/stat_sec.c:889
+#: src/bw_sec.c:866
+#: src/bw_sec.c:867
+#: src/bw_sec.c:898
+#: src/bw_sec.c:899
+#: src/bw_sec.c:930
+#: src/bw_sec.c:931
+#: src/bw_sec.c:962
+#: src/bw_sec.c:963
+#: src/bw_sec.c:1009
+#: src/bw_sec.c:1010
+#: src/stat_sec.c:825
+#: src/stat_sec.c:841
+#: src/stat_sec.c:886
+#: src/stat_sec.c:887
+#: src/stat_sec.c:888
+#: src/stat_sec.c:889
 #: src/topmenu.c:82
 #, c-format
 msgid "error"
@@ -208,20 +353,30 @@ msgid "General"
 msgstr "Geral"
 
 #. TRANSLATORS: max 11 chars.
-#: src/config_section.c:26 src/conn_sec.c:725 src/conn_sec.c:893
-#: src/conn_sec.c:933 src/conn_sec.c:1112 src/mainmenu.c:1461
+#: src/config_section.c:26
+#: src/conn_sec.c:725
+#: src/conn_sec.c:893
+#: src/conn_sec.c:933
+#: src/conn_sec.c:1112
+#: src/mainmenu.c:1461
 #: src/stat_sec.c:468
 msgid "Connections"
 msgstr "Conexões"
 
 #. TRANSLATORS: max 11 chars.
-#: src/config_section.c:27 src/if_sec.c:1235 src/if_sec.c:1541
-#: src/if_sec.c:1643 src/if_sec.c:1718 src/mainmenu.c:1456 src/stat_sec.c:489
+#: src/config_section.c:27
+#: src/if_sec.c:1235
+#: src/if_sec.c:1541
+#: src/if_sec.c:1643
+#: src/if_sec.c:1718
+#: src/mainmenu.c:1456
+#: src/stat_sec.c:489
 #: src/zones_section.c:3708
 msgid "Interfaces"
 msgstr "Interfaces"
 
-#: src/config_section.c:28 src/sys_sec.c:60
+#: src/config_section.c:28
+#: src/sys_sec.c:60
 msgid "System Protection"
 msgstr "Proteção do Sistema"
 
@@ -254,24 +409,34 @@ msgid "Iptables-restore location (full path):"
 msgstr "Localização do Iptables-restore (caminho completo):"
 
 #: src/config_section.c:133
-#, fuzzy
 msgid "Conntrack location (full path):"
-msgstr "Localização do Iptables (caminho completo):"
+msgstr "Localização do Conntrack (caminho completo):"
 
 #
-#: src/config_section.c:271 src/config_section.c:534 src/config_section.c:816
-#: src/config_section.c:1090 src/config_section.c:2337
+#: src/config_section.c:271
+#: src/config_section.c:534
+#: src/config_section.c:816
+#: src/config_section.c:1090
+#: src/config_section.c:2337
 msgid "Saving config failed"
 msgstr "Falha ao salvar configuração"
 
-#: src/config_section.c:271 src/config_section.c:534 src/config_section.c:816
-#: src/config_section.c:1090 src/config_section.c:2337
+#: src/config_section.c:271
+#: src/config_section.c:534
+#: src/config_section.c:816
+#: src/config_section.c:1090
+#: src/config_section.c:2337
 msgid "Saving the config failed. Sure you want to quit?"
 msgstr "Falha ao salvar configuração. Você deseja realmente sair?"
 
-#: src/config_section.c:335 src/config_section.c:598 src/config_section.c:880
-#: src/config_section.c:1154 src/config_section.c:1551
-#: src/config_section.c:1909 src/config_section.c:2402 src/sys_sec.c:287
+#: src/config_section.c:335
+#: src/config_section.c:598
+#: src/config_section.c:880
+#: src/config_section.c:1154
+#: src/config_section.c:1551
+#: src/config_section.c:1909
+#: src/config_section.c:2402
+#: src/sys_sec.c:287
 msgid "writing configfile failed."
 msgstr "falha ao gravar arquivo de configuração."
 
@@ -343,7 +508,8 @@ msgstr "Limitar novas conexões TCP."
 msgid "Number of SYN-packets per second"
 msgstr "Número de pacotes SYN por segundo"
 
-#: src/config_section.c:1269 src/config_section.c:1276
+#: src/config_section.c:1269
+#: src/config_section.c:1276
 msgid "Burst-rate"
 msgstr "Burst-rate"
 
@@ -355,7 +521,9 @@ msgstr "Limitar novas 'conexões' udp."
 msgid "Number of new UDP 'connections' per second"
 msgstr "Número de novas 'conexões' UDP por segundo"
 
-#: src/config_section.c:1604 src/config_section.c:1808 src/mainmenu.c:1463
+#: src/config_section.c:1604
+#: src/config_section.c:1808
+#: src/mainmenu.c:1463
 msgid "Vuurmuur_conf Settings"
 msgstr "Configurações do Vuurmuur_conf"
 
@@ -401,7 +569,7 @@ msgstr "Loglevel (para usar com o syslog, necessário reiniciar vuurmuur):"
 
 #: src/config_section.c:2031
 msgid "Logfile containing IPtables/Netfilter logs:"
-msgstr ""
+msgstr "Arquivo de registro contendo os registros do IPtables/Netfilter:"
 
 #: src/config_section.c:2033
 msgid "Log the default policy? (DROP):"
@@ -441,12 +609,8 @@ msgid "Log Fragments:"
 msgstr "Registrar Fragmentos:"
 
 #: src/config_section.c:2111
-msgid ""
-"changing the logdir requires applying changes to get into effect in the "
-"logviewer."
-msgstr ""
-"mudar o diretório de registro requer que você aplique as alterações para "
-"fazer efeito no visualizador de registros."
+msgid "changing the logdir requires applying changes to get into effect in the logviewer."
+msgstr "mudar o diretório de registro requer que você aplique as alterações para fazer efeito no visualizador de registros."
 
 #: src/config_section.c:2164
 msgid "limit must be between 0-999."
@@ -456,29 +620,28 @@ msgstr "o limite deve estar entre 0 e 999."
 msgid "View Capabilities"
 msgstr "Ver Capacidades"
 
-#: src/config_section.c:2449 src/config_section.c:2471
+#: src/config_section.c:2449
+#: src/config_section.c:2471
 #: src/config_section.c:2486
 msgid "Could not check."
 msgstr "Não foi possível verificar."
 
-#: src/config_section.c:2520 src/config_section.c:2539
+#: src/config_section.c:2520
+#: src/config_section.c:2539
 msgid "checking capabilities failed."
 msgstr "falha ao checar as capacidades."
 
 #: src/config_section.c:2531
-#, fuzzy
 msgid "Iptables Capabilities"
-msgstr "Ver Capacidades"
+msgstr "Capacidades do Iptables"
 
 #: src/config_section.c:2531
-msgid ""
-"Essential capabilities are not loaded, missing, or not properly detected. "
-"Try loading modules?"
-msgstr ""
-"Capacidades essenciais não foram carregadas, não existem, ou não foram "
-"corretamente detectadas. Tentar carregar módulos?"
+msgid "Essential capabilities are not loaded, missing, or not properly detected. Try loading modules?"
+msgstr "Capacidades essenciais não foram carregadas, não existem, ou não foram corretamente detectadas. Tentar carregar módulos?"
 
-#: src/config_section.c:2616 src/config_section.c:2754 src/mainmenu.c:196
+#: src/config_section.c:2616
+#: src/config_section.c:2754
+#: src/mainmenu.c:196
 #: src/mainmenu.c:314
 msgid "Back"
 msgstr "Voltar"
@@ -491,7 +654,8 @@ msgstr "Menu de Configuração"
 msgid "Select a section."
 msgstr "Selecione uma seção."
 
-#: src/config_section.c:2680 src/mainmenu.c:1458
+#: src/config_section.c:2680
+#: src/mainmenu.c:1458
 msgid "Vuurmuur Config"
 msgstr "Configuração do Vuurmuur"
 
@@ -529,9 +693,10 @@ msgstr "ENC"
 msgid "getting the connections failed."
 msgstr "falha ao obter as conexões."
 
-#: src/conn_sec.c:676 src/logview_section.c:733
+#: src/conn_sec.c:676
+#: src/logview_section.c:733
 msgid "manage"
-msgstr ""
+msgstr "gerenciar"
 
 #: src/conn_sec.c:678
 msgid "in/out/fw"
@@ -549,7 +714,9 @@ msgstr "grupo"
 msgid "unknown ip"
 msgstr "ip desconhecido"
 
-#: src/conn_sec.c:683 src/logview_section.c:735 src/logview_section.c:752
+#: src/conn_sec.c:683
+#: src/logview_section.c:735
+#: src/logview_section.c:752
 #: src/rules_form.c:1425
 msgid "filter"
 msgstr "filtro"
@@ -563,7 +730,9 @@ msgid "details"
 msgstr "detalhes"
 
 #. TRANSLATORS: max 5 chars.
-#: src/conn_sec.c:894 src/conn_sec.c:934 src/stat_sec.c:457
+#: src/conn_sec.c:894
+#: src/conn_sec.c:934
+#: src/stat_sec.c:457
 msgid "Total"
 msgstr "Total"
 
@@ -615,47 +784,52 @@ msgstr "Conexões Entrando"
 msgid "Outgoing Connections"
 msgstr "Conexões Saindo"
 
-#: src/conn_sec.c:1092 src/logview_section.c:1392
+#: src/conn_sec.c:1092
+#: src/logview_section.c:1392
 #, c-format
 msgid "Active filter: '%s' (press 'enter' to clear)."
 msgstr "Filtro ativo: '%s' (pressione 'enter' para limpar)."
 
-#: src/conn_sec.c:1097 src/logview_section.c:1397 src/rules_form.c:2130
+#: src/conn_sec.c:1097
+#: src/logview_section.c:1397
+#: src/rules_form.c:2130
 msgid "Filter removed."
 msgstr "Filtro removido."
 
 #: src/conn_sec.c:1191
 msgid "killing connections is only supported for TCP and UDP."
-msgstr ""
+msgstr "matar conexões é suportado apenas para TCP e UDP."
 
-#: src/conn_sec.c:1220 src/conn_sec.c:1285 src/strings.h:195
-msgid ""
-"'conntrack' location not set. To be able to kill connections, set the "
-"location of the 'conntrack' tool in 'Vuurmuur Options -> General'. Note that "
-"the tool requires kernel version 2.6.14 or higher."
-msgstr ""
+#: src/conn_sec.c:1220
+#: src/conn_sec.c:1285
+#: src/strings.h:195
+msgid "'conntrack' location not set. To be able to kill connections, set the location of the 'conntrack' tool in 'Vuurmuur Options -> General'. Note that the tool requires kernel version 2.6.14 or higher."
+msgstr "a localização do 'conntrack' não está definida. Para conseguir matar conexões, defina a localização da ferramenta 'conntrack' em 'Opções Vuurmuur -> Geral'. Note que a ferramenta requer o uso da versão 2.6.14 ou superior do kernel."
 
-#: src/conn_sec.c:1259 src/conn_sec.c:1319
+#: src/conn_sec.c:1259
+#: src/conn_sec.c:1319
 msgid "all connections already gone, none killed."
-msgstr ""
+msgstr "todas as conexões se foram, nenhuma morta."
 
-#: src/conn_sec.c:1262 src/conn_sec.c:1322
-#, fuzzy, c-format
+#: src/conn_sec.c:1262
+#: src/conn_sec.c:1322
+#, c-format
 msgid "killing of %d out of %d connections failed."
-msgstr "falha ao obter as conexões."
+msgstr "falha ao matar %d de %d conexões."
 
-#: src/conn_sec.c:1265 src/conn_sec.c:1325
-#, fuzzy, c-format
+#: src/conn_sec.c:1265
+#: src/conn_sec.c:1325
+#, c-format
 msgid "killing of all %d connections failed."
-msgstr "falha ao obter as conexões."
+msgstr "falha ao matar todas as %d conexões."
 
 #: src/conn_sec.c:1355
 #, c-format
-msgid ""
-"ipaddress belongs to interface '%s'. It will not be added to the blocklist."
-msgstr ""
+msgid "ipaddress belongs to interface '%s'. It will not be added to the blocklist."
+msgstr "endereço ip pertence à interface '%s'. Não será adicionada a lista de bloqueios."
 
-#: src/help.c:264 src/help.c:392
+#: src/help.c:264
+#: src/help.c:392
 msgid "vuurmuur.hlp"
 msgstr "vuurmuur-pt_BR.hlp"
 
@@ -663,7 +837,8 @@ msgstr "vuurmuur-pt_BR.hlp"
 msgid "vuurmuur.UTF-8.hlp"
 msgstr "vuurmuur-pt_BR.hlp"
 
-#: src/help.c:902 src/help.c:904
+#: src/help.c:902
+#: src/help.c:904
 msgid "Press <F10> to close this window."
 msgstr "Pressione <F10> para fechar esta janela."
 
@@ -671,7 +846,8 @@ msgstr "Pressione <F10> para fechar esta janela."
 msgid "The requested helptext was not found.\n"
 msgstr "O texto de ajuda requerido não foi encontrado.\n"
 
-#: src/help.c:1049 src/help.c:1068
+#: src/help.c:1049
+#: src/help.c:1068
 msgid "Help"
 msgstr "Ajuda"
 
@@ -679,11 +855,15 @@ msgstr "Ajuda"
 msgid "No problems were detected in the current setup.\n"
 msgstr "Nenhum problema foi detectado na instalação atual.\n"
 
-#: src/help.c:1103 src/mainmenu.c:1460 src/vuurmuur_conf.c:260
+#: src/help.c:1103
+#: src/mainmenu.c:1460
+#: src/vuurmuur_conf.c:260
 msgid "Status"
 msgstr "Status"
 
-#: src/help.c:1215 src/help.c:1217 src/mainmenu.c:1465
+#: src/help.c:1215
+#: src/help.c:1217
+#: src/mainmenu.c:1465
 msgid "About"
 msgstr "Sobre"
 
@@ -691,14 +871,21 @@ msgstr "Sobre"
 msgid "Protection"
 msgstr "Proteção"
 
-#: src/if_sec.c:336 src/rules_form.c:3459 src/services_section.c:2207
-#: src/zones_section.c:255 src/zones_section.c:2156 src/zones_section.c:4550
+#: src/if_sec.c:336
+#: src/rules_form.c:3459
+#: src/services_section.c:2207
+#: src/zones_section.c:255
+#: src/zones_section.c:2156
+#: src/zones_section.c:4550
 #: src/zones_section.c:5760
 msgid "Comment"
 msgstr "Comentário"
 
-#: src/if_sec.c:345 src/services_section.c:2216 src/zones_section.c:267
-#: src/zones_section.c:2168 src/zones_section.c:4572
+#: src/if_sec.c:345
+#: src/services_section.c:2216
+#: src/zones_section.c:267
+#: src/zones_section.c:2168
+#: src/zones_section.c:4572
 msgid "error while loading the comment."
 msgstr "erro enquanto carregando o comentário."
 
@@ -707,68 +894,124 @@ msgstr "erro enquanto carregando o comentário."
 msgid "Is interface up?"
 msgstr "A interface está de pé?"
 
-#: src/if_sec.c:374 src/if_sec.c:934
+#: src/if_sec.c:374
+#: src/if_sec.c:934
 msgid "Edit Interface"
 msgstr "Editar Interface"
 
-#: src/if_sec.c:437 src/services_section.c:2261 src/zones_section.c:322
-#: src/zones_section.c:2222 src/zones_section.c:4617 src/zones_section.c:5813
+#: src/if_sec.c:437
+#: src/services_section.c:2261
+#: src/zones_section.c:322
+#: src/zones_section.c:2222
+#: src/zones_section.c:4617
+#: src/zones_section.c:5813
 msgid "Name"
 msgstr "Nome"
 
-#: src/if_sec.c:900 src/rules_form.c:3210
+#: src/if_sec.c:900
+#: src/rules_form.c:3210
 msgid "advanced"
 msgstr "avançado"
 
 #. TRANSLATORS: max 4 chars
-#: src/if_sec.c:1263 src/if_sec.c:1274 src/rules_form.c:1481
-#: src/services_section.c:2685 src/services_section.c:2696 src/templates.c:867
-#: src/templates.c:878 src/zones_section.c:922 src/zones_section.c:933
-#: src/zones_section.c:1737 src/zones_section.c:1748 src/zones_section.c:2727
-#: src/zones_section.c:2738 src/zones_section.c:3732 src/zones_section.c:3743
-#: src/zones_section.c:5247 src/zones_section.c:5258 src/zones_section.c:6221
-#: src/zones_section.c:6232 src/zones_section.c:6666 src/zones_section.c:6677
+#: src/if_sec.c:1263
+#: src/if_sec.c:1274
+#: src/rules_form.c:1481
+#: src/services_section.c:2685
+#: src/services_section.c:2696
+#: src/templates.c:867
+#: src/templates.c:878
+#: src/zones_section.c:922
+#: src/zones_section.c:933
+#: src/zones_section.c:1737
+#: src/zones_section.c:1748
+#: src/zones_section.c:2727
+#: src/zones_section.c:2738
+#: src/zones_section.c:3732
+#: src/zones_section.c:3743
+#: src/zones_section.c:5247
+#: src/zones_section.c:5258
+#: src/zones_section.c:6221
+#: src/zones_section.c:6232
+#: src/zones_section.c:6666
+#: src/zones_section.c:6677
 msgid "more"
 msgstr "mais"
 
-#: src/if_sec.c:1384 src/services_section.c:2051 src/services_section.c:2080
-#: src/services_section.c:2102 src/services_section.c:2118
-#: src/zones_section.c:394 src/zones_section.c:437 src/zones_section.c:502
-#: src/zones_section.c:519 src/zones_section.c:2302 src/zones_section.c:2316
-#: src/zones_section.c:4025 src/zones_section.c:4051 src/zones_section.c:4060
-#: src/zones_section.c:4277 src/zones_section.c:4678 src/zones_section.c:4702
-#: src/zones_section.c:4726 src/zones_section.c:4741 src/zones_section.c:5053
-#: src/zones_section.c:5872 src/zones_section.c:5888
+#: src/if_sec.c:1384
+#: src/services_section.c:2051
+#: src/services_section.c:2080
+#: src/services_section.c:2102
+#: src/services_section.c:2118
+#: src/zones_section.c:394
+#: src/zones_section.c:437
+#: src/zones_section.c:502
+#: src/zones_section.c:519
+#: src/zones_section.c:2302
+#: src/zones_section.c:2316
+#: src/zones_section.c:4025
+#: src/zones_section.c:4051
+#: src/zones_section.c:4060
+#: src/zones_section.c:4277
+#: src/zones_section.c:4678
+#: src/zones_section.c:4702
+#: src/zones_section.c:4726
+#: src/zones_section.c:4741
+#: src/zones_section.c:5053
+#: src/zones_section.c:5872
+#: src/zones_section.c:5888
 #, c-format
 msgid "saving to backend failed (in: %s:%d)."
 msgstr "falha ao salvar no backend (em: %s:%d)."
 
-#: src/if_sec.c:1453 src/rules_form.c:2214 src/services_section.c:2602
-#: src/zones_section.c:1088 src/zones_section.c:3517
+#: src/if_sec.c:1453
+#: src/rules_form.c:2214
+#: src/services_section.c:2602
+#: src/zones_section.c:1088
+#: src/zones_section.c:3517
 msgid "saving rules failed."
 msgstr "falha ao salvar regras."
 
-#: src/if_sec.c:1529 src/rules_form.c:1421 src/services_section.c:1869
-#: src/services_section.c:2751 src/zones_section.c:1217
-#: src/zones_section.c:2796 src/zones_section.c:6289 src/zones_section.c:6872
+#: src/if_sec.c:1529
+#: src/rules_form.c:1421
+#: src/services_section.c:1869
+#: src/services_section.c:2751
+#: src/zones_section.c:1217
+#: src/zones_section.c:2796
+#: src/zones_section.c:6289
+#: src/zones_section.c:6872
 #: src/strings.h:157
 msgid "new"
 msgstr "novo"
 
-#: src/if_sec.c:1530 src/rules_form.c:1422 src/services_section.c:1871
-#: src/services_section.c:2752 src/zones_section.c:1218
-#: src/zones_section.c:2797 src/zones_section.c:6290 src/zones_section.c:6873
+#: src/if_sec.c:1530
+#: src/rules_form.c:1422
+#: src/services_section.c:1871
+#: src/services_section.c:2752
+#: src/zones_section.c:1218
+#: src/zones_section.c:2797
+#: src/zones_section.c:6290
+#: src/zones_section.c:6873
 msgid "del"
 msgstr "apagar"
 
-#: src/if_sec.c:1531 src/services_section.c:2753 src/zones_section.c:1219
-#: src/zones_section.c:2798 src/zones_section.c:6291 src/strings.h:160
+#: src/if_sec.c:1531
+#: src/services_section.c:2753
+#: src/zones_section.c:1219
+#: src/zones_section.c:2798
+#: src/zones_section.c:6291
+#: src/strings.h:160
 msgid "rename"
 msgstr "renomear"
 
-#: src/if_sec.c:1532 src/rules_form.c:1423 src/services_section.c:1870
-#: src/services_section.c:2754 src/zones_section.c:1221
-#: src/zones_section.c:2800 src/zones_section.c:6293 src/strings.h:159
+#: src/if_sec.c:1532
+#: src/rules_form.c:1423
+#: src/services_section.c:1870
+#: src/services_section.c:2754
+#: src/zones_section.c:1221
+#: src/zones_section.c:2800
+#: src/zones_section.c:6293
+#: src/strings.h:159
 msgid "edit"
 msgstr "editar"
 
@@ -784,18 +1027,36 @@ msgstr "Nova Interface"
 msgid "creating new interface failed."
 msgstr "falha ao criar nova interface."
 
-#: src/if_sec.c:1667 src/services_section.c:2895 src/zones_section.c:1447
-#: src/zones_section.c:3010 src/zones_section.c:5522 src/zones_section.c:6420
+#: src/if_sec.c:1667
+#: src/services_section.c:2895
+#: src/zones_section.c:1447
+#: src/zones_section.c:3010
+#: src/zones_section.c:5522
+#: src/zones_section.c:6420
 msgid "Delete"
 msgstr "Apagar"
 
-#: src/if_sec.c:1667 src/rules_form.c:2285 src/services_section.c:1569
-#: src/services_section.c:2895 src/statevent.c:591 src/statevent.c:601
-#: src/statevent.c:617 src/statevent.c:630 src/statevent.c:643
-#: src/statevent.c:657 src/statevent.c:667 src/statevent.c:675
-#: src/statevent.c:683 src/statevent.c:879 src/statevent.c:895
-#: src/statevent.c:908 src/statevent.c:921 src/statevent.c:935
-#: src/statevent.c:945 src/statevent.c:953 src/statevent.c:961
+#: src/if_sec.c:1667
+#: src/rules_form.c:2285
+#: src/services_section.c:1569
+#: src/services_section.c:2895
+#: src/statevent.c:591
+#: src/statevent.c:601
+#: src/statevent.c:617
+#: src/statevent.c:630
+#: src/statevent.c:643
+#: src/statevent.c:657
+#: src/statevent.c:667
+#: src/statevent.c:675
+#: src/statevent.c:683
+#: src/statevent.c:879
+#: src/statevent.c:895
+#: src/statevent.c:908
+#: src/statevent.c:921
+#: src/statevent.c:935
+#: src/statevent.c:945
+#: src/statevent.c:953
+#: src/statevent.c:961
 msgid "Are you sure?"
 msgstr "Você tem certeza?"
 
@@ -821,50 +1082,36 @@ msgstr "falha ao checar '%s': %s."
 
 #: src/logview_section.c:266
 #, c-format
-msgid ""
-"opening file '%s': For security reasons Vuurmuur will not allow following "
-"symbolic-links."
-msgstr ""
-"abrindo arquivo '%s': Por razões de segurança, o Vuurmuur não irá permitir "
-"seguir links simbólicos."
+msgid "opening file '%s': For security reasons Vuurmuur will not allow following symbolic-links."
+msgstr "abrindo arquivo '%s': Por razões de segurança, o Vuurmuur não irá permitir seguir links simbólicos."
 
 #: src/logview_section.c:273
 #, c-format
-msgid ""
-"opening file '%s': For security reasons Vuurmuur will not allow opening "
-"anything other than a file or a directory."
-msgstr ""
-"abrindo arquivo '%s': Por razões de segurança, o Vuurmuur não irá permitir a "
-"abertura de qualquer coisa além de um arquivo ou diretório."
+msgid "opening file '%s': For security reasons Vuurmuur will not allow opening anything other than a file or a directory."
+msgstr "abrindo arquivo '%s': Por razões de segurança, o Vuurmuur não irá permitir a abertura de qualquer coisa além de um arquivo ou diretório."
 
 #: src/logview_section.c:280
 #, c-format
-msgid ""
-"opening file '%s': For security reasons Vuurmuur will not open files that "
-"are writable by 'group' or 'other'. Check the file content & permissions."
-msgstr ""
-"abrindo arquivo '%s': Por razões de segurança, o Vuurmuur não irá abrir "
-"arquivos que são graváveis pelo 'grupo' ou 'outro'. Verifique o conteúdo do "
-"arquivo e permissões."
+msgid "opening file '%s': For security reasons Vuurmuur will not open files that are writable by 'group' or 'other'. Check the file content & permissions."
+msgstr "abrindo arquivo '%s': Por razões de segurança, o Vuurmuur não irá abrir arquivos que são graváveis pelo 'grupo' ou 'outro'. Verifique o conteúdo do arquivo e permissões."
 
 #: src/logview_section.c:287
 #, c-format
-msgid ""
-"opening file '%s': For security reasons Vuurmuur will not open files that "
-"are not owned by root."
-msgstr ""
-"abrindo arquivo '%s': Por razões de segurança, o Vuurmuur não irá abrir "
-"arquivos que não sejam do root."
+msgid "opening file '%s': For security reasons Vuurmuur will not open files that are not owned by root."
+msgstr "abrindo arquivo '%s': Por razões de segurança, o Vuurmuur não irá abrir arquivos que não sejam do root."
 
-#: src/logview_section.c:734 src/logview_section.c:751
+#: src/logview_section.c:734
+#: src/logview_section.c:751
 msgid "search"
 msgstr "buscar"
 
-#: src/logview_section.c:736 src/logview_section.c:753
+#: src/logview_section.c:736
+#: src/logview_section.c:753
 msgid "pause"
 msgstr "pausar"
 
-#: src/logview_section.c:737 src/logview_section.c:754
+#: src/logview_section.c:737
+#: src/logview_section.c:754
 msgid "clear"
 msgstr "limpar"
 
@@ -890,16 +1137,21 @@ msgstr "falha na busca de arquivos: %s."
 #: src/logview_section.c:867
 #, c-format
 msgid "Loading loglines into memory (trying to load %u lines)..."
-msgstr ""
-"Carregando linhas de registro na memória (tentando carregar %u linhas)..."
+msgstr "Carregando linhas de registro na memória (tentando carregar %u linhas)..."
 
-#: src/logview_section.c:871 src/logview_section.c:1415 src/mainmenu.c:1055
+#: src/logview_section.c:871
+#: src/logview_section.c:1415
+#: src/mainmenu.c:1055
 msgid "One moment please..."
 msgstr "Um momento por favor..."
 
-#: src/logview_section.c:881 src/logview_section.c:883
-#: src/logview_section.c:1754 src/mainmenu.c:233 src/mainmenu.c:251
-#: src/mainmenu.c:318 src/mainmenu.c:1459
+#: src/logview_section.c:881
+#: src/logview_section.c:883
+#: src/logview_section.c:1754
+#: src/mainmenu.c:233
+#: src/mainmenu.c:251
+#: src/mainmenu.c:318
+#: src/mainmenu.c:1459
 msgid "Logview"
 msgstr "Visualizador de Registros"
 
@@ -932,9 +1184,7 @@ msgstr "ERRO na busca. Pressione ESPAÇO para retornar ao registro normal."
 #: src/logview_section.c:1314
 #, c-format
 msgid "Search done: %lu matches. Press SPACE to return to normal logging."
-msgstr ""
-"Busca completa: %lu resultados encontrados. Pressione ESPAÇO para retornar "
-"ao registro normal."
+msgstr "Busca completa: %lu resultados encontrados. Pressione ESPAÇO para retornar ao registro normal."
 
 #: src/logview_section.c:1422
 msgid "Applying changed filter..."
@@ -944,7 +1194,8 @@ msgstr "Aplicando filtros alterados..."
 msgid "Search in progress. Press 'S' to stop current search."
 msgstr "Busca em andamento. Pressione 'S' para parar a busca atual."
 
-#: src/logview_section.c:1501 src/logview_section.c:1646
+#: src/logview_section.c:1501
+#: src/logview_section.c:1646
 msgid "Please first close the current search by pressing SPACE."
 msgstr "Por favor, feche primeiro a busca atual, apertando ESPAÇO."
 
@@ -960,16 +1211,22 @@ msgstr "Continuar buscando."
 msgid "*** PAUSED *** (press 'p' to continue)"
 msgstr "*** PAUSADO *** (pressione 'p' para continuar)"
 
-#: src/logview_section.c:1560 src/logview_section.c:1572
-#: src/logview_section.c:1584 src/logview_section.c:1596
-#: src/logview_section.c:1608 src/logview_section.c:1620
+#: src/logview_section.c:1560
+#: src/logview_section.c:1572
+#: src/logview_section.c:1584
+#: src/logview_section.c:1596
+#: src/logview_section.c:1608
+#: src/logview_section.c:1620
 #: src/logview_section.c:1632
 msgid "hidden"
 msgstr "escondido"
 
-#: src/logview_section.c:1560 src/logview_section.c:1572
-#: src/logview_section.c:1584 src/logview_section.c:1596
-#: src/logview_section.c:1608 src/logview_section.c:1620
+#: src/logview_section.c:1560
+#: src/logview_section.c:1572
+#: src/logview_section.c:1584
+#: src/logview_section.c:1596
+#: src/logview_section.c:1608
+#: src/logview_section.c:1620
 #: src/logview_section.c:1632
 msgid "visible"
 msgstr "visível"
@@ -1006,9 +1263,7 @@ msgstr "Nenhuma busca em andamento."
 #: src/logview_section.c:1888
 #, c-format
 msgid "Search in progress: %lu matches so far. SPACE to pause, 'S' to stop."
-msgstr ""
-"Busca em andamento: %lu resultados encontrados até agora. Pressione ESPAÇO "
-"para pausar, 'S' para parar."
+msgstr "Busca em andamento: %lu resultados encontrados até agora. Pressione ESPAÇO para pausar, 'S' para parar."
 
 #: src/logview_section.c:1890
 #, c-format
@@ -1020,13 +1275,26 @@ msgstr "Busca PAUSADA: %lu "
 msgid "closing logfile failed: %s."
 msgstr "falha ao fechar arquivo de registro: %s."
 
-#: src/logview_section.c:2002 src/mainmenu.c:1704 src/mainmenu.c:1730
-#: src/rules_form.c:1612 src/rules_form.c:2015 src/rules_form.c:2046
-#: src/rules_form.c:4619 src/rules_form.c:4924 src/services_section.c:570
-#: src/services_section.c:1272 src/zones_section.c:752
-#: src/zones_section.c:1609 src/zones_section.c:2083 src/zones_section.c:2555
-#: src/zones_section.c:3140 src/zones_section.c:5064 src/zones_section.c:5702
-#: src/zones_section.c:6074 src/zones_section.c:6524 src/zones_section.c:7067
+#: src/logview_section.c:2002
+#: src/mainmenu.c:1704
+#: src/mainmenu.c:1730
+#: src/rules_form.c:1612
+#: src/rules_form.c:2015
+#: src/rules_form.c:2046
+#: src/rules_form.c:4619
+#: src/rules_form.c:4924
+#: src/services_section.c:570
+#: src/services_section.c:1272
+#: src/zones_section.c:752
+#: src/zones_section.c:1609
+#: src/zones_section.c:2083
+#: src/zones_section.c:2555
+#: src/zones_section.c:3140
+#: src/zones_section.c:5064
+#: src/zones_section.c:5702
+#: src/zones_section.c:6074
+#: src/zones_section.c:6524
+#: src/zones_section.c:7067
 #: src/strings.h:90
 msgid "Ready."
 msgstr "Pronto."
@@ -1037,11 +1305,10 @@ msgstr "falha ao salvar regras"
 
 #: src/mainmenu.c:78
 msgid "cannot rename rulesfile because its location is not set"
-msgstr ""
-"não é possível renomear a lista de regras porque não está definida sua "
-"localização"
+msgstr "não é possível renomear a lista de regras porque não está definida sua localização"
 
-#: src/mainmenu.c:93 src/mainmenu.c:161
+#: src/mainmenu.c:93
+#: src/mainmenu.c:161
 #, c-format
 msgid "renaming '%s' to '%s' failed: %s."
 msgstr "falha ao renomear '%s' para '%s': %s."
@@ -1052,15 +1319,14 @@ msgstr "falha ao salvar lista de bloqueios"
 
 #: src/mainmenu.c:146
 msgid "cannot rename blocklistfile because its location is not set"
-msgstr ""
-"não é possível renomear a lista de bloqueios porque não está definida sua "
-"localização"
+msgstr "não é possível renomear a lista de bloqueios porque não está definida sua localização"
 
 #: src/mainmenu.c:249
 msgid "Select a log to view."
 msgstr "Selecione um registro para visualizar."
 
-#: src/mainmenu.c:381 src/mainmenu.c:426
+#: src/mainmenu.c:381
+#: src/mainmenu.c:426
 #, c-format
 msgid "attaching to shared memory failed: %s."
 msgstr "falha ao anexar à memória compartilhada: %s"
@@ -1074,100 +1340,52 @@ msgid "(warn).\n"
 msgstr "(aviso).\n"
 
 #: src/mainmenu.c:491
-msgid ""
-"- The path to the Vuurmuur helpfile was not specified, please do so in the "
-"Vuurmuur_conf Settings\n"
-msgstr ""
-"- O caminho para o arquivo de ajuda do Vuurmuur não foi especificado, por "
-"favor especifique na seção Configuração do Vuurmuur_conf\n"
+msgid "- The path to the Vuurmuur helpfile was not specified, please do so in the Vuurmuur_conf Settings\n"
+msgstr "- O caminho para o arquivo de ajuda do Vuurmuur não foi especificado, por favor especifique na seção Configuração do Vuurmuur_conf\n"
 
 #: src/mainmenu.c:498
 msgid "- Opening the helpfile failed. Please check the file\n"
 msgstr "- Falha ao abrir o arquivo de ajuda. Por favor verifique o arquivo\n"
 
 #: src/mainmenu.c:520
-msgid ""
-"- The last time the changes were applied, applying the changes failed for "
-"Vuurmuur. Please check the Error.log\n"
-msgstr ""
-"Ocorreu um erro com o Vuurmuur na última vez em que as mudanças estavam "
-"sendo aplicadas. Por favor verifique o Error.log\n"
+msgid "- The last time the changes were applied, applying the changes failed for Vuurmuur. Please check the Error.log\n"
+msgstr "Ocorreu um erro com o Vuurmuur na última vez em que as mudanças estavam sendo aplicadas. Por favor verifique o Error.log\n"
 
 #: src/mainmenu.c:525
-msgid ""
-"- The last time the changes were applied, applying the changes failed for "
-"Vuurmuur_log. Please check the Error.log\n"
-msgstr ""
-"Ocorreu um erro com o Vuurmuur_log na última vez em que as mudanças estavam "
-"sendo aplicadas. Por favor verifique o Error.log\n"
+msgid "- The last time the changes were applied, applying the changes failed for Vuurmuur_log. Please check the Error.log\n"
+msgstr "Ocorreu um erro com o Vuurmuur_log na última vez em que as mudanças estavam sendo aplicadas. Por favor verifique o Error.log\n"
 
 #: src/mainmenu.c:533
-msgid ""
-"- No connection could be established with Vuurmuur. Please make sure that it "
-"is running\n"
-msgstr ""
-"- Não pode ser estabelecida nenhuma conexão com o Vuurmuur. Por favor tenha "
-"certeza de que ele está em execução\n"
+msgid "- No connection could be established with Vuurmuur. Please make sure that it is running\n"
+msgstr "- Não pode ser estabelecida nenhuma conexão com o Vuurmuur. Por favor tenha certeza de que ele está em execução\n"
 
 #: src/mainmenu.c:540
-msgid ""
-"- The connection with Vuurmuur seems to be lost. Please make sure that it is "
-"running\n"
-msgstr ""
-"A conexão com o Vuurmuur aparentemente foi perdida. Por favor tenha certeza "
-"de que está em execução\n"
+msgid "- The connection with Vuurmuur seems to be lost. Please make sure that it is running\n"
+msgstr "A conexão com o Vuurmuur aparentemente foi perdida. Por favor tenha certeza de que está em execução\n"
 
 #: src/mainmenu.c:550
-msgid ""
-"- No connection could be established with Vuurmuur_log. Please make sure "
-"that it is running\n"
-msgstr ""
-"- Não pode ser estabelecida nenhuma conexão com o Vuurmuur_log. Por favor "
-"tenha certeza de que ele está em execução\n"
+msgid "- No connection could be established with Vuurmuur_log. Please make sure that it is running\n"
+msgstr "- Não pode ser estabelecida nenhuma conexão com o Vuurmuur_log. Por favor tenha certeza de que ele está em execução\n"
 
 #: src/mainmenu.c:557
-msgid ""
-"- The connection with Vuurmuur_log seems to be lost. Please make sure that "
-"it is running\n"
-msgstr ""
-"A conexão com o Vuurmuur_log aparentemente foi perdida. Por favor tenha "
-"certeza de que está em execução\n"
+msgid "- The connection with Vuurmuur_log seems to be lost. Please make sure that it is running\n"
+msgstr "A conexão com o Vuurmuur_log aparentemente foi perdida. Por favor tenha certeza de que está em execução\n"
 
 #: src/mainmenu.c:580
-msgid ""
-"- The path to the 'iptables'-command is not yet specified. Please do so in "
-"the 'Vuurmuur Config' section\n"
-msgstr ""
-"- O caminho para o 'iptables' ainda não foi especificado. Por favor "
-"especifique na seção 'Configuração do Vuurmuur'\n"
+msgid "- The path to the 'iptables'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"
+msgstr "- O caminho para o 'iptables' ainda não foi especificado. Por favor especifique na seção 'Configuração do Vuurmuur'\n"
 
 #: src/mainmenu.c:587
-msgid ""
-"- The path to the 'iptables'-command seems to be wrong. There was an error "
-"while testing it. Please check it in your system and correct it in the "
-"'Vuurmuur Config' section\n"
-msgstr ""
-"- O caminho para o 'iptables' parece estar errado. Ocorreu um erro enquanto "
-"estava sendo testado. Por favor verifique em seu sistema e corrija na seção "
-"'Configuração do Vuurmuur'\n"
+msgid "- The path to the 'iptables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"
+msgstr "- O caminho para o 'iptables' parece estar errado. Ocorreu um erro enquanto estava sendo testado. Por favor verifique em seu sistema e corrija na seção 'Configuração do Vuurmuur'\n"
 
 #: src/mainmenu.c:596
-msgid ""
-"- The path to the 'iptables-restore'-command is not yet specified. Please do "
-"so in the 'Vuurmuur Config' section\n"
-msgstr ""
-"- O caminho para o 'iptables-restore' ainda não foi especificado. Por favor "
-"especifique na seção 'Configuração do Vuurmuur'\n"
+msgid "- The path to the 'iptables-restore'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"
+msgstr "- O caminho para o 'iptables-restore' ainda não foi especificado. Por favor especifique na seção 'Configuração do Vuurmuur'\n"
 
 #: src/mainmenu.c:603
-msgid ""
-"- The path to the 'iptables-restore'-command seems to be wrong. There was an "
-"error while testing it. Please check it in your system and correct it in the "
-"'Vuurmuur Config' section\n"
-msgstr ""
-"- O caminho para o 'iptables-restore' parece estar errado. Ocorreu um erro "
-"enquanto estava sendo testado. Por favor verifique em seu sistema e corrija "
-"na seção 'Configuração do Vuurmuur'\n"
+msgid "- The path to the 'iptables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"
+msgstr "- O caminho para o 'iptables-restore' parece estar errado. Ocorreu um erro enquanto estava sendo testado. Por favor verifique em seu sistema e corrija na seção 'Configuração do Vuurmuur'\n"
 
 #: src/mainmenu.c:648
 #, c-format
@@ -1176,17 +1394,12 @@ msgstr "- Nenhum faixa de porta/protocolo definidos no serviço '%s'\n"
 
 #: src/mainmenu.c:685
 msgid "- No interfaces are defined. Please define one or more interfaces\n"
-msgstr ""
-"- Nenhuma interface foi definida. Por favor defina uma ou mais interfaces\n"
+msgstr "- Nenhuma interface foi definida. Por favor defina uma ou mais interfaces\n"
 
 #: src/mainmenu.c:706
 #, c-format
-msgid ""
-"- The interface '%s' does not have a device. Please enter a device in the "
-"Interfaces Section\n"
-msgstr ""
-"- A interface '%s' não tem nenhum dispositivo. Por favor atribua um "
-"dispositivo na Seção de Interfaces\n"
+msgid "- The interface '%s' does not have a device. Please enter a device in the Interfaces Section\n"
+msgstr "- A interface '%s' não tem nenhum dispositivo. Por favor atribua um dispositivo na Seção de Interfaces\n"
 
 #: src/mainmenu.c:738
 #, c-format
@@ -1195,28 +1408,16 @@ msgstr "- O endereço IP '%s' da interface '%s' é inválido\n"
 
 #: src/mainmenu.c:770
 #, c-format
-msgid ""
-"- The ipaddress '%s' of interface '%s' (%s) does not match the ipaddress of "
-"the actual interface (%s)\n"
-msgstr ""
-"- O endereço IP '%s' da interface '%s' (%s) não confere com o endereço IP da "
-"interface atual (%s)\n"
+msgid "- The ipaddress '%s' of interface '%s' (%s) does not match the ipaddress of the actual interface (%s)\n"
+msgstr "- O endereço IP '%s' da interface '%s' (%s) não confere com o endereço IP da interface atual (%s)\n"
 
 #: src/mainmenu.c:781
-msgid ""
-"- No interfaces are active. Please make sure that at least one of the "
-"interfaces is active\n"
-msgstr ""
-"- Nenhuma interface está ativa. Por favor tenha certeza de que pelo menos "
-"uma interface está ativa\n"
+msgid "- No interfaces are active. Please make sure that at least one of the interfaces is active\n"
+msgstr "- Nenhuma interface está ativa. Por favor tenha certeza de que pelo menos uma interface está ativa\n"
 
 #: src/mainmenu.c:818
-msgid ""
-"- No zones are defined. Please define one or more zones, and at least one "
-"network\n"
-msgstr ""
-"- Nenhuma zona está definida. Por favor defina uma ou mais zonas, e pelo "
-"menos uma rede\n"
+msgid "- No zones are defined. Please define one or more zones, and at least one network\n"
+msgstr "- Nenhuma zona está definida. Por favor defina uma ou mais zonas, e pelo menos uma rede\n"
 
 #: src/mainmenu.c:844
 #, c-format
@@ -1230,28 +1431,18 @@ msgstr "- O endereço IP '%s' do host '%s' é inválido\n"
 
 #: src/mainmenu.c:870
 #, c-format
-msgid ""
-"- The IPAddress '%s' of host '%s' does not belong to network '%s' with "
-"netmask '%s'\n"
-msgstr ""
-"- O endereço IP '%s' do host '%s' não pertence à rede '%s' com a máscara '%"
-"s'\n"
+msgid "- The IPAddress '%s' of host '%s' does not belong to network '%s' with netmask '%s'\n"
+msgstr "- O endereço IP '%s' do host '%s' não pertence à rede '%s' com a máscara '%s'\n"
 
 #: src/mainmenu.c:884
 #, c-format
-msgid ""
-"- The network '%s' as no interfaces attached to it. Please attach one or "
-"more interfaces to it in the Zones Section\n"
-msgstr ""
-"- A rede '%s' não tem nenhuma interface atachada à ela. Por favor atache uma "
-"ou mais interfaces à esta rede na Seção de Zonas\n"
+msgid "- The network '%s' as no interfaces attached to it. Please attach one or more interfaces to it in the Zones Section\n"
+msgstr "- A rede '%s' não tem nenhuma interface atachada à ela. Por favor atache uma ou mais interfaces à esta rede na Seção de Zonas\n"
 
 #: src/mainmenu.c:893
 #, c-format
-msgid ""
-"- The network address for network '%s' is missing. See the Zones Section\n"
-msgstr ""
-"- Está faltando o endereço de rede para a rede '%s'. Veja a Seção de Zonas\n"
+msgid "- The network address for network '%s' is missing. See the Zones Section\n"
+msgstr "- Está faltando o endereço de rede para a rede '%s'. Veja a Seção de Zonas\n"
 
 #: src/mainmenu.c:905
 #, c-format
@@ -1261,30 +1452,20 @@ msgstr "- O endereço de rede '%s' da rede '%s' é inválido."
 #: src/mainmenu.c:915
 #, c-format
 msgid "- The netmask for network '%s' is missing. See the Zones Section\n"
-msgstr ""
-"- Está faltando a máscara de rede para a rede '%s'. Veja a Seção de Zonas\n"
+msgstr "- Está faltando a máscara de rede para a rede '%s'. Veja a Seção de Zonas\n"
 
 #: src/mainmenu.c:927
 #, c-format
 msgid "- The netmask '%s' of network '%s' is invalid. See the Zones Section\n"
-msgstr ""
-"- A máscara de rede '%s' da rede '%s' é inválida. Veja a Seção de Zonas\n"
+msgstr "- A máscara de rede '%s' da rede '%s' é inválida. Veja a Seção de Zonas\n"
 
 #: src/mainmenu.c:937
-msgid ""
-"- No networks are defined. Please make sure that you define at least one "
-"network. See the Zones Section\n"
-msgstr ""
-"- Nenhuma rede está definida. Por favor assegure definir pelo menos uma "
-"rede. Veja a seção Zonas\n"
+msgid "- No networks are defined. Please make sure that you define at least one network. See the Zones Section\n"
+msgstr "- Nenhuma rede está definida. Por favor assegure definir pelo menos uma rede. Veja a seção Zonas\n"
 
 #: src/mainmenu.c:942
-msgid ""
-"- No networks are active. Please make sure that at least one of the networks "
-"is active. See the Zones Section\n"
-msgstr ""
-"- Nenhuma rede está ativa. Por favor tenha certeza de que pelo menos uma das "
-"redes está ativa. Veja a seção Zonas\n"
+msgid "- No networks are active. Please make sure that at least one of the networks is active. See the Zones Section\n"
+msgstr "- Nenhuma rede está ativa. Por favor tenha certeza de que pelo menos uma das redes está ativa. Veja a seção Zonas\n"
 
 #: src/mainmenu.c:1018
 msgid "Not connected"
@@ -1298,7 +1479,9 @@ msgstr "Sucesso"
 msgid "No changes"
 msgstr "Nenhuma mudança"
 
-#: src/mainmenu.c:1021 src/templates.c:592 src/strings.h:97
+#: src/mainmenu.c:1021
+#: src/templates.c:592
+#: src/strings.h:97
 msgid "Error"
 msgstr "Erro"
 
@@ -1306,7 +1489,8 @@ msgstr "Erro"
 msgid "Timed out"
 msgstr "Tempo excedido"
 
-#: src/mainmenu.c:1084 src/mainmenu.c:1091
+#: src/mainmenu.c:1084
+#: src/mainmenu.c:1091
 msgid "Applying changes ..."
 msgstr "Aplicando mudanças..."
 
@@ -1329,7 +1513,8 @@ msgstr "Aviso"
 msgid " Fail "
 msgstr "Falha"
 
-#: src/mainmenu.c:1418 src/mainmenu.c:1464
+#: src/mainmenu.c:1418
+#: src/mainmenu.c:1464
 msgid "Apply Changes"
 msgstr "Aplicar Alterações"
 
@@ -1341,23 +1526,34 @@ msgstr "O status total não está OK. Aplicar assim mesmo?"
 msgid "will not apply changes if the overall status is 'fail'."
 msgstr "não serão aplicadas as mudanças se o status geral for 'falhou'."
 
-#: src/mainmenu.c:1453 src/rules_form.c:1606 src/rules_form.c:1871
+#: src/mainmenu.c:1453
+#: src/rules_form.c:1606
+#: src/rules_form.c:1871
 #: src/rules_form.c:1980
 msgid "Rules"
 msgstr "Regras"
 
-#: src/mainmenu.c:1454 src/zones_section.c:6622 src/zones_section.c:6892
+#: src/mainmenu.c:1454
+#: src/zones_section.c:6622
+#: src/zones_section.c:6892
 msgid "BlockList"
 msgstr "Lista de Bloqueios"
 
-#: src/mainmenu.c:1455 src/zones_section.c:6193 src/zones_section.c:6307
-#: src/zones_section.c:6398 src/zones_section.c:6485 src/zones_section.c:6504
+#: src/mainmenu.c:1455
+#: src/zones_section.c:6193
+#: src/zones_section.c:6307
+#: src/zones_section.c:6398
+#: src/zones_section.c:6485
+#: src/zones_section.c:6504
 msgid "Zones"
 msgstr "Zonas"
 
 #
-#: src/mainmenu.c:1457 src/services_section.c:2658 src/services_section.c:2775
-#: src/services_section.c:2876 src/services_section.c:2949
+#: src/mainmenu.c:1457
+#: src/services_section.c:2658
+#: src/services_section.c:2775
+#: src/services_section.c:2876
+#: src/services_section.c:2949
 msgid "Services"
 msgstr "Serviços"
 
@@ -1374,7 +1570,8 @@ msgstr "falha no calloc: %s."
 msgid "Main Menu"
 msgstr "Menu Principal"
 
-#: src/mainmenu.c:1628 src/mainmenu.c:1664
+#: src/mainmenu.c:1628
+#: src/mainmenu.c:1664
 #, c-format
 msgid "Welcome to Vuurmuur_conf %s"
 msgstr "Bem vindo ao Vuurmuur_conf %s"
@@ -1445,11 +1642,8 @@ msgid "BlockList converted successfully."
 msgstr "Lista de bloqueios convertida com sucesso."
 
 #: src/mainmenu.c:2074
-msgid ""
-"One or more problems were detected in your current setup. Below is a list\n"
-msgstr ""
-"Um ou mais problemas foram detectados na sua instalação atual. Abaixo está a "
-"lista\n"
+msgid "One or more problems were detected in your current setup. Below is a list\n"
+msgstr "Um ou mais problemas foram detectados na sua instalação atual. Abaixo está a lista\n"
 
 #: src/mainmenu.c:2110
 msgid "No problems were detected in your setup\n"
@@ -1493,19 +1687,25 @@ msgstr "Seção de Regras"
 msgid "Nr."
 msgstr "Núm"
 
-#: src/rules_form.c:1596 src/rules_form.c:3261 src/rules_form.c:4123
+#: src/rules_form.c:1596
+#: src/rules_form.c:3261
+#: src/rules_form.c:4123
 msgid "Action"
 msgstr "Ação"
 
-#: src/rules_form.c:1597 src/rules_form.c:3340 src/strings.h:40
+#: src/rules_form.c:1597
+#: src/rules_form.c:3340
+#: src/strings.h:40
 msgid "Service"
 msgstr "Serviço"
 
-#: src/rules_form.c:1598 src/services_section.c:451
+#: src/rules_form.c:1598
+#: src/services_section.c:451
 msgid "Source"
 msgstr "Origem"
 
-#: src/rules_form.c:1599 src/services_section.c:457
+#: src/rules_form.c:1599
+#: src/services_section.c:457
 msgid "Destination"
 msgstr "Destino"
 
@@ -1526,7 +1726,8 @@ msgstr "regra %d removida."
 msgid "Set the filter"
 msgstr "Defina o filtro"
 
-#: src/rules_form.c:2092 src/filter.c:203
+#: src/rules_form.c:2092
+#: src/filter.c:203
 msgid "Enter filter (leave empty for no filter)"
 msgstr "Digite o filtro (deixe vazio para nenhum filtro)"
 
@@ -1539,7 +1740,9 @@ msgstr "Filtro ativo: '%s' (pressione 'f' e aperte 'enter' para limpar)."
 msgid "Showing only forward rules."
 msgstr "Mostrando somente as regras de encaminhamento."
 
-#: src/rules_form.c:2160 src/rules_form.c:2178 src/rules_form.c:2196
+#: src/rules_form.c:2160
+#: src/rules_form.c:2178
+#: src/rules_form.c:2196
 msgid "Showing all rules."
 msgstr "Mostrando todas as regras."
 
@@ -1634,7 +1837,8 @@ msgstr "Chain"
 msgid "Via"
 msgstr "Via"
 
-#: src/rules_form.c:3645 src/rules_form.c:4247
+#: src/rules_form.c:3645
+#: src/rules_form.c:4247
 msgid "Reject type"
 msgstr "Tipo de rejeição"
 
@@ -1669,8 +1873,7 @@ msgstr "Pressione ESPAÇO para selecionar um serviço."
 
 #: src/rules_form.c:4032
 msgid "Press SPACE to select a host, group or network, or the firewall."
-msgstr ""
-"Pressione ESPAÇO para selecionar um host, grupo ou rede, ou o firewall."
+msgstr "Pressione ESPAÇO para selecionar um host, grupo ou rede, ou o firewall."
 
 #: src/rules_form.c:4034
 msgid "Enter a text to be included in the log message."
@@ -1686,24 +1889,20 @@ msgstr "Digite um número de porta para o redirecionamento."
 
 #: src/rules_form.c:4040
 msgid "Enter a comma-sepparated list of ports for the firewall to listen on."
-msgstr ""
-"Digite uma lista (separada por vírgulas) das portas para o firewall escutar."
+msgstr "Digite uma lista (separada por vírgulas) das portas para o firewall escutar."
 
 #: src/rules_form.c:4042
 msgid "Enter a comma-sepparated list of ports for the firewall to forward to."
-msgstr ""
-"Digite uma lista (separada por vírgulas) das portas para o firewall "
-"encaminhar."
+msgstr "Digite uma lista (separada por vírgulas) das portas para o firewall encaminhar."
 
-#: src/rules_form.c:4044 src/zones_section.c:725
+#: src/rules_form.c:4044
+#: src/zones_section.c:725
 msgid "Enter a optional comment."
 msgstr "Digite um comentário opcional"
 
 #: src/rules_form.c:4046
 msgid "Maximum number of loglines per second (to prevent DoS), 0 for no limit."
-msgstr ""
-"Número máximo de registros por segundo (para prevenir DoS), 0 para sem "
-"limite."
+msgstr "Número máximo de registros por segundo (para prevenir DoS), 0 para sem limite."
 
 #: src/rules_form.c:4048
 msgid "Press SPACE to toggle logging of this rule."
@@ -1711,49 +1910,42 @@ msgstr "Pressione ESPAÇO para alternar entre registrar ou não esta regra."
 
 #: src/rules_form.c:4050
 msgid "Press SPACE to toggle marking the state of this rule (snort_inline)."
-msgstr ""
-"Pressione ESPAÇO para alternar entre marcar ou não estado desta regra "
-"(snort_inline)."
+msgstr "Pressione ESPAÇO para alternar entre marcar ou não estado desta regra (snort_inline)."
 
 #: src/rules_form.c:4052
 msgid "Press SPACE to toggle queue'ing of this rule."
-msgstr ""
-"Pressione ESPAÇO para alternar o enfileiramento(queue) ou não desta regra."
+msgstr "Pressione ESPAÇO para alternar o enfileiramento(queue) ou não desta regra."
 
-#: src/rules_form.c:4054 src/rules_form.c:4056
+#: src/rules_form.c:4054
+#: src/rules_form.c:4056
 msgid "Press SPACE to select an interface to limit this rule to."
-msgstr ""
-"Pressione ESPAÇO para selecionar uma interface para limitar esta regra à ela."
+msgstr "Pressione ESPAÇO para selecionar uma interface para limitar esta regra à ela."
 
 #: src/rules_form.c:4058
 msgid "Press SPACE to select an interface. Read help for more info."
-msgstr ""
-"Pressione ESPAÇO para selecionar uma interface. Consulte a ajuda para "
-"maiores informações."
+msgstr "Pressione ESPAÇO para selecionar uma interface. Consulte a ajuda para maiores informações."
 
 #: src/rules_form.c:4060
 msgid "Enter a nfmark. Use > 20.000.000 when using the QUEUE action."
-msgstr ""
-"Digite uma nfmark. Use > 20.000.000 quando estiver usando a ação QUEUE."
+msgstr "Digite uma nfmark. Use > 20.000.000 quando estiver usando a ação QUEUE."
 
 #: src/rules_form.c:4062
 msgid "Average new connections per second (to prevent DoS), 0 for no limit."
-msgstr ""
-"Número médio de novas conexões por segundo (para prevenir DoS), 0 para sem "
-"limite."
+msgstr "Número médio de novas conexões por segundo (para prevenir DoS), 0 para sem limite."
 
 #: src/rules_form.c:4064
 msgid "Maximum new connections per second (to prevent DoS), 0 for no limit."
-msgstr ""
-"Número máximo de novas conexões por segundo (para prevenir DoS), 0 para sem "
-"limite."
+msgstr "Número máximo de novas conexões por segundo (para prevenir DoS), 0 para sem limite."
 
 #: src/rules_form.c:4124
 msgid "Select action"
 msgstr "Selecione uma ação"
 
-#: src/rules_form.c:4191 src/rules_form.c:4230 src/zones_section.c:5588
-#: src/zones_section.c:6736 src/zones_section.c:6823
+#: src/rules_form.c:4191
+#: src/rules_form.c:4230
+#: src/zones_section.c:5588
+#: src/zones_section.c:6736
+#: src/zones_section.c:6823
 msgid "Select"
 msgstr "Selecionar"
 
@@ -1773,16 +1965,20 @@ msgstr "Selecione o tipo de rejeição"
 msgid "no from zone, please select one first."
 msgstr "nenhuma zona de origem, por favor selecione uma primeiro."
 
-#: src/rules_form.c:4329 src/rules_form.c:4344 src/rules_form.c:4437
+#: src/rules_form.c:4329
+#: src/rules_form.c:4344
+#: src/rules_form.c:4437
 #: src/rules_form.c:4452
 msgid "Any"
 msgstr "Qualquer uma"
 
-#: src/rules_form.c:4337 src/rules_form.c:4445
+#: src/rules_form.c:4337
+#: src/rules_form.c:4445
 msgid "Set interface filter"
 msgstr "Defina o filtro de interface"
 
-#: src/rules_form.c:4337 src/rules_form.c:4445
+#: src/rules_form.c:4337
+#: src/rules_form.c:4445
 msgid "Select an interface ('Any' to disable filter)"
 msgstr "Selecione uma interface ('Qualquer uma' para desabilitar o filtro)"
 
@@ -1794,7 +1990,8 @@ msgstr "nenhuma zona 'para', por favor selecione uma primeiro."
 msgid "Set Via interface"
 msgstr "Ajustar pela interface"
 
-#: src/rules_form.c:4501 src/zones_section.c:3579
+#: src/rules_form.c:4501
+#: src/zones_section.c:3579
 msgid "Select an interface"
 msgstr "Selecione uma interface"
 
@@ -1823,39 +2020,27 @@ msgid "Enter an optional comment."
 msgstr "Digite um comentário opcional."
 
 #: src/services_section.c:133
-msgid ""
-"one of the ports is too low or too high. Valid port values for tcp and udp "
-"are 1-65535."
-msgstr ""
-"uma das portas é muito baixa ou muito alta. Portas válidas para tcp e udp "
-"estão entre 1 e 65535."
+msgid "one of the ports is too low or too high. Valid port values for tcp and udp are 1-65535."
+msgstr "uma das portas é muito baixa ou muito alta. Portas válidas para tcp e udp estão entre 1 e 65535."
 
 #: src/services_section.c:143
-msgid ""
-"please make sure that the 'high'-port is actually higher than the 'low'-port."
-msgstr ""
-"por favor tenha certeza de que a porta 'alta' é realmente maior do que a "
-"porta 'baixa'."
+msgid "please make sure that the 'high'-port is actually higher than the 'low'-port."
+msgstr "por favor tenha certeza de que a porta 'alta' é realmente maior do que a porta 'baixa'."
 
 #: src/services_section.c:155
-msgid ""
-"one of the values is too high. Valid icmp-types values are 1-255 (note that "
-"41-255 are reserved). Valid icmp-codes are 0-16 (note that not all "
-"combinations of types and codes are valid. See http://www.iana.org/"
-"assignments/icmp-parameters for details)."
-msgstr ""
-"um dos valores é muito alto. Valores válidos para tipos de icmp são 1-255 "
-"(note que de 41 a 255 são reservados). Códigos icmp válidos são 0-16 ( note "
-"que nem todas as combinações de tipos e códigos são válidas. Veja http://www."
-"iana.org/assignments/icmp-parameters para detalhes)."
+msgid "one of the values is too high. Valid icmp-types values are 1-255 (note that 41-255 are reserved). Valid icmp-codes are 0-16 (note that not all combinations of types and codes are valid. See http://www.iana.org/assignments/icmp-parameters for details)."
+msgstr "um dos valores é muito alto. Valores válidos para tipos de icmp são 1-255 (note que de 41 a 255 são reservados). Códigos icmp válidos são 0-16 ( note que nem todas as combinações de tipos e códigos são válidas. Veja http://www.iana.org/assignments/icmp-parameters para detalhes)."
 
-#: src/services_section.c:206 src/services_section.c:223
-#: src/services_section.c:242 src/services_section.c:263
+#: src/services_section.c:206
+#: src/services_section.c:223
+#: src/services_section.c:242
+#: src/services_section.c:263
 #, c-format
 msgid "only one %s portrange is allowed."
 msgstr "apenas uma faixa de portas de %s é permitida."
 
-#: src/services_section.c:315 src/services_section.c:1592
+#: src/services_section.c:315
+#: src/services_section.c:1592
 #, c-format
 msgid "saving the portranges failed (in: %s:%d)."
 msgstr "falha ao salvar faixa de portas (em: %s:%d)."
@@ -1868,19 +2053,23 @@ msgstr "Faixa de portas TCP"
 msgid "UDP Portrange"
 msgstr "Faixa de portas UDP"
 
-#: src/services_section.c:452 src/services_section.c:458
+#: src/services_section.c:452
+#: src/services_section.c:458
 msgid "Low"
 msgstr "Baixa"
 
-#: src/services_section.c:453 src/services_section.c:459
+#: src/services_section.c:453
+#: src/services_section.c:459
 msgid "High"
 msgstr "Alta"
 
-#: src/services_section.c:477 src/services_section.c:481
+#: src/services_section.c:477
+#: src/services_section.c:481
 msgid "Enter a portnumber (1-65535)."
 msgstr "Digite um número de porta (1-65535)."
 
-#: src/services_section.c:479 src/services_section.c:483
+#: src/services_section.c:479
+#: src/services_section.c:483
 msgid "Enter a portnumber (1-65535). This is the high-end of the range."
 msgstr "Digite um número de porta (1-65535). Este é o fim da faixa."
 
@@ -1934,18 +2123,23 @@ msgstr "sem suporte para a edição do protocolo %d"
 msgid "Delete portrange"
 msgstr "Apagar faixa de portas"
 
-#: src/services_section.c:1885 src/services_section.c:1926
+#: src/services_section.c:1885
+#: src/services_section.c:1926
 #: src/services_section.c:1957
 msgid "Edit Portrange"
 msgstr "Editar Faixa de Portas"
 
 #. TRANSLATORS: is an object active or in-active?
-#: src/services_section.c:2177 src/zones_section.c:2146
-#: src/zones_section.c:4317 src/zones_section.c:5751 src/strings.h:53
+#: src/services_section.c:2177
+#: src/zones_section.c:2146
+#: src/zones_section.c:4317
+#: src/zones_section.c:5751
+#: src/strings.h:53
 msgid "Active"
 msgstr "Ativo"
 
-#: src/services_section.c:2187 src/strings.h:55
+#: src/services_section.c:2187
+#: src/strings.h:55
 msgid "Broadcast"
 msgstr "Broadcast"
 
@@ -1957,7 +2151,8 @@ msgstr "Módulos de ajuda do protocolo"
 msgid "Warning: no port(range)s defined!"
 msgstr "Aviso: nenhuma porta(faixa) definida!"
 
-#: src/services_section.c:2249 src/services_section.c:2387
+#: src/services_section.c:2249
+#: src/services_section.c:2387
 #: src/services_section.c:2434
 msgid "Edit Service"
 msgstr "Editar Serviço"
@@ -1987,7 +2182,8 @@ msgstr "desconhecido."
 msgid "There are %d more portranges. Press F6 to manage."
 msgstr "Existem mais %d faixas de porta. Pressione F6 para gerenciar."
 
-#: src/services_section.c:2355 src/strings.h:44
+#: src/services_section.c:2355
+#: src/strings.h:44
 msgid "portranges"
 msgstr "faixa de portas"
 
@@ -2127,11 +2323,14 @@ msgstr "Proteção echo-broadcast"
 msgid "Note: whitespaces not allowed."
 msgstr "Nota: espaços em branco não são permitidos."
 
-#: src/templates.c:529 src/vuurmuur_conf.c:463 src/strings.h:100
+#: src/templates.c:529
+#: src/vuurmuur_conf.c:463
+#: src/strings.h:100
 msgid "Warning"
 msgstr "Aviso"
 
-#: src/templates.c:530 src/templates.c:593
+#: src/templates.c:530
+#: src/templates.c:593
 msgid "Press any key to continue..."
 msgstr "Pressione qualquer tecla para continuar..."
 
@@ -2150,8 +2349,7 @@ msgstr "opção de linha-de-comando desconhecida"
 #: src/vuurmuur_conf.c:278
 #, c-format
 msgid "This is Vuurmuur_conf %s, Copyright (c) 2003-2006 by Victor Julien"
-msgstr ""
-"Este é o Vuurmuur_conf %s, Direitos autorais (c) 2003-2006 por Victor Julien"
+msgstr "Este é o Vuurmuur_conf %s, Direitos autorais (c) 2003-2006 por Victor Julien"
 
 #: src/vuurmuur_conf.c:370
 #, c-format
@@ -2223,7 +2421,9 @@ msgstr "Endereço MAC '%s' inválido."
 msgid "empty IP address. No rules will be created for this host."
 msgstr "Endereço IP vazio. Nenhuma regra será criada para este host."
 
-#: src/zones_section.c:618 src/zones_section.c:731 src/zones_section.c:2419
+#: src/zones_section.c:618
+#: src/zones_section.c:731
+#: src/zones_section.c:2419
 #: src/zones_section.c:2524
 msgid "Note: parent zone/network is inactive."
 msgstr "Nota: zona/rede 'pai' está inativa"
@@ -2252,9 +2452,14 @@ msgstr "Por favor digite o endereço MAC (opcional)."
 msgid "If set to 'No' no rules will be created for it."
 msgstr "Se for definido para 'Não', nenhuma regra será criada para ele."
 
-#: src/zones_section.c:877 src/zones_section.c:1239 src/zones_section.c:1425
-#: src/zones_section.c:1572 src/zones_section.c:4624 src/zones_section.c:5313
-#: src/zones_section.c:5591 src/zones_section.c:5817
+#: src/zones_section.c:877
+#: src/zones_section.c:1239
+#: src/zones_section.c:1425
+#: src/zones_section.c:1572
+#: src/zones_section.c:4624
+#: src/zones_section.c:5313
+#: src/zones_section.c:5591
+#: src/zones_section.c:5817
 msgid "Hosts"
 msgstr "Hosts"
 
@@ -2262,7 +2467,9 @@ msgstr "Hosts"
 msgid "saving changed group to backend failed."
 msgstr "falha ao salvar mudanças de grupo no backend."
 
-#: src/zones_section.c:1220 src/zones_section.c:2799 src/zones_section.c:6292
+#: src/zones_section.c:1220
+#: src/zones_section.c:2799
+#: src/zones_section.c:6292
 msgid "open"
 msgstr "abrir"
 
@@ -2274,7 +2481,9 @@ msgstr "Renomear Host"
 msgid "Enter the new name of the host"
 msgstr "Digite o novo nome do host"
 
-#: src/zones_section.c:1340 src/zones_section.c:1363 src/zones_section.c:1393
+#: src/zones_section.c:1340
+#: src/zones_section.c:1363
+#: src/zones_section.c:1393
 #: src/zones_section.c:1416
 #, c-format
 msgid "invalid hostname '%s'."
@@ -2306,7 +2515,9 @@ msgstr "o host '%s' ainda está na lista de bloqueios (%u vezes)."
 msgid "deleting zone failed."
 msgstr "falha ao deletar zona."
 
-#: src/zones_section.c:1711 src/zones_section.c:2424 src/zones_section.c:2534
+#: src/zones_section.c:1711
+#: src/zones_section.c:2424
+#: src/zones_section.c:2534
 msgid "Members"
 msgstr "Membros"
 
@@ -2347,21 +2558,29 @@ msgstr "Nenhum membro atribuído ainda."
 msgid "There are %d more members. Press F6 to manage."
 msgstr "Existem mais %d membros. Pressione F6 para gerenciar."
 
-#: src/zones_section.c:2389 src/zones_section.c:2636
+#: src/zones_section.c:2389
+#: src/zones_section.c:2636
 msgid "members"
 msgstr "membros"
 
-#: src/zones_section.c:2414 src/zones_section.c:2517
+#: src/zones_section.c:2414
+#: src/zones_section.c:2517
 msgid "Warning: no members!"
 msgstr "Aviso: sem membros!"
 
-#: src/zones_section.c:2430 src/zones_section.c:2476
+#: src/zones_section.c:2430
+#: src/zones_section.c:2476
 msgid "Edit Group"
 msgstr "Editar Grupo"
 
-#: src/zones_section.c:2689 src/zones_section.c:2818 src/zones_section.c:2978
-#: src/zones_section.c:3110 src/zones_section.c:4626 src/zones_section.c:5314
-#: src/zones_section.c:5595 src/zones_section.c:5819
+#: src/zones_section.c:2689
+#: src/zones_section.c:2818
+#: src/zones_section.c:2978
+#: src/zones_section.c:3110
+#: src/zones_section.c:4626
+#: src/zones_section.c:5314
+#: src/zones_section.c:5595
+#: src/zones_section.c:5819
 msgid "Groups"
 msgstr "Grupos"
 
@@ -2373,7 +2592,9 @@ msgstr "Renomear Grupo"
 msgid "Enter the new name of the group"
 msgstr "Digite o novo nome do grupo"
 
-#: src/zones_section.c:2905 src/zones_section.c:2928 src/zones_section.c:2956
+#: src/zones_section.c:2905
+#: src/zones_section.c:2928
+#: src/zones_section.c:2956
 #, c-format
 msgid "invalid groupname '%s'."
 msgstr "nome de grupo inválido: '%s'."
@@ -2416,7 +2637,9 @@ msgstr "Nova interface"
 msgid "saving the interfaces failed."
 msgstr "falha ao salvar as interfaces."
 
-#: src/zones_section.c:4327 src/zones_section.c:5315 src/strings.h:34
+#: src/zones_section.c:4327
+#: src/zones_section.c:5315
+#: src/strings.h:34
 msgid "Network"
 msgstr "Rede"
 
@@ -2488,15 +2711,19 @@ msgstr "Anti-spoofing"
 msgid "interfaces"
 msgstr "interfaces"
 
-#: src/zones_section.c:4901 src/zones_section.c:5025
+#: src/zones_section.c:4901
+#: src/zones_section.c:5025
 msgid "Warning: no interfaces attached!"
 msgstr "Aviso: nenhuma interface atribuida!"
 
-#: src/zones_section.c:4907 src/zones_section.c:5033
+#: src/zones_section.c:4907
+#: src/zones_section.c:5033
 msgid "Note: parent zone is inactive."
 msgstr "Nota: zona 'pai' está inativa."
 
-#: src/zones_section.c:4916 src/zones_section.c:4984 src/zones_section.c:5220
+#: src/zones_section.c:4916
+#: src/zones_section.c:4984
+#: src/zones_section.c:5220
 #: src/zones_section.c:5815
 msgid "Networks"
 msgstr "Redes"
@@ -2519,7 +2746,8 @@ msgstr "Renomear Rede"
 msgid "Enter the new name of the network"
 msgstr "Digite o novo nome da rede"
 
-#: src/zones_section.c:5418 src/zones_section.c:5472
+#: src/zones_section.c:5418
+#: src/zones_section.c:5472
 #, c-format
 msgid "invalid networkname '%s'."
 msgstr "nome inválido de rede: '%s'."
@@ -2528,7 +2756,8 @@ msgstr "nome inválido de rede: '%s'."
 msgid "renaming network failed."
 msgstr "falha ao renomear rede."
 
-#: src/zones_section.c:5452 src/zones_section.c:5503
+#: src/zones_section.c:5452
+#: src/zones_section.c:5503
 #, c-format
 msgid "'%s' is an invalid name for a network."
 msgstr "'%s' é um nome inválido para uma rede."
@@ -2599,20 +2828,24 @@ msgid "deleting zone failed (in: %s:%d)."
 msgstr "falha ao apagar zona (em: %s:%d)."
 
 #: src/zones_section.c:6442
-#, fuzzy
 msgid "unable to delete: zone not empty."
-msgstr "impossível apagar: a rede não está vazia."
+msgstr "impossível apagar: a zona não está vazia."
 
-#: src/zones_section.c:6717 src/zones_section.c:6739
+#: src/zones_section.c:6717
+#: src/zones_section.c:6739
 msgid "IPAddress"
 msgstr "Endereço IP"
 
-#: src/zones_section.c:6718 src/zones_section.c:6770 src/zones_section.c:6775
+#: src/zones_section.c:6718
+#: src/zones_section.c:6770
+#: src/zones_section.c:6775
 #: src/strings.h:30
 msgid "Host"
 msgstr "Host"
 
-#: src/zones_section.c:6719 src/zones_section.c:6770 src/strings.h:32
+#: src/zones_section.c:6719
+#: src/zones_section.c:6770
+#: src/strings.h:32
 msgid "Group"
 msgstr "Grupo"
 
@@ -2891,7 +3124,8 @@ msgstr "uma interface foi adicionada"
 msgid "an interface has been removed"
 msgstr "uma interface foi removida"
 
-#: src/strings.h:151 src/strings.h:152
+#: src/strings.h:151
+#: src/strings.h:152
 msgid "has been added to the blocklist"
 msgstr "foi adicionado(a) à lista de bloqueios"
 
@@ -2965,7 +3199,7 @@ msgstr "Os detalhes estão agora"
 
 #: src/strings.h:186
 msgid "logging options are only available for the traffic.log."
-msgstr ""
+msgstr "opções de registro estão apenas disponíveis para traffic.log"
 
 #: src/strings.h:191
 msgid "the action 'Bounce' requires the 'via' option to be set."
@@ -2989,147 +3223,146 @@ msgstr "falha ao definir filtro."
 
 #: src/gui.c:35
 msgid "Please Wait"
-msgstr ""
+msgstr "Por favor aguarde"
 
 #: src/statevent.c:481
-#, fuzzy
 msgid "Manage Connection"
-msgstr "Conexões"
+msgstr "Gerenciar Conexões"
 
-#: src/statevent.c:520 src/statevent.c:806
-#, fuzzy
+#: src/statevent.c:520
+#: src/statevent.c:806
 msgid "Kill this connection"
-msgstr "Desconectando"
+msgstr "Matar esta conexão"
 
 #: src/statevent.c:521
 msgid "Kill all connections with this service/source/destination"
-msgstr ""
+msgstr "Matar todas as conexões com este serviço/origem/destino"
 
-#: src/statevent.c:524 src/statevent.c:810
-#, fuzzy
+#: src/statevent.c:524
+#: src/statevent.c:810
 msgid "Kill options"
-msgstr "Opções"
+msgstr "Opções de término de conexões"
 
-#: src/statevent.c:527 src/statevent.c:813
+#: src/statevent.c:527
+#: src/statevent.c:813
 #, c-format
 msgid "Kill all connections with source %s"
-msgstr ""
+msgstr "Matar todas as conexões com origem %s"
 
-#: src/statevent.c:530 src/statevent.c:816
+#: src/statevent.c:530
+#: src/statevent.c:816
 #, c-format
 msgid "Kill all connections with destination %s"
-msgstr ""
+msgstr "Matar todas as conexões com destino %s"
 
-#: src/statevent.c:533 src/statevent.c:536 src/statevent.c:819
+#: src/statevent.c:533
+#: src/statevent.c:536
+#: src/statevent.c:819
 #: src/statevent.c:822
 #, c-format
 msgid "Kill all connections of %s"
-msgstr ""
+msgstr "Matar todas as conexões de %s"
 
-#: src/statevent.c:539 src/statevent.c:825
-#, fuzzy
+#: src/statevent.c:539
+#: src/statevent.c:825
 msgid "BlockList options"
-msgstr "Lista de Bloqueios"
+msgstr "Opções da Lista de Bloqueios"
 
-#: src/statevent.c:542 src/statevent.c:828
-#, fuzzy, c-format
+#: src/statevent.c:542
+#: src/statevent.c:828
+#, c-format
 msgid "Add source %s to BlockList"
-msgstr "Converter Lista de Bloqueios"
+msgstr "Adicionar origem %s na Lista de Bloqueios"
 
-#: src/statevent.c:545 src/statevent.c:831
-#, fuzzy, c-format
+#: src/statevent.c:545
+#: src/statevent.c:831
+#, c-format
 msgid "Add destination %s to BlockList"
-msgstr "O destino está agora"
+msgstr "Adicionar destino %s na Lista de Bloqueios"
 
-#: src/statevent.c:548 src/statevent.c:834
+#: src/statevent.c:548
+#: src/statevent.c:834
 msgid "Add both source and destination to BlockList"
-msgstr ""
+msgstr "Adicionar origem e destino à Lista de Bloqueios"
 
 #: src/statevent.c:591
-#, fuzzy
 msgid "Kill connection"
-msgstr "Desconectando"
+msgstr "Matar conexão"
 
-#: src/statevent.c:601 src/statevent.c:617 src/statevent.c:630
-#: src/statevent.c:643 src/statevent.c:657 src/statevent.c:879
-#: src/statevent.c:895 src/statevent.c:908 src/statevent.c:921
+#: src/statevent.c:601
+#: src/statevent.c:617
+#: src/statevent.c:630
+#: src/statevent.c:643
+#: src/statevent.c:657
+#: src/statevent.c:879
+#: src/statevent.c:895
+#: src/statevent.c:908
+#: src/statevent.c:921
 #: src/statevent.c:935
-#, fuzzy
 msgid "Kill connections"
-msgstr "Conexões"
+msgstr "Matar conexões"
 
-#: src/statevent.c:667 src/statevent.c:675 src/statevent.c:683
-#: src/statevent.c:945 src/statevent.c:953 src/statevent.c:961
+#: src/statevent.c:667
+#: src/statevent.c:675
+#: src/statevent.c:683
+#: src/statevent.c:945
+#: src/statevent.c:953
+#: src/statevent.c:961
 msgid "Add to BlockList and Apply Changes"
-msgstr ""
+msgstr "Adicionar à Lista de Bloqueios e Aplicar Alterações"
 
 #: src/statevent.c:755
 msgid "Manage Log"
-msgstr ""
+msgstr "Gerenciar Registros"
 
 #: src/statevent.c:1019
-#, fuzzy
 msgid "Manage Connections"
-msgstr "Conexões"
+msgstr "Gerenciar Conexões"
 
 #: src/statevent.c:1020
-#, fuzzy
 msgid "connection actions"
-msgstr "Conectando em"
+msgstr "ações para conexões"
 
 #: src/statevent.c:1021
 msgid "No connections to act on."
-msgstr ""
+msgstr "Nenhum conexão para ser utilizada."
 
 #: src/statevent.c:1029
-#, fuzzy
 msgid "Manage Logging"
-msgstr "Registros"
+msgstr "Gerenciar Registros"
 
 #: src/statevent.c:1030
-#, fuzzy
 msgid "logging actions"
-msgstr "Conexões Saindo"
+msgstr "registrando ações"
 
 #: src/statevent.c:1031
 msgid "No logs to act on."
-msgstr ""
+msgstr "Nenhum log para ser utilizado."
 
 #~ msgid "Systemlog filename (full path (for vuurmuur_log)):"
 #~ msgstr "Mensagens do sistema (caminho completo (para o vuurmuur-log)):"
-
 #~ msgid "Iptables Capabilities missing or not loaded"
 #~ msgstr "Faltando capacidades no Iptables ou não carregadas"
-
 #~ msgid "Try loading modules?"
 #~ msgstr "Tentar carregar módulos?"
-
 #~ msgid "status"
 #~ msgstr "status"
-
 #~ msgid "grp unknown"
 #~ msgstr "grupo desconhecido"
-
 #~ msgid "the source of a portfw-rule cannot be 'firewall'."
 #~ msgstr "a origem de um encaminhamento de prota não pode ser 'firewall'."
-
 #~ msgid "the destination of a snat-rule cannot be 'any'."
 #~ msgstr "o destino de uma regra SNAT não pode ser 'any'."
-
 #~ msgid "CONNECTING"
 #~ msgstr "CONECTANDO"
-
 #~ msgid "DISCONNECTING"
 #~ msgstr "DESCONECTANDO"
-
 #~ msgid "INCOMING"
 #~ msgstr "ENTRANDO"
-
 #~ msgid "OUTGOING"
 #~ msgstr "SAINDO"
-
 #~ msgid "FORWARDING"
 #~ msgstr "ENCAMINHANDO"
-
 #~ msgid "Problem with the plugins"
 #~ msgstr "Problema com os plugins"
+
