@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2003-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2003-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -187,12 +187,17 @@ int count_conntrack_conn(struct vuurmuur_config *cnf, int *conntrack_count,
 
 int get_conntrack_max(int *conntrack_max)
 {
-	FILE		*fp=NULL;
-	char		proc_conntrack_max[] = "/proc/sys/net/ipv4/ip_conntrack_max",
-			line[16];
+	FILE		*fp = NULL;
+	char		proc_ip_conntrack_max[] = "/proc/sys/net/ipv4/ip_conntrack_max",
+			proc_nf_conntrack_max[] = "/proc/sys/net/nf_conntrack_max",
+			line[16] = "";
 
-	if(!(fp = fopen(proc_conntrack_max, "r")))
-		return(-1);
+	/* try to open the conntrack max file */
+	if(!(fp = fopen(proc_ip_conntrack_max, "r"))) {
+		if(!(fp = fopen(proc_nf_conntrack_max, "r"))) {
+			return(-1);
+		}
+	}
 
 	if(fgets(line, (int)sizeof(line), fp) != NULL)
 		*conntrack_max = atoi(line);
