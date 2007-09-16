@@ -1382,17 +1382,17 @@ get_iface_stats_from_ipt(	const int debuglvl,
 //		(void)vrprint.debug(__FUNC__, "line: '%s'.", line);
 
 		/* we start looking after the first two lines */
-		if(line_count >= 2)
+		if(line_count >= 4)
 		{
 			/*            pack byte tg pr op in ou sr ds */
 			sscanf(line, "%llu %llu %s %s %s %s %s %s %s", &packets, &bytes, target, proto, options, interface_in, interface_out, source, dest);
 
 			if(debuglvl >= HIGH)
-				(void)vrprint.debug(__FUNC__, "%s: packets: %llu, bytes: %llu", iface_name, packets, bytes);
+				(void)vrprint.debug(__FUNC__, "%s: tgt %s: iin: %s oin: %s packets: %llu, bytes: %llu", iface_name, target, interface_in, interface_out, packets, bytes);
 
 			if(	strcmp(source, "0.0.0.0/0") == 0 &&
 				strcmp(dest, "0.0.0.0/0") == 0 &&
-				strcmp(proto, "all") == 0 &&
+				(strcmp(proto, "all") == 0 || strcmp(proto, "0") == 0) &&
 				(interface_in[0] == '*' || interface_out[0] == '*'))
 			{
 				/* outgoing */
