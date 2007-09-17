@@ -1,0 +1,4 @@
+ACTIVE="yes"
+TCP="389*1024:65535"
+BROADCAST="no"
+COMMENT="Lightweight Directory Access Protocol."
