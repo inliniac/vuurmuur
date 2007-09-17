@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # needs: file, sort, cat, zcat, grep
 

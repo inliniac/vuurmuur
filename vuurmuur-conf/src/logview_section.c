@@ -1689,7 +1689,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
 							traffic_fp = fp;
 
 							/* assemble search string => ignore stderr because it messes up the screen */
-							snprintf(search_string, sizeof(search_string), "/bin/sh %s/vuurmuur-searchlog.sh %s %s/ '%s' 2>/dev/null", vccnf.scripts_location, logname, conf.vuurmuur_logdir_location, search_ptr);
+							snprintf(search_string, sizeof(search_string), "/bin/bash %s/vuurmuur-searchlog.sh %s %s/ '%s' 2>/dev/null", vccnf.scripts_location, logname, conf.vuurmuur_logdir_location, search_ptr);
 							(void)vrprint.debug(__FUNC__, "search_string: '%s'.", search_string);
 
 							/* open the pipe */
