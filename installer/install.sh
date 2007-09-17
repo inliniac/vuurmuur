@@ -8,7 +8,7 @@
 # Copyright (c) 2004-2006 by Victor Julien
 # Licenced under the GPL.
 #
-VERSION="0.5.73.alpha7"
+VERSION="0.5.73"
 
 # progams
 ACLOCAL="aclocal"

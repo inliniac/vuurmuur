@@ -6,7 +6,7 @@
 # customary to leave one space after the ':'.
 
         |-----handy-ruler----------------------------------------------------|
-vuurmuur:      Vuurmuur-0.5.72
+vuurmuur:      Vuurmuur-0.5.73
 vuurmuur:
 vuurmuur: Vuurmuur is a powerful middle-end/front-end for netfilter/iptables
 vuurmuur:    aimed at system-administrators who need a decent firewall, but 

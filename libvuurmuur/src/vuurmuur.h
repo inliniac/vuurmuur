@@ -56,7 +56,7 @@
 #define MIN_VUURMUUR_VERSION_MINOR	5
 #define MIN_VUURMUUR_VERSION_SUB	65
 
-#define VUURMUUR_PRERELEASE_VERSION	7
+#define VUURMUUR_PRERELEASE_VERSION	0
 
 /* we need this to stringify the VUURMUUR_CONFIGDIR which is supplied at compiletime see:
    http://gcc.gnu.org/onlinedocs/gcc-3.4.1/cpp/Stringification.html#Stringification */
