@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2006 by Victor Julien                              *
+ *   Copyright (C) 2003-2007 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -1168,7 +1168,7 @@ print_about(const int debuglvl)
 	(void)read_helpline(debuglvl, &about_list, "=============\n");
 	(void)read_helpline(debuglvl, &about_list, "\n");
 	(void)read_helpline(debuglvl, &about_list, "\n");
-	(void)read_helpline(debuglvl, &about_list, "Copyright 2003-2006 (c) Victor Julien <victor(at)vuurmuur(dot)org>.\n");
+	(void)read_helpline(debuglvl, &about_list, "Copyright 2003-2007 (c) Victor Julien <victor(at)vuurmuur(dot)org>.\n");
 	(void)read_helpline(debuglvl, &about_list, "This program is distributed under the terms of the GPL.\n");
 	(void)read_helpline(debuglvl, &about_list, "\n");
 
@@ -1178,8 +1178,6 @@ print_about(const int debuglvl)
 	(void)read_helpline(debuglvl, &about_list, "\n");
 	(void)read_helpline(debuglvl, &about_list, "\n");
 	(void)read_helpline(debuglvl, &about_list, "Website: http://www.vuurmuur.org/\n");
-	(void)read_helpline(debuglvl, &about_list, "\n");
-	(void)read_helpline(debuglvl, &about_list, "Wiki: http://wiki.vuurmuur.org/\n");
 	(void)read_helpline(debuglvl, &about_list, "\n");
 	(void)read_helpline(debuglvl, &about_list, "Mailinglist: http://sourceforge.net/mail/?group_id=114382\n");
 	(void)read_helpline(debuglvl, &about_list, "\n");
@@ -1207,7 +1205,7 @@ print_about(const int debuglvl)
 	(void)read_helpline(debuglvl, &about_list, "Stefan Ubbink (Gentoo ebuilds, coding).\n");
 	(void)read_helpline(debuglvl, &about_list, "Rob de Wit (wiki hosting).\n");
 	(void)read_helpline(debuglvl, &about_list, "\n");
-	(void)read_helpline(debuglvl, &about_list, "See: http://wiki.vuurmuur.org/tiki/tiki-index.php?page=Credits for the latest information.\n");
+	(void)read_helpline(debuglvl, &about_list, "See: http://www.vuurmuur.org/trac/wiki/Credits for the latest information.\n");
 	(void)read_helpline(debuglvl, &about_list, "\n");
 
 	set_lines(debuglvl, &about_list, (size_t)(width - 4));
