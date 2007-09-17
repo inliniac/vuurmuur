@@ -22,7 +22,7 @@ MODPROBE="/sbin/modprobe"
 LOAD_MODULES="Yes"
 
 # Wait after loading a module in 1/10th of a second
-MODULES_WAIT_TIME="0"
+MODULES_WAIT_TIME="10"
 
 # If set to yes, each rule will be loaded into the system individually using
 # iptables. Otherwise iptables-restore will be used (yes/no).
