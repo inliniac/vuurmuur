@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 # This is an implementation of a start-script for Vuurmuur.
 #
-# (c) 2004 Victor Julien, released under GPL.
+# (c) 2004-2007 Victor Julien, released under GPL.
 
 # Make RedHat happy:
 #

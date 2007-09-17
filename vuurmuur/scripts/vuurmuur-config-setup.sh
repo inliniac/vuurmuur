@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # 2005-06-19:	victor	initial version
