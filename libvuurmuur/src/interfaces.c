@@ -326,6 +326,7 @@ read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr)
 {
 	int	result = 0;
 	char	yesno[4] = "";
+	char	bw_str[11] = ""; /* 32 bit string, so max 4294967296 */
 
 
 	/* safety first */
@@ -462,6 +463,130 @@ read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr)
 		if(debuglvl >= LOW)
 			(void)vrprint.debug(__FUNC__, "no IPADDRESS defined for interface '%s', assuming not virtual.",
 									iface_ptr->name);
+	}
+	else
+	{
+		(void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+									__FUNC__, __LINE__);
+		return(-1);
+	}
+
+	/* lookup if we need shaping */
+	result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "SHAPE", yesno, sizeof(yesno), TYPE_INTERFACE, 0);
+	if(result == 1)
+	{
+		if(strcasecmp(yesno, "yes") == 0)
+			iface_ptr->shape = TRUE;
+		else
+			iface_ptr->shape = FALSE;
+	}
+	else if(result == 0)
+	{
+		/* if the interface is undefined, issue a warning and set inactive */
+		if(debuglvl >= LOW)
+			(void)vrprint.debug(__FUNC__, "no SHAPE defined for interface '%s', assuming no shaping.",
+								iface_ptr->name);
+
+		iface_ptr->shape = FALSE;
+	}
+	else
+	{
+		(void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+									__FUNC__, __LINE__);
+		return(-1);
+	}
+
+	/* ask the BW_IN of this interface */
+	result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_IN", bw_str, sizeof(bw_str), TYPE_INTERFACE, 0);
+	if(result == 1)
+	{
+		if(debuglvl >= HIGH)
+			(void)vrprint.debug(__FUNC__, "raw bw_str: %s.", bw_str);
+
+		iface_ptr->bw_in = atoi(bw_str);
+	}
+	else if(result == 0)
+	{
+		if(debuglvl >= LOW)
+			(void)vrprint.debug(__FUNC__, "no BW_IN defined for interface '%s', setting to 0.",
+									iface_ptr->name);
+		iface_ptr->bw_in = 0;
+	}
+	else
+	{
+		(void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+									__FUNC__, __LINE__);
+		return(-1);
+	}
+	/* ask the BW_IN_UNIT of this interface */
+	result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_IN_UNIT", bw_str, sizeof(bw_str), TYPE_INTERFACE, 0);
+	if(result == 1)
+	{
+		if(debuglvl >= HIGH)
+			(void)vrprint.debug(__FUNC__, "raw bw_str (unit): %s.", bw_str);
+
+		if (strcasecmp(bw_str, "kbit") == 0) {
+			/* okay do nothing */
+		} else if (strcasecmp(bw_str, "mbit") == 0)  {
+			iface_ptr->bw_in = iface_ptr->bw_in * 1024;
+		}
+	}
+	else if(result == 0)
+	{
+		if(debuglvl >= LOW)
+			(void)vrprint.debug(__FUNC__, "no BW_IN_UNIT defined for interface '%s', setting to 0.",
+									iface_ptr->name);
+		iface_ptr->bw_in = 0;
+	}
+	else
+	{
+		(void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+									__FUNC__, __LINE__);
+		return(-1);
+	}
+
+
+	/* ask the BW_OUT of this interface */
+	result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_OUT", bw_str, sizeof(bw_str), TYPE_INTERFACE, 0);
+	if(result == 1)
+	{
+		if(debuglvl >= HIGH)
+			(void)vrprint.debug(__FUNC__, "raw bw_str: %s.", bw_str);
+
+		iface_ptr->bw_out = atoi(bw_str);
+	}
+	else if(result == 0)
+	{
+		if(debuglvl >= LOW)
+			(void)vrprint.debug(__FUNC__, "no BW_OUT defined for interface '%s', setting to 0.",
+									iface_ptr->name);
+		iface_ptr->bw_out = 0;
+	}
+	else
+	{
+		(void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+									__FUNC__, __LINE__);
+		return(-1);
+	}
+	/* ask the BW_OUT_UNIT of this interface */
+	result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_OUT_UNIT", bw_str, sizeof(bw_str), TYPE_INTERFACE, 0);
+	if(result == 1)
+	{
+		if(debuglvl >= HIGH)
+			(void)vrprint.debug(__FUNC__, "raw bw_str (unit): %s.", bw_str);
+
+		if (strcasecmp(bw_str, "kbit") == 0) {
+			/* okay do nothing */
+		} else if (strcasecmp(bw_str, "mbit") == 0)  {
+			iface_ptr->bw_out = iface_ptr->bw_out * 1024;
+		}
+	}
+	else if(result == 0)
+	{
+		if(debuglvl >= LOW)
+			(void)vrprint.debug(__FUNC__, "no BW_OUT_UNIT defined for interface '%s', setting to 0.",
+									iface_ptr->name);
+		iface_ptr->bw_in = 0;
 	}
 	else
 	{

@@ -683,6 +683,13 @@ typedef struct InterfaceData_
 	/* reference counters */
 	unsigned int		refcnt_network;
 
+	/* traffic shaping */
+	char		shape;		/* shape on this interface? 1: yes, 0: no */
+	u_int32_t	bw_in;		/* maximal bw in kbits (download) */
+	u_int32_t	bw_out;		/* maximal bw in kbits (upload) */
+	u_int32_t	min_bw_in;	/* minimal per rule rate in kbits (download) */
+	u_int32_t	min_bw_out;	/* minimal per rule rate in kbits (upload) */
+
 } InterfaceData;
 
 
