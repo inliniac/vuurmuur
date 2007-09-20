@@ -72,6 +72,7 @@ struct
 	FIELD	*iptableslocfld,
 		*iptablesrestorelocfld,
 		*conntracklocfld,
+		*tclocfld,
 		
 		*oldcreatefld;
 
@@ -88,13 +89,14 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
 	size_t	i = 0;
 
 
-	ConfigSection.n_fields = 3;
+	ConfigSection.n_fields = 4;
 	ConfigSection.fields = (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
 
 	/* external programs */
 	GenConfig.iptableslocfld =  (ConfigSection.fields[0] = new_field(1, 64, 2, 1, 0, 0));  /* iptables */
 	GenConfig.iptablesrestorelocfld =  (ConfigSection.fields[1] = new_field(1, 64, 4, 1, 0, 0));  /*  */
 	GenConfig.conntracklocfld =  (ConfigSection.fields[2] = new_field(1, 64, 7, 1, 0, 0));  /*  */
+	GenConfig.tclocfld =  (ConfigSection.fields[3] = new_field(1, 64, 10, 1, 0, 0));  /*  */
 
 	/* terminate */
 	ConfigSection.fields[ConfigSection.n_fields] = NULL;
@@ -106,6 +108,7 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
 	set_field_buffer_wrap(debuglvl, GenConfig.iptableslocfld, 0, conf.iptables_location);
 	set_field_buffer_wrap(debuglvl, GenConfig.iptablesrestorelocfld, 0, conf.iptablesrestore_location);
 	set_field_buffer_wrap(debuglvl, GenConfig.conntracklocfld, 0, conf.conntrack_location);
+	set_field_buffer_wrap(debuglvl, GenConfig.tclocfld, 0, conf.tc_location);
 
 	/* set buffers done */
 	for(i = 0; i < ConfigSection.n_fields; i++)
@@ -131,6 +134,7 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
 	mvwprintw(ConfigSection.win, 2, 2,  gettext("Iptables location (full path):"));
 	mvwprintw(ConfigSection.win, 4, 2,  gettext("Iptables-restore location (full path):"));
 	mvwprintw(ConfigSection.win, 7, 2,  gettext("Conntrack location (full path):"));
+	mvwprintw(ConfigSection.win, 10, 2, gettext("Tc location (full path):"));
 
 	return(retval);
 }
@@ -164,7 +168,7 @@ edit_genconfig_save(const int debuglvl)
 			}
 			else if(ConfigSection.fields[i] == GenConfig.iptablesrestorelocfld)
 			{
-				/* ifconfig location */
+				/* iptables-restore location */
 				if(!(copy_field2buf(	conf.iptablesrestore_location,
 							field_buffer(ConfigSection.fields[i], 0),
 							sizeof(conf.iptablesrestore_location))))
@@ -178,7 +182,7 @@ edit_genconfig_save(const int debuglvl)
 			}
 			else if(ConfigSection.fields[i] == GenConfig.conntracklocfld)
 			{
-				/* ifconfig location */
+				/* conntrack location */
 				if(!(copy_field2buf(	conf.conntrack_location,
 							field_buffer(ConfigSection.fields[i], 0),
 							sizeof(conf.conntrack_location))))
@@ -189,6 +193,20 @@ edit_genconfig_save(const int debuglvl)
 
 				(void)vrprint.audit("'conntrack location' %s '%s'.",
 					STR_IS_NOW_SET_TO, conf.conntrack_location);
+			}
+			else if(ConfigSection.fields[i] == GenConfig.tclocfld)
+			{
+				/* tc location */
+				if(!(copy_field2buf(	conf.tc_location,
+							field_buffer(ConfigSection.fields[i], 0),
+							sizeof(conf.tc_location))))
+					return(-1);
+
+				sanitize_path(debuglvl, conf.tc_location,
+						StrLen(conf.tc_location));
+
+				(void)vrprint.audit("'tc location' %s '%s'.",
+					STR_IS_NOW_SET_TO, conf.tc_location);
 			}
 			else
 			{
@@ -2467,6 +2485,7 @@ view_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
 		mvwprintw(ConfigSection.win, 12, 27, "MARK\t\t%s", iptcap->target_mark ? STR_YES : STR_NO);
 		mvwprintw(ConfigSection.win, 13, 27, "CONNMARK\t%s", iptcap->target_connmark ? STR_YES : STR_NO);
 		mvwprintw(ConfigSection.win, 14, 27, "NFQUEUE\t%s", iptcap->target_nfqueue ? STR_YES : STR_NO);
+		mvwprintw(ConfigSection.win, 15, 27, "CLASSIFY\t%s", iptcap->target_classify ? STR_YES : STR_NO);
 	}
 	else
 	{

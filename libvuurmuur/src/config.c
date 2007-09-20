@@ -1204,6 +1204,31 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 	sanitize_path(debuglvl, cnf->conntrack_location, sizeof(cnf->conntrack_location));
 
 
+	result = ask_configfile(askconfig_debuglvl, "TC", cnf->tc_location, cnf->configfile, sizeof(cnf->tc_location));
+	if(result == 1)
+	{
+		/* ok */
+	}
+	else if(result == 0)
+	{
+		/*	VJ 06/05/03: don't set a default because most systems
+			won't have this tool. Keeping it empty allows us to
+			check for it not beeing set and present a warning */
+		
+		//if(strlcpy(cnf->conntrack_location, DEFAULT_TC_LOCATION, sizeof(cnf->tc_location)) >= sizeof(cnf->tc_location))
+		//{
+		//	(void)vrprint.error(VR_CNF_E_UNKNOWN_ERR, "Internal Error",
+		//		"string overflow (in: %s:%d).",
+		//		__FUNC__, __LINE__);
+		//	return(VR_CNF_E_UNKNOWN_ERR);
+		//}
+	}
+	else
+		return(VR_CNF_E_UNKNOWN_ERR);
+
+	sanitize_path(debuglvl, cnf->tc_location, sizeof(cnf->tc_location));
+
+
 	result = ask_configfile(askconfig_debuglvl, "MODPROBE", cnf->modprobe_location, cnf->configfile, sizeof(cnf->modprobe_location));
 	if(result == 1)
 	{

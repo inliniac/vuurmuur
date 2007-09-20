@@ -829,6 +829,16 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 				result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "CONNMARK", "xt_CONNMARK", load_modules);
 				if(result == 1)	iptcap->target_connmark = TRUE;
 			}
+
+			/* CLASSIFY target */
+			result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "CLASSIFY", "ipt_CLASSIFY", load_modules);
+			if(result == 1)	iptcap->target_classify = TRUE;
+			else {
+				iptcap->target_classify = FALSE;
+
+				result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "CLASSIFY", "xt_CLASSIFY", load_modules);
+				if(result == 1)	iptcap->target_classify = TRUE;
+			}
 		}
 	}
 	else
@@ -850,6 +860,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 		{
 			iptcap->target_mark = TRUE;
 			iptcap->target_connmark = TRUE;
+			iptcap->target_classify = TRUE;
 		}
 	}
 

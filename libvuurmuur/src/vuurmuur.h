@@ -116,6 +116,7 @@
 #define DEFAULT_SYSTEMLOG_LOCATION	"/var/log/messages"
 #define DEFAULT_MODPROBE_LOCATION	"/sbin/modprobe"
 #define DEFAULT_CONNTRACK_LOCATION	"/usr/sbin/conntrack"
+#define DEFAULT_TC_LOCATION		"/sbin/tc"
 
 #define DEFAULT_BACKEND			"textdir"
 
@@ -351,6 +352,7 @@ struct vuurmuur_config
 	char		iptables_location[128];
 	char		iptablesrestore_location[128];
 	char		conntrack_location[128];
+	char		tc_location[128];
 
 //	char		use_blocklist;
 	char		blocklist_location[64];
@@ -985,6 +987,7 @@ typedef struct
 	char	target_redirect;
 	char	target_mark;
 	char	target_masquerade;
+	char	target_classify;
 
 	char	target_queue;
 	pid_t	queue_peer_pid;
