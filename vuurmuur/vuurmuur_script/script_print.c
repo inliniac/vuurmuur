@@ -430,6 +430,46 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
 			else
 				printf("VIRTUAL=\"\"\n");
 		}
+		/* SHAPE */
+		if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"SHAPE") == 0)
+		{
+			if(af->ask(debuglvl, ifac_backend, vr_script->name, "SHAPE", vr_script->bdat, sizeof(vr_script->bdat), TYPE_INTERFACE, 0) == 1)
+				printf("SHAPE=\"%s\"\n", vr_script->bdat);
+			else
+				printf("SHAPE=\"\"\n");
+		}
+		/* BW_IN */
+		if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"BW_IN") == 0)
+		{
+			if(af->ask(debuglvl, ifac_backend, vr_script->name, "BW_IN", vr_script->bdat, sizeof(vr_script->bdat), TYPE_INTERFACE, 0) == 1)
+				printf("BW_IN=\"%s\"\n", vr_script->bdat);
+			else
+				printf("BW_IN=\"\"\n");
+		}
+		/* BW_OUT */
+		if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"BW_OUT") == 0)
+		{
+			if(af->ask(debuglvl, ifac_backend, vr_script->name, "BW_OUT", vr_script->bdat, sizeof(vr_script->bdat), TYPE_INTERFACE, 0) == 1)
+				printf("BW_OUT=\"%s\"\n", vr_script->bdat);
+			else
+				printf("BW_OUT=\"\"\n");
+		}
+		/* BW_IN_UNIT */
+		if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"BW_IN_UNIT") == 0)
+		{
+			if(af->ask(debuglvl, ifac_backend, vr_script->name, "BW_IN_UNIT", vr_script->bdat, sizeof(vr_script->bdat), TYPE_INTERFACE, 0) == 1)
+				printf("BW_IN_UNIT=\"%s\"\n", vr_script->bdat);
+			else
+				printf("BW_IN_UNIT=\"\"\n");
+		}
+		/* BW_OUT_UNIT */
+		if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"BW_OUT_UNIT") == 0)
+		{
+			if(af->ask(debuglvl, ifac_backend, vr_script->name, "BW_OUT_UNIT", vr_script->bdat, sizeof(vr_script->bdat), TYPE_INTERFACE, 0) == 1)
+				printf("BW_OUT_UNIT=\"%s\"\n", vr_script->bdat);
+			else
+				printf("BW_OUT_UNIT=\"\"\n");
+		}
 		/* RULE */
 		if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"RULE") == 0)
 		{

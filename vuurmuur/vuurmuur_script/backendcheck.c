@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2005-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2005-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -291,14 +291,6 @@ backend_check_interface_device(const int debuglvl, char *value, struct rgx_ *reg
 		return(VRS_ERR_INTERNAL);
 	}
 
-	/* safety */
-	if(value == NULL)
-	{
-		(void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
-										__FUNC__, __LINE__);
-		return(VRS_ERR_INTERNAL);
-	}
-
 	/* check */
 	if(strlen(value) < sizeof(interface.device))
 		return(0);
@@ -375,6 +367,94 @@ backend_check_interface_rule(const int debuglvl, char *value, struct rgx_ *reg)
 	}
 
 	return(0);
+}
+
+/*	SHAPE
+
+*/
+int
+backend_check_interface_shape(const int debuglvl, char *value, struct rgx_ *reg)
+{
+	/* safety */
+	if(value == NULL || reg == NULL)
+	{
+		(void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+										__FUNC__, __LINE__);
+		return(VRS_ERR_INTERNAL);
+	}
+
+	/* check */
+	if(strcasecmp(value,"yes") == 0 || strcasecmp(value,"no") == 0)
+		return(0);
+
+	(void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'SHAPE' (in: %s:%d).", value, __FUNC__, __LINE__);
+	return(VRS_ERR_COMMANDLINE);
+}
+
+
+
+/*	BW_IN/BW_OUT
+
+*/
+int
+backend_check_interface_bw(const int debuglvl, char *value, struct rgx_ *reg)
+{
+	struct InterfaceData_	interface;
+	int i = 0;
+
+	/* safety */
+	if(value == NULL || reg == NULL)
+	{
+		(void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+										__FUNC__, __LINE__);
+		return(VRS_ERR_INTERNAL);
+	}
+
+	/* check */
+	for (i = 0; i < strlen(value); i++) {
+		if (!isdigit(value[i])) {
+			(void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+				"'%s' is not a valid value for variable 'BW_IN' or 'BW_OUT' "
+				" (in: %s:%d).", value, __FUNC__, __LINE__);
+			return(VRS_ERR_COMMANDLINE);
+		}
+        }
+
+	/* check */
+	if(strlen(value) >= 11) { /* max len of 32 bit int */
+		(void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+			"'%s' is not a valid value for variable 'BW_IN' or 'BW_OUT' "
+			" (in: %s:%d).", value, __FUNC__, __LINE__);
+		return(VRS_ERR_COMMANDLINE);
+	}
+
+	return(0);
+}
+
+/*	BW_IN_UNIT/BW_OUT_UNIT
+
+*/
+int
+backend_check_interface_bw_unit(const int debuglvl, char *value, struct rgx_ *reg)
+{
+	struct InterfaceData_	interface;
+
+	/* safety */
+	if(value == NULL || reg == NULL)
+	{
+		(void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+										__FUNC__, __LINE__);
+		return(VRS_ERR_INTERNAL);
+	}
+
+	/* check */
+	if (strcasecmp(value, "kbit") == 0 || strcasecmp(value, "mbit") == 0)
+		return(0);
+
+	(void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+		"'%s' is not a valid value for variable 'BW_IN_OUT' or 'BW_OUT_OUT' "
+		" (in: %s:%d).", value, __FUNC__, __LINE__);
+	return(VRS_ERR_COMMANDLINE);
 }
 
 

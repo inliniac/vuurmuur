@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2005-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2005-2007 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -37,6 +37,9 @@ int backend_check_network_rule(const int, char *, struct rgx_ *);
 int backend_check_interface_ipaddress(const int, char *, struct rgx_ *);
 int backend_check_interface_device(const int, char *, struct rgx_ *);
 int backend_check_interface_virtual(const int, char *, struct rgx_ *);
+int backend_check_interface_shape(const int, char *, struct rgx_ *);
+int backend_check_interface_bw(const int, char *, struct rgx_ *);
+int backend_check_interface_bw_unit(const int, char *, struct rgx_ *);
 int backend_check_interface_rule(const int, char *, struct rgx_ *);
 
 int backend_check_service_broadcast(const int, char *, struct rgx_ *);
@@ -91,6 +94,11 @@ backend_vars[] =
 	{TYPE_INTERFACE,"VIRTUAL",	0, backend_check_interface_virtual},
 	{TYPE_INTERFACE,"RULE",		1, backend_check_interface_rule},
 	{TYPE_INTERFACE,"COMMENT",	0, backend_check_comment},
+	{TYPE_INTERFACE,"SHAPE",	0, backend_check_interface_shape},
+	{TYPE_INTERFACE,"BW_IN",	0, backend_check_interface_bw},
+	{TYPE_INTERFACE,"BW_OUT",	0, backend_check_interface_bw},
+	{TYPE_INTERFACE,"BW_IN_UNIT",	0, backend_check_interface_bw_unit},
+	{TYPE_INTERFACE,"BW_OUT_UNIT",	0, backend_check_interface_bw_unit},
 
 	/* service specific */
 	{TYPE_SERVICE,	"ACTIVE",	0, backend_check_active},
