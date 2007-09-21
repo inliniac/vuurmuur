@@ -1722,6 +1722,8 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 	int	action_type = 0;
 	/* nfqueuenum="50000", : nfqueue (10) = (1) " (1) 65535 (5) " (1) , (1) \0 (1) = 20 */
 	char	nfqueue_string[20] = "";
+	/* in_max="1000000000kbit" = 23 */
+	char	bw_string[24] = "";
 
 	/* safety - this is not an error! */
 	if(opt == NULL || action == NULL)
@@ -2058,6 +2060,122 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
 					"overflow (in: %s:%d).", __FUNC__, __LINE__);
 				return(NULL);
 			}
+		}
+	}
+
+	if (opt->bw_in_max > 0 && strcmp(opt->bw_in_max_unit,"") != 0)
+	{
+		snprintf(bw_string, sizeof(bw_string), "%u%s", opt->bw_in_max, opt->bw_in_max_unit);
+
+		if(strlcat(options, "in_max=\"", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, bw_string, sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+	}
+	if (opt->bw_out_max > 0 && strcmp(opt->bw_out_max_unit,"") != 0)
+	{
+		snprintf(bw_string, sizeof(bw_string), "%u%s", opt->bw_out_max, opt->bw_out_max_unit);
+
+		if(strlcat(options, "out_max=\"", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, bw_string, sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+	}
+	if (opt->bw_in_min > 0 && strcmp(opt->bw_in_min_unit,"") != 0)
+	{
+		snprintf(bw_string, sizeof(bw_string), "%u%s", opt->bw_in_min, opt->bw_in_min_unit);
+
+		if(strlcat(options, "in_min=\"", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, bw_string, sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+	}
+	if (opt->bw_out_min > 0 && strcmp(opt->bw_out_min_unit,"") != 0)
+	{
+		snprintf(bw_string, sizeof(bw_string), "%u%s", opt->bw_out_min, opt->bw_out_min_unit);
+
+		if(strlcat(options, "out_min=\"", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, bw_string, sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+	}
+	if (opt->prio > 0)
+	{
+		snprintf(bw_string, sizeof(bw_string), "%u", opt->prio);
+
+		if(strlcat(options, "prio=\"", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, bw_string, sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
+		}
+		if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
+		{
+			(void)vrprint.error(-1, "Internal Error", "string "
+				"overflow (in: %s:%d).", __FUNC__, __LINE__);
+			return(NULL);
 		}
 	}
 
@@ -2727,6 +2845,214 @@ rules_read_options(const int debuglvl, char *optstr, struct options *op)
 
 				if(debuglvl >= MEDIUM)
 					(void)vrprint.debug(__FUNC__, "nfqueuenum: %d, %s", op->nfqueue_num, portstring);
+			}
+			/* prio */
+			else if(strncmp(curopt, "prio", strlen("prio")) == 0)
+			{
+				for(	p = 0, o = strlen("prio") + 1;
+					o < strlen(curopt) && p < sizeof(portstring);
+					o++)
+				{
+					if(curopt[o] != '\"')
+					{
+						portstring[p] = curopt[o];
+						p++;
+					}
+				}
+				portstring[p] = '\0';
+
+				op->prio = atoi(portstring);
+
+				//if(debuglvl >= MEDIUM)
+					(void)vrprint.debug(__FUNC__, "prio: %d, %s", op->prio, portstring);
+			}
+			/* in_max */
+			else if(strncmp(curopt, "in_max", strlen("in_max")) == 0)
+			{
+				char	bw_string[24] = "",
+					value_string[11] = "",
+					unit_string[5] = "";
+				int	i = 0;
+
+				for(	p = 0, o = strlen("in_max") + 1;
+					o < strlen(curopt) && p < sizeof(bw_string);
+					o++)
+				{
+					if(curopt[o] != '\"')
+					{
+						bw_string[p] = curopt[o];
+						p++;
+					}
+				}
+				bw_string[p] = '\0';
+
+				/* split the value and the unit */
+				for (p = 0, i = 0; p < sizeof(value_string) && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
+				{
+					value_string[p] = bw_string[i];
+				}
+				value_string[p] = '\0';
+
+				for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+				{
+					unit_string[p] = bw_string[i];
+				}
+				unit_string[p] = '\0';
+
+				if (	strcmp(unit_string, "kbit") == 0 ||
+					strcmp(unit_string, "mbit") == 0 ||
+					strcmp(unit_string, "kbps") == 0 ||
+					strcmp(unit_string, "mbps") == 0)
+				{
+					op->bw_in_max = atoi(value_string);
+					strlcpy(op->bw_in_max_unit, unit_string, sizeof(op->bw_in_max_unit));
+
+					(void)vrprint.debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+				} else {
+					(void)vrprint.error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+					return(-1);
+				}
+			}
+			/* in_min */
+			else if(strncmp(curopt, "in_min", strlen("in_min")) == 0)
+			{
+				char	bw_string[24] = "",
+					value_string[11] = "",
+					unit_string[5] = "";
+				int	i = 0;
+
+				for(	p = 0, o = strlen("in_min") + 1;
+					o < strlen(curopt) && p < sizeof(bw_string);
+					o++)
+				{
+					if(curopt[o] != '\"')
+					{
+						bw_string[p] = curopt[o];
+						p++;
+					}
+				}
+				bw_string[p] = '\0';
+
+				/* split the value and the unit */
+				for (p = 0, i = 0; p < sizeof(value_string) && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
+				{
+					value_string[p] = bw_string[i];
+				}
+				value_string[p] = '\0';
+
+				for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+				{
+					unit_string[p] = bw_string[i];
+				}
+				unit_string[p] = '\0';
+
+				if (	strcmp(unit_string, "kbit") == 0 ||
+					strcmp(unit_string, "mbit") == 0 ||
+					strcmp(unit_string, "kbps") == 0 ||
+					strcmp(unit_string, "mbps") == 0)
+				{
+					op->bw_in_min = atoi(value_string);
+					strlcpy(op->bw_in_min_unit, unit_string, sizeof(op->bw_in_min_unit));
+
+					(void)vrprint.debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+				} else {
+					(void)vrprint.error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+					return(-1);
+				}
+			}
+			/* out_max */
+			else if(strncmp(curopt, "out_max", strlen("out_max")) == 0)
+			{
+				char	bw_string[24] = "",
+					value_string[11] = "",
+					unit_string[5] = "";
+				int	i = 0;
+
+				for(	p = 0, o = strlen("out_max") + 1;
+					o < strlen(curopt) && p < sizeof(bw_string);
+					o++)
+				{
+					if(curopt[o] != '\"')
+					{
+						bw_string[p] = curopt[o];
+						p++;
+					}
+				}
+				bw_string[p] = '\0';
+
+				/* split the value and the unit */
+				for (p = 0, i = 0; p < sizeof(value_string) && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
+				{
+					value_string[p] = bw_string[i];
+				}
+				value_string[p] = '\0';
+
+				for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+				{
+					unit_string[p] = bw_string[i];
+				}
+				unit_string[p] = '\0';
+
+				if (	strcmp(unit_string, "kbit") == 0 ||
+					strcmp(unit_string, "mbit") == 0 ||
+					strcmp(unit_string, "kbps") == 0 ||
+					strcmp(unit_string, "mbps") == 0)
+				{
+					op->bw_out_max = atoi(value_string);
+					strlcpy(op->bw_out_max_unit, unit_string, sizeof(op->bw_out_max_unit));
+
+					(void)vrprint.debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+				} else {
+					(void)vrprint.error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+					return(-1);
+				}
+			}
+			/* out_min */
+			else if(strncmp(curopt, "out_min", strlen("out_min")) == 0)
+			{
+				char	bw_string[24] = "",
+					value_string[11] = "",
+					unit_string[5] = "";
+				int	i = 0;
+
+				for(	p = 0, o = strlen("out_min") + 1;
+					o < strlen(curopt) && p < sizeof(bw_string);
+					o++)
+				{
+					if(curopt[o] != '\"')
+					{
+						bw_string[p] = curopt[o];
+						p++;
+					}
+				}
+				bw_string[p] = '\0';
+
+				/* split the value and the unit */
+				for (p = 0, i = 0; p < sizeof(value_string) && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
+				{
+					value_string[p] = bw_string[i];
+				}
+				value_string[p] = '\0';
+
+				for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+				{
+					unit_string[p] = bw_string[i];
+				}
+				unit_string[p] = '\0';
+
+				if (	strcmp(unit_string, "kbit") == 0 ||
+					strcmp(unit_string, "mbit") == 0 ||
+					strcmp(unit_string, "kbps") == 0 ||
+					strcmp(unit_string, "mbps") == 0)
+				{
+					op->bw_out_min = atoi(value_string);
+					strlcpy(op->bw_out_min_unit, unit_string, sizeof(op->bw_out_min_unit));
+
+					(void)vrprint.debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+				} else {
+					(void)vrprint.error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+					return(-1);
+				}
 			}
 			/* unknown option */
 			else

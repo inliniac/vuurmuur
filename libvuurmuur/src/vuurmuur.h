@@ -578,6 +578,17 @@ struct options
 
 	/* queue num for the NFQUEUE action. There can be 65536: 0-65535 */
 	u_int16_t	nfqueue_num;
+
+	/* shaping */
+	u_int32_t	bw_in_max;		/* ceil from dst to src */
+	char		bw_in_max_unit[5];	/* kbit, mbit, kbps, mbps */
+	u_int32_t	bw_in_min;		/* rate from dst to src */
+	char		bw_in_min_unit[5];	/* kbit, mbit, kbps, mbps */
+	u_int32_t	bw_out_max;		/* ceil from src to dst */
+	char		bw_out_max_unit[5];	/* kbit, mbit, kbps, mbps */
+	u_int32_t	bw_out_min;		/* rate from src to dst */
+	char		bw_out_min_unit[5];	/* kbit, mbit, kbps, mbps */
+	u_int8_t	prio;			/* priority */
 };
 
 
