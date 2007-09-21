@@ -1664,6 +1664,8 @@ write_configfile(const int debuglvl, char *file_location)
 	fprintf(fp, "IPTABLES_RESTORE=\"%s\"\n\n", conf.iptablesrestore_location);
 	fprintf(fp, "# Location of the conntrack-command (full path).\n");
 	fprintf(fp, "CONNTRACK=\"%s\"\n\n", conf.conntrack_location);
+	fprintf(fp, "# Location of the tc-command (full path).\n");
+	fprintf(fp, "TC=\"%s\"\n\n", conf.tc_location);
 
 	fprintf(fp, "# Location of the modprobe-command (full path).\n");
 	fprintf(fp, "MODPROBE=\"%s\"\n\n", conf.modprobe_location);
