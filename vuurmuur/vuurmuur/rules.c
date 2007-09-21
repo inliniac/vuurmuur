@@ -466,6 +466,18 @@ create_all_rules(	const int debuglvl,
 		return(-1);
 	}
 
+	/* setup shaping roots */
+	(void)vrprint.info("Info", "Clearing existing shaping settings...");
+	if(shaping_clear_interfaces(debuglvl, cnf, interfaces, /*ruleset*/NULL) < 0)
+	{
+		(void)vrprint.error(-1, "Error", "shaping clear interfaces failed.");
+	}
+	(void)vrprint.info("Info", "Setting up shaping roots for interfaces...");
+	if(shaping_setup_roots(debuglvl, cnf, interfaces, /*ruleset*/NULL) < 0)
+	{
+		(void)vrprint.error(-1, "Error", "shaping setup roots failed.");
+	}
+
 	(void)vrprint.info("Info", "Creating the rules... (rules to create: %d)", rules->list.len);
 
 	/* create the prerules if were called with it */

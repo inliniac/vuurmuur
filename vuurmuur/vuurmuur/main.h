@@ -207,6 +207,11 @@ typedef struct
 	char		block;				/* the block target */
 	char		synlimit;			/* synlimiting */
 
+	/*
+		shaping
+	*/
+	d_list		tc_rules;			/* list with tc rules */
+
 } RuleSet;
 
 /*@null@*/
@@ -304,6 +309,8 @@ int check_for_changed_dynamic_ips(const int debuglvl, Interfaces *interfaces);
 int ruleset_add_rule_to_set(const int, d_list *, char *, char *, unsigned long long, unsigned long long);
 int load_ruleset(const int, Rules *, Zones *, Interfaces *, Services *, BlockList *, IptCap *, struct vuurmuur_config *);
 
-
+/* shape */
+int shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *);
+int shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *ruleset);
 
 #endif

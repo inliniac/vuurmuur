@@ -689,6 +689,7 @@ typedef struct InterfaceData_
 	u_int32_t	bw_out;		/* maximal bw in kbits (upload) */
 	u_int32_t	min_bw_in;	/* minimal per rule rate in kbits (download) */
 	u_int32_t	min_bw_out;	/* minimal per rule rate in kbits (upload) */
+	u_int16_t	shape_handle;	/* tc handle */
 
 } InterfaceData;
 

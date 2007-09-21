@@ -24,9 +24,6 @@
 
 #include "main.h"
 
-#define RULESET_CURRENT_FILENAME	"currentruleset"
-
-
 /* hack: in 0.8 we have to do this right! */
 d_list	accounting_chain_names;	/* list with the chainnames */
 
@@ -116,6 +113,10 @@ ruleset_setup(const int debuglvl, RuleSet *ruleset)
 	if(d_list_setup(debuglvl, &accounting_chain_names, free) < 0)
 		return(-1);
 
+	/* shaping */
+	if(d_list_setup(debuglvl, &ruleset->tc_rules, free) < 0)
+		return(-1);
+
 	return(0);
 }
 
@@ -166,6 +167,8 @@ ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
 
 	d_list_cleanup(debuglvl, &ruleset->filter_accounting);
 	d_list_cleanup(debuglvl, &accounting_chain_names);
+
+	d_list_cleanup(debuglvl, &ruleset->tc_rules);
 
 	/* clear all memory */
 	memset(ruleset, 0, sizeof(RuleSet));
@@ -361,6 +364,25 @@ ruleset_writeprint(const int fd, const char *line)
 	return((int)write(fd, line, strlen(line)));
 }
 
+
+/* Create the shaping script file */
+static int
+ruleset_fill_shaping_file(const int debuglvl, RuleSet *ruleset, int fd) {
+	d_list_node	*d_node = NULL;
+	char		*ptr = NULL;
+	char		cmd[MAX_PIPE_COMMAND] = "";
+
+	ruleset_writeprint(fd, "#!/bin/bash\n");
+
+	for (d_node = ruleset->tc_rules.top; d_node; d_node = d_node->next) {
+		ptr = d_node->data;
+
+		snprintf(cmd, sizeof(cmd), "%s\n", ptr);
+		ruleset_writeprint(fd, cmd);
+	}
+	
+	ruleset_writeprint(fd, "# EOF\n");
+}
 
 /*	ruleset_create_file
 
@@ -1102,6 +1124,66 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
 	return(0);
 }
 
+/*	ruleset_load_shape_ruleset
+
+	Actually loads the shape ruleset
+	
+	Returncodes:
+		-1: error
+		 0: ok
+*/
+static int
+ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_resultfile, struct vuurmuur_config *cnf)
+{
+	char	cmd[256] = "";
+
+	/* safety */
+	if(!path_to_ruleset || !cnf)
+	{
+		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	/*
+		final checks on the file
+	*/
+
+	/* exist */
+	if(!(ruleset_exists(debuglvl, path_to_ruleset)))
+	{
+		(void)vrprint.error(-1, "Error", "missing rulesetfile (in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	/* stat_ok */
+	if(!(stat_ok(debuglvl, path_to_ruleset, STATOK_WANT_FILE, STATOK_VERBOSE)))
+	{
+		(void)vrprint.error(-1, "Error", "serious file problem (in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	/*
+		create and execute the REAL command
+	*/
+
+	/* */
+	if(snprintf(cmd, sizeof(cmd), "/bin/bash %s 2>> %s", path_to_ruleset,
+		path_to_resultfile) >= (int)sizeof(cmd))
+	{
+		(void)vrprint.error(-1, "Error", "command string overflow (in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	/* all good so far, lets load the ruleset */
+	if(pipe_command(debuglvl, cnf, cmd, PIPE_VERBOSE) < 0)
+	{
+		(void)vrprint.error(-1, "Error", "loading the shape ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	return(0);
+}
+
 
 /*	ruleset_create_ruleset
 
@@ -1131,6 +1213,19 @@ ruleset_create_ruleset(	const int debuglvl,
 		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
+
+	/* create shaping setup */
+	if(shaping_clear_interfaces(debuglvl, cnf, interfaces, ruleset) < 0)
+	{
+		(void)vrprint.error(-1, "Error", "setting up interface shaping clearing failed (in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+	if(shaping_setup_roots(debuglvl, cnf, interfaces, ruleset) < 0)
+	{
+		(void)vrprint.error(-1, "Error", "setting up interface shaping roots failed (in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
 
 	(void)vrprint.info("Info", "Creating the rules... (rules to create: %d)", rules->list.len);
 
@@ -1412,8 +1507,10 @@ load_ruleset(	const int debuglvl,
 	RuleSet		ruleset;
 	char		cur_ruleset_path[] = "/tmp/vuurmuur-XXXXXX";
 	char		cur_result_path[] = "/tmp/vuurmuur-load-result-XXXXXX";
+	char		cur_shape_path[] = "/tmp/vuurmuur-shape-XXXXXX";
 	int		ruleset_fd = 0,
-			result_fd = 0;
+			result_fd = 0,
+			shape_fd = 0;
 
 	/* safety */
 	if(!rules || !zones || !interfaces || !services || !iptcap || !cnf || !blocklist)
@@ -1473,6 +1570,17 @@ load_ruleset(	const int debuglvl,
 		return(-1);
 	}
 
+	/* create the tempfile */
+	shape_fd = create_tempfile(debuglvl, cur_shape_path);
+	if(shape_fd == -1)
+	{
+		(void)vrprint.error(-1, "Error", "creating shape script file failed (in: %s:%d).",
+									__FUNC__, __LINE__);
+
+		ruleset_cleanup(debuglvl, &ruleset);
+		return(-1);
+	}
+
 	/* get the custom chains we have to create */
 	if(rules_get_custom_chains(debuglvl, rules) < 0)
 	{
@@ -1492,6 +1600,17 @@ load_ruleset(	const int debuglvl,
 	}
 	/* cleanup */
 	d_list_cleanup(debuglvl, &rules->custom_chain_list);
+	
+	/* now create the shape file */
+	if(ruleset_fill_shaping_file(debuglvl, &ruleset, shape_fd) < 0)
+	{
+		(void)vrprint.error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
+									__FUNC__, __LINE__);
+
+		ruleset_cleanup(debuglvl, &ruleset);
+		(void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
+		return(-1);
+	}
 
 	if(debuglvl >= HIGH)
 	{
@@ -1499,7 +1618,18 @@ load_ruleset(	const int debuglvl,
 		sleep(15);
 	}
 
-	/* now load it */
+	/* load the shaping rules */
+	if(ruleset_load_shape_ruleset(debuglvl, cur_shape_path, cur_result_path, cnf) != 0)
+	{
+		/* oops, something went wrong */
+		(void)vrprint.error(-1, "Error", "shape rulesetfile will be stored as '%s.failed' (in: %s:%d).",
+									cur_shape_path, __FUNC__, __LINE__);
+		(void)ruleset_store_failed_set(debuglvl, cur_shape_path);
+		(void)ruleset_log_resultfile(debuglvl, cur_result_path);
+		ruleset_cleanup(debuglvl, &ruleset);
+		return(-1);
+	}
+	/* now load the iptables ruleset */
 	if(ruleset_load_ruleset(debuglvl, cur_ruleset_path, cur_result_path, cnf) != 0)
 	{
 		/* oops, something went wrong */
@@ -1526,6 +1656,17 @@ load_ruleset(	const int debuglvl,
 
 		/* remove the result tempfile */
 		if(unlink(cur_result_path) == -1)
+		{
+			(void)vrprint.error(-1, "Error", "removing tempfile "
+					"failed: %s (in: %s:%d).",
+					strerror(errno), __FUNC__, __LINE__);
+
+			ruleset_cleanup(debuglvl, &ruleset);
+			return(-1);
+		}
+
+		/* remove the shape tempfile */
+		if(unlink(cur_shape_path) == -1)
 		{
 			(void)vrprint.error(-1, "Error", "removing tempfile "
 					"failed: %s (in: %s:%d).",
