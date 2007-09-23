@@ -700,7 +700,14 @@ typedef struct InterfaceData_
 	u_int32_t	bw_out;		/* maximal bw in kbits (upload) */
 	u_int32_t	min_bw_in;	/* minimal per rule rate in kbits (download) */
 	u_int32_t	min_bw_out;	/* minimal per rule rate in kbits (upload) */
+
 	u_int16_t	shape_handle;	/* tc handle */
+	u_int32_t	shape_default_rate; /* rate used by default rule and shaping rules
+					     * w/o an explicit rate */
+
+	u_int32_t	total_shape_rate;
+	u_int32_t	total_shape_rules;
+	u_int32_t	total_default_shape_rules;
 
 } InterfaceData;
 

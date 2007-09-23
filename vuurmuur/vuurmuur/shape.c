@@ -181,3 +181,141 @@ shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces
 	return (0);
 }
 
+/* add a rate to the iface. If the rate is 0 use the default rate */
+int
+shaping_add_rate_to_iface(const int debuglvl, InterfaceData *iface_ptr, u_int32_t rate, char *unit) {
+	u_int32_t	kbit_rate = 0;
+
+	(void)vrprint.debug(__FUNC__, "rate %u, unit %s", rate, unit);
+
+	if (strcmp(unit,"kbit") == 0) {
+		kbit_rate = rate;
+	} else if (strcmp(unit,"mbit") == 0) {
+		kbit_rate = rate * 1024;
+	} else if (strcmp(unit,"kbps") == 0) {
+		kbit_rate = rate * 8;
+	} else if (strcmp(unit,"mbps") == 0) {
+		kbit_rate = rate * 1024 * 8;
+	}
+
+	(void)vrprint.debug(__FUNC__, "kbit rate %u", kbit_rate);
+
+	if (kbit_rate > 0) {
+		iface_ptr->total_shape_rate += kbit_rate;
+		iface_ptr->total_shape_rules++;
+	} else {
+		iface_ptr->total_default_shape_rules++;
+	}
+
+	return(0);
+}
+
+/* Find out per interface what the minimal default rate of shaping
+ * rules should be. This is used for the default rule and for rules
+ * that don't define a rate (in_min or out_min options).
+ *
+ * We do this by looking at what part of the available bw is already
+ * commited explicitly in the rules and equally dividing what is left
+ * to the remaining shape rules. In case the bw is over committed,
+ * we use a default rate of the max bw devided by the total number
+ * of shape rules.
+ *
+
+ * call after analyzing the rules */
+int
+shaping_determine_minimal_default_rates(const int debuglvl, Interfaces *interfaces, Rules *rules) {
+	d_list_node		*d_node = NULL,
+				*d_node_iface = NULL;
+	struct RuleData_	*rule_ptr = NULL;
+	InterfaceData		*iface_ptr = NULL;
+
+	for (d_node_iface = interfaces->list.top; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
+		iface_ptr = d_node_iface->data;
+
+		iface_ptr->total_shape_rate = 0;
+		iface_ptr->total_shape_rules = 0;
+		iface_ptr->total_default_shape_rules = 0;
+	}
+
+	for (d_node = rules->list.top; d_node != NULL; d_node = d_node->next) {
+		rule_ptr = d_node->data;
+
+		if (rule_ptr->active == TRUE) {
+			/* look at src */
+			if (rule_ptr->opt != NULL && (	rule_ptr->opt->bw_in_min > 0 ||
+							rule_ptr->opt->bw_in_max > 0 ||
+							rule_ptr->opt->prio > 0))
+			{
+				if (rule_ptr->rulecache.from != NULL) {
+					d_node_iface = rule_ptr->rulecache.from->InterfaceList.top;
+				} else if(rule_ptr->rulecache.from_any == TRUE) {
+					d_node_iface = interfaces->list.top;
+				}
+				if (d_node_iface != NULL) {
+					for (; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
+						iface_ptr = d_node_iface->data;
+
+						(void)vrprint.debug(__FUNC__, "FROM iface_ptr->name %s, rate %u %s", iface_ptr->name, rule_ptr->opt->bw_in_min, rule_ptr->opt->bw_in_min_unit);
+
+						if (shaping_add_rate_to_iface(debuglvl, iface_ptr, rule_ptr->opt->bw_in_min, rule_ptr->opt->bw_in_min_unit) < 0)
+							return(-1);
+					}
+				}
+				d_node_iface = NULL;
+			}
+
+			/* look at dst */
+			if (rule_ptr->opt != NULL && (	rule_ptr->opt->bw_out_min > 0 ||
+							rule_ptr->opt->bw_out_max > 0 ||
+							rule_ptr->opt->prio > 0))
+			{
+				if (rule_ptr->rulecache.to != NULL) {
+					d_node_iface = rule_ptr->rulecache.to->InterfaceList.top;
+				} else if(rule_ptr->rulecache.to_any == TRUE) {
+					d_node_iface = interfaces->list.top;
+				}
+				if (d_node_iface != NULL) {
+					for (; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
+						iface_ptr = d_node_iface->data;
+
+						(void)vrprint.debug(__FUNC__, "TO iface_ptr->name %s, rate %u %s", iface_ptr->name, rule_ptr->opt->bw_out_min, rule_ptr->opt->bw_out_min_unit);
+
+						if (shaping_add_rate_to_iface(debuglvl, iface_ptr, rule_ptr->opt->bw_out_min, rule_ptr->opt->bw_out_min_unit) < 0)
+							return(-1);
+					}
+				}
+				d_node_iface = NULL;
+			}
+		}
+	}
+
+	/* calculate the default rate per interface */
+	for (d_node_iface = interfaces->list.top; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
+		iface_ptr = d_node_iface->data;
+
+		if (	iface_ptr->shape == TRUE &&
+			iface_ptr->device_virtual == FALSE &&
+			iface_ptr->up == TRUE)
+		{
+			(void)vrprint.debug(__FUNC__, "total rate %u, total rules %u, rules using default rate %u",
+				iface_ptr->total_shape_rate, iface_ptr->total_shape_rules, iface_ptr->total_default_shape_rules);
+
+			/* over commit */
+			if (iface_ptr->total_shape_rate > iface_ptr->bw_out) {
+				(void)vrprint.warning(VR_WARN, "bandwidth over committed on interface %s: %ukbit > %ukbit.", iface_ptr->name, iface_ptr->total_shape_rate, iface_ptr->bw_out);
+
+				/* the default rate will be the max interface rate / number of total rules */
+				iface_ptr->shape_default_rate = iface_ptr->bw_out / iface_ptr->total_shape_rules;
+			} else {
+				/* the default rate is max interface rate minus already explictly commited rate
+				 * devided by the number of rules using the default rate */
+				iface_ptr->shape_default_rate = (iface_ptr->bw_out - iface_ptr->total_shape_rate) / iface_ptr->total_default_shape_rules;
+			}
+
+			(void)vrprint.debug(__FUNC__, "default rate on %s is %ukbit", iface_ptr->name, iface_ptr->shape_default_rate);
+		}
+	}
+
+	return(0);
+}
+

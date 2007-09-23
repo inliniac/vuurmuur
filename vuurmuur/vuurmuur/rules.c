@@ -431,6 +431,9 @@ analyze_all_rules(const int debuglvl, Rules *rules, Zones *zones, Services *serv
 	if(analyze_normal_rules(debuglvl, rules, zones, services, interfaces) < 0)
 		return(-1);
 
+	if(shaping_determine_minimal_default_rates(debuglvl, interfaces, rules) < 0)
+		return(-1);
+
 	return(0);
 }
 
