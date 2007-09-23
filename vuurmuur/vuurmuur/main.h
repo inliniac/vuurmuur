@@ -313,5 +313,7 @@ int load_ruleset(const int, Rules *, Zones *, Interfaces *, Services *, BlockLis
 int shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *);
 int shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *ruleset);
 int determine_minimal_default_rates(const int debuglvl, Interfaces *interfaces, Rules *rules);
+int shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *ruleset);
+
 
 #endif

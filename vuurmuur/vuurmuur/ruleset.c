@@ -1225,6 +1225,11 @@ ruleset_create_ruleset(	const int debuglvl,
 		(void)vrprint.error(-1, "Error", "setting up interface shaping roots failed (in: %s:%d).", __FUNC__, __LINE__);
 		return(-1);
 	}
+	if(shaping_create_default_rules(debuglvl, cnf, interfaces, ruleset) < 0)
+	{
+		(void)vrprint.error(-1, "Error", "setting up interface default rules failed (in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
 
 
 	(void)vrprint.info("Info", "Creating the rules... (rules to create: %d)", rules->list.len);

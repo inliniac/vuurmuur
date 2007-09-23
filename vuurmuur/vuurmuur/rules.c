@@ -480,6 +480,10 @@ create_all_rules(	const int debuglvl,
 	{
 		(void)vrprint.error(-1, "Error", "shaping setup roots failed.");
 	}
+	if(shaping_create_default_rules(debuglvl, cnf, interfaces, /*ruleset*/NULL) < 0)
+	{
+		(void)vrprint.error(-1, "Error", "shaping setup default rules failed.");
+	}
 
 	(void)vrprint.info("Info", "Creating the rules... (rules to create: %d)", rules->list.len);
 

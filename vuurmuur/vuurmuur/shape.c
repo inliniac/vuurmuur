@@ -319,3 +319,41 @@ shaping_determine_minimal_default_rates(const int debuglvl, Interfaces *interfac
 	return(0);
 }
 
+/* create the default rule per interface. This rule will be used when
+ * no class is picked. */
+int
+shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
+	d_list_node		*d_node = NULL;
+	InterfaceData		*iface_ptr = NULL;
+	char			cmd[MAX_PIPE_COMMAND] = "";
+
+	for (d_node = interfaces->list.top; d_node != NULL; d_node = d_node->next) {
+		iface_ptr = d_node->data;
+
+		if (	iface_ptr->shape == TRUE &&
+			iface_ptr->device_virtual == FALSE &&
+			iface_ptr->up == TRUE)
+		{
+			/* tc class add dev ppp0 parent 1:1 classid 1:100 htb rate 15kbit ceil 512kbit prio 3
+			 * tc qdisc add dev ppp0 parent 1:100 handle 100: sfq perturb 10 */
+			snprintf(cmd, sizeof(cmd), "%s class add dev %s parent %u:1 classid %u:100 htb rate %ukbit %ukbit prio 3", /* TODO 100 */
+				cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle,
+				iface_ptr->shape_handle, iface_ptr->shape_default_rate,
+				iface_ptr->bw_out);
+
+			(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
+
+			if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+				return(-1);
+		
+			snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s parent %u:100 handle 100: sfq perturb 10", /* TODO 100 */
+				cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle);
+
+			(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
+
+			if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+				return(-1);
+		}
+	}
+}
+
