@@ -11,9 +11,9 @@
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-Vendor:		Victor Julien <victor@nk.nl>
+Vendor:		Victor Julien <victor@vuurmuur.org>
 License:	GNU GPL
-URL:		http://vuurmuur.sourceforge.net/
+URL:		http://www.vuurmuur.org/
 Group:		System Environment/Daemons
 Summary:	middle and front-end for netfilter/iptables with ncurses interface
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
