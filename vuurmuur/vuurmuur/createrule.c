@@ -644,6 +644,112 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 		}
 	}
 
+	/*	setup iptables shaping rules */
+	if (shaping_shape_rule(debuglvl, &create->option) == 1)
+	{
+		/* check cap */
+		if(conf.check_iptcaps == TRUE)
+		{
+			if(iptcap->target_classify == FALSE)
+			{
+				(void)vrprint.warning("Warning", "shaping rules not created: CLASSIFY not supported by this system.");
+				return(0); /* this is not an error */
+			}
+		}
+// TODO icmp
+		/* swap source ports and dest ports for the rules in the opposite direction */
+		(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
+		temp_src_port[2] = 'd';
+		(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+		temp_dst_port[2] = 's';
+
+		/* swap devices, check if non empty device first */
+		if(input_device[0] != '\0')
+		{
+			(void)strlcpy(reverse_input_device, input_device, sizeof(reverse_input_device));
+			reverse_input_device[1] = 'o';
+		}
+
+		/* we dont want '--syn' in the next rules */
+		if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
+			(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
+		else
+			(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
+
+		#if 0
+		if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+		{
+		if (rule->to_if_ptr != NULL) {
+			/* new, related, established */
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+				input_device, stripped_proto, rule->temp_src,
+				rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
+				rule->from_mac, rule->to_if_ptr->shape_handle, rule->shape_class);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+				return(-1);
+		}
+		#endif
+
+		if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+		{
+			/* related, established */
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+				reverse_input_device, stripped_proto, rule->temp_src,
+				temp_dst_port, rule->temp_dst, temp_src_port, rule->from_if_ptr->shape_handle, rule->shape_class);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+				return(-1);
+		}
+
+		if(strcmp(rule->helper, "") != 0)
+		{
+			/* check cap */
+			if(conf.check_iptcaps == TRUE)
+			{
+				if(iptcap->match_helper == FALSE)
+				{
+					(void)vrprint.warning("Warning", "shaping rules not created: helper-match not supported by this system.");
+					return(0); /* this is not an error */
+				}
+			}
+
+			#if 0
+			if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+			{
+				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+					input_device, stripped_proto, rule->temp_src,
+					rule->temp_dst, rule->from_mac, rule->helper,
+					rule->to_if_ptr->shape_handle, rule->shape_class);
+
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+					return(-1);
+			}
+			#endif
+
+			if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+			{
+				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+					reverse_input_device, stripped_proto, rule->temp_src,
+					rule->temp_dst, rule->helper, rule->from_if_ptr->shape_handle, rule->shape_class);
+
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+					return(-1);
+			}
+		}
+	}
 	return(retval);
 }
 
@@ -925,6 +1031,119 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
 				return(-1);
+		}
+	}
+
+	/*	setup iptables shaping rules */
+	if (shaping_shape_rule(debuglvl, &create->option) == 1)
+	{
+		/* check cap */
+		if(conf.check_iptcaps == TRUE)
+		{
+			if(iptcap->target_classify == FALSE)
+			{
+				(void)vrprint.warning("Warning", "shaping rules not created: CLASSIFY not supported by this system.");
+				return(0); /* this is not an error */
+			}
+		}
+// todo icmp
+		/* swap source ports and dest ports for the rules in the opposite direction */
+		(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
+		temp_src_port[2] = 'd';
+		(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+		temp_dst_port[2] = 's';
+
+		/* swap devices, check if non empty device first */
+		if(output_device[0] != '\0')
+		{
+			(void)strlcpy(reverse_output_device, output_device, sizeof(reverse_output_device));
+			reverse_output_device[1] = 'i';
+		}
+
+		/* we dont want --syn in the next rules */
+		if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
+			(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
+		else
+			(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
+
+		if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+		{
+			/* new, related, established */
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+				output_device, stripped_proto, rule->temp_src,
+				rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
+				rule->to_if_ptr->shape_handle, rule->shape_class);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+				return(-1);
+		}
+
+		/* maybe we can do real ingress shaping later */
+		#if 0
+		if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+		{
+			/* REVERSE! related, established */
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+				reverse_output_device, stripped_proto, rule->temp_src,
+				temp_dst_port, rule->temp_dst, temp_src_port,
+				rule->from_if_ptr->shape_handle, rule->shape_class);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+				return(-1);
+		}
+		#endif
+
+		/* helperrrr */
+		if(strcmp(rule->helper, "") != 0)
+		{
+			/* check cap */
+			if(conf.check_iptcaps == TRUE)
+			{
+				if(iptcap->match_helper == FALSE)
+				{
+					(void)vrprint.warning("Warning", "shaping rules not created: helper-match not supported by this system.");
+					return(0); /* this is not an error */
+				}
+			}
+
+			if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+			{
+				/* RELATED,ESTABLISHED */
+				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+					output_device, stripped_proto, rule->temp_src,
+					rule->temp_dst, rule->helper,
+					rule->to_if_ptr->shape_handle, rule->shape_class);
+
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+					return(-1);
+			}
+
+			/* maybe we can do real ingress shaping later */
+			#if 0
+			if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+			{
+				/* REVERSE! */
+				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+					reverse_output_device, stripped_proto, rule->temp_src,
+					rule->temp_dst, rule->helper,
+					rule->from_if_ptr->shape_handle, rule->shape_class);
+
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+					return(-1);
+			}
+			#endif
 		}
 	}
 
@@ -1219,6 +1438,119 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 		}
 	}
 
+	/*	setup iptables shaping rules */
+	if (shaping_shape_rule(debuglvl, &create->option) == 1)
+	{
+		/* check cap */
+		if(conf.check_iptcaps == TRUE)
+		{
+			if(iptcap->target_classify == FALSE)
+			{
+				(void)vrprint.warning("Warning", "shaping rules not created: CLASSIFY not supported by this system.");
+				return(0);/* this is not an error */
+			}
+		}
+
+//TODO: fix for icmp
+		/* swap source ports and dest ports for the rules in the opposite direction */
+		(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
+		temp_src_port[2] = 'd';
+		(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+		temp_dst_port[2] = 's';
+
+		/* swap devices, check if non empty device first */
+		if(input_device[0] != '\0')
+		{
+			/* swap devices */
+			(void)strlcpy(reverse_input_device, input_device, sizeof(reverse_input_device));
+			reverse_input_device[1] = 'o';
+		}
+		if(output_device[0] != '\0')
+		{
+			(void)strlcpy(reverse_output_device, output_device, sizeof(reverse_output_device));
+			reverse_output_device[1] = 'i';
+		}
+
+		/* we dont want --syn in the next rules */
+		if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
+			(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
+		else
+			(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
+
+		if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+		{
+			/* new,related,established */
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+				input_device, output_device, stripped_proto,
+				rule->temp_src, rule->temp_src_port, rule->temp_dst,
+				rule->temp_dst_port, rule->from_mac,
+				rule->to_if_ptr->shape_handle, rule->shape_class);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+				return(-1);
+		}
+
+		if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+		{
+			/* REVERSE! related,established */
+			create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+			create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+			
+			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+				reverse_output_device, reverse_input_device, stripped_proto,
+				rule->temp_src, temp_dst_port, rule->temp_dst,
+				temp_src_port, rule->from_if_ptr->shape_handle, rule->shape_class);
+
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+				return(-1);
+		}
+
+		
+		if(strcmp(rule->helper, "") != 0)
+		{
+			/* check cap */
+			if(conf.check_iptcaps == TRUE)
+			{
+				if(iptcap->match_helper == FALSE)
+				{
+					(void)vrprint.warning("Warning", "shaping rules not created: helper-match not supported by this system.");
+					return(0); /* this is not an error */
+				}
+			}
+
+			if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+			{
+				/* RELATED & ESTABLISHED */
+				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
+				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+					input_device, output_device, stripped_proto,
+					rule->temp_src, rule->temp_dst, rule->from_mac,
+					rule->helper, rule->to_if_ptr->shape_handle, rule->shape_class);
+
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+					return(-1);
+			}
+
+			if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+			{
+				/* REVERSE! */
+				create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+				create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+
+				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+					reverse_output_device, reverse_input_device, stripped_proto,
+					rule->temp_src, rule->temp_dst, rule->helper, rule->from_if_ptr->shape_handle, rule->shape_class);
+
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+					return(-1);
+			}
+		}
+	}
 	return(retval);
 }
 

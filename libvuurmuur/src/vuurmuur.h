@@ -473,6 +473,8 @@ typedef struct
 	/* is at least one of the interfaces dynamic? */
 	char	dynamic_interfaces;
 
+	u_int16_t shape_handle;
+
 } Interfaces;
 
 

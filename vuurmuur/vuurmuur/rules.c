@@ -1424,6 +1424,12 @@ create_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
 	if(debuglvl >= MEDIUM)
 		(void)vrprint.debug(__FUNC__, "from_loop_cnt: %d, to_loop_cnt: %d.", from_loop_cnt, to_loop_cnt);
 
+	/* SHAPING PREPARATION */
+	if (shaping_shape_rule(debuglvl, &create->option) == 1) {
+		rule->shape_class = interfaces->shape_handle;
+		interfaces->shape_handle++;
+	}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////// MAIN LOOP ///////////////////////////////////////////////////////////////////////

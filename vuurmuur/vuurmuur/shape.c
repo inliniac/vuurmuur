@@ -23,6 +23,34 @@
 #include "main.h"
 
 int
+shaping_shape_rule(const int debuglvl, /*@null@*/struct options *opt) {
+	if (	opt != NULL && 
+		(opt->bw_in_min > 0 ||
+		opt->bw_in_max > 0 ||
+		opt->bw_out_min > 0 ||
+		opt->bw_out_max > 0 ||
+		opt->prio > 0))
+	{
+		return(1);
+	}
+	
+	return(0);
+}
+
+int
+shaping_shape_interface(const int debuglvl, InterfaceData *iface_ptr) {
+	if (	iface_ptr != NULL && 
+		iface_ptr->shape == TRUE &&
+		iface_ptr->device_virtual == FALSE &&
+		iface_ptr->up == TRUE)
+	{
+		return(1);
+	}
+
+	return(0);
+}
+
+int
 process_shape_rule (const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, char *cmd) {
 	char *buf = NULL;
 
@@ -155,6 +183,7 @@ shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces
 			handle++;
 		}
 	}
+	interfaces->shape_handle = handle;
 
 	/* setup the roots and interface classes */
 	for (d_node = interfaces->list.top; d_node != NULL; d_node = d_node->next) {
@@ -166,14 +195,16 @@ shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces
 			iface_ptr->up == TRUE)
 		{
 			snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s root handle %u: htb default %u",
-				cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle, 100); //TODO what if we have more than 100 interfaces?
+				cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle, handle);
 
 			(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
 
 			if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
 				return(-1);
 
-			if ( shaping_setup_interface_classes(debuglvl, cnf, interfaces, iface_ptr, ruleset) < 0)
+			handle++;
+
+			if (shaping_setup_interface_classes(debuglvl, cnf, interfaces, iface_ptr, ruleset) < 0)
 				return (-1);
 		}
 	}
@@ -326,6 +357,9 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 	d_list_node		*d_node = NULL;
 	InterfaceData		*iface_ptr = NULL;
 	char			cmd[MAX_PIPE_COMMAND] = "";
+	u_int16_t		handle = 0;
+
+	handle = interfaces->shape_handle;
 
 	for (d_node = interfaces->list.top; d_node != NULL; d_node = d_node->next) {
 		iface_ptr = d_node->data;
@@ -336,9 +370,9 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 		{
 			/* tc class add dev ppp0 parent 1:1 classid 1:100 htb rate 15kbit ceil 512kbit prio 3
 			 * tc qdisc add dev ppp0 parent 1:100 handle 100: sfq perturb 10 */
-			snprintf(cmd, sizeof(cmd), "%s class add dev %s parent %u:1 classid %u:100 htb rate %ukbit %ukbit prio 3", /* TODO 100 */
+			snprintf(cmd, sizeof(cmd), "%s class add dev %s parent %u:1 classid %u:%u htb rate %ukbit %ukbit prio 3", /* TODO prio should configurable */
 				cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle,
-				iface_ptr->shape_handle, iface_ptr->shape_default_rate,
+				iface_ptr->shape_handle, handle, iface_ptr->shape_default_rate,
 				iface_ptr->bw_out);
 
 			(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
@@ -346,14 +380,18 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 			if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
 				return(-1);
 		
-			snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s parent %u:100 handle 100: sfq perturb 10", /* TODO 100 */
-				cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle);
+			snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s parent %u:%u handle %u: sfq perturb 10",
+				cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle, handle, handle);
 
 			(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
 
 			if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
 				return(-1);
+
+			handle++;
 		}
 	}
+
+	interfaces->shape_handle = handle;
 }
 

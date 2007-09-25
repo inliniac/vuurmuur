@@ -142,6 +142,8 @@ struct RuleCreateData_
 	/*	list for adding the iptables rules of one singe vuurmuur rule
 		to, so we can check for double rules. */
 	d_list		iptrulelist;
+
+	u_int16_t	shape_class;
 };
 
 
@@ -314,6 +316,8 @@ int shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interf
 int shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *ruleset);
 int determine_minimal_default_rates(const int debuglvl, Interfaces *interfaces, Rules *rules);
 int shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *ruleset);
+int shaping_shape_rule(const int debuglvl, /*@null@*/struct options *opt);
+int shaping_shape_interface(const int debuglvl, InterfaceData *iface_ptr);
 
 
 #endif
