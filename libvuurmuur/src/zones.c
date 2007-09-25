@@ -2140,7 +2140,7 @@ zones_check_network(const int debuglvl, struct ZoneData_ *zone_ptr)
 
 	if(zone_ptr->InterfaceList.len == 0)
 	{
-		(void)vrprint.warning("Warning", "network '%s' as no interfaces attached to it.",
+		(void)vrprint.warning("Warning", "network '%s' has no interfaces attached to it.",
 								zone_ptr->name);
 		retval = 0;
 	}
