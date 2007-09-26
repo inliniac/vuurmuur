@@ -104,9 +104,6 @@ struct RuleCreateData_
 	struct ipdata	ipv4_from;
 	struct ipdata	ipv4_to;
 
-	struct ZoneData_ 	*from_member_ptr,
-				*to_member_ptr;
-
 	/* interfaces */
 	char		from_int[16];
 	char		to_int[16];
@@ -127,12 +124,6 @@ struct RuleCreateData_
 	struct portdata *remoteport_ptr;
 
 	char		limit[42]; /*  -m limit --limit 999/s --limit-burst 9999 */
-
-	/* loop stuff - needs a cleanup and needs it BAD */
-	char		logged;
-	char		normal;
-	char		broadcasted;
-	char		broadlog;
 
 	/* portfw stuff - needs to go-> later we can put it in the function for creating portfw rules! */
 	char		serverip[MAX_NET_ZONE];
