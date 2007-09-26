@@ -1858,6 +1858,9 @@ create_rule(const int debuglvl, struct vuurmuur_config *cnf,
 		fprintf(stdout, "# comment: '%s'\n", create->option.comment);
 	}
 
+	if (create->active == 0)
+		return(0);
+
 	/* alloc the temp rule data */
 	if(!(rule = malloc(sizeof(struct RuleCreateData_))))
 	{
