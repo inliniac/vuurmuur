@@ -36,13 +36,37 @@ shaping_shape_rule(const int debuglvl, /*@null@*/struct options *opt) {
 	
 	return(0);
 }
+int
+shaping_shape_incoming_rule(const int debuglvl, /*@null@*/struct options *opt) {
+	if (	opt != NULL && 
+		(opt->bw_in_min > 0 ||
+		opt->bw_in_max > 0 ||
+		opt->prio > 0))
+	{
+		return(1);
+	}
+	
+	return(0);
+}
+int
+shaping_shape_outgoing_rule(const int debuglvl, /*@null@*/struct options *opt) {
+	if (	opt != NULL && 
+		(opt->bw_out_min > 0 ||
+		opt->bw_out_max > 0 ||
+		opt->prio > 0))
+	{
+		return(1);
+	}
+	
+	return(0);
+}
 
 int
 shaping_shape_interface(const int debuglvl, InterfaceData *iface_ptr) {
 	if (	iface_ptr != NULL && 
 		iface_ptr->shape == TRUE &&
 		iface_ptr->device_virtual == FALSE &&
-		iface_ptr->up == TRUE)
+		(conf.bash_out || iface_ptr->up == TRUE))
 	{
 		return(1);
 	}
@@ -137,8 +161,7 @@ shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf
 		inner_iface_ptr = d_node->data;
 
 		if (	iface_ptr != inner_iface_ptr && /* don't add a class for yourself */
-			inner_iface_ptr->shape == TRUE && /* only if we do shape on this interface */
-			inner_iface_ptr->up == TRUE) /* we can only create rules for interfaces that are up */
+			shaping_shape_interface(debuglvl, inner_iface_ptr) == 1)
 		{
 			rate = inner_iface_ptr->bw_in;
 			if (iface_ptr->bw_out < rate)
@@ -175,9 +198,7 @@ shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces
 		iface_ptr = d_node->data;
 		(void)vrprint.debug(__FUNC__, "interface %s", iface_ptr->name);
 
-		if (	iface_ptr->shape == TRUE &&
-			iface_ptr->device_virtual == FALSE &&
-			iface_ptr->up == TRUE)
+		if (shaping_shape_interface(debuglvl, iface_ptr) == 1)
 		{
 			iface_ptr->shape_handle = handle;
 			handle++;
@@ -190,9 +211,7 @@ shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces
 		iface_ptr = d_node->data;
 		(void)vrprint.debug(__FUNC__, "interface %s", iface_ptr->name);
 
-		if (	iface_ptr->shape == TRUE &&
-			iface_ptr->device_virtual == FALSE &&
-			iface_ptr->up == TRUE)
+		if (shaping_shape_interface(debuglvl, iface_ptr) == 1)
 		{
 			snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s root handle %u: htb default %u",
 				cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle, handle);
@@ -212,10 +231,9 @@ shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces
 	return (0);
 }
 
-/* add a rate to the iface. If the rate is 0 use the default rate */
-int
-shaping_add_rate_to_iface(const int debuglvl, InterfaceData *iface_ptr, u_int32_t rate, char *unit) {
-	u_int32_t	kbit_rate = 0;
+static u_int32_t
+shaping_convert_rate(const int debuglvl, u_int32_t rate, char *unit) {
+	u_int32_t kbit_rate = 0;
 
 	(void)vrprint.debug(__FUNC__, "rate %u, unit %s", rate, unit);
 
@@ -228,6 +246,18 @@ shaping_add_rate_to_iface(const int debuglvl, InterfaceData *iface_ptr, u_int32_
 	} else if (strcmp(unit,"mbps") == 0) {
 		kbit_rate = rate * 1024 * 8;
 	}
+
+	return(kbit_rate);
+}
+
+/* add a rate to the iface. If the rate is 0 use the default rate */
+int
+shaping_add_rate_to_iface(const int debuglvl, InterfaceData *iface_ptr, u_int32_t rate, char *unit) {
+	u_int32_t	kbit_rate = 0;
+
+	(void)vrprint.debug(__FUNC__, "rate %u, unit %s", rate, unit);
+
+	kbit_rate = shaping_convert_rate(debuglvl, rate, unit);
 
 	(void)vrprint.debug(__FUNC__, "kbit rate %u", kbit_rate);
 
@@ -324,9 +354,7 @@ shaping_determine_minimal_default_rates(const int debuglvl, Interfaces *interfac
 	for (d_node_iface = interfaces->list.top; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
 		iface_ptr = d_node_iface->data;
 
-		if (	iface_ptr->shape == TRUE &&
-			iface_ptr->device_virtual == FALSE &&
-			iface_ptr->up == TRUE)
+		if (shaping_shape_interface(debuglvl, iface_ptr) == 1)
 		{
 			(void)vrprint.debug(__FUNC__, "total rate %u, total rules %u, rules using default rate %u",
 				iface_ptr->total_shape_rate, iface_ptr->total_shape_rules, iface_ptr->total_default_shape_rules);
@@ -364,9 +392,7 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 	for (d_node = interfaces->list.top; d_node != NULL; d_node = d_node->next) {
 		iface_ptr = d_node->data;
 
-		if (	iface_ptr->shape == TRUE &&
-			iface_ptr->device_virtual == FALSE &&
-			iface_ptr->up == TRUE)
+		if (shaping_shape_interface(debuglvl, iface_ptr) == 1)
 		{
 			/* tc class add dev ppp0 parent 1:1 classid 1:100 htb rate 15kbit ceil 512kbit prio 3
 			 * tc qdisc add dev ppp0 parent 1:100 handle 100: sfq perturb 10 */
@@ -393,5 +419,68 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 	}
 
 	interfaces->shape_handle = handle;
+}
+
+int
+shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf,
+	Interfaces *interfaces, /*@null@*/RuleSet *ruleset,
+	InterfaceData *shape_iface_ptr, InterfaceData *class_iface_ptr,
+	u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil,
+	char *ceil_unit, u_int8_t prio)
+{
+	char			cmd[MAX_PIPE_COMMAND] = "";
+	u_int16_t		class_handle = 1;
+
+	if (shaping_shape_interface(debuglvl, shape_iface_ptr) == 0)
+		return(0);
+
+	(void)vrprint.debug(__FUNC__, "shape on interface %s (handle %u)",
+		shape_iface_ptr->name, shape_iface_ptr->shape_handle);
+
+	if (shaping_shape_interface(debuglvl, class_iface_ptr) == 1) {
+		class_handle = class_iface_ptr->shape_handle;
+
+		(void)vrprint.debug(__FUNC__, "class of interface %s (handle %u)",
+			class_iface_ptr->name, class_iface_ptr->shape_handle);
+	}
+
+	/* convert rates to kbit */
+	rate = shaping_convert_rate(debuglvl, rate, rate_unit);
+	ceil = shaping_convert_rate(debuglvl, ceil, ceil_unit);
+	(void)vrprint.debug(__FUNC__, "rate %u, ceil %u", rate, ceil);
+
+	/* use defaults for unused settings */
+	if (prio == 0) prio = 3;
+	if (rate == 0) rate = shape_iface_ptr->shape_default_rate;
+	if (ceil == 0) ceil = shape_iface_ptr->bw_out;
+
+	/* in some cases class_iface_ptr and shape_iface_ptr are the same
+	 * in that case use :1 */
+	if (class_handle == shape_iface_ptr->shape_handle)
+		class_handle = 1;
+
+	/* tc class add dev eth0 parent 3:3 classid 3:160 htb rate 5mbit ceil 10mbit prio 1
+	 * tc qdisc add dev eth0 parent 3:160 handle 127: sfq perturb 10
+	 */
+	snprintf(cmd, sizeof(cmd), "%s class add dev %s parent %u:%u classid %u:%u htb rate %ukbit ceil %ukbit prio %u",
+		cnf->tc_location, shape_iface_ptr->device, shape_iface_ptr->shape_handle,
+		class_handle, shape_iface_ptr->shape_handle,
+		class, rate, ceil, prio);
+
+	(void)vrprint.debug(__FUNC__, "cmd %s", cmd);
+
+	if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+		return(-1);
+
+	snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s parent %u:%u handle %u: sfq perturb 10",
+		cnf->tc_location, shape_iface_ptr->device, shape_iface_ptr->shape_handle,
+		class_handle, class);
+
+	(void)vrprint.debug(__FUNC__, "cmd %s", cmd);
+
+	if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+		return(-1);
+
+	return(0);
 }
 

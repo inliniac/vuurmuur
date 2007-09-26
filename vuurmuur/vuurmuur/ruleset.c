@@ -1275,7 +1275,7 @@ ruleset_create_ruleset(	const int debuglvl,
 		(void)vrprint.error(-1, "Error", "create protectrules failed.");
 	}
 	/* normal rules, ruleset == NULL */
-	if(create_normal_rules(debuglvl, ruleset, rules, interfaces, iptcap, &forward_rules) < 0)
+	if(create_normal_rules(debuglvl, cnf, ruleset, rules, interfaces, iptcap, &forward_rules) < 0)
 	{
 		(void)vrprint.error(-1, "Error", "create normal rules failed.");
 	}

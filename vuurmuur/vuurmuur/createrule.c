@@ -687,7 +687,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
 				input_device, stripped_proto, rule->temp_src,
 				rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
-				rule->from_mac, rule->to_if_ptr->shape_handle, rule->shape_class);
+				rule->from_mac, rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
 				return(-1);
@@ -702,7 +702,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
 				reverse_input_device, stripped_proto, rule->temp_src,
-				temp_dst_port, rule->temp_dst, temp_src_port, rule->from_if_ptr->shape_handle, rule->shape_class);
+				temp_dst_port, rule->temp_dst, temp_src_port, rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
 				return(-1);
@@ -729,7 +729,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
 					input_device, stripped_proto, rule->temp_src,
 					rule->temp_dst, rule->from_mac, rule->helper,
-					rule->to_if_ptr->shape_handle, rule->shape_class);
+					rule->to_if_ptr->shape_handle, rule->shape_class_in);
 
 				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
 					return(-1);
@@ -743,7 +743,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
 					reverse_input_device, stripped_proto, rule->temp_src,
-					rule->temp_dst, rule->helper, rule->from_if_ptr->shape_handle, rule->shape_class);
+					rule->temp_dst, rule->helper, rule->from_if_ptr->shape_handle, rule->shape_class_out);
 
 				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
 					return(-1);
@@ -1075,7 +1075,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
 				output_device, stripped_proto, rule->temp_src,
 				rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
-				rule->to_if_ptr->shape_handle, rule->shape_class);
+				rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
 				return(-1);
@@ -1092,7 +1092,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
 				reverse_output_device, stripped_proto, rule->temp_src,
 				temp_dst_port, rule->temp_dst, temp_src_port,
-				rule->from_if_ptr->shape_handle, rule->shape_class);
+				rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
 				return(-1);
@@ -1121,7 +1121,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
 					output_device, stripped_proto, rule->temp_src,
 					rule->temp_dst, rule->helper,
-					rule->to_if_ptr->shape_handle, rule->shape_class);
+					rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
 				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
 					return(-1);
@@ -1138,7 +1138,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 				snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
 					reverse_output_device, stripped_proto, rule->temp_src,
 					rule->temp_dst, rule->helper,
-					rule->from_if_ptr->shape_handle, rule->shape_class);
+					rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
 				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
 					return(-1);
@@ -1487,7 +1487,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 				input_device, output_device, stripped_proto,
 				rule->temp_src, rule->temp_src_port, rule->temp_dst,
 				rule->temp_dst_port, rule->from_mac,
-				rule->to_if_ptr->shape_handle, rule->shape_class);
+				rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
 				return(-1);
@@ -1502,7 +1502,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 			snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
 				reverse_output_device, reverse_input_device, stripped_proto,
 				rule->temp_src, temp_dst_port, rule->temp_dst,
-				temp_src_port, rule->from_if_ptr->shape_handle, rule->shape_class);
+				temp_src_port, rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
 			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
 				return(-1);
@@ -1530,7 +1530,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
 					input_device, output_device, stripped_proto,
 					rule->temp_src, rule->temp_dst, rule->from_mac,
-					rule->helper, rule->to_if_ptr->shape_handle, rule->shape_class);
+					rule->helper, rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
 				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
 					return(-1);
@@ -1544,7 +1544,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 
 				snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
 					reverse_output_device, reverse_input_device, stripped_proto,
-					rule->temp_src, rule->temp_dst, rule->helper, rule->from_if_ptr->shape_handle, rule->shape_class);
+					rule->temp_src, rule->temp_dst, rule->helper, rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
 				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
 					return(-1);

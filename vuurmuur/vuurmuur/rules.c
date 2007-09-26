@@ -532,7 +532,7 @@ create_all_rules(	const int debuglvl,
 		(void)vrprint.error(-1, "Error", "create custom chains failed.");
 	}
 	/* normal rules, ruleset == NULL */
-	if(create_normal_rules(debuglvl, NULL, rules, interfaces, iptcap, &forward_rules) < 0)
+	if(create_normal_rules(debuglvl, cnf, NULL, rules, interfaces, iptcap, &forward_rules) < 0)
 	{
 		(void)vrprint.error(-1, "Error", "create normal rules failed.");
 	}
@@ -1393,8 +1393,9 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
 }
 
 static int
-rulecreate_dst_iface_loop (const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces,
-		struct RuleCreateData_ *rule, struct RuleCache_ *create, IptCap *iptcap)
+rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
+	/*@null@*/RuleSet *ruleset, Interfaces *interfaces,
+	struct RuleCreateData_ *rule, struct RuleCache_ *create, IptCap *iptcap)
 {
 	int		retval = 0;
 	d_list_node	*d_node = NULL;
@@ -1437,6 +1438,30 @@ rulecreate_dst_iface_loop (const int debuglvl, /*@null@*/RuleSet *ruleset, Inter
 			(void)vrprint.debug(__FUNC__, "dst interface %s", rule->to_if_ptr ? rule->to_if_ptr->name : "any");
 
 			retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, iptcap);
+
+			/* shaping rules */
+			if (shaping_shape_outgoing_rule(debuglvl, &create->option) == 1) {
+				/* at this point we can create the tc rules */
+				retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
+					rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
+					create->option.bw_out_min, create->option.bw_out_min_unit,
+					create->option.bw_out_max, create->option.bw_out_max_unit,
+					create->option.prio);
+				if (retval < 0) {
+					return(retval);
+				}
+			}
+			if (shaping_shape_incoming_rule(debuglvl, &create->option) == 1) {
+				/* at this point we can create the tc rules */
+				retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
+					rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
+					create->option.bw_in_min, create->option.bw_in_min_unit,
+					create->option.bw_in_max, create->option.bw_in_max_unit,
+					create->option.prio);
+				if (retval < 0) {
+					return(retval);
+				}
+			}
 		}
 		return(retval);
 	}
@@ -1479,6 +1504,30 @@ rulecreate_dst_iface_loop (const int debuglvl, /*@null@*/RuleSet *ruleset, Inter
 			(void)vrprint.debug(__FUNC__, "dst interface %s", rule->to_if_ptr ? rule->to_if_ptr->name : "any");
 
 			retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, iptcap);
+
+			/* shaping rules */
+			if (shaping_shape_outgoing_rule(debuglvl, &create->option) == 1) {
+				/* at this point we can create the tc rules */
+				retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
+					rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
+					create->option.bw_out_min, create->option.bw_out_min_unit,
+					create->option.bw_out_max, create->option.bw_out_max_unit,
+					create->option.prio);
+				if (retval < 0) {
+					return(retval);
+				}
+			}
+			if (shaping_shape_incoming_rule(debuglvl, &create->option) == 1) {
+				/* at this point we can create the tc rules */
+				retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
+					rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
+					create->option.bw_in_min, create->option.bw_in_min_unit,
+					create->option.bw_in_max, create->option.bw_in_max_unit,
+					create->option.prio);
+				if (retval < 0) {
+					return(retval);
+				}
+			}
 		}
 		return(retval);
 	}
@@ -1551,15 +1600,39 @@ rulecreate_dst_iface_loop (const int debuglvl, /*@null@*/RuleSet *ruleset, Inter
 				if (retval < 0) {
 					return(retval);
 				}
+
+				/* shaping rules */
+				if (shaping_shape_outgoing_rule(debuglvl, &create->option) == 1) {
+					/* at this point we can create the tc rules */
+					retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
+						rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
+						create->option.bw_out_min, create->option.bw_out_min_unit,
+						create->option.bw_out_max, create->option.bw_out_max_unit,
+						create->option.prio);
+					if (retval < 0) {
+						return(retval);
+					}
+				}
+				if (shaping_shape_incoming_rule(debuglvl, &create->option) == 1) {
+					/* at this point we can create the tc rules */
+					retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
+						rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
+						create->option.bw_in_min, create->option.bw_in_min_unit,
+						create->option.bw_in_max, create->option.bw_in_max_unit,
+						create->option.prio);
+					if (retval < 0) {
+						return(retval);
+					}
+				}
 			}
 		}
 	}
-	
+
 	return (retval);
 }
 
 static int
-rulecreate_src_iface_loop (const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces,
+rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, Interfaces *interfaces,
 		struct RuleCreateData_ *rule, struct RuleCache_ *create, IptCap *iptcap)
 {
 	int		retval = 0;
@@ -1603,7 +1676,7 @@ rulecreate_src_iface_loop (const int debuglvl, /*@null@*/RuleSet *ruleset, Inter
 		if (active == 1) {
 			(void)vrprint.debug(__FUNC__, "src interface %s. Interface is active.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
 
-			retval = rulecreate_dst_iface_loop(debuglvl, ruleset, interfaces, rule, create, iptcap);
+			retval = rulecreate_dst_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap);
 		} else {
 			(void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
 		}
@@ -1649,7 +1722,7 @@ rulecreate_src_iface_loop (const int debuglvl, /*@null@*/RuleSet *ruleset, Inter
 		if (active == 1) {
 			(void)vrprint.debug(__FUNC__, "src interface %s. Interface is active.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
 
-			retval = rulecreate_dst_iface_loop(debuglvl, ruleset, interfaces, rule, create, iptcap);
+			retval = rulecreate_dst_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap);
 		} else {
 			(void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
 		}
@@ -1722,7 +1795,7 @@ rulecreate_src_iface_loop (const int debuglvl, /*@null@*/RuleSet *ruleset, Inter
 				(void)vrprint.debug(__FUNC__, "src interface %s", rule->from_if_ptr->name);
 
 				/* ok, continue */
-				retval = rulecreate_dst_iface_loop(debuglvl, ruleset, interfaces, rule, create, iptcap);
+				retval = rulecreate_dst_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap);
 				if (retval < 0) {
 					return(retval);
 				}
@@ -1748,9 +1821,9 @@ rulecreate_src_iface_loop (const int debuglvl, /*@null@*/RuleSet *ruleset, Inter
 		-1: error
 */
 int
-create_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
-		struct RuleCache_ *create, Interfaces *interfaces,
-		IptCap *iptcap)
+create_rule(const int debuglvl, struct vuurmuur_config *cnf,
+	/*@null@*/RuleSet *ruleset, struct RuleCache_ *create,
+	Interfaces *interfaces, IptCap *iptcap)
 {
 	int			retval = 0;
 	struct RuleCreateData_ 	*rule = NULL;
@@ -1802,11 +1875,13 @@ create_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 	/* SHAPING PREPARATION */
 	if (shaping_shape_rule(debuglvl, &create->option) == 1) {
-		rule->shape_class = interfaces->shape_handle;
+		rule->shape_class_out = interfaces->shape_handle;
+		interfaces->shape_handle++;
+		rule->shape_class_in = interfaces->shape_handle;
 		interfaces->shape_handle++;
 	}
 
-	if (rulecreate_src_iface_loop(debuglvl, ruleset, interfaces, rule, create, iptcap) < 0) {
+	if (rulecreate_src_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap) < 0) {
 		(void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
 	}
 
@@ -1935,6 +2010,7 @@ create_system_protectrules(const int debuglvl, struct vuurmuur_config *conf)
 
 int
 create_normal_rules(	const int debuglvl,
+			struct vuurmuur_config *cnf,
 			/*@null@*/RuleSet *ruleset,
 			Rules *rules,
 			Interfaces *interfaces,
@@ -2007,7 +2083,7 @@ create_normal_rules(	const int debuglvl,
 						&&
 				(rule_ptr->rulecache.service != NULL || rule_ptr->rulecache.service_any == TRUE))
 			{
-				if(create_rule(debuglvl, ruleset, &rule_ptr->rulecache, interfaces, iptcap) == 0)
+				if(create_rule(debuglvl, cnf, ruleset, &rule_ptr->rulecache, interfaces, iptcap) == 0)
 				{
 					if(debuglvl >= HIGH)
 						(void)vrprint.debug(__FUNC__, "rule created succesfully.");
