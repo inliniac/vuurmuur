@@ -396,7 +396,7 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 		{
 			/* tc class add dev ppp0 parent 1:1 classid 1:100 htb rate 15kbit ceil 512kbit prio 3
 			 * tc qdisc add dev ppp0 parent 1:100 handle 100: sfq perturb 10 */
-			snprintf(cmd, sizeof(cmd), "%s class add dev %s parent %u:1 classid %u:%u htb rate %ukbit %ukbit prio 3", /* TODO prio should configurable */
+			snprintf(cmd, sizeof(cmd), "%s class add dev %s parent %u:1 classid %u:%u htb rate %ukbit ceil %ukbit prio 3", /* TODO prio should configurable */
 				cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle,
 				iface_ptr->shape_handle, handle, iface_ptr->shape_default_rate,
 				iface_ptr->bw_out);
@@ -474,7 +474,7 @@ shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf,
 
 	snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s parent %u:%u handle %u: sfq perturb 10",
 		cnf->tc_location, shape_iface_ptr->device, shape_iface_ptr->shape_handle,
-		class_handle, class);
+		class, class);
 
 	(void)vrprint.debug(__FUNC__, "cmd %s", cmd);
 
