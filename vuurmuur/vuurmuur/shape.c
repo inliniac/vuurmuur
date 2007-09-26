@@ -419,6 +419,8 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 	}
 
 	interfaces->shape_handle = handle;
+
+	return(0);
 }
 
 int

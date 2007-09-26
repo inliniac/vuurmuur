@@ -22,7 +22,7 @@
  * Load, parse, analyze and save the rules.                                *
  ***************************************************************************/
 #include "vuurmuur.h"
-
+#include <ctype.h>
 
 /*	rules_analyse_rule
 

@@ -382,6 +382,8 @@ ruleset_fill_shaping_file(const int debuglvl, RuleSet *ruleset, int fd) {
 	}
 	
 	ruleset_writeprint(fd, "# EOF\n");
+
+	return(0);
 }
 
 /*	ruleset_create_file
