@@ -88,7 +88,7 @@ VERSION = @VERSION@
 INCLUDES = 
 METASOURCES = AUTO
 bin_PROGRAMS = vuurmuur
-vuurmuur_SOURCES = createrule.c misc.c reload.c rules.c ruleset.c vuurmuur.c
+vuurmuur_SOURCES = createrule.c misc.c reload.c rules.c ruleset.c vuurmuur.c shape.c
 vuurmuur_LDADD = -lvuurmuur
 noinst_HEADERS = main.h version.h
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -103,7 +103,7 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 vuurmuur_OBJECTS =  createrule.$(OBJEXT) misc.$(OBJEXT) reload.$(OBJEXT) \
-rules.$(OBJEXT) ruleset.$(OBJEXT) vuurmuur.$(OBJEXT)
+rules.$(OBJEXT) ruleset.$(OBJEXT) vuurmuur.$(OBJEXT) shape.$(OBJEXT)
 vuurmuur_DEPENDENCIES = 
 vuurmuur_LDFLAGS = 
 CFLAGS = @CFLAGS@
@@ -121,7 +121,7 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/createrule.P .deps/misc.P .deps/reload.P \
-.deps/rules.P .deps/ruleset.P .deps/vuurmuur.P
+.deps/rules.P .deps/ruleset.P .deps/shape.P .deps/vuurmuur.P
 SOURCES = $(vuurmuur_SOURCES)
 OBJECTS = $(vuurmuur_OBJECTS)
 
