@@ -274,6 +274,7 @@ main(int argc, char *argv[])
 	/* init the vrprint functions for the Gui */
 	vrprint.error = vuumuurconf_print_error;
 	vrprint.warning = vuumuurconf_print_warning;
+	vrprint.info = vuumuurconf_print_info;
 
 	if(status_print(status_win, gettext("This is Vuurmuur_conf %s, Copyright (c) 2003-2007 by Victor Julien"), version_string) < 0)
 		exit(EXIT_FAILURE);
