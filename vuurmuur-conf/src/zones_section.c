@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2006 by Victor Julien                              *
+ *   Copyright (C) 2003-2007 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -4558,7 +4558,7 @@ edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height,
 	else
 		NetworkSec.warningfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, width-4, 17, 0, 0, 0));
 
-	field_opts_off(NetworkSec.warningfld, O_VISIBLE);
+	field_opts_off(NetworkSec.warningfld, O_VISIBLE | O_ACTIVE);
 	field_num++;
 
 	/* terminate */
