@@ -71,6 +71,13 @@ ruleset_setup(const int debuglvl, RuleSet *ruleset)
 	if(d_list_setup(debuglvl, &ruleset->mangle_postroute, free) < 0)
 		return(-1);
 
+	if(d_list_setup(debuglvl, &ruleset->mangle_shape_in, free) < 0)
+		return(-1);
+	if(d_list_setup(debuglvl, &ruleset->mangle_shape_out, free) < 0)
+		return(-1);
+	if(d_list_setup(debuglvl, &ruleset->mangle_shape_fw, free) < 0)
+		return(-1);
+
 	/* nat */
 	if(d_list_setup(debuglvl, &ruleset->nat_preroute, free) < 0)
 		return(-1);
@@ -132,9 +139,10 @@ static void
 ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
 {
 	/* safety */
-	if(!ruleset)
+	if(ruleset == NULL)
 	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+			"(in: %s:%d).", __FUNC__, __LINE__);
 		return;
 	}
 
@@ -144,6 +152,10 @@ ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
 	d_list_cleanup(debuglvl, &ruleset->mangle_forward);
 	d_list_cleanup(debuglvl, &ruleset->mangle_output);
 	d_list_cleanup(debuglvl, &ruleset->mangle_postroute);
+
+	d_list_cleanup(debuglvl, &ruleset->mangle_shape_in);
+	d_list_cleanup(debuglvl, &ruleset->mangle_shape_out);
+	d_list_cleanup(debuglvl, &ruleset->mangle_shape_fw);
 
 	/* nat */
 	d_list_cleanup(debuglvl, &ruleset->nat_preroute);
@@ -488,6 +500,39 @@ ruleset_fill_file(	const int debuglvl,
 		snprintf(cmd, sizeof(cmd), "--flush POSTROUTING\n");
 		ruleset_writeprint(ruleset_fd, cmd);
 
+		/* SHAPE IN */
+		if(rules_chain_in_list(debuglvl, &rules->system_chain_mangle, "SHAPEIN"))
+		{
+			snprintf(cmd, sizeof(cmd), "--flush SHAPEIN\n");
+			ruleset_writeprint(ruleset_fd, cmd);
+			snprintf(cmd, sizeof(cmd), "--delete-chain SHAPEIN\n");
+			ruleset_writeprint(ruleset_fd, cmd);
+		}
+		snprintf(cmd, sizeof(cmd), "--new SHAPEIN\n");
+		ruleset_writeprint(ruleset_fd, cmd);
+
+		/* SHAPE OUT */
+		if(rules_chain_in_list(debuglvl, &rules->system_chain_mangle, "SHAPEOUT"))
+		{
+			snprintf(cmd, sizeof(cmd), "--flush SHAPEOUT\n");
+			ruleset_writeprint(ruleset_fd, cmd);
+			snprintf(cmd, sizeof(cmd), "--delete-chain SHAPEOUT\n");
+			ruleset_writeprint(ruleset_fd, cmd);
+		}
+		snprintf(cmd, sizeof(cmd), "--new SHAPEOUT\n");
+		ruleset_writeprint(ruleset_fd, cmd);
+
+		/* SHAPE FW */
+		if(rules_chain_in_list(debuglvl, &rules->system_chain_mangle, "SHAPEFW"))
+		{
+			snprintf(cmd, sizeof(cmd), "--flush SHAPEFW\n");
+			ruleset_writeprint(ruleset_fd, cmd);
+			snprintf(cmd, sizeof(cmd), "--delete-chain SHAPEFW\n");
+			ruleset_writeprint(ruleset_fd, cmd);
+		}
+		snprintf(cmd, sizeof(cmd), "--new SHAPEFW\n");
+		ruleset_writeprint(ruleset_fd, cmd);
+
 		/* prerouting */
 		for(d_node = ruleset->mangle_preroute.top; d_node; d_node = d_node->next)
 		{
@@ -538,6 +583,45 @@ ruleset_fill_file(	const int debuglvl,
 		}
 		/* postrouting */
 		for(d_node = ruleset->mangle_postroute.top; d_node; d_node = d_node->next)
+		{
+			if(!(rule = d_node->data))
+			{
+				(void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+				return(-1);
+			}
+
+			snprintf(cmd, sizeof(cmd), "%s\n", rule);
+			ruleset_writeprint(ruleset_fd, cmd);
+		}
+
+		/* shape in */
+		for(d_node = ruleset->mangle_shape_in.top; d_node; d_node = d_node->next)
+		{
+			if(!(rule = d_node->data))
+			{
+				(void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+				return(-1);
+			}
+
+			snprintf(cmd, sizeof(cmd), "%s\n", rule);
+			ruleset_writeprint(ruleset_fd, cmd);
+		}
+
+		/* shape out */
+		for(d_node = ruleset->mangle_shape_out.top; d_node; d_node = d_node->next)
+		{
+			if(!(rule = d_node->data))
+			{
+				(void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+				return(-1);
+			}
+
+			snprintf(cmd, sizeof(cmd), "%s\n", rule);
+			ruleset_writeprint(ruleset_fd, cmd);
+		}
+
+		/* shape fw */
+		for(d_node = ruleset->mangle_shape_fw.top; d_node; d_node = d_node->next)
 		{
 			if(!(rule = d_node->data))
 			{

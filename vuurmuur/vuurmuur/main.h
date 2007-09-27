@@ -160,6 +160,13 @@ typedef struct
 	char		mangle_postroute_policy;	/* policy for this chain: 0: accept, 1: drop */
 
 	/*
+		extra mangle (no policies)
+	*/
+	d_list		mangle_shape_in;		/* list with rules */
+	d_list		mangle_shape_out;		/* list with rules */
+	d_list		mangle_shape_fw;		/* list with rules */
+
+	/*
 		nat
 	*/
 	d_list		nat_preroute;			/* list with rules */

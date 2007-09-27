@@ -43,6 +43,12 @@
 #define CH_NEWNFQUEUE		"-A NEWNFQUEUE"
 #define CH_ESTRELNFQUEUE	"-A ESTRELNFQUEUE"
 
+/* use -I for classify rules so the rules get in
+ * reverse order */
+#define CH_SHAPE_IN		"-I SHAPEIN"
+#define CH_SHAPE_OUT		"-I SHAPEOUT"
+#define CH_SHAPE_FW		"-I SHAPEFW"
+
 #define SRCDST_SOURCE		(char)0
 #define SRCDST_DESTINATION	(char)1
 
@@ -316,6 +322,12 @@ process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, char *table,
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_output, chain, cmd, packets, bytes));
 		else if(strcmp(chain, CH_POSTROUTING) == 0)
 			return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_postroute, chain, cmd, packets, bytes));
+		else if(strcmp(chain, CH_SHAPE_IN) == 0)
+			return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_shape_in, chain, cmd, packets, bytes));
+		else if(strcmp(chain, CH_SHAPE_OUT) == 0)
+			return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_shape_out, chain, cmd, packets, bytes));
+		else if(strcmp(chain, CH_SHAPE_FW) == 0)
+			return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_shape_fw, chain, cmd, packets, bytes));
 	}
 	else if(strcmp(table, TB_NAT) == 0)
 	{
@@ -689,7 +701,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 				rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
 				rule->from_mac, rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
 				return(-1);
 		}
 		#endif
@@ -704,7 +716,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 				reverse_input_device, stripped_proto, rule->temp_src,
 				temp_dst_port, rule->temp_dst, temp_src_port, rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
 				return(-1);
 		}
 
@@ -731,7 +743,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 					rule->temp_dst, rule->from_mac, rule->helper,
 					rule->to_if_ptr->shape_handle, rule->shape_class_in);
 
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
 					return(-1);
 			}
 			#endif
@@ -745,7 +757,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 					reverse_input_device, stripped_proto, rule->temp_src,
 					rule->temp_dst, rule->helper, rule->from_if_ptr->shape_handle, rule->shape_class_out);
 
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
 					return(-1);
 			}
 		}
@@ -1077,7 +1089,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 				rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
 				rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
 				return(-1);
 		}
 
@@ -1094,7 +1106,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 				temp_dst_port, rule->temp_dst, temp_src_port,
 				rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
 				return(-1);
 		}
 		#endif
@@ -1123,7 +1135,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 					rule->temp_dst, rule->helper,
 					rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
 					return(-1);
 			}
 
@@ -1140,7 +1152,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 					rule->temp_dst, rule->helper,
 					rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
 					return(-1);
 			}
 			#endif
@@ -1489,7 +1501,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 				rule->temp_dst_port, rule->from_mac,
 				rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
 				return(-1);
 		}
 
@@ -1504,7 +1516,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 				rule->temp_src, temp_dst_port, rule->temp_dst,
 				temp_src_port, rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
-			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+			if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
 				return(-1);
 		}
 
@@ -1532,7 +1544,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 					rule->temp_src, rule->temp_dst, rule->from_mac,
 					rule->helper, rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
 					return(-1);
 			}
 
@@ -1546,7 +1558,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 					reverse_output_device, reverse_input_device, stripped_proto,
 					rule->temp_src, rule->temp_dst, rule->helper, rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
-				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+				if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
 					return(-1);
 			}
 		}
@@ -2237,8 +2249,8 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
 	/* mangle table uses {PREROUTING,INPUT,FORWARD,POSTROUTING,OUTPUT} hooks */
 
-	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Making specials PRE-VRMR-{PREROUTING,INPUT,FORWARD,POSTROUTING,OUTPUT} CHAINS in mangle table...\n");
-	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Making specials PRE-VRMR-{PREROUTING,INPUT,FORWARD,POSTROUTING,OUTPUT} CHAINS in mangle table...");
+	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Making special PRE-VRMR-{PREROUTING,INPUT,FORWARD,POSTROUTING,OUTPUT} CHAINS in mangle table...\n");
+	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Making special PRE-VRMR-{PREROUTING,INPUT,FORWARD,POSTROUTING,OUTPUT} CHAINS in mangle table...");
 
 	if(conf.check_iptcaps == FALSE || iptcap->table_mangle == TRUE)
 	{
@@ -2295,8 +2307,8 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
 	/* filter table uses {INPUT,FORWARD,OUTPUT} hooks */
 
-	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Making specials PRE-VRMR-{INPUT,FORWARD,OUTPUT} CHAINS in filter table...\n");
-	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Making specials PRE-VRMR-{INPUT,FORWARD,OUTPUT} CHAINS in filter table...");
+	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Making special PRE-VRMR-{INPUT,FORWARD,OUTPUT} CHAINS in filter table...\n");
+	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Making special PRE-VRMR-{INPUT,FORWARD,OUTPUT} CHAINS in filter table...");
 
 	if(ruleset == NULL)
 	{
@@ -2331,8 +2343,8 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
 	/* nat table uses {PREROUTING,POSTROUTING,OUTPUT} hooks */
 
-	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Making specials PRE-VRMR-{PREROUTING,POSTROUTING,OUTPUT} CHAINS in nat table...\n");
-	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Making specials PRE-VRMR-{PREROUTING,POSTROUTING,OUTPUT} CHAINS in nat table...");
+	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Making special PRE-VRMR-{PREROUTING,POSTROUTING,OUTPUT} CHAINS in nat table...\n");
+	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Making special PRE-VRMR-{PREROUTING,POSTROUTING,OUTPUT} CHAINS in nat table...");
 
 	if(conf.check_iptcaps == FALSE || iptcap->table_nat == TRUE)
 	{
@@ -2369,6 +2381,41 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
 	/* END -- PRE-VUURMUUR-CHAINS feature */
 
+	if(conf.bash_out == TRUE)	fprintf(stdout, "\n# Creating shaping chains in the mangle table...\n");
+	if(debuglvl >= LOW)		(void)vrprint.debug(__FUNC__, "Creating shaping chains in the mangle table...");
+
+	if(conf.check_iptcaps == FALSE || iptcap->table_mangle == TRUE)
+	{
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEIN 2>/dev/null", conf.iptables_location, TB_MANGLE);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-j SHAPEIN");
+		if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+			retval=-1;
+
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEOUT 2>/dev/null", conf.iptables_location, TB_MANGLE);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-j SHAPEOUT");
+		if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+			retval=-1;
+
+		if(ruleset == NULL)
+		{
+			snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEFW 2>/dev/null", conf.iptables_location, TB_MANGLE);
+			(void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+		}
+
+		snprintf(cmd, sizeof(cmd), "-j SHAPEFW");
+		if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+			retval=-1;
+	}
 
 	/*
 		allow local loopback
