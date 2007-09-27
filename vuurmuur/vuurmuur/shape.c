@@ -62,7 +62,7 @@ shaping_shape_outgoing_rule(const int debuglvl, /*@null@*/struct options *opt) {
 }
 
 int
-shaping_shape_interface(const int debuglvl, InterfaceData *iface_ptr) {
+shaping_shape_interface(const int debuglvl, /*@null@*/InterfaceData *iface_ptr) {
 	if (	iface_ptr != NULL && 
 		iface_ptr->shape == TRUE &&
 		iface_ptr->device_virtual == FALSE &&
@@ -365,6 +365,10 @@ shaping_determine_minimal_default_rates(const int debuglvl, Interfaces *interfac
 
 				/* the default rate will be the max interface rate / number of total rules */
 				iface_ptr->shape_default_rate = iface_ptr->bw_out / iface_ptr->total_shape_rules;
+			}
+			/* no shaping rules at all: use a simple default */
+			else if (iface_ptr->total_default_shape_rules == 0) {
+				iface_ptr->shape_default_rate = iface_ptr->bw_out / 10;
 			} else {
 				/* the default rate is max interface rate minus already explictly commited rate
 				 * devided by the number of rules using the default rate */
