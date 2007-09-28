@@ -5,7 +5,7 @@
 
 MY_PKG_NAME="Vuurmuur"
 DESCRIPTION="Iptables frontend. Rule- and logdaemons and commandline utils."
-HOMEPAGE="http://vuurmuur.sourceforge.net"
+HOMEPAGE="http://www.vuurmuur.org"
 SRC_URI="mirror://sourceforge/vuurmuur/${MY_PKG_NAME}-${PV}.tar.gz"
 
 LICENSE="GPL-2"
@@ -27,7 +27,7 @@ src_unpack() {
 }
 
 src_compile() {
-	cd work/${MY_PKG_NAME}-${PV}/${P} || die
+	cd ${WORKDIR}/${MY_PKG_NAME}-${PV}/${P} || die
 	libtoolize -f
 	aclocal
 	autoheader
@@ -39,7 +39,7 @@ src_compile() {
 }
 
 src_install() {
-	cd ${P}/work/${MY_PKG_NAME}-${PV}/${P} || die "Could not change dirs"
+	cd ${WORKDIR}/${MY_PKG_NAME}-${PV}/${P} || die "Could not change dirs"
 	einstall
 	# TODO Still need to install the init.d script as a real script in the real
 	# place and also warn the user to enable it when needed.
@@ -64,3 +64,4 @@ src_install() {
 	dodir /etc/vuurmuur/textdir/zones/lan/networks
 	dodir /etc/vuurmuur/textdir/zones/vpn/networks
 }
+

@@ -5,7 +5,7 @@
 
 MY_PKG_NAME="Vuurmuur"
 DESCRIPTION="iptables frontend. Common library and plugins."
-HOMEPAGE="http://vuurmuur.sourceforge.net"
+HOMEPAGE="http://www.vuurmuur.org"
 SRC_URI="mirror://sourceforge/vuurmuur/${MY_PKG_NAME}-${PV}.tar.gz"
 
 LICENSE="GPL-2"
@@ -30,7 +30,7 @@ src_unpack() {
 
 src_compile() {
 	#einfo "pwd: ${PWD}"
-	cd work/${MY_PKG_NAME}-${PV}/${P} || die
+	cd ${WORKDIR}/${MY_PKG_NAME}-${PV}/${P} || die
 	libtoolize -f
 	aclocal
 	autoheader
@@ -44,8 +44,9 @@ src_compile() {
 
 src_install() {
 	#einfo "pwd: ${PWD}"
-	cd ${P}/work/${MY_PKG_NAME}-${PV}/${P} || die "Could not change dirs"
+	cd ${WORKDIR}/${MY_PKG_NAME}-${PV}/${P} || die "Could not change dirs"
 	einstall
 	insinto /etc/vuurmuur/plugins
 	doins plugins/textdir/textdir.conf
 }
+
