@@ -51,6 +51,31 @@ typedef struct
 
 } VrMenu;
 
+/* form wrapper */
+typedef struct
+{
+	FORM		*f;
+	FIELD		**fields;
+	FIELD		*cur, *prev;
+	unsigned int	nfields;
+	unsigned int	cur_field;
+
+	chtype		fg,
+			bg;
+
+	int		h,			/* height */
+			w,			/* width */
+			y,			/*	y start relative
+							to win */
+			x;			/*	x start relative
+							to win */
+	WINDOW		*dw;			/* used by derwin */
+
+	int		(*save)(const int debuglvl, void *ctx, char *name, char *value);
+	void		*save_ctx;
+
+} VrForm;
+
 /* window/panel wrapper */
 typedef struct
 {

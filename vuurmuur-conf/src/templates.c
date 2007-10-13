@@ -17,7 +17,14 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
+#ifdef USE_WIDEC
+#include <ncursesw/ncurses.h>
+#include <ncursesw/panel.h>
+#if defined(NCURSES_VERSION_PATCH) && (NCURSES_VERSION_PATCH < 20071013)
+#define NCURSES_FIELD_INTERNALS char** expanded; WINDOW *working;
+#endif 
+#endif
 #include "main.h"
 
 // minimun width = 13
@@ -1139,5 +1146,40 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
 	}
 
 	return;
+}
+
+FIELD *
+new_field_wrap(int rows, int cols, int frow, int fcol, int nrow, int nbuf)
+{
+	FIELD *f = new_field (rows, cols, frow, fcol, nrow, nbuf);
+	if (f == NULL)
+		return(NULL);
+
+#ifdef USE_WIDEC
+	/* Work around a Ncurses bug that occurs when nbufs are used.
+	 * See: https://bugzilla.redhat.com/show_bug.cgi?id=310071
+	 */
+#if defined(NCURSES_VERSION_PATCH) && (NCURSES_VERSION_PATCH < 20071013)
+	if (nbuf) {
+		size_t len = (1 + (unsigned)nbuf) * sizeof(char *);
+		/* realloc the memory so it will be enough */
+		f->expanded = realloc(f->expanded, len);
+		if (f->expanded == NULL) {
+			(void)vrprint.error(-1, VR_INTERR, "realloc failed: %s (in: %s:%d)",
+				strerror(errno), __FUNC__, __LINE__);
+			return(NULL);
+		}
+
+		/* set the memory to null, otherwise the memory
+		 * will be used uninitialized.
+		 *
+		 * ncurses doesn't use memset for this, but I
+		 * noticed all bytes are 0 anyway, so memset
+		 * should be fine */
+		memset(f->expanded, 0, len);
+	}
+#endif /* ncurses patchlvl */
+#endif /* USE_WIDEC */
+	return(f);
 }
 

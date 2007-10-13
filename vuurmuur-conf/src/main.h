@@ -311,7 +311,9 @@ int vuumuurconf_print_info(char *title, char *fmt, ...);
 char *selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned int cols, char *);
 int status_print(WINDOW *local_win, /*@null@*/ char *fmt, ...);
 int check_box(int status, char *title, char *description);
+/* fixes */
 void set_field_buffer_wrap(const int, FIELD *, int, const char *);
+FIELD *new_field_wrap(int rows, int cols, int frow, int fcol, int nrow, int nbuf);
 
 //void filter_setup(const int, vr_filter *);
 //void filter_cleanup(const int, vr_filter *);
@@ -463,6 +465,9 @@ StrMemLen(const char *s)
 }
 
 void fix_wide_menu(const int, MENU *, ITEM **);
+
+void form_test (const int debuglvl);
+void VrShapeRule(const int debuglvl, struct options *opt);
 
 #ifdef USE_WIDEC
 #define wsizeof(s)	sizeof(s)/sizeof(wchar_t)

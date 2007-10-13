@@ -4115,6 +4115,11 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 		{
 			switch(ch)
 			{
+				case KEY_F(6):
+				case 'S':
+				case 's':
+					VrShapeRule(debuglvl, rule_ptr->opt);
+					break;
 				case KEY_DOWN:
 				case 10:	// enter
 				case 9:		// tab

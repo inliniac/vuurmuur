@@ -291,6 +291,8 @@ main(int argc, char *argv[])
 	VrBusyWinCreate(debuglvl);
 	VrBusyWinHide();
 
+	//form_test(debuglvl);
+
 	/* startup_screen inits the config, loads the zones, rules, etc */
 	if(startup_screen(debuglvl, &rules, &zones, &services, &interfaces, &blocklist, &reg) < 0)
 	{
