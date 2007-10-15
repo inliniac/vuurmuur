@@ -1169,10 +1169,12 @@ struct ShapeRuleCnf_ {
 	char in_min_unit[5], out_min_unit[5], in_max_unit[5], out_max_unit[5];
 };
 
-int
-VrShapeRuleSetup(const int debuglvl, struct ShapeRuleCnf_ *c) {
-	if (c == NULL || c->opt == NULL)
+static int
+VrShapeRuleSetup(const int debuglvl, struct ShapeRuleCnf_ *c, struct options *opt) {
+	if (c == NULL || c->opt == NULL || opt == NULL)
 		return(-1);
+
+	c->opt = opt;
 
 	snprintf(c->in_min, sizeof(c->in_min), "%u", c->opt->bw_in_min);
 	snprintf(c->in_max, sizeof(c->in_max), "%u", c->opt->bw_in_max);
@@ -1184,7 +1186,7 @@ VrShapeRuleSetup(const int debuglvl, struct ShapeRuleCnf_ *c) {
 	else	
 		snprintf(c->in_min_unit, sizeof(c->in_min_unit), "%s", c->opt->bw_in_min_unit);
 
-	if (strcmp(c->opt->bw_in_min_unit, "") == 0)
+	if (strcmp(c->opt->bw_in_max_unit, "") == 0)
 		strlcpy(c->in_max_unit, "kbit", sizeof(c->in_max_unit));
 	else	
 		snprintf(c->in_max_unit, sizeof(c->in_max_unit), "%s", c->opt->bw_in_max_unit);
@@ -1204,7 +1206,7 @@ VrShapeRuleSetup(const int debuglvl, struct ShapeRuleCnf_ *c) {
 	return(0);
 }
 
-int
+static int
 VrShapeRuleSave(const int debuglvl, void *ctx, char *name, char *value)
 {
 	struct ShapeRuleCnf_ *c = (struct ShapeRuleCnf_ *)ctx;
@@ -1238,8 +1240,7 @@ void VrShapeRule(const int debuglvl, struct options *opt) {
 	int	ch = 0, result = 0;
 	struct ShapeRuleCnf_ config;
 
-	config.opt = opt;
-	if (VrShapeRuleSetup(debuglvl, &config) < 0)
+	if (VrShapeRuleSetup(debuglvl, &config, opt) < 0)
 	{
 		(void)vrprint.error(-1, VR_ERR, "VrShapeRuleSetup failed");
 		return;
