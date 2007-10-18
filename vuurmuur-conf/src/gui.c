@@ -1229,6 +1229,8 @@ VrShapeRuleSave(const int debuglvl, void *ctx, char *name, char *value)
 		strlcpy(c->opt->bw_out_min_unit, value, sizeof(c->opt->bw_out_min_unit));
 	} else if(strcmp(name,"unit4") == 0) {
 		strlcpy(c->opt->bw_out_max_unit, value, sizeof(c->opt->bw_out_max_unit));
+	} else if (strcmp(name,"prio") == 0) {
+		c->opt->prio = atoi(value);
 	}
 
 	return(0);
