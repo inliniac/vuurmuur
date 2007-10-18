@@ -1171,7 +1171,7 @@ struct ShapeRuleCnf_ {
 
 static int
 VrShapeRuleSetup(const int debuglvl, struct ShapeRuleCnf_ *c, struct options *opt) {
-	if (c == NULL || c->opt == NULL || opt == NULL)
+	if (c == NULL || opt == NULL)
 		return(-1);
 
 	c->opt = opt;
