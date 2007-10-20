@@ -1444,8 +1444,8 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
 				/* at this point we can create the tc rules */
 				retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
 					rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
-					create->option.bw_out_min, create->option.bw_out_min_unit,
-					create->option.bw_out_max, create->option.bw_out_max_unit,
+					create->option.bw_in_min, create->option.bw_in_min_unit,
+					create->option.bw_in_max, create->option.bw_in_max_unit,
 					create->option.prio);
 				if (retval < 0) {
 					return(retval);
@@ -1455,8 +1455,8 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
 				/* at this point we can create the tc rules */
 				retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
 					rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
-					create->option.bw_in_min, create->option.bw_in_min_unit,
-					create->option.bw_in_max, create->option.bw_in_max_unit,
+					create->option.bw_out_min, create->option.bw_out_min_unit,
+					create->option.bw_out_max, create->option.bw_out_max_unit,
 					create->option.prio);
 				if (retval < 0) {
 					return(retval);
@@ -1510,8 +1510,8 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
 				/* at this point we can create the tc rules */
 				retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
 					rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
-					create->option.bw_out_min, create->option.bw_out_min_unit,
-					create->option.bw_out_max, create->option.bw_out_max_unit,
+					create->option.bw_in_min, create->option.bw_in_min_unit,
+					create->option.bw_in_max, create->option.bw_in_max_unit,
 					create->option.prio);
 				if (retval < 0) {
 					return(retval);
@@ -1521,8 +1521,8 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
 				/* at this point we can create the tc rules */
 				retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
 					rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
-					create->option.bw_in_min, create->option.bw_in_min_unit,
-					create->option.bw_in_max, create->option.bw_in_max_unit,
+					create->option.bw_out_min, create->option.bw_out_min_unit,
+					create->option.bw_out_max, create->option.bw_out_max_unit,
 					create->option.prio);
 				if (retval < 0) {
 					return(retval);
@@ -1606,8 +1606,8 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
 					/* at this point we can create the tc rules */
 					retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
 						rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
-						create->option.bw_out_min, create->option.bw_out_min_unit,
-						create->option.bw_out_max, create->option.bw_out_max_unit,
+						create->option.bw_in_min, create->option.bw_in_min_unit,
+						create->option.bw_in_max, create->option.bw_in_max_unit,
 						create->option.prio);
 					if (retval < 0) {
 						return(retval);
@@ -1617,8 +1617,8 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
 					/* at this point we can create the tc rules */
 					retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, ruleset,
 						rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
-						create->option.bw_in_min, create->option.bw_in_min_unit,
-						create->option.bw_in_max, create->option.bw_in_max_unit,
+						create->option.bw_out_min, create->option.bw_out_min_unit,
+						create->option.bw_out_max, create->option.bw_out_max_unit,
 						create->option.prio);
 					if (retval < 0) {
 						return(retval);
