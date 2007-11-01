@@ -122,8 +122,11 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
 
 		/*
 			compare the line
+
+			make sure we don't match BW_IN on BW_IN_UNIT
+			XXX: redo this one day
 		*/
-		if(strncmp(question, line, strlen(question)) == 0)
+		if(strncmp(question, line, strlen(question)) == 0 && line[strlen(question)] == '=')
 		{
 			if(overwrite && !found)
 			{

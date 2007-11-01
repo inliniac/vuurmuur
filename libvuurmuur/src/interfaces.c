@@ -519,16 +519,18 @@ read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr)
 		return(-1);
 	}
 	/* ask the BW_IN_UNIT of this interface */
-	result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_IN_UNIT", bw_str, sizeof(bw_str), TYPE_INTERFACE, 0);
+	result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_IN_UNIT", iface_ptr->bw_in_unit, sizeof(iface_ptr->bw_in_unit), TYPE_INTERFACE, 0);
 	if(result == 1)
 	{
 		if(debuglvl >= HIGH)
-			(void)vrprint.debug(__FUNC__, "raw bw_str (unit): %s.", bw_str);
+			(void)vrprint.debug(__FUNC__, "raw bw_str (unit): %s.", iface_ptr->bw_in_unit);
 
-		if (strcasecmp(bw_str, "kbit") == 0) {
+		if (strcasecmp(iface_ptr->bw_in_unit, "kbit") == 0) {
 			/* okay do nothing */
-		} else if (strcasecmp(bw_str, "mbit") == 0)  {
-			iface_ptr->bw_in = iface_ptr->bw_in * 1024;
+		} else if (strcasecmp(iface_ptr->bw_in_unit, "mbit") == 0)  {
+			/* okay do nothing */
+		} else {
+			/* XXX default/error? */
 		}
 	}
 	else if(result == 0)
@@ -569,16 +571,16 @@ read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr)
 		return(-1);
 	}
 	/* ask the BW_OUT_UNIT of this interface */
-	result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_OUT_UNIT", bw_str, sizeof(bw_str), TYPE_INTERFACE, 0);
+	result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_OUT_UNIT", iface_ptr->bw_out_unit, sizeof(iface_ptr->bw_out_unit), TYPE_INTERFACE, 0);
 	if(result == 1)
 	{
 		if(debuglvl >= HIGH)
-			(void)vrprint.debug(__FUNC__, "raw bw_str (unit): %s.", bw_str);
+			(void)vrprint.debug(__FUNC__, "raw bw_str (unit): %s.", iface_ptr->bw_out_unit);
 
-		if (strcasecmp(bw_str, "kbit") == 0) {
+		if (strcasecmp(iface_ptr->bw_out_unit, "kbit") == 0) {
 			/* okay do nothing */
-		} else if (strcasecmp(bw_str, "mbit") == 0)  {
-			iface_ptr->bw_out = iface_ptr->bw_out * 1024;
+		} else if (strcasecmp(iface_ptr->bw_out_unit, "mbit") == 0)  {
+			/* okay do nothing */
 		}
 	}
 	else if(result == 0)
@@ -586,7 +588,7 @@ read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr)
 		if(debuglvl >= LOW)
 			(void)vrprint.debug(__FUNC__, "no BW_OUT_UNIT defined for interface '%s', setting to 0.",
 									iface_ptr->name);
-		iface_ptr->bw_in = 0;
+		iface_ptr->bw_out = 0;
 	}
 	else
 	{

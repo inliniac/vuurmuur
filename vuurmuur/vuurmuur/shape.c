@@ -22,6 +22,25 @@
 
 #include "main.h"
 
+static u_int32_t
+shaping_convert_rate(const int debuglvl, u_int32_t rate, char *unit) {
+	u_int32_t kbit_rate = 0;
+
+	(void)vrprint.debug(__FUNC__, "rate %u, unit %s", rate, unit);
+
+	if (strcmp(unit,"kbit") == 0) {
+		kbit_rate = rate;
+	} else if (strcmp(unit,"mbit") == 0) {
+		kbit_rate = rate * 1024;
+	} else if (strcmp(unit,"kbps") == 0) {
+		kbit_rate = rate * 8;
+	} else if (strcmp(unit,"mbps") == 0) {
+		kbit_rate = rate * 1024 * 8;
+	}
+
+	return(kbit_rate);
+}
+
 int
 shaping_shape_rule(const int debuglvl, /*@null@*/struct options *opt) {
 	if (	opt != NULL && 
@@ -143,13 +162,16 @@ shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf
 	InterfaceData	*inner_iface_ptr = NULL;
 	char		cmd[MAX_PIPE_COMMAND] = "";
 	u_int32_t	rate = 0;
+	u_int32_t	iface_rate = 0;
 
 	/* create this interface's class */
+
+	iface_rate = shaping_convert_rate(debuglvl, iface_ptr->bw_out, iface_ptr->bw_out_unit);
 
 	/* tc class add dev ppp0 parent 1: classid 1:1 htb rate 512kbit */
 	snprintf(cmd, sizeof(cmd), "%s class add dev %s parent %u: classid %u:1 htb rate %ukbit",
 		cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle,
-		iface_ptr->shape_handle, iface_ptr->bw_out);
+		iface_ptr->shape_handle, iface_rate);
 
 	(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
 
@@ -163,9 +185,9 @@ shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf
 		if (	iface_ptr != inner_iface_ptr && /* don't add a class for yourself */
 			shaping_shape_interface(debuglvl, inner_iface_ptr) == 1)
 		{
-			rate = inner_iface_ptr->bw_in;
-			if (iface_ptr->bw_out < rate)
-				rate = iface_ptr->bw_out;
+			rate = shaping_convert_rate(debuglvl, inner_iface_ptr->bw_in, inner_iface_ptr->bw_in_unit);
+			if (iface_rate < rate)
+				rate = iface_rate;
 
 			/* tc class add dev ppp0 parent 1: classid 1:1 htb rate 512kbit */
 			snprintf(cmd, sizeof(cmd), "%s class add dev %s parent %u: classid %u:%u htb rate %ukbit",
@@ -231,25 +253,6 @@ shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces
 	return (0);
 }
 
-static u_int32_t
-shaping_convert_rate(const int debuglvl, u_int32_t rate, char *unit) {
-	u_int32_t kbit_rate = 0;
-
-	(void)vrprint.debug(__FUNC__, "rate %u, unit %s", rate, unit);
-
-	if (strcmp(unit,"kbit") == 0) {
-		kbit_rate = rate;
-	} else if (strcmp(unit,"mbit") == 0) {
-		kbit_rate = rate * 1024;
-	} else if (strcmp(unit,"kbps") == 0) {
-		kbit_rate = rate * 8;
-	} else if (strcmp(unit,"mbps") == 0) {
-		kbit_rate = rate * 1024 * 8;
-	}
-
-	return(kbit_rate);
-}
-
 /* add a rate to the iface. If the rate is 0 use the default rate */
 int
 shaping_add_rate_to_iface(const int debuglvl, InterfaceData *iface_ptr, u_int32_t rate, char *unit) {
@@ -289,6 +292,7 @@ shaping_determine_minimal_default_rates(const int debuglvl, Interfaces *interfac
 				*d_node_iface = NULL;
 	struct RuleData_	*rule_ptr = NULL;
 	InterfaceData		*iface_ptr = NULL;
+	u_int32_t		rate = 0;
 
 	for (d_node_iface = interfaces->list.top; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
 		iface_ptr = d_node_iface->data;
@@ -356,23 +360,25 @@ shaping_determine_minimal_default_rates(const int debuglvl, Interfaces *interfac
 
 		if (shaping_shape_interface(debuglvl, iface_ptr) == 1)
 		{
+			rate = shaping_convert_rate(debuglvl, iface_ptr->bw_out, iface_ptr->bw_out_unit);
+
 			(void)vrprint.debug(__FUNC__, "total rate %u, total rules %u, rules using default rate %u",
 				iface_ptr->total_shape_rate, iface_ptr->total_shape_rules, iface_ptr->total_default_shape_rules);
 
 			/* over commit */
-			if (iface_ptr->total_shape_rate > iface_ptr->bw_out) {
-				(void)vrprint.warning(VR_WARN, "bandwidth over committed on interface %s: %ukbit > %ukbit.", iface_ptr->name, iface_ptr->total_shape_rate, iface_ptr->bw_out);
+			if (iface_ptr->total_shape_rate > rate) {
+				(void)vrprint.warning(VR_WARN, "bandwidth over committed on interface %s: %ukbit > %ukbit.", iface_ptr->name, iface_ptr->total_shape_rate, rate);
 
 				/* the default rate will be the max interface rate / number of total rules */
-				iface_ptr->shape_default_rate = iface_ptr->bw_out / iface_ptr->total_shape_rules;
+				iface_ptr->shape_default_rate = rate / iface_ptr->total_shape_rules;
 			}
 			/* no shaping rules at all: use a simple default */
 			else if (iface_ptr->total_default_shape_rules == 0) {
-				iface_ptr->shape_default_rate = iface_ptr->bw_out / 10;
+				iface_ptr->shape_default_rate = rate / 10;
 			} else {
 				/* the default rate is max interface rate minus already explictly commited rate
 				 * devided by the number of rules using the default rate */
-				iface_ptr->shape_default_rate = (iface_ptr->bw_out - iface_ptr->total_shape_rate) / iface_ptr->total_default_shape_rules;
+				iface_ptr->shape_default_rate = (rate - iface_ptr->total_shape_rate) / iface_ptr->total_default_shape_rules;
 			}
 
 			(void)vrprint.debug(__FUNC__, "default rate on %s is %ukbit", iface_ptr->name, iface_ptr->shape_default_rate);
@@ -390,6 +396,7 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 	InterfaceData		*iface_ptr = NULL;
 	char			cmd[MAX_PIPE_COMMAND] = "";
 	u_int16_t		handle = 0;
+	u_int32_t		rate = 0;
 
 	handle = interfaces->shape_handle;
 
@@ -398,12 +405,14 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 
 		if (shaping_shape_interface(debuglvl, iface_ptr) == 1)
 		{
+			rate = shaping_convert_rate(debuglvl, iface_ptr->bw_out, iface_ptr->bw_out_unit);
+
 			/* tc class add dev ppp0 parent 1:1 classid 1:100 htb rate 15kbit ceil 512kbit prio 3
 			 * tc qdisc add dev ppp0 parent 1:100 handle 100: sfq perturb 10 */
 			snprintf(cmd, sizeof(cmd), "%s class add dev %s parent %u:1 classid %u:%u htb rate %ukbit ceil %ukbit prio 3", /* TODO prio should configurable */
 				cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle,
 				iface_ptr->shape_handle, handle, iface_ptr->shape_default_rate,
-				iface_ptr->bw_out);
+				rate);
 
 			(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
 
@@ -458,7 +467,7 @@ shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf,
 	/* use defaults for unused settings */
 	if (prio == 0) prio = 3;
 	if (rate == 0) rate = shape_iface_ptr->shape_default_rate;
-	if (ceil == 0) ceil = shape_iface_ptr->bw_out;
+	if (ceil == 0) ceil = shaping_convert_rate(debuglvl, shape_iface_ptr->bw_out, shape_iface_ptr->bw_out_unit);
 
 	/* in some cases class_iface_ptr and shape_iface_ptr are the same
 	 * in that case use :1 */

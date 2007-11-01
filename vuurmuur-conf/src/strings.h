@@ -71,6 +71,10 @@
 #define STR_CVIRTUAL			gettext("Virtual")
 #define STR_NETADDR			gettext("network address")
 #define STR_NETMASK			gettext("netmask")
+#define STR_IN				gettext("Incoming bandwidth")
+#define STR_OUT				gettext("Outgoing bandwidth")
+#define STR_IN_UNIT			gettext("Incoming unit")
+#define STR_OUT_UNIT			gettext("Outgoing unit")
 
 /* TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)." */
 #define STR_RULES_ARE_CHANGED		gettext("rules are changed")

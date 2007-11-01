@@ -698,8 +698,10 @@ typedef struct InterfaceData_
 
 	/* traffic shaping */
 	char		shape;		/* shape on this interface? 1: yes, 0: no */
-	u_int32_t	bw_in;		/* maximal bw in kbits (download) */
-	u_int32_t	bw_out;		/* maximal bw in kbits (upload) */
+	u_int32_t	bw_in;		/* maximal bw in "unit" (download) */
+	u_int32_t	bw_out;		/* maximal bw in "unit" (upload) */
+	char		bw_in_unit[5];	/* kbit or mbit */
+	char		bw_out_unit[5];	/* kbit or mbit */
 	u_int32_t	min_bw_in;	/* minimal per rule rate in kbits (download) */
 	u_int32_t	min_bw_out;	/* minimal per rule rate in kbits (upload) */
 

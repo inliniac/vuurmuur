@@ -467,7 +467,9 @@ StrMemLen(const char *s)
 void fix_wide_menu(const int, MENU *, ITEM **);
 
 void form_test (const int debuglvl);
+
 void VrShapeRule(const int debuglvl, struct options *opt);
+void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr);
 
 #ifdef USE_WIDEC
 #define wsizeof(s)	sizeof(s)/sizeof(wchar_t)

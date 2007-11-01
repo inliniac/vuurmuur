@@ -3228,12 +3228,14 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 
 	char	*key_choices[] = 	{	"F12",
 						"F5",
+						"F6",
 						"F10"};
-	int	key_choices_n = 3;
+	int	key_choices_n = 4;
 	char	*cmd_choices[] = 	{	gettext("help"),
 						gettext("advanced"),
+						gettext("shaping"),
 						gettext("back")};
-	int	cmd_choices_n = 3;
+	int	cmd_choices_n = 4;
 
 	/* is this screen in advanced mode or not? */
 	char			advanced_mode = vccnf.advanced_mode;

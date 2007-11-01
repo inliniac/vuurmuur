@@ -894,12 +894,14 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
 	/* top menu */
 	char			*key_choices[] = 	{	"F12",
 								"F5",
+								"F6",
 								"F10"};
-	int			key_choices_n = 3;
+	int			key_choices_n = 4;
 	char			*cmd_choices[] = 	{	gettext("help"),
 								gettext("advanced"),
+								gettext("shaping"),
 								gettext("back")};
-	int			cmd_choices_n = 3;
+	int			cmd_choices_n = 4;
 	int			retval = 0;
 
 
@@ -1098,6 +1100,9 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
 					else
 						advanced_mode = 0;
 
+					break;
+				case KEY_F(6):
+					VrShapeIface(debuglvl, iface_ptr);
 					break;
 			}
 		}
