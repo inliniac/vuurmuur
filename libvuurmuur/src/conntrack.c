@@ -929,6 +929,29 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
 	{
 		parse_unknown_line(debuglvl, line, connline_ptr);
 	}
+	else if(strcmp(protocol, "ipv4") == 0)
+	{
+		/* with nf_conntrack in some configurations we have
+		 * to deal with lines starting with 'ipv4    2'
+		 * Here we get a pointer, point it beyond that, and
+		 * pass the result to this same function again...
+		 * Ugly, yeah... the whole parsing could use a big
+		 * rewrite... */
+		int i = 0;
+		char *ptr = (char *)line + 4; /* set past 'ipv4'*/
+
+		/* look for next alpha char since we expect 'tcp', 'udp', etc */
+		while ((!isalpha(ptr[i]) && i < strlen(ptr))) i++;
+
+		/* set ptr past the nf_conntrack prepend */
+		ptr += i;
+
+		return(conn_process_one_conntrack_line(debuglvl, ptr, connline_ptr));
+	}
+	else if(strcmp(protocol, "ipv6") == 0)
+	{
+		return;
+	}
 	else
 	{
 		strcpy(connline_ptr->status, "none");
