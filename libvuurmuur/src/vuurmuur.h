@@ -42,6 +42,7 @@
 #include <net/if.h>			/* used for getting interface info from the system */
 #include <sys/ioctl.h>			/* used for getting interface info from the system */
 #include <pwd.h>			/* used for getting user information */
+#include <ctype.h>			/* for isdigit, isalpha, etc */
 
 /* this is to prevent some compiler warning when feeding the function name directly
    to vrprint.debug */
