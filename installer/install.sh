@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Installscript for libvuurmuur, vuurmuur and vuurmuur_conf.
 #
