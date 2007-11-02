@@ -485,6 +485,13 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 			}
 		}
 
+		/* swap devices, check if non empty device first */
+		if(input_device[0] != '\0')
+		{
+			(void)strlcpy(reverse_input_device, input_device, sizeof(reverse_input_device));
+			reverse_input_device[1] = 'o';
+		}
+
 		/* create mangle rules for NFQUEUE using CONNMARK */
 
 		/* new, related */
@@ -870,6 +877,13 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 				(void)vrprint.warning("Warning", "connmark rules not created: CONNMARK not supported by this system.");
 				return(0); /* this is not an error */
 			}
+		}
+
+		/* swap devices, check if non empty device first */
+		if(output_device[0] != '\0')
+		{
+			(void)strlcpy(reverse_output_device, output_device, sizeof(reverse_output_device));
+			reverse_output_device[1] = 'i';
 		}
 
 		/* create mangle rules for NFQUEUE using CONNMARK */
@@ -1262,6 +1276,19 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 				(void)vrprint.warning("Warning", "connmark rules not created: CONNMARK not supported by this system.");
 				return(0); /* this is not an error */
 			}
+		}
+
+		/* swap devices, check if non empty device first */
+		if(input_device[0] != '\0')
+		{
+			/* swap devices */
+			(void)strlcpy(reverse_input_device, input_device, sizeof(reverse_input_device));
+			reverse_input_device[1] = 'o';
+		}
+		if(output_device[0] != '\0')
+		{
+			(void)strlcpy(reverse_output_device, output_device, sizeof(reverse_output_device));
+			reverse_output_device[1] = 'i';
 		}
 
 		/* create mangle rules for NFQUEUE using CONNMARK */
