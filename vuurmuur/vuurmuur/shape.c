@@ -153,6 +153,15 @@ shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, Inter
 		}
 	}
 
+	/* special case: in ruleset mode, if we have no shaping configs
+	 * the config removal command will make the shape script return
+	 * an error code. So we add the 'true' command so it won't fail.
+	 */
+	if (ruleset) {
+		if (process_shape_rule(debuglvl, cnf, ruleset, "true") < 0)
+			return(-1);
+	}
+
 	return (0);
 }
 
