@@ -1278,6 +1278,12 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 			}
 		}
 
+		/* swap source ports and dest ports for the rules in the opposite direction */
+		(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
+		temp_src_port[2] = 'd';
+		(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+		temp_dst_port[2] = 's';
+
 		/* swap devices, check if non empty device first */
 		if(input_device[0] != '\0')
 		{
@@ -1290,6 +1296,12 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 			(void)strlcpy(reverse_output_device, output_device, sizeof(reverse_output_device));
 			reverse_output_device[1] = 'i';
 		}
+
+		/* we dont want --syn in the next rules */
+		if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
+			(void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
+		else
+			(void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
 
 		/* create mangle rules for NFQUEUE using CONNMARK */
 
@@ -4273,7 +4285,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
 	if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
 		retval=-1;
 
-	snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
+	snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW,RELATED -j UDPLIMIT");
 	if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
 		retval=-1;
 
@@ -4309,7 +4321,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
 			{
 				/* NEW */
 				snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
-					"-m state --state NEW -j NFQUEUE --queue-num %u",
+					"-m state --state NEW,RELATED -j NFQUEUE --queue-num %u",
 					queue_num + 1, queue_num);
 				if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
 					retval=-1;
