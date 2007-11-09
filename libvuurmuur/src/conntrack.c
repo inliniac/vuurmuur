@@ -950,7 +950,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
 	}
 	else if(strcmp(protocol, "ipv6") == 0)
 	{
-		return;
+		return(0);
 	}
 	else
 	{
