@@ -1,0 +1,5 @@
+ACTIVE="yes"
+UDP="123*1024:65535"
+UDP="123*123"
+BROADCAST="no"
+COMMENT="Network Time Protocol."
