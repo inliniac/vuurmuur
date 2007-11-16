@@ -19,12 +19,14 @@
  ***************************************************************************/
 
 #ifdef USE_WIDEC
+#ifdef HAVE_NC_WIDE_HEADERS
 #include <ncursesw/ncurses.h>
 #include <ncursesw/panel.h>
+#endif /* HAVE_NC_WIDE_HEADERS */
 #if defined(NCURSES_VERSION_PATCH) && (NCURSES_VERSION_PATCH < 20071013)
 #define NCURSES_FIELD_INTERNALS char** expanded; WINDOW *working;
 #endif 
-#endif
+#endif /* USE_WIDEC */
 #include "main.h"
 
 // minimun width = 13
@@ -1156,6 +1158,7 @@ new_field_wrap(int rows, int cols, int frow, int fcol, int nrow, int nbuf)
 		return(NULL);
 
 #ifdef USE_WIDEC
+#ifdef HAVE_NC_WIDE_HEADERS
 	/* Work around a Ncurses bug that occurs when nbufs are used.
 	 * See: https://bugzilla.redhat.com/show_bug.cgi?id=310071
 	 */
@@ -1179,6 +1182,7 @@ new_field_wrap(int rows, int cols, int frow, int fcol, int nrow, int nbuf)
 		memset(f->expanded, 0, len);
 	}
 #endif /* ncurses patchlvl */
+#endif /* HAVE_NC_WIDE_HEADERS */
 #endif /* USE_WIDEC */
 	return(f);
 }
