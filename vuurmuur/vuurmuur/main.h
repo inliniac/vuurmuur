@@ -133,6 +133,9 @@ struct RuleCreateData_
 	/*	list for adding the iptables rules of one singe vuurmuur rule
 		to, so we can check for double rules. */
 	d_list		iptrulelist;
+	/*	list for adding the shaping rules of one singe vuurmuur rule
+		to, so we can check for double rules. */
+	d_list		shaperulelist;
 
 	u_int16_t	shape_class_out;
 	u_int16_t	shape_class_in;
@@ -319,8 +322,9 @@ int shaping_shape_rule(const int debuglvl, /*@null@*/struct options *opt);
 int shaping_shape_incoming_rule(const int debuglvl, /*@null@*/struct options *opt);
 int shaping_shape_outgoing_rule(const int debuglvl, /*@null@*/struct options *opt);
 int shaping_shape_interface(const int debuglvl, InterfaceData *iface_ptr);
-int shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *ruleset, InterfaceData *shape_iface_ptr, InterfaceData *class_iface_ptr, u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil, char *ceil_unit, u_int8_t prio);
+int shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, struct RuleCreateData_ *rule, /*@null@*/RuleSet *ruleset, InterfaceData *shape_iface_ptr, InterfaceData *class_iface_ptr, u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil, char *ceil_unit, u_int8_t prio);
 int shaping_determine_minimal_default_rates(const int debuglvl, Interfaces *interfaces, Rules *rules);
 int shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *ruleset);
+int shaping_process_queued_rules(const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule);
 
 #endif

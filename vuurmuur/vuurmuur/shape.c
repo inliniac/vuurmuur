@@ -93,8 +93,121 @@ shaping_shape_interface(const int debuglvl, /*@null@*/InterfaceData *iface_ptr) 
 	return(0);
 }
 
-int
-process_shape_rule (const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, char *cmd) {
+/*	structure for storing an iptables rule in the queue.
+ *
+ *      These are the 'same':
+ *	/sbin/tc class add dev eth2 parent 4:2 classid 4:12 htb rate 8192kbit ceil 9216kbit prio 1
+ *      /sbin/tc class add dev eth2 parent 4:3 classid 4:12 htb rate 8192kbit ceil 9216kbit prio 1
+ */
+typedef struct
+{
+	u_int16_t		handle;
+	u_int16_t		class;
+	char			cmd[MAX_PIPE_COMMAND];
+	char			device[16];
+
+} ShapeRule;
+
+/*	compare two shaping rules and return 1 if they match, 0 otherwise */
+static int
+shaping_rulecmp(const int debuglvl, ShapeRule *r1, ShapeRule *r2)
+{
+	if(r1 == NULL || r2 == NULL)
+	{
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+				"(in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	if(	r1->handle == r2->handle &&
+		r1->class == r2->class &&
+		strcmp(r1->device, r2->device) == 0)
+	{
+		return(1);
+	}
+
+	return(0);
+}
+
+
+/*	insert a new shape rule into the list, but first check if it is not
+	a duplicate. If it is a dup, just drop it. */
+static int
+shaping_ruleinsert(const int debuglvl, struct RuleCreateData_ *rule, ShapeRule *shape_rule)
+{
+	d_list_node	*d_node = NULL;
+	ShapeRule	*listrule = NULL;
+
+	if(shape_rule == NULL || rule == NULL)
+	{
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+				"(in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	for(d_node = rule->shaperulelist.top; d_node; d_node = d_node->next)
+	{
+		listrule = d_node->data;
+
+		if(shaping_rulecmp(debuglvl, listrule, shape_rule) == 1)
+		{
+			free(shape_rule);
+			return(0);
+		}
+	}
+
+	if(d_list_append(debuglvl, &rule->shaperulelist, shape_rule) == NULL)
+	{
+		(void)vrprint.error(-1, "Internal Error", "d_list_append() "
+			"failed (in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	return(0);
+}
+
+
+/*	queue the rule into the list, so we can inspect the rules for
+	duplicates. We do this to prevent creating lots of duplicates
+	especially for setups with lots of virtual interfaces.
+	
+	This function must _only_ be called from the normal rule creation
+	function: shaping_shape_create_rule
+	*/
+static int
+shaping_queue_rule(const int debuglvl, struct RuleCreateData_ *rule,
+		/*@null@*/RuleSet *ruleset, u_int16_t handle, u_int16_t class, char *device, char *cmd)
+{
+	ShapeRule *shape_rule = NULL;
+
+	/* safety */
+	if(cmd == NULL || rule == NULL)
+	{
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+				"(in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	shape_rule = malloc(sizeof(ShapeRule));
+	if(shape_rule == NULL)
+	{
+		(void)vrprint.error(-1, "Error", "malloc failed: %s "
+			"(in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	shape_rule->handle = handle;
+	shape_rule->class = class;
+	strlcpy(shape_rule->cmd, cmd, sizeof(shape_rule->cmd));
+	strlcpy(shape_rule->device, device, sizeof(shape_rule->device));
+
+	if(shaping_ruleinsert(debuglvl, rule, shape_rule) < 0)
+		return(-1);
+
+	return(0);
+}
+static int
+shaping_process_rule (const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, char *cmd) {
 	char *buf = NULL;
 
 	if (ruleset != NULL) {
@@ -119,6 +232,34 @@ process_shape_rule (const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/R
 	return (0);
 }
 
+/*	at the end of processing one vuurmuur rule, we should have a queue
+	filled with tc rules, none of which are duplicate. This function
+	passes them to process_rule */
+int
+shaping_process_queued_rules(const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule)
+{
+	d_list_node	*d_node = NULL;
+	ShapeRule	*r = NULL;
+
+	if(rule == NULL)
+	{
+		(void)vrprint.error(-1, "Internal Error", "parameter problem "
+				"(in: %s:%d).", __FUNC__, __LINE__);
+		return(-1);
+	}
+
+	for(d_node = rule->shaperulelist.top; d_node; d_node = d_node->next)
+	{
+		r = d_node->data;
+
+		if(shaping_process_rule(debuglvl, cnf, ruleset, r->cmd) < 0)
+		{
+			return(-1);
+		}
+	}
+
+	return(0);
+}
 
 /*
  * Remove all qdiscs from all interfaces and thus also all classes
@@ -148,7 +289,7 @@ shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, Inter
 
 			(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
 
-			if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+			if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
 				return(-1);
 		}
 	}
@@ -158,7 +299,7 @@ shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, Inter
 	 * an error code. So we add the 'true' command so it won't fail.
 	 */
 	if (ruleset) {
-		if (process_shape_rule(debuglvl, cnf, ruleset, "true") < 0)
+		if (shaping_process_rule(debuglvl, cnf, ruleset, "true") < 0)
 			return(-1);
 	}
 
@@ -184,7 +325,7 @@ shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf
 
 	(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
 
-	if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+	if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
 		return(-1);
 
 	/* create classes for the other interfaces */
@@ -205,7 +346,7 @@ shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf
 
 			(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
 
-			if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+			if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
 				return(-1);
 		}
 	}
@@ -249,7 +390,7 @@ shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces
 
 			(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
 
-			if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+			if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
 				return(-1);
 
 			handle++;
@@ -425,7 +566,7 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 
 			(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
 
-			if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+			if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
 				return(-1);
 		
 			snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s parent %u:%u handle %u: sfq perturb 10",
@@ -433,7 +574,7 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 
 			(void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
 
-			if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+			if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
 				return(-1);
 
 			handle++;
@@ -447,7 +588,7 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 
 int
 shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf,
-	Interfaces *interfaces, /*@null@*/RuleSet *ruleset,
+	Interfaces *interfaces, struct RuleCreateData_ *rule, /*@null@*/RuleSet *ruleset,
 	InterfaceData *shape_iface_ptr, InterfaceData *class_iface_ptr,
 	u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil,
 	char *ceil_unit, u_int8_t prio)
@@ -493,7 +634,8 @@ shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf,
 
 	(void)vrprint.debug(__FUNC__, "cmd %s", cmd);
 
-	if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+	if (shaping_queue_rule(debuglvl, rule, ruleset, shape_iface_ptr->shape_handle,
+			class, shape_iface_ptr->device, cmd) < 0)
 		return(-1);
 
 	snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s parent %u:%u handle %u: sfq perturb 10",
@@ -502,7 +644,8 @@ shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf,
 
 	(void)vrprint.debug(__FUNC__, "cmd %s", cmd);
 
-	if (process_shape_rule(debuglvl, cnf, ruleset, cmd) < 0)
+	if (shaping_queue_rule(debuglvl, rule, ruleset, class, 0,
+			shape_iface_ptr->device, cmd) < 0)
 		return(-1);
 
 	return(0);
