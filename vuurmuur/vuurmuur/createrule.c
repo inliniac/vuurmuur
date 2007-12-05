@@ -3847,6 +3847,17 @@ create_network_protect_rules_dhcp_server(	const int debuglvl,
 	if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
 		retval=-1;
 
+	/* the request for a host that already has an ip. */
+	/* make sure we have everything set */
+	if(	create->who->ipv4.network[0] != '\0' &&
+		create->who->ipv4.netmask[0] != '\0')
+	{
+		snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s %s/%s --sport 68 -d 255.255.255.255 --dport 67 -j ACCEPT",
+				if_ptr->device, create->who->ipv4.network, create->who->ipv4.netmask);
+		if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+			retval=-1;
+	}
+
 	/* DHCPOFFER */
 	snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s 0.0.0.0 --sport 67 -d 255.255.255.255 --dport 68 -j ACCEPT",
 			if_ptr->device);
