@@ -75,6 +75,7 @@
 #define STR_OUT				gettext("Outgoing bandwidth")
 #define STR_IN_UNIT			gettext("Incoming unit")
 #define STR_OUT_UNIT			gettext("Outgoing unit")
+#define STR_SHAPE			gettext("Shaping")
 
 /* TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)." */
 #define STR_RULES_ARE_CHANGED		gettext("rules are changed")

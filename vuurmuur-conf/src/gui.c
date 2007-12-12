@@ -694,7 +694,7 @@ VrFormUnPost(const int debuglvl, VrForm *form)
 }
 
 int
-VrFormAddTextField(const int debuglvl, VrForm *form, int height, int width, int toprow, int leftcol, chtype cp, char *value, char *name)
+VrFormAddTextField(const int debuglvl, VrForm *form, int height, int width, int toprow, int leftcol, chtype cp, char *name, char *value)
 {
 	int result;
 
@@ -753,6 +753,73 @@ VrFormAddLabelField(const int debuglvl, VrForm *form, int height, int width, int
 	set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "lbl");
 	set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "lbl");
 
+	field_opts_off(form->fields[form->cur_field], O_ACTIVE);
+
+	result = set_field_back(form->fields[form->cur_field], cp);
+	if(result != E_OK)
+	{
+		(void)vrprint.error(-1, VR_ERR, "set_field_back failed");
+		return(-1);
+	}
+
+	form->cur_field++;
+	
+	return(0);
+}
+int
+VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol, chtype cp, char *name, char enabled)
+{
+	int result;
+	int height = 1;
+	int width = 1;
+	char *value = enabled ? "X" : " ";
+
+	if (strlen(name) > width) {
+		(void)vrprint.error(-1, VR_INTERR, "field name length (%u) is bigger than field length (%d)", strlen(name), width);
+		return(-1);
+	}
+
+	/* +1 because we create two fields */
+	if(form->cur_field+1 >= form->nfields)
+	{
+		(void)vrprint.error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
+		return(-1);
+	}
+
+	/* create the field that will contain the X or be empty */
+	form->fields[form->cur_field] = new_field_wrap(height, width, toprow, leftcol+1, 0, 2);
+	if(form->fields[form->cur_field] == NULL)
+	{
+		(void)vrprint.error(-1, VR_ERR, "new_field failed");
+		return(-1);
+	}
+
+	set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, value);
+	set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, name);
+	set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "C");
+
+	result = set_field_back(form->fields[form->cur_field], cp);
+	if(result != E_OK)
+	{
+		(void)vrprint.error(-1, VR_ERR, "set_field_back failed");
+		return(-1);
+	}
+
+	form->cur_field++;
+
+	/* create the label [ ] */
+	form->fields[form->cur_field] = new_field_wrap(height, 3, toprow, leftcol, 0, 2);
+	if(form->fields[form->cur_field] == NULL)
+	{
+		(void)vrprint.error(-1, VR_ERR, "new_field failed");
+		return(-1);
+	}
+
+	set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, "[ ]");
+	set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "lbl");
+	set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "lbl");
+
+	field_opts_off(form->fields[form->cur_field], O_EDIT);
 	field_opts_off(form->fields[form->cur_field], O_ACTIVE);
 
 	result = set_field_back(form->fields[form->cur_field], cp);
@@ -940,6 +1007,54 @@ VrFormTextNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
 
 	return(match);
 }
+char
+VrFormCheckboxNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
+{
+	char	match = FALSE;
+	char	*buf = NULL;
+
+	(void)vrprint.info(VR_INFO, "key %d", key);
+
+	switch(key)
+	{
+		case KEY_DOWN:
+			form_driver(form->f, REQ_NEXT_FIELD);
+			match = TRUE;
+			break;
+		case KEY_UP:
+			form_driver(form->f, REQ_PREV_FIELD);
+			match = TRUE;
+			break;
+		case KEY_NPAGE:
+			if(form_driver(form->f, REQ_NEXT_PAGE) != E_OK)
+			{
+				while(form_driver(form->f, REQ_NEXT_FIELD) == E_OK);
+			}
+			match = TRUE;
+			break;
+		case KEY_PPAGE:
+			if(form_driver(form->f, REQ_PREV_PAGE) != E_OK)
+			{
+				while(form_driver(form->f, REQ_PREV_FIELD) == E_OK);
+			}
+			match = TRUE;
+			break;
+		case 32: /* SPACE */
+		{
+			char *buf = field_buffer(fld, 0);
+			if (strncmp(buf, "X", 1) == 0) {
+				set_field_buffer_wrap(debuglvl, fld, 0, " ");
+			} else {
+				set_field_buffer_wrap(debuglvl, fld, 0, "X");
+			}
+
+			match = TRUE;
+			break;
+		}
+	}
+
+	return(match);
+}
 
 /*	default keys:
 	    up
@@ -970,6 +1085,8 @@ VrFormDefaultNavigation(const int debuglvl, VrForm *form, int key)
 
 	if (strncmp(buf, "txt", 3) == 0)
 		return(VrFormTextNavigation(debuglvl, form, fld, key));
+	else if (strncmp(buf, "C", 1) == 0)
+		return(VrFormCheckboxNavigation(debuglvl, form, fld, key));
 
 	switch(key)
 	{
@@ -1262,21 +1379,21 @@ void VrShapeRule(const int debuglvl, struct options *opt) {
 	VrFormSetSaveFunc(debuglvl, form, VrShapeRuleSave, &config);
 
 	VrFormAddLabelField(debuglvl, form, 1, 25, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Incoming guaranteed rate");
-	VrFormAddTextField(debuglvl, form,  1, 10, 1, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.in_min, "in_min");
-	VrFormAddTextField(debuglvl, form,  1,  5, 1, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.in_min_unit, "unit1");
+	VrFormAddTextField(debuglvl, form,  1, 10, 1, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "in_min", config.in_min);
+	VrFormAddTextField(debuglvl, form,  1,  5, 1, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit1", config.in_min_unit);
 	VrFormAddLabelField(debuglvl, form, 1, 25, 3, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Incoming maximum rate");
-	VrFormAddTextField(debuglvl, form,  1, 10, 3, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.in_max, "in_max");
-	VrFormAddTextField(debuglvl, form,  1,  5, 3, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.in_max_unit, "unit2");
+	VrFormAddTextField(debuglvl, form,  1, 10, 3, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "in_max", config.in_max);
+	VrFormAddTextField(debuglvl, form,  1,  5, 3, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit2", config.in_max_unit);
 
 	VrFormAddLabelField(debuglvl, form, 1, 25, 5, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Outgoing guaranteed rate");
-	VrFormAddTextField(debuglvl, form,  1, 10, 5, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.out_min, "out_min");
-	VrFormAddTextField(debuglvl, form,  1,  5, 5, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.out_min_unit, "unit3");
+	VrFormAddTextField(debuglvl, form,  1, 10, 5, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "out_min", config.out_min);
+	VrFormAddTextField(debuglvl, form,  1,  5, 5, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit3", config.out_min_unit);
 	VrFormAddLabelField(debuglvl, form, 1, 25, 7, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Outgoing maximum rate");
-	VrFormAddTextField(debuglvl, form,  1, 10, 7, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.out_max, "out_max");
-	VrFormAddTextField(debuglvl, form,  1,  5, 7, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.out_max_unit, "unit4");
+	VrFormAddTextField(debuglvl, form,  1, 10, 7, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "out_max", config.out_max);
+	VrFormAddTextField(debuglvl, form,  1,  5, 7, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit4", config.out_max_unit);
 
 	VrFormAddLabelField(debuglvl, form, 1, 25, 9, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Priority");
-	VrFormAddTextField(debuglvl, form,  1,  5, 9, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.prio, "prio");
+	VrFormAddTextField(debuglvl, form,  1,  5, 9, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "prio", config.prio);
 
 	VrFormConnectToWin(debuglvl, form, win);
 
@@ -1328,6 +1445,7 @@ struct ShapeIfaceCnf_ {
 	struct InterfaceData_ *iface_ptr;
 	char in[10], out[10];
 	char in_unit[5], out_unit[5];
+	char enabled;
 };
 
 static int
@@ -1336,6 +1454,8 @@ VrShapeIfaceSetup(const int debuglvl, struct ShapeIfaceCnf_ *c, struct Interface
 		return(-1);
 
 	c->iface_ptr = iface_ptr;
+
+	c->enabled = iface_ptr->shape;
 
 	snprintf(c->in, sizeof(c->in),   "%u", c->iface_ptr->bw_in);
 	snprintf(c->out, sizeof(c->out), "%u", c->iface_ptr->bw_out);
@@ -1438,6 +1558,30 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
 				STR_WAS, c->iface_ptr->bw_out_unit);
 		}
 		strlcpy(c->iface_ptr->bw_out_unit, value, sizeof(c->iface_ptr->bw_out_unit));
+	} else if(strcmp(name,"S") == 0) {
+		char enabled = 0;
+
+		if (strcmp(value,"X") == 0) {
+			enabled = 1;
+		}
+
+		if (c->enabled != enabled) {
+			result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "SHAPE", enabled ? "Yes" : "No", 1, TYPE_INTERFACE);
+			if(result < 0)
+			{
+				(void)vrprint.error(-1, VR_ERR, "%s (in: %s:%d).",
+					STR_SAVING_TO_BACKEND_FAILED,
+					__FUNC__, __LINE__);
+				return(-1);
+			}
+
+			/* example: "interface 'lan' has been changed: active is now set to 'Yes' (was: 'No')." */
+			(void)vrprint.audit("%s '%s' %s: %s %s '%u' (%s: '%u').",
+				STR_INTERFACE, c->iface_ptr->name, STR_HAS_BEEN_CHANGED,
+				STR_SHAPE, STR_IS_NOW_SET_TO, enabled ? "Yes" : "No",
+				STR_WAS, c->enabled ? "Yes" : "No");
+		}
+		c->iface_ptr->shape = enabled;
 	}
 
 	return(0);
@@ -1456,7 +1600,7 @@ void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
 	}
 	
         /* create the window and put it in the middle of the screen */
-        win = VrNewWin(10,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+        win = VrNewWin(11,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
         if(win == NULL)
         {
                 (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
@@ -1464,16 +1608,18 @@ void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
         }
         VrWinSetTitle(win, "Shaping");
 
-	form = VrNewForm(8, 58, 1, 1, 6, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+	form = VrNewForm(9, 58, 1, 1, 9, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
 
 	VrFormSetSaveFunc(debuglvl, form, VrShapeIfaceSave, &config);
 
-	VrFormAddLabelField(debuglvl, form, 1, 25, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Incoming bandwidth");
-	VrFormAddTextField(debuglvl, form,  1, 10, 1, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.in, "in");
-	VrFormAddTextField(debuglvl, form,  1,  5, 1, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.in_unit, "unit1");
-	VrFormAddLabelField(debuglvl, form, 1, 25, 3, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Outgoing bandwidth");
-	VrFormAddTextField(debuglvl, form,  1, 10, 3, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.out, "out");
-	VrFormAddTextField(debuglvl, form,  1,  5, 3, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, config.out_unit, "unit2");
+	VrFormAddLabelField(debuglvl,	form, 1, 25, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Enable shaping");
+	VrFormAddCheckboxField(debuglvl,form,        1, 28, (chtype)COLOR_PAIR(CP_BLUE_WHITE), "S", config.enabled);
+	VrFormAddLabelField(debuglvl,	form, 1, 25, 3, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Incoming bandwidth");
+	VrFormAddTextField(debuglvl,	form, 1, 10, 3, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "in", config.in);
+	VrFormAddTextField(debuglvl,	form, 1,  5, 3, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit1", config.in_unit);
+	VrFormAddLabelField(debuglvl,	form, 1, 25, 5, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Outgoing bandwidth");
+	VrFormAddTextField(debuglvl,	form, 1, 10, 5, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "out", config.out);
+	VrFormAddTextField(debuglvl,	form, 1,  5, 5, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit2", config.out_unit);
 
 	VrFormConnectToWin(debuglvl, form, win);
 
