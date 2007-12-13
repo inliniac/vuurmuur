@@ -40,6 +40,7 @@ main(int argc, char *argv[])
 	static int		version_flag = 0;
 	static int		apply_flag = 0;
 	static int		no_apply_flag = 0;
+	static int		reload_flag = 0;
 	static int		print_linenum_flag = 0;
 	char			tmp_set[sizeof(vr_script.set)] = "";
 	char			*str = NULL;
@@ -79,6 +80,7 @@ main(int argc, char *argv[])
 		/* options */
 		{"apply",	0, &apply_flag, 1},
 		{"no-apply",	0, &no_apply_flag, 1},
+		{"reload",	0, &reload_flag, 1},
 
 		/* print options */
 		{"rule-numbers",0, &print_linenum_flag, 1},
@@ -495,6 +497,18 @@ main(int argc, char *argv[])
 		exit(VRS_ERR_INTERNAL);
 	}
 
+	/* apply and no-apply */
+	if(apply_flag == 1)
+		vr_script.apply = TRUE;
+	if(no_apply_flag == 1)
+		vr_script.apply = FALSE;
+
+	/* reload the config */
+	if (reload_flag == 1)
+	{
+		vr_script.cmd = CMD_RLD;
+		vr_script.apply = TRUE;
+	}
 
 	/*
 		handling the command
@@ -550,6 +564,11 @@ main(int argc, char *argv[])
 		if(conf.verbose_out == TRUE)
 			(void)vrprint.info(VR_INFO, "command 'list-devices' selected.");
 	}
+	else if(vr_script.cmd == CMD_RLD)
+	{
+		if(conf.verbose_out == TRUE)
+			(void)vrprint.info(VR_INFO, "command 'reload-config' selected.");
+	}
 	else
 	{
 		(void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "unknown command option %d.", vr_script.cmd);
@@ -560,7 +579,7 @@ main(int argc, char *argv[])
 	/*
 		handling the type
 	*/
-	if(vr_script.type == TYPE_UNSET)
+	if(vr_script.type == TYPE_UNSET && vr_script.cmd != CMD_RLD)
 	{
 		(void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "type option not set. Please see --help for options.");
 		exit(VRS_ERR_COMMANDLINE);
@@ -600,6 +619,11 @@ main(int argc, char *argv[])
 	{
 		if(conf.verbose_out == TRUE)
 			(void)vrprint.info(VR_INFO, "type 'rule' selected.");
+	}
+	else if(vr_script.cmd == CMD_RLD)
+	{
+		if(conf.verbose_out == TRUE)
+			(void)vrprint.info(VR_INFO, "reload has no option.");
 	}
 	else
 	{
@@ -687,12 +711,6 @@ main(int argc, char *argv[])
 	/* see if we need to print rule numbers */
 	if(print_linenum_flag == 1)
 		vr_script.print_rule_numbers = TRUE;
-
-	/* apply and no-apply */
-	if(apply_flag == 1)
-		vr_script.apply = TRUE;
-	if(no_apply_flag == 1)
-		vr_script.apply = FALSE;
 
 	/* initialize the config from the config file */
 	if(debuglvl >= MEDIUM)
@@ -855,6 +873,10 @@ main(int argc, char *argv[])
 	else if(vr_script.cmd == CMD_LDV)
 	{
 		retval = script_list_devices(debuglvl);
+	}
+	else if(vr_script.cmd == CMD_RLD)
+	{
+		retval = VRS_SUCCESS;
 	}
 	else
 	{
