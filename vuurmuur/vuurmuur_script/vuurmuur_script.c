@@ -303,7 +303,7 @@ main(int argc, char *argv[])
 				fprintf(stdout, "     --block <name>\t\tblock host/group or ipaddress.\n");
 				fprintf(stdout, "     --unblock <name>\t\tunblock host/group or ipaddress.\n");
 				fprintf(stdout, "     --list-blocked\t\tlist the hosts/group and ipaddresses that are blocked.\n");
-				fprintf(stdout, "     --reload\t\t\t\make Vuurmuur reload it's config\n");
+				fprintf(stdout, "     --reload\t\t\tmake Vuurmuur reload it's config\n");
 				fprintf(stdout, "\n");
 				fprintf(stdout, " -C, --create\t\t\tcreate object.\n");
 				fprintf(stdout, " -D, --delete\t\t\tdelete object.\n");
