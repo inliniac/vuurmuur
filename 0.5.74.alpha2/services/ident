@@ -1,0 +1,7 @@
+ACTIVE="Yes"
+TCP="113*1024:65535"
+UDP=""
+ICMP=""
+GRE=""
+BROADCAST="No"
+COMMENT="Ident/auth/port 113"

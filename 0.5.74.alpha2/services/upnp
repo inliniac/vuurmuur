@@ -1,0 +1,7 @@
+ACTIVE="Yes"
+TCP=""
+UDP="1900*1024:65535"
+ICMP=""
+GRE=""
+BROADCAST="No"
+COMMENT="Universal Plug and Pray... not recommended to enable to pass your firewall."

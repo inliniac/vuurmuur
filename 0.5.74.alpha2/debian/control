@@ -1,0 +1,13 @@
+Source: vuurmuur
+Priority: optional
+Maintainer: Victor Julien <victor@vuurmuur.org>
+Section: contrib/net
+Standards-Version: 3.6.2.1
+Build-Depends: debhelper, libvuurmuur, libtool
+
+Package: vuurmuur
+Architecture: any
+Depends: libvuurmuur
+Recommends: iptables, vuurmuur-conf
+Conflicts: vuurmuur-log
+Description: Iptables frontend. Rule- and logdaemons and commandline utils.

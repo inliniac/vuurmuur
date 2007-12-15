@@ -1,0 +1,76 @@
+# vuurmuur config file
+
+# Which plugin to use for which type of data.
+SERVICES_BACKEND="textdir"
+
+ZONES_BACKEND="textdir"
+
+INTERFACES_BACKEND="textdir"
+
+RULES_BACKEND="textdir"
+
+# Location of the iptables-command (full path).
+IPTABLES="/sbin/iptables"
+
+# Location of the iptables-restore-command (full path).
+IPTABLES_RESTORE="/sbin/iptables-restore"
+
+# Location of the modprobe-command (full path).
+MODPROBE="/sbin/modprobe"
+
+# Load modules if needed? (yes/no)
+LOAD_MODULES="Yes"
+
+# Wait after loading a module in 1/10th of a second
+MODULES_WAIT_TIME="10"
+
+# If set to yes, each rule will be loaded into the system individually using
+# iptables. Otherwise iptables-restore will be used (yes/no).
+OLD_CREATE_METHOD="No"
+
+# The directory where the logs will be written to (full path).
+LOGDIR="/var/log/vuurmuur"
+
+# The logfile where the kernel writes the logs to e.g. /var/log/messages (full path).
+SYSTEMLOG="/var/log/messages"
+
+# The loglevel to use when logging traffic. For use with syslog.
+LOGLEVEL="info"
+
+# Check the dynamic interfaces for changes?
+DYN_INT_CHECK="No"
+
+# Check every x seconds.
+DYN_INT_INTERVAL="30"
+
+# LOG_POLICY controls the logging of the default policy.
+LOG_POLICY="Yes"
+
+# LOG_POLICY_LIMIT sets the maximum number of logs per second.
+LOG_POLICY_LIMIT="20"
+
+# LOG_BLOCKLIST enables/disables logging of items on the blocklist.
+LOG_BLOCKLIST="Yes"
+
+# LOG_TCP_OPTIONS controls the logging of tcp options. This is.
+# not used by Vuurmuur itself. PSAD 1.4.x uses it for OS-detection.
+LOG_TCP_OPTIONS="No"
+
+# SYN_LIMIT sets the maximum number of SYN-packets per second.
+USE_SYN_LIMIT="Yes"
+
+SYN_LIMIT="15"
+SYN_LIMIT_BURST="30"
+
+# UDP_LIMIT sets the maximum number of udp 'connections' per second.
+USE_UDP_LIMIT="Yes"
+
+UDP_LIMIT="10"
+UDP_LIMIT_BURST="60"
+
+# Protect against syn-flooding? (yes/no)
+PROTECT_SYNCOOKIE="Yes"
+# Ignore echo-broadcasts? (yes/no)
+PROTECT_ECHOBROADCAST="Yes"
+
+# end of file
