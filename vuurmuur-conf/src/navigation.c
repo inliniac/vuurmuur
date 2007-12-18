@@ -127,13 +127,14 @@ nav_field_simpletext(const int debuglvl, FORM *form, int key)
 		case 9:		/* tab */
 			return(-1);
 		
-		case KEY_F(5):	/* f6  */
+		case KEY_F(5):	/* f5  */
 		case KEY_F(6):	/* f6  */
 		case KEY_F(10):	/* f10 */
 		case KEY_F(12): /* f12 for help */
 		case 27:	/* esc */
 
 			form_driver(form, REQ_NEXT_FIELD); // this is to make sure the field is saved
+			form_driver(form, REQ_PREV_FIELD); /* But we don't want to move down */
 			return(-1);
 		
 		case 32: // space
