@@ -547,7 +547,75 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
 	mvwprintw(startup_win, 12, 4, "[");
 	mvwprintw(startup_win, 12, 4+print_pan_width+1, "]");
 
+	/* initialize the vuurmuur conf config */
+	/* TRANSLATORS: max 40 characters */
+	werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_VUURMUUR_CONF_SETTINGS); update_panels(); doupdate();
+	if(debuglvl > LOW) sleep(1);
+	while(!config_done)
+	{
+		result = init_vcconfig(debuglvl, vccnf.configfile_location, &vccnf);
+		if(result == VR_CNF_E_UNKNOWN_ERR || result == VR_CNF_E_PARAMETER)
+			return(-1);
+		else if(result == VR_CNF_E_FILE_PERMISSION)
+		{
+			return(-1);
+		}
+		/* missing file? use defaults */
+		else if(result == VR_CNF_E_FILE_MISSING)
+		{
+			vcconfig_use_defaults(debuglvl, &vccnf);
+
+			werase(startup_print_win); wprintw(startup_print_win, "%s... %s", STR_LOAD_VUURMUUR_CONF_SETTINGS, STR_COK); update_panels(); doupdate();
+			config_done = 1;
+		}
+		else if(	result == VR_CNF_E_MISSING_VAR  ||
+				result == VR_CNF_E_ILLEGAL_VAR  ||
+				result == VR_CNF_W_MISSING_VAR  ||
+				result == VR_CNF_W_ILLEGAL_VAR)
+		{
+			if(confirm(gettext("Problem with the Vuurmuur_conf settings"),
+				gettext("Do you want to edit the settings now?"),
+				(chtype)COLOR_PAIR(CP_RED_WHITE),
+				(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1))
+			{
+				/* this prompt the user with the config menu */
+				cnfresult = edit_vcconfig(debuglvl);
+				if(cnfresult < 0)
+					return(-1);
+			}
+			else
+			{
+				/* if the user doesn't want to solve the problem we exit if we had an error
+				   in case of a warning, we continue
+				*/
+				if(result == VR_CNF_E_MISSING_VAR || result == VR_CNF_E_FILE_MISSING)
+					return(-1);
+				else
+				{
+//TODO: print warning to warn the user that the config is not yet ok?
+					config_done = 1;
+				}
+			}
+		}
+		else if(result == VR_CNF_OK)
+		{
+			werase(startup_print_win); wprintw(startup_print_win, "%s... %s",STR_LOAD_VUURMUUR_CONF_SETTINGS, STR_COK); update_panels(); doupdate();
+			config_done = 1;
+		}
+		else
+		{
+			(void)vrprint.error(-1, VR_ERR, "unknown return code from init_vcconfig. This can't be good (in: %s:%d).", __FUNCTION__, __LINE__);
+			return(-1);
+		}
+
+		if(config_done == 0)
+		{
+			werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_VUURMUUR_CONF_SETTINGS); update_panels(); doupdate();
+		}
+	}
+
 	/* initialize the config */
+	config_done = 0;
 	werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_VUURMUUR_CONFIG); update_panels(); doupdate();
 	if(debuglvl > LOW) sleep(1);
 	while(!config_done)
@@ -620,75 +688,6 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
 	(void)vrprint.audit("started: effective user %s (%ld), real user %s (%ld).",
 					user_data.username, (long)user_data.user,
 					user_data.realusername, (long)user_data.realuser);
-
-	/* initialize the vuurmuur conf config */
-	config_done = 0;
-	/* TRANSLATORS: max 40 characters */
-	werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_VUURMUUR_CONF_SETTINGS); update_panels(); doupdate();
-	if(debuglvl > LOW) sleep(1);
-	while(!config_done)
-	{
-		result = init_vcconfig(debuglvl, vccnf.configfile_location, &vccnf);
-		if(result == VR_CNF_E_UNKNOWN_ERR || result == VR_CNF_E_PARAMETER)
-			return(-1);
-		else if(result == VR_CNF_E_FILE_PERMISSION)
-		{
-			return(-1);
-		}
-		/* missing file? use defaults */
-		else if(result == VR_CNF_E_FILE_MISSING)
-		{
-			vcconfig_use_defaults(debuglvl, &vccnf);
-
-			werase(startup_print_win); wprintw(startup_print_win, "%s... %s", STR_LOAD_VUURMUUR_CONF_SETTINGS, STR_COK); update_panels(); doupdate();
-			config_done = 1;
-		}
-		else if(	result == VR_CNF_E_MISSING_VAR  ||
-				result == VR_CNF_E_ILLEGAL_VAR  ||
-				result == VR_CNF_W_MISSING_VAR  ||
-				result == VR_CNF_W_ILLEGAL_VAR)
-		{
-			if(confirm(gettext("Problem with the Vuurmuur_conf settings"),
-				gettext("Do you want to edit the settings now?"),
-				(chtype)COLOR_PAIR(CP_RED_WHITE),
-				(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1))
-			{
-				/* this prompt the user with the config menu */
-				cnfresult = edit_vcconfig(debuglvl);
-				if(cnfresult < 0)
-					return(-1);
-			}
-			else
-			{
-				/* if the user doesn't want to solve the problem we exit if we had an error
-				   in case of a warning, we continue
-				*/
-				if(result == VR_CNF_E_MISSING_VAR || result == VR_CNF_E_FILE_MISSING)
-					return(-1);
-				else
-				{
-//TODO: print warning to warn the user that the config is not yet ok?
-					config_done = 1;
-				}
-			}
-		}
-		else if(result == VR_CNF_OK)
-		{
-			werase(startup_print_win); wprintw(startup_print_win, "%s... %s",STR_LOAD_VUURMUUR_CONF_SETTINGS, STR_COK); update_panels(); doupdate();
-			config_done = 1;
-		}
-		else
-		{
-			(void)vrprint.error(-1, VR_ERR, "unknown return code from init_vcconfig. This can't be good (in: %s:%d).", __FUNCTION__, __LINE__);
-			return(-1);
-		}
-
-		if(config_done == 0)
-		{
-			werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_VUURMUUR_CONF_SETTINGS); update_panels(); doupdate();
-		}
-	}
-
 
 	/* now load the backends */
 	config_done = 0;
