@@ -1255,6 +1255,8 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
 				}
 				else
 					memset(rule->from_mac, 0, sizeof(rule->from_mac));
+			} else {
+				memset(rule->from_mac, 0, sizeof(rule->from_mac));
 			}
 
 			if (host_ptr->active == 1) {
