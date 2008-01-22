@@ -1102,7 +1102,10 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
 
 					break;
 				case KEY_F(6):
-					VrShapeIface(debuglvl, iface_ptr);
+					if(field_buffer(IfSec.devicevirtualfld, 0)[0] != 'X')
+						VrShapeIface(debuglvl, iface_ptr);
+					else
+						(void)vrprint.warning(VR_WARN, gettext("shaping is not supported on a virtual interface."));
 					break;
 			}
 		}
