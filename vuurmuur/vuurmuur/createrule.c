@@ -585,10 +585,24 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 		}
 
 		/* swap source ports and dest ports for the rules in the opposite direction */
-		(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
-		temp_src_port[2] = 'd';
-		(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
-		temp_dst_port[2] = 's';
+                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+		{
+			/* really, really ugly hack to make this work for icmp ping-pong */
+			if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
+			{
+				(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+				temp_dst_port[12] = '0';
+			} else {
+				/* Ignore the rest of icmp */
+			}
+                }
+		else
+		{
+			(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
+			temp_src_port[2] = 'd';
+			(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+			temp_dst_port[2] = 's';
+		}
 
 		/* swap devices, check if non empty device first */
 		if(input_device[0] != '\0')
@@ -675,12 +689,25 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 				return(0); /* this is not an error */
 			}
 		}
-// TODO icmp
 		/* swap source ports and dest ports for the rules in the opposite direction */
-		(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
-		temp_src_port[2] = 'd';
-		(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
-		temp_dst_port[2] = 's';
+                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+		{
+			/* really, really ugly hack to make this work for icmp ping-pong */
+			if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
+			{
+				(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+				temp_dst_port[12] = '0';
+			} else {
+				/* Ignore the rest of icmp */
+			}
+                }
+		else
+		{
+			(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
+			temp_src_port[2] = 'd';
+			(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+			temp_dst_port[2] = 's';
+		}
 
 		/* swap devices, check if non empty device first */
 		if(input_device[0] != '\0')
@@ -979,10 +1006,24 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 		}
 
 		/* swap source ports and dest ports for the rules in the opposite direction */
-		(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
-		temp_src_port[2] = 'd';
-		(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
-		temp_dst_port[2] = 's';
+                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+		{
+			/* really, really ugly hack to make this work for icmp ping-pong */
+			if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
+			{
+				(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+				temp_dst_port[12] = '0';
+			} else {
+				/* Ignore the rest of icmp */
+			}
+                }
+		else
+		{
+			(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
+			temp_src_port[2] = 'd';
+			(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+			temp_dst_port[2] = 's';
+		}
 
 		/* swap devices, check if non empty device first */
 		if(output_device[0] != '\0')
@@ -1072,12 +1113,25 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 				return(0); /* this is not an error */
 			}
 		}
-// todo icmp
 		/* swap source ports and dest ports for the rules in the opposite direction */
-		(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
-		temp_src_port[2] = 'd';
-		(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
-		temp_dst_port[2] = 's';
+                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+		{
+			/* really, really ugly hack to make this work for icmp ping-pong */
+			if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
+			{
+				(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+				temp_dst_port[12] = '0';
+			} else {
+				/* Ignore the rest of icmp */
+			}
+                }
+		else
+		{
+			(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
+			temp_src_port[2] = 'd';
+			(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+			temp_dst_port[2] = 's';
+		}
 
 		/* swap devices, check if non empty device first */
 		if(output_device[0] != '\0')
@@ -1279,10 +1333,24 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 		}
 
 		/* swap source ports and dest ports for the rules in the opposite direction */
-		(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
-		temp_src_port[2] = 'd';
-		(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
-		temp_dst_port[2] = 's';
+                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+		{
+			/* really, really ugly hack to make this work for icmp ping-pong */
+			if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
+			{
+				(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+				temp_dst_port[12] = '0';
+			} else {
+				/* Ignore the rest of icmp */
+			}
+                }
+		else
+		{
+			(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
+			temp_src_port[2] = 'd';
+			(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+			temp_dst_port[2] = 's';
+		}
 
 		/* swap devices, check if non empty device first */
 		if(input_device[0] != '\0')
@@ -1399,12 +1467,25 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 			}
 		}
 
-//TODO: fix for icmp
 		/* swap source ports and dest ports for the rules in the opposite direction */
-		(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
-		temp_src_port[2] = 'd';
-		(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
-		temp_dst_port[2] = 's';
+                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+		{
+			/* really, really ugly hack to make this work for icmp ping-pong */
+			if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
+			{
+				(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+				temp_dst_port[12] = '0';
+			} else {
+				/* Ignore the rest of icmp */
+			}
+                }
+		else
+		{
+			(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
+			temp_src_port[2] = 'd';
+			(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+			temp_dst_port[2] = 's';
+		}
 
 		/* swap devices, check if non empty device first */
 		if(input_device[0] != '\0')
@@ -1502,12 +1583,25 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 			}
 		}
 
-//TODO: fix for icmp
 		/* swap source ports and dest ports for the rules in the opposite direction */
-		(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
-		temp_src_port[2] = 'd';
-		(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
-		temp_dst_port[2] = 's';
+                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+		{
+			/* really, really ugly hack to make this work for icmp ping-pong */
+			if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
+			{
+				(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+				temp_dst_port[12] = '0';
+			} else {
+				/* Ignore the rest of icmp */
+			}
+                }
+		else
+		{
+			(void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
+			temp_src_port[2] = 'd';
+			(void)strlcpy(temp_dst_port, rule->temp_dst_port, sizeof(temp_dst_port));
+			temp_dst_port[2] = 's';
+		}
 
 		/* swap devices, check if non empty device first */
 		if(input_device[0] != '\0')
