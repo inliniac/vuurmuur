@@ -332,15 +332,16 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 	char	answer[32] = "";
 	FILE	*fp = NULL;
 	char	tmpbuf[512] = "";
-
-	/* only print debug if we are in verbose mode, since at this moment debug
-	   still goes to the stdout, because we have yet to initialize our logs */
-	int	askconfig_debuglvl = debuglvl * (int)cnf->verbose_out;
-
+	int	askconfig_debuglvl = 0;
 
 	/* safety first */
 	if(cnf == NULL)
 		return(VR_CNF_E_PARAMETER);
+
+	/* only print debug if we are in verbose mode, since at this moment debug
+	   still goes to the stdout, because we have yet to initialize our logs */
+	askconfig_debuglvl = debuglvl * (int)cnf->verbose_out;
+
 
 	if(debuglvl >= LOW)
 		(void)vrprint.debug(__FUNC__, "etc-dir: '%s/vuurmuur', config-file: '%s'.",
