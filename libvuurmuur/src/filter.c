@@ -23,36 +23,36 @@
 void
 VR_filter_setup(const int debuglvl, VR_filter *filter)
 {
-	/* safety */
-	if(filter == NULL)
-	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem "
-				"(in: %s:%d).", __FUNC__, __LINE__);
-		return;
-	}
+    /* safety */
+    if(filter == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+                "(in: %s:%d).", __FUNC__, __LINE__);
+        return;
+    }
 
-	memset(filter, 0, sizeof(VR_filter));
+    memset(filter, 0, sizeof(VR_filter));
 }
 
 
 void
 VR_filter_cleanup(const int debuglvl, VR_filter *filter)
 {
-	/* safety */
-	if(filter == NULL)
-	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem "
-				"(in: %s:%d).", __FUNC__, __LINE__);
-		return;
-	}
+    /* safety */
+    if(filter == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+                "(in: %s:%d).", __FUNC__, __LINE__);
+        return;
+    }
 
-	if(filter->reg_active == TRUE)
-	{
-		/* first remove old regex */
-		regfree(&filter->reg);
-		/* set reg_active to false */
-		filter->reg_active = FALSE;
-	}
+    if(filter->reg_active == TRUE)
+    {
+        /* first remove old regex */
+        regfree(&filter->reg);
+        /* set reg_active to false */
+        filter->reg_active = FALSE;
+    }
 
-	memset(filter, 0, sizeof(VR_filter));
+    memset(filter, 0, sizeof(VR_filter));
 }

@@ -19,16 +19,16 @@ extern "C" {
 
 
 typedef enum {
-	/* Cannot allocate memory. */
-	BR_FIND_EXE_NOMEM,
-	/* Unable to open /proc/self/maps; see errno for details. */
-	BR_FIND_EXE_OPEN_MAPS,
-	/* Unable to read from /proc/self/maps; see errno for details. */
-	BR_FIND_EXE_READ_MAPS,
-	/* The file format of /proc/self/maps is invalid; kernel bug? */
-	BR_FIND_EXE_INVALID_MAPS,
-	/* BinReloc is disabled. */
-	BR_FIND_EXE_DISABLED
+    /* Cannot allocate memory. */
+    BR_FIND_EXE_NOMEM,
+    /* Unable to open /proc/self/maps; see errno for details. */
+    BR_FIND_EXE_OPEN_MAPS,
+    /* Unable to read from /proc/self/maps; see errno for details. */
+    BR_FIND_EXE_READ_MAPS,
+    /* The file format of /proc/self/maps is invalid; kernel bug? */
+    BR_FIND_EXE_INVALID_MAPS,
+    /* BinReloc is disabled. */
+    BR_FIND_EXE_DISABLED
 } BrFindExeError;
 
 

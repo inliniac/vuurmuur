@@ -20,123 +20,123 @@
 
 #include "vuurmuur.h"
 
-/*	rule_malloc
+/*  rule_malloc
 
-	Allocates memory for a rule, and inits all variables.
+    Allocates memory for a rule, and inits all variables.
 
-	Returns the address of the memory on succes and NULL on failure.
+    Returns the address of the memory on succes and NULL on failure.
 */
 void *
 rule_malloc(void)
 {
-	struct RuleData_ *rule_ptr = NULL;
+    struct RuleData_ *rule_ptr = NULL;
 
-	rule_ptr = malloc(sizeof(struct RuleData_));
-	if(rule_ptr == NULL)
-	{
-		return(NULL);
-	}
-	/* clear */
-	memset(rule_ptr, 0, sizeof(struct RuleData_));
+    rule_ptr = malloc(sizeof(struct RuleData_));
+    if(rule_ptr == NULL)
+    {
+        return(NULL);
+    }
+    /* clear */
+    memset(rule_ptr, 0, sizeof(struct RuleData_));
 
-	rule_ptr->type = TYPE_RULE;
+    rule_ptr->type = TYPE_RULE;
 
-	return(rule_ptr);
+    return(rule_ptr);
 }
 
 
 void *
 ruleoption_malloc(const int debuglvl)
 {
-	struct options	*opt_ptr = NULL;
+    struct options  *opt_ptr = NULL;
 
-	/* alloc the memory */
-	opt_ptr = malloc(sizeof(struct options));
-	if(opt_ptr == NULL)
-	{
-		return(NULL);
-	}
-	/* initialize the mem */
-	memset(opt_ptr, 0, sizeof(struct options));
+    /* alloc the memory */
+    opt_ptr = malloc(sizeof(struct options));
+    if(opt_ptr == NULL)
+    {
+        return(NULL);
+    }
+    /* initialize the mem */
+    memset(opt_ptr, 0, sizeof(struct options));
 
-	/* setup the lists */
-	(void)d_list_setup(debuglvl, &opt_ptr->RemoteportList, NULL);
-	(void)d_list_setup(debuglvl, &opt_ptr->ListenportList, NULL);
+    /* setup the lists */
+    (void)d_list_setup(debuglvl, &opt_ptr->RemoteportList, NULL);
+    (void)d_list_setup(debuglvl, &opt_ptr->ListenportList, NULL);
 
-	return(opt_ptr);
+    return(opt_ptr);
 }
 
 
 void *
 zone_malloc(const int debuglvl)
 {
-	struct ZoneData_ *zone_ptr = NULL;
+    struct ZoneData_ *zone_ptr = NULL;
 
-	/* alloc memory */
-	zone_ptr = malloc(sizeof(struct ZoneData_));
-	if(zone_ptr == NULL)
-	{
-		return(NULL);
-	}
-	/* initialize */
-	memset(zone_ptr, 0, sizeof(struct ZoneData_));
+    /* alloc memory */
+    zone_ptr = malloc(sizeof(struct ZoneData_));
+    if(zone_ptr == NULL)
+    {
+        return(NULL);
+    }
+    /* initialize */
+    memset(zone_ptr, 0, sizeof(struct ZoneData_));
 
-	zone_ptr->GroupList.len = 0;
-	if(d_list_setup(debuglvl, &zone_ptr->GroupList, NULL) < 0)
-		return(NULL);
+    zone_ptr->GroupList.len = 0;
+    if(d_list_setup(debuglvl, &zone_ptr->GroupList, NULL) < 0)
+        return(NULL);
 
-	zone_ptr->InterfaceList.len = 0;
-	if(d_list_setup(debuglvl, &zone_ptr->InterfaceList, NULL) < 0)
-		return(NULL);
-	
-	zone_ptr->ProtectList.len = 0;
-	if(d_list_setup(debuglvl, &zone_ptr->ProtectList, free) < 0)
-		return(NULL);
+    zone_ptr->InterfaceList.len = 0;
+    if(d_list_setup(debuglvl, &zone_ptr->InterfaceList, NULL) < 0)
+        return(NULL);
 
-	zone_ptr->type = TYPE_UNSET;
+    zone_ptr->ProtectList.len = 0;
+    if(d_list_setup(debuglvl, &zone_ptr->ProtectList, free) < 0)
+        return(NULL);
 
-	/* done, return the zone */
-	return(zone_ptr);
+    zone_ptr->type = TYPE_UNSET;
+
+    /* done, return the zone */
+    return(zone_ptr);
 }
 
 
 void
 zone_free(const int debuglvl, struct ZoneData_ *zone_ptr)
 {
-	if(!zone_ptr)
-		return;
+    if(!zone_ptr)
+        return;
 
-	if(zone_ptr->type == TYPE_GROUP)
-		(void)d_list_cleanup(debuglvl, &zone_ptr->GroupList);
+    if(zone_ptr->type == TYPE_GROUP)
+        (void)d_list_cleanup(debuglvl, &zone_ptr->GroupList);
 
-	if(zone_ptr->type == TYPE_NETWORK)
-	{
-		(void)d_list_cleanup(debuglvl, &zone_ptr->InterfaceList);
-		(void)d_list_cleanup(debuglvl, &zone_ptr->ProtectList);
-	}
+    if(zone_ptr->type == TYPE_NETWORK)
+    {
+        (void)d_list_cleanup(debuglvl, &zone_ptr->InterfaceList);
+        (void)d_list_cleanup(debuglvl, &zone_ptr->ProtectList);
+    }
 
-	free(zone_ptr);
+    free(zone_ptr);
 }
 
 
 void *
 service_malloc(void)
 {
-	struct ServicesData_ *ser_ptr = NULL;
+    struct ServicesData_ *ser_ptr = NULL;
 
-	/* alloc some mem */
-	ser_ptr = malloc(sizeof(struct ServicesData_));
-	if(ser_ptr == NULL)
-	{
-		return(NULL);
-	}
+    /* alloc some mem */
+    ser_ptr = malloc(sizeof(struct ServicesData_));
+    if(ser_ptr == NULL)
+    {
+        return(NULL);
+    }
 
-	/* init */
-	memset(ser_ptr, 0, sizeof(struct ServicesData_));
+    /* init */
+    memset(ser_ptr, 0, sizeof(struct ServicesData_));
 
-	ser_ptr->type = TYPE_SERVICE;
+    ser_ptr->type = TYPE_SERVICE;
 
-	return(ser_ptr);
+    return(ser_ptr);
 }
 
 
@@ -144,26 +144,26 @@ service_malloc(void)
 void *
 interface_malloc(const int debuglvl)
 {
-	struct InterfaceData_ *iface_ptr = NULL;
+    struct InterfaceData_ *iface_ptr = NULL;
 
-	iface_ptr = malloc(sizeof(struct InterfaceData_));
-	if(iface_ptr == NULL)
-	{
-		return(NULL);
-	}
+    iface_ptr = malloc(sizeof(struct InterfaceData_));
+    if(iface_ptr == NULL)
+    {
+        return(NULL);
+    }
 
-	memset(iface_ptr, 0, sizeof(struct InterfaceData_));
+    memset(iface_ptr, 0, sizeof(struct InterfaceData_));
 
-	iface_ptr->type = TYPE_INTERFACE;
+    iface_ptr->type = TYPE_INTERFACE;
 
-	iface_ptr->active = TRUE;
+    iface_ptr->active = TRUE;
 
-	if(d_list_setup(debuglvl, &iface_ptr->ProtectList, free) < 0)
-		return(NULL);
+    if(d_list_setup(debuglvl, &iface_ptr->ProtectList, free) < 0)
+        return(NULL);
 
-	iface_ptr->cnt = NULL;
+    iface_ptr->cnt = NULL;
 
-	return(iface_ptr);
+    return(iface_ptr);
 }
 
 
@@ -173,295 +173,295 @@ interface_malloc(const int debuglvl)
 int
 LockSHM(int lock, int sem_id)
 {
-	int			z;
-	static struct sembuf	sops = { 0, -1, 0 };
+    int                     z;
+    static struct sembuf    sops = { 0, -1, 0 };
 
-	sops.sem_num = 0;
-	sops.sem_op  = (short int)(lock ? -1 : 1);
+    sops.sem_num = 0;
+    sops.sem_op  = (short int)(lock ? -1 : 1);
 
-	do
-	{
-		z = semop(sem_id, &sops, 1);
-	}
-	while (z == -1 && errno == EINTR);
+    do
+    {
+        z = semop(sem_id, &sops, 1);
+    }
+    while (z == -1 && errno == EINTR);
 
-	if(z == -1)
-	{
-		return(0);
-	}
+    if(z == -1)
+    {
+        return(0);
+    }
 
-	return(1);
+    return(1);
 }
 
 void
 tell_libvuurmuur_version(int *major, int *minor, int *sub, int *min_vuur_major,
-			 int *min_vuur_minor, int *min_vuur_sub)
+             int *min_vuur_minor, int *min_vuur_sub)
 {
-	*major = LIBVUURMUUR_VERSION_MAJOR;
-	*minor = LIBVUURMUUR_VERSION_MINOR;
-	*sub = LIBVUURMUUR_VERSION_SUB;
+    *major = LIBVUURMUUR_VERSION_MAJOR;
+    *minor = LIBVUURMUUR_VERSION_MINOR;
+    *sub = LIBVUURMUUR_VERSION_SUB;
 
-	*min_vuur_major = MIN_VUURMUUR_VERSION_MAJOR;
-	*min_vuur_minor = MIN_VUURMUUR_VERSION_MINOR;
-	*min_vuur_sub = MIN_VUURMUUR_VERSION_SUB;
+    *min_vuur_major = MIN_VUURMUUR_VERSION_MAJOR;
+    *min_vuur_minor = MIN_VUURMUUR_VERSION_MINOR;
+    *min_vuur_sub = MIN_VUURMUUR_VERSION_SUB;
 
-	return;
+    return;
 }
 
-/*	range_strcpy
+/*  range_strcpy
 
-	src must be NULL-terminated.
+    src must be NULL-terminated.
 
-	Returncodes:
-		0: ok
-		-1: error
+    Returncodes:
+        0: ok
+        -1: error
 
 */
 int
 range_strcpy(char *dest, const char *src, const size_t start,
-		const size_t end, size_t size)
+        const size_t end, size_t size)
 {
-	size_t	s = 0,
-		d = 0,
-		src_len = 0;
+    size_t  s = 0,
+            d = 0,
+            src_len = 0;
 
-	if(!dest || !src)
-		return(-1);
+    if(!dest || !src)
+        return(-1);
 
-	src_len = strlen(src);
+    src_len = strlen(src);
 
-	if(start >= src_len || end > src_len)
-		return(-1);
+    if(start >= src_len || end > src_len)
+        return(-1);
 
-	for(s = start, d = 0; s < end && d < size && s < src_len; s++, d++)
-	{
-		dest[d] = src[s];
-	}
-	dest[d]='\0';
+    for(s = start, d = 0; s < end && d < size && s < src_len; s++, d++)
+    {
+        dest[d] = src[s];
+    }
+    dest[d]='\0';
 
-	return(0);
+    return(0);
 }
 
 
 
 /* textfield regex
 
-	General regular expression for filtering out problematic
-	chars like '"' and %...
+    General regular expression for filtering out problematic
+    chars like '"' and %...
 */
-//#define TEXTFIELD_REGEX		"^([a-zA-Z0-9_-][.] )$"
+//#define TEXTFIELD_REGEX   "^([a-zA-Z0-9_-][.] )$"
 
 
 /*
-	Actions:	 1: setup
-			 0: setdown
+    Actions:     1: setup
+                 0: setdown
 
-	Returncodes:
-		 	 0: ok
-			-1: error
+    Returncodes:
+            0: ok
+            -1: error
 
 */
 int
 setup_rgx(int action, struct rgx_ *reg)
 {
-	if(!reg)
-		return(-1);
+    if(!reg)
+        return(-1);
 
-	if(action < 0 || action > 1 || reg == NULL)
-	{
-		(void)vrprint.error(-1, "Internal Error", "parameter problem "
-				"(in: %s:%d).", __FUNC__, __LINE__);
-		return(-1);
-	}
+    if(action < 0 || action > 1 || reg == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+                "(in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
 
-	if(action == 1)
-	{
-		/* regex setup */
-		if(!(reg->zonename = malloc(sizeof(regex_t))))
-		{
-			(void)vrprint.error(-1, "Internal Error", "malloc "
-					"failed: %s (in: %s:%d).",
-					strerror(errno), __FUNC__, __LINE__);
-			return(-1);
-		}
+    if(action == 1)
+    {
+        /* regex setup */
+        if(!(reg->zonename = malloc(sizeof(regex_t))))
+        {
+            (void)vrprint.error(-1, "Internal Error", "malloc "
+                    "failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		if(regcomp(reg->zonename, ZONE_REGEX, REG_EXTENDED) != 0)
-		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() "
-					"failed (in: %s:%d).",
-					__FUNC__, __LINE__);
-			return(-1);
-		}
+        if(regcomp(reg->zonename, ZONE_REGEX, REG_EXTENDED) != 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+                    "failed (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		/* regex setup */
-		if(!(reg->zone_part = malloc(sizeof(regex_t))))
-		{
-			(void)vrprint.error(-1, "Internal Error", "malloc "
-					"failed: %s (in: %s:%d).",
-					strerror(errno), __FUNC__, __LINE__);
-			return(-1);
-		}
+        /* regex setup */
+        if(!(reg->zone_part = malloc(sizeof(regex_t))))
+        {
+            (void)vrprint.error(-1, "Internal Error", "malloc "
+                    "failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		if(regcomp(reg->zone_part, ZONE_REGEX_ZONEPART, REG_EXTENDED) != 0)
-		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() "
-					"failed (in: %s:%d).",
-					__FUNC__, __LINE__);
-			return(-1);
-		}
+        if(regcomp(reg->zone_part, ZONE_REGEX_ZONEPART, REG_EXTENDED) != 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+                    "failed (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		/* regex setup */
-		if(!(reg->network_part = malloc(sizeof(regex_t))))
-		{
-			(void)vrprint.error(-1, "Internal Error", "malloc "
-					"failed: %s (in: %s:%d).",
-					strerror(errno), __FUNC__, __LINE__);
-			return(-1);
-		}
+        /* regex setup */
+        if(!(reg->network_part = malloc(sizeof(regex_t))))
+        {
+            (void)vrprint.error(-1, "Internal Error", "malloc "
+                    "failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		if(regcomp(reg->network_part, ZONE_REGEX_NETWORKPART, REG_EXTENDED) != 0)
-		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() "
-					"failed (in: %s:%d).",
-					__FUNC__, __LINE__);
-			return(-1);
-		}
+        if(regcomp(reg->network_part, ZONE_REGEX_NETWORKPART, REG_EXTENDED) != 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+                    "failed (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		/* regex setup */
-		if(!(reg->host_part = malloc(sizeof(regex_t))))
-		{
-			(void)vrprint.error(-1, "Internal Error", "malloc "
-					"failed: %s (in: %s:%d).",
-					strerror(errno), __FUNC__, __LINE__);
-			return(-1);
-		}
+        /* regex setup */
+        if(!(reg->host_part = malloc(sizeof(regex_t))))
+        {
+            (void)vrprint.error(-1, "Internal Error", "malloc "
+                    "failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		if(regcomp(reg->host_part, ZONE_REGEX_HOSTPART, REG_EXTENDED) != 0)
-		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() "
-					"failed (in: %s:%d).",
-					__FUNC__, __LINE__);
-			return(-1);
-		}
+        if(regcomp(reg->host_part, ZONE_REGEX_HOSTPART, REG_EXTENDED) != 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+                    "failed (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		/* regex setup */
-		if(!(reg->servicename = malloc(sizeof(regex_t))))
-		{
-			(void)vrprint.error(-1, "Internal Error", "malloc "
-					"failed: %s (in: %s:%d).",
-					strerror(errno), __FUNC__, __LINE__);
-			return(-1);
-		}
+        /* regex setup */
+        if(!(reg->servicename = malloc(sizeof(regex_t))))
+        {
+            (void)vrprint.error(-1, "Internal Error", "malloc "
+                    "failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		if(regcomp(reg->servicename, SERV_REGEX, REG_EXTENDED) != 0)
-		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() "
-					"failed (in: %s:%d).",
-					__FUNC__, __LINE__);
-			return(-1);
-		}
+        if(regcomp(reg->servicename, SERV_REGEX, REG_EXTENDED) != 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+                    "failed (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		/* regex setup */
-		if(!(reg->interfacename = malloc(sizeof(regex_t))))
-		{
-			(void)vrprint.error(-1, "Internal Error", "malloc "
-					"failed: %s (in: %s:%d).",
-					strerror(errno), __FUNC__, __LINE__);
-			return(-1);
-		}
+        /* regex setup */
+        if(!(reg->interfacename = malloc(sizeof(regex_t))))
+        {
+            (void)vrprint.error(-1, "Internal Error", "malloc "
+                    "failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		if(regcomp(reg->interfacename, IFAC_REGEX, REG_EXTENDED) != 0)
-		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() "
-					"failed (in: %s:%d).",
-					__FUNC__, __LINE__);
-			return(-1);
-		}
+        if(regcomp(reg->interfacename, IFAC_REGEX, REG_EXTENDED) != 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+                    "failed (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		/* regex setup */
-		if(!(reg->macaddr = malloc(sizeof(regex_t))))
-		{
-			(void)vrprint.error(-1, "Internal Error", "malloc "
-					"failed: %s (in: %s:%d).",
-					strerror(errno), __FUNC__, __LINE__);
-			return(-1);
-		}
+        /* regex setup */
+        if(!(reg->macaddr = malloc(sizeof(regex_t))))
+        {
+            (void)vrprint.error(-1, "Internal Error", "malloc "
+                    "failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		if(regcomp(reg->macaddr, MAC_REGEX, REG_EXTENDED) != 0)
-		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() "
-					"failed (in: %s:%d).",
-					__FUNC__, __LINE__);
-			return(-1);
-		}
+        if(regcomp(reg->macaddr, MAC_REGEX, REG_EXTENDED) != 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+                    "failed (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		/* regex setup */
-		if(!(reg->configline = malloc(sizeof(regex_t))))
-		{
-			(void)vrprint.error(-1, "Internal Error", "malloc "
-					"failed: %s (in: %s:%d).",
-					strerror(errno), __FUNC__, __LINE__);
-			return(-1);
-		}
+        /* regex setup */
+        if(!(reg->configline = malloc(sizeof(regex_t))))
+        {
+            (void)vrprint.error(-1, "Internal Error", "malloc "
+                    "failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		if(regcomp(reg->configline, CONFIG_REGEX, REG_EXTENDED) != 0)
-		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() "
-					"failed (in: %s:%d).",
-					__FUNC__, __LINE__);
-			return(-1);
-		}
+        if(regcomp(reg->configline, CONFIG_REGEX, REG_EXTENDED) != 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+                    "failed (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		/* regex setup */
-/*		if(!(reg->comment = malloc(sizeof(regex_t))))
-		{
-			(void)vrprint.error(-1, "Internal Error", "malloc "
-					"failed: %s (in: %s:%d).",
-					strerror(errno), __FUNC__, __LINE__);
-			return(-1);
-		}
+        /* regex setup */
+/*        if(!(reg->comment = malloc(sizeof(regex_t))))
+        {
+            (void)vrprint.error(-1, "Internal Error", "malloc "
+                    "failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+            return(-1);
+        }
 
-		if(regcomp(reg->comment, TEXTFIELD_REGEX, REG_EXTENDED) != 0)
-		{
-			(void)vrprint.error(-1, "Internal Error", "regcomp() "
-					"failed (in: %s:%d).",
-					__FUNC__, __LINE__);
-			return(-1);
-		}
+        if(regcomp(reg->comment, TEXTFIELD_REGEX, REG_EXTENDED) != 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+                    "failed (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
 */
-	}
-	else
-	{
-		/* zone */
-		regfree(reg->zonename);
-		free(reg->zonename);
-		regfree(reg->zone_part);
-		free(reg->zone_part);
-		regfree(reg->network_part);
-		free(reg->network_part);
-		regfree(reg->host_part);
-		free(reg->host_part);
+    }
+    else
+    {
+        /* zone */
+        regfree(reg->zonename);
+        free(reg->zonename);
+        regfree(reg->zone_part);
+        free(reg->zone_part);
+        regfree(reg->network_part);
+        free(reg->network_part);
+        regfree(reg->host_part);
+        free(reg->host_part);
 
-		/* service */
-		regfree(reg->servicename);
-		free(reg->servicename);
+        /* service */
+        regfree(reg->servicename);
+        free(reg->servicename);
 
-		/* interface */
-		regfree(reg->interfacename);
-		free(reg->interfacename);
+        /* interface */
+        regfree(reg->interfacename);
+        free(reg->interfacename);
 
-		/* mac */
-		regfree(reg->macaddr);
-		free(reg->macaddr);
+        /* mac */
+        regfree(reg->macaddr);
+        free(reg->macaddr);
 
-		/* config */
-		regfree(reg->configline);
-		free(reg->configline);
+        /* config */
+        regfree(reg->configline);
+        free(reg->configline);
 
-		/* comment */
-//		regfree(reg->comment);
-//		free(reg->comment);
-	}
+        /* comment */
+//        regfree(reg->comment);
+//        free(reg->comment);
+    }
 
-	return(0);
+    return(0);
 }

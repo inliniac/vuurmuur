@@ -26,47 +26,47 @@
 #include <fcntl.h>
 #include <vuurmuur.h>
 
-#define MAX_LINE_LENGTH		512
+#define MAX_LINE_LENGTH 512
 
-#define MAX_RULE_NAME		32
+#define MAX_RULE_NAME   32
 
 struct TextdirBackend_
 {
-	/* 0: if backend is closed, 1: open */
-	int	backend_open;
+    /* 0: if backend is closed, 1: open */
+    int     backend_open;
 
-	/* not yet used */
-	int	writable;
+    /* not yet used */
+    int     writable;
 
-	DIR	*zone_p;
-	DIR	*network_p;
-	DIR	*host_p;
-	DIR	*group_p;
+    DIR     *zone_p;
+    DIR     *network_p;
+    DIR     *host_p;
+    DIR     *group_p;
 
-	DIR	*service_p;
+    DIR     *service_p;
 
-	DIR	*interface_p;
+    DIR     *interface_p;
 
-	DIR	*rule_p;
+    DIR     *rule_p;
 
-	FILE	*file;
+    FILE    *file;
 
-	char	cur_zone[MAX_ZONE],
-		cur_network[MAX_NETWORK],
-		cur_host[MAX_HOST];
+    char    cur_zone[MAX_ZONE],
+            cur_network[MAX_NETWORK],
+            cur_host[MAX_HOST];
 
-	char	interface[MAX_INTERFACE];
+    char    interface[MAX_INTERFACE];
 
-	char	rule[MAX_RULE_NAME];
+    char    rule[MAX_RULE_NAME];
 
-	char	textdirlocation[512];
+    char    textdirlocation[512];
 
-	void	*plugin_handle;
+    void    *plugin_handle;
 
-	/* regexes for checking the names */
-	regex_t		*zonename_reg;
-	regex_t		*servicename_reg;
-	regex_t		*interfacename_reg;
+    /* regexes for checking the names */
+    regex_t *zonename_reg;
+    regex_t *servicename_reg;
+    regex_t *interfacename_reg;
 };
 
 
