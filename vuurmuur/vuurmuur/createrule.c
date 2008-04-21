@@ -4191,7 +4191,8 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Zon
 
 							if(create_network_protect_rules_dhcp_client(debuglvl, ruleset, zones, iptcap, create, from_if_ptr) < 0)
 								retval = -1;
-}					}
+						}
+					}
 					else if(strcasecmp(rule_ptr->service,"dhcp-server") == 0)
 					{
 						for(from_if_node = create->who->InterfaceList.top; from_if_node; from_if_node = from_if_node->next)
