@@ -52,169 +52,169 @@
  ********************************* DEFINES ***********************************************************************
 \*****************************************************************************************************************/
 
-#define LOGPREFIX_PREFIX		"vrmr: "	/* the prefix in the logprefix */
-#define LOGPREFIX_LOG_MAXLEN		29
-#define LOGPREFIX_ULOG_MAXLEN		32		/* not yet used */
+#define LOGPREFIX_PREFIX        "vrmr: "    /* the prefix in the logprefix */
+#define LOGPREFIX_LOG_MAXLEN    29
+#define LOGPREFIX_ULOG_MAXLEN   32          /* not yet used */
 
-#define LOOP_INT			1
+#define LOOP_INT                1
 
-#define YES				1
-#define NO				0
+#define YES                     1
+#define NO                      0
 
-#define PIDFILE				"/var/run/vuurmuur.pid"
+#define PIDFILE                 "/var/run/vuurmuur.pid"
 
-#define LOCK(x)				LockSHM(1, x)
-#define UNLOCK(x)			LockSHM(0, x)
+#define LOCK(x)                 LockSHM(1, x)
+#define UNLOCK(x)               LockSHM(0, x)
 
 /* define these here so converting to gettext will be easier */
-#define VR_ERR				"Error"
-#define VR_INTERR			"Internal Error"
-#define VR_INFO				"Info"
-#define VR_WARN				"Warning"
+#define VR_ERR                  "Error"
+#define VR_INTERR               "Internal Error"
+#define VR_INFO                 "Info"
+#define VR_WARN                 "Warning"
 
 /*************************************************************************************************************************\
  ******************************************************* DATATYPES *******************************************************
 \*************************************************************************************************************************/
 
-char		version_string[18];
-char		loglevel[32];		/* --log-level warning */
-char		log_tcp_options[18];	/* --log-tcp-options */
-VR_user_t	user_data;
+char        version_string[18];
+char        loglevel[32];           /* --log-level warning */
+char        log_tcp_options[18];    /* --log-tcp-options */
+VR_user_t   user_data;
 
 struct RuleCreateData_
 {
-	char		action[sizeof(RuleCache.action)];
-	char		chain[48]; /* why 48? */
+    char                    action[sizeof(RuleCache.action)];
+    char                    chain[48]; /* why 48? */
 
-	/* ipaddress */
-	char		from_ip[16];
-	char		to_ip[16];
+    /* ipaddress */
+    char                    from_ip[16];
+    char                    to_ip[16];
 
-	/* netmasks */
-	char		from_netmask[16];
-	char		to_netmask[16];
+    /* netmasks */
+    char                    from_netmask[16];
+    char                    to_netmask[16];
 
-	/* optionswitch + ip + netmask */
-	char		temp_src[48];
-	char		temp_dst[48];
+    /* optionswitch + ip + netmask */
+    char                    temp_src[48];
+    char                    temp_dst[48];
 
-	/* mac - only from */
-	char		from_mac[48]; /* --m mac --from-mac mac */
+    /* mac - only from */
+    char                    from_mac[48]; /* --m mac --from-mac mac */
 
-	struct ipdata	ipv4_from;
-	struct ipdata	ipv4_to;
+    struct ipdata           ipv4_from;
+    struct ipdata           ipv4_to;
 
-	/* interfaces */
-	char		from_int[16];
-	char		to_int[16];
+    /* interfaces */
+    char                    from_int[16];
+    char                    to_int[16];
 
-	struct InterfaceData_	*from_if_ptr;
-	struct InterfaceData_	*to_if_ptr;
+    struct InterfaceData_   *from_if_ptr;
+    struct InterfaceData_   *to_if_ptr;
 
-	/* proto */
-	char		proto[16+6]; // why 16+6? <- the 6 is for ' --syn' for tcp
-	char		helper[32];
+    /* proto */
+    char                    proto[16+6]; // why 16+6? <- the 6 is for ' --syn' for tcp
+    char                    helper[32];
 
-	/* ports */
-	char		temp_dst_port[32];
-	char		temp_src_port[32];
+    /* ports */
+    char                    temp_dst_port[32];
+    char                    temp_src_port[32];
 
-	struct portdata *portrange_ptr;
-	struct portdata *listenport_ptr;
-	struct portdata *remoteport_ptr;
+    struct portdata         *portrange_ptr;
+    struct portdata         *listenport_ptr;
+    struct portdata         *remoteport_ptr;
 
-	char		limit[42]; /*  -m limit --limit 999/s --limit-burst 9999 */
+    char                    limit[42]; /*  -m limit --limit 999/s --limit-burst 9999 */
 
-	/* portfw stuff - needs to go-> later we can put it in the function for creating portfw rules! */
-	char		serverip[MAX_NET_ZONE];
-	char		remoteip[32]; // max 15 (for ip) + 1 (for :) + 5 (for port) = 21? + 1 = 22
-	char		temp_port_store[6];
+    /* portfw stuff - needs to go-> later we can put it in the function for creating portfw rules! */
+    char                    serverip[MAX_NET_ZONE];
+    char                    remoteip[32]; // max 15 (for ip) + 1 (for :) + 5 (for port) = 21? + 1 = 22
+    char                    temp_port_store[6];
 
-	/*	list for adding the iptables rules of one singe vuurmuur rule
-		to, so we can check for double rules. */
-	d_list		iptrulelist;
-	/*	list for adding the shaping rules of one singe vuurmuur rule
-		to, so we can check for double rules. */
-	d_list		shaperulelist;
+    /*  list for adding the iptables rules of one singe vuurmuur rule
+        to, so we can check for double rules. */
+    d_list                  iptrulelist;
+    /*  list for adding the shaping rules of one singe vuurmuur rule
+        to, so we can check for double rules. */
+    d_list                  shaperulelist;
 
-	u_int16_t	shape_class_out;
-	u_int16_t	shape_class_in;
+    u_int16_t               shape_class_out;
+    u_int16_t               shape_class_in;
 };
 
 
-/*	here we are going to assemble all rules for
-	the creation of the file for iptables-restore.
+/*  here we are going to assemble all rules for
+    the creation of the file for iptables-restore.
 
 */
 typedef struct
 {
-	/*
-		mangle
-	*/
-	d_list		mangle_preroute;		/* list with rules */
-	char		mangle_preroute_policy;		/* policy for this chain: 0: accept, 1: drop */
-	d_list		mangle_input;			/* list with rules */
-	char		mangle_input_policy;		/* policy for this chain: 0: accept, 1: drop */
-	d_list		mangle_forward;			/* list with rules */
-	char		mangle_forward_policy;		/* policy for this chain: 0: accept, 1: drop */
-	d_list		mangle_output;			/* list with rules */
-	char		mangle_output_policy;		/* policy for this chain: 0: accept, 1: drop */
-	d_list		mangle_postroute;		/* list with rules */
-	char		mangle_postroute_policy;	/* policy for this chain: 0: accept, 1: drop */
+    /*
+        mangle
+    */
+    d_list  mangle_preroute;            /* list with rules */
+    char    mangle_preroute_policy;     /* policy for this chain: 0: accept, 1: drop */
+    d_list  mangle_input;               /* list with rules */
+    char    mangle_input_policy;        /* policy for this chain: 0: accept, 1: drop */
+    d_list  mangle_forward;             /* list with rules */
+    char    mangle_forward_policy;      /* policy for this chain: 0: accept, 1: drop */
+    d_list  mangle_output;              /* list with rules */
+    char    mangle_output_policy;       /* policy for this chain: 0: accept, 1: drop */
+    d_list  mangle_postroute;           /* list with rules */
+    char    mangle_postroute_policy;    /* policy for this chain: 0: accept, 1: drop */
 
-	/*
-		extra mangle (no policies)
-	*/
-	d_list		mangle_shape_in;		/* list with rules */
-	d_list		mangle_shape_out;		/* list with rules */
-	d_list		mangle_shape_fw;		/* list with rules */
+    /*
+        extra mangle (no policies)
+    */
+    d_list  mangle_shape_in;            /* list with rules */
+    d_list  mangle_shape_out;           /* list with rules */
+    d_list  mangle_shape_fw;            /* list with rules */
 
-	/*
-		nat
-	*/
-	d_list		nat_preroute;			/* list with rules */
-	char		nat_preroute_policy;		/* policy for this chain: 0: accept, 1: drop */
-	d_list		nat_postroute;			/* list with rules */
-	char		nat_postroute_policy;		/* policy for this chain: 0: accept, 1: drop */
-	d_list		nat_output;			/* list with rules */
-	char		nat_output_policy;		/* policy for this chain: 0: accept, 1: drop */
+    /*
+        nat
+    */
+    d_list  nat_preroute;               /* list with rules */
+    char    nat_preroute_policy;        /* policy for this chain: 0: accept, 1: drop */
+    d_list  nat_postroute;              /* list with rules */
+    char    nat_postroute_policy;       /* policy for this chain: 0: accept, 1: drop */
+    d_list  nat_output;                 /* list with rules */
+    char    nat_output_policy;          /* policy for this chain: 0: accept, 1: drop */
 
-	/*
-		filter
-	*/
-	d_list		filter_input;			/* list with rules */
-	char		filter_input_policy;		/* policy for this chain: 0: accept, 1: drop */
-	d_list		filter_forward;			/* list with rules */
-	char		filter_forward_policy;		/* policy for this chain: 0: accept, 1: drop */
-	d_list		filter_output;			/* list with rules */
-	char		filter_output_policy;		/* policy for this chain: 0: accept, 1: drop */
+    /*
+        filter
+    */
+    d_list  filter_input;               /* list with rules */
+    char    filter_input_policy;        /* policy for this chain: 0: accept, 1: drop */
+    d_list  filter_forward;             /* list with rules */
+    char    filter_forward_policy;      /* policy for this chain: 0: accept, 1: drop */
+    d_list  filter_output;              /* list with rules */
+    char    filter_output_policy;       /* policy for this chain: 0: accept, 1: drop */
 
-	/*
-		extra filter (no policies)
-	*/
-	d_list		filter_antispoof;		/* list with rules */
-	d_list		filter_blocklist;		/* list with rules */
-	d_list		filter_blocktarget;		/* list with rules */
-	d_list		filter_badtcp;			/* list with rules */
-	d_list		filter_synlimittarget;		/* list with rules */
-	d_list		filter_udplimittarget;		/* list with rules */
-	d_list		filter_tcpresettarget;		/* list with rules */
-	d_list		filter_newaccepttarget;		/* list with rules */
-	d_list		filter_newqueuetarget;		/* list with rules */
-	d_list		filter_newnfqueuetarget;	/* list with rules */
-	d_list		filter_estrelnfqueuetarget;	/* list with rules */
-	d_list		filter_accounting;		/* list with rules */
+    /*
+        extra filter (no policies)
+    */
+    d_list  filter_antispoof;           /* list with rules */
+    d_list  filter_blocklist;           /* list with rules */
+    d_list  filter_blocktarget;         /* list with rules */
+    d_list  filter_badtcp;              /* list with rules */
+    d_list  filter_synlimittarget;      /* list with rules */
+    d_list  filter_udplimittarget;      /* list with rules */
+    d_list  filter_tcpresettarget;      /* list with rules */
+    d_list  filter_newaccepttarget;     /* list with rules */
+    d_list  filter_newqueuetarget;      /* list with rules */
+    d_list  filter_newnfqueuetarget;    /* list with rules */
+    d_list  filter_estrelnfqueuetarget; /* list with rules */
+    d_list  filter_accounting;          /* list with rules */
 
-	/*
-		special chains
-	*/
-	char		block;				/* the block target */
-	char		synlimit;			/* synlimiting */
+    /*
+        special chains
+    */
+    char    block;                      /* the block target */
+    char    synlimit;                   /* synlimiting */
 
-	/*
-		shaping
-	*/
-	d_list		tc_rules;			/* list with tc rules */
+    /*
+        shaping
+    */
+    d_list  tc_rules;                   /* list with tc rules */
 
 } RuleSet;
 
@@ -227,7 +227,7 @@ int ipt_rulecount;
 char keep_file;
 
 /* pluginlist */
-d_list	PluginList;
+d_list PluginList;
 
 /* semaphore id */
 int sem_id;

@@ -32,12 +32,12 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <libgen.h>	/* for basename */
+#include <libgen.h>     /* for basename */
 #include <unistd.h>
 #include <sys/types.h>
-#include <signal.h>	/* for catching signals */
-#include <time.h>	/* included for logging */
-#include <errno.h>	/* error handling */
+#include <signal.h>     /* for catching signals */
+#include <time.h>       /* included for logging */
+#include <errno.h>      /* error handling */
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
@@ -55,20 +55,20 @@
  ********************************* DEFINES ***********************************************************************
 \*****************************************************************************************************************/
 
-#define YES				1
-#define NO				0
+#define YES                 1
+#define NO                  0
 
-#define LOCK(x)				LockSHM(1, x)
-#define UNLOCK(x)			LockSHM(0, x)
+#define LOCK(x)             LockSHM(1, x)
+#define UNLOCK(x)           LockSHM(0, x)
 
 /* define these here so converting to gettext will be easier */
-#define VR_ERR				"Error"
-#define VR_INTERR			"Internal Error"
-#define VR_INFO				"Info"
-#define VR_WARN				"Warning"
+#define VR_ERR              "Error"
+#define VR_INTERR           "Internal Error"
+#define VR_INFO             "Info"
+#define VR_WARN             "Warning"
 
-#define	EXIT_SUCCESS			0
-#define	EXIT_COMMANDLINE_ERROR		1
+#define EXIT_SUCCESS            0
+#define EXIT_COMMANDLINE_ERROR  1
 
 
 /*************************************************************************************************************************\
@@ -79,7 +79,7 @@
 struct SHM_TABLE *shm_table;
 
 /* pluginlist */
-d_list	PluginList;
+d_list PluginList;
 
 /* semaphore id */
 int sem_id;
@@ -87,66 +87,66 @@ int sem_id;
 /* pointer to the environment */
 extern char **environ;
 
-VR_user_t		user_data;
+VR_user_t user_data;
 
 enum
 {
-	CMD_UNSET = 0,
+    CMD_UNSET = 0,
 
-	CMD_ADD, /* add an object */
-	CMD_DEL, /* delete an object */
-	CMD_MOD, /* modify an object */
-	CMD_REN, /* rename an object */
-	CMD_PRT, /* print the content of an object */
-	CMD_LST, /* lists objects */
-	CMD_UBL, /* unblock an ip, host or group */
-	CMD_LBL, /* list blocked objects */
-	CMD_LDV, /* list system devices */
-	CMD_RLD, /* apply changes without any other action */
+    CMD_ADD, /* add an object */
+    CMD_DEL, /* delete an object */
+    CMD_MOD, /* modify an object */
+    CMD_REN, /* rename an object */
+    CMD_PRT, /* print the content of an object */
+    CMD_LST, /* lists objects */
+    CMD_UBL, /* unblock an ip, host or group */
+    CMD_LBL, /* list blocked objects */
+    CMD_LDV, /* list system devices */
+    CMD_RLD, /* apply changes without any other action */
 
-	CMD_ERROR,
+    CMD_ERROR,
 };
 
 enum
 {
-	VRS_SUCCESS = 0,
-	VRS_ERR_COMMANDLINE = 1,
-	VRS_ERR_COMMAND_FAILED = 2,
-	VRS_ERR_NOT_FOUND = 3,
-	VRS_ERR_ALREADY_EXISTS = 4,
-	VRS_ERR_MALLOC = 5,
-	VRS_ERR_DATA_INCONSISTENCY = 6,
-	VRS_ERR_INTERNAL = 254,
+    VRS_SUCCESS = 0,
+    VRS_ERR_COMMANDLINE = 1,
+    VRS_ERR_COMMAND_FAILED = 2,
+    VRS_ERR_NOT_FOUND = 3,
+    VRS_ERR_ALREADY_EXISTS = 4,
+    VRS_ERR_MALLOC = 5,
+    VRS_ERR_DATA_INCONSISTENCY = 6,
+    VRS_ERR_INTERNAL = 254,
 };
 
-char	version_string[18];
+char version_string[18];
 
 typedef struct VuurmuurScript_
 {
-	int		cmd,
-			type;
+    int         cmd,
+                type;
 
-	char		name[MAX_HOST_NET_ZONE],
+    char        name[MAX_HOST_NET_ZONE],
 
-			name_zone[MAX_ZONE],
-			name_net[MAX_NETWORK],
-			name_host[MAX_HOST];
+                name_zone[MAX_ZONE],
+                name_net[MAX_NETWORK],
+                name_host[MAX_HOST];
 
-	char		var[32];
-	char		set[1024];
+    char        var[32];
+    char        set[1024];
 
-	char		overwrite;
+    char        overwrite;
 
-	/* some data used by most function */
-	int		zonetype;
-	char		bdat[1024];
-	struct rgx_	reg;
+    /* some data used by most function */
+    int         zonetype;
+    char        bdat[1024];
+    struct rgx_ reg;
 
-	/* try to instruct vuurmuur and vuurmuur_log to reload? */
-	char		apply;
+    /* try to instruct vuurmuur and vuurmuur_log to reload? */
+    char        apply;
 
-	/* print rule numbers? */
-	char		print_rule_numbers;
+    /* print rule numbers? */
+    char        print_rule_numbers;
 
 } VuurmuurScript;
 
