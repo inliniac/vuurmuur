@@ -23,46 +23,46 @@
 static void
 menunameprint(const int debuglvl, WINDOW *win, const char *menuname)
 {
-	if(menuname == NULL)
-		return;
+    if(menuname == NULL)
+        return;
 
-	mvwprintw(win, 0, 2, " %s ", menuname);
+    mvwprintw(win, 0, 2, " %s ", menuname);
 }
 
 
 static int
 keyprint(const int debuglvl, WINDOW *win, int y, int x, const char *keystr, const char *fmt, ...)
 {
-	int	res = 0,
-		printlen = 0;
+    int res = 0,
+        printlen = 0;
 
-	if(keystr == NULL || fmt == NULL)
-		return(-1);
+    if(keystr == NULL || fmt == NULL)
+        return(-1);
 
-	printlen = (int)(StrLen(keystr) + 2 + StrLen(fmt));
+    printlen = (int)(StrLen(keystr) + 2 + StrLen(fmt));
 
-	if(printlen + x > COLS - 2)
-		return(0);
-	if(x > COLS - 2)
-		return(0);
+    if(printlen + x > COLS - 2)
+        return(0);
+    if(x > COLS - 2)
+        return(0);
 
-	wattron(win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
-	mvwprintw(win, y, x, "%s:", keystr);
-	wattroff(win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+    wattron(win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+    mvwprintw(win, y, x, "%s:", keystr);
+    wattroff(win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
 
-	wattron(win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
-	mvwprintw(win, y, (int)(x +  StrLen(keystr) + 1), fmt);
-	wattroff(win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+    wattron(win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+    mvwprintw(win, y, (int)(x +  StrLen(keystr) + 1), fmt);
+    wattroff(win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
 
-	res = (int)(x + StrLen(keystr) + 1 + StrLen(fmt) + 2);
+    res = (int)(x + StrLen(keystr) + 1 + StrLen(fmt) + 2);
 
-	return(res);
+    return(res);
 }
 
 
 struct
 {
-	char	hostname[60];
+    char    hostname[60];
 
 } TopMenu;
 
@@ -70,55 +70,55 @@ struct
 static void
 setup_topmenu(WINDOW *local_win)
 {
-	int	max_width, max_heigth;
+    int max_width, max_heigth;
 
-	if(!local_win)
-		return;
+    if(!local_win)
+        return;
 
-	getmaxyx(stdscr, max_heigth, max_width);
+    getmaxyx(stdscr, max_heigth, max_width);
 
-	/* get the hostname */
-	if(gethostname(TopMenu.hostname, sizeof(TopMenu.hostname)) < 0)
-		(void)strlcpy(TopMenu.hostname, gettext("error"),
-				sizeof(TopMenu.hostname));
+    /* get the hostname */
+    if(gethostname(TopMenu.hostname, sizeof(TopMenu.hostname)) < 0)
+        (void)strlcpy(TopMenu.hostname, gettext("error"),
+                sizeof(TopMenu.hostname));
 
-	wattron(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
-	mvwprintw(local_win, 0, (int)(max_width - 4 - StrLen(TopMenu.hostname)), " %s ", TopMenu.hostname);
-	wattroff(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    wattron(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    mvwprintw(local_win, 0, (int)(max_width - 4 - StrLen(TopMenu.hostname)), " %s ", TopMenu.hostname);
+    wattroff(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
 }
 
 void
 draw_top_menu(const int debuglvl, WINDOW *local_win, char *title, int key_n, char **keys, int cmd_n, char **cmds)
 {
-	int	max_width = 0,
-		max_heigth = 0,
-		pos = 2,
-		i = 0;
+    int max_width = 0,
+        max_heigth = 0,
+        pos = 2,
+        i = 0;
 
-	if(key_n != cmd_n)
-	{
-		(void)vrprint.error(-1, VR_INTERR, "key_n != cmd_n (in: %s:%d)",
-							__FUNC__, __LINE__);
-		return;
-	}
+    if(key_n != cmd_n)
+    {
+        (void)vrprint.error(-1, VR_INTERR, "key_n != cmd_n (in: %s:%d)",
+                            __FUNC__, __LINE__);
+        return;
+    }
 
-	getmaxyx(stdscr, max_heigth, max_width);
-	werase(local_win);
+    getmaxyx(stdscr, max_heigth, max_width);
+    werase(local_win);
 
-	/* draw the box and the title */
-	wattron(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-	box(local_win, 0 , 0);
-	menunameprint(debuglvl, local_win, title);
-	wattroff(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    /* draw the box and the title */
+    wattron(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    box(local_win, 0 , 0);
+    menunameprint(debuglvl, local_win, title);
+    wattroff(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
 
-	for(i = 0; i < key_n; i++)
-	{
-		pos = keyprint(debuglvl, local_win, 1, pos, keys[i], cmds[i]);
-		if(pos == 0)
-			break;
-	}
+    for(i = 0; i < key_n; i++)
+    {
+        pos = keyprint(debuglvl, local_win, 1, pos, keys[i], cmds[i]);
+        if(pos == 0)
+            break;
+    }
 
-	setup_topmenu(local_win);
-	update_panels();
-	doupdate();
+    setup_topmenu(local_win);
+    update_panels();
+    doupdate();
 }

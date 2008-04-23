@@ -24,55 +24,55 @@
 /* menu wrapper */
 typedef struct
 {
-	MENU		*m;
-	ITEM		**i;
-	unsigned int	nitems;
+    MENU            *m;
+    ITEM            **i;
+    unsigned int    nitems;
 
-	char		use_namelist;
-	d_list		name;
-	void		(*free_name)(void *ptr);
+    char            use_namelist;
+    d_list          name;
+    void            (*free_name)(void *ptr);
 
-	char		use_desclist;
-	d_list		desc;
-	void		(*free_desc)(void *ptr);
+    char            use_desclist;
+    d_list          desc;
+    void            (*free_desc)(void *ptr);
 
-	unsigned int	cur_item;
+    unsigned int    cur_item;
 
-	chtype		fg,
-			bg;
+    chtype          fg,
+                    bg;
 
-	int		h,			/* height */
-			w,			/* width */
-			y,			/*	y start relative
-							to win */
-			x;			/*	x start relative
-							to win */
-	WINDOW		*dw;			/* used by derwin */
+    int             h,  /* height */
+                    w,  /* width */
+                    y,  /*  y start relative
+                            to win */
+                    x;  /*  x start relative
+                            to win */
+    WINDOW          *dw;    /* used by derwin */
 
 } VrMenu;
 
 /* form wrapper */
 typedef struct
 {
-	FORM		*f;
-	FIELD		**fields;
-	FIELD		*cur, *prev;
-	unsigned int	nfields;
-	unsigned int	cur_field;
+    FORM            *f;
+    FIELD           **fields;
+    FIELD           *cur, *prev;
+    unsigned int    nfields;
+    unsigned int    cur_field;
 
-	chtype		fg,
-			bg;
+    chtype          fg,
+                    bg;
 
-	int		h,			/* height */
-			w,			/* width */
-			y,			/*	y start relative
-							to win */
-			x;			/*	x start relative
-							to win */
-	WINDOW		*dw;			/* used by derwin */
+    int             h,  /* height */
+                    w,  /* width */
+                    y,  /*  y start relative
+                            to win */
+                    x;  /*  x start relative
+                            to win */
+    WINDOW          *dw;    /* used by derwin */
 
-	int		(*save)(const int debuglvl, void *ctx, char *name, char *value);
-	void		*save_ctx;
+    int             (*save)(const int debuglvl, void *ctx, char *name, char *value);
+    void            *save_ctx;
 
 } VrForm;
 
@@ -80,19 +80,19 @@ typedef struct
 typedef struct
 {
 
-	WINDOW	*w;
-	PANEL	*p;
+    WINDOW  *w;
+    PANEL   *p;
 
-	int	height,
-		width;
+    int     height,
+            width;
 
-	/* TODO: add menu? */
+    /* TODO: add menu? */
 
 } VrWin;
 
 
 /* global busywin */
-VrWin			*vr_busywin;
+VrWin   *vr_busywin;
 
 void VrBusyWinCreate(const int debuglvl);
 void VrBusyWinShow(void);

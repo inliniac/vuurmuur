@@ -23,12 +23,12 @@
 
 struct FilterFields_
 {
-	FIELD	**fields;
+    FIELD   **fields;
 
-	FIELD	*string_fld,
-		*check_fld;
+    FIELD   *string_fld,
+            *check_fld;
 
-	size_t	n_fields;
+    size_t  n_fields;
 
 } FiFi;
 
@@ -37,283 +37,283 @@ struct FilterFields_
 static int
 filter_save(const int debuglvl, VR_filter *filter)
 {
-	size_t	i = 0;
-	char	filter_str[48] = "";
+    size_t  i = 0;
+    char    filter_str[48] = "";
 
-	/* safety */
-	if(filter == NULL)
-	{
-		(void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
-								__FUNC__, __LINE__);
-		return(-1);
-	}
+    /* safety */
+    if(filter == NULL)
+    {
+        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+                                __FUNC__, __LINE__);
+        return(-1);
+    }
 
-	/* check for changed fields */
-	for(i = 0; i < FiFi.n_fields; i++)
-	{
-		if(FiFi.fields[i] == FiFi.check_fld)
-		{
-			if(strncmp(field_buffer(FiFi.fields[i], 0), "X", 1) == 0)
-				filter->neg = TRUE;
-			else
-				filter->neg = FALSE;
+    /* check for changed fields */
+    for(i = 0; i < FiFi.n_fields; i++)
+    {
+        if(FiFi.fields[i] == FiFi.check_fld)
+        {
+            if(strncmp(field_buffer(FiFi.fields[i], 0), "X", 1) == 0)
+                filter->neg = TRUE;
+            else
+                filter->neg = FALSE;
 
-			if(debuglvl >= MEDIUM)
-				(void)vrprint.debug(__FUNC__, "filter->neg is now %s.",
-								filter->neg ? "TRUE" : "FALSE");
-		}
+            if(debuglvl >= MEDIUM)
+                (void)vrprint.debug(__FUNC__, "filter->neg is now %s.",
+                                filter->neg ? "TRUE" : "FALSE");
+        }
 
-		/* ipaddress field */
-		else if(FiFi.fields[i] == FiFi.string_fld)
-		{
-			if(!(copy_field2buf(	filter->str,
-						field_buffer(FiFi.fields[i], 0),
-						sizeof(filter->str))))
-				return(-1);
+        /* ipaddress field */
+        else if(FiFi.fields[i] == FiFi.string_fld)
+        {
+            if(!(copy_field2buf(filter->str,
+                                field_buffer(FiFi.fields[i], 0),
+                                sizeof(filter->str))))
+                return(-1);
 
-			if(debuglvl >= MEDIUM)
-				(void)vrprint.debug(__FUNC__, "filter field changed: %s.",
-								filter->str);
+            if(debuglvl >= MEDIUM)
+                (void)vrprint.debug(__FUNC__, "filter field changed: %s.",
+                                filter->str);
 
-			/* new str */
-			if(StrLen(filter->str) > 0)
-			{
-				if(filter->reg_active == TRUE)
-				{
-					/* first remove old regex */
-					regfree(&filter->reg);
-					/* set reg_active to false */
-					filter->reg_active = FALSE;
-				}
+            /* new str */
+            if(StrLen(filter->str) > 0)
+            {
+                if(filter->reg_active == TRUE)
+                {
+                    /* first remove old regex */
+                    regfree(&filter->reg);
+                    /* set reg_active to false */
+                    filter->reg_active = FALSE;
+                }
 
-				snprintf(filter_str, sizeof(filter_str), ".*%s.*", filter->str);
+                snprintf(filter_str, sizeof(filter_str), ".*%s.*", filter->str);
 
-				/* create the new regex */
-				if(regcomp(&filter->reg, filter_str, REG_EXTENDED) != 0)
-				{
-					(void)vrprint.error(-1, VR_INTERR, "setting up the regular expression with regcomp failed. Disabling filter.");
-					return(-1);
-				}
+                /* create the new regex */
+                if(regcomp(&filter->reg, filter_str, REG_EXTENDED) != 0)
+                {
+                    (void)vrprint.error(-1, VR_INTERR, "setting up the regular expression with regcomp failed. Disabling filter.");
+                    return(-1);
+                }
 
-				/* set reg_active to true */
-				filter->reg_active = TRUE;
-			}
+                /* set reg_active to true */
+                filter->reg_active = TRUE;
+            }
 
-			/* empty field, remove regex */
-			if(StrLen(filter->str) == 0 && filter->reg_active == TRUE)
-			{
-				/* first remove old regex */
-				regfree(&filter->reg);
+            /* empty field, remove regex */
+            if(StrLen(filter->str) == 0 && filter->reg_active == TRUE)
+            {
+                /* first remove old regex */
+                regfree(&filter->reg);
 
-				/* set reg_active to false */
-				filter->reg_active = FALSE;
-			}
-		}
-		else
-		{
-			(void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).",
-									__FUNC__, __LINE__);
-			return(-1);
-		}
-	}
+                /* set reg_active to false */
+                filter->reg_active = FALSE;
+            }
+        }
+        else
+        {
+            (void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).",
+                                    __FUNC__, __LINE__);
+            return(-1);
+        }
+    }
 
-	return(0);
+    return(0);
 }
 
 
 int
 filter_input_box(const int debuglvl, VR_filter *filter)
 {
-	WINDOW  *ib_win = NULL;
-	PANEL   *my_panels[1];
-	FIELD   *cur = NULL,
-		*prev = NULL;
-	FORM    *my_form = NULL;
-	int	height = 0,
-		width = 0,
-		startx = 0,
-		starty = 0,
-		max_height = 0,
-		max_width = 0,
-		ch = 0,
-		rows = 0,
-		cols = 0,
-		quit = 0;
-	size_t	i = 0;
-	char	not_defined = FALSE;
+    WINDOW  *ib_win = NULL;
+    PANEL   *my_panels[1];
+    FIELD   *cur = NULL,
+            *prev = NULL;
+    FORM    *my_form = NULL;
+    int     height = 0,
+            width = 0,
+            startx = 0,
+            starty = 0,
+            max_height = 0,
+            max_width = 0,
+            ch = 0,
+            rows = 0,
+            cols = 0,
+            quit = 0;
+    size_t  i = 0;
+    char    not_defined = FALSE;
 
-	/* init fields */
-	memset(&FiFi, 0, sizeof(struct FilterFields_));
+    /* init fields */
+    memset(&FiFi, 0, sizeof(struct FilterFields_));
 
-	/* set the window size */
-	getmaxyx(stdscr, max_height, max_width);
-	height = 9;
-	width = 48;
+    /* set the window size */
+    getmaxyx(stdscr, max_height, max_width);
+    height = 9;
+    width = 48;
 
-	/* print on the center of the screen */
-	startx = (max_height - height) / 2;
-	starty = (max_width - width) / 2;
+    /* print on the center of the screen */
+    startx = (max_height - height) / 2;
+    starty = (max_width - width) / 2;
 
-	/* create window */
-	ib_win = create_newwin(height, width, startx, starty, gettext("Filter"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-	if(ib_win == NULL)
-	{
-		(void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
-		return(-1);
-	}
+    /* create window */
+    ib_win = create_newwin(height, width, startx, starty, gettext("Filter"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    if(ib_win == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        return(-1);
+    }
 
-	my_panels[0] = new_panel(ib_win);
-	if(my_panels[0] == NULL)
-	{
-		(void)vrprint.error(-1, VR_ERR, gettext("creating panel failed."));
-		return(-1);
-	}
+    my_panels[0] = new_panel(ib_win);
+    if(my_panels[0] == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, gettext("creating panel failed."));
+        return(-1);
+    }
 
-	FiFi.n_fields = 2;
+    FiFi.n_fields = 2;
 
-	FiFi.fields = (FIELD **)calloc(FiFi.n_fields + 1, sizeof(FIELD *));
-	if(FiFi.fields == NULL)
-	{
-		(void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
-								strerror(errno), __FUNC__, __LINE__);
-		return(-1);
-	}
+    FiFi.fields = (FIELD **)calloc(FiFi.n_fields + 1, sizeof(FIELD *));
+    if(FiFi.fields == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
+                                strerror(errno), __FUNC__, __LINE__);
+        return(-1);
+    }
  
-	FiFi.string_fld = (FiFi.fields[0] = new_field(1, 31, 3,  4, 0, 0));
-	FiFi.check_fld = (FiFi.fields[1]  = new_field(1,  1, 5,  5, 0, 0));
+    FiFi.string_fld = (FiFi.fields[0] = new_field(1, 31, 3,  4, 0, 0));
+    FiFi.check_fld = (FiFi.fields[1]  = new_field(1,  1, 5,  5, 0, 0));
 
-	set_field_back(FiFi.string_fld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-	field_opts_off(FiFi.string_fld, O_AUTOSKIP);
-	set_field_status(FiFi.string_fld, FALSE);
-	set_field_buffer_wrap(debuglvl, FiFi.string_fld, 0, filter->str);
+    set_field_back(FiFi.string_fld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    field_opts_off(FiFi.string_fld, O_AUTOSKIP);
+    set_field_status(FiFi.string_fld, FALSE);
+    set_field_buffer_wrap(debuglvl, FiFi.string_fld, 0, filter->str);
 
 
-	set_field_back(FiFi.check_fld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-	field_opts_off(FiFi.check_fld, O_AUTOSKIP);
-	set_field_status(FiFi.check_fld, FALSE);
-	set_field_buffer_wrap(debuglvl, FiFi.check_fld, 0, filter->neg ? "X" : " ");
+    set_field_back(FiFi.check_fld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    field_opts_off(FiFi.check_fld, O_AUTOSKIP);
+    set_field_status(FiFi.check_fld, FALSE);
+    set_field_buffer_wrap(debuglvl, FiFi.check_fld, 0, filter->neg ? "X" : " ");
 
-	my_form = new_form(FiFi.fields);
-	scale_form(my_form, &rows, &cols);
-	keypad(ib_win, TRUE);
-	set_form_win(my_form, ib_win);
-	set_form_sub(my_form, derwin(ib_win, rows, cols, 1, 2));
-	post_form(my_form);
+    my_form = new_form(FiFi.fields);
+    scale_form(my_form, &rows, &cols);
+    keypad(ib_win, TRUE);
+    set_form_win(my_form, ib_win);
+    set_form_sub(my_form, derwin(ib_win, rows, cols, 1, 2));
+    post_form(my_form);
 
-	mvwprintw(ib_win, 2, 4, gettext("Enter filter (leave empty for no filter)"));
-	
-	mvwprintw(ib_win, 6, 6, "[");
-	mvwprintw(ib_win, 6, 8, "]");
-	mvwprintw(ib_win, 6, 11, gettext("show lines that don't match"));
+    mvwprintw(ib_win, 2, 4, gettext("Enter filter (leave empty for no filter)"));
+    
+    mvwprintw(ib_win, 6, 6, "[");
+    mvwprintw(ib_win, 6, 8, "]");
+    mvwprintw(ib_win, 6, 11, gettext("show lines that don't match"));
 
-	update_panels();
-	doupdate();
+    update_panels();
+    doupdate();
 
-	if(!(cur = current_field(my_form)))
-	{
-		(void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
-								__FUNC__, __LINE__);
-		return(-1);
-	}
+    if(!(cur = current_field(my_form)))
+    {
+        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
+                                __FUNC__, __LINE__);
+        return(-1);
+    }
 
-	while(quit == 0)
-	{
-		/* draw nice markers */
-		draw_field_active_mark(cur, prev, ib_win, my_form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+    while(quit == 0)
+    {
+        /* draw nice markers */
+        draw_field_active_mark(cur, prev, ib_win, my_form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
 
-		not_defined = 0;
+        not_defined = 0;
 
-		/* get user input */
-		ch = wgetch(ib_win);
+        /* get user input */
+        ch = wgetch(ib_win);
 
-		if(cur == FiFi.check_fld)
-		{
-			if(nav_field_toggleX(debuglvl, my_form, ch) < 0)
-				not_defined = 1;
-		}
-		else if(cur == FiFi.string_fld)
-		{
-			if(nav_field_simpletext(debuglvl, my_form, ch) < 0)
-				not_defined = 1;
-		}
-		else
-		{
-			not_defined = 1;
-		}
+        if(cur == FiFi.check_fld)
+        {
+            if(nav_field_toggleX(debuglvl, my_form, ch) < 0)
+                not_defined = 1;
+        }
+        else if(cur == FiFi.string_fld)
+        {
+            if(nav_field_simpletext(debuglvl, my_form, ch) < 0)
+                not_defined = 1;
+        }
+        else
+        {
+            not_defined = 1;
+        }
 
-		/* the rest is handled here */
-		if(not_defined)
-		{
-			switch(ch)
-			{
-				case KEY_UP:
+        /* the rest is handled here */
+        if(not_defined)
+        {
+            switch(ch)
+            {
+                case KEY_UP:
 
-					form_driver(my_form, REQ_PREV_FIELD);
-					form_driver(my_form, REQ_END_LINE);
-					break;
+                    form_driver(my_form, REQ_PREV_FIELD);
+                    form_driver(my_form, REQ_END_LINE);
+                    break;
 
-				case KEY_DOWN:
-				case 9:		// tab
+                case KEY_DOWN:
+                case 9: // tab
 
-					form_driver(my_form, REQ_NEXT_FIELD);
-					form_driver(my_form, REQ_END_LINE);
-					break;
+                    form_driver(my_form, REQ_NEXT_FIELD);
+                    form_driver(my_form, REQ_END_LINE);
+                    break;
 
-				case 10: // enter
+                case 10: // enter
 
-					if(cur == FiFi.check_fld)
-					{
-						quit = 1;
-					}
-					else
-					{
-						form_driver(my_form, REQ_NEXT_FIELD);
-						form_driver(my_form, REQ_END_LINE);
-					}
-					break;
+                    if(cur == FiFi.check_fld)
+                    {
+                        quit = 1;
+                    }
+                    else
+                    {
+                        form_driver(my_form, REQ_NEXT_FIELD);
+                        form_driver(my_form, REQ_END_LINE);
+                    }
+                    break;
 
-				case KEY_F(10):
-				case 'q':
-				case 'Q':
+                case KEY_F(10):
+                case 'q':
+                case 'Q':
 
-					quit = 1;
-					break;
-			}
-		}
+                    quit = 1;
+                    break;
+            }
+        }
 
-		/* before we get the new 'cur', store cur in prev */
-		prev = cur;
-		if(!(cur = current_field(my_form)))
-		{
-			(void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
-			return(-1);
-		}
+        /* before we get the new 'cur', store cur in prev */
+        prev = cur;
+        if(!(cur = current_field(my_form)))
+        {
+            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
+            return(-1);
+        }
 
-		/* draw and set cursor */
-		wrefresh(ib_win);
-		pos_form_cursor(my_form);
-	}
+        /* draw and set cursor */
+        wrefresh(ib_win);
+        pos_form_cursor(my_form);
+    }
 
-	/* save here */
-	if(filter_save(debuglvl, filter) < 0)
-	{
-		(void)vrprint.error(-1, VR_ERR, gettext("setting filter failed."));
-	}
+    /* save here */
+    if(filter_save(debuglvl, filter) < 0)
+    {
+        (void)vrprint.error(-1, VR_ERR, gettext("setting filter failed."));
+    }
 
-	unpost_form(my_form);
-	free_form(my_form);
+    unpost_form(my_form);
+    free_form(my_form);
 
-	for(i=0; i < FiFi.n_fields; i++)
-	{
-		free_field(FiFi.fields[i]);
-	}
-	free(FiFi.fields);
+    for(i=0; i < FiFi.n_fields; i++)
+    {
+        free_field(FiFi.fields[i]);
+    }
+    free(FiFi.fields);
 
-	del_panel(my_panels[0]);
-	destroy_win(ib_win);
+    del_panel(my_panels[0]);
+    destroy_win(ib_win);
 
-	update_panels();
-	doupdate();
+    update_panels();
+    doupdate();
 
-	return(0);
+    return(0);
 }
