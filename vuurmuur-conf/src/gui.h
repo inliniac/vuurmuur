@@ -86,6 +86,8 @@ typedef struct
     int     height,
             width;
 
+    int     y, x;
+
     /* TODO: add menu? */
 
 } VrWin;

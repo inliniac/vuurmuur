@@ -111,6 +111,8 @@ VrNewWin(int h, int w, int y, int x, chtype cp)
 
     win->height = h;
     win->width= w;
+    win->y = y;
+    win->x = x;
 
     return(win);
 }
@@ -1279,6 +1281,99 @@ form_test_save(const int debuglvl, void *ctx, char *name, char *value)
     return(0);
 }
 
+char *
+VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
+    VrWin           *win = NULL;
+    VrMenu          *menu = NULL;
+    int             ch = 0;
+    int             menu_items = bps ? 4 : 2;
+    char            *str = NULL;
+    const int       width = 8;
+    char            *title = gettext("Select unit");
+    char            *r = unit; /* default to unit */
+
+    /* create the window and put it in the middle of the screen */
+    win = VrNewWin(menu_items + 2,width,y,x,COLOR_PAIR(CP_BLUE_WHITE));
+    if(win == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        return;
+    }
+
+    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,COLOR_PAIR(CP_BLUE_WHITE),COLOR_PAIR(CP_WHITE_BLUE));
+    if(menu == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrNewMenu failed");
+        return;
+    }
+
+    VrMenuSetDescFreeFunc(menu, NULL);
+    VrMenuSetupNameList(debuglvl, menu);
+    //VrMenuSetupDescList(debuglvl, menu);
+
+    /* setup menu items */
+    VrMenuAddItem(debuglvl, menu, "kbit", NULL);
+    VrMenuAddItem(debuglvl, menu, "mbit", NULL);
+    if (bps) {
+        VrMenuAddItem(debuglvl, menu, "kbps", NULL);
+        VrMenuAddItem(debuglvl, menu, "mbps", NULL);
+    }
+
+    VrMenuConnectToWin(debuglvl, menu, win);
+    VrMenuPost(debuglvl, menu);
+
+    update_panels();
+    doupdate();
+
+    /* user input */
+    char quit = FALSE;
+    while(quit == FALSE)
+    {
+        ch = VrWinGetch(win);
+
+        switch(ch)
+        {
+            case 'q':
+            case 'Q':
+            case KEY_F(10):
+                quit = TRUE;
+                break;
+
+            case 10:
+            {
+                ITEM *cur = current_item(menu->m);
+                if(cur != NULL)
+                {
+                    r = strdup((char *)item_name(cur));
+                    (void)vrprint.debug(__FUNC__, "r %s", r);
+                    quit = TRUE;
+                }
+
+                break;
+            }
+
+            case KEY_F(12):
+            case 'h':
+            case 'H':
+            case '?':
+                //print_help(debuglvl, ctl->help_actions);
+                break;
+
+            default:
+                (void)VrMenuDefaultNavigation(debuglvl, menu, ch);
+                break;
+        }
+    }
+
+    VrDelMenu(debuglvl, menu);
+    VrDelWin(win);
+    update_panels();
+    doupdate();
+
+    (void)vrprint.debug(__FUNC__, "@exit r %s", r);
+    return r;
+}
+
 struct ShapeRuleCnf_ {
     struct options *opt;
 
@@ -1365,14 +1460,14 @@ void VrShapeRule(const int debuglvl, struct options *opt) {
         return;
     }
     
-        /* create the window and put it in the middle of the screen */
-        win = VrNewWin(16,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
-        if(win == NULL)
-        {
-                (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
-                return;
-        }
-        VrWinSetTitle(win, "Shaping");
+    /* create the window and put it in the middle of the screen */
+    win = VrNewWin(16,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    if (win == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        return;
+    }
+    VrWinSetTitle(win, "Shaping");
 
     form = VrNewForm(14, 58, 1, 1, 14, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
 
@@ -1396,19 +1491,17 @@ void VrShapeRule(const int debuglvl, struct options *opt) {
     VrFormAddTextField(debuglvl, form,  1,  5, 9, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "prio", config.prio);
 
     VrFormConnectToWin(debuglvl, form, win);
+    VrFormPost(debuglvl, form);
+    update_panels();
+    doupdate();
 
-        VrFormPost(debuglvl, form);
-
-        update_panels();
-        doupdate();
-
-        /* user input */
-        char quit = FALSE;
-        while(quit == FALSE)
-        {
+    /* user input */
+    char quit = FALSE;
+    while(quit == FALSE)
+    {
         VrFormDrawMarker(debuglvl, win, form);
 
-                ch = VrWinGetch(win);
+        ch = VrWinGetch(win);
 
         /* check OK/Cancel buttons */
         result = VrFormCheckOKCancel(debuglvl, form, ch);
@@ -1416,19 +1509,33 @@ void VrShapeRule(const int debuglvl, struct options *opt) {
             break;
         }
 
-        if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
-                    switch(ch)
-                    {
-                        case KEY_DOWN:
-                        case 10: // enter
-                                form_driver(form->f, REQ_NEXT_FIELD);
-                                form_driver(form->f, REQ_BEG_LINE);
-                    break;
-                            case 'q':
-                            case 'Q':
-                            case KEY_F(10):
-                                    quit = TRUE;
-                                    break;
+        char *b = field_buffer(form->cur, 1);
+        if (ch == 32 && 
+            (strcmp(b,"unit1") == 0 || strcmp(b,"unit2") == 0 ||
+             strcmp(b,"unit3") == 0 || strcmp(b,"unit4") == 0))
+        {
+            int h,w,i;
+            field_info(form->cur, &i,&i,&h,&w,&i,&i);
+
+            char *u = VrShapeUnitMenu(debuglvl, field_buffer(form->cur, 0), h+2+win->y, w-1+win->x, /* draw bps */1);
+            (void)vrprint.debug(__FUNC__, "u %s", u);
+            if (u) {
+                set_field_buffer_wrap(debuglvl, form->cur, 0, u);
+                free(u);
+            }
+        } else if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
+             switch(ch)
+             {
+                 case KEY_DOWN:
+                 case 10: // enter
+                     form_driver(form->f, REQ_NEXT_FIELD);
+                     form_driver(form->f, REQ_BEG_LINE);
+                     break;
+                 case 'q':
+                 case 'Q':
+                 case KEY_F(10):
+                     quit = TRUE;
+                         break;
             }
         }
     }
@@ -1436,9 +1543,8 @@ void VrShapeRule(const int debuglvl, struct options *opt) {
     VrFormUnPost(debuglvl, form);
     VrDelForm(debuglvl, form);
     VrDelWin(win);
-        update_panels();
-        doupdate();
-
+    update_panels();
+    doupdate();
 }
 
 struct ShapeIfaceCnf_ {
@@ -1599,14 +1705,14 @@ void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
         return;
     }
     
-        /* create the window and put it in the middle of the screen */
-        win = VrNewWin(11,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
-        if(win == NULL)
-        {
-                (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
-                return;
-        }
-        VrWinSetTitle(win, "Shaping");
+    /* create the window and put it in the middle of the screen */
+    win = VrNewWin(11,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    if(win == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        return;
+    }
+    VrWinSetTitle(win, "Shaping");
 
     form = VrNewForm(9, 58, 1, 1, 9, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
 
@@ -1623,18 +1729,18 @@ void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
 
     VrFormConnectToWin(debuglvl, form, win);
 
-        VrFormPost(debuglvl, form);
+    VrFormPost(debuglvl, form);
 
-        update_panels();
-        doupdate();
+    update_panels();
+    doupdate();
 
-        /* user input */
-        char quit = FALSE;
-        while(quit == FALSE)
-        {
+    /* user input */
+    char quit = FALSE;
+    while(quit == FALSE)
+    {
         VrFormDrawMarker(debuglvl, win, form);
 
-                ch = VrWinGetch(win);
+        ch = VrWinGetch(win);
 
         /* check OK/Cancel buttons */
         result = VrFormCheckOKCancel(debuglvl, form, ch);
@@ -1642,19 +1748,32 @@ void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
             break;
         }
 
-        if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
-                    switch(ch)
-                    {
-                        case KEY_DOWN:
-                        case 10: // enter
-                                form_driver(form->f, REQ_NEXT_FIELD);
-                                form_driver(form->f, REQ_BEG_LINE);
+        char *b = field_buffer(form->cur, 1);
+        if (ch == 32 && 
+            (strcmp(b,"unit1") == 0 || strcmp(b,"unit2") == 0))
+        {
+            int h,w,i;
+            field_info(form->cur, &i,&i,&h,&w,&i,&i);
+
+            char *u = VrShapeUnitMenu(debuglvl, field_buffer(form->cur, 0), h+2+win->y, w-1+win->x, 0);
+            (void)vrprint.debug(__FUNC__, "u %s", u);
+            if (u) {
+                set_field_buffer_wrap(debuglvl, form->cur, 0, u);
+                free(u);
+            }
+        } else if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
+            switch(ch)
+            {
+                case KEY_DOWN:
+                case 10: // enter
+                    form_driver(form->f, REQ_NEXT_FIELD);
+                    form_driver(form->f, REQ_BEG_LINE);
                     break;
-                            case 'q':
-                            case 'Q':
-                            case KEY_F(10):
-                                    quit = TRUE;
-                                    break;
+                case 'q':
+                case 'Q':
+                case KEY_F(10):
+                    quit = TRUE;
+                    break;
             }
         }
     }
