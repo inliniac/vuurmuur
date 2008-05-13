@@ -4120,6 +4120,14 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
                 case KEY_F(6):
                 case 'S':
                 case 's':
+                    if(rule_ptr->opt == NULL)
+                    {
+                        if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                        {
+                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            return(-1);
+                        }
+                    }
                     VrShapeRule(debuglvl, rule_ptr->opt);
                     break;
                 case KEY_DOWN:
