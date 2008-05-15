@@ -74,7 +74,7 @@ make
 
 
 %install
-%makeinstall prefix=%{root_prefix} localedir=%{locale_prefix}
+%makeinstall prefix=%{root_prefix}
 
 mkdir -p -m 0700 %{root_prefix} \
 		 %{conf_prefix}vuurmuur
