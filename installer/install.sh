@@ -949,6 +949,20 @@ if [ "$INSTALL" = "1" ]; then
             IPTABLESRESLOC="/sbin/iptables-restore"
         fi
 
+        # seek conntrack
+        which conntrack &> /dev/null
+        RESULT=$?
+        if [ "$RESULT" = "0" ]; then
+            CONNTRACKLOC=`which conntrack`
+        fi
+
+        # seek tc
+        which tc &> /dev/null
+        RESULT=$?
+        if [ "$RESULT" = "0" ]; then
+            TCLOC=`which tc`
+        fi
+
         # seek modprobe
         which modprobe &> /dev/null
         RESULT=$?
@@ -976,6 +990,10 @@ if [ "$INSTALL" = "1" ]; then
         echo "IPTABLES=\"$IPTABLESLOC\"" >> $CONFIGFILE
         echo "# Location of the iptables-restore-command (full path)." >> $CONFIGFILE
         echo "IPTABLES_RESTORE=\"$IPTABLESRESLOC\"" >> $CONFIGFILE
+        echo "# Location of the conntrack-command (full path)." >> $CONFIGFILE
+        echo "CONNTRACK=\"$CONNTRACKLOC\"" >> $CONFIGFILE
+        echo "# Location of the tc-command (full path)." >> $CONFIGFILE
+        echo "TC=\"$TCLOC\"" >> $CONFIGFILE
         echo >> $CONFIGFILE
 
         echo "# Location of the modprobe-command (full path)." >> $CONFIGFILE
