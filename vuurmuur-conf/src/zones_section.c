@@ -2035,7 +2035,9 @@ edit_zone_group_members(const int debuglvl, Zones *zones, struct ZoneData_ *zone
                     cur = current_item(ZonesSection.EditZoneGrp.menu);
                     if(cur)
                     {
-                        if(edit_zone_group_members_delmem(debuglvl, zone_ptr, (char *)item_name(cur)) < 0)
+                        char *n = (char *)item_name(cur);
+
+                        if(edit_zone_group_members_delmem(debuglvl, zone_ptr, n) < 0)
                         {
                             /* if this failes, print error, quit the members screen and set retval */
                             (void)vrprint.error(-1, VR_ERR, gettext("removing groupmember failed."));
@@ -6495,7 +6497,9 @@ zones_section(const int debuglvl, Zones *zones, Interfaces *interfaces, Rules *r
                     cur = current_item(ZonesSection.menu);
                     if(cur)
                     {
-                        if(zones_section_menu_networks(debuglvl, zones, interfaces, rules, blocklist, (char *)item_name(cur), reg) < 0)
+                        char *n = (char *)item_name(cur);
+
+                        if(zones_section_menu_networks(debuglvl, zones, interfaces, rules, blocklist, n, reg) < 0)
                         {
                             retval = -1;
                             quit = 1;

@@ -399,7 +399,6 @@ backend_check_interface_shape(const int debuglvl, char *value, struct rgx_ *reg)
 int
 backend_check_interface_bw(const int debuglvl, char *value, struct rgx_ *reg)
 {
-    struct InterfaceData_   interface;
     int i = 0;
 
     /* safety */
@@ -437,8 +436,6 @@ backend_check_interface_bw(const int debuglvl, char *value, struct rgx_ *reg)
 int
 backend_check_interface_bw_unit(const int debuglvl, char *value, struct rgx_ *reg)
 {
-    struct InterfaceData_   interface;
-
     /* safety */
     if(value == NULL || reg == NULL)
     {

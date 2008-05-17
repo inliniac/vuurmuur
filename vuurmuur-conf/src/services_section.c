@@ -2835,7 +2835,9 @@ services_section(const int debuglvl, Services *services, Rules *rules, struct rg
                         {
                             if(validate_servicename(debuglvl, new_name_ptr, reg->servicename, VALNAME_VERBOSE) == 0)
                             {
-                                result = rename_service(debuglvl, services, rules, (char *)item_name(cur), new_name_ptr);
+                                char *n = (char *)item_name(cur);
+
+                                result = rename_service(debuglvl, services, rules, n, new_name_ptr);
                                 if(result == 0)
                                 {
                                     reload = 1;

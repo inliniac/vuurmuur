@@ -941,9 +941,8 @@ char
 VrFormTextNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
 {
     char    match = FALSE;
-    char    *buf = NULL;
 
-    (void)vrprint.info(VR_INFO, "key %d", key);
+    //(void)vrprint.info(VR_INFO, "key %d", key);
 
     switch(key)
     {
@@ -1013,7 +1012,6 @@ char
 VrFormCheckboxNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
 {
     char    match = FALSE;
-    char    *buf = NULL;
 
     //(void)vrprint.info(VR_INFO, "key %d", key);
 
@@ -1287,9 +1285,7 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
     VrMenu          *menu = NULL;
     int             ch = 0;
     int             menu_items = bps ? 4 : 2;
-    char            *str = NULL;
     const int       width = 8;
-    char            *title = gettext("Select unit");
     char            *r = unit; /* default to unit */
 
     /* create the window and put it in the middle of the screen */
@@ -1297,14 +1293,14 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
     if(win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
-        return;
+        return NULL;
     }
 
     menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,COLOR_PAIR(CP_BLUE_WHITE),COLOR_PAIR(CP_WHITE_BLUE));
     if(menu == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewMenu failed");
-        return;
+        return NULL;
     }
 
     VrMenuSetDescFreeFunc(menu, NULL);

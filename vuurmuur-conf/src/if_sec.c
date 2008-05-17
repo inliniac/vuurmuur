@@ -1674,8 +1674,9 @@ interfaces_section(const int debuglvl, Interfaces *interfaces, Zones *zones,
                     {
                         if(confirm(gettext("Delete"), gettext("Are you sure?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0) == 1)
                         {
-                        
-                            result = interfaces_section_delete_interface(debuglvl, interfaces, (char *)item_name(cur));
+                            char *n = (char *)item_name(cur);
+
+                            result = interfaces_section_delete_interface(debuglvl, interfaces, n);
                             if(result < 0)
                             {
                                 (void)vrprint.error(-1, VR_ERR, gettext("deleting interface %s failed."), (char *)item_name(cur));
