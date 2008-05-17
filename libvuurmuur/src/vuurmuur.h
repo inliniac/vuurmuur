@@ -48,16 +48,16 @@
    to vrprint.debug */
 #define __FUNC__        (char *)__FUNCTION__
 
-#define LIBVUURMUUR_VERSION_MAJOR   0
-#define LIBVUURMUUR_VERSION_MINOR   5
-#define LIBVUURMUUR_VERSION_SUB     74
+#define LIBVUURMUUR_VERSION_MAJOR	0
+#define LIBVUURMUUR_VERSION_MINOR	5
+#define LIBVUURMUUR_VERSION_SUB		74
 
 /* the minimal version of vuurmuur for this lib */
 #define MIN_VUURMUUR_VERSION_MAJOR  0
 #define MIN_VUURMUUR_VERSION_MINOR  5
 #define MIN_VUURMUUR_VERSION_SUB    65
 
-#define VUURMUUR_PRERELEASE_VERSION 3
+#define VUURMUUR_PRERELEASE_VERSION	4
 
 /* we need this to stringify the VUURMUUR_CONFIGDIR which is supplied at compiletime see:
    http://gcc.gnu.org/onlinedocs/gcc-3.4.1/cpp/Stringification.html#Stringification */
