@@ -1286,7 +1286,8 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
     int             ch = 0;
     int             menu_items = bps ? 4 : 2;
     const int       width = 8;
-    char            *r = unit; /* default to unit */
+    char            *r = strdup(unit); /* default to unit --
+                                          dup because we free at the caller*/
 
     /* create the window and put it in the middle of the screen */
     win = VrNewWin(menu_items + 2,width,y,x,COLOR_PAIR(CP_BLUE_WHITE));
