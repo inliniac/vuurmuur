@@ -203,7 +203,7 @@ filter_input_box(const int debuglvl, VR_filter *filter)
     /* XXX: we really should have a wrapper function to just print
      * in the middle of a window to prevent hacks like this. */
     char *s = gettext("Enter filter (leave empty for no filter)");
-    mvwprintw(ib_win, 2, (width - strlen(s))/2, s);
+    mvwprintw(ib_win, 2, (width - StrLen(s))/2, s);
     
     mvwprintw(ib_win, 6, 6, "[");
     mvwprintw(ib_win, 6, 8, "]");
