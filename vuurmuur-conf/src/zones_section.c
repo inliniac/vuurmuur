@@ -675,6 +675,7 @@ edit_zone_host(const int debuglvl, Zones *zones, char *name, struct rgx_ *reg)
                     form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
                     break;
 
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -1294,6 +1295,7 @@ zones_section_menu_hosts(const int debuglvl, Zones *zones, Rules *rules, BlockLi
             ch = wgetch(ZonesSection.h_win);
             switch(ch)
             {
+                case 27:
                 case KEY_LEFT:
                 case KEY_F(10):
                 case 'q':
@@ -2012,6 +2014,7 @@ edit_zone_group_members(const int debuglvl, Zones *zones, struct ZoneData_ *zone
             ch = wgetch(ZonesSection.EditZoneGrp.win);
             switch(ch)
             {
+                case 27:
                 case 'q':
                 case 'Q':
                 case KEY_F(10): //quit
@@ -2478,6 +2481,7 @@ edit_zone_group(const int debuglvl, Zones *zones, char *name)
                     draw_top_menu(debuglvl, top_win, gettext("Edit Group"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     break;
 
+                case 27:
                 case 'q':
                 case 'Q':
                 case KEY_F(10): /* quit */
@@ -2862,6 +2866,7 @@ zones_section_menu_groups(const int debuglvl, Zones *zones, Rules *rules, BlockL
             ch = wgetch(ZonesSection.h_win);
             switch(ch)
             {
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -3837,6 +3842,7 @@ edit_zone_network_interfaces(const int debuglvl, Interfaces *interfaces, struct 
             
             switch(ch)
             {
+                case 27:
                 case KEY_LEFT:
                 case 'q':
                 case 'Q':
@@ -5000,6 +5006,7 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
                     form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
                     break;
                 
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -5378,6 +5385,7 @@ zones_section_menu_networks(const int debuglvl,
 
             switch(ch)
             {
+                case 27:
                 case KEY_F(10): // exit/back
                 case 'q':
                 case 'Q':
@@ -6040,6 +6048,7 @@ edit_zone_zone(const int debuglvl, Zones *zones, char *name)
                     form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
                     break;
 
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -6343,6 +6352,7 @@ zones_section(const int debuglvl, Zones *zones, Interfaces *interfaces, Rules *r
 
             switch(ch)
             {
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -6951,6 +6961,7 @@ zones_blocklist(const int debuglvl, BlockList *blocklist, Zones *zones, struct r
             ch = wgetch(ZonesSection.h_win);
             switch(ch)
             {
+                case 27:
                 case KEY_LEFT:
                 case KEY_F(10):
                 case 'q':

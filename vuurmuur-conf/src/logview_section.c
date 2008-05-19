@@ -1489,6 +1489,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
                 break;
 
             /* quit */
+            case 27:
             case 'q':
             case 'Q':
             case KEY_F(10):

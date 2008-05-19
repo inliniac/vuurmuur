@@ -1027,6 +1027,7 @@ trafvol_section(const int debuglvl, Zones *zones, Interfaces *interfaces,
         switch(ch)
         {
             /* quit */
+            case 27:
             case 'q':
             case 'Q':
             case KEY_F(10):

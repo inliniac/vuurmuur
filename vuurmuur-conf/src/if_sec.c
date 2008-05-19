@@ -1075,6 +1075,7 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
                     form_driver(InterfacesSection.EditInterface.form, REQ_END_LINE);
                     break;
 
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -1591,6 +1592,7 @@ interfaces_section(const int debuglvl, Interfaces *interfaces, Zones *zones,
             ch = wgetch(InterfacesSection.win);
             switch(ch)
             {
+                case 27:
                 case 'q':
                 case 'Q':
                 case KEY_F(10): //quit

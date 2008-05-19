@@ -260,6 +260,7 @@ mm_select_logfile(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
         ch = wgetch(mainmenu_win);
         switch(ch)
         {
+            case 27:
             case 'Q':
             case 'q':
             case KEY_F(10):
@@ -1784,6 +1785,7 @@ main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces
             }
 
             /* handle the keyboad shortcuts */
+            case 27:
             case 'q':
             case 'Q':
             case KEY_F(10):

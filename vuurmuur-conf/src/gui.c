@@ -1192,7 +1192,7 @@ VrFormCheckOKCancel(const int debuglvl, VrForm *form, int key)
     if (buf == NULL)
         return(-1);
 
-    if(key == KEY_F(10) || (key == 10 && strncmp(buf,"save", 4) == 0))
+    if(key == 27 || key == KEY_F(10) || (key == 10 && strncmp(buf,"save", 4) == 0))
     {
         if (form->save != NULL && form->save_ctx != NULL) {
             char name[32] = "", value[32] = "";
@@ -1329,6 +1329,7 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
 
         switch(ch)
         {
+            case 27:
             case 'q':
             case 'Q':
             case KEY_F(10):
@@ -1527,6 +1528,7 @@ void VrShapeRule(const int debuglvl, struct options *opt) {
                      form_driver(form->f, REQ_NEXT_FIELD);
                      form_driver(form->f, REQ_BEG_LINE);
                      break;
+                 case 27:
                  case 'q':
                  case 'Q':
                  case KEY_F(10):
@@ -1765,6 +1767,7 @@ void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
                     form_driver(form->f, REQ_NEXT_FIELD);
                     form_driver(form->f, REQ_BEG_LINE);
                     break;
+                case 27:
                 case 'q':
                 case 'Q':
                 case KEY_F(10):
@@ -1834,6 +1837,7 @@ void form_test (const int debuglvl) {
                                 form_driver(form->f, REQ_NEXT_FIELD);
                                 form_driver(form->f, REQ_BEG_LINE);
                     break;
+                            case 27:
                             case 'q':
                             case 'Q':
                             case KEY_F(10):

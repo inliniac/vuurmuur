@@ -986,6 +986,7 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
         switch(ch)
         {
             /* QUIT */
+            case 27:
             case 'q':
             case 'Q':
             case KEY_F(10):

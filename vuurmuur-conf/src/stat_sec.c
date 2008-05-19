@@ -1182,6 +1182,7 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, In
         switch(ch)
         {
             /* quit */
+            case 27:
             case 'q':
             case 'Q':
             case KEY_F(10):

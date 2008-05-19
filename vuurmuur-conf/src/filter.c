@@ -275,6 +275,7 @@ filter_input_box(const int debuglvl, VR_filter *filter)
                     }
                     break;
 
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':

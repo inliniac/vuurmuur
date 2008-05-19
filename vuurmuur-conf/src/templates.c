@@ -174,6 +174,7 @@ confirm(char *title, char *text, chtype forecolor, chtype backcolor, int def)
                 quit=1;
                 break;
 
+            case 27:
             case KEY_F(10):
             case 'q':
             case 'Q':
@@ -290,6 +291,7 @@ input_box(size_t length, char *title, char *description)
         ch = wgetch(ib_win);
         switch(ch)
         {
+            case 27:
             case KEY_F(10):
             case 10: // enter
                 // Go to next field
@@ -983,6 +985,7 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
                 break;
             }
 
+            case 27:
             case KEY_F(10):
             case 'q':
             case 'Q':

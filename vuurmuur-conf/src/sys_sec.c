@@ -207,6 +207,7 @@ edit_sysopt(const int debuglvl)
 
         switch(ch)
         {
+            case 27:
             case KEY_F(10):
             case 'q':
             case 'Q':

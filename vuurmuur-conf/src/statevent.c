@@ -583,6 +583,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
 
         switch(ch)
         {
+            case 27:
             case 'q':
             case 'Q':
             case KEY_F(10):
@@ -877,6 +878,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
 
         switch(ch)
         {
+            case 27:
             case 'q':
             case 'Q':
             case KEY_F(10):
@@ -1200,6 +1202,7 @@ statevent_menu(const int debuglvl, struct vuurmuur_config *cnf, int type,
 
         switch(ch)
         {
+            case 27:
             case 'q':
             case 'Q':
             case KEY_F(10):

@@ -279,6 +279,7 @@ edit_genconfig(const int debuglvl)
         {
             switch(ch)
             {
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -542,6 +543,7 @@ edit_intconfig(const int debuglvl)
         {
             switch(ch)
             {
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -824,6 +826,7 @@ edit_modconfig(const int debuglvl)
         {
             switch(ch)
             {
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -1098,6 +1101,7 @@ edit_plugconfig(const int debuglvl)
         {
             switch(ch)
             {
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -1504,6 +1508,7 @@ edit_conconfig(const int debuglvl)
         {
             switch(ch)
             {
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -1862,6 +1867,7 @@ edit_vcconfig(const int debuglvl)
         {
             switch(ch)
             {
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -2345,6 +2351,7 @@ edit_logconfig(const int debuglvl)
         {
             switch(ch)
             {
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -2592,7 +2599,7 @@ view_caps(const int debuglvl)
         ch = wgetch(ConfigSection.win);
         switch(ch)
         {
-
+            case 27:
             case KEY_F(10):
             case 'q':
             case 'Q':
@@ -2722,6 +2729,7 @@ config_menu(const int debuglvl)
         ch = wgetch(mainmenu_win);
         switch(ch)
         {
+            case 27:
             case 'q':
             case 'Q':
             case KEY_F(10):

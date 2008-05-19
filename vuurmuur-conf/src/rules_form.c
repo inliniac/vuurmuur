@@ -343,6 +343,7 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, Rules *rules, u
                 form_driver(form, REQ_END_LINE);
                 break;
 
+            case 27:
             case KEY_F(10):
             case 'q':
             case 'Q':
@@ -2136,6 +2137,7 @@ rules_form(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interface
                 break;
 
             /* quit */
+            case 27:
             case KEY_F(10):
             case 'q':
             case 'Q':
@@ -4576,6 +4578,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
                     }
                     break;
 
+                case 27:
                 case 'q':
                 case 'Q':
                 case KEY_F(10):
@@ -4911,6 +4914,7 @@ edit_rule_separator(const int debuglvl,
 
         switch(ch)
         {
+            case 27:
             case KEY_F(10):
             case 10:    /* enter */
 

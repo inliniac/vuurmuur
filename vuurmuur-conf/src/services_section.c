@@ -493,6 +493,7 @@ edit_tcpudp(const int debuglvl, struct portdata *port_ptr)
         {
             switch(ch)
             {
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -782,6 +783,7 @@ icmp_choose_type(void)
                 break;
             }
 
+            case 27:
             case KEY_F(10):
             case 'q':
             case 'Q':
@@ -1013,6 +1015,7 @@ icmp_choose_code(const int icmp_type)
                 break;
             }
 
+            case 27:
             case KEY_F(10):
             case 'q':
             case 'Q':
@@ -1218,7 +1221,7 @@ edit_icmp(const int debuglvl, struct portdata *port_ptr)
                 form_driver(my_form, REQ_END_LINE);
                 break;
             
-
+            case 27:
             case KEY_F(10):
             case 'q':
             case 'Q':
@@ -1908,6 +1911,7 @@ edit_serv_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
             ch = wgetch(ServicesSection.EditServicePrt.win);
             switch(ch)
             {
+                case 27:
                 case 'q':
                 case 'Q':
                 case KEY_F(10): /* quit */
@@ -2435,6 +2439,7 @@ edit_service(const int debuglvl, Services *services, const char *name)
                     draw_top_menu(debuglvl, top_win, gettext("Edit Service"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     break;
                 
+                case 27:
                 case KEY_F(10):
                 case 'q':
                 case 'Q':
@@ -2817,6 +2822,7 @@ services_section(const int debuglvl, Services *services, Rules *rules, struct rg
 
             switch(ch)
             {
+                case 27:
                 case 'q':
                 case 'Q':
                 case KEY_F(10): //quit
