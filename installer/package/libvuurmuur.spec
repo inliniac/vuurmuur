@@ -44,6 +44,8 @@ to monitor specific hosts or services.
 %setup
 
 %build
+CFLAGS="-g -Wall"
+export CFLAGS
 libtoolize -f
 aclocal	
 autoheader
