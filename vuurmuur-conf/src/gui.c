@@ -134,7 +134,7 @@ VrDelWin(VrWin *win)
 int
 VrWinSetTitle(VrWin *win, char *title)
 {
-    size_t  len = strlen(title);
+    size_t  len = StrLen(title);
     size_t  printstart = 0;
 
     if((len - 4) > win->width)
@@ -700,8 +700,8 @@ VrFormAddTextField(const int debuglvl, VrForm *form, int height, int width, int 
 {
     int result;
 
-    if (strlen(name) > width) {
-        (void)vrprint.error(-1, VR_ERR, "field name length (%u) is bigger than field length (%d)", strlen(name), width);
+    if (StrLen(name) > width) {
+        (void)vrprint.error(-1, VR_ERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
         return(-1);
     }
 
@@ -776,8 +776,8 @@ VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol
     int width = 1;
     char *value = enabled ? "X" : " ";
 
-    if (strlen(name) > width) {
-        (void)vrprint.error(-1, VR_INTERR, "field name length (%u) is bigger than field length (%d)", strlen(name), width);
+    if (StrLen(name) > width) {
+        (void)vrprint.error(-1, VR_INTERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
         return(-1);
     }
 
