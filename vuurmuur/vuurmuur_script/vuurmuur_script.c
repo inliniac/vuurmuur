@@ -815,7 +815,8 @@ main(int argc, char *argv[])
             (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "please set the variable to modify with --variable.");
             retval = VRS_ERR_COMMANDLINE;
         }
-        else if(vr_script.set[0] == '\0')
+        /* allow empty 'set' if we overwrite, since that way we can clear variables */
+        else if(vr_script.set[0] == '\0' && vr_script.overwrite == FALSE)
         {
             (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "please set the new value with --set.");
             retval = VRS_ERR_COMMANDLINE;

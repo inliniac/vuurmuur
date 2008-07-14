@@ -106,6 +106,10 @@ backend_check_host_macaddress(const int debuglvl, char *value, struct rgx_ *reg)
         return(VRS_ERR_INTERNAL);
     }
 
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
     /* test against the regex */
     if(regexec(reg->macaddr, value, 0, NULL, 0) == 0)
         return(0);
@@ -128,6 +132,10 @@ backend_check_group_member(const int debuglvl, char *value, struct rgx_ *reg)
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
+
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
 
     /* test against the regex */
     if(regexec(reg->host_part, value, 0, NULL, 0) == 0)
@@ -198,6 +206,10 @@ backend_check_network_interface(const int debuglvl, char *value, struct rgx_ *re
         return(VRS_ERR_INTERNAL);
     }
 
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
     /* test against the regex */
     if(regexec(reg->interfacename, value, 0, NULL, 0) == 0)
         return(0);
@@ -223,6 +235,10 @@ backend_check_network_rule(const int debuglvl, char *value, struct rgx_ *reg)
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
+
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
 
     /* check */
     if(strlcpy(line, value, sizeof(line)) >= sizeof(line))
@@ -344,6 +360,10 @@ backend_check_interface_rule(const int debuglvl, char *value, struct rgx_ *reg)
         return(VRS_ERR_INTERNAL);
     }
 
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
     /* check */
     if(strlcpy(line, value, sizeof(line)) >= sizeof(line))
     {
@@ -383,6 +403,10 @@ backend_check_interface_shape(const int debuglvl, char *value, struct rgx_ *reg)
         return(VRS_ERR_INTERNAL);
     }
 
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
     /* check */
     if(strcasecmp(value,"yes") == 0 || strcasecmp(value,"no") == 0)
         return(0);
@@ -409,6 +433,10 @@ backend_check_interface_bw(const int debuglvl, char *value, struct rgx_ *reg)
         return(VRS_ERR_INTERNAL);
     }
 
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
     /* check */
     for (i = 0; i < strlen(value); i++) {
         if (!isdigit(value[i])) {
@@ -417,7 +445,7 @@ backend_check_interface_bw(const int debuglvl, char *value, struct rgx_ *reg)
                 " (in: %s:%d).", value, __FUNC__, __LINE__);
             return(VRS_ERR_COMMANDLINE);
         }
-        }
+    }
 
     /* check */
     if(strlen(value) >= 11) { /* max len of 32 bit int */
@@ -443,6 +471,10 @@ backend_check_interface_bw_unit(const int debuglvl, char *value, struct rgx_ *re
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
+
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
 
     /* check */
     if (strcasecmp(value, "kbit") == 0 || strcasecmp(value, "mbit") == 0)
@@ -494,6 +526,10 @@ backend_check_service_helper(const int debuglvl, char *value, struct rgx_ *reg)
         return(VRS_ERR_INTERNAL);
     }
 
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
     /* check */
     if(strlen(value) < sizeof(service.helper))
         return(0);
@@ -518,6 +554,10 @@ backend_check_service_tcp(const int debuglvl, char *value, struct rgx_ *reg)
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
+
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
 
     /* check */
     if(process_portrange(debuglvl, "TCP", value, &service) == 0)
@@ -544,6 +584,10 @@ backend_check_service_udp(const int debuglvl, char *value, struct rgx_ *reg)
         return(VRS_ERR_INTERNAL);
     }
 
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
     /* check */
     if(process_portrange(debuglvl, "UDP", value, &service) == 0)
         return(0);
@@ -568,6 +612,10 @@ backend_check_service_icmp(const int debuglvl, char *value, struct rgx_ *reg)
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
+
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
 
     /* check */
     if(process_portrange(debuglvl, "ICMP", value, &service) == 0)
@@ -594,6 +642,10 @@ backend_check_service_gre(const int debuglvl, char *value, struct rgx_ *reg)
         return(VRS_ERR_INTERNAL);
     }
 
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
     /* check */
     if(process_portrange(debuglvl, "GRE", value, &service) == 0)
         return(0);
@@ -618,6 +670,10 @@ backend_check_service_ah(const int debuglvl, char *value, struct rgx_ *reg)
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
+
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
 
     /* check */
     if(process_portrange(debuglvl, "AH", value, &service) == 0)
@@ -644,6 +700,10 @@ backend_check_service_esp(const int debuglvl, char *value, struct rgx_ *reg)
         return(VRS_ERR_INTERNAL);
     }
 
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
     /* check */
     if(process_portrange(debuglvl, "ESP", value, &service) == 0)
         return(0);
@@ -669,6 +729,10 @@ backend_check_service_proto41(const int debuglvl, char *value, struct rgx_ *reg)
         return(VRS_ERR_INTERNAL);
     }
 
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
     /* check */
     if(process_portrange(debuglvl, "PROTO_41", value, &service) == 0)
         return(0);
@@ -693,6 +757,10 @@ backend_check_blocklist_rule(const int debuglvl, char *value, struct rgx_ *reg)
         return(VRS_ERR_INTERNAL);
     }
 
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
 
     return(0);
 }
@@ -715,6 +783,10 @@ backend_check_rule_rule(const int debuglvl, char *value, struct rgx_ *reg)
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
+
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
 
     /* check */
     if(strlcpy(line, value, sizeof(line)) >= sizeof(line))
