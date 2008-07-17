@@ -173,8 +173,7 @@ main(int argc, char *argv[])
                      * this means we have to add a rule to the blocklist like this:
                      * vuurmuur_script -M -r blocklist -V RULE --set "block 1.2.3.4" --append --apply
                      */
-                    vr_script.cmd = CMD_MOD;    /* -M */
-                    vr_script.overwrite = FALSE;    /* --append */
+                    vr_script.cmd = CMD_BLK;    /* we will change this to -M later */
 
                     /* -V RULE */
                     if(strlcpy(vr_script.var, "RULE", sizeof(vr_script.var)) >= sizeof(vr_script.var))
@@ -550,6 +549,11 @@ main(int argc, char *argv[])
         if(conf.verbose_out == TRUE)
             (void)vrprint.info(VR_INFO, "command 'print' selected.");
     }
+    else if(vr_script.cmd == CMD_BLK)
+    {
+        if(conf.verbose_out == TRUE)
+            (void)vrprint.info(VR_INFO, "command 'block' selected.");
+    }
     else if(vr_script.cmd == CMD_UBL)
     {
         if(conf.verbose_out == TRUE)
@@ -803,8 +807,25 @@ main(int argc, char *argv[])
             retval = script_delete(debuglvl, &vr_script);
         }
     }
-    else if(vr_script.cmd == CMD_MOD)
+    else if(vr_script.cmd == CMD_MOD || vr_script.cmd == CMD_BLK)
     {
+        /* workaround for the problem that we don't want to append into
+         * append into an empty list then using --block */
+        if (vr_script.cmd == CMD_BLK) {
+            /* append or overwrite mode (fix ticket #49) */
+            if ((result = rf->ask(debuglvl, rule_backend, "blocklist", "RULE", vr_script.bdat, sizeof(vr_script.bdat), TYPE_RULE, 1) == 1)) 
+            { 
+                /* we got a rule from the backend so we have to append */
+                vr_script.overwrite = FALSE; 
+            } else {
+                /* there are no rules in the backend so we overwrite */
+                vr_script.overwrite = TRUE; 
+            }
+
+            /* switch to mod here */
+            vr_script.cmd = CMD_MOD;
+        }
+
         if(strcasecmp(vr_script.name,"any") == 0)
         {
             (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot use command 'modify' on object 'any'.");

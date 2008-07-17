@@ -99,6 +99,7 @@ enum
     CMD_REN, /* rename an object */
     CMD_PRT, /* print the content of an object */
     CMD_LST, /* lists objects */
+    CMD_BLK, /* block an ip, host or group */
     CMD_UBL, /* unblock an ip, host or group */
     CMD_LBL, /* list blocked objects */
     CMD_LDV, /* list system devices */
