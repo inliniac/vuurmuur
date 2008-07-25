@@ -139,6 +139,8 @@ struct RuleCreateData_
 
     u_int16_t               shape_class_out;
     u_int16_t               shape_class_in;
+
+    char                    random[9]; /* --random */
 };
 
 

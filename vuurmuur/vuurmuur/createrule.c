@@ -1731,10 +1731,10 @@ create_rule_masq(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
     create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
     /* assemble the string */
-    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -j %s",
+    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -j %s %s",
         output_device, rule->proto, rule->temp_src,
         rule->temp_src_port, rule->temp_dst,
-        rule->temp_dst_port, rule->limit, rule->action);
+        rule->temp_dst_port, rule->limit, rule->action, rule->random);
 
     if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
         return(-1);
@@ -1779,7 +1779,7 @@ create_rule_snat(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
     /* assemble SNAT string - we do this here because LOG can't handle --to-source */
     if(strcmp(rule->action, "SNAT") == 0)
     {
-        snprintf(rule->action, sizeof(rule->action), "SNAT --to-source %s", rule->serverip);
+        snprintf(rule->action, sizeof(rule->action), "SNAT --to-source %s %s", rule->serverip, rule->random);
     }
 
     create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
@@ -1862,7 +1862,7 @@ create_rule_portfw(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCr
     /* we set this here because we need remoteip */
     if(strncmp(rule->action, "DNAT", 4) == 0)
     {
-        snprintf(rule->action, sizeof(rule->action), "DNAT --to-destination %s", rule->remoteip);
+        snprintf(rule->action, sizeof(rule->action), "DNAT --to-destination %s %s", rule->remoteip, rule->random);
     }
 
     /* set --dport here, but only if we need to change it. */
@@ -2125,7 +2125,7 @@ create_rule_dnat(   const int debuglvl, /*@null@*/RuleSet *ruleset,
     /* we set this here because we need remoteip */
     if(strncmp(rule->action, "DNAT", 4) == 0)
     {
-        snprintf(rule->action, sizeof(rule->action), "DNAT --to-destination %s", rule->remoteip);
+        snprintf(rule->action, sizeof(rule->action), "DNAT --to-destination %s %s", rule->remoteip, rule->random);
     }
 
     /* set --dport here, but only if we need to change it. */
@@ -2220,7 +2220,7 @@ create_rule_bounce( const int debuglvl, /*@null@*/RuleSet *ruleset,
         /* we set this here because we need remoteip */
         if(strncmp(rule->action, "DNAT", 4) == 0)
         {
-            snprintf(rule->action, sizeof(rule->action), "DNAT --to-destination %s", rule->remoteip);
+            snprintf(rule->action, sizeof(rule->action), "DNAT --to-destination %s %s", rule->remoteip, rule->random);
         }
 
         /* src & dst */

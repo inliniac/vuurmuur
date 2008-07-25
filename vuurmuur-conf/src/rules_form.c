@@ -2506,6 +2506,10 @@ struct RuleFlds_
             *queue_brackets_fld_ptr,
             *queue_fld_ptr,
 
+            *random_label_fld_ptr,
+            *random_brackets_fld_ptr,
+            *random_fld_ptr,
+
             *service_label_fld_ptr,
             *service_fld_ptr,
             *fromzone_label_fld_ptr,
@@ -2950,6 +2954,27 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
                 retval=1;
             }
+            else if(fields[i] == RuleFlds.random_fld_ptr)
+            {
+                /* random */
+
+                /* if needed alloc the opt struct */
+                if(rule_ptr->opt == NULL)
+                {
+                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    {
+                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        return(-1);
+                    }
+                }
+
+                if(strncmp(field_buffer(fields[i], 0), "X", 1) == 0)
+                    rule_ptr->opt->random = 1;
+                else
+                    rule_ptr->opt->random = 0;
+
+                retval=1;
+            }
             else if(fields[i] == RuleFlds.in_int_fld_ptr)
             {
                 /* option interface */
@@ -3273,7 +3298,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
         starty = 2;
 
     /* set number of fields */
-    n_fields = 46;
+    n_fields = 49;
     if(!(fields = (FIELD **)calloc(n_fields + 1, sizeof(FIELD *))))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
@@ -3299,17 +3324,48 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     set_field_fore(RuleFlds.action_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
     field_num++;
 
+    /* random */
+    RuleFlds.random_label_fld_ptr = (fields[field_num] = new_field(1, 7, 3, 10, 0, 0));
+    /* TRANSLATORS: max 7 chars */
+    set_field_buffer_wrap(debuglvl, RuleFlds.random_label_fld_ptr, 0, gettext("Random"));
+    field_opts_off(RuleFlds.random_label_fld_ptr, O_ACTIVE);
+    set_field_back(RuleFlds.random_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_fore(RuleFlds.random_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    field_num++;
+
+    RuleFlds.random_brackets_fld_ptr = (fields[field_num] = new_field(1, 3, 3, 17, 0, 0));
+    set_field_buffer_wrap(debuglvl, RuleFlds.random_brackets_fld_ptr, 0, "[ ]");
+    field_opts_off(RuleFlds.random_brackets_fld_ptr, O_ACTIVE);
+    set_field_back(RuleFlds.random_brackets_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_fore(RuleFlds.random_brackets_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    field_num++;
+
+    /* random toggle */
+    RuleFlds.random_fld_ptr = (fields[field_num] = new_field(1, 1, 3, 18, 0, 0));
+    set_field_back(RuleFlds.random_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_fore(RuleFlds.random_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    field_num++;
+
+    /* enable */
+    if(rule_ptr->opt != NULL && rule_ptr->opt->random == 1)
+        set_field_buffer_wrap(debuglvl, RuleFlds.random_fld_ptr, 0, "X");
+
+    /* queue starts disabled */
+    field_opts_off(RuleFlds.random_fld_ptr, O_VISIBLE);
+    field_opts_off(RuleFlds.random_label_fld_ptr, O_VISIBLE);
+    field_opts_off(RuleFlds.random_brackets_fld_ptr, O_VISIBLE);
+
 
     /* portfw/redirect queue label */
     /* TRANSLATORS: max 7 chars */
-    RuleFlds.queue_label_fld_ptr = (fields[field_num] = new_field(1, 7, 3, 10, 0, 0));
+    RuleFlds.queue_label_fld_ptr = (fields[field_num] = new_field(1, 7, 5, 10, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.queue_label_fld_ptr, 0, gettext("Queue"));
     field_opts_off(RuleFlds.queue_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.queue_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     set_field_fore(RuleFlds.queue_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     field_num++;
 
-    RuleFlds.queue_brackets_fld_ptr = (fields[field_num] = new_field(1, 3, 3, 17, 0, 0));
+    RuleFlds.queue_brackets_fld_ptr = (fields[field_num] = new_field(1, 3, 5, 17, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.queue_brackets_fld_ptr, 0, "[ ]");
     field_opts_off(RuleFlds.queue_brackets_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.queue_brackets_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
@@ -3317,7 +3373,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     field_num++;
 
     /* portfw/redirect queue */
-    RuleFlds.queue_fld_ptr = (fields[field_num] = new_field(1, 1, 3, 18, 0, 0));
+    RuleFlds.queue_fld_ptr = (fields[field_num] = new_field(1, 1, 5, 18, 0, 0));
     set_field_back(RuleFlds.queue_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     set_field_fore(RuleFlds.queue_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     field_num++;
@@ -3843,6 +3899,17 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
             field_opts_off(RuleFlds.via_int_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.via_int_label_fld_ptr, O_VISIBLE);
         }
+        if( (rule_ptr->action != AT_SNAT &&
+             rule_ptr->action != AT_MASQ &&
+             rule_ptr->action != AT_PORTFW &&
+             rule_ptr->action != AT_BOUNCE &&
+             rule_ptr->action != AT_DNAT) ||
+             !advanced_mode)
+        {
+            field_opts_off(RuleFlds.random_brackets_fld_ptr, O_VISIBLE);
+            field_opts_off(RuleFlds.random_label_fld_ptr, O_VISIBLE);
+            field_opts_off(RuleFlds.random_fld_ptr, O_VISIBLE);
+        }
         if( (rule_ptr->action != AT_REDIRECT &&
              rule_ptr->action != AT_PORTFW) ||
              !advanced_mode)
@@ -3934,6 +4001,17 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
                 field_opts_on(RuleFlds.queue_brackets_fld_ptr, O_VISIBLE);
                 field_opts_on(RuleFlds.queue_label_fld_ptr, O_VISIBLE);
                 field_opts_on(RuleFlds.queue_fld_ptr, O_VISIBLE);
+            }
+        }
+        if(rule_ptr->action == AT_SNAT || rule_ptr->action == AT_MASQ ||
+           rule_ptr->action == AT_DNAT || rule_ptr->action == AT_PORTFW ||
+           rule_ptr->action == AT_BOUNCE)
+        {
+            if(advanced_mode)
+            {
+                field_opts_on(RuleFlds.random_brackets_fld_ptr, O_VISIBLE);
+                field_opts_on(RuleFlds.random_label_fld_ptr, O_VISIBLE);
+                field_opts_on(RuleFlds.random_fld_ptr, O_VISIBLE);
             }
         }
         if( (rule_ptr->action == AT_PORTFW ||
@@ -4085,6 +4163,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
             status_print(status_win, gettext("Unit for the limit: sec, min, hour, day."));
         else if(cur == RuleFlds.burst_fld_ptr)
             status_print(status_win, gettext("Maximum new connections per second (to prevent DoS), 0 for no limit."));
+        else if(cur == RuleFlds.random_fld_ptr)
+            status_print(status_win, gettext("Randomize the source ports of NAT'd connections."));
 
         ch = wgetch(edit_win);
         not_defined = 0;
@@ -4105,7 +4185,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
                 not_defined = 1;
         }
         else if(cur == RuleFlds.queue_fld_ptr         ||
-            cur == RuleFlds.log_fld_ptr)
+                cur == RuleFlds.random_fld_ptr        ||
+                cur == RuleFlds.log_fld_ptr)
         {
             if(nav_field_toggleX(debuglvl, form, ch) < 0)
                 not_defined = 1;

@@ -2179,6 +2179,15 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
         }
     }
 
+    if (opt->random == TRUE)
+    {
+        if (strlcat(options, "random,", sizeof(options)) >= sizeof(options))
+        {
+            (void)vrprint.error(-1, "Internal Error", "string "
+                    "overflow (in: %s:%d).", __FUNC__, __LINE__);
+            return(NULL);
+        }
+    }
 
     /* comment */
     if(opt->rule_comment == 1 && strcmp(opt->comment, "") != 0)
@@ -2456,6 +2465,14 @@ rules_read_options(const int debuglvl, char *optstr, struct options *op)
                     (void)vrprint.debug(__FUNC__, "logging enabled.");
 
                 op->rule_log = 1;
+            }
+            /* random */
+            else if(strcmp(curopt, "random") == 0)
+            {
+                if(debuglvl >= MEDIUM)
+                    (void)vrprint.debug(__FUNC__, "random enabled.");
+
+                op->random = 1;
             }
             /* loglimit */
             else if(strncmp(curopt, "loglimit", strlen("loglimit")) == 0)

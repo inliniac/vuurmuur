@@ -684,6 +684,10 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
     /* masq rules */
     else if(create->ruletype == RT_MASQ)
     {
+        if (create->option.random == TRUE) {
+            snprintf(rule->random, sizeof(rule->random), "--random");
+        }
+
         if(create_rule_masq(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
             (void)vrprint.error(-1, "Error", "creating masq rule failed (in: %s).", __FUNC__);
@@ -706,6 +710,10 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
                 (void)vrprint.debug(__FUNC__, "SNAT: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->to_if_ptr->name);
         }
 
+        if (create->option.random == TRUE) {
+            snprintf(rule->random, sizeof(rule->random), "--random");
+        }
+
         if(create_rule_snat(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
             (void)vrprint.error(-1, "Error", "creating snat rule failed (in: %s).", __FUNC__);
@@ -726,6 +734,10 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
             snprintf(rule->serverip, sizeof(rule->serverip), "%s", rule->from_if_ptr->ipv4.ipaddress);
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "PORTFW: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->from_if_ptr->name);
+        }
+
+        if (create->option.random == TRUE) {
+            snprintf(rule->random, sizeof(rule->random), "--random");
         }
 
         if(create_rule_portfw(debuglvl, ruleset, rule, create, iptcap) < 0)
@@ -757,6 +769,10 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
                 (void)vrprint.debug(__FUNC__, "DNAT: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->from_if_ptr->name);
         }
 
+        if (create->option.random == TRUE) {
+            snprintf(rule->random, sizeof(rule->random), "--random");
+        }
+
         if(create_rule_dnat(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
             (void)vrprint.error(-1, "Error", "creating dnat rule failed (in: %s).", __FUNC__);
@@ -776,6 +792,10 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
             snprintf(rule->serverip, sizeof(rule->serverip), "%s", rule->from_if_ptr->ipv4.ipaddress);
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "BOUNCE: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->from_if_ptr->name);
+        }
+
+        if (create->option.random == TRUE) {
+            snprintf(rule->random, sizeof(rule->random), "--random");
         }
 
         if(create_rule_bounce(debuglvl, ruleset, rule, create, iptcap) < 0)

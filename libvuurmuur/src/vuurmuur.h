@@ -592,6 +592,8 @@ struct options
     u_int32_t       bw_out_min;         /* rate from src to dst */
     char            bw_out_min_unit[5]; /* kbit, mbit, kbps, mbps */
     u_int8_t        prio;               /* priority */
+
+    char            random; /* adds --random to the DNAT/SNAT/??? target */
 };
 
 
