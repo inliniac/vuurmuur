@@ -73,13 +73,7 @@
 #define NLINES  10
 #define NCOLS   40
 
-#define VUURMUURCONF_VERSION_MAJOR	0
-#define VUURMUURCONF_VERSION_MINOR	5
-#define VUURMUURCONF_VERSION_SUB	74
-
-#define MIN_LIBVUURMUUR_VERSION_MAJOR   0
-#define MIN_LIBVUURMUUR_VERSION_MINOR   5
-#define MIN_LIBVUURMUUR_VERSION_SUB     65
+#define VUURMUURCONF_VERSION	"0.6rc1"
 
 #define LOCK(x)             LockSHM(1, x)
 #define UNLOCK(x)           LockSHM(0, x)
@@ -233,7 +227,7 @@ char                *vuurmuurlog_shmp;
 struct SHM_TABLE    *vuurmuurlog_shmtable;
 pid_t               vuurmuurlog_pid;
 
-char                version_string[18];
+char                version_string[128];
 
 VR_user_t           user_data;
 

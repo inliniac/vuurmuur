@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2002-2006 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2002-2008 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -109,15 +109,7 @@ main(int argc, char *argv[])
     }
 
     /* assemble version string */
-    if(VUURMUUR_PRERELEASE_VERSION == 0)
-        snprintf(version_string, sizeof(version_string), "%d.%d.%d", VUURMUUR_VERSION_MAJOR,
-                                        VUURMUUR_VERSION_MINOR,
-                                        VUURMUUR_VERSION_SUB);
-    else
-        snprintf(version_string, sizeof(version_string), "%d.%d.%da%d", VUURMUUR_VERSION_MAJOR,
-                                        VUURMUUR_VERSION_MINOR,
-                                        VUURMUUR_VERSION_SUB,
-                                        VUURMUUR_PRERELEASE_VERSION);
+    snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)", VUURMUUR_VERSION, libvuurmuur_get_version());
 
     /* init the print functions: all to stdout */
     vrprint.logger = "vuurmuur_scrp";
@@ -479,7 +471,7 @@ main(int argc, char *argv[])
     if(version_flag == 1)
     {
         fprintf(stdout, "Vuurmuur_script %s\n", version_string);
-        fprintf(stdout, "Copyright (C) 2002-2006 by Victor Julien\n");
+        fprintf(stdout, "Copyright (C) 2002-2008 by Victor Julien\n");
         exit(VRS_SUCCESS);
     }
 
@@ -487,7 +479,7 @@ main(int argc, char *argv[])
     {
         /* print some nice info about me being the coolest of 'm all ;-) */
         (void)vrprint.info("Info", "This is Vuurmuur_script %s", version_string);
-        (void)vrprint.info("Info", "Copyright (C) 2002-2006 by Victor Julien");
+        (void)vrprint.info("Info", "Copyright (C) 2002-2008 by Victor Julien");
     }
 
     /* setup regexes */

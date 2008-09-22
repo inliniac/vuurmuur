@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2005-2007 by Victor Julien                              *
+ *   Copyright (C) 2005-2008 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -20,13 +20,7 @@
 
 #ifndef __VERSION_H__
 #define __VERSION_H__
+
+#define VUURMUUR_VERSION		"0.6rc1"
  
-#define VUURMUUR_VERSION_MAJOR		0
-#define VUURMUUR_VERSION_MINOR		5
-#define VUURMUUR_VERSION_SUB		74
-
-#define MIN_LIBVUURMUUR_VERSION_MAJOR   0
-#define MIN_LIBVUURMUUR_VERSION_MINOR   5
-#define MIN_LIBVUURMUUR_VERSION_SUB     65
-
 #endif

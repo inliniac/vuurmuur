@@ -20,58 +20,6 @@
  
 #include "main.h"
 
-
-/*  vuurmuur_check_lib_version
-
-    This function checks the version of libvuurmuur.
-
-         0: ok
-        -1: error
-*/
-int
-vuurmuur_check_lib_version(const int debuglvl, int major, int minor, int sub, int min_lib_major, int min_lib_minor, int min_lib_sub)
-{
-    int retval=0;
-    int lib_major,
-        lib_minor,
-        lib_sub;
-    int min_vuur_major,
-        min_vuur_minor,
-        min_vuur_sub;
-
-    tell_libvuurmuur_version(&lib_major, &lib_minor, &lib_sub, &min_vuur_major, &min_vuur_minor, &min_vuur_sub);
-
-    if(lib_major >= min_lib_major && lib_minor >= min_lib_minor && lib_sub >= min_lib_sub)
-    {
-
-    }
-    else
-    {
-        fprintf(stdout, "Libvuurmuur version: %d.%d.%d, ", lib_major, lib_minor, lib_sub);
-        fprintf(stdout, "minimal required version: %d.%d.%d: ", min_lib_major, min_lib_minor, min_lib_sub);
-        fprintf(stdout, "error, update your libvuurmuur.\n");
-
-        retval=-1;
-    }
-
-
-    if(major >= min_vuur_major && minor >= min_vuur_minor && sub >= min_vuur_sub)
-    {
-
-    }
-    else
-    {
-        fprintf(stdout, "Vuurmuur version: %d.%d.%d, ", major, minor, sub);
-        fprintf(stdout, "minimal required version (by libvuurmuur): %d.%d.%d, ", min_vuur_major, min_vuur_minor, min_vuur_sub);
-        fprintf(stdout, "error, you need to update Vuurmuur.\n");
-
-        retval=-1;
-    }
-
-    return(retval);
-}
-
-
 void
 send_hup_to_vuurmuurlog(const int debuglvl)
 {

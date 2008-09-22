@@ -165,10 +165,7 @@ load_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct B
         plugin->f->setup    = BackendFunctions.setup;
 
         /* get the versions */
-        plugin->version_major   = BackendFunctions.version_major;
-        plugin->version_minor   = BackendFunctions.version_minor;
-        plugin->version_sub     = BackendFunctions.version_sub;
-        plugin->prerelease      = BackendFunctions.prerelease;
+        plugin->version         = BackendFunctions.version;
 
         /* store the name of the plugin */
         if(strlcpy(plugin->name, plugin_name, sizeof(plugin->name)) >= sizeof(plugin->name))
@@ -196,14 +193,8 @@ load_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct B
 
         if(conf.verbose_out == TRUE && debuglvl >= LOW)
         {
-            if(plugin->prerelease == 0)
-                (void)vrprint.info("Info", "Successfully loaded plugin '%s' version '%d.%d.%d'.",
-                    plugin_name, plugin->version_major, plugin->version_minor,
-                    plugin->version_sub);
-            else
-                (void)vrprint.info("Info", "Successfully loaded plugin '%s' version '%d.%d.%da%d'.",
-                    plugin_name, plugin->version_major, plugin->version_minor,
-                    plugin->version_sub, plugin->prerelease);
+            (void)vrprint.info("Info", "Successfully loaded plugin '%s' version %s.",
+                    plugin_name, plugin->version);
         }
 
     }

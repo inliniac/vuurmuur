@@ -193,19 +193,9 @@ LockSHM(int lock, int sem_id)
     return(1);
 }
 
-void
-tell_libvuurmuur_version(int *major, int *minor, int *sub, int *min_vuur_major,
-             int *min_vuur_minor, int *min_vuur_sub)
-{
-    *major = LIBVUURMUUR_VERSION_MAJOR;
-    *minor = LIBVUURMUUR_VERSION_MINOR;
-    *sub = LIBVUURMUUR_VERSION_SUB;
-
-    *min_vuur_major = MIN_VUURMUUR_VERSION_MAJOR;
-    *min_vuur_minor = MIN_VUURMUUR_VERSION_MINOR;
-    *min_vuur_sub = MIN_VUURMUUR_VERSION_SUB;
-
-    return;
+/* return a ptr to the lib version string */
+char *libvuurmuur_get_version(void) {
+    return LIBVUURMUUR_VERSION;
 }
 
 /*  range_strcpy

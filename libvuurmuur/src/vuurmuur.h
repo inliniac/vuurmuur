@@ -48,16 +48,8 @@
    to vrprint.debug */
 #define __FUNC__        (char *)__FUNCTION__
 
-#define LIBVUURMUUR_VERSION_MAJOR	0
-#define LIBVUURMUUR_VERSION_MINOR	5
-#define LIBVUURMUUR_VERSION_SUB		74
-
-/* the minimal version of vuurmuur for this lib */
-#define MIN_VUURMUUR_VERSION_MAJOR  0
-#define MIN_VUURMUUR_VERSION_MINOR  5
-#define MIN_VUURMUUR_VERSION_SUB    65
-
-#define VUURMUUR_PRERELEASE_VERSION	6
+/* our version */
+#define LIBVUURMUUR_VERSION	"0.6rc1"
 
 /* we need this to stringify the VUURMUUR_CONFIGDIR which is supplied at compiletime see:
    http://gcc.gnu.org/onlinedocs/gcc-3.4.1/cpp/Stringification.html#Stringification */
@@ -1222,7 +1214,7 @@ void *interface_malloc(const int debuglvl);
 /*@null@*/
 void *ruleoption_malloc(int debuglvl);
 int LockSHM(int, int);
-void tell_libvuurmuur_version(int *major, int *minor, int *sub, int *min_vuur_major, int *min_vuur_minor, int *min_vuur_sub);
+char *libvuurmuur_get_version(void);
 int range_strcpy(char *dest, const char *src, const size_t start, const size_t end, size_t size);
 size_t strlcat(char *dst, const char *src, size_t size);
 size_t strlcpy(char *dst, const char *src, size_t size);
@@ -1592,10 +1584,7 @@ struct BackendFunctions_
     int (*setup)(int debuglvl, void **backend);
 
     /* version */
-    int version_major;
-    int version_minor;
-    int version_sub;
-    int prerelease;
+    char *version;
 
 } BackendFunctions;
 
@@ -1610,10 +1599,7 @@ struct PluginData_
     void                        *handle;
 
     /* version */
-    int                         version_major;
-    int                         version_minor;
-    int                         version_sub;
-    int                         prerelease;
+    char                        *version;
 };
 
 

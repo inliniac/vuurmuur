@@ -76,7 +76,7 @@
  ******************************************************* DATATYPES *******************************************************
 \*************************************************************************************************************************/
 
-char        version_string[18];
+char        version_string[128];
 char        loglevel[32];           /* --log-level warning */
 char        log_tcp_options[18];    /* --log-tcp-options */
 VR_user_t   user_data;
@@ -289,7 +289,6 @@ int clear_all_iptables_rules(const int debuglvl);
 int process_queued_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule);
 
 /* misc.c */
-int vuurmuur_check_lib_version(int debuglvl, int major, int minor, int sub, int min_lib_major, int min_lib_minor, int min_lib_sub);
 void send_hup_to_vuurmuurlog(const int debuglvl);
 
 

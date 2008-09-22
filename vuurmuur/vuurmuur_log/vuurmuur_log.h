@@ -144,7 +144,7 @@ int open_logfiles(const int, FILE **, FILE **);
 
 /* semaphore id */
 int         sem_id;
-char        version_string[18];
+char        version_string[128];
 VR_user_t   user_data;
 
 #define LOCK                          LockSHM(1, sem_id)

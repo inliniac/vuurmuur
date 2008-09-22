@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2003-2007 by Victor Julien                              *
- *   victor@nk.nl                                                          *
+ *   Copyright (C) 2003-2008 by Victor Julien                              *
+ *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -88,15 +88,8 @@ main(int argc, char *argv[])
     vrprint.audit = libvuurmuur_stdoutprint_audit;
 
     /* create the version string */
-    if(VUURMUUR_PRERELEASE_VERSION == 0)
-        snprintf(version_string, sizeof(version_string), "%d.%d.%d", VUURMUURCONF_VERSION_MAJOR,
-                                            VUURMUURCONF_VERSION_MINOR,
-                                            VUURMUURCONF_VERSION_SUB);
-    else
-        snprintf(version_string, sizeof(version_string), "%d.%d.%da%d", VUURMUURCONF_VERSION_MAJOR,
-                                            VUURMUURCONF_VERSION_MINOR,
-                                            VUURMUURCONF_VERSION_SUB,
-                                            VUURMUUR_PRERELEASE_VERSION);
+    snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
+            VUURMUURCONF_VERSION, libvuurmuur_get_version());
 
     /* some initilization */
     if(pre_init_config(&conf) < 0)
@@ -186,7 +179,7 @@ main(int argc, char *argv[])
             case 'V' :
                 /* print version */
                 fprintf(stdout, "Vuurmuur_conf %s\n", version_string);
-                fprintf(stdout, "Copyright (C) 2002-2007 by Victor Julien\n");
+                fprintf(stdout, "Copyright (C) 2002-2008 by Victor Julien\n");
 
                 exit(EXIT_SUCCESS);
 
@@ -276,7 +269,7 @@ main(int argc, char *argv[])
     vrprint.warning = vuumuurconf_print_warning;
     vrprint.info = vuumuurconf_print_info;
 
-    if(status_print(status_win, gettext("This is Vuurmuur_conf %s, Copyright (c) 2003-2007 by Victor Julien"), version_string) < 0)
+    if(status_print(status_win, gettext("This is Vuurmuur_conf %s, Copyright (c) 2003-2008 by Victor Julien"), version_string) < 0)
         exit(EXIT_FAILURE);
 
     /* setup regexes */
@@ -542,8 +535,8 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
     mvwprintw(startup_win, 5, 4, "    \\//  \\/| \\/| |\\ ||   || \\/| \\/| |\\ ");
     mvwprintw(startup_win, 6, 4, "                                Config ");
     mvwprintw(startup_win, 7, 4, "  ------------------------------------ ");
-    mvwprintw(startup_win, 9, 4, "  Copyright (c) 2003-2007 by Victor Julien ");
-    mvwprintw(startup_win, 10, 6, gettext("Version: %s"), version_string);
+    mvwprintw(startup_win, 9, 4, "  Copyright (c) 2003-2008 by Victor Julien ");
+    mvwprintw(startup_win, 10, 6, gettext("Version: %s"), VUURMUURCONF_VERSION);
     mvwprintw(startup_win, 12, 4, "[");
     mvwprintw(startup_win, 12, 4+print_pan_width+1, "]");
 

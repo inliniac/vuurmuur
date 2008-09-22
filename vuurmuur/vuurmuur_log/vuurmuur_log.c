@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2006 by Victor Julien                              *
+ *   Copyright (C) 2002-2008 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -1258,15 +1258,8 @@ main(int argc, char *argv[])
     /* get the current user */
     get_user_info(debuglvl, &user_data);
 
-    if(VUURMUUR_PRERELEASE_VERSION == 0)
-        snprintf(version_string, sizeof(version_string), "%d.%d.%d", VUURMUUR_VERSION_MAJOR,
-                                        VUURMUUR_VERSION_MINOR,
-                                        VUURMUUR_VERSION_SUB);
-    else
-        snprintf(version_string, sizeof(version_string), "%d.%d.%da%d", VUURMUUR_VERSION_MAJOR,
-                                        VUURMUUR_VERSION_MINOR,
-                                        VUURMUUR_VERSION_SUB,
-                                        VUURMUUR_PRERELEASE_VERSION);
+    snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
+            VUURMUUR_VERSION, libvuurmuur_get_version());
 
     /* init signals */
     setup_signal_handler(SIGINT, handle_sigint);
@@ -1338,7 +1331,7 @@ main(int argc, char *argv[])
             case 'V' :
                 /* print version */
                 fprintf(stdout, "Vuurmuur_log %s\n", version_string);
-                fprintf(stdout, "Copyright (C) 2002-2006 by Victor Julien\n");
+                fprintf(stdout, "Copyright (C) 2002-2008 by Victor Julien\n");
 
                 exit(EXIT_SUCCESS);
         }

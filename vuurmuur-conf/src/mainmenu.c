@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2007 by Victor Julien                              *
+ *   Copyright (C) 2003-2008 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -1631,7 +1631,7 @@ main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces
         set_form_sub(StatusFlds.form, derwin(mainmenu_win, rows, cols, 1, 60));
 
         /* welcome message */
-        mvwprintw(mainmenu_win, 2,  16, gettext("Welcome to Vuurmuur_conf %s"), version_string);
+        mvwprintw(mainmenu_win, 2,  19, gettext("Welcome to Vuurmuur_conf %s"), VUURMUURCONF_VERSION);
 
         mvwprintw(mainmenu_win, 6,  45, gettext("Overall"));
         mvwprintw(mainmenu_win, 6,  59, "[      ]");
@@ -1667,7 +1667,7 @@ main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces
     }
     else /* dont print status */
     {
-        mvwprintw(mainmenu_win, 2, 4, gettext("Welcome to Vuurmuur_conf %s"), version_string);
+        mvwprintw(mainmenu_win, 2, 4, gettext("Welcome to Vuurmuur_conf %s"), VUURMUURCONF_VERSION);
     }
 
     update_panels();

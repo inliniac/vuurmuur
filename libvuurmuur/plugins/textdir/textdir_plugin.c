@@ -1374,12 +1374,8 @@ textdir_init(void)
     BackendFunctions.conf = conf_textdir;
     BackendFunctions.setup = setup_textdir;
 
-    /* set the versions */
-    BackendFunctions.version_major = LIBVUURMUUR_VERSION_MAJOR;
-    BackendFunctions.version_minor = LIBVUURMUUR_VERSION_MINOR;
-    BackendFunctions.version_sub   = LIBVUURMUUR_VERSION_SUB;
-    BackendFunctions.prerelease    = VUURMUUR_PRERELEASE_VERSION;
-
+    /* set the version */
+    BackendFunctions.version = LIBVUURMUUR_VERSION;
 }
 
 
