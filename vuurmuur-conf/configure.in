@@ -50,16 +50,16 @@ AC_CHECK_HEADERS(vuurmuur.h,, LVUUR="no")
 if test "$LVUUR" = "no"; then
 	echo
 	echo "   ERROR!  vuurmuur.h header not found, go get it from"
-	echo "   http://vuurmuur.sourceforge.net/"
+	echo "   http://www.vuurmuur.org/"
 	exit
 fi
 
 LVUUR=""
-AC_CHECK_LIB(vuurmuur,tell_libvuurmuur_version,, LVUUR="no")
+AC_CHECK_LIB(vuurmuur,libvuurmuur_get_version,, LVUUR="no")
 if test "$LVUUR" = "no"; then
 	echo
 	echo "   ERROR!  libvuurmuur library not found, go get it from"
-	echo "   http://vuurmuur.sourceforge.net/"
+	echo "   http://www.vuurmuur.org/"
 	exit
 fi
 
