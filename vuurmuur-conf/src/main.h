@@ -51,7 +51,9 @@
 #include <form.h>
 #endif /* HAVE_NC_WIDE_HEADERS */
 
+#if !defined(_GNU_SOURCE)
 #define _GNU_SOURCE
+#endif
 #include <getopt.h>
 
 #ifdef USE_WIDEC
