@@ -14,9 +14,6 @@
 # Dutch translations for vuurmuur_conf package.
 # Copyright (C) 2005 Victor Julien
 # This file is distributed under the same license as the vuurmuur_conf package.
-#
-# Victor Julien <victor@nk.nl>, 2005.
-# Victor Julien <v.p.p.julien@student.rug.nl>, 2005, 2006.
 # Victor Julien <victor@vuurmuur.org>, 2006, 2007.
 msgid ""
 msgstr ""

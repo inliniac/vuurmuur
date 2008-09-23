@@ -1,5 +1,5 @@
 # English translations for vuurmuur_conf package.
-# Copyright (C) 2005 Victor Julien <victor@nk.nl>
+# Copyright (C) 2005 Victor Julien <victor@vuurmuur.org>
 # This file is distributed under the same license as the vuurmuur_conf package.
 # Automatically generated, 2005.
 #

@@ -4,7 +4,6 @@
 # Copyright (C) 2005 Victor Julien
 # This file is distributed under the same license as the vuurmuur_conf package.
 # Nicolas DEJARDIN <zephura (ad) free (dot) fr>, 2005.
-# Victor Julien <victor@nk.nl>, 2005, 2006.
 #
 msgid ""
 msgstr ""
