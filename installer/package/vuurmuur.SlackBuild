@@ -4,7 +4,7 @@ CWD=`pwd`
 TMP=/tmp
 PKG=$TMP/vuurmuur
 
-VERSION=0.5.73
+VERSION=0.6
 ARCH=${ARCH:-i486}
 BUILD=1
 
