@@ -260,6 +260,7 @@ edit_genconfig(const int debuglvl)
 
         if( cur == GenConfig.iptableslocfld ||
             cur == GenConfig.iptablesrestorelocfld ||
+            cur == GenConfig.tclocfld ||
             cur == GenConfig.conntracklocfld)
         {
             if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
