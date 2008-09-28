@@ -8,6 +8,6 @@ Build-Depends: debhelper, libvuurmuur, libtool
 Package: vuurmuur
 Architecture: any
 Depends: libvuurmuur
-Recommends: iptables, vuurmuur-conf
+Recommends: iptables, vuurmuur-conf, iproute
 Conflicts: vuurmuur-log
 Description: Iptables frontend. Rule- and logdaemons and commandline utils.
