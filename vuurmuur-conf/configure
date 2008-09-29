@@ -28311,16 +28311,16 @@ fi
 
 # locale dir option for rpm building
 
-# Check whether --with-localedir was given.
-if test "${with_localedir+set}" = set; then
-  withval=$with_localedir; localedir="$withval"
+# Check whether --with-tmplocaledir was given.
+if test "${with_tmplocaledir+set}" = set; then
+  withval=$with_tmplocaledir; tmplocaledir="$withval"
 else
-  localedir=no
+  tmplocaledir=no
 fi
 
 
-if test "$localedir" != "no"; then
-    CPPFLAGS="${CPPFLAGS} -DLOCALEDIR=\"${localedir}\""
+if test "$tmplocaledir" != "no"; then
+    CPPFLAGS="${CPPFLAGS} -DLOCALEDIR=\"${tmplocaledir}\""
 else
     CPPFLAGS="${CPPFLAGS} -DLOCALEDIR=\"${datadir}/locale\""
 fi

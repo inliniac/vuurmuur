@@ -35,12 +35,12 @@ if test "$with_libvuurmuur_libraries" != "no"; then
 fi
 
 # locale dir option for rpm building
-AC_ARG_WITH(localedir,
+AC_ARG_WITH(tmplocaledir,
        [  --with-localedir=DIR  vuurmuur locale dir (default $prefix/locale)],
-       [localedir="$withval"],[localedir=no])
+       [tmplocaledir="$withval"],[tmplocaledir=no])
 
-if test "$localedir" != "no"; then
-    CPPFLAGS="${CPPFLAGS} -DLOCALEDIR=\"${localedir}\""
+if test "$tmplocaledir" != "no"; then
+    CPPFLAGS="${CPPFLAGS} -DLOCALEDIR=\"${tmplocaledir}\""
 else
     CPPFLAGS="${CPPFLAGS} -DLOCALEDIR=\"${datadir}/locale\""
 fi
