@@ -20,7 +20,7 @@ msgstr ""
 "Project-Id-Version: nl\n"
 "Report-Msgid-Bugs-To: http://www.vuurmuur.org/\n"
 "POT-Creation-Date: 2008-09-29 13:22+0200\n"
-"PO-Revision-Date: 2008-09-29 13:32+0200\n"
+"PO-Revision-Date: 2008-09-29 17:11+0200\n"
 "Last-Translator: Victor Julien <victor@vuurmuur.org>\n"
 "Language-Team: Nederlands <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -720,7 +720,7 @@ msgstr "fout bij het laden van de opmerking."
 #. TRANSLATORS: max 18 chars
 #: src/if_sec.c:359
 msgid "Is interface up?"
-msgstr "Is interface op?"
+msgstr "Interface actief?"
 
 #: src/if_sec.c:374 src/if_sec.c:936
 msgid "Edit Interface"
@@ -3053,23 +3053,23 @@ msgstr "    OK"
 
 #: src/gui.c:871
 msgid "  Cancel"
-msgstr "  Annuleren"
+msgstr "Annuleren"
 
 #: src/gui.c:1474
 msgid "Incoming guaranteed rate"
-msgstr "Gegarandeerde inkomende bandbreedte"
+msgstr "Garantie inkomend"
 
 #: src/gui.c:1477
 msgid "Incoming maximum rate"
-msgstr "Maximale inkomende bandbreedte"
+msgstr "Maximaal inkomend"
 
 #: src/gui.c:1481
 msgid "Outgoing guaranteed rate"
-msgstr "Gegarandeerde uitgaande bandbreedte"
+msgstr "Garantie uitgaand"
 
 #: src/gui.c:1484
 msgid "Outgoing maximum rate"
-msgstr "Maximale uitgaande bandbreedte"
+msgstr "Maximaal uitgaand"
 
 #: src/gui.c:1488
 msgid "Priority"
@@ -3077,7 +3077,7 @@ msgstr "Prioriteit"
 
 #: src/gui.c:1720
 msgid "Enable shaping"
-msgstr "Bandbreedtebeheersing inschakelen"
+msgstr "Beheersing inschakelen"
 
 #: src/statevent.c:498
 msgid "Manage Connection"
