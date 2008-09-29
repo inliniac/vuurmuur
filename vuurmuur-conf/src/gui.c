@@ -1465,7 +1465,7 @@ void VrShapeRule(const int debuglvl, struct options *opt) {
         (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
         return;
     }
-    VrWinSetTitle(win, "Shaping");
+    VrWinSetTitle(win, gettext("Shaping"));
 
     form = VrNewForm(14, 58, 1, 1, 14, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
 
