@@ -271,6 +271,46 @@ check_iptablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, c
     return(1);
 }
 
+/*
+*/
+int
+check_tc_command(const int debuglvl, struct vuurmuur_config *cnf, char *tc_location, char quiet)
+{
+    char    cmd[sizeof(conf.tc_location) + 32] = "";
+
+    /* safety */
+    if(cnf == NULL || tc_location == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* first check if there even is a value */
+    if(strcmp(tc_location, "") == 0)
+    {
+        if(quiet == FALSE)
+            (void)vrprint.error(0, "Error", "The path to the 'tc'-command was not set.", tc_location);
+
+        return(0);
+    }
+    else
+    {
+        /* now check the command */
+        snprintf(cmd, sizeof(cmd), "%s -V &> /dev/null", tc_location);
+
+        if(pipe_command(debuglvl, cnf, cmd, PIPE_QUIET) < 0)
+        {
+            if(quiet == FALSE)
+                (void)vrprint.error(0, "Error", "The path '%s' to the 'tc'-command seems to be wrong.", tc_location);
+
+            return(0);
+        }
+
+    }
+
+    return(1);
+}
+
 
 /* updates the logdirlocations in the cnf struct based on cnf->vuurmuur_log_dir */
 int

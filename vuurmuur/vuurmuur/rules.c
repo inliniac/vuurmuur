@@ -1462,7 +1462,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
             retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, iptcap);
 
             /* shaping rules */
-            if (shaping_shape_outgoing_rule(debuglvl, &create->option) == 1) {
+            if (libvuurmuur_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
                 retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
                     rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
@@ -1473,7 +1473,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
                     return(retval);
                 }
             }
-            if (shaping_shape_incoming_rule(debuglvl, &create->option) == 1) {
+            if (libvuurmuur_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
                 retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
                     rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
@@ -1528,7 +1528,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
             retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, iptcap);
 
             /* shaping rules */
-            if (shaping_shape_outgoing_rule(debuglvl, &create->option) == 1) {
+            if (libvuurmuur_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
                 retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
                     rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
@@ -1539,7 +1539,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
                     return(retval);
                 }
             }
-            if (shaping_shape_incoming_rule(debuglvl, &create->option) == 1) {
+            if (libvuurmuur_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
                 retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
                     rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
@@ -1624,7 +1624,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
                 }
 
                 /* shaping rules */
-                if (shaping_shape_outgoing_rule(debuglvl, &create->option) == 1) {
+                if (libvuurmuur_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
                     /* at this point we can create the tc rules */
                     retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
                         rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
@@ -1635,7 +1635,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
                         return(retval);
                     }
                 }
-                if (shaping_shape_incoming_rule(debuglvl, &create->option) == 1) {
+                if (libvuurmuur_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
                     /* at this point we can create the tc rules */
                     retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
                         rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
@@ -1900,7 +1900,7 @@ create_rule(const int debuglvl, struct vuurmuur_config *cnf,
         (void)strlcpy(rule->helper, create->service->helper, sizeof(rule->helper));
 
     /* SHAPING PREPARATION */
-    if (shaping_shape_rule(debuglvl, &create->option) == 1) {
+    if (libvuurmuur_is_shape_rule(debuglvl, &create->option) == 1) {
         rule->shape_class_out = interfaces->shape_handle;
         interfaces->shape_handle++;
         rule->shape_class_in = interfaces->shape_handle;

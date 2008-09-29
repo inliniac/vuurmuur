@@ -1417,6 +1417,7 @@ int config_check_logdir(const int debuglvl, const char *logdir);
 int config_check_vuurmuurdir(const int debuglvl, const char *logdir);
 int check_iptables_command(const int, struct vuurmuur_config *, char *, char);
 int check_iptablesrestore_command(const int, struct vuurmuur_config *, char *, char);
+int check_tc_command(const int, struct vuurmuur_config *, char *, char);
 int init_config(const int, struct vuurmuur_config *cnf);
 int reload_config(const int, struct vuurmuur_config *);
 int ask_configfile(const int debuglvl, char *question, char *answer_ptr, char *file_location, size_t size);
@@ -1513,6 +1514,15 @@ void VR_filter_cleanup(const int debuglvl, VR_filter *filter);
 */
 char * VrGetString( char *fmt, ... );
 char * VrGetLenString(size_t max, char *fmt, ...);
+
+/*
+ * shape.c
+ */
+int libvuurmuur_is_shape_rule(const int, /*@null@*/struct options *);
+int libvuurmuur_is_shape_incoming_rule(const int, /*@null@*/struct options *);
+int libvuurmuur_is_shape_outgoing_rule(const int, /*@null@*/struct options *);
+int libvuurmuur_is_shape_interface(const int, /*@null@*/InterfaceData *);
+
 
 /*
     global vars

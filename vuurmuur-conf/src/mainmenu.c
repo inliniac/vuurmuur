@@ -606,6 +606,15 @@ mm_check_status_config(const int debuglvl, /*@null@*/ d_list *status_list)
         }
     }
 
+    if(strcmp(conf.tc_location, "") != 0)
+    {
+        if(!check_tc_command(debuglvl, &conf, conf.tc_location, 0))
+        {
+            VuurmuurStatus.config = -1;
+            queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'tc'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
+        }
+    }
+
     return;
 }
 
@@ -654,6 +663,48 @@ mm_check_status_services(const int debuglvl, /*@null@*/ d_list *status_list, Ser
     return;
 }
 
+/*
+*/
+static void
+mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, Rules *rules)
+{
+    d_list_node      *d_node = NULL;
+    struct RuleData_ *rule_ptr = NULL;
+
+    if(rules == NULL)
+    {
+        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+                                __FUNC__, __LINE__);
+        VuurmuurStatus.rules = -1;
+
+        return;
+    }
+
+    /* asume ok when we start */
+    VuurmuurStatus.rules = 1;
+
+    if (strcmp(conf.tc_location,"") != 0)
+        return;
+
+    for(d_node = rules->list.top; d_node; d_node = d_node->next)
+    {
+        if(!(rule_ptr = d_node->data))
+        {
+            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            VuurmuurStatus.rules = -1;
+            return;
+        }
+
+        if (libvuurmuur_is_shape_rule(debuglvl,rule_ptr->opt) == 1) {
+            queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.rules,
+                    gettext("- Shaping rules present while the 'tc'-location is not set. Please set the 'tc'-location\n"));
+            VuurmuurStatus.rules = -1;
+            return;
+        }
+    }
+
+    return;
+}
 
 /*
 
@@ -1929,6 +1980,8 @@ main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces
             if(strcmp(choice_ptr, MM_ITEM_RULES) == 0)
             {
                 rules_form(debuglvl, rules, zones, interfaces, services, reg);
+
+                mm_check_status_rules(debuglvl, NULL, rules);
             }
             else if(strcmp(choice_ptr, MM_ITEM_ZONES) == 0)
             {
@@ -1955,6 +2008,7 @@ main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces
                 config_menu(debuglvl);
 
                 mm_check_status_config(debuglvl, NULL);
+                mm_check_status_rules(debuglvl, NULL, rules);
             }
             else if(strcmp(choice_ptr, "traffic") == 0)
             {
@@ -2090,6 +2144,8 @@ mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, Rules *ru
 
     /* check for (active) networks */
     mm_check_status_zones(debuglvl, status_list, zones);
+
+    mm_check_status_rules(debuglvl, status_list, rules);
 
     /* check config */
     mm_check_status_config(debuglvl, status_list);

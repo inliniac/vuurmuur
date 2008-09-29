@@ -678,7 +678,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 
     /*  setup iptables shaping rules */
-    if (shaping_shape_rule(debuglvl, &create->option) == 1)
+    if (libvuurmuur_is_shape_rule(debuglvl, &create->option) == 1)
     {
         /* check cap */
         if(conf.check_iptcaps == TRUE)
@@ -723,7 +723,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             (void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
 
         #if 0
-        if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+        if (libvuurmuur_is_shape_interface(debuglvl, rule->to_if_ptr) == 1)
         {
         if (rule->to_if_ptr != NULL) {
             /* new, related, established */
@@ -740,7 +740,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
         #endif
 
-        if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+        if (libvuurmuur_is_shape_interface(debuglvl, rule->from_if_ptr) == 1)
         {
             /* related, established */
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
@@ -767,7 +767,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             }
 
             #if 0
-            if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+            if (libvuurmuur_is_shape_interface(debuglvl, rule->to_if_ptr) == 1)
             {
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
                 create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
@@ -782,7 +782,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             }
             #endif
 
-            if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+            if (libvuurmuur_is_shape_interface(debuglvl, rule->from_if_ptr) == 1)
             {
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
                 create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
@@ -1102,7 +1102,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 
     /*  setup iptables shaping rules */
-    if (shaping_shape_rule(debuglvl, &create->option) == 1)
+    if (libvuurmuur_is_shape_rule(debuglvl, &create->option) == 1)
     {
         /* check cap */
         if(conf.check_iptcaps == TRUE)
@@ -1146,7 +1146,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
         else
             (void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
 
-        if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+        if (libvuurmuur_is_shape_interface(debuglvl, rule->to_if_ptr) == 1)
         {
             /* new, related, established */
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
@@ -1163,7 +1163,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
         /* maybe we can do real ingress shaping later */
         #if 0
-        if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+        if (libvuurmuur_is_shape_interface(debuglvl, rule->from_if_ptr) == 1)
         {
             /* REVERSE! related, established */
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
@@ -1192,7 +1192,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 }
             }
 
-            if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+            if (libvuurmuur_is_shape_interface(debuglvl, rule->to_if_ptr) == 1)
             {
                 /* RELATED,ESTABLISHED */
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
@@ -1209,7 +1209,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
             /* maybe we can do real ingress shaping later */
             #if 0
-            if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+            if (libvuurmuur_is_shape_interface(debuglvl, rule->from_if_ptr) == 1)
             {
                 /* REVERSE! */
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
@@ -1571,7 +1571,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
     }
 
     /*  setup iptables shaping rules */
-    if (shaping_shape_rule(debuglvl, &create->option) == 1)
+    if (libvuurmuur_is_shape_rule(debuglvl, &create->option) == 1)
     {
         /* check cap */
         if(conf.check_iptcaps == TRUE)
@@ -1622,7 +1622,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
         else
             (void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
 
-        if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+        if (libvuurmuur_is_shape_interface(debuglvl, rule->to_if_ptr) == 1)
         {
             /* new,related,established */
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
@@ -1638,7 +1638,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
                 return(-1);
         }
 
-        if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+        if (libvuurmuur_is_shape_interface(debuglvl, rule->from_if_ptr) == 1)
         {
             /* REVERSE! related,established */
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
@@ -1666,7 +1666,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
                 }
             }
 
-            if (shaping_shape_interface(debuglvl, rule->to_if_ptr) == 1)
+            if (libvuurmuur_is_shape_interface(debuglvl, rule->to_if_ptr) == 1)
             {
                 /* RELATED & ESTABLISHED */
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
@@ -1681,7 +1681,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
                     return(-1);
             }
 
-            if (shaping_shape_interface(debuglvl, rule->from_if_ptr) == 1)
+            if (libvuurmuur_is_shape_interface(debuglvl, rule->from_if_ptr) == 1)
             {
                 /* REVERSE! */
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
