@@ -65,6 +65,7 @@ main(int argc, char *argv[])
     /* clear vuurmur/all the iptables rules? */
     char            clear_vuurmuur_rules = FALSE;
     char            clear_all_rules      = FALSE;
+    char            force_start = FALSE;
 
     int             retval = 0,
                     optch,
@@ -73,7 +74,7 @@ main(int argc, char *argv[])
 
     unsigned int    dynamic_wait_time = 0;  /* for checking the dynamic ipaddresses */
     unsigned int    wait_time = 0;          /* time in seconds we have waited for an VR_RR_RESULT_ACK when using SHM-IPC */
-    static char optstring[] = "hd:bVlvnc:L:CFDtk";
+    static char optstring[] = "hd:bVlvnc:L:CFDtkf";
     struct option prog_opts[] =
     {
         { "help", no_argument, NULL, 'h' },
@@ -92,6 +93,7 @@ main(int argc, char *argv[])
         { "no-check", no_argument, (int)&conf.check_iptcaps, 0 },
          */
         { "keep", no_argument, NULL, 'k' },
+        { "force-start", no_argument, NULL, 'f' },
         { 0, 0, 0, 0 },
     };
     int             option_index = 0;
@@ -252,6 +254,11 @@ main(int argc, char *argv[])
                 /* keep rules file */
                 fprintf(stdout, "Keeping rulesfiles...\n");
                 keep_file = TRUE;
+                break;
+
+            case 'f' :
+
+                force_start = TRUE;
                 break;
 
             default:
@@ -420,6 +427,15 @@ main(int argc, char *argv[])
     else
     {
         (void)vrprint.error(-1, "Error", "initializing the rules failed.");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Check if we have rules. If not we won't start unless we are forced to. */
+    if (rules.list.len == 0 && force_start == FALSE)
+    {
+        (void)vrprint.error(-1, "Error", "no rules defined, Vuurmuur will not start "
+              "to prevent you from locking yourself out. Override by supplying "
+              "--force-start on the commandline.");
         exit(EXIT_FAILURE);
     }
 
@@ -805,6 +821,7 @@ print_help(void)
     fprintf(stdout, "-F, --clear-all\t\tclear all iptables rules and set policy to ACCEPT. PRE-VRMR-CHAINS (and others) cleared. Use with care!\n");
     fprintf(stdout, "-k, --keep\t\tkeep the iptables ruleset (tmp)file iptables-restore loads into the system. Useful for debugging. The file can be found in /tmp/\n");
     fprintf(stdout, "-t, --no-check\t\tdon't check for iptables capabilities, asume all are supported.\n");
+    fprintf(stdout, "-f, --force-start\toverride the test that prevents Vuurmuur from starting when no rules are present\n");
     fprintf(stdout, "\n");
 
     exit(EXIT_SUCCESS);
