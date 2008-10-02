@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <sys/wait.h>
 #include "vuurmuur.h"
 
 
@@ -564,7 +565,8 @@ pipe_command(const int debuglvl, struct vuurmuur_config *cnf, char *command,
     if(debuglvl >= MEDIUM)
         (void)vrprint.debug(__FUNC__, "pipe opened succesfully.");
 
-    if(pclose(p))
+    int r = pclose(p);
+    if(r != 0)
     {
         if(!ignore_error)
         {
@@ -581,6 +583,40 @@ pipe_command(const int debuglvl, struct vuurmuur_config *cnf, char *command,
     }
 
     return(retval);
+}
+
+int
+exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *path, char *argv[])
+{
+    int retval = 0;
+    char *s = *argv;
+
+    (void)vrprint.debug(__FUNC__, "starting, path %s", path);
+
+    pid_t pid = fork();
+    if (pid == 0) {
+        (void)vrprint.debug(__FUNC__, "(child) started");
+        execv(path,argv);
+        (void)vrprint.debug(__FUNC__, "(child) execv failed");
+        exit(127);
+    }
+    (void)vrprint.debug(__FUNC__, "child pid is %u", pid);
+
+    int status;
+    pid_t rpid;
+    do {
+        rpid = waitpid(pid, &status, 0);
+    } while (rpid == -1 && errno == EINTR);
+
+    if (pid != -1 && WIFEXITED(status) && WEXITSTATUS(status)) {
+        (void)vrprint.debug(__FUNC__, "WEXITSTATUS(status) %d", WEXITSTATUS(status));
+        retval = WEXITSTATUS(status);
+    }
+    else if (rpid == -1)
+        retval = -1;
+
+    (void)vrprint.debug(__FUNC__, "retval %d", retval);
+    return retval;
 }
 
 

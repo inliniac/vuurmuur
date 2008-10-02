@@ -608,7 +608,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ d_list *status_list)
 
     if(strcmp(conf.tc_location, "") != 0)
     {
-        if(!check_tc_command(debuglvl, &conf, conf.tc_location, 0))
+        if(!check_tc_command(debuglvl, &conf, conf.tc_location, 1))
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'tc'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));

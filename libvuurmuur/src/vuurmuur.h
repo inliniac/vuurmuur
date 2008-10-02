@@ -1404,6 +1404,7 @@ int remove_pidfile(char *pidfile_location);
 FILE * rules_file_open(const char *path, const char *mode, int caller);
 int rules_file_close(FILE *file, const char *path);
 int pipe_command(const int, struct vuurmuur_config *, char *, char);
+int exec_command(const int, struct vuurmuur_config *, char *, char **);
 void shm_update_progress(const int debuglvl, int semid, int *shm_progress, int set_percent);
 pid_t get_vuurmuur_pid(char *vuurmuur_pidfile_location, int *shmid);
 int create_tempfile(const int, char *);

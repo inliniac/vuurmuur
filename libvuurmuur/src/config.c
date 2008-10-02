@@ -197,8 +197,6 @@ config_check_vuurmuurdir(const int debuglvl, const char *logdir)
 int
 check_iptables_command(const int debuglvl, struct vuurmuur_config *cnf, char *iptables_location, char quiet)
 {
-    char    cmd[sizeof(conf.iptables_location) + 32] = "";
-
     /* safety */
     if(cnf == NULL || iptables_location == NULL)
     {
@@ -217,9 +215,9 @@ check_iptables_command(const int debuglvl, struct vuurmuur_config *cnf, char *ip
     else
     {
         /* now check the command */
-        snprintf(cmd, sizeof(cmd), "%s --version &> /dev/null", iptables_location);
-
-        if(pipe_command(debuglvl, cnf, cmd, PIPE_QUIET) < 0)
+        char *args[] = { "--version", NULL };
+        int r =  exec_command(debuglvl, cnf, iptables_location, args);
+        if (r != 0 && r != 2)
         {
             if(quiet == FALSE)
                 (void)vrprint.error(0, "Error", "The path '%s' to the 'iptables'-command seems to be wrong.", iptables_location);
@@ -237,8 +235,6 @@ check_iptables_command(const int debuglvl, struct vuurmuur_config *cnf, char *ip
 int
 check_iptablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, char *iptablesrestore_location, char quiet)
 {
-    char    cmd[sizeof(conf.iptablesrestore_location) + 32] = "";
-
     /* safety */
     if(cnf == NULL || iptablesrestore_location == NULL)
     {
@@ -257,9 +253,9 @@ check_iptablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, c
     else
     {
         /* now check the command */
-        snprintf(cmd, sizeof(cmd), "%s < /dev/null &> /dev/null", iptablesrestore_location);
-
-        if(pipe_command(debuglvl, cnf, cmd, PIPE_QUIET) < 0)
+        char *args[] = { "<", "/dev/null", NULL };
+        int r = exec_command(debuglvl, cnf, iptablesrestore_location, args);
+        if (r != 0)
         {
             if(quiet == FALSE)
                 (void)vrprint.error(0, "Error", "The path '%s' to the 'iptables-restore'-command seems to be wrong.", iptablesrestore_location);
@@ -276,8 +272,6 @@ check_iptablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, c
 int
 check_tc_command(const int debuglvl, struct vuurmuur_config *cnf, char *tc_location, char quiet)
 {
-    char    cmd[sizeof(conf.tc_location) + 32] = "";
-
     /* safety */
     if(cnf == NULL || tc_location == NULL)
     {
@@ -295,17 +289,15 @@ check_tc_command(const int debuglvl, struct vuurmuur_config *cnf, char *tc_locat
     }
     else
     {
-        /* now check the command */
-        snprintf(cmd, sizeof(cmd), "%s -V &> /dev/null", tc_location);
-
-        if(pipe_command(debuglvl, cnf, cmd, PIPE_QUIET) < 0)
+        char *args[] = { "-V", NULL };
+        int r = exec_command(debuglvl, cnf, tc_location, args);
+        if (r != 0)
         {
             if(quiet == FALSE)
                 (void)vrprint.error(0, "Error", "The path '%s' to the 'tc'-command seems to be wrong.", tc_location);
 
             return(0);
         }
-
     }
 
     return(1);
