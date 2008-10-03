@@ -216,7 +216,7 @@ check_iptables_command(const int debuglvl, struct vuurmuur_config *cnf, char *ip
     {
         /* now check the command */
         char *args[] = { "--version", NULL };
-        int r =  exec_command(debuglvl, cnf, iptables_location, args);
+        int r = libvuurmuur_exec_command(debuglvl, cnf, iptables_location, args);
         if (r != 0 && r != 2)
         {
             if(quiet == FALSE)
@@ -254,7 +254,7 @@ check_iptablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, c
     {
         /* now check the command */
         char *args[] = { "<", "/dev/null", NULL };
-        int r = exec_command(debuglvl, cnf, iptablesrestore_location, args);
+        int r = libvuurmuur_exec_command(debuglvl, cnf, iptablesrestore_location, args);
         if (r != 0)
         {
             if(quiet == FALSE)
@@ -290,7 +290,7 @@ check_tc_command(const int debuglvl, struct vuurmuur_config *cnf, char *tc_locat
     else
     {
         char *args[] = { "-V", NULL };
-        int r = exec_command(debuglvl, cnf, tc_location, args);
+        int r = libvuurmuur_exec_command(debuglvl, cnf, tc_location, args);
         if (r != 0)
         {
             if(quiet == FALSE)

@@ -90,8 +90,6 @@ iptcap_get_one_cap_from_proc(const int debuglvl, char *procpath, char *request)
 static int
 iptcap_load_module(const int debuglvl, struct vuurmuur_config *cnf, char *modulename)
 {
-    char    cmd[128] = "";
-
     /* safety */
     if(modulename == NULL || cnf == NULL)
     {
@@ -100,27 +98,19 @@ iptcap_load_module(const int debuglvl, struct vuurmuur_config *cnf, char *module
         return(-1);
     }
 
-    /* create the commandstring */
-    if(snprintf(cmd, sizeof(cmd), "%s -q %s &> /dev/null", conf.modprobe_location, modulename) >= (int)sizeof(cmd))
-    {
-        (void)vrprint.error(-1, "Error", "commandstring overflow (in: %s:%d).",
-            __FUNC__, __LINE__);
-        return(-1);
-    }
-    if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "cmd: '%s'.", cmd);
-
     /* now execute the command */
-    if(pipe_command(debuglvl, cnf, cmd, PIPE_QUIET) < 0)
+    char *args[] = { "-q", modulename, NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, conf.modprobe_location, args);
+    if (r != 0)
     {
-        if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "loading module '%s' failed.", modulename);
+//        if(debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "loading module '%s' failed: modprobe returned %d.", modulename, r);
 
         return(-1);
     }
 
-    if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "loading module '%s' success.", modulename);
+//    if(debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "loading module '%s' success, modprobe returned %d.", modulename, r);
 
     return(0);
 }

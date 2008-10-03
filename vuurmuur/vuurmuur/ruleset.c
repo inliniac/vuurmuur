@@ -1142,7 +1142,7 @@ ruleset_exists(const int debuglvl, char *path_to_ruleset)
 static int
 ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_resultfile, struct vuurmuur_config *cnf)
 {
-    char    cmd[256] = "";
+    char cmd[256] = "";
 
     /* safety */
     if(!path_to_ruleset || !cnf)
@@ -1170,28 +1170,8 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
     }
 
     /*
-        create and execute the TEST command
+        create and execute the command
     */
-
-    /* */
-//    if(snprintf(cmd, sizeof(cmd), "%s --test --counters --noflush < %s 2> %s", cnf->iptablesrestore_location, path_to_ruleset, path_to_resultfile) >= sizeof(cmd))
-//    {
-//        (void)vrprint.error(-1, "Error", "command string overflow (in: %s:%d).", __FUNC__, __LINE__);
-//        return(-1);
-//    }
-
-    /* all good so far, lets load the ruleset */
-//    if(pipe_command(debuglvl, cnf, cmd, PIPE_VERBOSE) < 0)
-//    {
-//        (void)vrprint.error(-1, "Error", "testing/loading the ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
-//        return(-1);
-//    }
-
-    /*
-        create and execute the REAL command
-    */
-
-    /* */
     if(snprintf(cmd, sizeof(cmd), "%s  --counters --noflush < %s 2>> %s",
         cnf->iptablesrestore_location, path_to_ruleset,
         path_to_resultfile) >= (int)sizeof(cmd))

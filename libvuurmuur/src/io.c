@@ -585,8 +585,15 @@ pipe_command(const int debuglvl, struct vuurmuur_config *cnf, char *command,
     return(retval);
 }
 
+/* libvuurmuur_exec_command
+ *
+ * Execute a system command. This functions blocks.
+ *
+ * Returns: -1 if the command failed to start (ie not found)
+ *          otherwise the return code of the command.
+ */
 int
-exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *path, char *argv[])
+libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *path, char *argv[])
 {
     int retval = 0;
     char *s = *argv;
