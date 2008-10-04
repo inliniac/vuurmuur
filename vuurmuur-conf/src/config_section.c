@@ -2479,6 +2479,8 @@ view_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
     mvwprintw(ConfigSection.win, 9,  4, " tracking");
     mvwprintw(ConfigSection.win, 11, 4, "conntrack\t%s", iptcap->conntrack ? STR_YES : STR_NO);
     
+    mvwprintw(ConfigSection.win, 14, 4, "NAT random\t%s", iptcap->target_nat_random ? STR_YES : STR_NO);
+
     mvwprintw(ConfigSection.win, 2,  27, "Targets");
     if(iptcap->proc_net_targets)
     {

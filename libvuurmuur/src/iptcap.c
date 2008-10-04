@@ -99,7 +99,7 @@ iptcap_load_module(const int debuglvl, struct vuurmuur_config *cnf, char *module
     }
 
     /* now execute the command */
-    char *args[] = { "-q", modulename, NULL };
+    char *args[] = { conf.modprobe_location, "-q", modulename, NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, conf.modprobe_location, args);
     if (r != 0)
     {
@@ -291,6 +291,62 @@ iptcap_get_queue_peer_pid(const int debuglvl, IptCap *iptcap)
     return(0);
 }
 
+static int
+iptcap_create_test_nat_chain(const int debuglvl, struct vuurmuur_config *cnf) {
+    char *args[] = { cnf->iptables_location, "-t", "nat", "-N", "VRMRIPTCAP", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args);
+    if (r != 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+static int
+iptcap_delete_test_nat_chain(const int debuglvl, struct vuurmuur_config *cnf) {
+    char *argsF[] = { cnf->iptables_location, "-t", "nat", "-F", "VRMRIPTCAP", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsF);
+    if (r != 0) {
+        (void)vrprint.debug(__FUNC__, "flush failed (ok if chain didn't exist)");
+        return -1;
+    }
+
+    char *argsX[] = { cnf->iptables_location, "-t", "nat", "-X", "VRMRIPTCAP", NULL };
+    r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsX);
+    if (r != 0) {
+        (void)vrprint.debug(__FUNC__, "delete failed");
+        return -1;
+    }
+
+    return 0;
+}
+
+int
+iptcap_test_nat_random(const int debuglvl, struct vuurmuur_config *cnf) {
+    int retval = 1;
+
+    if (iptcap_delete_test_nat_chain(debuglvl,cnf) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_nat_chain failed, but error will be ignored");
+    }
+
+    if (iptcap_create_test_nat_chain(debuglvl,cnf) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_create_test_nat_chain failed");
+        return -1;
+    }
+
+    char *args[] = { cnf->iptables_location, "-t", "nat", "-A", "VRMRIPTCAP", "-j", "SNAT", "--to-source", "127.0.0.1", "--random", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args);
+    if (r != 0) {
+        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        retval = -1;
+    }
+
+    if (iptcap_delete_test_nat_chain(debuglvl,cnf) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_nat_chain failed, but error will be ignored");
+    }
+
+    return retval;
+}
 
 int
 check_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, char load_modules)
@@ -765,6 +821,11 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
             result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "MASQUERADE", "ipt_MASQUERADE", load_modules);
             if(result == 1) iptcap->target_masquerade = TRUE;
             else            iptcap->target_masquerade = FALSE;
+
+            /* --random option for NAT */
+            result = iptcap_test_nat_random(debuglvl, cnf);
+            if (result == 1) iptcap->target_nat_random = TRUE;
+            else             iptcap->target_nat_random = FALSE;
         }
 
         /* REJECT target */

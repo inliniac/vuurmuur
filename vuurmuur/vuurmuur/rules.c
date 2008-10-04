@@ -685,7 +685,12 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
     else if(create->ruletype == RT_MASQ)
     {
         if (create->option.random == TRUE) {
-            snprintf(rule->random, sizeof(rule->random), "--random");
+            if (conf.check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
+                snprintf(rule->random, sizeof(rule->random), "--random");
+            } else {
+                (void)vrprint.debug(__FUNC__, "MASQ random option not supported: iptcap->target_nat_random %s.",
+                        iptcap->target_nat_random ? "TRUE" : "FALSE");
+            }
         }
 
         if(create_rule_masq(debuglvl, ruleset, rule, create, iptcap) < 0)
@@ -711,7 +716,12 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
 
         if (create->option.random == TRUE) {
-            snprintf(rule->random, sizeof(rule->random), "--random");
+            if (conf.check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
+                snprintf(rule->random, sizeof(rule->random), "--random");
+            } else {
+                (void)vrprint.debug(__FUNC__, "SNAT random option not supported: iptcap->target_nat_random %s.",
+                        iptcap->target_nat_random ? "TRUE" : "FALSE");
+            }
         }
 
         if(create_rule_snat(debuglvl, ruleset, rule, create, iptcap) < 0)
@@ -737,7 +747,12 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
 
         if (create->option.random == TRUE) {
-            snprintf(rule->random, sizeof(rule->random), "--random");
+            if (conf.check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
+                snprintf(rule->random, sizeof(rule->random), "--random");
+            } else {
+                (void)vrprint.debug(__FUNC__, "PORTFW random option not supported: iptcap->target_nat_random %s.",
+                        iptcap->target_nat_random ? "TRUE" : "FALSE");
+            }
         }
 
         if(create_rule_portfw(debuglvl, ruleset, rule, create, iptcap) < 0)
@@ -770,7 +785,12 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
 
         if (create->option.random == TRUE) {
-            snprintf(rule->random, sizeof(rule->random), "--random");
+            if (conf.check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
+                snprintf(rule->random, sizeof(rule->random), "--random");
+            } else {
+                (void)vrprint.debug(__FUNC__, "DNAT random option not supported: iptcap->target_nat_random %s.",
+                        iptcap->target_nat_random ? "TRUE" : "FALSE");
+            }
         }
 
         if(create_rule_dnat(debuglvl, ruleset, rule, create, iptcap) < 0)
@@ -795,7 +815,12 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
 
         if (create->option.random == TRUE) {
-            snprintf(rule->random, sizeof(rule->random), "--random");
+            if (conf.check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
+                snprintf(rule->random, sizeof(rule->random), "--random");
+            } else {
+                (void)vrprint.debug(__FUNC__, "BOUNCE random option not supported: iptcap->target_nat_random %s.",
+                        iptcap->target_nat_random ? "TRUE" : "FALSE");
+            }
         }
 
         if(create_rule_bounce(debuglvl, ruleset, rule, create, iptcap) < 0)

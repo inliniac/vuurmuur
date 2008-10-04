@@ -1034,6 +1034,7 @@ typedef struct
     char    match_mac;
     char    match_connmark;
 
+    char    target_nat_random;
 } IptCap;
 
 
