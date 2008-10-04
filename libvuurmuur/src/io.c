@@ -598,11 +598,13 @@ libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *
     int retval = 0;
     char *s = *argv;
 
-    (void)vrprint.debug(__FUNC__, "starting, path %s", path);
+    if (debuglvl >= MEDIUM)
+        (void)vrprint.debug(__FUNC__, "starting, path %s", path);
 
     pid_t pid = fork();
     if (pid == 0) {
-        (void)vrprint.debug(__FUNC__, "(child) started");
+        if (debuglvl >= MEDIUM)
+            (void)vrprint.debug(__FUNC__, "(child) started");
 
         /* close stdout so we don't see the output of the
          * command we execute */
@@ -615,7 +617,8 @@ libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *
          * so kill the child */
         exit(127);
     }
-    (void)vrprint.debug(__FUNC__, "child pid is %u", pid);
+    if (debuglvl >= MEDIUM)
+        (void)vrprint.debug(__FUNC__, "child pid is %u", pid);
 
     int status;
     pid_t rpid;
@@ -624,13 +627,15 @@ libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *
     } while (rpid == -1 && errno == EINTR);
 
     if (pid != -1 && WIFEXITED(status) && WEXITSTATUS(status)) {
-        (void)vrprint.debug(__FUNC__, "WEXITSTATUS(status) %d", WEXITSTATUS(status));
+        if (debuglvl >= MEDIUM)
+            (void)vrprint.debug(__FUNC__, "WEXITSTATUS(status) %d", WEXITSTATUS(status));
         retval = WEXITSTATUS(status);
     }
     else if (rpid == -1)
         retval = -1;
 
-    (void)vrprint.debug(__FUNC__, "retval %d", retval);
+    if (debuglvl >= MEDIUM)
+        (void)vrprint.debug(__FUNC__, "retval %d", retval);
     return retval;
 }
 
