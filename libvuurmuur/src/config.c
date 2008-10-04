@@ -215,9 +215,9 @@ check_iptables_command(const int debuglvl, struct vuurmuur_config *cnf, char *ip
     else
     {
         /* now check the command */
-        char *args[] = { "--version", NULL };
+        char *args[] = { iptables_location, "--version", NULL };
         int r = libvuurmuur_exec_command(debuglvl, cnf, iptables_location, args);
-        if (r != 0 && r != 2)
+        if (r != 0)
         {
             if(quiet == FALSE)
                 (void)vrprint.error(0, "Error", "The path '%s' to the 'iptables'-command seems to be wrong.", iptables_location);
@@ -253,9 +253,9 @@ check_iptablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, c
     else
     {
         /* now check the command */
-        char *args[] = { "<", "/dev/null", NULL };
+        char *args[] = { iptablesrestore_location, "-h", NULL };
         int r = libvuurmuur_exec_command(debuglvl, cnf, iptablesrestore_location, args);
-        if (r != 0)
+        if (r != 1)
         {
             if(quiet == FALSE)
                 (void)vrprint.error(0, "Error", "The path '%s' to the 'iptables-restore'-command seems to be wrong.", iptablesrestore_location);
@@ -289,7 +289,7 @@ check_tc_command(const int debuglvl, struct vuurmuur_config *cnf, char *tc_locat
     }
     else
     {
-        char *args[] = { "-V", NULL };
+        char *args[] = { tc_location, "-V", NULL };
         int r = libvuurmuur_exec_command(debuglvl, cnf, tc_location, args);
         if (r != 0)
         {

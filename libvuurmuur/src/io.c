@@ -603,8 +603,16 @@ libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *
     pid_t pid = fork();
     if (pid == 0) {
         (void)vrprint.debug(__FUNC__, "(child) started");
+
+        /* close stdout so we don't see the output of the
+         * command we execute */
+        fclose(stdout);
+
+        /* actually exec the command */
         execv(path,argv);
-        (void)vrprint.debug(__FUNC__, "(child) execv failed");
+
+        /* if we get here, the command didn't exec
+         * so kill the child */
         exit(127);
     }
     (void)vrprint.debug(__FUNC__, "child pid is %u", pid);
