@@ -19,8 +19,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nl\n"
 "Report-Msgid-Bugs-To: http://www.vuurmuur.org/\n"
-"POT-Creation-Date: 2008-09-29 13:22+0200\n"
-"PO-Revision-Date: 2008-09-29 17:11+0200\n"
+"POT-Creation-Date: 2008-10-08 09:06+0200\n"
+"PO-Revision-Date: 2008-10-08 09:07+0200\n"
 "Last-Translator: Victor Julien <victor@vuurmuur.org>\n"
 "Language-Team: Nederlands <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -101,7 +101,7 @@ msgstr "Verkeers Volume Afdeling"
 #: src/bw_sec.c:528 src/if_sec.c:1266 src/if_sec.c:1277
 #: src/logview_section.c:876 src/logview_section.c:1039
 #: src/logview_section.c:1049 src/logview_section.c:1061
-#: src/logview_section.c:1419 src/mainmenu.c:1109 src/rules_form.c:284
+#: src/logview_section.c:1419 src/mainmenu.c:1128 src/rules_form.c:284
 #: src/rules_form.c:1458 src/rules_form.c:1477 src/rules_form.c:3847
 #: src/rules_form.c:4954 src/services_section.c:2685
 #: src/services_section.c:2696 src/templates.c:875 src/templates.c:886
@@ -164,9 +164,9 @@ msgstr "Deze maand"
 msgid "Last month"
 msgstr "Vorige mnd"
 
-#: src/bw_sec.c:731 src/config_section.c:1812 src/config_section.c:2678
+#: src/bw_sec.c:731 src/config_section.c:1812 src/config_section.c:2680
 #: src/conn_sec.c:681 src/if_sec.c:900 src/if_sec.c:1537
-#: src/logview_section.c:734 src/logview_section.c:752 src/mainmenu.c:1583
+#: src/logview_section.c:734 src/logview_section.c:752 src/mainmenu.c:1602
 #: src/rules_form.c:1422 src/rules_form.c:3261 src/services_section.c:1872
 #: src/services_section.c:2359 src/services_section.c:2756 src/stat_sec.c:781
 #: src/zones_section.c:571 src/zones_section.c:1217 src/zones_section.c:2393
@@ -176,7 +176,7 @@ msgstr "Vorige mnd"
 msgid "help"
 msgstr "hulp"
 
-#: src/bw_sec.c:732 src/config_section.c:1813 src/config_section.c:2679
+#: src/bw_sec.c:732 src/config_section.c:1813 src/config_section.c:2681
 #: src/conn_sec.c:692 src/help.c:1153 src/if_sec.c:903 src/if_sec.c:1542
 #: src/logview_section.c:741 src/logview_section.c:757 src/mainmenu.c:184
 #: src/rules_form.c:1428 src/rules_form.c:3264 src/services_section.c:1876
@@ -196,7 +196,7 @@ msgstr "er zijn geen interfaces gevonden. Definieer aub eerst een interface."
 msgid "please set the location of the iptrafvol.pl command in the Settings."
 msgstr "stel aub de locatie van het iptrafvol.pl commando in in de Instellingen."
 
-#: src/bw_sec.c:776 src/mainmenu.c:1519
+#: src/bw_sec.c:776 src/mainmenu.c:1538
 msgid "Traffic Volume"
 msgstr "Vekeers Volume"
 
@@ -219,14 +219,14 @@ msgstr "Algemeen"
 
 #. TRANSLATORS: max 11 chars.
 #: src/config_section.c:26 src/conn_sec.c:731 src/conn_sec.c:899
-#: src/conn_sec.c:939 src/conn_sec.c:1119 src/mainmenu.c:1518
+#: src/conn_sec.c:939 src/conn_sec.c:1119 src/mainmenu.c:1537
 #: src/stat_sec.c:476
 msgid "Connections"
 msgstr "Verbindingen"
 
 #. TRANSLATORS: max 11 chars.
 #: src/config_section.c:27 src/if_sec.c:1244 src/if_sec.c:1550
-#: src/if_sec.c:1653 src/if_sec.c:1729 src/mainmenu.c:1513 src/stat_sec.c:497
+#: src/if_sec.c:1653 src/if_sec.c:1729 src/mainmenu.c:1532 src/stat_sec.c:497
 #: src/zones_section.c:3715
 msgid "Interfaces"
 msgstr "Interfaces"
@@ -367,7 +367,7 @@ msgstr "Limiteer nieuwe udp 'verbindingen'."
 msgid "Number of new UDP 'connections' per second"
 msgstr "Aantal nieuwe UDP 'connecties' per seconde"
 
-#: src/config_section.c:1628 src/config_section.c:1832 src/mainmenu.c:1520
+#: src/config_section.c:1628 src/config_section.c:1832 src/mainmenu.c:1539
 msgid "Vuurmuur_conf Settings"
 msgstr "Vuurmuur_conf Instellingen"
 
@@ -468,20 +468,20 @@ msgstr "limiet moet binnen 0-999 vallen."
 msgid "View Capabilities"
 msgstr "Bekijk Mogelijkheden"
 
-#: src/config_section.c:2475 src/config_section.c:2500
-#: src/config_section.c:2516
+#: src/config_section.c:2475 src/config_section.c:2502
+#: src/config_section.c:2518
 msgid "Could not check."
 msgstr "Kon niet controleren."
 
-#: src/config_section.c:2550 src/config_section.c:2580
+#: src/config_section.c:2552 src/config_section.c:2582
 msgid "checking capabilities failed."
 msgstr "controleren van mogelijkheden mislukt."
 
-#: src/config_section.c:2572
+#: src/config_section.c:2574
 msgid "Iptables Capabilities"
 msgstr "Iptables Mogelijkheden"
 
-#: src/config_section.c:2572
+#: src/config_section.c:2574
 msgid ""
 "Essential capabilities are not loaded, missing, or not properly detected. "
 "Try loading modules?"
@@ -489,20 +489,20 @@ msgstr ""
 "Essentiele mogelijkheden zijn niet geladen, missen of niet goed "
 "gedetecteerd. Pogen modules te laden?"
 
-#: src/config_section.c:2657 src/config_section.c:2796 src/mainmenu.c:196
+#: src/config_section.c:2659 src/config_section.c:2798 src/mainmenu.c:196
 #: src/mainmenu.c:315
 msgid "Back"
 msgstr "Terug"
 
-#: src/config_section.c:2703
+#: src/config_section.c:2705
 msgid "Configuration Menu"
 msgstr "Configuratie Menu"
 
-#: src/config_section.c:2719
+#: src/config_section.c:2721
 msgid "Select a section."
 msgstr "Selecteer een afdeling."
 
-#: src/config_section.c:2721 src/mainmenu.c:1515
+#: src/config_section.c:2723 src/mainmenu.c:1534
 msgid "Vuurmuur Config"
 msgstr "Vuurmuur Configuratie"
 
@@ -694,11 +694,11 @@ msgstr "Hulp"
 msgid "No problems were detected in the current setup.\n"
 msgstr "Er zijn geen problemen gedetecteerd in uw systeem.\n"
 
-#: src/help.c:1103 src/mainmenu.c:1517 src/vuurmuur_conf.c:253
+#: src/help.c:1103 src/mainmenu.c:1536 src/vuurmuur_conf.c:253
 msgid "Status"
 msgstr "Status"
 
-#: src/help.c:1213 src/help.c:1215 src/mainmenu.c:1522
+#: src/help.c:1213 src/help.c:1215 src/mainmenu.c:1541
 msgid "About"
 msgstr "Over"
 
@@ -915,13 +915,13 @@ msgstr "fseek mislukt: %s."
 msgid "Loading loglines into memory (trying to load %u lines)..."
 msgstr "Naar het geheugen laden van logregels (probeer regels %u te laden)..."
 
-#: src/logview_section.c:873 src/logview_section.c:1417 src/mainmenu.c:1107
+#: src/logview_section.c:873 src/logview_section.c:1417 src/mainmenu.c:1126
 msgid "One moment please..."
 msgstr "Een moment aub..."
 
 #: src/logview_section.c:883 src/logview_section.c:885
 #: src/logview_section.c:1757 src/mainmenu.c:233 src/mainmenu.c:251
-#: src/mainmenu.c:319 src/mainmenu.c:1516
+#: src/mainmenu.c:319 src/mainmenu.c:1535
 msgid "Logview"
 msgstr "Logboek inzage"
 
@@ -1038,7 +1038,7 @@ msgstr "Zoeken GEPAUZEERD: %lu resultaten. SPATIE voor doorgaan, 'S' voor stoppe
 msgid "closing logfile failed: %s."
 msgstr "sluiten van logbestand mislukt: %s."
 
-#: src/logview_section.c:2005 src/mainmenu.c:1761 src/mainmenu.c:1787
+#: src/logview_section.c:2005 src/mainmenu.c:1780 src/mainmenu.c:1806
 #: src/rules_form.c:1614 src/rules_form.c:2017 src/rules_form.c:2048
 #: src/rules_form.c:4761 src/rules_form.c:5067 src/services_section.c:572
 #: src/services_section.c:1276 src/zones_section.c:753
@@ -1189,26 +1189,28 @@ msgid ""
 "testing it. Please check it in your system and correct it in the 'Vuurmuur "
 "Config' section\n"
 msgstr ""
-"- Het pad naar het 'tc'-commando lijkt fout te zijn. Er was een fout "
-"bij het testen ervan. Controleer het pad en voer het correcte pad in in de "
-"Vuurmuur Configuratie\n"
+"- Het pad naar het 'tc'-commando lijkt fout te zijn. Er was een fout bij het "
+"testen ervan. Controleer het pad en voer het correcte pad in in de Vuurmuur "
+"Configuratie\n"
 
 #: src/mainmenu.c:658
 #, c-format
 msgid "- No portranges/protocols defined in service '%s'\n"
 msgstr "- Geen poortbereiken/protocollen toegewezen aan service '%s'\n"
 
-#: src/mainmenu.c:700
+#: src/mainmenu.c:703
 msgid ""
 "- Shaping rules present while the 'tc'-location is not set. Please set the "
 "'tc'-location\n"
-msgstr "- Bandbreedtebeheersingsregels aanwezig terwijl de locatie van 'tc' niet is ingesteld. Stel aub de 'tc'-locatie in\n"
+msgstr ""
+"- Bandbreedtebeheersingsregels aanwezig terwijl de locatie van 'tc' niet is "
+"ingesteld. Stel aub de 'tc'-locatie in\n"
 
-#: src/mainmenu.c:737
+#: src/mainmenu.c:743
 msgid "- No interfaces are defined. Please define one or more interfaces\n"
 msgstr "- Er zijn geen interfaces gedefinieerd. Definieer één of meer interfaces\n"
 
-#: src/mainmenu.c:758
+#: src/mainmenu.c:764
 #, c-format
 msgid ""
 "- The interface '%s' does not have a device. Please enter a device in the "
@@ -1217,12 +1219,12 @@ msgstr ""
 "- De interface '%s' heeft geen apparaat. Voert u aub een apparaat in in de "
 "Interfaces Afdeling\n"
 
-#: src/mainmenu.c:790
+#: src/mainmenu.c:796
 #, c-format
 msgid "- The ipaddress '%s' of interface '%s' is invalid\n"
 msgstr "- Het IP Adres '%s' van interface '%s' is ongeldig\n"
 
-#: src/mainmenu.c:822
+#: src/mainmenu.c:828
 #, c-format
 msgid ""
 "- The ipaddress '%s' of interface '%s' (%s) does not match the ipaddress of "
@@ -1231,7 +1233,15 @@ msgstr ""
 "- Het IP Adres '%s' van interface '%s' (%s) komt niet overeen met het IP "
 "Adres van de werkelijke interface (%s)\n"
 
-#: src/mainmenu.c:833
+#: src/mainmenu.c:846
+msgid ""
+"- No interfaces have shaping enabled. Please make sure that at least one of "
+"the interfaces has shaping enabled\n"
+msgstr ""
+"- Er zijn geen interfaces met ingeschakelde bandbreedtebeheersing. Zorg ervoor dat er tenminste één "
+"interface bandbreedtebeheersing ingeschakeld heeft\n"
+
+#: src/mainmenu.c:852
 msgid ""
 "- No interfaces are active. Please make sure that at least one of the "
 "interfaces is active\n"
@@ -1239,7 +1249,7 @@ msgstr ""
 "- Er zijn geen actieve interfaces. Zorg ervoor dat er tenminste één "
 "interface actief is\n"
 
-#: src/mainmenu.c:870
+#: src/mainmenu.c:889
 msgid ""
 "- No zones are defined. Please define one or more zones, and at least one "
 "network\n"
@@ -1247,17 +1257,17 @@ msgstr ""
 "- Er zijn geen zones gedefinieerd. Zorg ervoor dat er tenminste één zone en "
 "één netwerk zijn gedefinieerd\n"
 
-#: src/mainmenu.c:896
+#: src/mainmenu.c:915
 #, c-format
 msgid "- The host '%s' does not have an IPAddress\n"
 msgstr "- De host '%s' heeft geen IP Adres\n"
 
-#: src/mainmenu.c:913
+#: src/mainmenu.c:932
 #, c-format
 msgid "- The IPAddress '%s' of host '%s' is invalid\n"
 msgstr "- Het IP Adres '%s' van host '%s' is ongeldig\n"
 
-#: src/mainmenu.c:922
+#: src/mainmenu.c:941
 #, c-format
 msgid ""
 "- The IPAddress '%s' of host '%s' does not belong to network '%s' with "
@@ -1266,7 +1276,7 @@ msgstr ""
 "- Het IP Adres '%s' van host '%s' behoort niet tot het network '%s' met "
 "netmask '%s'\n"
 
-#: src/mainmenu.c:936
+#: src/mainmenu.c:955
 #, c-format
 msgid ""
 "- The network '%s' as no interfaces attached to it. Please attach one or "
@@ -1275,29 +1285,29 @@ msgstr ""
 "- Aan het netwerk '%s' zijn geen interfaces toegewezen. Wijst u aub één of "
 "meer interfaces toe in de Zones Afdeling\n"
 
-#: src/mainmenu.c:945
+#: src/mainmenu.c:964
 #, c-format
 msgid "- The network address for network '%s' is missing. See the Zones Section\n"
 msgstr ""
 "- Het netwerk adres van netwerk '%s' is niet ingevuld. Zie de Zones "
 "Afdeling\n"
 
-#: src/mainmenu.c:957
+#: src/mainmenu.c:976
 #, c-format
 msgid "- The network address '%s' of network '%s' is invalid."
 msgstr "- Het netwerk adres '%s' van netwerk '%s' is ongeldig."
 
-#: src/mainmenu.c:967
+#: src/mainmenu.c:986
 #, c-format
 msgid "- The netmask for network '%s' is missing. See the Zones Section\n"
 msgstr "- Het netmask van netwerk '%s' is niet ingevuld. Zie de Zones Afdeling\n"
 
-#: src/mainmenu.c:979
+#: src/mainmenu.c:998
 #, c-format
 msgid "- The netmask '%s' of network '%s' is invalid. See the Zones Section\n"
 msgstr "- Het netmask '%s' van netwerk '%s' is ongeldig. Zie de Zones Afdeling\n"
 
-#: src/mainmenu.c:989
+#: src/mainmenu.c:1008
 msgid ""
 "- No networks are defined. Please make sure that you define at least one "
 "network. See the Zones Section\n"
@@ -1305,7 +1315,7 @@ msgstr ""
 "- Er zijn geen netwerken gedefinieerd. Zorg ervoor dat er tenminste één "
 "netwerk is gedefinieerd . Zie de Zones afdeling\n"
 
-#: src/mainmenu.c:994
+#: src/mainmenu.c:1013
 msgid ""
 "- No networks are active. Please make sure that at least one of the networks "
 "is active. See the Zones Section\n"
@@ -1313,50 +1323,50 @@ msgstr ""
 "- Er zijn geen actieve netwerken. Zorg ervoor dat tenminste één netwerk "
 "actief is. Zie de Zones afdeling\n"
 
-#: src/mainmenu.c:1070
+#: src/mainmenu.c:1089
 msgid "Not connected"
 msgstr "Niet verbonden"
 
-#: src/mainmenu.c:1071
+#: src/mainmenu.c:1090
 msgid "Success"
 msgstr "Gelukt"
 
-#: src/mainmenu.c:1072
+#: src/mainmenu.c:1091
 msgid "No changes"
 msgstr "Geen veranderingen"
 
-#: src/mainmenu.c:1073 src/templates.c:606 src/strings.h:102
+#: src/mainmenu.c:1092 src/templates.c:606 src/strings.h:102
 msgid "Error"
 msgstr "Fout"
 
-#: src/mainmenu.c:1074
+#: src/mainmenu.c:1093
 msgid "Timed out"
 msgstr "Tijd verstreken"
 
-#: src/mainmenu.c:1136 src/mainmenu.c:1143
+#: src/mainmenu.c:1155 src/mainmenu.c:1162
 msgid "Applying changes ..."
 msgstr "Bezig met toepassen ..."
 
-#: src/mainmenu.c:1345
+#: src/mainmenu.c:1364
 msgid "applying changes failed. Please check error.log."
 msgstr "toepassen van de wijzigingen is mislukt. Controleert u error.log."
 
 #. TRANSLATORS: max 6 characters
-#: src/mainmenu.c:1403
+#: src/mainmenu.c:1422
 msgid "  OK  "
 msgstr "  OK  "
 
 #. TRANSLATORS: max 6 characters
-#: src/mainmenu.c:1409
+#: src/mainmenu.c:1428
 msgid " Warn "
 msgstr "Let op"
 
 #. TRANSLATORS: max 6 characters
-#: src/mainmenu.c:1415
+#: src/mainmenu.c:1434
 msgid " Fail "
 msgstr " Fout "
 
-#: src/mainmenu.c:1470
+#: src/mainmenu.c:1489
 msgid ""
 "Vuurmuur daemon not running. Can't notify it of any changes. Please start it "
 "first."
@@ -1364,127 +1374,127 @@ msgstr ""
 "Vuurmuur daemon niet actief. Kan het niet op de hoogte stellen van de "
 "wijzigingen. Start het a.u.b. eerst. "
 
-#: src/mainmenu.c:1475 src/mainmenu.c:1521
+#: src/mainmenu.c:1494 src/mainmenu.c:1540
 msgid "Apply Changes"
 msgstr "Wijzigingen toepassen"
 
-#: src/mainmenu.c:1476
+#: src/mainmenu.c:1495
 msgid "The overall status is not OK. Apply anyway?"
 msgstr "De algemene status is niet OK? Toch toepassen?"
 
-#: src/mainmenu.c:1490
+#: src/mainmenu.c:1509
 msgid "will not apply changes if the overall status is 'fail'."
 msgstr "zal niet toepassen als de algemene status 'fout' is."
 
-#: src/mainmenu.c:1510 src/rules_form.c:1608 src/rules_form.c:1873
+#: src/mainmenu.c:1529 src/rules_form.c:1608 src/rules_form.c:1873
 #: src/rules_form.c:1982
 msgid "Rules"
 msgstr "Regels"
 
-#: src/mainmenu.c:1511 src/zones_section.c:6636 src/zones_section.c:6906
+#: src/mainmenu.c:1530 src/zones_section.c:6636 src/zones_section.c:6906
 msgid "BlockList"
 msgstr "Blokkeerlijst"
 
-#: src/mainmenu.c:1512 src/zones_section.c:6204 src/zones_section.c:6318
+#: src/mainmenu.c:1531 src/zones_section.c:6204 src/zones_section.c:6318
 #: src/zones_section.c:6410 src/zones_section.c:6497 src/zones_section.c:6518
 msgid "Zones"
 msgstr "Zones"
 
-#: src/mainmenu.c:1514 src/services_section.c:2664 src/services_section.c:2781
+#: src/mainmenu.c:1533 src/services_section.c:2664 src/services_section.c:2781
 #: src/services_section.c:2885 src/services_section.c:2958
 msgid "Services"
 msgstr "Services"
 
-#: src/mainmenu.c:1523
+#: src/mainmenu.c:1542
 msgid "Quit"
 msgstr "Afsluiten"
 
-#: src/mainmenu.c:1619
+#: src/mainmenu.c:1638
 #, c-format
 msgid "calloc failed: %s."
 msgstr "calloc mislukt: %s."
 
-#: src/mainmenu.c:1633
+#: src/mainmenu.c:1652
 msgid "Main Menu"
 msgstr "Hoofdmenu"
 
-#: src/mainmenu.c:1685 src/mainmenu.c:1721
+#: src/mainmenu.c:1704 src/mainmenu.c:1740
 #, c-format
 msgid "Welcome to Vuurmuur_conf %s"
 msgstr "Welkom bij Vuurmuur_conf %s"
 
-#: src/mainmenu.c:1687
+#: src/mainmenu.c:1706
 msgid "Overall"
 msgstr "Algemeen"
 
-#: src/mainmenu.c:1690
+#: src/mainmenu.c:1709
 msgid "Backend"
 msgstr "Backend"
 
-#: src/mainmenu.c:1692
+#: src/mainmenu.c:1711
 msgid "Config"
 msgstr "Configuratie"
 
-#: src/mainmenu.c:1694
+#: src/mainmenu.c:1713
 msgid "Settings"
 msgstr "Instellingen"
 
-#: src/mainmenu.c:1697
+#: src/mainmenu.c:1716
 msgid "Daemons"
 msgstr "Processen"
 
-#: src/mainmenu.c:1700
+#: src/mainmenu.c:1719
 msgid "System"
 msgstr "Systeem"
 
 #. TRANSLATORS: max 27 chars.
-#: src/mainmenu.c:1707
+#: src/mainmenu.c:1726
 msgid "Press F5 for details."
 msgstr "Druk F5 voor details."
 
-#: src/mainmenu.c:1736
+#: src/mainmenu.c:1755
 msgid "Main"
 msgstr "Hoofdmenu"
 
-#: src/mainmenu.c:1741
+#: src/mainmenu.c:1760
 msgid "Convert Rules"
 msgstr "Converteer Regels"
 
-#: src/mainmenu.c:1742
+#: src/mainmenu.c:1761
 msgid "Convert the rules to the new format (recommended)?"
 msgstr "Regels naar het nieuwe formaat converteren (aangeraden)?"
 
-#: src/mainmenu.c:1748
+#: src/mainmenu.c:1767
 msgid "converting rules failed."
 msgstr "converteren van de regels is mislukt."
 
-#: src/mainmenu.c:1752
+#: src/mainmenu.c:1771
 msgid "Rules converted successfully."
 msgstr "Regels met succes geconverteerd."
 
-#: src/mainmenu.c:1767
+#: src/mainmenu.c:1786
 msgid "Convert BlockList"
 msgstr "Converteer Blokkeerlijst"
 
-#: src/mainmenu.c:1768
+#: src/mainmenu.c:1787
 msgid "Convert the BlockList to the new format (recommended)?"
 msgstr "Blokkeerlijst naar het nieuwe formaat converteren (aangeraden)?"
 
-#: src/mainmenu.c:1774
+#: src/mainmenu.c:1793
 msgid "converting BlockList failed."
 msgstr "converteren van Blokkeerlijst mislukt."
 
-#: src/mainmenu.c:1778
+#: src/mainmenu.c:1797
 msgid "BlockList converted successfully."
 msgstr "Blokkeerlijst met succes geconverteerd."
 
-#: src/mainmenu.c:2134
+#: src/mainmenu.c:2154
 msgid "One or more problems were detected in your current setup. Below is a list\n"
 msgstr ""
 "Er zijn één of meer problemen gedetecteerd in uw systeem. Hieronder volgt "
 "een lijst\n"
 
-#: src/mainmenu.c:2172
+#: src/mainmenu.c:2192
 msgid "No problems were detected in your setup\n"
 msgstr "Er zijn geen problemen gedetecteerd in uw systeem\n"
 
@@ -2811,7 +2821,7 @@ msgstr "Inkomende eenheid"
 msgid "Outgoing unit"
 msgstr "Uitgaande eenheid"
 
-#: src/strings.h:78 src/gui.c:1714
+#: src/strings.h:78 src/gui.c:1468 src/gui.c:1714
 msgid "Shaping"
 msgstr "Bandbreedtebeheersing"
 

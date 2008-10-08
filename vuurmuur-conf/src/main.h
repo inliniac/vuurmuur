@@ -202,6 +202,8 @@ struct VuurmuurStatus_
     /* this one is checked for the header */
     int     overall;
 
+    char    have_shape_rules;
+    char    have_shape_ifaces;
 } VuurmuurStatus;
 
 

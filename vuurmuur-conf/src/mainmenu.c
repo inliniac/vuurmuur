@@ -670,6 +670,7 @@ mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, Rules 
 {
     d_list_node      *d_node = NULL;
     struct RuleData_ *rule_ptr = NULL;
+    char tc_location_not_set = FALSE;
 
     if(rules == NULL)
     {
@@ -682,9 +683,10 @@ mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, Rules 
 
     /* asume ok when we start */
     VuurmuurStatus.rules = 1;
+    VuurmuurStatus.have_shape_rules = FALSE;
 
-    if (strcmp(conf.tc_location,"") != 0)
-        return;
+    if (strcmp(conf.tc_location,"") == 0)
+        tc_location_not_set = TRUE;
 
     for(d_node = rules->list.top; d_node; d_node = d_node->next)
     {
@@ -695,10 +697,13 @@ mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, Rules 
             return;
         }
 
-        if (libvuurmuur_is_shape_rule(debuglvl,rule_ptr->opt) == 1) {
-            queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.rules,
-                    gettext("- Shaping rules present while the 'tc'-location is not set. Please set the 'tc'-location\n"));
-            VuurmuurStatus.rules = -1;
+        if (libvuurmuur_is_shape_rule(debuglvl,rule_ptr->opt) == 1 && rule_ptr->active == TRUE) {
+            if (tc_location_not_set == TRUE) {
+                queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.rules,
+                        gettext("- Shaping rules present while the 'tc'-location is not set. Please set the 'tc'-location\n"));
+                VuurmuurStatus.rules = -1;
+            }
+            VuurmuurStatus.have_shape_rules = TRUE;
             return;
         }
     }
@@ -729,6 +734,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ d_list *status_list, I
 
     /* asume ok when we start */
     VuurmuurStatus.interfaces = 1;
+    VuurmuurStatus.have_shape_ifaces = FALSE;
 
     if(interfaces->list.len == 0)
     {
@@ -825,6 +831,23 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ d_list *status_list, I
             }
         }
 
+        if (iface_ptr->shape == TRUE && iface_ptr->device_virtual == FALSE) {
+            VuurmuurStatus.have_shape_ifaces = TRUE;
+        }
+    }
+
+    if (debuglvl >= LOW) {
+        (void)vrprint.debug(__FUNC__, "VuurmuurStatus.have_shape_ifaces: %s.",
+                VuurmuurStatus.have_shape_ifaces ? "Yes" : "No");
+        (void)vrprint.debug(__FUNC__, "VuurmuurStatus.have_shape_rules: %s.",
+                VuurmuurStatus.have_shape_rules ? "Yes" : "No");
+    }
+
+    if (VuurmuurStatus.have_shape_ifaces == FALSE &&
+        VuurmuurStatus.have_shape_rules == TRUE)
+    {
+        VuurmuurStatus.interfaces = 0;
+        queue_status_msg(debuglvl, status_list, VuurmuurStatus.interfaces, gettext("- No interfaces have shaping enabled. Please make sure that at least one of the interfaces has shaping enabled\n"));
     }
 
     if(at_least_one_active == FALSE)
@@ -1190,7 +1213,7 @@ mm_reload_shm(const int debuglvl)
     }
 
     /* wait max 60 seconds */
-    while( ((vuurmuur_result   == VR_RR_NO_RESULT_YET || vuurmuur_result    == VR_RR_RESULT_ACK) ||
+    while(((vuurmuur_result == VR_RR_NO_RESULT_YET || vuurmuur_result    == VR_RR_RESULT_ACK) ||
         (vuurmuurlog_result == VR_RR_NO_RESULT_YET || vuurmuurlog_result == VR_RR_RESULT_ACK))
         && waittime < 60000000)
     {
@@ -1982,6 +2005,7 @@ main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces
                 rules_form(debuglvl, rules, zones, interfaces, services, reg);
 
                 mm_check_status_rules(debuglvl, NULL, rules);
+                mm_check_status_interfaces(debuglvl, NULL, interfaces);
             }
             else if(strcmp(choice_ptr, MM_ITEM_ZONES) == 0)
             {
@@ -2139,13 +2163,13 @@ mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, Rules *ru
     /* check the services */
     mm_check_status_services(debuglvl, status_list, services);
 
+    mm_check_status_rules(debuglvl, status_list, rules);
+
     /* check for (active) interfaces */
     mm_check_status_interfaces(debuglvl, status_list, interfaces);
 
     /* check for (active) networks */
     mm_check_status_zones(debuglvl, status_list, zones);
-
-    mm_check_status_rules(debuglvl, status_list, rules);
 
     /* check config */
     mm_check_status_config(debuglvl, status_list);
