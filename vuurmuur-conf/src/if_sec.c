@@ -1103,6 +1103,8 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
 
                     break;
                 case KEY_F(6):
+                case 's':
+                case 'S':
                     if(field_buffer(IfSec.devicevirtualfld, 0)[0] != 'X')
                         VrShapeIface(debuglvl, iface_ptr);
                     else

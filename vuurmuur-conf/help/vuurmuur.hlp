@@ -540,6 +540,24 @@ F10/Q: back.
 
 :[END]:
 
+:[VUURMUUR:INTERFACES:SHAPE]:
+Traffic shaping
+
+
+Per interface traffic shaping can be enabled or disabled. In the interface
+the maximum incoming and outgoing bandwidth needs to be entered. These settings
+are used in the rules.
+
+The bandwidth can be set in kilobit per second (kbit) and megabit per
+second (mbit).
+
+Keys:
+
+F10: quit.
+F12: help.
+
+:[END]:
+
 :[VUURMUUR:RULES]:
 Rules
 
@@ -645,10 +663,6 @@ listen on another port than issued by the service. For example, you can let the
 firewall listen on port 1022 and portfw this to a remote machine on port 22. The
 other way around is also possible.
 
-Markiptstate: this option is for use with QUEUE and is especially designed for
-use with Snort_inline 2.2.0. It is a way to help the TCP-state-engine of Snort
-(Note: Snort_inline 2.3.x won't use this).
-
 Queue: by default PORTFW and REDIRECT create ACCEPT rules in addition to the
 DNAT/REDIRECT rules. This option forces Vuurmuur to use 'QUEUE' instead of
 ACCEPT.
@@ -668,7 +682,37 @@ the lan client tries to connect to. Connections to this ipaddress will be
 Keys:
 
 F5/A: show advanced options.
+F6/S: show traffic shaping options.
 F10/Q: back.
+
+:[END]:
+
+:[VUURMUUR:RULES:SHAPE]:
+Traffic shaping
+
+
+In the traffic shaping window the per rule traffic shaping settings can
+be configured. There are 5 settings:
+
+Incoming guaranteed rate and Outgoing guaranteed rate. These settings are
+used to set the ammount of bandwidth the rule is guaranteed to have. If
+not all is used, it is shared with other rules. If the guaranteed rate is
+overcommited, a lower value is used and warning will be written to the
+logfile.
+
+Incoming maximum rate and Outgoing maximum rate. These settings are used to
+set the maximum ammount of bandwidth is used for a rule.
+
+All above options can be set in: kilobit per second (kbit), megabit per
+second (mbit), kilobyte per second (kbps) and megabyte per second (mbps).
+
+The priority sets the priority between shaping rules. 1 is the highest
+priority, 255 the lowest. If it's not set (or 0), priority 3 is used.
+
+Keys:
+
+F10: quit.
+F12: help.
 
 :[END]:
 

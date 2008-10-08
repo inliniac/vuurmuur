@@ -1522,19 +1522,25 @@ void VrShapeRule(const int debuglvl, struct options *opt) {
                 free(u);
             }
         } else if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
-             switch(ch)
-             {
-                 case KEY_DOWN:
-                 case 10: // enter
-                     form_driver(form->f, REQ_NEXT_FIELD);
-                     form_driver(form->f, REQ_BEG_LINE);
-                     break;
-                 case 27:
-                 case 'q':
-                 case 'Q':
-                 case KEY_F(10):
-                     quit = TRUE;
-                         break;
+            switch(ch)
+            {
+                case KEY_DOWN:
+                case 10: // enter
+                    form_driver(form->f, REQ_NEXT_FIELD);
+                    form_driver(form->f, REQ_BEG_LINE);
+                    break;
+                case 27:
+                case 'q':
+                case 'Q':
+                case KEY_F(10):
+                    quit = TRUE;
+                    break;
+                case KEY_F(12):
+                case 'h':
+                case 'H':
+                case '?':
+                    print_help(debuglvl, ":[VUURMUUR:RULES:SHAPE]:");
+                    break;
             }
         }
     }
@@ -1774,6 +1780,12 @@ void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
                 case KEY_F(10):
                     quit = TRUE;
                     break;
+                case KEY_F(12):
+                case 'h':
+                case 'H':
+                case '?':
+                    print_help(debuglvl, ":[VUURMUUR:INTERFACES:SHAPE]:");
+                    break;
             }
         }
     }
@@ -1831,19 +1843,25 @@ void form_test (const int debuglvl) {
         }
 
         if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
-                    switch(ch)
-                    {
-                        case KEY_DOWN:
-                        case 10: // enter
-                                form_driver(form->f, REQ_NEXT_FIELD);
-                                form_driver(form->f, REQ_BEG_LINE);
+            switch(ch)
+            {
+                case KEY_DOWN:
+                case 10: // enter
+                    form_driver(form->f, REQ_NEXT_FIELD);
+                    form_driver(form->f, REQ_BEG_LINE);
                     break;
-                            case 27:
-                            case 'q':
-                            case 'Q':
-                            case KEY_F(10):
-                                    quit = TRUE;
-                                    break;
+                case 27:
+                case 'q':
+                case 'Q':
+                case KEY_F(10):
+                    quit = TRUE;
+                    break;
+                case KEY_F(12):
+                case 'h':
+                case 'H':
+                case '?':
+                    print_help(debuglvl, ":[VUURMUUR:INTERFACES:SHAPE]:");
+                    break;
             }
         }
     }
