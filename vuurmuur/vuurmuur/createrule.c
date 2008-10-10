@@ -2997,6 +2997,10 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
         retval=-1;
 
+    /* Add the TCPMSS rules before the RELATED rules. */
+    if (create_interface_tcpmss_rules(debuglvl, ruleset, interfaces, iptcap) < 0)
+        retval = -1;
+
     /*
         create the NEWQUEUE target
     */
@@ -3628,6 +3632,55 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
     return(retval);
 }
 
+int
+create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces, IptCap *iptcap)
+{
+    d_list_node             *d_node = NULL;
+    struct InterfaceData_   *iface_ptr = NULL;
+    char    cmd[MAX_PIPE_COMMAND] = "";
+
+    /* safety */
+    if(interfaces == NULL || iptcap == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    if (conf.check_iptcaps == TRUE && iptcap->target_tcpmss == FALSE) {
+        if(conf.bash_out)
+            fprintf(stdout, "\n# Not creating TCPMSS rules: TCPMSS target not supported.\n");
+    } else {
+        if(conf.bash_out)
+            fprintf(stdout, "\n# Loading interfaces TCPMSS rules...\n");
+    }
+
+    /* loop through the interfaces */
+    for(d_node = interfaces->list.top; d_node; d_node = d_node->next)
+    {
+        if(!(iface_ptr = d_node->data))
+        {
+            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            return(-1);
+        }
+
+        if (iface_ptr->tcpmss_clamp == TRUE && iface_ptr->device_virtual == FALSE)
+        {
+            if(conf.bash_out)
+                fprintf(stdout, "# Enabling TCPMSS pmtu clamping for interface %s (device %s).\n",
+                        iface_ptr->name, iface_ptr->device);
+
+            snprintf(cmd, sizeof(cmd), "-o %s -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu",
+                iface_ptr->device);
+
+            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+                return(-1);
+
+        }
+    }
+
+    return(0);
+}
+
 
 int
 create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces)
@@ -3637,7 +3690,6 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interface
                             *if_d_node = NULL;
     struct RuleData_        *rule_ptr = NULL;
     struct InterfaceData_   *iface_ptr = NULL;
-
 
     /* safety */
     if(!interfaces)
@@ -3657,7 +3709,7 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interface
             (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-    
+
         /* now loop through the ruleslist */
         for(if_d_node = iface_ptr->ProtectList.top; if_d_node; if_d_node = if_d_node->next)
         {
