@@ -895,13 +895,15 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
     char                    *key_choices[] =    {   "F12",
                                                     "F5",
                                                     "F6",
+                                                    "F7",
                                                     "F10"};
-    int                     key_choices_n = 4;
+    int                     key_choices_n = 5;
     char                    *cmd_choices[] =    {   gettext("help"),
                                                     gettext("advanced"),
                                                     gettext("shaping"),
+                                                    gettext("tcpmss"),
                                                     gettext("back")};
-    int                     cmd_choices_n = 4;
+    int                     cmd_choices_n = 5;
     int                     retval = 0;
 
 
@@ -1109,6 +1111,14 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
                         VrShapeIface(debuglvl, iface_ptr);
                     else
                         (void)vrprint.warning(VR_WARN, gettext("shaping is not supported on a virtual interface."));
+                    break;
+                case KEY_F(7):
+                case 't':
+                case 'T':
+                    if(field_buffer(IfSec.devicevirtualfld, 0)[0] != 'X')
+                        VrTcpmssIface(debuglvl, iface_ptr);
+                    else
+                        (void)vrprint.warning(VR_WARN, gettext("tcpmss is not supported on a virtual interface."));
                     break;
             }
         }

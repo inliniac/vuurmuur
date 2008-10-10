@@ -609,6 +609,31 @@ read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr)
         }
     }
 
+    /* lookup if we need tcpmss */
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "TCPMSS", yesno, sizeof(yesno), TYPE_INTERFACE, 0);
+    if(result == 1)
+    {
+        if(strcasecmp(yesno, "yes") == 0)
+            iface_ptr->tcpmss_clamp = TRUE;
+        else
+            iface_ptr->tcpmss_clamp = FALSE;
+    }
+    else if(result == 0)
+    {
+        /* if the interface is undefined, issue a warning and set inactive */
+        if(debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "no TCPMSS defined for interface '%s', assuming no tcpmss setting.",
+                    iface_ptr->name);
+
+        iface_ptr->tcpmss_clamp = FALSE;
+    }
+    else
+    {
+        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return(-1);
+    }
+
 
     if(iface_ptr->device_virtual_oldstyle == FALSE)
     {

@@ -1797,6 +1797,139 @@ void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
     doupdate();
 }
 
+struct TcpmssIfaceCnf_ {
+    struct InterfaceData_ *iface_ptr;
+    char enabled;
+};
+
+static int
+VrTcpmssIfaceSetup(const int debuglvl, struct TcpmssIfaceCnf_ *c, struct InterfaceData_ *iface_ptr) {
+    if (c == NULL || iface_ptr == NULL)
+        return(-1);
+
+    c->iface_ptr = iface_ptr;
+    c->enabled = iface_ptr->tcpmss_clamp;
+
+    return(0);
+}
+
+static int
+VrTcpmssIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
+{
+    struct TcpmssIfaceCnf_ *c = (struct TcpmssIfaceCnf_ *)ctx;
+    int result = 0;
+
+    //(void)vrprint.debug(__FUNC__, "%s:%s", name, value);
+
+    if(strcmp(name,"S") == 0) {
+        char enabled = 0;
+
+        if (strcmp(value,"X") == 0) {
+            enabled = 1;
+        }
+
+        if (c->enabled != enabled) {
+            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "TCPMSS", enabled ? "Yes" : "No", 1, TYPE_INTERFACE);
+            if(result < 0)
+            {
+                (void)vrprint.error(-1, VR_ERR, "%s (in: %s:%d).",
+                    STR_SAVING_TO_BACKEND_FAILED,
+                    __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            /* example: "interface 'lan' has been changed: active is now set to 'Yes' (was: 'No')." */
+            (void)vrprint.audit("%s '%s' %s: %s %s '%u' (%s: '%u').",
+                STR_INTERFACE, c->iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                STR_TCPMSS, STR_IS_NOW_SET_TO, enabled ? "Yes" : "No",
+                STR_WAS, c->enabled ? "Yes" : "No");
+        }
+        c->iface_ptr->tcpmss_clamp = enabled;
+    }
+
+    return(0);
+}
+
+void VrTcpmssIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
+    VrWin   *win = NULL;
+    VrForm  *form = NULL;
+    int     ch = 0, result = 0;
+    struct TcpmssIfaceCnf_ config;
+
+    if (VrTcpmssIfaceSetup(debuglvl, &config, iface_ptr) < 0)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrTcpmssIfaceSetup failed");
+        return;
+    }
+    
+    /* create the window and put it in the middle of the screen */
+    win = VrNewWin(11,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    if(win == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        return;
+    }
+    VrWinSetTitle(win, gettext("Tcpmss"));
+
+    form = VrNewForm(9, 58, 1, 1, 2, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+
+    VrFormSetSaveFunc(debuglvl, form, VrTcpmssIfaceSave, &config);
+
+    VrFormAddLabelField(debuglvl,   form, 1, 25, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Enable TCP MSS clamping"));
+    VrFormAddCheckboxField(debuglvl,form,        1, 28, (chtype)COLOR_PAIR(CP_BLUE_WHITE), "S", config.enabled);
+
+    VrFormConnectToWin(debuglvl, form, win);
+
+    VrFormPost(debuglvl, form);
+
+    update_panels();
+    doupdate();
+
+    /* user input */
+    char quit = FALSE;
+    while(quit == FALSE)
+    {
+        VrFormDrawMarker(debuglvl, win, form);
+
+        ch = VrWinGetch(win);
+
+        /* check OK/Cancel buttons */
+        result = VrFormCheckOKCancel(debuglvl, form, ch);
+        if (result == -1 || result == 1) {
+            break;
+        }
+
+        if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
+            switch(ch)
+            {
+                case KEY_DOWN:
+                case 10: // enter
+                    form_driver(form->f, REQ_NEXT_FIELD);
+                    form_driver(form->f, REQ_BEG_LINE);
+                    break;
+                case 27:
+                case 'q':
+                case 'Q':
+                case KEY_F(10):
+                    quit = TRUE;
+                    break;
+                case KEY_F(12):
+                case 'h':
+                case 'H':
+                case '?':
+                    print_help(debuglvl, ":[VUURMUUR:INTERFACES:TCPMSS]:");
+                    break;
+            }
+        }
+    }
+
+    VrFormUnPost(debuglvl, form);
+    VrDelForm(debuglvl, form);
+    VrDelWin(win);
+    update_panels();
+    doupdate();
+}
+
 void form_test (const int debuglvl) {
     VrWin   *win = NULL;
     VrForm  *form = NULL;
