@@ -470,6 +470,14 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
             else
                 printf("BW_OUT_UNIT=\"\"\n");
         }
+        /* TCPMSS */
+        if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"TCPMSS") == 0)
+        {
+            if(af->ask(debuglvl, ifac_backend, vr_script->name, "TCPMSS", vr_script->bdat, sizeof(vr_script->bdat), TYPE_INTERFACE, 0) == 1)
+                printf("TCPMSS=\"%s\"\n", vr_script->bdat);
+            else
+                printf("TCPMSS=\"\"\n");
+        }
         /* RULE */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"RULE") == 0)
         {

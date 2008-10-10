@@ -486,6 +486,32 @@ backend_check_interface_bw_unit(const int debuglvl, char *value, struct rgx_ *re
     return(VRS_ERR_COMMANDLINE);
 }
 
+/*  TCPMSS
+
+*/
+int
+backend_check_interface_tcpmss(const int debuglvl, char *value, struct rgx_ *reg)
+{
+    /* safety */
+    if(value == NULL || reg == NULL)
+    {
+        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+                                        __FUNC__, __LINE__);
+        return(VRS_ERR_INTERNAL);
+    }
+
+    /* empty is also possible for clearing */
+    if (value[0] == '\0')
+        return(0);
+
+    /* check */
+    if(strcasecmp(value,"yes") == 0 || strcasecmp(value,"no") == 0)
+        return(0);
+
+    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'TCPMSS' (in: %s:%d).", value, __FUNC__, __LINE__);
+    return(VRS_ERR_COMMANDLINE);
+}
+
 
 /*  BROADCAST
 

@@ -41,6 +41,7 @@ int backend_check_interface_shape(const int, char *, struct rgx_ *);
 int backend_check_interface_bw(const int, char *, struct rgx_ *);
 int backend_check_interface_bw_unit(const int, char *, struct rgx_ *);
 int backend_check_interface_rule(const int, char *, struct rgx_ *);
+int backend_check_interface_tcpmss(const int, char *, struct rgx_ *);
 
 int backend_check_service_broadcast(const int, char *, struct rgx_ *);
 int backend_check_service_helper(const int, char *, struct rgx_ *);
@@ -95,6 +96,7 @@ backend_vars[] =
     {TYPE_INTERFACE,"RULE",         1, backend_check_interface_rule},
     {TYPE_INTERFACE,"COMMENT",      0, backend_check_comment},
     {TYPE_INTERFACE,"SHAPE",        0, backend_check_interface_shape},
+    {TYPE_INTERFACE,"TCPMSS",       0, backend_check_interface_tcpmss},
     {TYPE_INTERFACE,"BW_IN",        0, backend_check_interface_bw},
     {TYPE_INTERFACE,"BW_OUT",       0, backend_check_interface_bw},
     {TYPE_INTERFACE,"BW_IN_UNIT",   0, backend_check_interface_bw_unit},
