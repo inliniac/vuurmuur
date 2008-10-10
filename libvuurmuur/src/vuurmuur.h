@@ -708,6 +708,9 @@ typedef struct InterfaceData_
     u_int32_t       total_shape_rules;
     u_int32_t       total_default_shape_rules;
 
+    /* tcpmss clamping */
+    char            tcpmss_clamp;
+
 } InterfaceData;
 
 
@@ -1020,6 +1023,8 @@ typedef struct
     char    target_nfqueue;
     char    target_connmark;
     char    proc_net_netfilter_nfnetlink_queue;
+
+    char    target_tcpmss;
 
     /* matches */
     char    match_tcp;

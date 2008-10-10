@@ -2496,6 +2496,7 @@ view_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
         mvwprintw(ConfigSection.win, 13, 27, "CONNMARK\t%s", iptcap->target_connmark ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 14, 27, "NFQUEUE\t%s", iptcap->target_nfqueue ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 15, 27, "CLASSIFY\t%s", iptcap->target_classify ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 16, 27, "TCPMSS\t%s", iptcap->target_tcpmss ? STR_YES : STR_NO);
     }
     else
     {
@@ -2536,6 +2537,17 @@ view_caps(const int debuglvl)
             max_height,
             max_width;
     IptCap  iptcap;
+    char    reload = 0;
+    /* top menu */
+    char    *key_choices[] =    {   "F12",
+                                    "F5",
+                                    "F10"};
+    int     key_choices_n = 3;
+    char    *cmd_choices[] =    {   gettext("help"),
+                                    gettext("probe"),
+                                    gettext("back")};
+    int     cmd_choices_n = 3;
+
 
     /* window dimentions */
     getmaxyx(stdscr, max_height, max_width);
@@ -2544,6 +2556,8 @@ view_caps(const int debuglvl)
     width  = 76;
     startx = (max_width  - width) /2;
     starty = (max_height - height)/2;
+
+    draw_top_menu(debuglvl, top_win, gettext("Capabilities"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     /* load iptcaps */
     result = load_iptcaps(debuglvl, &conf, &iptcap, 0);
@@ -2562,27 +2576,6 @@ view_caps(const int debuglvl)
             iptcap.proc_net_matches, iptcap.proc_net_targets,
                     iptcap.table_filter, iptcap.conntrack, iptcap.match_tcp,
             iptcap.match_udp, iptcap.match_icmp, iptcap.match_state);
-    }
-
-    /* check if the caps make sense */
-    if( !iptcap.proc_net_names || !iptcap.proc_net_matches || !iptcap.proc_net_targets ||
-        !iptcap.table_filter ||
-        !iptcap.conntrack ||
-        !iptcap.match_tcp || !iptcap.match_udp || !iptcap.match_icmp ||
-        !iptcap.match_state)
-    {
-        if(confirm(gettext("Iptables Capabilities"), gettext("Essential capabilities are not loaded, missing, or not properly detected. Try loading modules?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0))
-        {
-            if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "running load_iptcaps again...");
-
-            result = load_iptcaps(debuglvl, &conf, &iptcap, 1);
-            if(result == -1)
-            {
-                (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
-                return(-1);
-            }
-        }
     }
 
     /* setup */
@@ -2609,6 +2602,21 @@ view_caps(const int debuglvl)
 
                 quit = 1;
                 break;
+            case KEY_F(5):
+            case 'p':
+            case 'P':
+                if(confirm(gettext("Probe Capabilities"), gettext("Try to determine capabities? Warning: this may load iptables modules!"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0))
+                {
+                    result = load_iptcaps(debuglvl, &conf, &iptcap, 1);
+                    if(result == -1)
+                    {
+                        (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
+                        return(-1);
+                    }
+                }
+                reload = 1;
+                quit = 1;
+                break;
 
             case KEY_F(12):
             case 'h':
@@ -2626,6 +2634,9 @@ view_caps(const int debuglvl)
     destroy_win(ConfigSection.win);
     update_panels();
     doupdate();
+
+    if (reload == 1)
+        return(view_caps(debuglvl));
 
     return(retval);
 }

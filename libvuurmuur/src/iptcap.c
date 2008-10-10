@@ -858,6 +858,16 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
             if(result == 1) iptcap->target_nfqueue = TRUE;
         }
 
+        /* TCPMSS target - this one is listed in /proc/net/ip_tables_targets */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "TCPMSS", "ipt_TCPMSS", load_modules);
+        if(result == 1) iptcap->target_tcpmss = TRUE;
+        else {
+            iptcap->target_tcpmss = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "TCPMSS", "xt_TCPMSS", load_modules);
+            if(result == 1) iptcap->target_tcpmss = TRUE;
+        }
+
         /* mangle stuff */
         if(iptcap->table_mangle == TRUE)
         {
