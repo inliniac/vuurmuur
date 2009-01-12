@@ -6,6 +6,6 @@ UDP=""
 ICMP=""
 GRE=""
 BROADCAST="No"
-COMMENT="MSN: instand message program."
+COMMENT="MSN: instant message program."
 
 # end of file
