@@ -518,48 +518,50 @@ split_portrange(char *portrange, int *lowport, int *highport)
     /* now split */
     for(; count < strlen(portrange) && low_count < sizeof(low) && high_count < sizeof(high); count++)
     {
+        if (portrange[count] != ':' && !isdigit(portrange[count]))
+            continue;
+           
         if(portrange[count] == ':')
         {
             range = TRUE;
             low[count] = '\0';
+            continue;
+        }
+
+        if(range == FALSE)
+        {
+            low[low_count] = portrange[count];
+            low_count++;
         }
         else
         {
-            if(range == FALSE)
-            {
-                low[low_count] = portrange[count];
-                low_count++;
-            }
-            else
-            {
-                high[high_count] = portrange[count];
-                high_count++;
-            }
-
-            low[low_count]='\0';
-            high[high_count]='\0';
-
-            /*
-                convert and check. port 0 is allowed
-            */
-            lp = atoi(low);
-            if(lp >= 0 && lp <= 65535)
-                *lowport = lp;
-            else
-            {
-                *lowport = 0;
-                retval=-1;
-            }
-
-            hp = atoi(high);
-            if(hp >= 0 && hp <= 65535)
-                *highport = hp;
-            else
-            {
-                *highport = 0;
-                retval=-1;
-            }
+            high[high_count] = portrange[count];
+            high_count++;
         }
+    }
+
+    low[low_count]='\0';
+    high[high_count]='\0';
+
+    /*
+       convert and check. port 0 is allowed
+       */
+    lp = atoi(low);
+    if(lp >= 0 && lp <= 65535)
+        *lowport = lp;
+    else
+    {
+        *lowport = 0;
+        retval=-1;
+    }
+
+    hp = atoi(high);
+    if(hp >= 0 && hp <= 65535)
+        *highport = hp;
+    else
+    {
+        *highport = 0;
+        retval=-1;
     }
 
     return(retval);

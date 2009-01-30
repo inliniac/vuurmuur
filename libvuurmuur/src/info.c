@@ -410,7 +410,7 @@ list_to_portopts(const int debuglvl, d_list *dlist, /*@null@*/char *option_name)
 {
     d_list_node     *d_node = NULL;
     char            options[MAX_OPTIONS_LENGTH] = "",
-                    oneport[12] = "",
+                    oneport[32] = "",
                     *return_ptr = NULL;
     struct portdata *portrange_ptr = NULL;
     size_t          size = 0;
