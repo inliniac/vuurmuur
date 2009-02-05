@@ -47,7 +47,8 @@ DEBUG="0"
 WIDEC="0"
 FROM_SVN="0"
 
-if [ "$EUID" != "0" ]; then
+ID_PROG="$(which id 2>/dev/null || echo /usr/bin/id)"
+if [ "`$ID_PROG -g`" != "0" ]; then
     echo "Error: this script requires to be run as user root."
     exit 1
 fi
