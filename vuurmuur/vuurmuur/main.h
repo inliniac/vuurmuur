@@ -220,13 +220,29 @@ typedef struct
 
 } RuleSet;
 
+typedef struct VrCmdline_ {
+    /* commandline overrides */
+    char check_iptcaps_set;
+    char check_iptcaps;
+    char verbose_out_set;
+    char verbose_out;
+    char configfile_set;
+    char configfile[256];
+    char loglevel_set;
+    char loglevel[8];
+
+    /* local settings */
+    char keep_file;
+    char loop;
+    char nodaemon;
+    char force_start;
+} VrCmdline;
+
 /*@null@*/
 struct SHM_TABLE *shm_table;
 
 /* counters */
 int ipt_rulecount;
-
-char keep_file;
 
 /* pluginlist */
 d_list PluginList;
@@ -236,6 +252,8 @@ int sem_id;
 
 /* pointer to the environment */
 extern char **environ;
+
+VrCmdline cmdline;
 
 /*************************************************************************************************************************\
  ******************************************************* FUNCTIONS *******************************************************
@@ -290,7 +308,7 @@ int process_queued_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct 
 
 /* misc.c */
 void send_hup_to_vuurmuurlog(const int debuglvl);
-
+void cmdline_override_config(const int debuglvl);
 
 /* main.c */
 // none ;-)

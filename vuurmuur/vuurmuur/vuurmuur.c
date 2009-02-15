@@ -58,14 +58,12 @@ main(int argc, char *argv[])
 
     IptCap          iptcap;
 
-    char            loop = FALSE,
-                    nodaemon = FALSE,
-                    reload_shm = FALSE,
+    char            reload_shm = FALSE,
                     reload_dyn = FALSE;
+
     /* clear vuurmur/all the iptables rules? */
     char            clear_vuurmuur_rules = FALSE;
     char            clear_all_rules      = FALSE;
-    char            force_start = FALSE;
 
     int             retval = 0,
                     optch,
@@ -129,7 +127,7 @@ main(int argc, char *argv[])
 
     shm_table = NULL;
     sem_id = 0;
-    keep_file = FALSE;
+    memset(&cmdline, 0, sizeof(cmdline));
 
     /*  close the STDERR_FILENO because it gives us annoying "Broken
         Pipe" errors on some systems with bash3. */
@@ -144,14 +142,16 @@ main(int argc, char *argv[])
             case 'c' :
 
                 /* config file */
-                if(conf.verbose_out == TRUE)
+                if(cmdline.verbose_out == TRUE)
                     fprintf(stdout, "Using this configfile: %s\n", optarg);
 
-                if(strlcpy(conf.configfile, optarg, sizeof(conf.configfile)) >= sizeof(conf.configfile))
+                if(strlcpy(cmdline.configfile, optarg, sizeof(cmdline.configfile)) >= sizeof(cmdline.configfile))
                 {
-                    fprintf(stderr, "Error: configfile (-c): argument too long (max: %d).\n", (int)sizeof(conf.configfile)-1);
+                    fprintf(stderr, "Error: configfile (-c): argument too long (max: %d).\n", (int)sizeof(cmdline.configfile)-1);
                     exit(EXIT_FAILURE);
                 }
+
+                cmdline.configfile_set = TRUE;
                 break;
 
             case 'd' :
@@ -181,6 +181,7 @@ main(int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 }
 
+                cmdline.loglevel_set = TRUE;
                 break;
 
             case 'b' :
@@ -192,13 +193,15 @@ main(int argc, char *argv[])
                         "Copyright (C) 2002-2008 by Victor Julien\n",
                         version_string);
 
-                conf.check_iptcaps = FALSE;
+                cmdline.check_iptcaps_set = TRUE;
+                cmdline.check_iptcaps = FALSE;
                 break;
 
             case 't' :
 
                 /* no testing of capabilities */
-                conf.check_iptcaps = FALSE;
+                cmdline.check_iptcaps_set = TRUE;
+                cmdline.check_iptcaps = FALSE;
                 break;
 
             case 'h' :
@@ -218,21 +221,22 @@ main(int argc, char *argv[])
             case 'D' :
 
                 /* looping, daemon mode */
-                loop = TRUE;
+                cmdline.loop = TRUE;
                 break;
 
             case 'v' :
 
                 /* verbose */
                 fprintf(stdout, "verbose output\n");
-                conf.verbose_out = TRUE;
+                cmdline.verbose_out_set = TRUE;
+                cmdline.verbose_out = TRUE;
                 break;
 
             case 'n' :
 
                 /* dont daemonize */
                 fprintf(stdout, "no daemon\n");
-                nodaemon = TRUE;
+                cmdline.nodaemon = TRUE;
                 break;
 
             case 'C' :
@@ -253,12 +257,14 @@ main(int argc, char *argv[])
 
                 /* keep rules file */
                 fprintf(stdout, "Keeping rulesfiles...\n");
-                keep_file = TRUE;
+                cmdline.keep_file = TRUE;
                 break;
 
             case 'f' :
 
-                force_start = TRUE;
+                /* start even if we have no rule (thus locking the
+                 * box completely */
+                cmdline.force_start = TRUE;
                 break;
 
             default:
@@ -298,6 +304,16 @@ main(int argc, char *argv[])
         fprintf(stdout, "Initializing config failed.\n");
         exit(EXIT_FAILURE);
     }
+
+    /* now we know the logfile locations, so init the log functions */
+    vrprint.error = libvuurmuur_logprint_error;
+    vrprint.warning = libvuurmuur_logprint_warning;
+    vrprint.info = libvuurmuur_logprint_info;
+    vrprint.debug = libvuurmuur_logprint_debug;
+    vrprint.audit = libvuurmuur_logprint_audit;
+
+    /* commandline vars overriding the config */
+    cmdline_override_config(debuglvl);
 
     /* dont check in bash mode */
     if(conf.bash_out == FALSE)
@@ -345,15 +361,6 @@ main(int argc, char *argv[])
 
         exit(EXIT_SUCCESS);
     }
-
-
-    /* now we know the logfile locations, so init the log functions */
-    vrprint.error = libvuurmuur_logprint_error;
-    vrprint.warning = libvuurmuur_logprint_warning;
-    vrprint.info = libvuurmuur_logprint_info;
-    vrprint.debug = libvuurmuur_logprint_debug;
-    vrprint.audit = libvuurmuur_logprint_audit;
-
 
     /* check capabilities */
     if(conf.check_iptcaps == TRUE)
@@ -431,7 +438,7 @@ main(int argc, char *argv[])
     }
 
     /* Check if we have rules. If not we won't start unless we are forced to. */
-    if (rules.list.len == 0 && force_start == FALSE)
+    if (rules.list.len == 0 && cmdline.force_start == FALSE)
     {
         (void)vrprint.error(-1, "Error", "no rules defined, Vuurmuur will not start "
               "to prevent you from locking yourself out. Override by supplying "
@@ -472,13 +479,13 @@ main(int argc, char *argv[])
 
 
     /* enter the infinite loop... */
-    if(loop == TRUE)
+    if(cmdline.loop == TRUE)
     {
         /* if we going to enter the loop, make sure we dont are in bash-mode */
         if(conf.bash_out == FALSE)
         {
             /* leave console */
-            if(nodaemon == FALSE)
+            if(cmdline.nodaemon == FALSE)
             {
                 if(daemon(1,1) < 0)
                 {

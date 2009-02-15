@@ -47,3 +47,31 @@ send_hup_to_vuurmuurlog(const int debuglvl)
 
     return;
 }
+
+void cmdline_override_config(const int debuglvl) {
+    if (cmdline.check_iptcaps_set == TRUE) {
+        conf.check_iptcaps = cmdline.check_iptcaps;
+        (void)vrprint.debug(__FUNC__, "overriding check_iptcaps from commandline to %s.",
+            conf.check_iptcaps ? "TRUE" : "FALSE");
+    }
+
+    if (cmdline.verbose_out_set == TRUE) {
+        conf.verbose_out = cmdline.verbose_out;
+        (void)vrprint.debug(__FUNC__, "overriding verbose_out from commandline to %s.",
+            conf.verbose_out ? "TRUE" : "FALSE");
+    }
+
+    if (cmdline.configfile_set == TRUE) {
+        strlcpy(conf.configfile, cmdline.configfile, sizeof(conf.configfile));
+        (void)vrprint.debug(__FUNC__, "overriding configfile from commandline to %s.",
+            conf.configfile);
+    }
+
+    if (cmdline.loglevel_set == TRUE) {
+        strlcpy(cmdline.loglevel, conf.loglevel, sizeof(cmdline.loglevel));
+        conf.loglevel_cmdline = TRUE;
+        (void)vrprint.debug(__FUNC__, "overriding verbose_out from loglevel to %s.",
+            conf.loglevel);
+    }
+}
+

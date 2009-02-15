@@ -1712,7 +1712,7 @@ load_ruleset(   const int debuglvl,
         return(-1);
     }
 
-    if(keep_file == FALSE)
+    if(cmdline.keep_file == FALSE)
     {
         /* remove the rules tempfile */
         if(unlink(cur_ruleset_path) == -1)

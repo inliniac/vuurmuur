@@ -79,6 +79,9 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
     else
     {
         (void)vrprint.info("Info", "Reloading config completed successfully.");
+
+        /* reapply the cmdline overrides. Fixes #67. */
+        cmdline_override_config(debuglvl);
     }
     /* loglevel */
     create_loglevel_string(debuglvl, &conf, loglevel, sizeof(loglevel));
