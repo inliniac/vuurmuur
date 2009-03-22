@@ -75,7 +75,7 @@
 #define NLINES  10
 #define NCOLS   40
 
-#define VUURMUURCONF_VERSION	"0.7rc1"
+#define VUURMUURCONF_VERSION	"0.7rc2"
 
 #define LOCK(x)             LockSHM(1, x)
 #define UNLOCK(x)           LockSHM(0, x)
