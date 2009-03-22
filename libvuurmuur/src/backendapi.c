@@ -134,7 +134,7 @@ load_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct B
             return(-1);
         }
 
-        if(snprintf(plugin_location, sizeof(plugin_location), "%s/plugins/%s.so", conf.plugdir, plugin_name) >= (int)sizeof(plugin_location))
+        if(snprintf(plugin_location, sizeof(plugin_location), "%s/plugins/lib%s.so", conf.plugdir, plugin_name) >= (int)sizeof(plugin_location))
         {
             (void)vrprint.error(-1, "Internal Error", "pluginpath "
                 "overflow (in: %s:%d).", __FUNC__, __LINE__);
