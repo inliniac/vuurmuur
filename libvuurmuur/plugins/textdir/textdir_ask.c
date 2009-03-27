@@ -143,7 +143,7 @@ ask_textdir(const int debuglvl,
                 
                 before the '=' we consider variable
             */
-            while((line[k] != '=' && (k < MAX_LINE_LENGTH))) //
+            while((line[k] != '=' && (k < line_length))) //
             {
                 variable[j]=line[k];
                 k++;
@@ -156,7 +156,7 @@ ask_textdir(const int debuglvl,
             */
             val_pos = 0; line_pos = k + 1;
 
-            while(line[line_pos] != '\0' && line[line_pos] != '\n' && line_length < MAX_LINE_LENGTH && val_pos < max_answer)
+            while(line[line_pos] != '\0' && line[line_pos] != '\n' && line_pos < line_length && val_pos < max_answer)
             {
                 /* if the first character is a '"' we strip it. */
                 if((val_pos == 0) && (line[line_pos] == '\"'))
