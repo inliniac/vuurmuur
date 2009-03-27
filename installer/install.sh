@@ -12,9 +12,7 @@ VERSION="0.7rc2"
 
 # progams
 ACLOCAL="aclocal"
-ACLOCAL19="aclocal-1.9"
 AUTOMAKE="automake"
-AUTOMAKE19="automake-1.9"
 AUTOCONF="autoconf"
 AUTOHEADER="autoheader"
 MAKE="make"
@@ -46,6 +44,7 @@ VERBOSE="1"
 DEBUG="0"
 WIDEC="0"
 FROM_SVN="0"
+BUILDUPDATE="0"
 
 ID_PROG="$(which id 2>/dev/null || echo /usr/bin/id)"
 if [ "`$ID_PROG -g`" != "0" ]; then
@@ -89,14 +88,10 @@ function Exit
     $MAKE --version >> $LOG
     echo "aclocal:" >> $LOG
     $ACLOCAL --version >> $LOG
-    echo "aclocal-1.9:" >> $LOG
-    $ACLOCAL19 --version >> $LOG
     echo "autoheader:" >> $LOG
     $AUTOHEADER --version >> $LOG
     echo "automake:" >> $LOG
     $AUTOMAKE --version >> $LOG
-    echo "automake-1.9:" >> $LOG
-    $AUTOMAKE19 --version >> $LOG
     echo "autoconf:" >> $LOG
     $AUTOCONF --version >> $LOG
     echo "subversion:" >> $LOG
@@ -140,20 +135,21 @@ function PrintHelp
     echo
     echo " Action:"
     echo
-    echo "  --dryrun    don't install anything"
-    echo "  --install   install and setup up the config"
-    echo "  --upgrade   install without touching the config"
-    echo "  --uninstall uninstall but leave the config alone"
-    echo "  --unpack    unpack the archives"
+    echo "  --dryrun        don't install anything"
+    echo "  --install       install and setup up the config"
+    echo "  --upgrade       install without touching the config"
+    echo "  --uninstall     uninstall but leave the config alone"
+    echo "  --unpack        unpack the archives"
     echo
     echo " Sub options:"
     echo
-    echo "  --defaults  use the default values for all questions"
-    echo "  --debug     print some extra info for debugging the install script"
-    echo "                  (Use early on the commandline)"
-    echo "  --nounpack  don't unpack, use the already unpacked archives"
-    echo "  --widec     use widec support in vuurmuur_conf (utf-8)"
-    echo "  --from-svn  do the action based on the svn tree (this is guessed)"
+    echo "  --defaults      use the default values for all questions"
+    echo "  --debug         print some extra info for debugging the install script"
+    echo "                      (Use early on the commandline)"
+    echo "  --nounpack      don't unpack, use the already unpacked archives"
+    echo "  --widec         use widec support in vuurmuur_conf (utf-8)"
+    echo "  --from-svn      do the action based on the svn tree (this is guessed)"
+    echo "  --build-update  update the buildsystem (regenerates make files etc)"
     echo
     echo "Please read INSTALL for more information."
     echo
@@ -236,28 +232,17 @@ function Make
 function Aclocal
 {
     touch tmp.log
-    $ACLOCAL19 &> tmp.log
+    $ACLOCAL &> tmp.log
     RESULT="$?"
     cat tmp.log >> $LOG
     rm -f tmp.log
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
-            PrintL "Aclocal-1.9 succeeded."
+            PrintL "Aclocal succeeded."
         fi
     else
-        touch tmp.log
-        $ACLOCAL &> tmp.log
-        RESULT="$?"
-        cat tmp.log >> $LOG
-        rm -f tmp.log
-        if [ "$RESULT" = "0" ]; then
-            if [ "$DEBUG" = "1" ]; then
-                PrintL "Aclocal succeeded."
-            fi
-        else
-            PrintL "aclocal failed with returncode $RESULT."
-            Exit 1
-        fi
+        PrintL "aclocal failed with returncode $RESULT."
+        Exit 1
     fi
 }
 
@@ -281,28 +266,17 @@ function Autoheader
 function Automake
 {
     touch tmp.log
-    $AUTOMAKE19 &> tmp.log
+    $AUTOMAKE &> tmp.log
     RESULT="$?"
     cat tmp.log >> $LOG
     rm -f tmp.log
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
-            PrintL "Automake-1.9 succeeded."
+            PrintL "Automake succeeded."
         fi
     else
-        touch tmp.log
-        $AUTOMAKE &> tmp.log
-        RESULT="$?"
-        cat tmp.log >> $LOG
-        rm -f tmp.log
-        if [ "$RESULT" = "0" ]; then
-            if [ "$DEBUG" = "1" ]; then
-                PrintL "Automake succeeded."
-            fi
-        else
-            PrintL "automake failed with returncode $RESULT."
-            Exit 1
-        fi
+        PrintL "automake failed with returncode $RESULT."
+        Exit 1
     fi
 }
 
@@ -445,10 +419,12 @@ function CheckBinary
 
 function CheckRequiredBins
 {
-    CheckBinary $ACLOCAL
-    CheckBinary $AUTOMAKE
-    CheckBinary $AUTOCONF
-    CheckBinary $AUTOHEADER
+    if [ "$BUILDUPDATE" = "1" ]; then
+        CheckBinary $ACLOCAL
+        CheckBinary $AUTOMAKE
+        CheckBinary $AUTOCONF
+        CheckBinary $AUTOHEADER
+    fi
     CheckBinary gcc
     CheckBinary $MAKE
 }
@@ -524,6 +500,13 @@ do
             UNPACK="1"
             if [ "$DEBUG" = "1" ]; then
                 PrintL "Commandline option '--unpack' enabled."
+            fi
+            shift 1
+        ;;
+        --build-update)
+            BUILDUPDATE="1"
+            if [ "$DEBUG" = "1" ]; then
+                PrintL "Commandline option '--build-update' enabled."
             fi
             shift 1
         ;;
@@ -764,11 +747,13 @@ fi
 if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
 
     PrintL "Going to build libvuurmuur... (common code for all parts of Vuurmuur)."
-    Libtoolize -f
-    Aclocal
-    Autoheader
-    Automake
-    Autoconf
+    if [ "$BUILDUPDATE" = "1" ]; then
+        Libtoolize -f
+        Aclocal
+        Autoheader
+        Automake
+        Autoconf
+    fi
     Configure --prefix=$INSTALLDIR --sysconfdir=$ETCDIR
     Make
     if [ "$DRYRUN" != "1" ]; then
@@ -804,11 +789,13 @@ fi
 
 if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     PrintL "Going to build vuurmuur... (the daemons)."
-    Libtoolize -f
-    Aclocal
-    Autoheader
-    Automake
-    Autoconf
+    if [ "$BUILDUPDATE" = "1" ]; then
+        Libtoolize -f
+        Aclocal
+        Autoheader
+        Automake
+        Autoconf
+    fi
     Configure --prefix=$INSTALLDIR --sysconfdir=$ETCDIR --with-libvuurmuur-includes=$INSTALLDIR/include --with-libvuurmuur-libraries=$INSTALLDIR/lib
     Make
     if [ "$DRYRUN" != "1" ]; then
@@ -835,12 +822,14 @@ fi
 
 if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     PrintL "Going to build vuurmuur_conf... (the Ncurses based user interface)."
-    Libtoolize -f
-    Aclocal
-    WrapGettextize
-    Autoheader
-    Automake
-    Autoconf
+    if [ "$BUILDUPDATE" = "1" ]; then
+        Libtoolize -f
+        Aclocal
+        WrapGettextize
+        Autoheader
+        Automake
+        Autoconf
+    fi
 
     if [ "$WIDEC" = "1" ]; then
         WIDESTR="yes"
