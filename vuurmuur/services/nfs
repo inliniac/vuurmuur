@@ -8,5 +8,4 @@ ESP=""
 PROTO_41=""
 BROADCAST="No"
 HELPER=""
-COMMENT="Network File System ports, it will also need other ports, because of
-portmapper"
+COMMENT="Network File System ports, it will also need other ports, because of portmapper"
