@@ -23,6 +23,7 @@ HAVE_LAN="1"          # do we have a LAN?
 LAN_DEV=""
 INET_DEV_DYNAMIC="0"  # internet dev is dynamic
 
+# modeled after: http://www.linuxsecurity.com/content/view/115462/81/
 function maketemp
 {
     tmp=${TMPDIR-/tmp}
@@ -480,7 +481,7 @@ if [ $HAVE_LAN = "1" ]; then
 fi
 
 # display the script with vuurmuur_script commands
-cat $CMD
+#cat $CMD
 
 echo ""
 echo "The commands the wizard creates are not yet automatically executed. See $CMD for the script that is created."
