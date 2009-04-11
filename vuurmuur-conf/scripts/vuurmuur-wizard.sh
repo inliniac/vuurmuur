@@ -4,12 +4,6 @@
 #
 # Copyright (c) 2009 by Victor Julien <victor@inliniac.net>
 
-# FIXME:TODO: use a secure tmpfile creation function
-CMD=/tmp/wizard_cmds
-TMP=/tmp/wizard_tmp
-TMPCMD=/tmp/wizard_tmp_cmds
-TMPINTS=/tmp/wizard_tmp_ints
-
 VMS="vuurmuur_script"
 
 VERSION="0.8beta1"
@@ -28,6 +22,33 @@ HEIGHT=16
 HAVE_LAN="1"          # do we have a LAN?
 LAN_DEV=""
 INET_DEV_DYNAMIC="0"  # internet dev is dynamic
+
+function maketemp
+{
+    tmp=${TMPDIR-/tmp}
+    tmp=$tmp/vuurmuur.$RANDOM.$RANDOM.$RANDOM.$$
+    (umask 077 && mkdir $tmp) || {
+        echo "Could not create temporary directory! Exiting." 1>&2 
+        exit 1
+    }
+
+    echo $tmp
+}
+
+function InitTempfiles
+{
+    TMPDIR=`maketemp`
+    echo "TMPDIR $TMPDIR"
+
+    CMD="$TMPDIR/commands"
+    TMP="$TMPDIR/temp"
+    TMPCMD="$TMPDIR/tempcommands"
+
+    # init cmd
+    echo "#!/bin/bash" > $CMD
+    echo "# Script created by vuurmuur_wizard.sh version $VERSION" >> $CMD
+    echo "" >> $CMD
+}
 
 # strip the tremas, so "ahem" becomes ahem
 function stripit
@@ -204,16 +225,6 @@ function CreateLanNetwork
     echo "# FIXME: network rules" >> $CMD
 }
 
-
-function InitTempfiles
-{
-    # init cmd
-    echo "#!/bin/bash" > $CMD
-    echo "# Script created by vuurmuur_wizard.sh version $VERSION" >> $CMD
-    echo "" >> $CMD
-
-    echo -n "" > $TMPINTS
-}
 
 # Create the name of the internet interface
 #
@@ -451,8 +462,8 @@ function SelectIncomingInternetRules
 ######################## start ############################
 #
 #
-DisplayInitialWarning
 InitTempfiles
+DisplayInitialWarning
 
 CreateZones
 
