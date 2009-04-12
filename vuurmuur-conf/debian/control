@@ -8,5 +8,5 @@ Build-Depends: debhelper, libvuurmuur, libtool, gettext, libncurses5-dev
 Package: vuurmuur-conf
 Architecture: any
 Depends: libvuurmuur, vuurmuur, libncurses5
-Recommends: iptables
+Recommends: iptables dialog
 Description: Iptables frontend. Ncurses GUI, for administration and monitoring.

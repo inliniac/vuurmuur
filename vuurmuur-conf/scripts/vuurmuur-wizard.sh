@@ -463,6 +463,17 @@ function SelectIncomingInternetRules
 ######################## start ############################
 #
 #
+DIALOG=`which dialog` || {
+    echo "Error: this script requires to the 'dialog' program to be installed."
+    exit 1
+}
+
+ID_PROG="$(which id 2>/dev/null || echo /usr/bin/id)"
+if [ "`$ID_PROG -g`" != "0" ]; then
+    echo "Error: this script requires to be run as user root."
+    exit 1
+fi
+
 InitTempfiles
 DisplayInitialWarning
 
