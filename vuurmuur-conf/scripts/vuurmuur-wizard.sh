@@ -21,7 +21,8 @@ HEIGHT=16
 # runtime vars
 HAVE_LAN="1"          # do we have a LAN?
 LAN_DEV=""
-INET_DEV_DYNAMIC="0"  # internet dev is dynamic
+INET_DEV_DYNAMIC="0"  # INTERNET dev is dynamic
+LAN_DEV_DYNAMIC="0"   # LAN dev is dynamic
 
 # modeled after: http://www.linuxsecurity.com/content/view/115462/81/
 function maketemp
@@ -135,6 +136,16 @@ function SelectInternetInterfaceSetup
     echo -n "manual \"Interface is offline, enter manually\" OFF \\" >> $TMPCMD
 }
 
+function SelectInternetInterfaceDynamicSetup
+{
+    DEV=$1
+
+    echo "#!/bin/bash" > $TMPCMD
+    echo -n "dialog --backtitle \"$BACKTITLE\" --title \"[ INTERNET Interface ]\" --yesno \
+	\"\nDoes INTERNET interface \\\"$DEV\\\" get it's IP Address from a DHCP server, or does it get otherwise dynamically assigned? If unsure, answer \\\"Yes\\\". If you know the IP Address to be static, answer \\\"No\\\".\" \
+	$HEIGHT $WIDTH" >> $TMPCMD
+}
+
 function EnterInternetInterfaceSetup
 {
     echo "#!/bin/bash" > $TMPCMD
@@ -165,6 +176,16 @@ function SelectLanInterfaceSetup
         fi
     done
     echo -n "none \"No LAN connected to this firewall\" OFF \\" >> $TMPCMD
+}
+
+function SelectLanInterfaceDynamicSetup
+{
+    DEV=$1
+
+    echo "#!/bin/bash" > $TMPCMD
+    echo -n "dialog --backtitle \"$BACKTITLE\" --title \"[ LAN Interface ]\" --yesno \
+	\"\nDoes LAN interface \\\"$DEV\\\" get it's IP Address from a DHCP server? If unsure, answer \\\"Yes\\\". If the IP Address is static, answer \\\"No\\\".\" \
+	$HEIGHT $WIDTH" >> $TMPCMD
 }
 
 
@@ -224,6 +245,11 @@ function CreateLanNetwork
     echo "$VMS --modify --network $LAN --variable NETWORK --set $NETWORK --overwrite" >> $CMD
     echo "$VMS --modify --network $LAN --variable NETMASK --set $NETMASK --overwrite" >> $CMD
     echo "# FIXME: network rules" >> $CMD
+
+    if [ "$LAN_DEV_DYNAMIC" = "1" ]; then
+        echo "# Enabling DHCP client access for $LAN" >> $CMD
+    	echo "$VMS --modify --network $LAN --overwrite --variable RULE --set \"accept dhcp-client\"" >> $CMD
+    fi
 }
 
 
@@ -262,7 +288,7 @@ function CreateInternetInterface
     echo "$VMS --add --interface $NAME" >> $CMD
     echo "$VMS --modify --interface $NAME --variable ACTIVE --set Yes  --overwrite" >> $CMD
     echo "$VMS --modify --interface $NAME --variable DEVICE --set $DEV  --overwrite" >> $CMD
-    echo "$VMS --modify --interface $NAME --variable IPADDRESS --set $IP  --overwrite" >> $CMD
+    echo "$VMS --modify --interface $NAME --variable IPADDRESS --set \"$IP\"  --overwrite" >> $CMD
     if [ "$INET_DEV_DYNAMIC" = "1" ]; then
         echo "$VMS --modify --interface $NAME --variable DYNAMIC --set Yes  --overwrite" >> $CMD
     fi
@@ -276,14 +302,21 @@ function CreateLanInterface
     NAME=$1
     DEV=$2
 
-    IP=`getipfordevice $DEV`
+    if [ "$LAN_DEV_DYNAMIC" = "1" ]; then
+        IP=""
+    else
+        IP=`getipfordevice $DEV`
+    fi
 
     echo "" >> $CMD
     echo "# Adding LAN interface $NAME, $DEV, $IP..." >> $CMD
     echo "$VMS --add --interface $NAME" >> $CMD
     echo "$VMS --modify --interface $NAME --variable ACTIVE --set Yes  --overwrite" >> $CMD
     echo "$VMS --modify --interface $NAME --variable DEVICE --set $DEV  --overwrite" >> $CMD
-    echo "$VMS --modify --interface $NAME --variable IPADDRESS --set $IP  --overwrite" >> $CMD
+    echo "$VMS --modify --interface $NAME --variable IPADDRESS --set \"$IP\"  --overwrite" >> $CMD
+    if [ "$LAN_DEV_DYNAMIC" = "1" ]; then
+        echo "$VMS --modify --interface $NAME --variable DYNAMIC --set Yes  --overwrite" >> $CMD
+    fi
     echo "$VMS --modify --interface $NAME --variable COMMENT --set \"The network interface that is connected to the Lan\"  --overwrite" >> $CMD
 
     echo "# FIXME: interface rules" >> $CMD
@@ -327,6 +360,11 @@ function SelectInternetInterface
                     DONE="1"
                 fi
             else
+                SelectInternetInterfaceDynamicSetup $INET_DEV
+            	bash $TMPCMD 2> $TMP
+                if [ $? = 0 ]; then
+                    INET_DEV_DYNAMIC="1"
+                fi
         		DONE="1"
             fi
     	fi
@@ -367,6 +405,12 @@ function SelectLanInterface
     done
 
     if [ "$LAN_DEV" != "none" ]; then
+        SelectLanInterfaceDynamicSetup $LAN_DEV
+    	bash $TMPCMD 2> $TMP
+        if [ $? = 0 ]; then
+            LAN_DEV_DYNAMIC="1"
+        fi
+
         LAN_INT=`GetLanInterfaceName $LAN_DEV`
         CreateLanInterface $LAN_INT $LAN_DEV
 
