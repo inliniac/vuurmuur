@@ -9,10 +9,10 @@ VMS="vuurmuur_script"
 VERSION="0.8beta1"
 BACKTITLE="Vuurmuur Setup Wizard version $VERSION"
 
-ZONES="dmz inet lan"
+ZONES="inet lan"
+
 INTERNET="world.inet"
 LAN="local.lan"
-DMZ="servers.dmz"
 
 # all screen have the same size: it must fit on a 80x20 console
 WIDTH=74

@@ -4940,6 +4940,8 @@ edit_rule_separator(const int debuglvl,
         set_field_buffer_wrap(debuglvl, SepRuleFlds.comment_fld_ptr, 0, rule_ptr->opt->comment);
     set_field_back(SepRuleFlds.comment_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
     set_field_fore(SepRuleFlds.comment_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    field_opts_off(SepRuleFlds.comment_fld_ptr, O_AUTOSKIP);
+    set_field_status(SepRuleFlds.comment_fld_ptr, FALSE);
     field_num++;
 
     /* terminate the fields-array */
@@ -4993,59 +4995,39 @@ edit_rule_separator(const int debuglvl,
 
         ch = wgetch(edit_win);
 
-        switch(ch)
-        {
-            case 27:
-            case KEY_F(10):
-            case 10:    /* enter */
+        char not_defined = 0;
+        if (nav_field_simpletext(debuglvl, form, ch) < 0)
+            not_defined = 1;
 
-                form_driver(form, REQ_NEXT_FIELD); /* this is to make sure the field is saved */
+        if (not_defined == 1) {
+            switch(ch)
+            {
+                case 27:
+                case KEY_F(10):
+                case 10:    /* enter */
 
-                result = edit_seprule_fields_to_rule(debuglvl, fields, n_fields, rule_ptr, reg);
-                if(result == 1)
-                {
-                    quit = 1;
-                    retval = 1;
-                }
-                else if(result == 0)
-                {
-                    /* no change */
-                    quit = 1;
-                }
-                else
-                {
-                    /* error */
-                    quit = 1;
-                    retval = -1;
-                }
+                    form_driver(form, REQ_NEXT_FIELD); /* this is to make sure the field is saved */
 
-                break;
+                    result = edit_seprule_fields_to_rule(debuglvl, fields, n_fields, rule_ptr, reg);
+                    if(result == 1)
+                    {
+                        quit = 1;
+                        retval = 1;
+                    }
+                    else if(result == 0)
+                    {
+                        /* no change */
+                        quit = 1;
+                    }
+                    else
+                    {
+                        /* error */
+                        quit = 1;
+                        retval = -1;
+                    }
 
-            case KEY_RIGHT:
-                form_driver(form, REQ_RIGHT_CHAR);
-                break;
-            case KEY_LEFT:
-                form_driver(form, REQ_LEFT_CHAR);
-                break;
-
-            case 127: // backspace
-            case KEY_BACKSPACE:
-                form_driver(form, REQ_PREV_CHAR);
-                form_driver(form, REQ_DEL_CHAR);
-                break;
-            case KEY_DC:
-                form_driver(form, REQ_DEL_CHAR);
-                break;
-            case KEY_HOME: // doesn't seem to work in my kde (3.1.2) setup
-                form_driver(form, REQ_BEG_LINE);
-                break;
-            case KEY_END:
-                form_driver(form, REQ_END_LINE);
-                break;
-
-            default:
-                form_driver(form, ch);
-                break;
+                    break;
+            }
         }
     }
 
