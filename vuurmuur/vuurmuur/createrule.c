@@ -3544,63 +3544,63 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
         /* cap */
         if(conf.check_iptcaps == TRUE && iptcap->target_log == FALSE)
         {
-            (void)vrprint.warning("Warning", "not creating logrules. LOG-target not supported by system.");
-            return(0); /* no error */
+            (void)vrprint.warning("Warning", "not creating policy logging rules. LOG-target not supported by system.");
         }
-
-        /* see if we want to limit the logging of the default policy */
-        if(conf.log_policy_limit > 0)
+        else
         {
-            /* cap */
-            if(conf.check_iptcaps == FALSE || iptcap->match_limit == TRUE)
+            /* see if we want to limit the logging of the default policy */
+            if(conf.log_policy_limit > 0)
             {
-                snprintf(limit, sizeof(limit), "-m limit --limit %u/s --limit-burst %u",
-                                        conf.log_policy_limit,
-                                        conf.log_policy_burst);
+                /* cap */
+                if(conf.check_iptcaps == FALSE || iptcap->match_limit == TRUE)
+                {
+                    snprintf(limit, sizeof(limit), "-m limit --limit %u/s --limit-burst %u",
+                            conf.log_policy_limit,
+                            conf.log_policy_burst);
+                }
+                else
+                {
+                    (void)vrprint.warning("Warning", "not setting limits on policy logging rules. Limit-match not supported by system.");
+                }
             }
-            else
-            {
-                (void)vrprint.warning("Warning", "not setting limits on logrules. Limit-match not supported by system.");
-                return(0); /* no error */
-            }
+
+            /* enable logging for all packets which don't have a rule */
+            if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Enabling logging...\n");
+            if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Enabling logging...");
+
+            /* input */
+            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_INPUT, "DROP", "in policy");
+
+            snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
+                    limit,
+                    logprefix,
+                    loglevel,
+                    log_tcp_options);
+            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+                retval=-1;
+
+            /* output */
+            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_OUTPUT, "DROP", "out policy");
+
+            snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
+                    limit,
+                    logprefix,
+                    loglevel,
+                    log_tcp_options);
+            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+                retval=-1;
+
+            /* forward */
+            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_FORWARD, "DROP", "fw policy");
+
+            snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
+                    limit,
+                    logprefix,
+                    loglevel,
+                    log_tcp_options);
+            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+                retval=-1;
         }
-
-        /* enable logging for all packets which don't have a rule */
-        if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Enabling logging...\n");
-        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Enabling logging...");
-
-        /* input */
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_INPUT, "DROP", "in policy");
-
-        snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        /* output */
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_OUTPUT, "DROP", "out policy");
-
-        snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        /* forward */
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_FORWARD, "DROP", "fw policy");
-
-        snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
     }
 
     /* enable or disable ip-forwarding */
@@ -3619,7 +3619,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
     else
     {
         if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Disabling ip-forwarding...\n");
-        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Enabling ip-forwarding because no forwarding rules were created.");
+        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Disabling ip-forwarding because no forwarding rules were created.");
 
         result = set_proc_entry(debuglvl, &conf, "/proc/sys/net/ipv4/ip_forward", 0, NULL);
         if(result != 0)
