@@ -777,7 +777,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
             (void)vrprint.error(-1, "Error", "write: %s", strerror(errno));
             return(-1);
         }
-        if(write(fd, "INTERFACE=\"\"\n", 13) == -1)
+        if(write(fd, "DEVICE=\"\"\n", 10) == -1)
         {
             (void)vrprint.error(-1, "Error", "write: %s", strerror(errno));
             return(-1);
