@@ -100,16 +100,16 @@ iptcap_load_module(const int debuglvl, struct vuurmuur_config *cnf, char *module
 
     /* now execute the command */
     char *args[] = { conf.modprobe_location, "-q", modulename, NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, conf.modprobe_location, args);
+    int r = libvuurmuur_exec_command(debuglvl, cnf, conf.modprobe_location, args, NULL);
     if (r != 0)
     {
-//        if(debuglvl >= LOW)
+        if(debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "loading module '%s' failed: modprobe returned %d.", modulename, r);
 
         return(-1);
     }
 
-//    if(debuglvl >= LOW)
+    if(debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__, "loading module '%s' success, modprobe returned %d.", modulename, r);
 
     return(0);
@@ -294,7 +294,7 @@ iptcap_get_queue_peer_pid(const int debuglvl, IptCap *iptcap)
 static int
 iptcap_create_test_nat_chain(const int debuglvl, struct vuurmuur_config *cnf) {
     char *args[] = { cnf->iptables_location, "-t", "nat", "-N", "VRMRIPTCAP", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args);
+    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
     if (r != 0) {
         return -1;
     }
@@ -305,14 +305,14 @@ iptcap_create_test_nat_chain(const int debuglvl, struct vuurmuur_config *cnf) {
 static int
 iptcap_delete_test_nat_chain(const int debuglvl, struct vuurmuur_config *cnf) {
     char *argsF[] = { cnf->iptables_location, "-t", "nat", "-F", "VRMRIPTCAP", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsF);
+    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsF, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "flush failed (ok if chain didn't exist)");
         return -1;
     }
 
     char *argsX[] = { cnf->iptables_location, "-t", "nat", "-X", "VRMRIPTCAP", NULL };
-    r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsX);
+    r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsX, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "delete failed");
         return -1;
@@ -335,7 +335,7 @@ iptcap_test_nat_random(const int debuglvl, struct vuurmuur_config *cnf) {
     }
 
     char *args[] = { cnf->iptables_location, "-t", "nat", "-A", "VRMRIPTCAP", "-j", "SNAT", "--to-source", "127.0.0.1", "--random", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args);
+    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;

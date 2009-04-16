@@ -593,10 +593,12 @@ pipe_command(const int debuglvl, struct vuurmuur_config *cnf, char *command,
  *          otherwise the return code of the command.
  */
 int
-libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *path, char *argv[])
+libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *path, char *argv[], char *output_path)
 {
     int retval = 0;
     char *s = *argv;
+    FILE *fp = NULL;
+    char dev_null[] = "/dev/null";
 
     if (debuglvl >= MEDIUM)
         (void)vrprint.debug(__FUNC__, "starting, path %s", path);
@@ -608,7 +610,29 @@ libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *
 
         /* close stdout so we don't see the output of the
          * command we execute */
-        fclose(stdout);
+        fp = freopen("/dev/null", "rb", stdin);
+        if (fp == NULL) {
+            (void)vrprint.error(127, "Internal Error", "freopen stdin to /dev/null failed: %s",
+                strerror(errno));
+            exit(127);
+        }
+
+        if (output_path == NULL)
+            output_path = dev_null;
+
+        fp = freopen(output_path, "wb", stdout);
+        if (fp == NULL) {
+            (void)vrprint.error(127, "Internal Error", "freopen stdout to %s failed: %s",
+                output_path, strerror(errno));
+            exit(127);
+        }
+
+        fp = freopen(output_path, "wb", stderr);
+        if (fp == NULL) {
+            (void)vrprint.error(127, "Internal Error", "freopen stdin to %s failed: %s",
+                output_path, strerror(errno));
+            exit(127);
+        }
 
         /* actually exec the command */
         execv(path,argv);
@@ -635,10 +659,9 @@ libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *
         retval = -1;
 
     if (debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "retval %d", retval);
+        (void)vrprint.debug(__FUNC__, "(%s) retval %d", path, retval);
     return retval;
 }
-
 
 void
 shm_update_progress(const int debuglvl, int semid, int *shm_progress, int set_percent)

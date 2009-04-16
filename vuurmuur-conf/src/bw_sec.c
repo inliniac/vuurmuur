@@ -132,7 +132,6 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
             int start_day, int days, char only_total, d_list *list)
 {
     char            cmd[256] = "",
-                    num_days[8] = "",
                     bw_buf[512] = "",
                     sect_buf[32] = "",
                     sect_buf_stripped[32] = "",
@@ -174,6 +173,11 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
 
     int             retval = 0;
 
+    char            cmd_year_str[5] = "",
+                    cmd_month_str[3] = "",
+                    cmd_start_day_str[3] = "",
+                    cmd_num_days_str[8] = "";
+
     /* safety */
     if(device == NULL || list == NULL)
     {
@@ -188,10 +192,6 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
     if(debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__, "looking for data for '%s'.", device);
 
-    /* see if we need to pass the -s option to iptrafvol*/
-    if(days > 0)
-        snprintf(num_days, sizeof(num_days), "-s %d", days);
-
     /* create the tempfile */
     fd = create_tempfile(debuglvl, tmpfile);
     if(fd == -1)
@@ -199,17 +199,27 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
     else
         close(fd);
 
-    /* assemble the commandstring */
-    snprintf(cmd, sizeof(cmd), "%s -d -y %d -m %d -b %d %s 2&> %s",
-            vccnf.iptrafvol_location, year, month, start_day,
-            num_days, tmpfile);
+    snprintf(cmd_year_str, sizeof(cmd_year_str), "%d", year);
+    snprintf(cmd_month_str, sizeof(cmd_month_str), "%d", month);
+    snprintf(cmd_start_day_str, sizeof(cmd_start_day_str), "%d", start_day);
 
-    /* now execute it */
-    if(debuglvl >= LOW)
-        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-    else
-        result = pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-    if(result < 0)
+    /* see if we need to pass the -s option to iptrafvol*/
+    if(days > 0) {
+        snprintf(cmd_num_days_str, sizeof(cmd_num_days_str), "%d", days);
+        char *args[] = { vccnf.iptrafvol_location,
+                         "-d", "-y", cmd_year_str,
+                         "-m", cmd_month_str,
+                         "-b", cmd_start_day_str,
+                         "-s", cmd_num_days_str, NULL };
+        result = libvuurmuur_exec_command(debuglvl, &conf, vccnf.iptrafvol_location, args, tmpfile);
+    } else {
+        char *args[] = { vccnf.iptrafvol_location,
+                         "-d", "-y", cmd_year_str,
+                         "-m", cmd_month_str,
+                         "-b", cmd_start_day_str, NULL };
+        result = libvuurmuur_exec_command(debuglvl, &conf, vccnf.iptrafvol_location, args, tmpfile);
+    }
+    if(result != 0)
     {
         return(-1);
     }
