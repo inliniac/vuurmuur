@@ -30,8 +30,39 @@ print_commandline_args(void)
     fprintf(stdout, " -c, --configfile\t\tuse the given configfile\n");
     fprintf(stdout, " -d, --debug\t\t\tenable debugging (1 = low, 3 = high)\n");
     fprintf(stdout, " -V, --version\t\t\tgives the version\n");
+    fprintf(stdout, " -W  --wizard\t\t\truns the quick setup wizard\n");
     fprintf(stdout, "\n");
     exit(EXIT_SUCCESS);
+}
+
+static int
+exec_wizard(const int debuglvl, char *path)
+{
+    int retval = 0;
+
+    pid_t pid = fork();
+    if (pid == 0) {
+        /* actually exec the command */
+        execv(path,NULL);
+
+        /* if we get here, the command didn't exec
+         * so kill the child */
+        exit(127);
+    }
+
+    int status;
+    pid_t rpid;
+    do {
+        rpid = waitpid(pid, &status, 0);
+    } while (rpid == -1 && errno == EINTR);
+
+    if (pid != -1 && WIFEXITED(status) && WEXITSTATUS(status)) {
+        retval = WEXITSTATUS(status);
+    }
+    else if (rpid == -1)
+        retval = -1;
+
+    return retval;
 }
 
 
@@ -49,13 +80,14 @@ main(int argc, char *argv[])
                 max_height = 0,
                 max_width = 0;
 
-    static char optstring[] = "c:d:hV";
+    static char optstring[] = "c:d:hVW";
     struct option long_options[] =
     {
         { "configfile", required_argument,  NULL, 'c' },
         { "debug",      required_argument,  NULL, 'd' },
         { "help",       no_argument,        NULL, 'h' },
         { "version",    no_argument,        NULL, 'V' },
+        { "wizard",     no_argument,        NULL, 'W' },
         { 0, 0, 0, 0 },
     };
     int     longopt_index = 0;
@@ -137,11 +169,6 @@ main(int argc, char *argv[])
 #endif /* BINRELOC_ENABLED */
     textdomain("vuurmuur_conf");
 
-    /*  close the STDERR_FILENO because it gives us annoying "Broken
-        Pipe" errors on some systems with bash3. Let's see if this
-        has negative side-effects. */
-    close(STDERR_FILENO);
-
     /* process commandline options */
     while((optch = getopt_long(argc, argv, optstring, long_options,
                     &longopt_index)) != -1 )
@@ -183,12 +210,25 @@ main(int argc, char *argv[])
 
                 exit(EXIT_SUCCESS);
 
+            case 'W' :
+            {
+                char wizard_path[512] = "";
+                snprintf(wizard_path, sizeof(wizard_path), "%s/scripts/vuurmuur-wizard.sh", conf.datadir);
+                printf("Running %s...\n", wizard_path);
+                exec_wizard(debuglvl, wizard_path);
+                exit(EXIT_SUCCESS);
+            }
             default:
 
                 (void)vrprint.error(EXIT_FAILURE, VR_ERR, gettext("unknown commandline option."));
                 exit(EXIT_FAILURE);
         }
     }
+
+    /*  close the STDERR_FILENO because it gives us annoying "Broken
+        Pipe" errors on some systems with bash3. Let's see if this
+        has negative side-effects. */
+    close(STDERR_FILENO);
 
     /* Initialize curses */
     (void)initscr();
