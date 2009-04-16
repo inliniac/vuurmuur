@@ -1283,8 +1283,8 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
     sanitize_path(debuglvl, cnf->modprobe_location, sizeof(cnf->modprobe_location));
 
 
-    /* MODULES */
-    result = ask_configfile(askconfig_debuglvl, "MODULES", answer, cnf->configfile, sizeof(answer));
+    /* LOAD_MODULES */
+    result = ask_configfile(askconfig_debuglvl, "LOAD_MODULES", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
