@@ -229,9 +229,9 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 INCLUDES = 
 METASOURCES = AUTO
-noinst_SCRIPTS = vuurmuur-searchlog.sh
+noinst_SCRIPTS = vuurmuur-searchlog.sh vuurmuur-wizard.sh
 vuurmuur_scriptdir = "$(datadir)/vuurmuur/scripts"
-vuurmuur_script_DATA = vuurmuur-searchlog.sh
+vuurmuur_script_DATA = vuurmuur-searchlog.sh vuurmuur-wizard.sh
 all: all-am
 
 .SUFFIXES:
@@ -327,7 +327,6 @@ installdirs:
 	for dir in "$(DESTDIR)$(vuurmuur_scriptdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -419,6 +418,20 @@ uninstall-am: uninstall-vuurmuur_scriptDATA
 	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
 	ps ps-am uninstall uninstall-am uninstall-vuurmuur_scriptDATA
 
+
+install:
+	@echo "Starting data $(vuurmuur_script_DATA) dir $(vuurmuur_scriptdir)"
+	@for VRMRSCRIPT in $(vuurmuur_script_DATA) ; do \
+		echo "VRMRSCRIPT $${VRMRSCRIPT}"; \
+		S="$(vuurmuur_scriptdir)/$${VRMRSCRIPT}"; \
+		echo "S $${S}"; \
+		if [ -f "$${S}" ]; then \
+			echo "File exists: $${S}"; \
+			chmod 0755 "$${S}"; \
+		else \
+			echo "File doesnt exist: $${S}"; \
+		fi; \
+	done
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
