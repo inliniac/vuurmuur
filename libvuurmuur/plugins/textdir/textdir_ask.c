@@ -96,7 +96,7 @@ ask_textdir(const int debuglvl,
     /* now open and read the file, but only if it is not already open */
     if(ptr->file == NULL)
     {
-        if(!(ptr->file = vuurmuur_fopen(file_location, "r")))
+        if(!(ptr->file = vuurmuur_fopen(debuglvl, file_location, "r")))
         {
             (void)vrprint.error(-1, "Error", "Unable to open file '%s'.", file_location);
 

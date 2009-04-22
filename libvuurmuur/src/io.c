@@ -22,71 +22,37 @@
 #include "vuurmuur.h"
 
 
-//
+/*  vuurmuur_fopen
+
+    A wrapper around fopen which can be used to open files. This
+    function performs additionals checks on the file, appropriate for
+    files with sensitive info (such as checking the owner, the
+    permissions, etc.)
+
+    This wrapper only works on a regular file, so no dirs, fifos, etc.
+
+    The path and mode parameters are identical to the fopen(3) libc function.
+*/
 FILE *
-vuurmuur_fopen(const char *path, const char *mode)
+vuurmuur_fopen(const int debuglvl, const char *path, const char *mode)
 {
     FILE        *fp=NULL;
-    struct stat stat_buf;
-    int         statted=0;  // can 'path' be stat-ed? 0: no, 1: yes
 
-    // check if we can lstat the file. If not, we assume file doens't exist.
-    if(lstat(path, &stat_buf) == -1)
-        statted = 0 ;
-    else
-        statted = 1;
+    // Stat the file
+    if (!stat_ok(debuglvl, path, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_ALLOW_NOTFOUND))
+        // File not OK? Don't open it. stat_ok will have printed an error message already.
+        return NULL;
 
-    // now look at the results
-    if(statted && S_ISLNK(stat_buf.st_mode) == 1)
+    // now open the file, this should not fail because if we get here it exists and is readable,
+    // but we check to be sure.
+    if(!(fp=fopen(path, mode)))
     {
-        (void)vrprint.error(-1, "Error", "opening '%s': For security reasons Vuurmuur will not allow following symbolic-links.", path);
-    }
-    else if(statted && (stat_buf.st_mode & S_IWGRP || stat_buf.st_mode & S_IWOTH))
-    {
-        (void)vrprint.error(-1, "Error", "opening '%s': For security reasons Vuurmuur will not open files that are writable by 'group' or 'other'. Check the file content & permissions.", path);
-    }
-    else if(statted && (stat_buf.st_uid != 0 || stat_buf.st_gid != 0))
-    {
-        (void)vrprint.error(-1, "Error", "opening '%s': For security reasons Vuurmuur will not open files that are not owned by root.", path);
-    }
-    else
-    {
-        // check if group and others can read the file. If so, fix the permissions.
-        if(statted && (stat_buf.st_mode & S_IRGRP || stat_buf.st_mode & S_IROTH))
-        {
-            (void)vrprint.info("Info", "'%s' is readable by 'group' and 'other'. This is not recommended. Fixing.", path);
-            if(chmod(path, 0600) == -1)
-            {
-                (void)vrprint.error(-1, "Error", "failed to repair file permissions for file '%s': %s.", path, strerror(errno));
-                return(NULL);
-            }
-        }
-        // check if group and others can execute the file. If so, fix the permissions.
-        if(statted && (stat_buf.st_mode & S_IXGRP || stat_buf.st_mode & S_IXOTH))
-        {
-            (void)vrprint.info("Info", "'%s' is executable by 'group' and 'other'. This is not recommended. Fixing.", path);
-            if(chmod(path, 0600) == -1)
-            {
-                (void)vrprint.error(-1, "Error", "failed to repair file permissions for file '%s': %s.", path, strerror(errno));
-                return(NULL);
-            }
-        }
-
-        // now open the file, this should not fail because if we get here it exists and is readable,
-        // but we check to be sure.
-        if(!(fp=fopen(path, mode)))
-        {
-            (void)vrprint.error(-1, "Error", "opening '%s' failed: %s (in: vuurmuur_fopen).", path, strerror(errno));
-        }
-        else
-        {
-            // return our succes
-            return(fp);
-        }
+        (void)vrprint.error(-1, "Error", "opening '%s' failed: %s (in: vuurmuur_fopen).", path, strerror(errno));
+        return NULL;
     }
 
-    // if we get here, there was an error
-    return(NULL);
+    // return our succes
+    return(fp);
 }
 
 
@@ -95,7 +61,7 @@ vuurmuur_opendir(const int debuglvl, const char *name)
 {
     DIR *dir_p = NULL;
 
-    if(!(stat_ok(debuglvl, name, STATOK_WANT_DIR, STATOK_VERBOSE)))
+    if(!(stat_ok(debuglvl, name, STATOK_WANT_DIR, STATOK_VERBOSE, STATOK_MUST_EXIST)))
         return(NULL);
 
     /* finally try to open */
@@ -126,12 +92,16 @@ vuurmuur_opendir(const int debuglvl, const char *name)
         STATOK_VERBOSE
         STATOK_QUIET
 
+    parameters for 'must_exist' are:
+        STATOK_MUST_EXIST
+        STATOK_ALLOW_NOTFOUND
+
     Returncodes:
         1: file ok
         0: file not ok
 */
 int
-stat_ok(const int debuglvl, const char *file_loc, char type, char output)
+stat_ok(const int debuglvl, const char *file_loc, char type, char output, char must_exist)
 {
     struct stat stat_buf;
     mode_t      mode = 0600;
@@ -146,8 +116,18 @@ stat_ok(const int debuglvl, const char *file_loc, char type, char output)
     /* stat the damn thing */
     if(lstat(file_loc, &stat_buf) == -1)
     {
-        (void)vrprint.error(-1, "Error",  "checking failed for '%s': %s.", file_loc, strerror(errno));
-        return(0);
+        if (errno == ENOENT) {
+            if (must_exist == STATOK_ALLOW_NOTFOUND) {
+                /* Allow the file to be non-existing. */
+                return(1);
+            } else {
+                (void)vrprint.error(-1, "Error",  "File not found: '%s'.", file_loc);
+                return(0);
+            }
+        } else {
+            (void)vrprint.error(-1, "Error",  "checking failed for '%s': %s.", file_loc, strerror(errno));
+            return(0);
+        }
     }
 
     /* we wont open symbolic links */
@@ -198,29 +178,31 @@ stat_ok(const int debuglvl, const char *file_loc, char type, char output)
         return(0);
     }
 
+    int fixperm = 0;
     /* some warnings about the permissions being too relax */
-    if(stat_buf.st_mode & S_IRGRP || stat_buf.st_mode & S_IROTH)
+    if(stat_buf.st_mode & S_IRGRP)
     {
-        (void)vrprint.info("Info", "'%s' is readable by 'group' and 'other'. This is not recommended. Fixing.", file_loc);
-
-        /* for dirs */
-        if(S_ISDIR(stat_buf.st_mode))
-            mode = 0700;
-        /* for files */
-        else if(S_ISREG(stat_buf.st_mode))
-            mode = 0600;
-
-        if(chmod(file_loc, mode) == -1)
-        {
-            (void)vrprint.error(-1, "Error", "failed to repair permissions for '%s': %s.", file_loc, strerror(errno));
-            return(0);
-        }
-
+        (void)vrprint.info("Info", "'%s' is readable by 'group'. This is not recommended. ", file_loc);
+        fixperm = 1;
     }
-    if(stat_buf.st_mode & S_IXGRP || stat_buf.st_mode & S_IXOTH)
+    if(stat_buf.st_mode & S_IROTH)
     {
-        (void)vrprint.info("Info", "'%s' is executable by 'group' and 'other'. This is not recommended. Fixing.", file_loc);
+        (void)vrprint.info("Info", "'%s' is readable by and 'other'. This is not recommended.", file_loc);
+        fixperm = 1;
+    }
 
+    if(stat_buf.st_mode & S_IXGRP)
+    {
+        (void)vrprint.info("Info", "'%s' is executable by 'group'. This is not recommended.", file_loc);
+        fixperm = 1;
+    }
+    if(stat_buf.st_mode & S_IXOTH)
+    {
+        (void)vrprint.info("Info", "'%s' is executable by 'other'. This is not recommended.", file_loc);
+        fixperm = 1;
+    }
+
+    if (fixperm) {
         /* for dirs */
         if(S_ISDIR(stat_buf.st_mode))
             mode = 0700;
@@ -228,6 +210,7 @@ stat_ok(const int debuglvl, const char *file_loc, char type, char output)
         else if(S_ISREG(stat_buf.st_mode))
             mode = 0600;
 
+        (void)vrprint.info("Info", "Resetting permissions of '%s' to %o.", file_loc, mode);
         if(chmod(file_loc, mode) == -1)
         {
             (void)vrprint.error(-1, "Error", "failed to repair permissions for '%s': %s.", file_loc, strerror(errno));
@@ -340,7 +323,7 @@ remove_pidfile(char *pidfile_location)
     Returns the pointer to the file, or NULL if failed.
 */
 FILE *
-rules_file_open(const char *path, const char *mode, int caller)
+rules_file_open(const int debuglvl, const char *path, const char *mode, int caller)
 {
     FILE    *lock_fp = NULL,
             *fp = NULL;
@@ -431,7 +414,7 @@ rules_file_open(const char *path, const char *mode, int caller)
         free(lock_path);
     }
 
-    fp = vuurmuur_fopen(path, mode);
+    fp = vuurmuur_fopen(debuglvl, path, mode);
     return(fp);
 }
 

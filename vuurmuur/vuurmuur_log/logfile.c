@@ -130,26 +130,8 @@ open_logfile(const int debuglvl, const char *path, const char *mode)
         return(NULL);
     }
 
-    /* see if we think if the file is ok */
-    if(!(fp = fopen(path, "r")) && errno == ENOENT)
-    {
-        /* don't check because file does not exist */
-    }
-    else
-    {
-        /* if we opened it, close it again */
-        if(fp != NULL)
-            (void)fclose(fp);
-
-        if(!stat_ok(debuglvl, path, STATOK_WANT_FILE, STATOK_VERBOSE))
-        {
-            (void)vrprint.error(-1, "Error", "won't open logfile '%s' because of permission problems (in: %s:%d).", path, __FUNC__, __LINE__);
-            return(NULL);
-        }
-    }
-
     /* open the logfile */
-    if(!(fp = fopen(path, mode)))
+    if(!(fp = vuurmuur_fopen(debuglvl, path, mode)))
     {
         (void)vrprint.error(-1, "Error", "the logfile '%s' could not be opened: %s (in: %s:%d).", path, strerror(errno), __FUNC__, __LINE__);
         return(NULL);

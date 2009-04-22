@@ -1155,15 +1155,8 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
         final checks on the file
     */
 
-    /* exist */
-    if(!(ruleset_exists(debuglvl, path_to_ruleset)))
-    {
-        (void)vrprint.error(-1, "Error", "missing rulesetfile (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
-
     /* stat_ok */
-    if(!(stat_ok(debuglvl, path_to_ruleset, STATOK_WANT_FILE, STATOK_VERBOSE)))
+    if(!(stat_ok(debuglvl, path_to_ruleset, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
     {
         (void)vrprint.error(-1, "Error", "serious file problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1214,15 +1207,8 @@ ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path
         final checks on the file
     */
 
-    /* exist */
-    if(!(ruleset_exists(debuglvl, path_to_ruleset)))
-    {
-        (void)vrprint.error(-1, "Error", "missing rulesetfile (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
-
     /* stat_ok */
-    if(!(stat_ok(debuglvl, path_to_ruleset, STATOK_WANT_FILE, STATOK_VERBOSE)))
+    if(!(stat_ok(debuglvl, path_to_ruleset, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
     {
         (void)vrprint.error(-1, "Error", "serious file problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);

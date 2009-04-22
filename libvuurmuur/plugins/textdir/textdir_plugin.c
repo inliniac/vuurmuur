@@ -285,7 +285,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
     }
 
     /* see if we like the permissions of the textdirroot */
-    if(!(stat_ok(debuglvl, ptr->textdirlocation, STATOK_WANT_DIR, STATOK_QUIET)))
+    if(!(stat_ok(debuglvl, ptr->textdirlocation, STATOK_WANT_DIR, STATOK_QUIET, STATOK_MUST_EXIST)))
         return(-1);
 
     if(ptr->backend_open == 1)
@@ -440,7 +440,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
     }
 
     /* now stat it */
-    if(stat_ok(debuglvl, dir_location, STATOK_WANT_DIR, STATOK_VERBOSE) != 1)
+    if(stat_ok(debuglvl, dir_location, STATOK_WANT_DIR, STATOK_VERBOSE, STATOK_MUST_EXIST) != 1)
     {
         (void)vrprint.error(-1, "Error", "checking '%s' failed. Please check if the directory exists and that the permissions are ok.",
                                 dir_location);
@@ -865,7 +865,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
         return(-1);
 
     /* see if we like the file permissions */
-    if(!(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_VERBOSE)))
+    if(!(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
         return(-1);
 
     /* name splitting only needed for network and zone, as host and group just use the file_location

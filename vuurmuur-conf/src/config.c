@@ -114,7 +114,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* check if we like the configfile */
-    if(!(stat_ok(debuglvl, configfile_location, STATOK_WANT_FILE, STATOK_VERBOSE)))
+    if(!(stat_ok(debuglvl, configfile_location, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
         return(VR_CNF_E_FILE_PERMISSION);
 
 

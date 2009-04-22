@@ -392,25 +392,15 @@ blocklist_read_file(const int debuglvl, Zones *zones, BlockList *blocklist, char
     if(debuglvl >= MEDIUM)
         (void)vrprint.debug(__FUNC__, "load_ips: %c, no_refcnt: %c.", load_ips, no_refcnt);
 
-    /* check the file: it reports error's by itself */
-    if(stat_ok(debuglvl, conf.blocklist_location, STATOK_WANT_FILE, STATOK_VERBOSE))
-    {
-        /* open the blocklist-file */
-        if(!(fp = fopen(conf.blocklist_location, "r")))
-        {
-            (void)vrprint.error(-1, "Error", "opening blockfile '%s' failed: %s (in: %s:%d).",
-                                conf.blocklist_location,
-                                strerror(errno),
-                                __FUNC__, __LINE__);
-            return(-1);
-        }
-    }
-    else
-    {
-        /* no error msg, stat_ok takes care of that */
-        return(-1);
-    }
-
+	/* open the blocklist-file */
+	if(!(fp = vuurmuur_fopen(debuglvl, conf.blocklist_location, "r")))
+	{
+		(void)vrprint.error(-1, "Error", "opening blockfile '%s' failed: %s (in: %s:%d).",
+							conf.blocklist_location,
+							strerror(errno),
+							__FUNC__, __LINE__);
+		return(-1);
+	}
 
     /* read the file */
     while(fgets(line, (int)sizeof(line), fp) != NULL)

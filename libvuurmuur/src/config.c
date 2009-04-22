@@ -394,7 +394,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
     fclose(fp);
 
     /* check if we like the configfile */
-    if(!(stat_ok(debuglvl, cnf->configfile, STATOK_WANT_FILE, STATOK_VERBOSE)))
+    if(!(stat_ok(debuglvl, cnf->configfile, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
         return(VR_CNF_E_FILE_PERMISSION);
 
 
@@ -1558,7 +1558,7 @@ ask_configfile(const int debuglvl, char *question, char *answer_ptr, char *file_
     if(!question || !file_location || size == 0)
         return(-1);
 
-    if(!(fp = vuurmuur_fopen(file_location,"r")))
+    if(!(fp = vuurmuur_fopen(debuglvl, file_location,"r")))
     {
         (void)vrprint.error(-1, "Error", "unable to open configfile '%s': %s (in: ask_configfile).", file_location, strerror(errno));
         return(-1);

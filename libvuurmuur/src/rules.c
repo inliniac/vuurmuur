@@ -1371,7 +1371,7 @@ rules_write_file(const int debuglvl, Rules *rules, const char *rulesfile_locatio
     }
 
     /* open the rulesfile */
-    if(!(fp = rules_file_open(rulesfile_location, "w+", 0)))
+    if(!(fp = rules_file_open(debuglvl, rulesfile_location, "w+", 0)))
     {
         (void)vrprint.error(-1, "Error", "opening rulesfile '%s' failed: %s (in: %s).",
                 rulesfile_location, strerror(errno), __FUNC__);

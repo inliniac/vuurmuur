@@ -95,6 +95,9 @@
 #define STATOK_VERBOSE          (char)0
 #define STATOK_QUIET            (char)1
 
+#define STATOK_ALLOW_NOTFOUND   (char)0
+#define STATOK_MUST_EXIST       (char)1
+
 #define IPTCHK_VERBOSE          (char)0
 #define IPTCHK_QUIET            (char)1
 
@@ -1401,13 +1404,13 @@ int libvuurmuur_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
 /*
     io.c
 */
-FILE *vuurmuur_fopen(const char *path, const char *mode);
+FILE *vuurmuur_fopen(const int, const char *path, const char *mode);
 DIR *vuurmuur_opendir(const int, const char *);
-int stat_ok(const int, const char *, char, char);
+int stat_ok(const int, const char *, char, char, char);
 int check_pidfile(char *pidfile_location);
 int create_pidfile(char *pidfile_location, int shm_id);
 int remove_pidfile(char *pidfile_location);
-FILE * rules_file_open(const char *path, const char *mode, int caller);
+FILE * rules_file_open(const int, const char *path, const char *mode, int caller);
 int rules_file_close(FILE *file, const char *path);
 int pipe_command(const int, struct vuurmuur_config *, char *, char);
 int libvuurmuur_exec_command(const int, struct vuurmuur_config *, char *, char **, char *);

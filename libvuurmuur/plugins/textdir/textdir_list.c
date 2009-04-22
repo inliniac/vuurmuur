@@ -108,7 +108,7 @@ char
                             (void)vrprint.debug(__FUNC__, "service '%s', file: '%s'.", name, file_location);
 
                         /* now stat it */
-                        if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET))
+                        if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                         {
                             free(file_location);
 
@@ -185,7 +185,7 @@ char
                                     (void)vrprint.debug(__FUNC__, "interface '%s', file: '%s'.", name, file_location);
 
                                 /* now stat it */
-                                if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET))
+                                if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
@@ -269,7 +269,7 @@ char
                                 (void)vrprint.debug(__FUNC__, "rule '%s', file: '%s'.", name, file_location);
 
                             /* now stat it */
-                            if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET))
+                            if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 
@@ -336,7 +336,7 @@ char
                                     (void)vrprint.debug(__FUNC__, "host '%s', file: '%s'.", cur_zonename, file_location);
 
                                 // now stat it
-                                if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET))
+                                if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
@@ -392,7 +392,7 @@ char
                                     (void)vrprint.debug(__FUNC__, "group '%s', file: '%s'.", cur_zonename, file_location);
 
                                 // now stat it
-                                if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET))
+                                if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
@@ -463,7 +463,7 @@ char
                                 (void)vrprint.debug(__FUNC__, "list_textdir: network '%s', file: '%s'.", cur_zonename, file_location);
 
                             // now stat it
-                            if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET))
+                            if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 
@@ -525,7 +525,7 @@ char
                                 (void)vrprint.debug(__FUNC__, "zone '%s', file: '%s'.", ptr->cur_zone, file_location);
 
                             // now stat it
-                            if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET))
+                            if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 
