@@ -5,7 +5,8 @@ vuurmuur_scriptdir = "$(datadir)/vuurmuur/scripts/"
 vuurmuur_script_DATA = vuurmuur-searchlog.sh vuurmuur-wizard.sh
 
 install:
+	test -z "$(vuurmuur_scriptdir)" || $(MKDIR_P) "$(DESTDIR)$(vuurmuur_scriptdir)"
 	@for VRMRSCRIPT in $(vuurmuur_script_DATA) ; do \
-		$(INSTALL) -m 755 $${VRMRSCRIPT} "$(vuurmuur_scriptdir)"; \
+		$(INSTALL) -m 755 $${VRMRSCRIPT} "$(DESTDIR)$(vuurmuur_scriptdir)"; \
 	done
 
