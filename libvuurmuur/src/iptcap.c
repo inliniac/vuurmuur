@@ -292,6 +292,36 @@ iptcap_get_queue_peer_pid(const int debuglvl, IptCap *iptcap)
 }
 
 static int
+iptcap_create_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf) {
+    char *args[] = { cnf->iptables_location, "-t", "mangle", "-N", "VRMRIPTCAP", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
+    if (r != 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+static int
+iptcap_delete_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf) {
+    char *argsF[] = { cnf->iptables_location, "-t", "mangle", "-F", "VRMRIPTCAP", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsF, NULL);
+    if (r != 0) {
+        (void)vrprint.debug(__FUNC__, "flush failed (ok if chain didn't exist)");
+        return -1;
+    }
+
+    char *argsX[] = { cnf->iptables_location, "-t", "mangle", "-X", "VRMRIPTCAP", NULL };
+    r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsX, NULL);
+    if (r != 0) {
+        (void)vrprint.debug(__FUNC__, "delete failed");
+        return -1;
+    }
+
+    return 0;
+}
+
+static int
 iptcap_create_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf) {
     char *args[] = { cnf->iptables_location, "-t", "filter", "-N", "VRMRIPTCAP", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
@@ -430,54 +460,54 @@ iptcap_test_filter_mark_match(const int debuglvl, struct vuurmuur_config *cnf) {
 }
 
 int
-iptcap_test_filter_mark_target(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_test_mangle_mark_target(const int debuglvl, struct vuurmuur_config *cnf) {
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+    if (iptcap_delete_test_mangle_chain(debuglvl,cnf) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(debuglvl,cnf) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+    if (iptcap_create_test_mangle_chain(debuglvl,cnf) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_create_test_mangle_chain failed");
         return -1;
     }
 
-    char *args[] = { cnf->iptables_location, "-t", "filter", "-A", "VRMRIPTCAP", "-j", "MARK", "--set-mark", "1", NULL };
+    char *args[] = { cnf->iptables_location, "-t", "mangle", "-A", "VRMRIPTCAP", "-j", "MARK", "--set-mark", "1", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+    if (iptcap_delete_test_mangle_chain(debuglvl,cnf) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
     return retval;
 }
 
 int
-iptcap_test_filter_classify_target(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_test_mangle_classify_target(const int debuglvl, struct vuurmuur_config *cnf) {
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+    if (iptcap_delete_test_mangle_chain(debuglvl,cnf) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(debuglvl,cnf) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+    if (iptcap_create_test_mangle_chain(debuglvl,cnf) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_create_test_mangle_chain failed");
         return -1;
     }
 
-    char *args[] = { cnf->iptables_location, "-t", "filter", "-A", "VRMRIPTCAP", "-j", "CLASSIFY", "--set-class", "0:0", NULL };
+    char *args[] = { cnf->iptables_location, "-t", "mangle", "-A", "VRMRIPTCAP", "-j", "CLASSIFY", "--set-class", "0:0", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+    if (iptcap_delete_test_mangle_chain(debuglvl,cnf) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -1163,7 +1193,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
                 else {
                     iptcap->target_mark = FALSE;
 
-                    result = iptcap_test_filter_mark_target(debuglvl, cnf);
+                    result = iptcap_test_mangle_mark_target(debuglvl, cnf);
                     if (result == 1)
                         iptcap->target_mark = TRUE;
                 }
@@ -1197,7 +1227,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
                 else {
                     iptcap->target_classify = FALSE;
 
-                    result = iptcap_test_filter_classify_target(debuglvl, cnf);
+                    result = iptcap_test_mangle_classify_target(debuglvl, cnf);
                     if (result == 1)
                         iptcap->target_classify = TRUE;
                 }
