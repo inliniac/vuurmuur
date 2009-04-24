@@ -1,5 +1,5 @@
 %define name		libvuurmuur
-%define version		0.8b1
+%define version		0.8beta1
 %define release		1
 # %define root_prefix_vm	/usr/
 %define root_prefix_vm	%{_prefix}/
