@@ -1182,17 +1182,33 @@ int
 kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int proto, int sp, int dp)
 {
     char buf[256] = "";
+    char cmd_sp_str[6] = "", cmd_dp_str[6] = "";
+    int result = 0;
 
+    snprintf(cmd_sp_str, sizeof(cmd_sp_str), "%d", sp);
+    snprintf(cmd_dp_str, sizeof(cmd_dp_str), "%d", dp);
 
     if(proto == VR_PROTO_TCP)
     {
-        snprintf(buf, sizeof(buf), "%s -D -s %s -d %s -p tcp --orig-port-src %d --orig-port-dst %d",
-            cmd, srcip, dstip, sp, dp);
+        char *args[] = { cmd,
+                         "-D", "-s", srcip,
+                         "-d", dstip,
+                         "-p", "tcp",
+                         "--orig-port-src", cmd_sp_str,
+                         "--orig-port-dst", cmd_dp_str,
+                        NULL };
+        result = libvuurmuur_exec_command(debuglvl, NULL, cmd, args, NULL);
     }
     else if(proto == VR_PROTO_UDP)
     {
-        snprintf(buf, sizeof(buf), "%s -D -s %s -d %s -p udp --orig-port-src %d --orig-port-dst %d",
-            cmd, srcip, dstip, sp, dp);
+        char *args[] = { cmd,
+                         "-D", "-s", srcip,
+                         "-d", dstip,
+                         "-p", "udp",
+                         "--orig-port-src", cmd_sp_str,
+                         "--orig-port-dst", cmd_dp_str,
+                        NULL };
+        result = libvuurmuur_exec_command(debuglvl, NULL, cmd, args, NULL);
     }
     else
     {
@@ -1200,13 +1216,9 @@ kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int pro
         return(-1);
     }
 
-    if(pipe_command(debuglvl, &conf, buf, PIPE_VERBOSE) < 0)
-    {
-        //(void)vrprint.error(-1, VR_ERR, gettext("killing connection failed."));
-        return(-1);
-    }
-
-    return(0);
+    /* TRANSLATORS: example "killed connection: 1.2.3.4:5678 -> 8.7.6.5:4321 (6)" */
+    (void)vrprint.audit("%s: %s:%d -> %s:%d (%d)", result ? gettext("failed to kill connection") : gettext("killed connection"), srcip, sp, dstip, dp, proto);
+    return(result);
 }
 
 
