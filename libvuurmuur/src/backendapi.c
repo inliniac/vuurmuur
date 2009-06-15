@@ -340,7 +340,7 @@ load_backends(const int debuglvl, d_list *plugin_list)
     /* first the SERVICES */
     if(load_plugin(debuglvl, plugin_list, conf.serv_backend_name, &sf) < 0)
         return(-1);
-    if(sf->setup(debuglvl, &serv_backend) < 0)
+    if(sf->setup(debuglvl, &conf, &serv_backend) < 0)
         return(-1);
     if(sf->conf(debuglvl, serv_backend) < 0)
         return(-1);
@@ -352,7 +352,7 @@ load_backends(const int debuglvl, d_list *plugin_list)
     */
     if(load_plugin(debuglvl, plugin_list, conf.zone_backend_name, &zf) < 0)
         return(-1);
-    if(zf->setup(debuglvl, &zone_backend) < 0)
+    if(zf->setup(debuglvl, &conf, &zone_backend) < 0)
         return(-1);
     if(zf->conf(debuglvl, zone_backend) < 0)
         return(-1);
@@ -364,7 +364,7 @@ load_backends(const int debuglvl, d_list *plugin_list)
     */
     if(load_plugin(debuglvl, plugin_list, conf.ifac_backend_name, &af) < 0)
         return(-1);
-    if(af->setup(debuglvl, &ifac_backend) < 0)
+    if(af->setup(debuglvl, &conf, &ifac_backend) < 0)
         return(-1);
     if(af->conf(debuglvl, ifac_backend) < 0)
         return(-1);
@@ -376,7 +376,7 @@ load_backends(const int debuglvl, d_list *plugin_list)
     */
     if(load_plugin(debuglvl, plugin_list, conf.rule_backend_name, &rf) < 0)
         return(-1);
-    if(rf->setup(debuglvl, &rule_backend) < 0)
+    if(rf->setup(debuglvl, &conf, &rule_backend) < 0)
         return(-1);
     if(rf->conf(debuglvl, rule_backend) < 0)
         return(-1);

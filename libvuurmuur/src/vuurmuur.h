@@ -145,6 +145,8 @@
 #define DEFAULT_LOAD_MODULES            TRUE                /* default we load modules */
 #define DEFAULT_MODULES_WAITTIME        0                   /* default we don't wait */
 
+#define DEFAULT_MAX_PERMISSION          0700                /* default only allow user rwx */
+
 #define MAX_LOGRULE_SIZE                512
 #define MAX_PIPE_COMMAND                512                 /* maximum lenght of the pipe command */
 #define MAX_RULECOMMENT_LEN             64                  /* length in characters (for widec) */
@@ -152,7 +154,9 @@
 #define PROC_IPCONNTRACK                "/proc/net/ip_conntrack"
 #define PROC_NFCONNTRACK                "/proc/net/nf_conntrack"
 
-
+/* Special permission value, meaning don't check permissions. The value
+ * is simply all ones. */
+#define ANY_PERMISSION                  (~((mode_t)0))
 /*
     regexes
 */
@@ -426,6 +430,11 @@ struct vuurmuur_config
 
     /* this is detected at runtime */
     char            use_nfconntrack;
+
+	/* Maximum permissions for files and directories used by vuurmuur
+	   (config & log files). This should include x bits, which are
+	   filtered out for files. */
+	mode_t          max_permission;
 
 } conf;
 
@@ -1404,13 +1413,13 @@ int libvuurmuur_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
 /*
     io.c
 */
-FILE *vuurmuur_fopen(const int, const char *path, const char *mode);
-DIR *vuurmuur_opendir(const int, const char *);
-int stat_ok(const int, const char *, char, char, char);
+FILE *vuurmuur_fopen(const int, const struct vuurmuur_config *, const char *path, const char *mode);
+DIR *vuurmuur_opendir(const int, const struct vuurmuur_config *, const char *);
+int stat_ok(const int, const struct vuurmuur_config *, const char *, char, char, char);
 int check_pidfile(char *pidfile_location);
 int create_pidfile(char *pidfile_location, int shm_id);
 int remove_pidfile(char *pidfile_location);
-FILE * rules_file_open(const int, const char *path, const char *mode, int caller);
+FILE * rules_file_open(const int, const struct vuurmuur_config *cnf, const char *path, const char *mode, int caller);
 int rules_file_close(FILE *file, const char *path);
 int pipe_command(const int, struct vuurmuur_config *, char *, char);
 int libvuurmuur_exec_command(const int, struct vuurmuur_config *, char *, char **, char *);
@@ -1424,13 +1433,13 @@ void sanitize_path(const int, char *, size_t);
 */
 int config_set_log_names(const int debuglvl, struct vuurmuur_config *cnf);
 int config_check_logdir(const int debuglvl, const char *logdir);
-int config_check_vuurmuurdir(const int debuglvl, const char *logdir);
+int config_check_vuurmuurdir(const int debuglvl, const struct vuurmuur_config *, const char *logdir);
 int check_iptables_command(const int, struct vuurmuur_config *, char *, char);
 int check_iptablesrestore_command(const int, struct vuurmuur_config *, char *, char);
 int check_tc_command(const int, struct vuurmuur_config *, char *, char);
 int init_config(const int, struct vuurmuur_config *cnf);
 int reload_config(const int, struct vuurmuur_config *);
-int ask_configfile(const int debuglvl, char *question, char *answer_ptr, char *file_location, size_t size);
+int ask_configfile(const int debuglvl, const struct vuurmuur_config *, char *question, char *answer_ptr, char *file_location, size_t size);
 int write_configfile(const int debuglvl, char *file_location);
 int pre_init_config(struct vuurmuur_config *);
 
@@ -1601,7 +1610,7 @@ struct BackendFunctions_
     int (*conf)(int debuglvl, void *backend);
 
     /* setup: alloc memory and set defaults */
-    int (*setup)(int debuglvl, void **backend);
+    int (*setup)(int debuglvl, const struct vuurmuur_config *cnf, void **backend);
 
     /* version */
     char *version;

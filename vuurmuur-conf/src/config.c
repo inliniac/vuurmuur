@@ -114,12 +114,12 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* check if we like the configfile */
-    if(!(stat_ok(debuglvl, configfile_location, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    if(!(stat_ok(debuglvl, &conf, configfile_location, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
         return(VR_CNF_E_FILE_PERMISSION);
 
 
     /* ADVANCED_MODE */
-    result = ask_configfile(debuglvl, "ADVANCED_MODE", answer, configfile_location, sizeof(answer));
+    result = ask_configfile(debuglvl, &conf, "ADVANCED_MODE", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -153,7 +153,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* MAINMENU_STATUS */
-    result = ask_configfile(debuglvl, "MAINMENU_STATUS", answer, configfile_location, sizeof(answer));
+    result = ask_configfile(debuglvl, &conf, "MAINMENU_STATUS", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -187,7 +187,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* IPTRAFVOL */
-    result = ask_configfile(debuglvl, "IPTRAFVOL", cnf->iptrafvol_location, configfile_location, sizeof(cnf->iptrafvol_location));
+    result = ask_configfile(debuglvl, &conf, "IPTRAFVOL", cnf->iptrafvol_location, configfile_location, sizeof(cnf->iptrafvol_location));
     if(result == 1)
     {
         /* ok */
@@ -215,7 +215,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* NEWRULE_LOG */
-    result = ask_configfile(debuglvl, "NEWRULE_LOG", answer, configfile_location, sizeof(answer));
+    result = ask_configfile(debuglvl, &conf, "NEWRULE_LOG", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -249,7 +249,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* NEWRULE_LOGLIMIT */
-    result = ask_configfile(debuglvl, "NEWRULE_LOGLIMIT", answer, configfile_location, sizeof(answer));
+    result = ask_configfile(debuglvl, &conf, "NEWRULE_LOGLIMIT", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -283,7 +283,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* LOGVIEW_BUFSIZE */
-    result = ask_configfile(debuglvl, "LOGVIEW_BUFSIZE", answer, configfile_location, sizeof(answer));
+    result = ask_configfile(debuglvl, &conf, "LOGVIEW_BUFSIZE", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */

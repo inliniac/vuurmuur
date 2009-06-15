@@ -1354,7 +1354,7 @@ rules_assemble_rule(const int debuglvl, struct RuleData_ *rule_ptr)
     TODO: mask! it should we only read/write for owner root, and nothing to the others
 */
 static int
-rules_write_file(const int debuglvl, Rules *rules, const char *rulesfile_location)
+rules_write_file(const int debuglvl, const struct vuurmuur_config *cnf, Rules *rules, const char *rulesfile_location)
 {
     FILE                *fp = NULL;
     int                 retval = 0;
@@ -1371,7 +1371,7 @@ rules_write_file(const int debuglvl, Rules *rules, const char *rulesfile_locatio
     }
 
     /* open the rulesfile */
-    if(!(fp = rules_file_open(debuglvl, rulesfile_location, "w+", 0)))
+    if(!(fp = rules_file_open(debuglvl, cnf, rulesfile_location, "w+", 0)))
     {
         (void)vrprint.error(-1, "Error", "opening rulesfile '%s' failed: %s (in: %s).",
                 rulesfile_location, strerror(errno), __FUNC__);
@@ -1441,7 +1441,7 @@ rules_save_list(const int debuglvl, Rules *rules, struct vuurmuur_config *cnf)
 
     if(rules->old_rulesfile_used == TRUE)
     {
-        result = rules_write_file(debuglvl, rules, cnf->rules_location);
+        result = rules_write_file(debuglvl, cnf, rules, cnf->rules_location);
         if(result < 0)
             return(-1);
     }

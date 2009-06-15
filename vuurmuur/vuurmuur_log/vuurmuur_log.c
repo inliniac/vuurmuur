@@ -1390,7 +1390,7 @@ main(int argc, char *argv[])
     }
 
     /* open the logs */
-    if(open_logfiles(debuglvl, &system_log, &vuurmuur_log) < 0)
+    if(open_logfiles(debuglvl, &conf, &system_log, &vuurmuur_log) < 0)
     {
         (void)vrprint.error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);

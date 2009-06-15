@@ -139,7 +139,7 @@ struct Counters_
 
 
 int reopen_logfiles(const int, FILE **, FILE **);
-int open_logfiles(const int, FILE **, FILE **);
+int open_logfiles(const int, const struct vuurmuur_config *cnf, FILE **, FILE **);
 
 
 /* semaphore id */

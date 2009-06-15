@@ -85,7 +85,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     /*
         first open the file for reading
     */
-    if(!(fp = vuurmuur_fopen(debuglvl, file_location, "r")))
+    if(!(fp = vuurmuur_fopen(debuglvl, ptr->vuurmuur_config, file_location, "r")))
     {
         (void)vrprint.error(-1, "Error", "unable to open file '%s' for reading: %s.", file_location, strerror(errno));
 
@@ -321,7 +321,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     /*
         now open the file for writing
     */
-    if(!(fp = vuurmuur_fopen(debuglvl, file_location, "w+")))
+    if(!(fp = vuurmuur_fopen(debuglvl, ptr->vuurmuur_config, file_location, "w+")))
     {
         (void)vrprint.error(-1, "Error", "unable to open file '%s' for writing: %s (in: %s).", file_location, strerror(errno), __FUNC__);
         

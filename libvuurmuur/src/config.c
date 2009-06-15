@@ -130,7 +130,7 @@ config_check_logdir(const int debuglvl, const char *logdir)
    this functions uses vuurmuur_opendir which repairs permissions if needed.
 */
 int
-config_check_vuurmuurdir(const int debuglvl, const char *logdir)
+config_check_vuurmuurdir(const int debuglvl, const struct vuurmuur_config *cnf, const char *logdir)
 {
     DIR *dir_p = NULL;
 
@@ -175,7 +175,7 @@ config_check_vuurmuurdir(const int debuglvl, const char *logdir)
     }
 
     /* try to open, error reporting is done by others */
-    if(!(dir_p = vuurmuur_opendir(debuglvl, logdir)))
+    if(!(dir_p = vuurmuur_opendir(debuglvl, cnf, logdir)))
     {
         return(-1);
     }
@@ -393,12 +393,43 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
     }
     fclose(fp);
 
-    /* check if we like the configfile */
-    if(!(stat_ok(debuglvl, cnf->configfile, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    /* MAX_PERMISSION
+     * First (even before calling stat_ok to check the config file),
+     * load the MAX_PERMISSION value. init_pre_config sets max_permission to
+     * ANY_PERMISSION, so no permission checks occur before here.
+     */
+    result = ask_configfile(askconfig_debuglvl, cnf, "MAX_PERMISSION", answer, cnf->configfile, sizeof(answer));
+    if(result == 1)
+    {
+        char *endptr;
+        /* ok, found, parse it as an octal mode */
+        cnf->max_permission = strtol(answer, &endptr, 8);
+
+        /* If strol fails, it will set endptr to answer. Also check that
+         * there was no trailing garbage at the end of the string. */
+        if (endptr == answer || *endptr != '\0')
+        {
+            (void)vrprint.warning("Warning", "Invalid MAX_PERMISSION setting: %s. It should be an octal permission number. Using default (%o).", answer, DEFAULT_MAX_PERMISSION);
+            cnf->max_permission = DEFAULT_MAX_PERMISSION;
+
+            retval = VR_CNF_W_ILLEGAL_VAR;
+        }
+    }
+    else if(result == 0)
+    {
+        /* ignore missing, use default */
+        cnf->max_permission = DEFAULT_MAX_PERMISSION;
+    }
+    else
+        return(VR_CNF_E_UNKNOWN_ERR);
+
+    /* Now that we know the maximum permission a config file can have,
+     * check if we like the configfile */
+    if(!(stat_ok(debuglvl, cnf, cnf->configfile, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
         return(VR_CNF_E_FILE_PERMISSION);
 
 
-    result = ask_configfile(askconfig_debuglvl, "SERVICES_BACKEND", cnf->serv_backend_name, cnf->configfile, sizeof(cnf->serv_backend_name));
+    result = ask_configfile(askconfig_debuglvl, cnf, "SERVICES_BACKEND", cnf->serv_backend_name, cnf->configfile, sizeof(cnf->serv_backend_name));
     if(result == 1)
     {
         /* ok */
@@ -423,7 +454,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
         return(VR_CNF_E_UNKNOWN_ERR);
 
 
-    result = ask_configfile(askconfig_debuglvl, "ZONES_BACKEND", cnf->zone_backend_name, cnf->configfile, sizeof(cnf->zone_backend_name));
+    result = ask_configfile(askconfig_debuglvl, cnf, "ZONES_BACKEND", cnf->zone_backend_name, cnf->configfile, sizeof(cnf->zone_backend_name));
     if(result == 1)
     {
         /* ok */
@@ -448,7 +479,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
         return(VR_CNF_E_UNKNOWN_ERR);
 
 
-    result = ask_configfile(askconfig_debuglvl, "INTERFACES_BACKEND", cnf->ifac_backend_name, cnf->configfile, sizeof(cnf->ifac_backend_name));
+    result = ask_configfile(askconfig_debuglvl, cnf, "INTERFACES_BACKEND", cnf->ifac_backend_name, cnf->configfile, sizeof(cnf->ifac_backend_name));
     if(result == 1)
     {
         /* ok */
@@ -473,7 +504,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
         return(VR_CNF_E_UNKNOWN_ERR);
 
 
-    result = ask_configfile(askconfig_debuglvl, "RULES_BACKEND", cnf->rule_backend_name, cnf->configfile, sizeof(cnf->rule_backend_name));
+    result = ask_configfile(askconfig_debuglvl, cnf, "RULES_BACKEND", cnf->rule_backend_name, cnf->configfile, sizeof(cnf->rule_backend_name));
     if(result == 1)
     {
         /* ok */
@@ -498,7 +529,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
         return(VR_CNF_E_UNKNOWN_ERR);
 
 
-    result = ask_configfile(askconfig_debuglvl, "RULESFILE", cnf->rules_location, cnf->configfile, sizeof(cnf->rules_location));
+    result = ask_configfile(askconfig_debuglvl, cnf, "RULESFILE", cnf->rules_location, cnf->configfile, sizeof(cnf->rules_location));
     if(result == 1)
     {
         if(cnf->rules_location[0] == '\0')
@@ -546,7 +577,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
     sanitize_path(debuglvl, cnf->rules_location, sizeof(cnf->rules_location));
 
-    result = ask_configfile(askconfig_debuglvl, "BLOCKLISTFILE", cnf->blocklist_location, cnf->configfile, sizeof(cnf->blocklist_location));
+    result = ask_configfile(askconfig_debuglvl, cnf, "BLOCKLISTFILE", cnf->blocklist_location, cnf->configfile, sizeof(cnf->blocklist_location));
     if(result == 1)
     {
         /* ok, found */
@@ -599,7 +630,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
     cnf->old_rulecreation_method = FALSE;
 
     /* DYN_INT_CHECK */
-    result = ask_configfile(askconfig_debuglvl, "DYN_INT_CHECK", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "DYN_INT_CHECK", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -628,7 +659,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* LOG_POLICY_LIMIT */
-    result = ask_configfile(askconfig_debuglvl, "DYN_INT_INTERVAL", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "DYN_INT_INTERVAL", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -654,7 +685,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* LOG_BLOCKLIST */
-    result = ask_configfile(askconfig_debuglvl, "LOG_BLOCKLIST", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "LOG_BLOCKLIST", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -684,7 +715,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* LOG_INVALID */
-    result = ask_configfile(askconfig_debuglvl, "LOG_INVALID", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "LOG_INVALID", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -714,7 +745,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* LOG_NO_SYN */
-    result = ask_configfile(askconfig_debuglvl, "LOG_NO_SYN", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "LOG_NO_SYN", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -744,7 +775,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* LOG_PROBES */
-    result = ask_configfile(askconfig_debuglvl, "LOG_PROBES", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "LOG_PROBES", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -774,7 +805,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* LOG_FRAG */
-    result = ask_configfile(askconfig_debuglvl, "LOG_FRAG", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "LOG_FRAG", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -804,7 +835,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* USE_SYN_LIMIT */
-    result = ask_configfile(askconfig_debuglvl, "USE_SYN_LIMIT", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "USE_SYN_LIMIT", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -833,7 +864,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
         return(VR_CNF_E_UNKNOWN_ERR);
 
     /* SYN_LIMIT */
-    result = ask_configfile(askconfig_debuglvl, "SYN_LIMIT", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "SYN_LIMIT", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -869,7 +900,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* SYN_LIMIT_BURST */
-    result = ask_configfile(askconfig_debuglvl, "SYN_LIMIT_BURST", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "SYN_LIMIT_BURST", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -905,7 +936,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* USE_UDP_LIMIT */
-    result = ask_configfile(askconfig_debuglvl, "USE_UDP_LIMIT", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "USE_UDP_LIMIT", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -934,7 +965,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
         return(VR_CNF_E_UNKNOWN_ERR);
 
     /* UDP_LIMIT */
-    result = ask_configfile(askconfig_debuglvl, "UDP_LIMIT", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "UDP_LIMIT", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -970,7 +1001,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* UDP_LIMIT_BURST */
-    result = ask_configfile(askconfig_debuglvl, "UDP_LIMIT_BURST", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "UDP_LIMIT_BURST", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1006,7 +1037,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* LOG_POLICY */
-    result = ask_configfile(askconfig_debuglvl, "LOG_POLICY", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "LOG_POLICY", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1038,7 +1069,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* LOG_POLICY_LIMIT */
-    result = ask_configfile(askconfig_debuglvl, "LOG_POLICY_LIMIT", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "LOG_POLICY_LIMIT", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1071,7 +1102,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* LOG_TCP_OPTIONS */
-    result = ask_configfile(askconfig_debuglvl, "LOG_TCP_OPTIONS", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "LOG_TCP_OPTIONS", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1101,7 +1132,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* PROTECT_SYNCOOKIES */
-    result = ask_configfile(askconfig_debuglvl, "PROTECT_SYNCOOKIE", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "PROTECT_SYNCOOKIE", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1133,7 +1164,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* PROTECT_ECHOBROADCAST */
-    result = ask_configfile(askconfig_debuglvl, "PROTECT_ECHOBROADCAST", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "PROTECT_ECHOBROADCAST", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1164,7 +1195,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
         return(VR_CNF_E_UNKNOWN_ERR);
 
 
-    result = ask_configfile(askconfig_debuglvl, "IPTABLES", cnf->iptables_location, cnf->configfile, sizeof(cnf->iptables_location));
+    result = ask_configfile(askconfig_debuglvl, cnf, "IPTABLES", cnf->iptables_location, cnf->configfile, sizeof(cnf->iptables_location));
     if(result == 1)
     {
         /* ok */
@@ -1188,7 +1219,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
     sanitize_path(debuglvl, cnf->iptables_location, sizeof(cnf->iptables_location));
 
 
-    result = ask_configfile(askconfig_debuglvl, "IPTABLES_RESTORE", cnf->iptablesrestore_location, cnf->configfile, sizeof(cnf->iptablesrestore_location));
+    result = ask_configfile(askconfig_debuglvl, cnf, "IPTABLES_RESTORE", cnf->iptablesrestore_location, cnf->configfile, sizeof(cnf->iptablesrestore_location));
     if(result == 1)
     {
         /* ok */
@@ -1212,7 +1243,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
     sanitize_path(debuglvl, cnf->iptablesrestore_location, sizeof(cnf->iptablesrestore_location));
 
 
-    result = ask_configfile(askconfig_debuglvl, "CONNTRACK", cnf->conntrack_location, cnf->configfile, sizeof(cnf->conntrack_location));
+    result = ask_configfile(askconfig_debuglvl, cnf, "CONNTRACK", cnf->conntrack_location, cnf->configfile, sizeof(cnf->conntrack_location));
     if(result == 1)
     {
         /* ok */
@@ -1237,7 +1268,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
     sanitize_path(debuglvl, cnf->conntrack_location, sizeof(cnf->conntrack_location));
 
 
-    result = ask_configfile(askconfig_debuglvl, "TC", cnf->tc_location, cnf->configfile, sizeof(cnf->tc_location));
+    result = ask_configfile(askconfig_debuglvl, cnf, "TC", cnf->tc_location, cnf->configfile, sizeof(cnf->tc_location));
     if(result == 1)
     {
         /* ok */
@@ -1262,7 +1293,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
     sanitize_path(debuglvl, cnf->tc_location, sizeof(cnf->tc_location));
 
 
-    result = ask_configfile(askconfig_debuglvl, "MODPROBE", cnf->modprobe_location, cnf->configfile, sizeof(cnf->modprobe_location));
+    result = ask_configfile(askconfig_debuglvl, cnf, "MODPROBE", cnf->modprobe_location, cnf->configfile, sizeof(cnf->modprobe_location));
     if(result == 1)
     {
         /* ok */
@@ -1284,7 +1315,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* LOAD_MODULES */
-    result = ask_configfile(askconfig_debuglvl, "LOAD_MODULES", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "LOAD_MODULES", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1312,7 +1343,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* MODULES_WAIT_TIME */
-    result = ask_configfile(askconfig_debuglvl, "MODULES_WAIT_TIME", answer, cnf->configfile, sizeof(answer));
+    result = ask_configfile(askconfig_debuglvl, cnf, "MODULES_WAIT_TIME", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1342,7 +1373,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
     /* check if the configfile value is overridden by the commandline */
     if(cnf->loglevel_cmdline == FALSE)
     {
-        result = ask_configfile(askconfig_debuglvl, "LOGLEVEL", cnf->loglevel, cnf->configfile, sizeof(cnf->loglevel));
+        result = ask_configfile(askconfig_debuglvl, cnf, "LOGLEVEL", cnf->loglevel, cnf->configfile, sizeof(cnf->loglevel));
         if(result == 1)
         {
             // ok
@@ -1361,7 +1392,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* systemlog */
-    result = ask_configfile(askconfig_debuglvl, "SYSTEMLOG", cnf->systemlog_location, cnf->configfile, sizeof(cnf->systemlog_location));
+    result = ask_configfile(askconfig_debuglvl, cnf, "SYSTEMLOG", cnf->systemlog_location, cnf->configfile, sizeof(cnf->systemlog_location));
     if (result == 1 )
     {
         /* ok */
@@ -1389,7 +1420,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* get the logfile dir */
-    result = ask_configfile(askconfig_debuglvl, "LOGDIR", cnf->vuurmuur_logdir_location, cnf->configfile, sizeof(cnf->vuurmuur_logdir_location));
+    result = ask_configfile(askconfig_debuglvl, cnf, "LOGDIR", cnf->vuurmuur_logdir_location, cnf->configfile, sizeof(cnf->vuurmuur_logdir_location));
     if(result == 1)
     {
         if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
@@ -1543,7 +1574,7 @@ reload_config(const int debuglvl, struct vuurmuur_config *old_cnf)
     -1: error
 */
 int
-ask_configfile(const int debuglvl, char *question, char *answer_ptr, char *file_location, size_t size)
+ask_configfile(const int debuglvl, const struct vuurmuur_config *cnf, char *question, char *answer_ptr, char *file_location, size_t size)
 {
     int     retval = 0;
     size_t  i = 0,
@@ -1558,7 +1589,7 @@ ask_configfile(const int debuglvl, char *question, char *answer_ptr, char *file_
     if(!question || !file_location || size == 0)
         return(-1);
 
-    if(!(fp = vuurmuur_fopen(debuglvl, file_location,"r")))
+    if(!(fp = vuurmuur_fopen(debuglvl, cnf, file_location,"r")))
     {
         (void)vrprint.error(-1, "Error", "unable to open configfile '%s': %s (in: ask_configfile).", file_location, strerror(errno));
         return(-1);
@@ -1702,6 +1733,9 @@ write_configfile(const int debuglvl, char *file_location)
 
     fprintf(fp, "# Location of the modprobe-command (full path).\n");
     fprintf(fp, "MODPROBE=\"%s\"\n\n", conf.modprobe_location);
+
+    fprintf(fp, "# Maximum permissions for config and log files and directories.\n");
+    fprintf(fp, "MAX_PERMISSION=\"%o\"\n\n", conf.max_permission);
 
     fprintf(fp, "# Load modules if needed? (yes/no)\n");
     fprintf(fp, "LOAD_MODULES=\"%s\"\n\n", conf.load_modules ? "Yes" : "No");
@@ -1969,6 +2003,9 @@ pre_init_config(struct vuurmuur_config *cnf)
 
     /* default to yes */
     cnf->check_iptcaps = TRUE;
+
+    /* Don't do any permissin checks until we loaded MAX_PERMISSION from the config file */
+    cnf->max_permission = ANY_PERMISSION;
 
     return(0);
 }

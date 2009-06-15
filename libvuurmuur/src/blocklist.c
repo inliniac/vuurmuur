@@ -393,7 +393,7 @@ blocklist_read_file(const int debuglvl, Zones *zones, BlockList *blocklist, char
         (void)vrprint.debug(__FUNC__, "load_ips: %c, no_refcnt: %c.", load_ips, no_refcnt);
 
 	/* open the blocklist-file */
-	if(!(fp = vuurmuur_fopen(debuglvl, conf.blocklist_location, "r")))
+	if(!(fp = vuurmuur_fopen(debuglvl, &conf, conf.blocklist_location, "r")))
 	{
 		(void)vrprint.error(-1, "Error", "opening blockfile '%s' failed: %s (in: %s:%d).",
 							conf.blocklist_location,

@@ -78,7 +78,7 @@ char
             if(!ptr->service_p)
             {
                 /* open the dir */
-                if(!(ptr->service_p = vuurmuur_opendir(debuglvl, dir_location)))
+                if(!(ptr->service_p = vuurmuur_opendir(debuglvl, ptr->vuurmuur_config, dir_location)))
                 {
                     (void)vrprint.error(-1, "Error", "unable to open '%s', %s (in: list_textdir, opendir).", dir_location, strerror(errno));
                     return(NULL);
@@ -108,7 +108,7 @@ char
                             (void)vrprint.debug(__FUNC__, "service '%s', file: '%s'.", name, file_location);
 
                         /* now stat it */
-                        if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                        if(stat_ok(debuglvl, ptr->vuurmuur_config, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                         {
                             free(file_location);
 
@@ -142,7 +142,7 @@ char
             if(!ptr->interface_p)
             {
                 // open the dir
-                if(!(ptr->interface_p = vuurmuur_opendir(debuglvl, dir_location)))
+                if(!(ptr->interface_p = vuurmuur_opendir(debuglvl, ptr->vuurmuur_config, dir_location)))
                 {
                     (void)vrprint.error(-1, "Error", "Unable to open '%s', %s.", dir_location, strerror(errno));
                     return(NULL);
@@ -185,7 +185,7 @@ char
                                     (void)vrprint.debug(__FUNC__, "interface '%s', file: '%s'.", name, file_location);
 
                                 /* now stat it */
-                                if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                                if(stat_ok(debuglvl, ptr->vuurmuur_config, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
@@ -227,7 +227,7 @@ char
             if(!ptr->rule_p)
             {
                 /* open the dir */
-                if(!(ptr->rule_p = vuurmuur_opendir(debuglvl, dir_location)))
+                if(!(ptr->rule_p = vuurmuur_opendir(debuglvl, ptr->vuurmuur_config, dir_location)))
                 {
                     (void)vrprint.error(-1, "Error", "unable to open '%s': %s.",
                                         dir_location, strerror(errno));
@@ -269,7 +269,7 @@ char
                                 (void)vrprint.debug(__FUNC__, "rule '%s', file: '%s'.", name, file_location);
 
                             /* now stat it */
-                            if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                            if(stat_ok(debuglvl, ptr->vuurmuur_config, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 
@@ -336,7 +336,7 @@ char
                                     (void)vrprint.debug(__FUNC__, "host '%s', file: '%s'.", cur_zonename, file_location);
 
                                 // now stat it
-                                if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                                if(stat_ok(debuglvl, ptr->vuurmuur_config, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
@@ -392,7 +392,7 @@ char
                                     (void)vrprint.debug(__FUNC__, "group '%s', file: '%s'.", cur_zonename, file_location);
 
                                 // now stat it
-                                if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                                if(stat_ok(debuglvl, ptr->vuurmuur_config, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
@@ -440,7 +440,7 @@ char
                             (void)vrprint.debug(__FUNC__, "opening host dir: %s.", hostdir_location);
 
                         /* this is allowed to fail, if it does, is will be NULL, and will be detected above */
-                        ptr->host_p = vuurmuur_opendir(debuglvl, hostdir_location);
+                        ptr->host_p = vuurmuur_opendir(debuglvl, ptr->vuurmuur_config, hostdir_location);
 
                         /* open the groupdir */
                         snprintf(groupdir_location, sizeof(groupdir_location), "%s/%s/groups", netdir_location, dir_entry_p->d_name);
@@ -448,7 +448,7 @@ char
                             (void)vrprint.debug(__FUNC__, "opening group dir: %s.", groupdir_location);
 
                         /* this is allowed to fail, if it does, is will be NULL, and will be detected above */
-                        ptr->group_p = vuurmuur_opendir(debuglvl, groupdir_location);
+                        ptr->group_p = vuurmuur_opendir(debuglvl, ptr->vuurmuur_config, groupdir_location);
 
                         snprintf(cur_zonename, sizeof(cur_zonename), "%s.%s", ptr->cur_network, ptr->cur_zone);
 
@@ -463,7 +463,7 @@ char
                                 (void)vrprint.debug(__FUNC__, "list_textdir: network '%s', file: '%s'.", cur_zonename, file_location);
 
                             // now stat it
-                            if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                            if(stat_ok(debuglvl, ptr->vuurmuur_config, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 
@@ -512,7 +512,7 @@ char
                             (void)vrprint.debug(__FUNC__, "opening: %s.", netdir_location);
 
                         /* this is allowed to fail, if it does, is will be NULL, and will be detected above */
-                        ptr->network_p = vuurmuur_opendir(debuglvl, netdir_location);
+                        ptr->network_p = vuurmuur_opendir(debuglvl, ptr->vuurmuur_config, netdir_location);
 
                         // lets check against regex
                         if(validate_zonename(debuglvl, dir_entry_p->d_name, 1, NULL, NULL, NULL, ptr->zonename_reg, VALNAME_QUIET) == 0)
@@ -525,7 +525,7 @@ char
                                 (void)vrprint.debug(__FUNC__, "zone '%s', file: '%s'.", ptr->cur_zone, file_location);
 
                             // now stat it
-                            if(stat_ok(debuglvl, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                            if(stat_ok(debuglvl, ptr->vuurmuur_config, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 
@@ -560,7 +560,7 @@ char
                     (void)vrprint.debug(__FUNC__, "opening the zonesdir.");
 
                 // open the dir
-                if(!(ptr->zone_p = vuurmuur_opendir(debuglvl, dir_location)))
+                if(!(ptr->zone_p = vuurmuur_opendir(debuglvl, ptr->vuurmuur_config, dir_location)))
                 {
                     (void)vrprint.error(-1, "Error", "unable to open directory: %s: %s.", dir_location, strerror(errno));
                     return(NULL);

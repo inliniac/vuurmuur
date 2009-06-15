@@ -67,6 +67,10 @@ struct TextdirBackend_
     regex_t *zonename_reg;
     regex_t *servicename_reg;
     regex_t *interfacename_reg;
+
+	/* Vuurmuur configuration. Some libvuurmuur functions need this to
+	 * do their work, but we shouldn't be accessing it ourselves. */
+	const struct vuurmuur_config *vuurmuur_config;
 };
 
 
@@ -81,6 +85,6 @@ int add_textdir(const int debuglvl, void *backend, char *name, int type);
 int del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs);
 int rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int type);
 int conf_textdir(const int debuglvl, void *backend);
-int setup_textdir(int debuglvl, void **backend);
+int setup_textdir(int debuglvl, const struct vuurmuur_config *vuurmuur_config, void **backend);
 
 #endif

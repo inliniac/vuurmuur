@@ -119,7 +119,7 @@ close_logfiles(const int debuglvl, FILE **system_log, FILE **vuurmuur_log, /*@nu
 
 
 FILE *
-open_logfile(const int debuglvl, const char *path, const char *mode)
+open_logfile(const int debuglvl, const struct vuurmuur_config *cnf, const char *path, const char *mode)
 {
     FILE    *fp = NULL;
 
@@ -131,7 +131,7 @@ open_logfile(const int debuglvl, const char *path, const char *mode)
     }
 
     /* open the logfile */
-    if(!(fp = vuurmuur_fopen(debuglvl, path, mode)))
+    if(!(fp = vuurmuur_fopen(debuglvl, cnf, path, mode)))
     {
         (void)vrprint.error(-1, "Error", "the logfile '%s' could not be opened: %s (in: %s:%d).", path, strerror(errno), __FUNC__, __LINE__);
         return(NULL);
@@ -149,7 +149,7 @@ open_logfile(const int debuglvl, const char *path, const char *mode)
 
 
 int
-open_logfiles(const int debuglvl, FILE **system_log, FILE **vuurmuur_log)
+open_logfiles(const int debuglvl, const struct vuurmuur_config *cnf, FILE **system_log, FILE **vuurmuur_log)
 {
     /* open the system log */
     if(!(*system_log = fopen(conf.systemlog_location, "r")))
@@ -174,7 +174,7 @@ open_logfiles(const int debuglvl, FILE **system_log, FILE **vuurmuur_log)
     }
 
     /* open the vuurmuur logfile */
-    if(!(*vuurmuur_log = open_logfile(debuglvl, conf.trafficlog_location, "a")))
+    if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, conf.trafficlog_location, "a")))
     {
         (void)vrprint.error(-1, "Error", "opening traffic log file '%s' failed: %s (in: %s:%d).", conf.trafficlog_location, strerror(errno), __FUNC__, __LINE__);
 
@@ -256,7 +256,7 @@ reopen_logfiles(const int debuglvl, FILE **system_log, FILE **vuurmuur_log)
     }
 
     /* re-open the vuurmuur logfile */
-    if(!(*vuurmuur_log = open_logfile(debuglvl, conf.trafficlog_location, "a")))
+    if(!(*vuurmuur_log = open_logfile(debuglvl, &conf, conf.trafficlog_location, "a")))
     {
         (void)vrprint.error(-1, "Error", "Re-opening traffic log file '%s' failed: %s.", conf.trafficlog_location, strerror(errno));
 

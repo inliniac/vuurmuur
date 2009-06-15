@@ -13,6 +13,15 @@ iptables-restore, resulting in much faster rule creating. If you run into
 problems, or liked the old way better for some reason, you can still use the
 old method.
 
+Vuurmuur checks all config and log files it uses, and the directories they're
+in against having their permission set too wide. Here you can specify the
+maximum permissions any directory can have. This value also applies to files,
+but with all the "x" bits stripped off. Any file or directory that has more
+permission bits set that what you give here, will be reset to this value (minus
+the "x" bits for files, again). Any files or directories with less permissions
+than this value are left untouched.  The value you specify here is an octal
+mode. See chmod(1) for the exact meaning of this mode.
+
 Keys:
 
 F10/Q: back.

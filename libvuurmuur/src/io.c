@@ -34,12 +34,12 @@
     The path and mode parameters are identical to the fopen(3) libc function.
 */
 FILE *
-vuurmuur_fopen(const int debuglvl, const char *path, const char *mode)
+vuurmuur_fopen(const int debuglvl, const struct vuurmuur_config *cnf, const char *path, const char *mode)
 {
     FILE        *fp=NULL;
 
     // Stat the file
-    if (!stat_ok(debuglvl, path, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_ALLOW_NOTFOUND))
+    if (!stat_ok(debuglvl, cnf, path, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_ALLOW_NOTFOUND))
         // File not OK? Don't open it. stat_ok will have printed an error message already.
         return NULL;
 
@@ -57,11 +57,11 @@ vuurmuur_fopen(const int debuglvl, const char *path, const char *mode)
 
 
 DIR *
-vuurmuur_opendir(const int debuglvl, const char *name)
+vuurmuur_opendir(const int debuglvl, const struct vuurmuur_config *cnf, const char *name)
 {
     DIR *dir_p = NULL;
 
-    if(!(stat_ok(debuglvl, name, STATOK_WANT_DIR, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    if(!(stat_ok(debuglvl, cnf, name, STATOK_WANT_DIR, STATOK_VERBOSE, STATOK_MUST_EXIST)))
         return(NULL);
 
     /* finally try to open */
@@ -101,10 +101,10 @@ vuurmuur_opendir(const int debuglvl, const char *name)
         0: file not ok
 */
 int
-stat_ok(const int debuglvl, const char *file_loc, char type, char output, char must_exist)
+stat_ok(const int debuglvl, const struct vuurmuur_config *cnf, const char *file_loc, char type, char output, char must_exist)
 {
     struct stat stat_buf;
-    mode_t      mode = 0600;
+    mode_t max, perm;
 
     /* safety */
     if(file_loc == NULL)
@@ -160,15 +160,6 @@ stat_ok(const int debuglvl, const char *file_loc, char type, char output, char m
         return(0);
     }
 
-    /* if a file is writable by someone other than root, we refuse to open it */
-    if(stat_buf.st_mode & S_IWGRP || stat_buf.st_mode & S_IWOTH)
-    {
-        if(output == STATOK_VERBOSE)
-            (void)vrprint.error(-1, "Error", "opening '%s': For security reasons Vuurmuur will not open files that are writable by 'group' or 'other'. Check the file content & permissions.", file_loc);
-
-        return(0);
-    }
-
     /* we demand that all files are owned by root */
     if(stat_buf.st_uid != 0 || stat_buf.st_gid != 0)
     {
@@ -178,43 +169,25 @@ stat_ok(const int debuglvl, const char *file_loc, char type, char output, char m
         return(0);
     }
 
-    int fixperm = 0;
-    /* some warnings about the permissions being too relax */
-    if(stat_buf.st_mode & S_IRGRP)
+    if (cnf->max_permission != ANY_PERMISSION)
     {
-        (void)vrprint.info("Info", "'%s' is readable by 'group'. This is not recommended. ", file_loc);
-        fixperm = 1;
-    }
-    if(stat_buf.st_mode & S_IROTH)
-    {
-        (void)vrprint.info("Info", "'%s' is readable by and 'other'. This is not recommended.", file_loc);
-        fixperm = 1;
-    }
+        /* Extract the permission bits from the mode */
+        perm = stat_buf.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
+        /* Maximum permissions. Remove +x for files */
+        max = cnf->max_permission;
+        if (S_ISREG(stat_buf.st_mode) == 1)
+            max &= ~(S_IXUSR|S_IXGRP|S_IXOTH);
 
-    if(stat_buf.st_mode & S_IXGRP)
-    {
-        (void)vrprint.info("Info", "'%s' is executable by 'group'. This is not recommended.", file_loc);
-        fixperm = 1;
-    }
-    if(stat_buf.st_mode & S_IXOTH)
-    {
-        (void)vrprint.info("Info", "'%s' is executable by 'other'. This is not recommended.", file_loc);
-        fixperm = 1;
-    }
-
-    if (fixperm) {
-        /* for dirs */
-        if(S_ISDIR(stat_buf.st_mode))
-            mode = 0700;
-        /* for files */
-        else if(S_ISREG(stat_buf.st_mode))
-            mode = 0600;
-
-        (void)vrprint.info("Info", "Resetting permissions of '%s' to %o.", file_loc, mode);
-        if(chmod(file_loc, mode) == -1)
+        /* See if the file mode has more bits set than the maximum allowed */
+        if(perm & ~max)
         {
-            (void)vrprint.error(-1, "Error", "failed to repair permissions for '%s': %s.", file_loc, strerror(errno));
-            return(0);
+            (void)vrprint.info("Info", "'%s' has mode %o, which is more than maximum allowed mode %o. Resetting to %o.", file_loc, perm, max, max);
+
+            if(chmod(file_loc, max) == -1)
+            {
+                (void)vrprint.error(-1, "Error", "failed to repair permissions for '%s': %s.", file_loc, strerror(errno));
+                return(0);
+            }
         }
     }
 
@@ -323,7 +296,7 @@ remove_pidfile(char *pidfile_location)
     Returns the pointer to the file, or NULL if failed.
 */
 FILE *
-rules_file_open(const int debuglvl, const char *path, const char *mode, int caller)
+rules_file_open(const int debuglvl, const struct vuurmuur_config *cnf, const char *path, const char *mode, int caller)
 {
     FILE    *lock_fp = NULL,
             *fp = NULL;
@@ -414,7 +387,7 @@ rules_file_open(const int debuglvl, const char *path, const char *mode, int call
         free(lock_path);
     }
 
-    fp = vuurmuur_fopen(debuglvl, path, mode);
+    fp = vuurmuur_fopen(debuglvl, cnf, path, mode);
     return(fp);
 }
 

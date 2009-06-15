@@ -73,6 +73,7 @@ struct
             *iptablesrestorelocfld,
             *conntracklocfld,
             *tclocfld,
+            *max_permission,
             
             *oldcreatefld;
 
@@ -87,9 +88,10 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
             rows = 0,
             cols = 0;
     size_t  i = 0;
+    char    number[5];
 
 
-    ConfigSection.n_fields = 4;
+    ConfigSection.n_fields = 5;
     ConfigSection.fields = (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
 
     /* external programs */
@@ -97,6 +99,8 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     GenConfig.iptablesrestorelocfld =  (ConfigSection.fields[1] = new_field(1, 64, 4, 1, 0, 0));  /*  */
     GenConfig.conntracklocfld =  (ConfigSection.fields[2] = new_field(1, 64, 7, 1, 0, 0));  /*  */
     GenConfig.tclocfld =  (ConfigSection.fields[3] = new_field(1, 64, 10, 1, 0, 0));  /*  */
+    /* Config file permissions */
+    GenConfig.max_permission =  (ConfigSection.fields[4] = new_field(1, 4, 13, 1, 0, 0));  /* max_permissions */
 
     /* terminate */
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
@@ -109,6 +113,8 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     set_field_buffer_wrap(debuglvl, GenConfig.iptablesrestorelocfld, 0, conf.iptablesrestore_location);
     set_field_buffer_wrap(debuglvl, GenConfig.conntracklocfld, 0, conf.conntrack_location);
     set_field_buffer_wrap(debuglvl, GenConfig.tclocfld, 0, conf.tc_location);
+    (void)snprintf(number, sizeof(number), "%o", conf.max_permission);
+    set_field_buffer_wrap(debuglvl, GenConfig.max_permission, 0, number);
 
     /* set buffers done */
     for(i = 0; i < ConfigSection.n_fields; i++)
@@ -135,6 +141,7 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     mvwprintw(ConfigSection.win, 4, 2,  gettext("Iptables-restore location (full path):"));
     mvwprintw(ConfigSection.win, 7, 2,  gettext("Conntrack location (full path):"));
     mvwprintw(ConfigSection.win, 10, 2, gettext("Tc location (full path):"));
+    mvwprintw(ConfigSection.win, 13, 2, gettext("Maximum config and log file and dir permissions (octal):"));
 
     return(retval);
 }
@@ -208,6 +215,31 @@ edit_genconfig_save(const int debuglvl)
                 (void)vrprint.audit("'tc location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.tc_location);
             }
+            else if(ConfigSection.fields[i] == GenConfig.max_permission)
+            {
+                char buf[5];
+                char *endptr;
+                long int newval;
+
+                /* maximum file permissions */
+                if(!(copy_field2buf(buf,
+                                    field_buffer(ConfigSection.fields[i], 0),
+                                    sizeof(buf))))
+                    return(-1);
+
+                /* Parse it as an octal mode */
+                newval = strtol(buf, &endptr, 8);
+
+                /* If strol fails, it will set endptr to buf. Also check that
+                 * there was no trailing garbage at the end of the string. */
+                if (endptr != buf && *endptr == '\0')
+                {
+                    conf.max_permission = newval;
+
+                    (void)vrprint.audit("'maximum permissions' %s '%o'.",
+                        STR_IS_NOW_SET_TO, conf.max_permission);
+                }
+            }
             else
             {
                 (void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
@@ -261,7 +293,8 @@ edit_genconfig(const int debuglvl)
         if( cur == GenConfig.iptableslocfld ||
             cur == GenConfig.iptablesrestorelocfld ||
             cur == GenConfig.tclocfld ||
-            cur == GenConfig.conntracklocfld)
+            cur == GenConfig.conntracklocfld ||
+            cur == GenConfig.max_permission)
         {
             if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
                 not_defined = 1;

@@ -75,4 +75,10 @@ PROTECT_SYNCOOKIE="Yes"
 # Ignore echo-broadcasts? (yes/no)
 PROTECT_ECHOBROADCAST="Yes"
 
+# Don't allow config and log files and directories to be accessable by
+# anyone but root. For files, the execute bits are automatically
+# stripped from this value. This should be an octal number describing
+# the maximum allowable permissions.
+MAX_PERMISSION="700"
+
 # end of file
