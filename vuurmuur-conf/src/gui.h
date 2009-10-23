@@ -118,5 +118,6 @@ int VrMenuConnectToWin(const int debuglvl, VrMenu *menu, VrWin *win);
 char VrMenuDefaultNavigation(const int debuglvl, VrMenu *menu, int key);
 int VrMenuPost(const int, VrMenu *);
 int VrMenuUnPost(const int, VrMenu *);
+VrForm *VrNewForm(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg);
 
 #endif

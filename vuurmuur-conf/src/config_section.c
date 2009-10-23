@@ -17,8 +17,9 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #include "main.h"
+#include "gui.h"
 #include <ctype.h>
 
 
@@ -26,6 +27,7 @@
 #define VROPT_CONNECTIONS   gettext("Connections")
 #define VROPT_INTERFACES    gettext("Interfaces")
 #define VROPT_SYSPROT       gettext("System Protection")
+#define VROPT_CONNTRACK     gettext("Conntrack")
 #define VROPT_LOGGING       gettext("Logging")
 #define VROPT_MODULES       gettext("Modules")
 #define VROPT_PLUGINS       gettext("Plugins")
@@ -74,7 +76,6 @@ struct
             *conntracklocfld,
             *tclocfld,
             *max_permission,
-            
             *oldcreatefld;
 
 } GenConfig;
@@ -2469,6 +2470,135 @@ edit_logconfig(const int debuglvl)
     return(retval);
 }
 
+/* conntrack settings */
+
+struct VrEditConntrackCnf_ {
+    char invalid_drop_enabled;
+};
+
+static int
+VrEditConntrackSetup(const int debuglvl, struct VrEditConntrackCnf_ *c) {
+    if (c == NULL)
+        return(-1);
+
+    c->invalid_drop_enabled = conf.invalid_drop_enabled;
+    return(0);
+}
+
+static int
+VrEditConntrackSave(const int debuglvl, void *ctx, char *name, char *value)
+{
+    struct VrEditConntrackCnf_ *c = (struct VrEditConntrackCnf_ *)ctx;
+    int result = 0;
+    int retval = 0;
+
+    //(void)vrprint.debug(__FUNC__, "%s:%s", name, value);
+
+    if(strcmp(name,"S") == 0) {
+        char enabled = 0;
+
+        if (strcmp(value,"X") == 0) {
+            enabled = 1;
+        }
+
+        if (c->invalid_drop_enabled != enabled) {
+            conf.invalid_drop_enabled = enabled;
+
+            (void)vrprint.audit("'drop INVALID packet flag' %s '%s'.",
+                    STR_IS_NOW_SET_TO, conf.invalid_drop_enabled ? STR_YES : STR_NO);
+
+            if(write_configfile(debuglvl, conf.configfile) < 0)
+            {
+                (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
+                retval=-1;
+            }
+        }
+    }
+
+    return(retval);
+}
+
+static void VrEditConntrack(const int debuglvl) {
+    VrWin   *win = NULL;
+    VrForm  *form = NULL;
+    int     ch = 0, result = 0;
+    struct VrEditConntrackCnf_ config;
+
+    if (VrEditConntrackSetup(debuglvl, &config) < 0)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrEditConntrackSetup failed");
+        return;
+    }
+
+    /* create the window and put it in the middle of the screen */
+    win = VrNewWin(11,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    if(win == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        return;
+    }
+    VrWinSetTitle(win, gettext("Conntrack"));
+
+    form = VrNewForm(9, 58, 1, 1, 2, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+
+    VrFormSetSaveFunc(debuglvl, form, VrEditConntrackSave, &config);
+
+    VrFormAddLabelField(debuglvl,   form, 1, 35, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Enable dropping INVALID packets"));
+    VrFormAddCheckboxField(debuglvl,form,        1, 38, (chtype)COLOR_PAIR(CP_BLUE_WHITE), "S", config.invalid_drop_enabled);
+
+    VrFormConnectToWin(debuglvl, form, win);
+
+    VrFormPost(debuglvl, form);
+
+    update_panels();
+    doupdate();
+
+    /* user input */
+    char quit = FALSE;
+    while(quit == FALSE)
+    {
+        VrFormDrawMarker(debuglvl, win, form);
+
+        ch = VrWinGetch(win);
+
+        /* check OK/Cancel buttons */
+        result = VrFormCheckOKCancel(debuglvl, form, ch);
+        if (result == -1 || result == 1) {
+            break;
+        }
+
+        if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
+            switch(ch)
+            {
+                case KEY_DOWN:
+                case 10: // enter
+                    form_driver(form->f, REQ_NEXT_FIELD);
+                    form_driver(form->f, REQ_BEG_LINE);
+                    break;
+                case 27:
+                case 'q':
+                case 'Q':
+                case KEY_F(10):
+                    quit = TRUE;
+                    break;
+                case KEY_F(12):
+                case 'h':
+                case 'H':
+                case '?':
+                    print_help(debuglvl, ":[VUURMUUR:CONFIG:CONNTRACK]:");
+                    break;
+            }
+        }
+    }
+
+    VrFormUnPost(debuglvl, form);
+    VrDelForm(debuglvl, form);
+    VrDelWin(win);
+    update_panels();
+    doupdate();
+}
+
+
 
 static int
 view_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
@@ -2696,6 +2826,7 @@ config_menu(const int debuglvl)
             VROPT_CONNECTIONS,
             VROPT_INTERFACES,
             VROPT_SYSPROT,
+            VROPT_CONNTRACK,
             VROPT_LOGGING,
             VROPT_MODULES,
             VROPT_PLUGINS,
@@ -2705,6 +2836,7 @@ config_menu(const int debuglvl)
     };
 
     char *descriptions[] = {
+            " ",
             " ",
             " ",
             " ",
@@ -2822,6 +2954,10 @@ config_menu(const int debuglvl)
             else if(strcmp(choice_ptr, VROPT_SYSPROT) == 0)
             {
                 edit_sysopt(debuglvl);
+            }
+            else if(strcmp(choice_ptr, VROPT_CONNTRACK) == 0)
+            {
+                VrEditConntrack(debuglvl);
             }
             else if(strcmp(choice_ptr, VROPT_LOGGING) == 0)
             {

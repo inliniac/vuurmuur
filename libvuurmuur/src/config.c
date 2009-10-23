@@ -683,6 +683,35 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
     else
         return(VR_CNF_E_UNKNOWN_ERR);
 
+    /* DROP_INVALID */
+    result = ask_configfile(askconfig_debuglvl, cnf, "DROP_INVALID", answer, cnf->configfile, sizeof(answer));
+    if(result == 1)
+    {
+        /* ok, found */
+        if(strcasecmp(answer, "yes") == 0)
+        {
+            cnf->invalid_drop_enabled = TRUE;
+        }
+        else if(strcasecmp(answer, "no") == 0)
+        {
+            cnf->invalid_drop_enabled = FALSE;
+        }
+        else
+        {
+            (void)vrprint.warning("Warning", "'%s' is not a valid value for option DROP_INVALID.", answer);
+            cnf->invalid_drop_enabled = DEFAULT_DROP_INVALID;
+
+            retval = VR_CNF_W_ILLEGAL_VAR;
+        }
+    }
+    else if(result == 0)
+    {
+        /* if this is missing, we use the default */
+        cnf->invalid_drop_enabled = DEFAULT_DROP_INVALID;
+    }
+    else
+        return(VR_CNF_E_UNKNOWN_ERR);
+
 
     /* LOG_BLOCKLIST */
     result = ask_configfile(askconfig_debuglvl, cnf, "LOG_BLOCKLIST", answer, cnf->configfile, sizeof(answer));
@@ -1777,6 +1806,9 @@ write_configfile(const int debuglvl, char *file_location)
     fprintf(fp, "# LOG_TCP_OPTIONS controls the logging of tcp options. This is.\n");
     fprintf(fp, "# not used by Vuurmuur itself. PSAD 1.4.x uses it for OS-detection.\n");
     fprintf(fp, "LOG_TCP_OPTIONS=\"%s\"\n\n", conf.log_tcp_options ? "Yes" : "No");
+
+    fprintf(fp, "# DROP_INVALID enables/disables dropping of packets marked INVALID by conntrack.\n");
+    fprintf(fp, "DROP_INVALID=\"%s\"\n\n", conf.invalid_drop_enabled ? "Yes" : "No");
 
     fprintf(fp, "# SYN_LIMIT sets the maximum number of SYN-packets per second.\n");
     fprintf(fp, "USE_SYN_LIMIT=\"%s\"\n\n", conf.use_syn_limit ? "Yes" : "No");

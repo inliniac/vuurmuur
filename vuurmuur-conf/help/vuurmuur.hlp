@@ -115,6 +115,19 @@ Space: toggle option.
 
 :[END]:
 
+:[VUURMUUR:CONFIG:CONNTRACK]:
+Config Conntrack
+
+
+Vuurmuur makes heavy use of the conntrack subsystem in Linux. If conntrack considers
+a packet to be invalid it will be dropped by default. Here that can be disabled.
+
+Keys:
+
+F10/Q: back.
+
+:[END]:
+
 :[VUURMUUR:CONFIG:MODULES]:
 Config Modules
 

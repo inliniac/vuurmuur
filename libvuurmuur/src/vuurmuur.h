@@ -136,6 +136,7 @@
 #define DEFAULT_LOG_PROBES              TRUE                /* default we log probes like XMAS */
 #define DEFAULT_LOG_FRAG                TRUE                /* default we log FRAGMENTED traffic */
 
+#define DEFAULT_DROP_INVALID            TRUE                /* default we drop INVALID traffic */
 
 #define DEFAULT_PROTECT_SYNCOOKIE       TRUE                /* default we protect against syn-flooding */
 #define DEFAULT_PROTECT_ECHOBROADCAST   TRUE                /* default we protect against echo-broadcasting */
@@ -435,6 +436,9 @@ struct vuurmuur_config
 	   (config & log files). This should include x bits, which are
 	   filtered out for files. */
 	mode_t          max_permission;
+
+    /* conntrack options */
+    char            invalid_drop_enabled;
 
 } conf;
 
