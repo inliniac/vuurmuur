@@ -38,20 +38,19 @@ vuurmuur_fopen(const int debuglvl, const struct vuurmuur_config *cnf, const char
 {
     FILE        *fp=NULL;
 
-    // Stat the file
+    /* Stat the file */
     if (!stat_ok(debuglvl, cnf, path, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_ALLOW_NOTFOUND))
-        // File not OK? Don't open it. stat_ok will have printed an error message already.
+        /* File not OK? Don't open it. stat_ok will have printed an error message already. */
         return NULL;
 
-    // now open the file, this should not fail because if we get here it exists and is readable,
-    // but we check to be sure.
+    /* now open the file, this should not fail because if we get here it exists and is readable,
+       but we check to be sure. */
     if(!(fp=fopen(path, mode)))
     {
         (void)vrprint.error(-1, "Error", "opening '%s' failed: %s (in: vuurmuur_fopen).", path, strerror(errno));
         return NULL;
     }
 
-    // return our succes
     return(fp);
 }
 
@@ -68,14 +67,10 @@ vuurmuur_opendir(const int debuglvl, const struct vuurmuur_config *cnf, const ch
     if(!(dir_p = opendir(name)))
     {
         (void)vrprint.error(-1, "Error", "opening '%s' failed: %s.", name, strerror(errno));
-    }
-    else
-    {
-        return(dir_p);
+        return NULL;
     }
 
-    /* if we get here, there was an error */
-    return(NULL);
+    return(dir_p);
 }
 
 
@@ -288,9 +283,7 @@ remove_pidfile(char *pidfile_location)
 }
 
 
-/*  vuurmuur_rulesfile_open
-
-    This opens the rulesfile, but first checks for the lock,
+/*  This opens the rulesfile, but first checks for the lock,
     and if the file is opened sets the lock.
 
     Returns the pointer to the file, or NULL if failed.
@@ -669,11 +662,11 @@ get_vuurmuur_pid(char *vuurmuur_pidfile_location, int *shmid)
                 vuurmuur_pidfile_location,
                 __FUNC__);
     }
-  
+
     /* close the file again */
     if(fclose(fp) < 0)
         return(-1);
-  
+
     return(pid);
 }
 
