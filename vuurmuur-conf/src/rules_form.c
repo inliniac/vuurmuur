@@ -722,7 +722,7 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, Rules *rules, Zones *zones, Inte
             return(-1);
         }
 
-        free_options(debuglvl, rule_ptr->opt);
+        rules_free_options(debuglvl, rule_ptr->opt);
         rule_ptr->opt = NULL;
         free(rule_ptr);
         rule_ptr = NULL;
@@ -2315,7 +2315,7 @@ delete_rule(const int debuglvl, Rules *rules, unsigned int rule_num,
             return(-1);
         }
 
-        free_options(debuglvl, rule_ptr->opt);
+        rules_free_options(debuglvl, rule_ptr->opt);
         rule_ptr->opt = NULL;
         free(rule_ptr);
         rule_ptr = NULL;

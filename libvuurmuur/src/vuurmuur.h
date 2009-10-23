@@ -1272,7 +1272,7 @@ void *search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, c
 int rules_remove_rule_from_list(const int, Rules *, unsigned int, int);
 void rules_update_numbers(const int, Rules *, unsigned int place, int);
 void rules_print_list(const Rules *);
-void free_options(const int debuglvl, struct options *opt);
+void rules_free_options(const int debuglvl, struct options *opt);
 
 
 /*

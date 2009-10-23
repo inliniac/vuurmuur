@@ -386,7 +386,7 @@ analyze_normal_rules(const int debuglvl, Rules *rules, Zones *zones, Services *s
             /* now update the number in the list */
             //rules_update_numbers(debuglvl, rules, rulescount - rulesfailedcount + 1, 0);
 
-            free_options(debuglvl, rule_ptr->opt);
+            rules_free_options(debuglvl, rule_ptr->opt);
             free(rule_ptr);
             rule_ptr = NULL;
 
