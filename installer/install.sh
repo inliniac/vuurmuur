@@ -8,7 +8,7 @@
 # Copyright (c) 2004-2008 by Victor Julien, Stefan Ubbink
 # Licenced under the GPL.
 #
-VERSION="0.8beta1"
+VERSION="0.8beta2"
 
 # progams
 ACLOCAL="aclocal"
