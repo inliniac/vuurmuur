@@ -111,7 +111,11 @@
 /* the lists */
 d_list  PluginList;
 
+#ifdef SYSCONFDIR
+#define VUURMUURCONF_CONFIGFILE SYSCONFDIR "/vuurmuur/vuurmuur_conf.conf"
+#else
 #define VUURMUURCONF_CONFIGFILE "/etc/vuurmuur/vuurmuur_conf.conf"
+#endif
 
 
 /* Vuurmuur_conf settings

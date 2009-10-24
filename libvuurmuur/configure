@@ -786,6 +786,7 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+VUURMUUR_PLUGIN_DIR
 CPP
 OTOOL64
 OTOOL
@@ -11036,10 +11037,12 @@ fi
 
 
 if test "$plugindir" != "no"; then
-    CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"${plugindir}\""
+    VUURMUUR_PLUGIN_DIR="${plugindir}"
 else
-    CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"${libdir}/vuurmuur\""
+    VUURMUUR_PLUGIN_DIR="${libdir}/vuurmuur"
 fi
+CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"$VUURMUUR_PLUGIN_DIR\""
+
 
 # shared dir option for rpm building
 

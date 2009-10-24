@@ -18,10 +18,12 @@ AC_ARG_WITH(plugindir,
         [plugindir="$withval"],[plugindir=no])
 
 if test "$plugindir" != "no"; then
-    CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"${plugindir}\""
+    VUURMUUR_PLUGIN_DIR="${plugindir}"
 else
-    CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"${libdir}/vuurmuur\""
+    VUURMUUR_PLUGIN_DIR="${libdir}/vuurmuur"
 fi
+CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"$VUURMUUR_PLUGIN_DIR\""
+AC_SUBST(VUURMUUR_PLUGIN_DIR)
 
 # shared dir option for rpm building
 AC_ARG_WITH(shareddir,

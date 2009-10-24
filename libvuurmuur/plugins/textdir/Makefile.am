@@ -1,6 +1,6 @@
 # textdir plugin
 
-libdir = "${exec_prefix}/lib/vuurmuur/plugins"
+libdir = @VUURMUUR_PLUGIN_DIR@
 
 lib_LTLIBRARIES = libtextdir.la
 
