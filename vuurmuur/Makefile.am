@@ -4,6 +4,8 @@ AUTOMAKE_OPTIONS = foreign 1.4
 
 SUBDIRS = vuurmuur vuurmuur_log vuurmuur_script scripts services config man
 
+ACLOCAL_AMFLAGS = -I m4
+
 #EXTRA_DIST = vuurmuur.8 vuurmuur_log.8 vuurmuur_script.8
 
 #man_MANS = vuurmuur.8 vuurmuur_log.8 vuurmuur_script.8
