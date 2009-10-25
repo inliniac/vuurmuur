@@ -2,6 +2,7 @@ AC_INIT(configure.in)
 
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE(vuurmuur_conf, 0.6)
+AC_CONFIG_MACRO_DIR([m4])
 
 AC_LANG_C
 AC_PROG_CC
@@ -307,6 +308,7 @@ else
 	fi
 fi
 
-AC_OUTPUT(Makefile intl/Makefile src/Makefile po/Makefile.in m4/Makefile
+AC_OUTPUT(Makefile src/Makefile po/Makefile.in
 	    help/Makefile scripts/Makefile config/Makefile man/Makefile
 	    man/en/Makefile man/ru/Makefile)
+

@@ -26,7 +26,7 @@ ETCDIR=${ETCDIR:-"/etc"}
 PLUGINDIR=${PLUGINDIR:-"$ETCDIR/vuurmuur/plugins"}
 LOGDIR=${LOGDIR:-"/var/log/vuurmuur/"}
 SYSTEMLOG=${SYSTEMLOG:-"/var/log/messages"}
-if  [ "$(arch)" = "x86_64" ] ; then
+if  [ "$(uname -m)" = "x86_64" ] ; then
     LIBDIR=${LIBDIR:-"$INSTALLDIR/lib64"}
 else
     LIBDIR=${LIBDIR:-"$INSTALLDIR/lib"}
