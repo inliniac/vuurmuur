@@ -271,7 +271,7 @@ function Autoheader
 function Automake
 {
     touch tmp.log
-    $AUTOMAKE &> tmp.log
+    $AUTOMAKE --copy --add-missing &> tmp.log
     RESULT="$?"
     cat tmp.log >> $LOG
     rm -f tmp.log
