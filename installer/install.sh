@@ -5,7 +5,7 @@
 # TODO: setup an initial configuration that works for most
 # setups.
 #
-# Copyright (c) 2004-2008 by Victor Julien, Stefan Ubbink
+# Copyright (c) 2004-2009 by Victor Julien, Stefan Ubbink
 # Licenced under the GPL.
 #
 VERSION="0.8beta2"
@@ -20,12 +20,17 @@ LIBTOOLIZE="libtoolize"
 
 
 # defaults
-INSTALLDIR="/usr"
-SHAREDDIR="$INSTALLDIR/share"
-ETCDIR="/etc"
-PLUGINDIR="$ETCDIR/vuurmuur/plugins"
-LOGDIR="/var/log/vuurmuur/"
-SYSTEMLOG="/var/log/messages"
+INSTALLDIR=${INSTALLDIR:-"/usr"}
+SHAREDDIR=${SHAREDDIR:-"$INSTALLDIR/share"}
+ETCDIR=${ETCDIR:-"/etc"}
+PLUGINDIR=${PLUGINDIR:-"$ETCDIR/vuurmuur/plugins"}
+LOGDIR=${LOGDIR:-"/var/log/vuurmuur/"}
+SYSTEMLOG=${SYSTEMLOG:-"/var/log/messages"}
+if  [ "$(arch)" = "x86_64" ] ; then
+    LIBDIR=${LIBDIR:-"$INSTALLDIR/lib64"}
+else
+    LIBDIR=${LIBDIR:-"$INSTALLDIR/lib"}
+fi
 
 CURPATH=`pwd`
 LOG="$CURPATH/install.log"
@@ -300,16 +305,16 @@ function Autoconf
 function Configure
 {
     touch tmp.log
-    ./configure $1 $2 $3 $4 &> tmp.log
+    ./configure $* &> tmp.log
     RESULT="$?"
     cat tmp.log >> $LOG
     rm -f tmp.log
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
-            PrintL "configure $1 $2 $3 $4 succeeded."
+            PrintL "configure $* succeeded."
         fi
     else
-        PrintL "./configure $1 $2 $3 $4 failed with returncode $RESULT."
+        PrintL "./configure $* failed with returncode $RESULT."
         Exit 1
     fi
 }
@@ -578,6 +583,12 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         read TALK
         if [ "$TALK" != "" ]; then
             INSTALLDIR="$TALK"
+            SHAREDDIR="$INSTALLDIR/share"
+            if  [ "$(arch)" = "x86_64" ] ; then
+                LIBDIR="$INSTALLDIR/lib64"
+            else
+                LIBDIR="$INSTALLDIR/lib"
+            fi
         fi
     fi
     PrintL "Installdir: $INSTALLDIR ..."
@@ -589,8 +600,28 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     else
         MkDir $INSTALLDIR
     fi
+fi
 
-    SHAREDDIR="$INSTALLDIR/share"
+# libdir
+if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
+
+    if [ "$DEFAULTS" = "0" ]; then
+        # get the libdir
+        echo "Please enter the library dir ($LIBDIR)."
+        read TALK
+        if [ "$TALK" != "" ]; then
+            LIBDIR="$TALK"
+        fi
+    fi
+    PrintL "Libdir: $LIBDIR ..."
+    
+    cd $LIBDIR &> /dev/null
+    RESULT="$?"
+    if [ "$RESULT" = "0" ]; then
+        Cd $CURPATH
+    else
+        MkDir $LIBDIR
+    fi
 fi
 
 # etcdir
@@ -754,7 +785,9 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         Automake
         Autoconf
     fi
-    Configure --prefix=$INSTALLDIR --sysconfdir=$ETCDIR
+    Configure --prefix=$INSTALLDIR \
+                --sysconfdir=$ETCDIR \
+                --libdir=$LIBDIR
     Make
     if [ "$DRYRUN" != "1" ]; then
         Make install
@@ -796,7 +829,10 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         Automake
         Autoconf
     fi
-    Configure --prefix=$INSTALLDIR --sysconfdir=$ETCDIR --with-libvuurmuur-includes=$INSTALLDIR/include --with-libvuurmuur-libraries=$INSTALLDIR/lib
+    Configure --prefix=$INSTALLDIR \
+                --sysconfdir=$ETCDIR \
+                --with-libvuurmuur-includes=$INSTALLDIR/include \
+                --with-libvuurmuur-libraries=$LIBDIR
     Make
     if [ "$DRYRUN" != "1" ]; then
         Make install
@@ -840,7 +876,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     Configure --prefix=$INSTALLDIR \
                 --sysconfdir=$ETCDIR \
                 --with-libvuurmuur-includes=$INSTALLDIR/include \
-                --with-libvuurmuur-libraries=$INSTALLDIR/lib \
+                --with-libvuurmuur-libraries=$LIBDIR \
                 --with-widec=$WIDESTR
     Make
     if [ "$DRYRUN" != "1" ]; then

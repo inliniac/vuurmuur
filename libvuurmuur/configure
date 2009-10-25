@@ -11039,7 +11039,7 @@ fi
 if test "$plugindir" != "no"; then
     VUURMUUR_PLUGIN_DIR="${plugindir}"
 else
-    VUURMUUR_PLUGIN_DIR="${libdir}/vuurmuur"
+    VUURMUUR_PLUGIN_DIR="${libdir}/vuurmuur/plugins"
 fi
 CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"$VUURMUUR_PLUGIN_DIR\""
 
