@@ -924,7 +924,11 @@ if [ "$INSTALL" = "1" ]; then
         chown root:root $ETCDIR/vuurmuur/textdir/zones
         chmod 0700 $ETCDIR/vuurmuur/textdir/zones
 
-        cp -r --preserve=mode zones/* $ETCDIR/vuurmuur/textdir/zones
+        if [ "$FROM_SVN" = "1" ]; then
+            cp -r --preserve=mode `dirname $0`/zones/* $ETCDIR/vuurmuur/textdir/zones
+        else
+            cp -r --preserve=mode zones/* $ETCDIR/vuurmuur/textdir/zones
+        fi
         chown root:root $ETCDIR/vuurmuur/textdir/zones -R
         chmod 0700 $ETCDIR/vuurmuur/textdir/zones
     fi
