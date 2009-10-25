@@ -584,7 +584,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         if [ "$TALK" != "" ]; then
             INSTALLDIR="$TALK"
             SHAREDDIR="$INSTALLDIR/share"
-            if  [ "$(arch)" = "x86_64" ] ; then
+            if  [ "$(uname -m)" = "x86_64" ] ; then
                 LIBDIR="$INSTALLDIR/lib64"
             else
                 LIBDIR="$INSTALLDIR/lib"
