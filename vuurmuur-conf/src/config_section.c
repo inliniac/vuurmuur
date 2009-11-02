@@ -1629,9 +1629,11 @@ struct
         
             *mainmenu_statusfld,
         
-            *iptrafvollocfld;
+            *iptrafvollocfld,
 
-    char    number[7];
+            *rule_ulog;
+
+    char    number[8];
 
 } VcConfig;
 
@@ -1643,18 +1645,19 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
     int     rows = 0,
             cols = 0;
 
-    ConfigSection.n_fields = 6;
+    ConfigSection.n_fields = 7;
     ConfigSection.fields = (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
 
     /* fields */
     VcConfig.newrule_logfld      = (ConfigSection.fields[0] = new_field(1, 1,  2, 23, 0, 0));
-    VcConfig.newrule_loglimitfld = (ConfigSection.fields[1] = new_field(1, 3,  2, 66, 0, 0));
+    VcConfig.rule_ulog           = (ConfigSection.fields[1] = new_field(1, 1,  3, 23, 0, 0));
+    VcConfig.newrule_loglimitfld = (ConfigSection.fields[2] = new_field(1, 3,  2, 66, 0, 0));
 
-    VcConfig.logview_bufsizefld  = (ConfigSection.fields[2] = new_field(1, 6,  5, 52, 0, 0));
-    VcConfig.advancedmodefld     = (ConfigSection.fields[3] = new_field(1, 1,  6, 53, 0, 0));
-    VcConfig.mainmenu_statusfld  = (ConfigSection.fields[4] = new_field(1, 1,  7, 53, 0, 0));
+    VcConfig.logview_bufsizefld  = (ConfigSection.fields[3] = new_field(1, 6,  5, 52, 0, 0));
+    VcConfig.advancedmodefld     = (ConfigSection.fields[4] = new_field(1, 1,  6, 53, 0, 0));
+    VcConfig.mainmenu_statusfld  = (ConfigSection.fields[5] = new_field(1, 1,  7, 53, 0, 0));
 
-    VcConfig.iptrafvollocfld     = (ConfigSection.fields[5] = new_field(1, 64, 11, 1, 0, 0));
+    VcConfig.iptrafvollocfld     = (ConfigSection.fields[6] = new_field(1, 64, 11, 1, 0, 0));
 
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
 
@@ -1672,6 +1675,9 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
 
     /* set fields */
     set_field_buffer_wrap(debuglvl, VcConfig.newrule_logfld, 0, vccnf.newrule_log ? "X" : " ");
+
+
+    set_field_buffer_wrap(debuglvl, VcConfig.rule_ulog, 0, vccnf.rule_ulog ? "X" : " ");
 
     (void)snprintf(VcConfig.number, sizeof(VcConfig.number), "%u",
             vccnf.newrule_loglimit);
@@ -1696,6 +1702,7 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
         set_field_status(ConfigSection.fields[i], FALSE);
     }
     set_field_back(VcConfig.newrule_logfld,     (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(VcConfig.rule_ulog,          (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     set_field_back(VcConfig.advancedmodefld,    (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     set_field_back(VcConfig.mainmenu_statusfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
 
@@ -1719,6 +1726,10 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
     mvwprintw(ConfigSection.win, 3, 2,  gettext("Log the rule"));
     mvwprintw(ConfigSection.win, 3, 24, "[");
     mvwprintw(ConfigSection.win, 3, 26, "]");
+    
+    mvwprintw(ConfigSection.win, 4, 2,  gettext("Use ULOG"));
+    mvwprintw(ConfigSection.win, 4, 24, "[");
+    mvwprintw(ConfigSection.win, 4, 26, "]");
     
     mvwprintw(ConfigSection.win, 3, 35, gettext("Loglimit per second"));
 
@@ -1771,6 +1782,13 @@ edit_vcconfig_save(const int debuglvl)
                     vccnf.newrule_log = 1;
                 else
                     vccnf.newrule_log = 0;
+            }
+            else if(ConfigSection.fields[i] == VcConfig.rule_ulog)
+            {
+                if(field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+                    vccnf.rule_ulog = 1;
+                else
+                    vccnf.rule_ulog = 0;
             }
             else if(ConfigSection.fields[i] == VcConfig.advancedmodefld)
             {
@@ -1888,7 +1906,8 @@ edit_vcconfig(const int debuglvl)
         }
         else if(cur == VcConfig.newrule_logfld ||
             cur == VcConfig.advancedmodefld ||
-            cur == VcConfig.mainmenu_statusfld)
+            cur == VcConfig.mainmenu_statusfld ||
+            cur == VcConfig.rule_ulog)
         {
             if(nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0)
                 not_defined = 1;
