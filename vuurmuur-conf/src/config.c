@@ -387,6 +387,9 @@ write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf)
     fprintf(fp, "# NEWRULE_LOG enables logging for new rules.\n");
     fprintf(fp, "NEWRULE_LOG=\"%s\"\n\n", cnf->newrule_log ? "Yes" : "No");
 
+    fprintf(fp, "# RULE_ULOG sets default logging target to ULOG instead of LOG.\n");
+    fprintf(fp, "RULE_ULOG=\"%s\"\n\n", cnf->rule_ulog ? "Yes" : "No");
+
     fprintf(fp, "# NEWRULE_LOGLIMIT sets the maximum number of logs per second for new rules.\n");
     fprintf(fp, "NEWRULE_LOGLIMIT=\"%u\"\n\n", cnf->newrule_loglimit);
 
