@@ -1,5 +1,7 @@
 AC_INIT(configure.in)
 
+AC_USE_SYSTEM_EXTENSIONS
+
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE(vuurmuur_conf, 0.6)
 AC_CONFIG_MACRO_DIR([m4])

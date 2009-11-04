@@ -1097,6 +1097,68 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
         return(VR_CNF_E_UNKNOWN_ERR);
 
 
+    /* RULE_NFLOG */
+    result = ask_configfile(askconfig_debuglvl, cnf, "RULE_NFLOG", answer, cnf->configfile, sizeof(answer));
+    if(result == 1)
+    {
+        /* ok, found */
+        if(strcasecmp(answer, "yes") == 0)
+        {
+            cnf->rule_nflog = TRUE;
+        }
+        else if(strcasecmp(answer, "no") == 0)
+        {
+            cnf->rule_nflog = FALSE;
+        }
+        else
+        {
+            (void)vrprint.warning("Warning", "'%s' is not a valid value for option RULE_NFLOG.", answer);
+            cnf->rule_nflog = DEFAULT_RULE_NFLOG;
+
+            retval = VR_CNF_W_ILLEGAL_VAR;
+        }
+    }
+    else if(result == 0)
+    {
+        (void)vrprint.warning("Warning", "Variable RULE_NFLOG not found in '%s'. Using default.", cnf->configfile);
+        cnf->rule_nflog = DEFAULT_RULE_NFLOG;
+
+        retval = VR_CNF_W_MISSING_VAR;
+    }
+    else
+        return(VR_CNF_E_UNKNOWN_ERR);
+
+
+    /* NFGRP */
+    result = ask_configfile(askconfig_debuglvl, cnf, "NFGRP", answer, cnf->configfile, sizeof(answer));
+    if(result == 1)
+    {
+        /* ok, found */
+        result = atoi(answer);
+        if(result < 0)
+        {
+            (void)vrprint.warning("Warning", "A negative NF Group (%d) can not be used, using default (%u).", result, DEFAULT_NFGRP);
+            cnf->nfgrp = DEFAULT_NFGRP;
+
+            retval = VR_CNF_W_ILLEGAL_VAR;
+        }
+        else
+        {
+            cnf->nfgrp = (unsigned int)result;
+        }
+    }
+    else if(result == 0)
+    {
+        (void)vrprint.warning("Warning", "Variable NFGRP not found in '%s'. Using default.", cnf->configfile);
+
+        cnf->nfgrp = DEFAULT_NFGRP;
+
+        retval = VR_CNF_W_MISSING_VAR;
+    }
+    else
+        return(VR_CNF_E_UNKNOWN_ERR);
+
+
     /* LOG_POLICY_LIMIT */
     result = ask_configfile(askconfig_debuglvl, cnf, "LOG_POLICY_LIMIT", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
@@ -1775,6 +1837,10 @@ write_configfile(const int debuglvl, char *file_location)
     fprintf(fp, "# iptables. Otherwise iptables-restore will be used (yes/no).\n");
     fprintf(fp, "OLD_CREATE_METHOD=\"%s\"\n\n", conf.old_rulecreation_method ? "Yes" : "No");
 
+    fprintf(fp, "# Will we be using NFLOG logging?\n");
+    fprintf(fp, "RULE_NFLOG=\"%s\"\n\n", conf.rule_nflog ? "Yes" : "No");
+    fprintf(fp, "# netfilter group (only applicable when RULE_NFLOG=\"Yes\"\n");
+    fprintf(fp, "NFGRP=\"%u\"\n\n", conf.nfgrp);
     fprintf(fp, "# The directory where the logs will be written to (full path).\n");
     fprintf(fp, "LOGDIR=\"%s\"\n\n", conf.vuurmuur_logdir_location);
     fprintf(fp, "# The logfile where the kernel writes the logs to e.g. /var/log/messages (full path).\n");

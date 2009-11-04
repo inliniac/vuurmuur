@@ -2421,7 +2421,8 @@ edit_logconfig(const int debuglvl)
         if(cur == LogConfig.logdirfld ||
            cur == LogConfig.loglevelfld ||
            cur == LogConfig.systemlogfld ||
-           cur == LogConfig.logpolicylimitfld)
+           cur == LogConfig.logpolicylimitfld ||
+           cur == LogConfig.nfgrpfld)
         {
             if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
                 not_defined = 1;
@@ -2432,7 +2433,8 @@ edit_logconfig(const int debuglvl)
             cur == LogConfig.loginvalidfld ||
             cur == LogConfig.lognosynfld ||
             cur == LogConfig.logprobesfld ||
-            cur == LogConfig.logfragfld)
+            cur == LogConfig.logfragfld ||
+            cur == LogConfig.rule_nflogfld)
         {
             if(nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0)
                 not_defined = 1;
