@@ -57,7 +57,7 @@ Group:		System Environment/Libraries
 %description lib
 Vuurmuur library and plugins needed by the vuurmuur daemon
 
-%if %{?mandriva_version}
+%if 0%{?mandriva_version}
     echo "Can't build vuurmuur on Mandriva, issues with textdir plugin, quitting"
     exit 1
 %endif
@@ -157,7 +157,7 @@ done
 # install SYSV init stuff
 %{__mkdir_p} $RPM_BUILD_ROOT/%{_initrddir}
 
-%if %{?suse_version}
+%if 0%{?suse_version}
     %{__install} -m755 scripts/vuurmuur-initd.sh.suse \
         $RPM_BUILD_ROOT/%{_initrddir}/vuurmuur
 %else
@@ -254,6 +254,7 @@ fi
 
 %changelog
 * Wed Nov 4 2009 Daniele K. Sluijters info (at) daenney,net
+- Add a 0 before the %{?*_version} commands to fix parseErrors
 - Remove the initscript after uninstalling
 - Check if we're trying to build on Mandriva and if so quit, textdir plugin won't build on Mandriva
 - Add some versionrequirements to BuildRequires
