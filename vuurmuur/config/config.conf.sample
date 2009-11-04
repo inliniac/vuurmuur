@@ -73,4 +73,10 @@ PROTECT_SYNCOOKIE="Yes"
 # Ignore echo-broadcasts? (yes/no)
 PROTECT_ECHOBROADCAST="Yes"
 
+# Will we be using NFLOG logging?
+RULE_NFLOG="Yes"
+
+# netfilter group (only applicable when RULE_NFLOG="Yes"
+NFGRP="9"
+
 # end of file
