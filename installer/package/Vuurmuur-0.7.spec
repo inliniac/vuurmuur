@@ -30,7 +30,7 @@ to monitor specific hosts or services.
 Summary:	Ncurses based interface for modifying Vuurmuur configuration
 Group:		Applications/System
 Requires:	Vuurmuur-lib >= 0.7, Vuurmuur-daemon >= 0.7
-BuildRequires:	gettext ncurses-devel
+BuildRequires:	gettext >= 0.14.6, ncurses-devel >= 5.5
 
 %description conf
 Ncurses based interface for modifying Vuurmuur configuration.
@@ -57,19 +57,24 @@ Group:		System Environment/Libraries
 %description lib
 Vuurmuur library and plugins needed by the vuurmuur daemon
 
+%if %{?mandriva_version}
+    echo "Can't build vuurmuur on Mandriva, issues with textdir plugin, quitting"
+    exit 1
+%endif
+
 %prep
 %setup -q
-tar xzf libvuurmuur-%{version}.tar.gz
-tar xzf vuurmuur-%{version}.tar.gz
-tar xzf vuurmuur_conf-%{version}.tar.gz
+%{__tar} xzf libvuurmuur-%{version}.tar.gz
+%{__tar} xzf vuurmuur-%{version}.tar.gz
+%{__tar} xzf vuurmuur_conf-%{version}.tar.gz
 
 cd libvuurmuur-%{version}
 # Vuurmuur doesn't obey configure argument for plugin placement. This patch fixes it.
 %patch0 -p1
-aclocal
-libtoolize --force
-autoconf
-automake --add-missing
+%{__aclocal}
+%{__libtoolize} --force
+%{__autoconf}
+%{__automake} --add-missing
 
 %build
 cd %{_builddir}/%{name}-%{version}/libvuurmuur-%{version}
@@ -77,9 +82,9 @@ cd %{_builddir}/%{name}-%{version}/libvuurmuur-%{version}
 	--with-plugindir=%{_libdir}/vuurmuur/plugins
 
 # Configure ignores --disable-rpath so we have to solve it this way
-sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
-sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
-make %{?jobs:-j%jobs}
+%{__sed} -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+%{__sed} -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+%{__make} %{?jobs:-j%jobs}
 
 cd %{_builddir}/%{name}-%{version}/vuurmuur-%{version}
 %configure \
@@ -87,15 +92,15 @@ cd %{_builddir}/%{name}-%{version}/vuurmuur-%{version}
 	--with-libvuurmuur-libraries=%{_builddir}/%{name}-%{version}/libvuurmuur-%{version}/src/.libs/
 
 # Configure ignores --disable-rpath so we have to solve it this way
-sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
-sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
-make %{?jobs:-j%jobs}
+%{__sed} -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+%{__sed} -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+%{__make} %{?jobs:-j%jobs}
 
 # Convert MAN pages to UTF-8
 pushd man/en
 for i in vuurmuur_script.8 vuurmuur_log.8 vuurmuur.8; do
 	iconv --from=ISO-8859-1 --to=UTF-8 $i > new
-	mv new $i
+	%{__mv} new $i
 done
 popd
 
@@ -103,7 +108,7 @@ popd
 pushd man/ru
 for i in vuurmuur_script.8 vuurmuur_log.8 vuurmuur.8; do
 	iconv --from=KOI-8 --to=UTF-8 $i > new
-	mv new $i
+	%{__mv} new $i
 done
 popd
 
@@ -113,64 +118,72 @@ cd %{_builddir}/%{name}-%{version}/vuurmuur_conf-%{version}
 	--with-libvuurmuur-libraries=%{_builddir}/%{name}-%{version}/libvuurmuur-%{version}/src/.libs/
 
 # Configure ignores --disable-rpath so we have to solve it this way
-sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
-sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
-make %{?jobs:-j%jobs}
+%{__sed} -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+%{__sed} -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+%{__make} %{?jobs:-j%jobs}
 
 # Convert MAN pages to UTF-8
 pushd man/ru
 iconv --from=KOI-8 --to=UTF-8 vuurmuur_conf.8 > new
-mv new vuurmuur_conf.8
+%{__mv} new vuurmuur_conf.8
 popd
 
 %install
 
 # Just cleaning up in case an old BUILD_ROOT exists
-rm -rf $RPM_BUILD_ROOT
+%{__rm} -rf $RPM_BUILD_ROOT
 
 # Install libraries
 cd %{_builddir}/%{name}-%{version}/libvuurmuur-%{version}
-make install DESTDIR=$RPM_BUILD_ROOT
+%{makeinstall} 
 
 # Install textdir-plugin configuration file
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/vuurmuur/plugins
-install -m600 plugins/textdir/textdir.conf \
+%{__mkdir_p} $RPM_BUILD_ROOT/%{_sysconfdir}/vuurmuur/plugins
+%{__install} -m600 plugins/textdir/textdir.conf \
 	$RPM_BUILD_ROOT/%{_sysconfdir}/vuurmuur/plugins/textdir.conf
 
 # Create the textdir folder location
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/vuurmuur/textdir
+%{__mkdir_p} $RPM_BUILD_ROOT/%{_sysconfdir}/vuurmuur/textdir
 
 # Install daemon
 cd %{_builddir}/%{name}-%{version}/vuurmuur-%{version}
-make install DESTDIR=$RPM_BUILD_ROOT
+%{makeinstall}
+
 for i in `find %{_builddir}/%{name}-%{version}/vuurmuur-%{version}/skel -name .keep`
 do
-	rm -rf $i
+	%{__rm} -rf $i
 done
 
 # install SYSV init stuff
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/init.d
-install -m755 scripts/vuurmuur-initd.sh \
-	$RPM_BUILD_ROOT/%{_sysconfdir}/rc.d/init.d/vuurmuur
+%{__mkdir_p} $RPM_BUILD_ROOT/%{_initrddir}
+
+%if %{?suse_version}
+    %{__install} -m755 scripts/vuurmuur-initd.sh.suse \
+        $RPM_BUILD_ROOT/%{_initrddir}/vuurmuur
+%else
+    %{__install} -m755 scripts/vuurmuur-initd.sh \
+         $RPM_BUILD_ROOT/%{_initrddir}/vuurmuur
+%endif
 
 # install log rotation stuff
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d
-install -m 644 -p scripts/vuurmuur-logrotate \
+%{__mkdir_p} $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d
+%{__install} -m 644 -p scripts/vuurmuur-logrotate \
 	$RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/vuurmuur
 
 # Install vuurmuur configuration file 
-install -m600 config/config.conf.sample \
+%{__mkdir_p} $RPM_BUILD_ROOT/%{_sysconfdir}/vuurmuur
+%{__install} -m600 config/config.conf.sample \
 	$RPM_BUILD_ROOT/%{_sysconfdir}/vuurmuur/config.conf
 
 # Install ncurses configuration tool
 cd %{_builddir}/%{name}-%{version}/vuurmuur_conf-%{version}
-make install DESTDIR=$RPM_BUILD_ROOT
+%{makeinstall}
 
 # Remove unpackaged files
-rm -rf $RPM_BUILD_ROOT%{_docdir}/vuurmuur
-rm -f $RPM_BUILD_ROOT%{_libdir}/libvuurmuur.la
-rm -f $RPM_BUILD_ROOT%{_libdir}/vuurmuur/plugins/libtextdir.la
-rm -rf $RPM_BUILD_ROOT%{_datadir}/vuurmuur/scripts/
+%{__rm} -rf $RPM_BUILD_ROOT%{_docdir}/vuurmuur
+%{__rm} -f $RPM_BUILD_ROOT%{_libdir}/libvuurmuur.la
+%{__rm} -f $RPM_BUILD_ROOT%{_libdir}/vuurmuur/plugins/libtextdir.la
+%{__rm} -rf $RPM_BUILD_ROOT%{_datadir}/vuurmuur/scripts/
 
 %find_lang vuurmuur_conf
 
@@ -179,9 +192,12 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/vuurmuur/scripts/
 %postun -p /sbin/ldconfig
 
 %post daemon
-
 # Register the vuurmuur service
 /sbin/chkconfig --add vuurmuur
+
+%postun daemon
+# Remove init-script when uninstalling
+%insserv_cleanup
 
 %preun daemon
 if [ $1 = 0 ]; then
@@ -190,7 +206,7 @@ if [ $1 = 0 ]; then
 fi
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+%{__rm} -rf $RPM_BUILD_ROOT
 
 %files lib
 %defattr(-,root,root,-)
@@ -213,10 +229,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/vuurmuur_script
 %doc %{_mandir}/man*/*
 %doc %{_mandir}/ru/*
+%doc %{_datadir}/doc/vuurmuur/*
 %{_datadir}/vuurmuur
 %config(noreplace) %{_sysconfdir}/vuurmuur
 %config(noreplace) %{_sysconfdir}/logrotate.d/vuurmuur
-%{_sysconfdir}/rc.d/init.d/vuurmuur
+%{_initrddir}/vuurmuur
 
 %files devel
 %defattr(-,root,root,-)
@@ -236,6 +253,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/ru/man8/vuurmuur_conf.8.gz
 
 %changelog
+* Wed Nov 4 2009 Daniele K. Sluijters info (at) daenney,net
+- Remove the initscript after uninstalling
+- Check if we're trying to build on Mandriva and if so quit, textdir plugin won't build on Mandriva
+- Add some versionrequirements to BuildRequires
+- Add an if/else to determine wether we're building on SuSE and if so install a different init-script
+- Replace wherever possible paths and commands with their corresponding macro's for cross-RPM-platformness
+* Tue Nov 3 2009 Daniele K. Sluijters info (at) daenney.net
+- Replace /etc/rc.d/init.d with the %{_initrddir} macro for compatibility
+- Include /usr/share/doc/vuurmuur in the filelist
 * Mon Nov 2 2009 Daniele K. Sluijters info (at) daenney.net
 - Install vuurmuur and plugins/textdir configuration files
 - Reorganise a few things, (re-)document the spec-file where needed
@@ -248,4 +274,3 @@ rm -rf $RPM_BUILD_ROOT
 - Require Vuurmuur-lib and Vuurmuur-daemon for Vuurmuur-conf as it needs both to function / be useful
 * Wed Sep  2 2009 Sun Dec 29 2008 Stjepan Gros <stjepan.gros@gmail.com> - 0.7-1
 - Initial package
-
