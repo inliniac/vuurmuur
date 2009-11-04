@@ -1,0 +1,11 @@
+TCP="3874*1024:65535"
+UDP="5072*1024:65535"
+ICMP=""
+GRE=""
+AH=""
+ESP=""
+PROTO_41=""
+BROADCAST="No"
+HELPER=""
+COMMENT="SixXS tunnel auto-configuration and traffic tunneling"
+
