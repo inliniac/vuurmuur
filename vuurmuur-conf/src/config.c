@@ -36,7 +36,6 @@ vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf)
     cnf->advanced_mode = DEFAULT_ADVANCED_MODE;
     cnf->draw_status = DEFAULT_MAINMENU_STATUS;
     cnf->newrule_log = DEFAULT_NEWRULE_LOG;
-    cnf->rule_ulog = DEFAULT_RULE_ULOG;
     cnf->newrule_loglimit = DEFAULT_NEWRULE_LOGLIMIT;
     cnf->newrule_logburst = cnf->newrule_loglimit * 2;
     cnf->logview_bufsize = DEFAULT_LOGVIEW_BUFFERSIZE;
@@ -248,35 +247,6 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     else
         return(VR_CNF_E_UNKNOWN_ERR);
 
-    /* RULE_ULOG */
-    result = ask_configfile(debuglvl, &conf, "RULE_ULOG", answer, configfile_location, sizeof(answer));
-    if(result == 1)
-    {
-        /* ok, found */
-        if(strcasecmp(answer, "yes") == 0)
-        {
-            cnf->rule_ulog = 1;
-        }
-        else if(strcasecmp(answer, "no") == 0)
-        {
-            cnf->rule_ulog = 0;
-        }
-        else
-        {
-            (void)vrprint.debug(__FUNC__, "Not sure what to make of RULE_ULOG '%s', using default (%s).",
-                            answer,
-                            DEFAULT_RULE_ULOG ? "Yes": "No");
-
-            cnf->rule_ulog = DEFAULT_RULE_ULOG;
-        }
-    }
-    else if(result == 0)
-    {
-        cnf->rule_ulog = DEFAULT_RULE_ULOG;
-    }
-    else
-        return(VR_CNF_E_UNKNOWN_ERR);
-
 
     /* NEWRULE_LOGLIMIT */
     result = ask_configfile(debuglvl, &conf, "NEWRULE_LOGLIMIT", answer, configfile_location, sizeof(answer));
@@ -386,9 +356,6 @@ write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf)
 
     fprintf(fp, "# NEWRULE_LOG enables logging for new rules.\n");
     fprintf(fp, "NEWRULE_LOG=\"%s\"\n\n", cnf->newrule_log ? "Yes" : "No");
-
-    fprintf(fp, "# RULE_ULOG sets default logging target to ULOG instead of LOG.\n");
-    fprintf(fp, "RULE_ULOG=\"%s\"\n\n", cnf->rule_ulog ? "Yes" : "No");
 
     fprintf(fp, "# NEWRULE_LOGLIMIT sets the maximum number of logs per second for new rules.\n");
     fprintf(fp, "NEWRULE_LOGLIMIT=\"%u\"\n\n", cnf->newrule_loglimit);

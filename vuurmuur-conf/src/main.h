@@ -130,7 +130,6 @@ typedef struct
     char            scripts_location[256];
 
     char            newrule_log;
-    char            rule_ulog;
     unsigned int    newrule_loglimit;
     unsigned int    newrule_logburst; /* set to 2x loglimit */
 
@@ -169,7 +168,6 @@ vc_cnf vccnf;
 
 /* setting defaults */
 #define DEFAULT_NEWRULE_LOG         1
-#define DEFAULT_RULE_ULOG           0
 #define DEFAULT_NEWRULE_LOGLIMIT    20
 
 #define DEFAULT_LOGVIEW_BUFFERSIZE  500
