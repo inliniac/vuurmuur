@@ -34,6 +34,9 @@ fi
 
 CURPATH=`pwd`
 LOG="$CURPATH/install.log"
+TMP_LOG=`mktemp ${CURPATH}/vm_tmplog.XXXXXXXX`
+VM_SAMPLE=""
+VMC_SAMPLE=""
 
 # major
 INSTALL="0"
@@ -164,7 +167,7 @@ function PrintHelp
 
 function Cp
 {
-    cp $1 $2 $3 &> tmp.log
+    cp $1 $2 $3 &> ${TMP_LOG}
     RESULT="$?"
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
@@ -172,19 +175,19 @@ function Cp
         fi
     else
         PrintL "cp $1 $2 $3 failed with returncode $RESULT."
-        cat tmp.log >> $LOG
-        rm -f tmp.log
+        cat ${TMP_LOG} >> $LOG
+        rm -f ${TMP_LOG}
         Exit 1
     fi
 
-    rm -f tmp.log
+    rm -f ${TMP_LOG}
 }
 
 function Cd
 {
     CUR=`pwd`
 
-    cd $1 &> tmp.log
+    cd $1 &> ${TMP_LOG}
     RESULT="$?"
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
@@ -192,21 +195,21 @@ function Cd
         fi
     else
         PrintL "cd $1 failed with returncode $RESULT."
-        cat tmp.log >> $LOG
-        rm -f tmp.log
+        cat ${TMP_LOG} >> $LOG
+        rm -f ${TMP_LOG}
         Exit 1
     fi
 
-    rm -f $CUR/tmp.log
+    rm -f ${TMP_LOG}
 }
 
 function Libtoolize
 {
-    touch tmp.log
-    $LIBTOOLIZE $1 &> tmp.log
+    touch ${TMP_LOG}
+    $LIBTOOLIZE $1 &> ${TMP_LOG}
     RESULT="$?"
-    cat tmp.log >> $LOG
-    rm -f tmp.log
+    cat ${TMP_LOG} >> $LOG
+    rm -f ${TMP_LOG}
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
             PrintL "Libtoolize succeeded."
@@ -219,11 +222,11 @@ function Libtoolize
 
 function Make
 {
-    touch tmp.log
-    $MAKE $1 $2 &> tmp.log
+    touch ${TMP_LOG}
+    $MAKE $1 $2 &> ${TMP_LOG}
     RESULT="$?"
-    cat tmp.log >> $LOG
-    rm -f tmp.log
+    cat ${TMP_LOG} >> $LOG
+    rm -f ${TMP_LOG}
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
             PrintL "Make succeeded."
@@ -236,11 +239,11 @@ function Make
 
 function Aclocal
 {
-    touch tmp.log
-    $ACLOCAL &> tmp.log
+    touch ${TMP_LOG}
+    $ACLOCAL &> ${TMP_LOG}
     RESULT="$?"
-    cat tmp.log >> $LOG
-    rm -f tmp.log
+    cat ${TMP_LOG} >> $LOG
+    rm -f ${TMP_LOG}
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
             PrintL "Aclocal succeeded."
@@ -253,11 +256,11 @@ function Aclocal
 
 function Autoheader
 {
-    touch tmp.log
-    $AUTOHEADER &> tmp.log
+    touch ${TMP_LOG}
+    $AUTOHEADER &> ${TMP_LOG}
     RESULT="$?"
-    cat tmp.log >> $LOG
-    rm -f tmp.log
+    cat ${TMP_LOG} >> $LOG
+    rm -f ${TMP_LOG}
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
             PrintL "Autoheader succeeded."
@@ -270,11 +273,11 @@ function Autoheader
 
 function Automake
 {
-    touch tmp.log
-    $AUTOMAKE --copy --add-missing &> tmp.log
+    touch ${TMP_LOG}
+    $AUTOMAKE --copy --add-missing &> ${TMP_LOG}
     RESULT="$?"
-    cat tmp.log >> $LOG
-    rm -f tmp.log
+    cat ${TMP_LOG} >> $LOG
+    rm -f ${TMP_LOG}
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
             PrintL "Automake succeeded."
@@ -287,11 +290,11 @@ function Automake
 
 function Autoconf
 {
-    touch tmp.log
-    $AUTOCONF &> tmp.log
+    touch ${TMP_LOG}
+    $AUTOCONF &> ${TMP_LOG}
     RESULT="$?"
-    cat tmp.log >> $LOG
-    rm -f tmp.log
+    cat ${TMP_LOG} >> $LOG
+    rm -f ${TMP_LOG}
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
             PrintL "Autoconf succeeded."
@@ -304,11 +307,11 @@ function Autoconf
 
 function Configure
 {
-    touch tmp.log
-    ./configure $* &> tmp.log
+    touch ${TMP_LOG}
+    ./configure $* &> ${TMP_LOG}
     RESULT="$?"
-    cat tmp.log >> $LOG
-    rm -f tmp.log
+    cat ${TMP_LOG} >> $LOG
+    rm -f ${TMP_LOG}
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
             PrintL "configure $* succeeded."
@@ -321,12 +324,9 @@ function Configure
 
 function WrapGettextize
 {
-    touch tmp.log
+    touch ${TMP_LOG}
 
-    GETTEXTIZE=`which gettextize`
-    if [ "$GETTEXTIZE" = "" ]; then
-        GETTEXTIZE="gettextize"
-    fi
+    GETTEXTIZE="$(which gettextize 2>/dev/null || echo gettextize)"
 
     echo "gettextize..." >> $LOG
     # ripped from: http://cvs.saout.de/lxr/saout/source/cryptsetup/setup-gettext
@@ -336,8 +336,8 @@ function WrapGettextize
     rm -f .temp-gettextize
     echo "gettextize... done" >> $LOG
 
-    cat tmp.log >> $LOG
-    rm -f tmp.log
+    cat ${TMP_LOG} >> $LOG
+    rm -f ${TMP_LOG}
 }
 
 function CheckFile
@@ -354,11 +354,11 @@ function CheckFile
 
 function UnPack
 {
-    touch tmp.log
+    touch ${TMP_LOG}
     gzip -cd $1 | tar -xvf - >> $LOG
     RESULT="$?"
-    cat tmp.log >> $LOG
-    rm -f tmp.log
+    cat ${TMP_LOG} >> $LOG
+    rm -f ${TMP_LOG}
     if [ "$RESULT" = "0" ]; then
         if [ "$DEBUG" = "1" ]; then
             PrintL "UnPack $1 succeeded."
@@ -369,39 +369,23 @@ function UnPack
     fi
 }
 
-function RevCheckDir
-{
-    cd $1 &> /dev/null
-    RESULT="$?"
-    if [ "$RESULT" = "0" ]; then
-        PrintL "Error: the directory '$1' already exists."
-        cd $CURPATH
-        Exit 1
-    fi
-}
-
 function CheckDir
 {
-    cd $1 &> /dev/null
-    RESULT="$?"
-    if [ "$RESULT" != "0" ]; then
+    if [ ! -d $1 ]; then
         PrintL "Error: the directory '$1' doesn't exist."
         Exit 1
     fi
-
-    cd $CURPATH
 }
 
 function MkDir
 {
     mkdir $1 &> /dev/null
     RESULT="$?"
-    if [ "$RESULT" != "0" ]; then
+    if [ "$RESULT" != "0" -a "$2" != "mayfail" ]; then
         PrintL "Error: the directory '$1' could not be created."
         Exit 1
     fi
 }
-
 
 function CheckBinary
 {
@@ -593,13 +577,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     fi
     PrintL "Installdir: $INSTALLDIR ..."
     
-    cd $INSTALLDIR &> /dev/null
-    RESULT="$?"
-    if [ "$RESULT" = "0" ]; then
-        Cd $CURPATH
-    else
-        MkDir $INSTALLDIR
-    fi
+    MkDir $INSTALLDIR mayfail
 fi
 
 # libdir
@@ -615,13 +593,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     fi
     PrintL "Libdir: $LIBDIR ..."
     
-    cd $LIBDIR &> /dev/null
-    RESULT="$?"
-    if [ "$RESULT" = "0" ]; then
-        Cd $CURPATH
-    else
-        MkDir $LIBDIR
-    fi
+    MkDir $LIBDIR mayfail
 fi
 
 # etcdir
@@ -709,8 +681,6 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     if [ "$UPGRADE" = "1" ]; then
         CheckDir "$ETCDIR/vuurmuur"
     elif [ "$INSTALL" = "1" ]; then
-        #RevCheckDir "$ETCDIR/vuurmuur"
-
         # create the vuurmuur dir and the textdir
         mkdir -p -m 0700 "$ETCDIR/vuurmuur/textdir"
         mkdir -p -m 0700 "$ETCDIR/vuurmuur/plugins"
@@ -731,14 +701,8 @@ if [ "$INSTALL" = "1" ]; then
     fi
     PrintL "Using Logdir: '$LOGDIR'."
 
-    cd $LOGDIR &> /dev/null
-    RESULT="$?"
-    if [ "$RESULT" != "0" ]; then
-        MkDir $LOGDIR
-        chmod 0700 $LOGDIR
-    fi
-
-    cd $CURPATH
+    MkDir $LOGDIR mayfail
+    chmod 0700 $LOGDIR
 fi
 
 # unpack
@@ -801,7 +765,9 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
             chmod 0700 $ETCDIR/vuurmuur/plugins
         fi
     fi
-    Make clean
+    if [ "${FROM_SVN}" = "0" ]; then
+        Make clean
+    fi
     PrintL "Building and installing libvuurmuur finished."
 
 elif [ "$UNINSTALL" = "1" ]; then
@@ -821,6 +787,7 @@ else
 fi
 
 if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
+    VM_SAMPLE="`pwd`/config/config.conf.sample"
     PrintL "Going to build vuurmuur... (the daemons)."
     if [ "$BUILDUPDATE" = "1" ]; then
         Libtoolize -f
@@ -837,7 +804,9 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     if [ "$DRYRUN" != "1" ]; then
         Make install
     fi
-    Make clean
+    if [ "${FROM_SVN}" = "0" ]; then
+        Make clean
+    fi
     PrintL "Building and installing vuurmuur finished."
 
 elif [ "$UNINSTALL" = "1" ]; then
@@ -857,6 +826,7 @@ else
 fi
 
 if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
+    VMC_SAMPLE="`pwd`/config/vuurmuur_conf.conf.sample"
     PrintL "Going to build vuurmuur_conf... (the Ncurses based user interface)."
     if [ "$BUILDUPDATE" = "1" ]; then
         Libtoolize -f
@@ -882,7 +852,9 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     if [ "$DRYRUN" != "1" ]; then
         Make install
     fi
-    Make clean
+    if [ "${FROM_SVN}" = "0" ]; then
+        Make clean
+    fi
     PrintL "Building and installing vuurmuur_conf finished."
 
 elif [ "$UNINSTALL" = "1" ]; then
@@ -915,7 +887,7 @@ if [ "$INSTALL" = "1" ]; then
         chmod 0700 $ETCDIR/vuurmuur/textdir/services
     
         cp $SHAREDDIR/vuurmuur/services/* $ETCDIR/vuurmuur/textdir/services/
-        chown root:root $ETCDIR/vuurmuur/textdir/services -R
+        chown -R root:root $ETCDIR/vuurmuur/textdir/services
         chmod 0700 $ETCDIR/vuurmuur/textdir/services
     fi
 
@@ -929,7 +901,7 @@ if [ "$INSTALL" = "1" ]; then
         else
             cp -r --preserve=mode zones/* $ETCDIR/vuurmuur/textdir/zones
         fi
-        chown root:root $ETCDIR/vuurmuur/textdir/zones -R
+        chown -R root:root $ETCDIR/vuurmuur/textdir/zones
         chmod 0700 $ETCDIR/vuurmuur/textdir/zones
     fi
 
@@ -980,18 +952,10 @@ if [ "$INSTALL" = "1" ]; then
         fi
 
         # seek conntrack
-        which conntrack &> /dev/null
-        RESULT=$?
-        if [ "$RESULT" = "0" ]; then
-            CONNTRACKLOC=`which conntrack`
-        fi
+        CONNTRACKLOC="$(which conntrack 2>/dev/null || echo "")"
 
         # seek tc
-        which tc &> /dev/null
-        RESULT=$?
-        if [ "$RESULT" = "0" ]; then
-            TCLOC=`which tc`
-        fi
+        TCLOC="$(which tc 2>/dev/null || echo "")"
 
         # seek modprobe
         which modprobe &> /dev/null
@@ -1005,118 +969,38 @@ if [ "$INSTALL" = "1" ]; then
             MODPROBE="/sbin/modprobe"
         fi
 
-        # write the configfile
-        echo "# begin of file" > $CONFIGFILE
-        echo >> $CONFIGFILE
-
-        echo "# Which plugin to use for which type of data." >> $CONFIGFILE
-        echo "SERVICES_BACKEND=\"textdir\"" >> $CONFIGFILE
-        echo "ZONES_BACKEND=\"textdir\"" >> $CONFIGFILE
-        echo "INTERFACES_BACKEND=\"textdir\"" >> $CONFIGFILE
-        echo "RULES_BACKEND=\"textdir\"" >> $CONFIGFILE
-        echo >> $CONFIGFILE
-
-        echo "# Location of the iptables-command (full path)." >> $CONFIGFILE
-        echo "IPTABLES=\"$IPTABLESLOC\"" >> $CONFIGFILE
-        echo "# Location of the iptables-restore-command (full path)." >> $CONFIGFILE
-        echo "IPTABLES_RESTORE=\"$IPTABLESRESLOC\"" >> $CONFIGFILE
-        echo "# Location of the conntrack-command (full path)." >> $CONFIGFILE
-        echo "CONNTRACK=\"$CONNTRACKLOC\"" >> $CONFIGFILE
-        echo "# Location of the tc-command (full path)." >> $CONFIGFILE
-        echo "TC=\"$TCLOC\"" >> $CONFIGFILE
-        echo >> $CONFIGFILE
-
-        echo "# Location of the modprobe-command (full path)." >> $CONFIGFILE
-        echo "MODPROBE=\"$MODPROBE\"" >> $CONFIGFILE
-        echo "# Load modules if needed? (yes/no)" >> $CONFIGFILE
-        echo "LOAD_MODULES=\"Yes\"" >> $CONFIGFILE
-        echo "# Wait after loading a module in 1/10th of a second" >> $CONFIGFILE
-        echo "MODULES_WAIT_TIME=\"0\"" >> $CONFIGFILE
-        echo >> $CONFIGFILE
-
-        echo "# If set to yes, each rule will be loaded into the system individually using" >> $CONFIGFILE
-        echo "# iptables. Otherwise iptables-restore will be used (yes/no)." >> $CONFIGFILE
-        echo "OLD_CREATE_METHOD=\"No\"" >> $CONFIGFILE
-        echo >> $CONFIGFILE
-
-        echo "# The directory where the logs will be written to (full path)." >> $CONFIGFILE
-        echo "LOGDIR=\"$LOGDIR\"" >> $CONFIGFILE
-        echo "# The logfile where the kernel writes the logs to e.g. /var/log/messages (full path)." >> $CONFIGFILE
-        echo "SYSTEMLOG=\"$SYSTEMLOG\"" >> $CONFIGFILE
-        echo "# The loglevel to use when logging traffic. For use with syslog." >> $CONFIGFILE
-        echo "LOGLEVEL=\"info\"" >> $CONFIGFILE
-        echo >> $CONFIGFILE
-
-        echo "# Check the dynamic interfaces for changes?" >> $CONFIGFILE
-        echo "DYN_INT_CHECK=\"No\"" >> $CONFIGFILE
-        echo "# Check every x seconds." >> $CONFIGFILE
-        echo "DYN_INT_INTERVAL=\"30\"" >> $CONFIGFILE
-        echo >> $CONFIGFILE
-
-        echo "# LOG_POLICY controls the logging of the default policy." >> $CONFIGFILE
-        echo "LOG_POLICY=\"Yes\"" >> $CONFIGFILE
-        echo "# LOG_POLICY_LIMIT sets the maximum number of logs per second." >> $CONFIGFILE
-        echo "LOG_POLICY_LIMIT=\"30\"" >> $CONFIGFILE
-        echo "# LOG_BLOCKLIST enables/disables logging of items on the blocklist." >> $CONFIGFILE
-        echo "LOG_BLOCKLIST=\"Yes\"" >> $CONFIGFILE
-        echo "# LOG_TCP_OPTIONS controls the logging of tcp options. This is" >> $CONFIGFILE
-        echo "# not used by Vuurmuur itself. PSAD 1.4.x uses it for OS-detection." >> $CONFIGFILE
-        echo "LOG_TCP_OPTIONS=\"No\"" >> $CONFIGFILE
-        echo >> $CONFIGFILE
-
-        echo "# SYN_LIMIT sets the maximum number of SYN-packets per second." >> $CONFIGFILE
-        echo "USE_SYN_LIMIT=\"Yes\"" >> $CONFIGFILE
-        echo "SYN_LIMIT=\"10\"" >> $CONFIGFILE
-        echo "SYN_LIMIT_BURST=\"20\"" >> $CONFIGFILE
-        echo "# UDP_LIMIT sets the maximum number of udp 'connections' per second." >> $CONFIGFILE
-        echo "USE_UDP_LIMIT=\"Yes\"" >> $CONFIGFILE
-        echo "UDP_LIMIT=\"15\"" >> $CONFIGFILE
-        echo "UDP_LIMIT_BURST=\"45\"" >> $CONFIGFILE
-        echo >> $CONFIGFILE
-
-        echo "# Protect against syn-flooding? (yes/no)" >> $CONFIGFILE
-        echo "PROTECT_SYNCOOKIE=\"Yes\"" >> $CONFIGFILE
-        echo "# Ignore echo-broadcasts? (yes/no)" >> $CONFIGFILE
-        echo "PROTECT_ECHOBROADCAST=\"Yes\"" >> $CONFIGFILE
-        echo >> $CONFIGFILE
-
-        echo "# end of file" >> $CONFIGFILE
-        # done
+        if [ -f ${VM_SAMPLE} ]; then
+            # Replace the lines in the sample config file with the things we
+            # determined in this script
+            cat ${VM_SAMPLE} | \
+            sed -e 's,^\(IPTABLES=\).*,\1"'${IPTABLESLOC}'",g' \
+                -e 's,^\(IPTABLES_RESTORE=\).*,\1"'${IPTABLESRESLOC}'",g' \
+                -e 's,^\(CONNTRACK=\).*,\1"'${CONNTRACKLOC}'",g' \
+                -e 's,^\(TC=\).*,\1"'${TCLOC}'",g' \
+                -e 's,^\(MODPROBE=\).*,\1"'${MODPROBE}'",g' \
+                -e 's,^\(LOGDIR=\).*,\1"'${LOGDIR}'",g' \
+                -e 's,^\(SYSTEMLOG=\).*,\1"'${SYSTEMLOG}'",g' \
+                > ${CONFIGFILE}
+        else
+            echo "Could not find the sample file ${VM_SAMPLE},"
+            echo "now you have to make it yourself"
+        fi
     fi
    
     # create the settings file
     VUURMUURCONFIGFILE="$ETCDIR/vuurmuur/vuurmuur_conf.conf"
 
     if [ ! -f "$VUURMUURCONFIGFILE" ]; then
-
-        touch $VUURMUURCONFIGFILE
-        chown root:root $VUURMUURCONFIGFILE
-        chmod 0600 $VUURMUURCONFIGFILE
-
-        # write the vuurmuur_conf settingsfile
-        echo "# vuurmuur_conf config file" > $VUURMUURCONFIGFILE
-        echo >> $VUURMUURCONFIGFILE
-        echo "# Some parts of the Gui have advanced options that can be enabled by." >> $VUURMUURCONFIGFILE
-        echo "# pressing F5. If you set this to yes, they will be enabled by default." >> $VUURMUURCONFIGFILE
-        echo "ADVANCED_MODE=\"No\"" >> $VUURMUURCONFIGFILE
-        echo >> $VUURMUURCONFIGFILE
-        echo "# The main menu can show status information about various parts of." >> $VUURMUURCONFIGFILE
-        echo "# Vuurmuur." >> $VUURMUURCONFIGFILE
-        echo "MAINMENU_STATUS=\"Yes\"" >> $VUURMUURCONFIGFILE
-        echo >> $VUURMUURCONFIGFILE
-        echo "# NEWRULE_LOG enables logging for new rules." >> $VUURMUURCONFIGFILE
-        echo "NEWRULE_LOG=\"Yes\"" >> $VUURMUURCONFIGFILE
-        echo >> $VUURMUURCONFIGFILE
-        echo "# NEWRULE_LOGLIMIT sets the maximum number of logs per second for new rules." >> $VUURMUURCONFIGFILE
-        echo "NEWRULE_LOGLIMIT=\"30\"" >> $VUURMUURCONFIGFILE
-        echo >> $VUURMUURCONFIGFILE
-        echo "# LOGVIEW_BUFSIZE sets the buffersize (in loglines) of the logviewer for scrolling back." >> $VUURMUURCONFIGFILE
-        echo "LOGVIEW_BUFSIZE=\"1500\"" >> $VUURMUURCONFIGFILE
-        echo >> $VUURMUURCONFIGFILE
-        echo "# IPTRAFVOL sets the location of the iptrafvol.pl command." >> $VUURMUURCONFIGFILE
-        echo "IPTRAFVOL=\"/usr/bin/iptrafvol.pl\"" >> $VUURMUURCONFIGFILE
-        echo >> $VUURMUURCONFIGFILE
-        echo "# end of file" >> $VUURMUURCONFIGFILE
+        if [ -f ${VMC_SAMPLE} ]; then
+            # Since we don't need to replace anything, we just copy the sample
+            # file to the final file
+            Cp ${VMC_SAMPLE} ${VUURMUURCONFIGFILE}
+            chown root:root $VUURMUURCONFIGFILE
+            chmod 0600 $VUURMUURCONFIGFILE
+        else
+            echo "Could not find the sample file ${VMC_SAMPLE},"
+            echo "now you have to make it yourself"
+        fi
     fi
     # done
 
