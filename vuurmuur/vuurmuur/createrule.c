@@ -2692,11 +2692,33 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe ALL");
 
-        snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            "");
+        }
+        else
+        {
+            if (conf.rule_nflog == 1)
+            {
+                snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s %s %s",
+                                limit,
+                                logprefix,
+                                loglevel,
+                                "");
+            }
+            else
+            {
+                snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j LOG %s %s %s",
+                                limit,
+                                logprefix,
+                                loglevel,
+                                log_tcp_options);
+            }
+        }
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
@@ -2720,11 +2742,22 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe SYN-FIN");
 
-        snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j NFLOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            "");
+        }
+        else
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j LOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            log_tcp_options);
+        }
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
@@ -2748,11 +2781,22 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe SYN-RST");
 
-        snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j NFLOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            "");
+        }
+        else
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j LOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            log_tcp_options);
+        }
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
@@ -2776,11 +2820,22 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe FIN-RST");
 
-        snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j NFLOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            "");
+        }
+        else
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j LOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            log_tcp_options);
+        }
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
@@ -2804,11 +2859,22 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe FIN");
 
-        snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j NFLOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            "");
+        }
+        else
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j LOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            log_tcp_options);
+        }
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
@@ -2832,11 +2898,22 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe PSH");
 
-        snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j NFLOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            "");
+        }
+        else
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j LOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            log_tcp_options);
+        }
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
@@ -2860,11 +2937,22 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe URG");
 
-        snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j NFLOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            "");
+        }
+        else
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j LOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            log_tcp_options);
+        }
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
@@ -2888,11 +2976,22 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "no SYN");
 
-        snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW %s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW %s -j NFLOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            "");
+        }
+        else
+        {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW %s -j LOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            log_tcp_options);
+        }
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
@@ -2918,11 +3017,22 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "FRAG");
 
-        snprintf(cmd, sizeof(cmd), "-f %s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "-f %s -j NFLOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            "");
+        }
+        else
+        {
+            snprintf(cmd, sizeof(cmd), "-f %s -j LOG %s %s %s",
+                            limit,
+                            logprefix,
+                            loglevel,
+                            log_tcp_options);
+        }
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
@@ -3205,8 +3315,16 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         {
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_INPUT, "DROP", "in INVALID");
 
-            snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
-                    limit, logprefix, loglevel, log_tcp_options);
+            if (conf.rule_nflog == 1)
+            {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s %s",
+                        limit, logprefix, loglevel, "");
+            }
+            else
+            {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
+                        limit, logprefix, loglevel, log_tcp_options);
+            }
 
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
                 retval=-1;
@@ -3224,8 +3342,16 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         {
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_OUTPUT, "DROP", "out INVALID");
 
-            snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
-                    limit, logprefix, loglevel, log_tcp_options);
+            if (conf.rule_nflog == 1)
+            {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s %s",
+                        limit, logprefix, loglevel, "");
+            }
+            else
+            {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
+                        limit, logprefix, loglevel, log_tcp_options);
+            }
 
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
                 retval=-1;
@@ -3243,8 +3369,16 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         {
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_FORWARD, "DROP", "fw INVALID");
 
-            snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
-                    limit, logprefix, loglevel, log_tcp_options);
+            if (conf.rule_nflog == 1)
+            {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s %s",
+                        limit, logprefix, loglevel, "");
+            }
+            else
+            {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
+                        limit, logprefix, loglevel, log_tcp_options);
+            }
 
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
                 retval=-1;
@@ -3303,11 +3437,22 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_INPUT, "DROP", "BLOCKED");
 
-        snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s %s",
+                                limit,
+                                logprefix,
+                                loglevel,
+                                "");
+        }
+        else
+        {
+            snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
+                                limit,
+                                logprefix,
+                                loglevel,
+                                log_tcp_options);
+        }
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
             retval=-1;
@@ -3424,11 +3569,20 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_INPUT, "DROP", "SYNLIMIT reach.");
 
-        snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j LOG %s %s %s", 
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
-
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j NFLOG %s %s %s", 
+                            logprefix,
+                            loglevel,
+                            "");
+        }
+        else
+        {
+            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j LOG %s %s %s", 
+                            logprefix,
+                            loglevel,
+                            log_tcp_options);
+        }
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_SYNLIMITTARGET, cmd, 0, 0) < 0)
             retval=-1;
     }
@@ -3493,10 +3647,20 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_INPUT, "DROP", "UDPLIMIT reach.");
 
-        snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j LOG %s %s %s",
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j NFLOG %s %s %s",
+                            logprefix,
+                            loglevel,
+                            "");
+        }
+        else
+        {
+            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j LOG %s %s %s",
+                            logprefix,
+                            loglevel,
+                            log_tcp_options);
+        }
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
             retval=-1;
@@ -3571,33 +3735,68 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
             /* input */
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_INPUT, "DROP", "in policy");
 
-            snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                    limit,
-                    logprefix,
-                    loglevel,
-                    log_tcp_options);
+            if (conf.rule_nflog == 1)
+            {
+                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s %s",
+                        limit,
+                        logprefix,
+                        loglevel,
+                        "");
+            }
+            else
+            {
+                snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
+                        limit,
+                        logprefix,
+                        loglevel,
+                        log_tcp_options);
+            }
+
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
                 retval=-1;
 
             /* output */
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_OUTPUT, "DROP", "out policy");
 
-            snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                    limit,
-                    logprefix,
-                    loglevel,
-                    log_tcp_options);
+            if (conf.rule_nflog == 1)
+            {
+                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s %s",
+                        limit,
+                        logprefix,
+                        loglevel,
+                        "");
+            }
+            else
+            {
+                snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
+                        limit,
+                        logprefix,
+                        loglevel,
+                        log_tcp_options);
+            }
+
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
                 retval=-1;
 
             /* forward */
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_FORWARD, "DROP", "fw policy");
 
-            snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                    limit,
-                    logprefix,
-                    loglevel,
-                    log_tcp_options);
+            if (conf.rule_nflog == 1)
+            {
+                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s %s",
+                        limit,
+                        logprefix,
+                        loglevel,
+                        "");
+            }
+            else
+            {
+                snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
+                        limit,
+                        logprefix,
+                        loglevel,
+                        log_tcp_options);
+            }
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
                 retval=-1;
         }
@@ -3855,11 +4054,22 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 create->danger.type, create->danger.source);
 
             /* log rule string */
-            snprintf(cmd, sizeof(cmd), "-s %s/%s -d %s/255.255.255.255 %s -j LOG %s %s %s",
-                create->danger.source_ip.ipaddress,
-                create->danger.source_ip.netmask,
-                from_if_ptr->ipv4.ipaddress, limit, logprefix,
-                loglevel, log_tcp_options);
+            if (conf.rule_nflog == 1)
+            {
+                snprintf(cmd, sizeof(cmd), "-s %s/%s -d %s/255.255.255.255 %s -j NFLOG %s %s %s",
+                    create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask,
+                    from_if_ptr->ipv4.ipaddress, limit, logprefix,
+                    loglevel, "");
+            }
+            else
+            {
+                snprintf(cmd, sizeof(cmd), "-s %s/%s -d %s/255.255.255.255 %s -j LOG %s %s %s",
+                    create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask,
+                    from_if_ptr->ipv4.ipaddress, limit, logprefix,
+                    loglevel, log_tcp_options);
+            }
 
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 retval=-1;
@@ -3882,11 +4092,22 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 create->danger.type, create->danger.source);
 
             /* log rule string */
-            snprintf(cmd, sizeof(cmd), "-s %s/255.255.255.255 -d %s/%s %s -j LOG %s %s %s",
-                from_if_ptr->ipv4.ipaddress,
-                create->danger.source_ip.ipaddress,
-                create->danger.source_ip.netmask, limit,
-                logprefix, loglevel, log_tcp_options);
+            if (conf.rule_nflog == 1)
+            {
+                snprintf(cmd, sizeof(cmd), "-s %s/255.255.255.255 -d %s/%s %s -j NFLOG %s %s %s",
+                    from_if_ptr->ipv4.ipaddress,
+                    create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask, limit,
+                    logprefix, loglevel, "");
+            }
+            else
+            {
+                snprintf(cmd, sizeof(cmd), "-s %s/255.255.255.255 -d %s/%s %s -j LOG %s %s %s",
+                    from_if_ptr->ipv4.ipaddress,
+                    create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask, limit,
+                    logprefix, loglevel, log_tcp_options);
+            }
 
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 retval=-1;
@@ -3913,11 +4134,20 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 create->danger.type, create->danger.source);
 
             /* log rule string */
-            snprintf(cmd, sizeof(cmd), "%s -s %s/%s %s -j LOG %s %s %s",
-                input_device, create->danger.source_ip.ipaddress,
-                create->danger.source_ip.netmask, limit, logprefix,
-                loglevel, log_tcp_options);
-
+            if (conf.rule_nflog == 1)
+            {
+                snprintf(cmd, sizeof(cmd), "%s -s %s/%s %s -j NFLOG %s %s %s",
+                    input_device, create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask, limit, logprefix,
+                    loglevel, "");
+            }
+            else
+            {
+                snprintf(cmd, sizeof(cmd), "%s -s %s/%s %s -j LOG %s %s %s",
+                    input_device, create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask, limit, logprefix,
+                    loglevel, log_tcp_options);
+            }
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 retval=-1;
         }
@@ -3939,10 +4169,20 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 create->danger.type, create->danger.source);
 
             /* log rule string */
-            snprintf(cmd, sizeof(cmd), "%s -d %s/%s %s -j LOG %s %s %s",
-                output_device, create->danger.source_ip.ipaddress,
-                create->danger.source_ip.netmask, limit,
-                logprefix, loglevel, log_tcp_options);
+            if (conf.rule_nflog == 1)
+            {
+                snprintf(cmd, sizeof(cmd), "%s -d %s/%s %s -j NFLOG %s %s %s",
+                    output_device, create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask, limit,
+                    logprefix, loglevel, "");
+            }
+            else
+            {
+                snprintf(cmd, sizeof(cmd), "%s -d %s/%s %s -j LOG %s %s %s",
+                    output_device, create->danger.source_ip.ipaddress,
+                    create->danger.source_ip.netmask, limit,
+                    logprefix, loglevel, log_tcp_options);
+            }
 
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 retval=-1;
