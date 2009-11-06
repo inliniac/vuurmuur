@@ -915,10 +915,10 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
         /* create the action */
         if (conf.rule_nflog == 1)
         {
-            snprintf(rule->action, sizeof(rule->action), "NFLOG %s %s %s",
+            snprintf(rule->action, sizeof(rule->action), "NFLOG %s %s --nflog-group %u",
                                     logprefix,
                                     loglevel,
-                                    "");
+                                    conf.nfgrp);
         }
         else
         {

@@ -2694,21 +2694,21 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s %s %s",
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s %s --nflog-group %u",
                             limit,
                             logprefix,
                             loglevel,
-                            "");
+                            conf.nfgrp);
         }
         else
         {
             if (conf.rule_nflog == 1)
             {
-                snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s %s %s",
+                snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s %s --nflog-group %u",
                                 limit,
                                 logprefix,
                                 loglevel,
-                                "");
+                                conf.nfgrp);
             }
             else
             {
@@ -2744,11 +2744,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j NFLOG %s %s %s",
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j NFLOG %s %s --nflog-group %u",
                             limit,
                             logprefix,
                             loglevel,
-                            "");
+                            conf.nfgrp);
         }
         else
         {
@@ -2783,11 +2783,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j NFLOG %s %s %s",
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j NFLOG %s %s --nflog-group %u",
                             limit,
                             logprefix,
                             loglevel,
-                            "");
+                            conf.nfgrp);
         }
         else
         {
@@ -2822,11 +2822,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j NFLOG %s %s %s",
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j NFLOG %s %s --nflog-group %u",
                             limit,
                             logprefix,
                             loglevel,
-                            "");
+                            conf.nfgrp);
         }
         else
         {
@@ -2861,11 +2861,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j NFLOG %s %s %s",
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j NFLOG %s %s --nflog-group %u",
                             limit,
                             logprefix,
                             loglevel,
-                            "");
+                            conf.nfgrp);
         }
         else
         {
@@ -2900,11 +2900,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j NFLOG %s %s %s",
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j NFLOG %s %s --nflog-group %u",
                             limit,
                             logprefix,
                             loglevel,
-                            "");
+                            conf.nfgrp);
         }
         else
         {
@@ -2939,11 +2939,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j NFLOG %s %s %s",
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j NFLOG %s %s --nflog-group %u",
                             limit,
                             logprefix,
                             loglevel,
-                            "");
+                            conf.nfgrp);
         }
         else
         {
@@ -2978,11 +2978,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW %s -j NFLOG %s %s %s",
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW %s -j NFLOG %s %s --nflog-group %u",
                             limit,
                             logprefix,
                             loglevel,
-                            "");
+                            conf.nfgrp);
         }
         else
         {
@@ -3019,11 +3019,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "-f %s -j NFLOG %s %s %s",
+            snprintf(cmd, sizeof(cmd), "-f %s -j NFLOG %s %s --nflog-group %u",
                             limit,
                             logprefix,
                             loglevel,
-                            "");
+                            conf.nfgrp);
         }
         else
         {
@@ -3317,8 +3317,8 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
             if (conf.rule_nflog == 1)
             {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s %s",
-                        limit, logprefix, loglevel, "");
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
+                        limit, logprefix, loglevel, conf.nfgrp);
             }
             else
             {
@@ -3344,8 +3344,8 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
             if (conf.rule_nflog == 1)
             {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s %s",
-                        limit, logprefix, loglevel, "");
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
+                        limit, logprefix, loglevel, conf.nfgrp);
             }
             else
             {
@@ -3371,8 +3371,8 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
             if (conf.rule_nflog == 1)
             {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s %s",
-                        limit, logprefix, loglevel, "");
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
+                        limit, logprefix, loglevel, conf.nfgrp);
             }
             else
             {
@@ -3439,11 +3439,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s %s",
+            snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
                                 limit,
                                 logprefix,
                                 loglevel,
-                                "");
+                                conf.nfgrp);
         }
         else
         {
@@ -3571,10 +3571,10 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j NFLOG %s %s %s", 
+            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j NFLOG %s %s --nflog-group %u", 
                             logprefix,
                             loglevel,
-                            "");
+                            conf.nfgrp);
         }
         else
         {
@@ -3649,10 +3649,10 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
 
         if (conf.rule_nflog == 1)
         {
-            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j NFLOG %s %s %s",
+            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j NFLOG %s %s --nflog-group %u",
                             logprefix,
                             loglevel,
-                            "");
+                            conf.nfgrp);
         }
         else
         {
@@ -3737,11 +3737,11 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
 
             if (conf.rule_nflog == 1)
             {
-                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s %s",
+                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
                         limit,
                         logprefix,
                         loglevel,
-                        "");
+                        conf.nfgrp);
             }
             else
             {
@@ -3760,11 +3760,11 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
 
             if (conf.rule_nflog == 1)
             {
-                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s %s",
+                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
                         limit,
                         logprefix,
                         loglevel,
-                        "");
+                        conf.nfgrp);
             }
             else
             {
@@ -3783,11 +3783,11 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
 
             if (conf.rule_nflog == 1)
             {
-                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s %s",
+                snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
                         limit,
                         logprefix,
                         loglevel,
-                        "");
+                        conf.nfgrp);
             }
             else
             {
@@ -4056,11 +4056,11 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             /* log rule string */
             if (conf.rule_nflog == 1)
             {
-                snprintf(cmd, sizeof(cmd), "-s %s/%s -d %s/255.255.255.255 %s -j NFLOG %s %s %s",
+                snprintf(cmd, sizeof(cmd), "-s %s/%s -d %s/255.255.255.255 %s -j NFLOG %s %s --nflog-group %u",
                     create->danger.source_ip.ipaddress,
                     create->danger.source_ip.netmask,
                     from_if_ptr->ipv4.ipaddress, limit, logprefix,
-                    loglevel, "");
+                    loglevel, conf.nfgrp);
             }
             else
             {
@@ -4094,11 +4094,11 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             /* log rule string */
             if (conf.rule_nflog == 1)
             {
-                snprintf(cmd, sizeof(cmd), "-s %s/255.255.255.255 -d %s/%s %s -j NFLOG %s %s %s",
+                snprintf(cmd, sizeof(cmd), "-s %s/255.255.255.255 -d %s/%s %s -j NFLOG %s %s --nflog-group %u",
                     from_if_ptr->ipv4.ipaddress,
                     create->danger.source_ip.ipaddress,
                     create->danger.source_ip.netmask, limit,
-                    logprefix, loglevel, "");
+                    logprefix, loglevel, conf.nfgrp);
             }
             else
             {
@@ -4136,10 +4136,10 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             /* log rule string */
             if (conf.rule_nflog == 1)
             {
-                snprintf(cmd, sizeof(cmd), "%s -s %s/%s %s -j NFLOG %s %s %s",
+                snprintf(cmd, sizeof(cmd), "%s -s %s/%s %s -j NFLOG %s %s --nflog-group %u",
                     input_device, create->danger.source_ip.ipaddress,
                     create->danger.source_ip.netmask, limit, logprefix,
-                    loglevel, "");
+                    loglevel, conf.nfgrp);
             }
             else
             {
@@ -4171,10 +4171,10 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             /* log rule string */
             if (conf.rule_nflog == 1)
             {
-                snprintf(cmd, sizeof(cmd), "%s -d %s/%s %s -j NFLOG %s %s %s",
+                snprintf(cmd, sizeof(cmd), "%s -d %s/%s %s -j NFLOG %s %s --nflog-group %u",
                     output_device, create->danger.source_ip.ipaddress,
                     create->danger.source_ip.netmask, limit,
-                    logprefix, loglevel, "");
+                    logprefix, loglevel, conf.nfgrp);
             }
             else
             {
