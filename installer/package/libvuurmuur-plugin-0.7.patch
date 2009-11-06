@@ -1,0 +1,49 @@
+--- libvuurmuur-0.7/src/backendapi.c    2009-03-22 14:22:18.000000000 +0100
++++ libvuurmuur-0.7/src/backendapi.c.modified   2009-11-02 17:07:15.000000000 +0100
+@@ -134,7 +134,7 @@
+             return(-1);
+         }
+
+-        if(snprintf(plugin_location, sizeof(plugin_location), "%s/plugins/lib%s.so", conf.plugdir, plugin_name) >= (int)sizeof(plugin_location))
++        if(snprintf(plugin_location, sizeof(plugin_location), "%s/lib%s.so", conf.plugdir, plugin_name) >= (int)sizeof(plugin_location))
+         {
+             (void)vrprint.error(-1, "Internal Error", "pluginpath "
+                 "overflow (in: %s:%d).", __FUNC__, __LINE__);
+diff -urN libvuurmuur-0.7/configure.in libvuurmuur-0.7.modified/configure.in
+--- libvuurmuur-0.7/configure.in	2007-05-08 19:48:12.000000000 +0200
++++ libvuurmuur-0.7.modified/configure.in	2009-09-04 08:37:41.000000000 +0200
+@@ -17,10 +19,12 @@
+         [plugindir="$withval"],[plugindir=no])
+ 
+ if test "$plugindir" != "no"; then
+-    CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"${plugindir}\""
++    VUURMUUR_PLUGIN_DIR="${plugindir}"
+ else
+-    CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"${libdir}/vuurmuur\""
++    VUURMUUR_PLUGIN_DIR="${libdir}/vuurmuur"
+ fi
++CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"$VUURMUUR_PLUGIN_DIR\""
++AC_SUBST(VUURMUUR_PLUGIN_DIR)
+ 
+ # shared dir option for rpm building
+ AC_ARG_WITH(shareddir,
+diff -urN libvuurmuur-0.7/Makefile.am libvuurmuur-0.7.modified/Makefile.am
+--- libvuurmuur-0.7/Makefile.am	2007-05-08 19:48:12.000000000 +0200
++++ libvuurmuur-0.7.modified/Makefile.am	2009-09-03 13:04:03.000000000 +0200
+@@ -2,4 +2,6 @@
+ # have all needed files, that a GNU package needs
+ AUTOMAKE_OPTIONS = foreign 1.4
+ 
++ACLOCAL_AMFLAGS = -I m4
++
+ SUBDIRS = src plugins doc
+diff -urN libvuurmuur-0.7/plugins/textdir/Makefile.am libvuurmuur-0.7.modified/plugins/textdir/Makefile.am
+--- libvuurmuur-0.7/plugins/textdir/Makefile.am	2009-03-22 14:53:21.000000000 +0100
++++ libvuurmuur-0.7.modified/plugins/textdir/Makefile.am	2009-09-04 08:38:05.000000000 +0200
+@@ -1,6 +1,6 @@
+ # textdir plugin
+ 
+-libdir = "${exec_prefix}/lib/vuurmuur/plugins"
++libdir = @VUURMUUR_PLUGIN_DIR@
+ 
+ lib_LTLIBRARIES = libtextdir.la

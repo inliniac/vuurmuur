@@ -19,6 +19,8 @@
  ***************************************************************************/
  
 #include "vuurmuur_log.h"
+#include <libnfnetlink/libnfnetlink.h>
+#include <libnetfilter_log/libnetfilter_log.h>
 
 /*@null@*/
 struct SHM_TABLE *shm_table = 0;
