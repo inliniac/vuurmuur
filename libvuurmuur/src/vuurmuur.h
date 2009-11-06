@@ -1034,6 +1034,7 @@ typedef struct
 
     char    target_reject;
     char    target_log;
+    char    target_nflog;
     char    target_redirect;
     char    target_mark;
     char    target_masquerade;

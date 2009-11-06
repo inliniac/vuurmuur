@@ -41,16 +41,20 @@ create_loglevel_string(const int debuglvl, struct vuurmuur_config *cnf, char *re
     memset(resultstr, 0, size);
 
     /* do it man */
-    if(strcmp(cnf->loglevel, "") != 0)
+    if(cnf->rule_nflog == 0)
     {
-        /* create the loglevel string */
-        if(snprintf(resultstr, size, "--log-level %s", cnf->loglevel) >= (int)size)
+        if (strcmp(cnf->loglevel, "") != 0)
         {
-            (void)vrprint.error(-1, "Error", "buffer overrun (in: %s:%d).", __FUNC__, __LINE__);
-            return;
+            /* create the loglevel string */
+            if(snprintf(resultstr, size, "--log-level %s", cnf->loglevel) >= (int)size)
+            {
+                (void)vrprint.error(-1, "Error", "buffer overrun (in: %s:%d).", __FUNC__, __LINE__);
+                return;
+            }
         }
     }
-
+    else
+        (void)vrprint.debug(__FUNC__, "did not add --log-level because we're in nflog mode");
     return;
 }
 

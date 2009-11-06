@@ -334,7 +334,6 @@ main(int argc, char *argv[])
     }
 
 
-    /* loglevel */
     create_loglevel_string(debuglvl, &conf, loglevel, sizeof(loglevel));
     /* tcp options */
     create_logtcpoptions_string(debuglvl, &conf, log_tcp_options, sizeof(log_tcp_options));

@@ -2722,6 +2722,7 @@ view_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
         mvwprintw(ConfigSection.win, 14, 27, "NFQUEUE\t%s", iptcap->target_nfqueue ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 15, 27, "CLASSIFY\t%s", iptcap->target_classify ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 16, 27, "TCPMSS\t%s", iptcap->target_tcpmss ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 17, 27, "NFLOG\t%s", iptcap->target_nflog ? STR_YES : STR_NO);
     }
     else
     {
@@ -2777,7 +2778,7 @@ view_caps(const int debuglvl)
     /* window dimentions */
     getmaxyx(stdscr, max_height, max_width);
 
-    height = 18;
+    height = 19;
     width  = 76;
     startx = (max_width  - width) /2;
     starty = (max_height - height)/2;
