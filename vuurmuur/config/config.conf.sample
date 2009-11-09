@@ -15,6 +15,12 @@ IPTABLES="/sbin/iptables"
 # Location of the iptables-restore-command (full path).
 IPTABLES_RESTORE="/sbin/iptables-restore"
 
+# Location of the conntrack-command (full path).
+CONNTRACK="/usr/sbin/conntrack"
+
+# Location of the tc-command (full path).
+TC="/sbin/tc"
+
 # Location of the modprobe-command (full path).
 MODPROBE="/sbin/modprobe"
 
@@ -22,7 +28,7 @@ MODPROBE="/sbin/modprobe"
 LOAD_MODULES="Yes"
 
 # Wait after loading a module in 1/10th of a second
-MODULES_WAIT_TIME="10"
+MODULES_WAIT_TIME="0"
 
 # If set to yes, each rule will be loaded into the system individually using
 # iptables. Otherwise iptables-restore will be used (yes/no).
@@ -31,7 +37,8 @@ OLD_CREATE_METHOD="No"
 # The directory where the logs will be written to (full path).
 LOGDIR="/var/log/vuurmuur"
 
-# The logfile where the kernel writes the logs to e.g. /var/log/messages (full path).
+# The logfile where the kernel writes the logs to e.g. /var/log/messages
+# (full path).
 SYSTEMLOG="/var/log/messages"
 
 # The loglevel to use when logging traffic. For use with syslog.
@@ -58,18 +65,17 @@ LOG_TCP_OPTIONS="No"
 
 # SYN_LIMIT sets the maximum number of SYN-packets per second.
 USE_SYN_LIMIT="Yes"
-
-SYN_LIMIT="15"
-SYN_LIMIT_BURST="30"
+SYN_LIMIT="10"
+SYN_LIMIT_BURST="20"
 
 # UDP_LIMIT sets the maximum number of udp 'connections' per second.
 USE_UDP_LIMIT="Yes"
-
-UDP_LIMIT="10"
-UDP_LIMIT_BURST="60"
+UDP_LIMIT="15"
+UDP_LIMIT_BURST="45"
 
 # Protect against syn-flooding? (yes/no)
 PROTECT_SYNCOOKIE="Yes"
+
 # Ignore echo-broadcasts? (yes/no)
 PROTECT_ECHOBROADCAST="Yes"
 
