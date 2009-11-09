@@ -1427,7 +1427,7 @@ int libvuurmuur_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
 FILE *vuurmuur_fopen(const int, const struct vuurmuur_config *, const char *path, const char *mode);
 DIR *vuurmuur_opendir(const int, const struct vuurmuur_config *, const char *);
 int stat_ok(const int, const struct vuurmuur_config *, const char *, char, char, char);
-int check_pidfile(char *pidfile_location);
+int check_pidfile(char *pidfile_location, char *service, pid_t *thepid);
 int create_pidfile(char *pidfile_location, int shm_id);
 int remove_pidfile(char *pidfile_location);
 FILE * rules_file_open(const int, const struct vuurmuur_config *cnf, const char *path, const char *mode, int caller);
