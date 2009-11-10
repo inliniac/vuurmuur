@@ -967,16 +967,9 @@ compare_logfile_stats(const int debuglvl, struct file_mon *filemon)
 
 
 static int
-close_logfiles(const int debuglvl, FILE **system_log, FILE **vuurmuur_log, /*@null@*/struct file_mon *filemon)
+close_syslog(const int debuglvl, FILE **system_log, /*@null@*/struct file_mon *filemon)
 {
     int retval = 0;
-
-    /* close the logfiles */
-    if(fclose(*vuurmuur_log) < 0)
-    {
-        (void)vrprint.error(-1, "Error", "closing the vuurmuur-log '%s' failed: %s.", conf.trafficlog_location, strerror(errno));
-        retval = -1;
-    }
 
     if(filemon != NULL)
     {
@@ -989,12 +982,27 @@ close_logfiles(const int debuglvl, FILE **system_log, FILE **vuurmuur_log, /*@nu
         retval = -1;
     }
 
-    *vuurmuur_log = NULL;
     *system_log   = NULL;
 
     return(retval);
 }
 
+static int
+close_vuurmuurlog(const int debuglvl, FILE **vuurmuur_log, /*@null@*/struct file_mon *filemon)
+{
+    int retval = 0;
+
+    /* close the logfiles */
+    if(fclose(*vuurmuur_log) < 0)
+    {
+        (void)vrprint.error(-1, "Error", "closing the vuurmuur-log '%s' failed: %s.", conf.trafficlog_location, strerror(errno));
+        retval = -1;
+    }
+
+    *vuurmuur_log = NULL;
+
+    return(retval);
+}
 
 FILE *
 open_logfile(const int debuglvl, const struct vuurmuur_config *cnf, const char *path, const char *mode)
@@ -1027,14 +1035,12 @@ open_logfile(const int debuglvl, const struct vuurmuur_config *cnf, const char *
 
 
 int
-open_logfiles(const int debuglvl, const struct vuurmuur_config *cnf, FILE **system_log, FILE **vuurmuur_log)
+open_syslog(const int debuglvl, const struct vuurmuur_config *cnf, FILE **system_log)
 {
     /* open the system log */
-    if(!(*system_log = fopen(conf.systemlog_location, "r")))
+    if(!(*system_log = fopen(cnf->systemlog_location, "r")))
     {
         (void)vrprint.error(-1, "Error", "the systemlog '%s' could not be opened: %s (in: %s:%d).", conf.systemlog_location, strerror(errno), __FUNC__, __LINE__);
-
-        *vuurmuur_log = NULL;
         return(-1);
     }
 
@@ -1046,29 +1052,26 @@ open_logfiles(const int debuglvl, const struct vuurmuur_config *cnf, FILE **syst
         /* close the systemlog again */
         (void)fclose(*system_log);
         *system_log = NULL;
-
-        *vuurmuur_log = NULL;
-        return(-1);
-    }
-
-    /* open the vuurmuur logfile */
-    if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, conf.trafficlog_location, "a")))
-    {
-        (void)vrprint.error(-1, "Error", "opening traffic log file '%s' failed: %s (in: %s:%d).", conf.trafficlog_location, strerror(errno), __FUNC__, __LINE__);
-
-        /* close the systemlog again */
-        (void)fclose(*system_log);
-        *system_log = NULL;
-
         return(-1);
     }
 
     return(0);
 }
 
+int
+open_vuurmuurlog (const int debuglvl, const struct vuurmuur_config *cnf, FILE **vuurmuur_log)
+{
+    /* open the vuurmuur logfile */
+    if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, conf.trafficlog_location, "a")))
+    {
+        (void)vrprint.error(-1, "Error", "opening traffic log file '%s' failed: %s (in: %s:%d).", conf.trafficlog_location, strerror(errno), __FUNC__, __LINE__);
+        return(-1);
+    }
+    return (0);
+}
 
 int
-reopen_logfiles(const int debuglvl, FILE **system_log, FILE **vuurmuur_log)
+reopen_syslog(const int debuglvl, FILE **system_log)
 {
     int             waiting = 0;
     char            done = 0;
@@ -1079,7 +1082,7 @@ reopen_logfiles(const int debuglvl, FILE **system_log, FILE **vuurmuur_log)
     memset(&filemon, 0, sizeof(filemon));
 
     /* close the logfiles */
-    (void)close_logfiles(debuglvl, system_log, vuurmuur_log, &filemon);
+    (void)close_syslog(debuglvl, system_log, &filemon);
 
     /*
         re-open the log, try for 5 minutes
@@ -1110,10 +1113,7 @@ reopen_logfiles(const int debuglvl, FILE **system_log, FILE **vuurmuur_log)
     if(*system_log == NULL)
     {
         (void)vrprint.error(-1, "Error", "after 5 minutes of trying the iptableslog could still not be opened.");
-
         *system_log = NULL;
-        *vuurmuur_log = NULL;
-
         return(-1);
     }
 
@@ -1128,21 +1128,31 @@ reopen_logfiles(const int debuglvl, FILE **system_log, FILE **vuurmuur_log)
             (void)vrprint.error(-1, "Error", "closing the iptableslog '%s' failed: %s.", conf.systemlog_location, strerror(errno));
 
         *system_log = NULL;
-        *vuurmuur_log = NULL;
 
         return(-1);
     }
+
+    return(0);
+}
+
+int
+reopen_vuurmuurlog(const int debuglvl, FILE **vuurmuur_log)
+{
+    int             waiting = 0;
+    char            done = 0;
+    struct file_mon filemon;
+    int             result = 0;
+
+    /* clear */
+    memset(&filemon, 0, sizeof(filemon));
+
+    /* close the logfiles */
+    (void)close_vuurmuurlog(debuglvl, vuurmuur_log, &filemon);
 
     /* re-open the vuurmuur logfile */
     if(!(*vuurmuur_log = open_logfile(debuglvl, &conf, conf.trafficlog_location, "a")))
     {
         (void)vrprint.error(-1, "Error", "Re-opening traffic log file '%s' failed: %s.", conf.trafficlog_location, strerror(errno));
-
-        if(fclose(*system_log) < 0)
-            (void)vrprint.error(-1, "Error", "closing the iptableslog '%s' failed: %s.", conf.systemlog_location, strerror(errno));
-
-        *system_log = NULL;
-
         return(-1);
     }
 

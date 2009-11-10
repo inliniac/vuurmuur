@@ -280,6 +280,183 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct draw
 }
 
 
+int
+BuildVMLine (struct log_rule *logrule, struct draw_rule_format_ *rulefmt, char *outline)
+{
+    /* TCP */
+    if(logrule->protocol == 6)
+    {
+        CreateTCPFlagString(logrule, rulefmt->tcpflags);
+        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d TCP flags: %s len:%u ttl:%u)\n",
+                        logrule->month,
+                        logrule->day,
+                        logrule->hour,
+                        logrule->minute,
+                        logrule->second,
+                        logrule->action,
+                        rulefmt->ser_name,
+                        rulefmt->from_name,
+                        rulefmt->to_name,
+                        logrule->logprefix,
+                        rulefmt->from_int,
+                        rulefmt->to_int,
+                        logrule->src_ip,
+                        logrule->src_mac,
+                        logrule->src_port,
+                        logrule->dst_ip,
+                        logrule->dst_mac,
+                        logrule->dst_port,
+                        rulefmt->tcpflags,
+                        logrule->packet_len,
+                        logrule->ttl);
+    }
+    /* UDP */
+    else if(logrule->protocol == 17)
+    {
+        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d UDP len:%u ttl:%u)\n",
+                        logrule->month,
+                        logrule->day,
+                        logrule->hour,
+                        logrule->minute,
+                        logrule->second,
+                        logrule->action,
+                        rulefmt->ser_name,
+                        rulefmt->from_name,
+                        rulefmt->to_name,
+                        logrule->logprefix,
+                        rulefmt->from_int,
+                        rulefmt->to_int,
+                        logrule->src_ip,
+                        logrule->src_mac,
+                        logrule->src_port,
+                        logrule->dst_ip,
+                        logrule->dst_mac,
+                        logrule->dst_port,
+                        logrule->packet_len,
+                        logrule->ttl);
+    }
+    /* ICMP */
+    else if(logrule->protocol == 1)
+    {
+        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ICMP type %d code %d len:%u ttl:%u)\n",
+                        logrule->month,
+                        logrule->day,
+                        logrule->hour,
+                        logrule->minute,
+                        logrule->second,
+                        logrule->action,
+                        rulefmt->ser_name,
+                        rulefmt->from_name,
+                        rulefmt->to_name,
+                        logrule->logprefix,
+                        rulefmt->from_int,
+                        rulefmt->to_int,
+                        logrule->src_ip,
+                        logrule->src_mac,
+                        logrule->dst_ip,
+                        logrule->dst_mac,
+                        logrule->icmp_type,
+                        logrule->icmp_code,
+                        logrule->packet_len,
+                        logrule->ttl);
+    }
+    /* GRE */
+    else if(logrule->protocol == 47)
+    {
+        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s GRE len:%u ttl:%u)\n",
+                        logrule->month,
+                        logrule->day,
+                        logrule->hour,
+                        logrule->minute,
+                        logrule->second,
+                        logrule->action,
+                        rulefmt->ser_name,
+                        rulefmt->from_name,
+                        rulefmt->to_name,
+                        logrule->logprefix,
+                        rulefmt->from_int,
+                        rulefmt->to_int,
+                        logrule->src_ip,
+                        logrule->src_mac,
+                        logrule->dst_ip,
+                        logrule->dst_mac,
+                        logrule->packet_len,
+                        logrule->ttl);
+    }
+    /* ESP */
+    else if(logrule->protocol == 50)
+    {
+        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ESP len:%u ttl:%u)\n",
+                        logrule->month,
+                        logrule->day,
+                        logrule->hour,
+                        logrule->minute,
+                        logrule->second,
+                        logrule->action,
+                        rulefmt->ser_name,
+                        rulefmt->from_name,
+                        rulefmt->to_name,
+                        logrule->logprefix,
+                        rulefmt->from_int,
+                        rulefmt->to_int,
+                        logrule->src_ip,
+                        logrule->src_mac,
+                        logrule->dst_ip,
+                        logrule->dst_mac,
+                        logrule->packet_len,
+                        logrule->ttl);
+    }
+    /* AH */
+    else if(logrule->protocol == 51)
+    {
+        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s AH len:%u ttl:%u)\n",
+                        logrule->month,
+                        logrule->day,
+                        logrule->hour,
+                        logrule->minute,
+                        logrule->second,
+                        logrule->action,
+                        rulefmt->ser_name,
+                        rulefmt->from_name,
+                        rulefmt->to_name,
+                        logrule->logprefix,
+                        rulefmt->from_int,
+                        rulefmt->to_int,
+                        logrule->src_ip,
+                        logrule->src_mac,
+                        logrule->dst_ip,
+                        logrule->dst_mac,
+                        logrule->packet_len,
+                        logrule->ttl);
+    }
+    /* other */
+    else
+    {
+        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s (%d) len:%u ttl:%u)\n",
+                        logrule->month,
+                        logrule->day,
+                        logrule->hour,
+                        logrule->minute,
+                        logrule->second,
+                        logrule->action,
+                        rulefmt->ser_name,
+                        rulefmt->from_name,
+                        rulefmt->to_name,
+                        logrule->logprefix,
+                        rulefmt->from_int,
+                        rulefmt->to_int,
+                        logrule->src_ip,
+                        logrule->src_mac,
+                        logrule->dst_ip,
+                        logrule->dst_mac,
+                        logrule->protocol,
+                        logrule->packet_len,
+                        logrule->ttl);
+    }
+
+    return (0);
+}
+
 static void
 print_help(void)
 {
@@ -289,6 +466,7 @@ print_help(void)
     fprintf(stdout, " -h, --help\t\t\tgives this help\n");
     fprintf(stdout, " -v, --verbose\t\t\tverbose mode\n");
     fprintf(stdout, " -n, --nodaemon\t\t\tdo NOT start as a daemon\n");
+    fprintf(stdout, " -s, --syslog\t\t\tuse legacy syslog mode\n");
     fprintf(stdout, " -c, --configfile\t\tuse the given configfile\n");
     fprintf(stdout, " -d, --debug\t\t\tenable debugging (1 = low, 3 = high)\n");
     fprintf(stdout, " -V, --version\t\t\tgives the version\n");
@@ -500,7 +678,13 @@ main(int argc, char *argv[])
     }
 
     /* open the logs */
-    if(open_logfiles(debuglvl, &conf, &system_log, &vuurmuur_log) < 0)
+    if(open_syslog(debuglvl, &conf, &system_log) < 0)
+    {
+        (void)vrprint.error(-1, "Error", "opening logfiles failed.");
+        exit(EXIT_FAILURE);
+    }
+
+    if (open_vuurmuurlog (debuglvl, &conf, &vuurmuur_log) < 0)
     {
         (void)vrprint.error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
@@ -684,266 +868,51 @@ main(int argc, char *argv[])
             if(fgets(line, (int)sizeof(line), system_log) != NULL)
             {
                 linelen = strlen(line);
-
-                if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "got a logline (len = %u, max = %u).", linelen, sizeof(line));
-
-                /* if we got a line, we reset waiting */
                 waiting = 0;
-
-                /*  if the line does not end with a
-                    newline it is incomplete, so we
-                    rewind.
-                    
-                    we first check if the line isn't
-                    longer than our buffer, so the newline
-                    char might just be past the buffer.
-                    Fixes a race condition reported by
-                    Adi. */
-                if( (linelen < sizeof(line)-1) &&
-                    line[linelen - 1] != '\n')
+                if( (linelen < sizeof(line)-1) && line[linelen - 1] != '\n')
                 {
-                    if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "logline (len = %u) is incomplete: no trailing newline char. Rewinding(using fseek).", linelen);
-
                     fseek(system_log, (int)linelen*-1, SEEK_CUR);
                 }
                 else
                 {
-                    /*
-                        first check if this is a vuurmuur line
-                    */
                     if(check_ipt_line(line))
                     {
-                        if(debuglvl >= LOW)
-                            (void)vrprint.debug(__FUNC__, "the line is a vuurmuur line.");
-
-                        /* now parse it */
-                        result = parse_ipt_logline(debuglvl, line, linelen, sscanf_str, &logrule, &rulefmt, &Counters);
-                        if(result == -1)
+                        switch (parse_ipt_logline(debuglvl, line, linelen, sscanf_str, &logrule, &rulefmt, &Counters))
                         {
-                            exit(EXIT_FAILURE);
-                        }
-                        else if(result == 0)
-                        {
-                            /* invalid line */
-                            if(debuglvl >= LOW)
-                                (void)vrprint.debug(__FUNC__, "the line is invalid after parsing.");
-
-                            Counters.invalid_loglines++;
-                        }
-                        else
-                        {
-                            if(debuglvl >= LOW)
-                                (void)vrprint.debug(__FUNC__, "the line was successfully parsed.");
-
-                            /*
-                                now try to get our vuurmuur names into it
-                            */
-                            result = get_vuurmuur_names(debuglvl, &logrule, &rulefmt, &zone_htbl, &service_htbl);
-                            if(result == -1)
-                            {
+                            case -1:
                                 exit(EXIT_FAILURE);
-                            }
-                            else if(result == 0)
-                            {
-                                /* some minor error */
-                                if(debuglvl >= LOW)
-                                    (void)vrprint.debug(__FUNC__, "the line is invalid after trying to insert the vuurmuur names.");
-
+                                break;
+                            case 0:
                                 Counters.invalid_loglines++;
-                            }
-                            else
-                            {
-                                if(debuglvl >= LOW)
-                                    (void)vrprint.debug(__FUNC__, "the line was successfully named.");
-
-                                /* TCP */
-                                if(logrule.protocol == 6)
+                                break;
+                            default:
+                                result = get_vuurmuur_names(debuglvl, &logrule, &rulefmt, &zone_htbl, &service_htbl);
+                                switch (result)
                                 {
-                                    CreateTCPFlagString(&logrule, rulefmt.tcpflags);
-
-                                    fprintf(vuurmuur_log, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d TCP flags: %s len:%u ttl:%u)\n",
-                                                    logrule.month,
-                                                    logrule.day,
-                                                    logrule.hour,
-                                                    logrule.minute,
-                                                    logrule.second,
-                                                    logrule.action,
-                                                    rulefmt.ser_name,
-                                                    rulefmt.from_name,
-                                                    rulefmt.to_name,
-                                                    logrule.logprefix,
-                                                    rulefmt.from_int,
-                                                    rulefmt.to_int,
-                                                    logrule.src_ip,
-                                                    logrule.src_mac,
-                                                    logrule.src_port,
-                                                    logrule.dst_ip,
-                                                    logrule.dst_mac,
-                                                    logrule.dst_port,
-                                                    rulefmt.tcpflags,
-                                                    logrule.packet_len,
-                                                    logrule.ttl);
+                                    case -1:
+                                        exit(EXIT_FAILURE);
+                                        break;
+                                    case 0:
+                                        Counters.invalid_loglines++;
+                                        break;
+                                    default:
+                                        if (BuildVMLine (&logrule, &rulefmt, line) < 0)
+                                        {
+                                            (void)vrprint.error(-1, "Error", "Could not build output line");;
+                                        }
+                                        fprintf (vuurmuur_log, line);
+                                        fflush(vuurmuur_log);
+                                        break;
                                 }
-                                /* UDP */
-                                else if(logrule.protocol == 17)
-                                {
-                                    fprintf(vuurmuur_log, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d UDP len:%u ttl:%u)\n",
-                                                    logrule.month,
-                                                    logrule.day,
-                                                    logrule.hour,
-                                                    logrule.minute,
-                                                    logrule.second,
-                                                    logrule.action,
-                                                    rulefmt.ser_name,
-                                                    rulefmt.from_name,
-                                                    rulefmt.to_name,
-                                                    logrule.logprefix,
-                                                    rulefmt.from_int,
-                                                    rulefmt.to_int,
-                                                    logrule.src_ip,
-                                                    logrule.src_mac,
-                                                    logrule.src_port,
-                                                    logrule.dst_ip,
-                                                    logrule.dst_mac,
-                                                    logrule.dst_port,
-                                                    logrule.packet_len,
-                                                    logrule.ttl);
-                                }
-                                /* ICMP */
-                                else if(logrule.protocol == 1)
-                                {
-                                    fprintf(vuurmuur_log, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ICMP type %d code %d len:%u ttl:%u)\n",
-                                                    logrule.month,
-                                                    logrule.day,
-                                                    logrule.hour,
-                                                    logrule.minute,
-                                                    logrule.second,
-                                                    logrule.action,
-                                                    rulefmt.ser_name,
-                                                    rulefmt.from_name,
-                                                    rulefmt.to_name,
-                                                    logrule.logprefix,
-                                                    rulefmt.from_int,
-                                                    rulefmt.to_int,
-                                                    logrule.src_ip,
-                                                    logrule.src_mac,
-                                                    logrule.dst_ip,
-                                                    logrule.dst_mac,
-                                                    logrule.icmp_type,
-                                                    logrule.icmp_code,
-                                                    logrule.packet_len,
-                                                    logrule.ttl);
-                                }
-                                /* GRE */
-                                else if(logrule.protocol == 47)
-                                {
-                                    fprintf(vuurmuur_log, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s GRE len:%u ttl:%u)\n",
-                                                    logrule.month,
-                                                    logrule.day,
-                                                    logrule.hour,
-                                                    logrule.minute,
-                                                    logrule.second,
-                                                    logrule.action,
-                                                    rulefmt.ser_name,
-                                                    rulefmt.from_name,
-                                                    rulefmt.to_name,
-                                                    logrule.logprefix,
-                                                    rulefmt.from_int,
-                                                    rulefmt.to_int,
-                                                    logrule.src_ip,
-                                                    logrule.src_mac,
-                                                    logrule.dst_ip,
-                                                    logrule.dst_mac,
-                                                    logrule.packet_len,
-                                                    logrule.ttl);
-                                }
-                                /* ESP */
-                                else if(logrule.protocol == 50)
-                                {
-                                    fprintf(vuurmuur_log, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ESP len:%u ttl:%u)\n",
-                                                    logrule.month,
-                                                    logrule.day,
-                                                    logrule.hour,
-                                                    logrule.minute,
-                                                    logrule.second,
-                                                    logrule.action,
-                                                    rulefmt.ser_name,
-                                                    rulefmt.from_name,
-                                                    rulefmt.to_name,
-                                                    logrule.logprefix,
-                                                    rulefmt.from_int,
-                                                    rulefmt.to_int,
-                                                    logrule.src_ip,
-                                                    logrule.src_mac,
-                                                    logrule.dst_ip,
-                                                    logrule.dst_mac,
-                                                    logrule.packet_len,
-                                                    logrule.ttl);
-                                }
-                                /* AH */
-                                else if(logrule.protocol == 51)
-                                {
-                                    fprintf(vuurmuur_log, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s AH len:%u ttl:%u)\n",
-                                                    logrule.month,
-                                                    logrule.day,
-                                                    logrule.hour,
-                                                    logrule.minute,
-                                                    logrule.second,
-                                                    logrule.action,
-                                                    rulefmt.ser_name,
-                                                    rulefmt.from_name,
-                                                    rulefmt.to_name,
-                                                    logrule.logprefix,
-                                                    rulefmt.from_int,
-                                                    rulefmt.to_int,
-                                                    logrule.src_ip,
-                                                    logrule.src_mac,
-                                                    logrule.dst_ip,
-                                                    logrule.dst_mac,
-                                                    logrule.packet_len,
-                                                    logrule.ttl);
-                                }
-                                /* other */
-                                else
-                                {
-                                    fprintf(vuurmuur_log, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s (%d) len:%u ttl:%u)\n",
-                                                    logrule.month,
-                                                    logrule.day,
-                                                    logrule.hour,
-                                                    logrule.minute,
-                                                    logrule.second,
-                                                    logrule.action,
-                                                    rulefmt.ser_name,
-                                                    rulefmt.from_name,
-                                                    rulefmt.to_name,
-                                                    logrule.logprefix,
-                                                    rulefmt.from_int,
-                                                    rulefmt.to_int,
-                                                    logrule.src_ip,
-                                                    logrule.src_mac,
-                                                    logrule.dst_ip,
-                                                    logrule.dst_mac,
-                                                    logrule.protocol,
-                                                    logrule.packet_len,
-                                                    logrule.ttl);
-                                }
-
-                                fflush(vuurmuur_log);
-                            }
                         }
-
                         Counters.totalvuurmuur++;
-                    }
-                    else
-                    {
+                    } else {
                         Counters.noipt++;
                     }
-
                     Counters.total++;
                 }
             }
+
 
             /* no line received */
             else
@@ -958,15 +927,15 @@ main(int argc, char *argv[])
                         (void)vrprint.debug(__FUNC__, "didn't get a logline for %d seconds, closing and reopening the logfiles.", waiting / 10);
 
                     /* re-open the logs */
-                    if(reopen_logfiles(debuglvl, &system_log, &vuurmuur_log) < 0)
+                    if(reopen_syslog(debuglvl, &system_log) < 0)
                     {
-                        (void)vrprint.error(-1, "Error", "re-opening logfiles failed.");
+                        (void)vrprint.error(-1, "Error", "re-opening syslog failed.");
                         exit(EXIT_FAILURE);
                     }
-                    else
+                    if(reopen_vuurmuurlog(debuglvl, &vuurmuur_log) < 0)
                     {
-                        if(debuglvl >= MEDIUM)
-                            (void)vrprint.debug(__FUNC__, "re-opening the logfiles was successfull.");
+                        (void)vrprint.error(-1, "Error", "re-opening vuurmuur traffic log failed.");
+                        exit(EXIT_FAILURE);
                     }
 
                     /* reset waiting */
@@ -1096,7 +1065,13 @@ main(int argc, char *argv[])
             shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 90);
 
             /* re-open the logs */
-            if(reopen_logfiles(debuglvl, &system_log, &vuurmuur_log) < 0)
+            if(reopen_syslog(debuglvl, &system_log) < 0)
+            {
+                (void)vrprint.error(-1, "Error", "re-opening logfiles failed.");
+                exit(EXIT_FAILURE);
+            }
+
+            if(reopen_vuurmuurlog(debuglvl, &vuurmuur_log) < 0)
             {
                 (void)vrprint.error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
@@ -1224,24 +1199,7 @@ main(int argc, char *argv[])
     destroy_interfaceslist(debuglvl, &interfaces);
   
     if(nodaemon)
-    {
-        fprintf(stdout, "\nStatistics:\n");
-
-        fprintf(stdout, "Total logrules: %u (vuurmuur: %u, other: %u, invalid: %u)\n", Counters.total, Counters.totalvuurmuur, Counters.noipt, Counters.invalid_loglines);
-
-        fprintf(stdout, "\nMatches:\n");
-        fprintf(stdout, "Accepted    : %u\n", Counters.accept);
-        fprintf(stdout, "Queued      : %u\n", Counters.queue);
-        fprintf(stdout, "Rejected    : %u\n", Counters.reject);
-        fprintf(stdout, "Dropped     : %u\n", Counters.drop);
-        fprintf(stdout, "Other       : %u\n", Counters.other_match);
-
-        fprintf(stdout, "\nProtocols:\n");
-        fprintf(stdout, "TCP         : %u\n", Counters.tcp);
-        fprintf(stdout, "UDP         : %u\n", Counters.udp);
-        fprintf(stdout, "ICMP        : %u\n", Counters.icmp);
-        fprintf(stdout, "Other       : %u\n", Counters.other_proto);
-    }
+        show_stats (&Counters);
 
     if(unload_backends(debuglvl, &PluginList) < 0)
     {
