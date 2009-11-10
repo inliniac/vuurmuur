@@ -290,31 +290,31 @@ BuildVMLine (struct log_rule *logrule, struct draw_rule_format_ *rulefmt, char *
     {
         case 6:
             CreateTCPFlagString(logrule, rulefmt->tcpflags);
-            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d TCP flags: %s len:%u ttl:%u)\n");
+            strncpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d TCP flags: %s len:%u ttl:%u)\n", sizeof(format));
             break;
         case 17:
-            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d UDP len:%u ttl:%u)\n");
+            strncpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d UDP len:%u ttl:%u)\n", sizeof(format));
             break;
         case 1:
-            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ICMP type %d code %d len:%u ttl:%u)\n");
+            strncpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ICMP type %d code %d len:%u ttl:%u)\n", sizeof(format));
             break;
         case 47:
-            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s GRE len:%u ttl:%u)\n");
+            strncpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s GRE len:%u ttl:%u)\n", sizeof(format));
             break;
         case 50:
-            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ESP len:%u ttl:%u)\n");
+            strncpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ESP len:%u ttl:%u)\n", sizeof(format));
             break;
         case 51:
-            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s AH len:%u ttl:%u)\n");
+            strncpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s AH len:%u ttl:%u)\n", sizeof(format));
             break;
         default:
-            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s (%d) len:%u ttl:%u)\n");
+            strncpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s (%d) len:%u ttl:%u)\n", sizeof(format));
     }
 
-    sprintf (outline, format, 
+    snprintf (outline, sizeof(outline), format, 
         logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, logrule->action, rulefmt->ser_name, rulefmt->from_name, rulefmt->to_name, logrule->logprefix,
         rulefmt->from_int, rulefmt->to_int, logrule->src_ip, logrule->src_mac, logrule->src_port, logrule->dst_ip, logrule->dst_mac, logrule->dst_port, rulefmt->tcpflags,
-        logrule->packet_len, logrule->ttl);
+        logrule->packet_len, logrule->ttl, 1024);
 
     return (0);
 }
