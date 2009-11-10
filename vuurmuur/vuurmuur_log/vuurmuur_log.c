@@ -331,6 +331,7 @@ print_help(void)
     fprintf(stdout, " -s, --syslog\t\t\tuse legacy syslog mode\n");
     fprintf(stdout, " -c, --configfile\t\tuse the given configfile\n");
     fprintf(stdout, " -d, --debug\t\t\tenable debugging (1 = low, 3 = high)\n");
+    fprintf(stdout, " -K, --killme\t\t\tkill running daemon\n");
     fprintf(stdout, " -V, --version\t\t\tgives the version\n");
     fprintf(stdout, "\n");
     exit(EXIT_SUCCESS);
@@ -359,7 +360,7 @@ main(int argc, char *argv[])
                 waiting = 0;
     pid_t       pid;    
     int         optch;
-    static char optstring[] = "hc:vnd:Vs";
+    static char optstring[] = "hc:vnd:VsK";
     int         verbose = 0,
                 nodaemon = 0,
                 syslog = 0;
@@ -371,6 +372,7 @@ main(int argc, char *argv[])
         { "configfile", required_argument, NULL, 'c' },
         { "debug", required_argument, NULL, 'd' },
         { "syslog", required_argument, NULL, 's' },
+        { "killme", required_argument, NULL, 'K' },
         { "version", no_argument, NULL, 'V' },
         { 0, 0, 0, 0 },
     };
@@ -476,6 +478,16 @@ main(int argc, char *argv[])
 
             case 's' :
                 syslog = 1;
+                break;
+
+            case 'K' :
+                if (check_pidfile (PIDFILE, SVCNAME, &pid) == -1) 
+                {
+                    (void)vrprint.debug(__FUNC__, "Terminating %u", pid);
+                    kill (pid, 15);
+                    exit (EXIT_SUCCESS);
+                }
+                exit (EXIT_FAILURE);
                 break;
 
             case 'V' :
