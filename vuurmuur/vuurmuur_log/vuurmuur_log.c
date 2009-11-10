@@ -1215,11 +1215,12 @@ main(int argc, char *argv[])
                     for the next line in 1/10th of a second.
                 */
                 waiting = 0;
-    
+    pid_t       pid;    
     int         optch;
-    static char optstring[] = "hc:vnd:V";
+    static char optstring[] = "hc:vnd:Vs";
     int         verbose = 0,
-                nodaemon = 0;
+                nodaemon = 0,
+                syslog = 0;
     struct option prog_opts[] =
     {
         { "help", no_argument, NULL, 'h' },
@@ -1227,6 +1228,7 @@ main(int argc, char *argv[])
         { "nodaemon", no_argument, &nodaemon, 1 },
         { "configfile", required_argument, NULL, 'c' },
         { "debug", required_argument, NULL, 'd' },
+        { "syslog", required_argument, NULL, 's' },
         { "version", no_argument, NULL, 'V' },
         { 0, 0, 0, 0 },
     };
@@ -1330,6 +1332,10 @@ main(int argc, char *argv[])
                 fprintf(stdout, "vuurmuur-log: debug level: %d\n", debuglvl);
                 break;
 
+            case 's' :
+                syslog = 1;
+                break;
+
             case 'V' :
                 /* print version */
                 fprintf(stdout, "Vuurmuur_log %s\n", version_string);
@@ -1340,7 +1346,7 @@ main(int argc, char *argv[])
     }
 
     /* check if the pidfile already exists */
-    if(check_pidfile(PIDFILE) == -1)
+    if(check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
         exit(EXIT_FAILURE);
 
     /* set up the sscanf parser string */

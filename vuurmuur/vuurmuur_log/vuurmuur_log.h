@@ -37,6 +37,7 @@
 #include "../vuurmuur/version.h"
 
 #define PIDFILE         "/var/run/vuurmuur_log.pid"
+#define SVCNAME         "vuurmuur_log"
 
 #ifndef HOST_NAME_MAX
 #define HOST_NAME_MAX   255
