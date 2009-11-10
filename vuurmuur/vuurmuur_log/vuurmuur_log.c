@@ -19,6 +19,8 @@
  ***************************************************************************/
  
 #include "vuurmuur_log.h"
+#include "stats.h"
+
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_log/libnetfilter_log.h>
 
@@ -312,18 +314,8 @@ parse_ipt_logline(  const int debuglvl,
         return(0);
     }
 
-    /* ACTION counters */
-    if(strcmp(logrule_ptr->action, "DROP") == 0)
-        counter_ptr->drop++;
-    else if(strcmp(logrule_ptr->action, "ACCEPT") == 0)
-        counter_ptr->accept++;
-    else if(strcmp(logrule_ptr->action, "REJECT") == 0)
-        counter_ptr->reject++;
-    else if(strcmp(logrule_ptr->action, "QUEUE") == 0)
-        counter_ptr->queue++;
-    else
-        counter_ptr->other_match++;
-        
+    upd_action_ctrs (logrule_ptr->action, counter_ptr);
+
     hostname_len = strlen(logrule_ptr->hostname);
     if(hostname_len <= 0)
         return(-1);

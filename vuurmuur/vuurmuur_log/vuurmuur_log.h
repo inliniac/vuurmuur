@@ -117,27 +117,6 @@ struct draw_rule_format_
     char    tcpflags[7];
 };
 
-struct Counters_
-{
-    unsigned int    drop;
-    unsigned int    accept;
-    unsigned int    reject;
-    unsigned int    queue;
-    unsigned int    other_match;
-
-    unsigned int    tcp;
-    unsigned int    udp;
-    unsigned int    icmp;
-    unsigned int    other_proto;
-
-    unsigned int    totalvuurmuur;
-
-    unsigned int    noipt;
-    unsigned int    invalid_loglines;
-
-    unsigned int    total;
-};
-
 
 int reopen_logfiles(const int, FILE **, FILE **);
 int open_logfiles(const int, const struct vuurmuur_config *cnf, FILE **, FILE **);
