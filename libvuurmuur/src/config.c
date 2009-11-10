@@ -207,7 +207,7 @@ check_iptables_command(const int debuglvl, struct vuurmuur_config *cnf, char *ip
     /* first check if there even is a value */
     if(strcmp(iptables_location, "") == 0)
     {
-        if(quiet == FALSE)
+        if(quiet == IPTCHK_VERBOSE)
             (void)vrprint.error(0, "Error", "The path to the 'iptables'-command was not set.", iptables_location);
 
         return(0);
@@ -219,7 +219,7 @@ check_iptables_command(const int debuglvl, struct vuurmuur_config *cnf, char *ip
         int r = libvuurmuur_exec_command(debuglvl, cnf, iptables_location, args, NULL);
         if (r != 0)
         {
-            if(quiet == FALSE)
+            if(quiet == IPTCHK_VERBOSE)
                 (void)vrprint.error(0, "Error", "The path '%s' to the 'iptables'-command seems to be wrong.", iptables_location);
 
             return(0);
@@ -245,7 +245,7 @@ check_iptablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, c
     /* first check if there even is a value */
     if(strcmp(iptablesrestore_location, "") == 0)
     {
-        if(quiet == FALSE)
+        if(quiet == IPTCHK_VERBOSE)
             (void)vrprint.error(0, "Error", "The path to the 'iptables-restore'-command was not set.", iptablesrestore_location);
 
         return(0);
@@ -257,7 +257,7 @@ check_iptablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, c
         int r = libvuurmuur_exec_command(debuglvl, cnf, iptablesrestore_location, args, NULL);
         if (r != 1)
         {
-            if(quiet == FALSE)
+            if(quiet == IPTCHK_VERBOSE)
                 (void)vrprint.error(0, "Error", "The path '%s' to the 'iptables-restore'-command seems to be wrong.", iptablesrestore_location);
 
             return(0);
@@ -282,7 +282,7 @@ check_tc_command(const int debuglvl, struct vuurmuur_config *cnf, char *tc_locat
     /* first check if there even is a value */
     if(strcmp(tc_location, "") == 0)
     {
-        if(quiet == FALSE)
+        if(quiet == IPTCHK_VERBOSE)
             (void)vrprint.error(0, "Error", "The path to the 'tc'-command was not set.", tc_location);
 
         return(0);
@@ -293,7 +293,7 @@ check_tc_command(const int debuglvl, struct vuurmuur_config *cnf, char *tc_locat
         int r = libvuurmuur_exec_command(debuglvl, cnf, tc_location, args, NULL);
         if (r != 0)
         {
-            if(quiet == FALSE)
+            if(quiet == IPTCHK_VERBOSE)
                 (void)vrprint.error(0, "Error", "The path '%s' to the 'tc'-command seems to be wrong.", tc_location);
 
             return(0);
