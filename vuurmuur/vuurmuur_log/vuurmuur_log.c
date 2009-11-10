@@ -283,176 +283,38 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct draw
 int
 BuildVMLine (struct log_rule *logrule, struct draw_rule_format_ *rulefmt, char *outline)
 {
+    char    format[256];
+
     /* TCP */
-    if(logrule->protocol == 6)
+    switch (logrule->protocol)
     {
-        CreateTCPFlagString(logrule, rulefmt->tcpflags);
-        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d TCP flags: %s len:%u ttl:%u)\n",
-                        logrule->month,
-                        logrule->day,
-                        logrule->hour,
-                        logrule->minute,
-                        logrule->second,
-                        logrule->action,
-                        rulefmt->ser_name,
-                        rulefmt->from_name,
-                        rulefmt->to_name,
-                        logrule->logprefix,
-                        rulefmt->from_int,
-                        rulefmt->to_int,
-                        logrule->src_ip,
-                        logrule->src_mac,
-                        logrule->src_port,
-                        logrule->dst_ip,
-                        logrule->dst_mac,
-                        logrule->dst_port,
-                        rulefmt->tcpflags,
-                        logrule->packet_len,
-                        logrule->ttl);
+        case 6:
+            CreateTCPFlagString(logrule, rulefmt->tcpflags);
+            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d TCP flags: %s len:%u ttl:%u)\n");
+            break;
+        case 17:
+            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d UDP len:%u ttl:%u)\n");
+            break;
+        case 1:
+            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ICMP type %d code %d len:%u ttl:%u)\n");
+            break;
+        case 47:
+            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s GRE len:%u ttl:%u)\n");
+            break;
+        case 50:
+            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ESP len:%u ttl:%u)\n");
+            break;
+        case 51:
+            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s AH len:%u ttl:%u)\n");
+            break;
+        default:
+            strcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s (%d) len:%u ttl:%u)\n");
     }
-    /* UDP */
-    else if(logrule->protocol == 17)
-    {
-        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d UDP len:%u ttl:%u)\n",
-                        logrule->month,
-                        logrule->day,
-                        logrule->hour,
-                        logrule->minute,
-                        logrule->second,
-                        logrule->action,
-                        rulefmt->ser_name,
-                        rulefmt->from_name,
-                        rulefmt->to_name,
-                        logrule->logprefix,
-                        rulefmt->from_int,
-                        rulefmt->to_int,
-                        logrule->src_ip,
-                        logrule->src_mac,
-                        logrule->src_port,
-                        logrule->dst_ip,
-                        logrule->dst_mac,
-                        logrule->dst_port,
-                        logrule->packet_len,
-                        logrule->ttl);
-    }
-    /* ICMP */
-    else if(logrule->protocol == 1)
-    {
-        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ICMP type %d code %d len:%u ttl:%u)\n",
-                        logrule->month,
-                        logrule->day,
-                        logrule->hour,
-                        logrule->minute,
-                        logrule->second,
-                        logrule->action,
-                        rulefmt->ser_name,
-                        rulefmt->from_name,
-                        rulefmt->to_name,
-                        logrule->logprefix,
-                        rulefmt->from_int,
-                        rulefmt->to_int,
-                        logrule->src_ip,
-                        logrule->src_mac,
-                        logrule->dst_ip,
-                        logrule->dst_mac,
-                        logrule->icmp_type,
-                        logrule->icmp_code,
-                        logrule->packet_len,
-                        logrule->ttl);
-    }
-    /* GRE */
-    else if(logrule->protocol == 47)
-    {
-        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s GRE len:%u ttl:%u)\n",
-                        logrule->month,
-                        logrule->day,
-                        logrule->hour,
-                        logrule->minute,
-                        logrule->second,
-                        logrule->action,
-                        rulefmt->ser_name,
-                        rulefmt->from_name,
-                        rulefmt->to_name,
-                        logrule->logprefix,
-                        rulefmt->from_int,
-                        rulefmt->to_int,
-                        logrule->src_ip,
-                        logrule->src_mac,
-                        logrule->dst_ip,
-                        logrule->dst_mac,
-                        logrule->packet_len,
-                        logrule->ttl);
-    }
-    /* ESP */
-    else if(logrule->protocol == 50)
-    {
-        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ESP len:%u ttl:%u)\n",
-                        logrule->month,
-                        logrule->day,
-                        logrule->hour,
-                        logrule->minute,
-                        logrule->second,
-                        logrule->action,
-                        rulefmt->ser_name,
-                        rulefmt->from_name,
-                        rulefmt->to_name,
-                        logrule->logprefix,
-                        rulefmt->from_int,
-                        rulefmt->to_int,
-                        logrule->src_ip,
-                        logrule->src_mac,
-                        logrule->dst_ip,
-                        logrule->dst_mac,
-                        logrule->packet_len,
-                        logrule->ttl);
-    }
-    /* AH */
-    else if(logrule->protocol == 51)
-    {
-        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s AH len:%u ttl:%u)\n",
-                        logrule->month,
-                        logrule->day,
-                        logrule->hour,
-                        logrule->minute,
-                        logrule->second,
-                        logrule->action,
-                        rulefmt->ser_name,
-                        rulefmt->from_name,
-                        rulefmt->to_name,
-                        logrule->logprefix,
-                        rulefmt->from_int,
-                        rulefmt->to_int,
-                        logrule->src_ip,
-                        logrule->src_mac,
-                        logrule->dst_ip,
-                        logrule->dst_mac,
-                        logrule->packet_len,
-                        logrule->ttl);
-    }
-    /* other */
-    else
-    {
-        sprintf(outline, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s (%d) len:%u ttl:%u)\n",
-                        logrule->month,
-                        logrule->day,
-                        logrule->hour,
-                        logrule->minute,
-                        logrule->second,
-                        logrule->action,
-                        rulefmt->ser_name,
-                        rulefmt->from_name,
-                        rulefmt->to_name,
-                        logrule->logprefix,
-                        rulefmt->from_int,
-                        rulefmt->to_int,
-                        logrule->src_ip,
-                        logrule->src_mac,
-                        logrule->dst_ip,
-                        logrule->dst_mac,
-                        logrule->protocol,
-                        logrule->packet_len,
-                        logrule->ttl);
-    }
+
+    sprintf (outline, format, 
+        logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, logrule->action, rulefmt->ser_name, rulefmt->from_name, rulefmt->to_name, logrule->logprefix,
+        rulefmt->from_int, rulefmt->to_int, logrule->src_ip, logrule->src_mac, logrule->src_port, logrule->dst_ip, logrule->dst_mac, logrule->dst_port, rulefmt->tcpflags,
+        logrule->packet_len, logrule->ttl);
 
     return (0);
 }
