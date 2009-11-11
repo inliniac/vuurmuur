@@ -21,6 +21,7 @@
 #include "vuurmuur_log.h"
 #include "stats.h"
 #include "logfile.h"
+#include "vuurmuur_ipc.h"
 
 #include <libnfnetlink/libnfnetlink.h>
 #include <libnetfilter_log/libnetfilter_log.h>
@@ -385,9 +386,6 @@ main(int argc, char *argv[])
 
     /* shm, sem stuff */
     int             shm_id;
-    char            *shmp;
-    union semun     semarg;
-    ushort          seminit[] = { 1,0 };
 
     char            reload = 0;
     int             wait_time = 0;
@@ -565,18 +563,15 @@ main(int argc, char *argv[])
     }
 
     /* load the services into memory */
-    result = load_services(debuglvl, &services, &reg);
-    if(result == -1)
+    if(load_services(debuglvl, &services, &reg)== -1)
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
-    result = load_interfaces(debuglvl, &interfaces);
-    if(result == -1)
+    if(load_interfaces(debuglvl, &interfaces) == -1)
         exit(EXIT_FAILURE);
 
     /* load the zonedata into memory */
-    result = load_zones(debuglvl, &zones, &interfaces, &reg);
-    if(result == -1)
+    if(load_zones(debuglvl, &zones, &interfaces, &reg) == -1)
         exit(EXIT_FAILURE);
 
 
@@ -612,95 +607,13 @@ main(int argc, char *argv[])
     if(nodaemon == 0)
         daemon(1,1);
 
-    /* create shared memory segment */
-    shm_id = shmget(IPC_PRIVATE, sizeof(*shm_table), 0600);
-    if(shm_id < 0)
-    {
-        (void)vrprint.error(-1, "Error", "unable to create shared memory: %s.", strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-    /* for some reason on my machine the shm_id is zero when vuurmuur is started at boot
-       if we sleep for some time and retry it works */
-    else if(shm_id == 0)
-    {
-        /* sleep 3 seconds before trying again */
-        (void)sleep(3);
-
-        shm_id = shmget(IPC_PRIVATE, sizeof(*shm_table), 0600);
-        if(shm_id < 0)
-        {
-            (void)vrprint.error(-1, "Error", "Unable to create shared memory: %s (retry).", strerror(errno));
-            exit(EXIT_FAILURE);
-        }
-        else if(shm_id == 0)
-        {
-            (void)vrprint.info("Info", "Still no valid shm_id. Giving up.");
-        }
-        else
-        {
-            (void)vrprint.info("Info", "Creating shared memory successfull: shm_id: %d (retry).", shm_id);
-        }
-    }
-    else
-    {
-        (void)vrprint.info("Info", "Creating shared memory successfull: shm_id: %d.", shm_id);
-    }
-
-    /* now attach to the shared mem */
-    if(shm_id > 0)
-    {
-        shmp = shmat(shm_id, 0, 0);
-        if(shmp == (char *)(-1))
-        {
-            (void)vrprint.error(-1, "Error", "unable to attach to shared memory: %s.", strerror(errno));
-            exit(EXIT_FAILURE);
-        }
-        else
-        {
-            shm_table = (struct SHM_TABLE *)shmp;
-            (void)vrprint.info("Info", "Attaching to shared memory successfull.");
-        }
-
-        /* if all went well we create a semaphore */
-        if(shm_table)
-        {
-            sem_id = semget(IPC_PRIVATE, 2, 0600);
-            if(sem_id == -1)
-            {
-                (void)vrprint.error(-1, "Error", "Unable to create semaphore: %s.", strerror(errno));
-                exit(EXIT_FAILURE);
-            }
-            else
-            {
-                (void)vrprint.info("Info", "Creating a semaphore success: %d", sem_id);
-            }
-
-            semarg.array = seminit;
-            if(semctl(sem_id, 0, SETALL, semarg) == -1)
-            {
-                (void)vrprint.error(-1, "Error", "Unable to initialize semaphore: %s.", strerror(errno));
-                exit(EXIT_FAILURE);
-            }
-            else
-            {
-                (void)vrprint.info("Info", "Initializeing the semaphore successfull.");
-            }
-
-            /* now initialize the shared mem */
-            if(LOCK)
-            {
-                shm_table->sem_id = sem_id;
-                shm_table->backend_changed = 0;
-                shm_table->reload_result = VR_RR_READY;
-
-                UNLOCK;
-            }
-        }
-    }
-
+    (void)vrprint.debug(__FUNC__, "Going to initialize IPC");
+    if (SetupVMIPC(&shm_id, &shm_table) == -1)
+        exit (EXIT_FAILURE);
+    (void)vrprint.debug(__FUNC__, "IPC initialized");
+    
     /* Create a pidfile. */
-    result = create_pidfile(PIDFILE, shm_id);
-    if(result < 0)
+    if(create_pidfile(PIDFILE, shm_id) < 0)
         exit(EXIT_FAILURE);
 
 
@@ -710,6 +623,7 @@ main(int argc, char *argv[])
     /* enter the main loop */
     while(quit == 0)
     {
+
         /* check the shm for changes */
         if(LOCK)
         {
@@ -736,6 +650,7 @@ main(int argc, char *argv[])
 
             UNLOCK;
         }
+
 
         if(reload == 0)
         {
@@ -828,9 +743,6 @@ main(int argc, char *argv[])
         */
         if(sighup_count || reload)
         {
-            if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "received sig_hup or shm-reload.");
-
             sighup_count = 0;
 
             /*
@@ -1036,22 +948,9 @@ main(int argc, char *argv[])
         cleanup
     */
 
-    /* destroy shm */
-    (void)vrprint.info("Info", "Destroying shared memory...");
-    if(shmctl(shm_id, IPC_RMID, NULL) < 0)
+    /* FL */
+    if (ClearIPC (debuglvl, &shm_id) == -1)
     {
-        (void)vrprint.error(-1, "Error", "destroying shared memory failed: %s.", strerror(errno));
-    }
-    else
-    {
-        if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "shared memory destroyed.");
-    }
-
-    /* destroy semaphore */
-    if(semctl(sem_id, 0, IPC_RMID, semarg) == -1)
-    {
-        (void)vrprint.error(-1, "Error", "failed to remove semaphore.");
     }
 
     /* free the sscanf parser string */
