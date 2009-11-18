@@ -123,7 +123,7 @@ SetupVMIPC (int *shm_id, struct SHM_TABLE **shm_table)
 }
 
 int
-ClearIPC (const int debuglvl, int *shm_id)
+ClearVMIPC (const int debuglvl, int *shm_id)
 {
     /* destroy shm */
     (void)vrprint.info("Info", "Destroying shared memory...");
@@ -145,4 +145,105 @@ ClearIPC (const int debuglvl, int *shm_id)
         return (-1);
     }
     return (0);
+}
+
+int
+CheckVMIPC (const int debuglvl, struct SHM_TABLE **shm_table, int *reload)
+{
+    /* check the shm for changes */
+    if(LOCK)
+    {
+        if((*shm_table)->configtool.connected == 1)
+        {
+            (void)vrprint.info("Info", "Configtool connected: %s.", (*shm_table)->configtool.name);
+            (*shm_table)->configtool.connected = 2;
+        }
+        else if((*shm_table)->configtool.connected == 3)
+        {
+            (void)vrprint.info("Info", "Configtool disconnected: %s.", (*shm_table)->configtool.name);
+            (*shm_table)->configtool.connected = 0;
+        }
+
+        if((*shm_table)->backend_changed == 1)
+        {
+            (void)vrprint.audit("IPC-SHM: backend changed: reload (user: %s).", (*shm_table)->configtool.username);
+            *reload = 1;
+            (*shm_table)->backend_changed = 0;
+
+            /* start at 0% */
+            (*shm_table)->reload_progress = 0;
+        }
+
+        UNLOCK;
+    }
+    return (0);
+}
+
+int
+WaitVMIPCACK (int wait_time, int *result, struct SHM_TABLE **shm_table, int *reload)
+{
+    int     waited = 0;
+
+    if(LOCK)
+    {
+        /* finished so 100% */
+        (*shm_table)->reload_progress = 100;
+
+        /* tell the caller about the reload result */
+        if(*result < 0)
+        {
+            (*shm_table)->reload_result = VR_RR_ERROR;
+        }
+        else if(*result == 0)
+        {
+            (*shm_table)->reload_result = VR_RR_SUCCES;
+        }
+        else
+        {
+            (*shm_table)->reload_result = VR_RR_NOCHANGES;
+        }
+        UNLOCK;
+    }
+    *reload = 0;
+
+    (void)vrprint.info("Info", "Waiting for an VR_RR_RESULT_ACK");
+
+    *result = 0;
+    waited = 0;
+
+    /* now wait max wait_time seconds for an ACK from the caller */
+    while(*result == 0 && waited < wait_time)
+    {
+        if(LOCK)
+        {
+            /* ah, we got one */
+            if((*shm_table)->reload_result == VR_RR_RESULT_ACK)
+            {
+                (*shm_table)->reload_result = VR_RR_READY;
+                (*shm_table)->reload_progress = 0;
+                *result = 1;
+
+                (void)vrprint.info("Info", "We got an VR_RR_RESULT_ACK!");
+            }
+            UNLOCK;
+        }
+
+        waited++;
+        sleep(1);
+    }
+    if (*result == 0)
+    {
+        (void)vrprint.info("Info", "We've waited for 30 seconds for an VR_RR_RESULT_ACK, but got none. Setting to VR_RR_READY");
+        if(LOCK)
+        {
+            (*shm_table)->reload_result = VR_RR_READY;
+            (*shm_table)->reload_progress = 0;
+            UNLOCK;
+        }
+        else
+        {
+            (void)vrprint.info("Info", "Hmmmm, failed to set to ready. Did the client crash?");
+        }
+    }
+    return *result;
 }

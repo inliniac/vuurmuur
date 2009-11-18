@@ -19,6 +19,7 @@
  ***************************************************************************/
  
 #include "vuurmuur_log.h"
+#include "nflog.h"
 #include "stats.h"
 #include "logfile.h"
 #include "vuurmuur_ipc.h"
@@ -108,7 +109,7 @@ assemble_logline_sscanf_string(const int debuglvl, struct log_rule *logrule_ptr)
     return(string);
 }
 
-/* Input is packet and an zeven-byte (including NULL) character array.  Results
+/* Input is packet and an seven-byte (including NULL) character array.  Results
  * are put into the character array.
  *
  * Shamelessly ripped from snort_inline 2.2.0 (c) Martin Roesch
@@ -282,11 +283,12 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct draw
 
 
 int
-BuildVMLine (struct log_rule *logrule, struct draw_rule_format_ *rulefmt, char *outline)
+BuildVMLine (struct log_rule *logrule, struct draw_rule_format_ *rulefmt, char *outline, int size)
 {
     char    format[256];
 
     /* TCP */
+    (void)vrprint.debug(__FUNC__, "In BuildVMLine");
     switch (logrule->protocol)
     {
         case 6:
@@ -309,13 +311,15 @@ BuildVMLine (struct log_rule *logrule, struct draw_rule_format_ *rulefmt, char *
             strlcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s AH len:%u ttl:%u)\n", sizeof(format));
             break;
         default:
+            (void)vrprint.debug(__FUNC__, "unknown protocol");
             strlcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s (%d) len:%u ttl:%u)\n", sizeof(format));
     }
 
-    snprintf (outline, sizeof(outline), format, 
+    (void)vrprint.debug(__FUNC__, "Generating output line");
+    snprintf (outline, size, format, 
         logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, logrule->action, rulefmt->ser_name, rulefmt->from_name, rulefmt->to_name, logrule->logprefix,
         rulefmt->from_int, rulefmt->to_int, logrule->src_ip, logrule->src_mac, logrule->src_port, logrule->dst_ip, logrule->dst_mac, logrule->dst_port, rulefmt->tcpflags,
-        logrule->packet_len, logrule->ttl, 1024);
+        logrule->packet_len, logrule->ttl);
 
     return (0);
 }
@@ -386,9 +390,7 @@ main(int argc, char *argv[])
 
     /* shm, sem stuff */
     int             shm_id;
-
-    char            reload = 0;
-    int             wait_time = 0;
+    int             reload = 0;
 
     struct Counters_ Counters =
     {
@@ -501,12 +503,13 @@ main(int argc, char *argv[])
     if(check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
         exit(EXIT_FAILURE);
 
-    /* set up the sscanf parser string */
-    if(!(sscanf_str = assemble_logline_sscanf_string(debuglvl, &logrule)))
+    /* set up the sscanf parser string if we're using the legacy syslog parsing */
+    if(syslog && !(sscanf_str = assemble_logline_sscanf_string(debuglvl, &logrule)))
     {
-        (void)vrprint.error(-1, "Error", "could not set up parse string.");
+        (void)vrprint.error(-1, "Error", "could not set up parse string for legacy syslog parsing.");
         exit(EXIT_FAILURE);
-    }
+    } 
+
 
     /* init the config file */
     if(init_config(debuglvl, &conf) < VR_CNF_OK)
@@ -529,7 +532,17 @@ main(int argc, char *argv[])
     vrprint.debug = libvuurmuur_logprint_debug;
     vrprint.audit = libvuurmuur_logprint_audit;
 
-    (void)vrprint.audit("Vuurmuur_log %s started by user %s.", version_string, user_data.realusername);
+    (void)vrprint.audit("Vuurmuur_log %s %s started by user %s.", version_string, (syslog)?"(legacy syslog mode)":"", user_data.realusername);
+
+    /* Setup nflog after init_config as and logging as we need &conf in subscribe_nflog() */
+    if (!syslog)
+    {
+        (void)vrprint.debug(__FUNC__, "Setting up nflog");
+        if (subscribe_nflog(debuglvl, &conf, &logrule, &rulefmt) < 0) {
+            (void)vrprint.error(-1, "Error", "could not set up nflog subscription");
+            exit (EXIT_FAILURE);
+        }
+    }
 
     /* setup regexes */
     if(setup_rgx(1, &reg) < 0)
@@ -543,14 +556,9 @@ main(int argc, char *argv[])
         (void)vrprint.error(-1, "Error", "loading plugins failed, bailing out.");
         exit(EXIT_FAILURE);
     }
-    else
-    {
-        if(verbose)
-            (void)vrprint.info("Info", "Loading plugins succesfull.");
-    }
 
     /* open the logs */
-    if(open_syslog(debuglvl, &conf, &system_log) < 0)
+    if(syslog && open_syslog(debuglvl, &conf, &system_log) < 0)
     {
         (void)vrprint.error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
@@ -603,19 +611,14 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* enter daemon mode */
     if(nodaemon == 0)
         daemon(1,1);
 
-    (void)vrprint.debug(__FUNC__, "Going to initialize IPC");
     if (SetupVMIPC(&shm_id, &shm_table) == -1)
         exit (EXIT_FAILURE);
-    (void)vrprint.debug(__FUNC__, "IPC initialized");
     
-    /* Create a pidfile. */
     if(create_pidfile(PIDFILE, shm_id) < 0)
         exit(EXIT_FAILURE);
-
 
     if(sigint_count || sigterm_count)
         quit = 1;
@@ -624,37 +627,11 @@ main(int argc, char *argv[])
     while(quit == 0)
     {
 
-        /* check the shm for changes */
-        if(LOCK)
-        {
-            if(shm_table->configtool.connected == 1)
-            {
-                (void)vrprint.info("Info", "Configtool connected: %s.", shm_table->configtool.name);
-                shm_table->configtool.connected = 2;
-            }
-            else if(shm_table->configtool.connected == 3)
-            {
-                (void)vrprint.info("Info", "Configtool disconnected: %s.", shm_table->configtool.name);
-                shm_table->configtool.connected = 0;
-            }
-
-            if(shm_table->backend_changed == 1)
-            {
-                (void)vrprint.audit("IPC-SHM: backend changed: reload (user: %s).", shm_table->configtool.username);
-                reload = 1;
-                shm_table->backend_changed = 0;
-
-                /* start at 0% */
-                shm_table->reload_progress = 0;
-            }
-
-            UNLOCK;
-        }
-
+        CheckVMIPC (debuglvl, &shm_table, &reload);
 
         if(reload == 0)
         {
-            if(fgets(line, (int)sizeof(line), system_log) != NULL)
+            if(syslog && fgets(line, (int)sizeof(line), system_log) != NULL)
             {
                 linelen = strlen(line);
                 waiting = 0;
@@ -685,7 +662,7 @@ main(int argc, char *argv[])
                                         Counters.invalid_loglines++;
                                         break;
                                     default:
-                                        if (BuildVMLine (&logrule, &rulefmt, line) < 0)
+                                        if (BuildVMLine (&logrule, &rulefmt, line, sizeof(line)) < 0)
                                         {
                                             (void)vrprint.error(-1, "Error", "Could not build output line");;
                                         }
@@ -703,37 +680,66 @@ main(int argc, char *argv[])
             }
 
 
-            /* no line received */
-            else
-            {
+            /* no line received or not using syslog */
+            else if (syslog) {
                 /* increase the waiter */
                 waiting++;
 
                 /* see the definition of MAX_WAIT_TIME for details. */
-                if(waiting >= MAX_WAIT_TIME)
-                {
+                if(waiting >= MAX_WAIT_TIME) {
                     if(debuglvl >= MEDIUM)
                         (void)vrprint.debug(__FUNC__, "didn't get a logline for %d seconds, closing and reopening the logfiles.", waiting / 10);
 
                     /* re-open the logs */
-                    if(reopen_syslog(debuglvl, &system_log) < 0)
-                    {
+                    if(reopen_syslog(debuglvl, &system_log) < 0) {
                         (void)vrprint.error(-1, "Error", "re-opening syslog failed.");
                         exit(EXIT_FAILURE);
                     }
-                    if(reopen_vuurmuurlog(debuglvl, &vuurmuur_log) < 0)
-                    {
+
+                    if(reopen_vuurmuurlog(debuglvl, &vuurmuur_log) < 0) {
                         (void)vrprint.error(-1, "Error", "re-opening vuurmuur traffic log failed.");
                         exit(EXIT_FAILURE);
                     }
 
                     /* reset waiting */
                     waiting = 0;
-                }
-                else
-                {
+                } else {
                     /* sleep so we don't use all system resources */
                     usleep(100000);  /* this should be 1/10th of a second */
+                }
+            
+            /* not using syslog so must be using nflog here */
+            } else {
+                switch (readnflog()) {
+                    case -1:
+                        (void)vrprint.error(-1, "Error", "could not read from nflog");
+                        exit (EXIT_FAILURE);
+                        break;
+                    case 0:
+                        usleep (100000);
+                        break;
+                    default:
+                        result = get_vuurmuur_names(debuglvl, &logrule, &rulefmt, &zone_htbl, &service_htbl);
+                        switch (result)
+                        {
+                            case -1:
+                                (void)vrprint.debug(__FUNC__, "get_vuurmuur_names returned -1");
+                                exit(EXIT_FAILURE);
+                                break;
+                            case 0:
+                                Counters.invalid_loglines++;
+                                break;
+                            default:
+                                (void)vrprint.debug(__FUNC__, "calling BuildVMLine on nflog");
+                                if (BuildVMLine (&logrule, &rulefmt, line, sizeof(line)) < 0)
+                                {
+                                    (void)vrprint.error(-1, "Error", "Could not build output line");;
+                                }
+                                (void)vrprint.debug(__FUNC__, "done with BuildVMLine");
+                                fprintf (vuurmuur_log, line);
+                                fflush(vuurmuur_log);
+                                break;
+                        }
                 }
             }
         } /* if reload == 0 */
@@ -869,72 +875,7 @@ main(int argc, char *argv[])
 
             /* if we are reloading because of an IPC command, we need to communicate with the caller */
             if(reload == 1)
-            {
-                if(LOCK)
-                {
-                    /* finished so 100% */
-                    shm_table->reload_progress = 100;
-
-                    /* tell the caller about the reload result */
-                    if(result < 0)
-                    {
-                        shm_table->reload_result = VR_RR_ERROR;
-                    }
-                    else if(result == 0)
-                    {
-                        shm_table->reload_result = VR_RR_SUCCES;
-                    }
-                    else
-                    {
-                        shm_table->reload_result = VR_RR_NOCHANGES;
-                    }
-                    UNLOCK;
-                }
-                reload = 0;
-
-                (void)vrprint.info("Info", "Waiting for an VR_RR_RESULT_ACK");
-
-                result = 0;
-                wait_time = 0;
-
-                /* now wait max 30 seconds for an ACK from the caller */
-                while(result == 0 && wait_time < 30)
-                {
-                    if(LOCK)
-                    {
-                        /* ah, we got one */
-                        if(shm_table->reload_result == VR_RR_RESULT_ACK)
-                        {
-                            shm_table->reload_result = VR_RR_READY;
-                            shm_table->reload_progress = 0;
-                            result = 1;
-
-                            (void)vrprint.info("Info", "We got an VR_RR_RESULT_ACK!");
-                        }
-                        UNLOCK;
-                    }
-
-                    wait_time++;
-                    sleep(1);
-                }
-
-                /* damn, we didn't get one */
-                if(result == 0)
-                {
-                    (void)vrprint.info("Info", "We've waited for %d seconds for an VR_RR_RESULT_ACK, but got none. Setting to VR_RR_READY", wait_time);
-                    if(LOCK)
-                    {
-                        shm_table->reload_result = VR_RR_READY;
-                        shm_table->reload_progress = 0;
-                        UNLOCK;
-                    }
-                    else
-                    {
-                        (void)vrprint.info("Info", "Hmmmm, failed to set to ready. Did the client crash?");
-                    }
-                }
-                result = 0;
-            }
+                WaitVMIPCACK (30, &result, &shm_table, &reload);
         }
 
         /* check for a signal */
@@ -947,9 +888,7 @@ main(int argc, char *argv[])
     /*
         cleanup
     */
-
-    /* FL */
-    if (ClearIPC (debuglvl, &shm_id) == -1)
+    if (ClearVMIPC (debuglvl, &shm_id) == -1)
     {
     }
 

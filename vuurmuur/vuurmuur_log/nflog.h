@@ -17,12 +17,17 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef __VUURMUURIPC_H__
-#define __VUURMUURIPC_H__
+#ifndef __NFLOG_H__
+#define __NFLOG_H__
 
-int SetupVMIPC (int *, struct SHM_TABLE **);
-int ClearVMIPC (const int, int *);
-int CheckVMIPC (const int, struct SHM_TABLE **, int *);
-int WaitVMIPCACK (int, int *, struct SHM_TABLE **, int *);
+#include "vuurmuur_log.h"
+#include "stats.h"
+
+#include <libnetfilter_log/libnetfilter_log.h>
+
+static int dbg_pkt(struct nflog_data *, char *, int);
+static int cb(struct nflog_g_handle *, struct nfgenmsg *, struct nflog_data *, void *);
+int subscribe_nflog (const int, const struct vuurmuur_config *,struct log_rule *logrule, struct draw_rule_format_ *rulefmt);
+int readnflog ();
 
 #endif

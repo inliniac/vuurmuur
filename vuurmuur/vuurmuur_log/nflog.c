@@ -22,49 +22,42 @@
  * nflog.c implements functions to communicate with the NFLOG iptables target. */
 
 #include "vuurmuur_log.h"
+#include "nflog.h"
 
 #include <libnetfilter_log/libnetfilter_log.h>
 
-static int 
-print_pkt(struct nflog_data *ldata)
-{
-    struct nfulnl_msg_packet_hdr *ph = nflog_get_msg_packet_hdr(ldata);
-    u_int32_t mark = nflog_get_nfmark(ldata);
-    u_int32_t indev = nflog_get_indev(ldata);
-    u_int32_t outdev = nflog_get_outdev(ldata);
-    char *prefix = nflog_get_prefix(ldata);
-    void *payload;
-    int payload_len = nflog_get_payload(ldata, payload);
-
-    if (ph) {
-        printf("hw_protocol=0x%04x hook=%u ",
-            ntohs(ph->hw_protocol), ph->hook);
-    }
-
-    printf("mark=%u ", mark);
-
-    if (indev > 0)
-        printf("indev=%u ", indev);
-
-    if (outdev > 0)
-        printf("outdev=%u ", outdev);
-
-
-    if (prefix) {
-        printf("prefix=\"%s\" ", prefix);
-    }
-    if (payload_len >= 0)
-        printf("payload_len=%d ", payload_len);
-
-    fputc('\n', stdout);
-    return 0;
-}
+static int fd;
+static struct nflog_handle *h;
 
 static int 
 cb(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         struct nflog_data *nfa, void *data)
 {
-    print_pkt(nfa);
+    char dbgline[1024] = "";
+    struct nfulnl_msg_packet_hdr *ph;
+    u_int32_t mark;
+    u_int32_t indev;
+    u_int32_t outdev;
+    char *prefix;
+    char *payload;
+    int payload_len;
+    struct logrule *logrule_ptr = data;
+
+    memset(logrule_ptr, 0, sizeof(struct log_rule));
+
+    ph = nflog_get_msg_packet_hdr (nfa);
+
+    mark = nflog_get_nfmark (nfa);
+
+    indev = nflog_get_indev (nfa);
+
+    outdev = nflog_get_outdev (nfa);
+
+    prefix = nflog_get_prefix (nfa);
+
+    payload_len = nflog_get_payload (nfa, &payload);
+
+    return 0;       /* success */
 }
 
 /**
@@ -82,32 +75,38 @@ cb(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
  * \note A note that applies to the function
  */
 int
-subscribe_nflog (const int debuglvl, const struct vuurmuur_config *conf)
+subscribe_nflog (const int debuglvl, const struct vuurmuur_config *conf, struct log_rule *logrule_ptr, struct draw_rule_format_ *rulefmt_ptr)
 {
-    struct nflog_handle *h;
     struct nflog_g_handle *qh;
 
-    (void)vrprint.debug(__FUNC__, "Calling nflog_open");
-
-    if (!(h = nflog_open()))
+    h = nflog_open ();
+    if (!h)
     {
         (void)vrprint.error(-1, "Internal Error", "nflog_open error (in: %s:%d).", __FUNC__, __LINE__);
         return (-1);
     }
 
-    (void)vrprint.debug(__FUNC__, "Calling nflog_bind_ph");
-
-    if (nflog_bind_pf(h, AF_INET) < 0)
+    if (nflog_bind_pf (h, AF_INET) < 0)
     {
         (void)vrprint.error(-1, "Internal Error", "nflog_bind_pf error (in: %s:%d).", __FUNC__, __LINE__);
         return (-1);
     }
 
-    (void)vrprint.debug(__FUNC__, "nflog_bind_group to %u", conf->nfgrp);
-    if (!(qh = nflog_bind_group (h, conf->nfgrp))) {
-        (void)vrprint.error(-1, "Internal Error", "nflog_bind_group error (in: %s:%d).", __FUNC__, __LINE__);
+    qh = nflog_bind_group (h, conf->nfgrp);
+    if (!qh) {
+        (void)vrprint.error(-1, "Internal Error", "nflog_bind_group error, other process attached? (in: %s:%d).", __FUNC__, __LINE__);
         return (-1);
     }
+
+    if (nflog_set_mode (qh, NFULNL_COPY_PACKET, 0xffff) < 0)
+    {
+        (void)vrprint.error(-1, "Internal Error", "nflog_set_mode error %s (in; %s:%d).", strerror (errno), __FUNC__, __LINE__);
+        return (-1);
+    }
+
+    nflog_callback_register (qh, &cb, logrule_ptr);
+
+    fd = nflog_fd (h);
 
     return 0;
 }
@@ -115,5 +114,19 @@ subscribe_nflog (const int debuglvl, const struct vuurmuur_config *conf)
 int
 readnflog ()
 {
-    return (-1);
+    int rv;
+    char buf[4096];
+
+    if ((rv = recv (fd, buf, sizeof (buf), MSG_DONTWAIT)) == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            (void)vrprint.debug(__FUNC__, "wouldblock");
+            return 0;
+        } else {
+            (void)vrprint.error (-1, "Internal Error", "cannot recv: %s (in; %s:%d)", strerror (errno), __FUNC__, __LINE__);
+            return -1;
+        }
+    }
+
+    nflog_handle_packet (h, buf, rv);
+    return (1);
 }
