@@ -128,7 +128,6 @@ parse_ipt_logline(  const int debuglvl,
                     size_t logline_len,
                     char *sscanf_str,
                     struct log_rule *logrule_ptr,
-                    struct draw_rule_format_ *rulefmt_ptr,
                     struct Counters_ *counter_ptr)
 {
     int     result = 0;
@@ -148,7 +147,7 @@ parse_ipt_logline(  const int debuglvl,
 
 
     /* safety first */
-    if( logline == NULL || logrule_ptr == NULL || rulefmt_ptr == NULL ||
+    if( logline == NULL || logrule_ptr == NULL ||
         sscanf_str == NULL || counter_ptr == NULL)
     {
         (void)vrprint.error(-1, "Internal Error", "parameter problem "
@@ -158,7 +157,6 @@ parse_ipt_logline(  const int debuglvl,
 
 
     memset(logrule_ptr, 0, sizeof(struct log_rule));
-    memset(rulefmt_ptr, 0, sizeof(struct draw_rule_format_));
 
     /* get date, time, hostname */
     result = sscanf(logline, sscanf_str, logrule_ptr->month,
@@ -222,7 +220,6 @@ parse_ipt_logline(  const int debuglvl,
         if(str_begin == str_end - strlen("IN="))
         {
             memset(logrule_ptr->interface_in, 0, sizeof(logrule_ptr->interface_in));
-            memset(rulefmt_ptr->from_int, 0, sizeof(rulefmt_ptr->from_int));
         }
         else if(str_begin == str_end)
         {
@@ -234,7 +231,7 @@ parse_ipt_logline(  const int debuglvl,
             if(range_strcpy(logrule_ptr->interface_in, logline, str_begin + strlen("IN="), str_end, sizeof(logrule_ptr->interface_in)) < 0)
                 return(0);
             else
-                snprintf(rulefmt_ptr->from_int, sizeof(rulefmt_ptr->from_int), "in: %s", logrule_ptr->interface_in);
+                snprintf(logrule_ptr->from_int, sizeof(logrule_ptr->from_int), "in: %s", logrule_ptr->interface_in);
         }
     }
     else
@@ -267,7 +264,6 @@ parse_ipt_logline(  const int debuglvl,
         if(str_begin == str_end - strlen("OUT="))
         {
             memset(logrule_ptr->interface_out, 0, sizeof(logrule_ptr->interface_out));
-            memset(rulefmt_ptr->to_int, 0, sizeof(rulefmt_ptr->to_int));
         }
         else if(str_begin == str_end)
         {
@@ -280,11 +276,11 @@ parse_ipt_logline(  const int debuglvl,
                 return(0);
             else
             {
-                snprintf(rulefmt_ptr->to_int, sizeof(rulefmt_ptr->to_int), "out: %s", logrule_ptr->interface_out);
+                snprintf(logrule_ptr->to_int, sizeof(logrule_ptr->to_int), "out: %s", logrule_ptr->interface_out);
 
                 /* append a space to the from_int */
-                if(strcmp(rulefmt_ptr->from_int, "") != 0)
-                    (void)strlcat(rulefmt_ptr->from_int, " ", sizeof(rulefmt_ptr->from_int));
+                if(strcmp(logrule_ptr->from_int, "") != 0)
+                    (void)strlcat(logrule_ptr->from_int, " ", sizeof(logrule_ptr->from_int));
             }
         }
     }

@@ -27,7 +27,7 @@
 
 static int dbg_pkt(struct nflog_data *, char *, int);
 static int cb(struct nflog_g_handle *, struct nfgenmsg *, struct nflog_data *, void *);
-int subscribe_nflog (const int, const struct vuurmuur_config *,struct log_rule *logrule, struct draw_rule_format_ *rulefmt);
+int subscribe_nflog (const int, const struct vuurmuur_config *,struct log_rule *logrule);
 int readnflog ();
 
 #endif

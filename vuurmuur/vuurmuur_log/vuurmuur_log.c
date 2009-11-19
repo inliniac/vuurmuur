@@ -138,7 +138,7 @@ CreateTCPFlagString(struct log_rule *logrule_ptr, char *flagBuffer)
     NOTE: if the function returns -1 the memory is not cleaned up: the program is supposed to exit
 */
 static int
-get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct draw_rule_format_ *rulefmt_ptr, Hash *ZoneHash, Hash *ServiceHash)
+get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, Hash *ZoneHash, Hash *ServiceHash)
 {
     struct ZoneData_        *search_ptr = NULL;
     struct ServicesData_    *ser_search_ptr = NULL;
@@ -148,7 +148,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct draw
 
 
     /* safety */
-    if(!logrule_ptr || !rulefmt_ptr || !ZoneHash || !ServiceHash)
+    if(!logrule_ptr || !ZoneHash || !ServiceHash)
     {
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -159,17 +159,17 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct draw
     if(!(search_ptr = search_zone_in_hash_with_ipv4(debuglvl, logrule_ptr->src_ip, ZoneHash)))
     {
         /* not found in hash */
-        if(strlcpy(rulefmt_ptr->from_name, logrule_ptr->src_ip, sizeof(rulefmt_ptr->from_name)) >= sizeof(rulefmt_ptr->from_name))
+        if(strlcpy(logrule_ptr->from_name, logrule_ptr->src_ip, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
             (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
     }
     else
     {
         /* found in the hash */
-        if(strlcpy(rulefmt_ptr->from_name, search_ptr->name, sizeof(rulefmt_ptr->from_name)) >= sizeof(rulefmt_ptr->from_name))
+        if(strlcpy(logrule_ptr->from_name, search_ptr->name, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
             (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
 
         if(search_ptr->type == TYPE_NETWORK)
-            strlcpy(rulefmt_ptr->from_name, "firewall", sizeof(rulefmt_ptr->from_name));
+            strlcpy(logrule_ptr->from_name, "firewall", sizeof(logrule_ptr->from_name));
     }
     search_ptr = NULL;
 
@@ -178,17 +178,17 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct draw
     if(!(search_ptr = search_zone_in_hash_with_ipv4(debuglvl, logrule_ptr->dst_ip, ZoneHash)))
     {
         /* not found in hash */
-        if(strlcpy(rulefmt_ptr->to_name, logrule_ptr->dst_ip, sizeof(rulefmt_ptr->to_name)) >= sizeof(rulefmt_ptr->to_name))
+        if(strlcpy(logrule_ptr->to_name, logrule_ptr->dst_ip, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
             (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
     }
     else
     {
         /* found in the hash */
-        if(strlcpy(rulefmt_ptr->to_name, search_ptr->name, sizeof(rulefmt_ptr->to_name)) >= sizeof(rulefmt_ptr->to_name))
+        if(strlcpy(logrule_ptr->to_name, search_ptr->name, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
             (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
 
         if(search_ptr->type == TYPE_NETWORK)
-            strlcpy(rulefmt_ptr->to_name, "firewall", sizeof(rulefmt_ptr->to_name));
+            strlcpy(logrule_ptr->to_name, "firewall", sizeof(logrule_ptr->to_name));
     }
     search_ptr = NULL;
 
@@ -205,10 +205,10 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct draw
         if(!(ser_search_ptr = search_service_in_hash(debuglvl, logrule_ptr->icmp_type, logrule_ptr->icmp_code, logrule_ptr->protocol, ServiceHash)))
         {
             /* not found in hash */
-            snprintf(rulefmt_ptr->ser_name, sizeof(rulefmt_ptr->ser_name), "%d.%d(icmp)", logrule_ptr->icmp_type, logrule_ptr->icmp_code);
+            snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "%d.%d(icmp)", logrule_ptr->icmp_type, logrule_ptr->icmp_code);
 
             /* try to get the icmp-names */
-            if(get_icmp_name_short(logrule_ptr->icmp_type, logrule_ptr->icmp_code, rulefmt_ptr->ser_name, sizeof(rulefmt_ptr->ser_name), 0) < 0)
+            if(get_icmp_name_short(logrule_ptr->icmp_type, logrule_ptr->icmp_code, logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), 0) < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "get_icmp_name_short failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
@@ -217,7 +217,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct draw
         else
         {
             /* found in the hash, now copy the name */
-            if(strlcpy(rulefmt_ptr->ser_name, ser_search_ptr->name, sizeof(rulefmt_ptr->ser_name)) >= sizeof(rulefmt_ptr->ser_name))
+            if(strlcpy(logrule_ptr->ser_name, ser_search_ptr->name, sizeof(logrule_ptr->ser_name)) >= sizeof(logrule_ptr->ser_name))
                 (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
         }
     }
@@ -243,39 +243,39 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct draw
                     /* not found in the hash */
                     if(logrule_ptr->protocol == 6) /* tcp */
                     {
-                        snprintf(rulefmt_ptr->ser_name, sizeof(rulefmt_ptr->ser_name), "%d->%d(tcp)", logrule_ptr->src_port, logrule_ptr->dst_port);
+                        snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "%d->%d(tcp)", logrule_ptr->src_port, logrule_ptr->dst_port);
                     }
                     else if(logrule_ptr->protocol == 17) /* udp */
                     {
-                        snprintf(rulefmt_ptr->ser_name, sizeof(rulefmt_ptr->ser_name), "%d->%d(udp)", logrule_ptr->src_port, logrule_ptr->dst_port);
+                        snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "%d->%d(udp)", logrule_ptr->src_port, logrule_ptr->dst_port);
                     }
                 }
                 else
                 {
                     /* found in the hash! (reverse) */
-                    if(strlcpy(rulefmt_ptr->ser_name, ser_search_ptr->name, sizeof(rulefmt_ptr->ser_name)) >= sizeof(rulefmt_ptr->ser_name))
+                    if(strlcpy(logrule_ptr->ser_name, ser_search_ptr->name, sizeof(logrule_ptr->ser_name)) >= sizeof(logrule_ptr->ser_name))
                         (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
                 }
             }
             else
             {
                 if(logrule_ptr->dst_port == 0 && logrule_ptr->src_port == 0)
-                    snprintf(rulefmt_ptr->ser_name, sizeof(rulefmt_ptr->ser_name), "proto-%d", logrule_ptr->protocol);
+                    snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "proto-%d", logrule_ptr->protocol);
                 else
-                    snprintf(rulefmt_ptr->ser_name, sizeof(rulefmt_ptr->ser_name), "%d*%d(%d)", logrule_ptr->src_port, logrule_ptr->dst_port, logrule_ptr->protocol);
+                    snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "%d*%d(%d)", logrule_ptr->src_port, logrule_ptr->dst_port, logrule_ptr->protocol);
     
             }
         }
         else
         {
             /* found in the hash! */
-            if(strlcpy(rulefmt_ptr->ser_name, ser_search_ptr->name, sizeof(rulefmt_ptr->ser_name)) >= sizeof(rulefmt_ptr->ser_name))
+            if(strlcpy(logrule_ptr->ser_name, ser_search_ptr->name, sizeof(logrule_ptr->ser_name)) >= sizeof(logrule_ptr->ser_name))
                 (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
         }
     }
     else
     {
-        snprintf(rulefmt_ptr->ser_name, sizeof(rulefmt_ptr->ser_name), "proto-%d", logrule_ptr->protocol);
+        snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "proto-%d", logrule_ptr->protocol);
     }
 
     return(1);
@@ -283,7 +283,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct draw
 
 
 int
-BuildVMLine (struct log_rule *logrule, struct draw_rule_format_ *rulefmt, char *outline, int size)
+BuildVMLine (struct log_rule *logrule, char *outline, int size)
 {
     char    format[256];
 
@@ -292,7 +292,7 @@ BuildVMLine (struct log_rule *logrule, struct draw_rule_format_ *rulefmt, char *
     switch (logrule->protocol)
     {
         case 6:
-            CreateTCPFlagString(logrule, rulefmt->tcpflags);
+            CreateTCPFlagString(logrule, logrule->tcpflags);
             strlcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d TCP flags: %s len:%u ttl:%u)\n", sizeof(format));
             break;
         case 17:
@@ -317,8 +317,8 @@ BuildVMLine (struct log_rule *logrule, struct draw_rule_format_ *rulefmt, char *
 
     (void)vrprint.debug(__FUNC__, "Generating output line");
     snprintf (outline, size, format, 
-        logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, logrule->action, rulefmt->ser_name, rulefmt->from_name, rulefmt->to_name, logrule->logprefix,
-        rulefmt->from_int, rulefmt->to_int, logrule->src_ip, logrule->src_mac, logrule->src_port, logrule->dst_ip, logrule->dst_mac, logrule->dst_port, rulefmt->tcpflags,
+        logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, logrule->action, logrule->ser_name, logrule->from_name, logrule->to_name, logrule->logprefix,
+        logrule->from_int, logrule->to_int, logrule->src_ip, logrule->src_mac, logrule->src_port, logrule->dst_ip, logrule->dst_mac, logrule->dst_port, logrule->tcpflags,
         logrule->packet_len, logrule->ttl);
 
     return (0);
@@ -385,7 +385,6 @@ main(int argc, char *argv[])
     char                        *sscanf_str = NULL;
     
     struct log_rule             logrule;
-    struct draw_rule_format_    rulefmt;
     int                         debuglvl = 0;
 
     /* shm, sem stuff */
@@ -538,7 +537,7 @@ main(int argc, char *argv[])
     if (!syslog)
     {
         (void)vrprint.debug(__FUNC__, "Setting up nflog");
-        if (subscribe_nflog(debuglvl, &conf, &logrule, &rulefmt) < 0) {
+        if (subscribe_nflog(debuglvl, &conf, &logrule) < 0) {
             (void)vrprint.error(-1, "Error", "could not set up nflog subscription");
             exit (EXIT_FAILURE);
         }
@@ -643,7 +642,7 @@ main(int argc, char *argv[])
                 {
                     if(check_ipt_line(line))
                     {
-                        switch (parse_ipt_logline(debuglvl, line, linelen, sscanf_str, &logrule, &rulefmt, &Counters))
+                        switch (parse_ipt_logline(debuglvl, line, linelen, sscanf_str, &logrule, &Counters))
                         {
                             case -1:
                                 exit(EXIT_FAILURE);
@@ -652,7 +651,7 @@ main(int argc, char *argv[])
                                 Counters.invalid_loglines++;
                                 break;
                             default:
-                                result = get_vuurmuur_names(debuglvl, &logrule, &rulefmt, &zone_htbl, &service_htbl);
+                                result = get_vuurmuur_names(debuglvl, &logrule, &zone_htbl, &service_htbl);
                                 switch (result)
                                 {
                                     case -1:
@@ -662,7 +661,7 @@ main(int argc, char *argv[])
                                         Counters.invalid_loglines++;
                                         break;
                                     default:
-                                        if (BuildVMLine (&logrule, &rulefmt, line, sizeof(line)) < 0)
+                                        if (BuildVMLine (&logrule, line, sizeof(line)) < 0)
                                         {
                                             (void)vrprint.error(-1, "Error", "Could not build output line");;
                                         }
@@ -719,7 +718,7 @@ main(int argc, char *argv[])
                         usleep (100000);
                         break;
                     default:
-                        result = get_vuurmuur_names(debuglvl, &logrule, &rulefmt, &zone_htbl, &service_htbl);
+                        result = get_vuurmuur_names(debuglvl, &logrule, &zone_htbl, &service_htbl);
                         switch (result)
                         {
                             case -1:
@@ -731,7 +730,7 @@ main(int argc, char *argv[])
                                 break;
                             default:
                                 (void)vrprint.debug(__FUNC__, "calling BuildVMLine on nflog");
-                                if (BuildVMLine (&logrule, &rulefmt, line, sizeof(line)) < 0)
+                                if (BuildVMLine (&logrule, line, sizeof(line)) < 0)
                                 {
                                     (void)vrprint.error(-1, "Error", "Could not build output line");;
                                 }

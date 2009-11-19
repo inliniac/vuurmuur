@@ -75,7 +75,7 @@ cb(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
  * \note A note that applies to the function
  */
 int
-subscribe_nflog (const int debuglvl, const struct vuurmuur_config *conf, struct log_rule *logrule_ptr, struct draw_rule_format_ *rulefmt_ptr)
+subscribe_nflog (const int debuglvl, const struct vuurmuur_config *conf, struct log_rule *logrule_ptr)
 {
     struct nflog_g_handle *qh;
 
@@ -121,6 +121,9 @@ readnflog ()
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             (void)vrprint.debug(__FUNC__, "wouldblock");
             return 0;
+        } else if (errno == ENOBUFS) {
+            (void)vrprint.error (-1, "ENOBUFS on recv, may need to increase netlink_socket_buffer_size (in; %s:%d)", __FUNC__, __LINE__);
+            return -1;
         } else {
             (void)vrprint.error (-1, "Internal Error", "cannot recv: %s (in; %s:%d)", strerror (errno), __FUNC__, __LINE__);
             return -1;
