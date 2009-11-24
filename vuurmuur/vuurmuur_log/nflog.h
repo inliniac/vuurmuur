@@ -23,11 +23,17 @@
 #include "vuurmuur_log.h"
 #include "stats.h"
 
+#include <linux/ip.h>
 #include <libnetfilter_log/libnetfilter_log.h>
 
-static int dbg_pkt(struct nflog_data *, char *, int);
-static int cb(struct nflog_g_handle *, struct nfgenmsg *, struct nflog_data *, void *);
+union ip_adress {
+    __u8  a[4];
+    __be32  saddr;
+};
+
 int subscribe_nflog (const int, const struct vuurmuur_config *,struct log_rule *logrule);
 int readnflog ();
+static inline struct iphdr *ip_hdr_U(const char *p) { return (struct iphdr *)p; }
+static inline uint16_t ip_hdrlen_U(const char *data) { return ip_hdr_U(data)->tot_len; }
 
 #endif

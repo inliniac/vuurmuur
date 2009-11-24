@@ -288,39 +288,55 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
     char    format[256];
 
     /* TCP */
-    (void)vrprint.debug(__FUNC__, "In BuildVMLine");
     switch (logrule->protocol)
     {
-        case 6:
+        case 6:                     /* TCP */
             CreateTCPFlagString(logrule, logrule->tcpflags);
             strlcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d TCP flags: %s len:%u ttl:%u)\n", sizeof(format));
             break;
-        case 17:
+        case 17:                    /* UDP */
             strlcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d UDP len:%u ttl:%u)\n", sizeof(format));
             break;
-        case 1:
+        case 1:                     /* ICMP */
             strlcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ICMP type %d code %d len:%u ttl:%u)\n", sizeof(format));
             break;
-        case 47:
+        case 47:                    /* GRE */
             strlcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s GRE len:%u ttl:%u)\n", sizeof(format));
             break;
-        case 50:
+        case 50:                    /* ESP */
             strlcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ESP len:%u ttl:%u)\n", sizeof(format));
             break;
-        case 51:
+        case 51:                    /* AH */
             strlcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s AH len:%u ttl:%u)\n", sizeof(format));
             break;
         default:
             (void)vrprint.debug(__FUNC__, "unknown protocol");
-            strlcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s (%d) len:%u ttl:%u)\n", sizeof(format));
+            strlcpy (format, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d flags: %s len:%u ttl:%u)\n", sizeof(format));
     }
 
-    (void)vrprint.debug(__FUNC__, "Generating output line");
+    (void)vrprint.debug(__FUNC__, "time   : %s %2d %02d:%02d:%02d", logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second);
+    (void)vrprint.debug(__FUNC__, "action : %s", logrule->action);
+    (void)vrprint.debug(__FUNC__, "service: %s", logrule->ser_name);
+    (void)vrprint.debug(__FUNC__, "from   : %s", logrule->from_name);
+    (void)vrprint.debug(__FUNC__, "to     : %s", logrule->to_name);
+    (void)vrprint.debug(__FUNC__, "prefix : %s", logrule->logprefix);
+    (void)vrprint.debug(__FUNC__, "fromint: %s", logrule->from_int);
+    (void)vrprint.debug(__FUNC__, "toint  : %s", logrule->to_int);
+    (void)vrprint.debug(__FUNC__, "src_ip : %s", logrule->src_ip);
+    (void)vrprint.debug(__FUNC__, "src_mac: %s", logrule->src_mac);
+    (void)vrprint.debug(__FUNC__, "src_prt: %u", logrule->src_port);
+    (void)vrprint.debug(__FUNC__, "dst_ip : %s", logrule->dst_ip);
+    (void)vrprint.debug(__FUNC__, "dst_mac: %s", logrule->dst_mac);
+    (void)vrprint.debug(__FUNC__, "dst_prt: %u", logrule->dst_port);
+    (void)vrprint.debug(__FUNC__, "tcpflgs: %s", logrule->tcpflags);
+    (void)vrprint.debug(__FUNC__, "pkt len: %u", logrule->packet_len);
+    (void)vrprint.debug(__FUNC__, "ttl    : %u", logrule->ttl);
+
     snprintf (outline, size, format, 
         logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, logrule->action, logrule->ser_name, logrule->from_name, logrule->to_name, logrule->logprefix,
         logrule->from_int, logrule->to_int, logrule->src_ip, logrule->src_mac, logrule->src_port, logrule->dst_ip, logrule->dst_mac, logrule->dst_port, logrule->tcpflags,
         logrule->packet_len, logrule->ttl);
-
+    (void)vrprint.debug (__FUNC__, "Done");
     return (0);
 }
 
@@ -729,12 +745,10 @@ main(int argc, char *argv[])
                                 Counters.invalid_loglines++;
                                 break;
                             default:
-                                (void)vrprint.debug(__FUNC__, "calling BuildVMLine on nflog");
                                 if (BuildVMLine (&logrule, line, sizeof(line)) < 0)
                                 {
                                     (void)vrprint.error(-1, "Error", "Could not build output line");;
                                 }
-                                (void)vrprint.debug(__FUNC__, "done with BuildVMLine");
                                 fprintf (vuurmuur_log, line);
                                 fflush(vuurmuur_log);
                                 break;
