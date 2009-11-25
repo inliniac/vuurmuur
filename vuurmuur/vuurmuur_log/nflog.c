@@ -21,14 +21,19 @@
 /** \file
  * nflog.c implements functions to communicate with the NFLOG iptables target. */
 
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#include <linux/icmp.h>
+#include <net/if.h>
+#include <netinet/if_ether.h>
+#include <libnetfilter_log/libnetfilter_log.h>
+
 #include "vuurmuur_log.h"
 #include "nflog.h"
 
-#include <libnetfilter_log/libnetfilter_log.h>
-#include <net/if.h>
-#include <linux/ip.h>
-#include <linux/if_ether.h>
-#include <arpa/inet.h>
 
 static int fd;
 static struct nflog_handle *h;
@@ -74,6 +79,10 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     u_int32_t indev;
     u_int32_t outdev;
     struct protoent *pe;
+    void *protoh;
+    struct tcphdr *tcph;
+    struct udphdr *udph;
+    struct icmphdr *icmph;
     struct sk_buf *skb;
     struct iphdr *iph;
     char *prefix;
@@ -84,37 +93,44 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     time_t when;
     char    s[256];
     char    *c;
-    int     i;
+    int     i, ip_hdr_len;
     union ip_adress ip;
 
     memset(logrule_ptr, 0, sizeof(struct log_rule));
 
-    /* Copy hostname in log_rule struct */
+    /* Check first if this pkt comes from a vuurmuur logrule */
+    prefix = nflog_get_prefix (nfa);
+    if (!strncmp (prefix, "vrmr:", 5)) {
+        for (c = prefix + 6, i = 0; *c != ' '; c++, i++)
+            logrule_ptr->action[i] = *c;
+        i = 0;
+        for (c++; *c; c++, i++) 
+            logrule_ptr->logprefix[i] = *c;
+        (void)vrprint.debug(__FUNC__, "action: '%s' prefix: '%s'", logrule_ptr->action, logrule_ptr->logprefix);
+    } else {
+        /* Not an error, but we're done here */
+        return 0;
+    }
+
+
+    /* Copy hostname in log_rule struct, seems kind of silly to do this every time */
     if (gethostname (logrule_ptr->hostname, HOST_NAME_MAX) == -1) {
         (void)vrprint.debug(__FUNC__, "Error getting hostname");
         return -1;
     }
 
+    /* Alright, get the nflog packet header and determine what hw_protocol we're dealing with */
     if (!(ph = nflog_get_msg_packet_hdr (nfa))) {
         (void)vrprint.error (-1, "Error", "Can't get packet header");
         return -1;
     }
 
 
-    switch (ntohs (ph->hw_protocol)) {
-        case ETH_P_IP:
-            (void)vrprint.debug (__FUNC__, "IPv4 packet");
-            break;
-        case ETH_P_ARP:
-            (void)vrprint.debug (__FUNC__, "ARP packet");
-            break;
-        case ETH_P_IPV6:
-            (void)vrprint.debug (__FUNC__, "IPv6 packet");
-            break;
-        default:
-            (void)vrprint.debug (__FUNC__, "Protocol: 0x%04x", ntohs(ph->hw_protocol));
-            break;
-    }
+#if 0
+    /* Not used AFAIK but keep for reference. 1 = ethernet */
+    hwtype = nflog_get_hwtype (nfa);
+    (void)vrprint.debug (__FUNC__, "hwtype(): 0x%04x", hwtype);
+#endif
 
     /* Convert MAC src and dst to strings and copy into logrule_ptr */
     if (nflog_get_msg_packet_hwhdrlen (nfa)) {
@@ -123,17 +139,6 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         snprintf (logrule_ptr->dst_mac, sizeof (logrule_ptr->dst_mac), "[%s]", macstr);
         mac2str (hwhdr + 6, macstr);
         snprintf (logrule_ptr->src_mac, sizeof (logrule_ptr->src_mac), "[%s]", macstr);
-        (void)vrprint.debug (__FUNC__, "Got hwhdrlen %u (src: %s dst: %s)", nflog_get_msg_packet_hwhdrlen (nfa), logrule_ptr->src_mac, logrule_ptr->dst_mac);
-    }
-    /* Copy prefix and action in log_rule struct */
-    prefix = nflog_get_prefix (nfa);
-    strncpy (logrule_ptr->logprefix, "vrmr:", 5);
-    if (!strncmp (prefix, logrule_ptr->logprefix, 5)) {
-        for (c = prefix + 6, i = 0; *c != ' '; c++, i++)
-            logrule_ptr->action[i] = *c;
-    } else {
-        (void)vrprint.debug(__FUNC__, "Not a vrmr: prefix");
-        return -1;
     }
 
     /* Find indev idx for pkg and translate to interface name */
@@ -143,7 +148,6 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     } else {
         if_indextoname (indev, logrule_ptr->interface_in);
         snprintf(logrule_ptr->from_int, sizeof(logrule_ptr->from_int), "in: %s", logrule_ptr->interface_out);
-        (void)vrprint.debug (__FUNC__, "Found indev '%s' for idx %u", logrule_ptr->interface_in, indev);
     }
 
     /* Find outdev idx for pkg and translate to interface name */
@@ -153,35 +157,12 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     } else {
         if_indextoname (outdev, logrule_ptr->interface_out);
         snprintf(logrule_ptr->to_int, sizeof(logrule_ptr->to_int), "out: %s", logrule_ptr->interface_out);
-        (void)vrprint.debug (__FUNC__, "Found outdev '%s' for idx %u", logrule_ptr->interface_out, outdev);
-    }
-
-
-    if ((mark = nflog_get_nfmark (nfa)) == -1) {
-        (void)vrprint.error (-1, "Error", "Can't get nfmark");
-        return -1;
-    } else {
-        (void)vrprint.debug (__FUNC__, "Found mark: %u", mark);
-    }
-
-    if ((payload_len = nflog_get_payload (nfa, &payload)) == -1) {
-        (void)vrprint.error (-1, "Error", "Can't get payload");
-        return -1;
-    } else {
-        i = ip_hdrlen_U(payload);
-        (void)vrprint.debug (__FUNC__, "Found %u bytes of payload, header length %u", payload_len, ntohs(i));
-        logrule_ptr->protocol = ip_hdr_U(payload)->protocol;
-        ip.saddr = ip_hdr_U(payload)->saddr;
-        snprintf (logrule_ptr->src_ip, sizeof(logrule_ptr->src_ip), "%u.%u.%u.%u", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
-        ip.saddr = ip_hdr_U(payload)->daddr;
-        snprintf (logrule_ptr->dst_ip, sizeof(logrule_ptr->dst_ip), "%u.%u.%u.%u", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
-        logrule_ptr->ttl = ip_hdr_U(payload)->ttl;
     }
 
     /* Put packet's timestamp in log_rule struct */
+    /* If not in pkt, generate it ourselves */
     if (nflog_get_timestamp (nfa, &tv) == -1) {
-        (void)vrprint.debug (__FUNC__, "Can't get timestamp on packet: %s", strerror (errno));
-        return -1;
+        gettimeofday (&tv, NULL);
     }
     when = tv.tv_sec;
     struct tm *tm = localtime(&when);
@@ -191,6 +172,57 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         (void)vrprint.debug(__FUNC__, "did not find properly formatted timestamp");
         return -1;
     }
+
+    /* Now we still need to look into the packet itself for source/dest ports */
+    if ((payload_len = nflog_get_payload (nfa, &payload)) == -1) {
+        (void)vrprint.error (-1, "Error", "Can't get payload");
+        return -1;
+    } else {
+        /* This test still results in 0 hw_protocol in packets (??) */
+        switch (ntohs (ph->hw_protocol)) {
+            case 0:
+            case ETH_P_IP:
+                iph = (struct iphdr *)payload;
+                protoh = (u_int32_t *)iph + iph->ihl;
+                logrule_ptr->protocol = iph->protocol;
+                logrule_ptr->packet_len = ntohs(iph->tot_len) - iph->ihl * 4;
+                switch (logrule_ptr->protocol) {
+                    case IPPROTO_TCP:
+                        tcph = (struct tcphdr *)protoh;
+                        logrule_ptr->src_port = ntohs(tcph->source);
+                        logrule_ptr->dst_port = ntohs(tcph->dest);
+                        logrule_ptr->syn = tcph->syn;
+                        logrule_ptr->fin = tcph->fin;
+                        logrule_ptr->rst = tcph->rst;
+                        logrule_ptr->ack = tcph->ack;
+                        logrule_ptr->psh = tcph->psh;
+                        logrule_ptr->urg = tcph->urg;
+                        break;
+                    case IPPROTO_ICMP:
+                        icmph = (struct icmphdr *)protoh;
+                        logrule_ptr->icmp_type = icmph->type;
+                        logrule_ptr->icmp_code = icmph->code;
+                        break;
+                    case IPPROTO_UDP:
+                        udph = (struct udphdr *)protoh;
+                        logrule_ptr->src_port = ntohs(udph->source);
+                        logrule_ptr->dst_port = ntohs(udph->dest);
+                        break;
+                }
+                ip.saddr = iph->saddr;
+                snprintf (logrule_ptr->src_ip, sizeof(logrule_ptr->src_ip), "%u.%u.%u.%u", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
+                ip.saddr = iph->daddr;
+                snprintf (logrule_ptr->dst_ip, sizeof(logrule_ptr->dst_ip), "%u.%u.%u.%u", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
+                logrule_ptr->ttl = iph->ttl;
+                break;
+            case ETH_P_IPV6:
+                break;
+            default:
+                (void)vrprint.debug (__FUNC__, "HW Protocol: 0x%04x", ntohs(ph->hw_protocol));
+                break;
+        }
+    }
+
 
     return 0;       /* success */
 }
@@ -265,6 +297,5 @@ readnflog ()
     }
 
     rv = nflog_handle_packet (h, buf, rv);
-    (void)vrprint.debug(__FUNC__, "nflog_handle_packet returned %i", rv);
     return (1);
 }

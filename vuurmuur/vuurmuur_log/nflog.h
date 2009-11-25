@@ -23,7 +23,7 @@
 #include "vuurmuur_log.h"
 #include "stats.h"
 
-#include <linux/ip.h>
+#include <netinet/ip.h>
 #include <libnetfilter_log/libnetfilter_log.h>
 
 union ip_adress {
@@ -33,7 +33,5 @@ union ip_adress {
 
 int subscribe_nflog (const int, const struct vuurmuur_config *,struct log_rule *logrule);
 int readnflog ();
-static inline struct iphdr *ip_hdr_U(const char *p) { return (struct iphdr *)p; }
-static inline uint16_t ip_hdrlen_U(const char *data) { return ip_hdr_U(data)->tot_len; }
 
 #endif
