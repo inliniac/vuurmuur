@@ -194,13 +194,13 @@ stat_ok(const int debuglvl, const struct vuurmuur_config *cnf, const char *file_
 }
 
 
-/*
-    checks if we have a pidfile
-
-    Returncodes
-         0: ok
-        -1: error: the file already exists
-*/
+/**
+ * \brief Check PID file for running process
+ *
+ * Check for existence of PID file; if it exists, check the PID therein
+ * and check if the PID is indeed running. If neither is the case, return 0.
+ *
+ */
 int
 check_pidfile(char *pidfile_location, char *service, pid_t *thepid)
 {

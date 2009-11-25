@@ -893,6 +893,7 @@ typedef struct VR_filter_
 } VR_filter;
 
 
+#ifndef _NETINET_TCP_H
 /* connection status from conntrack */
 enum
 {
@@ -908,7 +909,7 @@ enum
     UNREPLIED,
     NONE,
 };
-
+#endif
 
 /* simplified connection status in vuurmuur */
 enum
