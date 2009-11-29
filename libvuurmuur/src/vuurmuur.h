@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef __LIB_H__
-#define __LIB_H__
+#ifndef __VUURMUUR_H__
+#define __VUURMUUR_H__
 
 #include <stdio.h>
 #include <stdlib.h>

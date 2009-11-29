@@ -45,7 +45,7 @@ case "$1" in
 		echo -n -e "\tLoading Vuurmuur:\t"
 		# start vuurmuur
 		if [ ! -f /var/run/vuurmuur.pid ]; then
-			$VUURMUUR_LOCATION/vuurmuur -l
+			$VUURMUUR_LOCATION/vuurmuur -D
 			RESULT="$?"
 			if [ "$RESULT" = "0" ]; then
 			    echo "ok."

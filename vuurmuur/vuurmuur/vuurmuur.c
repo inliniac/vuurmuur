@@ -837,6 +837,7 @@ print_help(void)
     fprintf(stdout, "-c, --configfile\tuse the given configfile\n");
     fprintf(stdout, "-h, --help\t\tgives this help\n");
     fprintf(stdout, "-V, --version\t\tgives the version\n");
+    fprintf(stdout, "-l\t\t\tdeprecated version of the -D option\n");
     fprintf(stdout, "-D, --daemon\t\tvuurmuur starts and goes into daemon-mode.\n");
     fprintf(stdout, "-L, --loglevel\t\tspecify the loglevel for use with syslog.\n");
     fprintf(stdout, "-K, --killme\t\tkill running daemon.\n");

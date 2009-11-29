@@ -34,8 +34,11 @@ fi
 
 CURPATH=`pwd`
 LOG="$CURPATH/install.log"
+# A temp file, where we store output from some commands
 TMP_LOG=`mktemp ${CURPATH}/vm_tmplog.XXXXXXXX`
+# The vuurmuur sample file. Will be filled with the full path
 VM_SAMPLE=""
+# The vuurmuur_conf sample file. Will be filled with the full path
 VMC_SAMPLE=""
 
 # major

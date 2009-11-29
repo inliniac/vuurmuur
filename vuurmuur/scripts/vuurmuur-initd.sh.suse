@@ -29,7 +29,7 @@ DAEMON="Vuurmuur daemon"
 DAEMON_BIN=/usr/bin/vuurmuur
 DAEMON_CONF=/etc/vuurmuur/config.conf
 DAEMON_PIDFILE=/var/run/vuurmuur.pid
-DAEMON_OPT="-l"
+DAEMON_OPT="-D"
 SUPPORTS_HUP="yes"
 # "yes" if exist next value in clamd.conf
 #       PidFile /var/run/clamd.pid
