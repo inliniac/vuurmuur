@@ -19,6 +19,10 @@
  ***************************************************************************/
 
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/signal.h>
+#include <unistd.h>
+
 #include "vuurmuur.h"
 
 
@@ -190,15 +194,15 @@ stat_ok(const int debuglvl, const struct vuurmuur_config *cnf, const char *file_
 }
 
 
-/*
-    checks if we have a pidfile
-
-    Returncodes
-         0: ok
-        -1: error: the file already exists
-*/
+/**
+ * \brief Check PID file for running process
+ *
+ * Check for existence of PID file; if it exists, check the PID therein
+ * and check if the PID is indeed running. If neither is the case, return 0.
+ *
+ */
 int
-check_pidfile(char *pidfile_location)
+check_pidfile(char *pidfile_location, char *service, pid_t *thepid)
 {
     FILE    *fp;
     pid_t   pid;
@@ -215,10 +219,24 @@ check_pidfile(char *pidfile_location)
         {
             sscanf(pid_char, "%16s", pid_small);
             pid = atol(pid_small);
-
-            fprintf(stdout, "Error: vuurmuur seems to be already running at PID: %ld.\n", (long)pid);
+            /* We found a PID in a pidfile. Let's check if it's non stale */
+            if (kill (pid, 0))
+            {
+                if (errno == ESRCH)     /* process didn't exist */
+                {
+                    if (unlink (pidfile_location))
+                    {
+                        fprintf (stderr, "Cannot unlink stale PID file %s\n", pidfile_location, strerror(errno));
+                        return (-1);
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+            }
+            *thepid = pid;
             fclose(fp);
-
             return(-1);
         }
 
@@ -241,7 +259,7 @@ create_pidfile(char *pidfile_location, int shm_id)
     /*
         first check if the pidfile already exists
     */
-    if(check_pidfile(pidfile_location) == -1)
+    if(check_pidfile(pidfile_location, "createsvc", &pid) == -1)
         return(-1);
 
     pid = getpid();

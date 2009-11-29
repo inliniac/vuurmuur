@@ -41,16 +41,20 @@ create_loglevel_string(const int debuglvl, struct vuurmuur_config *cnf, char *re
     memset(resultstr, 0, size);
 
     /* do it man */
-    if(strcmp(cnf->loglevel, "") != 0)
+    if(cnf->rule_nflog == 0)
     {
-        /* create the loglevel string */
-        if(snprintf(resultstr, size, "--log-level %s", cnf->loglevel) >= (int)size)
+        if (strcmp(cnf->loglevel, "") != 0)
         {
-            (void)vrprint.error(-1, "Error", "buffer overrun (in: %s:%d).", __FUNC__, __LINE__);
-            return;
+            /* create the loglevel string */
+            if(snprintf(resultstr, size, "--log-level %s", cnf->loglevel) >= (int)size)
+            {
+                (void)vrprint.error(-1, "Error", "buffer overrun (in: %s:%d).", __FUNC__, __LINE__);
+                return;
+            }
         }
     }
-
+    else
+        (void)vrprint.debug(__FUNC__, "did not add --log-level because we're in nflog mode");
     return;
 }
 
@@ -137,7 +141,14 @@ create_logprefix_string(const int debuglvl, char *resultstr, size_t size,
     va_end(ap);
 
     /* create the prefix */
-    snprintf(resultstr, size, "--log-prefix \"%s \"", str);
+    if (conf.rule_nflog == 1)
+    {
+        snprintf(resultstr, size, "--nflog-prefix \"%s \"", str);
+    }
+    else
+    {
+        snprintf(resultstr, size, "--log-prefix \"%s \"", str);
+    }
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "str: '%s', resultstr: '%s'.", str, resultstr);
@@ -872,8 +883,6 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
     /* if we want to log a rule, but havent done it yet: */
     if(create->option.rule_log == TRUE)
     {
-        if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "log the rule.");
 
         /* create the limitstring */
         if(conf.check_iptcaps == FALSE || iptcap->match_limit == TRUE)
@@ -904,16 +913,28 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), create->ruletype, action, "%s", create->option.logprefix);
 
         /* create the action */
-        snprintf(rule->action, sizeof(rule->action), "LOG %s %s %s",
-                                logprefix,
-                                loglevel,
-                                log_tcp_options);
+        if (conf.rule_nflog == 1)
+        {
+            snprintf(rule->action, sizeof(rule->action), "NFLOG %s %s --nflog-group %u",
+                                    logprefix,
+                                    loglevel,
+                                    conf.nfgrp);
+        }
+        else
+        {
+            snprintf(rule->action, sizeof(rule->action), "LOG %s %s %s",
+                                    logprefix,
+                                    loglevel,
+                                    log_tcp_options);
+        }
 
         /* set ip and netmask */
         (void)strlcpy(rule->to_ip,      rule->ipv4_to.ipaddress, sizeof(rule->to_ip));
         (void)strlcpy(rule->to_netmask, rule->ipv4_to.netmask,   sizeof(rule->to_netmask));
 
         /* create the rule */
+        (void)vrprint.debug(__FUNC__, "log the rule, create->option.rule_log == TRUE. rule->action = %s", rule->action);
+
         retval = rulecreate_call_create_funcs(debuglvl, ruleset, rule, create, iptcap);
         if (retval < 0) {
             (void)vrprint.error(retval, "Error", "creating log rule failed.");

@@ -127,6 +127,9 @@
 #define DEFAULT_UDP_LIMIT               (unsigned int)15
 #define DEFAULT_UDP_LIMIT_BURST         (unsigned int)45
 
+#define DEFAULT_RULE_NFLOG              TRUE
+#define DEFAULT_NFGRP                   8
+
 #define DEFAULT_LOG_POLICY              TRUE                /* default we log the default policy */
 #define DEFAULT_LOG_POLICY_LIMIT        (unsigned int)30    /* default limit for logging the default policy */
 #define DEFAULT_LOG_TCP_OPTIONS         FALSE               /* default we don't log TCP options */
@@ -360,6 +363,9 @@ struct vuurmuur_config
     char            log_blocklist;
 
     char            rules_location[64];
+
+    char            rule_nflog;
+    char            nfgrp;
 
     /* logfile locations */
     char            vuurmuur_logdir_location[64];
@@ -887,6 +893,7 @@ typedef struct VR_filter_
 } VR_filter;
 
 
+#ifndef _NETINET_TCP_H
 /* connection status from conntrack */
 enum
 {
@@ -902,7 +909,7 @@ enum
     UNREPLIED,
     NONE,
 };
-
+#endif
 
 /* simplified connection status in vuurmuur */
 enum
@@ -1028,6 +1035,7 @@ typedef struct
 
     char    target_reject;
     char    target_log;
+    char    target_nflog;
     char    target_redirect;
     char    target_mark;
     char    target_masquerade;
@@ -1420,7 +1428,7 @@ int libvuurmuur_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
 FILE *vuurmuur_fopen(const int, const struct vuurmuur_config *, const char *path, const char *mode);
 DIR *vuurmuur_opendir(const int, const struct vuurmuur_config *, const char *);
 int stat_ok(const int, const struct vuurmuur_config *, const char *, char, char, char);
-int check_pidfile(char *pidfile_location);
+int check_pidfile(char *pidfile_location, char *service, pid_t *thepid);
 int create_pidfile(char *pidfile_location, int shm_id);
 int remove_pidfile(char *pidfile_location);
 FILE * rules_file_open(const int, const struct vuurmuur_config *cnf, const char *path, const char *mode, int caller);

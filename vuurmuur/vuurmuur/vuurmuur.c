@@ -20,6 +20,9 @@
  
 #include "main.h"
 
+#include <sys/types.h>
+#include <sys/signal.h>
+
 static void print_help(void);
 
 /*
@@ -57,6 +60,7 @@ main(int argc, char *argv[])
     BlockList       blocklist;
 
     IptCap          iptcap;
+    pid_t           pid;
 
     char            reload_shm = FALSE,
                     reload_dyn = FALSE;
@@ -72,7 +76,7 @@ main(int argc, char *argv[])
 
     unsigned int    dynamic_wait_time = 0;  /* for checking the dynamic ipaddresses */
     unsigned int    wait_time = 0;          /* time in seconds we have waited for an VR_RR_RESULT_ACK when using SHM-IPC */
-    static char optstring[] = "hd:bVlvnc:L:CFDtkf";
+    static char optstring[] = "hd:bVlvnc:L:CFDtkfK";
     struct option prog_opts[] =
     {
         { "help", no_argument, NULL, 'h' },
@@ -84,6 +88,7 @@ main(int argc, char *argv[])
         { "configfile", required_argument, NULL, 'c' },
         { "loglevel", required_argument, NULL, 'L' },
         { "clear-vuurmuur", no_argument, NULL, 'C' },
+        { "killme", no_argument, NULL, 'K' },
         { "clear-all", no_argument, NULL, 'F' },
         { "daemon", no_argument, NULL, 'D' },
         { "no-check", no_argument, NULL, 't' },
@@ -154,6 +159,16 @@ main(int argc, char *argv[])
                 cmdline.configfile_set = TRUE;
                 break;
 
+            case 'K' :
+                (void)vrprint.debug(__FUNC__, "%s asked to stop", SVCNAME);
+                if (check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
+                {
+                    printf ("%s is running. Killing process %u because of -k\n", SVCNAME, pid);
+                    kill (pid, 15);
+                    exit (EXIT_SUCCESS);
+                }
+                break;
+                
             case 'd' :
 
                 /* debugging */
@@ -278,7 +293,7 @@ main(int argc, char *argv[])
     /* check if were already running, but not if we want bash output */
     if(conf.bash_out == FALSE)
     {
-        if(check_pidfile(PIDFILE) == -1)
+        if(check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
             exit(EXIT_FAILURE);
     }
 
@@ -334,7 +349,6 @@ main(int argc, char *argv[])
     }
 
 
-    /* loglevel */
     create_loglevel_string(debuglvl, &conf, loglevel, sizeof(loglevel));
     /* tcp options */
     create_logtcpoptions_string(debuglvl, &conf, log_tcp_options, sizeof(log_tcp_options));
@@ -738,6 +752,9 @@ main(int argc, char *argv[])
                 sleep(LOOP_INT);
             }
 
+            if (sigint_count || sigterm_count)
+                (void)vrprint.debug(__FUNC__, "killed by INT or TERM");
+
             (void)vrprint.info("Info", "Destroying shared memory...");
             if(shmctl(shm_id, IPC_RMID, NULL) < 0)
             {
@@ -823,6 +840,7 @@ print_help(void)
     fprintf(stdout, "-l\t\t\tdeprecated version of the -D option\n");
     fprintf(stdout, "-D, --daemon\t\tvuurmuur starts and goes into daemon-mode.\n");
     fprintf(stdout, "-L, --loglevel\t\tspecify the loglevel for use with syslog.\n");
+    fprintf(stdout, "-K, --killme\t\tkill running daemon.\n");
     fprintf(stdout, "-v, --verbose\t\tverbose mode.\n");
     fprintf(stdout, "-n, --foreground\tfor use with -D, it goes into the loop without daemonizing.\n");
     fprintf(stdout, "-C, --clear-vuurmuur\tclear vuurmuur iptables rules and set policy to ACCEPT. PRE-VRMR-CHAINS still presents. Use with care!\n");

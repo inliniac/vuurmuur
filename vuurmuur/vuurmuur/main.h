@@ -56,6 +56,8 @@
 #define LOGPREFIX_LOG_MAXLEN    29
 #define LOGPREFIX_ULOG_MAXLEN   32          /* not yet used */
 
+#define SVCNAME                 "vuurmuur"
+
 #define LOOP_INT                1
 
 #define YES                     1

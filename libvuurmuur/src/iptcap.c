@@ -78,6 +78,7 @@ iptcap_get_one_cap_from_proc(const int debuglvl, char *procpath, char *request)
         return(-1);
     }
 
+    (void)vrprint.debug(__FUNC__, "procpath: %s request: %s retval: %u", procpath, request, retval);
     /* return retval, 1 if found, 0 if not found */
     return(retval);
 }
@@ -731,7 +732,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
         PROC FILES
     */
 
-    /* /proc/net/matches */
+    /* /proc/net/ip_tables_matches */
     if(!(iptcap_check_file(debuglvl, proc_net_match)))
     {
         if(debuglvl >= LOW)
@@ -763,7 +764,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
         iptcap->proc_net_matches = TRUE;
     }
 
-    /* /proc/net/targets */
+    /* /proc/net/ip_tables_targets */
     if(!(iptcap_check_file(debuglvl, proc_net_target)))
     {
         if(debuglvl >= LOW)
@@ -795,7 +796,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
         iptcap->proc_net_targets = TRUE;
     }
 
-    /* /proc/net/names */
+    /* /proc/net/ip_tables_names */
     if(!(iptcap_check_file(debuglvl, proc_net_names)))
     {
         if(load_modules == TRUE)
@@ -1157,6 +1158,16 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 
             result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "LOG", "xt_LOG", load_modules);
             if(result == 1) iptcap->target_log = TRUE;
+        }
+
+        /* NFLOG target */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "NFLOG", "xt_NFLOG", load_modules);
+        if(result == 1) iptcap->target_nflog = TRUE;
+        else {
+            iptcap->target_nflog = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "NFLOG", "xt_NFLOG", load_modules);
+            if(result == 1) iptcap->target_nflog = TRUE;
         }
 
         /* NFQUEUE target - this one is listed in /proc/net/ip_tables_targets */

@@ -1979,7 +1979,9 @@ edit_vcconfig(const int debuglvl)
 
 struct
 {
-    FIELD   *logdirfld,
+    FIELD   *rule_nflogfld,
+            *nfgrpfld,
+            *logdirfld,
             *loglevelfld,
             *systemlogfld,
 
@@ -1992,9 +1994,6 @@ struct
             *lognosynfld,
             *logprobesfld,
             *logfragfld;
-
-    char    number[8];
-
 } LogConfig;
 
 
@@ -2007,23 +2006,26 @@ edit_logconfig_init(const int debuglvl, int height, int width, int starty, int s
             cols = 0;
     char    limit_string[4] = "";
 
-    ConfigSection.n_fields = 11;
+    ConfigSection.n_fields = 13;
     ConfigSection.fields = (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
 
     /* fields */
-    LogConfig.logdirfld    = (ConfigSection.fields[0] = new_field(1, 64, 2, 1, 0, 0)); /* vuurmuur_logdir */
-    LogConfig.loglevelfld  = (ConfigSection.fields[1] = new_field(1, 8,  4, 1, 0, 0)); /* loglevel */
-    LogConfig.systemlogfld = (ConfigSection.fields[2] = new_field(1, 64, 6, 1, 0, 0)); /* systemlog */
+    LogConfig.rule_nflogfld    = (ConfigSection.fields[0] = new_field(1, 1, 1, 26, 0, 0)); /* rule_nflog */
+    LogConfig.nfgrpfld    =      (ConfigSection.fields[1] = new_field(1, 3, 1, 60, 0, 0)); /* nfgrp */
 
-    LogConfig.logpolicyfld      = (ConfigSection.fields[3] = new_field(1, 1, 8,  61, 0, 0)); /* log policy */
-    LogConfig.logpolicylimitfld = (ConfigSection.fields[4] = new_field(1, 3, 9,  60, 0, 0)); /* log policy limit */
-    LogConfig.logtcpoptionsfld  = (ConfigSection.fields[5] = new_field(1, 1, 10, 61, 0, 0)); /* log tcp options */
-    LogConfig.logblocklistfld   = (ConfigSection.fields[6] = new_field(1, 1, 11, 61, 0, 0)); /* log logblocklist */
+    LogConfig.logdirfld    = (ConfigSection.fields[2] = new_field(1, 64, 4, 1, 0, 0)); /* vuurmuur_logdir */
+    LogConfig.loglevelfld  = (ConfigSection.fields[3] = new_field(1, 8,  6, 1, 0, 0)); /* loglevel */
+    LogConfig.systemlogfld = (ConfigSection.fields[4] = new_field(1, 64, 8, 1, 0, 0)); /* systemlog */
 
-    LogConfig.loginvalidfld   = (ConfigSection.fields[7] = new_field(1, 1, 12, 61, 0, 0)); /* log logblocklist */
-    LogConfig.lognosynfld     = (ConfigSection.fields[8] = new_field(1, 1, 13, 61, 0, 0)); /* log logblocklist */
-    LogConfig.logprobesfld    = (ConfigSection.fields[9] = new_field(1, 1, 14, 61, 0, 0)); /* log logblocklist */
-    LogConfig.logfragfld      = (ConfigSection.fields[10] = new_field(1, 1, 15, 61, 0, 0)); /* log logblocklist */
+    LogConfig.logpolicyfld      = (ConfigSection.fields[5] = new_field(1, 1, 10,  61, 0, 0)); /* log policy */
+    LogConfig.logpolicylimitfld = (ConfigSection.fields[6] = new_field(1, 3, 11,  60, 0, 0)); /* log policy limit */
+    LogConfig.logtcpoptionsfld  = (ConfigSection.fields[7] = new_field(1, 1, 12, 61, 0, 0)); /* log tcp options */
+    LogConfig.logblocklistfld   = (ConfigSection.fields[8] = new_field(1, 1, 13, 61, 0, 0)); /* log logblocklist */
+
+    LogConfig.loginvalidfld   = (ConfigSection.fields[9] = new_field(1, 1, 14, 61, 0, 0)); /* log logblocklist */
+    LogConfig.lognosynfld     = (ConfigSection.fields[10] = new_field(1, 1, 15, 61, 0, 0)); /* log logblocklist */
+    LogConfig.logprobesfld    = (ConfigSection.fields[11] = new_field(1, 1, 16, 61, 0, 0)); /* log logprobes */
+    LogConfig.logfragfld      = (ConfigSection.fields[12] = new_field(1, 1, 17, 61, 0, 0)); /* log logblocklist */
 
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
 
@@ -2040,6 +2042,13 @@ edit_logconfig_init(const int debuglvl, int height, int width, int starty, int s
     }
 
     /* fill the fields */
+    set_field_buffer_wrap(debuglvl, LogConfig.rule_nflogfld,  0, conf.rule_nflog ? "X" : " ");
+    if (conf.nfgrp > 0)
+    {
+        (void)snprintf(limit_string, sizeof(limit_string), "%u",
+                conf.nfgrp);
+        set_field_buffer_wrap(debuglvl, LogConfig.nfgrpfld, 0, limit_string);
+    }
     set_field_buffer_wrap(debuglvl, LogConfig.logdirfld, 0, conf.vuurmuur_logdir_location);
     set_field_buffer_wrap(debuglvl, LogConfig.loglevelfld, 0, conf.loglevel);
     set_field_buffer_wrap(debuglvl, LogConfig.systemlogfld, 0, conf.systemlog_location);
@@ -2065,6 +2074,7 @@ edit_logconfig_init(const int debuglvl, int height, int width, int starty, int s
         // set status to false
         set_field_status(ConfigSection.fields[i], FALSE);
     }
+    set_field_back(LogConfig.rule_nflogfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     set_field_back(LogConfig.logpolicyfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     set_field_back(LogConfig.logtcpoptionsfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     set_field_back(LogConfig.logblocklistfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
@@ -2085,44 +2095,50 @@ edit_logconfig_init(const int debuglvl, int height, int width, int starty, int s
     post_form(ConfigSection.form);
 
     /* print labels */
-    mvwprintw(ConfigSection.win, 2, 2,   gettext("Vuurmuur logfiles location (full path):"));
-    mvwprintw(ConfigSection.win, 4, 2,   gettext("Loglevel (for use with syslog, requires vuurmuur restart):"));
-    mvwprintw(ConfigSection.win, 6, 2,   gettext("Logfile containing IPtables/Netfilter logs:"));
+    mvwprintw(ConfigSection.win, 2, 2,   gettext("Use NFLOG"));
+    mvwprintw(ConfigSection.win, 2, 27, "[");
+    mvwprintw(ConfigSection.win, 2, 29, "]");
 
-    mvwprintw(ConfigSection.win, 9, 2,  gettext("Log the default policy? (DROP):"));
-    mvwprintw(ConfigSection.win, 9, 62, "[");
-    mvwprintw(ConfigSection.win, 9, 64, "]");
+    mvwprintw(ConfigSection.win, 2, 32,   gettext("Netfilter Group"));
 
-    mvwprintw(ConfigSection.win, 10, 2,  gettext("Limit of the number of logs per second (0 for no limit):"));
+    mvwprintw(ConfigSection.win, 4, 2,   gettext("Vuurmuur logfiles location (full path):"));
+    mvwprintw(ConfigSection.win, 6, 2,   gettext("Loglevel (for use with syslog, requires vuurmuur restart):"));
+    mvwprintw(ConfigSection.win, 8, 2,   gettext("Logfile containing IPtables/Netfilter logs:"));
 
-    mvwprintw(ConfigSection.win, 11, 2,  gettext("Log TCP options (for use with PSAD):"));
+    mvwprintw(ConfigSection.win, 11, 2,  gettext("Log the default policy? (DROP):"));
     mvwprintw(ConfigSection.win, 11, 62, "[");
     mvwprintw(ConfigSection.win, 11, 64, "]");
 
-    /* TRANSLATORS: max 55 chars */
-    mvwprintw(ConfigSection.win, 12, 2,  gettext("Log blocklist violations:"));
-    mvwprintw(ConfigSection.win, 12, 62, "[");
-    mvwprintw(ConfigSection.win, 12, 64, "]");
+    mvwprintw(ConfigSection.win, 12, 2,  gettext("Limit of the number of logs per second (0 for no limit):"));
 
-    /* TRANSLATORS: max 55 chars, don't translate 'INVALID' */
-    mvwprintw(ConfigSection.win, 13, 2,  gettext("Log packets with state INVALID:"));
+    mvwprintw(ConfigSection.win, 13, 2,  gettext("Log TCP options (for use with PSAD):"));
     mvwprintw(ConfigSection.win, 13, 62, "[");
     mvwprintw(ConfigSection.win, 13, 64, "]");
 
     /* TRANSLATORS: max 55 chars */
-    mvwprintw(ConfigSection.win, 14, 2,  gettext("Log new TCP packets with no SYN flag set:"));
+    mvwprintw(ConfigSection.win, 14, 2,  gettext("Log blocklist violations:"));
     mvwprintw(ConfigSection.win, 14, 62, "[");
     mvwprintw(ConfigSection.win, 14, 64, "]");
 
-    /* TRANSLATORS: max 55 chars */
-    mvwprintw(ConfigSection.win, 15, 2,  gettext("Log scan probe packets:"));
+    /* TRANSLATORS: max 55 chars, don't translate 'INVALID' */
+    mvwprintw(ConfigSection.win, 15, 2,  gettext("Log packets with state INVALID:"));
     mvwprintw(ConfigSection.win, 15, 62, "[");
     mvwprintw(ConfigSection.win, 15, 64, "]");
 
     /* TRANSLATORS: max 55 chars */
-    mvwprintw(ConfigSection.win, 16, 2,  gettext("Log Fragments:"));
+    mvwprintw(ConfigSection.win, 16, 2,  gettext("Log new TCP packets with no SYN flag set:"));
     mvwprintw(ConfigSection.win, 16, 62, "[");
     mvwprintw(ConfigSection.win, 16, 64, "]");
+
+    /* TRANSLATORS: max 55 chars */
+    mvwprintw(ConfigSection.win, 17, 2,  gettext("Log scan probe packets:"));
+    mvwprintw(ConfigSection.win, 17, 62, "[");
+    mvwprintw(ConfigSection.win, 17, 64, "]");
+
+    /* TRANSLATORS: max 55 chars */
+    mvwprintw(ConfigSection.win, 18, 2,  gettext("Log Fragments:"));
+    mvwprintw(ConfigSection.win, 18, 62, "[");
+    mvwprintw(ConfigSection.win, 18, 64, "]");
 
     return(retval);
 }
@@ -2197,6 +2213,46 @@ edit_logconfig_save(const int debuglvl)
 
                 (void)vrprint.audit("'systemlog location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.systemlog_location);
+            }
+            else if(ConfigSection.fields[i] == LogConfig.rule_nflogfld)
+            {
+                /* nflog */
+                if(field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+                    conf.rule_nflog = 1;
+                else
+                    conf.rule_nflog = 0;
+
+                (void)vrprint.audit("'rule_nflog' %s '%s'.",
+                    STR_IS_NOW_SET_TO, conf.rule_nflog ? STR_YES : STR_NO);
+            }
+            else if(ConfigSection.fields[i] == LogConfig.nfgrpfld)
+            {
+                /* NF group*/
+                if(!(copy_field2buf(limit_string,
+                                    field_buffer(ConfigSection.fields[i], 0),
+                                    sizeof(limit_string))))
+                    return(-1);
+
+                result = atoi(limit_string);
+                if(result < 0 || result > 999)
+                {
+                    (void)vrprint.error(-1, VR_ERR, gettext("NF group must be between 0-999."));
+
+                    /* restore the field */
+                    if(conf.nfgrp > 0)
+                    {
+                        (void)snprintf(limit_string, sizeof(limit_string), "%u",
+                                conf.nfgrp);
+                        set_field_buffer_wrap(debuglvl, LogConfig.nfgrpfld, 0, limit_string);
+                    }
+                }
+                else
+                {
+                    conf.nfgrp = (unsigned int)result;
+
+                    (void)vrprint.audit("'nfgrp' %s '%u'.",
+                        STR_IS_NOW_SET_TO, conf.nfgrp);
+                }
             }
             else if(ConfigSection.fields[i] == LogConfig.logpolicyfld)
             {
@@ -2310,6 +2366,10 @@ edit_logconfig_save(const int debuglvl)
                 return(-1);
             }
         }
+        else
+        {
+            (void)vrprint.audit("No field status change");
+        }
     }
 
     return(retval);
@@ -2335,7 +2395,7 @@ edit_logconfig(const int debuglvl)
     // window dimentions
     getmaxyx(stdscr, max_height, max_width);
 
-    height = 18;
+    height = 20;
     width = 76;
 
     startx = (max_width - width)/2;
@@ -2361,7 +2421,8 @@ edit_logconfig(const int debuglvl)
         if(cur == LogConfig.logdirfld ||
            cur == LogConfig.loglevelfld ||
            cur == LogConfig.systemlogfld ||
-           cur == LogConfig.logpolicylimitfld)
+           cur == LogConfig.logpolicylimitfld ||
+           cur == LogConfig.nfgrpfld)
         {
             if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
                 not_defined = 1;
@@ -2372,7 +2433,8 @@ edit_logconfig(const int debuglvl)
             cur == LogConfig.loginvalidfld ||
             cur == LogConfig.lognosynfld ||
             cur == LogConfig.logprobesfld ||
-            cur == LogConfig.logfragfld)
+            cur == LogConfig.logfragfld ||
+            cur == LogConfig.rule_nflogfld)
         {
             if(nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0)
                 not_defined = 1;
@@ -2660,6 +2722,7 @@ view_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
         mvwprintw(ConfigSection.win, 14, 27, "NFQUEUE\t%s", iptcap->target_nfqueue ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 15, 27, "CLASSIFY\t%s", iptcap->target_classify ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 16, 27, "TCPMSS\t%s", iptcap->target_tcpmss ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 17, 27, "NFLOG\t%s", iptcap->target_nflog ? STR_YES : STR_NO);
     }
     else
     {
@@ -2715,7 +2778,7 @@ view_caps(const int debuglvl)
     /* window dimentions */
     getmaxyx(stdscr, max_height, max_width);
 
-    height = 18;
+    height = 19;
     width  = 76;
     startx = (max_width  - width) /2;
     starty = (max_height - height)/2;
