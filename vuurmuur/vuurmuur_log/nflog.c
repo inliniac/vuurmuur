@@ -106,7 +106,8 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         i = 0;
         for (c++; *c; c++, i++) 
             logrule_ptr->logprefix[i] = *c;
-        (void)vrprint.debug(__FUNC__, "action: '%s' prefix: '%s'", logrule_ptr->action, logrule_ptr->logprefix);
+        if (i == 1)
+            strlcpy(logrule_ptr->logprefix, "none", sizeof(logrule_ptr->logprefix));
     } else {
         /* Not an error, but we're done here */
         return 0;
@@ -126,19 +127,13 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     }
 
 
-#if 0
-    /* Not used AFAIK but keep for reference. 1 = ethernet */
-    hwtype = nflog_get_hwtype (nfa);
-    (void)vrprint.debug (__FUNC__, "hwtype(): 0x%04x", hwtype);
-#endif
-
     /* Convert MAC src and dst to strings and copy into logrule_ptr */
     if (nflog_get_msg_packet_hwhdrlen (nfa)) {
         hwhdr = nflog_get_msg_packet_hwhdr (nfa);
         mac2str (hwhdr, macstr);
-        snprintf (logrule_ptr->dst_mac, sizeof (logrule_ptr->dst_mac), "[%s]", macstr);
+        snprintf (logrule_ptr->dst_mac, sizeof (logrule_ptr->dst_mac), "(%s)", macstr);
         mac2str (hwhdr + 6, macstr);
-        snprintf (logrule_ptr->src_mac, sizeof (logrule_ptr->src_mac), "[%s]", macstr);
+        snprintf (logrule_ptr->src_mac, sizeof (logrule_ptr->src_mac), "(%s)", macstr);
     }
 
     /* Find indev idx for pkg and translate to interface name */
@@ -146,8 +141,13 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         (void)vrprint.error (-1, "Error", "Can't get indev idx");
         return -1;
     } else {
-        if_indextoname (indev, logrule_ptr->interface_in);
-        snprintf(logrule_ptr->from_int, sizeof(logrule_ptr->from_int), "in: %s", logrule_ptr->interface_out);
+        if (indev) {
+            if_indextoname (indev, logrule_ptr->interface_in);
+            snprintf(logrule_ptr->from_int, sizeof(logrule_ptr->from_int), "in: %s ", logrule_ptr->interface_in);
+        } else {
+            *logrule_ptr->interface_in = 0;
+            *logrule_ptr->from_int = 0;
+        }
     }
 
     /* Find outdev idx for pkg and translate to interface name */
@@ -155,8 +155,13 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         (void)vrprint.error (-1, "Error", "Can't get outdev idx");
         return -1;
     } else {
-        if_indextoname (outdev, logrule_ptr->interface_out);
-        snprintf(logrule_ptr->to_int, sizeof(logrule_ptr->to_int), "out: %s", logrule_ptr->interface_out);
+        if (outdev) {
+            if_indextoname (outdev, logrule_ptr->interface_out);
+            snprintf(logrule_ptr->to_int, sizeof(logrule_ptr->to_int), "out: %s ", logrule_ptr->interface_out);
+        } else {
+            *logrule_ptr->interface_out = 0;
+            *logrule_ptr->to_int = 0;
+        }
     }
 
     /* Put packet's timestamp in log_rule struct */

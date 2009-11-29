@@ -292,13 +292,13 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
     {
         case 6:                     /* TCP */
             CreateTCPFlagString(logrule, logrule->tcpflags);
-            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d TCP flags: %s len:%u ttl:%u)\n",
+            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s:%d -> %s%s:%d TCP flags: %s len:%u ttl:%u)\n",
                 logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, logrule->action, logrule->ser_name, logrule->from_name, logrule->to_name, logrule->logprefix,
                 logrule->from_int, logrule->to_int, logrule->src_ip, logrule->src_mac, logrule->src_port, logrule->dst_ip, logrule->dst_mac, logrule->dst_port, logrule->tcpflags,
                 logrule->packet_len, logrule->ttl);
             break;
         case 17:                    /* UDP */
-            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s:%d -> %s%s:%d UDP len:%u ttl:%u)\n",
+            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s:%d -> %s%s:%d UDP len:%u ttl:%u)\n",
                 logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, 
                 logrule->action, logrule->ser_name, 
                 logrule->from_name, logrule->to_name, 
@@ -309,7 +309,7 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
                 logrule->packet_len, logrule->ttl);
             break;
         case 1:                     /* ICMP */
-            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ICMP type %d code %d len:%u ttl:%u)\n",
+            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s ICMP type %d code %d len:%u ttl:%u)\n",
                 logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, 
                 logrule->action, logrule->ser_name, 
                 logrule->from_name, logrule->to_name, 
@@ -321,7 +321,7 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
                 logrule->tcpflags, logrule->packet_len, logrule->ttl);
             break;
         case 47:                    /* GRE */
-            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s GRE len:%u ttl:%u)\n",
+            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s GRE len:%u ttl:%u)\n",
                 logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, 
                 logrule->action, logrule->ser_name, 
                 logrule->from_name, logrule->to_name, 
@@ -332,7 +332,7 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
                 logrule->tcpflags, logrule->packet_len, logrule->ttl);
             break;
         case 50:                    /* ESP */
-            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s ESP len:%u ttl:%u)\n",
+            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s ESP len:%u ttl:%u)\n",
                 logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, 
                 logrule->action, logrule->ser_name, 
                 logrule->from_name, logrule->to_name, 
@@ -343,7 +343,7 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
                 logrule->tcpflags, logrule->packet_len, logrule->ttl);
             break;
         case 51:                    /* AH */
-            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s %s%s -> %s%s AH len:%u ttl:%u)\n",
+            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s AH len:%u ttl:%u)\n",
                 logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, 
                 logrule->action, logrule->ser_name, 
                 logrule->from_name, logrule->to_name, 
@@ -890,7 +890,7 @@ main(int argc, char *argv[])
             shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 90);
 
             /* re-open the logs */
-            if(reopen_syslog(debuglvl, &system_log) < 0)
+            if(syslog && reopen_syslog(debuglvl, &system_log) < 0)
             {
                 (void)vrprint.error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);

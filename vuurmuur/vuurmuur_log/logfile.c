@@ -278,7 +278,7 @@ parse_ipt_logline(  const int debuglvl,
                 return(0);
             else
             {
-                snprintf(logrule_ptr->to_int, sizeof(logrule_ptr->to_int), "out: %s", logrule_ptr->interface_out);
+                snprintf(logrule_ptr->to_int, sizeof(logrule_ptr->to_int), "out: %s ", logrule_ptr->interface_out);
 
                 /* append a space to the from_int */
                 if(strcmp(logrule_ptr->from_int, "") != 0)
@@ -907,6 +907,8 @@ parse_ipt_logline(  const int debuglvl,
 static int
 stat_logfile(const int debuglvl, const char *path, struct stat *logstat)
 {
+    (void)vrprint.debug (__FUNC__, "In stat_logfile (%s:%d)", __FUNC__, __LINE__);
+
     if(path == NULL)
     {
         (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
@@ -919,8 +921,7 @@ stat_logfile(const int debuglvl, const char *path, struct stat *logstat)
         return(-1);
     }
 
-    if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "file '%s' statted.", path);
+    (void)vrprint.debug(__FUNC__, "file '%s' statted.", path);
 
     return(0);
 }
@@ -971,7 +972,9 @@ close_syslog(const int debuglvl, FILE **system_log, /*@null@*/struct file_mon *f
 
     if(filemon != NULL)
     {
+        (void)vrprint.debug (__FUNC__, "Calling stat_logfile (%s:%d)", __FUNC__, __LINE__);
         (void)stat_logfile(debuglvl, conf.systemlog_location, &filemon->old_file);
+        (void)vrprint.debug (__FUNC__, "Done stat_logfile", __FUNC__, __LINE__);
     }
     
     if(fclose(*system_log) < 0)
@@ -981,6 +984,8 @@ close_syslog(const int debuglvl, FILE **system_log, /*@null@*/struct file_mon *f
     }
 
     *system_log   = NULL;
+
+    (void)vrprint.debug (__FUNC__, "Closed syslog (%s:%d)", __FUNC__, __LINE__);
 
     return(retval);
 }
@@ -1079,6 +1084,8 @@ reopen_syslog(const int debuglvl, FILE **system_log)
     /* clear */
     memset(&filemon, 0, sizeof(filemon));
 
+    (void)vrprint.debug (__FUNC__, "Reopening syslog files (%s:%d)", __FUNC__, __LINE__);
+
     /* close the logfiles */
     (void)close_syslog(debuglvl, system_log, &filemon);
 
@@ -1130,6 +1137,8 @@ reopen_syslog(const int debuglvl, FILE **system_log)
         return(-1);
     }
 
+    (void)vrprint.debug (__FUNC__, "Reopened syslog files (%s:%d)", __FUNC__, __LINE__);
+
     return(0);
 }
 
@@ -1144,6 +1153,8 @@ reopen_vuurmuurlog(const int debuglvl, FILE **vuurmuur_log)
     /* clear */
     memset(&filemon, 0, sizeof(filemon));
 
+    (void)vrprint.debug (__FUNC__, "Reopening vuurmuur log (%s:%d)", __FUNC__, __LINE__);
+
     /* close the logfiles */
     (void)close_vuurmuurlog(debuglvl, vuurmuur_log, &filemon);
 
@@ -1154,5 +1165,6 @@ reopen_vuurmuurlog(const int debuglvl, FILE **vuurmuur_log)
         return(-1);
     }
 
+    (void)vrprint.debug (__FUNC__, "Done reopening");
     return(0);
 }
