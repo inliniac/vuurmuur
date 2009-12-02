@@ -1152,6 +1152,10 @@ print_about(const int debuglvl)
     int     key_choices_n = 1;
     char    *cmd_choices[] =    { gettext("back") };
     int     cmd_choices_n = 1;
+    char    about_version_string[sizeof(version_string)];
+
+    /* create the about version string */
+    snprintf(about_version_string, sizeof(about_version_string), "Version: %s\n", version_string);
 
     /* get screensize */
     getmaxyx(stdscr, max_height, max_width);
@@ -1166,6 +1170,8 @@ print_about(const int debuglvl)
     (void)read_helpline(debuglvl, &about_list, "Vuurmuur_conf\n");
     (void)read_helpline(debuglvl, &about_list, "\n");
     (void)read_helpline(debuglvl, &about_list, "=============\n");
+    (void)read_helpline(debuglvl, &about_list, "\n");
+    (void)read_helpline(debuglvl, &about_list, about_version_string);
     (void)read_helpline(debuglvl, &about_list, "\n");
     (void)read_helpline(debuglvl, &about_list, "\n");
     (void)read_helpline(debuglvl, &about_list, "Copyright 2003-2007 (c) Victor Julien <victor(at)vuurmuur(dot)org>.\n");
