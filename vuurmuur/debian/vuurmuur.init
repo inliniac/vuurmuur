@@ -100,14 +100,14 @@ case "$1" in
 		echo "Stopping firewall Vuurmuur:"
 		echo -n -e "\tVuurmuur:\t"
 		if [ $(pidof vuurmuur) ]; then
-		  kill -n INT `pidof vuurmuur`
+		  kill -s INT `pidof vuurmuur`
 		  echo "stopped."
 		else
 		  echo "not running."
 		fi
 		echo -n -e "\tVuurmuur_log:\t"
 		if [ $(pidof vuurmuur_log) ]; then
-		  kill -n INT `pidof vuurmuur_log`
+		  kill -s INT `pidof vuurmuur_log`
 		  echo "stopped."
 		else
 		  echo "not running."
