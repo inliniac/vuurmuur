@@ -90,16 +90,16 @@ binary-arch: build install
 	install -m 700 -o root -g root -d debian/vuurmuur/etc/vuurmuur/
 
 	install -m 700 -o root -g root -d debian/vuurmuur/etc/vuurmuur/interfaces
-	install -m 600 -o root -g root skel/etc/vuurmuur/interfaces/.keep debian/vuurmuur/etc/vuurmuur/interfaces/.keep
+	install -m 600 -o root -g root debian/.keep debian/vuurmuur/etc/vuurmuur/interfaces/.keep
 
 	install -m 700 -o root -g root -d debian/vuurmuur/etc/vuurmuur/zones
-	install -m 600 -o root -g root skel/etc/vuurmuur/zones/.keep debian/vuurmuur/etc/vuurmuur/zones/.keep
+	install -m 600 -o root -g root debian/.keep debian/vuurmuur/etc/vuurmuur/zones/.keep
 
 	install -m 700 -o root -g root -d debian/vuurmuur/etc/vuurmuur/services
-	install -m 600 -o root -g root skel/etc/vuurmuur/services/.keep debian/vuurmuur/etc/vuurmuur/services/.keep
+	install -m 600 -o root -g root debian/.keep debian/vuurmuur/etc/vuurmuur/services/.keep
 
 	install -m 700 -o root -g root -d debian/vuurmuur/etc/vuurmuur/rules
-	install -m 600 -o root -g root skel/etc/vuurmuur/services/.keep debian/vuurmuur/etc/vuurmuur/rules/.keep
+	install -m 600 -o root -g root debian/.keep debian/vuurmuur/etc/vuurmuur/rules/.keep
 
 	install -m 600 -o root -g root config/config.conf.sample debian/vuurmuur/etc/vuurmuur/
 	install -m 600 -o root -g root config/config.conf.sample debian/vuurmuur/etc/vuurmuur/config.conf
@@ -107,11 +107,10 @@ binary-arch: build install
 #	install -m 700 -o root -g root -d debian/vuurmuur/usr/share/vuurmuur/scripts/
 
 #	install -m 700 -o root -g root -d debian/vuurmuur/usr/share/vuurmuur/services/
-#	install -m 600 -o root -g root skel/usr/share/vuurmuur/services/* debian/vuurmuur/usr/share/vuurmuur/services/
-	install -m 600 -o root -g root skel/usr/share/vuurmuur/services/* debian/vuurmuur/etc/vuurmuur/services/
+	install -m 600 -o root -g root services/* debian/vuurmuur/etc/vuurmuur/services/
 
 	install -m 700 -o root -g root -d debian/vuurmuur/var/log/vuurmuur/
-	install -m 600 -o root -g root skel/var/log/vuurmuur/.keep debian/vuurmuur/var/log/vuurmuur/.keep
+	install -m 600 -o root -g root debian/.keep debian/vuurmuur/var/log/vuurmuur/.keep
 
 	mkdir -p $(CURDIR)/debian/vuurmuur/etc/default
 	install -m 644 -p $(CURDIR)/debian/default/vuurmuur $(CURDIR)/debian/vuurmuur/etc/default/

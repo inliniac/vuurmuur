@@ -1,7 +1,0 @@
-ACTIVE="Yes"
-TCP="5222:5223*1024:65535"
-UDP=""
-ICMP=""
-GRE=""
-BROADCAST="No"
-COMMENT="Jabber (5222) and Jabbel-SSL (5223). Instand message program/protocol."
