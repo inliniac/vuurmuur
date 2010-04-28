@@ -2,11 +2,11 @@
 
 # Quick setup wizard for Vuurmuur.
 #
-# Copyright (c) 2009 by Victor Julien <victor@inliniac.net>
+# Copyright (c) 2009, 2010 by Victor Julien <victor@inliniac.net>
 
 VMS="vuurmuur_script"
 
-VERSION="0.8beta1"
+VERSION="0.8beta2"
 BACKTITLE="Vuurmuur Setup Wizard version $VERSION"
 
 ZONES="inet lan"
@@ -209,7 +209,7 @@ function CreateZones
     for zone in `echo $ZONES`; do
         echo "" >> $CMD
         echo "# Adding zone $zone..." >> $CMD
-    	echo "$VMS --add --zone $zone" >> $CMD
+    	echo "$VMS --create --zone $zone" >> $CMD
     	echo "$VMS --modify --zone $zone --variable ACTIVE --set Yes --overwrite" >> $CMD
     done
 }
@@ -219,7 +219,7 @@ function CreateInternetNetwork
 {
     echo "" >> $CMD
     echo "# Adding network $INTERNET..." >> $CMD
-    echo "$VMS --add --network $INTERNET" >> $CMD
+    echo "$VMS --create --network $INTERNET" >> $CMD
     echo "$VMS --modify --network $INTERNET --variable ACTIVE --set Yes --overwrite" >> $CMD
     echo "$VMS --modify --network $INTERNET --variable NETWORK --set 0.0.0.0 --overwrite" >> $CMD
     echo "$VMS --modify --network $INTERNET --variable NETMASK --set 0.0.0.0 --overwrite" >> $CMD
@@ -240,7 +240,7 @@ function CreateLanNetwork
 
     echo "" >> $CMD
     echo "# Adding network $LAN..." >> $CMD
-    echo "$VMS --add --network $LAN" >> $CMD
+    echo "$VMS --create --network $LAN" >> $CMD
     echo "$VMS --modify --network $LAN --variable ACTIVE --set Yes --overwrite" >> $CMD
     echo "$VMS --modify --network $LAN --variable NETWORK --set $NETWORK --overwrite" >> $CMD
     echo "$VMS --modify --network $LAN --variable NETMASK --set $NETMASK --overwrite" >> $CMD
@@ -285,7 +285,7 @@ function CreateInternetInterface
 
     echo "" >> $CMD
     echo "# Adding Internet interface $NAME, $DEV, $IP..." >> $CMD
-    echo "$VMS --add --interface $NAME" >> $CMD
+    echo "$VMS --create --interface $NAME" >> $CMD
     echo "$VMS --modify --interface $NAME --variable ACTIVE --set Yes  --overwrite" >> $CMD
     echo "$VMS --modify --interface $NAME --variable DEVICE --set $DEV  --overwrite" >> $CMD
     echo "$VMS --modify --interface $NAME --variable IPADDRESS --set \"$IP\"  --overwrite" >> $CMD
@@ -310,7 +310,7 @@ function CreateLanInterface
 
     echo "" >> $CMD
     echo "# Adding LAN interface $NAME, $DEV, $IP..." >> $CMD
-    echo "$VMS --add --interface $NAME" >> $CMD
+    echo "$VMS --create --interface $NAME" >> $CMD
     echo "$VMS --modify --interface $NAME --variable ACTIVE --set Yes  --overwrite" >> $CMD
     echo "$VMS --modify --interface $NAME --variable DEVICE --set $DEV  --overwrite" >> $CMD
     echo "$VMS --modify --interface $NAME --variable IPADDRESS --set \"$IP\"  --overwrite" >> $CMD
@@ -434,7 +434,7 @@ function InitRules
     # first clear the rules
     echo "" >> $CMD
     echo "# Clearing existing rules..." >> $CMD
-    echo "$VMS --modify --rules rules --overwrite --variable RULES --set \"\"" >> $CMD
+    echo "$VMS --modify --rule rules --overwrite --variable RULES --set \"\"" >> $CMD
 }
 
 function SelectForwardingRules
@@ -453,13 +453,13 @@ function SelectForwardingRules
 
     echo "" >> $CMD
     echo "# FORWARDING Rules..." >> $CMD
-    echo "$VMS --modify --rules rules --append --variable RULE --set \"separator options comment=\\\"FORWARDING rules\\\"\"" >> $CMD
+    echo "$VMS --modify --rule rules --append --variable RULE --set \"separator options comment=\\\"FORWARDING rules\\\"\"" >> $CMD
     for rawservice in `cat $TMP`; do
     	SERVICE=`stripit $rawservice`
         if [ "$SERVICE" = "snat" ]; then
-    	    echo "$VMS --modify --rules rules --append --variable RULE --set \"snat service any from $LAN to $INTERNET\"" >> $CMD
+    	    echo "$VMS --modify --rule rules --append --variable RULE --set \"snat service any from $LAN to $INTERNET\"" >> $CMD
         else
-    	    echo "$VMS --modify --rules rules --append --variable RULE --set \"accept service $SERVICE from $LAN to $INTERNET options log,loglimit=\\\"1\\\"\"" >> $CMD
+    	    echo "$VMS --modify --rule rules --append --variable RULE --set \"accept service $SERVICE from $LAN to $INTERNET options log,loglimit=\\\"1\\\"\"" >> $CMD
         fi
     done
 }
@@ -479,10 +479,10 @@ function SelectOutgoingRules
 
     echo "" >> $CMD
     echo "# OUTGOING Rules..." >> $CMD
-    echo "$VMS --modify --rules rules --append --variable RULE --set \"separator options comment=\\\"OUTGOING rules\\\"\"" >> $CMD
+    echo "$VMS --modify --rule rules --append --variable RULE --set \"separator options comment=\\\"OUTGOING rules\\\"\"" >> $CMD
     for rawservice in `cat $TMP`; do
     	SERVICE=`stripit $rawservice`
-    	echo "$VMS --modify --rules rules --append --variable RULE --set \"accept service $SERVICE from firewall to $INTERNET options log,loglimit=\\\"1\\\"\"" >> $CMD
+    	echo "$VMS --modify --rule rules --append --variable RULE --set \"accept service $SERVICE from firewall to $INTERNET options log,loglimit=\\\"1\\\"\"" >> $CMD
     done
 }
 
@@ -495,10 +495,10 @@ function SelectIncomingInternetRules
 
     echo "" >> $CMD
     echo "# INCOMING Rules..." >> $CMD
-    echo "$VMS --modify --rules rules --append --variable RULE --set \"separator options comment=\\\"INCOMING rules\\\"\"" >> $CMD
+    echo "$VMS --modify --rule rules --append --variable RULE --set \"separator options comment=\\\"INCOMING rules\\\"\"" >> $CMD
     for rawservice in `cat $TMP`; do
 	    SERVICE=`stripit $rawservice`
-	    echo "$VMS --modify --rules rules --append --variable RULE --set \"accept service $SERVICE from $INTERNET to firewall options log,loglimit=\\\"1\\\"\"" >> $CMD
+	    echo "$VMS --modify --rule rules --append --variable RULE --set \"accept service $SERVICE from $INTERNET to firewall options log,loglimit=\\\"1\\\"\"" >> $CMD
     done
 }
 
