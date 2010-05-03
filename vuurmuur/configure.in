@@ -58,7 +58,7 @@ AC_ARG_WITH(libnfnetlink_libraries,
 if test "$with_libnfnetlink_includes" != "no"; then
 CPPFLAGS="${CPPFLAGS} -I${with_libnfnetlink_includes}"
 fi
-AC_CHECK_HEADER(libnfnetlink/libnfnetlink.h,,[AC_ERROR(libnfnetlink.h not found ...)])
+AC_CHECK_HEADER(libnfnetlink/libnfnetlink.h,,)
 
 if test "$with_libnfnetlink_libraries" != "no"; then
 LDFLAGS="${LDFLAGS}  -L${with_libnfnetlink_libraries}"
@@ -80,7 +80,7 @@ AC_ARG_WITH(libnetfilter_conntrack_libraries,
 if test "$with_libnetfilter_conntrack_includes" != "no"; then
 CPPFLAGS="${CPPFLAGS} -I${with_libnetfilter_conntrack_includes}"
 fi
-AC_CHECK_HEADER(libnetfilter_conntrack/libnetfilter_conntrack.h,,[AC_ERROR(libnetfilter_conntrack.h not found ...)])
+AC_CHECK_HEADER(libnetfilter_conntrack/libnetfilter_conntrack.h,,)
 
 if test "$with_libnetfilter_conntrack_libraries" != "no"; then
 LDFLAGS="${LDFLAGS}  -L${with_libnetfilter_conntrack_libraries}"
