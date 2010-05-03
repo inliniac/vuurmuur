@@ -23,6 +23,8 @@
 #include "vuurmuur_log.h"
 #include "stats.h"
 
+#ifdef HAVE_LIBNETFILTER_LOG
+
 #include <netinet/ip.h>
 #include <libnetfilter_log/libnetfilter_log.h>
 
@@ -33,5 +35,7 @@ union ip_adress {
 
 int subscribe_nflog (const int, const struct vuurmuur_config *,struct log_rule *logrule);
 int readnflog ();
+
+#endif /* HAVE_LIBNETFILTER_LOG */
 
 #endif

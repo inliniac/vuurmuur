@@ -226,7 +226,7 @@ check_pidfile(char *pidfile_location, char *service, pid_t *thepid)
                 {
                     if (unlink (pidfile_location))
                     {
-                        fprintf (stderr, "Cannot unlink stale PID file %s\n", pidfile_location, strerror(errno));
+                        fprintf (stderr, "Cannot unlink stale PID file %s: %s\n", pidfile_location, strerror(errno));
                         return (-1);
                     }
                     else
@@ -563,7 +563,6 @@ int
 libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *path, char *argv[], char *output_path)
 {
     int retval = 0;
-    char *s = *argv;
     FILE *fp = NULL;
     char dev_null[] = "/dev/null";
 

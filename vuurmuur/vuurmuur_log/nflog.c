@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#ifdef HAVE_LIBNETFILTER_LOG
+
 /** \file
  * nflog.c implements functions to communicate with the NFLOG iptables target. */
 
@@ -304,3 +306,6 @@ readnflog ()
     rv = nflog_handle_packet (h, buf, rv);
     return (1);
 }
+
+#endif /* HAVE_LIBNETFILTER_LOG */
+

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2008 by Victor Julien                              *
+ *   Copyright (C) 2002-2010 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -24,8 +24,12 @@
 #include "logfile.h"
 #include "vuurmuur_ipc.h"
 
+#ifdef HAVE_NFNETLINK
 #include <libnfnetlink/libnfnetlink.h>
+#ifdef HAVE_LIBNETFILTER_LOG
 #include <libnetfilter_log/libnetfilter_log.h>
+#endif /* HAVE_LIBNETFILTER_LOG */
+#endif /* HAVE_NFNETLINK */
 
 /*@null@*/
 struct SHM_TABLE *shm_table = 0;
@@ -299,59 +303,60 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
             break;
         case 17:                    /* UDP */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s:%d -> %s%s:%d UDP len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, 
-                logrule->action, logrule->ser_name, 
-                logrule->from_name, logrule->to_name, 
+                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
+                logrule->action, logrule->ser_name,
+                logrule->from_name, logrule->to_name,
                 logrule->logprefix,
-                logrule->from_int, logrule->to_int, 
-                logrule->src_ip, logrule->src_mac, logrule->src_port, 
-                logrule->dst_ip, logrule->dst_mac, logrule->dst_port, 
+                logrule->from_int, logrule->to_int,
+                logrule->src_ip, logrule->src_mac, logrule->src_port,
+                logrule->dst_ip, logrule->dst_mac, logrule->dst_port,
                 logrule->packet_len, logrule->ttl);
             break;
         case 1:                     /* ICMP */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s ICMP type %d code %d len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, 
-                logrule->action, logrule->ser_name, 
-                logrule->from_name, logrule->to_name, 
+                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
+                logrule->action, logrule->ser_name,
+                logrule->from_name, logrule->to_name,
                 logrule->logprefix,
-                logrule->from_int, logrule->to_int, 
-                logrule->src_ip, logrule->src_mac, 
+                logrule->from_int, logrule->to_int,
+                logrule->src_ip, logrule->src_mac,
                 logrule->dst_ip, logrule->dst_mac,
                 logrule->icmp_type, logrule->icmp_code,
-                logrule->tcpflags, logrule->packet_len, logrule->ttl);
+                logrule->packet_len, logrule->ttl);
+                //logrule->tcpflags, logrule->packet_len, logrule->ttl);
             break;
         case 47:                    /* GRE */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s GRE len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, 
-                logrule->action, logrule->ser_name, 
-                logrule->from_name, logrule->to_name, 
+                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
+                logrule->action, logrule->ser_name,
+                logrule->from_name, logrule->to_name,
                 logrule->logprefix,
-                logrule->from_int, logrule->to_int, 
+                logrule->from_int, logrule->to_int,
                 logrule->src_ip, logrule->src_mac,
                 logrule->dst_ip, logrule->dst_mac,
-                logrule->tcpflags, logrule->packet_len, logrule->ttl);
+                logrule->packet_len, logrule->ttl);
             break;
         case 50:                    /* ESP */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s ESP len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, 
-                logrule->action, logrule->ser_name, 
-                logrule->from_name, logrule->to_name, 
+                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
+                logrule->action, logrule->ser_name,
+                logrule->from_name, logrule->to_name,
                 logrule->logprefix,
-                logrule->from_int, logrule->to_int, 
+                logrule->from_int, logrule->to_int,
                 logrule->src_ip, logrule->src_mac,
                 logrule->dst_ip, logrule->dst_mac,
-                logrule->tcpflags, logrule->packet_len, logrule->ttl);
+                logrule->packet_len, logrule->ttl);
             break;
         case 51:                    /* AH */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s AH len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, 
-                logrule->action, logrule->ser_name, 
-                logrule->from_name, logrule->to_name, 
+                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
+                logrule->action, logrule->ser_name,
+                logrule->from_name, logrule->to_name,
                 logrule->logprefix,
-                logrule->from_int, logrule->to_int, 
+                logrule->from_int, logrule->to_int,
                 logrule->src_ip, logrule->src_mac,
                 logrule->dst_ip, logrule->dst_mac,
-                logrule->tcpflags, logrule->packet_len, logrule->ttl);
+                logrule->packet_len, logrule->ttl);
             break;
         default:
             (void)vrprint.debug(__FUNC__, "unknown protocol");
@@ -569,6 +574,7 @@ main(int argc, char *argv[])
 
     (void)vrprint.audit("Vuurmuur_log %s %s started by user %s.", version_string, (syslog)?"(legacy syslog mode)":"", user_data.realusername);
 
+#ifdef HAVE_LIBNETFILTER_LOG
     /* Setup nflog after init_config as and logging as we need &conf in subscribe_nflog() */
     if (!syslog)
     {
@@ -578,6 +584,7 @@ main(int argc, char *argv[])
             exit (EXIT_FAILURE);
         }
     }
+#endif /* HAVE_LIBNETFILTER_LOG */
 
     /* setup regexes */
     if(setup_rgx(1, &reg) < 0)
@@ -742,7 +749,7 @@ main(int argc, char *argv[])
                     /* sleep so we don't use all system resources */
                     usleep(100000);  /* this should be 1/10th of a second */
                 }
-            
+#ifdef HAVE_LIBNETFILTER_LOG
             /* not using syslog so must be using nflog here */
             } else {
                 switch (readnflog()) {
@@ -774,6 +781,7 @@ main(int argc, char *argv[])
                                 break;
                         }
                 }
+#endif /* HAVE_LIBNETFILTER_LOG */
             }
         } /* if reload == 0 */
 
