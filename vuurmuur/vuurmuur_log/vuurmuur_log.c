@@ -374,7 +374,7 @@ print_help(void)
     fprintf(stdout, " -h, --help\t\t\tgives this help\n");
     fprintf(stdout, " -v, --verbose\t\t\tverbose mode\n");
     fprintf(stdout, " -n, --nodaemon\t\t\tdo NOT start as a daemon\n");
-    fprintf(stdout, " -s, --syslog\t\t\tuse legacy syslog mode\n");
+    fprintf(stdout, " -N, --nflog\t\t\tuse experimental nflog mode\n");
     fprintf(stdout, " -c, --configfile\t\tuse the given configfile\n");
     fprintf(stdout, " -d, --debug\t\t\tenable debugging (1 = low, 3 = high)\n");
     fprintf(stdout, " -K, --killme\t\t\tkill running daemon\n");
@@ -409,7 +409,7 @@ main(int argc, char *argv[])
     static char optstring[] = "hc:vnd:VsK";
     int         verbose = 0,
                 nodaemon = 0,
-                syslog = 0;
+                syslog = 1;
     struct option prog_opts[] =
     {
         { "help", no_argument, NULL, 'h' },
@@ -572,7 +572,7 @@ main(int argc, char *argv[])
     vrprint.debug = libvuurmuur_logprint_debug;
     vrprint.audit = libvuurmuur_logprint_audit;
 
-    (void)vrprint.audit("Vuurmuur_log %s %s started by user %s.", version_string, (syslog)?"(legacy syslog mode)":"", user_data.realusername);
+    (void)vrprint.audit("Vuurmuur_log %s %s started by user %s.", version_string, (syslog) ? "" :"(experimental nflog mode)", user_data.realusername);
 
 #ifdef HAVE_LIBNETFILTER_LOG
     /* Setup nflog after init_config as and logging as we need &conf in subscribe_nflog() */
