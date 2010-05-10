@@ -417,7 +417,7 @@ main(int argc, char *argv[])
         { "nodaemon", no_argument, &nodaemon, 1 },
         { "configfile", required_argument, NULL, 'c' },
         { "debug", required_argument, NULL, 'd' },
-        { "syslog", required_argument, NULL, 's' },
+        { "nflog", no_argument, NULL, 'N' },
         { "killme", required_argument, NULL, 'K' },
         { "version", no_argument, NULL, 'V' },
         { 0, 0, 0, 0 },
@@ -516,8 +516,8 @@ main(int argc, char *argv[])
                 fprintf(stdout, "vuurmuur-log: debug level: %d\n", debuglvl);
                 break;
 
-            case 's' :
-                syslog = 1;
+            case 'N' :
+                syslog = 0;
                 break;
 
             case 'K' :
@@ -583,6 +583,11 @@ main(int argc, char *argv[])
             (void)vrprint.error(-1, "Error", "could not set up nflog subscription");
             exit (EXIT_FAILURE);
         }
+    }
+#else
+    if (!syslog) {
+        (void)vrprint.error(-1, "Error", "syslog mode disabled but no other modes available.");
+        exit (EXIT_FAILURE);
     }
 #endif /* HAVE_LIBNETFILTER_LOG */
 
