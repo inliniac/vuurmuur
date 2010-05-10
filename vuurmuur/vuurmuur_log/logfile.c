@@ -232,8 +232,8 @@ parse_ipt_logline(  const int debuglvl,
         {
             if(range_strcpy(logrule_ptr->interface_in, logline, str_begin + strlen("IN="), str_end, sizeof(logrule_ptr->interface_in)) < 0)
                 return(0);
-            else
-                snprintf(logrule_ptr->from_int, sizeof(logrule_ptr->from_int), "in: %s", logrule_ptr->interface_in);
+
+            snprintf(logrule_ptr->from_int, sizeof(logrule_ptr->from_int), "in: %s ", logrule_ptr->interface_in);
         }
     }
     else
@@ -276,14 +276,8 @@ parse_ipt_logline(  const int debuglvl,
         {
             if(range_strcpy(logrule_ptr->interface_out, logline, str_begin + strlen("OUT="), str_end, sizeof(logrule_ptr->interface_out)) < 0)
                 return(0);
-            else
-            {
-                snprintf(logrule_ptr->to_int, sizeof(logrule_ptr->to_int), "out: %s ", logrule_ptr->interface_out);
 
-                /* append a space to the from_int */
-                if(strcmp(logrule_ptr->from_int, "") != 0)
-                    (void)strlcat(logrule_ptr->from_int, " ", sizeof(logrule_ptr->from_int));
-            }
+            snprintf(logrule_ptr->to_int, sizeof(logrule_ptr->to_int), "out: %s ", logrule_ptr->interface_out);
         }
     }
     else
@@ -291,7 +285,6 @@ parse_ipt_logline(  const int debuglvl,
         (void)vrprint.error(-1, "Error", "Searching OUT= in iptables logline failed.");
         return(0);
     }
-
 
     /* get the source ip of the line */
     result = search_in_ipt_line(logline, vrmr_start, "SRC=", &str_begin, &str_end);
