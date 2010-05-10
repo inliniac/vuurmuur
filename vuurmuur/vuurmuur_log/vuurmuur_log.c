@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #include "vuurmuur_log.h"
 #include "nflog.h"
 #include "stats.h"
@@ -390,21 +390,21 @@ main(int argc, char *argv[])
     Interfaces  interfaces;
     Services    services;
     Zones       zones;
-    
+
     Hash        zone_htbl,
                 service_htbl;
     FILE        *system_log = NULL,
                 *vuurmuur_log = NULL;
     char        line[1024] = "";
     size_t      linelen = 0;
-    
+
     int         result,
 
                 /*  variable for counting how long we are waiting
                     for the next line in 1/10th of a second.
                 */
                 waiting = 0;
-    pid_t       pid;    
+    pid_t       pid;
     int         optch;
     static char optstring[] = "hc:vnd:VsK";
     int         verbose = 0,
@@ -424,7 +424,7 @@ main(int argc, char *argv[])
     };
     int                         option_index = 0;
     char                        *sscanf_str = NULL;
-    
+
     struct log_rule             logrule;
     int                         debuglvl = 0;
 
@@ -439,10 +439,10 @@ main(int argc, char *argv[])
 
         0, 0, 0, 0,
     };
-  
+
     struct rgx_ reg;
     char        quit = 0;
- 
+
     /* get the current user */
     get_user_info(debuglvl, &user_data);
 
@@ -548,7 +548,7 @@ main(int argc, char *argv[])
     {
         (void)vrprint.error(-1, "Error", "could not set up parse string for legacy syslog parsing.");
         exit(EXIT_FAILURE);
-    } 
+    }
 
 
     /* init the config file */
@@ -631,7 +631,7 @@ main(int argc, char *argv[])
         (void)vrprint.error(-1, "Error", "iface_into_zonelist failed (in: main).");
         exit(EXIT_FAILURE);
     }
-    
+
     /* these are removed by: rem_iface_from_zonelist() (see below) */
     if(add_broadcasts_zonelist(debuglvl, &zones) < 0)
     {
@@ -658,7 +658,7 @@ main(int argc, char *argv[])
 
     if (SetupVMIPC(&shm_id, &shm_table) == -1)
         exit (EXIT_FAILURE);
-    
+
     if(create_pidfile(PIDFILE, shm_id) < 0)
         exit(EXIT_FAILURE);
 
@@ -668,86 +668,84 @@ main(int argc, char *argv[])
     /* enter the main loop */
     while(quit == 0)
     {
-
-        CheckVMIPC (debuglvl, &shm_table, &reload);
-
+        reload = CheckVMIPC (debuglvl, shm_table);
         if(reload == 0)
         {
-            if(syslog && fgets(line, (int)sizeof(line), system_log) != NULL)
-            {
-                linelen = strlen(line);
-                waiting = 0;
-                if( (linelen < sizeof(line)-1) && line[linelen - 1] != '\n')
-                {
-                    fseek(system_log, (int)linelen*-1, SEEK_CUR);
-                }
-                else
-                {
-                    if(check_ipt_line(line))
-                    {
-                        switch (parse_ipt_logline(debuglvl, line, linelen, sscanf_str, &logrule, &Counters))
-                        {
-                            case -1:
-                                exit(EXIT_FAILURE);
-                                break;
-                            case 0:
-                                Counters.invalid_loglines++;
-                                break;
-                            default:
-                                result = get_vuurmuur_names(debuglvl, &logrule, &zone_htbl, &service_htbl);
-                                switch (result)
-                                {
-                                    case -1:
-                                        exit(EXIT_FAILURE);
-                                        break;
-                                    case 0:
-                                        Counters.invalid_loglines++;
-                                        break;
-                                    default:
-                                        if (BuildVMLine (&logrule, line, sizeof(line)) < 0)
-                                        {
-                                            (void)vrprint.error(-1, "Error", "Could not build output line");;
-                                        }
-                                        fprintf (vuurmuur_log, line);
-                                        fflush(vuurmuur_log);
-                                        break;
-                                }
-                        }
-                        Counters.totalvuurmuur++;
-                    } else {
-                        Counters.noipt++;
-                    }
-                    Counters.total++;
-                }
-            }
-
-
-            /* no line received or not using syslog */
-            else if (syslog) {
-                /* increase the waiter */
-                waiting++;
-
-                /* see the definition of MAX_WAIT_TIME for details. */
-                if(waiting >= MAX_WAIT_TIME) {
-                    if(debuglvl >= MEDIUM)
-                        (void)vrprint.debug(__FUNC__, "didn't get a logline for %d seconds, closing and reopening the logfiles.", waiting / 10);
-
-                    /* re-open the logs */
-                    if(reopen_syslog(debuglvl, &system_log) < 0) {
-                        (void)vrprint.error(-1, "Error", "re-opening syslog failed.");
-                        exit(EXIT_FAILURE);
-                    }
-
-                    if(reopen_vuurmuurlog(debuglvl, &vuurmuur_log) < 0) {
-                        (void)vrprint.error(-1, "Error", "re-opening vuurmuur traffic log failed.");
-                        exit(EXIT_FAILURE);
-                    }
-
-                    /* reset waiting */
+            if(syslog) {
+                if (fgets(line, (int)sizeof(line), system_log) != NULL) {
                     waiting = 0;
-                } else {
-                    /* sleep so we don't use all system resources */
-                    usleep(100000);  /* this should be 1/10th of a second */
+
+                    linelen = strlen(line);
+                    if((linelen < sizeof(line)-1) && line[linelen - 1] != '\n')
+                    {
+                        fseek(system_log, (int)linelen*-1, SEEK_CUR);
+                    }
+                    else
+                    {
+                        if(check_ipt_line(line))
+                        {
+                            switch (parse_ipt_logline(debuglvl, line, linelen, sscanf_str, &logrule, &Counters))
+                            {
+                                case -1:
+                                    exit(EXIT_FAILURE);
+                                    break;
+                                case 0:
+                                    Counters.invalid_loglines++;
+                                    break;
+                                default:
+                                    result = get_vuurmuur_names(debuglvl, &logrule, &zone_htbl, &service_htbl);
+                                    switch (result)
+                                    {
+                                        case -1:
+                                            exit(EXIT_FAILURE);
+                                            break;
+                                        case 0:
+                                            Counters.invalid_loglines++;
+                                            break;
+                                        default:
+                                            if (BuildVMLine (&logrule, line, sizeof(line)) < 0)
+                                            {
+                                                (void)vrprint.error(-1, "Error", "Could not build output line");;
+                                            }
+                                            fprintf (vuurmuur_log, "%s", line);
+                                            fflush(vuurmuur_log);
+                                            break;
+                                    }
+                            }
+                            Counters.totalvuurmuur++;
+                        } else {
+                            Counters.noipt++;
+                        }
+                        Counters.total++;
+                    }
+                }
+                /* no line received or not using syslog */
+                else {
+                    /* increase the waiter */
+                    waiting++;
+
+                    /* see the definition of MAX_WAIT_TIME for details. */
+                    if(waiting >= MAX_WAIT_TIME) {
+                        if(debuglvl >= MEDIUM)
+                            (void)vrprint.debug(__FUNC__, "didn't get a logline for %d seconds, closing and reopening the logfiles.", waiting / 10);
+
+                        /* re-open the logs */
+                        if(reopen_syslog(debuglvl, &system_log) < 0) {
+                            (void)vrprint.error(-1, "Error", "re-opening syslog failed.");
+                            exit(EXIT_FAILURE);
+                        }
+
+                        if(reopen_vuurmuurlog(debuglvl, &vuurmuur_log) < 0) {
+                            (void)vrprint.error(-1, "Error", "re-opening vuurmuur traffic log failed.");
+                            exit(EXIT_FAILURE);
+                        }
+
+                        /* reset waiting */
+                        waiting = 0;
+                    } else {
+                        /* sleep so we don't use all system resources */
+                        usleep(100000);  /* this should be 1/10th of a second */
+                    }
                 }
 #ifdef HAVE_LIBNETFILTER_LOG
             /* not using syslog so must be using nflog here */
@@ -782,7 +780,7 @@ main(int argc, char *argv[])
                         }
                 }
 #endif /* HAVE_LIBNETFILTER_LOG */
-            }
+            } /* if syslog */
         } /* if reload == 0 */
 
         /*
@@ -799,7 +797,7 @@ main(int argc, char *argv[])
             /* destroy hashtables */
             hash_cleanup(debuglvl, &zone_htbl);
             hash_cleanup(debuglvl, &service_htbl);
-  
+
             /* destroy the ServicesList */
             destroy_serviceslist(debuglvl, &services);
             /* destroy the ZonedataList */
@@ -916,7 +914,7 @@ main(int argc, char *argv[])
 
             /* if we are reloading because of an IPC command, we need to communicate with the caller */
             if(reload == 1)
-                WaitVMIPCACK (30, &result, &shm_table, &reload);
+                WaitVMIPCACK (30, &result, shm_table, &reload);
         }
 
         /* check for a signal */
@@ -929,16 +927,20 @@ main(int argc, char *argv[])
     /*
         cleanup
     */
-    if (ClearVMIPC (debuglvl, &shm_id) == -1)
+    if (ClearVMIPC (debuglvl, shm_id) == -1)
     {
+        (void)vrprint.error(-1, "Error", "Detach from VM IPC failed.");
+        /* fall through */
     }
 
     /* free the sscanf parser string */
     free(sscanf_str);
-    
+
     /* close the logfiles */
-    fclose(vuurmuur_log);
-    fclose(system_log);
+    if (vuurmuur_log != NULL)
+        fclose(vuurmuur_log);
+    if (system_log != NULL)
+        fclose(system_log);
 
     /* destroy hashtables */
     hash_cleanup(debuglvl, &zone_htbl);
@@ -950,7 +952,7 @@ main(int argc, char *argv[])
     destroy_zonedatalist(debuglvl, &zones);
     /* destroy the InterfacesList */
     destroy_interfaceslist(debuglvl, &interfaces);
-  
+
     if(nodaemon)
         show_stats (&Counters);
 

@@ -18,15 +18,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-/** \file
- * vuurmuur_ipc.c implements functions to communicate through IPC with other
- * vuurmuur programs. */
+/** 
+ *  \file
+ *  \brief Implements functions to communicate through IPC with other
+ *         vuurmuur programs.
+ */
 
 #include "vuurmuur_log.h"
 #include "vuurmuur_ipc.h"
 
-union semun     semarg;
-ushort          seminit[] = { 1,0 };
+static union semun     semarg;
+static ushort          seminit[] = { 1,0 };
 
 int
 SetupVMIPC (int *shm_id, struct SHM_TABLE **shm_table)
@@ -41,6 +43,7 @@ SetupVMIPC (int *shm_id, struct SHM_TABLE **shm_table)
         (void)vrprint.error(-1, "Error", "unable to create shared memory: %s.", strerror(errno));
         return (-1);
     }
+
     /* for some reason on my machine the shm_id is zero when vuurmuur is started at boot
        if we sleep for some time and retry it works */
     else if(*shm_id == 0)
@@ -123,20 +126,19 @@ SetupVMIPC (int *shm_id, struct SHM_TABLE **shm_table)
 }
 
 int
-ClearVMIPC (const int debuglvl, int *shm_id)
+ClearVMIPC (const int debuglvl, int shm_id)
 {
     /* destroy shm */
     (void)vrprint.info("Info", "Destroying shared memory...");
-    if(shmctl(*shm_id, IPC_RMID, NULL) < 0)
+
+    if(shmctl(shm_id, IPC_RMID, NULL) < 0)
     {
         (void)vrprint.error(-1, "Error", "destroying shared memory failed: %s.", strerror(errno));
         return (-1);
     }
-    else
-    {
-        if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "shared memory destroyed.");
-    }
+
+    if(debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "shared memory destroyed.");
 
     /* destroy semaphore */
     if(semctl(sem_id, 0, IPC_RMID, semarg) == -1)
@@ -144,63 +146,70 @@ ClearVMIPC (const int debuglvl, int *shm_id)
         (void)vrprint.error(-1, "Error", "failed to remove semaphore.");
         return (-1);
     }
+
     return (0);
 }
 
+/**
+ *  \retval 1 reload
+ *  \retval 0 don't reload
+ */
 int
-CheckVMIPC (const int debuglvl, struct SHM_TABLE **shm_table, int *reload)
+CheckVMIPC (const int debuglvl, struct SHM_TABLE *shm_table)
 {
+    int retval = 0;
+
     /* check the shm for changes */
     if(LOCK)
     {
-        if((*shm_table)->configtool.connected == 1)
+        if(shm_table->configtool.connected == 1)
         {
-            (void)vrprint.info("Info", "Configtool connected: %s.", (*shm_table)->configtool.name);
-            (*shm_table)->configtool.connected = 2;
+            (void)vrprint.info("Info", "Configtool connected: %s.", shm_table->configtool.name);
+            shm_table->configtool.connected = 2;
         }
-        else if((*shm_table)->configtool.connected == 3)
+        else if(shm_table->configtool.connected == 3)
         {
-            (void)vrprint.info("Info", "Configtool disconnected: %s.", (*shm_table)->configtool.name);
-            (*shm_table)->configtool.connected = 0;
+            (void)vrprint.info("Info", "Configtool disconnected: %s.", shm_table->configtool.name);
+            shm_table->configtool.connected = 0;
         }
 
-        if((*shm_table)->backend_changed == 1)
+        if(shm_table->backend_changed == 1)
         {
-            (void)vrprint.audit("IPC-SHM: backend changed: reload (user: %s).", (*shm_table)->configtool.username);
-            *reload = 1;
-            (*shm_table)->backend_changed = 0;
+            (void)vrprint.audit("IPC-SHM: backend changed: reload (user: %s).", shm_table->configtool.username);
+            retval = 1;
+            shm_table->backend_changed = 0;
 
             /* start at 0% */
-            (*shm_table)->reload_progress = 0;
+            shm_table->reload_progress = 0;
         }
 
         UNLOCK;
     }
-    return (0);
+    return (retval);
 }
 
 int
-WaitVMIPCACK (int wait_time, int *result, struct SHM_TABLE **shm_table, int *reload)
+WaitVMIPCACK (int wait_time, int *result, struct SHM_TABLE *shm_table, int *reload)
 {
     int     waited = 0;
 
     if(LOCK)
     {
         /* finished so 100% */
-        (*shm_table)->reload_progress = 100;
+        shm_table->reload_progress = 100;
 
         /* tell the caller about the reload result */
         if(*result < 0)
         {
-            (*shm_table)->reload_result = VR_RR_ERROR;
+            shm_table->reload_result = VR_RR_ERROR;
         }
         else if(*result == 0)
         {
-            (*shm_table)->reload_result = VR_RR_SUCCES;
+            shm_table->reload_result = VR_RR_SUCCES;
         }
         else
         {
-            (*shm_table)->reload_result = VR_RR_NOCHANGES;
+            shm_table->reload_result = VR_RR_NOCHANGES;
         }
         UNLOCK;
     }
@@ -217,10 +226,10 @@ WaitVMIPCACK (int wait_time, int *result, struct SHM_TABLE **shm_table, int *rel
         if(LOCK)
         {
             /* ah, we got one */
-            if((*shm_table)->reload_result == VR_RR_RESULT_ACK)
+            if(shm_table->reload_result == VR_RR_RESULT_ACK)
             {
-                (*shm_table)->reload_result = VR_RR_READY;
-                (*shm_table)->reload_progress = 0;
+                shm_table->reload_result = VR_RR_READY;
+                shm_table->reload_progress = 0;
                 *result = 1;
 
                 (void)vrprint.info("Info", "We got an VR_RR_RESULT_ACK!");
@@ -236,8 +245,8 @@ WaitVMIPCACK (int wait_time, int *result, struct SHM_TABLE **shm_table, int *rel
         (void)vrprint.info("Info", "We've waited for 30 seconds for an VR_RR_RESULT_ACK, but got none. Setting to VR_RR_READY");
         if(LOCK)
         {
-            (*shm_table)->reload_result = VR_RR_READY;
-            (*shm_table)->reload_progress = 0;
+            shm_table->reload_result = VR_RR_READY;
+            shm_table->reload_progress = 0;
             UNLOCK;
         }
         else
@@ -247,3 +256,4 @@ WaitVMIPCACK (int wait_time, int *result, struct SHM_TABLE **shm_table, int *rel
     }
     return *result;
 }
+

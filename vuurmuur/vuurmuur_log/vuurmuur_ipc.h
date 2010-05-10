@@ -21,8 +21,8 @@
 #define __VUURMUURIPC_H__
 
 int SetupVMIPC (int *, struct SHM_TABLE **);
-int ClearVMIPC (const int, int *);
-int CheckVMIPC (const int, struct SHM_TABLE **, int *);
-int WaitVMIPCACK (int, int *, struct SHM_TABLE **, int *);
+int ClearVMIPC (const int, int);
+int CheckVMIPC (const int, struct SHM_TABLE *);
+int WaitVMIPCACK (int, int *, struct SHM_TABLE *, int *);
 
 #endif
