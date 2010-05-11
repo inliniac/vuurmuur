@@ -158,7 +158,8 @@ parse_ipt_logline(  const int debuglvl,
 
     memset(logrule_ptr, 0, sizeof(struct log_rule));
 
-    (void)vrprint.debug(__FUNC__, "sscanf_str: %s", sscanf_str);
+    if(debuglvl >= HIGH)
+        (void)vrprint.debug(__FUNC__, "sscanf_str: %s", sscanf_str);
 
     /* get date, time, hostname */
     result = sscanf(logline, sscanf_str, logrule_ptr->month,
