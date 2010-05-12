@@ -35,6 +35,7 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/time.h>   /* for gettimeofday in stat_sec */
+#include <sys/wait.h>   /* for WIFEXITED macro */
 #include <ctype.h>  /* for isdigit() */
 
 #include <vuurmuur.h>
