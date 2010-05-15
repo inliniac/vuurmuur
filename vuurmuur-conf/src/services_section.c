@@ -2865,7 +2865,7 @@ services_section(const int debuglvl, Services *services, Rules *rules, struct rg
                     new_name_ptr = input_box(32, gettext("New Service"), gettext("Please enter the name of the new service"));
                     if(new_name_ptr != NULL)
                     {
-                        if(validate_servicename(debuglvl, new_name_ptr, reg->servicename, VALNAME_VERBOSE) == 0)
+                        if(validate_servicename(debuglvl, new_name_ptr, reg->servicename, VALNAME_QUIET) == 0)
                         {
                             if((search_service(debuglvl, services, new_name_ptr) != NULL))
                             {
@@ -2889,6 +2889,10 @@ services_section(const int debuglvl, Services *services, Rules *rules, struct rg
                                     (void)vrprint.error(-1, VR_ERR, gettext("creating new service failed."));
                                 }
                             }
+                        }
+                        else
+                        {
+                            (void)vrprint.error(-1, VR_ERR, gettext("service name %s is invalid."), new_name_ptr);
                         }
                         free(new_name_ptr);
                     }

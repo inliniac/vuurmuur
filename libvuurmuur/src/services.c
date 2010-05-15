@@ -943,6 +943,13 @@ validate_servicename(const int debuglvl, const char *servicename, regex_t *reg_e
         return(-1);
     }
 
+    /* ignore make files in the services dir */
+    if (strncasecmp(servicename, "Makefile", 8) == 0) {
+        if(debuglvl >= MEDIUM)
+            (void)vrprint.debug(__FUNC__, "%s is invalid", servicename);
+        return(-1);
+    }
+
     if(debuglvl >= MEDIUM)
         (void)vrprint.debug(__FUNC__, "%s is valid", servicename);
 
