@@ -162,7 +162,7 @@ main(int argc, char *argv[])
     }
 
 #ifndef BINRELOC_ENABLED
-    bindtextdomain("vuurmuur_conf", xstr(LOCALEDIR));
+    bindtextdomain("vuurmuur_conf", xstr(VRMR_LOCALEDIR));
 #else
     snprintf(locale_path, sizeof(locale_path), "%s/share/locale", conf.prefix);
     bindtextdomain("vuurmuur_conf", locale_path);
