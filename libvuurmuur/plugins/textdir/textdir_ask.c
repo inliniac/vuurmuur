@@ -25,7 +25,6 @@
 
     returns
         -1 error
-        
 */
 int
 ask_textdir(const int debuglvl,
@@ -43,8 +42,6 @@ ask_textdir(const int debuglvl,
                             variable[64] = "",
                             value[512] = "";
     size_t                  i = 0,
-                            j = 0,
-                            k = 0,
                             line_pos = 0,
                             val_pos = 0;
     char                    delt = 'a' - 'A';
@@ -65,7 +62,7 @@ ask_textdir(const int debuglvl,
 
     if(!(ptr = (struct TextdirBackend_ *)backend))
         return(-1);
-    
+
     /* check if backend is open */
     if(!ptr->backend_open)
     {
@@ -106,10 +103,8 @@ ask_textdir(const int debuglvl,
     }
 
     /* start (or continue) looping trough the file */
-    while(fgets(line, (int)sizeof(line), ptr->file) != NULL)
+    while (fgets(line, (int)sizeof(line), ptr->file) != NULL)
     {
-        line_length=0, k=0; line_pos=0, val_pos=0, j=0;
-
         line_length = strlen(line);
         if(line_length < 0)
         {
@@ -118,7 +113,6 @@ ask_textdir(const int debuglvl,
             free(file_location);
             fclose(ptr->file);
             ptr->file = NULL;
-
             return(-1);
         }
         else if(line_length > MAX_LINE_LENGTH)
@@ -128,81 +122,93 @@ ask_textdir(const int debuglvl,
             free(file_location);
             fclose(ptr->file);
             ptr->file = NULL;
-
             return(-1);
         }
 
         /* first check if the line is a comment. */
-        if(line_length == 0 || line[0] == '#' || line[0] == ' ' || line[0] == '\0' || line[0] == '\n')
+        if (line_length == 0 || line[0] == '#' || line[0] == ' ' || line[0] == '\0' ||
+                line[0] == '\n' || line[0] == '\t')
         {
-            /* do nothing, its a comment or an empty line. */
+            /* continue with the next line, its a comment or an empty line. */
+            continue;
         }
-        else
+
+        /* look for the occurance of the = separator */
+        char *val = strchr(line, '=');
+        if (val == NULL) {
+            /* not a valid line, ignore */
+            continue;
+        }
+
+        /* val - line = var len */
+        size_t var_len = val - line + 1;
+        if (var_len > (sizeof(variable) - 1)) {
+            /* invalid line, ignore */
+            continue;
+        }
+
+        strlcpy(variable, line, var_len);
+
+        (void)vrprint.debug(__FUNC__, "variable %s", variable);
+
+        /* now see if this was what we were looking for */
+        if(strcmp(question, variable) != 0) {
+            /* nope, ignore line */
+            continue;
+        }
+
+        /* skip pass the '=' char */
+        val++;
+
+        size_t val_len = strlen(val);
+
+        /* copy the value into "value" */
+        val_pos = 0; line_pos = 0;
+
+        while(val[line_pos] != '\0' && val[line_pos] != '\n' && line_pos < val_len && val_pos < max_answer)
         {
-            /*  variable
-                
-                before the '=' we consider variable
-            */
-            while((line[k] != '=' && (k < line_length))) //
-            {
-                variable[j]=line[k];
-                k++;
-                j++;
-            }
-            variable[j]='\0';
+            /* if the first character is a '"' we strip it. */
+            if((val_pos == 0) && (val[line_pos] == '\"'))
+                line_pos++;
 
-            /*
-                after that the rest is the value
-            */
-            val_pos = 0; line_pos = k + 1;
-
-            while(line[line_pos] != '\0' && line[line_pos] != '\n' && line_pos < line_length && val_pos < max_answer)
-            {
-                /* if the first character is a '"' we strip it. */
-                if((val_pos == 0) && (line[line_pos] == '\"'))
-                    line_pos++;
-                /* otherwise copy the char */
-                else
-                {
-                    value[val_pos]=line[line_pos];
-
-                    line_pos++;
-                    val_pos++;
-                }
-            }
-
-            /* if the last character is a'"' we strip it. */
-            if (val_pos > 0 && value[val_pos - 1] == '\"')
-                value[val_pos - 1]='\0';
+            /* otherwise copy the char */
             else
-                value[val_pos]='\0';
-
-            /* now see if this was what we were looking for */
-            if(strcmp(question, variable) == 0)
             {
-                if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "question '%s' matched, value: '%s'", question, value);
+                value[val_pos]=val[line_pos];
 
-                len = strlcpy(answer, value, max_answer);
-                if(len >= max_answer)
-                {
-                    (void)vrprint.error(-1, "Error", "buffer overrun when reading file '%s', question '%s': len %u, max: %u (in: %s:%d).",
-                                            file_location, question, len, max_answer, __FUNC__, __LINE__);
-                    
-                    free(file_location);
-                    fclose(ptr->file);
-                    ptr->file = NULL;
-                    return(-1);
-                }
-                
-                /* only return when bigger than 0 */
-                if(strlen(answer) > 0)
-                    retval = 1;
-                    
-                /* break out of the loop so when we call multi again we continue where we were */
-                break;
+                line_pos++;
+                val_pos++;
             }
         }
+
+        /* if the last character is a '"' we strip it. */
+        if (val_pos > 0 && value[val_pos - 1] == '\"')
+            value[val_pos - 1] = '\0';
+        else
+            value[val_pos] = '\0';
+
+        if(debuglvl >= MEDIUM)
+            (void)vrprint.debug(__FUNC__, "question '%s' matched, value: '%s'", question, value);
+
+        /* copy back the value to "answer" */
+        len = strlcpy(answer, value, max_answer);
+        if(len >= max_answer)
+        {
+            (void)vrprint.error(-1, "Error", "buffer overrun when reading file '%s', question '%s': len %u, max: %u (in: %s:%d).",
+                    file_location, question, len, max_answer, __FUNC__, __LINE__);
+
+            free(file_location);
+            fclose(ptr->file);
+            ptr->file = NULL;
+            return(-1);
+        }
+
+        /* only return when bigger than 0 */
+        if(strlen(answer) > 0)
+            retval = 1;
+
+        /* break out of the loop so when we call multi again we continue where we were */
+        break;
     }
 
     /* cleanup */
@@ -210,7 +216,7 @@ ask_textdir(const int debuglvl,
     {
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "close the file.");
-        
+
         if(fclose(ptr->file) != 0)
         {
             (void)vrprint.error(-1, "Error", "closing file '%s' failed: %s (in: %s).", file_location, strerror(errno), __FUNC__);
@@ -227,7 +233,7 @@ ask_textdir(const int debuglvl,
         (void)vrprint.debug(__FUNC__, "at exit: ptr->file: %p (retval: %d).", ptr->file, retval);
         (void)vrprint.debug(__FUNC__, "** end **, retval=%d", retval);
     }
-    
+
     return(retval);
 }
 
