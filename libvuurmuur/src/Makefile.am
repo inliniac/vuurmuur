@@ -13,4 +13,5 @@ include_HEADERS =  vuurmuur.h
 
 AM_CFLAGS = -DLIBDIR=$(libdir) -DSYSCONFDIR=$(sysconfdir)
 
-noinst_HEADERS = binreloc.h
+noinst_HEADERS = binreloc.h conntrack.h icmp.h
+

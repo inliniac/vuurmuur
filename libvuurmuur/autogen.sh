@@ -1,6 +1,6 @@
 #!/bin/bash
 
-libtoolize --copy
+libtoolize --copy --force
 aclocal
 autoheader
 automake --copy --add-missing

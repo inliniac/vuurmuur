@@ -1,6 +1,6 @@
 INCLUDES = 
 METASOURCES = AUTO
-noinst_DOCS = INSTALL
+noinst_DOCS =
 docsdir = "$(datadir)/doc/vuurmuur"
 docs_DATA = INSTALL.DEBIAN \
 	INSTALL.MANDRAKE \
@@ -13,3 +13,5 @@ docsru_DATA = INSTALL-RU \
 	INSTALL-RU.MANDRAKE \
 	INSTALL-RU.SUSE \
 	README-RU
+EXTRA_DIST = $(docs_DATA) $(docsru_DATA)
+
