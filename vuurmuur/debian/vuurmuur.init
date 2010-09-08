@@ -72,7 +72,7 @@ case "$1" in
 			if [ "$RESULT" = "0" ]; then
 			    echo "ok."
 			else
-			    echo "FAILED."
+			    echo "FAILED, please check /var/log/vuurmuur/error.log."
 			fi
 		else
 			PID=`cat /var/run/vuurmuur.pid | cut -d " " -f 1`
