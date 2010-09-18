@@ -17,8 +17,284 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #include "main.h"
+
+
+char *
+VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
+    VrWin           *win = NULL;
+    VrMenu          *menu = NULL;
+    int             ch = 0;
+    int             menu_items = bps ? 4 : 2;
+    const int       width = 8;
+    char            *r = strdup(unit); /* default to unit --
+                                          dup because we free at the caller*/
+
+    /* create the window and put it in the middle of the screen */
+    win = VrNewWin(menu_items + 2,width,y,x,COLOR_PAIR(CP_BLUE_WHITE));
+    if(win == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        return NULL;
+    }
+
+    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,COLOR_PAIR(CP_BLUE_WHITE),COLOR_PAIR(CP_WHITE_BLUE));
+    if(menu == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrNewMenu failed");
+        return NULL;
+    }
+
+    VrMenuSetDescFreeFunc(menu, NULL);
+    VrMenuSetupNameList(debuglvl, menu);
+    //VrMenuSetupDescList(debuglvl, menu);
+
+    /* setup menu items */
+    VrMenuAddItem(debuglvl, menu, "kbit", NULL);
+    VrMenuAddItem(debuglvl, menu, "mbit", NULL);
+    if (bps) {
+        VrMenuAddItem(debuglvl, menu, "kbps", NULL);
+        VrMenuAddItem(debuglvl, menu, "mbps", NULL);
+    }
+
+    VrMenuConnectToWin(debuglvl, menu, win);
+    VrMenuPost(debuglvl, menu);
+
+    update_panels();
+    doupdate();
+
+    /* user input */
+    char quit = FALSE;
+    while(quit == FALSE)
+    {
+        ch = VrWinGetch(win);
+
+        switch(ch)
+        {
+            case 27:
+            case 'q':
+            case 'Q':
+            case KEY_F(10):
+                quit = TRUE;
+                break;
+
+            case 10:
+            {
+                ITEM *cur = current_item(menu->m);
+                if(cur != NULL)
+                {
+                    r = strdup((char *)item_name(cur));
+                    //(void)vrprint.debug(__FUNC__, "r %s", r);
+                    quit = TRUE;
+                }
+
+                break;
+            }
+
+            case KEY_F(12):
+            case 'h':
+            case 'H':
+            case '?':
+                //print_help(debuglvl, ctl->help_actions);
+                break;
+
+            default:
+                (void)VrMenuDefaultNavigation(debuglvl, menu, ch);
+                break;
+        }
+    }
+
+    VrDelMenu(debuglvl, menu);
+    VrDelWin(win);
+    update_panels();
+    doupdate();
+
+    //(void)vrprint.debug(__FUNC__, "@exit r %s", r);
+    return r;
+}
+
+struct ShapeRuleCnf_ {
+    struct options *opt;
+
+    char in_min[10], out_min[10], in_max[10], out_max[10], prio[4];
+    char in_min_unit[5], out_min_unit[5], in_max_unit[5], out_max_unit[5];
+};
+
+static int
+VrShapeRuleSetup(const int debuglvl, struct ShapeRuleCnf_ *c, struct options *opt) {
+    if (c == NULL || opt == NULL)
+        return(-1);
+
+    c->opt = opt;
+
+    snprintf(c->in_min, sizeof(c->in_min), "%u", c->opt->bw_in_min);
+    snprintf(c->in_max, sizeof(c->in_max), "%u", c->opt->bw_in_max);
+    snprintf(c->out_min, sizeof(c->out_min), "%u", c->opt->bw_out_min);
+    snprintf(c->out_max, sizeof(c->out_max), "%u", c->opt->bw_out_max);
+
+    if (strcmp(c->opt->bw_in_min_unit, "") == 0)
+        strlcpy(c->in_min_unit, "kbit", sizeof(c->in_min_unit));
+    else
+        snprintf(c->in_min_unit, sizeof(c->in_min_unit), "%s", c->opt->bw_in_min_unit);
+
+    if (strcmp(c->opt->bw_in_max_unit, "") == 0)
+        strlcpy(c->in_max_unit, "kbit", sizeof(c->in_max_unit));
+    else
+        snprintf(c->in_max_unit, sizeof(c->in_max_unit), "%s", c->opt->bw_in_max_unit);
+
+    if (strcmp(c->opt->bw_out_min_unit, "") == 0)
+        strlcpy(c->out_min_unit, "kbit", sizeof(c->out_min_unit));
+    else
+        snprintf(c->out_min_unit, sizeof(c->out_min_unit), "%s", c->opt->bw_out_min_unit);
+
+    if (strcmp(c->opt->bw_out_max_unit, "") == 0)
+        strlcpy(c->out_max_unit, "kbit", sizeof(c->out_max_unit));
+    else
+        snprintf(c->out_max_unit, sizeof(c->out_max_unit), "%s", c->opt->bw_out_max_unit);
+
+    snprintf(c->prio, sizeof(c->prio), "%u", c->opt->prio);
+
+    return(0);
+}
+
+static int
+VrShapeRuleSave(const int debuglvl, void *ctx, char *name, char *value)
+{
+    struct ShapeRuleCnf_ *c = (struct ShapeRuleCnf_ *)ctx;
+
+    (void)vrprint.debug(__FUNC__, "%s:%s", name, value);
+
+    if (strcmp(name,"in_min") == 0) {
+        c->opt->bw_in_min = atoi(value);
+    } else if (strcmp(name,"in_max") == 0) {
+        c->opt->bw_in_max = atoi(value);
+    } else if (strcmp(name,"out_min") == 0) {
+        c->opt->bw_out_min = atoi(value);
+    } else if (strcmp(name,"out_max") == 0) {
+        c->opt->bw_out_max = atoi(value);
+    } else if(strcmp(name,"unit1") == 0) {
+        strlcpy(c->opt->bw_in_min_unit, value, sizeof(c->opt->bw_in_min_unit));
+    } else if(strcmp(name,"unit2") == 0) {
+        strlcpy(c->opt->bw_in_max_unit, value, sizeof(c->opt->bw_in_max_unit));
+    } else if(strcmp(name,"unit3") == 0) {
+        strlcpy(c->opt->bw_out_min_unit, value, sizeof(c->opt->bw_out_min_unit));
+    } else if(strcmp(name,"unit4") == 0) {
+        strlcpy(c->opt->bw_out_max_unit, value, sizeof(c->opt->bw_out_max_unit));
+    } else if (strcmp(name,"prio") == 0) {
+        c->opt->prio = atoi(value);
+    }
+
+    return(0);
+}
+
+void VrShapeRule(const int debuglvl, struct options *opt) {
+    VrWin   *win = NULL;
+    VrForm  *form = NULL;
+    int     ch = 0, result = 0;
+    struct ShapeRuleCnf_ config;
+
+    if (VrShapeRuleSetup(debuglvl, &config, opt) < 0)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrShapeRuleSetup failed");
+        return;
+    }
+
+    /* create the window and put it in the middle of the screen */
+    win = VrNewWin(16,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    if (win == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        return;
+    }
+    VrWinSetTitle(win, gettext("Shaping"));
+
+    form = VrNewForm(14, 58, 1, 1, 14, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+
+    VrFormSetSaveFunc(debuglvl, form, VrShapeRuleSave, &config);
+
+    VrFormAddLabelField(debuglvl, form, 1, 25, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Incoming guaranteed rate"));
+    VrFormAddTextField(debuglvl, form,  1, 10, 1, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "in_min", config.in_min);
+    VrFormAddTextField(debuglvl, form,  1,  5, 1, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit1", config.in_min_unit);
+    VrFormAddLabelField(debuglvl, form, 1, 25, 3, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Incoming maximum rate"));
+    VrFormAddTextField(debuglvl, form,  1, 10, 3, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "in_max", config.in_max);
+    VrFormAddTextField(debuglvl, form,  1,  5, 3, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit2", config.in_max_unit);
+
+    VrFormAddLabelField(debuglvl, form, 1, 25, 5, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Outgoing guaranteed rate"));
+    VrFormAddTextField(debuglvl, form,  1, 10, 5, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "out_min", config.out_min);
+    VrFormAddTextField(debuglvl, form,  1,  5, 5, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit3", config.out_min_unit);
+    VrFormAddLabelField(debuglvl, form, 1, 25, 7, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Outgoing maximum rate"));
+    VrFormAddTextField(debuglvl, form,  1, 10, 7, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "out_max", config.out_max);
+    VrFormAddTextField(debuglvl, form,  1,  5, 7, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit4", config.out_max_unit);
+
+    VrFormAddLabelField(debuglvl, form, 1, 25, 9, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Priority"));
+    VrFormAddTextField(debuglvl, form,  1,  5, 9, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "prio", config.prio);
+
+    VrFormConnectToWin(debuglvl, form, win);
+    VrFormPost(debuglvl, form);
+    update_panels();
+    doupdate();
+
+    /* user input */
+    char quit = FALSE;
+    while(quit == FALSE)
+    {
+        VrFormDrawMarker(debuglvl, win, form);
+
+        ch = VrWinGetch(win);
+
+        /* check OK/Cancel buttons */
+        result = VrFormCheckOKCancel(debuglvl, form, ch);
+        if (result == -1 || result == 1) {
+            break;
+        }
+
+        char *b = field_buffer(form->cur, 1);
+        if (ch == 32 &&
+            (strcmp(b,"unit1") == 0 || strcmp(b,"unit2") == 0 ||
+             strcmp(b,"unit3") == 0 || strcmp(b,"unit4") == 0))
+        {
+            int h,w,i;
+            field_info(form->cur, &i,&i,&h,&w,&i,&i);
+
+            char *u = VrShapeUnitMenu(debuglvl, field_buffer(form->cur, 0), h+2+win->y, w-1+win->x, /* draw bps */1);
+            (void)vrprint.debug(__FUNC__, "u %s", u);
+            if (u) {
+                set_field_buffer_wrap(debuglvl, form->cur, 0, u);
+                free(u);
+            }
+        } else if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
+            switch(ch)
+            {
+                case KEY_DOWN:
+                case 10: // enter
+                    form_driver(form->f, REQ_NEXT_FIELD);
+                    form_driver(form->f, REQ_BEG_LINE);
+                    break;
+                case 27:
+                case 'q':
+                case 'Q':
+                case KEY_F(10):
+                    quit = TRUE;
+                    break;
+                case KEY_F(12):
+                case 'h':
+                case 'H':
+                case '?':
+                    print_help(debuglvl, ":[VUURMUUR:RULES:SHAPE]:");
+                    break;
+            }
+        }
+    }
+
+    VrFormUnPost(debuglvl, form);
+    VrDelForm(debuglvl, form);
+    VrDelWin(win);
+    update_panels();
+    doupdate();
+}
+
+
 
 #define FIELDS_PER_BAR  8
 

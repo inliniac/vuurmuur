@@ -17,11 +17,12 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
 #ifndef __LOGFILE_H__
 #define __LOGFILE_H__
 
 #include "stats.h"
- 
+
 struct file_mon
 {
     struct stat old_file;
@@ -35,8 +36,13 @@ int search_in_ipt_line(char *, size_t, char *, size_t *, size_t *);
 int check_ipt_line(char *);
 int parse_ipt_logline(const int, char *, size_t, char *, struct log_rule *, struct Counters_ *);
 FILE *open_logfile(const int, const struct vuurmuur_config *, const char *, const char *);
+
 int open_syslog(const int, const struct vuurmuur_config *, FILE **);
+int reopen_syslog(const int, const struct vuurmuur_config *, FILE **);
+
 int open_vuurmuurlog(const int, const struct vuurmuur_config *, FILE **);
+int reopen_vuurmuurlog(const int, const struct vuurmuur_config *, FILE **);
+
 int reopen_logfiles(const int, FILE **, FILE **);
 
 #endif

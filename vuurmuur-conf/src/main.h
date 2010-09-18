@@ -292,7 +292,8 @@ int rules_form(const int, Rules *, Zones *, Interfaces *, Services *, struct rgx
 int delete_rule(const int, Rules *, unsigned int, int);
 int insert_new_rule(const int, Rules *, unsigned int, const char *);
 int edit_rule(const int, Rules *, Zones *, Interfaces *, Services *, unsigned int, struct rgx_ *);
-int edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces, Services *, struct RuleData_ *query_ptr, unsigned int rule_num, struct rgx_ *reg);
+int edit_rule_normal(const int, Zones *, Interfaces *, Services *, struct RuleData_ *, unsigned int, struct rgx_ *);
+char *VrShapeUnitMenu(const int, char *, int, int, char);
 
 
 /*

@@ -53,6 +53,384 @@ struct InterfacesSection_
 } InterfacesSection;
 
 
+struct TcpmssIfaceCnf_ {
+    struct InterfaceData_ *iface_ptr;
+    char enabled;
+};
+
+static int
+VrTcpmssIfaceSetup(const int debuglvl, struct TcpmssIfaceCnf_ *c, struct InterfaceData_ *iface_ptr) {
+    if (c == NULL || iface_ptr == NULL)
+        return(-1);
+
+    c->iface_ptr = iface_ptr;
+    c->enabled = iface_ptr->tcpmss_clamp;
+
+    return(0);
+}
+
+static int
+VrTcpmssIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
+{
+    struct TcpmssIfaceCnf_ *c = (struct TcpmssIfaceCnf_ *)ctx;
+    int result = 0;
+
+    //(void)vrprint.debug(__FUNC__, "%s:%s", name, value);
+
+    if(strcmp(name,"S") == 0) {
+        char enabled = 0;
+
+        if (strcmp(value,"X") == 0) {
+            enabled = 1;
+        }
+
+        if (c->enabled != enabled) {
+            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "TCPMSS", enabled ? "Yes" : "No", 1, TYPE_INTERFACE);
+            if(result < 0)
+            {
+                (void)vrprint.error(-1, VR_ERR, "%s (in: %s:%d).",
+                    STR_SAVING_TO_BACKEND_FAILED,
+                    __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            /* example: "interface 'lan' has been changed: active is now set to 'Yes' (was: 'No')." */
+            (void)vrprint.audit("%s '%s' %s: %s %s '%u' (%s: '%u').",
+                STR_INTERFACE, c->iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                STR_TCPMSS, STR_IS_NOW_SET_TO, enabled ? "Yes" : "No",
+                STR_WAS, c->enabled ? "Yes" : "No");
+        }
+        c->iface_ptr->tcpmss_clamp = enabled;
+    }
+
+    return(0);
+}
+
+void VrTcpmssIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
+    VrWin   *win = NULL;
+    VrForm  *form = NULL;
+    int     ch = 0, result = 0;
+    struct TcpmssIfaceCnf_ config;
+
+    if (VrTcpmssIfaceSetup(debuglvl, &config, iface_ptr) < 0)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrTcpmssIfaceSetup failed");
+        return;
+    }
+    
+    /* create the window and put it in the middle of the screen */
+    win = VrNewWin(11,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    if(win == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        return;
+    }
+    VrWinSetTitle(win, gettext("Tcpmss"));
+
+    form = VrNewForm(9, 58, 1, 1, 2, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+
+    VrFormSetSaveFunc(debuglvl, form, VrTcpmssIfaceSave, &config);
+
+    VrFormAddLabelField(debuglvl,   form, 1, 25, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Enable TCP MSS clamping"));
+    VrFormAddCheckboxField(debuglvl,form,        1, 28, (chtype)COLOR_PAIR(CP_BLUE_WHITE), "S", config.enabled);
+
+    VrFormConnectToWin(debuglvl, form, win);
+
+    VrFormPost(debuglvl, form);
+
+    update_panels();
+    doupdate();
+
+    /* user input */
+    char quit = FALSE;
+    while(quit == FALSE)
+    {
+        VrFormDrawMarker(debuglvl, win, form);
+
+        ch = VrWinGetch(win);
+
+        /* check OK/Cancel buttons */
+        result = VrFormCheckOKCancel(debuglvl, form, ch);
+        if (result == -1 || result == 1) {
+            break;
+        }
+
+        if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
+            switch(ch)
+            {
+                case KEY_DOWN:
+                case 10: // enter
+                    form_driver(form->f, REQ_NEXT_FIELD);
+                    form_driver(form->f, REQ_BEG_LINE);
+                    break;
+                case 27:
+                case 'q':
+                case 'Q':
+                case KEY_F(10):
+                    quit = TRUE;
+                    break;
+                case KEY_F(12):
+                case 'h':
+                case 'H':
+                case '?':
+                    print_help(debuglvl, ":[VUURMUUR:INTERFACES:TCPMSS]:");
+                    break;
+            }
+        }
+    }
+
+    VrFormUnPost(debuglvl, form);
+    VrDelForm(debuglvl, form);
+    VrDelWin(win);
+    update_panels();
+    doupdate();
+}
+
+struct ShapeIfaceCnf_ {
+    struct InterfaceData_ *iface_ptr;
+    char in[10], out[10];
+    char in_unit[5], out_unit[5];
+    char enabled;
+};
+
+static int
+VrShapeIfaceSetup(const int debuglvl, struct ShapeIfaceCnf_ *c, struct InterfaceData_ *iface_ptr) {
+    if (c == NULL || iface_ptr == NULL)
+        return(-1);
+
+    c->iface_ptr = iface_ptr;
+
+    c->enabled = iface_ptr->shape;
+
+    snprintf(c->in, sizeof(c->in),   "%u", c->iface_ptr->bw_in);
+    snprintf(c->out, sizeof(c->out), "%u", c->iface_ptr->bw_out);
+
+    if (strcmp(c->iface_ptr->bw_in_unit, "") == 0)
+        strlcpy(c->in_unit, "kbit", sizeof(c->in_unit));
+    else
+        snprintf(c->in_unit, sizeof(c->in_unit), "%s", c->iface_ptr->bw_in_unit);
+
+    if (strcmp(c->iface_ptr->bw_out_unit, "") == 0)
+        strlcpy(c->out_unit, "kbit", sizeof(c->out_unit));
+    else
+        snprintf(c->out_unit, sizeof(c->out_unit), "%s", c->iface_ptr->bw_out_unit);
+
+    return(0);
+}
+
+static int
+VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
+{
+    struct ShapeIfaceCnf_ *c = (struct ShapeIfaceCnf_ *)ctx;
+    u_int32_t oldrate = 0;
+    int result = 0;
+
+    //(void)vrprint.debug(__FUNC__, "%s:%s", name, value);
+
+    if (strcmp(name,"in") == 0) {
+        oldrate = c->iface_ptr->bw_in;
+        c->iface_ptr->bw_in = atoi(value);
+
+        if (oldrate != c->iface_ptr->bw_in) {
+            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "BW_IN", value, 1, TYPE_INTERFACE);
+            if(result < 0)
+            {
+                (void)vrprint.error(-1, VR_ERR, "%s (in: %s:%d).",
+                    STR_SAVING_TO_BACKEND_FAILED,
+                    __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            /* example: "interface 'lan' has been changed: active is now set to 'Yes' (was: 'No')." */
+            (void)vrprint.audit("%s '%s' %s: %s %s '%u' (%s: '%u').",
+                STR_INTERFACE, c->iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                STR_IN, STR_IS_NOW_SET_TO, c->iface_ptr->bw_in,
+                STR_WAS, oldrate);
+        }
+    } else if (strcmp(name,"out") == 0) {
+        oldrate = c->iface_ptr->bw_out;
+        c->iface_ptr->bw_out = atoi(value);
+
+        if (oldrate != c->iface_ptr->bw_out) {
+            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "BW_OUT", value, 1, TYPE_INTERFACE);
+            if(result < 0)
+            {
+                (void)vrprint.error(-1, VR_ERR, "%s (in: %s:%d).",
+                    STR_SAVING_TO_BACKEND_FAILED,
+                    __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            /* example: "interface 'lan' has been changed: active is now set to 'Yes' (was: 'No')." */
+            (void)vrprint.audit("%s '%s' %s: %s %s '%u' (%s: '%u').",
+                STR_INTERFACE, c->iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                STR_OUT, STR_IS_NOW_SET_TO, c->iface_ptr->bw_out,
+                STR_WAS, oldrate);
+        }
+    } else if(strcmp(name,"unit1") == 0) {
+        if (strcmp(value, c->iface_ptr->bw_in_unit) != 0) {
+            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "BW_IN_UNIT", value, 1, TYPE_INTERFACE);
+            if(result < 0)
+            {
+                (void)vrprint.error(-1, VR_ERR, "%s (in: %s:%d).",
+                    STR_SAVING_TO_BACKEND_FAILED,
+                    __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            /* example: "interface 'lan' has been changed: active is now set to 'Yes' (was: 'No')." */
+            (void)vrprint.audit("%s '%s' %s: %s %s '%u' (%s: '%u').",
+                STR_INTERFACE, c->iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                STR_IN_UNIT, STR_IS_NOW_SET_TO, value,
+                STR_WAS, c->iface_ptr->bw_in_unit);
+        }
+        strlcpy(c->iface_ptr->bw_in_unit, value, sizeof(c->iface_ptr->bw_in_unit));
+    } else if(strcmp(name,"unit2") == 0) {
+        if (strcmp(value, c->iface_ptr->bw_out_unit) != 0) {
+            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "BW_OUT_UNIT", value, 1, TYPE_INTERFACE);
+            if(result < 0)
+            {
+                (void)vrprint.error(-1, VR_ERR, "%s (in: %s:%d).",
+                    STR_SAVING_TO_BACKEND_FAILED,
+                    __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            /* example: "interface 'lan' has been changed: active is now set to 'Yes' (was: 'No')." */
+            (void)vrprint.audit("%s '%s' %s: %s %s '%u' (%s: '%u').",
+                STR_INTERFACE, c->iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                STR_OUT_UNIT, STR_IS_NOW_SET_TO, value,
+                STR_WAS, c->iface_ptr->bw_out_unit);
+        }
+        strlcpy(c->iface_ptr->bw_out_unit, value, sizeof(c->iface_ptr->bw_out_unit));
+    } else if(strcmp(name,"S") == 0) {
+        char enabled = 0;
+
+        if (strcmp(value,"X") == 0) {
+            enabled = 1;
+        }
+
+        if (c->enabled != enabled) {
+            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "SHAPE", enabled ? "Yes" : "No", 1, TYPE_INTERFACE);
+            if(result < 0)
+            {
+                (void)vrprint.error(-1, VR_ERR, "%s (in: %s:%d).",
+                    STR_SAVING_TO_BACKEND_FAILED,
+                    __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            /* example: "interface 'lan' has been changed: active is now set to 'Yes' (was: 'No')." */
+            (void)vrprint.audit("%s '%s' %s: %s %s '%u' (%s: '%u').",
+                STR_INTERFACE, c->iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                STR_SHAPE, STR_IS_NOW_SET_TO, enabled ? "Yes" : "No",
+                STR_WAS, c->enabled ? "Yes" : "No");
+        }
+        c->iface_ptr->shape = enabled;
+    }
+
+    return(0);
+}
+
+void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
+    VrWin   *win = NULL;
+    VrForm  *form = NULL;
+    int     ch = 0, result = 0;
+    struct ShapeIfaceCnf_ config;
+
+    if (VrShapeIfaceSetup(debuglvl, &config, iface_ptr) < 0)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrShapeIfaceSetup failed");
+        return;
+    }
+
+    /* create the window and put it in the middle of the screen */
+    win = VrNewWin(11,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    if(win == NULL)
+    {
+        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        return;
+    }
+    VrWinSetTitle(win, gettext("Shaping"));
+
+    form = VrNewForm(9, 58, 1, 1, 9, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+
+    VrFormSetSaveFunc(debuglvl, form, VrShapeIfaceSave, &config);
+
+    VrFormAddLabelField(debuglvl,   form, 1, 25, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Enable shaping"));
+    VrFormAddCheckboxField(debuglvl,form,        1, 28, (chtype)COLOR_PAIR(CP_BLUE_WHITE), "S", config.enabled);
+    VrFormAddLabelField(debuglvl,   form, 1, 25, 3, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Incoming bandwidth"));
+    VrFormAddTextField(debuglvl,    form, 1, 10, 3, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "in", config.in);
+    VrFormAddTextField(debuglvl,    form, 1,  5, 3, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit1", config.in_unit);
+    VrFormAddLabelField(debuglvl,   form, 1, 25, 5, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Outgoing bandwidth"));
+    VrFormAddTextField(debuglvl,    form, 1, 10, 5, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "out", config.out);
+    VrFormAddTextField(debuglvl,    form, 1,  5, 5, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit2", config.out_unit);
+
+    VrFormConnectToWin(debuglvl, form, win);
+
+    VrFormPost(debuglvl, form);
+
+    update_panels();
+    doupdate();
+
+    /* user input */
+    char quit = FALSE;
+    while(quit == FALSE)
+    {
+        VrFormDrawMarker(debuglvl, win, form);
+
+        ch = VrWinGetch(win);
+
+        /* check OK/Cancel buttons */
+        result = VrFormCheckOKCancel(debuglvl, form, ch);
+        if (result == -1 || result == 1) {
+            break;
+        }
+
+        char *b = field_buffer(form->cur, 1);
+        if (ch == 32 &&
+            (strcmp(b,"unit1") == 0 || strcmp(b,"unit2") == 0))
+        {
+            int h,w,i;
+            field_info(form->cur, &i,&i,&h,&w,&i,&i);
+
+            char *u = VrShapeUnitMenu(debuglvl, field_buffer(form->cur, 0), h+2+win->y, w-1+win->x, 0);
+            (void)vrprint.debug(__FUNC__, "u %s", u);
+            if (u) {
+                set_field_buffer_wrap(debuglvl, form->cur, 0, u);
+                free(u);
+            }
+        } else if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
+            switch(ch)
+            {
+                case KEY_DOWN:
+                case 10: // enter
+                    form_driver(form->f, REQ_NEXT_FIELD);
+                    form_driver(form->f, REQ_BEG_LINE);
+                    break;
+                case 27:
+                case 'q':
+                case 'Q':
+                case KEY_F(10):
+                    quit = TRUE;
+                    break;
+                case KEY_F(12):
+                case 'h':
+                case 'H':
+                case '?':
+                    print_help(debuglvl, ":[VUURMUUR:INTERFACES:SHAPE]:");
+                    break;
+            }
+        }
+    }
+
+    VrFormUnPost(debuglvl, form);
+    VrDelForm(debuglvl, form);
+    VrDelWin(win);
+    update_panels();
+    doupdate();
+}
+
 struct
 {
     FIELD   *activefld,

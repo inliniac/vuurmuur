@@ -185,19 +185,21 @@ parse_ipt_logline(  const int debuglvl,
         str_begin = str_end = str_end + 1;
         /*  search for the end of the action (the action is a
             string with no spaces in it */
-        while(  str_end < logline_len &&
-            logline[str_end] != ' ')
+        while (str_end < logline_len &&
+            logline[str_end] != ' ') {
             str_end++;
-    
-        if(range_strcpy(logrule_ptr->action, logline, str_begin,
-            str_end, sizeof(logrule_ptr->action)) < 0)
+        }
+
+        if (range_strcpy(logrule_ptr->action, logline, str_begin,
+            str_end, sizeof(logrule_ptr->action)) < 0) {
             return(0);
-            
+        }
+
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "action '%s', "
                 "str_begin %u, str_end %u",
                 logrule_ptr->action, str_begin, str_end);
-        
+
         /* the start of the prefix is the end of the action + 1 */
         pre_prefix_len = str_end + 1;
     }
@@ -563,7 +565,7 @@ parse_ipt_logline(  const int debuglvl,
     /*
         ports TODO: all protocols except tcp,udp,icmp
     */
-    
+
     /* tcp & udp */
     if(logrule_ptr->protocol == 6 || logrule_ptr->protocol == 17)
     {
@@ -786,7 +788,7 @@ parse_ipt_logline(  const int debuglvl,
             }
             /*
                 get the URG flag
-                
+
                 Please note that we look for 'URG ' (inlcuding space) so we don't
                 get confused with URGP.
             */
@@ -1068,7 +1070,7 @@ open_vuurmuurlog (const int debuglvl, const struct vuurmuur_config *cnf, FILE **
 }
 
 int
-reopen_syslog(const int debuglvl, FILE **system_log)
+reopen_syslog(const int debuglvl, const struct vuurmuur_config *cnf, FILE **system_log)
 {
     int             waiting = 0;
     char            done = 0;
@@ -1088,13 +1090,13 @@ reopen_syslog(const int debuglvl, FILE **system_log)
     */
     while(done == 0 && waiting < 300)
     {
-        (void)stat_logfile(debuglvl, conf.systemlog_location, &filemon.new_file);
+        (void)stat_logfile(debuglvl, cnf->systemlog_location, &filemon.new_file);
         (void)compare_logfile_stats(debuglvl, &filemon);
 
-        if(!(*system_log = fopen(conf.systemlog_location, "r")))
+        if(!(*system_log = fopen(cnf->systemlog_location, "r")))
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "Re-opening iptableslog '%s' failed: %s.", conf.systemlog_location, strerror(errno));
+                (void)vrprint.debug(__FUNC__, "Re-opening iptableslog '%s' failed: %s.", cnf->systemlog_location, strerror(errno));
 
             /* sleep and increase waitcounter */
             sleep(3);
@@ -1124,7 +1126,7 @@ reopen_syslog(const int debuglvl, FILE **system_log)
 
         /* close the log */
         if(fclose(*system_log) < 0)
-            (void)vrprint.error(-1, "Error", "closing the iptableslog '%s' failed: %s.", conf.systemlog_location, strerror(errno));
+            (void)vrprint.error(-1, "Error", "closing the iptableslog '%s' failed: %s.", cnf->systemlog_location, strerror(errno));
 
         *system_log = NULL;
 
@@ -1137,12 +1139,9 @@ reopen_syslog(const int debuglvl, FILE **system_log)
 }
 
 int
-reopen_vuurmuurlog(const int debuglvl, FILE **vuurmuur_log)
+reopen_vuurmuurlog(const int debuglvl, const struct vuurmuur_config *cnf, FILE **vuurmuur_log)
 {
-    int             waiting = 0;
-    char            done = 0;
     struct file_mon filemon;
-    int             result = 0;
 
     /* clear */
     memset(&filemon, 0, sizeof(filemon));
@@ -1153,9 +1152,10 @@ reopen_vuurmuurlog(const int debuglvl, FILE **vuurmuur_log)
     (void)close_vuurmuurlog(debuglvl, vuurmuur_log, &filemon);
 
     /* re-open the vuurmuur logfile */
-    if(!(*vuurmuur_log = open_logfile(debuglvl, &conf, conf.trafficlog_location, "a")))
+    if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, cnf->trafficlog_location, "a")))
     {
-        (void)vrprint.error(-1, "Error", "Re-opening traffic log file '%s' failed: %s.", conf.trafficlog_location, strerror(errno));
+        (void)vrprint.error(-1, "Error", "Re-opening traffic log file '%s'"
+                "failed: %s.", cnf->trafficlog_location, strerror(errno));
         return(-1);
     }
 

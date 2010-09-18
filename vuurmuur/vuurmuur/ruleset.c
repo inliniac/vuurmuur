@@ -1110,6 +1110,7 @@ ruleset_fill_file(  const int debuglvl,
         1: exists
         0: don't exist
 */
+#if 0
 static int
 ruleset_exists(const int debuglvl, char *path_to_ruleset)
 {
@@ -1129,12 +1130,12 @@ ruleset_exists(const int debuglvl, char *path_to_ruleset)
     fclose(fp);
     return(1);
 }
-
+#endif
 
 /*  ruleset_load_ruleset
 
     Actually loads the ruleset
-    
+
     Returncodes:
         -1: error
          0: ok

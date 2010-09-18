@@ -2551,7 +2551,6 @@ static int
 VrEditConntrackSave(const int debuglvl, void *ctx, char *name, char *value)
 {
     struct VrEditConntrackCnf_ *c = (struct VrEditConntrackCnf_ *)ctx;
-    int result = 0;
     int retval = 0;
 
     //(void)vrprint.debug(__FUNC__, "%s:%s", name, value);

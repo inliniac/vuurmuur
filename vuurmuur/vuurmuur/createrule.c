@@ -52,7 +52,6 @@
 #define SRCDST_SOURCE       (char)0
 #define SRCDST_DESTINATION  (char)1
 
-
 /*  structure for storing an iptables rule in the queue. */
 typedef struct
 {
@@ -2305,8 +2304,58 @@ create_rule_bounce( const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* restore temp_dst_port */
     (void)strlcpy(rule->temp_dst_port, tmp_dst_prt, sizeof(rule->temp_dst_port));
-    
+
     return(retval);
+}
+
+
+int
+create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces, IptCap *iptcap)
+{
+    d_list_node             *d_node = NULL;
+    struct InterfaceData_   *iface_ptr = NULL;
+    char    cmd[MAX_PIPE_COMMAND] = "";
+
+    /* safety */
+    if(interfaces == NULL || iptcap == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    if (conf.check_iptcaps == TRUE && iptcap->target_tcpmss == FALSE) {
+        if(conf.bash_out)
+            fprintf(stdout, "\n# Not creating TCPMSS rules: TCPMSS target not supported.\n");
+    } else {
+        if(conf.bash_out)
+            fprintf(stdout, "\n# Loading interfaces TCPMSS rules...\n");
+    }
+
+    /* loop through the interfaces */
+    for (d_node = interfaces->list.top; d_node; d_node = d_node->next)
+    {
+        if(!(iface_ptr = d_node->data))
+        {
+            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            return(-1);
+        }
+
+        if (iface_ptr->tcpmss_clamp == TRUE && iface_ptr->device_virtual == FALSE)
+        {
+            if (conf.bash_out)
+                fprintf(stdout, "# Enabling TCPMSS pmtu clamping for interface %s (device %s).\n",
+                        iface_ptr->name, iface_ptr->device);
+
+            snprintf(cmd, sizeof(cmd), "-o %s -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu",
+                iface_ptr->device);
+
+            if (process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+                return(-1);
+
+        }
+    }
+
+    return(0);
 }
 
 
@@ -3829,55 +3878,6 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
     }
 
     return(retval);
-}
-
-int
-create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces, IptCap *iptcap)
-{
-    d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
-    char    cmd[MAX_PIPE_COMMAND] = "";
-
-    /* safety */
-    if(interfaces == NULL || iptcap == NULL)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    if (conf.check_iptcaps == TRUE && iptcap->target_tcpmss == FALSE) {
-        if(conf.bash_out)
-            fprintf(stdout, "\n# Not creating TCPMSS rules: TCPMSS target not supported.\n");
-    } else {
-        if(conf.bash_out)
-            fprintf(stdout, "\n# Loading interfaces TCPMSS rules...\n");
-    }
-
-    /* loop through the interfaces */
-    for(d_node = interfaces->list.top; d_node; d_node = d_node->next)
-    {
-        if(!(iface_ptr = d_node->data))
-        {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
-
-        if (iface_ptr->tcpmss_clamp == TRUE && iface_ptr->device_virtual == FALSE)
-        {
-            if(conf.bash_out)
-                fprintf(stdout, "# Enabling TCPMSS pmtu clamping for interface %s (device %s).\n",
-                        iface_ptr->name, iface_ptr->device);
-
-            snprintf(cmd, sizeof(cmd), "-o %s -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu",
-                iface_ptr->device);
-
-            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-                return(-1);
-
-        }
-    }
-
-    return(0);
 }
 
 

@@ -1181,8 +1181,8 @@ enum {
 int
 kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int proto, int sp, int dp)
 {
-    char buf[256] = "";
-    char cmd_sp_str[6] = "", cmd_dp_str[6] = "";
+    char cmd_sp_str[6] = "";
+    char cmd_dp_str[6] = "";
     int result = 0;
 
     snprintf(cmd_sp_str, sizeof(cmd_sp_str), "%d", sp);

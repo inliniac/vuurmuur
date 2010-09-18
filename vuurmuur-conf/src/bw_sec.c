@@ -17,9 +17,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
-#include "main.h"
 
+#include "main.h"
 
 struct TrafVolSection_
 {
@@ -31,7 +30,6 @@ struct TrafVolSection_
 
 } TrafVolSection;
 
-                                                
 struct TrafVol_
 {
     int             year;
@@ -121,7 +119,7 @@ bandwidth_store(const int debuglvl, d_list *list, int year, int month, int day,
     are... so we read a number of bytes and try to analyse it...
 
     if days is 0, we don't limit the number of days.
-    
+
     returncodes:
         -1: error
          0: ok, but no data
@@ -131,8 +129,7 @@ int
 bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
             int start_day, int days, char only_total, d_list *list)
 {
-    char            cmd[256] = "",
-                    bw_buf[512] = "",
+    char            bw_buf[512] = "",
                     sect_buf[32] = "",
                     sect_buf_stripped[32] = "",
                     tmpfile[] = "/tmp/vuurmuur-iptrafvol-XXXXXX";
@@ -146,7 +143,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
 
     unsigned int    i = 0,
                     k = 0;
-    
+
     int             act_border = 0;
 
     int             device_column = 0; /* column where our
@@ -323,7 +320,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
                             break;
                         }
                     }
-                    
+
                     /* the deviceline starts with MBytes */
                     if(strncmp(sect_buf_stripped, "MBytes", 6) == 0)
                         parsing_device_line = 1;

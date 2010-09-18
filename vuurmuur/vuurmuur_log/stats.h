@@ -17,9 +17,10 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
 #ifndef __STATS_H__
 #define __STATS_H__
- 
+
 struct Counters_
 {
     unsigned int    drop;
@@ -41,4 +42,8 @@ struct Counters_
     unsigned int    total;
 };
 
-#endif
+void show_stats (struct Counters_ *);
+void upd_action_ctrs (char *action, struct Counters_ *c);
+
+#endif /* __STATS_H__ */
+
