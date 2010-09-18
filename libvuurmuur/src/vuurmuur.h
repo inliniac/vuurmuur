@@ -387,9 +387,6 @@ struct vuurmuur_config
     char            ifac_backend_name[32];
     char            rule_backend_name[32];
 
-//    char            plugindir[256];
-//    char            plugin_etcdir[256];
-
     /* synflood protection */
     char            use_syn_limit;
     unsigned int    syn_limit;          /* the maximum number of SYN packets per second. */

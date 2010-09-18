@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2007 by Victor Julien                              *
+ *   Copyright (C) 2002-2010 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -35,19 +35,16 @@ struct ConntrackLine
     int                 dst_port;
     int                 alt_src_port;
     int                 alt_dst_port;
-
-    char                use_acc;
     unsigned long long  to_src_packets;
     unsigned long long  to_src_bytes;
     unsigned long long  to_dst_packets;
     unsigned long long  to_dst_bytes;
-
     char                to_src_packets_str[16];
     char                to_src_bytes_str[16];
     char                to_dst_packets_str[16];
     char                to_dst_bytes_str[16];
-
     char                status[16];
+    char                use_acc;
 };
 
 
@@ -217,10 +214,7 @@ conn_line_to_data(  const int debuglvl,
                 return(-1);
             }
         }
-    }
-
-    if(conndata_ptr->service != NULL)
-    {
+    } else {
         conndata_ptr->sername = conndata_ptr->service->name;
     }
 
@@ -454,7 +448,8 @@ conn_line_to_data(  const int debuglvl,
 
 
 /* tcp      6 431999 ESTABLISHED src=192.168.1.2 dst=192.168.1.16 sport=51359 dport=22 packets=80969 bytes=7950474 src=192.168.1.16 dst=192.168.1.2 sport=22 dport=51359 packets=117783 bytes=123061993 [ASSURED] mark=0 use=1*/
-static void
+/* tcp      6 118 SYN_SENT src=192.168.1.4 dst=92.122.217.72 sport=36549 dport=80 packets=1 bytes=60 [UNREPLIED] src=92.122.217.72 dst=192.168.1.4 sport=80 dport=36549 packets=0 bytes=0 mark=0 secmark=0 */
+static int
 parse_tcp_line(const int debuglvl, const char *line,
         struct ConntrackLine *connline_ptr)
 {
@@ -467,11 +462,11 @@ parse_tcp_line(const int debuglvl, const char *line,
 
     if(connline_ptr->use_acc == TRUE)
     {
-        result = sscanf(line,   "%16s %d %d %s src=%s dst=%s "
-                                "sport=%s dport=%s packets=%s "
-                                "bytes=%s src=%s dst=%s "
-                                "sport=%s dport=%s packets=%s "
-                                "bytes=%s",
+        result = sscanf(line,   "%15s %d %d %15s src=%15s dst=%15s "
+                                "sport=%15s dport=%15s packets=%15s "
+                                "bytes=%15s src=%15s dst=%15s "
+                                "sport=%15s dport=%15s packets=%15s "
+                                "bytes=%15s",
                         tmp,
                         &connline_ptr->protocol,
                         &connline_ptr->ttl,
@@ -491,11 +486,11 @@ parse_tcp_line(const int debuglvl, const char *line,
         if(result != 16)
         {
             /* unreplied */
-            result = sscanf(line,   "%16s %d %d %s src=%s dst=%s "
-                                    "sport=%s dport=%s packets=%s "
-                                    "bytes=%s %s src=%s dst=%s "
-                                    "sport=%s dport=%s packets=%s "
-                                    "bytes=%s",
+            result = sscanf(line,   "%15s %d %d %15s src=%15s dst=%15s "
+                                    "sport=%15s dport=%15s packets=%15s "
+                                    "bytes=%15s %15s src=%15s dst=%15s "
+                                    "sport=%15s dport=%15s packets=%15s "
+                                    "bytes=%15s",
                             tmp,
                             &connline_ptr->protocol,
                             &connline_ptr->ttl,
@@ -516,6 +511,7 @@ parse_tcp_line(const int debuglvl, const char *line,
             if(result != 17)
             {
                 (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                return(-1);
             }
         }
 
@@ -528,9 +524,9 @@ parse_tcp_line(const int debuglvl, const char *line,
     }
     else
     {
-        result = sscanf(line,   "%16s %d %d %s src=%s dst=%s "
-                                "sport=%s dport=%s src=%s "
-                                "dst=%s sport=%s dport=%s",
+        result = sscanf(line,   "%15s %d %d %15s src=%15s dst=%15s "
+                                "sport=%15s dport=%15s src=%15s "
+                                "dst=%15s sport=%15s dport=%15s",
                         tmp,
                         &connline_ptr->protocol,
                         &connline_ptr->ttl,
@@ -545,9 +541,9 @@ parse_tcp_line(const int debuglvl, const char *line,
                         alt_dest_port);
         if(result != 12)
         {
-            result = sscanf(line,   "%16s %d %d %s src=%s dst=%s "
-                                    "sport=%s dport=%s %s src=%s "
-                                    "dst=%s sport=%s dport=%s",
+            result = sscanf(line,   "%15s %d %d %15s src=%15s dst=%15s "
+                                    "sport=%15s dport=%15s %15s src=%15s "
+                                    "dst=%15s sport=%15s dport=%15s",
                             tmp,
                             &connline_ptr->protocol,
                             &connline_ptr->ttl,
@@ -564,6 +560,7 @@ parse_tcp_line(const int debuglvl, const char *line,
             if(result != 13)
             {
                 (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                return(-1);
             }
         }
     }
@@ -583,12 +580,15 @@ parse_tcp_line(const int debuglvl, const char *line,
     connline_ptr->alt_dst_port = atoi(alt_dest_port);
     if(connline_ptr->alt_dst_port <= 0 || connline_ptr->alt_dst_port > 65535)
         connline_ptr->alt_dst_port = 0;
+
+    return(0);
 }
 
 
 /* udp      17 23 src=192.168.1.2 dst=192.168.1.1 sport=38009 dport=53 packets=20 bytes=1329 src=192.168.1.1 dst=192.168.1.2 sport=53 dport=38009 packets=20 bytes=3987 [ASSURED] mark=0 use=1 */
 /* udp      17 12 src=192.168.1.2 dst=192.168.1.255 sport=137 dport=137 [UNREPLIED] src=192.168.1.255 dst=192.168.1.2 sport=137 dport=137 use=1*/
-static void
+/* udp      17 29 src=192.168.1.4 dst=192.168.1.1 sport=57902 dport=53 packets=1 bytes=69 [UNREPLIED] src=192.168.1.1 dst=192.168.1.4 sport=53 dport=57902 packets=0 bytes=0 mark=0 secmark=0 use=2 */
+static int
 parse_udp_line(const int debuglvl, const char *line,
         struct ConntrackLine *connline_ptr)
 {
@@ -601,11 +601,11 @@ parse_udp_line(const int debuglvl, const char *line,
 
     if(connline_ptr->use_acc == TRUE)
     {
-        result = sscanf(line,   "%16s %d %d src=%s dst=%s "
-                                "sport=%s dport=%s packets=%s "
-                                "bytes=%s src=%s dst=%s "
-                                "sport=%s dport=%s packets=%s "
-                                "bytes=%s",
+        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
+                                "sport=%15s dport=%15s packets=%15s "
+                                "bytes=%15s src=%15s dst=%15s "
+                                "sport=%15s dport=%15s packets=%15s "
+                                "bytes=%15s",
                         tmp,
                         &connline_ptr->protocol,
                         &connline_ptr->ttl,
@@ -621,13 +621,14 @@ parse_udp_line(const int debuglvl, const char *line,
                         alt_dest_port,
                         connline_ptr->to_src_packets_str,
                         connline_ptr->to_src_bytes_str);
+
         if(result != 15)
         {
-            result = sscanf(line,   "%16s %d %d src=%s dst=%s "
-                                    "sport=%s dport=%s packets=%s "
-                                    "bytes=%s %s src=%s dst=%s "
-                                    "sport=%s dport=%s packets=%s "
-                                    "bytes=%s",
+            result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
+                                    "sport=%15s dport=%15s packets=%15s "
+                                    "bytes=%15s %15s src=%15s dst=%15s "
+                                    "sport=%15s dport=%15s packets=%15s "
+                                    "bytes=%15s",
                             tmp,
                             &connline_ptr->protocol,
                             &connline_ptr->ttl,
@@ -646,13 +647,13 @@ parse_udp_line(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 16)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                (void)vrprint.debug(__FUNC__, "parse error: '%s', result %d", line, result);
+                return(-1);
             }
         }
-        else
-        {
-            strcpy(connline_ptr->status, "UDP_ESTABLISHED");
-        }
+
+        strlcpy(connline_ptr->status, "UDP_ESTABLISHED",
+                sizeof(connline_ptr->status));
 
         if(debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
@@ -663,26 +664,26 @@ parse_udp_line(const int debuglvl, const char *line,
     }
     else
     {
-        result = sscanf(line,   "%16s %d %d src=%s dst=%s "
-                                "sport=%s dport=%s src=%s "
-                                "dst=%s sport=%s dport=%s",
+        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
+                                "sport=%15s dport=%15s src=%15s "
+                                "dst=%15s sport=%15s dport=%15s",
                         tmp,
                         &connline_ptr->protocol,
                         &connline_ptr->ttl,
                         connline_ptr->src_ip,
                         connline_ptr->dst_ip,
                         source_port,
-                        dest_port, 
+                        dest_port,
                         connline_ptr->alt_src_ip,
                         connline_ptr->alt_dst_ip,
                         alt_source_port,
                         alt_dest_port);
         if(result != 11)
         {
-            result = sscanf(line,   "%16s %d %d src=%s dst=%s "
-                                    "sport=%s dport=%s %s "
-                                    "src=%s dst=%s "
-                                    "sport=%s dport=%s",
+            result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
+                                    "sport=%15s dport=%15s %15s "
+                                    "src=%15s dst=%15s "
+                                    "sport=%15s dport=%15s",
                             tmp,
                             &connline_ptr->protocol,
                             &connline_ptr->ttl,
@@ -698,12 +699,12 @@ parse_udp_line(const int debuglvl, const char *line,
             if(result != 12)
             {
                 (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                return(-1);
             }
         }
-        else
-        {
-            strcpy(connline_ptr->status, "UDP_ESTABLISHED");
-        }
+
+        strlcpy(connline_ptr->status, "UDP_ESTABLISHED",
+                sizeof(connline_ptr->status));
     }
 
     connline_ptr->src_port = atoi(source_port);
@@ -721,12 +722,15 @@ parse_udp_line(const int debuglvl, const char *line,
     connline_ptr->alt_dst_port = atoi(alt_dest_port);
     if(connline_ptr->alt_dst_port <= 0 || connline_ptr->alt_dst_port > 65535)
         connline_ptr->alt_dst_port = 0;
+
+    return(0);
 }
 
 
 //icmp     1 29 src=192.168.0.2 dst=194.109.6.11 type=8 code=0 id=57376 [UNREPLIED] src=194.109.6.11 dst=192.168.0.2 type=0 code=0 id=57376 use=1
 //icmp     1 30 src=192.168.1.2 dst=192.168.1.64 type=8 code=0 id=64811 packets=1 bytes=84 [UNREPLIED] src=192.168.1.64 dst=192.168.1.2 type=0 code=0 id=64811 packets=0 bytes=0 mark=0 use=1
-static void
+//icmp     1 4 src=xx.xx.xx.xx dst=194.109.21.51 type=8 code=0 id=28193 packets=1 bytes=84 src=194.109.21.51 dst=xx.xx.xx.xx type=0 code=0 id=28193 packets=1 bytes=84 mark=0 secmark=0 use=2
+static int
 parse_icmp_line(const int debuglvl, const char *line,
         struct ConntrackLine *connline_ptr)
 {
@@ -737,11 +741,11 @@ parse_icmp_line(const int debuglvl, const char *line,
 
     if(connline_ptr->use_acc == TRUE)
     {
-        result = sscanf(line,   "%16s %d %d src=%s dst=%s "
-                                "type=%s code=%s id=%s "
-                                "packets=%s bytes=%s %s src=%s "
-                                "dst=%s type=%s code=%s id=%s "
-                                "packets=%s bytes=%s",
+        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
+                                "type=%15s code=%15s id=%15s "
+                                "packets=%15s bytes=%15s %15s src=%15s "
+                                "dst=%15s type=%15s code=%15s id=%15s "
+                                "packets=%15s bytes=%15s",
                         tmp,
                         &connline_ptr->protocol,
                         &connline_ptr->ttl,
@@ -762,7 +766,33 @@ parse_icmp_line(const int debuglvl, const char *line,
                         connline_ptr->to_src_bytes_str);
         if(result != 18)
         {
-            (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+            result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
+                    "type=%15s code=%15s id=%15s "
+                    "packets=%15s bytes=%15s src=%15s "
+                    "dst=%15s type=%15s code=%15s id=%15s "
+                    "packets=%15s bytes=%15s",
+                    tmp,
+                    &connline_ptr->protocol,
+                    &connline_ptr->ttl,
+                    connline_ptr->src_ip,
+                    connline_ptr->dst_ip,
+                    source_port,
+                    dest_port,
+                    tmp,
+                    connline_ptr->to_dst_packets_str,
+                    connline_ptr->to_dst_bytes_str,
+                    connline_ptr->alt_src_ip,
+                    connline_ptr->alt_dst_ip,
+                    tmp,
+                    tmp,
+                    tmp,
+                    connline_ptr->to_src_packets_str,
+                    connline_ptr->to_src_bytes_str);
+            if(result != 17)
+            {
+                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                return(-1);
+            }
         }
 
         (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
@@ -773,9 +803,9 @@ parse_icmp_line(const int debuglvl, const char *line,
     }
     else
     {
-        result = sscanf(line,   "%16s %d %d src=%s dst=%s "
-                                "type=%s code=%s id=%s %s "
-                                "src=%s dst=%s",
+        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
+                                "type=%15s code=%15s id=%15s %15s "
+                                "src=%15s dst=%15s",
                         tmp,
                         &connline_ptr->protocol,
                         &connline_ptr->ttl,
@@ -790,6 +820,7 @@ parse_icmp_line(const int debuglvl, const char *line,
         if(result != 11)
         {
             (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+            return(-1);
         }
     }
 
@@ -800,6 +831,8 @@ parse_icmp_line(const int debuglvl, const char *line,
     connline_ptr->dst_port = atoi(dest_port);
     if(connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
         connline_ptr->dst_port = 0;
+
+    return(0);
 }
 
 
@@ -808,7 +841,7 @@ parse_icmp_line(const int debuglvl, const char *line,
     unknown  47 599 src=<ip> dst=<ip> src=<ip> dst=<ip> use=1
         unknown 41 575 src=<ip> dst=<ip> packets=6 bytes=600 [UNREPLIED] src=<ip> dst=<ip> packets=0 bytes=0 mark=0 use=1
 */
-static void
+static int
 parse_unknown_line(const int debuglvl, const char *line,
         struct ConntrackLine *connline_ptr)
 {
@@ -817,9 +850,9 @@ parse_unknown_line(const int debuglvl, const char *line,
 
     if(connline_ptr->use_acc == TRUE)
     {
-        result = sscanf(line,   "%16s %d %d src=%s dst=%s "
-                                "packets=%s bytes=%s src=%s "
-                                "dst=%s packets=%s bytes=%s",
+        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
+                                "packets=%15s bytes=%15s src=%15s "
+                                "dst=%15s packets=%15s bytes=%15s",
                         tmp,
                         &connline_ptr->protocol,
                         &connline_ptr->ttl,
@@ -833,9 +866,9 @@ parse_unknown_line(const int debuglvl, const char *line,
                         connline_ptr->to_src_bytes_str);
         if(result != 11)
         {
-            result = sscanf(line,   "%16s %d %d src=%s dst=%s "
-                                    "packets=%s bytes=%s %s src=%s "
-                                    "dst=%s packets=%s bytes=%s",
+            result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
+                                    "packets=%15s bytes=%15s %15s src=%15s "
+                                    "dst=%15s packets=%15s bytes=%15s",
                             tmp,
                             &connline_ptr->protocol,
                             &connline_ptr->ttl,
@@ -851,6 +884,7 @@ parse_unknown_line(const int debuglvl, const char *line,
             if(result != 12)
             {
                 (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                return(-1);
             }
         }
 
@@ -863,8 +897,8 @@ parse_unknown_line(const int debuglvl, const char *line,
     }
     else
     {
-        result = sscanf(line,   "%16s %d %d src=%s dst=%s "
-                                "src=%s dst=%s",
+        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
+                                "src=%15s dst=%15s",
                         tmp,
                         &connline_ptr->protocol,
                         &connline_ptr->ttl,
@@ -874,8 +908,8 @@ parse_unknown_line(const int debuglvl, const char *line,
                         connline_ptr->alt_dst_ip);
         if(result != 7)
         {
-            result = sscanf(line,   "%16s %d %d src=%s dst=%s %s "
-                                    "src=%s dst=%s",
+            result = sscanf(line,   "%15s %d %d src=%15s dst=%15s %15s "
+                                    "src=%15s dst=%15s",
                             tmp,
                             &connline_ptr->protocol,
                             &connline_ptr->ttl,
@@ -887,13 +921,16 @@ parse_unknown_line(const int debuglvl, const char *line,
             if (result != 8)
             {
                 (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                return(-1);
             }
         }
     }
 
-    strcpy(connline_ptr->status, "none");
+    strlcpy(connline_ptr->status, "none", sizeof(connline_ptr->status));
     connline_ptr->src_port = 0;
     connline_ptr->dst_port = 0;
+
+    return(0);
 }
 
 
@@ -912,22 +949,27 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
 
     /* first determine protocol */
     sscanf(line, "%s", protocol);
+    (void)vrprint.debug(__FUNC__, "protocol %s", protocol);
 
     if(strcmp(protocol, "tcp") == 0)
     {
-        parse_tcp_line(debuglvl, line, connline_ptr);
+        if (parse_tcp_line(debuglvl, line, connline_ptr) < 0)
+            return(0);
     }
     else if(strcmp(protocol, "udp") == 0)
     {
-        parse_udp_line(debuglvl, line, connline_ptr);
+        if (parse_udp_line(debuglvl, line, connline_ptr) < 0)
+            return(0);
     }
     else if(strcmp(protocol, "icmp") == 0)
     {
-        parse_icmp_line(debuglvl, line, connline_ptr);
+        if (parse_icmp_line(debuglvl, line, connline_ptr) < 0)
+            return(0);
     }
     else if(strcmp(protocol, "unknown") == 0)
     {
-        parse_unknown_line(debuglvl, line, connline_ptr);
+        if (parse_unknown_line(debuglvl, line, connline_ptr) < 0)
+            return(0);
     }
     else if(strcmp(protocol, "ipv4") == 0)
     {
@@ -1088,7 +1130,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
         connline_ptr->to_dst_bytes = strtoull(connline_ptr->to_dst_bytes_str, NULL, 10);
     }
 
-    return(0);
+    return(1);
 }
 
 
@@ -1398,12 +1440,15 @@ conn_get_connections(   const int debuglvl,
         memset(&cl, 0, sizeof(cl));
 
         /* parse the line */
-        if(conn_process_one_conntrack_line(debuglvl, line, &cl) < 0)
-        {
+        int r = conn_process_one_conntrack_line(debuglvl, line, &cl);
+        if (r < 0) {
             (void)vrprint.error(-1, "Internal Error",
                     "conn_process_one_conntrack_line() failed "
                     "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
+        } else if (r == 0) {
+            /* invalid line */
+            continue;
         }
 
         /* allocate memory for the data */
