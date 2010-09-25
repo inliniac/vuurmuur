@@ -213,6 +213,9 @@ conn_line_to_data(  const int debuglvl,
                         __FUNC__, __LINE__);
                 return(-1);
             }
+        } else {
+            /* found! */
+            conndata_ptr->sername = conndata_ptr->service->name;
         }
     } else {
         conndata_ptr->sername = conndata_ptr->service->name;
