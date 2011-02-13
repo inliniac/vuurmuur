@@ -741,7 +741,8 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
                                                     gettext("back")};
     int                     cmd_choices_n = 8;
 
-    /* nt = no trafficlog: hide "1-7 hide" options for non-trafficlogs */
+    /* nt = no trafficlog: hide "1-7 hide" and manage options for
+     * non-trafficlogs */
     char                    *nt_key_choices[] =     {   "F12",
                                                         "s",
                                                         "f",
@@ -1553,87 +1554,136 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
                 break;
                 
             case '1': /* one */
-                if(hide_date == 0)
-                    hide_date = 1;
-                else
-                    hide_date = 0;
+                if(traffic_log == 1)
+                {
+                    if(hide_date == 0)
+                        hide_date = 1;
+                    else
+                        hide_date = 0;
 
-                status_print(status_win, "%s: %s.",
-                        STR_THE_DATE_IS_NOW,
-                        hide_date ? gettext("hidden") : gettext("visible"));
-                control.print = 1;
+                    status_print(status_win, "%s: %s.",
+                            STR_THE_DATE_IS_NOW,
+                            hide_date ? gettext("hidden") : gettext("visible"));
+                    control.print = 1;
+                }
+                else
+                {
+                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                }
                 break;
             
             case '2':
-                if(hide_action == 0)
-                    hide_action = 1;
-                else
-                    hide_action = 0;
+                if(traffic_log == 1)
+                {
+                    if(hide_action == 0)
+                        hide_action = 1;
+                    else
+                        hide_action = 0;
 
-                status_print(status_win, "%s: %s.",
-                        STR_THE_ACTION_IS_NOW,
-                        hide_action ? gettext("hidden") : gettext("visible"));
-                control.print = 1;
+                    status_print(status_win, "%s: %s.",
+                            STR_THE_ACTION_IS_NOW,
+                            hide_action ? gettext("hidden") : gettext("visible"));
+                    control.print = 1;
+                }
+                else
+                {
+                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                }
                 break;
 
             case '3':
-                if(hide_service == 0)
-                    hide_service = 1;
-                else
-                    hide_service = 0;
+                if(traffic_log == 1)
+                {
+                    if(hide_service == 0)
+                        hide_service = 1;
+                    else
+                        hide_service = 0;
 
-                status_print(status_win, "%s: %s.",
-                        STR_THE_SERVICE_IS_NOW,
-                        hide_service ? gettext("hidden") : gettext("visible"));
-                control.print = 1;
+                    status_print(status_win, "%s: %s.",
+                            STR_THE_SERVICE_IS_NOW,
+                            hide_service ? gettext("hidden") : gettext("visible"));
+                    control.print = 1;
+                }
+                else
+                {
+                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                }
                 break;
 
             case '4':
-                if(hide_from == 0)
-                    hide_from = 1;
-                else
-                    hide_from = 0;
+                if(traffic_log == 1)
+                {
+                    if(hide_from == 0)
+                        hide_from = 1;
+                    else
+                        hide_from = 0;
 
-                status_print(status_win, "%s: %s.",
-                        STR_THE_SOURCE_IS_NOW,
-                        hide_from ? gettext("hidden") : gettext("visible"));
-                control.print = 1;
+                    status_print(status_win, "%s: %s.",
+                            STR_THE_SOURCE_IS_NOW,
+                            hide_from ? gettext("hidden") : gettext("visible"));
+                    control.print = 1;
+                }
+                else
+                {
+                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                }
                 break;
 
             case '5':
-                if(hide_to == 0)
-                    hide_to = 1;
-                else
-                    hide_to = 0;
+                if(traffic_log == 1)
+                {
+                    if(hide_to == 0)
+                        hide_to = 1;
+                    else
+                        hide_to = 0;
 
-                status_print(status_win, "%s: %s.",
-                        STR_THE_DESTINATION_IS_NOW,
-                        hide_to ? gettext("hidden") : gettext("visible"));
-                control.print = 1;
+                    status_print(status_win, "%s: %s.",
+                            STR_THE_DESTINATION_IS_NOW,
+                            hide_to ? gettext("hidden") : gettext("visible"));
+                    control.print = 1;
+                }
+                else
+                {
+                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                }
                 break;
 
             case '6':
-                if(hide_prefix == 0)
-                    hide_prefix = 1;
-                else
-                    hide_prefix = 0;
+                if(traffic_log == 1)
+                {
+                    if(hide_prefix == 0)
+                        hide_prefix = 1;
+                    else
+                        hide_prefix = 0;
 
-                status_print(status_win, "%s: %s.",
-                        STR_THE_PREFIX_IS_NOW,
-                        hide_prefix ? gettext("hidden") : gettext("visible"));
-                control.print = 1;
+                    status_print(status_win, "%s: %s.",
+                            STR_THE_PREFIX_IS_NOW,
+                            hide_prefix ? gettext("hidden") : gettext("visible"));
+                    control.print = 1;
+                }
+                else
+                {
+                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                }
                 break;
 
             case '7':
-                if(hide_details == 0)
-                    hide_details = 1;
-                else
-                    hide_details = 0;
+                if(traffic_log == 1)
+                {
+                    if(hide_details == 0)
+                        hide_details = 1;
+                    else
+                        hide_details = 0;
 
-                status_print(status_win, "%s: %s.",
-                        STR_THE_DETAILS_ARE_NOW,
-                        hide_details ? gettext("hidden") : gettext("visible"));
-                control.print = 1;
+                    status_print(status_win, "%s: %s.",
+                            STR_THE_DETAILS_ARE_NOW,
+                            hide_details ? gettext("hidden") : gettext("visible"));
+                    control.print = 1;
+                }
+                else
+                {
+                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                }
                 break;
                 
             /* search */
