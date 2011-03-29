@@ -33,6 +33,8 @@ else
 fi
 
 CURPATH=`pwd`
+FULL_SCRIPT=$(readlink -f $0)
+FULL_PATH=$(dirname ${FULL_SCRIPT})
 LOG="$CURPATH/install.log"
 # A temp file, where we store output from some commands
 TMP_LOG=`mktemp ${CURPATH}/vm_tmplog.XXXXXXXX`
@@ -311,6 +313,9 @@ function Autoconf
 function Configure
 {
     touch ${TMP_LOG}
+    if [ ! -f configure ]; then
+        ./autogen.sh
+    fi
     ./configure $* &> ${TMP_LOG}
     RESULT="$?"
     cat ${TMP_LOG} >> $LOG
@@ -662,7 +667,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
 
         # set strict permissions on our backup since it contains sensitive data
         chmod 0700 ${BACKUP_DIR} || \
-            ExitMessage "settings permissions on backup directory failed!"
+            ExitMessage "settings permissions on backup directory ${BACKUP_DIR} failed!"
         PrintL "changed permissions of ${BACKUP_DIR} to 0700."
 
         if [ -d $ETCDIR/vuurmuur ]; then
@@ -736,7 +741,7 @@ fi
 if [ "$FROM_SVN" = "1" ]; then
     # tigerp 20080323 - This should work when the person has a normal svn
     # checkout
-    Cd `dirname $0`
+    Cd ${FULL_PATH}
     Cd ../libvuurmuur
 else
     Cd libvuurmuur-$VERSION
@@ -783,7 +788,7 @@ Cd ..
 
 # build vuurmuur
 if [ "$FROM_SVN" = "1" ]; then
-    Cd `dirname $0`
+    Cd ${FULL_PATH}
     Cd ../vuurmuur
 else
     Cd vuurmuur-$VERSION
@@ -822,7 +827,7 @@ Cd ..
 
 # build vuurmuur_conf
 if [ "$FROM_SVN" = "1" ]; then
-    Cd `dirname $0`
+    Cd ${FULL_PATH}
     Cd ../vuurmuur-conf
 else
     Cd vuurmuur_conf-$VERSION
@@ -900,7 +905,7 @@ if [ "$INSTALL" = "1" ]; then
         chmod 0700 $ETCDIR/vuurmuur/textdir/zones
 
         if [ "$FROM_SVN" = "1" ]; then
-            cp -r --preserve=mode `dirname $0`/zones/* $ETCDIR/vuurmuur/textdir/zones
+            cp -r --preserve=mode ${FULL_PATH}/zones/* $ETCDIR/vuurmuur/textdir/zones
         else
             cp -r --preserve=mode zones/* $ETCDIR/vuurmuur/textdir/zones
         fi
