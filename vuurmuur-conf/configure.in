@@ -14,7 +14,6 @@ AM_PROG_LIBTOOL
 ALL_LINGUAS="nl ru en@boldquot en@quot pt_BR de fr no nb"
 
 AM_GNU_GETTEXT
-AM_GNU_GETTEXT_VERSION(0.16)
 
 AC_ARG_ENABLE(binreloc,
         [  --enable-binreloc        enable binreloc support (for autopackage)],

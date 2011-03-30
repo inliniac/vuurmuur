@@ -8,29 +8,30 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vuurmuur_conf 0.6\n"
 "Report-Msgid-Bugs-To: http://www.vuurmuur.org/\n"
-"POT-Creation-Date: 2009-11-02 18:54+0100\n"
+"POT-Creation-Date: 2011-03-30 18:14+0200\n"
 "PO-Revision-Date: 2005-04-15 15:25+0300\n"
 "Last-Translator: Aleksandr <alshu@tut.by>\n"
 "Language-Team: Russian <ru@li.org>\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=KOI8-R\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
-"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: src/bw_sec.c:87 src/help.c:86 src/help.c:95 src/help.c:123 src/help.c:171
-#: src/help.c:180 src/help.c:207 src/if_sec.c:1199 src/logview_section.c:899
-#: src/logview_section.c:937 src/logview_section.c:978
-#: src/logview_section.c:1085 src/logview_section.c:1144
-#: src/logview_section.c:1198 src/rules_form.c:955 src/rules_form.c:1467
-#: src/rules_form.c:2654 src/rules_form.c:2678 src/rules_form.c:2705
-#: src/rules_form.c:2725 src/rules_form.c:2761 src/rules_form.c:2806
-#: src/rules_form.c:2839 src/rules_form.c:2874 src/rules_form.c:2901
-#: src/rules_form.c:2922 src/rules_form.c:2945 src/rules_form.c:2966
-#: src/rules_form.c:2985 src/rules_form.c:3005 src/rules_form.c:3025
-#: src/rules_form.c:3045 src/rules_form.c:3063 src/rules_form.c:3088
-#: src/rules_form.c:3106 src/rules_form.c:4210 src/rules_form.c:4277
-#: src/rules_form.c:4324 src/rules_form.c:4815 src/services_section.c:662
+#: src/bw_sec.c:85 src/help.c:86 src/help.c:95 src/help.c:123 src/help.c:171
+#: src/help.c:180 src/help.c:207 src/if_sec.c:1577 src/logview_section.c:900
+#: src/logview_section.c:938 src/logview_section.c:979
+#: src/logview_section.c:1086 src/logview_section.c:1145
+#: src/logview_section.c:1199 src/rules_form.c:1231 src/rules_form.c:1743
+#: src/rules_form.c:2930 src/rules_form.c:2954 src/rules_form.c:2981
+#: src/rules_form.c:3001 src/rules_form.c:3037 src/rules_form.c:3082
+#: src/rules_form.c:3115 src/rules_form.c:3150 src/rules_form.c:3177
+#: src/rules_form.c:3198 src/rules_form.c:3221 src/rules_form.c:3242
+#: src/rules_form.c:3261 src/rules_form.c:3281 src/rules_form.c:3301
+#: src/rules_form.c:3321 src/rules_form.c:3339 src/rules_form.c:3364
+#: src/rules_form.c:3382 src/rules_form.c:4486 src/rules_form.c:4553
+#: src/rules_form.c:4600 src/rules_form.c:5091 src/services_section.c:662
 #: src/services_section.c:675 src/services_section.c:772
 #: src/services_section.c:899 src/services_section.c:911
 #: src/services_section.c:1004 src/services_section.c:1368
@@ -46,29 +47,29 @@ msgstr ""
 msgid "malloc failed: %s (in: %s:%d)."
 msgstr "сбой malloc: %s (в: %s:%d)."
 
-#: src/bw_sec.c:232 src/stat_sec.c:230
+#: src/bw_sec.c:229 src/stat_sec.c:230
 #, c-format
 msgid "opening '%s' failed: %s (in: %s:%d)."
 msgstr "ошибка открытия '%s': %s (в: %s:%d)."
 
-#: src/bw_sec.c:355
+#: src/bw_sec.c:352
 #, c-format
 msgid "could not parse month '%s' (in: %s:%d)."
 msgstr "месяц указан неверно '%s' (в: %s:%d)."
 
-#: src/bw_sec.c:413
+#: src/bw_sec.c:410
 #, c-format
 msgid "closing of '%s' failed: %s (in: %s:%d)."
 msgstr "ошибка закрытия '%s': %s (в: %s:%d)."
 
-#: src/bw_sec.c:422
+#: src/bw_sec.c:419
 #, c-format
 msgid "removing '%s' failed (unlink): %s (in: %s:%d)."
 msgstr "ошибка удаления(unlink) '%s': %s (в: %s:%d)."
 
-#: src/bw_sec.c:473 src/if_sec.c:1177 src/rules_form.c:1492
-#: src/rules_form.c:3304 src/rules_form.c:4429 src/rules_form.c:4535
-#: src/rules_form.c:4594 src/rules_form.c:4928 src/services_section.c:401
+#: src/bw_sec.c:470 src/if_sec.c:1555 src/rules_form.c:1768
+#: src/rules_form.c:3580 src/rules_form.c:4705 src/rules_form.c:4811
+#: src/rules_form.c:4870 src/rules_form.c:5204 src/services_section.c:401
 #: src/services_section.c:634 src/services_section.c:639
 #: src/services_section.c:644 src/services_section.c:872
 #: src/services_section.c:878 src/services_section.c:884
@@ -83,16 +84,16 @@ msgstr "ошибка удаления(unlink) '%s': %s (в: %s:%d)."
 msgid "calloc failed: %s (in: %s:%d)."
 msgstr "сбой calloc: %s (в: %s:%d)."
 
-#: src/bw_sec.c:535
+#: src/bw_sec.c:532
 msgid "Traffic Volume Section"
 msgstr "Раздел объем трафика"
 
-#: src/bw_sec.c:538 src/if_sec.c:1278 src/if_sec.c:1289
-#: src/logview_section.c:876 src/logview_section.c:1039
-#: src/logview_section.c:1049 src/logview_section.c:1061
-#: src/logview_section.c:1419 src/mainmenu.c:1132 src/rules_form.c:284
-#: src/rules_form.c:1458 src/rules_form.c:1477 src/rules_form.c:3847
-#: src/rules_form.c:4956 src/services_section.c:2685
+#: src/bw_sec.c:535 src/if_sec.c:1656 src/if_sec.c:1667
+#: src/logview_section.c:877 src/logview_section.c:1040
+#: src/logview_section.c:1050 src/logview_section.c:1062
+#: src/logview_section.c:1420 src/mainmenu.c:1132 src/rules_form.c:560
+#: src/rules_form.c:1734 src/rules_form.c:1753 src/rules_form.c:4123
+#: src/rules_form.c:5232 src/services_section.c:2685
 #: src/services_section.c:2696 src/templates.c:875 src/templates.c:886
 #: src/zones_section.c:284 src/zones_section.c:917 src/zones_section.c:928
 #: src/zones_section.c:1733 src/zones_section.c:1744 src/zones_section.c:2727
@@ -103,60 +104,60 @@ msgstr "Раздел объем трафика"
 msgid "creating window failed."
 msgstr "ошибка создания окна."
 
-#: src/bw_sec.c:544 src/rules_form.c:3853 src/rules_form.c:4962
+#: src/bw_sec.c:541 src/rules_form.c:4129 src/rules_form.c:5238
 #: src/zones_section.c:289 src/filter.c:168
 msgid "creating panel failed."
 msgstr "ошибка создания панели."
 
-#: src/bw_sec.c:566 src/rules_form.c:3860 src/rules_form.c:4969
+#: src/bw_sec.c:563 src/rules_form.c:4136 src/rules_form.c:5245
 #: src/zones_section.c:313
 msgid "creating form failed."
 msgstr "ошибка создания формы."
 
-#: src/bw_sec.c:578
+#: src/bw_sec.c:575
 msgid "posting the form failed."
 msgstr "ошибка отправки панели."
 
-#: src/bw_sec.c:582 src/strings.h:38
+#: src/bw_sec.c:579 src/strings.h:38
 msgid "Interface"
 msgstr "Интерфейс"
 
-#: src/bw_sec.c:583
+#: src/bw_sec.c:580
 msgid "Today"
 msgstr "Сегодня"
 
 #. TRANSLATORS: max 6 chars.
-#: src/bw_sec.c:584 src/bw_sec.c:587 src/bw_sec.c:590 src/bw_sec.c:593
-#: src/bw_sec.c:596 src/stat_sec.c:504
+#: src/bw_sec.c:581 src/bw_sec.c:584 src/bw_sec.c:587 src/bw_sec.c:590
+#: src/bw_sec.c:593 src/stat_sec.c:504
 msgid "In"
 msgstr "Вхд"
 
 #. TRANSLATORS: max 6 chars.
-#: src/bw_sec.c:585 src/bw_sec.c:588 src/bw_sec.c:591 src/bw_sec.c:594
-#: src/bw_sec.c:597 src/stat_sec.c:506
+#: src/bw_sec.c:582 src/bw_sec.c:585 src/bw_sec.c:588 src/bw_sec.c:591
+#: src/bw_sec.c:594 src/stat_sec.c:506
 msgid "Out"
 msgstr "Исх"
 
-#: src/bw_sec.c:586
+#: src/bw_sec.c:583
 msgid "Yesterday"
 msgstr "Вчера"
 
-#: src/bw_sec.c:589
+#: src/bw_sec.c:586
 msgid "7-days"
 msgstr "7-дней"
 
-#: src/bw_sec.c:592
+#: src/bw_sec.c:589
 msgid "This month"
 msgstr "Этот месяц"
 
-#: src/bw_sec.c:595
+#: src/bw_sec.c:592
 msgid "Last month"
 msgstr "Посл. месяц"
 
-#: src/bw_sec.c:741 src/config_section.c:1846 src/config_section.c:2709
-#: src/config_section.c:2856 src/conn_sec.c:681 src/if_sec.c:901
-#: src/if_sec.c:1549 src/logview_section.c:734 src/logview_section.c:752
-#: src/mainmenu.c:1606 src/rules_form.c:1422 src/rules_form.c:3261
+#: src/bw_sec.c:738 src/config_section.c:1846 src/config_section.c:2771
+#: src/config_section.c:2918 src/conn_sec.c:681 src/if_sec.c:1279
+#: src/if_sec.c:1927 src/logview_section.c:734 src/logview_section.c:753
+#: src/mainmenu.c:1606 src/rules_form.c:1698 src/rules_form.c:3537
 #: src/services_section.c:1872 src/services_section.c:2359
 #: src/services_section.c:2756 src/stat_sec.c:781 src/zones_section.c:571
 #: src/zones_section.c:1217 src/zones_section.c:2393 src/zones_section.c:2801
@@ -166,11 +167,11 @@ msgstr "Посл. месяц"
 msgid "help"
 msgstr "помощь"
 
-#: src/bw_sec.c:742 src/config_section.c:1847 src/config_section.c:2711
-#: src/config_section.c:2857 src/conn_sec.c:692 src/help.c:1153
-#: src/if_sec.c:905 src/if_sec.c:1554 src/logview_section.c:741
-#: src/logview_section.c:757 src/mainmenu.c:184 src/rules_form.c:1428
-#: src/rules_form.c:3264 src/services_section.c:1876
+#: src/bw_sec.c:739 src/config_section.c:1847 src/config_section.c:2773
+#: src/config_section.c:2919 src/conn_sec.c:692 src/help.c:1153
+#: src/if_sec.c:1283 src/if_sec.c:1932 src/logview_section.c:741
+#: src/logview_section.c:758 src/mainmenu.c:184 src/rules_form.c:1704
+#: src/rules_form.c:3540 src/services_section.c:1876
 #: src/services_section.c:2361 src/services_section.c:2761 src/stat_sec.c:782
 #: src/zones_section.c:572 src/zones_section.c:1223 src/zones_section.c:2395
 #: src/zones_section.c:2807 src/zones_section.c:4875 src/zones_section.c:5969
@@ -179,21 +180,21 @@ msgstr "помощь"
 msgid "back"
 msgstr "назад"
 
-#: src/bw_sec.c:747 src/zones_section.c:3559
+#: src/bw_sec.c:744 src/zones_section.c:3559
 msgid "no interfaces found. Please define an interface first."
 msgstr "не найдены интерфейсы. Сначала необходимо определить интерфейс."
 
-#: src/bw_sec.c:753
+#: src/bw_sec.c:750
 msgid "please set the location of the iptrafvol.pl command in the Settings."
 msgstr "пожалуйста, укажите местоположение команды iptrafvol.pl в Настройках"
 
-#: src/bw_sec.c:786 src/mainmenu.c:1542
+#: src/bw_sec.c:783 src/mainmenu.c:1542
 msgid "Traffic Volume"
 msgstr "Объем трафика"
 
-#: src/bw_sec.c:876 src/bw_sec.c:877 src/bw_sec.c:908 src/bw_sec.c:909
-#: src/bw_sec.c:940 src/bw_sec.c:941 src/bw_sec.c:972 src/bw_sec.c:973
-#: src/bw_sec.c:1019 src/bw_sec.c:1020 src/stat_sec.c:833 src/stat_sec.c:849
+#: src/bw_sec.c:873 src/bw_sec.c:874 src/bw_sec.c:905 src/bw_sec.c:906
+#: src/bw_sec.c:937 src/bw_sec.c:938 src/bw_sec.c:969 src/bw_sec.c:970
+#: src/bw_sec.c:1016 src/bw_sec.c:1017 src/stat_sec.c:833 src/stat_sec.c:849
 #: src/stat_sec.c:894 src/stat_sec.c:895 src/stat_sec.c:896 src/stat_sec.c:897
 #: src/topmenu.c:82
 #, c-format
@@ -216,8 +217,8 @@ msgid "Connections"
 msgstr "Соединения"
 
 #. TRANSLATORS: max 11 chars.
-#: src/config_section.c:28 src/if_sec.c:1256 src/if_sec.c:1562
-#: src/if_sec.c:1665 src/if_sec.c:1741 src/mainmenu.c:1536 src/stat_sec.c:497
+#: src/config_section.c:28 src/if_sec.c:1634 src/if_sec.c:1940
+#: src/if_sec.c:2043 src/if_sec.c:2119 src/mainmenu.c:1536 src/stat_sec.c:497
 #: src/zones_section.c:3715
 msgid "Interfaces"
 msgstr "Интерфейсы"
@@ -226,7 +227,7 @@ msgstr "Интерфейсы"
 msgid "System Protection"
 msgstr "Защита системы"
 
-#: src/config_section.c:30 src/config_section.c:2540
+#: src/config_section.c:30 src/config_section.c:2601
 msgid "Conntrack"
 msgstr ""
 
@@ -242,7 +243,7 @@ msgstr "Модули"
 msgid "Plugins"
 msgstr "Плагины"
 
-#: src/config_section.c:34 src/config_section.c:2723
+#: src/config_section.c:34 src/config_section.c:2785
 msgid "Capabilities"
 msgstr "Возможности"
 
@@ -271,19 +272,19 @@ msgid "Maximum config and log file and dir permissions (octal):"
 msgstr ""
 
 #: src/config_section.c:325 src/config_section.c:589 src/config_section.c:872
-#: src/config_section.c:1147 src/config_section.c:2397
+#: src/config_section.c:1147 src/config_section.c:2459
 msgid "Saving config failed"
 msgstr "Сохраняю настройки"
 
 #: src/config_section.c:325 src/config_section.c:589 src/config_section.c:872
-#: src/config_section.c:1147 src/config_section.c:2397
+#: src/config_section.c:1147 src/config_section.c:2459
 msgid "Saving the config failed. Sure you want to quit?"
 msgstr "Ошибка сохранения настроек. Вы уверены, что хотите выйти?"
 
 #: src/config_section.c:389 src/config_section.c:653 src/config_section.c:936
 #: src/config_section.c:1211 src/config_section.c:1609
-#: src/config_section.c:1968 src/config_section.c:2462
-#: src/config_section.c:2512 src/sys_sec.c:288
+#: src/config_section.c:1968 src/config_section.c:2524
+#: src/config_section.c:2573 src/sys_sec.c:288
 msgid "writing configfile failed."
 msgstr "ошибка записи конфиг. файла."
 
@@ -399,60 +400,69 @@ msgstr "Отображать статус в главном меню:"
 msgid "iptrafvol.pl location (full path)"
 msgstr "Местоположение iptrafvol.pl (полный путь):"
 
-#: src/config_section.c:2031
+#: src/config_section.c:2033
 msgid "Edit Config: Logging"
 msgstr "Изменение настроек: Ведение журналов"
 
-#: src/config_section.c:2088
+#: src/config_section.c:2098
+msgid "Use NFLOG"
+msgstr ""
+
+#: src/config_section.c:2102
+#, fuzzy
+msgid "Netfilter Group"
+msgstr "Новая группа"
+
+#: src/config_section.c:2104
 msgid "Vuurmuur logfiles location (full path):"
 msgstr "Местоположение журналов Vuurmuur (полный путь):"
 
-#: src/config_section.c:2089
+#: src/config_section.c:2105
 msgid "Loglevel (for use with syslog, requires vuurmuur restart):"
 msgstr "Уровень протоколир-я (исп-ся с syslog, нужен перезапуск Vuurmuur):"
 
-#: src/config_section.c:2090
+#: src/config_section.c:2106
 msgid "Logfile containing IPtables/Netfilter logs:"
 msgstr "Файл, содержащий журналы IPtables/Netfilter:"
 
-#: src/config_section.c:2092
+#: src/config_section.c:2108
 msgid "Log the default policy? (DROP):"
 msgstr "Вести журнал политики по умолчанию? (DROP):"
 
-#: src/config_section.c:2096
+#: src/config_section.c:2112
 msgid "Limit of the number of logs per second (0 for no limit):"
 msgstr "Ограничение числа событий в сек. (0 - без огран-ий):"
 
-#: src/config_section.c:2098
+#: src/config_section.c:2114
 msgid "Log TCP options (for use with PSAD):"
 msgstr "Сохранять в журнале настройки TCP (используется с PSAD):"
 
 #. TRANSLATORS: max 55 chars
-#: src/config_section.c:2103
+#: src/config_section.c:2119
 msgid "Log blocklist violations:"
 msgstr "Вести журнал нарушений списка запрета:"
 
 #. TRANSLATORS: max 55 chars, don't translate 'INVALID'
-#: src/config_section.c:2108
+#: src/config_section.c:2124
 msgid "Log packets with state INVALID:"
 msgstr "Вести журнал пакетов в состоянии INVALID:"
 
 #. TRANSLATORS: max 55 chars
-#: src/config_section.c:2113
+#: src/config_section.c:2129
 msgid "Log new TCP packets with no SYN flag set:"
 msgstr "Вести журнал новых пакетов TCP без флага SYN:"
 
 #. TRANSLATORS: max 55 chars
-#: src/config_section.c:2118
+#: src/config_section.c:2134
 msgid "Log scan probe packets:"
 msgstr "Вести журнал пакетов попыток сканирования:"
 
 #. TRANSLATORS: max 55 chars
-#: src/config_section.c:2123
+#: src/config_section.c:2139
 msgid "Log Fragments:"
 msgstr "Вести журнал фрагментов:"
 
-#: src/config_section.c:2170
+#: src/config_section.c:2186
 msgid ""
 "changing the logdir requires applying changes to get into effect in the "
 "logviewer."
@@ -460,54 +470,59 @@ msgstr ""
 "изменение каталога журналов требует перезапуска Vuurmuur для вступленияв "
 "силу."
 
-#: src/config_section.c:2223
+#: src/config_section.c:2239
+#, fuzzy
+msgid "NF group must be between 0-999."
+msgstr "Предел должен быть между 0-999"
+
+#: src/config_section.c:2279
 msgid "limit must be between 0-999."
 msgstr "Предел должен быть между 0-999"
 
-#: src/config_section.c:2546
+#: src/config_section.c:2607
 msgid "Enable dropping INVALID packets"
 msgstr ""
 
-#: src/config_section.c:2615
+#: src/config_section.c:2676
 msgid "View Capabilities"
 msgstr "Просмотр возможностей"
 
-#: src/config_section.c:2638 src/config_section.c:2666
-#: src/config_section.c:2682
+#: src/config_section.c:2699 src/config_section.c:2728
+#: src/config_section.c:2744
 msgid "Could not check."
 msgstr "Не смог проверить."
 
-#: src/config_section.c:2710
+#: src/config_section.c:2772
 msgid "probe"
 msgstr ""
 
-#: src/config_section.c:2729 src/config_section.c:2776
+#: src/config_section.c:2791 src/config_section.c:2838
 msgid "checking capabilities failed."
 msgstr "ошибка проверки возможностей."
 
-#: src/config_section.c:2771
+#: src/config_section.c:2833
 #, fuzzy
 msgid "Probe Capabilities"
 msgstr "Возможности"
 
-#: src/config_section.c:2771
+#: src/config_section.c:2833
 msgid "Try to determine capabities? Warning: this may load iptables modules!"
 msgstr ""
 
-#: src/config_section.c:2834 src/config_section.c:2978 src/mainmenu.c:196
+#: src/config_section.c:2896 src/config_section.c:3040 src/mainmenu.c:196
 #: src/mainmenu.c:315
 msgid "Back"
 msgstr "Выход"
 
-#: src/config_section.c:2881
+#: src/config_section.c:2943
 msgid "Configuration Menu"
 msgstr "Меню настроек"
 
-#: src/config_section.c:2897
+#: src/config_section.c:2959
 msgid "Select a section."
 msgstr "Выберите раздел."
 
-#: src/config_section.c:2899 src/mainmenu.c:1538
+#: src/config_section.c:2961 src/mainmenu.c:1538
 msgid "Vuurmuur Config"
 msgstr "Настройки Vuurmuur"
 
@@ -565,8 +580,8 @@ msgstr "группа"
 msgid "unknown ip"
 msgstr "неизв. IP"
 
-#: src/conn_sec.c:689 src/logview_section.c:737 src/logview_section.c:754
-#: src/rules_form.c:1427
+#: src/conn_sec.c:689 src/logview_section.c:737 src/logview_section.c:755
+#: src/rules_form.c:1703
 msgid "filter"
 msgstr "фильтр"
 
@@ -631,12 +646,12 @@ msgstr "Входящих соединений"
 msgid "Outgoing Connections"
 msgstr "Исходящих соединений"
 
-#: src/conn_sec.c:1099 src/logview_section.c:1394
+#: src/conn_sec.c:1099 src/logview_section.c:1395
 #, c-format
 msgid "Active filter: '%s' (press 'enter' to clear)."
 msgstr "Активный фильтр: '%s' (нажмите <Enter> для очистки)."
 
-#: src/conn_sec.c:1104 src/logview_section.c:1399 src/rules_form.c:2132
+#: src/conn_sec.c:1104 src/logview_section.c:1400 src/rules_form.c:2408
 msgid "Filter removed."
 msgstr "Фильтр удален."
 
@@ -715,62 +730,87 @@ msgstr "Проблем в текущих настройках не обнаружено.\n"
 msgid "Status"
 msgstr "Статус"
 
-#: src/help.c:1213 src/help.c:1215 src/mainmenu.c:1545
+#: src/help.c:1219 src/help.c:1221 src/mainmenu.c:1545
 msgid "About"
 msgstr "О программе"
 
-#: src/if_sec.c:254
+#: src/if_sec.c:128 src/strings.h:79
+msgid "Tcpmss"
+msgstr ""
+
+#: src/if_sec.c:134
+#, fuzzy
+msgid "Enable TCP MSS clamping"
+msgstr "Вкл. шейпинг"
+
+#: src/if_sec.c:354 src/rules_form.c:210 src/strings.h:78
+msgid "Shaping"
+msgstr "Шейпинг"
+
+#: src/if_sec.c:360
+msgid "Enable shaping"
+msgstr "Вкл. шейпинг"
+
+#: src/if_sec.c:362 src/strings.h:74
+msgid "Incoming bandwidth"
+msgstr "Ширина вход.канала"
+
+#: src/if_sec.c:365 src/strings.h:75
+msgid "Outgoing bandwidth"
+msgstr "Ширина исход.канала"
+
+#: src/if_sec.c:632
 msgid "Protection"
 msgstr "Защита"
 
-#: src/if_sec.c:336 src/rules_form.c:3537 src/services_section.c:2212
+#: src/if_sec.c:714 src/rules_form.c:3813 src/services_section.c:2212
 #: src/zones_section.c:255 src/zones_section.c:2161 src/zones_section.c:4558
 #: src/zones_section.c:5770
 msgid "Comment"
 msgstr "Описание"
 
-#: src/if_sec.c:345 src/services_section.c:2221 src/zones_section.c:267
+#: src/if_sec.c:723 src/services_section.c:2221 src/zones_section.c:267
 #: src/zones_section.c:2173 src/zones_section.c:4580
 msgid "error while loading the comment."
 msgstr "ошибка загрузки описания."
 
 #. TRANSLATORS: max 18 chars
-#: src/if_sec.c:359
+#: src/if_sec.c:737
 msgid "Is interface up?"
 msgstr "Интерф. включен?"
 
-#: src/if_sec.c:374 src/if_sec.c:938
+#: src/if_sec.c:752 src/if_sec.c:1316
 msgid "Edit Interface"
 msgstr "Изменение интерфейса"
 
-#: src/if_sec.c:437 src/services_section.c:2266 src/zones_section.c:322
+#: src/if_sec.c:815 src/services_section.c:2266 src/zones_section.c:322
 #: src/zones_section.c:2227 src/zones_section.c:4625 src/zones_section.c:5823
 msgid "Name"
 msgstr "Имя"
 
-#: src/if_sec.c:902 src/rules_form.c:3262
+#: src/if_sec.c:1280 src/rules_form.c:3538
 msgid "advanced"
 msgstr "расширенный"
 
-#: src/if_sec.c:903 src/rules_form.c:3263
+#: src/if_sec.c:1281 src/rules_form.c:3539
 msgid "shaping"
 msgstr "шейпинг"
 
-#: src/if_sec.c:904
+#: src/if_sec.c:1282
 msgid "tcpmss"
 msgstr ""
 
-#: src/if_sec.c:1113
+#: src/if_sec.c:1491
 msgid "shaping is not supported on a virtual interface."
 msgstr "шейпинг не поддерживается на виртуальном интерфейсе."
 
-#: src/if_sec.c:1121
+#: src/if_sec.c:1499
 #, fuzzy
 msgid "tcpmss is not supported on a virtual interface."
 msgstr "шейпинг не поддерживается на виртуальном интерфейсе."
 
 #. TRANSLATORS: max 4 chars
-#: src/if_sec.c:1284 src/if_sec.c:1295 src/rules_form.c:1483
+#: src/if_sec.c:1662 src/if_sec.c:1673 src/rules_form.c:1759
 #: src/services_section.c:2691 src/services_section.c:2702 src/templates.c:881
 #: src/templates.c:892 src/zones_section.c:923 src/zones_section.c:934
 #: src/zones_section.c:1739 src/zones_section.c:1750 src/zones_section.c:2733
@@ -780,7 +820,7 @@ msgstr "шейпинг не поддерживается на виртуальном интерфейсе."
 msgid "more"
 msgstr "еще"
 
-#: src/if_sec.c:1405 src/services_section.c:2056 src/services_section.c:2085
+#: src/if_sec.c:1783 src/services_section.c:2056 src/services_section.c:2085
 #: src/services_section.c:2107 src/services_section.c:2123
 #: src/zones_section.c:394 src/zones_section.c:437 src/zones_section.c:502
 #: src/zones_section.c:519 src/zones_section.c:2307 src/zones_section.c:2321
@@ -792,54 +832,54 @@ msgstr "еще"
 msgid "saving to backend failed (in: %s:%d)."
 msgstr "ошибка сохранения в хранилище (в: %s:%d)."
 
-#: src/if_sec.c:1474 src/rules_form.c:2217 src/services_section.c:2608
+#: src/if_sec.c:1852 src/rules_form.c:2493 src/services_section.c:2608
 #: src/zones_section.c:1089 src/zones_section.c:3524
 msgid "saving rules failed."
 msgstr "ошибка сохранения правил."
 
-#: src/if_sec.c:1550 src/rules_form.c:1423 src/services_section.c:1873
+#: src/if_sec.c:1928 src/rules_form.c:1699 src/services_section.c:1873
 #: src/services_section.c:2757 src/zones_section.c:1218
 #: src/zones_section.c:2802 src/zones_section.c:6300 src/zones_section.c:6886
 #: src/strings.h:163
 msgid "new"
 msgstr "новый"
 
-#: src/if_sec.c:1551 src/rules_form.c:1424 src/services_section.c:1875
+#: src/if_sec.c:1929 src/rules_form.c:1700 src/services_section.c:1875
 #: src/services_section.c:2758 src/zones_section.c:1219
 #: src/zones_section.c:2803 src/zones_section.c:6301 src/zones_section.c:6887
 msgid "del"
 msgstr "удалить"
 
-#: src/if_sec.c:1552 src/services_section.c:2759 src/zones_section.c:1220
+#: src/if_sec.c:1930 src/services_section.c:2759 src/zones_section.c:1220
 #: src/zones_section.c:2804 src/zones_section.c:6302 src/strings.h:166
 msgid "rename"
 msgstr "переименовать"
 
-#: src/if_sec.c:1553 src/rules_form.c:1425 src/services_section.c:1874
+#: src/if_sec.c:1931 src/rules_form.c:1701 src/services_section.c:1874
 #: src/services_section.c:2760 src/zones_section.c:1222
 #: src/zones_section.c:2806 src/zones_section.c:6304 src/strings.h:165
 msgid "edit"
 msgstr "изменить"
 
-#: src/if_sec.c:1624
+#: src/if_sec.c:2002
 msgid "Rename Interface"
 msgstr "Переименование интерфейса"
 
-#: src/if_sec.c:1653
+#: src/if_sec.c:2031
 msgid "New Interface"
 msgstr "Новый интерфейс"
 
-#: src/if_sec.c:1671
+#: src/if_sec.c:2049
 msgid "creating new interface failed."
 msgstr "ошибка создания интерфейса."
 
-#: src/if_sec.c:1689 src/services_section.c:2904 src/zones_section.c:1449
+#: src/if_sec.c:2067 src/services_section.c:2908 src/zones_section.c:1449
 #: src/zones_section.c:3017 src/zones_section.c:5532 src/zones_section.c:6432
 msgid "Delete"
 msgstr "Удаление"
 
-#: src/if_sec.c:1689 src/rules_form.c:2288 src/services_section.c:1573
-#: src/services_section.c:2904 src/statevent.c:610 src/statevent.c:625
+#: src/if_sec.c:2067 src/rules_form.c:2564 src/services_section.c:1573
+#: src/services_section.c:2908 src/statevent.c:610 src/statevent.c:625
 #: src/statevent.c:640 src/statevent.c:653 src/statevent.c:666
 #: src/statevent.c:680 src/statevent.c:690 src/statevent.c:698
 #: src/statevent.c:706 src/statevent.c:905 src/statevent.c:921
@@ -848,7 +888,7 @@ msgstr "Удаление"
 msgid "Are you sure?"
 msgstr "Вы уверены?"
 
-#: src/if_sec.c:1696
+#: src/if_sec.c:2074
 #, c-format
 msgid "deleting interface %s failed."
 msgstr "ошибка удаления интерфейса %s."
@@ -905,15 +945,15 @@ msgstr ""
 "открытие файла '%s': В целях безопасности Vuurmuur не дает открывать файлы,"
 "которые не принадлежат root'у."
 
-#: src/logview_section.c:736 src/logview_section.c:753
+#: src/logview_section.c:736 src/logview_section.c:754
 msgid "search"
 msgstr "поиск"
 
-#: src/logview_section.c:738 src/logview_section.c:755
+#: src/logview_section.c:738 src/logview_section.c:756
 msgid "pause"
 msgstr "пауза"
 
-#: src/logview_section.c:739 src/logview_section.c:756
+#: src/logview_section.c:739 src/logview_section.c:757
 msgid "clear"
 msgstr "очистить"
 
@@ -921,156 +961,156 @@ msgstr "очистить"
 msgid "hide"
 msgstr "спрятать"
 
-#: src/logview_section.c:828
+#: src/logview_section.c:829
 #, c-format
 msgid "opening logfile '%s' failed: %s."
 msgstr "ошибка открытия файла журнала '%s': %s."
 
-#: src/logview_section.c:852
+#: src/logview_section.c:853
 #, c-format
 msgid "could not examine the logfile: %s."
 msgstr "не могу разобрать журнал: %s."
 
-#: src/logview_section.c:865
+#: src/logview_section.c:866
 #, c-format
 msgid "fseek failed: %s."
 msgstr "сбой fseek: %s."
 
-#: src/logview_section.c:869
+#: src/logview_section.c:870
 #, c-format
 msgid "Loading loglines into memory (trying to load %u lines)..."
 msgstr "Загрузка строк журнала в память (пытаюсь загрузить %u строк)..."
 
-#: src/logview_section.c:873 src/logview_section.c:1417 src/mainmenu.c:1130
+#: src/logview_section.c:874 src/logview_section.c:1418 src/mainmenu.c:1130
 msgid "One moment please..."
 msgstr "Пожалуйста, ждите..."
 
-#: src/logview_section.c:883 src/logview_section.c:885
-#: src/logview_section.c:1757 src/mainmenu.c:233 src/mainmenu.c:251
+#: src/logview_section.c:884 src/logview_section.c:886
+#: src/logview_section.c:1807 src/mainmenu.c:233 src/mainmenu.c:251
 #: src/mainmenu.c:319 src/mainmenu.c:1539
 msgid "Logview"
 msgstr "Просмотр журнала"
 
-#: src/logview_section.c:887
+#: src/logview_section.c:888
 msgid "Loading log ..."
 msgstr "Загрузка журнала..."
 
-#: src/logview_section.c:1028
+#: src/logview_section.c:1029
 #, c-format
 msgid "Loading loglines into memory... loaded %d lines."
 msgstr "Загрузка строк журнала в память... загружено %d строк."
 
-#: src/logview_section.c:1069
+#: src/logview_section.c:1070
 msgid "Logview starting.\n"
 msgstr "Запуск просмотра журнала.\n"
 
-#: src/logview_section.c:1289
+#: src/logview_section.c:1290
 #, c-format
 msgid "closing search pipe failed: %s."
 msgstr "ошибка закрытия канала поиска: %s."
 
-#: src/logview_section.c:1301
+#: src/logview_section.c:1302
 msgid "Search canceled. Press SPACE to return to normal logging."
 msgstr "Поиск прерван. Нажмите <ПРОБЕЛ> для возврата к просмотру журнала."
 
-#: src/logview_section.c:1306
+#: src/logview_section.c:1307
 msgid "Search ERROR. Press SPACE to return to normal logging."
 msgstr "Ошибка поиска. Нажмите <ПРОБЕЛ> для возврата к просмотру журнала."
 
-#: src/logview_section.c:1316
+#: src/logview_section.c:1317
 #, c-format
 msgid "Search done: %lu matches. Press SPACE to return to normal logging."
 msgstr ""
 "Поиск завершен: %lu совпадений. Нажмите <ПРОБЕЛ> для возврата к просмотру "
 "журнала."
 
-#: src/logview_section.c:1424
+#: src/logview_section.c:1425
 msgid "Applying changed filter..."
 msgstr "Установка измененного фильтра..."
 
-#: src/logview_section.c:1499
+#: src/logview_section.c:1500
 msgid "Search in progress. Press 'S' to stop current search."
 msgstr "Идет поиск. Нажмите 'S' для остановки."
 
-#: src/logview_section.c:1504 src/logview_section.c:1649
+#: src/logview_section.c:1505 src/logview_section.c:1699
 msgid "Please first close the current search by pressing SPACE."
 msgstr "Пожалуйста, закройте сначала текущий поиск нажав <ПРОБЕЛ>."
 
-#: src/logview_section.c:1536
+#: src/logview_section.c:1537
 msgid "Continue viewing the log."
 msgstr "Продолжение просмотра журнала."
 
-#: src/logview_section.c:1538
+#: src/logview_section.c:1539
 msgid "Continue searching."
 msgstr "Продолжение поиска."
 
-#: src/logview_section.c:1550
+#: src/logview_section.c:1551
 msgid "*** PAUSED *** (press 'p' to continue)"
 msgstr "*** ПРИОСТАНОВЛЕНО *** (нажмите 'p' для продолжения)"
 
-#: src/logview_section.c:1563 src/logview_section.c:1575
-#: src/logview_section.c:1587 src/logview_section.c:1599
-#: src/logview_section.c:1611 src/logview_section.c:1623
-#: src/logview_section.c:1635
+#: src/logview_section.c:1566 src/logview_section.c:1585
+#: src/logview_section.c:1604 src/logview_section.c:1623
+#: src/logview_section.c:1642 src/logview_section.c:1661
+#: src/logview_section.c:1680
 msgid "hidden"
 msgstr "спрятан"
 
-#: src/logview_section.c:1563 src/logview_section.c:1575
-#: src/logview_section.c:1587 src/logview_section.c:1599
-#: src/logview_section.c:1611 src/logview_section.c:1623
-#: src/logview_section.c:1635
+#: src/logview_section.c:1566 src/logview_section.c:1585
+#: src/logview_section.c:1604 src/logview_section.c:1623
+#: src/logview_section.c:1642 src/logview_section.c:1661
+#: src/logview_section.c:1680
 msgid "visible"
 msgstr "видим"
 
-#: src/logview_section.c:1644
+#: src/logview_section.c:1694
 msgid "Already searching. Press 'S' to stop current search."
 msgstr "Поиск уже идет. Нажмите 'S' для остановки."
 
-#: src/logview_section.c:1674
+#: src/logview_section.c:1724
 msgid "Search"
 msgstr "Поиск"
 
-#: src/logview_section.c:1674
+#: src/logview_section.c:1724
 msgid "What do you want to search for?"
 msgstr "Что Вы хотите найти?"
 
-#: src/logview_section.c:1699
+#: src/logview_section.c:1749
 #, c-format
 msgid "opening pipe failed: %s."
 msgstr "ошибка открытия канала: %s."
 
-#: src/logview_section.c:1709
+#: src/logview_section.c:1759
 msgid "Search started. Press 'S' to stop searching."
 msgstr "Поиск начат. Нажмите 'S' для остановки."
 
-#: src/logview_section.c:1721
+#: src/logview_section.c:1771
 msgid "search script was not ok, search is disabled."
 msgstr "ошибка сценария поиска, поиск отключен."
 
-#: src/logview_section.c:1733
+#: src/logview_section.c:1783
 msgid "No search in progress."
 msgstr "Поиск не выполняется."
 
-#: src/logview_section.c:1891
+#: src/logview_section.c:1941
 #, c-format
 msgid "Search in progress: %lu matches so far. SPACE to pause, 'S' to stop."
 msgstr "Идет поиск: %lu совпадений найдено. <ПРОБЕЛ> - пауза, <S> - отмена."
 
-#: src/logview_section.c:1893
+#: src/logview_section.c:1943
 #, c-format
 msgid "Search PAUSED: %lu matches so far. SPACE to continue, 'S' to stop."
 msgstr ""
 "Поиск ПРИОСТАНОВЛЕН: %lu совпадений найдено. <ПРОБЕЛ> - продолжение, <S> - "
 "отмена."
 
-#: src/logview_section.c:1985
+#: src/logview_section.c:2035
 #, c-format
 msgid "closing logfile failed: %s."
 msgstr "ошибка закрытия файла журнала: %s."
 
-#: src/logview_section.c:2005 src/mainmenu.c:1784 src/mainmenu.c:1810
-#: src/rules_form.c:1614 src/rules_form.c:2017 src/rules_form.c:2048
-#: src/rules_form.c:4761 src/rules_form.c:5049 src/services_section.c:572
+#: src/logview_section.c:2055 src/mainmenu.c:1784 src/mainmenu.c:1810
+#: src/rules_form.c:1890 src/rules_form.c:2293 src/rules_form.c:2324
+#: src/rules_form.c:5037 src/rules_form.c:5325 src/services_section.c:572
 #: src/services_section.c:1276 src/zones_section.c:753
 #: src/zones_section.c:1611 src/zones_section.c:2088 src/zones_section.c:2561
 #: src/zones_section.c:3147 src/zones_section.c:5073 src/zones_section.c:5712
@@ -1406,8 +1446,8 @@ msgstr "Общий статус не в норме. Применить все-равно?"
 msgid "will not apply changes if the overall status is 'fail'."
 msgstr "Изменения не будут применены, так как общий статус не в норме."
 
-#: src/mainmenu.c:1533 src/rules_form.c:1608 src/rules_form.c:1873
-#: src/rules_form.c:1982
+#: src/mainmenu.c:1533 src/rules_form.c:1884 src/rules_form.c:2149
+#: src/rules_form.c:2258
 msgid "Rules"
 msgstr "Правила"
 
@@ -1421,7 +1461,7 @@ msgid "Zones"
 msgstr "Зоны"
 
 #: src/mainmenu.c:1537 src/services_section.c:2664 src/services_section.c:2781
-#: src/services_section.c:2885 src/services_section.c:2958
+#: src/services_section.c:2885 src/services_section.c:2962
 msgid "Services"
 msgstr "Службы"
 
@@ -1525,379 +1565,399 @@ msgstr "Символ двойных кавычек \" недопустим в описании."
 msgid "the percent sign is not allowed in the commentfield."
 msgstr "Символ процента недопустим в описании."
 
-#: src/rules_form.c:212
+#: src/rules_form.c:216
+msgid "Incoming guaranteed rate"
+msgstr "Гарант. вход. скорость"
+
+#: src/rules_form.c:219
+msgid "Incoming maximum rate"
+msgstr "Макс. вход. скорость"
+
+#: src/rules_form.c:223
+msgid "Outgoing guaranteed rate"
+msgstr "Гарант. исход. скорость"
+
+#: src/rules_form.c:226
+msgid "Outgoing maximum rate"
+msgstr "Макс. исход. скорость"
+
+#: src/rules_form.c:230
+msgid "Priority"
+msgstr "Приоритет"
+
+#: src/rules_form.c:488
 msgid "Moving rule..."
 msgstr "Перемещаю правило..."
 
-#: src/rules_form.c:282
+#: src/rules_form.c:558
 msgid "Move Rule"
 msgstr "Переместить правило"
 
-#: src/rules_form.c:308
+#: src/rules_form.c:584
 msgid "Enter the new rule number:"
 msgstr "Введите нов.номер правила:"
 
-#: src/rules_form.c:309
+#: src/rules_form.c:585
 #, c-format
 msgid "Cur: %d, Min: 1, Max: %d"
 msgstr "Текущ.: %d, Мин.: 1, Макс.: %d"
 
-#: src/rules_form.c:1426
+#: src/rules_form.c:1702
 msgid "move"
 msgstr "переместить"
 
-#: src/rules_form.c:1456
+#: src/rules_form.c:1732
 msgid "Rules Section"
 msgstr "Список правил"
 
 #. TRANSLATORS: max 3 chars
-#: src/rules_form.c:1597
+#: src/rules_form.c:1873
 msgid "Nr."
 msgstr "No"
 
-#: src/rules_form.c:1598 src/rules_form.c:3314 src/rules_form.c:4240
+#: src/rules_form.c:1874 src/rules_form.c:3590 src/rules_form.c:4516
 msgid "Action"
 msgstr "Действие"
 
-#: src/rules_form.c:1599 src/rules_form.c:3418 src/strings.h:40
+#: src/rules_form.c:1875 src/rules_form.c:3694 src/strings.h:40
 msgid "Service"
 msgstr "Служба"
 
-#: src/rules_form.c:1600 src/services_section.c:451
+#: src/rules_form.c:1876 src/services_section.c:451
 msgid "Source"
 msgstr "Источник"
 
-#: src/rules_form.c:1601 src/services_section.c:457
+#: src/rules_form.c:1877 src/services_section.c:457
 msgid "Destination"
 msgstr "Адресат"
 
-#: src/rules_form.c:1602
+#: src/rules_form.c:1878
 msgid "Options"
 msgstr "Настройки"
 
-#: src/rules_form.c:1886
+#: src/rules_form.c:2162
 msgid "Delete rule cancelled."
 msgstr "Удаление правила прервано."
 
-#: src/rules_form.c:1889
+#: src/rules_form.c:2165
 #, c-format
 msgid "rule %d removed."
 msgstr "правило %d удалено."
 
-#: src/rules_form.c:2094
+#: src/rules_form.c:2370
 msgid "Set the filter"
 msgstr "Установить фильтр"
 
-#: src/rules_form.c:2094 src/filter.c:205
+#: src/rules_form.c:2370 src/filter.c:205
 msgid "Enter filter (leave empty for no filter)"
 msgstr "Введите фильтр (оставьте пустым без фильтра)"
 
-#: src/rules_form.c:2116
+#: src/rules_form.c:2392
 #, c-format
 msgid "Active filter: '%s' (press 'f' and then just 'enter' to clear)."
 msgstr "Активный фильтр: '%s' (нажмите <f> и затем только <Enter> для отмены)."
 
-#: src/rules_form.c:2162
+#: src/rules_form.c:2438
 msgid "Showing only forward rules."
 msgstr "Видны только правила пересылки."
 
-#: src/rules_form.c:2163 src/rules_form.c:2181 src/rules_form.c:2199
+#: src/rules_form.c:2439 src/rules_form.c:2457 src/rules_form.c:2475
 msgid "Showing all rules."
 msgstr "Видны все правила."
 
-#: src/rules_form.c:2180
+#: src/rules_form.c:2456
 msgid "Showing only input rules."
 msgstr "Видны только вход. правила."
 
-#: src/rules_form.c:2198
+#: src/rules_form.c:2474
 msgid "Showing only output rules."
 msgstr "Видны только исход. правила."
 
-#: src/rules_form.c:2288
+#: src/rules_form.c:2564
 msgid "Delete rule"
 msgstr "Удалить правило"
 
-#: src/rules_form.c:2416
+#: src/rules_form.c:2692
 msgid "new rule inserted."
 msgstr "новое правило добавлено."
 
 #. TRANSLATORS: don't translate 'redirectport'.
-#: src/rules_form.c:2692
+#: src/rules_form.c:2968
 msgid "redirectport must be 1-65535."
 msgstr "redirectport должен быть 1-65535."
 
 #. TRANSLATORS: don't translate 'loglimit'.
-#: src/rules_form.c:2888
+#: src/rules_form.c:3164
 msgid "loglimit must be 0-999."
 msgstr "loglimit должен быть 0-999."
 
-#: src/rules_form.c:3076
+#: src/rules_form.c:3352
 msgid "new connection limit must be 0-9999."
 msgstr "новый предел соединений должен быть 0-999."
 
-#: src/rules_form.c:3119
+#: src/rules_form.c:3395
 msgid "new connection limit burst must be 1-9999."
 msgstr "новый предел заброса соединений должен быть 1-9999."
 
 #. TRANSLATORS: max 7 chars
-#: src/rules_form.c:3330
+#: src/rules_form.c:3606
 msgid "Random"
 msgstr ""
 
-#: src/rules_form.c:3362
+#: src/rules_form.c:3638
 msgid "Queue"
 msgstr "Очередь"
 
-#: src/rules_form.c:3393
+#: src/rules_form.c:3669
 msgid "Queue number"
 msgstr "Номер очереди"
 
 #. TRANSLATORS: max 7 chars
-#: src/rules_form.c:3435
+#: src/rules_form.c:3711
 msgid "Mark"
 msgstr "Метка"
 
-#: src/rules_form.c:3460
+#: src/rules_form.c:3736
 msgid "From"
 msgstr "Из"
 
-#: src/rules_form.c:3476
+#: src/rules_form.c:3752
 msgid "Listen Interface"
 msgstr "Слушаемый интерфейс"
 
-#: src/rules_form.c:3498
+#: src/rules_form.c:3774
 msgid "To"
 msgstr "В"
 
-#: src/rules_form.c:3514
+#: src/rules_form.c:3790
 msgid "Outgoing Interface"
 msgstr "Исход. интерфейс"
 
-#: src/rules_form.c:3555
+#: src/rules_form.c:3831
 msgid "Log"
 msgstr "Журнал"
 
-#: src/rules_form.c:3583
+#: src/rules_form.c:3859
 msgid "Prefix"
 msgstr "Префикс"
 
-#: src/rules_form.c:3600
+#: src/rules_form.c:3876
 msgid "Limit"
 msgstr "Предел"
 
-#: src/rules_form.c:3624
+#: src/rules_form.c:3900
 msgid "Rule Limit"
 msgstr "Предел правила"
 
-#: src/rules_form.c:3674
+#: src/rules_form.c:3950
 msgid "Burst"
 msgstr "Заброс"
 
-#: src/rules_form.c:3701
+#: src/rules_form.c:3977
 msgid "Chain"
 msgstr "Цепочка"
 
-#: src/rules_form.c:3723
+#: src/rules_form.c:3999
 msgid "Via"
 msgstr "Через"
 
-#: src/rules_form.c:3745 src/rules_form.c:4364
+#: src/rules_form.c:4021 src/rules_form.c:4640
 msgid "Reject type"
 msgstr "Тип отказа"
 
-#: src/rules_form.c:3768
+#: src/rules_form.c:4044
 msgid "Redirect port"
 msgstr "Порт перенапр."
 
-#: src/rules_form.c:3793
+#: src/rules_form.c:4069
 msgid "Listen port"
 msgstr "Слушаем.порт"
 
-#: src/rules_form.c:3817
+#: src/rules_form.c:4093
 msgid "Remote port"
 msgstr "Удален. порт"
 
-#: src/rules_form.c:3844
+#: src/rules_form.c:4120
 #, c-format
 msgid "Edit Rule: %d"
 msgstr "Изменение правила: %d"
 
-#: src/rules_form.c:3868
+#: src/rules_form.c:4144
 msgid "Edit Rule"
 msgstr "Изменение правила"
 
-#: src/rules_form.c:4127
+#: src/rules_form.c:4403
 msgid "Press SPACE to select an action."
 msgstr "Нажмите <ПРОБЕЛ> для выбора действия."
 
-#: src/rules_form.c:4129
+#: src/rules_form.c:4405
 msgid "Press SPACE to select a service."
 msgstr "Нажмите <ПРОБЕЛ> для выбора службы."
 
-#: src/rules_form.c:4131
+#: src/rules_form.c:4407
 msgid "Press SPACE to select a host, group or network, or the firewall."
 msgstr "Нажмите <ПРОБЕЛ> для выбора хоста, группы, сети или файервола."
 
-#: src/rules_form.c:4133
+#: src/rules_form.c:4409
 msgid "Enter a text to be included in the log message."
 msgstr "Введите текст, который будет включен в сообщение журнала."
 
-#: src/rules_form.c:4135
+#: src/rules_form.c:4411
 msgid "Press SPACE to select a reject type."
 msgstr "Нажмите <ПРОБЕЛ> для выбора типа отказа."
 
-#: src/rules_form.c:4137
+#: src/rules_form.c:4413
 msgid "Enter a portnumber to redirect to."
 msgstr "Введите номер порта для перенаправления."
 
-#: src/rules_form.c:4139
+#: src/rules_form.c:4415
 msgid "Enter a comma-sepparated list of ports for the firewall to listen on."
 msgstr ""
 "Введите разделенный запятыми список портов, которые файервол будет слушать."
 
-#: src/rules_form.c:4141
+#: src/rules_form.c:4417
 msgid "Enter a comma-sepparated list of ports for the firewall to forward to."
 msgstr ""
 "Введите разделенный запятыми список портов, на которые файервол будет "
 "переправлять."
 
-#: src/rules_form.c:4143 src/zones_section.c:726
+#: src/rules_form.c:4419 src/zones_section.c:726
 msgid "Enter a optional comment."
 msgstr "Введите необязательное описание."
 
-#: src/rules_form.c:4145
+#: src/rules_form.c:4421
 msgid "Maximum number of loglines per second (to prevent DoS), 0 for no limit."
 msgstr ""
 "Макс. число журнал-х событий в сек. (для предотвр. DoS-атак), 0 без огран-я."
 
-#: src/rules_form.c:4147
+#: src/rules_form.c:4423
 msgid "Press SPACE to toggle logging of this rule."
 msgstr "Нажмите <ПРОБЕЛ> для изменения ведения журнала этого правила."
 
-#: src/rules_form.c:4149
+#: src/rules_form.c:4425
 msgid "Queue number to use. Possible values: 0-65535."
 msgstr "Исп. номер очереди. Возможные значения: 0-65535."
 
-#: src/rules_form.c:4151
+#: src/rules_form.c:4427
 msgid "Press SPACE to toggle queue'ing of this rule."
 msgstr "Нажмите <ПРОБЕЛ> для изменения постановки этого правила в очередь."
 
-#: src/rules_form.c:4153 src/rules_form.c:4155
+#: src/rules_form.c:4429 src/rules_form.c:4431
 msgid "Press SPACE to select an interface to limit this rule to."
 msgstr ""
 "Нажмите <ПРОБЕЛ> для выбора интерфейса, к которому будет применено это "
 "правило."
 
-#: src/rules_form.c:4157
+#: src/rules_form.c:4433
 msgid "Press SPACE to select an interface. Read help for more info."
 msgstr ""
 "Нажмите <ПРОБЕЛ> для выбора интерфейса. Для дополнительной информации "
 "смотрите Помощь."
 
-#: src/rules_form.c:4159
+#: src/rules_form.c:4435
 msgid "Enter a nfmark. Use > 20.000.000 when using the QUEUE action."
 msgstr ""
 "Введите nfmark. Используйте > 20.000.000 когда применяется действие QUEUE."
 
-#: src/rules_form.c:4161
+#: src/rules_form.c:4437
 msgid ""
 "Average new connections per amount of time (to prevent DoS), 0 for no limit."
 msgstr ""
 "Среднее число нов. соед-ий в ед. времени (для предотвр. DoS-атак), 0 без "
 "огран-я."
 
-#: src/rules_form.c:4163
+#: src/rules_form.c:4439
 msgid "Unit for the limit: sec, min, hour, day."
 msgstr "Единица изм. для ограничения: сек, мин, час, день"
 
-#: src/rules_form.c:4165
+#: src/rules_form.c:4441
 msgid "Maximum new connections per second (to prevent DoS), 0 for no limit."
 msgstr ""
 "Макс. число нов. соед-ий в сек. (для предотвр. DoS-атак), 0 без огран-я."
 
-#: src/rules_form.c:4167
+#: src/rules_form.c:4443
 msgid "Randomize the source ports of NAT'd connections."
 msgstr ""
 
-#: src/rules_form.c:4241
+#: src/rules_form.c:4517
 msgid "Select action"
 msgstr "Выберите действие"
 
-#: src/rules_form.c:4308 src/rules_form.c:4347 src/zones_section.c:5598
+#: src/rules_form.c:4584 src/rules_form.c:4623 src/zones_section.c:5598
 #: src/zones_section.c:6750 src/zones_section.c:6837
 msgid "Select"
 msgstr "Выберите"
 
-#: src/rules_form.c:4308
+#: src/rules_form.c:4584
 msgid "Select a host, group or network"
 msgstr "Выберите хост, группу или сеть."
 
-#: src/rules_form.c:4347
+#: src/rules_form.c:4623
 msgid "Select a service"
 msgstr "Выберите службу"
 
-#: src/rules_form.c:4364
+#: src/rules_form.c:4640
 msgid "Select reject type"
 msgstr "Выберите тип отказа"
 
-#: src/rules_form.c:4375
+#: src/rules_form.c:4651
 msgid "no from zone, please select one first."
 msgstr "нет исх. зоны, выберите хоть одну сначала."
 
-#: src/rules_form.c:4446 src/rules_form.c:4461 src/rules_form.c:4554
-#: src/rules_form.c:4569
+#: src/rules_form.c:4722 src/rules_form.c:4737 src/rules_form.c:4830
+#: src/rules_form.c:4845
 msgid "Any"
 msgstr "Any"
 
-#: src/rules_form.c:4454 src/rules_form.c:4562
+#: src/rules_form.c:4730 src/rules_form.c:4838
 msgid "Set interface filter"
 msgstr "Установить фильтр интерфейса"
 
-#: src/rules_form.c:4454 src/rules_form.c:4562
+#: src/rules_form.c:4730 src/rules_form.c:4838
 msgid "Select an interface ('Any' to disable filter)"
 msgstr "Выберите интерфейс ('Any' для отмены фильтра)"
 
-#: src/rules_form.c:4479
+#: src/rules_form.c:4755
 msgid "no 'to' zone, please select one first."
 msgstr "нет исх. зоны, выберите хоть одну сначала."
 
-#: src/rules_form.c:4618
+#: src/rules_form.c:4894
 msgid "Set Via interface"
 msgstr "Установите интерфейс Через"
 
-#: src/rules_form.c:4618 src/zones_section.c:3586
+#: src/rules_form.c:4894 src/zones_section.c:3586
 msgid "Select an interface"
 msgstr "Выберите интерфейс"
 
-#: src/rules_form.c:4645
+#: src/rules_form.c:4921
 msgid "Unit"
 msgstr "Единица"
 
-#: src/rules_form.c:4646
+#: src/rules_form.c:4922
 msgid "Select time unit"
 msgstr "Выберите единицу времени"
 
-#: src/rules_form.c:4673
+#: src/rules_form.c:4949
 msgid "Not all required fields are filled in"
 msgstr "Не все требуемые поля заполнены"
 
-#: src/rules_form.c:4674
+#: src/rules_form.c:4950
 msgid "Do you want to look at the rule again? (no will delete the rule)"
 msgstr "Хотите взглянуть на правило снова? (иначе правило будет удалено)"
 
-#: src/rules_form.c:4690
+#: src/rules_form.c:4966
 msgid "An error was detected in the rule"
 msgstr "Обнаружена ошибка в правиле."
 
-#: src/rules_form.c:4691
+#: src/rules_form.c:4967
 msgid "Do you want to look at it again? (no will delete the rule)"
 msgstr "Хотите взглянуть на него снова? (иначе правило будет удалено)"
 
-#: src/rules_form.c:4954
+#: src/rules_form.c:5230
 msgid "Enter comment (optional)"
 msgstr "Введите описание (необязательно)"
 
-#: src/rules_form.c:4994
+#: src/rules_form.c:5270
 msgid "Enter an optional comment."
 msgstr "Введите необязательное описание."
 
@@ -1922,8 +1982,8 @@ msgid ""
 "combinations of types and codes are valid. See http://www.iana.org/"
 "assignments/icmp-parameters for details)."
 msgstr ""
-"одно из значений слишком велико. Допустимые значения типов ICMP: 1-255 (41-"
-"255 зарезервированы). Допустимые значения кодов ICMP: 0-16 (но не "
+"одно из значений слишком велико. Допустимые значения типов ICMP: 1-255 "
+"(41-255 зарезервированы). Допустимые значения кодов ICMP: 0-16 (но не "
 "всекомбинации типов и кодов допустимы. Смотрите http://www.iana.org/"
 "assignments/icmp-parameters для подробностей)."
 
@@ -2089,6 +2149,11 @@ msgstr "служба %s уже существует."
 #: src/services_section.c:2889
 msgid "creating new service failed."
 msgstr "ошибка создания новой служба."
+
+#: src/services_section.c:2895
+#, fuzzy, c-format
+msgid "service name %s is invalid."
+msgstr "имя группы '%s' недопустимо."
 
 #: src/stat_sec.c:402
 msgid "Status Section"
@@ -2833,14 +2898,6 @@ msgstr "адрес сети"
 msgid "netmask"
 msgstr "маска сети"
 
-#: src/strings.h:74 src/gui.c:1728
-msgid "Incoming bandwidth"
-msgstr "Ширина вход.канала"
-
-#: src/strings.h:75 src/gui.c:1731
-msgid "Outgoing bandwidth"
-msgstr "Ширина исход.канала"
-
 #: src/strings.h:76
 msgid "Incoming unit"
 msgstr "Вход. единица"
@@ -2848,14 +2905,6 @@ msgstr "Вход. единица"
 #: src/strings.h:77
 msgid "Outgoing unit"
 msgstr "Исход. единица"
-
-#: src/strings.h:78 src/gui.c:1468 src/gui.c:1720
-msgid "Shaping"
-msgstr "Шейпинг"
-
-#: src/strings.h:79 src/gui.c:1872
-msgid "Tcpmss"
-msgstr ""
 
 #. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
 #: src/strings.h:82
@@ -3089,42 +3138,13 @@ msgstr "ошибка установки фильтра"
 msgid "Please Wait"
 msgstr "Ждите..."
 
-#: src/gui.c:850
+#: src/gui.c:852
 msgid "    OK"
 msgstr "    OK"
 
-#: src/gui.c:871
+#: src/gui.c:873
 msgid "  Cancel"
 msgstr "  Отмена"
-
-#: src/gui.c:1474
-msgid "Incoming guaranteed rate"
-msgstr "Гарант. вход. скорость"
-
-#: src/gui.c:1477
-msgid "Incoming maximum rate"
-msgstr "Макс. вход. скорость"
-
-#: src/gui.c:1481
-msgid "Outgoing guaranteed rate"
-msgstr "Гарант. исход. скорость"
-
-#: src/gui.c:1484
-msgid "Outgoing maximum rate"
-msgstr "Макс. исход. скорость"
-
-#: src/gui.c:1488
-msgid "Priority"
-msgstr "Приоритет"
-
-#: src/gui.c:1726
-msgid "Enable shaping"
-msgstr "Вкл. шейпинг"
-
-#: src/gui.c:1878
-#, fuzzy
-msgid "Enable TCP MSS clamping"
-msgstr "Вкл. шейпинг"
 
 #: src/statevent.c:498
 msgid "Manage Connection"
