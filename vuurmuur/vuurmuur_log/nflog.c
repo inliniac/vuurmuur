@@ -41,13 +41,11 @@ static int fd;
 static struct nflog_handle *h;
 
 static char *
-mac2str (unsigned char *mac, char *strmac) {
-    char *buf_cur = strmac;
-    int i;
-    for (i=0; i<6; i++) {
-        buf_cur += sprintf (buf_cur, "%02x%c", mac[i], 
-            i == 5 ? 0 : ':');
-    }
+mac2str (unsigned char *mac, char *strmac, size_t len) {
+
+    snprintf(strmac, len, "%02x:%02x:%02x:%02x:%02x:%02x",
+        mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
     return strmac;
 }
 
@@ -132,9 +130,9 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     /* Convert MAC src and dst to strings and copy into logrule_ptr */
     if (nflog_get_msg_packet_hwhdrlen (nfa)) {
         hwhdr = nflog_get_msg_packet_hwhdr (nfa);
-        mac2str (hwhdr, macstr);
+        mac2str (hwhdr, macstr, sizeof(macstr));
         snprintf (logrule_ptr->dst_mac, sizeof (logrule_ptr->dst_mac), "(%s)", macstr);
-        mac2str (hwhdr + 6, macstr);
+        mac2str (hwhdr + 6, macstr, sizeof(macstr));
         snprintf (logrule_ptr->src_mac, sizeof (logrule_ptr->src_mac), "(%s)", macstr);
     }
 
