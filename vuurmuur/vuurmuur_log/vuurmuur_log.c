@@ -406,7 +406,7 @@ main(int argc, char *argv[])
                 waiting = 0;
     pid_t       pid;
     int         optch;
-    static char optstring[] = "hc:vnd:VsK";
+    static char optstring[] = "hc:vnd:VsKN";
     int         verbose = 0,
                 nodaemon = 0,
                 syslog = 1;

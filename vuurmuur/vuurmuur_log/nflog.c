@@ -37,8 +37,13 @@
 #include "nflog.h"
 
 
-static int fd;
+static int fd = -1;
 static struct nflog_handle *h;
+
+union ipv4_adress {
+    uint8_t  a[4];
+    uint32_t saddr;
+};
 
 static char *
 mac2str (unsigned char *mac, char *strmac, size_t len) {
@@ -66,7 +71,7 @@ mac2str (unsigned char *mac, char *strmac, size_t len) {
  * \retval n.a.
  * \note n.a.
  */
-static int 
+static int
 createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         struct nflog_data *nfa, void *data)
 {
@@ -94,25 +99,53 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     char    s[256];
     char    *c;
     int     i, ip_hdr_len;
-    union ip_adress ip;
+    union ipv4_adress ip;
 
     memset(logrule_ptr, 0, sizeof(struct log_rule));
 
     /* Check first if this pkt comes from a vuurmuur logrule */
     prefix = nflog_get_prefix (nfa);
-    if (!strncmp (prefix, "vrmr:", 5)) {
-        for (c = prefix + 6, i = 0; *c != ' '; c++, i++)
-            logrule_ptr->action[i] = *c;
-        i = 0;
-        for (c++; *c; c++, i++) 
-            logrule_ptr->logprefix[i] = *c;
-        if (i == 1)
-            strlcpy(logrule_ptr->logprefix, "none", sizeof(logrule_ptr->logprefix));
-    } else {
-        /* Not an error, but we're done here */
-        return 0;
-    }
+    if (prefix != NULL && strlen(prefix) > 6) {
+        char *needle = strstr(prefix, "vrmr: ");
+        if (needle != NULL) {
+            needle+=6;
 
+            i = 0;
+            while (*needle != '\0' && *needle != ' ') {
+                if (i < (sizeof(logrule_ptr->action) - 1))
+                    logrule_ptr->action[i++] = *needle;
+
+                needle++;
+            }
+            logrule_ptr->action[i] = '\0';
+
+            if (*needle != '\0') {
+                needle++;
+
+                i = 0;
+                while (*needle != '\0') {
+                    if (i < (sizeof(logrule_ptr->logprefix) - 1))
+                        logrule_ptr->logprefix[i++] = *needle;
+
+                    needle++;
+                }
+                logrule_ptr->logprefix[i] = '\0';
+            } else {
+                strlcpy(logrule_ptr->logprefix, "none",
+                        sizeof(logrule_ptr->logprefix));
+
+            }
+        } else {
+            strlcpy(logrule_ptr->logprefix, "none",
+                    sizeof(logrule_ptr->logprefix));
+
+        }
+    } else {
+        strlcpy(logrule_ptr->action, "<exteral>",
+                sizeof(logrule_ptr->action));
+        strlcpy(logrule_ptr->logprefix, "none",
+                sizeof(logrule_ptr->logprefix));
+    }
 
     /* Copy hostname in log_rule struct, seems kind of silly to do this every time */
     if (gethostname (logrule_ptr->hostname, HOST_NAME_MAX) == -1) {
@@ -172,7 +205,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     when = tv.tv_sec;
     struct tm *tm = localtime(&when);
     strftime (s, 256, "%b %d %T", tm);
-    if (sscanf (s, "%3s %2d %2d:%2d:%2d", logrule_ptr->month, &logrule_ptr->day, 
+    if (sscanf (s, "%3s %2d %2d:%2d:%2d", logrule_ptr->month, &logrule_ptr->day,
         &logrule_ptr->hour, &logrule_ptr->minute, &logrule_ptr->second) != 5) {
         (void)vrprint.debug(__FUNC__, "did not find properly formatted timestamp");
         return -1;
@@ -188,7 +221,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
             case 0:
             case ETH_P_IP:
                 iph = (struct iphdr *)payload;
-                protoh = (u_int32_t *)iph + iph->ihl;
+                protoh = (uint32_t *)iph + iph->ihl;
                 logrule_ptr->protocol = iph->protocol;
                 logrule_ptr->packet_len = ntohs(iph->tot_len) - iph->ihl * 4;
                 switch (logrule_ptr->protocol) {
@@ -215,9 +248,11 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                         break;
                 }
                 ip.saddr = iph->saddr;
-                snprintf (logrule_ptr->src_ip, sizeof(logrule_ptr->src_ip), "%u.%u.%u.%u", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
+                snprintf (logrule_ptr->src_ip, sizeof(logrule_ptr->src_ip),
+                        "%u.%u.%u.%u", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
                 ip.saddr = iph->daddr;
-                snprintf (logrule_ptr->dst_ip, sizeof(logrule_ptr->dst_ip), "%u.%u.%u.%u", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
+                snprintf (logrule_ptr->dst_ip, sizeof(logrule_ptr->dst_ip),
+                        "%u.%u.%u.%u", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
                 logrule_ptr->ttl = iph->ttl;
                 break;
             case ETH_P_IPV6:
@@ -227,7 +262,6 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                 break;
         }
     }
-
 
     return 0;       /* success */
 }
@@ -280,11 +314,12 @@ subscribe_nflog (const int debuglvl, const struct vuurmuur_config *conf, struct 
 
     fd = nflog_fd (h);
 
+    (void)vrprint.info("Info", "subscribed to nflog group %u", conf->nfgrp);
     return 0;
 }
 
 int
-readnflog ()
+readnflog (void)
 {
     int rv;
     char buf[4096];

@@ -28,11 +28,6 @@
 #include <netinet/ip.h>
 #include <libnetfilter_log/libnetfilter_log.h>
 
-union ip_adress {
-    __u8  a[4];
-    __be32  saddr;
-};
-
 int subscribe_nflog (const int, const struct vuurmuur_config *,struct log_rule *logrule);
 int readnflog ();
 
