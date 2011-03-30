@@ -45,6 +45,11 @@ main(int argc, char *argv[])
     char            tmp_set[sizeof(vr_script.set)] = "";
     char            *str = NULL;
 
+    static struct option long_options2[] =
+    {
+        {"list-devices",0, NULL, 0},
+        {NULL,          0, NULL, 0}
+    };
     static struct option long_options[] =
     {
         /* commands */
@@ -58,8 +63,6 @@ main(int argc, char *argv[])
         {"block",       1, NULL, 0},
         {"unblock",     1, NULL, 0},
         {"list-blocked",0, NULL, 0},
-
-        {"list-devices",0, NULL, 0},
 
         /* object name */
         {"variable",    1, NULL, 'V'},
@@ -132,6 +135,27 @@ main(int argc, char *argv[])
         exit(VRS_ERR_INTERNAL);
     }
 
+    /* handle commandline options that don't require a config so they can be
+     * used by the wizard. */
+    while((opt = getopt_long(argc, argv, optstring, long_options2, &longopt_index)) >= 0)
+    {
+        switch(opt)
+        {
+            /* first handle the longoption only options */
+            case 0:
+                /* If this option set a flag, do nothing else now. */
+
+                if(long_options2[longopt_index].flag != NULL)
+                    break;
+                else if(strcmp(long_options2[longopt_index].name, "list-devices") == 0)
+                {
+                    script_list_devices(debuglvl);
+                    exit(EXIT_SUCCESS);
+                }
+                break;
+        }
+    }
+
     /* some initilization */
     if(pre_init_config(&conf) < 0)
         exit(VRS_ERR_INTERNAL);
@@ -141,6 +165,9 @@ main(int argc, char *argv[])
     sem_id = 0;
 
     /* Process commandline options */
+    longopt_index = 0;
+    opt = 0;
+    optind = 0;
     while((opt = getopt_long(argc, argv, optstring, long_options, &longopt_index)) >= 0)
     {
         switch(opt)
@@ -231,12 +258,6 @@ main(int argc, char *argv[])
                 {
                     vr_script.type = TYPE_RULE;
                     vr_script.cmd = CMD_LBL;
-                    break;
-                }
-                else if(strcmp(long_options[longopt_index].name, "list-devices") == 0)
-                {
-                    vr_script.type = TYPE_RULE; /* set to TYPE_RULE to bypass checks below */
-                    vr_script.cmd = CMD_LDV;
                     break;
                 }
                 else
@@ -555,11 +576,6 @@ main(int argc, char *argv[])
     {
         if(conf.verbose_out == TRUE)
             (void)vrprint.info(VR_INFO, "command 'list-blocked' selected.");
-    }
-    else if(vr_script.cmd == CMD_LDV)
-    {
-        if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "command 'list-devices' selected.");
     }
     else if(vr_script.cmd == CMD_RLD)
     {
@@ -884,10 +900,6 @@ main(int argc, char *argv[])
             retval = 0;
         else
             retval = VRS_ERR_COMMAND_FAILED;
-    }
-    else if(vr_script.cmd == CMD_LDV)
-    {
-        retval = script_list_devices(debuglvl);
     }
     else if(vr_script.cmd == CMD_RLD)
     {

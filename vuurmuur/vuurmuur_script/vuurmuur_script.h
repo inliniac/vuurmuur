@@ -102,7 +102,6 @@ enum
     CMD_BLK, /* block an ip, host or group */
     CMD_UBL, /* unblock an ip, host or group */
     CMD_LBL, /* list blocked objects */
-    CMD_LDV, /* list system devices */
     CMD_RLD, /* apply changes without any other action */
 
     CMD_ERROR,
