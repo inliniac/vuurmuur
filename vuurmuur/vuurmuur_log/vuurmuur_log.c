@@ -658,8 +658,13 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if(nodaemon == 0)
-        daemon(1,1);
+    if (nodaemon == 0) {
+        if (daemon(1,1) != 0) {
+            (void)vrprint.error(-1, "Error", "daemon() failed: %s",
+                    strerror(errno));
+            exit(EXIT_FAILURE);
+        }
+    }
 
     if (SetupVMIPC(&shm_id, &shm_table) == -1)
         exit (EXIT_FAILURE);
@@ -779,7 +784,7 @@ main(int argc, char *argv[])
                                 {
                                     (void)vrprint.error(-1, "Error", "Could not build output line");;
                                 } else {
-                                    fprintf (vuurmuur_log, line_out);
+                                    fprintf (vuurmuur_log, "%s", line_out);
                                     fflush(vuurmuur_log);
                                 }
                                 break;
