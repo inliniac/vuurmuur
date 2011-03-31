@@ -373,7 +373,6 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, d_list *list)
                 z++;
         }
 
-        x=0;
         int next = 0;
 
         if (strcmp(store[0],"(in:") == 0) {
@@ -836,28 +835,28 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
     VrMenuAddSepItem(debuglvl, menu, str);
 
     str = VrGetString(gettext("Kill all connections with source %s"), log->src_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n], str); n++;
+    VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
     str = VrGetString(gettext("Kill all connections with destination %s"), log->dst_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n], str); n++;
+    VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
     str = VrGetString(gettext("Kill all connections of %s"), log->src_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n], str); n++;
+    VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
     str = VrGetString(gettext("Kill all connections of %s"), log->dst_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n], str); n++;
+    VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
     str = VrGetString("--- %s ---", gettext("BlockList options"));
     VrMenuAddSepItem(debuglvl, menu, str);
 
     str = VrGetString(gettext("Add source %s to BlockList"), log->src_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n], str); n++;
+    VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
     str = VrGetString(gettext("Add destination %s to BlockList"), log->dst_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n], str); n++;
+    VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
     str = VrGetString(gettext("Add both source and destination to BlockList"));
-    VrMenuAddItem(debuglvl, menu, nums[n], str); n++;
+    VrMenuAddItem(debuglvl, menu, nums[n], str); /* n != n++ */
 
     VrMenuConnectToWin(debuglvl, menu, win);
     VrMenuPost(debuglvl, menu);

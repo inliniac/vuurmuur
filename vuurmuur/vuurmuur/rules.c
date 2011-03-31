@@ -1186,7 +1186,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
     }
 
-    return(0);
+    return(retval);
 }
 
 static int
@@ -1368,7 +1368,7 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         {
             (void)vrprint.error(-1, "Internal Error", "create_rule_set_proto() failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
-            retval = -1;
+            return(-1);
         }
 
         /*XXX call src loop */

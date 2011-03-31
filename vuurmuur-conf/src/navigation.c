@@ -152,7 +152,8 @@ nav_field_simpletext(const int debuglvl, FORM *form, int key)
         case KEY_RIGHT:
             if(form_driver(form, REQ_RIGHT_CHAR) < 0)
             {
-                ch = form_driver(form, REQ_SCR_FCHAR);
+/*              ch = */
+                form_driver(form, REQ_SCR_FCHAR);
 /*
                 if(ch == E_REQUEST_DENIED)
                     status_print(status_win, "form_driver (right): %d, E_REQUEST_DENIED", ch);
@@ -180,7 +181,8 @@ nav_field_simpletext(const int debuglvl, FORM *form, int key)
         case KEY_LEFT:
             if(form_driver(form, REQ_LEFT_CHAR) < 0)
             {
-                ch = form_driver(form, REQ_SCR_BCHAR);
+/*              ch = */
+                form_driver(form, REQ_SCR_BCHAR);
 /*
                 if(ch == E_REQUEST_DENIED)
                     status_print(status_win, "form_driver (left): %d, E_REQUEST_DENIED", ch);

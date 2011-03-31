@@ -510,6 +510,8 @@ move_rule(const int debuglvl, Rules *rules, unsigned int rule_num,
         if(rule_ptr->number == rule_num)
             break;
     }
+    if (rule_ptr == NULL)
+        return(-1);
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "rule_ptr found: i: %d (rule_ptr: %s %s %s %s)", i, rules_itoaction(rule_ptr->action), rule_ptr->service, rule_ptr->from, rule_ptr->to);
@@ -959,7 +961,6 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, Rules *rules, Zones *zones, Inte
                         retval = 0;
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
-    
 
     /* safety */
     if(!bar || !rules || !reg)
@@ -967,13 +968,12 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, Rules *rules, Zones *zones, Inte
         (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    
-    
+
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "field_buffer = '%s'.", field_buffer(bar->num_field, 0));
 
     rule_num = (unsigned int)atoi(field_buffer(bar->num_field, 0));
-    if(rule_num == 0)
+    if(rule_num <= 0)
         return(0);
 
     result = edit_rule(debuglvl, rules, zones, interfaces, services, rule_num, reg);
@@ -990,19 +990,20 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, Rules *rules, Zones *zones, Inte
             if(rule_ptr->number == rule_num)
                 break;
         }
+        if (rule_ptr != NULL) {
+            /* editting failed so remove the rule again */
+            if(rules_remove_rule_from_list(debuglvl, rules, rule_num, 1) < 0)
+            {
+                (void)vrprint.error(-1, VR_INTERR, "removing rule failed "
+                        "(in: %s:%d).", __FUNC__, __LINE__);
+                return(-1);
+            }
 
-        /* editting failed so remove the rule again */
-        if(rules_remove_rule_from_list(debuglvl, rules, rule_num, 1) < 0)
-        {
-            (void)vrprint.error(-1, VR_INTERR, "removing rule failed (in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
+            rules_free_options(debuglvl, rule_ptr->opt);
+            rule_ptr->opt = NULL;
+            free(rule_ptr);
+            rule_ptr = NULL;
         }
-
-        rules_free_options(debuglvl, rule_ptr->opt);
-        rule_ptr->opt = NULL;
-        free(rule_ptr);
-        rule_ptr = NULL;
-
         retval = -1;
     }
     else if(result == 1)
@@ -1128,7 +1129,7 @@ Toggle_RuleBar(const int debuglvl, rulebar *bar, Rules *rules)
         (void)vrprint.debug(__FUNC__, "'%s'.", field_buffer(bar->num_field, 0));
 
     rule_num = atoi(field_buffer(bar->num_field, 0));
-    if(rule_num < 0)
+    if(rule_num <= 0)
     {
         (void)vrprint.error(-1, VR_INTERR, "invalid rule_num: %d (in: %s:%d).", rule_num, __FUNC__, __LINE__);
         return(-1);
@@ -1138,7 +1139,7 @@ Toggle_RuleBar(const int debuglvl, rulebar *bar, Rules *rules)
     {
         return(0);
     }
-    
+
     /* go to rulenum in the rules list to get the rule_ptr */
     if(!(d_node = rules->list.top))
     {
@@ -1158,8 +1159,10 @@ Toggle_RuleBar(const int debuglvl, rulebar *bar, Rules *rules)
         d_node = d_node->next;
     }
 
-    if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "active: %s (%s %s %s %s)", rule_ptr->active ? "Yes" : "No", rules_itoaction(rule_ptr->action), rule_ptr->service, rule_ptr->from, rule_ptr->to);
+        if(debuglvl >= HIGH)
+            (void)vrprint.debug(__FUNC__, "active: %s (%s %s %s %s)",
+                    rule_ptr->active ? "Yes" : "No", rules_itoaction(rule_ptr->action),
+                    rule_ptr->service, rule_ptr->from, rule_ptr->to);
 
     /* set the active */
     if(rule_ptr->active == 1)
@@ -1265,9 +1268,7 @@ MatchFilter_RuleBar(struct RuleData_ *rule_ptr, /*@null@*/regex_t *reg, char onl
             rule_str[512] = "";
     int     result = 0,
             retval = 0;
-    size_t  option_len = 0,
-            rule_len = 0;
-        
+
     if(only_in == 1)
     {
         if(strcmp(rule_ptr->to, "firewall") != 0)
@@ -1280,20 +1281,14 @@ MatchFilter_RuleBar(struct RuleData_ *rule_ptr, /*@null@*/regex_t *reg, char onl
     }
     else if(only_forward == 1)
     {
-        if(strcmp(rule_ptr->from, "firewall") == 0 || strcmp(rule_ptr->to, "firewall") == 0)
+        if(strcmp(rule_ptr->from, "firewall") == 0 ||
+                strcmp(rule_ptr->to, "firewall") == 0)
             return(0);
     }
-    
+
     /* if we're not using a regex, we match here */
     if(!reg)
         return(1);
-
-    if(!(options_ptr = rules_assemble_options_string(0, rule_ptr->opt, rules_itoaction(rule_ptr->action))))
-        option_len = 0;
-    else
-        option_len = StrLen(options_ptr);
-
-    rule_len = StrLen(rules_itoaction(rule_ptr->action))+1 + StrLen(rule_ptr->service)+1 + StrLen(rule_ptr->from)+1 + StrLen(rule_ptr->to)+1 + option_len + 1;
 
     (void)strlcpy(rule_str, rules_itoaction(rule_ptr->action), sizeof(rule_str));
     (void)strlcat(rule_str, " ", sizeof(rule_str));
@@ -1303,7 +1298,7 @@ MatchFilter_RuleBar(struct RuleData_ *rule_ptr, /*@null@*/regex_t *reg, char onl
     (void)strlcat(rule_str, " ", sizeof(rule_str));
     (void)strlcat(rule_str, rule_ptr->to, sizeof(rule_str));
     (void)strlcat(rule_str, " ", sizeof(rule_str));
-    if(options_ptr)
+    if(options_ptr != NULL)
         (void)strlcat(rule_str, options_ptr, sizeof(rule_str));
 
     /* now filter */
@@ -1442,7 +1437,7 @@ draw_rules(const int debuglvl, Rules *rules, struct RuleBarForm_ *rbform)
                         separator_str[i] = '-';
                     }
                     separator_str[i] = '\0';
-                                                
+
 #ifdef USE_WIDEC
                     if(rule_ptr->opt != NULL && rule_ptr->opt->comment[0] != '\0')
                     {
@@ -1450,7 +1445,6 @@ draw_rules(const int debuglvl, Rules *rules, struct RuleBarForm_ *rbform)
                         wchar_t wstr[256] = L"",
                                 wtmp[256] = L"";
 
-                        comment_len = StrMemLen(rule_ptr->opt->comment);
                         wcomment_len = StrLen(rule_ptr->opt->comment);
 
                         before_len = (rbform->separator_size - (wcomment_len + 4)) / 2;
@@ -1591,7 +1585,6 @@ rules_update_filter(const int debuglvl, Rules *rules, struct RuleBarForm_ *rbfor
             }
 
             rule_ptr->filtered = 0;
-            filter = 0;
 
             if(rbform->use_filter)
             {
@@ -1613,7 +1606,7 @@ rules_update_filter(const int debuglvl, Rules *rules, struct RuleBarForm_ *rbfor
                 else
                     rule_ptr->filtered = 1;
             }
-            
+
             if(rule_ptr->filtered == 1)
             {
                 rbform->filtered_rules++;
@@ -2558,6 +2551,10 @@ delete_rule(const int debuglvl, Rules *rules, unsigned int rule_num,
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
 
+    if (rule_num == 0) {
+        return(-1);
+    }
+
     if(call_confirm == 1)
     {
         /* first ask the user to confirm */
@@ -2583,6 +2580,9 @@ delete_rule(const int debuglvl, Rules *rules, unsigned int rule_num,
             if(rule_ptr->number == rule_num)
                 break;
         }
+        if (rule_ptr == NULL) {
+            return(-1);
+        }
 
         /* editting failed so remove the rule again */
         if(rules_remove_rule_from_list(debuglvl, rules, rule_num, 1) < 0)
@@ -2598,10 +2598,10 @@ delete_rule(const int debuglvl, Rules *rules, unsigned int rule_num,
 
         retval = 1;
     }
-                
-        if(debuglvl >= LOW)
+
+    if(debuglvl >= LOW)
         rules_print_list(rules);
-                  
+
     return(retval);
 }
 
@@ -5184,8 +5184,6 @@ edit_rule_separator(const int debuglvl,
     /* set windowsize and start position */
     height = 5;
     width  = 71;
-    startx = 3;
-    starty = 1;
     startx = (max_width - width)/2;
     starty = (max_height - height) /2;
 

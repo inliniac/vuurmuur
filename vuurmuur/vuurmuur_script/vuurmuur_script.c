@@ -168,7 +168,6 @@ main(int argc, char *argv[])
 
     /* Process commandline options */
     longopt_index = 0;
-    opt = 0;
     optind = 0; /* reset optind */
     while((opt = getopt_long(argc, argv, optstring, long_options, &longopt_index)) >= 0)
     {
@@ -832,13 +831,14 @@ main(int argc, char *argv[])
          * append into an empty list then using --block */
         if (vr_script.cmd == CMD_BLK) {
             /* append or overwrite mode (fix ticket #49) */
-            if ((result = rf->ask(debuglvl, rule_backend, "blocklist", "RULE", vr_script.bdat, sizeof(vr_script.bdat), TYPE_RULE, 1) == 1)) 
-            { 
+            if ((rf->ask(debuglvl, rule_backend, "blocklist", "RULE",
+                            vr_script.bdat, sizeof(vr_script.bdat), TYPE_RULE, 1) == 1))
+            {
                 /* we got a rule from the backend so we have to append */
-                vr_script.overwrite = FALSE; 
+                vr_script.overwrite = FALSE;
             } else {
                 /* there are no rules in the backend so we overwrite */
-                vr_script.overwrite = TRUE; 
+                vr_script.overwrite = TRUE;
             }
 
             /* switch to mod here */

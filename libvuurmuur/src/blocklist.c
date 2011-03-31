@@ -518,7 +518,7 @@ blocklist_init_list(const int debuglvl, Zones *zones, BlockList *blocklist, char
             }
         }
 
-        while((result = rf->ask(debuglvl, rule_backend, "blocklist", "RULE", line, sizeof(line), TYPE_RULE, 1)) == 1)
+        while((rf->ask(debuglvl, rule_backend, "blocklist", "RULE", line, sizeof(line), TYPE_RULE, 1)) == 1)
         {
             len = strlen(line);
             if(len > 0 && line[0] != '#')
@@ -531,7 +531,7 @@ blocklist_init_list(const int debuglvl, Zones *zones, BlockList *blocklist, char
 
                 if(debuglvl >= MEDIUM)
                     (void)vrprint.debug(__FUNC__, "line '%s', keyword '%s'",
-                        line, block_keyw); 
+                        line, block_keyw);
 
                 if(strcmp(block_keyw, "block") == 0)
                 {

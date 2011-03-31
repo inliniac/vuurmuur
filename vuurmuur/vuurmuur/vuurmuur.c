@@ -692,7 +692,7 @@ main(int argc, char *argv[])
                             }
                             UNLOCK(sem_id);
                         }
-                    
+
                         (void)vrprint.info("Info", "Waiting for an VR_RR_RESULT_ACK");
 
                         result = 0;
@@ -734,7 +734,6 @@ main(int argc, char *argv[])
                                 (void)vrprint.info("Info", "Hmmmm, failed to set to ready. Did the client crash?");
                             }
                         }
-                        result = 0;
                     }
 
                     if(reload_dyn == TRUE)

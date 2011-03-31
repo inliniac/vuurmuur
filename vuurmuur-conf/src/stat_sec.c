@@ -664,8 +664,7 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, In
     int     quit = 0,
             ch = 0;
 
-    int     max_onscreen=0,
-            y=0;
+    int     y=0;
 
     unsigned int    i = 0,
                     cur_interface = 0;
@@ -812,7 +811,6 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, In
         set up the statuswin
     */
     getmaxyx(stdscr, max_height, max_width);
-    max_onscreen = max_height-8;
 
     /*
         init

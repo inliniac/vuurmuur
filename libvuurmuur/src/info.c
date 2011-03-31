@@ -260,7 +260,7 @@ create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broa
     struct in_addr broad;   /* the broadcast address of this network */
 
     unsigned long int netmaskvalue=0;
-    unsigned long int networkvalue=0;
+    //unsigned long int networkvalue=0;
 
     if(debuglvl >= MEDIUM)
         (void)vrprint.debug(__FUNC__, "network: %s, netmask: %s", network, netmask);
@@ -285,7 +285,7 @@ create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broa
     }
     else
     {
-        networkvalue=ntohl(net.s_addr);
+        //networkvalue=ntohl(net.s_addr);
 
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "network = %s", inet_ntoa(net));
@@ -865,8 +865,8 @@ check_ipv4address(const int debuglvl, char *network, char *netmask, char *ipaddr
     struct in_addr      broad;   /* the broadcast address of this network */
 
     unsigned long int   netmaskvalue = 0;
-    unsigned long int   ipaddressvalue = 0;
-    unsigned long int   networkvalue = 0;
+    //unsigned long int   ipaddressvalue = 0;
+    //unsigned long int   networkvalue = 0;
 
     unsigned long int   high;
     unsigned long int   low;
@@ -892,7 +892,7 @@ check_ipv4address(const int debuglvl, char *network, char *netmask, char *ipaddr
     }
     else
     {
-        ipaddressvalue = ntohl(ip.s_addr);
+        //ipaddressvalue = ntohl(ip.s_addr);
 
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "ipaddress = %s", inet_ntoa(ip));
@@ -910,7 +910,7 @@ check_ipv4address(const int debuglvl, char *network, char *netmask, char *ipaddr
     }
     else
     {
-        networkvalue = ntohl(net.s_addr);
+        //networkvalue = ntohl(net.s_addr);
 
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "network = %s", inet_ntoa(net));
@@ -1220,8 +1220,8 @@ char
     struct in_addr      broad;   /* the broadcast address of this network */
 
     unsigned long int   netmaskvalue = 0;
-    unsigned long int   ipaddressvalue = 0;
-    unsigned long int   networkvalue = 0;
+    //unsigned long int   ipaddressvalue = 0;
+    //unsigned long int   networkvalue = 0;
 
     unsigned long int   high = 0;
     unsigned long int   low = 0;
@@ -1253,7 +1253,7 @@ char
     if(inet_aton(ipaddress, &ip) == 0)
         return(NULL);
 
-    ipaddressvalue = ntohl(ip.s_addr);
+    //ipaddressvalue = ntohl(ip.s_addr);
 
     /* get our ip */
     current = ntohl(ip.s_addr);
@@ -1274,7 +1274,7 @@ char
             /* check if the networkadress is valid */
             if(inet_aton(zone_ptr->ipv4.network, &net) != 0)
             {
-                networkvalue = ntohl(net.s_addr);
+                //networkvalue = ntohl(net.s_addr);
 
                 /* check if the netmask is valid */
                 if(inet_aton(zone_ptr->ipv4.netmask, &mask) != 0)

@@ -3988,7 +3988,7 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interface
     normal interfaces:
     -i <dev> and -o <dev> WITHOUT the ipaddress, so they match in
     forward chain as well
-    
+
     oldstyle virtual interfaces:
     no -i <dev> or -o <dev>, but WITH the ipaddress. So they will match in
     input and output chains
@@ -4072,7 +4072,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             }
 
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
-                retval=-1;
+                return(-1);
         }
 
         /* and the DROP rule */
@@ -4081,7 +4081,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->danger.source_ip.netmask, from_if_ptr->ipv4.ipaddress);
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
-            retval=-1;
+            return(-1);
 
         /* create the log rule */
         if(conf.check_iptcaps == FALSE || iptcap->target_log == TRUE)
@@ -4110,7 +4110,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             }
 
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
-                retval=-1;
+                return(-1);
         }
 
         /* and the DROP rule */
@@ -4120,7 +4120,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->danger.source_ip.netmask);
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
-            retval=-1;
+            return(-1);
     }
     /* normal interface */
     else
@@ -4149,7 +4149,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                     loglevel, log_tcp_options);
             }
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
-                retval=-1;
+                return(-1);
         }
 
         /* and the DROP rule */
@@ -4158,7 +4158,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->danger.source_ip.netmask);
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
-            retval=-1;
+            return(-1);
 
         /* create the log rule */
         if(conf.check_iptcaps == FALSE || iptcap->target_log == TRUE)
@@ -4185,7 +4185,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             }
 
             if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
-                retval=-1;
+                return(-1);
         }
 
         /* and the DROP rule */
@@ -4194,7 +4194,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->danger.source_ip.netmask);
 
         if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
-            retval=-1;
+            return(-1);
     }
     return(0);
 }
@@ -4408,7 +4408,7 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Zon
                 "pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-    
+
         if(zone_ptr->type == TYPE_NETWORK)
         {
             /* now loop through the ruleslist */
@@ -4436,7 +4436,7 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Zon
                 if(conf.bash_out == TRUE && create->description != NULL)
                 {
                     fprintf(stdout, "\n# %s\n", create->description);
-        
+
                     free(create->description);
                     create->description = NULL;
                 }
@@ -4482,7 +4482,7 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Zon
                             }
 
                             if(create_network_protect_rules_dhcp_client(debuglvl, ruleset, zones, iptcap, create, from_if_ptr) < 0)
-                                retval = -1;
+                                return(-1);
                         }
                     }
                     else if(strcasecmp(rule_ptr->service,"dhcp-server") == 0)
@@ -4497,7 +4497,7 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Zon
                             }
 
                             if(create_network_protect_rules_dhcp_server(debuglvl, ruleset, zones, iptcap, create, from_if_ptr) < 0)
-                                retval = -1;
+                                return(-1);
                         }
                     }
                 }

@@ -1118,7 +1118,6 @@ mm_reload_shm(const int debuglvl)
     char    str[4] = "";
 
     char    failed = 0;
-    char    vuurmuurlog_nc = FALSE;
 
     /* reset the last reload result */
     last_vuurmuur_result = 1;
@@ -1203,8 +1202,6 @@ mm_reload_shm(const int debuglvl)
     }
     else
     {
-        vuurmuurlog_nc = TRUE;
-
         vuurmuurlog_result = VR_RR_READY;
         vuurmuurlog_progress = 100;
 

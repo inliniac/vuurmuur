@@ -402,37 +402,39 @@ edit_tcpudp(const int debuglvl, struct portdata *port_ptr)
         return(-1);
     }
 
-    TCPUDPSec.src_lo_fld = (fields[field_num] = new_field(1, 5, 3, 3, 0, 0));
+    TCPUDPSec.src_lo_fld = (fields[field_num++] = new_field(1, 5, 3, 3, 0, 0));
     if(port_ptr->src_low > 0 && port_ptr->src_low <= 65535)
     {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->src_low);
         set_field_buffer_wrap(debuglvl, TCPUDPSec.src_lo_fld, 0, port_str);
     }
-    field_num++;
 
-    TCPUDPSec.src_hi_fld = (fields[field_num] = new_field(1, 5, 3, 11, 0, 0));
+    TCPUDPSec.src_hi_fld = (fields[field_num++] = new_field(1, 5, 3, 11, 0, 0));
     if(port_ptr->src_high > 0 && port_ptr->src_high <= 65535)
     {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->src_high);
         set_field_buffer_wrap(debuglvl, TCPUDPSec.src_hi_fld, 0, port_str);
     }
-    field_num++;
 
-    TCPUDPSec.dst_lo_fld = (fields[field_num] = new_field(1, 5, 3, 24, 0, 0));
+    TCPUDPSec.dst_lo_fld = (fields[field_num++] = new_field(1, 5, 3, 24, 0, 0));
     if(port_ptr->dst_low > 0 && port_ptr->dst_low <= 65535)
     {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->dst_low);
         set_field_buffer_wrap(debuglvl, TCPUDPSec.dst_lo_fld, 0, port_str);
     }
-    field_num++;
 
-    TCPUDPSec.dst_hi_fld = (fields[field_num] = new_field(1, 5, 3, 32, 0, 0));
+    TCPUDPSec.dst_hi_fld = (fields[field_num++] = new_field(1, 5, 3, 32, 0, 0));
     if(port_ptr->dst_high > 0 && port_ptr->dst_high <= 65535)
     {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->dst_high);
         set_field_buffer_wrap(debuglvl, TCPUDPSec.dst_hi_fld, 0, port_str);
     }
-    field_num++;
+
+    if (field_num != 4) {
+        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return(-1);
+    }
 
     for(i = 0; i < 4; i++)
     {
@@ -1090,15 +1092,13 @@ edit_icmp(const int debuglvl, struct portdata *port_ptr)
     /* set window dimentions */
     height = 7;
     width  = 24;
-    startx = 0;
-    starty = 0;
 
     getmaxyx(stdscr, max_height, max_width);
 
     /* place in the center of the screen */
     starty = (max_height - height) / 2;
     startx = (max_width - width) / 2;
-    
+
     /* create window and panel */
     new_portrange_win = create_newwin(height, width, starty, startx, "ICMP", (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     if(new_portrange_win == NULL)
@@ -1623,8 +1623,6 @@ edit_serv_portranges_init(const int debuglvl, struct ServicesData_ *ser_ptr)
                     starty = 5,
                     max_height,
                     max_width;
-    d_list_node     *item_d_node = NULL,
-                    *number_d_node = NULL;
     struct portdata *portrange_ptr = NULL;
 
     char            *port_string_ptr = NULL,
@@ -1666,13 +1664,9 @@ edit_serv_portranges_init(const int debuglvl, struct ServicesData_ *ser_ptr)
     startx = (max_width - width) / 2;
 
     // string item list
-//TODO
     d_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_list, free);
-    item_d_node = ServicesSection.EditServicePrt.item_list.top;
-
     // number item list
     d_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_number_list, free);
-    number_d_node = ServicesSection.EditServicePrt.item_number_list.top;
 
     for(i = 0, d_node = ser_ptr->PortrangeList.top; d_node ; d_node = d_node->next, i++)
     {
@@ -2178,40 +2172,32 @@ edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
     }
 
     /* active */
-    ServiceSec.activelabelfld = (ServicesSection.EditService.fields[field_num] = new_field(1, 10, 2, 0, 0, 0));
+    ServiceSec.activelabelfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 10, 2, 0, 0, 0));
     set_field_buffer_wrap(debuglvl, ServiceSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(ServiceSec.activelabelfld, O_ACTIVE);
-    field_num++;
 
-    ServiceSec.activefld = (ServicesSection.EditService.fields[field_num] = new_field(1, 3, 3, 1, 0, 0));
+    ServiceSec.activefld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, ServiceSec.activefld, 0, ser_ptr->active ? STR_YES : STR_NO);
-    field_num++;
 
     /* broadcast */
-    ServiceSec.broadcastlabelfld = (ServicesSection.EditService.fields[field_num] = new_field(1, 16, 5, 0, 0, 0));
+    ServiceSec.broadcastlabelfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 16, 5, 0, 0, 0));
     set_field_buffer_wrap(debuglvl, ServiceSec.broadcastlabelfld, 0, gettext("Broadcast"));
     field_opts_off(ServiceSec.broadcastlabelfld, O_ACTIVE);
-    field_num++;
 
-    ServiceSec.broadcastfld = (ServicesSection.EditService.fields[field_num] = new_field(1, 3, 6, 1, 0, 0));
+    ServiceSec.broadcastfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 3, 6, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, ServiceSec.broadcastfld, 0, ser_ptr->broadcast ? STR_YES : STR_NO);
-    field_num++;
 
     /* helper */
-    ServiceSec.helperlabelfld = (ServicesSection.EditService.fields[field_num] = new_field(1, 16, 2, 16, 0, 0));
+    ServiceSec.helperlabelfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 16, 2, 16, 0, 0));
     set_field_buffer_wrap(debuglvl, ServiceSec.helperlabelfld, 0, gettext("Protocol helper"));
     field_opts_off(ServiceSec.helperlabelfld, O_ACTIVE);
-    field_num++;
 
-    ServiceSec.helperfld = (ServicesSection.EditService.fields[field_num] = new_field(1, 32, 3, 17, 0, 0));
+    ServiceSec.helperfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 32, 3, 17, 0, 0));
     set_field_buffer_wrap(debuglvl, ServiceSec.helperfld, 0, ser_ptr->helper);
-    field_num++;
 
-
-    ServiceSec.commentlabelfld = (ServicesSection.EditService.fields[field_num] = new_field(1, 16, 8, 0, 0, 0));
+    ServiceSec.commentlabelfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 16, 8, 0, 0, 0));
     set_field_buffer_wrap(debuglvl, ServiceSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(ServiceSec.commentlabelfld, O_ACTIVE);
-    field_num++;
 
     /* comment field size */
     comment_y = 5;
@@ -2220,15 +2206,19 @@ edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
     if(sf->ask(debuglvl, serv_backend, ser_ptr->name, "COMMENT", ServicesSection.comment, sizeof(ServicesSection.comment), TYPE_SERVICE, 0) < 0)
         (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
 
-    ServiceSec.commentfld = (ServicesSection.EditService.fields[field_num] = new_field(comment_y, comment_x, 9, 1, 0, 0));
+    ServiceSec.commentfld = (ServicesSection.EditService.fields[field_num++] = new_field(comment_y, comment_x, 9, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, ServiceSec.commentfld, 0, ServicesSection.comment);
-    field_num++;
 
-    ServiceSec.norangewarningfld = (ServicesSection.EditService.fields[field_num] = new_field(1, 48, 14, 1, 0, 0));
+    ServiceSec.norangewarningfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 48, 14, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, ServiceSec.norangewarningfld, 0, gettext("Warning: no port(range)s defined!"));
     field_opts_off(ServiceSec.norangewarningfld, O_VISIBLE|O_ACTIVE);
     set_field_just(ServiceSec.norangewarningfld, JUSTIFY_CENTER);
-    field_num++;
+
+    if (ServicesSection.EditService.n_fields != field_num) {
+        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return(-1);
+    }
 
     /* terminate */
     ServicesSection.EditService.fields[ServicesSection.EditService.n_fields] = NULL;

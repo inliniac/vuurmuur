@@ -154,12 +154,10 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
 
     char            buf_done = 0;
 
-    char            device_line_parsed = 0,
-                    parsing_device_line = 0,
+    char            parsing_device_line = 0,
                     parsing_total_line = 0;
 
-    char            parsing_data = 0,
-                    parsing_data_done = 0;
+    char            parsing_data = 0;
 
     char            month_str[4] = "";
 
@@ -258,7 +256,6 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
                     if(parsing_device_line == 1)
                     {
                         parsing_device_line = 0;
-                        device_line_parsed = 1;
                     }
                     if(parsing_total_line == 1)
                     {
@@ -303,10 +300,6 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
 
                     /* get the current column */
                     cur_column = act_border - 1;
-
-                    /* see if we are done paring regular data */
-                    if(parsing_data == 1 && cur_column == 1 && strncmp(sect_buf_stripped, "---", 3) == 0)
-                        parsing_data_done = 1;
 
                     if(line_num == 1)
                     {
@@ -617,7 +610,6 @@ trafvol_section_init(const int debuglvl, int height, int width, int startx,
     mvwvline(TrafVolSection.win,  5, 71, ACS_VLINE, num_rows);
     mvwaddch(TrafVolSection.win,  4, 71, ACS_TTEE);
 
-    
     /* don't print this line if it overlaps with the window border */
     if(5 + num_rows + 1 < height)
     {

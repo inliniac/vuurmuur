@@ -304,7 +304,7 @@ read_helpfile(const int debuglvl, d_list *help_list, char *part)
         {
             if(strcmp(line, ":[END]:\n") == 0)
             {
-                inrange = 0;
+                /* implied inrange = 0; */
                 break;
             }
         }
@@ -433,7 +433,7 @@ read_wide_helpfile(const int debuglvl, d_list *help_list, wchar_t *part)
         {
             if(wcscmp(line, L":[END]:\n") == 0)
             {
-                inrange = 0;
+                /* implied inrange = 0; */
                 break;
             }
         }

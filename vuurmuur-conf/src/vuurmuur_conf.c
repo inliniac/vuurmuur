@@ -39,11 +39,12 @@ static int
 exec_wizard(const int debuglvl, char *path)
 {
     int retval = 0;
+    char *args[2] = {path,NULL};
 
     pid_t pid = fork();
     if (pid == 0) {
         /* actually exec the command */
-        execv(path,NULL);
+        execv(path, args);
 
         /* if we get here, the command didn't exec
          * so kill the child */
@@ -442,9 +443,6 @@ print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, ch
 
     getyx(win, y, x);
 
-    if(startx != 0)
-        x = startx;
-
     if(starty != 0)
         y = starty;
 
@@ -723,7 +721,6 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
                     user_data.realusername, (long)user_data.realuser);
 
     /* now load the backends */
-    config_done = 0;
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_PLUGINS); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
     result = load_backends(debuglvl, &PluginList);

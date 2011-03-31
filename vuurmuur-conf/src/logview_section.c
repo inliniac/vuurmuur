@@ -535,7 +535,7 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
         snprintf(print_str, tmpstr_i, "%s", logrule_ptr->details);
         wprintw(log_win, "%s", print_str);
 
-        cur_logrule_length = cur_logrule_length + tmpstr_i-1;
+        //cur_logrule_length = cur_logrule_length + tmpstr_i-1;
     }
 
     wprintw(log_win, "\n");
@@ -657,7 +657,6 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
     unsigned int    offset=0,
                     buffer_size=0,
                     start_print=0,
-                    end_print=0,
                     page=0;
     int             max_height = 0,
                     max_width = 0;
@@ -706,7 +705,6 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
 
     /* search */
     char                    search_mode = 0;
-    unsigned int            search_wait = 0;
     char                    search_stop = 0,
                             search_completed = 0,
                             search_error = 0;
@@ -1110,17 +1108,12 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
                 {
                     search_error = 1;
                     search_completed = 1;
-                    
+
                     line[StrMemLen(line)-2] = '\0';
                     (void)vrprint.error(-1, VR_ERR, "%s", line);
                 }
                 else
                 {
-                    search_wait = 0;
-
-                    if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "s: search_wait = 0 (reset).");
-
                     search_results++;
                 }
 
@@ -1175,12 +1168,6 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
                     /* if the bufferlist is full, remove the oldest item from it */
                     if(buffer_ptr->len > max_buffer_size)
                     {
-                        if(!(logrule_ptr = buffer_ptr->top->data))
-                        {
-                            (void)vrprint.error(-1, VR_INTERR, "NULL pointer.");
-                            return(-1);
-                        }
-
                         if(d_list_remove_top(debuglvl, buffer_ptr) < 0)
                         {
                             (void)vrprint.error(-1, VR_INTERR, "unable to remove line from buffer (runtime).");
@@ -1837,7 +1824,6 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
             if(max_onscreen >= (int)buffer_size)
             {
                 start_print = 0;
-                end_print = buffer_size - 1;
             }
             else
             {
@@ -1846,18 +1832,15 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
                 {
                     start_print = 0;
                 }
-                end_print = start_print + max_onscreen - 1;
             }
 
             if(debuglvl >= HIGH)
-                status_print(status_win, "buf_size: %u, max_onscr: %d, start: %d, end: %d, o: %u, p: %d, q: %d, s: %d", buffer_size, max_onscreen, start_print, end_print, offset, control.print, control.queue, control.sleep);
+                status_print(status_win, "buf_size: %u, max_onscr: %d, start: %d, o: %u, p: %d, q: %d, s: %d", buffer_size, max_onscreen, start_print, offset, control.print, control.queue, control.sleep);
         }
 
         /* if we're filtered, check for each line if it will be printed */
         if(use_filter)
         {
-            end_print = 0;
-
             for(d_node = buffer_ptr->bot, run_count = 0, delta = 0, filtered_lines = 0;
                 run_count < buffer_size;
                 d_node = d_node->prev, run_count++)
@@ -1912,13 +1895,12 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
             }
             
             start_print = first_draw;
-            end_print = buffer_size;
             
             if(delta < max_onscreen)
                 offset = 0;
                 
             if(debuglvl >= HIGH)
-                status_print(status_win, "filter :st: %d, en: %d, max: %d, buf: %u, del: %d, fil: %d, run: %d, fir: %d, offset: %u", start_print, end_print, max_onscreen, buffer_size, delta, filtered_lines, run_count, first_draw, offset);
+                status_print(status_win, "filter :st: %d, max: %d, buf: %u, del: %d, fil: %d, run: %d, fir: %d, offset: %u", start_print, max_onscreen, buffer_size, delta, filtered_lines, run_count, first_draw, offset);
         }
         
         /* if the queue is getting too full, print */
@@ -1927,7 +1909,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
 
         /* display counters for debuging */
         if(debuglvl >= LOW)
-            status_print(status_win, "buf_size: %u, max_onscr: %d, start: %d, end: %d, o: %u, p: %d, q: %d, s: %d", buffer_size, max_onscreen, start_print, end_print, offset, control.print, control.queue, control.sleep);
+            status_print(status_win, "buf_size: %u, max_onscr: %d, start: %d, o: %u, p: %d, q: %d, s: %d", buffer_size, max_onscreen, start_print, offset, control.print, control.queue, control.sleep);
 
 
         /* print the list to the screen */

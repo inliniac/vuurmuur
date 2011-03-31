@@ -577,8 +577,7 @@ int
 rules_init_list(const int debuglvl, Rules *rules, struct rgx_ *reg)
 {
     FILE                *fp = NULL;
-    int                 retval = 0,
-                        result = 0;
+    int                 retval = 0;
     char                line[MAX_RULE_LENGTH] = "";
     struct RuleData_    *rule_ptr = NULL;
     char                protect_warning_shown = FALSE;
@@ -714,7 +713,7 @@ rules_init_list(const int debuglvl, Rules *rules, struct rgx_ *reg)
             }
         }
 
-        while((result = rf->ask(debuglvl, rule_backend, "rules", "RULE", line, sizeof(line), TYPE_RULE, 1)) == 1)
+        while((rf->ask(debuglvl, rule_backend, "rules", "RULE", line, sizeof(line), TYPE_RULE, 1)) == 1)
         {
             /* check if the line is a comment */
         //TODO what? what? what?

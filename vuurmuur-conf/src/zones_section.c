@@ -204,7 +204,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
                                 __FUNC__, __LINE__);
         return(-1);
     }
-    
+
     /* get screen dimensions */
     getmaxyx(stdscr, max_height, max_width);
 
@@ -218,63 +218,57 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     }
 
     /* preload the active field */
-    HostSec.activelabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 2, 0, 0, 0));
+    HostSec.activelabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 2, 0, 0, 0));
     set_field_buffer_wrap(debuglvl, HostSec.activelabelfld, 0, STR_CACTIVE);
     field_opts_off(HostSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
-    field_num++;
 
-    HostSec.activefld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 3, 1, 0, 0));
+    HostSec.activefld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, HostSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
-    field_num++;
 
-
-    HostSec.ipaddresslabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 2, 22, 0, 0));
+    HostSec.ipaddresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 2, 22, 0, 0));
     set_field_buffer_wrap(debuglvl, HostSec.ipaddresslabelfld, 0, STR_IPADDRESS);
     field_opts_off(HostSec.ipaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
-    field_num++;
 
-    HostSec.ipaddressfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 3, 23, 0, 0));
+    HostSec.ipaddressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 3, 23, 0, 0));
     set_field_type(HostSec.ipaddressfld, TYPE_IPV4);
     set_field_buffer_wrap(debuglvl, HostSec.ipaddressfld, 0, zone_ptr->ipv4.ipaddress);
     field_opts_on(HostSec.ipaddressfld, O_BLANK);
-    field_num++;
 
-
-    HostSec.macaddresslabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 5, 22, 0, 0));
+    HostSec.macaddresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 5, 22, 0, 0));
     set_field_buffer_wrap(debuglvl, HostSec.macaddresslabelfld, 0, STR_MACADDRESS);
     field_opts_off(HostSec.macaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
-    field_num++;
 
-    HostSec.macaddressfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 19, 6, 23, 0, 0));
+    HostSec.macaddressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 19, 6, 23, 0, 0));
     set_field_buffer_wrap(debuglvl, HostSec.macaddressfld, 0, zone_ptr->mac);
     field_opts_on(HostSec.macaddressfld, O_BLANK);
-    field_num++;
 
     /* comment label */
-    HostSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 8, 0, 0, 0));
+    HostSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 8, 0, 0, 0));
     set_field_buffer_wrap(debuglvl, HostSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(HostSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
-    field_num++;
 
     /* comment field size */
     comment_y = 5;
     comment_x = 48;
     /* create the comment field */
-    HostSec.commentfld = (ZonesSection.EditZone.fields[field_num] = new_field(comment_y, comment_x, 9, 1, 0, 0));
+    HostSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 9, 1, 0, 0));
 
     /* load the comment from the backend */
     if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), TYPE_HOST, 0) < 0)
         (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
 
     set_field_buffer_wrap(debuglvl, HostSec.commentfld, 0, ZonesSection.comment);
-    field_num++;
 
 
-    HostSec.warningfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 48, 15, 1, 0, 0));
+    HostSec.warningfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 48, 15, 1, 0, 0));
     field_opts_off(HostSec.warningfld, O_AUTOSKIP | O_ACTIVE | O_VISIBLE);
     set_field_just(HostSec.warningfld, JUSTIFY_CENTER);
-    field_num++;
 
+    if (field_num != ZonesSection.EditZone.n_fields) {
+        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+                                __FUNC__, __LINE__);
+        return(-1);
+    }
 
     ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
 
@@ -1476,30 +1470,29 @@ zones_section_menu_hosts(const int debuglvl, Zones *zones, Rules *rules, BlockLi
                             if(zone_ptr == NULL)
                             {
                                 (void)vrprint.error(-1, VR_INTERR, "couldn't find %s in memory.", temp_ptr);
-                                retval = -1;
-                            }
-
-                            /* check the refernce counters */
-                            if(zone_ptr->refcnt_group > 0)
-                            {
-                                (void)vrprint.error(-1, VR_ERR, gettext("host '%s' is still a member of %u group(s)."),
-                                                        zone_ptr->name, zone_ptr->refcnt_group);
-                            }
-                            else if(zone_ptr->refcnt_blocklist > 0)
-                            {
-                                (void)vrprint.error(-1, VR_ERR, gettext("host '%s' is still in the blocklist (%u times)."),
-                                                        zone_ptr->name, zone_ptr->refcnt_blocklist);
-                            }
-                            else
-                            {
-                                if(delete_zone(debuglvl, zones, temp_ptr, zone_ptr->type) < 0)
+                            } else {
+                                /* check the refernce counters */
+                                if(zone_ptr->refcnt_group > 0)
                                 {
-                                    (void)vrprint.error(result, VR_ERR, gettext("deleting zone failed."));
+                                    (void)vrprint.error(-1, VR_ERR, gettext("host '%s' is still a member of %u group(s)."),
+                                            zone_ptr->name, zone_ptr->refcnt_group);
+                                }
+                                else if(zone_ptr->refcnt_blocklist > 0)
+                                {
+                                    (void)vrprint.error(-1, VR_ERR, gettext("host '%s' is still in the blocklist (%u times)."),
+                                            zone_ptr->name, zone_ptr->refcnt_blocklist);
                                 }
                                 else
                                 {
-                                    (void)vrprint.audit("%s '%s' %s.", STR_HOST, temp_ptr, STR_HAS_BEEN_DELETED);
-                                    reload = 1;
+                                    if(delete_zone(debuglvl, zones, temp_ptr, zone_ptr->type) < 0)
+                                    {
+                                        (void)vrprint.error(result, VR_ERR, gettext("deleting zone failed."));
+                                    }
+                                    else
+                                    {
+                                        (void)vrprint.audit("%s '%s' %s.", STR_HOST, temp_ptr, STR_HAS_BEEN_DELETED);
+                                        reload = 1;
+                                    }
                                 }
                             }
 
@@ -2139,7 +2132,7 @@ edit_zone_group_init(int debuglvl, Zones *zones, char *name, struct ZoneData_ *z
 
     memset(&GroupSec, 0, sizeof(GroupSec));
     ZonesSection.EditZone.n_fields = 5;
-    
+
     if(!(ZonesSection.EditZone.fields = (FIELD **)calloc(ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *))))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
@@ -2147,39 +2140,40 @@ edit_zone_group_init(int debuglvl, Zones *zones, char *name, struct ZoneData_ *z
     }
 
     /* preload the active field */
-    GroupSec.activelabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 2, 0, 0, 0));
+    GroupSec.activelabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 2, 0, 0, 0));
     set_field_buffer_wrap(debuglvl, GroupSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(GroupSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
-    field_num++;
 
-    GroupSec.activefld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 3, 1, 0, 0));
+    GroupSec.activefld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, GroupSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
-    field_num++;
 
     /* comment label */
-    GroupSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 5, 0, 0, 0));
+    GroupSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 5, 0, 0, 0));
     set_field_buffer_wrap(debuglvl, GroupSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(GroupSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
-    field_num++;
 
     /* comment field size */
     comment_y = 5;
     comment_x = 48;
     /* create the comment field */
-    GroupSec.commentfld = (ZonesSection.EditZone.fields[field_num] = new_field(comment_y, comment_x, 6, 1, 0, 0));
+    GroupSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 6, 1, 0, 0));
 
     /* load the comment from the backend */
     if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), TYPE_GROUP, 0) < 0)
         (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
 
     set_field_buffer_wrap(debuglvl, GroupSec.commentfld, 0, ZonesSection.comment);
-    field_num++;
 
     /* comment label */
-    GroupSec.warningfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 48, 11, 1, 0, 0));
+    GroupSec.warningfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 48, 11, 1, 0, 0));
     field_opts_off(GroupSec.warningfld, O_AUTOSKIP | O_ACTIVE | O_VISIBLE);
     set_field_just(GroupSec.warningfld, JUSTIFY_CENTER);
-    field_num++;
+
+    if (field_num != ZonesSection.EditZone.n_fields) {
+        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return(-1);
+    }
 
     /* terminate */
     ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
@@ -4929,6 +4923,7 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
     /* loop through to get user requests */
     while(quit == 0)
     {
+        prev = cur;
         /* get current field */
         cur = current_field(ZonesSection.EditZone.form);
 
@@ -4988,7 +4983,7 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
 
                     if(edit_zone_network_interfaces(debuglvl, interfaces, zone_ptr) < 0)
                         retval = -1;
-                    
+
                     draw_top_menu(debuglvl, top_win, gettext("Networks"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     break;
 
@@ -4999,13 +4994,13 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
                     form_driver(ZonesSection.EditZone.form, REQ_NEXT_FIELD);
                     form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
                     break;
-                
+
                 case KEY_UP:
-                
+
                     form_driver(ZonesSection.EditZone.form, REQ_PREV_FIELD);
                     form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
                     break;
-                
+
                 case 27:
                 case KEY_F(10):
                 case 'q':
@@ -5023,9 +5018,6 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
                     break;
             }
         }
-
-        prev = cur;
-        cur = current_field(ZonesSection.EditZone.form);
 
         /* print warning if no interfaces have been assigned to this network */
         if(zone_ptr->InterfaceList.len == 0)
@@ -5056,8 +5048,7 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
     }
 
     /* save */
-    retval = edit_zone_network_save(debuglvl, zone_ptr);
-    if(retval < 0)
+    if (edit_zone_network_save(debuglvl, zone_ptr) < 0)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
         retval = -1;
@@ -5750,38 +5741,40 @@ edit_zone_zone_init(const int debuglvl, Zones *zones, char *name, int height, in
 
     /* alloc fields */
     ZonesSection.EditZone.n_fields = 4;
-    
+
     if(!(ZonesSection.EditZone.fields = (FIELD **)calloc(ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *))))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
-    ZoneSec.activelabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 2, 0, 0, 0));
+    ZoneSec.activelabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 2, 0, 0, 0));
     set_field_buffer_wrap(debuglvl, ZoneSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(ZoneSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
-    field_num++;
 
-    ZoneSec.activefld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 3, 1, 0, 0));
+    ZoneSec.activefld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, ZoneSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
-    field_num++;
 
-    ZoneSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 5, 0, 0, 0));
+    ZoneSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 5, 0, 0, 0));
     set_field_buffer_wrap(debuglvl, ZoneSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(ZoneSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
-    field_num++;
 
     /* comment field size */
     comment_y = 5;
     comment_x = 48;
     /* create and label the comment field */
-    ZoneSec.commentfld = (ZonesSection.EditZone.fields[field_num] = new_field(comment_y, comment_x, 6, 1, 0, 0));
+    ZoneSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 6, 1, 0, 0));
     /* load the comment from the backend */
     if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), TYPE_ZONE, 0) < 0)
         (void)vrprint.error(-1, "Error", "error while loading the comment.");
 
     set_field_buffer_wrap(debuglvl, ZoneSec.commentfld, 0, ZonesSection.comment);
-    field_num++;
+
+    if (field_num != ZonesSection.EditZone.n_fields) {
+        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return(-1);
+    }
 
     ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
 
@@ -6108,10 +6101,9 @@ zones_section_init(const int debuglvl, Zones *zones)
 
     getmaxyx(stdscr, maxy, maxx);
 
-
-//TODO null check
-    
-    i = zones->list.len - 1;
+    if (zones == NULL) {
+        return(-1);
+    }
 
     /* count how many zones there are */
     for(d_node = zones->list.top; d_node ; d_node = d_node->next)
@@ -6121,7 +6113,7 @@ zones_section_init(const int debuglvl, Zones *zones)
             (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        
+
         if(zone_ptr->type == TYPE_ZONE)
             zones_cnt++;
     }

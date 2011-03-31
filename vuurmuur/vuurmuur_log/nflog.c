@@ -32,7 +32,7 @@
 #include <net/if.h>
 #include <netinet/if_ether.h>
 #include <libnetfilter_log/libnetfilter_log.h>
-
+#include <sys/time.h>
 #include "vuurmuur_log.h"
 #include "nflog.h"
 
@@ -46,7 +46,7 @@ union ipv4_adress {
 };
 
 static char *
-mac2str (unsigned char *mac, char *strmac, size_t len) {
+mac2str (char *mac, char *strmac, size_t len) {
 
     snprintf(strmac, len, "%02x:%02x:%02x:%02x:%02x:%02x",
         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
@@ -220,6 +220,9 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         switch (ntohs (ph->hw_protocol)) {
             case 0:
             case ETH_P_IP:
+                if (payload_len < sizeof(struct iphdr))
+                    break;
+
                 iph = (struct iphdr *)payload;
                 protoh = (uint32_t *)iph + iph->ihl;
                 logrule_ptr->protocol = iph->protocol;
@@ -328,15 +331,23 @@ readnflog (void)
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             return 0;
         } else if (errno == ENOBUFS) {
-            (void)vrprint.error (-1, "ENOBUFS on recv, may need to increase netlink_socket_buffer_size (in; %s:%d)", __FUNC__, __LINE__);
+            (void)vrprint.error (-1, "Error", "ENOBUFS on recv, may need to "
+                    "increase netlink_socket_buffer_size (in; %s:%d)",
+                    __FUNC__, __LINE__);
             return -1;
         } else {
-            (void)vrprint.error (-1, "Internal Error", "cannot recv: %s (in; %s:%d)", strerror (errno), __FUNC__, __LINE__);
+            (void)vrprint.error (-1, "Internal Error", "cannot recv: "
+                    "%s (in; %s:%d)", strerror (errno), __FUNC__, __LINE__);
             return -1;
         }
     }
 
     rv = nflog_handle_packet (h, buf, rv);
+    if (rv != 0) {
+        (void)vrprint.error (-1, "Error", "nflog_handle_packet() "
+                "returned %d", rv);
+        return -1;
+    }
     return (1);
 }
 

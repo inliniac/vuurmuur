@@ -546,7 +546,7 @@ vuumuurconf_print_warning(char *title, char *fmt, ...)
     update_panels();
     doupdate();
 
-    ch = wgetch(print_err_win);
+    (void)wgetch(print_err_win);
 
     del_panel(my_panels[0]);
     destroy_win(print_err_win);
@@ -609,7 +609,7 @@ vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
     update_panels();
     doupdate();
 
-    ch = wgetch(print_err_win);
+    (void)wgetch(print_err_win);
 
     del_panel(my_panels[0]);
     destroy_win(print_err_win);
@@ -653,7 +653,6 @@ char *
 selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned int cols, /*@null@*/char *set_to_name)
 {
     ITEM    **menu_items = NULL,
-            *item_to_set = NULL,
             *cur = NULL,
             *first_item = NULL;
     MENU    *confirm_menu;
@@ -747,7 +746,6 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
     height = 6 + (n_choices / cols);
     if(height > max_height - 8)
     {
-        starty = 3;
         height = max_height - 8;
     }
 
@@ -769,14 +767,10 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
     for(i = 0; i < n_choices; ++i)
     {
         menu_items[i] = new_item(choices[i], NULL);
-        if(set_to_name != NULL && strcmp(choices[i], set_to_name) == 0)
-            item_to_set = menu_items[i];
     }
     menu_items[n_choices] = (ITEM *)NULL;
 
     top = menu_items[0];
-    bot = menu_items[i - 1];
-
 
     if(cols == 1)
         bot = menu_items[i - 1];

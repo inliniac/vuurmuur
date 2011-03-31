@@ -1609,9 +1609,7 @@ zones_network_rem_iface(const int debuglvl, struct ZoneData_ *network_ptr, char 
 int
 zones_network_get_interfaces(const int debuglvl, struct ZoneData_ *zone_ptr, Interfaces *interfaces)
 {
-    int     result = 0;
     char    cur_ifac[MAX_INTERFACE] = "";
-
 
     /* safety */
     if(zone_ptr == NULL || interfaces == NULL)
@@ -1633,7 +1631,7 @@ zones_network_get_interfaces(const int debuglvl, struct ZoneData_ *zone_ptr, Int
     zone_ptr->active_interfaces = 0;
 
     /* get all interfaces from the backend */
-    while((result = zf->ask(debuglvl, zone_backend, zone_ptr->name, "INTERFACE", cur_ifac, sizeof(cur_ifac), TYPE_NETWORK, 1)) == 1)
+    while((zf->ask(debuglvl, zone_backend, zone_ptr->name, "INTERFACE", cur_ifac, sizeof(cur_ifac), TYPE_NETWORK, 1)) == 1)
     {
         if(zones_network_add_iface(debuglvl, interfaces, zone_ptr, cur_ifac) < 0)
         {
@@ -2003,11 +2001,9 @@ zones_network_rule_parse_line(const int debuglvl, const char *line, struct RuleD
 int
 zones_network_get_protectrules(const int debuglvl, struct ZoneData_ *network_ptr)
 {
-    int                 result = 0;
     char                currule[MAX_RULE_LENGTH] = "";
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
-
 
     /* safety */
     if(network_ptr == NULL)
@@ -2024,7 +2020,7 @@ zones_network_get_protectrules(const int debuglvl, struct ZoneData_ *network_ptr
     }
 
     /* get all rules from the backend */
-    while((result = zf->ask(debuglvl, zone_backend, network_ptr->name, "RULE", currule, sizeof(currule), TYPE_NETWORK, 1)) == 1)
+    while((zf->ask(debuglvl, zone_backend, network_ptr->name, "RULE", currule, sizeof(currule), TYPE_NETWORK, 1)) == 1)
     {
         /* get mem */
         if(!(rule_ptr = rule_malloc()))

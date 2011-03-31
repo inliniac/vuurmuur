@@ -1260,8 +1260,7 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
                             max_width,
                             not_defined;    /* 1 if a key is undefined */
 
-    struct InterfaceData_   *iface_ptr = NULL,
-                            TempIface;
+    struct InterfaceData_   *iface_ptr = NULL;
 
     FIELD                   *cur  = NULL,
                             *prev = NULL;
@@ -1300,12 +1299,7 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
 
     /* search the interface in memory */
     iface_ptr = search_interface(debuglvl, interfaces, name);
-    if(iface_ptr != NULL)
-    {
-        TempIface = *iface_ptr;
-    }
-    else
-    {
+    if (iface_ptr == NULL) {
         (void)vrprint.error(-1, VR_INTERR, "interface not found in memory");
         return(-1);
     }
@@ -1537,7 +1531,6 @@ init_interfaces_section(const int debuglvl, Interfaces *interfaces)
                             *desc_ptr = NULL;
     size_t                  size = 0;
 
-    height = LINES - 8;
     width = MAX_INTERFACE + 32 + 4;
     startx = 1;
     starty = 4;
@@ -2137,7 +2130,7 @@ interfaces_section(const int debuglvl, Interfaces *interfaces, Zones *zones,
     }
 
 //TODO
-    result = destroy_interfaces_section(debuglvl);
+    (void)destroy_interfaces_section(debuglvl);
 
     // refresh screen
     update_panels();

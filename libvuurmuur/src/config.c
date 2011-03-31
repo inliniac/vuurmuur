@@ -1670,7 +1670,6 @@ ask_configfile(const int debuglvl, const struct vuurmuur_config *cnf, char *ques
     int     retval = 0;
     size_t  i = 0,
             k = 0,
-            l = 0,
             j = 0;
     FILE    *fp = NULL;
     char    line[512] = "",
@@ -1689,15 +1688,14 @@ ask_configfile(const int debuglvl, const struct vuurmuur_config *cnf, char *ques
 
     while(fgets(line, (int)sizeof(line), fp) != NULL)
     {
-        i = strlen(line);
-        k=0; l=0; j=0;
-
         if ((line[0] == '#' ) || (strlen(line) < 1) || (line[0] == '\n'))
         {
             /* do nothing, its a comment. */
         }
         else
         {
+            k=0; j=0;
+
             /* variable */
             while(line[k] != '=' && k < size)
             {
@@ -1711,18 +1709,18 @@ ask_configfile(const int debuglvl, const struct vuurmuur_config *cnf, char *ques
 
             /* value */
             j=0;
-            l=k+1;
-            while(line[l] != '\0' && line[l] != '\n' && l < (size+k+1))
+            i=k+1;
+            while(line[i] != '\0' && line[i] != '\n' && i < (size+k+1))
             {
                 /* if the first character is a '"' we strip it. */
-                if(j == 0 && line[l] == '\"')
+                if(j == 0 && line[i] == '\"')
                 {
-                    l++;
+                    i++;
                 }
                 else
                 {
-                    value[j] = line[l];
-                    l++;
+                    value[j] = line[i];
+                    i++;
                     j++;
                 }
             }

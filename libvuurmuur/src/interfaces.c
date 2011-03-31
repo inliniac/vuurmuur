@@ -1867,14 +1867,13 @@ interfaces_rule_parse_line(const int debuglvl, const char *line, struct RuleData
 int
 interfaces_get_rules(const int debuglvl, struct InterfaceData_ *iface_ptr)
 {
-    int                 result = 0;
     char                currule[MAX_RULE_LENGTH] = "";
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
 
 
     /* safety */
-    if(!iface_ptr)
+    if(iface_ptr == NULL)
     {
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -1882,7 +1881,7 @@ interfaces_get_rules(const int debuglvl, struct InterfaceData_ *iface_ptr)
     }
 
     /* get all rules from the backend */
-    while((result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "RULE", currule, sizeof(currule), TYPE_INTERFACE, 1)) == 1)
+    while((af->ask(debuglvl, ifac_backend, iface_ptr->name, "RULE", currule, sizeof(currule), TYPE_INTERFACE, 1)) == 1)
     {
         /* get mem */
         if(!(rule_ptr = rule_malloc()))

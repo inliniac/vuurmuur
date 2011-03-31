@@ -239,8 +239,7 @@ int
 read_service(const int debuglvl, char *sername, struct ServicesData_ *service_ptr)
 {
     int     retval = 0,
-            result = 0,
-            empty_service = 1;      /* if empty_service == 1, it has no protocols */
+            result = 0;
 
     char    portrange[512] = "",    /* string in which we store the line from the backend */
             broadcast[4] = "";      /* max: 'yes' */
@@ -288,9 +287,6 @@ read_service(const int debuglvl, char *sername, struct ServicesData_ *service_pt
         /* process */
         if(process_portrange(debuglvl, "TCP", portrange, service_ptr) < 0)
             retval = -1;
-
-        /* not empty! */
-        empty_service = 0;
     }
     if(result < 0)
     {
@@ -305,9 +301,6 @@ read_service(const int debuglvl, char *sername, struct ServicesData_ *service_pt
         /* process */
         if(process_portrange(debuglvl, "UDP", portrange, service_ptr) < 0)
             retval = -1;
-
-        /* not empty! */
-        empty_service = 0;
     }
     if(result < 0)
     {
@@ -322,9 +315,6 @@ read_service(const int debuglvl, char *sername, struct ServicesData_ *service_pt
         /* process */
         if(process_portrange(debuglvl, "ICMP", portrange, service_ptr) < 0)
             retval = -1;
-
-        /* not empty! */
-        empty_service = 0;
     }
     if(result < 0)
     {
@@ -339,9 +329,6 @@ read_service(const int debuglvl, char *sername, struct ServicesData_ *service_pt
         /* process */
         if(process_portrange(debuglvl, "GRE", portrange, service_ptr) < 0)
             retval = -1;
-
-        /* not empty! */
-        empty_service = 0;
     }
     if(result < 0)
     {
@@ -356,9 +343,6 @@ read_service(const int debuglvl, char *sername, struct ServicesData_ *service_pt
         /* process */
         if(process_portrange(debuglvl, "AH", portrange, service_ptr) < 0)
             retval = -1;
-
-        /* not empty! */
-        empty_service = 0;
     }
     if(result < 0)
     {
@@ -373,9 +357,6 @@ read_service(const int debuglvl, char *sername, struct ServicesData_ *service_pt
         /* process */
         if(process_portrange(debuglvl, "ESP", portrange, service_ptr) < 0)
             retval = -1;
-
-        /* not empty! */
-        empty_service = 0;
     }
     if(result < 0)
     {
@@ -390,9 +371,6 @@ read_service(const int debuglvl, char *sername, struct ServicesData_ *service_pt
         /* process */
         if(process_portrange(debuglvl, "PROTO_41", portrange, service_ptr) < 0)
             retval = -1;
-
-        /* not empty! */
-        empty_service = 0;
     }
     if(result < 0)
     {
@@ -673,7 +651,9 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
                 split current_portrange to dst_portrange and src_portrange, and split both of them
             */
             range=0, port=0;
-            while(current_portrange[range] != '*')
+            while (range < strlen(current_portrange) &&
+                    port < sizeof(dst_portrange) &&
+                    current_portrange[range] != '*')
             {
                 dst_portrange[port]=current_portrange[range];
                 range++; port++;
@@ -789,7 +769,7 @@ new_service(const int debuglvl, Services *services, char *sername, int sertype)
         return(-1);
     }
 
-    if((ser_ptr = search_service(debuglvl, services, sername)))
+    if((search_service(debuglvl, services, sername) != NULL))
     {
         (void)vrprint.error(-1, "Internal Error", "service %s already exists (in: %s:%d).",
                 sername, __FUNC__, __LINE__);
@@ -878,7 +858,7 @@ delete_service(const int debuglvl, Services *services, char *sername, int sertyp
     }
 
     /* this is a bit overkill right now, but when we start using hash-searching, it wont be */
-    if(!(ser_ptr = search_service(debuglvl, services, sername)))
+    if((search_service(debuglvl, services, sername) == NULL))
     {
         (void)vrprint.error(-1, "Internal Error", "service %s not found in memory (in: %s:%d).",
                 sername, __FUNC__, __LINE__);
