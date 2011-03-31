@@ -26,6 +26,10 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
+#ifdef HAVE_IPV6
+#include <netinet/ip6.h>
+#include <netinet/icmp6.h>
+#endif /* HAVE_IPV6 */
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <linux/icmp.h>
@@ -216,9 +220,30 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         (void)vrprint.error (-1, "Error", "Can't get payload");
         return -1;
     } else {
-        /* This test still results in 0 hw_protocol in packets (??) */
-        switch (ntohs (ph->hw_protocol)) {
-            case 0:
+        uint16_t hw_protocol = ntohs(ph->hw_protocol);
+        if (hw_protocol == 0x0000) {
+            struct iphdr *iph = (struct iphdr *)payload;
+#ifdef HAVE_IPV6
+            struct ip6_hdr *ip6h = (struct ip6_hdr *)payload;
+#endif
+            if (payload_len >= sizeof(struct iphdr) && iph->version == 4) {
+                (void)vrprint.debug(__FUNC__, "IPv4");
+                hw_protocol = ETH_P_IP;
+#ifdef HAVE_IPV6
+            } else if (payload_len >= sizeof(struct ip6_hdr) && ((ip6h->ip6_vfc & 0xf0) >> 4) == 6) {
+                (void)vrprint.debug(__FUNC__, "IPv6");
+                hw_protocol = ETH_P_IPV6;
+#endif
+            }
+
+            (void)vrprint.debug(__FUNC__, "hw_protocol 0x%04X", hw_protocol);
+        }
+
+        switch (hw_protocol) {
+            /* netfilter not always sets the hw_protocol */
+            case 0x0000:
+                /* we tried, but failed */
+                break;
             case ETH_P_IP:
                 if (payload_len < sizeof(struct iphdr))
                     break;
@@ -259,9 +284,66 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                 logrule_ptr->ttl = iph->ttl;
                 break;
             case ETH_P_IPV6:
+            {
+#ifdef HAVE_IPV6
+                (void)vrprint.debug(__FUNC__, "hw proto said IPv6, lets try to decode.");
+
+                if (payload_len < sizeof(struct ip6_hdr))
+                    break;
+
+                struct ip6_hdr *ip6h = (struct ip6_hdr *)payload;
+                payload += sizeof(struct ip6_hdr);
+                payload_len -= sizeof(struct ip6_hdr);
+
+                inet_ntop(AF_INET6, (const void *)&ip6h->ip6_src,
+                        logrule_ptr->src_ip, sizeof(logrule_ptr->src_ip));
+                inet_ntop(AF_INET6, (const void *)&ip6h->ip6_dst,
+                        logrule_ptr->dst_ip, sizeof(logrule_ptr->dst_ip));
+
+                logrule_ptr->ttl = ip6h->ip6_hlim;
+
+                /* just the next header, might not be the protocol we care about */
+                logrule_ptr->protocol = ip6h->ip6_nxt;
+                switch (logrule_ptr->protocol) {
+                    case IPPROTO_ICMPV6:
+                        if (payload_len >= sizeof(struct icmp6_hdr)) {
+                            struct icmp6_hdr *icmp6h = (struct icmp6_hdr *)payload;
+                            logrule_ptr->icmp_type = icmp6h->icmp6_type;
+                            logrule_ptr->icmp_code = icmp6h->icmp6_code;
+                            (void)vrprint.debug(__FILE__, "ICMPv6: type %u code %u",
+                                    logrule_ptr->icmp_type, logrule_ptr->icmp_code);
+                        }
+                        break;
+                    case IPPROTO_TCP:
+                        if (payload_len >= sizeof(struct tcphdr)) {
+                            tcph = (struct tcphdr *)payload;
+                            logrule_ptr->src_port = ntohs(tcph->source);
+                            logrule_ptr->dst_port = ntohs(tcph->dest);
+                            logrule_ptr->syn = tcph->syn;
+                            logrule_ptr->fin = tcph->fin;
+                            logrule_ptr->rst = tcph->rst;
+                            logrule_ptr->ack = tcph->ack;
+                            logrule_ptr->psh = tcph->psh;
+                            logrule_ptr->urg = tcph->urg;
+                        }
+                        break;
+                    case IPPROTO_UDP:
+                        if (payload_len >= sizeof(struct tcphdr)) {
+                            udph = (struct udphdr *)payload;
+                            logrule_ptr->src_port = ntohs(udph->source);
+                            logrule_ptr->dst_port = ntohs(udph->dest);
+                        }
+                        break;
+                }
+
+                logrule_ptr->ipv6 = 1;
+
+                (void)vrprint.debug(__FILE__, "IPV6 %s -> %s (%u)", logrule_ptr->src_ip, logrule_ptr->dst_ip, logrule_ptr->protocol);
+#endif /* HAVE_IPV6 */
                 break;
+            }
             default:
-                (void)vrprint.debug (__FUNC__, "HW Protocol: 0x%04x", ntohs(ph->hw_protocol));
+                (void)vrprint.debug (__FUNC__, "unknown HW Protocol: 0x%04x", hw_protocol);
                 break;
         }
     }

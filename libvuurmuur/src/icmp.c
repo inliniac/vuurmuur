@@ -41,11 +41,13 @@ get_icmp_name_short(int type, int code, char *name, size_t size, int only_code)
         snprintf(name, size, "illegal icmp (%d.%d)", type, code);
         return(0);
     }
+#ifndef HAVE_IPV6
     else if(type > 40 && type <= 255)
     {
         snprintf(name, size, "reserved icmp (%d.%d)", type, code);
         return(0);
     }
+#endif /* HAVE_IPV6 */
 
     /* loop trough vrmr_icmp_types until we reach the end (-1) */
     for(i=0; vrmr_icmp_types[i].type != -1; i++)

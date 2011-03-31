@@ -80,7 +80,12 @@ struct vrmr_icmp_types_
         {"Mobile Registration Reply",   "mobile-reg-reply", 36,     0},
         {"SKIP",                        "skip",             39,     0},
         {"Photuris",                    "photuris",         40,     1},//8
-
+#ifdef HAVE_IPV6
+        {"Echo Request",                "echo-request",     128,    0},
+        {"Echo Reply",                  "echo-reply",       129,    0},
+        {"Neighbor Solicitation",       "neigh-sollicit",   135,    0},
+        {"Neighbor Advertisement",      "neigh-advert",     136,    0},
+#endif /* HAVE_IPV6 */
         // last
         {"", "", -1, -1},
     };

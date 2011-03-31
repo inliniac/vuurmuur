@@ -82,8 +82,14 @@ struct log_rule
     char            interface_in[16];
     char            interface_out[16];
 
+#ifndef HAVE_IPV6
     char            src_ip[16];
     char            dst_ip[16];
+#else
+    char            src_ip[46];
+    char            dst_ip[46];
+    int             ipv6;
+#endif /* HAVE_IPV6 */
 
     int             protocol;
     int             src_port;
@@ -110,7 +116,7 @@ struct log_rule
     char            ser_name[MAX_SERVICE];
     char            from_int[MAX_INTERFACE+5];  /* 'in: ' */
     char            to_int[MAX_INTERFACE+6];    /* 'out: ' */
-    
+
     char            tcpflags[7];
 };
 

@@ -133,12 +133,12 @@ CreateTCPFlagString(struct log_rule *logrule_ptr, char *flagBuffer)
 
 /*
     get the vuurmuurnames with the ips and ports
-    
+
     Returncodes:
          1: ok
          0: logline not ok
         -1: internal error
-        
+
     NOTE: if the function returns -1 the memory is not cleaned up: the program is supposed to exit
 */
 static int
@@ -158,6 +158,15 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, Hash *ZoneH
         return(-1);
     }
 
+#ifdef HAVE_IPV6
+    /* no support in looking up hosts, services, etc yet */
+    if (logrule_ptr->ipv6 == 1) {
+        if(strlcpy(logrule_ptr->from_name, logrule_ptr->src_ip, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
+            (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+        if(strlcpy(logrule_ptr->to_name, logrule_ptr->dst_ip, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
+            (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+    } else {
+#endif /* HAVE_IPV6 */
 
     /* search in the hash with the ipaddress */
     if(!(search_ptr = search_zone_in_hash_with_ipv4(debuglvl, logrule_ptr->src_ip, ZoneHash)))
@@ -195,6 +204,9 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, Hash *ZoneH
             strlcpy(logrule_ptr->to_name, "firewall", sizeof(logrule_ptr->to_name));
     }
     search_ptr = NULL;
+#ifdef HAVE_IPV6
+    }
+#endif /* HAVE_IPV6 */
 
 
     /*
@@ -204,7 +216,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, Hash *ZoneH
     /*  icmp is treated different because of the type and code
         and we can call get_icmp_name_short.
     */
-    if(logrule_ptr->protocol == 1)
+    if(logrule_ptr->protocol == 1 || logrule_ptr->protocol == 58)
     {
         if(!(ser_search_ptr = search_service_in_hash(debuglvl, logrule_ptr->icmp_type, logrule_ptr->icmp_code, logrule_ptr->protocol, ServiceHash)))
         {
@@ -356,6 +368,20 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
                 logrule->dst_ip, logrule->dst_mac,
                 logrule->packet_len, logrule->ttl);
             break;
+#ifdef HAVE_IPV6
+        case 58:                    /* ICMPv6 */
+            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s ICMPv6 type %d code %d len:%u ttl:%u)\n",
+                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
+                logrule->action, logrule->ser_name,
+                logrule->from_name, logrule->to_name,
+                logrule->logprefix,
+                logrule->from_int, logrule->to_int,
+                logrule->src_ip, logrule->src_mac,
+                logrule->dst_ip, logrule->dst_mac,
+                logrule->icmp_type, logrule->icmp_code,
+                logrule->packet_len, logrule->ttl);
+            break;
+#endif /* HAVE_IPV6 */
         default:
             (void)vrprint.debug(__FUNC__, "unknown protocol");
             return(-1);
