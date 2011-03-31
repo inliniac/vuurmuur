@@ -63,6 +63,7 @@ main(int argc, char *argv[])
         {"block",       1, NULL, 0},
         {"unblock",     1, NULL, 0},
         {"list-blocked",0, NULL, 0},
+        {"list-paths",  0, NULL, 0},
 
         /* object name */
         {"variable",    1, NULL, 'V'},
@@ -137,6 +138,7 @@ main(int argc, char *argv[])
 
     /* handle commandline options that don't require a config so they can be
      * used by the wizard. */
+    opterr = 0; /* no need for getopt_long to emit errors */
     while((opt = getopt_long(argc, argv, optstring, long_options2, &longopt_index)) >= 0)
     {
         switch(opt)
@@ -167,7 +169,7 @@ main(int argc, char *argv[])
     /* Process commandline options */
     longopt_index = 0;
     opt = 0;
-    optind = 0;
+    optind = 0; /* reset optind */
     while((opt = getopt_long(argc, argv, optstring, long_options, &longopt_index)) >= 0)
     {
         switch(opt)
@@ -259,6 +261,15 @@ main(int argc, char *argv[])
                     vr_script.type = TYPE_RULE;
                     vr_script.cmd = CMD_LBL;
                     break;
+                }
+                else if(strcmp(long_options[longopt_index].name, "list-paths") == 0)
+                {
+                    printf("SYSCONFDIR %s\n", conf.etcdir);
+                    printf("VUURMUURCONFDIR %s/vuurmuur\n", conf.etcdir);
+                    printf("CONFIGFILE %s\n", conf.configfile);
+                    printf("PLUGINDIR %s\n", conf.plugdir);
+                    printf("DATADIR %s\n", conf.datadir);
+                    exit(EXIT_SUCCESS);
                 }
                 else
                 {
