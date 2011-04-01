@@ -408,7 +408,7 @@ void print_about(const int debuglvl);
 #define STATEVENTTYPE_CONN  2
 typedef struct LogRule_
 {
-    int filtered;
+    char filtered;
 
     char month[4];
     char date[3];
@@ -423,7 +423,7 @@ typedef struct LogRule_
 
     char prefix[32];
 
-    char details[128];
+    char details[256];
 } LogRule;
 
 typedef struct ct_
