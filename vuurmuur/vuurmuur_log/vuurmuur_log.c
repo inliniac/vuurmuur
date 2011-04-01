@@ -794,7 +794,7 @@ main(int argc, char *argv[])
                     case 0:
                         usleep (100000);
                         break;
-                    default:
+                    case 1:
                         result = get_vuurmuur_names(debuglvl, &logrule, &zone_htbl, &service_htbl);
                         switch (result)
                         {
@@ -808,13 +808,19 @@ main(int argc, char *argv[])
                             default:
                                 if (BuildVMLine (&logrule, line_out, sizeof(line_out)) < 0)
                                 {
-                                    (void)vrprint.error(-1, "Error", "Could not build output line");;
+                                    (void)vrprint.debug("nflog", "Could not build output line");
                                 } else {
                                     fprintf (vuurmuur_log, "%s", line_out);
                                     fflush(vuurmuur_log);
                                 }
                                 break;
                         }
+                        Counters.totalvuurmuur++;
+                        break;
+                    case 2:
+                    default:
+                        Counters.invalid_loglines++;
+                        break;
                 }
 #endif /* HAVE_LIBNETFILTER_LOG */
             } /* if syslog */

@@ -302,6 +302,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                         logrule_ptr->dst_ip, sizeof(logrule_ptr->dst_ip));
 
                 logrule_ptr->ttl = ip6h->ip6_hlim;
+                logrule_ptr->packet_len = 40 + ntohs(ip6h->ip6_plen);
 
                 /* just the next header, might not be the protocol we care about */
                 logrule_ptr->protocol = ip6h->ip6_nxt;
@@ -427,9 +428,9 @@ readnflog (void)
 
     rv = nflog_handle_packet (h, buf, rv);
     if (rv != 0) {
-        (void)vrprint.error (-1, "Error", "nflog_handle_packet() "
+        (void)vrprint.debug ("nflog", "nflog_handle_packet() "
                 "returned %d", rv);
-        return -1;
+        return (2); /* invalid record */
     }
     return (1);
 }
