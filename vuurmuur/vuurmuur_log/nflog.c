@@ -51,10 +51,9 @@ union ipv4_adress {
 
 static char *
 mac2str (char *mac, char *strmac, size_t len) {
-
     snprintf(strmac, len, "%02x:%02x:%02x:%02x:%02x:%02x",
-        mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
+        (uint8_t)mac[0], (uint8_t)mac[1], (uint8_t)mac[2],
+        (uint8_t)mac[3], (uint8_t)mac[4], (uint8_t)mac[5]);
     return strmac;
 }
 
@@ -167,10 +166,12 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     /* Convert MAC src and dst to strings and copy into logrule_ptr */
     if (nflog_get_msg_packet_hwhdrlen (nfa)) {
         hwhdr = nflog_get_msg_packet_hwhdr (nfa);
-        mac2str (hwhdr, macstr, sizeof(macstr));
-        snprintf (logrule_ptr->dst_mac, sizeof (logrule_ptr->dst_mac), "(%s)", macstr);
-        mac2str (hwhdr + 6, macstr, sizeof(macstr));
-        snprintf (logrule_ptr->src_mac, sizeof (logrule_ptr->src_mac), "(%s)", macstr);
+        if (hwhdr != NULL) {
+            mac2str (hwhdr, macstr, sizeof(macstr));
+            snprintf (logrule_ptr->dst_mac, sizeof (logrule_ptr->dst_mac), "(%s)", macstr);
+            mac2str (hwhdr + 6, macstr, sizeof(macstr));
+            snprintf (logrule_ptr->src_mac, sizeof (logrule_ptr->src_mac), "(%s)", macstr);
+        }
     }
 
     /* Find indev idx for pkg and translate to interface name */
