@@ -560,10 +560,9 @@ struct ipdata
 #ifdef IPV6_ENABLED
 struct ip6data
 {
-    char    ipaddress[MAX_IPV6_ADDR_LEN];
-    char    network[MAX_IPV6_ADDR_LEN];
-    char    netmask[MAX_IPV6_ADDR_LEN];
-    char    broadcast[MAX_IPV6_ADDR_LEN];
+    char ip6[MAX_IPV6_ADDR_LEN];    /* host ip-address */
+    char net6[MAX_IPV6_ADDR_LEN];   /* network address string */
+    int cidr6;                      /* CIDR: -1 unitialized, 0-128 are valid masks */
 };
 #endif
 

@@ -190,6 +190,22 @@ get_ip_info(const int debuglvl, char *name, struct ZoneData_ *answer_ptr, struct
                 we do this after check_ip because otherwise check_ip would not work */
             strcpy(answer_ptr->ipv4.netmask, "255.255.255.255");
 
+#ifdef IPV6_ENABLED
+            /* ask the ipaddress for this host */
+            result = zf->ask(debuglvl, zone_backend, name, "IPV6ADDRESS", answer_ptr->ipv6.ip6, sizeof(answer_ptr->ipv6.ip6), TYPE_HOST, 0);
+            if(result < 0)
+            {
+                (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            if (strcmp(answer_ptr->ipv6.ip6, "") != 0) {
+                /*  for iptables, the netmask of a single host is always /128,
+                    we do this after check_ip because otherwise check_ip would not work */
+                answer_ptr->ipv6.cidr6 = 128;
+            }
+#endif
             break;
 
         case TYPE_NETWORK:
@@ -229,6 +245,34 @@ get_ip_info(const int debuglvl, char *name, struct ZoneData_ *answer_ptr, struct
                     answer_ptr->active = 0;
                 }
             }
+
+#ifdef IPV6_ENABLED
+            result = zf->ask(debuglvl, zone_backend, name, "IPV6NETWORK", answer_ptr->ipv6.net6, sizeof(answer_ptr->ipv6.net6), TYPE_NETWORK, 0);
+            if(result < 0)
+            {
+                (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            char cidrstr[4] = "";
+            result = zf->ask(debuglvl, zone_backend, name, "IPV6CIDR", cidrstr, sizeof(cidrstr), TYPE_NETWORK, 0);
+            if(result < 0)
+            {
+                (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            int cidr = atoi(cidrstr);
+            if (cidr >= 0 && cidr <= 128) {
+                answer_ptr->ipv6.cidr6 = cidr;
+            } else {
+                (void)vrprint.error(-1, "Error", "invalid IPV6 CIDR for zone "
+                        "'%s', must be in range 0-128.", answer_ptr->name);
+                answer_ptr->active = 0;
+            }
+#endif
             break;
 
         default:
@@ -307,7 +351,6 @@ create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broa
 
     return(retval);
 }
-
 
 /*  get_group_info
 

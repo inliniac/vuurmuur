@@ -82,6 +82,10 @@ zone_malloc(const int debuglvl)
     /* initialize */
     memset(zone_ptr, 0, sizeof(struct ZoneData_));
 
+#ifdef IPV6_ENABLED
+    zone_ptr->ipv6.cidr6 = -1;
+#endif
+
     zone_ptr->GroupList.len = 0;
     if(d_list_setup(debuglvl, &zone_ptr->GroupList, NULL) < 0)
         return(NULL);
