@@ -158,7 +158,9 @@ interface_malloc(const int debuglvl)
     }
 
     memset(iface_ptr, 0, sizeof(struct InterfaceData_));
-
+#ifdef IPV6_ENABLED
+    iface_ptr->ipv6.cidr6 = -1;
+#endif
     iface_ptr->type = TYPE_INTERFACE;
 
     iface_ptr->active = TRUE;

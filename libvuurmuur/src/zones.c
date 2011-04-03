@@ -2389,3 +2389,35 @@ load_zones(const int debuglvl, Zones *zones, Interfaces *interfaces, struct rgx_
     (void)vrprint.info("Info", "Loading zones succesfull.");
     return(0);
 }
+
+
+#ifdef IPV6_ENABLED
+/** \brief See if a host is IPv6-enabled.
+ *  \retval 1 yes
+ *  \retval 0 no
+ */
+int
+zones_host_ipv6_enabled(const int debuglvl, struct ZoneData_ *host_ptr) {
+    if (host_ptr != NULL && host_ptr->type == TYPE_HOST &&
+            host_ptr->ipv6.cidr6 != -1)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+/** \brief See if a network is IPv6-enabled.
+ *  \retval 1 yes
+ *  \retval 0 no
+ */
+int
+zones_network_ipv6_enabled(const int debuglvl, struct ZoneData_ *network_ptr) {
+    if (network_ptr != NULL && network_ptr->type == TYPE_NETWORK &&
+            network_ptr->ipv6.cidr6 != -1)
+    {
+        return 1;
+    }
+    return 0;
+}
+#endif
+

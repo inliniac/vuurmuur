@@ -307,6 +307,19 @@ interface_check_devicename(const int debuglvl, char *devicename)
     return(1);
 }
 
+#ifdef IPV6_ENABLED
+/** \brief See if an interface is IPv6-enabled.
+ *  \retval 1 yes
+ *  \retval 0 no
+ */
+int
+interface_ipv6_enabled(const int debuglvl, struct InterfaceData_ *iface_ptr) {
+    if (iface_ptr != NULL && iface_ptr->ipv6.cidr6 != -1) {
+        return 1;
+    }
+    return 0;
+}
+#endif
 
 /*  read_interface_info
 
@@ -471,6 +484,36 @@ read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr)
                 __FUNC__, __LINE__);
         return(-1);
     }
+
+#ifdef IPV6_ENABLED
+    /* ask the ipv6 address of this interface */
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "IPV6ADDRESS", iface_ptr->ipv6.ip6, sizeof(iface_ptr->ipv6.ip6), TYPE_INTERFACE, 0);
+    if(result == 1)
+    {
+        if(debuglvl >= HIGH)
+            (void)vrprint.debug(__FUNC__, "ipaddress: %s.", iface_ptr->ipv6.ip6);
+
+        /* check if ip is dynamic */
+        if(strcmp(iface_ptr->ipv6.ip6, "dynamic") == 0)
+        {
+            iface_ptr->dynamic = TRUE;
+        }
+
+        iface_ptr->ipv6.cidr6 = 128;
+    }
+    else if(result == 0)
+    {
+        if(debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "no IPV6ADDRESS defined for interface '%s', assuming not virtual.",
+                    iface_ptr->name);
+    }
+    else
+    {
+        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return(-1);
+    }
+#endif /* IPV6_ENABLED */
 
     /* lookup if we need shaping */
     result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "SHAPE", yesno, sizeof(yesno), TYPE_INTERFACE, 0);

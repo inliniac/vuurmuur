@@ -1385,6 +1385,8 @@ int zones_check_network(const int, struct ZoneData_ *);
 int load_zones(const int, Zones *, Interfaces *, struct rgx_ *);
 int zones_network_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, Zones *, struct vuurmuur_config *);
 int zones_network_rule_parse_line(const int, const char *, struct RuleData_ *);
+int zones_host_ipv6_enabled(const int, struct ZoneData_ *);
+int zones_network_ipv6_enabled(const int, struct ZoneData_ *);
 
 /*
     services.c
@@ -1562,6 +1564,9 @@ int interfaces_iface_up(const int, struct InterfaceData_ *);
 int interfaces_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, Interfaces *, struct vuurmuur_config *);
 int interfaces_rule_parse_line(const int, const char *, struct RuleData_ *);
 int interface_check_devicename(const int, char *);
+#ifdef IPV6_ENABLED
+int interface_ipv6_enabled(const int, struct InterfaceData_ *);
+#endif
 
 /*
     icmp.c
