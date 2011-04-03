@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include "config.h"
 #include "vuurmuur.h"
 #include "binreloc.h"
 
@@ -267,6 +268,88 @@ check_iptablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, c
     return(1);
 }
 
+/**
+ \param[in] debuglvl The debug level that should be used
+ \param[in] cnf
+ \param[in] ip6tables_location A pointer to the buffer that contains the
+    location of the ip6tables command
+ \param[in] quiet Should we print errors (TRUE) or not (FALSE)?
+ \retval -1 When there is a problem with the given arguments
+ \retval 0 The location was not valid (or not filled)
+ \retval 1 The location seems to be correct
+*/
+#ifdef IPV6_ENABLED
+int
+check_ip6tables_command(const int debuglvl, struct vuurmuur_config *cnf, char *ip6tables_location, char quiet)
+{
+    /* safety */
+    if(cnf == NULL || ip6tables_location == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* first check if there even is a value */
+    if(strcmp(ip6tables_location, "") == 0)
+    {
+        if(quiet == FALSE)
+            (void)vrprint.error(0, "Error", "The path to the 'ip6tables'-command was not set.", ip6tables_location);
+
+        return(0);
+    }
+    else
+    {
+        /* now check the command */
+        char *args[] = { ip6tables_location, "--version", NULL };
+        int r = libvuurmuur_exec_command(debuglvl, cnf, ip6tables_location, args, NULL);
+        if (r != 0)
+        {
+            if(quiet == FALSE)
+                (void)vrprint.error(0, "Error", "The path '%s' to the 'ip6tables'-command seems to be wrong.", ip6tables_location);
+
+            return(0);
+        }
+    }
+
+    return(1);
+}
+
+int
+check_ip6tablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, char *ip6tablesrestore_location, char quiet)
+{
+    /* safety */
+    if(cnf == NULL || ip6tablesrestore_location == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* first check if there even is a value */
+    if(strcmp(ip6tablesrestore_location, "") == 0)
+    {
+        if(quiet == FALSE)
+            (void)vrprint.error(0, "Error", "The path to the 'ip6tables-restore'-command was not set.", ip6tablesrestore_location);
+
+        return(0);
+    }
+    else
+    {
+        /* now check the command */
+        char *args[] = { ip6tablesrestore_location, "-h", NULL };
+        int r = libvuurmuur_exec_command(debuglvl, cnf, ip6tablesrestore_location, args, NULL);
+        if (r != 1)
+        {
+            if(quiet == FALSE)
+                (void)vrprint.error(0, "Error", "The path '%s' to the 'ip6tables-restore'-command seems to be wrong.", ip6tablesrestore_location);
+
+            return(0);
+        }
+    }
+
+    return(1);
+}
+#endif
+
 /*
 */
 int
@@ -351,10 +434,14 @@ config_set_log_names(const int debuglvl, struct vuurmuur_config *cnf)
 }
 
 
-/*
-    Note: we cannot use vrprint.debug and vrprint.info in this, because in most cases
-    we want those function to print to the log, however the log locations are only known
-    after this function! (unless cnf->verbose_out == 1)
+/**
+ \param[in] debuglvl The debug level that should be used
+ \param[in,out] cnf A pointer to the #vuurmuur_config structure that will be
+    filled with extra information from the config files
+
+ \note we cannot use vrprint.debug and vrprint.info in this, because in most
+    cases we want those function to print to the log, however the log locations
+    are only known after this function! (unless cnf->verbose_out == 1)
 */
 int
 init_config(const int debuglvl, struct vuurmuur_config *cnf)
@@ -1309,7 +1396,6 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
     sanitize_path(debuglvl, cnf->iptables_location, sizeof(cnf->iptables_location));
 
-
     result = ask_configfile(askconfig_debuglvl, cnf, "IPTABLES_RESTORE", cnf->iptablesrestore_location, cnf->configfile, sizeof(cnf->iptablesrestore_location));
     if(result == 1)
     {
@@ -1333,6 +1419,53 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
     sanitize_path(debuglvl, cnf->iptablesrestore_location, sizeof(cnf->iptablesrestore_location));
 
+
+    result = ask_configfile(askconfig_debuglvl, cnf, "IP6TABLES", cnf->ip6tables_location, cnf->configfile, sizeof(cnf->ip6tables_location));
+    if(result == 1)
+    {
+        /* ok */
+    }
+    else if(result == 0)
+    {
+        (void)vrprint.warning("Warning", "Variable IP6TABLES not found in '%s', using default value.", cnf->configfile);
+        if(strlcpy(cnf->ip6tables_location, DEFAULT_IP6TABLES_LOCATION, sizeof(cnf->ip6tables_location)) >= sizeof(cnf->ip6tables_location))
+        {
+            (void)vrprint.error(VR_CNF_E_UNKNOWN_ERR, "Internal Error",
+                    "string overflow (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(VR_CNF_E_UNKNOWN_ERR);
+        }
+
+        retval = VR_CNF_W_MISSING_VAR;
+    }
+    else
+        return(VR_CNF_E_UNKNOWN_ERR);
+
+    sanitize_path(debuglvl, cnf->ip6tables_location, sizeof(cnf->ip6tables_location));
+
+
+    result = ask_configfile(askconfig_debuglvl, cnf, "IP6TABLES_RESTORE", cnf->ip6tablesrestore_location, cnf->configfile, sizeof(cnf->ip6tablesrestore_location));
+    if(result == 1)
+    {
+        /* ok */
+    }
+    else if(result == 0)
+    {
+        (void)vrprint.warning("Warning", "Variable IP6TABLES_RESTORE not found in '%s', using default value.", cnf->configfile);
+        if(strlcpy(cnf->ip6tablesrestore_location, DEFAULT_IP6TABLES_REST_LOCATION, sizeof(cnf->ip6tablesrestore_location)) >= sizeof(cnf->ip6tablesrestore_location))
+        {
+            (void)vrprint.error(VR_CNF_E_UNKNOWN_ERR, "Internal Error",
+                    "string overflow (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(VR_CNF_E_UNKNOWN_ERR);
+        }
+
+        retval = VR_CNF_W_MISSING_VAR;
+    }
+    else
+        return(VR_CNF_E_UNKNOWN_ERR);
+
+    sanitize_path(debuglvl, cnf->ip6tablesrestore_location, sizeof(cnf->ip6tablesrestore_location));
 
     result = ask_configfile(askconfig_debuglvl, cnf, "CONNTRACK", cnf->conntrack_location, cnf->configfile, sizeof(cnf->conntrack_location));
     if(result == 1)
@@ -1815,6 +1948,12 @@ write_configfile(const int debuglvl, char *file_location)
     fprintf(fp, "IPTABLES=\"%s\"\n\n", conf.iptables_location);
     fprintf(fp, "# Location of the iptables-restore-command (full path).\n");
     fprintf(fp, "IPTABLES_RESTORE=\"%s\"\n\n", conf.iptablesrestore_location);
+//#ifdef IPV6_ENABLED
+    fprintf(fp, "# Location of the ip6tables-command (full path).\n");
+    fprintf(fp, "IP6TABLES=\"%s\"\n\n", conf.ip6tables_location);
+    fprintf(fp, "# Location of the ip6tables-restore-command (full path).\n");
+    fprintf(fp, "IP6TABLES_RESTORE=\"%s\"\n\n", conf.ip6tablesrestore_location);
+//#endif
     fprintf(fp, "# Location of the conntrack-command (full path).\n");
     fprintf(fp, "CONNTRACK=\"%s\"\n\n", conf.conntrack_location);
     fprintf(fp, "# Location of the tc-command (full path).\n");

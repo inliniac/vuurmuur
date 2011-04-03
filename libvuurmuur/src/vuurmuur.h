@@ -49,7 +49,12 @@
 #define __FUNC__        (char *)__FUNCTION__
 
 /* our version */
+#ifdef IPV6_ENABLED
+#define LIBVUURMUUR_VERSION	"0.8beta2ipv6"
+#else
+#warning No IPv6 support
 #define LIBVUURMUUR_VERSION	"0.8beta2"
+#endif
 
 /* we need this to stringify the VUURMUUR_CONFIGDIR which is supplied at compiletime see:
    http://gcc.gnu.org/onlinedocs/gcc-3.4.1/cpp/Stringification.html#Stringification */
@@ -61,6 +66,7 @@
 #define MEDIUM          2
 #define LOW             1
 
+/* These are also defined in ncruses.h */
 #define TRUE            (char)1
 #define FALSE           (char)0
 
@@ -107,6 +113,10 @@
 */
 #define DEFAULT_IPTABLES_LOCATION       "/sbin/iptables"
 #define DEFAULT_IPTABLES_REST_LOCATION  "/sbin/iptables-restore"
+#ifdef IPV6_ENABLED
+#define DEFAULT_IP6TABLES_LOCATION      "/sbin/ip6tables"
+#define DEFAULT_IP6TABLES_REST_LOCATION "/sbin/ip6tables-restore"
+#endif
 #define DEFAULT_RULES_LOCATION          "rules.conf"
 #define DEFAULT_LOGDIR_LOCATION         "/var/log/vuurmuur"
 #define DEFAULT_SYSTEMLOG_LOCATION      "/var/log/messages"
@@ -184,6 +194,10 @@
 /* config line */
 #define CONFIG_REGEX            "^[A-Z]+[=]\".*\"$"
 
+/* Some defines for character buffers we define in this file */
+#ifdef IPV6_ENABLED
+#define MAX_IPV6_ADDR_LEN       24+7+1  /* 32 should be enough for IPv6 */
+#endif
 
 /* name validation VERBOSE or QUIET */
 enum
@@ -355,6 +369,12 @@ struct vuurmuur_config
     /* program locations */
     char            iptables_location[128];
     char            iptablesrestore_location[128];
+#ifdef IPV6_ENABLED
+    char            ip6tables_location[128];
+    char            ip6tablesrestore_location[128];
+    /** Fail when there is an error with IPv6 configuration, when set to TRUE */
+    char            check_ipv6;
+#endif
     char            conntrack_location[128];
     char            tc_location[128];
 
@@ -542,6 +562,15 @@ struct ipdata
     char    broadcast[16];            //16 should be enough for a netmask
 };
 
+#ifdef IPV6_ENABLED
+struct ip6data
+{
+    char    ipaddress[MAX_IPV6_ADDR_LEN];
+    char    network[MAX_IPV6_ADDR_LEN];
+    char    netmask[MAX_IPV6_ADDR_LEN];
+    char    broadcast[MAX_IPV6_ADDR_LEN];
+};
+#endif
 
 /* rule options */
 struct options
@@ -694,6 +723,9 @@ typedef struct InterfaceData_
 
     /* the ipaddress */
     struct ipdata   ipv4;
+#ifdef IPV6_ENABLED
+    struct ip6data   ipv6;
+#endif
 
     /*  is a ipaddress dynamic?
         0: no
@@ -758,6 +790,9 @@ typedef struct ZoneData_
     struct ZoneData_    *network_parent;
 
     struct ipdata       ipv4;
+#ifdef IPV6_ENABLED
+    struct ip6data      ipv6;
+#endif
 
     /* TODO: 18 is enough: 00:20:1b:10:1D:0F = 17 + '\0' = 18. */
     char                mac[19];
@@ -1061,6 +1096,50 @@ typedef struct
     char    match_connmark;
 
     char    target_nat_random;
+
+#ifdef IPV6_ENABLED
+    /* IPv6 */
+    char    proc_net_ip6_names;
+    char    proc_net_ip6_matches;
+    char    proc_net_ip6_targets;
+
+    /* char conntrack; */
+
+    /* IPv6 names */
+    char    table_ip6_filter;
+    char    table_ip6_mangle;
+    /* there is no NAT table available for IPv6 */
+
+    /* IPv6 targets */
+    /* No snat, dnat, redirect or masquerade available for IPv6 */
+    char    target_ip6_reject;
+    char    target_ip6_log;
+    char    target_ip6_mark;
+    char    target_ip6_classify;
+
+    char    target_ip6_queue;
+    pid_t   ip6_queue_peer_pid;
+
+    char    target_ip6_nfqueue;
+    char    target_ip6_connmark;
+    char    proc_net_netfilter_nfnetlink_ip6_queue;
+
+    char    target_ip6_tcpmss;
+
+    /* IPv6 matches */
+    char    match_ip6_tcp;
+    char    match_ip6_udp;
+    char    match_icmp6;
+
+    char    match_ip6_mark;
+    char    match_ip6_state;
+    char    match_ip6_helper;
+    char    match_ip6_length;
+    char    match_ip6_limit;
+    char    match_ip6_mac;
+
+    char    match_ip6_connmark;
+#endif
 } IptCap;
 
 
@@ -1445,6 +1524,10 @@ int config_check_logdir(const int debuglvl, const char *logdir);
 int config_check_vuurmuurdir(const int debuglvl, const struct vuurmuur_config *, const char *logdir);
 int check_iptables_command(const int, struct vuurmuur_config *, char *, char);
 int check_iptablesrestore_command(const int, struct vuurmuur_config *, char *, char);
+#ifdef IPV6_ENABLED
+int check_ip6tables_command(const int, struct vuurmuur_config *, char *, char);
+int check_ip6tablesrestore_command(const int, struct vuurmuur_config *, char *, char);
+#endif
 int check_tc_command(const int, struct vuurmuur_config *, char *, char);
 int init_config(const int, struct vuurmuur_config *cnf);
 int reload_config(const int, struct vuurmuur_config *);
@@ -1529,6 +1612,10 @@ int d_list_cleanup(int debuglvl, d_list *d_list);
 */
 int load_iptcaps(const int, struct vuurmuur_config *, IptCap *, char);
 int check_iptcaps(const int, struct vuurmuur_config *, /*@out@*/ IptCap *, char);
+#ifdef IPV6_ENABLED
+int load_ip6tcaps(const int, struct vuurmuur_config *, IptCap *, char);
+int check_ip6tcaps(const int, struct vuurmuur_config *, /*@out@*/ IptCap *, char);
+#endif
 
 
 /*

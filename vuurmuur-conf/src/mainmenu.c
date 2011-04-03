@@ -606,6 +606,39 @@ mm_check_status_config(const int debuglvl, /*@null@*/ d_list *status_list)
         }
     }
 
+#ifdef IPV6_ENABLED
+    if (strcmp(conf.ip6tables_location, "") == 0)
+    {
+        VuurmuurStatus.config = -1;
+        queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
+    }
+    else
+    {
+        if(!check_ip6tables_command(debuglvl, &conf, conf.ip6tables_location, IPTCHK_QUIET))
+        {
+            VuurmuurStatus.config = -1;
+            queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
+        }
+    }
+
+    if (conf.old_rulecreation_method == 0)
+    {
+        if(strcmp(conf.ip6tablesrestore_location, "") == 0)
+        {
+            VuurmuurStatus.config = -1;
+            queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables-restore'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
+        }
+        else
+        {
+            if(!check_ip6tablesrestore_command(debuglvl, &conf, conf.ip6tablesrestore_location, IPTCHK_QUIET))
+            {
+                VuurmuurStatus.config = -1;
+                queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
+            }
+        }
+    }
+#endif
+
     if(strcmp(conf.tc_location, "") != 0)
     {
         if(!check_tc_command(debuglvl, &conf, conf.tc_location, IPTCHK_QUIET))

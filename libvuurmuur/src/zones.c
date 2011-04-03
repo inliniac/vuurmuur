@@ -22,6 +22,7 @@
  *   In this file most of the zonedata manipulation functions reside       *
  ***************************************************************************/
 
+#include "config.h"
 #include "vuurmuur.h"
 
 

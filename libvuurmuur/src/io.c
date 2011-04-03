@@ -23,6 +23,7 @@
 #include <sys/signal.h>
 #include <unistd.h>
 
+#include "config.h"
 #include "vuurmuur.h"
 
 

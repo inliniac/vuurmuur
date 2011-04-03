@@ -20,6 +20,7 @@
 
 #include "main.h"
 #include "gui.h"
+#include "config.h"
 #include <ctype.h>
 
 
@@ -32,6 +33,9 @@
 #define VROPT_MODULES       gettext("Modules")
 #define VROPT_PLUGINS       gettext("Plugins")
 #define VROPT_CAPS          gettext("Capabilities")
+#ifdef IPV6_ENABLED
+#define VROPT_IP6_CAPS      gettext("IPv6 Capabilities")
+#endif
 
 
 struct ConfigSection_
@@ -73,6 +77,12 @@ struct
 {
     FIELD   *iptableslocfld,
             *iptablesrestorelocfld,
+#ifdef IPV6_ENABLED
+            *ip6tableslocfld,
+            *ip6tablesrestorelocfld,
+#else
+#error Missing IPv6 support
+#endif
             *conntracklocfld,
             *tclocfld,
             *max_permission,
@@ -92,16 +102,24 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     char    number[5];
 
 
+#ifdef IPV6_ENABLED
+    ConfigSection.n_fields = 7;
+#else
     ConfigSection.n_fields = 5;
+#endif
     ConfigSection.fields = (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
 
     /* external programs */
-    GenConfig.iptableslocfld =  (ConfigSection.fields[0] = new_field(1, 64, 2, 1, 0, 0));  /* iptables */
-    GenConfig.iptablesrestorelocfld =  (ConfigSection.fields[1] = new_field(1, 64, 4, 1, 0, 0));  /*  */
-    GenConfig.conntracklocfld =  (ConfigSection.fields[2] = new_field(1, 64, 7, 1, 0, 0));  /*  */
-    GenConfig.tclocfld =  (ConfigSection.fields[3] = new_field(1, 64, 10, 1, 0, 0));  /*  */
+    GenConfig.iptableslocfld =  (ConfigSection.fields[0] = new_field(1, 64, 1, 1, 0, 0));  /* iptables */
+    GenConfig.iptablesrestorelocfld =  (ConfigSection.fields[1] = new_field(1, 64, 3, 1, 0, 0));  /*  */
+#ifdef IPV6_ENABLED
+    GenConfig.ip6tableslocfld =  (ConfigSection.fields[2] = new_field(1, 64, 5, 1, 0, 0));  /* ip6tables */
+    GenConfig.ip6tablesrestorelocfld =  (ConfigSection.fields[3] = new_field(1, 64, 7, 1, 0, 0));
+#endif
+    GenConfig.conntracklocfld =  (ConfigSection.fields[4] = new_field(1, 64, 9, 1, 0, 0));  /*  */
+    GenConfig.tclocfld =  (ConfigSection.fields[5] = new_field(1, 64, 11, 1, 0, 0));  /*  */
     /* Config file permissions */
-    GenConfig.max_permission =  (ConfigSection.fields[4] = new_field(1, 4, 13, 1, 0, 0));  /* max_permissions */
+    GenConfig.max_permission =  (ConfigSection.fields[6] = new_field(1, 4, 13, 1, 0, 0));  /* max_permissions */
 
     /* terminate */
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
@@ -112,6 +130,10 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     /* set buffers - first the visible, then the label */
     set_field_buffer_wrap(debuglvl, GenConfig.iptableslocfld, 0, conf.iptables_location);
     set_field_buffer_wrap(debuglvl, GenConfig.iptablesrestorelocfld, 0, conf.iptablesrestore_location);
+#ifdef IPV6_ENABLED
+    set_field_buffer_wrap(debuglvl, GenConfig.ip6tableslocfld, 0, conf.ip6tables_location);
+    set_field_buffer_wrap(debuglvl, GenConfig.ip6tablesrestorelocfld, 0, conf.ip6tablesrestore_location);
+#endif
     set_field_buffer_wrap(debuglvl, GenConfig.conntracklocfld, 0, conf.conntrack_location);
     set_field_buffer_wrap(debuglvl, GenConfig.tclocfld, 0, conf.tc_location);
     (void)snprintf(number, sizeof(number), "%o", conf.max_permission);
@@ -138,10 +160,14 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     post_form(ConfigSection.form);
 
     /* print labels */
-    mvwprintw(ConfigSection.win, 2, 2,  gettext("Iptables location (full path):"));
-    mvwprintw(ConfigSection.win, 4, 2,  gettext("Iptables-restore location (full path):"));
-    mvwprintw(ConfigSection.win, 7, 2,  gettext("Conntrack location (full path):"));
-    mvwprintw(ConfigSection.win, 10, 2, gettext("Tc location (full path):"));
+    mvwprintw(ConfigSection.win, 1, 2,  gettext("Iptables location (full path):"));
+    mvwprintw(ConfigSection.win, 3, 2,  gettext("Iptables-restore location (full path):"));
+#ifdef IPV6_ENABLED
+    mvwprintw(ConfigSection.win, 5, 2,  gettext("Ip6tables location (full path):"));
+    mvwprintw(ConfigSection.win, 7, 2,  gettext("Ip6tables-restore location (full path):"));
+#endif
+    mvwprintw(ConfigSection.win, 9, 2,  gettext("Conntrack location (full path):"));
+    mvwprintw(ConfigSection.win, 11, 2, gettext("Tc location (full path):"));
     mvwprintw(ConfigSection.win, 13, 2, gettext("Maximum config and log file and dir permissions (octal):"));
 
     return(retval);
@@ -188,6 +214,36 @@ edit_genconfig_save(const int debuglvl)
                 (void)vrprint.audit("'iptables-restore location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.iptablesrestore_location);
             }
+#ifdef IPV6_ENABLED
+            else if(ConfigSection.fields[i] == GenConfig.ip6tableslocfld)
+            {
+                /* ip6tables location */
+                if(!(copy_field2buf(conf.ip6tables_location,
+                                    field_buffer(ConfigSection.fields[i], 0),
+                                    sizeof(conf.ip6tables_location))))
+                    return(-1);
+
+                sanitize_path(debuglvl, conf.ip6tables_location,
+                        StrLen(conf.ip6tables_location));
+
+                (void)vrprint.audit("'ip6tables location' %s '%s'.",
+                    STR_IS_NOW_SET_TO, conf.ip6tables_location);
+            }
+            else if(ConfigSection.fields[i] == GenConfig.ip6tablesrestorelocfld)
+            {
+                /* ip6tables-restore location */
+                if(!(copy_field2buf(conf.ip6tablesrestore_location,
+                                    field_buffer(ConfigSection.fields[i], 0),
+                                    sizeof(conf.ip6tablesrestore_location))))
+                    return(-1);
+
+                sanitize_path(debuglvl, conf.ip6tablesrestore_location,
+                        StrLen(conf.ip6tablesrestore_location));
+
+                (void)vrprint.audit("'ip6tables-restore location' %s '%s'.",
+                    STR_IS_NOW_SET_TO, conf.ip6tablesrestore_location);
+            }
+#endif
             else if(ConfigSection.fields[i] == GenConfig.conntracklocfld)
             {
                 /* conntrack location */
@@ -293,6 +349,10 @@ edit_genconfig(const int debuglvl)
 
         if( cur == GenConfig.iptableslocfld ||
             cur == GenConfig.iptablesrestorelocfld ||
+#ifdef IPV6_ENABLED
+            cur == GenConfig.ip6tableslocfld ||
+            cur == GenConfig.ip6tablesrestorelocfld ||
+#endif
             cur == GenConfig.tclocfld ||
             cur == GenConfig.conntracklocfld ||
             cur == GenConfig.max_permission)
@@ -2866,12 +2926,225 @@ view_caps(const int debuglvl)
     return(retval);
 }
 
+#ifdef IPV6_ENABLED
+static int
+view_ip6_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
+{
+    int retval = 0;
+
+    /* safety */
+    if(!iptcap)
+    {
+        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("View IPv6 Capabilities"), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    {
+        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+    if(!(ConfigSection.panel[0] = new_panel(ConfigSection.win)))
+    {
+        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    keypad(ConfigSection.win, TRUE);
+
+    /* print labels */
+    mvwprintw(ConfigSection.win, 2,  4, "Tables");
+    if(iptcap->proc_net_ip6_names)
+    {
+        mvwprintw(ConfigSection.win, 4,  4, "filter\t%s", iptcap->table_ip6_filter ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 5,  4, "mangle\t%s", iptcap->table_ip6_mangle ? STR_YES : STR_NO);
+    }
+    else
+    {
+        mvwprintw(ConfigSection.win, 4,  4, gettext("Could not check."));
+    }
+
+    mvwprintw(ConfigSection.win, 8,  4, "Connection-");
+    mvwprintw(ConfigSection.win, 9,  4, " tracking");
+/* TODO Need to check if this has a ipv6 version */
+    mvwprintw(ConfigSection.win, 11, 4, "conntrack\t%s", iptcap->conntrack ? STR_YES : STR_NO);
+    
+/*
+    mvwprintw(ConfigSection.win, 14, 4, "NAT random\t%s", iptcap->target_nat_random ? STR_YES : STR_NO);
+*/
+
+    mvwprintw(ConfigSection.win, 2,  27, "Targets");
+    if(iptcap->proc_net_ip6_targets)
+    {
+        mvwprintw(ConfigSection.win, 4,  27, "LOG\t\t%s", iptcap->target_ip6_log ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 5,  27, "REJECT\t%s", iptcap->target_ip6_reject ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 6,  27, "QUEUE\t%s", iptcap->target_ip6_queue ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 7,  27, "-> Peer pid\t%u", iptcap->ip6_queue_peer_pid);
+/*
+        mvwprintw(ConfigSection.win, 8,  27, "SNAT\t\t%s", iptcap->target_snat ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 9,  27, "MASQUERADE\t%s", iptcap->target_masquerade ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 10, 27, "DNAT\t\t%s", iptcap->target_dnat ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 11, 27, "REDIRECT\t%s", iptcap->target_redirect ? STR_YES : STR_NO);
+*/
+        mvwprintw(ConfigSection.win, 12, 27, "MARK\t\t%s", iptcap->target_ip6_mark ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 13, 27, "CONNMARK\t%s", iptcap->target_ip6_connmark ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 14, 27, "NFQUEUE\t%s", iptcap->target_ip6_nfqueue ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 15, 27, "CLASSIFY\t%s", iptcap->target_ip6_classify ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 16, 27, "TCPMSS\t%s", iptcap->target_ip6_tcpmss ? STR_YES : STR_NO);
+    }
+    else
+    {
+        mvwprintw(ConfigSection.win, 4,  27, gettext("Could not check."));
+    }
+
+    mvwprintw(ConfigSection.win, 2,  52, "Matches");
+    if(iptcap->proc_net_ip6_matches)
+    {
+        mvwprintw(ConfigSection.win, 4,  52, "state\t%s", iptcap->match_ip6_state ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 5,  52, "mac\t\t%s", iptcap->match_ip6_mac ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 6,  52, "mark\t%s", iptcap->match_ip6_mark ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 7,  52, "limit\t%s", iptcap->match_ip6_limit ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 8,  52, "helper\t%s", iptcap->match_ip6_helper ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 9,  52, "length\t%s", iptcap->match_ip6_length ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 10, 52, "connmark\t%s", iptcap->match_ip6_connmark ? STR_YES : STR_NO);
+    }
+    else
+    {
+        mvwprintw(ConfigSection.win, 4,  52, gettext("Could not check."));
+    }
+
+    return(retval);
+}
+
+int
+view_ip6_caps(const int debuglvl)
+{
+    int     ch,
+            retval = 0,
+            quit = 0,
+            result = 0;
+    int     height,
+            width,
+            startx,
+            starty,
+            max_height,
+            max_width;
+    IptCap  iptcap;
+    char    reload = 0;
+    /* top menu */
+    char    *key_choices[] =    {   "F12",
+                                    "F5",
+                                    "F10"};
+    int     key_choices_n = 3;
+    char    *cmd_choices[] =    {   gettext("help"),
+                                    gettext("probe"),
+                                    gettext("back")};
+    int     cmd_choices_n = 3;
+
+
+    /* window dimentions */
+    getmaxyx(stdscr, max_height, max_width);
+
+    height = 18;
+    width  = 76;
+    startx = (max_width  - width) /2;
+    starty = (max_height - height)/2;
+
+    draw_top_menu(debuglvl, top_win, gettext("IPv6 Capabilities"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+
+    /* load iptcaps */
+    result = load_ip6tcaps(debuglvl, &conf, &iptcap, 0);
+    if(result == -1)
+    {
+        (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
+        return(-1);
+    }
+
+    if (debuglvl >= LOW) {
+        (void)vrprint.debug(__FUNC__, "iptcap.proc_net_ip6_names %d "
+            "iptcap.proc_net_ip6_matches %d iptcap.proc_net_ip6_targets %d "
+            "iptcap.table_ip6_filter %d iptcap.match_tcp6 %d "
+            "iptcap.match_udp6 %d iptcap.match_icmp6 %d "
+            "iptcap.match_mark6 %d", iptcap.proc_net_ip6_names,
+            iptcap.proc_net_ip6_matches, iptcap.proc_net_ip6_targets,
+            iptcap.table_ip6_filter, iptcap.match_ip6_tcp, iptcap.match_ip6_udp,
+            iptcap.match_icmp6, iptcap.match_ip6_mark );
+    }
+
+    /* setup */
+    result = view_ip6_caps_init(height, width, starty, startx, &iptcap);
+    if(result < 0)
+    {
+        return(-1);
+    }
+
+    update_panels();
+    doupdate();
+
+    /* Loop through to get user requests */
+    while(quit == 0)
+    {
+        /* keyboard input */
+        ch = wgetch(ConfigSection.win);
+        switch(ch)
+        {
+            case 27:
+            case KEY_F(10):
+            case 'q':
+            case 'Q':
+
+                quit = 1;
+                break;
+            case KEY_F(5):
+            case 'p':
+            case 'P':
+                if(confirm(gettext("Probe Capabilities"), gettext("Try to determine capabities? Warning: this may load iptables modules!"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0))
+                {
+                    result = load_ip6tcaps(debuglvl, &conf, &iptcap, 1);
+                    if(result == -1)
+                    {
+                        (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
+                        return(-1);
+                    }
+                }
+                reload = 1;
+                quit = 1;
+                break;
+
+            case KEY_F(12):
+            case 'h':
+            case 'H':
+            case '?':
+
+                print_help(debuglvl, ":[VUURMUUR:CONFIG:CAPABILITIES]:");
+                break;
+
+        }
+    }
+
+    /* cleanup */
+    del_panel(ConfigSection.panel[0]);
+    destroy_win(ConfigSection.win);
+    update_panels();
+    doupdate();
+
+    if (reload == 1)
+        return(view_ip6_caps(debuglvl));
+
+    return(retval);
+}
+#endif
+
 
 int
 config_menu(const int debuglvl)
 {
-    size_t  n_choices = 10,
-            i = 0;
+#ifdef IPV6_ENABLED
+    size_t  n_choices = 11;
+#else
+    size_t  n_choices = 10;
+#endif
+    size_t  i = 0;
     int     ch = 0,
             quit = 0;
     ITEM    **menu_items = NULL;
@@ -2893,6 +3166,9 @@ config_menu(const int debuglvl)
             VROPT_MODULES,
             VROPT_PLUGINS,
             VROPT_CAPS,
+#ifdef IPV6_ENABLED
+            VROPT_IP6_CAPS,
+#endif
             gettext("Back"),
             NULL
     };
@@ -2907,6 +3183,9 @@ config_menu(const int debuglvl)
             " ",
             " ",
             " ",
+#ifdef IPV6_ENABLED
+            " ",
+#endif
             " ",
             NULL
     };
@@ -3037,6 +3316,12 @@ config_menu(const int debuglvl)
             {
                 view_caps(debuglvl);
             }
+#ifdef IPV6_ENABLED
+            else if(strcmp(choice_ptr, VROPT_IP6_CAPS) == 0)
+            {
+                view_ip6_caps(debuglvl);
+            }
+#endif
             else if(strncmp(choice_ptr, gettext("Back"), StrLen(gettext("Back"))) == 0)
             {
                 quit = 1;

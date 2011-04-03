@@ -21,6 +21,12 @@ CONNTRACK="/usr/sbin/conntrack"
 # Location of the tc-command (full path).
 TC="/sbin/tc"
 
+# Location of the ip6tables-command (full path).
+IP6TABLES="/sbin/ip6tables"
+
+# Location of the iptables-restore-command (full path).
+IP6TABLES_RESTORE="/sbin/ip6tables-restore"
+
 # Location of the modprobe-command (full path).
 MODPROBE="/sbin/modprobe"
 

@@ -58,6 +58,7 @@ DEBUG="0"
 WIDEC="0"
 FROM_SVN="0"
 BUILDUPDATE="0"
+DISABLE_IPV6="0"
 
 ID_PROG="$(which id 2>/dev/null || echo /usr/bin/id)"
 if [ "`$ID_PROG -g`" != "0" ]; then
@@ -163,6 +164,7 @@ function PrintHelp
     echo "  --widec         use widec support in vuurmuur_conf (utf-8)"
     echo "  --from-svn      do the action based on the svn tree (this is guessed)"
     echo "  --build-update  update the buildsystem (regenerates make files etc)"
+    echo "  --no-ipv6       don't build IPv6 support (the default is with IPv6 support)"
     echo
     echo "Please read INSTALL for more information."
     echo
@@ -460,6 +462,13 @@ do
             FROM_SVN="1"
             if [ "$DEBUG" = "1" ]; then
                 PrintL "Commandline option '--from-svn' enabled."
+            fi
+            shift 1
+        ;;
+        --no-ipv6)
+            DISABLE_IPV6="1"
+            if [ "$DEBUG" = "1" ]; then
+                PrintL "Commandline option '--no-ipv6' enabled."
             fi
             shift 1
         ;;
@@ -804,10 +813,14 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         Automake
         Autoconf
     fi
-    Configure --prefix=$INSTALLDIR \
+    CONFIG_OPTS="--prefix=$INSTALLDIR \
                 --sysconfdir=$ETCDIR \
                 --with-libvuurmuur-includes=$INSTALLDIR/include \
-                --with-libvuurmuur-libraries=$LIBDIR
+                --with-libvuurmuur-libraries=$LIBDIR"
+    if [ "${DISABLE_IPV6}" = "1" ]; then
+        CONFIG_OPTS="${CONFIG_OPTS} --disable-ipv6"
+    fi
+    Configure ${CONFIG_OPTS}
     Make
     if [ "$DRYRUN" != "1" ]; then
         Make install
@@ -851,11 +864,15 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         WIDESTR="no"
     fi
 
-    Configure --prefix=$INSTALLDIR \
+    CONFIG_OPTS="--prefix=$INSTALLDIR \
                 --sysconfdir=$ETCDIR \
                 --with-libvuurmuur-includes=$INSTALLDIR/include \
                 --with-libvuurmuur-libraries=$LIBDIR \
-                --with-widec=$WIDESTR
+                --with-widec=$WIDESTR"
+    if [ "${DISABLE_IPV6}" = "1" [; then
+        CONFIG_OPTS="${CONFIG_OPTS} --disable-ipv6"
+    fi
+    Configure ${CONFIG_OPTS}
     Make
     if [ "$DRYRUN" != "1" ]; then
         Make install
@@ -983,10 +1000,11 @@ if [ "$INSTALL" = "1" ]; then
             cat ${VM_SAMPLE} | \
             sed -e 's,^\(IPTABLES=\).*,\1"'${IPTABLESLOC}'",g' \
                 -e 's,^\(IPTABLES_RESTORE=\).*,\1"'${IPTABLESRESLOC}'",g' \
+                -e 's,^\(IP6TABLES=\).*,\1"'${IP6TABLESLOC}'",g' \
+                -e 's,^\(IP6TABLES_RESTORE=\).*,\1"'${IP6TABLESRESLOC}'",g' \
                 -e 's,^\(CONNTRACK=\).*,\1"'${CONNTRACKLOC}'",g' \
                 -e 's,^\(TC=\).*,\1"'${TCLOC}'",g' \
                 -e 's,^\(MODPROBE=\).*,\1"'${MODPROBE}'",g' \
-                -e 's,^\(LOGDIR=\).*,\1"'${LOGDIR}'",g' \
                 -e 's,^\(SYSTEMLOG=\).*,\1"'${SYSTEMLOG}'",g' \
                 > ${CONFIGFILE}
         else

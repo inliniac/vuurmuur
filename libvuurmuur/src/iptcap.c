@@ -23,6 +23,7 @@
     system.
 */
 
+#include "config.h"
 #include "vuurmuur.h"
 
 
@@ -292,10 +293,86 @@ iptcap_get_queue_peer_pid(const int debuglvl, IptCap *iptcap)
     return(0);
 }
 
+#ifdef IPV6_ENABLED
 static int
-iptcap_create_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf) {
-    char *args[] = { cnf->iptables_location, "-t", "mangle", "-N", "VRMRIPTCAP", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
+iptcap_get_ip6_queue_peer_pid(const int debuglvl, IptCap *iptcap)
+{
+    char    proc_net_ip6queue[] = "/proc/net/ip6_queue",
+            line[128] = "",
+            pid_number[16] = "";
+    FILE    *fp = NULL;
+    int     i = 0,
+            k = 0;
+    char    copy_now = 0;
+
+    /* safety */
+    if(iptcap == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+            __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* open the file */
+    if(!(fp = fopen(proc_net_ip6queue, "r")))
+    {
+        (void)vrprint.error(-1, "Error", "opening file '%s' failed: %s (in: %s:%d).",
+            proc_net_ip6queue, strerror(errno), __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* get the first line */
+    if(fgets(line, (int)sizeof(line), fp) == NULL)
+    {
+        (void)vrprint.error(-1, "Error", "reading line from ip6_queue failed (in: %s:%d).",
+            __FUNC__, __LINE__);
+
+        fclose(fp);
+        return(-1);
+    }
+    /* strip newline */
+    if(line[strlen(line)-1] == '\n')
+        line[strlen(line)-1] = '\0';
+
+    if(debuglvl >= HIGH)
+        (void)vrprint.debug(__FUNC__, "line '%s'.", line);
+
+    /* interpret the line */
+    for(i = 0, k = 0; i < (int)strlen(line); i++)
+    {
+        if(copy_now)
+        {
+            pid_number[k] = line[i];
+
+            k++;
+        }
+
+        if(line[i] == ':')
+            copy_now = 1;
+    }
+    /* term */
+    pid_number[k] = '\0';
+
+    if(debuglvl >= HIGH)
+        (void)vrprint.debug(__FUNC__, "pid_number '%s'.", pid_number);
+
+    /* convert */
+    iptcap->ip6_queue_peer_pid = atoi(pid_number);
+
+    if(debuglvl >= HIGH)
+        (void)vrprint.debug(__FUNC__, "pid '%u'.", iptcap->ip6_queue_peer_pid);
+
+    fclose(fp);
+
+    return(0);
+}
+#endif
+
+static int
+iptcap_create_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
+    char *args[] = { ipt_loc, "-t", "mangle", "-N", "VRMRIPTCAP", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         return -1;
     }
@@ -304,16 +381,17 @@ iptcap_create_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf)
 }
 
 static int
-iptcap_delete_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf) {
-    char *argsF[] = { cnf->iptables_location, "-t", "mangle", "-F", "VRMRIPTCAP", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsF, NULL);
+iptcap_delete_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
+    char *argsF[] = { ipt_loc, "-t", "mangle", "-F", "VRMRIPTCAP", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, argsF, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "flush failed (ok if chain didn't exist)");
         return -1;
     }
 
-    char *argsX[] = { cnf->iptables_location, "-t", "mangle", "-X", "VRMRIPTCAP", NULL };
-    r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsX, NULL);
+    char *argsX[] = { ipt_loc, "-t", "mangle", "-X", "VRMRIPTCAP", NULL };
+    r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, argsX, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "delete failed");
         return -1;
@@ -323,9 +401,10 @@ iptcap_delete_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf)
 }
 
 static int
-iptcap_create_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf) {
-    char *args[] = { cnf->iptables_location, "-t", "filter", "-N", "VRMRIPTCAP", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
+iptcap_create_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
+    char *args[] = { ipt_loc, "-t", "filter", "-N", "VRMRIPTCAP", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         return -1;
     }
@@ -334,16 +413,19 @@ iptcap_create_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf)
 }
 
 static int
-iptcap_delete_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf) {
-    char *argsF[] = { cnf->iptables_location, "-t", "filter", "-F", "VRMRIPTCAP", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsF, NULL);
+iptcap_delete_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
+    /* First, flush the chain */
+    char *argsF[] = { ipt_loc, "-t", "filter", "-F", "VRMRIPTCAP", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, argsF, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "flush failed (ok if chain didn't exist)");
         return -1;
     }
 
-    char *argsX[] = { cnf->iptables_location, "-t", "filter", "-X", "VRMRIPTCAP", NULL };
-    r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsX, NULL);
+    /* And then delete the chain */
+    char *argsX[] = { ipt_loc, "-t", "filter", "-X", "VRMRIPTCAP", NULL };
+    r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, argsX, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "delete failed");
         return -1;
@@ -353,26 +435,27 @@ iptcap_delete_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf)
 }
 
 int
-iptcap_test_filter_connmark_match(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_test_filter_connmark_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
-    char *args[] = { cnf->iptables_location, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "connmark", "--mark", "1", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
+    char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "connmark", "--mark", "1", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
@@ -380,26 +463,27 @@ iptcap_test_filter_connmark_match(const int debuglvl, struct vuurmuur_config *cn
 }
 
 int
-iptcap_test_filter_connmark_target(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_test_filter_connmark_target(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
-    char *args[] = { cnf->iptables_location, "-t", "filter", "-A", "VRMRIPTCAP", "-j", "CONNMARK", "--set-mark", "1", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
+    char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-j", "CONNMARK", "--set-mark", "1", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
@@ -407,26 +491,27 @@ iptcap_test_filter_connmark_target(const int debuglvl, struct vuurmuur_config *c
 }
 
 int
-iptcap_test_filter_helper_match(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_test_filter_helper_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
-    char *args[] = { cnf->iptables_location, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "helper", "--helper", "ftp", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
+    char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "helper", "--helper", "ftp", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
@@ -434,26 +519,27 @@ iptcap_test_filter_helper_match(const int debuglvl, struct vuurmuur_config *cnf)
 }
 
 int
-iptcap_test_filter_mark_match(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_test_filter_mark_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
-    char *args[] = { cnf->iptables_location, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "mark", "--mark", "1", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
+    char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "mark", "--mark", "1", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
@@ -461,26 +547,27 @@ iptcap_test_filter_mark_match(const int debuglvl, struct vuurmuur_config *cnf) {
 }
 
 int
-iptcap_test_mangle_mark_target(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_test_mangle_mark_target(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
     int retval = 1;
 
-    if (iptcap_delete_test_mangle_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
-    if (iptcap_create_test_mangle_chain(debuglvl,cnf) < 0) {
+    if (iptcap_create_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_create_test_mangle_chain failed");
         return -1;
     }
 
-    char *args[] = { cnf->iptables_location, "-t", "mangle", "-A", "VRMRIPTCAP", "-j", "MARK", "--set-mark", "1", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
+    char *args[] = { ipt_loc, "-t", "mangle", "-A", "VRMRIPTCAP", "-j", "MARK", "--set-mark", "1", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_mangle_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
@@ -488,26 +575,27 @@ iptcap_test_mangle_mark_target(const int debuglvl, struct vuurmuur_config *cnf) 
 }
 
 int
-iptcap_test_mangle_classify_target(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_test_mangle_classify_target(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
     int retval = 1;
 
-    if (iptcap_delete_test_mangle_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
-    if (iptcap_create_test_mangle_chain(debuglvl,cnf) < 0) {
+    if (iptcap_create_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_create_test_mangle_chain failed");
         return -1;
     }
 
-    char *args[] = { cnf->iptables_location, "-t", "mangle", "-A", "VRMRIPTCAP", "-j", "CLASSIFY", "--set-class", "0:0", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
+    char *args[] = { ipt_loc, "-t", "mangle", "-A", "VRMRIPTCAP", "-j", "CLASSIFY", "--set-class", "0:0", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_mangle_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
@@ -515,53 +603,68 @@ iptcap_test_mangle_classify_target(const int debuglvl, struct vuurmuur_config *c
 }
 
 int
-iptcap_test_filter_mac_match(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_test_filter_mac_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
-    char *args[] = { cnf->iptables_location, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "mac", "--mac-source", "12:34:56:78:90:ab", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
+    char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "mac", "--mac-source", "12:34:56:78:90:ab", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
 }
 
+/**
+ * \param[in] debuglvl The debug level
+ * \param[in] cnf The vuurmuur configuration
+ * \param[in] ipt_loc The full path to the ip[6]tables program. You should 
+ *      cnf.iptables_location or cnf.ip6tables_location for this.
+ */
 int
-iptcap_test_filter_limit_match(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_test_filter_limit_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
     int retval = 1;
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if ( ipt_loc == NULL )
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+            __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
-    if (iptcap_create_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
-    char *args[] = { cnf->iptables_location, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "limit", "--limit", "1/s", NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
+    char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "limit", "--limit", "1/s", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
-    if (iptcap_delete_test_filter_chain(debuglvl,cnf) < 0) {
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
@@ -703,7 +806,6 @@ check_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, c
 
     return(0);
 }
-
 
 int
 load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, char load_modules)
@@ -1015,7 +1117,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
             else {
                 iptcap->match_limit = FALSE;
 
-                result = iptcap_test_filter_limit_match(debuglvl, cnf);
+                result = iptcap_test_filter_limit_match(debuglvl, cnf, cnf->iptables_location);
                 if (result == 1)
                     iptcap->match_limit = TRUE;
             }
@@ -1032,7 +1134,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
             else {
                 iptcap->match_mark = FALSE;
 
-                result = iptcap_test_filter_mark_match(debuglvl, cnf);
+                result = iptcap_test_filter_mark_match(debuglvl, cnf, cnf->iptables_location);
                 if (result == 1)
                     iptcap->match_mark = TRUE;
             }
@@ -1049,7 +1151,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
             else {
                 iptcap->match_mac = FALSE;
 
-                result = iptcap_test_filter_mac_match(debuglvl, cnf);
+                result = iptcap_test_filter_mac_match(debuglvl, cnf, cnf->iptables_location);
                 if (result == 1)
                     iptcap->match_mac = TRUE;
             }
@@ -1066,7 +1168,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
             else {
                 iptcap->match_helper = FALSE;
 
-                result = iptcap_test_filter_helper_match(debuglvl, cnf);
+                result = iptcap_test_filter_helper_match(debuglvl, cnf, cnf->iptables_location);
                 if (result == 1)
                     iptcap->match_helper = TRUE;
             }
@@ -1083,7 +1185,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
             else {
                 iptcap->match_connmark = FALSE;
 
-                result = iptcap_test_filter_connmark_match(debuglvl, cnf);
+                result = iptcap_test_filter_connmark_match(debuglvl, cnf, cnf->iptables_location);
                 if (result == 1)
                     iptcap->match_connmark = TRUE;
             }
@@ -1204,7 +1306,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
                 else {
                     iptcap->target_mark = FALSE;
 
-                    result = iptcap_test_mangle_mark_target(debuglvl, cnf);
+                    result = iptcap_test_mangle_mark_target(debuglvl, cnf, cnf->iptables_location);
                     if (result == 1)
                         iptcap->target_mark = TRUE;
                 }
@@ -1221,7 +1323,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
                 else {
                     iptcap->target_connmark = FALSE;
 
-                    result = iptcap_test_filter_connmark_target(debuglvl, cnf);
+                    result = iptcap_test_filter_connmark_target(debuglvl, cnf, cnf->iptables_location);
                     if (result == 1)
                         iptcap->target_connmark = TRUE;
                 }
@@ -1238,7 +1340,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
                 else {
                     iptcap->target_classify = FALSE;
 
-                    result = iptcap_test_mangle_classify_target(debuglvl, cnf);
+                    result = iptcap_test_mangle_classify_target(debuglvl, cnf, cnf->iptables_location);
                     if (result == 1)
                         iptcap->target_classify = TRUE;
                 }
@@ -1270,4 +1372,615 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 
     return(0);
 }
+
+#ifdef IPV6_ENABLED
+int
+check_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, char load_modules)
+{
+    int result = 0;
+
+    /* safety */
+    if(iptcap == NULL || cnf == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+            __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* load the caps */
+    result = load_ip6tcaps(debuglvl, cnf, iptcap, load_modules);
+    if(result == -1)
+    {
+        (void)vrprint.error(-1, "Error", "loading ip6tables capabilities failed (in: %s:%d).",
+            __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    if(iptcap->proc_net_ip6_names == FALSE)
+    {
+        (void)vrprint.warning("Warning", "'/proc/net/ip6_tables_names' missing: no ip6tables-support in the kernel?");
+    }
+    if(iptcap->proc_net_ip6_targets == FALSE)
+    {
+        (void)vrprint.warning("Warning", "'/proc/net/ip6_tables_targets' missing: no ip6tables-support in the kernel?");
+    }
+    if(iptcap->proc_net_ip6_matches == FALSE)
+    {
+        (void)vrprint.warning("Warning", "'/proc/net/ip6_tables_matches' missing: no ip6tables-support in the kernel?");
+    }
+
+    /* require the filter table */
+    if(iptcap->proc_net_ip6_names == TRUE && iptcap->table_ip6_filter == FALSE)
+    {
+        (void)vrprint.error(-1, "Error", "no ip6tables-support in the kernel: filter table missing (in: %s:%d).",
+            __FUNC__, __LINE__);
+        return(-1);
+    }
+    if(iptcap->proc_net_ip6_names == TRUE && iptcap->table_ip6_mangle == FALSE)
+        (void)vrprint.warning("Warning", "mangle table missing from kernel: mangle targets are unavailable.");
+
+#if 0
+    /* require conntrack */
+    if(iptcap->conntrack == FALSE)
+    {
+        (void)vrprint.error(-1, "Error", "no connection tracking support in the kernel (in: %s:%d).",
+            __FUNC__, __LINE__);
+        return(-1);
+    }
+#endif
+
+    /* require tcp, udp, icmp */
+    if(iptcap->proc_net_ip6_matches == TRUE && (iptcap->match_ip6_tcp == FALSE || iptcap->match_ip6_udp == FALSE || iptcap->match_icmp6 == FALSE))
+    {
+        (void)vrprint.error(-1, "Error", "incomplete ip6tables-support in the kernel: tcp, udp or icmp6 support missing (in: %s:%d).",
+            __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* require state match */
+    if(iptcap->proc_net_ip6_matches == TRUE && iptcap->match_ip6_state == FALSE)
+    {
+        (void)vrprint.error(-1, "Error", "incomplete ip6tables-support in the kernel: state support missing (in: %s:%d).",
+            __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    if(iptcap->target_ip6_queue == TRUE && iptcap->ip6_queue_peer_pid == 0)
+    {
+        (void)vrprint.warning("Warning", "no application is currently listening to the queue. Queue rules may be uneffective.");
+    }
+
+    return(0);
+}
+
+int
+load_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, char load_modules)
+{
+    char    proc_net_ip6_match[] = "/proc/net/ip6_tables_matches",
+            proc_net_ip6_target[] = "/proc/net/ip6_tables_targets",
+            proc_net_ip6_names[] = "/proc/net/ip6_tables_names",
+            proc_net_ip6queue[] = "/proc/net/ip6_queue";
+/*
+            proc_net_netfilter_nfnetlink_queue[] = "/proc/net/netfilter/nfnetlink_queue",
+            proc_net_ipconntrack[]  = PROC_IPCONNTRACK,
+            proc_net_nfconntrack[]  = PROC_NFCONNTRACK;
+*/
+    int     result = 0;
+
+
+    /* safety */
+    if(iptcap == NULL || cnf == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+            __FUNC__, __LINE__);
+        return(-1);
+    }
+    if(debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Starting the loading of IPv6 capabilities" );
+#if 0
+    /* init */
+    memset(iptcap, 0, sizeof(IptCap));
+#endif
+
+    /*
+        PROC FILES
+    */
+
+    /* /proc/net/ip6_tables_matches */
+    if(!(iptcap_check_file(debuglvl, proc_net_ip6_match)))
+    {
+        if(debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "%s not found: load_modules: %s.",
+                    proc_net_ip6_match, load_modules ? "Yes" : "No");
+
+        if(load_modules == TRUE)
+        {
+            /* try to load the module */
+            (void)iptcap_load_module(debuglvl, cnf, "ip6_tables");
+
+            /* check again */
+            if(!(iptcap_check_file(debuglvl, proc_net_ip6_match)))
+            {
+                if(debuglvl >= LOW)
+                    (void)vrprint.debug(__FUNC__, "%s not still not found", proc_net_ip6_match);
+            }
+            else
+            {
+                if(debuglvl >= LOW)
+                    (void)vrprint.debug(__FUNC__, "%s found!", proc_net_ip6_match);
+
+                iptcap->proc_net_ip6_matches = TRUE;
+            }
+        }
+    }
+    else
+    {
+        iptcap->proc_net_ip6_matches = TRUE;
+    }
+
+    /* /proc/net/ip6_tables_targets */
+    if(!(iptcap_check_file(debuglvl, proc_net_ip6_target)))
+    {
+        if(debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "%s not found: load_modules: %s.", 
+                proc_net_ip6_target, load_modules ? "Yes" : "No");
+
+        if(load_modules == TRUE)
+        {
+            /* try to load the module */
+            (void)iptcap_load_module(debuglvl, cnf, "ip6_tables");
+
+            /* check again */
+            if(!(iptcap_check_file(debuglvl, proc_net_ip6_target)))
+            {
+                if(debuglvl >= LOW)
+                    (void)vrprint.debug(__FUNC__, "%s not still not found", proc_net_ip6_target);
+            }
+            else
+            {
+                if(debuglvl >= LOW)
+                    (void)vrprint.debug(__FUNC__, "%s found!", proc_net_ip6_target);
+
+                iptcap->proc_net_ip6_targets = TRUE;
+            }
+        }
+    }
+    else
+    {
+        iptcap->proc_net_ip6_targets = TRUE;
+    }
+
+    /* /proc/net/ip6_tables_names */
+    if(!(iptcap_check_file(debuglvl, proc_net_ip6_names)))
+    {
+        if(load_modules == TRUE)
+        {
+            /* try to load the module */
+            (void)iptcap_load_module(debuglvl, cnf, "ip6_tables");
+
+            /* check again */
+            if(!(iptcap_check_file(debuglvl, proc_net_ip6_names)))
+            {
+                if(debuglvl >= LOW)
+                    (void)vrprint.debug(__FUNC__, "%s not still not found", proc_net_ip6_names);
+            }
+            else
+            {
+                if(debuglvl >= LOW)
+                    (void)vrprint.debug(__FUNC__, "%s found!", proc_net_ip6_names);
+
+                iptcap->proc_net_ip6_names = TRUE;
+            }
+        }
+    }
+    else
+    {
+        iptcap->proc_net_ip6_names = TRUE;
+    }
+
+
+    /*
+        NAMES
+    */
+    if(iptcap->proc_net_ip6_names == TRUE)
+    {
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_names, "filter", "ip6table_filter", load_modules);
+        if(result == 1) iptcap->table_ip6_filter = TRUE;
+        else            iptcap->table_ip6_filter = FALSE;
+
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_names, "mangle", "ip6table_mangle", load_modules);
+        if(result == 1) iptcap->table_ip6_mangle = TRUE;
+        else            iptcap->table_ip6_mangle = FALSE;
+    }
+    else
+    {
+        /* assume yes */
+        iptcap->table_ip6_filter = TRUE;
+        iptcap->table_ip6_mangle = TRUE;
+    }
+
+
+#if 0
+    /* check for the CONNTRACK */
+    if(!(iptcap_check_file(debuglvl, proc_net_ipconntrack)))
+    {
+        if(load_modules == TRUE)
+        {
+            /* try to load the module, if it fails, return 0 */
+            (void)iptcap_load_module(debuglvl, cnf, "ip_conntrack");
+
+            /* check again */
+            if(!(iptcap_check_file(debuglvl, proc_net_ipconntrack)))
+                iptcap->conntrack = FALSE;
+            else
+                iptcap->conntrack = TRUE;
+        }
+    }
+    else
+    {
+        iptcap->conntrack = TRUE;
+    }
+    /* try nf_conntrack if ip_conntrack failed */
+    if(iptcap->conntrack == FALSE) {
+        if(!(iptcap_check_file(debuglvl, proc_net_nfconntrack)))
+        {
+            if(load_modules == TRUE)
+            {
+                /* try to load the module, if it fails, return 0 */
+                (void)iptcap_load_module(debuglvl, cnf, "nf_conntrack_ipv6");
+
+                /* check again */
+                if(!(iptcap_check_file(debuglvl, proc_net_nfconntrack)))
+                    iptcap->conntrack = FALSE;
+                else
+                    iptcap->conntrack = TRUE;
+            }
+        }
+        else
+        {
+            iptcap->conntrack = TRUE;
+        }
+    }
+#endif
+
+    /* check for the QUEUE */
+    if(!(iptcap_check_file(debuglvl, proc_net_ip6queue)))
+    {
+        if(load_modules == TRUE)
+        {
+            /* try to load the module, if it fails, return 0 */
+            (void)iptcap_load_module(debuglvl, cnf, "ip6_queue");
+
+            /* check again */
+            if(!(iptcap_check_file(debuglvl, proc_net_ip6queue)))
+                iptcap->target_queue = 0;
+            else
+            {
+                iptcap->target_queue = TRUE;
+
+                if(iptcap_get_ip6_queue_peer_pid(debuglvl, iptcap) < 0)
+                {
+                    (void)vrprint.error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
+                    return(-1);
+                }
+            }
+
+        }
+    }
+    else
+    {
+        iptcap->target_queue = TRUE;
+
+        if(iptcap_get_ip6_queue_peer_pid(debuglvl, iptcap) < 0)
+        {
+            (void)vrprint.error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
+            return(-1);
+        }
+    }
+
+#if 0
+    /* check for the /proc/net/netfilter/nfnetlink_queue */
+    if(!(iptcap_check_file(debuglvl, proc_net_netfilter_nfnetlink_queue)))
+    {
+        if(load_modules == TRUE)
+        {
+            /* try to load the module, if it fails, return 0 */
+            (void)iptcap_load_module(debuglvl, cnf, "nfnetlink_queue");
+
+            /* check again */
+            if((iptcap_check_file(debuglvl, proc_net_netfilter_nfnetlink_queue)))
+            {
+                iptcap->proc_net_netfilter_nfnetlink_queue = TRUE;
+            }
+
+        }
+    }
+    else
+    {
+        iptcap->proc_net_netfilter_nfnetlink_queue = TRUE;
+    }
+#endif
+
+    /*
+        MATCHES (uncapitalized)
+    */
+    if(iptcap->proc_net_ip6_matches == TRUE)
+    {
+        /* tcp */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "tcp", "ip6_tables", load_modules);
+        if(result == 1) iptcap->match_ip6_tcp = TRUE;
+        else
+        {
+            iptcap->match_ip6_tcp = FALSE;
+
+#if 0
+            /* from kernel 2.6.16 these are in xt_tcpudp */
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "tcp", "xt_tcpudp", load_modules);
+            if(result == 1) iptcap->match_ip6_tcp = TRUE;
+#endif
+        }
+
+        /* udp */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "udp", "ip6_tables", load_modules);
+        if(result == 1) iptcap->match_ip6_udp = TRUE;
+        else
+        {
+            iptcap->match_ip6_udp = FALSE;
+
+#if 0
+            /* from kernel 2.6.16 these are in xt_tcpudp */
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "udp", "xt_tcpudp", load_modules);
+            if(result == 1) iptcap->match_ip6_udp = TRUE;
+#endif
+        }
+
+        /*  icmp: in kernel 2.6.16 this is also supplied by
+            ip_tables, while tcp and udp are no longer. */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "icmp6", "ip6_tables", load_modules);
+        if(result == 1) iptcap->match_icmp6 = TRUE;
+        else            iptcap->match_icmp6 = FALSE;
+
+        /* state match */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "state", "ipt_state", load_modules);
+        if(result == 1) iptcap->match_ip6_state = TRUE;
+        else {
+            iptcap->match_ip6_state = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "state", "xt_state", load_modules);
+            if(result == 1) iptcap->match_ip6_state = TRUE;
+        }
+
+        /* length match */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "length", "ipt_length", load_modules);
+        if(result == 1) iptcap->match_ip6_length = TRUE;
+        else {
+            iptcap->match_ip6_length = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "length", "xt_length", load_modules);
+            if(result == 1) iptcap->match_ip6_length = TRUE;
+        }
+
+        /* limit match */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "limit", "ipt_limit", load_modules);
+        if(result == 1) iptcap->match_ip6_limit = TRUE;
+        else {
+            iptcap->match_ip6_limit = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "limit", "xt_limit", load_modules);
+            if(result == 1) iptcap->match_ip6_limit = TRUE;
+            else {
+                iptcap->match_ip6_limit = FALSE;
+
+                result = iptcap_test_filter_limit_match(debuglvl, cnf, cnf->ip6tables_location);
+                if (result == 1)
+                    iptcap->match_ip6_limit = TRUE;
+            }
+        }
+
+        /* mark match */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "mark", "ipt_mark", load_modules);
+        if(result == 1) iptcap->match_ip6_mark = TRUE;
+        else {
+            iptcap->match_ip6_mark = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "mark", "xt_mark", load_modules);
+            if(result == 1) iptcap->match_ip6_mark = TRUE;
+            else {
+                iptcap->match_ip6_mark = FALSE;
+
+                result = iptcap_test_filter_mark_match(debuglvl, cnf, cnf->ip6tables_location);
+                if (result == 1)
+                    iptcap->match_ip6_mark = TRUE;
+            }
+        }
+
+        /* mac match */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "mac", "ipt_mac", load_modules);
+        if(result == 1) iptcap->match_ip6_mac = TRUE;
+        else {
+            iptcap->match_ip6_mac = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "mac", "xt_mac", load_modules);
+            if(result == 1) iptcap->match_ip6_mac = TRUE;
+            else {
+                iptcap->match_ip6_mac = FALSE;
+
+                result = iptcap_test_filter_mac_match(debuglvl, cnf, cnf->ip6tables_location);
+                if (result == 1)
+                    iptcap->match_ip6_mac = TRUE;
+            }
+        }
+
+        /* helper match */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "helper", "ipt_helper", load_modules);
+        if(result == 1) iptcap->match_ip6_helper = TRUE;
+        else {
+            iptcap->match_ip6_helper = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "helper", "xt_helper", load_modules);
+            if(result == 1) iptcap->match_ip6_helper = TRUE;
+            else {
+                iptcap->match_ip6_helper = FALSE;
+
+                result = iptcap_test_filter_helper_match(debuglvl, cnf, cnf->ip6tables_location);
+                if (result == 1)
+                    iptcap->match_ip6_helper = TRUE;
+            }
+        }
+
+        /* connmark match */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "connmark", "ipt_connmark", load_modules);
+        if(result == 1) iptcap->match_ip6_connmark = TRUE;
+        else {
+            iptcap->match_ip6_connmark = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "connmark", "xt_connmark", load_modules);
+            if(result == 1) iptcap->match_ip6_connmark = TRUE;
+            else {
+                iptcap->match_ip6_connmark = FALSE;
+
+                result = iptcap_test_filter_connmark_match(debuglvl, cnf, cnf->ip6tables_location);
+                if (result == 1)
+                    iptcap->match_ip6_connmark = TRUE;
+            }
+        }
+    }
+    else
+    {
+        /* assume yes */
+        iptcap->match_ip6_tcp = TRUE;
+        iptcap->match_ip6_udp = TRUE;
+        iptcap->match_icmp6 = TRUE;
+
+        iptcap->match_ip6_mark = TRUE;
+        iptcap->match_ip6_state = TRUE;
+        iptcap->match_ip6_helper = TRUE;
+        iptcap->match_ip6_length = TRUE;
+        iptcap->match_ip6_limit = TRUE;
+        iptcap->match_ip6_mac = TRUE;
+        iptcap->match_ip6_connmark = TRUE;
+    }
+
+
+    /*
+        TARGETS (capitalized)
+    */
+    if(iptcap->proc_net_ip6_targets == TRUE)
+    {
+        /* REJECT target */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "REJECT", "ip6t_REJECT", load_modules);
+        if(result == 1) iptcap->target_ip6_reject = TRUE;
+        else {
+            iptcap->target_ip6_reject = FALSE;
+
+            /* TODO Check if this module really exists */
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "REJECT", "xt_REJECT", load_modules);
+            if(result == 1) iptcap->target_ip6_reject = TRUE;
+        }
+
+        /* LOG target */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "LOG", "ip6t_LOG", load_modules);
+        if(result == 1) iptcap->target_ip6_log = TRUE;
+        else {
+            iptcap->target_ip6_log = FALSE;
+
+            /* TODO Check if this module really exists */
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "LOG", "xt_LOG", load_modules);
+            if(result == 1) iptcap->target_ip6_log = TRUE;
+        }
+
+        /* NFQUEUE target - this one is listed in /proc/net/ip_tables_targets */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "NFQUEUE", "ipt_NFQUEUE", load_modules);
+        if(result == 1) iptcap->target_ip6_nfqueue = TRUE;
+        else {
+            iptcap->target_ip6_nfqueue = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "NFQUEUE", "xt_NFQUEUE", load_modules);
+            if(result == 1) iptcap->target_ip6_nfqueue = TRUE;
+        }
+
+        /* TCPMSS target - this one is listed in /proc/net/ip_tables_targets */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "TCPMSS", "ipt_TCPMSS", load_modules);
+        if(result == 1) iptcap->target_ip6_tcpmss = TRUE;
+        else {
+            iptcap->target_ip6_tcpmss = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "TCPMSS", "xt_TCPMSS", load_modules);
+            if(result == 1) iptcap->target_ip6_tcpmss = TRUE;
+        }
+
+        /* mangle stuff */
+        if(iptcap->table_ip6_mangle == TRUE)
+        {
+            /* MARK target */
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "MARK", "ipt_MARK", load_modules);
+            if(result == 1) iptcap->target_ip6_mark = TRUE;
+            else {
+                iptcap->target_ip6_mark = FALSE;
+
+                result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "MARK", "xt_MARK", load_modules);
+                if(result == 1) iptcap->target_ip6_mark = TRUE;
+                else {
+                    iptcap->target_ip6_mark = FALSE;
+
+                    result = iptcap_test_mangle_mark_target(debuglvl, cnf, cnf->ip6tables_location);
+                    if (result == 1)
+                        iptcap->target_ip6_mark = TRUE;
+                }
+            }
+
+            /* CONNMARK target */
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "CONNMARK", "ipt_CONNMARK", load_modules);
+            if(result == 1) iptcap->target_ip6_connmark = TRUE;
+            else {
+                iptcap->target_ip6_connmark = FALSE;
+
+                result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "CONNMARK", "xt_CONNMARK", load_modules);
+                if(result == 1) iptcap->target_ip6_connmark = TRUE;
+                else {
+                    iptcap->target_ip6_connmark = FALSE;
+
+                    result = iptcap_test_filter_connmark_target(debuglvl, cnf, cnf->ip6tables_location);
+                    if (result == 1)
+                        iptcap->target_ip6_connmark = TRUE;
+                }
+            }
+
+            /* CLASSIFY target */
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "CLASSIFY", "ipt_CLASSIFY", load_modules);
+            if(result == 1) iptcap->target_ip6_classify = TRUE;
+            else {
+                iptcap->target_ip6_classify = FALSE;
+
+                result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_target, "CLASSIFY", "xt_CLASSIFY", load_modules);
+                if(result == 1) iptcap->target_ip6_classify = TRUE;
+                else {
+                    iptcap->target_ip6_classify = FALSE;
+
+                    result = iptcap_test_mangle_classify_target(debuglvl, cnf, cnf->ip6tables_location);
+                    if (result == 1)
+                        iptcap->target_ip6_classify = TRUE;
+                }
+            }
+        }
+    }
+    else
+    {
+        /* assume yes */
+        iptcap->target_ip6_reject = TRUE;
+        iptcap->target_ip6_log = TRUE;
+        iptcap->target_ip6_nfqueue = TRUE;
+
+        if(iptcap->table_ip6_mangle == TRUE)
+        {
+            iptcap->target_ip6_mark = TRUE;
+            iptcap->target_ip6_connmark = TRUE;
+            iptcap->target_ip6_classify = TRUE;
+        }
+    }
+
+    return(0);
+
+}
+#endif
 

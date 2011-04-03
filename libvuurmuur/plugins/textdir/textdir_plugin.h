@@ -24,7 +24,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <vuurmuur.h>
+#include "config.h"
+#include "vuurmuur.h"
 
 #define MAX_LINE_LENGTH 512
 

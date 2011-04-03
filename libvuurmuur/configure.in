@@ -25,6 +25,20 @@ fi
 CPPFLAGS="${CPPFLAGS} -DPLUGINDIR=\"$VUURMUUR_PLUGIN_DIR\""
 AC_SUBST(VUURMUUR_PLUGIN_DIR)
 
+ac_build_ipv6=yes
+AC_ARG_ENABLE([ipv6],
+        [AS_HELP_STRING([--disable-ipv6],[disable IPv6 support])],
+        [ if test "x$enableval" = "xno"; then
+            ac_build_ipv6=$enableval
+          fi
+        ], [
+            ac_build_ipv6=yes
+        ] )
+
+if test "x${ac_build_ipv6}" = "xyes"; then
+    AC_DEFINE(IPV6_ENABLED, 1, [build with IPv6 support])
+fi
+
 # shared dir option for rpm building
 AC_ARG_WITH(shareddir,
        [  --with-shareddir=DIR  vuurmuur shared dir (default $datadir/vuurmuur)],

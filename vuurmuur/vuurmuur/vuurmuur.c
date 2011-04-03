@@ -338,6 +338,12 @@ main(int argc, char *argv[])
         {
             exit(EXIT_FAILURE);
         }
+#ifdef IPV6_ENABLED
+        if (!check_ip6tables_command(debuglvl, &conf, conf.ip6tables_location, IPTCHK_VERBOSE))
+        {
+            exit(EXIT_FAILURE);
+        }
+#endif
         /* if we are going to use the iptables-restore command, check it */
         if(conf.old_rulecreation_method == FALSE)
         {
@@ -345,6 +351,12 @@ main(int argc, char *argv[])
             {
                 exit(EXIT_FAILURE);
             }
+#ifdef IPV6_ENABLED
+            if(!check_ip6tablesrestore_command(debuglvl, &conf, conf.ip6tablesrestore_location, IPTCHK_VERBOSE))
+            {
+                exit(EXIT_FAILURE);
+            }
+#endif
         }
     }
 
@@ -384,6 +396,16 @@ main(int argc, char *argv[])
             fprintf(stdout, "Error: checking for iptables-capabilities failed. Please see error.log.\n");
             exit(EXIT_FAILURE);
         }
+#ifdef IPV6_ENABLED
+        if(check_ip6tcaps(debuglvl, &conf, &iptcap, conf.load_modules) < 0)
+        {
+            if (conf.check_ipv6 == TRUE)
+            {
+                fprintf(stdout, "Error: checking for ip6tables-capabilities failed. Please see error.log.\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+#endif
     }
     else
     {
