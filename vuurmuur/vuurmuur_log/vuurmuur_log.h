@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2008 by Victor Julien                              *
+ *   Copyright (C) 2003-2011 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,12 +17,14 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef __MAIN_H__
-#define __MAIN_H__
- 
+
+#ifndef __VUURMUUR_LOG_H__
+#define __VUURMUUR_LOG_H__
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -82,14 +84,14 @@ struct log_rule
     char            interface_in[16];
     char            interface_out[16];
 
-#ifndef HAVE_IPV6
+#ifndef IPV6_ENABLED
     char            src_ip[16];
     char            dst_ip[16];
 #else
     char            src_ip[46];
     char            dst_ip[46];
     int             ipv6;
-#endif /* HAVE_IPV6 */
+#endif /* IPV6_ENABLED */
 
     int             protocol;
     int             src_port;
@@ -133,4 +135,4 @@ VR_user_t   user_data;
 #define LOCK                          LockSHM(1, sem_id)
 #define UNLOCK                        LockSHM(0, sem_id)
 
-#endif
+#endif /* __VUURMUUR_LOG_H__ */

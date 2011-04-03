@@ -158,7 +158,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, Hash *ZoneH
         return(-1);
     }
 
-#ifdef HAVE_IPV6
+#ifdef IPV6_ENABLED
     /* no support in looking up hosts, services, etc yet */
     if (logrule_ptr->ipv6 == 1) {
         if(strlcpy(logrule_ptr->from_name, logrule_ptr->src_ip, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
@@ -166,7 +166,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, Hash *ZoneH
         if(strlcpy(logrule_ptr->to_name, logrule_ptr->dst_ip, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
             (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
     } else {
-#endif /* HAVE_IPV6 */
+#endif /* IPV6_ENABLED */
 
     /* search in the hash with the ipaddress */
     if(!(search_ptr = search_zone_in_hash_with_ipv4(debuglvl, logrule_ptr->src_ip, ZoneHash)))
@@ -204,9 +204,9 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, Hash *ZoneH
             strlcpy(logrule_ptr->to_name, "firewall", sizeof(logrule_ptr->to_name));
     }
     search_ptr = NULL;
-#ifdef HAVE_IPV6
+#ifdef IPV6_ENABLED
     }
-#endif /* HAVE_IPV6 */
+#endif /* IPV6_ENABLED */
 
 
     /*
@@ -368,7 +368,7 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
                 logrule->dst_ip, logrule->dst_mac,
                 logrule->packet_len, logrule->ttl);
             break;
-#ifdef HAVE_IPV6
+#ifdef IPV6_ENABLED
         case 58:                    /* ICMPv6 */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s ICMPv6 type %d code %d len:%u ttl:%u)\n",
                 logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
@@ -381,7 +381,7 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
                 logrule->icmp_type, logrule->icmp_code,
                 logrule->packet_len, logrule->ttl);
             break;
-#endif /* HAVE_IPV6 */
+#endif /* IPV6_ENABLED */
         default:
             (void)vrprint.debug(__FUNC__, "unknown protocol");
             return(-1);

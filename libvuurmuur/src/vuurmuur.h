@@ -49,12 +49,7 @@
 #define __FUNC__        (char *)__FUNCTION__
 
 /* our version */
-#ifdef IPV6_ENABLED
-#define LIBVUURMUUR_VERSION	"0.8beta2ipv6"
-#else
-#warning No IPv6 support
 #define LIBVUURMUUR_VERSION	"0.8beta2"
-#endif
 
 /* we need this to stringify the VUURMUUR_CONFIGDIR which is supplied at compiletime see:
    http://gcc.gnu.org/onlinedocs/gcc-3.4.1/cpp/Stringification.html#Stringification */
@@ -196,7 +191,7 @@
 
 /* Some defines for character buffers we define in this file */
 #ifdef IPV6_ENABLED
-#define MAX_IPV6_ADDR_LEN       24+7+1  /* 32 should be enough for IPv6 */
+#define MAX_IPV6_ADDR_LEN       40 /* 39 + null */
 #endif
 
 /* name validation VERBOSE or QUIET */

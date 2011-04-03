@@ -26,10 +26,6 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
-#ifdef HAVE_IPV6
-#include <netinet/ip6.h>
-#include <netinet/icmp6.h>
-#endif /* HAVE_IPV6 */
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <linux/icmp.h>
@@ -37,9 +33,14 @@
 #include <netinet/if_ether.h>
 #include <libnetfilter_log/libnetfilter_log.h>
 #include <sys/time.h>
+
 #include "vuurmuur_log.h"
 #include "nflog.h"
 
+#ifdef IPV6_ENABLED
+#include <netinet/ip6.h>
+#include <netinet/icmp6.h>
+#endif /* IPV6_ENABLED */
 
 static int fd = -1;
 static struct nflog_handle *h;
@@ -224,13 +225,13 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         uint16_t hw_protocol = ntohs(ph->hw_protocol);
         if (hw_protocol == 0x0000) {
             struct iphdr *iph = (struct iphdr *)payload;
-#ifdef HAVE_IPV6
+#ifdef IPV6_ENABLED
             struct ip6_hdr *ip6h = (struct ip6_hdr *)payload;
 #endif
             if (payload_len >= sizeof(struct iphdr) && iph->version == 4) {
                 (void)vrprint.debug(__FUNC__, "IPv4");
                 hw_protocol = ETH_P_IP;
-#ifdef HAVE_IPV6
+#ifdef IPV6_ENABLED
             } else if (payload_len >= sizeof(struct ip6_hdr) && ((ip6h->ip6_vfc & 0xf0) >> 4) == 6) {
                 (void)vrprint.debug(__FUNC__, "IPv6");
                 hw_protocol = ETH_P_IPV6;
@@ -286,7 +287,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                 break;
             case ETH_P_IPV6:
             {
-#ifdef HAVE_IPV6
+#ifdef IPV6_ENABLED
                 (void)vrprint.debug(__FUNC__, "hw proto said IPv6, lets try to decode.");
 
                 if (payload_len < sizeof(struct ip6_hdr))
@@ -341,7 +342,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                 logrule_ptr->ipv6 = 1;
 
                 (void)vrprint.debug(__FILE__, "IPV6 %s -> %s (%u)", logrule_ptr->src_ip, logrule_ptr->dst_ip, logrule_ptr->protocol);
-#endif /* HAVE_IPV6 */
+#endif /* IPV6_ENABLED */
                 break;
             }
             default:
