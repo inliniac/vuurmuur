@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2007 by Victor Julien                              *
+ *   Copyright (C) 2002-2011 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -74,6 +74,9 @@
 #define VR_INFO                 "Info"
 #define VR_WARN                 "Warning"
 
+#define VR_IPV4                 4
+#define VR_IPV6                 6
+
 /*************************************************************************************************************************\
  ******************************************************* DATATYPES *******************************************************
 \*************************************************************************************************************************/
@@ -85,12 +88,19 @@ VR_user_t   user_data;
 
 struct RuleCreateData_
 {
+    int                     ipv; /* ip version */
+
     char                    action[sizeof(RuleCache.action)];
     char                    chain[48]; /* why 48? */
 
+#ifdef IPV6_ENABLED
     /* ipaddress */
+    char                    from_ip[46];
+    char                    to_ip[46];
+#else
     char                    from_ip[16];
     char                    to_ip[16];
+#endif
 
     /* netmasks */
     char                    from_netmask[16];
@@ -105,6 +115,10 @@ struct RuleCreateData_
 
     struct ipdata           ipv4_from;
     struct ipdata           ipv4_to;
+#ifdef IPV6_ENABLED
+    struct ip6data          ipv6_from;
+    struct ip6data          ipv6_to;
+#endif
 
     /* interfaces */
     char                    from_int[16];

@@ -55,6 +55,7 @@
 /*  structure for storing an iptables rule in the queue. */
 typedef struct
 {
+    int                 ipv;    /**< VR_IPV4 or VR_IPV6 */
     char                *table;
     char                *chain;
     char                cmd[MAX_PIPE_COMMAND];
@@ -132,6 +133,40 @@ pipe_iptables_command(const int debuglvl, char *table, char *chain, char *cmd)
     return(0);
 }
 
+#ifdef IPV6_ENABLED
+static int
+pipe_ip6tables_command(const int debuglvl, char *table, char *chain, char *cmd)
+{
+    char    str[MAX_PIPE_COMMAND] = "";
+
+    /* safety */
+    if(cmd == NULL || table == NULL || chain == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /*
+        assemble the command string
+    */
+    if(snprintf(str, sizeof(str), "%s %s %s %s", conf.ip6tables_location, table, chain, cmd) >= (int)sizeof(str))
+    {
+        (void)vrprint.error(-1, "Error", "iptables command creation overflow (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /*
+        finally try to create the rule
+    */
+    if(pipe_command(debuglvl, &conf, str, PIPE_VERBOSE) < 0)
+    {
+        (void)vrprint.error(-1, "Error", "creating rule failed (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    return(0);
+}
+#endif /* IPV6_ENABLED */
 
 /*  compare two IptRule structs and return 1 if they match, 0 otherwise */
 static int
@@ -144,7 +179,8 @@ iptrulecmp(const int debuglvl, IptRule *r1, IptRule *r2)
         return(-1);
     }
 
-    if( r1->table == r2->table &&
+    if (r1->ipv == r2->ipv &&
+        r1->table == r2->table &&
         r1->chain == r2->chain &&
         strcmp(r1->cmd, r2->cmd) == 0 &&
         r1->packets == r2->packets &&
@@ -198,7 +234,7 @@ iptrule_insert(const int debuglvl, struct RuleCreateData_ *rule,
 /*  queue the rule into the list, so we can inspect the rules for
     duplicates. We do this to prevent creating lots of duplicates
     especially for setups with lots of virtual interfaces.
-    
+
     This function must _only_ be called from the normal rule creation
     functions, not from pre-rules, post-rules, etc.
     */
@@ -233,6 +269,7 @@ queue_rule(const int debuglvl, struct RuleCreateData_ *rule,
         return(-1);
     }
 
+    iptrule->ipv = rule->ipv;
     iptrule->table = table;
     iptrule->chain = chain;
     strlcpy(iptrule->cmd, cmd, sizeof(iptrule->cmd));
@@ -246,9 +283,13 @@ queue_rule(const int debuglvl, struct RuleCreateData_ *rule,
 }
 
 
-/*  pass the rule to either the ruleset or to pipe-command */
+/**
+ *  \brief pass the rule to either the ruleset or to pipe-command
+ *
+ *  \param ipv VR_IPV4 or VR_IPV6
+ */
 static int
-process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, char *table,
+process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, int ipv, char *table,
         char *chain, char *cmd,
         unsigned long long packets, unsigned long long bytes)
 {
@@ -263,7 +304,18 @@ process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, char *table,
     if(ruleset == NULL)
     {
         /* not in ruleset mode */
-        return(pipe_iptables_command(debuglvl, table, chain, cmd));
+        if (ipv == VR_IPV4) {
+            return (pipe_iptables_command(debuglvl, table, chain, cmd));
+#ifdef IPV6_ENABLED
+        } else {
+            return (pipe_ip6tables_command(debuglvl, table, chain, cmd));
+#endif
+        }
+    }
+
+    /* not supported yet */
+    if (ipv == VR_IPV6) {
+        return 0;
     }
 
     if(debuglvl >= HIGH)
@@ -363,7 +415,7 @@ process_queued_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct Rule
     {
         r = d_node->data;
 
-        if(process_rule(debuglvl, ruleset, r->table, r->chain,
+        if (process_rule(debuglvl, ruleset, r->ipv, r->table, r->chain,
                 r->cmd, r->packets, r->bytes) < 0)
         {
             return(-1);
@@ -2312,9 +2364,9 @@ create_rule_bounce( const int debuglvl, /*@null@*/RuleSet *ruleset,
 int
 create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces, IptCap *iptcap)
 {
-    d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
-    char    cmd[MAX_PIPE_COMMAND] = "";
+    d_list_node *d_node = NULL;
+    struct InterfaceData_ *iface_ptr = NULL;
+    char cmd[MAX_PIPE_COMMAND] = "";
 
     /* safety */
     if(interfaces == NULL || iptcap == NULL)
@@ -2323,13 +2375,8 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, In
         return(-1);
     }
 
-    if (conf.check_iptcaps == TRUE && iptcap->target_tcpmss == FALSE) {
-        if(conf.bash_out)
-            fprintf(stdout, "\n# Not creating TCPMSS rules: TCPMSS target not supported.\n");
-    } else {
-        if(conf.bash_out)
-            fprintf(stdout, "\n# Loading interfaces TCPMSS rules...\n");
-    }
+    if (conf.bash_out)
+        fprintf(stdout, "\n# TCPMSS rules\n");
 
     /* loop through the interfaces */
     for (d_node = interfaces->list.top; d_node; d_node = d_node->next)
@@ -2342,16 +2389,40 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, In
 
         if (iface_ptr->tcpmss_clamp == TRUE && iface_ptr->device_virtual == FALSE)
         {
-            if (conf.bash_out)
-                fprintf(stdout, "# Enabling TCPMSS pmtu clamping for interface %s (device %s).\n",
-                        iface_ptr->name, iface_ptr->device);
+            snprintf(cmd, sizeof(cmd), "-o %s -p tcp --tcp-flags SYN,RST SYN "
+                    "-j TCPMSS --clamp-mss-to-pmtu", iface_ptr->device);
 
-            snprintf(cmd, sizeof(cmd), "-o %s -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu",
-                iface_ptr->device);
+            if (conf.check_iptcaps == FALSE || iptcap->target_tcpmss == TRUE) {
+                if (conf.bash_out)
+                    fprintf(stdout, "# Enabling TCPMSS pmtu clamping for "
+                            "interface %s (device %s).\n",
+                            iface_ptr->name, iface_ptr->device);
 
-            if (process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-                return(-1);
+                if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER,
+                            CH_FORWARD, cmd, 0, 0) < 0)
+                    return(-1);
+            } else {
+                if (conf.bash_out)
+                    fprintf(stdout, "# No support for IPv4 TCPMSS target.\n");
+            }
 
+#ifdef IPV6_ENABLED
+            if (interface_ipv6_enabled(debuglvl, iface_ptr)) {
+                if (conf.check_iptcaps == FALSE || iptcap->target_ip6_tcpmss == TRUE) {
+                    if (conf.bash_out)
+                        fprintf(stdout, "# Enabling TCPMSS pmtu clamping for "
+                                "interface %s (device %s) for IPv6.\n",
+                                iface_ptr->name, iface_ptr->device);
+
+                    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER,
+                                CH_FORWARD, cmd, 0, 0) < 0)
+                        return(-1);
+                } else {
+                    if (conf.bash_out)
+                        fprintf(stdout, "# No support for IPv6 TCPMSS target.\n");
+                }
+            }
+#endif /* IPV6_ENABLED */
         }
     }
 
@@ -2443,7 +2514,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-PREROUTING");
-        if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_PREROUTING, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_PREROUTING, cmd, 0, 0) < 0)
             retval = -1;
 
         if(ruleset == NULL)
@@ -2453,7 +2524,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-INPUT");
-        if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             retval = -1;
 
         if(ruleset == NULL)
@@ -2463,7 +2534,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-FORWARD");
-        if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
 
         if(ruleset == NULL)
@@ -2473,7 +2544,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-POSTROUTING");
-        if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_POSTROUTING, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_POSTROUTING, cmd, 0, 0) < 0)
             retval = -1;
 
         if(ruleset == NULL)
@@ -2483,7 +2554,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-OUTPUT");
-        if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
     }
 
@@ -2499,7 +2570,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     }
 
     snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-INPUT");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval = -1;
 
     if(ruleset == NULL)
@@ -2509,7 +2580,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     }
 
     snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-FORWARD");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
     if(ruleset == NULL)
@@ -2519,7 +2590,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     }
 
     snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-OUTPUT");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
 
 
@@ -2537,7 +2608,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-PREROUTING");
-        if(process_rule(debuglvl, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
             retval = -1;
 
         if(ruleset == NULL)
@@ -2547,7 +2618,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-POSTROUTING");
-        if(process_rule(debuglvl, ruleset, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
             retval=-1;
 
         if(ruleset == NULL)
@@ -2557,7 +2628,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-OUTPUT");
-        if(process_rule(debuglvl, ruleset, TB_NAT, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_NAT, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
     }
 
@@ -2575,7 +2646,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-j SHAPEIN");
-        if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         if(ruleset == NULL)
@@ -2585,7 +2656,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-j SHAPEOUT");
-        if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         if(ruleset == NULL)
@@ -2595,7 +2666,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-j SHAPEFW");
-        if(process_rule(debuglvl, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
@@ -2606,11 +2677,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Allowing local loopback...");
 
     snprintf(cmd, sizeof(cmd), "-i lo -j ACCEPT");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval = -1;
 
     snprintf(cmd, sizeof(cmd), "-o lo -j ACCEPT");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
 
 
@@ -2656,13 +2727,13 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
                     /* create an outgoing rule for in the chain (IPTRAFVOL wants outgoing first) */
                     snprintf(cmd, sizeof(cmd), "-o %s -j RETURN", iface_ptr->device);
-                    (void)process_rule(debuglvl, ruleset, TB_FILTER, acc_chain_name, cmd,
+                    (void)process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, acc_chain_name, cmd,
                             iface_ptr->cnt ? iface_ptr->cnt->acc_out_packets : 0,
                             iface_ptr->cnt ? iface_ptr->cnt->acc_out_bytes : 0);
 
                     /* create an incoming rule for in the chain (IPTRAFVOL wants imcoming second) */
                     snprintf(cmd, sizeof(cmd), "-i %s -j RETURN", iface_ptr->device);
-                    (void)process_rule(debuglvl, ruleset, TB_FILTER, acc_chain_name, cmd,
+                    (void)process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, acc_chain_name, cmd,
                             iface_ptr->cnt ? iface_ptr->cnt->acc_in_packets : 0,
                             iface_ptr->cnt ? iface_ptr->cnt->acc_in_bytes : 0);
 
@@ -2674,28 +2745,28 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                         first in the input chain
                     */
                     snprintf(cmd, sizeof(cmd), "-i %s -j %s", iface_ptr->device, acc_chain_name);
-                    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, iface_ptr->cnt ? iface_ptr->cnt->input_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->input_bytes : 0) < 0)
+                    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, iface_ptr->cnt ? iface_ptr->cnt->input_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->input_bytes : 0) < 0)
                         retval=-1;
 
                     /*
                         then in the output chain
                     */
                     snprintf(cmd, sizeof(cmd), "-o %s -j %s", iface_ptr->device, acc_chain_name);
-                    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, iface_ptr->cnt ? iface_ptr->cnt->output_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->output_bytes : 0) < 0)
+                    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, iface_ptr->cnt ? iface_ptr->cnt->output_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->output_bytes : 0) < 0)
                         retval=-1;
 
                     /*
                         then in the forward chain, in
                     */
                     snprintf(cmd, sizeof(cmd), "-i %s -j %s", iface_ptr->device, acc_chain_name);
-                    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, iface_ptr->cnt ? iface_ptr->cnt->forwardin_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->forwardin_bytes : 0) < 0)
+                    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, iface_ptr->cnt ? iface_ptr->cnt->forwardin_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->forwardin_bytes : 0) < 0)
                         retval=-1;
 
                     /*
                         then in the forward chain, out
                     */
                     snprintf(cmd, sizeof(cmd), "-o %s -j %s", iface_ptr->device, acc_chain_name);
-                    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, iface_ptr->cnt ? iface_ptr->cnt->forwardout_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->forwardout_bytes : 0) < 0)
+                    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, iface_ptr->cnt ? iface_ptr->cnt->forwardout_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->forwardout_bytes : 0) < 0)
                         retval=-1;
                 }
             }
@@ -2769,20 +2840,20 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
             }
         }
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE -j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
     /* SYN - FIN */
@@ -2808,20 +2879,20 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                             log_tcp_options);
         }
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN -j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
     /* SYN - RST */
@@ -2847,20 +2918,20 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                             log_tcp_options);
         }
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST -j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
     /* FIN - RST */
@@ -2886,20 +2957,20 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                             log_tcp_options);
         }
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST -j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
     /* ACK - FIN */
@@ -2925,20 +2996,20 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                             log_tcp_options);
         }
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN -j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
     /* ACK - PSH */
@@ -2964,20 +3035,20 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                             log_tcp_options);
         }
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH -j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
     /* ACK - URG */
@@ -3003,20 +3074,20 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                             log_tcp_options);
         }
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG -j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
     /* New tcp but no SYN */
@@ -3042,20 +3113,20 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                             log_tcp_options);
         }
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW -j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
     /*
@@ -3083,20 +3154,20 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                             log_tcp_options);
         }
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     snprintf(cmd, sizeof(cmd), "-f -j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
 
@@ -3145,15 +3216,15 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     }
 
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
         retval=-1;
 
     snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
         retval=-1;
 
     snprintf(cmd, sizeof(cmd), "-j ACCEPT");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
         retval=-1;
 
     /* Add the TCPMSS rules before the RELATED rules. */
@@ -3174,15 +3245,15 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-j QUEUE");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
             retval=-1;
     } else {
         (void)vrprint.info("Info", "NEWQUEUE target not setup. QUEUE-target not supported by system.");
@@ -3229,13 +3300,13 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
 
         snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED,RELATED -m connmark ! --mark 0 -j ESTRELNFQUEUE");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
@@ -3252,27 +3323,27 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up connection-tracking...");
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
     else
@@ -3282,27 +3353,27 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up connection-tracking...");
 
         snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
@@ -3320,27 +3391,27 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up connection-tracking for QUEUE targets...");
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
     else
@@ -3375,12 +3446,12 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                         limit, logprefix, loglevel, log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
                 retval=-1;
         }
 
         snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         /*
@@ -3402,12 +3473,12 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                         limit, logprefix, loglevel, log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
                 retval=-1;
         }
 
         snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         /*
@@ -3429,12 +3500,12 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                         limit, logprefix, loglevel, log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
                 retval=-1;
         }
 
         snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     } else {
         if (conf.bash_out == TRUE)
@@ -3461,13 +3532,13 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     }
 
     snprintf(cmd, sizeof(cmd), "-j BLOCKLIST");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
 
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
 
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
     if(ruleset == NULL)
@@ -3503,12 +3574,12 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
                                 log_tcp_options);
         }
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     snprintf(cmd, sizeof(cmd), "-j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
         retval=-1;
 
 
@@ -3526,12 +3597,12 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
     /* for tcp we use tcp-reset like requested */
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp -j REJECT --reject-with tcp-reset");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
         retval=-1;
 
     /* for the rest we use normal REJECT, which means icmp-port-unreachable */
     snprintf(cmd, sizeof(cmd), "-j REJECT");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
         retval=-1;
 
     /*
@@ -3556,11 +3627,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     }
 
     snprintf(cmd, sizeof(cmd), "-j ANTISPOOF");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval=-1;
 
     return(retval);
@@ -3610,7 +3681,7 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
 
     /* create the return rule */
     snprintf(cmd, sizeof(cmd), "-m limit --limit %u/s --limit-burst %u -j RETURN", conf.syn_limit, conf.syn_limit_burst);
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_SYNLIMITTARGET, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_SYNLIMITTARGET, cmd, 0, 0) < 0)
         retval=-1;
 
     /* the log rule */
@@ -3632,13 +3703,13 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
                             loglevel,
                             log_tcp_options);
         }
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_SYNLIMITTARGET, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_SYNLIMITTARGET, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     /* and finally the drop rule */
     snprintf(cmd, sizeof(cmd), "-j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_SYNLIMITTARGET, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_SYNLIMITTARGET, cmd, 0, 0) < 0)
         retval=-1;
 
     return(retval);
@@ -3688,7 +3759,7 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
 
     /* create the return rule */
     snprintf(cmd, sizeof(cmd), "-m limit --limit %u/s --limit-burst %u -j RETURN", conf.udp_limit, conf.udp_limit_burst);
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
         retval=-1;
 
     /* the log rule */
@@ -3711,13 +3782,13 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
                             log_tcp_options);
         }
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     /* and finally the drop rule */
     snprintf(cmd, sizeof(cmd), "-j DROP");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
         retval=-1;
 
     return(retval);
@@ -3801,7 +3872,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
                         log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
                 retval=-1;
 
             /* output */
@@ -3824,7 +3895,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
                         log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
                 retval=-1;
 
             /* forward */
@@ -3846,7 +3917,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
                         loglevel,
                         log_tcp_options);
             }
-            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
                 retval=-1;
         }
     }
@@ -4071,7 +4142,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                     loglevel, log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 return(-1);
         }
 
@@ -4080,7 +4151,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->danger.source_ip.ipaddress,
             create->danger.source_ip.netmask, from_if_ptr->ipv4.ipaddress);
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
             return(-1);
 
         /* create the log rule */
@@ -4109,7 +4180,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                     logprefix, loglevel, log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 return(-1);
         }
 
@@ -4119,7 +4190,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->danger.source_ip.ipaddress,
             create->danger.source_ip.netmask);
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
             return(-1);
     }
     /* normal interface */
@@ -4148,7 +4219,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                     create->danger.source_ip.netmask, limit, logprefix,
                     loglevel, log_tcp_options);
             }
-            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 return(-1);
         }
 
@@ -4157,7 +4228,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             input_device, create->danger.source_ip.ipaddress,
             create->danger.source_ip.netmask);
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
             return(-1);
 
         /* create the log rule */
@@ -4184,7 +4255,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                     logprefix, loglevel, log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 return(-1);
         }
 
@@ -4193,7 +4264,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             output_device, create->danger.source_ip.ipaddress,
             create->danger.source_ip.netmask);
 
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
             return(-1);
     }
     return(0);
@@ -4230,7 +4301,7 @@ create_network_protect_rules_dhcp_server(   const int debuglvl,
         DHCPDISCOVER; DHCPREQUEST */
     snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s 0.0.0.0 --sport 68 -d 255.255.255.255 --dport 67 -j ACCEPT",
             if_ptr->device);
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
 
     /* the request for a host that already has an ip. */
@@ -4240,14 +4311,14 @@ create_network_protect_rules_dhcp_server(   const int debuglvl,
     {
         snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s %s/%s --sport 68 -d 255.255.255.255 --dport 67 -j ACCEPT",
                 if_ptr->device, create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     /* DHCPOFFER */
     snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s 0.0.0.0 --sport 67 -d 255.255.255.255 --dport 68 -j ACCEPT",
             if_ptr->device);
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
 
     /* make sure we have everything set */
@@ -4258,13 +4329,13 @@ create_network_protect_rules_dhcp_server(   const int debuglvl,
         /* DHCPOFFER and negative response to external DHCP client */
         snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s %s/255.255.255.255 --sport 67 -d %s/%s --dport 68 -j ACCEPT",
                 if_ptr->device, if_ptr->ipv4.ipaddress, create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         /* DHCPREQUEST; DHCPRELEASE */
         snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s %s/%s --sport 68 -d %s/255.255.255.255 --dport 67 -j ACCEPT",
                 if_ptr->device, create->who->ipv4.network, create->who->ipv4.netmask, if_ptr->ipv4.ipaddress);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
     }
 
@@ -4274,13 +4345,13 @@ create_network_protect_rules_dhcp_server(   const int debuglvl,
         /* DHCPREQUEST; DHCPDECLINE */
         snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s 0.0.0.0 --sport 68 -d %s/255.255.255.255 --dport 67 -j ACCEPT",
                 if_ptr->device, if_ptr->ipv4.ipaddress);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         /* DHCPACK; DHCPNAK */
         snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s %s/255.255.255.255 --sport 67 -d 255.255.255.255 --dport 68 -j ACCEPT",
                 if_ptr->device, if_ptr->ipv4.ipaddress);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
     }
@@ -4322,12 +4393,12 @@ create_network_protect_rules_dhcp_client(   const int debuglvl,
 
     snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s 0.0.0.0 --sport 68 -d 255.255.255.255 --dport 67 -j ACCEPT",
             if_ptr->device);
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
 
     snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s 0.0.0.0 --sport 67 -d 255.255.255.255 --dport 68 -j ACCEPT",
             if_ptr->device);
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
 
     if( create->who->ipv4.network[0] != '\0' &&
@@ -4335,26 +4406,26 @@ create_network_protect_rules_dhcp_client(   const int debuglvl,
     {
         snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s %s/%s --sport 67 -d 255.255.255.255 --dport 68 -j ACCEPT",
                 if_ptr->device, create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s 0.0.0.0 --sport 68 -d %s/%s --dport 67 -j ACCEPT",
                 if_ptr->device, create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s %s/%s --sport 67 -d %s/%s --dport 68 -j ACCEPT",
                 if_ptr->device,
                 create->who->ipv4.network, create->who->ipv4.netmask,
                 create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s %s/%s --sport 68 -d %s/%s --dport 67 -j ACCEPT",
                 if_ptr->device,
                 create->who->ipv4.network, create->who->ipv4.netmask,
                 create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
     }
 
@@ -4556,12 +4627,12 @@ create_block_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, BlockList *bl
 
         /* ip is source */
         snprintf(cmd, sizeof(cmd), "-s %s/255.255.255.255 -j BLOCK", ipaddress);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_BLOCKLIST, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKLIST, cmd, 0, 0) < 0)
             retval=-1;
 
         /* ip is dst */
         snprintf(cmd, sizeof(cmd), "-d %s/255.255.255.255 -j BLOCK", ipaddress);
-        if(process_rule(debuglvl, ruleset, TB_FILTER, CH_BLOCKLIST, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKLIST, cmd, 0, 0) < 0)
             retval=-1;
     }
 
@@ -4630,14 +4701,14 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
                     "-m state --state ESTABLISHED -j NFQUEUE --queue-num %u",
                     queue_num + 1, queue_num);
-                if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
+                if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
                     retval=-1;
 
                 /* RELATED */
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
                     "-m state --state RELATED -j NEWNFQUEUE",
                     queue_num + 1);
-                if(process_rule(debuglvl, ruleset, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
+                if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
                     retval=-1;
 
                 /* mark this queue num processed */
@@ -4680,11 +4751,11 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
 
     /* TCP and UDP limits */
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
         retval=-1;
 
     snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW,RELATED -j UDPLIMIT");
-    if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
         retval=-1;
 
     if(rules->list.len == 0)
@@ -4721,7 +4792,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
                     "-m state --state NEW,RELATED -j NFQUEUE --queue-num %u",
                     queue_num + 1, queue_num);
-                if(process_rule(debuglvl, ruleset, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
+                if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
                     retval=-1;
 
                 /* mark this queue num processed */

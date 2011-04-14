@@ -877,13 +877,19 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
     /* get the first part of the action, because action can be like this: REJECT --reject-type icmp-adm.... */
     sscanf(create->action, "%64s", action);
 
-    (void)strlcpy(rule->from_ip,      rule->ipv4_from.ipaddress, sizeof(rule->from_ip));
-    (void)strlcpy(rule->from_netmask, rule->ipv4_from.netmask, sizeof(rule->from_netmask));
+    if (rule->ipv == VR_IPV4) {
+        (void)strlcpy(rule->from_ip, rule->ipv4_from.ipaddress, sizeof(rule->from_ip));
+        (void)strlcpy(rule->from_netmask, rule->ipv4_from.netmask, sizeof(rule->from_netmask));
+#ifdef IPV6_ENABLED
+    } else {
+        (void)strlcpy(rule->from_ip, rule->ipv6_from.ip6, sizeof(rule->from_ip));
+        snprintf(rule->from_netmask, sizeof(rule->from_netmask), "%d", rule->ipv6_from.cidr6);
+#endif
+    }
 
     /* if we want to log a rule, but havent done it yet: */
     if(create->option.rule_log == TRUE)
     {
-
         /* create the limitstring */
         if(conf.check_iptcaps == FALSE || iptcap->match_limit == TRUE)
         {
@@ -929,8 +935,15 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
         }
 
         /* set ip and netmask */
-        (void)strlcpy(rule->to_ip,      rule->ipv4_to.ipaddress, sizeof(rule->to_ip));
-        (void)strlcpy(rule->to_netmask, rule->ipv4_to.netmask,   sizeof(rule->to_netmask));
+        if (rule->ipv == VR_IPV4) {
+            (void)strlcpy(rule->to_ip,      rule->ipv4_to.ipaddress, sizeof(rule->to_ip));
+            (void)strlcpy(rule->to_netmask, rule->ipv4_to.netmask,   sizeof(rule->to_netmask));
+#ifdef IPV6_ENABLED
+        } else {
+            (void)strlcpy(rule->to_ip, rule->ipv6_to.ip6, sizeof(rule->to_ip));
+            snprintf(rule->to_netmask, sizeof(rule->to_netmask), "%d", rule->ipv6_to.cidr6);
+#endif
+        }
 
         /* create the rule */
         (void)vrprint.debug(__FUNC__, "log the rule, create->option.rule_log == TRUE. rule->action = %s", rule->action);
@@ -944,82 +957,83 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
         memset(rule->limit, 0, sizeof(rule->limit));
     }
 
-    /* if we have a broadcasting protocol and want logging, and haven't logged yet */
-    if (create->service != NULL &&
-        create->service->broadcast == TRUE &&
-        create->option.rule_log == TRUE)
-    {
-        if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "create the log rule for broadcast.");
-
-        if(conf.check_iptcaps == 0 || iptcap->match_limit == 1)
+    if (rule->ipv == VR_IPV4) {
+        /* if we have a broadcasting protocol and want logging, and haven't logged yet */
+        if (create->service != NULL &&
+                create->service->broadcast == TRUE &&
+                create->option.rule_log == TRUE)
         {
-            if(create->option.loglimit > 0) {
-                limit = create->option.loglimit;
-                unit = "sec";
-                        } else {
-                limit = create->option.limit;
-                                unit = create->option.limit_unit;
-                        }
+            if(debuglvl >= HIGH)
+                (void)vrprint.debug(__FUNC__, "create the log rule for broadcast.");
 
-            if(create->option.logburst > 0)
-                burst = create->option.logburst;
-            else
-                burst = create->option.burst;
+            if(conf.check_iptcaps == 0 || iptcap->match_limit == 1)
+            {
+                if(create->option.loglimit > 0) {
+                    limit = create->option.loglimit;
+                    unit = "sec";
+                } else {
+                    limit = create->option.limit;
+                    unit = create->option.limit_unit;
+                }
 
-            /* set the limit */
-            if(limit > 0 && burst > 0)
-                snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s --limit-burst %u",
-                                            limit, unit, burst);
-            else if(limit > 0 && burst == 0)
-                snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s",
-                                            limit, unit);
+                if(create->option.logburst > 0)
+                    burst = create->option.logburst;
+                else
+                    burst = create->option.burst;
+
+                /* set the limit */
+                if(limit > 0 && burst > 0)
+                    snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s --limit-burst %u",
+                            limit, unit, burst);
+                else if(limit > 0 && burst == 0)
+                    snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s",
+                            limit, unit);
+            }
+
+            /* create the logprefix string */
+            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), create->ruletype, action, "%s", create->option.logprefix);
+
+            /* action */
+            snprintf(rule->action, sizeof(rule->action), "LOG %s %s %s",
+                    logprefix,
+                    loglevel,
+                    log_tcp_options);
+
+            /* set ip and netmask */
+            (void)strlcpy(rule->to_ip,      rule->ipv4_to.broadcast, sizeof(rule->to_ip));
+            (void)strlcpy(rule->to_netmask, "255.255.255.255", sizeof(rule->to_netmask));
+
+            /* create the rule */
+            retval = rulecreate_call_create_funcs(debuglvl, ruleset, rule, create, iptcap);
+            if (retval < 0) {
+                (void)vrprint.error(retval, "Error", "creating broadcast log rule failed.");
+                return(retval);
+            }
+
+            memset(rule->limit, 0, sizeof(rule->limit));
         }
 
-        /* create the logprefix string */
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), create->ruletype, action, "%s", create->option.logprefix);
+        /* broadcasting */
+        if( create->service != NULL &&
+                create->service->broadcast == TRUE)
+        {
+            if(debuglvl >= HIGH)
+                (void)vrprint.debug(__FUNC__, "create the broadcast rule.");
 
-        /* action */
-        snprintf(rule->action, sizeof(rule->action), "LOG %s %s %s",
-                                logprefix,
-                                loglevel,
-                                log_tcp_options);
+            (void)strlcpy(rule->action, create->action, sizeof(rule->action));
 
-        /* set ip and netmask */
-        (void)strlcpy(rule->to_ip,      rule->ipv4_to.broadcast, sizeof(rule->to_ip));
-        (void)strlcpy(rule->to_netmask, "255.255.255.255", sizeof(rule->to_netmask));
+            /* set ip and netmask */
+            (void)strlcpy(rule->to_ip,      rule->ipv4_to.broadcast, sizeof(rule->to_ip));
+            (void)strlcpy(rule->to_netmask, "255.255.255.255", sizeof(rule->to_netmask));
 
-        /* create the rule */
-        retval = rulecreate_call_create_funcs(debuglvl, ruleset, rule, create, iptcap);
-        if (retval < 0) {
-            (void)vrprint.error(retval, "Error", "creating broadcast log rule failed.");
-            return(retval);
+            /* create the rule */
+            retval = rulecreate_call_create_funcs(debuglvl, ruleset, rule, create, iptcap);
+            if (retval < 0) {
+                (void)vrprint.error(retval, "Error", "creating broadcast rule failed.");
+                return(retval);
+            }
         }
-
-        memset(rule->limit, 0, sizeof(rule->limit));
     }
-
-    /* broadcasting */
-    if( create->service != NULL &&
-        create->service->broadcast == TRUE)
-    {
-        if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "create the broadcast rule.");
-
-        (void)strlcpy(rule->action, create->action, sizeof(rule->action));
-
-        /* set ip and netmask */
-        (void)strlcpy(rule->to_ip,      rule->ipv4_to.broadcast, sizeof(rule->to_ip));
-        (void)strlcpy(rule->to_netmask, "255.255.255.255", sizeof(rule->to_netmask));
-
-        /* create the rule */
-        retval = rulecreate_call_create_funcs(debuglvl, ruleset, rule, create, iptcap);
-        if (retval < 0) {
-            (void)vrprint.error(retval, "Error", "creating broadcast rule failed.");
-            return(retval);
-        }
-    }
-
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "finally create the normal rule.");
@@ -1068,8 +1082,15 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
     }
 
     /* set ip and netmask */
-    (void)strlcpy(rule->to_ip,      rule->ipv4_to.ipaddress, sizeof(rule->to_ip));
-    (void)strlcpy(rule->to_netmask, rule->ipv4_to.netmask,   sizeof(rule->to_netmask));
+    if (rule->ipv == VR_IPV4) {
+        (void)strlcpy(rule->to_ip,      rule->ipv4_to.ipaddress, sizeof(rule->to_ip));
+        (void)strlcpy(rule->to_netmask, rule->ipv4_to.netmask,   sizeof(rule->to_netmask));
+#ifdef IPV6_ENABLED
+    } else {
+        (void)strlcpy(rule->to_ip, rule->ipv6_to.ip6, sizeof(rule->to_ip));
+        snprintf(rule->to_netmask, sizeof(rule->to_netmask), "%d", rule->ipv6_to.cidr6);
+#endif
+    }
 
     /* create the rule */
     retval = rulecreate_call_create_funcs(debuglvl, ruleset, rule, create, iptcap);
@@ -1100,13 +1121,22 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (create->to_firewall_any == TRUE || create->from_any == TRUE) {
             /* clear */
         } else {
-            /* set addresses */
-            (void)strlcpy(rule->ipv4_to.ipaddress,
-                rule->to_if_ptr->ipv4.ipaddress,
-                sizeof(rule->ipv4_to.ipaddress));
-            (void)strlcpy(rule->ipv4_to.netmask,
-                "255.255.255.255",
-                sizeof(rule->ipv4_to.netmask));
+            if (rule->ipv == VR_IPV4) {
+                /* set addresses */
+                (void)strlcpy(rule->ipv4_to.ipaddress,
+                        rule->to_if_ptr->ipv4.ipaddress,
+                        sizeof(rule->ipv4_to.ipaddress));
+                (void)strlcpy(rule->ipv4_to.netmask,
+                        "255.255.255.255",
+                        sizeof(rule->ipv4_to.netmask));
+#ifdef IPV6_ENABLED
+            } else {
+                (void)strlcpy(rule->ipv6_to.ip6,
+                        rule->to_if_ptr->ipv6.ip6,
+                        sizeof(rule->ipv6_to.ip6));
+                rule->ipv6_to.cidr6 = rule->to_if_ptr->ipv6.cidr6;
+#endif
+            }
 
             /* set interface */
             if(rule->to_if_ptr->device_virtual_oldstyle == TRUE)
@@ -1128,23 +1158,41 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->from_any == TRUE &&
             create->option.in_int[0] != '\0')
         {
-            (void)strlcpy(rule->ipv4_to.ipaddress,
-                rule->from_if_ptr->ipv4.ipaddress,
-                sizeof(rule->ipv4_to.ipaddress));
-            (void)strlcpy(rule->ipv4_to.netmask,
-                "255.255.255.255",
-                sizeof(rule->ipv4_to.netmask));
+            if (rule->ipv == VR_IPV4) {
+                (void)strlcpy(rule->ipv4_to.ipaddress,
+                        rule->from_if_ptr->ipv4.ipaddress,
+                        sizeof(rule->ipv4_to.ipaddress));
+                (void)strlcpy(rule->ipv4_to.netmask,
+                        "255.255.255.255",
+                        sizeof(rule->ipv4_to.netmask));
+#ifdef IPV6_ENABLED
+            } else {
+                (void)strlcpy(rule->ipv6_to.ip6,
+                        rule->from_if_ptr->ipv6.ip6,
+                        sizeof(rule->ipv6_to.ip6));
+                rule->ipv6_to.cidr6 = 128;
+#endif
+            }
         }
         retval = rulecreate_create_rule_and_options(debuglvl, ruleset, rule, create, iptcap);
     }
     /* host */
     else if (create->to->type == TYPE_HOST) {
-        (void)strlcpy(rule->ipv4_to.ipaddress,
-            create->to->ipv4.ipaddress,
-            sizeof(rule->ipv4_to.ipaddress));
-        (void)strlcpy(rule->ipv4_to.netmask,
-            create->to->ipv4.netmask,
-            sizeof(rule->ipv4_to.netmask));
+        if (rule->ipv == VR_IPV4) {
+            (void)strlcpy(rule->ipv4_to.ipaddress,
+                    create->to->ipv4.ipaddress,
+                    sizeof(rule->ipv4_to.ipaddress));
+            (void)strlcpy(rule->ipv4_to.netmask,
+                    create->to->ipv4.netmask,
+                    sizeof(rule->ipv4_to.netmask));
+#ifdef IPV6_ENABLED
+        } else {
+            (void)strlcpy(rule->ipv6_to.ip6,
+                    create->to->ipv6.ip6,
+                    sizeof(rule->ipv6_to.ip6));
+            rule->ipv6_to.cidr6 = create->to->ipv6.cidr6;
+#endif
+        }
 
         if (create->to->active == 1) {
             retval = rulecreate_create_rule_and_options(debuglvl, ruleset, rule, create, iptcap);
@@ -1159,12 +1207,21 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
             {
                 host_ptr = d_node->data;
 
-                (void)strlcpy(rule->ipv4_to.ipaddress,
-                    host_ptr->ipv4.ipaddress,
-                    sizeof(rule->ipv4_to.ipaddress));
-                (void)strlcpy(rule->ipv4_to.netmask,
-                    host_ptr->ipv4.netmask,
-                    sizeof(rule->ipv4_to.netmask));
+                if (rule->ipv == VR_IPV4) {
+                    (void)strlcpy(rule->ipv4_to.ipaddress,
+                            host_ptr->ipv4.ipaddress,
+                            sizeof(rule->ipv4_to.ipaddress));
+                    (void)strlcpy(rule->ipv4_to.netmask,
+                            host_ptr->ipv4.netmask,
+                            sizeof(rule->ipv4_to.netmask));
+#ifdef IPV6_ENABLED
+                } else {
+                    (void)strlcpy(rule->ipv6_to.ip6,
+                            host_ptr->ipv6.ip6,
+                            sizeof(rule->ipv6_to.ip6));
+                    rule->ipv6_to.cidr6 = host_ptr->ipv6.cidr6;
+#endif
+                }
 
                 if (host_ptr->active == 1) {
                     retval = rulecreate_create_rule_and_options(debuglvl, ruleset, rule, create, iptcap);
@@ -1174,12 +1231,21 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
     /* network */
     else if (create->to->type == TYPE_NETWORK) {
-        (void)strlcpy(rule->ipv4_to.ipaddress,
-            create->to->ipv4.network,
-            sizeof(rule->ipv4_to.ipaddress));
-        (void)strlcpy(rule->ipv4_to.netmask,
-            create->to->ipv4.netmask,
-            sizeof(rule->ipv4_to.netmask));
+        if (rule->ipv == VR_IPV4) {
+            (void)strlcpy(rule->ipv4_to.ipaddress,
+                    create->to->ipv4.network,
+                    sizeof(rule->ipv4_to.ipaddress));
+            (void)strlcpy(rule->ipv4_to.netmask,
+                    create->to->ipv4.netmask,
+                    sizeof(rule->ipv4_to.netmask));
+#ifdef IPV6_ENABLED
+        } else {
+            (void)strlcpy(rule->ipv6_to.ip6,
+                    create->to->ipv6.net6,
+                    sizeof(rule->ipv6_to.ip6));
+            rule->ipv6_to.cidr6 = create->to->ipv6.cidr6;
+#endif
+        }
 
         if (create->to->active == 1) {
             retval = rulecreate_create_rule_and_options(debuglvl, ruleset, rule, create, iptcap);
@@ -1215,13 +1281,22 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         } else {
             (void)vrprint.debug(__FUNC__, "source firewall");
 
-            /* set addresses */
-            (void)strlcpy(rule->ipv4_from.ipaddress,
-                rule->from_if_ptr->ipv4.ipaddress,
-                sizeof(rule->ipv4_from.ipaddress));
-            (void)strlcpy(rule->ipv4_from.netmask,
-                "255.255.255.255",
-                sizeof(rule->ipv4_from.netmask));
+            if (rule->ipv == VR_IPV4) {
+                /* set addresses */
+                (void)strlcpy(rule->ipv4_from.ipaddress,
+                        rule->from_if_ptr->ipv4.ipaddress,
+                        sizeof(rule->ipv4_from.ipaddress));
+                (void)strlcpy(rule->ipv4_from.netmask,
+                        "255.255.255.255",
+                        sizeof(rule->ipv4_from.netmask));
+#ifdef IPV6_ENABLED
+            } else {
+                (void)strlcpy(rule->ipv6_from.ip6,
+                        rule->from_if_ptr->ipv6.ip6,
+                        sizeof(rule->ipv6_from.ip6));
+                rule->ipv6_from.cidr6 = rule->from_if_ptr->ipv6.cidr6;
+#endif
+            }
 
             /* set interface */
             if(rule->from_if_ptr->device_virtual_oldstyle == TRUE)
@@ -1243,23 +1318,41 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->to_any == TRUE &&
             create->option.out_int[0] != '\0')
         {
-            (void)strlcpy(rule->ipv4_from.ipaddress,
-                rule->from_if_ptr->ipv4.ipaddress,
-                sizeof(rule->ipv4_from.ipaddress));
-            (void)strlcpy(rule->ipv4_from.netmask,
-                "255.255.255.255",
-                sizeof(rule->ipv4_from.netmask));
+            if (rule->ipv == VR_IPV4) {
+                (void)strlcpy(rule->ipv4_from.ipaddress,
+                        rule->from_if_ptr->ipv4.ipaddress,
+                        sizeof(rule->ipv4_from.ipaddress));
+                (void)strlcpy(rule->ipv4_from.netmask,
+                        "255.255.255.255",
+                        sizeof(rule->ipv4_from.netmask));
+#ifdef IPV6_ENABLED
+            } else {
+                (void)strlcpy(rule->ipv6_from.ip6,
+                        rule->from_if_ptr->ipv6.ip6,
+                        sizeof(rule->ipv6_from.ip6));
+                rule->ipv6_from.cidr6 = rule->from_if_ptr->ipv6.cidr6;
+#endif
+            }
         }
         retval = rulecreate_dst_loop(debuglvl, ruleset, rule, create, iptcap);
     }
     /* host */
     else if (create->from->type == TYPE_HOST) {
-        (void)strlcpy(rule->ipv4_from.ipaddress,
-            create->from->ipv4.ipaddress,
-            sizeof(rule->ipv4_from.ipaddress));
-        (void)strlcpy(rule->ipv4_from.netmask,
-            create->from->ipv4.netmask,
-            sizeof(rule->ipv4_from.netmask));
+        if (rule->ipv == VR_IPV4) {
+            (void)strlcpy(rule->ipv4_from.ipaddress,
+                    create->from->ipv4.ipaddress,
+                    sizeof(rule->ipv4_from.ipaddress));
+            (void)strlcpy(rule->ipv4_from.netmask,
+                    create->from->ipv4.netmask,
+                    sizeof(rule->ipv4_from.netmask));
+#ifdef IPV6_ENABLED
+        } else {
+            (void)strlcpy(rule->ipv6_from.ip6,
+                    create->from->ipv6.ip6,
+                    sizeof(rule->ipv6_from.ip6));
+            rule->ipv6_from.cidr6 = create->from->ipv6.cidr6;
+#endif
+        }
 
         if(create->from->has_mac)
         {
@@ -1294,12 +1387,21 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         {
             host_ptr = d_node->data;
 
-            (void)strlcpy(rule->ipv4_from.ipaddress,
-                host_ptr->ipv4.ipaddress,
-                sizeof(rule->ipv4_from.ipaddress));
-            (void)strlcpy(rule->ipv4_from.netmask,
-                host_ptr->ipv4.netmask,
-                sizeof(rule->ipv4_from.netmask));
+            if (rule->ipv == VR_IPV4) {
+                (void)strlcpy(rule->ipv4_from.ipaddress,
+                        host_ptr->ipv4.ipaddress,
+                        sizeof(rule->ipv4_from.ipaddress));
+                (void)strlcpy(rule->ipv4_from.netmask,
+                        host_ptr->ipv4.netmask,
+                        sizeof(rule->ipv4_from.netmask));
+#ifdef IPV6_ENABLED
+            } else {
+                (void)strlcpy(rule->ipv6_from.ip6,
+                        host_ptr->ipv6.ip6,
+                        sizeof(rule->ipv6_from.ip6));
+                rule->ipv6_from.cidr6 = host_ptr->ipv6.cidr6;
+#endif
+            }
 
             if(host_ptr->has_mac)
             {
@@ -1335,12 +1437,21 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
     /* network */
     else if (create->from->type == TYPE_NETWORK) {
-        (void)strlcpy(rule->ipv4_from.ipaddress,
-            create->from->ipv4.network,
-            sizeof(rule->ipv4_from.ipaddress));
-        (void)strlcpy(rule->ipv4_from.netmask,
-            create->from->ipv4.netmask,
-            sizeof(rule->ipv4_from.netmask));
+        if (rule->ipv == VR_IPV4) {
+            (void)strlcpy(rule->ipv4_from.ipaddress,
+                    create->from->ipv4.network,
+                    sizeof(rule->ipv4_from.ipaddress));
+            (void)strlcpy(rule->ipv4_from.netmask,
+                    create->from->ipv4.netmask,
+                    sizeof(rule->ipv4_from.netmask));
+#ifdef IPV6_ENABLED
+        } else {
+            (void)strlcpy(rule->ipv6_from.ip6,
+                    create->from->ipv6.net6,
+                    sizeof(rule->ipv6_from.ip6));
+            rule->ipv6_from.cidr6 = create->from->ipv6.cidr6;
+#endif
+        }
 
         if (create->from->active == 1) {
             retval = rulecreate_dst_loop(debuglvl, ruleset, rule, create, iptcap);
@@ -1470,7 +1581,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
     char        active = 0;
 
     /* handle firewall -> any and firewall(any) */
-    if (create->to_firewall_any == TRUE || (create->to_firewall == TRUE && create->from_any == TRUE)) 
+    if (create->to_firewall_any == TRUE || (create->to_firewall == TRUE && create->from_any == TRUE))
     {
         /* clear the from_int to be sure */
         memset(rule->to_int, 0, sizeof(rule->to_int));
@@ -1635,6 +1746,12 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
             active = 0;
         }
 
+#ifdef IPV6_ENABLED
+        if (rule->ipv == VR_IPV6 &&
+                !interface_ipv6_enabled(debuglvl, rule->to_if_ptr)) {
+            active = 0;
+        }
+#endif
         if (active == 1) {
             /*  check for the 'out_int' rule option:
                 3 possibilities:
@@ -1708,7 +1825,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@n
     char        active = 0;
 
     /* handle firewall -> any & firewall(any) */
-    if (create->from_firewall_any == TRUE || (create->from_firewall == TRUE && create->to_any == TRUE)) 
+    if (create->from_firewall_any == TRUE || (create->from_firewall == TRUE && create->to_any == TRUE))
     {
         /* clear the from_int to be sure */
         memset(rule->from_int, 0, sizeof(rule->from_int));
@@ -1754,7 +1871,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@n
 
     /* handle any */
     if (create->from_any == TRUE ||
-        create->from == NULL) 
+        create->from == NULL)
     {
         /* clear the from_int to be sure */
         memset(rule->from_int, 0, sizeof(rule->from_int));
@@ -1833,7 +1950,12 @@ rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@n
             (void)vrprint.info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
             active = 0;
         }
-
+#ifdef IPV6_ENABLED
+        if (rule->ipv == VR_IPV6 &&
+                !interface_ipv6_enabled(debuglvl, rule->from_if_ptr)) {
+            active = 0;
+        }
+#endif
         if (active == 1) {
             /*  check for the 'in_int' rule option:
                 3 possibilities:
@@ -1843,12 +1965,9 @@ rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@n
                 3. from is 'any'
             */
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__,
-                    "create->from_any '%s', "
-                    "create->option.in_int '%s' "
-                    "rule->from_if_ptr->name '%s'",
-                    create->from_any ? "TRUE" : "FALSE",
-                    create->option.in_int,
+                (void)vrprint.debug(__FUNC__, "create->from_any '%s', "
+                    "create->option.in_int '%s' rule->from_if_ptr->name '%s'",
+                    create->from_any ? "TRUE" : "FALSE", create->option.in_int,
                     rule->from_if_ptr ? rule->from_if_ptr->name : "(null)");
 
             if( (create->from_any == FALSE &&           /* from is not any */
@@ -1878,6 +1997,25 @@ rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@n
     return (retval);
 }
 
+static int
+rulecreate_ipv4ipv6_loop(const int debuglvl, struct vuurmuur_config *cnf,
+        /*@null@*/RuleSet *ruleset, Interfaces *interfaces,
+        struct RuleCreateData_ *rule, struct RuleCache_ *create, IptCap *iptcap)
+{
+    rule->ipv = VR_IPV4;
+
+    if (rulecreate_src_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap) < 0) {
+        (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
+    }
+
+#ifdef IPV6_ENABLED
+    rule->ipv = VR_IPV6;
+
+    if (rulecreate_src_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap) < 0) {
+        (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
+    }
+#endif
+}
 
 
 /*  create_rule
@@ -1956,7 +2094,7 @@ create_rule(const int debuglvl, struct vuurmuur_config *cnf,
             rule->shape_class_out, rule->shape_class_in);
     }
 
-    if (rulecreate_src_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap) < 0) {
+    if (rulecreate_ipv4ipv6_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap) < 0) {
         (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
     }
 
