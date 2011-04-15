@@ -1764,6 +1764,12 @@ create_rule_masq(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
         return(-1);
     }
 
+#ifdef IPV6_ENABLED
+    if (rule->ipv == VR_IPV6) {
+        return(0);
+    }
+#endif
+
     /* check cap */
     if(conf.check_iptcaps == TRUE)
     {
@@ -1812,6 +1818,12 @@ create_rule_snat(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
+
+#ifdef IPV6_ENABLED
+    if (rule->ipv == VR_IPV6) {
+        return(0);
+    }
+#endif
 
     /* check cap */
     if(conf.check_iptcaps == TRUE)
@@ -1873,6 +1885,12 @@ create_rule_portfw(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCr
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
+
+#ifdef IPV6_ENABLED
+    if (rule->ipv == VR_IPV6) {
+        return(0);
+    }
+#endif
 
     /* check cap */
     if(conf.check_iptcaps == TRUE)
@@ -2016,6 +2034,12 @@ create_rule_redirect(const int debuglvl, /*@null@*/RuleSet *ruleset, struct Rule
         return(-1);
     }
 
+#ifdef IPV6_ENABLED
+    if (rule->ipv == VR_IPV6) {
+        return(0);
+    }
+#endif
+
     /* check cap */
     if(conf.check_iptcaps == TRUE)
     {
@@ -2135,6 +2159,12 @@ create_rule_dnat(   const int debuglvl, /*@null@*/RuleSet *ruleset,
         return(-1);
     }
 
+#ifdef IPV6_ENABLED
+    if (rule->ipv == VR_IPV6) {
+        return(0);
+    }
+#endif
+
     /* check cap */
     if(conf.check_iptcaps == TRUE)
     {
@@ -2230,6 +2260,12 @@ create_rule_bounce( const int debuglvl, /*@null@*/RuleSet *ruleset,
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
+
+#ifdef IPV6_ENABLED
+    if (rule->ipv == VR_IPV6) {
+        return(0);
+    }
+#endif
 
     /* check cap */
     if(conf.check_iptcaps == TRUE)
