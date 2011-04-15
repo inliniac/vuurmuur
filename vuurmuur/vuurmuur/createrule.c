@@ -2465,6 +2465,49 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, In
     return(0);
 }
 
+/**
+ *  \brief Flush chains (bash output mode)
+ */
+static int pre_rules_flush_chains(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        Interfaces *interfaces, IptCap *iptcap)
+{
+    if(ruleset == NULL)
+    {
+        char cmd[MAX_PIPE_COMMAND] = "";
+        int result = 0;
+
+        if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Flushing chains... except PRE-VRMR-CHAINS...\n");
+        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Flushing chains...");
+
+        snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush", conf.iptables_location);
+        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+        if (result < 0)
+            return(-1);
+
+        snprintf(cmd, MAX_PIPE_COMMAND, "%s -t nat --flush", conf.iptables_location);
+        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+        if (result < 0)
+            return(-1);
+
+        snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush", conf.iptables_location);
+        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+        if (result < 0)
+            return(-1);
+
+#ifdef IPV6_ENABLED
+        snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush", conf.ip6tables_location);
+        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+        if (result < 0)
+            return(-1);
+
+        snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush", conf.ip6tables_location);
+        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+        if (result < 0)
+            return(-1);
+#endif
+    }
+    return(0);
+}
 
 /* pre_rules
 
@@ -2514,20 +2557,8 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     /*
         first flush the chains
     */
-    if(ruleset == NULL)
-    {
-        if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Flushing chains... except PRE-VRMR-CHAINS...\n");
-        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Flushing chains...");
-
-        snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush", conf.iptables_location);
-        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-        if(result < 0) retval = -1;
-        snprintf(cmd, MAX_PIPE_COMMAND, "%s -t nat --flush", conf.iptables_location);
-        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-        if(result < 0) retval = -1;
-        snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush", conf.iptables_location);
-        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-        if(result < 0) retval = -1;
+    if (pre_rules_flush_chains(debuglvl, ruleset, interfaces, iptcap) < 0) {
+        return(-1);
     }
 
 
