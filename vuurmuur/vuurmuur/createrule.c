@@ -3862,18 +3862,22 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
 }
 
 
-/*  post_rules
-
-    Enables logging in the INPUT, OUTPUT and FORWARD chains.
-    
-    If forward_rules == 1, then /proc/sys/net/ipv4/ip_forward will be enabled. Otherwise it will be disabled.
-
-    Returncode:
-         0: ok
-        -1: error
-*/
+/**
+ *  \brief Finallize the ruleset: policy logging, ip-forwarding
+ *
+ *  Enables logging in the INPUT, OUTPUT and FORWARD chains.
+ *  
+ *  If forward_rules == 1, then /proc/sys/net/ipv4/ip_forward will be enabled.
+ *  Otherwise it will be disabled.
+ *
+ *  \retval 0 ok
+ *  \retval -1 error
+ *
+ *  \todo IP forwarding for IPv6
+ */
 int
-post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int forward_rules)
+post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap,
+        int forward_rules)
 {
     int     retval=0,
             result=0;
@@ -3881,122 +3885,128 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
     char    limit[42] = "";
     char    logprefix[64] = "";
 
-
     /* safety */
-    if(!iptcap)
+    if (iptcap == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+                "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* do we want to log the default policy? */
-    if(conf.log_policy == TRUE)
+    if (conf.log_policy == TRUE)
     {
         /* cap */
-        if(conf.check_iptcaps == TRUE && iptcap->target_log == FALSE)
+        if (conf.check_iptcaps == TRUE && iptcap->target_log == FALSE)
         {
-            (void)vrprint.warning("Warning", "not creating policy logging rules. LOG-target not supported by system.");
+            (void)vrprint.warning("Warning", "not creating policy logging "
+                    "rules. LOG-target not supported by system.");
         }
         else
         {
             /* see if we want to limit the logging of the default policy */
-            if(conf.log_policy_limit > 0)
+            if (conf.log_policy_limit > 0)
             {
                 /* cap */
-                if(conf.check_iptcaps == FALSE || iptcap->match_limit == TRUE)
+                if (conf.check_iptcaps == FALSE || iptcap->match_limit == TRUE)
                 {
-                    snprintf(limit, sizeof(limit), "-m limit --limit %u/s --limit-burst %u",
-                            conf.log_policy_limit,
+                    snprintf(limit, sizeof(limit), "-m limit --limit %u/s "
+                            "--limit-burst %u", conf.log_policy_limit,
                             conf.log_policy_burst);
                 }
                 else
                 {
-                    (void)vrprint.warning("Warning", "not setting limits on policy logging rules. Limit-match not supported by system.");
+                    (void)vrprint.warning("Warning", "not setting limits on "
+                            "policy logging rules. Limit-match not supported "
+                            "by system.");
                 }
             }
 
             /* enable logging for all packets which don't have a rule */
-            if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Enabling logging...\n");
-            if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Enabling logging...");
+            if (conf.bash_out == TRUE)
+                fprintf(stdout, "\n# Enabling logging...\n");
+            if (debuglvl >= LOW)
+                (void)vrprint.debug(__FUNC__, "Enabling logging...");
 
             /* input */
-            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_INPUT, "DROP", "in policy");
+            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                    RT_INPUT, "DROP", "in policy");
 
             if (conf.rule_nflog == 1)
             {
                 snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        conf.nfgrp);
+                        limit, logprefix, loglevel, conf.nfgrp);
             }
             else
             {
                 snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+                        limit, logprefix, loglevel, log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-                retval=-1;
+            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+                retval = -1;
+#ifdef IPV6_ENABLED
+            if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+                retval = -1;
+#endif
 
             /* output */
-            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_OUTPUT, "DROP", "out policy");
+            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                    RT_OUTPUT, "DROP", "out policy");
 
             if (conf.rule_nflog == 1)
             {
                 snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        conf.nfgrp);
+                        limit, logprefix, loglevel, conf.nfgrp);
             }
             else
             {
                 snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+                        limit, logprefix, loglevel, log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-                retval=-1;
+            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+                retval = -1;
+#ifdef IPV6_ENABLED
+            if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+                retval = -1;
+#endif
 
             /* forward */
-            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_FORWARD, "DROP", "fw policy");
+            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                    RT_FORWARD, "DROP", "fw policy");
 
             if (conf.rule_nflog == 1)
             {
                 snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        conf.nfgrp);
+                        limit, logprefix, loglevel, conf.nfgrp);
             }
             else
             {
                 snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                        limit,
-                        logprefix,
-                        loglevel,
-                        log_tcp_options);
+                        limit, logprefix, loglevel, log_tcp_options);
             }
-            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
                 retval=-1;
+#ifdef IPV6_ENABLED
+            if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+                retval = -1;
+#endif
         }
     }
 
     /* enable or disable ip-forwarding */
-    if(forward_rules)
+    if (forward_rules)
     {
-        if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Enabling ip-forwarding...\n");
-        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Enabling ip-forwarding because forwarding rules were created.");
+        if (conf.bash_out == TRUE)
+            fprintf(stdout, "\n# Enabling ip-forwarding...\n");
+
+        if(debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "Enabling ip-forwarding because "
+                    "forwarding rules were created.");
 
         result = set_proc_entry(debuglvl, &conf, "/proc/sys/net/ipv4/ip_forward", 1, NULL);
-        if(result != 0)
+        if (result != 0)
         {
             /* if it fails, we dont really care, its not fatal */
             (void)vrprint.error(-1, "Error", "enabling ip-forwarding failed.");
@@ -4004,11 +4014,14 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, int f
     }
     else
     {
-        if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Disabling ip-forwarding...\n");
-        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Disabling ip-forwarding because no forwarding rules were created.");
+        if (conf.bash_out == TRUE)
+            fprintf(stdout, "\n# Disabling ip-forwarding...\n");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "Disabling ip-forwarding because no "
+                    "forwarding rules were created.");
 
         result = set_proc_entry(debuglvl, &conf, "/proc/sys/net/ipv4/ip_forward", 0, NULL);
-        if(result != 0)
+        if (result != 0)
         {
             /* if it fails, we dont really care, its not fatal */
             (void)vrprint.error(-1, "Error", "enabling ip-forwarding failed.");
@@ -4514,7 +4527,6 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Zon
     struct RuleData_        *rule_ptr = NULL;
     int                     retval = 0;
     struct InterfaceData_   *from_if_ptr = NULL;
-//    char                    cmd[MAX_PIPE_COMMAND] = "";
     char                    limit[] = "-m limit --limit 1/s --limit-burst 5";
 
 
