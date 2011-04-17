@@ -2509,6 +2509,141 @@ static int pre_rules_flush_chains(const int debuglvl, /*@null@*/RuleSet *ruleset
     return(0);
 }
 
+static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap, int ipv)
+{
+    int                     retval = 0,
+                            result = 0;
+    char                    cmd[MAX_PIPE_COMMAND] = "";
+
+    /*
+        set up connectiontracking including mark target range
+
+         mark 0x0/0xff000000 means:
+         start mark:    0
+         end mark:      16777216
+    */
+    if (conf.check_iptcaps == FALSE ||
+            (iptcap->match_mark == TRUE && ipv == VR_IPV4) ||
+            (iptcap->match_ip6_mark == TRUE && ipv == VR_IPV6))
+    {
+        if (conf.bash_out == TRUE)
+            fprintf(stdout, "\n# Setting up connection-tracking...\n");
+
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "Setting up connection-tracking...");
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval=-1;
+    }
+    else
+    {
+        /* just in case we don't support mark match */
+        if (conf.bash_out == TRUE)
+            fprintf(stdout, "\n# Setting up connection-tracking...\n");
+
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "Setting up connection-tracking...");
+
+        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval=-1;
+    }
+
+
+    /*
+        set up connectiontracking for QUEUE:
+
+         mark 0x1000000/0xff000000 means:
+         start mark:    16777216
+         end mark:      33554432
+    */
+    if (conf.check_iptcaps == FALSE ||
+            (iptcap->target_queue == TRUE && iptcap->match_mark == TRUE && ipv == VR_IPV4) ||
+            (iptcap->target_ip6_queue == TRUE && iptcap->match_ip6_mark == TRUE && ipv == VR_IPV6))
+    {
+        if (conf.bash_out == TRUE)
+            fprintf(stdout, "\n# Setting up connection-tracking for QUEUE targets...\n");
+
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "Setting up connection-tracking for QUEUE targets...");
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
+        if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
+        if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
+        if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
+        if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
+        if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
+        if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval=-1;
+    }
+    else
+    {
+        (void)vrprint.info("Info", "connection tracking for QUEUE not setup. "
+                "QUEUE-target and/or mark-match not supported by system.");
+    }
+
+    return(retval);
+}
+
+
+
 /* pre_rules
 
     Cleanup
@@ -3378,17 +3513,23 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         create the NEWNFQUEUE target: the content of the chain
         is handled by create_newnfqueue_rules()
     */
-    if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Setting up NEWNFQUEUE target...\n");
-    if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up NEWNFQUEUE target...");
-    if(conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE)
-    {
-        if(ruleset == NULL)
-        {
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up NEWNFQUEUE target...\n");
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Setting up NEWNFQUEUE target...");
+
+    if (conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE) {
+        if(ruleset == NULL) {
             snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null", conf.iptables_location);
             (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#ifdef IPV6_ENABLED
+            snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null", conf.ip6tables_location);
+            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#endif
         }
     } else {
-        (void)vrprint.info("Info", "NEWNFQUEUE target not setup. NFQUEUE-target not supported by system.");
+        (void)vrprint.info("Info", "NEWNFQUEUE target not setup. "
+                "NFQUEUE-target not supported by system.");
     }
 
     /*
@@ -3397,142 +3538,60 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         All connmarked traffic with state ESTABLISHED and RELATED is
         send to a special chain to handle it: ESTRELNFQUEUE
     */
-    if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Setting up connection-tracking for NFQUEUE targets...\n");
-    if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up connection-tracking for NFQUEUE targets...");
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up connection-tracking for NFQUEUE targets...\n");
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Setting up connection-tracking for NFQUEUE targets...");
 
-    if(conf.check_iptcaps == FALSE || (iptcap->target_nfqueue == TRUE && iptcap->match_connmark == TRUE))
+    if (conf.check_iptcaps == FALSE || (iptcap->target_nfqueue == TRUE && iptcap->match_connmark == TRUE))
     {
-        if(ruleset == NULL)
-        {
+        if(ruleset == NULL) {
             /* create the chain and insert it into input, output and forward.
-        
-                NOTE: we ignore the returncode and want no output (although we get some
-                in the errorlog) because if we start vuurmuur when a ruleset is already in
-                place, the chain will exist and iptables will complain.
-            */
+             *
+             * NOTE: we ignore the returncode and want no output (although we get some
+             * in the errorlog) because if we start vuurmuur when a ruleset is already in
+             *  place, the chain will exist and iptables will complain.
+             */
             snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null", conf.iptables_location);
             (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#ifdef IPV6_ENABLED
+            snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null", conf.ip6tables_location);
+            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#endif
         }
 
-        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED,RELATED -m connmark ! --mark 0 -j ESTRELNFQUEUE");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
+        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED,RELATED "
+                "-m connmark ! --mark 0 -j ESTRELNFQUEUE");
+        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+#ifdef IPV6_ENABLED
+        if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+#endif
 
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
 
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
+        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+#ifdef IPV6_ENABLED
+        if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+#endif
+
+        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+#ifdef IPV6_ENABLED
+        if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+#endif
     }
 
-    /*
-        set up connectiontracking including mark target range
-
-         mark 0x0/0xff000000 means:
-         start mark:    0
-         end mark:      16777216
-    */
-    if(conf.check_iptcaps == FALSE || iptcap->match_mark == TRUE)
-    {
-        if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Setting up connection-tracking...\n");
-        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up connection-tracking...");
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-    else
-    {
-        /* just in case we don't support mark match */
-        if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Setting up connection-tracking...\n");
-        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up connection-tracking...");
-
-        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-
-
-    /*
-        set up connectiontracking for QUEUE:
-         
-         mark 0x1000000/0xff000000 means:
-         start mark:    16777216
-         end mark:      33554432
-    */
-    if(conf.check_iptcaps == FALSE || (iptcap->target_queue == TRUE && iptcap->match_mark == TRUE))
-    {
-        if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Setting up connection-tracking for QUEUE targets...\n");
-        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up connection-tracking for QUEUE targets...");
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-    else
-    {
-        (void)vrprint.info("Info", "connection tracking for QUEUE not setup. QUEUE-target and/or mark-match not supported by system.");
-    }
+    /* create the conntrack rules */
+    if (pre_rules_conntrack(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+        retval = -1;
+#ifdef IPV6_ENABLED
+    if (pre_rules_conntrack(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+        retval = -1;
+#endif
 
     if(conf.bash_out == TRUE)
         fprintf(stdout, "\n# Drop (and log) packets with state INVALID...\n");
