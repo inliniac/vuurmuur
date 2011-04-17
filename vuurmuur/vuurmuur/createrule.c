@@ -3263,17 +3263,23 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     /*
         udp-flooding protection
     */
-    if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Setting up UDP-limit...\n");
-    if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up UDP-limit...");
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up UDP-limit...\n");
 
-    if(ruleset == NULL)
-    {
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Setting up UDP-limit...");
+
+    if(ruleset == NULL) {
         snprintf(cmd, sizeof(cmd), "%s -N UDPLIMIT 2>/dev/null", conf.iptables_location);
         (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#ifdef IPV6_ENABLED
+        snprintf(cmd, sizeof(cmd), "%s -N UDPLIMIT 2>/dev/null", conf.ip6tables_location);
+        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#endif
     }
 
     /* create the rules */
-    if(update_udplimit_rules(debuglvl, ruleset, iptcap) < 0)
+    if (update_udplimit_rules(debuglvl, ruleset, iptcap) < 0)
         retval = -1;
 
     /*
@@ -3804,12 +3810,11 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
 }
 
 
-/*  update_udplimit_rules
-
-    Creates/updates the the rules in the UDPLIMIT chain.
-    
-    Note: if the limit-match is not supported, bail out of here.
-*/
+/**
+ *  \brief Creates/updates the the rules in the UDPLIMIT chain.
+ *    
+ *  \note if the limit-match is not supported, bail out of here.
+ */
 int
 update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap)
 {
@@ -3819,9 +3824,10 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
     char    logprefix[64] = "";
 
     /* caps */
-    if(conf.check_iptcaps == TRUE && iptcap->match_limit == FALSE)
+    if (conf.check_iptcaps == TRUE && iptcap->match_limit == FALSE)
     {
-        (void)vrprint.warning("Warning", "udplimit rules not setup. Limit-match not supported by system.");
+        (void)vrprint.warning("Warning", "udplimit rules not setup. "
+                "Limit-match not supported by system.");
         return(0); /* no error */
     }
 
@@ -3832,52 +3838,65 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
     }
 
     /* flush the chain if we are not in ruleset mode */
-    if(ruleset == NULL)
-    {
+    if (ruleset == NULL) {
         /* first flush the chain */
         snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush UDPLIMIT", conf.iptables_location);
         result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-        if(result < 0)
+        if (result < 0)
             retval = -1;
+#ifdef IPV6_ENABLED
+        snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush UDPLIMIT", conf.ip6tables_location);
+        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+        if (result < 0)
+            retval = -1;
+#endif
     }
 
     /* if we don't use udp_limit bail out now */
-    if(conf.use_udp_limit == FALSE)
+    if (conf.use_udp_limit == FALSE)
         return(0);
 
     /* create the return rule */
-    snprintf(cmd, sizeof(cmd), "-m limit --limit %u/s --limit-burst %u -j RETURN", conf.udp_limit, conf.udp_limit_burst);
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
-        retval=-1;
+    snprintf(cmd, sizeof(cmd), "-m limit --limit %u/s --limit-burst %u -j RETURN",
+            conf.udp_limit, conf.udp_limit_burst);
+    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
+        retval = -1;
+#ifdef IPV6_ENABLED
+    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
+        retval = -1;
+#endif
 
     /* the log rule */
     if(conf.check_iptcaps == FALSE || iptcap->target_log == TRUE)
     {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_INPUT, "DROP", "UDPLIMIT reach.");
+        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                RT_INPUT, "DROP", "UDPLIMIT reach.");
 
-        if (conf.rule_nflog == 1)
-        {
-            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j NFLOG %s %s --nflog-group %u",
-                            logprefix,
-                            loglevel,
-                            conf.nfgrp);
-        }
-        else
-        {
-            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 -j LOG %s %s %s",
-                            logprefix,
-                            loglevel,
-                            log_tcp_options);
+        if (conf.rule_nflog == 1) {
+            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 "
+                    "-j NFLOG %s %s --nflog-group %u", logprefix, loglevel,
+                    conf.nfgrp);
+        } else {
+            snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 "
+                    "-j LOG %s %s %s", logprefix, loglevel, log_tcp_options);
         }
 
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
-            retval=-1;
+        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
+            retval = -1;
+#ifdef IPV6_ENABLED
+        if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
+            retval = -1;
+#endif
     }
 
     /* and finally the drop rule */
     snprintf(cmd, sizeof(cmd), "-j DROP");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
-        retval=-1;
+    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
+        retval = -1;
+#ifdef IPV6_ENABLED
+    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_UDPLIMITTARGET, cmd, 0, 0) < 0)
+        retval = -1;
+#endif
 
     return(retval);
 }
