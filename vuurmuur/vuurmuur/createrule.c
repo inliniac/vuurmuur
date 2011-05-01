@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2007 by Victor Julien                              *
+ *   Copyright (C) 2002-2011 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -3767,17 +3767,29 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     {
         snprintf(cmd, sizeof(cmd), "%s -N TCPRESET 2>/dev/null", conf.iptables_location);
         (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#ifdef IPV6_ENABLED
+        snprintf(cmd, sizeof(cmd), "%s -N TCPRESET 2>/dev/null", conf.ip6tables_location);
+        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#endif
     }
 
     /* for tcp we use tcp-reset like requested */
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp -j REJECT --reject-with tcp-reset");
     if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
         retval=-1;
+#ifdef IPV6_ENABLED
+    if(process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
+        retval=-1;
+#endif
 
     /* for the rest we use normal REJECT, which means icmp-port-unreachable */
     snprintf(cmd, sizeof(cmd), "-j REJECT");
     if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
         retval=-1;
+#ifdef IPV6_ENABLED
+    if(process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
+        retval=-1;
+#endif
 
     /*
         anti spoof rules
@@ -3810,7 +3822,6 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
     return(retval);
 }
-
 
 /**
  *  \brief Creates/updates the the rules in the SYNLIMIT chain.
@@ -3903,7 +3914,6 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *ip
 
     return(retval);
 }
-
 
 /**
  *  \brief Creates/updates the the rules in the UDPLIMIT chain.
