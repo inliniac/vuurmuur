@@ -2953,6 +2953,33 @@ static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
     return(retval);
 }
 
+static int pre_rules_loopback(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap, int ipv)
+{
+    int                     retval = 0,
+                            result = 0;
+    char                    cmd[MAX_PIPE_COMMAND] = "";
+
+    /*
+        allow local loopback
+    */
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Allowing local loopback...\n");
+
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Allowing local loopback...");
+
+    snprintf(cmd, sizeof(cmd), "-i lo -j ACCEPT");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+
+    snprintf(cmd, sizeof(cmd), "-o lo -j ACCEPT");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval=-1;
+
+    return (retval);
+}
+
 /* pre_rules
 
     Cleanup
@@ -3014,19 +3041,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     /* shape rules */
     pre_rules_shape(debuglvl, ruleset, iptcap, VR_IPV4);
 
-    /*
-        allow local loopback
-    */
-    if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Allowing local loopback...\n");
-    if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Allowing local loopback...");
 
-    snprintf(cmd, sizeof(cmd), "-i lo -j ACCEPT");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval = -1;
-
-    snprintf(cmd, sizeof(cmd), "-o lo -j ACCEPT");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
+    pre_rules_loopback(debuglvl, ruleset, iptcap, VR_IPV4);
+#ifdef IPV6_ENABLED
+    pre_rules_loopback(debuglvl, ruleset, iptcap, VR_IPV6);
+#endif
 
 
     /*
