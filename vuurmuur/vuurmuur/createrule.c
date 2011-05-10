@@ -2901,6 +2901,58 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
     return 0;
 }
 
+static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap, int ipv)
+{
+    int                     retval = 0,
+                            result = 0;
+    char                    cmd[MAX_PIPE_COMMAND] = "";
+
+    if (ipv == VR_IPV6) {
+        return 0;
+    }
+
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Creating shaping chains in the mangle table...\n");
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Creating shaping chains in the mangle table...");
+
+    if(conf.check_iptcaps == FALSE || iptcap->table_mangle == TRUE)
+    {
+        if(ruleset == NULL)
+        {
+            snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEIN 2>/dev/null", conf.iptables_location, TB_MANGLE);
+            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+        }
+
+        snprintf(cmd, sizeof(cmd), "-j SHAPEIN");
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        if(ruleset == NULL)
+        {
+            snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEOUT 2>/dev/null", conf.iptables_location, TB_MANGLE);
+            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+        }
+
+        snprintf(cmd, sizeof(cmd), "-j SHAPEOUT");
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval=-1;
+
+        if(ruleset == NULL)
+        {
+            snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEFW 2>/dev/null", conf.iptables_location, TB_MANGLE);
+            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+        }
+
+        snprintf(cmd, sizeof(cmd), "-j SHAPEFW");
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+            retval=-1;
+    }
+
+    return(retval);
+}
+
 /* pre_rules
 
     Cleanup
@@ -2959,41 +3011,8 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     pre_rules_pre_vrmr(debuglvl, ruleset, iptcap, VR_IPV6);
 #endif
 
-    if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Creating shaping chains in the mangle table...\n");
-    if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Creating shaping chains in the mangle table...");
-
-    if(conf.check_iptcaps == FALSE || iptcap->table_mangle == TRUE)
-    {
-        if(ruleset == NULL)
-        {
-            snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEIN 2>/dev/null", conf.iptables_location, TB_MANGLE);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-        }
-
-        snprintf(cmd, sizeof(cmd), "-j SHAPEIN");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        if(ruleset == NULL)
-        {
-            snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEOUT 2>/dev/null", conf.iptables_location, TB_MANGLE);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-        }
-
-        snprintf(cmd, sizeof(cmd), "-j SHAPEOUT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        if(ruleset == NULL)
-        {
-            snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEFW 2>/dev/null", conf.iptables_location, TB_MANGLE);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-        }
-
-        snprintf(cmd, sizeof(cmd), "-j SHAPEFW");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
+    /* shape rules */
+    pre_rules_shape(debuglvl, ruleset, iptcap, VR_IPV4);
 
     /*
         allow local loopback
