@@ -3097,6 +3097,82 @@ static int pre_rules_interface_counters_ipv4(const int debuglvl,
     return (retval);
 }
 
+static int pre_rules_set_policy(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap, int ipv)
+{
+    int                     retval = 0,
+                            result = 0;
+    char                    cmd[MAX_PIPE_COMMAND] = "";
+
+    if(ruleset == NULL)
+    {
+        /*
+            set default policies to DROP
+        */
+        if (conf.bash_out == TRUE)
+            fprintf(stdout, "\n# Setting default policies...\n");
+
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "Setting default policies...");
+
+        if (ipv == VR_IPV4) {
+            snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT DROP",
+                    conf.iptables_location);
+
+            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            if (result < 0)
+                retval = -1;
+
+            snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT DROP",
+                    conf.iptables_location);
+            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            if (result < 0)
+                retval = -1;
+
+            snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD DROP",
+                    conf.iptables_location);
+            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            if (result < 0)
+                retval = -1;
+        } else {
+#ifdef IPV6_ENABLED
+            snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT DROP",
+                    conf.ip6tables_location);
+            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            if (result < 0)
+                retval = -1;
+
+            snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT DROP",
+                    conf.ip6tables_location);
+            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            if (result < 0)
+                retval = -1;
+
+            snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD DROP",
+                    conf.ip6tables_location);
+            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            if (result < 0)
+                retval = -1;
+#endif
+        }
+
+    }
+    else
+    {
+        if (ipv == VR_IPV4) {
+            ruleset->filter_input_policy = 1;   /* drop */
+            ruleset->filter_output_policy = 1;  /* drop */
+            ruleset->filter_forward_policy = 1; /* drop */
+        } else {
+#ifdef IPV6_ENABLED
+#warning Not implemented: IPV6 support in ruleset policy.
+#endif
+        }
+    }
+
+    return (retval);
+}
+
 /* pre_rules
 
     Cleanup
@@ -3165,31 +3241,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     pre_rules_interface_counters_ipv4(debuglvl, ruleset, interfaces,
             iptcap, VR_IPV4);
 
-    if(ruleset == NULL)
-    {
-        /*
-            set default policies to DROP
-        */
-        if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Setting default policies...\n");
-        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting default policies...");
-
-        snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT DROP", conf.iptables_location);
-        result=pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-        if(result < 0) retval=-1;
-        snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT DROP", conf.iptables_location);
-        result=pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-        if(result < 0) retval=-1;
-        snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD DROP", conf.iptables_location);
-        result=pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-        if(result < 0) retval=-1;
-    }
-    else
-    {
-        ruleset->filter_input_policy = 1;   /* drop */
-        ruleset->filter_output_policy = 1;  /* drop */
-        ruleset->filter_forward_policy = 1; /* drop */
-    }
-
+    /* set the policy */
+    pre_rules_set_policy(debuglvl, ruleset, iptcap, VR_IPV4);
+#ifdef IPV6_ENABLED
+    pre_rules_set_policy(debuglvl, ruleset, iptcap, VR_IPV6);
+#endif
 
     /*
         stealthscan protection
