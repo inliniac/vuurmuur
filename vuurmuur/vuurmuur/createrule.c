@@ -2980,6 +2980,123 @@ static int pre_rules_loopback(const int debuglvl, /*@null@*/RuleSet *ruleset,
     return (retval);
 }
 
+static int pre_rules_interface_counters_ipv4(const int debuglvl,
+        /*@null@*/RuleSet *ruleset, Interfaces *interfaces, IptCap *iptcap, int ipv)
+{
+    int                     retval = 0,
+                            result = 0;
+    char                    cmd[MAX_PIPE_COMMAND] = "";
+    d_list_node             *d_node = NULL;
+    struct InterfaceData_   *iface_ptr = NULL;
+    char                    acc_chain_name[32+3] = ""; /* chain name 32 + '-A ' = 3 */
+
+    /*
+        create an accounting rule in INPUT, OUTPUT and FORWARD.
+    */
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Creating interface counters...\n");
+
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Creating interface counters...");
+
+    for (d_node = interfaces->list.top; d_node; d_node = d_node->next)
+    {
+        if (!(iface_ptr = d_node->data))
+        {
+            (void)vrprint.error(-1, "Internal Error", "NULL pointer "
+                    " (in: %s:%d).", __FUNC__, __LINE__);
+            return(-1);
+        }
+
+        /* if the interface active? */
+        if (iface_ptr->active == FALSE)
+            continue;
+
+        /* does the interface have an ipaddress? */
+        if (strcmp(iface_ptr->ipv4.ipaddress, "") == 0)
+            continue;
+
+        /* Check for empty device string and virtual device. */
+        if (strcmp(iface_ptr->device, "") != 0 && !iface_ptr->device_virtual)
+        {
+            /* create a chain name for use with IP Traffic Volume Logger
+               WITHOUT -A !!! */
+            snprintf(acc_chain_name, sizeof(acc_chain_name), "ACC-%s", iface_ptr->device);
+
+            /* create the chain itself if not in ruleset mode */
+            if(!ruleset)
+            {
+                snprintf(cmd, sizeof(cmd), "%s -N %s 2>/dev/null",
+                        conf.iptables_location,
+                        acc_chain_name);
+                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            }
+
+            /* create a chain name for use with IP Traffic Volume Logger
+               WITH -A !!! */
+            snprintf(acc_chain_name, sizeof(acc_chain_name), "-A ACC-%s", iface_ptr->device);
+
+            /* create an outgoing rule for in the chain (IPTRAFVOL wants outgoing first) */
+            snprintf(cmd, sizeof(cmd), "-o %s -j RETURN", iface_ptr->device);
+            (void)process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, acc_chain_name, cmd,
+                    iface_ptr->cnt ? iface_ptr->cnt->acc_out_packets : 0,
+                    iface_ptr->cnt ? iface_ptr->cnt->acc_out_bytes : 0);
+
+            /* create an incoming rule for in the chain (IPTRAFVOL wants imcoming second) */
+            snprintf(cmd, sizeof(cmd), "-i %s -j RETURN", iface_ptr->device);
+            (void)process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, acc_chain_name, cmd,
+                    iface_ptr->cnt ? iface_ptr->cnt->acc_in_packets : 0,
+                    iface_ptr->cnt ? iface_ptr->cnt->acc_in_bytes : 0);
+
+            /* create a chain name for use with IP Traffic Volume Logger
+               WITHOUT -A !!! */
+            snprintf(acc_chain_name, sizeof(acc_chain_name), "ACC-%s", iface_ptr->device);
+
+            /*
+               first in the input chain
+             */
+            snprintf(cmd, sizeof(cmd), "-i %s -j %s",
+                    iface_ptr->device, acc_chain_name);
+            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd,
+                        iface_ptr->cnt ? iface_ptr->cnt->input_packets : 0,
+                        iface_ptr->cnt ? iface_ptr->cnt->input_bytes : 0) < 0)
+                retval = -1;
+
+            /*
+               then in the output chain
+             */
+            snprintf(cmd, sizeof(cmd), "-o %s -j %s",
+                    iface_ptr->device, acc_chain_name);
+            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd,
+                        iface_ptr->cnt ? iface_ptr->cnt->output_packets : 0,
+                        iface_ptr->cnt ? iface_ptr->cnt->output_bytes : 0) < 0)
+                retval = -1;
+
+            /*
+               then in the forward chain, in
+             */
+            snprintf(cmd, sizeof(cmd), "-i %s -j %s",
+                    iface_ptr->device, acc_chain_name);
+            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd,
+                        iface_ptr->cnt ? iface_ptr->cnt->forwardin_packets : 0,
+                        iface_ptr->cnt ? iface_ptr->cnt->forwardin_bytes : 0) < 0)
+                retval = -1;
+
+            /*
+               then in the forward chain, out
+             */
+            snprintf(cmd, sizeof(cmd), "-o %s -j %s",
+                    iface_ptr->device, acc_chain_name);
+            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd,
+                        iface_ptr->cnt ? iface_ptr->cnt->forwardout_packets : 0,
+                        iface_ptr->cnt ? iface_ptr->cnt->forwardout_bytes : 0) < 0)
+                retval = -1;
+        }
+    }
+
+    return (retval);
+}
+
 /* pre_rules
 
     Cleanup
@@ -2999,7 +3116,6 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     struct InterfaceData_   *iface_ptr = NULL;
     char                    limit[] = "-m limit --limit 1/s --limit-burst 2";
     char                    logprefix[64] = "";
-    char                    acc_chain_name[32+3] = ""; /* chain name 32 + '-A ' = 3 */
 
     /* safety */
     if(interfaces == NULL || iptcap == NULL)
@@ -3025,9 +3141,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         }
     }
 
-    /*
-        first flush the chains
-    */
+    /* first flush the chains */
     if (pre_rules_flush_chains(debuglvl, ruleset, interfaces, iptcap) < 0) {
         return(-1);
     }
@@ -3047,95 +3161,9 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     pre_rules_loopback(debuglvl, ruleset, iptcap, VR_IPV6);
 #endif
 
-
-    /*
-        create an accounting rule in INPUT, OUTPUT and FORWARD.
-    */
-    if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Creating interface counters...\n");
-    if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Creating interface counters...");
-
-    for(d_node = interfaces->list.top; d_node; d_node = d_node->next)
-    {
-        if(!(iface_ptr = d_node->data))
-        {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
-
-        /* if the interface active? */
-        if(iface_ptr->active == TRUE)
-        {
-            /* does the interface have an ipaddress? */
-            if(strcmp(iface_ptr->ipv4.ipaddress, "") != 0)
-            {
-                /* Check for empty device string and virtual device. */
-                if(strcmp(iface_ptr->device, "") != 0 && !iface_ptr->device_virtual)
-                {
-                    /* create a chain name for use with IP Traffic Volume Logger
-                        WITHOUT -A !!! */
-                    snprintf(acc_chain_name, sizeof(acc_chain_name), "ACC-%s", iface_ptr->device);
-
-                    /* create the chain itself if not in ruleset mode */
-                    if(!ruleset)
-                    {
-                        snprintf(cmd, sizeof(cmd), "%s -N %s 2>/dev/null",
-                                        conf.iptables_location,
-                                        acc_chain_name);
-                        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-                    }
-
-                    /* create a chain name for use with IP Traffic Volume Logger
-                        WITH -A !!! */
-                    snprintf(acc_chain_name, sizeof(acc_chain_name), "-A ACC-%s", iface_ptr->device);
-
-                    /* create an outgoing rule for in the chain (IPTRAFVOL wants outgoing first) */
-                    snprintf(cmd, sizeof(cmd), "-o %s -j RETURN", iface_ptr->device);
-                    (void)process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, acc_chain_name, cmd,
-                            iface_ptr->cnt ? iface_ptr->cnt->acc_out_packets : 0,
-                            iface_ptr->cnt ? iface_ptr->cnt->acc_out_bytes : 0);
-
-                    /* create an incoming rule for in the chain (IPTRAFVOL wants imcoming second) */
-                    snprintf(cmd, sizeof(cmd), "-i %s -j RETURN", iface_ptr->device);
-                    (void)process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, acc_chain_name, cmd,
-                            iface_ptr->cnt ? iface_ptr->cnt->acc_in_packets : 0,
-                            iface_ptr->cnt ? iface_ptr->cnt->acc_in_bytes : 0);
-
-                    /* create a chain name for use with IP Traffic Volume Logger
-                        WITHOUT -A !!! */
-                    snprintf(acc_chain_name, sizeof(acc_chain_name), "ACC-%s", iface_ptr->device);
-
-                    /*
-                        first in the input chain
-                    */
-                    snprintf(cmd, sizeof(cmd), "-i %s -j %s", iface_ptr->device, acc_chain_name);
-                    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, iface_ptr->cnt ? iface_ptr->cnt->input_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->input_bytes : 0) < 0)
-                        retval=-1;
-
-                    /*
-                        then in the output chain
-                    */
-                    snprintf(cmd, sizeof(cmd), "-o %s -j %s", iface_ptr->device, acc_chain_name);
-                    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, iface_ptr->cnt ? iface_ptr->cnt->output_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->output_bytes : 0) < 0)
-                        retval=-1;
-
-                    /*
-                        then in the forward chain, in
-                    */
-                    snprintf(cmd, sizeof(cmd), "-i %s -j %s", iface_ptr->device, acc_chain_name);
-                    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, iface_ptr->cnt ? iface_ptr->cnt->forwardin_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->forwardin_bytes : 0) < 0)
-                        retval=-1;
-
-                    /*
-                        then in the forward chain, out
-                    */
-                    snprintf(cmd, sizeof(cmd), "-o %s -j %s", iface_ptr->device, acc_chain_name);
-                    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, iface_ptr->cnt ? iface_ptr->cnt->forwardout_packets : 0, iface_ptr->cnt ? iface_ptr->cnt->forwardout_bytes : 0) < 0)
-                        retval=-1;
-                }
-            }
-        }
-    }
-
+    /* interface counters, IPv4 only for now */
+    pre_rules_interface_counters_ipv4(debuglvl, ruleset, interfaces,
+            iptcap, VR_IPV4);
 
     if(ruleset == NULL)
     {
