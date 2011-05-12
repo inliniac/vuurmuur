@@ -2465,6 +2465,10 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, In
     return(0);
 }
 
+/* "file-global" because pre_rules might clear it on no
+ * capabilities */
+static char limit[] = "-m limit --limit 1/s --limit-burst 2";
+
 /**
  *  \brief Flush chains (bash output mode)
  */
@@ -2512,9 +2516,8 @@ static int pre_rules_flush_chains(const int debuglvl, /*@null@*/RuleSet *ruleset
 static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
         IptCap *iptcap, int ipv)
 {
-    int                     retval = 0,
-                            result = 0;
-    char                    cmd[MAX_PIPE_COMMAND] = "";
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
 
     /*
         set up connectiontracking including mark target range
@@ -2645,9 +2648,8 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
 static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
         IptCap *iptcap, int ipv)
 {
-    int                     retval = 0,
-                            result = 0;
-    char                    cmd[MAX_PIPE_COMMAND] = "";
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
 
     /*
         BEGIN -- PRE-VUURMUUR-CHAINS feature.
@@ -2882,9 +2884,8 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
 static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
         IptCap *iptcap, int ipv)
 {
-    int                     retval = 0,
-                            result = 0;
-    char                    cmd[MAX_PIPE_COMMAND] = "";
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
 
     if (ipv == VR_IPV6) {
         return 0;
@@ -2934,9 +2935,8 @@ static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
 static int pre_rules_loopback(const int debuglvl, /*@null@*/RuleSet *ruleset,
         IptCap *iptcap, int ipv)
 {
-    int                     retval = 0,
-                            result = 0;
-    char                    cmd[MAX_PIPE_COMMAND] = "";
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
 
     /*
         allow local loopback
@@ -2961,12 +2961,11 @@ static int pre_rules_loopback(const int debuglvl, /*@null@*/RuleSet *ruleset,
 static int pre_rules_interface_counters_ipv4(const int debuglvl,
         /*@null@*/RuleSet *ruleset, Interfaces *interfaces, IptCap *iptcap, int ipv)
 {
-    int                     retval = 0,
-                            result = 0;
-    char                    cmd[MAX_PIPE_COMMAND] = "";
-    d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
-    char                    acc_chain_name[32+3] = ""; /* chain name 32 + '-A ' = 3 */
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
+    d_list_node *d_node = NULL;
+    struct InterfaceData_ *iface_ptr = NULL;
+    char acc_chain_name[32+3] = ""; /* chain name 32 + '-A ' = 3 */
 
     /*
         create an accounting rule in INPUT, OUTPUT and FORWARD.
@@ -3154,11 +3153,10 @@ static int pre_rules_set_policy(const int debuglvl, /*@null@*/RuleSet *ruleset,
 static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         IptCap *iptcap, int ipv)
 {
-    int                     retval = 0,
-                            result = 0;
-    char                    cmd[MAX_PIPE_COMMAND] = "";
-    char                    limit[] = "-m limit --limit 1/s --limit-burst 2";
-    char                    logprefix[64] = "";
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
+    char logprefix[64] = "";
+
     /*
         stealthscan protection
     */
@@ -3448,16 +3446,16 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         retval = -1;
     if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval = -1;
+
+    return (retval);
 }
 
 static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ruleset,
         IptCap *iptcap, int ipv)
 {
-    int                     retval = 0,
-                            result = 0;
-    char                    cmd[MAX_PIPE_COMMAND] = "";
-    char                    limit[] = "-m limit --limit 1/s --limit-burst 2";
-    char                    logprefix[64] = "";
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
+    char logprefix[64] = "";
 
     if (conf.bash_out == TRUE)
         fprintf(stdout, "\n# Drop (and log) packets with state INVALID...\n");
@@ -3552,11 +3550,9 @@ static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ru
 static int pre_rules_blocklist_ipv4(const int debuglvl, /*@null@*/RuleSet *ruleset,
         IptCap *iptcap)
 {
-    int                     retval = 0,
-                            result = 0;
-    char                    cmd[MAX_PIPE_COMMAND] = "";
-    char                    limit[] = "-m limit --limit 1/s --limit-burst 2";
-    char                    logprefix[64] = "";
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
+    char logprefix[64] = "";
 
     /*
         Setup Block lists
@@ -3638,33 +3634,25 @@ static int pre_rules_blocklist_ipv4(const int debuglvl, /*@null@*/RuleSet *rules
 int
 pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces, IptCap *iptcap)
 {
-    int                     retval = 0,
-                            result = 0;
-    char                    cmd[MAX_PIPE_COMMAND] = "";
-    d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
-    char                    limit[] = "-m limit --limit 1/s --limit-burst 2";
-    char                    logprefix[64] = "";
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
 
     /* safety */
-    if(interfaces == NULL || iptcap == NULL)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+    if (interfaces == NULL || iptcap == NULL) {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+                "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* check cap */
-    if(conf.check_iptcaps == TRUE)
-    {
-        if(iptcap->target_log == FALSE)
-        {
-            (void)vrprint.warning("Warning", "not creating logrules. LOG-target not supported by system.");
-        }
-        else
-        {
-            if(iptcap->match_limit == FALSE)
-            {
-                (void)vrprint.warning("Warning", "not setting limits on logrules. Limit-match not supported by system.");
+    if(conf.check_iptcaps == TRUE) {
+        if(iptcap->target_log == FALSE) {
+            (void)vrprint.warning("Warning", "not creating logrules. "
+                    "LOG-target not supported by system.");
+        } else {
+            if (iptcap->match_limit == FALSE) {
+                (void)vrprint.warning("Warning", "not setting limits on "
+                        "logrules. Limit-match not supported by system.");
                 memset(limit, 0, sizeof(limit));
             }
         }
@@ -4480,12 +4468,11 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 IptCap *iptcap, struct RuleCache_ *create,
                 struct InterfaceData_ *from_if_ptr)
 {
-    char    input_device[16 + 3] = "";  /* 16 + '-i ' */
-    char    output_device[16 + 3] = ""; /* 16 + '-i ' */
-    char    limit[] = "-m limit --limit 1/s --limit-burst 5";
-    char    logprefix[64] = "";
-    char    cmd[MAX_PIPE_COMMAND] = "";
-    int     retval = 0;
+    char input_device[16 + 3] = "";  /* 16 + '-i ' */
+    char output_device[16 + 3] = ""; /* 16 + '-i ' */
+    char limit[] = "-m limit --limit 1/s --limit-burst 5";
+    char logprefix[64] = "";
+    char cmd[MAX_PIPE_COMMAND] = "";
 
     /*  see if the interface is active */
     if( from_if_ptr->active == FALSE ||
@@ -4845,16 +4832,11 @@ create_network_protect_rules_dhcp_client(   const int debuglvl,
 int
 create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Zones *zones, IptCap *iptcap)
 {
-    struct RuleCache_       *create = NULL;
-    d_list_node             *d_node = NULL,
-                            *net_d_node = NULL,
-                            *from_if_node = NULL;
-    struct ZoneData_        *zone_ptr = NULL;
-    struct RuleData_        *rule_ptr = NULL;
-    int                     retval = 0;
-    struct InterfaceData_   *from_if_ptr = NULL;
-    char                    limit[] = "-m limit --limit 1/s --limit-burst 5";
-
+    struct RuleCache_ *create = NULL;
+    d_list_node *d_node = NULL, *net_d_node = NULL, *from_if_node = NULL;
+    struct ZoneData_ *zone_ptr = NULL;
+    struct RuleData_ *rule_ptr = NULL;
+    struct InterfaceData_ *from_if_ptr = NULL;
 
     /* safety */
     if(zones == NULL || iptcap == NULL)
