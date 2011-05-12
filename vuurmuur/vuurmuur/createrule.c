@@ -2831,71 +2831,49 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* nat table uses {PREROUTING,POSTROUTING,OUTPUT} hooks */
 
-    if (conf.bash_out == TRUE)
-        fprintf(stdout, "\n# Making special PRE-VRMR-{PREROUTING,POSTROUTING,"
-                "OUTPUT} CHAINS in nat table...\n");
-    if (debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "Making special PRE-VRMR-{PREROUTING,"
-                "POSTROUTING,OUTPUT} CHAINS in nat table...");
+    if (ipv == VR_IPV4) {
+        if (conf.bash_out == TRUE)
+            fprintf(stdout, "\n# Making special PRE-VRMR-{PREROUTING,POSTROUTING,"
+                    "OUTPUT} CHAINS in nat table...\n");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "Making special PRE-VRMR-{PREROUTING,"
+                    "POSTROUTING,OUTPUT} CHAINS in nat table...");
 
-    if(conf.check_iptcaps == FALSE || iptcap->table_nat == TRUE)
-    {
-        if(ruleset == NULL)
+        if(conf.check_iptcaps == FALSE || iptcap->table_nat == TRUE)
         {
-            if (ipv == VR_IPV4) {
+            if(ruleset == NULL)
+            {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null",
                         conf.iptables_location, TB_NAT);
                 (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-            } else {
-#ifdef IPV6_ENABLED
-                snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null",
-                        conf.ip6tables_location, TB_NAT);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-#endif /* IPV6_ENABLED */
             }
-        }
 
-        snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-PREROUTING");
-        if(process_rule(debuglvl, ruleset, ipv, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
-            retval = -1;
+            snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-PREROUTING");
+            if(process_rule(debuglvl, ruleset, ipv, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
+                retval = -1;
 
-        if(ruleset == NULL)
-        {
-            if (ipv == VR_IPV4) {
+            if(ruleset == NULL)
+            {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-POSTROUTING 2>/dev/null",
                         conf.iptables_location, TB_NAT);
                 (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-            } else {
-#ifdef IPV6_ENABLED
-                snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-POSTROUTING 2>/dev/null",
-                        conf.ip6tables_location, TB_NAT);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-#endif /* IPV6_ENABLED */
             }
-        }
 
-        snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-POSTROUTING");
-        if(process_rule(debuglvl, ruleset, ipv, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
-            retval=-1;
+            snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-POSTROUTING");
+            if(process_rule(debuglvl, ruleset, ipv, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
+                retval=-1;
 
-        if(ruleset == NULL)
-        {
-            if (ipv == VR_IPV4) {
+            if(ruleset == NULL)
+            {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null",
                         conf.iptables_location, TB_NAT);
                 (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-            } else {
-#ifdef IPV6_ENABLED
-                snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null",
-                        conf.ip6tables_location, TB_NAT);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-#endif /* IPV6_ENABLED */
             }
-        }
 
-        snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-OUTPUT");
-        if(process_rule(debuglvl, ruleset, ipv, TB_NAT, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
+            snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-OUTPUT");
+            if(process_rule(debuglvl, ruleset, ipv, TB_NAT, CH_OUTPUT, cmd, 0, 0) < 0)
+                retval=-1;
+        }
     }
 
     return 0;
