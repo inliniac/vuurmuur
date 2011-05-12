@@ -3472,6 +3472,105 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         retval = -1;
 }
 
+static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap, int ipv)
+{
+    int                     retval = 0,
+                            result = 0;
+    char                    cmd[MAX_PIPE_COMMAND] = "";
+    char                    limit[] = "-m limit --limit 1/s --limit-burst 2";
+    char                    logprefix[64] = "";
+
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Drop (and log) packets with state INVALID...\n");
+
+    /* create invalid drop rules if config says so */
+    if (conf.invalid_drop_enabled == TRUE) {
+        if(debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "Drop (and log) packets with state INVALID...");
+
+        /*
+           invalid input
+         */
+        if (conf.log_invalid == TRUE &&
+                (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        {
+            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                    RT_INPUT, "DROP", "in INVALID");
+
+            if (conf.rule_nflog == 1) {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
+                        limit, logprefix, loglevel, conf.nfgrp);
+            } else {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
+                        limit, logprefix, loglevel, log_tcp_options);
+            }
+
+            if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+                retval = -1;
+        }
+
+        snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+
+        /*
+           invalid output
+         */
+        if (conf.log_invalid == TRUE &&
+                (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        {
+            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                    RT_OUTPUT, "DROP", "out INVALID");
+
+            if (conf.rule_nflog == 1) {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
+                        limit, logprefix, loglevel, conf.nfgrp);
+            } else {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
+                        limit, logprefix, loglevel, log_tcp_options);
+            }
+
+            if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+                retval = -1;
+        }
+
+        snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+
+        /*
+           invalid forward
+         */
+        if (conf.log_invalid == TRUE &&
+                (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        {
+            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                    RT_FORWARD, "DROP", "fw INVALID");
+
+            if (conf.rule_nflog == 1) {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
+                        limit, logprefix, loglevel, conf.nfgrp);
+            } else {
+                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
+                        limit, logprefix, loglevel, log_tcp_options);
+            }
+
+            if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+                retval = -1;
+        }
+
+        snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+    } else {
+        if (conf.bash_out == TRUE)
+            fprintf(stdout, "# dropping of INVALID packets disabled in config...\n");
+    }
+
+    return (retval);
+}
+
 /* pre_rules
 
     Cleanup
@@ -3772,99 +3871,13 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         retval = -1;
 #endif
 
-    if(conf.bash_out == TRUE)
-        fprintf(stdout, "\n# Drop (and log) packets with state INVALID...\n");
-
-    /* create invalid drop rules if config says so */
-    if (conf.invalid_drop_enabled == TRUE) {
-        if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "Drop (and log) packets with state INVALID...");
-
-        /*
-           invalid input
-         */
-        if( conf.log_invalid == TRUE &&
-                (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-        {
-            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_INPUT, "DROP", "in INVALID");
-
-            if (conf.rule_nflog == 1)
-            {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
-                        limit, logprefix, loglevel, conf.nfgrp);
-            }
-            else
-            {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
-                        limit, logprefix, loglevel, log_tcp_options);
-            }
-
-            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-                retval=-1;
-        }
-
-        snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        /*
-           invalid output
-         */
-        if( conf.log_invalid == TRUE &&
-                (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-        {
-            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_OUTPUT, "DROP", "out INVALID");
-
-            if (conf.rule_nflog == 1)
-            {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
-                        limit, logprefix, loglevel, conf.nfgrp);
-            }
-            else
-            {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
-                        limit, logprefix, loglevel, log_tcp_options);
-            }
-
-            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-                retval=-1;
-        }
-
-        snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-
-        /*
-           invalid forward
-         */
-        if( conf.log_invalid == TRUE &&
-                (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-        {
-            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_FORWARD, "DROP", "fw INVALID");
-
-            if (conf.rule_nflog == 1)
-            {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
-                        limit, logprefix, loglevel, conf.nfgrp);
-            }
-            else
-            {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
-                        limit, logprefix, loglevel, log_tcp_options);
-            }
-
-            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-                retval=-1;
-        }
-
-        snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    } else {
-        if (conf.bash_out == TRUE)
-            fprintf(stdout, "# dropping of INVALID packets disabled in config...\n");
-    }
-
+    /* create the conntrack invalid log & drop rules */
+    if (pre_rules_conntrack_invalid(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+        retval = -1;
+#ifdef IPV6_ENABLED
+    if (pre_rules_conntrack_invalid(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+        retval = -1;
+#endif
 
     /*
         Setup Block lists
