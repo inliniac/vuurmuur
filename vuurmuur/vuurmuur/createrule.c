@@ -3173,6 +3173,305 @@ static int pre_rules_set_policy(const int debuglvl, /*@null@*/RuleSet *ruleset,
     return (retval);
 }
 
+static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap, int ipv)
+{
+    int                     retval = 0,
+                            result = 0;
+    char                    cmd[MAX_PIPE_COMMAND] = "";
+    char                    limit[] = "-m limit --limit 1/s --limit-burst 2";
+    char                    logprefix[64] = "";
+    /*
+        stealthscan protection
+    */
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up stealth scan protection...\n");
+
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Setting up stealth scan protection...");
+
+    /* ALL NONE */
+    if (conf.log_probes == TRUE &&
+        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+    {
+        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                RT_NOTSET, "DROP", "probe ALL");
+
+        if (conf.rule_nflog == 1) {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s %s --nflog-group %u",
+                    limit, logprefix, loglevel, conf.nfgrp);
+        } else {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j LOG %s %s %s",
+                    limit, logprefix, loglevel, log_tcp_options);
+        }
+
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+    }
+
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE -j DROP");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    /* SYN - FIN */
+    if (conf.log_probes == TRUE &&
+        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+    {
+        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                RT_NOTSET, "DROP", "probe SYN-FIN");
+
+        if (conf.rule_nflog == 1) {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j NFLOG %s %s --nflog-group %u",
+                    limit, logprefix, loglevel, conf.nfgrp);
+        } else {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j LOG %s %s %s",
+                    limit, logprefix, loglevel, log_tcp_options);
+        }
+
+        if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval=-1;
+        if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval=-1;
+        if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval=-1;
+    }
+
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN -j DROP");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if( process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    /* SYN - RST */
+    if (conf.log_probes == TRUE &&
+        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+    {
+        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                RT_NOTSET, "DROP", "probe SYN-RST");
+
+        if (conf.rule_nflog == 1) {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j NFLOG %s %s --nflog-group %u",
+                    limit,logprefix, loglevel, conf.nfgrp);
+        } else {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j LOG %s %s %s",
+                    limit, logprefix, loglevel, log_tcp_options);
+        }
+
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+    }
+
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST -j DROP");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    /* FIN - RST */
+    if (conf.log_probes == TRUE &&
+        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+    {
+        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                RT_NOTSET, "DROP", "probe FIN-RST");
+
+        if (conf.rule_nflog == 1) {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j NFLOG %s %s --nflog-group %u",
+                    limit, logprefix, loglevel, conf.nfgrp);
+        } else {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j LOG %s %s %s",
+                    limit, logprefix, loglevel, log_tcp_options);
+        }
+
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+    }
+
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST -j DROP");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    /* ACK - FIN */
+    if (conf.log_probes == TRUE &&
+        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+    {
+        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                RT_NOTSET, "DROP", "probe FIN");
+
+        if (conf.rule_nflog == 1) {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j NFLOG %s %s --nflog-group %u",
+                    limit, logprefix, loglevel, conf.nfgrp);
+        } else {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j LOG %s %s %s",
+                    limit, logprefix, loglevel, log_tcp_options);
+        }
+
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+    }
+
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN -j DROP");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    /* ACK - PSH */
+    if (conf.log_probes == TRUE &&
+        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+    {
+        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+            RT_NOTSET, "DROP", "probe PSH");
+
+        if (conf.rule_nflog == 1) {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j NFLOG %s %s --nflog-group %u",
+                    limit, logprefix, loglevel, conf.nfgrp);
+        } else {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j LOG %s %s %s",
+                    limit, logprefix, loglevel, log_tcp_options);
+        }
+
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+    }
+
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH -j DROP");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    /* ACK - URG */
+    if (conf.log_probes == TRUE &&
+        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+    {
+        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                RT_NOTSET, "DROP", "probe URG");
+
+        if (conf.rule_nflog == 1) {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j NFLOG %s %s --nflog-group %u",
+                    limit, logprefix, loglevel, conf.nfgrp);
+        } else {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j LOG %s %s %s",
+                    limit, logprefix, loglevel, log_tcp_options);
+        }
+
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+    }
+
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG -j DROP");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    /* New tcp but no SYN */
+    if (conf.log_no_syn == TRUE &&
+        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+    {
+        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                RT_NOTSET, "DROP", "no SYN");
+
+        if (conf.rule_nflog == 1) {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW %s -j NFLOG %s %s --nflog-group %u",
+                    limit, logprefix, loglevel, conf.nfgrp);
+        } else {
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW %s -j LOG %s %s %s",
+                    limit, logprefix, loglevel, log_tcp_options);
+        }
+
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+    }
+
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW -j DROP");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    /*
+        Fragmented packets
+    */
+    if (conf.log_frag == TRUE &&
+        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+    {
+        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                RT_NOTSET, "DROP", "FRAG");
+
+        if (conf.rule_nflog == 1) {
+            snprintf(cmd, sizeof(cmd), "-f %s -j NFLOG %s %s --nflog-group %u",
+                    limit, logprefix, loglevel, conf.nfgrp);
+        } else {
+            snprintf(cmd, sizeof(cmd), "-f %s -j LOG %s %s %s",
+                    limit, logprefix, loglevel, log_tcp_options);
+        }
+
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+    }
+
+    snprintf(cmd, sizeof(cmd), "-f -j DROP");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+}
+
 /* pre_rules
 
     Cleanup
@@ -3247,376 +3546,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     pre_rules_set_policy(debuglvl, ruleset, iptcap, VR_IPV6);
 #endif
 
-    /*
-        stealthscan protection
-    */
-    if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Setting up stealth scan protection...\n");
-    if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up stealth scan protection...");
-
-    /* ALL NONE */
-    if( conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-    {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe ALL");
-
-        if (conf.rule_nflog == 1)
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s %s --nflog-group %u",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            conf.nfgrp);
-        }
-        else
-        {
-            if (conf.rule_nflog == 1)
-            {
-                snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s %s --nflog-group %u",
-                                limit,
-                                logprefix,
-                                loglevel,
-                                conf.nfgrp);
-            }
-            else
-            {
-                snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j LOG %s %s %s",
-                                limit,
-                                logprefix,
-                                loglevel,
-                                log_tcp_options);
-            }
-        }
-
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE -j DROP");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval=-1;
-
-    /* SYN - FIN */
-    if( conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-    {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe SYN-FIN");
-
-        if (conf.rule_nflog == 1)
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j NFLOG %s %s --nflog-group %u",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            conf.nfgrp);
-        }
-        else
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j LOG %s %s %s",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            log_tcp_options);
-        }
-
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN -j DROP");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval=-1;
-
-    /* SYN - RST */
-    if( conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-    {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe SYN-RST");
-
-        if (conf.rule_nflog == 1)
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j NFLOG %s %s --nflog-group %u",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            conf.nfgrp);
-        }
-        else
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j LOG %s %s %s",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            log_tcp_options);
-        }
-
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST -j DROP");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval=-1;
-
-    /* FIN - RST */
-    if( conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-    {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe FIN-RST");
-
-        if (conf.rule_nflog == 1)
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j NFLOG %s %s --nflog-group %u",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            conf.nfgrp);
-        }
-        else
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j LOG %s %s %s",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            log_tcp_options);
-        }
-
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST -j DROP");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval=-1;
-
-    /* ACK - FIN */
-    if( conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-    {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe FIN");
-
-        if (conf.rule_nflog == 1)
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j NFLOG %s %s --nflog-group %u",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            conf.nfgrp);
-        }
-        else
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j LOG %s %s %s",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            log_tcp_options);
-        }
-
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN -j DROP");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval=-1;
-
-    /* ACK - PSH */
-    if( conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-    {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe PSH");
-
-        if (conf.rule_nflog == 1)
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j NFLOG %s %s --nflog-group %u",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            conf.nfgrp);
-        }
-        else
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j LOG %s %s %s",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            log_tcp_options);
-        }
-
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH -j DROP");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval=-1;
-
-    /* ACK - URG */
-    if( conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-    {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "probe URG");
-
-        if (conf.rule_nflog == 1)
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j NFLOG %s %s --nflog-group %u",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            conf.nfgrp);
-        }
-        else
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j LOG %s %s %s",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            log_tcp_options);
-        }
-
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG -j DROP");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval=-1;
-
-    /* New tcp but no SYN */
-    if( conf.log_no_syn == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-    {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "no SYN");
-
-        if (conf.rule_nflog == 1)
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW %s -j NFLOG %s %s --nflog-group %u",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            conf.nfgrp);
-        }
-        else
-        {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW %s -j LOG %s %s %s",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            log_tcp_options);
-        }
-
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW -j DROP");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval=-1;
-
-    /*
-        Fragmented packets
-    */
-    if( conf.log_frag == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-    {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_NOTSET, "DROP", "FRAG");
-
-        if (conf.rule_nflog == 1)
-        {
-            snprintf(cmd, sizeof(cmd), "-f %s -j NFLOG %s %s --nflog-group %u",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            conf.nfgrp);
-        }
-        else
-        {
-            snprintf(cmd, sizeof(cmd), "-f %s -j LOG %s %s %s",
-                            limit,
-                            logprefix,
-                            loglevel,
-                            log_tcp_options);
-        }
-
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-
-    snprintf(cmd, sizeof(cmd), "-f -j DROP");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval=-1;
-
+    /* rules for logging and dropping bad packets */
+    pre_rules_bad_packets(debuglvl, ruleset, iptcap, VR_IPV4);
+#ifdef IPV6_ENABLED
+    pre_rules_bad_packets(debuglvl, ruleset, iptcap, VR_IPV6);
+#endif
 
     /*
         syn-flooding protection
