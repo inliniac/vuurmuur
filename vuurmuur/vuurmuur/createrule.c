@@ -3549,6 +3549,83 @@ static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ru
     return (retval);
 }
 
+static int pre_rules_blocklist_ipv4(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap)
+{
+    int                     retval = 0,
+                            result = 0;
+    char                    cmd[MAX_PIPE_COMMAND] = "";
+    char                    limit[] = "-m limit --limit 1/s --limit-burst 2";
+    char                    logprefix[64] = "";
+
+    /*
+        Setup Block lists
+    */
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up blocklist...\n");
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Setting up blocklist...");
+
+    if (ruleset == NULL) {
+        /* create the chain and insert it into input, output and forward.
+
+            NOTE: we ignore the returncode and want no output (although we get
+            some in the errorlog) because if we start vuurmuur when a ruleset
+            is already in place, the chain will exist and iptables will complain.
+        */
+        snprintf(cmd, sizeof(cmd), "%s -N BLOCKLIST 2>/dev/null",
+                conf.iptables_location);
+        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    }
+
+    snprintf(cmd, sizeof(cmd), "-j BLOCKLIST");
+    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+
+    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+
+    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    if (ruleset == NULL) {
+        if(conf.bash_out == TRUE)
+            fprintf(stdout, "\n# Setting up BLOCK target...\n");
+        if(debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "Setting up BLOCK target...");
+        /* create the BLOCK action
+
+           NOTE: see BLOCKLIST creation. */
+        snprintf(cmd, sizeof(cmd), "%s -N BLOCK 2>/dev/null",
+                conf.iptables_location);
+        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    }
+
+    if (conf.log_blocklist == TRUE &&
+        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+    {
+        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                RT_INPUT, "DROP", "BLOCKED");
+
+        if (conf.rule_nflog == 1) {
+            snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
+                    limit, logprefix, loglevel, conf.nfgrp);
+        } else {
+            snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
+                    limit, logprefix, loglevel, log_tcp_options);
+        }
+
+        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
+            retval = -1;
+    }
+
+    snprintf(cmd, sizeof(cmd), "-j DROP");
+    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
+        retval = -1;
+
+    return (retval);
+}
+
 /* pre_rules
 
     Cleanup
@@ -3857,75 +3934,9 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         retval = -1;
 #endif
 
-    /*
-        Setup Block lists
-    */
-    if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Setting up blocklist...\n");
-    if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up blocklist...");
-
-    if(ruleset == NULL)
-    {
-        /* create the chain and insert it into input, output and forward.
-    
-            NOTE: we ignore the returncode and want no output (although we get some
-            in the errorlog) because if we start vuurmuur when a ruleset is already in
-            place, the chain will exist and iptables will complain.
-        */
-        snprintf(cmd, sizeof(cmd), "%s -N BLOCKLIST 2>/dev/null", conf.iptables_location);
-        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-    }
-
-    snprintf(cmd, sizeof(cmd), "-j BLOCKLIST");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval=-1;
-
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
-
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval=-1;
-
-    if(ruleset == NULL)
-    {
-        if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Setting up BLOCK target...\n");
-        if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Setting up BLOCK target...");
-        /* create the BLOCK action
-    
-        NOTE: see BLOCKLIST creation. */
-        snprintf(cmd, sizeof(cmd), "%s -N BLOCK 2>/dev/null", conf.iptables_location);
-        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-    }
-
-    if( conf.log_blocklist == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-    {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), RT_INPUT, "DROP", "BLOCKED");
-
-        if (conf.rule_nflog == 1)
-        {
-            snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
-                                limit,
-                                logprefix,
-                                loglevel,
-                                conf.nfgrp);
-        }
-        else
-        {
-            snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                                limit,
-                                logprefix,
-                                loglevel,
-                                log_tcp_options);
-        }
-
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-
-    snprintf(cmd, sizeof(cmd), "-j DROP");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
-        retval=-1;
-
+    /* set up blocklist targets */
+    if (pre_rules_blocklist_ipv4(debuglvl, ruleset, iptcap) < 0)
+        retval = -1;
 
     if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Creating TCPRESET target...\n");
     if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Creating TCPRESET target...");
