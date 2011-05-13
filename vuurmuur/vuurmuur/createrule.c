@@ -3694,6 +3694,182 @@ static int pre_rules_udplimit(const int debuglvl, /*@null@*/RuleSet *ruleset,
     return (retval);
 }
 
+static int pre_rules_newaccept(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap, int ipv)
+{
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
+
+    /*
+        create the NEWACCEPT target
+    */
+    if(conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up NEWACCEPT target...\n");
+    if(debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Setting up NEWACCEPT target...");
+
+    if(ruleset == NULL) {
+        if (ipv == VR_IPV4) {
+            snprintf(cmd, sizeof(cmd), "%s -N NEWACCEPT 2>/dev/null",
+                conf.iptables_location);
+            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+        } else {
+#ifdef IPV6_ENABLED
+            snprintf(cmd, sizeof(cmd), "%s -N NEWACCEPT 2>/dev/null",
+                conf.ip6tables_location);
+            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#endif
+        }
+    }
+
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
+        retval = -1;
+
+    snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
+        retval = -1;
+
+    snprintf(cmd, sizeof(cmd), "-j ACCEPT");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
+        retval = -1;
+
+    return (retval);
+}
+
+static int pre_rules_newqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap, int ipv)
+{
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
+
+    /*
+        create the NEWQUEUE target
+    */
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up NEWQUEUE target...\n");
+
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Setting up NEWQUEUE target...");
+
+    if (conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE) {
+        if(ruleset == NULL) {
+            if (ipv == VR_IPV4) {
+                snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null",
+                        conf.iptables_location);
+                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            } else {
+#ifdef IPV6_ENABLED
+                snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null",
+                        conf.ip6tables_location);
+                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#endif
+            }
+        }
+
+        snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
+            retval = -1;
+
+        snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
+            retval = -1;
+
+        snprintf(cmd, sizeof(cmd), "-j QUEUE");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
+            retval = -1;
+    } else {
+        (void)vrprint.info("Info", "NEWQUEUE target not setup. QUEUE-target "
+                "not supported by system.");
+    }
+
+    return (retval);
+}
+
+static int pre_rules_nfqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap, int ipv)
+{
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
+
+    /*
+        create the NEWNFQUEUE target: the content of the chain
+        is handled by create_newnfqueue_rules()
+    */
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up NEWNFQUEUE target...\n");
+
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Setting up NEWNFQUEUE target...");
+
+    if (conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE) {
+        if (ruleset == NULL) {
+            if (ipv == VR_IPV4) {
+                snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null",
+                        conf.iptables_location);
+                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            } else {
+#ifdef IPV6_ENABLED
+                snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null",
+                        conf.ip6tables_location);
+                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#endif
+            }
+        }
+    } else {
+        (void)vrprint.info("Info", "NEWNFQUEUE target not setup. "
+                "NFQUEUE-target not supported by system.");
+    }
+
+    /*
+        Setup NFQUEUE connection tracking
+
+        All connmarked traffic with state ESTABLISHED and RELATED is
+        send to a special chain to handle it: ESTRELNFQUEUE
+    */
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up connection-tracking for NFQUEUE targets...\n");
+
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Setting up connection-tracking for NFQUEUE targets...");
+
+    if (conf.check_iptcaps == FALSE || (iptcap->target_nfqueue == TRUE && iptcap->match_connmark == TRUE))
+    {
+        if(ruleset == NULL) {
+            /* create the chain and insert it into input, output and forward.
+             *
+             * NOTE: we ignore the returncode and want no output (although we get some
+             * in the errorlog) because if we start vuurmuur when a ruleset is already in
+             *  place, the chain will exist and iptables will complain.
+             */
+            if (ipv == VR_IPV4) {
+                snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null",
+                        conf.iptables_location);
+                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            } else {
+#ifdef IPV6_ENABLED
+                snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null",
+                        conf.ip6tables_location);
+                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#endif
+            }
+        }
+
+        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED,RELATED "
+                "-m connmark ! --mark 0 -j ESTRELNFQUEUE");
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+
+        if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+    }
+
+    return (retval);
+}
+
 /* pre_rules
 
     Cleanup
@@ -3782,173 +3958,30 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         retval = -1;
 #endif
 
-    /*
-        create the NEWACCEPT target
-    */
-    if(conf.bash_out == TRUE)
-        fprintf(stdout, "\n# Setting up NEWACCEPT target...\n");
-    if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "Setting up NEWACCEPT target...");
-
-    if(ruleset == NULL) {
-        snprintf(cmd, sizeof(cmd), "%s -N NEWACCEPT 2>/dev/null", conf.iptables_location);
-        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-#ifdef IPV6_ENABLED
-        snprintf(cmd, sizeof(cmd), "%s -N NEWACCEPT 2>/dev/null", conf.ip6tables_location);
-        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-#endif
-    }
-
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
-    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
+    if (pre_rules_newaccept(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
         retval = -1;
 #ifdef IPV6_ENABLED
-    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
+    if (pre_rules_newaccept(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
         retval = -1;
 #endif
-
-    snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
-    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
-        retval = -1;
-#ifdef IPV6_ENABLED
-    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
-        retval = -1;
-#endif
-
-    snprintf(cmd, sizeof(cmd), "-j ACCEPT");
-    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
-        retval = -1;
-#ifdef IPV6_ENABLED
-    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
-        retval = -1;
-#endif
-
 
     /* Add the TCPMSS rules before the RELATED rules. */
     if (create_interface_tcpmss_rules(debuglvl, ruleset, interfaces, iptcap) < 0)
         retval = -1;
 
-    /*
-        create the NEWQUEUE target
-    */
-    if (conf.bash_out == TRUE)
-        fprintf(stdout, "\n# Setting up NEWQUEUE target...\n");
-    if (debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "Setting up NEWQUEUE target...");
-
-    if (conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE) {
-        if(ruleset == NULL) {
-            snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null", conf.iptables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    if (pre_rules_newqueue(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+        retval = -1;
 #ifdef IPV6_ENABLED
-            snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null", conf.ip6tables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-#endif
-        }
-
-        snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
-        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-            retval = -1;
-#ifdef IPV6_ENABLED
-        if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-            retval = -1;
+    if (pre_rules_newqueue(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+        retval = -1;
 #endif
 
-        snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
-        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-            retval = -1;
+    if (pre_rules_nfqueue(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+        retval = -1;
 #ifdef IPV6_ENABLED
-        if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-            retval = -1;
+    if (pre_rules_nfqueue(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+        retval = -1;
 #endif
-
-        snprintf(cmd, sizeof(cmd), "-j QUEUE");
-        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-            retval = -1;
-#ifdef IPV6_ENABLED
-        if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-            retval = -1;
-#endif
-    } else {
-        (void)vrprint.info("Info", "NEWQUEUE target not setup. QUEUE-target "
-                "not supported by system.");
-    }
-
-    /*
-        create the NEWNFQUEUE target: the content of the chain
-        is handled by create_newnfqueue_rules()
-    */
-    if (conf.bash_out == TRUE)
-        fprintf(stdout, "\n# Setting up NEWNFQUEUE target...\n");
-    if (debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "Setting up NEWNFQUEUE target...");
-
-    if (conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE) {
-        if(ruleset == NULL) {
-            snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null", conf.iptables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-#ifdef IPV6_ENABLED
-            snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null", conf.ip6tables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-#endif
-        }
-    } else {
-        (void)vrprint.info("Info", "NEWNFQUEUE target not setup. "
-                "NFQUEUE-target not supported by system.");
-    }
-
-    /*
-        Setup NFQUEUE connection tracking
-
-        All connmarked traffic with state ESTABLISHED and RELATED is
-        send to a special chain to handle it: ESTRELNFQUEUE
-    */
-    if (conf.bash_out == TRUE)
-        fprintf(stdout, "\n# Setting up connection-tracking for NFQUEUE targets...\n");
-    if (debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "Setting up connection-tracking for NFQUEUE targets...");
-
-    if (conf.check_iptcaps == FALSE || (iptcap->target_nfqueue == TRUE && iptcap->match_connmark == TRUE))
-    {
-        if(ruleset == NULL) {
-            /* create the chain and insert it into input, output and forward.
-             *
-             * NOTE: we ignore the returncode and want no output (although we get some
-             * in the errorlog) because if we start vuurmuur when a ruleset is already in
-             *  place, the chain will exist and iptables will complain.
-             */
-            snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null", conf.iptables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-#ifdef IPV6_ENABLED
-            snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null", conf.ip6tables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-#endif
-        }
-
-        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED,RELATED "
-                "-m connmark ! --mark 0 -j ESTRELNFQUEUE");
-        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval = -1;
-#ifdef IPV6_ENABLED
-        if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval = -1;
-#endif
-
-
-        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval = -1;
-#ifdef IPV6_ENABLED
-        if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval = -1;
-#endif
-
-        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval = -1;
-#ifdef IPV6_ENABLED
-        if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval = -1;
-#endif
-    }
 
     /* create the conntrack rules */
     if (pre_rules_conntrack(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
