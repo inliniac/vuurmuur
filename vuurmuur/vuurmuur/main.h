@@ -292,8 +292,8 @@ int create_all_rules(const int, Rules *, Zones *, Interfaces *, BlockList *, Ipt
 int pre_rules(const int, /*@null@*/RuleSet *, Interfaces *, IptCap *);
 int post_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
 
-int update_synlimit_rules(const int, /*@null@*/RuleSet *, IptCap *);
-int update_udplimit_rules(const int, /*@null@*/RuleSet *, IptCap *);
+int update_synlimit_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
+int update_udplimit_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
 int create_block_rules(const int, /*@null@*/RuleSet *, BlockList *);
 
 int create_newnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *);
