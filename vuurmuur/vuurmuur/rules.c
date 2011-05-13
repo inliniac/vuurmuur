@@ -931,19 +931,12 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), create->ruletype, action, "%s", create->option.logprefix);
 
         /* create the action */
-        if (conf.rule_nflog == 1)
-        {
+        if (conf.rule_nflog == 1) {
             snprintf(rule->action, sizeof(rule->action), "NFLOG %s %s --nflog-group %u",
-                                    logprefix,
-                                    loglevel,
-                                    conf.nfgrp);
-        }
-        else
-        {
+                    logprefix, loglevel, conf.nfgrp);
+        } else {
             snprintf(rule->action, sizeof(rule->action), "LOG %s %s %s",
-                                    logprefix,
-                                    loglevel,
-                                    log_tcp_options);
+                    logprefix, loglevel, log_tcp_options);
         }
 
         /* set ip and netmask */
@@ -1006,10 +999,13 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), create->ruletype, action, "%s", create->option.logprefix);
 
             /* action */
-            snprintf(rule->action, sizeof(rule->action), "LOG %s %s %s",
-                    logprefix,
-                    loglevel,
-                    log_tcp_options);
+            if (conf.rule_nflog == 1) {
+                snprintf(rule->action, sizeof(rule->action), "NFLOG %s %s --nflog-group %u",
+                        logprefix, loglevel, conf.nfgrp);
+            } else {
+                snprintf(rule->action, sizeof(rule->action), "LOG %s %s %s",
+                        logprefix, loglevel, log_tcp_options);
+            }
 
             /* set ip and netmask */
             (void)strlcpy(rule->to_ip,      rule->ipv4_to.broadcast, sizeof(rule->to_ip));
@@ -1051,10 +1047,11 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
         (void)vrprint.debug(__FUNC__, "finally create the normal rule.");
 
     /* create the logprefix string */
-    create_logprefix_string(debuglvl, logprefix, sizeof(logprefix), create->ruletype, action, "%s", create->option.logprefix);
+    create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+            create->ruletype, action, "%s", create->option.logprefix);
 
     /* action LOG requires some extra attention */
-    if(strncasecmp(create->action, "LOG", 3) == 0)
+    if(strncasecmp(create->action, "LOG", 3) == 0 || strncasecmp(create->action, "NFLOG", 5) == 0)
     {
         if(conf.check_iptcaps == 0 || iptcap->match_limit == 1)
         {
@@ -1070,8 +1067,13 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
                 snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s",
                     limit, unit);
         }
-        snprintf(rule->action, sizeof(rule->action), "%s %s",
-            create->action, logprefix);
+        if (conf.rule_nflog == 1) {
+            snprintf(rule->action, sizeof(rule->action), "NFLOG %s",
+                    logprefix);
+        } else {
+            snprintf(rule->action, sizeof(rule->action), "%s %s",
+                    create->action, logprefix);
+        }
     }
     else
     {
@@ -1531,6 +1533,14 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
                 __FUNC__, __LINE__);
             return(-1);
         }
+
+        /* skip ICMP for IPv6 */
+        if (rule->ipv == VR_IPV6 && rule->portrange_ptr->protocol == 1)
+            continue;
+
+        /* skip ICMPv6 for IPv4 */
+        if (rule->ipv == VR_IPV4 && rule->portrange_ptr->protocol == 58)
+            continue;
 
         /* set rule->listenport_ptr */
         if(create->option.listenport == TRUE && listenport_d_node != NULL)
@@ -2023,10 +2033,16 @@ rulecreate_ipv4ipv6_loop(const int debuglvl, struct vuurmuur_config *cnf,
 #ifdef IPV6_ENABLED
     rule->ipv = VR_IPV6;
 
+    /** \todo rules can explicitly set a the reject option, which will be IPv4 only. */
+    if (strncasecmp(rule->action, "REJECT --reject-with", 20) == 0)
+        return 0;
+
     if (rulecreate_src_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap) < 0) {
         (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
     }
 #endif
+
+    return 0;
 }
 
 

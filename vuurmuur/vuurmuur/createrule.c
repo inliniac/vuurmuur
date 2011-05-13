@@ -728,6 +728,12 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
     }
 
+#ifdef IPV6_ENABLED
+    if (rule->ipv == VR_IPV6) {
+        return (retval);
+    }
+#endif
+
     /*  setup iptables shaping rules */
     if (libvuurmuur_is_shape_rule(debuglvl, &create->option) == 1)
     {
@@ -1151,6 +1157,12 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 return(-1);
         }
     }
+
+#ifdef IPV6_ENABLED
+    if (rule->ipv == VR_IPV6) {
+        return (retval);
+    }
+#endif
 
     /*  setup iptables shaping rules */
     if (libvuurmuur_is_shape_rule(debuglvl, &create->option) == 1)
@@ -1620,6 +1632,12 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
                 return(-1);
         }
     }
+
+#ifdef IPV6_ENABLED
+    if (rule->ipv == VR_IPV6) {
+        return (retval);
+    }
+#endif
 
     /*  setup iptables shaping rules */
     if (libvuurmuur_is_shape_rule(debuglvl, &create->option) == 1)
@@ -3414,20 +3432,30 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
     /*
         Fragmented packets
     */
-    if (conf.log_frag == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
-    {
-        create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_NOTSET, "DROP", "FRAG");
+    if (ipv == VR_IPV4) {
+        if (conf.log_frag == TRUE &&
+                (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        {
+            create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
+                    RT_NOTSET, "DROP", "FRAG");
 
-        if (conf.rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd), "-f %s -j NFLOG %s %s --nflog-group %u",
-                    limit, logprefix, loglevel, conf.nfgrp);
-        } else {
-            snprintf(cmd, sizeof(cmd), "-f %s -j LOG %s %s %s",
-                    limit, logprefix, loglevel, log_tcp_options);
+            if (conf.rule_nflog == 1) {
+                snprintf(cmd, sizeof(cmd), "-f %s -j NFLOG %s %s --nflog-group %u",
+                        limit, logprefix, loglevel, conf.nfgrp);
+            } else {
+                snprintf(cmd, sizeof(cmd), "-f %s -j LOG %s %s %s",
+                        limit, logprefix, loglevel, log_tcp_options);
+            }
+
+            if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+                retval = -1;
+            if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+                retval = -1;
+            if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+                retval = -1;
         }
 
+        snprintf(cmd, sizeof(cmd), "-f -j DROP");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval = -1;
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
@@ -3435,14 +3463,6 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval = -1;
     }
-
-    snprintf(cmd, sizeof(cmd), "-f -j DROP");
-    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval = -1;
-    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval = -1;
-    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval = -1;
 
     return (retval);
 }
