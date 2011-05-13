@@ -2397,18 +2397,34 @@ create_rule_bounce( const int debuglvl, /*@null@*/RuleSet *ruleset,
 }
 
 
-int
-create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces, IptCap *iptcap)
+static int
+create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        Interfaces *interfaces, IptCap *iptcap, int ipv)
 {
     d_list_node *d_node = NULL;
     struct InterfaceData_ *iface_ptr = NULL;
     char cmd[MAX_PIPE_COMMAND] = "";
 
     /* safety */
-    if(interfaces == NULL || iptcap == NULL)
+    if (interfaces == NULL || iptcap == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+                "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
+    }
+
+    if (ipv == VR_IPV4) {
+        if (conf.check_iptcaps == TRUE && iptcap->target_tcpmss == FALSE) {
+            if (conf.bash_out)
+                fprintf(stdout, "# No support for IPv4 TCPMSS target.\n");
+            return(0);
+        }
+    } else {
+        if (conf.check_iptcaps == TRUE && iptcap->target_ip6_tcpmss == FALSE) {
+            if (conf.bash_out)
+                fprintf(stdout, "# No support for IPv6 TCPMSS target.\n");
+            return(0);
+        }
     }
 
     if (conf.bash_out)
@@ -2419,46 +2435,27 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, In
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            (void)vrprint.error(-1, "Internal Error", "NULL pointer "
+                    "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
         if (iface_ptr->tcpmss_clamp == TRUE && iface_ptr->device_virtual == FALSE)
         {
+            if (ipv == VR_IPV6 && !interface_ipv6_enabled(debuglvl, iface_ptr))
+                continue;
+
             snprintf(cmd, sizeof(cmd), "-o %s -p tcp --tcp-flags SYN,RST SYN "
                     "-j TCPMSS --clamp-mss-to-pmtu", iface_ptr->device);
 
-            if (conf.check_iptcaps == FALSE || iptcap->target_tcpmss == TRUE) {
-                if (conf.bash_out)
-                    fprintf(stdout, "# Enabling TCPMSS pmtu clamping for "
-                            "interface %s (device %s).\n",
-                            iface_ptr->name, iface_ptr->device);
+            if (conf.bash_out)
+                fprintf(stdout, "# Enabling TCPMSS pmtu clamping for "
+                        "interface %s (device %s).\n",
+                        iface_ptr->name, iface_ptr->device);
 
-                if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER,
-                            CH_FORWARD, cmd, 0, 0) < 0)
-                    return(-1);
-            } else {
-                if (conf.bash_out)
-                    fprintf(stdout, "# No support for IPv4 TCPMSS target.\n");
-            }
-
-#ifdef IPV6_ENABLED
-            if (interface_ipv6_enabled(debuglvl, iface_ptr)) {
-                if (conf.check_iptcaps == FALSE || iptcap->target_ip6_tcpmss == TRUE) {
-                    if (conf.bash_out)
-                        fprintf(stdout, "# Enabling TCPMSS pmtu clamping for "
-                                "interface %s (device %s) for IPv6.\n",
-                                iface_ptr->name, iface_ptr->device);
-
-                    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER,
-                                CH_FORWARD, cmd, 0, 0) < 0)
-                        return(-1);
-                } else {
-                    if (conf.bash_out)
-                        fprintf(stdout, "# No support for IPv6 TCPMSS target.\n");
-                }
-            }
-#endif /* IPV6_ENABLED */
+            if (process_rule(debuglvl, ruleset, ipv, TB_FILTER,
+                        CH_FORWARD, cmd, 0, 0) < 0)
+                return(-1);
         }
     }
 
@@ -3870,6 +3867,86 @@ static int pre_rules_nfqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
     return (retval);
 }
 
+static int pre_rules_tcpreset(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap, int ipv)
+{
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
+
+    if (conf.bash_out == TRUE)
+        fprintf(stdout, "\n# Creating TCPRESET target...\n");
+
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "Creating TCPRESET target...");
+
+    /*
+        safe TCP-RESET REJECT target
+    */
+    if (ruleset == NULL) {
+        if (ipv == VR_IPV4) {
+            snprintf(cmd, sizeof(cmd), "%s -N TCPRESET 2>/dev/null",
+                    conf.iptables_location);
+            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+        } else {
+#ifdef IPV6_ENABLED
+            snprintf(cmd, sizeof(cmd), "%s -N TCPRESET 2>/dev/null",
+                    conf.ip6tables_location);
+            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+#endif
+        }
+    }
+
+    /* for tcp we use tcp-reset like requested */
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp -j REJECT --reject-with tcp-reset");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
+        retval = -1;
+
+    /* for the rest we use normal REJECT, which means icmp-port-unreachable */
+    snprintf(cmd, sizeof(cmd), "-j REJECT");
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
+        retval = -1;
+
+    return (retval);
+}
+
+static int pre_rules_antispoof_ipv4(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap)
+{
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
+
+    /*
+        anti spoof rules
+    */
+    if (ruleset == NULL)
+    {
+        if(conf.bash_out == TRUE)
+            fprintf(stdout, "\n# Setting up anti-spoofing rules...\n");
+
+        /*  create the chain and insert it into input, output and
+            forward.
+
+            NOTE: we ignore the returncode and want no output
+            (although we get some in the errorlog) because if we
+            start vuurmuur when a ruleset is already in
+            place, the chain will exist and iptables will
+            complain. */
+        snprintf(cmd, sizeof(cmd), "%s -N ANTISPOOF 2>/dev/null",
+            conf.iptables_location);
+        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    }
+
+    snprintf(cmd, sizeof(cmd), "-j ANTISPOOF");
+    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    return (retval);
+}
+
 /* pre_rules
 
     Cleanup
@@ -3883,7 +3960,6 @@ int
 pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces, IptCap *iptcap)
 {
     int retval = 0;
-    char cmd[MAX_PIPE_COMMAND] = "";
 
     /* safety */
     if (interfaces == NULL || iptcap == NULL) {
@@ -3966,8 +4042,12 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 #endif
 
     /* Add the TCPMSS rules before the RELATED rules. */
-    if (create_interface_tcpmss_rules(debuglvl, ruleset, interfaces, iptcap) < 0)
+    if (create_interface_tcpmss_rules(debuglvl, ruleset, interfaces, iptcap, VR_IPV4) < 0)
         retval = -1;
+#ifdef IPV6_ENABLED
+    if (create_interface_tcpmss_rules(debuglvl, ruleset, interfaces, iptcap, VR_IPV6) < 0)
+        retval = -1;
+#endif
 
     if (pre_rules_newqueue(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
         retval = -1;
@@ -4003,68 +4083,16 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
     if (pre_rules_blocklist_ipv4(debuglvl, ruleset, iptcap) < 0)
         retval = -1;
 
-    if(conf.bash_out == TRUE)   fprintf(stdout, "\n# Creating TCPRESET target...\n");
-    if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Creating TCPRESET target...");
-
-    /*
-        safe TCP-RESET REJECT target
-    */
-    if(ruleset == NULL)
-    {
-        snprintf(cmd, sizeof(cmd), "%s -N TCPRESET 2>/dev/null", conf.iptables_location);
-        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    /* create the conntrack invalid log & drop rules */
+    if (pre_rules_tcpreset(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+        retval = -1;
 #ifdef IPV6_ENABLED
-        snprintf(cmd, sizeof(cmd), "%s -N TCPRESET 2>/dev/null", conf.ip6tables_location);
-        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-#endif
-    }
-
-    /* for tcp we use tcp-reset like requested */
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp -j REJECT --reject-with tcp-reset");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
-        retval=-1;
-#ifdef IPV6_ENABLED
-    if(process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
-        retval=-1;
+    if (pre_rules_tcpreset(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+        retval = -1;
 #endif
 
-    /* for the rest we use normal REJECT, which means icmp-port-unreachable */
-    snprintf(cmd, sizeof(cmd), "-j REJECT");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
-        retval=-1;
-#ifdef IPV6_ENABLED
-    if(process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_TCPRESETTARGET, cmd, 0, 0) < 0)
-        retval=-1;
-#endif
-
-    /*
-        anti spoof rules
-    */
-    if(ruleset == NULL)
-    {
-        if(conf.bash_out == TRUE)
-            fprintf(stdout, "\n# Setting up anti-spoofing rules...\n");
-
-        /*  create the chain and insert it into input, output and
-            forward.
-    
-            NOTE: we ignore the returncode and want no output
-            (although we get some in the errorlog) because if we
-            start vuurmuur when a ruleset is already in
-            place, the chain will exist and iptables will
-            complain. */
-        snprintf(cmd, sizeof(cmd), "%s -N ANTISPOOF 2>/dev/null",
-            conf.iptables_location);
-        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-    }
-
-    snprintf(cmd, sizeof(cmd), "-j ANTISPOOF");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-        retval=-1;
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-        retval=-1;
+    if (pre_rules_antispoof_ipv4(debuglvl, ruleset, iptcap) < 0)
+        retval = -1;
 
     return(retval);
 }
@@ -5100,7 +5128,8 @@ create_block_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, BlockList *bl
  *          -1: error
  */
 int
-create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *rules)
+create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        Rules *rules, int ipv)
 {
     char                cmd[MAX_PIPE_COMMAND] = "";
     d_list_node         *d_node = NULL;
@@ -5131,7 +5160,7 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules
     memset(&queues, 0, sizeof(queues));
 
     /* create two rules for each ipaddress */
-    for(d_node = rules->list.top; d_node; d_node = d_node->next)
+    for (d_node = rules->list.top; d_node; d_node = d_node->next)
     {
         if(!(rule_ptr = d_node->data))
         {
@@ -5154,14 +5183,14 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
                     "-m state --state ESTABLISHED -j NFQUEUE --queue-num %u",
                     queue_num + 1, queue_num);
-                if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
-                    retval=-1;
+                if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
+                    retval = -1;
 
                 /* RELATED */
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
                     "-m state --state RELATED -j NEWNFQUEUE",
                     queue_num + 1);
-                if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
+                if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
                     retval=-1;
 
                 /* mark this queue num processed */
@@ -5181,15 +5210,15 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules
  *          -1: error
  */
 int
-create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *rules)
+create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        Rules *rules, int ipv)
 {
-    char                cmd[MAX_PIPE_COMMAND] = "";
-    d_list_node         *d_node = NULL;
-    int                 retval = 0;
-    struct RuleData_    *rule_ptr = NULL;
-    u_int16_t           queue_num = 0;
-    char                queues[65536/8];
-
+    char cmd[MAX_PIPE_COMMAND] = "";
+    d_list_node *d_node = NULL;
+    int retval = 0;
+    struct RuleData_ *rule_ptr = NULL;
+    u_int16_t queue_num = 0;
+    char queues[65536/8];
 
     /* safety */
     if(rules == NULL)
@@ -5204,15 +5233,14 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
 
     /* TCP and UDP limits */
     snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
-        retval=-1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
+        retval = -1;
 
     snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW,RELATED -j UDPLIMIT");
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
-        retval=-1;
+    if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
+        retval = -1;
 
-    if(rules->list.len == 0)
-    {
+    if(rules->list.len == 0) {
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "no items in ruleslist.");
 
@@ -5222,7 +5250,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
     memset(&queues, 0, sizeof(queues));
 
     /* create two rules for each ipaddress */
-    for(d_node = rules->list.top; d_node; d_node = d_node->next)
+    for (d_node = rules->list.top; d_node; d_node = d_node->next)
     {
         if(!(rule_ptr = d_node->data))
         {
@@ -5245,8 +5273,9 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Rules *r
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
                     "-m state --state NEW,RELATED -j NFQUEUE --queue-num %u",
                     queue_num + 1, queue_num);
-                if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
-                    retval=-1;
+
+                if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
+                    retval = -1;
 
                 /* mark this queue num processed */
                 queues[(queue_num/8)] |= 1<<(queue_num%8);

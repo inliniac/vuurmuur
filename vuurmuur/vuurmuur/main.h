@@ -296,8 +296,8 @@ int update_synlimit_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
 int update_udplimit_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
 int create_block_rules(const int, /*@null@*/RuleSet *, BlockList *);
 
-int create_newnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *);
-int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *);
+int create_newnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *, int);
+int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *, int);
 
 int create_network_protect_rules(const int, /*@null@*/RuleSet *, Zones *, IptCap *);
 int create_interface_rules(const int, /*@null@*/RuleSet *, Interfaces *);

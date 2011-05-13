@@ -507,14 +507,26 @@ create_all_rules(   const int debuglvl,
     }
 
     /* create the nfqueue state rules */
-    if(create_newnfqueue_rules(debuglvl, NULL, rules) < 0)
+    if(create_newnfqueue_rules(debuglvl, NULL, rules, VR_IPV4) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
-    if(create_estrelnfqueue_rules(debuglvl, NULL, rules) < 0)
+#ifdef IPV6_ENABLED
+    if(create_newnfqueue_rules(debuglvl, NULL, rules, VR_IPV6) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
+#endif
+    if(create_estrelnfqueue_rules(debuglvl, NULL, rules, VR_IPV4) < 0)
+    {
+        (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
+    }
+#ifdef IPV6_ENABLED
+    if(create_estrelnfqueue_rules(debuglvl, NULL, rules, VR_IPV6) < 0)
+    {
+        (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
+    }
+#endif
 
     /* create the blocklist */
     if(create_block_rules(debuglvl, NULL, blocklist) < 0)
