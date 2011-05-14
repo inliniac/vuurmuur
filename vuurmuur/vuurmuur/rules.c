@@ -2715,6 +2715,5 @@ clear_all_iptables_rules(const int debuglvl)
     }
 #endif
 
-printf("retval %d\n", retval);
     return (retval);
 }
