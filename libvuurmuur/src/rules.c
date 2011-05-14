@@ -3416,7 +3416,8 @@ rules_get_custom_chains(const int debuglvl, Rules *rules)
 
 /* get the actual chains for the table */
 static int
-rules_get_system_chains_per_table(const int debuglvl, char *tablename, d_list *list, struct vuurmuur_config *cnf)
+rules_get_system_chains_per_table(const int debuglvl, char *tablename,
+        d_list *list, struct vuurmuur_config *cnf, int ipv)
 {
     char    line[128] = "",
             cmd[128] = "";
@@ -3434,7 +3435,15 @@ rules_get_system_chains_per_table(const int debuglvl, char *tablename, d_list *l
     }
 
     /* commandline */
-    snprintf(cmd, sizeof(cmd), "%s -t %s -nL", cnf->iptables_location, tablename);
+    if (ipv == VR_IPV4) {
+        snprintf(cmd, sizeof(cmd), "%s -t %s -nL",
+                cnf->iptables_location, tablename);
+    } else {
+#ifdef IPV6_ENABLED
+        snprintf(cmd, sizeof(cmd), "%s -t %s -nL",
+                cnf->ip6tables_location, tablename);
+#endif
+    }
 
     /* open the pipe to the command */
     if((p = popen(cmd, "r")))
@@ -3501,7 +3510,7 @@ rules_get_system_chains_per_table(const int debuglvl, char *tablename, d_list *l
          0: ok
 */
 int
-rules_get_system_chains(const int debuglvl, Rules *rules, struct vuurmuur_config *cnf)
+rules_get_system_chains(const int debuglvl, Rules *rules, struct vuurmuur_config *cnf, int ipv)
 {
     /* safety */
     if(cnf == NULL || rules == NULL)
@@ -3522,10 +3531,12 @@ rules_get_system_chains(const int debuglvl, Rules *rules, struct vuurmuur_config
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(d_list_setup(debuglvl, &rules->system_chain_nat, free) < 0) {
-        (void)vrprint.error(-1, "Internal Error", "d_list_setup() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
+    if (ipv == VR_IPV4) {
+        if(d_list_setup(debuglvl, &rules->system_chain_nat, free) < 0) {
+            (void)vrprint.error(-1, "Internal Error", "d_list_setup() failed (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
     }
     //if(d_list_setup(debuglvl, &rules->system_chain_raw, free) < 0) {
     //    (void)vrprint.error(-1, "Internal Error", "d_list_setup() failed (in: %s:%d).",
@@ -3541,12 +3552,18 @@ rules_get_system_chains(const int debuglvl, Rules *rules, struct vuurmuur_config
     }
 
 
-    if(rules_get_system_chains_per_table(debuglvl, "filter", &rules->system_chain_filter, cnf) < 0)
+    if(rules_get_system_chains_per_table(debuglvl, "filter",
+                &rules->system_chain_filter, cnf, ipv) < 0)
         return(-1);
-    if(rules_get_system_chains_per_table(debuglvl, "mangle", &rules->system_chain_mangle, cnf) < 0)
+    if(rules_get_system_chains_per_table(debuglvl, "mangle",
+                &rules->system_chain_mangle, cnf, ipv) < 0)
         return(-1);
-    if(rules_get_system_chains_per_table(debuglvl, "nat", &rules->system_chain_nat, cnf) < 0)
-        return(-1);
+
+    if (ipv == VR_IPV4) {
+        if(rules_get_system_chains_per_table(debuglvl, "nat",
+                    &rules->system_chain_nat, cnf, ipv) < 0)
+            return(-1);
+    }
     //if(rules_get_system_chains_per_table(debuglvl, "raw", &rules->system_chain_raw, cnf) < 0)
     //    return(-1);
 

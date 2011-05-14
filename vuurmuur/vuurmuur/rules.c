@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2007 by Victor Julien                              *
+ *   Copyright (C) 2002-2011 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -173,7 +173,7 @@ oldrules_create_custom_chains(const int debuglvl, Rules *rules, struct vuurmuur_
     }
 
     /* get the current chains */
-    (void)rules_get_system_chains(debuglvl, rules, cnf);
+    (void)rules_get_system_chains(debuglvl, rules, cnf, VR_IPV4);
     /* get the custom chains we have to create */
     if(rules_get_custom_chains(debuglvl, rules) < 0)
     {
@@ -2366,8 +2366,8 @@ create_normal_rules(const int debuglvl,
         -1: error
          0: ok
 */
-int
-clear_vuurmuur_iptables_rules(const int debuglvl, struct vuurmuur_config *cnf)
+static int
+clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vuurmuur_config *cnf)
 {
     int         retval = 0,
                 result = 0;
@@ -2383,65 +2383,311 @@ clear_vuurmuur_iptables_rules(const int debuglvl, struct vuurmuur_config *cnf)
     /* safety */
     if(cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                                    __FUNC__, __LINE__);
+        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+                "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* get the current chains */
-    (void)rules_get_system_chains(debuglvl, &rules, cnf);
+    (void)rules_get_system_chains(debuglvl, &rules, cnf, VR_IPV4);
 
     /* prepare chains tab with nodes for loop */
-    chains[0]=rules.system_chain_mangle.top;
-    chains[1]=rules.system_chain_filter.top;
-    chains[2]=rules.system_chain_nat.top;
+    chains[0] = rules.system_chain_mangle.top;
+    chains[1] = rules.system_chain_filter.top;
+    chains[2] = rules.system_chain_nat.top;
 
-    for(table=0 ; table<3 ; table++)
+    for (table = 0 ; table < 3 ; table++)
     {
-        for(d_node = chains[table]; d_node; d_node = d_node->next)
+        for (d_node = chains[table]; d_node; d_node = d_node->next)
         {
-            if(!(chainname = d_node->data))
+            if (!(chainname = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                                        __FUNC__, __LINE__);
+                (void)vrprint.error(-1, "Internal Error", "NULL pointer "
+                        "(in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
-        
-            if(strncmp(chainname,PRE_VRMR_CHAINS_PREFIX,strlen(PRE_VRMR_CHAINS_PREFIX)))
+
+            if (strncmp(chainname, PRE_VRMR_CHAINS_PREFIX,
+                        strlen(PRE_VRMR_CHAINS_PREFIX)) != 0)
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "flushing %s chain in %s table.", chainname, tables[table]);
-                snprintf(cmd, MAX_PIPE_COMMAND, "%s -t %s --flush %s", conf.iptables_location, tables[table], chainname);
+                    (void)vrprint.debug(__FUNC__, "flushing %s chain in %s "
+                            "table.", chainname, tables[table]);
+
+                snprintf(cmd, MAX_PIPE_COMMAND, "%s -t %s --flush %s",
+                        conf.iptables_location, tables[table], chainname);
+
                 result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-                if(result < 0)
+                if (result < 0)
                     retval = -1;
             }
             else
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "skipping flush of %s chain in %s table.", chainname, tables[table]);
+                    (void)vrprint.debug(__FUNC__, "skipping flush of %s "
+                            "chain in %s table.", chainname, tables[table]);
             }
         }
     }
 
 
     /* set default polices to ACCEPT */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT", conf.iptables_location);
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
+            conf.iptables_location);
     result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-    if(result < 0)
-        retval=-1;
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT", conf.iptables_location);
+    if (result < 0)
+        retval = -1;
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
+            conf.iptables_location);
     result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-    if(result < 0)
-        retval=-1;
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT", conf.iptables_location);
+    if (result < 0)
+        retval = -1;
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
+            conf.iptables_location);
     result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-    if(result < 0)
-        retval=-1;
+    if (result < 0)
+        retval = -1;
+
+    return (retval);
+}
+
+/*  clear_vuurmuur_iptables_rule
+
+    Clears vuurmuur rules and chains created by Vuurmuur.
+    For use with the -Y commandline option.
+
+    Returncodes:
+        -1: error
+         0: ok
+*/
+static int
+clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vuurmuur_config *cnf)
+{
+    int         retval = 0,
+                result = 0;
+    Rules       rules;
+    char        *chainname = NULL;
+    d_list_node *d_node = NULL;
+    d_list_node *chains[2];
+    char        *tables[] = {"mangle", "filter" };
+    int         table;
+    char        PRE_VRMR_CHAINS_PREFIX[] = "PRE-VRMR-";
+    char        cmd[MAX_PIPE_COMMAND] = "";
+
+    /* safety */
+    if(cnf == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+                "(in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* get the current chains */
+    (void)rules_get_system_chains(debuglvl, &rules, cnf, VR_IPV6);
+
+    /* prepare chains tab with nodes for loop */
+    chains[0] = rules.system_chain_mangle.top;
+    chains[1] = rules.system_chain_filter.top;
+
+    for (table = 0 ; table < 2 ; table++)
+    {
+        for (d_node = chains[table]; d_node; d_node = d_node->next)
+        {
+            if (!(chainname = d_node->data))
+            {
+                (void)vrprint.error(-1, "Internal Error", "NULL pointer "
+                        "(in: %s:%d).", __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            if (strncmp(chainname, PRE_VRMR_CHAINS_PREFIX,
+                        strlen(PRE_VRMR_CHAINS_PREFIX)) != 0)
+            {
+                if(debuglvl >= LOW)
+                    (void)vrprint.debug(__FUNC__, "flushing %s chain in %s "
+                            "table.", chainname, tables[table]);
+
+                snprintf(cmd, MAX_PIPE_COMMAND, "%s -t %s --flush %s",
+                        conf.ip6tables_location, tables[table], chainname);
+
+                result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+                if (result < 0)
+                    retval = -1;
+            }
+            else
+            {
+                if(debuglvl >= LOW)
+                    (void)vrprint.debug(__FUNC__, "skipping flush of %s "
+                            "chain in %s table.", chainname, tables[table]);
+            }
+        }
+    }
+
+
+    /* set default polices to ACCEPT */
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
+            conf.ip6tables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
+            conf.ip6tables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
+            conf.ip6tables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    return (retval);
+}
+
+/*  clear_vuurmuur_iptables_rule
+
+    Clears vuurmuur rules and chains created by Vuurmuur.
+    For use with the -Y commandline option.
+
+    Returncodes:
+        -1: error
+         0: ok
+*/
+int
+clear_vuurmuur_iptables_rules(const int debuglvl, struct vuurmuur_config *cnf)
+{
+    int retval = 0;
+
+    if (clear_vuurmuur_iptables_rules_ipv4(debuglvl, cnf) < 0) {
+        (void)vrprint.error(-1, "Error", "clearing IPv4 rules failed.");
+        retval = -1;
+    }
+
+#ifdef IPV6_ENABLED
+    if (clear_vuurmuur_iptables_rules_ipv6(debuglvl, cnf) < 0) {
+        (void)vrprint.error(-1, "Error", "clearing IPv6 rules failed.");
+        retval = -1;
+    }
+#endif
+
+    return (retval);
+}
+
+static int
+clear_all_iptables_rules_ipv4(const int debuglvl)
+{
+    int     retval = 0,
+            result = 0;
+    char    cmd[MAX_PIPE_COMMAND] = "";
+
+    /* flush everything */
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t filter --flush",
+            conf.iptables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t nat --flush",
+            conf.iptables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush",
+            conf.iptables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    /* this will remove the all chains in {filter,nat,mangle} tables */
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
+            conf.iptables_location, TB_FILTER);
+    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
+            conf.iptables_location, TB_NAT);
+    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
+            conf.iptables_location, TB_MANGLE);
+    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+
+    /* set default polices to ACCEPT */
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
+            conf.iptables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
+            conf.iptables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
+            conf.iptables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
 
     return(retval);
 }
 
+static int
+clear_all_iptables_rules_ipv6(const int debuglvl)
+{
+    int     retval = 0,
+            result = 0;
+    char    cmd[MAX_PIPE_COMMAND] = "";
+
+    /* flush everything */
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t filter --flush",
+            conf.ip6tables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush",
+            conf.ip6tables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    /* this will remove the all chains in {filter,nat,mangle} tables */
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
+            conf.ip6tables_location, TB_FILTER);
+    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
+            conf.ip6tables_location, TB_MANGLE);
+    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+
+    /* set default polices to ACCEPT */
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
+            conf.ip6tables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
+            conf.ip6tables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
+            conf.ip6tables_location);
+    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    if (result < 0)
+        retval = -1;
+
+    return(retval);
+}
 
 /*  clear_all_iptables_rule
 
@@ -2455,47 +2701,20 @@ clear_vuurmuur_iptables_rules(const int debuglvl, struct vuurmuur_config *cnf)
 int
 clear_all_iptables_rules(const int debuglvl)
 {
-    int     retval = 0,
-            result = 0;
-    char    cmd[MAX_PIPE_COMMAND] = "";
+    int retval = 0;
 
-    /* flush everything */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t filter --flush", conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-    if(result < 0)
+    if (clear_all_iptables_rules_ipv4(debuglvl) < 0) {
+        (void)vrprint.error(-1, "Error", "clearing IPv4 rules failed.");
         retval = -1;
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t nat --flush", conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-    if(result < 0)
+    }
+
+#ifdef IPV6_ENABLED
+    if (clear_all_iptables_rules_ipv6(debuglvl) < 0) {
+        (void)vrprint.error(-1, "Error", "clearing IPv4 rules failed.");
         retval = -1;
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush", conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-    if(result < 0)
-        retval = -1;
+    }
+#endif
 
-    /* this will remove the all chains in {filter,nat,mangle} tables */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null", conf.iptables_location, TB_FILTER);
-    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null", conf.iptables_location, TB_NAT);
-    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null", conf.iptables_location, TB_MANGLE);
-    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-
-    /* set default polices to ACCEPT */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT", conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-    if(result < 0)
-        retval=-1;
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT", conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-    if(result < 0)
-        retval=-1;
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT", conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
-    if(result < 0)
-        retval=-1;
-
-    return(retval);
+printf("retval %d\n", retval);
+    return (retval);
 }

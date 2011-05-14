@@ -194,6 +194,9 @@
 #define MAX_IPV6_ADDR_LEN       40 /* 39 + null */
 #endif
 
+#define VR_IPV4                 4
+#define VR_IPV6                 6
+
 /* name validation VERBOSE or QUIET */
 enum
 {
@@ -1452,7 +1455,7 @@ char *rules_assemble_rule(const int, struct RuleData_ *);
 int rules_save_list(const int, Rules *, struct vuurmuur_config *);
 int rules_get_custom_chains(const int, Rules *);
 int rules_chain_in_list(const int, d_list *, char *);
-int rules_get_system_chains(const int, Rules *, struct vuurmuur_config *);
+int rules_get_system_chains(const int, Rules *, struct vuurmuur_config *, int);
 int rules_encode_rule(const int, char *, size_t);
 int rules_decode_rule(const int, char *, size_t);
 int rules_determine_ruletype(const int, struct RuleData_ *);

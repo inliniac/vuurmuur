@@ -366,9 +366,9 @@ main(int argc, char *argv[])
     create_logtcpoptions_string(debuglvl, &conf, log_tcp_options, sizeof(log_tcp_options));
 
     /* after the config we can remove the rules if we need to */
-    if(clear_vuurmuur_rules == TRUE)
+    if (clear_vuurmuur_rules == TRUE)
     {
-        if(clear_vuurmuur_iptables_rules(debuglvl,&conf) < 0)
+        if (clear_vuurmuur_iptables_rules(debuglvl,&conf) < 0)
         {
             fprintf(stdout, "Error: clearing vuumuur iptables rules failed.\n");
             exit(EXIT_FAILURE);
@@ -377,9 +377,9 @@ main(int argc, char *argv[])
         exit(EXIT_SUCCESS);
     }
 
-    if(clear_all_rules == TRUE)
+    if (clear_all_rules == TRUE)
     {
-        if(clear_all_iptables_rules(debuglvl) < 0)
+        if (clear_all_iptables_rules(debuglvl) < 0)
         {
             fprintf(stdout, "Error: clearing all iptables rules failed.\n");
             exit(EXIT_FAILURE);
