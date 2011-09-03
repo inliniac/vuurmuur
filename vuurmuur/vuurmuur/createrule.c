@@ -3967,6 +3967,32 @@ static int pre_rules_antispoof_ipv4(const int debuglvl, /*@null@*/RuleSet *rules
     return (retval);
 }
 
+static int pre_rules_icmp_ipv6(const int debuglvl, /*@null@*/RuleSet *ruleset,
+        IptCap *iptcap)
+{
+    int retval = 0;
+    char cmd[MAX_PIPE_COMMAND] = "";
+
+    /*
+        anti spoof rules
+    */
+    if (ruleset == NULL)
+    {
+        if(conf.bash_out == TRUE)
+            fprintf(stdout, "\n# Setting up ICMPv6 rules...\n");
+    }
+
+    snprintf(cmd, sizeof(cmd), "-p icmpv6 -j ACCEPT");
+    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        retval = -1;
+    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+        retval = -1;
+
+    return (retval);
+}
+
 /* pre_rules
 
     Cleanup
@@ -4113,6 +4139,10 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
 
     if (pre_rules_antispoof_ipv4(debuglvl, ruleset, iptcap) < 0)
         retval = -1;
+
+#ifdef IPV6_ENABLED
+    pre_rules_icmp_ipv6(debuglvl, ruleset, iptcap);
+#endif
 
     return(retval);
 }
