@@ -126,6 +126,11 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
             if (*needle != '\0') {
                 needle++;
 
+                /* skip leading spaces */
+                while (*needle != '\0' && *needle == ' ') {
+                    needle++;
+                }
+
                 i = 0;
                 while (*needle != '\0') {
                     if (i < (sizeof(logrule_ptr->logprefix) - 1))
