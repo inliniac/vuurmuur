@@ -123,6 +123,11 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
             }
             logrule_ptr->action[i] = '\0';
 
+            if (strlen(logrule_ptr->action) == 0) {
+                strlcpy(logrule_ptr->action, "<unknown>",
+                        sizeof(logrule_ptr->action));
+            }
+
             if (*needle != '\0') {
                 needle++;
 
@@ -145,6 +150,8 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
             }
         } else {
+            strlcpy(logrule_ptr->action, "<unknown>",
+                    sizeof(logrule_ptr->action));
             strlcpy(logrule_ptr->logprefix, "none",
                     sizeof(logrule_ptr->logprefix));
 
