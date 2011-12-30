@@ -33,6 +33,17 @@
 
 /*@null@*/
 struct SHM_TABLE *shm_table = 0;
+static int g_debuglvl = 0;
+static Hash zone_htbl;
+static Hash service_htbl;
+static struct Counters_ Counters =
+{
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0,
+
+    0, 0, 0, 0,
+};
+static FILE *g_traffic_log = NULL;
 
 /*
     we put this here, because we only use it here in main.
@@ -74,7 +85,6 @@ setup_signal_handler(int sig, void (*handler)())
     action.sa_flags = 0;
     sigaction(sig, &action, 0);
 }
-
 
 static char *
 assemble_logline_sscanf_string(const int debuglvl, struct log_rule *logrule_ptr)
@@ -408,6 +418,35 @@ print_help(void)
     exit(EXIT_SUCCESS);
 }
 
+/* process one line/record */
+int process_logrecord(struct log_rule *logrule_ptr) {
+    char line_out[1024] = "";
+
+    int result = get_vuurmuur_names(g_debuglvl, logrule_ptr, &zone_htbl, &service_htbl);
+    switch (result)
+    {
+        case -1:
+            (void)vrprint.debug(__FUNC__, "get_vuurmuur_names returned -1");
+            exit(EXIT_FAILURE);
+            break;
+        case 0:
+            Counters.invalid_loglines++;
+            break;
+        default:
+            if (BuildVMLine (logrule_ptr, line_out, sizeof(line_out)) < 0)
+            {
+                (void)vrprint.debug("nflog", "Could not build output line");
+            } else {
+                upd_action_ctrs(logrule_ptr->action, &Counters);
+
+                fprintf (g_traffic_log, "%s", line_out);
+                fflush(g_traffic_log);
+            }
+            break;
+    }
+
+    return 0;
+}
 
 int
 main(int argc, char *argv[])
@@ -416,10 +455,7 @@ main(int argc, char *argv[])
     Services    services;
     Zones       zones;
 
-    Hash        zone_htbl,
-                service_htbl;
-    FILE        *system_log = NULL,
-                *vuurmuur_log = NULL;
+    FILE        *system_log = NULL;
     char        line_in[1024] = "";
     char        line_out[1024] = "";
     size_t      line_in_len = 0;
@@ -457,14 +493,6 @@ main(int argc, char *argv[])
     /* shm, sem stuff */
     int             shm_id;
     int             reload = 0;
-
-    struct Counters_ Counters =
-    {
-        0, 0, 0, 0, 0,
-        0, 0, 0, 0,
-
-        0, 0, 0, 0,
-    };
 
     struct rgx_ reg;
     char        quit = 0;
@@ -532,7 +560,7 @@ main(int argc, char *argv[])
                 fprintf(stdout, "vuurmuur: debugging enabled.\n");
 
                 /* convert the debug string and check the result */
-                debuglvl = atoi(optarg);
+                g_debuglvl = debuglvl = atoi(optarg);
                 if(debuglvl < 0 || debuglvl > HIGH)
                 {
                     fprintf(stdout, "Error: illegal debug level: %d (max: %d).\n", debuglvl, HIGH);
@@ -637,7 +665,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if (open_vuurmuurlog (debuglvl, &conf, &vuurmuur_log) < 0)
+    if (open_vuurmuurlog (debuglvl, &conf, &g_traffic_log) < 0)
     {
         (void)vrprint.error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
@@ -742,8 +770,8 @@ main(int argc, char *argv[])
                                             if (BuildVMLine (&logrule, line_out, sizeof(line_out)) < 0) {
                                                 (void)vrprint.error(-1, "Error", "could not build output line");
                                             } else {
-                                                fprintf (vuurmuur_log, "%s", line_out);
-                                                fflush(vuurmuur_log);
+                                                fprintf(g_traffic_log, "%s", line_out);
+                                                fflush(g_traffic_log);
                                             }
                                             break;
                                     }
@@ -771,7 +799,7 @@ main(int argc, char *argv[])
                             exit(EXIT_FAILURE);
                         }
 
-                        if(reopen_vuurmuurlog(debuglvl, &conf, &vuurmuur_log) < 0) {
+                        if(reopen_vuurmuurlog(debuglvl, &conf, &g_traffic_log) < 0) {
                             (void)vrprint.error(-1, "Error", "re-opening vuurmuur traffic log failed.");
                             exit(EXIT_FAILURE);
                         }
@@ -793,33 +821,6 @@ main(int argc, char *argv[])
                         break;
                     case 0:
                         usleep (100000);
-                        break;
-                    case 1:
-                        result = get_vuurmuur_names(debuglvl, &logrule, &zone_htbl, &service_htbl);
-                        switch (result)
-                        {
-                            case -1:
-                                (void)vrprint.debug(__FUNC__, "get_vuurmuur_names returned -1");
-                                exit(EXIT_FAILURE);
-                                break;
-                            case 0:
-                                Counters.invalid_loglines++;
-                                break;
-                            default:
-                                if (BuildVMLine (&logrule, line_out, sizeof(line_out)) < 0)
-                                {
-                                    (void)vrprint.debug("nflog", "Could not build output line");
-                                } else {
-                                    fprintf (vuurmuur_log, "%s", line_out);
-                                    fflush(vuurmuur_log);
-                                }
-                                break;
-                        }
-                        Counters.totalvuurmuur++;
-                        break;
-                    case 2:
-                    default:
-                        Counters.invalid_loglines++;
                         break;
                 }
 #endif /* HAVE_LIBNETFILTER_LOG */
@@ -945,7 +946,7 @@ main(int argc, char *argv[])
                 exit(EXIT_FAILURE);
             }
 
-            if(reopen_vuurmuurlog(debuglvl, &conf, &vuurmuur_log) < 0)
+            if(reopen_vuurmuurlog(debuglvl, &conf, &g_traffic_log) < 0)
             {
                 (void)vrprint.error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
@@ -980,8 +981,8 @@ main(int argc, char *argv[])
     free(sscanf_str);
 
     /* close the logfiles */
-    if (vuurmuur_log != NULL)
-        fclose(vuurmuur_log);
+    if (g_traffic_log != NULL)
+        fclose(g_traffic_log);
     if (system_log != NULL)
         fclose(system_log);
 

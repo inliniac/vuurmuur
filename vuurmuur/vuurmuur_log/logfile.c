@@ -209,8 +209,6 @@ parse_ipt_logline(  const int debuglvl,
         return(0);
     }
 
-    upd_action_ctrs (logrule_ptr->action, counter_ptr);
-
     hostname_len = strlen(logrule_ptr->hostname);
     if(hostname_len <= 0)
         return(-1);

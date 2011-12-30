@@ -351,6 +351,8 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         }
     }
 
+    /* process the record */
+    process_logrecord(logrule_ptr);
     return 0;       /* success */
 }
 

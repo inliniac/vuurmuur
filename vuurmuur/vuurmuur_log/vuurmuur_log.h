@@ -126,6 +126,7 @@ struct log_rule
 int reopen_logfiles(const int, FILE **, FILE **);
 int open_logfiles(const int, const struct vuurmuur_config *cnf, FILE **, FILE **);
 
+int process_logrecord(struct log_rule *logrule_ptr);
 
 /* semaphore id */
 int         sem_id;
