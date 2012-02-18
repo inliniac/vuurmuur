@@ -1,0 +1,11 @@
+# begin of file
+
+ACTIVE="Yes"
+TCP="161*1024:65535"
+UDP="161*1024:65535"
+ICMP=""
+GRE=""
+BROADCAST="No"
+COMMENT="Simple Net Management Protocol"
+
+# end of file
