@@ -313,8 +313,7 @@ process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, int ipv, char *tabl
         }
     }
 
-    /* not supported yet */
-    if (ipv == VR_IPV6) {
+    if (ruleset->ipv != ipv) {
         return 0;
     }
 
@@ -373,12 +372,14 @@ process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, int ipv, char *tabl
             return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_output, chain, cmd, packets, bytes));
         else if(strcmp(chain, CH_POSTROUTING) == 0)
             return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_postroute, chain, cmd, packets, bytes));
-        else if(strcmp(chain, CH_SHAPE_IN) == 0)
-            return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_shape_in, chain, cmd, packets, bytes));
-        else if(strcmp(chain, CH_SHAPE_OUT) == 0)
-            return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_shape_out, chain, cmd, packets, bytes));
-        else if(strcmp(chain, CH_SHAPE_FW) == 0)
-            return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_shape_fw, chain, cmd, packets, bytes));
+        if (ipv == VR_IPV4) {
+            if(strcmp(chain, CH_SHAPE_IN) == 0)
+                return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_shape_in, chain, cmd, packets, bytes));
+            else if(strcmp(chain, CH_SHAPE_OUT) == 0)
+                return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_shape_out, chain, cmd, packets, bytes));
+            else if(strcmp(chain, CH_SHAPE_FW) == 0)
+                return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_shape_fw, chain, cmd, packets, bytes));
+        }
     }
     else if(strcmp(table, TB_NAT) == 0)
     {
@@ -3156,9 +3157,9 @@ static int pre_rules_set_policy(const int debuglvl, /*@null@*/RuleSet *ruleset,
             ruleset->filter_output_policy = 1;  /* drop */
             ruleset->filter_forward_policy = 1; /* drop */
         } else {
-#ifdef IPV6_ENABLED
-#warning Not implemented: IPV6 support in ruleset policy.
-#endif
+            ruleset->filter_input_policy = 1;   /* drop */
+            ruleset->filter_output_policy = 1;  /* drop */
+            ruleset->filter_forward_policy = 1; /* drop */
         }
     }
 

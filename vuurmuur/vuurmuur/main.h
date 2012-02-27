@@ -171,6 +171,8 @@ struct RuleCreateData_
 */
 typedef struct
 {
+    int ipv;
+
     /*
         mangle
     */
