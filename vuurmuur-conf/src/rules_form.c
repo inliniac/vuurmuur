@@ -4541,7 +4541,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
                                 return(-1);
                             }
 
-                            if(zone_ptr->type != TYPE_ZONE && zone_ptr->type != TYPE_FIREWALL)
+                            if(zone_ptr->type != TYPE_FIREWALL)
                             {
                                 zone_choices_n++;
                             }
@@ -4562,7 +4562,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
                                 return(-1);
                             }
 
-                            if(zone_ptr->type != TYPE_ZONE && zone_ptr->type != TYPE_FIREWALL)
+                            if(zone_ptr->type != TYPE_FIREWALL)
                             {
                                 zone_choices[i] = zone_ptr->name;
                                 //(void)vrprint.debug(__FUNC__, "zone_choices[%d]: %s.", i, zone_choices[i]);
@@ -4667,7 +4667,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
                                                     field_buffer(RuleFlds.fromzone_fld_ptr, 0),
                                                     sizeof(zonename))))
                                     return(-1);
-                            
+
                                 /* get the zone */
                                 if(!(zone_ptr = search_zonedata(debuglvl, zones, zonename)))
                                 {
@@ -4675,22 +4675,26 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
                                 }
                                 else
                                 {
-                                    /* the interfaces are attached to the network, so get the network */
-                                    if(zone_ptr->type == TYPE_NETWORK)
-                                    {
-                                        network_ptr = zone_ptr;
-                                    }
-                                    else if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP)
-                                    {
-                                        network_ptr = zone_ptr->network_parent;
-                                    }
-                                    else
-                                    {
-                                        (void)vrprint.error(-1, VR_INTERR, "wrong zone type '%d'  (in: %s:%d).", zone_ptr->type, __FUNC__, __LINE__);
-                                        return(-1);
-                                    }
+                                    if (zone_ptr->type == TYPE_ZONE) {
+                                        (void)vrprint.warning(VR_WARN, gettext("\"zone\" not yet supported."));
+                                    } else {
+                                        /* the interfaces are attached to the network, so get the network */
+                                        if(zone_ptr->type == TYPE_NETWORK)
+                                        {
+                                            network_ptr = zone_ptr;
+                                        }
+                                        else if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP)
+                                        {
+                                            network_ptr = zone_ptr->network_parent;
+                                        }
+                                        else
+                                        {
+                                            (void)vrprint.error(-1, VR_INTERR, "wrong zone type '%d'  (in: %s:%d).", zone_ptr->type, __FUNC__, __LINE__);
+                                            return(-1);
+                                        }
 
-                                    interfaces_list = &network_ptr->InterfaceList;
+                                        interfaces_list = &network_ptr->InterfaceList;
+                                    }
                                 }
                             }
 
@@ -4771,32 +4775,33 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
                                                     field_buffer(RuleFlds.tozone_fld_ptr, 0),
                                                     sizeof(zonename))))
                                     return(-1);
-                            
                                 /* get the zone */
                                 if(!(zone_ptr = search_zonedata(debuglvl, zones, zonename)))
                                 {
                                     (void)vrprint.error(-1, VR_INTERR, "zone '%s' not found (in: %s:%d).",
                                         zonename, __FUNC__, __LINE__);
-                                }
-                                else
-                                {
-                                    /* the interfaces are attached to the network, so get the network */
-                                    if(zone_ptr->type == TYPE_NETWORK)
-                                    {
-                                        network_ptr = zone_ptr;
-                                    }
-                                    else if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP)
-                                    {
-                                        network_ptr = zone_ptr->network_parent;
-                                    }
-                                    else
-                                    {
-                                        (void)vrprint.error(-1, VR_INTERR, "wrong zone type '%d'  (in: %s:%d).",
+                                } else {
+                                    if (zone_ptr->type == TYPE_ZONE) {
+                                        (void)vrprint.warning(VR_WARN, gettext("\"zone\" not yet supported."));
+                                    } else {
+                                        /* the interfaces are attached to the network, so get the network */
+                                        if(zone_ptr->type == TYPE_NETWORK)
+                                        {
+                                            network_ptr = zone_ptr;
+                                        }
+                                        else if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP)
+                                        {
+                                            network_ptr = zone_ptr->network_parent;
+                                        }
+                                        else
+                                        {
+                                            (void)vrprint.error(-1, VR_INTERR, "wrong zone type '%d'  (in: %s:%d).",
                                                     zone_ptr->type, __FUNC__, __LINE__);
-                                        return(-1);
-                                    }
+                                            return(-1);
+                                        }
 
-                                    interfaces_list = &network_ptr->InterfaceList;
+                                        interfaces_list = &network_ptr->InterfaceList;
+                                    }
                                 }
                             }
 

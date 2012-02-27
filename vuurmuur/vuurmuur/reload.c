@@ -22,7 +22,7 @@
 
 /* prototypes */
 int reload_blocklist(const int, Zones *, BlockList *);
-int reload_rules(const int, Zones *, Services *, Interfaces *, Rules *, struct rgx_ *);
+int reload_rules(const int, VuurmuurCtx *, struct rgx_ *);
 int check_for_changed_networks(const int, Zones *);
 
 
@@ -36,25 +36,11 @@ int check_for_changed_networks(const int, Zones *);
          1: succes, no changes seen //defuct
         -1: error
 */
-int
-apply_changes_ruleset(const int debuglvl,   Services *services,
-                                            Zones *zones,
-                                            Interfaces *interfaces,
-                                            Rules *rules,
-                                            BlockList *blocklist,
-                                            IptCap *iptcap,
-                                            struct rgx_ *reg)
+static int
+apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
 {
     int     retval=0,   // start at no changes
             result=0;
-
-
-    /* safety */
-    if(!services || !zones || !interfaces || !rules || !blocklist || !reg)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
 
     (void)vrprint.info("Info", "Reloading config...");
 
@@ -69,10 +55,10 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
 
 
     /* reload the config
-    
+
        if it fails it's no big deal, we just keep using the old config.
     */
-    if(reload_config(debuglvl, &conf) < VR_CNF_OK)
+    if(reload_config(debuglvl, vctx->conf) < VR_CNF_OK)
     {
         (void)vrprint.warning("Warning", "reloading config failed, using old config.");
     }
@@ -84,9 +70,9 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
         cmdline_override_config(debuglvl);
     }
     /* loglevel */
-    create_loglevel_string(debuglvl, &conf, loglevel, sizeof(loglevel));
+    create_loglevel_string(debuglvl, vctx->conf, loglevel, sizeof(loglevel));
     /* tcp options */
-    create_logtcpoptions_string(debuglvl, &conf, log_tcp_options, sizeof(log_tcp_options));
+    create_logtcpoptions_string(debuglvl, vctx->conf, log_tcp_options, sizeof(log_tcp_options));
 
     shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 10);
 
@@ -103,7 +89,7 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
 
     /* reload the services, interfaces, zones and rules. */
     (void)vrprint.info("Info", "Reloading services...");
-    result = reload_services(debuglvl, services, reg->servicename);
+    result = reload_services(debuglvl, vctx->services, reg->servicename);
     if(result == 0)
     {
         if(debuglvl >= LOW)
@@ -122,7 +108,7 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
     shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 20);
 
     (void)vrprint.info("Info", "Reloading interfaces...");
-    result = reload_interfaces(debuglvl, interfaces);
+    result = reload_interfaces(debuglvl, vctx->interfaces);
     if(result == 0)
     {
         if(debuglvl >= LOW)
@@ -139,9 +125,9 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
         return(-1);
     }
     shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 25);
-    
+
     (void)vrprint.info("Info", "Reloading zones...");
-    result = reload_zonedata(debuglvl, zones, interfaces, reg);
+    result = reload_zonedata(debuglvl, vctx->zones, vctx->interfaces, reg);
     if(result == 0)
     {
         if(debuglvl >= LOW)
@@ -160,7 +146,7 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
     shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 30);
 
     /* changed networks (for antispoofing) */
-    result = check_for_changed_networks(debuglvl, zones);
+    result = check_for_changed_networks(debuglvl, vctx->zones);
     if(result == -1)
     {
         (void)vrprint.error(-1, "Error", "checking for changed networks failed.");
@@ -178,7 +164,7 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
 
 
     /* reload the blocklist */
-    result = reload_blocklist(debuglvl, zones, blocklist);
+    result = reload_blocklist(debuglvl, vctx->zones, vctx->blocklist);
     if(result == -1)
     {
         (void)vrprint.error(-1, "Error", "Reloading blocklist failed.");
@@ -196,7 +182,7 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
 
 
     /* reload the rules */
-    result = reload_rules(debuglvl, zones, services, interfaces, rules, reg);
+    result = reload_rules(debuglvl, vctx, reg);
     if(result == 0)
     {
         if(debuglvl >= LOW)
@@ -214,7 +200,7 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
 
 
     /* analyzing the rules */
-    if(analyze_all_rules(debuglvl, rules, zones, services, interfaces) != 0)
+    if(analyze_all_rules(debuglvl, vctx, vctx->rules) != 0)
     {
         (void)vrprint.error(-1, "Error", "analizing the rules failed.");
         retval=-1;
@@ -223,7 +209,7 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
 
 
     /* create the new ruleset */
-    if(load_ruleset(debuglvl, rules, zones, interfaces, services, blocklist, iptcap, &conf) < 0)
+    if(load_ruleset(debuglvl, vctx) < 0)
     {
         (void)vrprint.error(-1, "Error", "creating rules failed.");
         retval=-1;
@@ -238,13 +224,7 @@ apply_changes_ruleset(const int debuglvl,   Services *services,
 
 
 int
-apply_changes(const int debuglvl,   Services *services,
-                                    Zones *zones,
-                                    Interfaces *interfaces,
-                                    Rules *rules,
-                                    BlockList *blocklist,
-                                    IptCap *iptcap,
-                                    struct rgx_ *reg)
+apply_changes(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
 {
     if(conf.old_rulecreation_method == TRUE)
     {
@@ -252,7 +232,7 @@ apply_changes(const int debuglvl,   Services *services,
         return(-1);
     }
 
-    return(apply_changes_ruleset(debuglvl, services, zones, interfaces, rules, blocklist, iptcap, reg));
+    return(apply_changes_ruleset(debuglvl, vctx, reg));
 }
 
 
@@ -1710,7 +1690,7 @@ reload_blocklist(const int debuglvl, Zones *zones, BlockList *blocklist)
         2. check if the zones, services etc are changed
 */
 int
-reload_rules(const int debuglvl, Zones *zones, Services *services, Interfaces *interfaces, Rules *rules, struct rgx_ *reg)
+reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
 {
     Rules                   *new_rules = NULL;
     char                    status = 0,
@@ -1723,13 +1703,6 @@ reload_rules(const int debuglvl, Zones *zones, Services *services, Interfaces *i
     struct ServicesData_    *new_serv_ptr = NULL;
     struct RuleCache_       *rulecache = NULL;
 
-
-    /* safety */
-    if(!zones || !services || !interfaces || !rules || !reg)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return(-1);
-    }
 
     if(!(new_rules = malloc(sizeof(Rules))))
     {
@@ -1749,7 +1722,7 @@ reload_rules(const int debuglvl, Zones *zones, Services *services, Interfaces *i
     }
 
     /* analyzing the new rules */
-    if(analyze_all_rules(debuglvl, new_rules, zones, services, interfaces) != 0)
+    if(analyze_all_rules(debuglvl, vctx, new_rules) != 0)
     {
         (void)vrprint.error(-1, "Error", "analizing the new rules failed.");
 
@@ -1761,7 +1734,7 @@ reload_rules(const int debuglvl, Zones *zones, Services *services, Interfaces *i
     }
 
     /* run trough the lists and compare */
-    if(rules->list.len != new_rules->list.len)
+    if(vctx->rules->list.len != new_rules->list.len)
     {
         (void)vrprint.info("Info", "Rules: the number of rules items has been changed.");
         status = 1;
@@ -1769,7 +1742,7 @@ reload_rules(const int debuglvl, Zones *zones, Services *services, Interfaces *i
 
     /* now loop through the member to see if they have changes */
     new_node = new_rules->list.top;
-    old_node = rules->list.top;
+    old_node = vctx->rules->list.top;
     if(!new_node && !old_node)
     {
         /* no change */
@@ -1779,10 +1752,10 @@ reload_rules(const int debuglvl, Zones *zones, Services *services, Interfaces *i
     {
         /* change */
         if(!old_node)
-            (void)vrprint.info("Info", "Rules: ruleslist now has items (old: %d, new: %d).", rules->list.len, new_rules->list.len);
+            (void)vrprint.info("Info", "Rules: ruleslist now has items (old: %d, new: %d).", vctx->rules->list.len, new_rules->list.len);
 
         if(!new_node)
-            (void)vrprint.info("Info", "Rules: ruleslist no longer has items (old: %d, new: %d).", rules->list.len, new_rules->list.len);
+            (void)vrprint.info("Info", "Rules: ruleslist no longer has items (old: %d, new: %d).", vctx->rules->list.len, new_rules->list.len);
 
         status = 1;
     }
@@ -1878,10 +1851,10 @@ reload_rules(const int debuglvl, Zones *zones, Services *services, Interfaces *i
     {
         (void)vrprint.info("Info", "the rules themselves did change.");
 
-        rules_cleanup_list(debuglvl, rules);
+        rules_cleanup_list(debuglvl, vctx->rules);
 
         /* copy the new list to the old */
-        *rules = *new_rules;
+        *vctx->rules = *new_rules;
 
         free(new_rules);
         return(1);
@@ -1945,10 +1918,10 @@ reload_rules(const int debuglvl, Zones *zones, Services *services, Interfaces *i
     {
         (void)vrprint.info("Info", "the rules zones and/or services did change.");
 
-        rules_cleanup_list(debuglvl, rules);
+        rules_cleanup_list(debuglvl, vctx->rules);
 
         /* copy the new list to the old */
-        *rules = *new_rules;
+        *vctx->rules = *new_rules;
     }
     else
     {

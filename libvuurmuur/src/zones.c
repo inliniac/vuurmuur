@@ -413,7 +413,6 @@ read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces,
           char *name, int type, struct ZoneData_ *zone_ptr, struct rgx_ *reg)
 {
     int     result = 0;
-    char    network[MAX_NET_ZONE];
 
     /* safety */
     if(name == NULL || zone_ptr == NULL || zones == NULL || reg == NULL ||
@@ -479,22 +478,6 @@ read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces,
 
     if(zone_ptr->type != TYPE_ZONE && zone_ptr->type != TYPE_GROUP)
     {
-        /* for get_interface */
-        if(zone_ptr->type == TYPE_HOST)
-        {
-            snprintf(network, sizeof(network), "%s.%s",
-                    zone_ptr->network_name, zone_ptr->zone_name);
-        }
-        else
-        {
-            if(strlcpy(network, name, sizeof(network)) >= sizeof(network))
-            {
-                (void)vrprint.error(-1, "Internal Error", "buffer "
-                        "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
-        }
-
         if(zone_ptr->type == TYPE_NETWORK)
         {
             result = zones_network_get_interfaces(debuglvl, zone_ptr, interfaces);

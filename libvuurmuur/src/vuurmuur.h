@@ -551,7 +551,6 @@ typedef struct
 
 } BlockList;
 
-
 struct ipdata
 {
     char    ipaddress[16];            //16 should be enough for an ipaddress.
@@ -1139,6 +1138,15 @@ typedef struct
 #endif
 } IptCap;
 
+typedef struct VuurmuurCtx_ {
+    Zones *zones;
+    Interfaces *interfaces;
+    BlockList *blocklist;
+    Rules *rules;
+    Services *services;
+    struct vuurmuur_config *conf;
+    IptCap *iptcaps;
+} VuurmuurCtx;
 
 enum objectstatus
 {

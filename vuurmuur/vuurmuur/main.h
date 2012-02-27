@@ -154,6 +154,14 @@ struct RuleCreateData_
     u_int16_t               shape_class_in;
 
     char                    random[9]; /* --random */
+
+    /** in case of ZONE, this is the list of networks */
+    d_list                  from_network_list;
+    d_list                  to_network_list;
+
+    /** in case of ZONE, this is the current network ptr */
+    ZoneData                *from_network;
+    ZoneData                *to_network;
 };
 
 
@@ -282,9 +290,9 @@ int oldrules_create_custom_chains(const int, Rules *, struct vuurmuur_config *);
 int analyze_interface_rules(const int, Rules *, Zones *, Services *, Interfaces *);
 int analyze_network_protect_rules(const int, Rules *, Zones *, Services *, Interfaces *);
 int analyze_normal_rules(const int, Rules *, Zones *, Services *, Interfaces *);
-int analyze_all_rules(const int, Rules *, Zones *, Services *, Interfaces *);
+int analyze_all_rules(const int, VuurmuurCtx *, Rules *);
 
-int create_all_rules(const int, Rules *, Zones *, Interfaces *, BlockList *, IptCap *, struct vuurmuur_config *, int);
+int create_all_rules(const int, VuurmuurCtx *, int);
 
 int pre_rules(const int, /*@null@*/RuleSet *, Interfaces *, IptCap *);
 int post_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
@@ -299,9 +307,9 @@ int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *, int);
 int create_network_protect_rules(const int, /*@null@*/RuleSet *, Zones *, IptCap *);
 int create_interface_rules(const int, /*@null@*/RuleSet *, Interfaces *);
 int create_system_protectrules(const int, struct vuurmuur_config *);
-int create_normal_rules(const int, struct vuurmuur_config *, /*@null@*/RuleSet *, Rules *, Interfaces *, IptCap *, char *);
+int create_normal_rules(const int, VuurmuurCtx *, /*@null@*/RuleSet *, char *);
 
-int create_rule(const int, struct vuurmuur_config *, /*@null@*/RuleSet *, struct RuleCache_ *, Interfaces *, IptCap *);
+int create_rule(const int, VuurmuurCtx*, /*@null@*/RuleSet *, struct RuleCache_ *);
 int remove_rule(const int debuglvl, int chaintype, int first_ipt_rule, int rules);
 
 int create_rule_input(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, IptCap *);
@@ -328,7 +336,7 @@ void cmdline_override_config(const int debuglvl);
 
 
 /* reload.c */
-int apply_changes(const int, Services *, Zones *, Interfaces *, Rules *, BlockList *, IptCap *, struct rgx_ *);
+int apply_changes(const int, VuurmuurCtx *vctx, struct rgx_ *);
 
 int reload_services(const int, Services *, regex_t *);
 int reload_services_check(const int, struct ServicesData_ *);
@@ -343,7 +351,7 @@ int check_for_changed_dynamic_ips(const int debuglvl, Interfaces *interfaces);
 
 /* ruleset */
 int ruleset_add_rule_to_set(const int, d_list *, char *, char *, unsigned long long, unsigned long long);
-int load_ruleset(const int, Rules *, Zones *, Interfaces *, Services *, BlockList *, IptCap *, struct vuurmuur_config *);
+int load_ruleset(const int, VuurmuurCtx *);
 
 /* shape */
 int shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *);

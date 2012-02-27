@@ -410,39 +410,33 @@ analyze_normal_rules(const int debuglvl, Rules *rules, Zones *zones, Services *s
 }
 
 
-/*  analyze_all_rules
-
-    Analyzes all rules :-)
-
-    Returncodes:
-         0: ok
-        -1: error
-*/
+/**
+ *  \brief analyzes all rules
+ *
+ *  \param vcxt Vuurmuur context
+ *  \param rules Rules. Can be different from vctx->rules
+ *
+ *  \retval 0 ok
+ *  \retval -1 error
+ */
 int
-analyze_all_rules(const int debuglvl, Rules *rules, Zones *zones, Services *services, Interfaces *interfaces)
+analyze_all_rules(const int debuglvl, VuurmuurCtx *vctx, Rules *rules)
 {
-    /* safety */
-    if(!rules || !zones || !services || !interfaces)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
-
     (void)vrprint.info("Info", "Analyzing the rules... ");
 
     /* interface rules */
-    if(analyze_interface_rules(debuglvl, rules, zones, services, interfaces) < 0)
+    if(analyze_interface_rules(debuglvl, rules, vctx->zones, vctx->services, vctx->interfaces) < 0)
         return(-1);
 
     /* network rules */
-    if(analyze_network_protect_rules(debuglvl, rules, zones, services, interfaces) < 0)
+    if(analyze_network_protect_rules(debuglvl, vctx->rules, vctx->zones, vctx->services, vctx->interfaces) < 0)
         return(-1);
 
     /* normal rules */
-    if(analyze_normal_rules(debuglvl, rules, zones, services, interfaces) < 0)
+    if(analyze_normal_rules(debuglvl, rules, vctx->zones, vctx->services, vctx->interfaces) < 0)
         return(-1);
 
-    if(shaping_determine_minimal_default_rates(debuglvl, interfaces, rules) < 0)
+    if(shaping_determine_minimal_default_rates(debuglvl, vctx->interfaces, rules) < 0)
         return(-1);
 
     return(0);
@@ -460,108 +454,93 @@ analyze_all_rules(const int debuglvl, Rules *rules, Zones *zones, Services *serv
         -1: error
 */
 int
-create_all_rules(   const int debuglvl,
-                    Rules *rules,
-                    Zones *zones,
-                    Interfaces *interfaces,
-                    BlockList *blocklist,
-                    IptCap *iptcap,
-                    struct vuurmuur_config *cnf,
-                    int create_prerules)
+create_all_rules(const int debuglvl, VuurmuurCtx *vctx, int create_prerules)
 {
     int     result = 0;
     char    forward_rules = 0;
 
-    /* safety */
-    if(rules == NULL || interfaces == NULL || blocklist == NULL || iptcap == NULL || cnf == NULL || create_prerules < 0 || create_prerules > 1)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                                    __FUNC__, __LINE__);
-        return(-1);
-    }
-
     /* setup shaping roots */
     (void)vrprint.info("Info", "Clearing existing shaping settings...");
-    if(shaping_clear_interfaces(debuglvl, cnf, interfaces, /*ruleset*/NULL) < 0)
+    if(shaping_clear_interfaces(debuglvl, vctx->conf, vctx->interfaces, /*ruleset*/NULL) < 0)
     {
         (void)vrprint.error(-1, "Error", "shaping clear interfaces failed.");
     }
     (void)vrprint.info("Info", "Setting up shaping roots for interfaces...");
-    if(shaping_setup_roots(debuglvl, cnf, interfaces, /*ruleset*/NULL) < 0)
+    if(shaping_setup_roots(debuglvl, vctx->conf, vctx->interfaces, /*ruleset*/NULL) < 0)
     {
         (void)vrprint.error(-1, "Error", "shaping setup roots failed.");
     }
-    if(shaping_create_default_rules(debuglvl, cnf, interfaces, /*ruleset*/NULL) < 0)
+    if(shaping_create_default_rules(debuglvl, vctx->conf, vctx->interfaces, /*ruleset*/NULL) < 0)
     {
         (void)vrprint.error(-1, "Error", "shaping setup default rules failed.");
     }
 
-    (void)vrprint.info("Info", "Creating the rules... (rules to create: %d)", rules->list.len);
+    (void)vrprint.info("Info", "Creating the rules... (rules to create: %d)", vctx->rules->list.len);
 
     /* create the prerules if were called with it */
     if(create_prerules)
     {
-        result = pre_rules(debuglvl, NULL, interfaces, iptcap);
+        result = pre_rules(debuglvl, NULL, vctx->interfaces, vctx->iptcaps);
         if(result < 0)
             return(-1);
     }
 
     /* create the nfqueue state rules */
-    if(create_newnfqueue_rules(debuglvl, NULL, rules, VR_IPV4) < 0)
+    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, VR_IPV4) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
 #ifdef IPV6_ENABLED
-    if(create_newnfqueue_rules(debuglvl, NULL, rules, VR_IPV6) < 0)
+    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, VR_IPV6) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
 #endif
-    if(create_estrelnfqueue_rules(debuglvl, NULL, rules, VR_IPV4) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, VR_IPV4) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
 #ifdef IPV6_ENABLED
-    if(create_estrelnfqueue_rules(debuglvl, NULL, rules, VR_IPV6) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, VR_IPV6) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
 #endif
 
     /* create the blocklist */
-    if(create_block_rules(debuglvl, NULL, blocklist) < 0)
+    if(create_block_rules(debuglvl, NULL, vctx->blocklist) < 0)
     {
         (void)vrprint.error(-1, "Error", "create blocklist failed.");
     }
 
     /* create the interface rules */
-    if(create_interface_rules(debuglvl, NULL, interfaces) < 0)
+    if(create_interface_rules(debuglvl, NULL, vctx->interfaces) < 0)
     {
         (void)vrprint.error(-1, "Error", "create protectrules failed.");
     }
     /* create the network protect rules (anti-spoofing) */
-    if(create_network_protect_rules(debuglvl, NULL, zones, iptcap) < 0)
+    if(create_network_protect_rules(debuglvl, NULL, vctx->zones, vctx->iptcaps) < 0)
     {
         (void)vrprint.error(-1, "Error", "create protectrules failed.");
     }
     /* system protect rules (proc) */
-    if(create_system_protectrules(debuglvl, &conf) < 0)
+    if(create_system_protectrules(debuglvl, vctx->conf) < 0)
     {
         (void)vrprint.error(-1, "Error", "create protectrules failed.");
     }
     /* create custom chains if needed */
-    if(oldrules_create_custom_chains(debuglvl, rules, cnf) < 0)
+    if(oldrules_create_custom_chains(debuglvl, vctx->rules, vctx->conf) < 0)
     {
         (void)vrprint.error(-1, "Error", "create custom chains failed.");
     }
     /* normal rules, ruleset == NULL */
-    if(create_normal_rules(debuglvl, cnf, NULL, rules, interfaces, iptcap, &forward_rules) < 0)
+    if(create_normal_rules(debuglvl, vctx, NULL, &forward_rules) < 0)
     {
         (void)vrprint.error(-1, "Error", "create normal rules failed.");
     }
 
     /* post rules: enable logging */
-    if(post_rules(debuglvl, NULL, iptcap, forward_rules) < 0)
+    if(post_rules(debuglvl, NULL, vctx->iptcaps, forward_rules) < 0)
         return(-1);
 
     (void)vrprint.info("Info", "Creating rules finished.");
@@ -1264,7 +1243,28 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (create->to->active == 1) {
             retval = rulecreate_create_rule_and_options(debuglvl, ruleset, rule, create, iptcap);
         }
+    } else if (create->to->type == TYPE_ZONE) {
+        if (rule->ipv == VR_IPV4) {
+            (void)strlcpy(rule->ipv4_to.ipaddress,
+                    rule->to_network->ipv4.network,
+                    sizeof(rule->ipv4_to.ipaddress));
+            (void)strlcpy(rule->ipv4_to.netmask,
+                    rule->to_network->ipv4.netmask,
+                    sizeof(rule->ipv4_to.netmask));
+#ifdef IPV6_ENABLED
+        } else {
+            (void)strlcpy(rule->ipv6_to.ip6,
+                    rule->to_network->ipv6.net6,
+                    sizeof(rule->ipv6_to.ip6));
+            rule->ipv6_to.cidr6 = rule->to_network->ipv6.cidr6;
+#endif
+        }
+
+        if (create->to->active == 1 && rule->to_network->active == 1) {
+            retval = rulecreate_create_rule_and_options(debuglvl, ruleset, rule, create, iptcap);
+        }
     }
+
 
     return(retval);
 }
@@ -1470,6 +1470,26 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (create->from->active == 1) {
             retval = rulecreate_dst_loop(debuglvl, ruleset, rule, create, iptcap);
         }
+    } else if (create->from->type == TYPE_ZONE) {
+        if (rule->ipv == VR_IPV4) {
+            (void)strlcpy(rule->ipv4_from.ipaddress,
+                    rule->from_network->ipv4.network,
+                    sizeof(rule->ipv4_from.ipaddress));
+            (void)strlcpy(rule->ipv4_from.netmask,
+                    rule->from_network->ipv4.netmask,
+                    sizeof(rule->ipv4_from.netmask));
+#ifdef IPV6_ENABLED
+        } else {
+            (void)strlcpy(rule->ipv6_from.ip6,
+                    rule->from_network->ipv6.net6,
+                    sizeof(rule->ipv6_from.ip6));
+            rule->ipv6_from.cidr6 = rule->from_network->ipv6.cidr6;
+#endif
+        }
+
+        if (create->from->active == 1 && rule->from_network->active == 1) {
+            retval = rulecreate_dst_loop(debuglvl, ruleset, rule, create, iptcap);
+        }
     }
 
     return(retval);
@@ -1594,9 +1614,8 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
 }
 
 static int
-rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
-    /*@null@*/RuleSet *ruleset, Interfaces *interfaces,
-    struct RuleCreateData_ *rule, struct RuleCache_ *create, IptCap *iptcap)
+rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/RuleSet *ruleset,
+    struct RuleCreateData_ *rule, struct RuleCache_ *create)
 {
     int         retval = 0;
     d_list_node *d_node = NULL;
@@ -1613,7 +1632,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
 
         if(create->option.in_int[0] != '\0') /* interface option is set */
         {
-            rule->to_if_ptr = search_interface(debuglvl, interfaces, create->option.in_int);
+            rule->to_if_ptr = search_interface(debuglvl, vctx->interfaces, create->option.in_int);
             if(rule->to_if_ptr == NULL)
             {
                 (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",
@@ -1638,12 +1657,12 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
         if (active == 1) {
             (void)vrprint.debug(__FUNC__, "dst interface %s", rule->to_if_ptr ? rule->to_if_ptr->name : "any");
 
-            retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, iptcap);
+            retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, vctx->iptcaps);
 
             /* shaping rules */
             if (libvuurmuur_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
-                retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
+                retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
                     rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
                     create->option.bw_in_min, create->option.bw_in_min_unit,
                     create->option.bw_in_max, create->option.bw_in_max_unit,
@@ -1654,7 +1673,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
             }
             if (libvuurmuur_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
-                retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
+                retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
                     rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
                     create->option.bw_out_min, create->option.bw_out_min_unit,
                     create->option.bw_out_max, create->option.bw_out_max_unit,
@@ -1679,7 +1698,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
 
         if(create->option.out_int[0] != '\0') /* interface option is set */
         {
-            rule->to_if_ptr = search_interface(debuglvl, interfaces, create->option.out_int);
+            rule->to_if_ptr = search_interface(debuglvl, vctx->interfaces, create->option.out_int);
             if(rule->to_if_ptr == NULL)
             {
                 (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",
@@ -1704,12 +1723,12 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
         if (active == 1) {
             (void)vrprint.debug(__FUNC__, "dst interface %s", rule->to_if_ptr ? rule->to_if_ptr->name : "any");
 
-            retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, iptcap);
+            retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, vctx->iptcaps);
 
             /* shaping rules */
             if (libvuurmuur_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
-                retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
+                retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
                     rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
                     create->option.bw_in_min, create->option.bw_in_min_unit,
                     create->option.bw_in_max, create->option.bw_in_max_unit,
@@ -1720,7 +1739,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
             }
             if (libvuurmuur_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
-                retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
+                retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
                     rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
                     create->option.bw_out_min, create->option.bw_out_min_unit,
                     create->option.bw_out_max, create->option.bw_out_max_unit,
@@ -1735,100 +1754,135 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
 
     /* any is gone now */
 
-    if (create->to->type == TYPE_HOST || create->to->type == TYPE_GROUP)
-        d_node = create->to->network_parent->InterfaceList.top;
-    else
-        d_node = create->to->InterfaceList.top;
-
-    /* Loop through the interfaces */
-    for (; d_node != NULL; d_node = d_node->next)
-    {
-        /* get the interface */
-        if(!(rule->to_if_ptr = d_node->data))
-        {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                __FUNC__, __LINE__);
-            return(-1);
+    int iterations = 0;
+    if (create->to->type == TYPE_HOST || create->to->type == TYPE_GROUP) {
+        iterations = 1;
+    } else if (create->to->type == TYPE_NETWORK) {
+        iterations = 1;
+    } else if (create->to->type == TYPE_ZONE) {
+        for (d_node = vctx->zones->list.top; d_node != NULL; d_node = d_node->next) {
+            ZoneData *zone_ptr = (ZoneData *)d_node->data;
+            if (zone_ptr != NULL &&
+                    zone_ptr->type == TYPE_NETWORK &&
+                    strcmp(zone_ptr->zone_name, create->to->name) == 0) {
+                d_list_append(debuglvl, &rule->to_network_list, zone_ptr);
+            }
         }
 
-        active = rule->to_if_ptr->active;
+        iterations = rule->to_network_list.len;
+    }
 
-        /*  set the interface
-            if the device is virtual (oldstyle) we don't want it in our
-            iptables commands
-        */
-        if(rule->to_if_ptr->device_virtual_oldstyle == FALSE)
-            (void)strlcpy(rule->to_int, rule->to_if_ptr->device, sizeof(rule->to_int));
-        else
-            memset(rule->to_int, 0, sizeof(rule->to_int));
+    d_list_node *net_d_node = NULL;
+    int iter;
+    for (iter = 0; iter < iterations; iter++) {
+        d_node = NULL;
 
-        if(rule->to_if_ptr->dynamic == TRUE && rule->to_if_ptr->up == FALSE)
-        {
-            (void)vrprint.info("Info", "not creating rule: 'to'-interface '%s' is dynamic and down.", rule->to_if_ptr->name);
-            active = 0;
+        if (create->to->type == TYPE_HOST || create->to->type == TYPE_GROUP) {
+            d_node = create->to->network_parent->InterfaceList.top;
+        } else if (create->to->type == TYPE_NETWORK) {
+            d_node = create->to->InterfaceList.top;
+        } else if (create->to->type == TYPE_ZONE) {
+            if (net_d_node == NULL)
+                net_d_node = rule->to_network_list.top;
+            else
+                net_d_node = net_d_node->next;
+
+            if (net_d_node != NULL) {
+                rule->to_network = (ZoneData *)net_d_node->data;
+                d_node = rule->to_network->InterfaceList.top;
+            }
         }
+
+        /* Loop through the interfaces */
+        for (; d_node != NULL; d_node = d_node->next)
+        {
+            /* get the interface */
+            if(!(rule->to_if_ptr = d_node->data))
+            {
+                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            active = rule->to_if_ptr->active;
+
+            /*  set the interface
+                if the device is virtual (oldstyle) we don't want it in our
+                iptables commands
+             */
+            if(rule->to_if_ptr->device_virtual_oldstyle == FALSE)
+                (void)strlcpy(rule->to_int, rule->to_if_ptr->device, sizeof(rule->to_int));
+            else
+                memset(rule->to_int, 0, sizeof(rule->to_int));
+
+            if(rule->to_if_ptr->dynamic == TRUE && rule->to_if_ptr->up == FALSE)
+            {
+                (void)vrprint.info("Info", "not creating rule: 'to'-interface '%s' is dynamic and down.", rule->to_if_ptr->name);
+                active = 0;
+            }
 
 #ifdef IPV6_ENABLED
-        if (rule->ipv == VR_IPV6 &&
-                !interface_ipv6_enabled(debuglvl, rule->to_if_ptr)) {
-            active = 0;
-        }
+            if (rule->ipv == VR_IPV6 &&
+                    !interface_ipv6_enabled(debuglvl, rule->to_if_ptr)) {
+                active = 0;
+            }
 #endif
-        if (active == 1) {
-            /*  check for the 'out_int' rule option:
-                3 possibilities:
+            if (active == 1) {
+                /*  check for the 'out_int' rule option:
+                    3 possibilities:
 
-                1. interface option set and match
-                2. interface option not set
-                3. to is 'any'
-            */
-            if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__,
-                    "create->to_any '%s', "
-                    "create->option.out_int '%s' "
-                    "rule->to_if_ptr->name '%s'",
-                    create->to_any ? "TRUE" : "FALSE",
-                    create->option.out_int,
-                    rule->to_if_ptr ? rule->to_if_ptr->name : "(null)");
+                    1. interface option set and match
+                    2. interface option not set
+                    3. to is 'any'
+                 */
+                if(debuglvl >= HIGH)
+                    (void)vrprint.debug(__FUNC__,
+                            "create->to_any '%s', "
+                            "create->option.out_int '%s' "
+                            "rule->to_if_ptr->name '%s'",
+                            create->to_any ? "TRUE" : "FALSE",
+                            create->option.out_int,
+                            rule->to_if_ptr ? rule->to_if_ptr->name : "(null)");
 
-            if( (create->to_any == FALSE &&             /* to is not any */
-                create->option.out_int[0] != '\0' &&    /* interface option is set */
-                strcmp(create->option.out_int, rule->to_if_ptr->name) == 0) /* interface matches */
-                    ||
-                (create->to_any == FALSE &&             /* to is not any */
-                create->option.out_int[0] == '\0')      /* interface option is not set */
-                    ||
-                create->to_any == TRUE                  /* 'any' doesn't use this filter */
-            ) {
-                (void)vrprint.debug(__FUNC__, "dst interface %s", rule->to_if_ptr->name);
+                if( (create->to_any == FALSE &&             /* to is not any */
+                            create->option.out_int[0] != '\0' &&    /* interface option is set */
+                            strcmp(create->option.out_int, rule->to_if_ptr->name) == 0) /* interface matches */
+                        ||
+                        (create->to_any == FALSE &&             /* to is not any */
+                         create->option.out_int[0] == '\0')      /* interface option is not set */
+                        ||
+                        create->to_any == TRUE                  /* 'any' doesn't use this filter */
+                  ) {
+                    (void)vrprint.debug(__FUNC__, "dst interface %s", rule->to_if_ptr->name);
 
-                /* ok, continue */
-                retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, iptcap);
-                if (retval < 0) {
-                    return(retval);
-                }
-
-                /* shaping rules */
-                if (libvuurmuur_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
-                    /* at this point we can create the tc rules */
-                    retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
-                        rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
-                        create->option.bw_in_min, create->option.bw_in_min_unit,
-                        create->option.bw_in_max, create->option.bw_in_max_unit,
-                        create->option.prio);
+                    /* ok, continue */
+                    retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, vctx->iptcaps);
                     if (retval < 0) {
                         return(retval);
                     }
-                }
-                if (libvuurmuur_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
-                    /* at this point we can create the tc rules */
-                    retval = shaping_shape_create_rule(debuglvl, cnf, interfaces, rule, ruleset,
-                        rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
-                        create->option.bw_out_min, create->option.bw_out_min_unit,
-                        create->option.bw_out_max, create->option.bw_out_max_unit,
-                        create->option.prio);
-                    if (retval < 0) {
-                        return(retval);
+
+                    /* shaping rules */
+                    if (libvuurmuur_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
+                        /* at this point we can create the tc rules */
+                        retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
+                                rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
+                                create->option.bw_in_min, create->option.bw_in_min_unit,
+                                create->option.bw_in_max, create->option.bw_in_max_unit,
+                                create->option.prio);
+                        if (retval < 0) {
+                            return(retval);
+                        }
+                    }
+                    if (libvuurmuur_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
+                        /* at this point we can create the tc rules */
+                        retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
+                                rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
+                                create->option.bw_out_min, create->option.bw_out_min_unit,
+                                create->option.bw_out_max, create->option.bw_out_max_unit,
+                                create->option.prio);
+                        if (retval < 0) {
+                            return(retval);
+                        }
                     }
                 }
             }
@@ -1838,9 +1892,12 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vuurmuur_config *cnf,
     return (retval);
 }
 
+/** \internal
+ *  \brief create rules for each src interface
+ */
 static int
-rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, Interfaces *interfaces,
-        struct RuleCreateData_ *rule, struct RuleCache_ *create, IptCap *iptcap)
+rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/RuleSet *ruleset,
+        struct RuleCreateData_ *rule, struct RuleCache_ *create)
 {
     int         retval = 0;
     d_list_node *d_node = NULL;
@@ -1857,7 +1914,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@n
 
         if(create->option.out_int[0] != '\0') /* interface option is set */
         {
-            rule->from_if_ptr = search_interface(debuglvl, interfaces, create->option.out_int);
+            rule->from_if_ptr = search_interface(debuglvl, vctx->interfaces, create->option.out_int);
             if(rule->from_if_ptr == NULL)
             {
                 (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",
@@ -1883,7 +1940,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@n
         if (active == 1) {
             (void)vrprint.debug(__FUNC__, "src interface %s. Interface is active.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
 
-            retval = rulecreate_dst_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap);
+            retval = rulecreate_dst_iface_loop(debuglvl, vctx, ruleset, rule, create);
         } else {
             (void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
         }
@@ -1903,7 +1960,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@n
 
         if(create->option.in_int[0] != '\0') /* interface option is set */
         {
-            rule->from_if_ptr = search_interface(debuglvl, interfaces, create->option.in_int);
+            rule->from_if_ptr = search_interface(debuglvl, vctx->interfaces, create->option.in_int);
             if(rule->from_if_ptr == NULL)
             {
                 (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",
@@ -1929,7 +1986,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@n
         if (active == 1) {
             (void)vrprint.debug(__FUNC__, "src interface %s. Interface is active.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
 
-            retval = rulecreate_dst_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap);
+            retval = rulecreate_dst_iface_loop(debuglvl, vctx, ruleset, rule, create);
         } else {
             (void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
         }
@@ -1937,96 +1994,130 @@ rulecreate_src_iface_loop (const int debuglvl, struct vuurmuur_config *cnf, /*@n
         return(retval);
     }
 
-
+    int iterations = 0;
     /* any is gone now */
-
-    if (create->from->type == TYPE_HOST || create->from->type == TYPE_GROUP)
-        d_node = create->from->network_parent->InterfaceList.top;
-    else
-        d_node = create->from->InterfaceList.top;
-
-    /* Loop through the interfaces */
-    for (; d_node != NULL; d_node = d_node->next)
-    {
-        /* get the interface */
-        if(!(rule->from_if_ptr = d_node->data))
-        {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                __FUNC__, __LINE__);
-            return(-1);
+    if (create->from->type == TYPE_HOST || create->from->type == TYPE_GROUP) {
+        iterations = 1;
+    } else if (create->from->type == TYPE_NETWORK) {
+        iterations = 1;
+    } else if (create->from->type == TYPE_ZONE) {
+        for (d_node = vctx->zones->list.top; d_node != NULL; d_node = d_node->next) {
+            ZoneData *zone_ptr = (ZoneData *)d_node->data;
+            if (zone_ptr != NULL &&
+                    zone_ptr->type == TYPE_NETWORK &&
+                    strcmp(zone_ptr->zone_name, create->from->name) == 0) {
+                d_list_append(debuglvl, &rule->from_network_list, zone_ptr);
+            }
         }
 
-        active = rule->from_if_ptr->active;
+        iterations = rule->from_network_list.len;
+    }
 
-        /*  set the interface
-            if the device is virtual (oldstyle) we don't want it in our
-            iptables commands
-        */
-        if(rule->from_if_ptr->device_virtual_oldstyle == FALSE)
-            (void)strlcpy(rule->from_int, rule->from_if_ptr->device, sizeof(rule->from_int));
-        else
-            memset(rule->from_int, 0, sizeof(rule->from_int));
+    d_list_node *net_d_node = NULL;
+    int iter;
+    for (iter = 0; iter < iterations; iter++) {
+        d_node = NULL;
 
-        if(rule->from_if_ptr->dynamic == TRUE && rule->from_if_ptr->up == FALSE)
-        {
-            (void)vrprint.info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
-            active = 0;
+        if (create->from->type == TYPE_HOST || create->from->type == TYPE_GROUP) {
+            d_node = create->from->network_parent->InterfaceList.top;
+        } else if (create->from->type == TYPE_NETWORK) {
+            d_node = create->from->InterfaceList.top;
+        } else if (create->from->type == TYPE_ZONE) {
+            if (net_d_node == NULL)
+                net_d_node = rule->from_network_list.top;
+            else
+                net_d_node = net_d_node->next;
+
+            if (net_d_node != NULL) {
+                rule->from_network = (ZoneData *)net_d_node->data;
+                d_node = rule->from_network->InterfaceList.top;
+            }
         }
+
+        /* Loop through the interfaces */
+        for (; d_node != NULL; d_node = d_node->next) {
+            /* get the interface */
+            if(!(rule->from_if_ptr = d_node->data))
+            {
+                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            active = rule->from_if_ptr->active;
+
+            /*  set the interface
+                if the device is virtual (oldstyle) we don't want it in our
+                iptables commands
+             */
+            if(rule->from_if_ptr->device_virtual_oldstyle == FALSE)
+                (void)strlcpy(rule->from_int, rule->from_if_ptr->device, sizeof(rule->from_int));
+            else
+                memset(rule->from_int, 0, sizeof(rule->from_int));
+
+            if(rule->from_if_ptr->dynamic == TRUE && rule->from_if_ptr->up == FALSE)
+            {
+                (void)vrprint.info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
+                active = 0;
+            }
 #ifdef IPV6_ENABLED
-        if (rule->ipv == VR_IPV6 &&
-                !interface_ipv6_enabled(debuglvl, rule->from_if_ptr)) {
-            active = 0;
-        }
+            if (rule->ipv == VR_IPV6 &&
+                    !interface_ipv6_enabled(debuglvl, rule->from_if_ptr)) {
+                active = 0;
+            }
 #endif
-        if (active == 1) {
-            /*  check for the 'in_int' rule option:
-                3 possibilities:
+            if (active == 1) {
+                /*  check for the 'in_int' rule option:
+                    3 possibilities:
 
-                1. interface option set and match
-                2. interface option not set
-                3. from is 'any'
-            */
-            if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "create->from_any '%s', "
-                    "create->option.in_int '%s' rule->from_if_ptr->name '%s'",
-                    create->from_any ? "TRUE" : "FALSE", create->option.in_int,
-                    rule->from_if_ptr ? rule->from_if_ptr->name : "(null)");
+                    1. interface option set and match
+                    2. interface option not set
+                    3. from is 'any'
+                 */
+                if(debuglvl >= HIGH)
+                    (void)vrprint.debug(__FUNC__, "create->from_any '%s', "
+                            "create->option.in_int '%s' rule->from_if_ptr->name '%s'",
+                            create->from_any ? "TRUE" : "FALSE", create->option.in_int,
+                            rule->from_if_ptr ? rule->from_if_ptr->name : "(null)");
 
-            if( (create->from_any == FALSE &&           /* from is not any */
-                create->option.in_int[0] != '\0' &&     /* interface option is set */
-                strcmp(create->option.in_int, rule->from_if_ptr->name) == 0)    /* interface matches */
+                if( (create->from_any == FALSE &&           /* from is not any */
+                            create->option.in_int[0] != '\0' &&     /* interface option is set */
+                            strcmp(create->option.in_int, rule->from_if_ptr->name) == 0)    /* interface matches */
                         ||
-                (create->from_any == FALSE &&           /* from is not any */
-                create->option.in_int[0] == '\0')       /* interface option is not set */
+                        (create->from_any == FALSE &&           /* from is not any */
+                         create->option.in_int[0] == '\0')       /* interface option is not set */
                         ||
-                create->from_any == TRUE                /* 'any' doesn't use this filter */
-            ) {
-                (void)vrprint.debug(__FUNC__, "src interface %s", rule->from_if_ptr->name);
+                        create->from_any == TRUE                /* 'any' doesn't use this filter */
+                  ) {
+                    (void)vrprint.debug(__FUNC__, "src interface %s", rule->from_if_ptr->name);
 
-                /* ok, continue */
-                retval = rulecreate_dst_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap);
-                if (retval < 0) {
-                    return(retval);
+                    /* ok, continue */
+                    retval = rulecreate_dst_iface_loop(debuglvl, vctx, ruleset, rule, create);
+                    if (retval < 0) {
+                        return(retval);
+                    }
+                } else {
+                    (void)vrprint.debug(__FUNC__, "src interface %s. Interface is FILTERED.", rule->from_if_ptr->name);
                 }
             } else {
-                (void)vrprint.debug(__FUNC__, "src interface %s. Interface is FILTERED.", rule->from_if_ptr->name);
+                (void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE.", rule->from_if_ptr->name);
             }
-        } else {
-            (void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE.", rule->from_if_ptr->name);
         }
     }
 
     return (retval);
 }
 
+/** \internal
+ *  \brief create IPv4 and IPv6 rules
+ *  \retval 0 ok */
 static int
-rulecreate_ipv4ipv6_loop(const int debuglvl, struct vuurmuur_config *cnf,
-        /*@null@*/RuleSet *ruleset, Interfaces *interfaces,
-        struct RuleCreateData_ *rule, struct RuleCache_ *create, IptCap *iptcap)
+rulecreate_ipv4ipv6_loop(const int debuglvl, VuurmuurCtx *vctx,
+        /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct RuleCache_ *create)
 {
     rule->ipv = VR_IPV4;
 
-    if (rulecreate_src_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap) < 0) {
+    if (rulecreate_src_iface_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
         (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
     }
 
@@ -2037,7 +2128,7 @@ rulecreate_ipv4ipv6_loop(const int debuglvl, struct vuurmuur_config *cnf,
     if (strncasecmp(rule->action, "REJECT --reject-with", 20) == 0)
         return 0;
 
-    if (rulecreate_src_iface_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap) < 0) {
+    if (rulecreate_src_iface_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
         (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
     }
 #endif
@@ -2055,20 +2146,11 @@ rulecreate_ipv4ipv6_loop(const int debuglvl, struct vuurmuur_config *cnf,
         -1: error
 */
 int
-create_rule(const int debuglvl, struct vuurmuur_config *cnf,
-    /*@null@*/RuleSet *ruleset, struct RuleCache_ *create,
-    Interfaces *interfaces, IptCap *iptcap)
+create_rule(const int debuglvl, VuurmuurCtx *vctx,
+    /*@null@*/RuleSet *ruleset, struct RuleCache_ *create)
 {
     int                     retval = 0;
     struct RuleCreateData_  *rule = NULL;
-
-    /* safety checks */
-    if(iptcap == NULL || create == NULL || interfaces == NULL)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "** start ** (create->action: %s).", create->action);
@@ -2106,6 +2188,8 @@ create_rule(const int debuglvl, struct vuurmuur_config *cnf,
     memset(rule, 0, sizeof(struct RuleCreateData_));
     d_list_setup(debuglvl, &rule->iptrulelist, free);
     d_list_setup(debuglvl, &rule->shaperulelist, free);
+    d_list_setup(debuglvl, &rule->from_network_list, NULL);
+    d_list_setup(debuglvl, &rule->to_network_list, NULL);
 
     /* copy the helper */
     if(create->service != NULL)
@@ -2113,26 +2197,28 @@ create_rule(const int debuglvl, struct vuurmuur_config *cnf,
 
     /* SHAPING PREPARATION */
     if (libvuurmuur_is_shape_rule(debuglvl, &create->option) == 1) {
-        rule->shape_class_out = interfaces->shape_handle;
-        interfaces->shape_handle++;
-        rule->shape_class_in = interfaces->shape_handle;
-        interfaces->shape_handle++;
+        rule->shape_class_out = vctx->interfaces->shape_handle;
+        vctx->interfaces->shape_handle++;
+        rule->shape_class_in = vctx->interfaces->shape_handle;
+        vctx->interfaces->shape_handle++;
 
         (void)vrprint.debug(__FUNC__, "rule->shape_class_out %u rule->shape_class_in %u",
             rule->shape_class_out, rule->shape_class_in);
     }
 
-    if (rulecreate_ipv4ipv6_loop(debuglvl, cnf, ruleset, interfaces, rule, create, iptcap) < 0) {
+    if (rulecreate_ipv4ipv6_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
         (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
     }
 
     /* process the rules */
     process_queued_rules(debuglvl, ruleset, rule);
-    shaping_process_queued_rules(debuglvl, cnf, ruleset, rule);
+    shaping_process_queued_rules(debuglvl, vctx->conf, ruleset, rule);
 
     /* free the temp data */
     d_list_cleanup(debuglvl, &rule->iptrulelist);
     d_list_cleanup(debuglvl, &rule->shaperulelist);
+    d_list_cleanup(debuglvl, &rule->from_network_list);
+    d_list_cleanup(debuglvl, &rule->to_network_list);
     free(rule);
 
     return(retval);
@@ -2253,11 +2339,8 @@ create_system_protectrules(const int debuglvl, struct vuurmuur_config *conf)
 
 int
 create_normal_rules(const int debuglvl,
-                    struct vuurmuur_config *cnf,
+                    VuurmuurCtx *vctx,
                     /*@null@*/RuleSet *ruleset,
-                    Rules *rules,
-                    Interfaces *interfaces,
-                    IptCap *iptcap,
                     char *forward_rules)
 {
     d_list_node         *d_node = NULL;
@@ -2266,16 +2349,8 @@ create_normal_rules(const int debuglvl,
     int                 rulescount = 0;
 
 
-    /* safety */
-    if(rules == NULL || interfaces == NULL || iptcap == NULL || !forward_rules)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                                    __FUNC__, __LINE__);
-        return(-1);
-    }
-
     /* walk trough the ruleslist and create the rules */
-    for(d_node = rules->list.top; d_node; d_node = d_node->next)
+    for(d_node = vctx->rules->list.top; d_node; d_node = d_node->next)
     {
         if(!(rule_ptr = d_node->data))
         {
@@ -2326,7 +2401,7 @@ create_normal_rules(const int debuglvl,
                         &&
                 (rule_ptr->rulecache.service != NULL || rule_ptr->rulecache.service_any == TRUE))
             {
-                if(create_rule(debuglvl, cnf, ruleset, &rule_ptr->rulecache, interfaces, iptcap) == 0)
+                if(create_rule(debuglvl, vctx, ruleset, &rule_ptr->rulecache) == 0)
                 {
                     if(debuglvl >= HIGH)
                         (void)vrprint.debug(__FUNC__, "rule created succesfully.");

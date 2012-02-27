@@ -1247,48 +1247,33 @@ ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path
         -1: error
 */
 static int
-ruleset_create_ruleset( const int debuglvl,
-                        RuleSet *ruleset,
-                        Rules *rules,
-                        Zones *zones,
-                        Interfaces *interfaces,
-                        Services *services,
-                        BlockList *blocklist,
-                        IptCap *iptcap,
-                        struct vuurmuur_config *cnf)
+ruleset_create_ruleset( const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset)
 {
     int     result = 0;
     char    forward_rules = 0;
 
-    /* safety */
-    if(!ruleset || !rules || !zones || !interfaces || !services || !iptcap || !cnf || !blocklist)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
-
     /* create shaping setup */
-    if(shaping_clear_interfaces(debuglvl, cnf, interfaces, ruleset) < 0)
+    if(shaping_clear_interfaces(debuglvl, vctx->conf, vctx->interfaces, ruleset) < 0)
     {
         (void)vrprint.error(-1, "Error", "setting up interface shaping clearing failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    if(shaping_setup_roots(debuglvl, cnf, interfaces, ruleset) < 0)
+    if(shaping_setup_roots(debuglvl, vctx->conf, vctx->interfaces, ruleset) < 0)
     {
         (void)vrprint.error(-1, "Error", "setting up interface shaping roots failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    if(shaping_create_default_rules(debuglvl, cnf, interfaces, ruleset) < 0)
+    if(shaping_create_default_rules(debuglvl, vctx->conf, vctx->interfaces, ruleset) < 0)
     {
         (void)vrprint.error(-1, "Error", "setting up interface default rules failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
 
-    (void)vrprint.info("Info", "Creating the rules... (rules to create: %d)", rules->list.len);
+    (void)vrprint.info("Info", "Creating the rules... (rules to create: %d)", vctx->rules->list.len);
 
     /* create the prerules if were called with it */
-    result = pre_rules(debuglvl, ruleset, interfaces, iptcap);
+    result = pre_rules(debuglvl, ruleset, vctx->interfaces, vctx->iptcaps);
     if(result < 0)
     {
         (void)vrprint.error(-1, "Error", "create pre-rules failed.");
@@ -1296,57 +1281,57 @@ ruleset_create_ruleset( const int debuglvl,
     }
 
     /* create NEWNFQUEUE target */
-    if(create_newnfqueue_rules(debuglvl, ruleset, rules, VR_IPV4) < 0)
+    if(create_newnfqueue_rules(debuglvl, ruleset, vctx->rules, VR_IPV4) < 0)
     {
         (void)vrprint.error(-1, "Error", "create newnfqueue failed.");
     }
 #ifdef IPV6_ENABLED
-    if(create_newnfqueue_rules(debuglvl, ruleset, rules, VR_IPV6) < 0)
+    if(create_newnfqueue_rules(debuglvl, ruleset, vctx->rules, VR_IPV6) < 0)
     {
         (void)vrprint.error(-1, "Error", "create newnfqueue failed.");
     }
 #endif
     /* NFQUEUE related established */
-    if(create_estrelnfqueue_rules(debuglvl, ruleset, rules, VR_IPV4) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, ruleset, vctx->rules, VR_IPV4) < 0)
     {
         (void)vrprint.error(-1, "Error", "create estrelnfqueue failed.");
     }
 #ifdef IPV6_ENABLED
-    if(create_estrelnfqueue_rules(debuglvl, ruleset, rules, VR_IPV6) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, ruleset, vctx->rules, VR_IPV6) < 0)
     {
         (void)vrprint.error(-1, "Error", "create estrelnfqueue failed.");
     }
 #endif
 
     /* create the blocklist */
-    if(create_block_rules(debuglvl, ruleset, blocklist) < 0)
+    if(create_block_rules(debuglvl, ruleset, vctx->blocklist) < 0)
     {
         (void)vrprint.error(-1, "Error", "create blocklist failed.");
     }
 
     /* create the interface rules */
-    if(create_interface_rules(debuglvl, ruleset, interfaces) < 0)
+    if(create_interface_rules(debuglvl, ruleset, vctx->interfaces) < 0)
     {
         (void)vrprint.error(-1, "Error", "create protectrules failed.");
     }
     /* create the network protect rules (anti-spoofing) */
-    if(create_network_protect_rules(debuglvl, ruleset, zones, iptcap) < 0)
+    if(create_network_protect_rules(debuglvl, ruleset, vctx->zones, vctx->iptcaps) < 0)
     {
         (void)vrprint.error(-1, "Error", "create protectrules failed.");
     }
     /* system protect rules (proc) */
-    if(create_system_protectrules(debuglvl, &conf) < 0)
+    if(create_system_protectrules(debuglvl, vctx->conf) < 0)
     {
         (void)vrprint.error(-1, "Error", "create protectrules failed.");
     }
     /* normal rules, ruleset == NULL */
-    if(create_normal_rules(debuglvl, cnf, ruleset, rules, interfaces, iptcap, &forward_rules) < 0)
+    if(create_normal_rules(debuglvl, vctx, ruleset, &forward_rules) < 0)
     {
         (void)vrprint.error(-1, "Error", "create normal rules failed.");
     }
 
     /* post rules: enable logging */
-    if(post_rules(debuglvl, ruleset, iptcap, forward_rules) < 0)
+    if(post_rules(debuglvl, ruleset, vctx->iptcaps, forward_rules) < 0)
         return(-1);
 
     (void)vrprint.info("Info", "Creating rules finished.");
@@ -1565,14 +1550,7 @@ ruleset_log_resultfile(const int debuglvl, char *path)
         -1: error
 */
 int
-load_ruleset(   const int debuglvl,
-                Rules *rules,
-                Zones *zones,
-                Interfaces *interfaces,
-                Services *services,
-                BlockList *blocklist,
-                IptCap *iptcap,
-                struct vuurmuur_config *cnf)
+load_ruleset(const int debuglvl, VuurmuurCtx *vctx)
 {
     RuleSet ruleset;
     char    cur_ruleset_path[] = "/tmp/vuurmuur-XXXXXX";
@@ -1582,13 +1560,6 @@ load_ruleset(   const int debuglvl,
             result_fd = 0,
             shape_fd = 0;
 
-    /* safety */
-    if(!rules || !zones || !interfaces || !services || !iptcap || !cnf || !blocklist)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
-
     /* setup the ruleset */
     if(ruleset_setup(debuglvl, &ruleset) != 0)
     {
@@ -1597,15 +1568,14 @@ load_ruleset(   const int debuglvl,
     }
 
     /* store counters */
-    if(ruleset_save_interface_counters(debuglvl, interfaces) < 0)
+    if(ruleset_save_interface_counters(debuglvl, vctx->interfaces) < 0)
     {
         (void)vrprint.error(-1, "Error", "saving interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* create the ruleset */
-    if(ruleset_create_ruleset(debuglvl, &ruleset, rules, zones, interfaces,
-                    services, blocklist, iptcap, cnf) < 0)
+    if(ruleset_create_ruleset(debuglvl, vctx, &ruleset) < 0)
     {
         (void)vrprint.error(-1, "Error", "creating ruleset failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
@@ -1613,7 +1583,7 @@ load_ruleset(   const int debuglvl,
     }
 
     /* clear the counters again */
-    if(ruleset_clear_interface_counters(debuglvl, interfaces) < 0)
+    if(ruleset_clear_interface_counters(debuglvl, vctx->interfaces) < 0)
     {
         (void)vrprint.error(-1, "Error", "clearing interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1652,14 +1622,14 @@ load_ruleset(   const int debuglvl,
     }
 
     /* get the custom chains we have to create */
-    if(rules_get_custom_chains(debuglvl, rules) < 0)
+    if(rules_get_custom_chains(debuglvl, vctx->rules) < 0)
     {
         (void)vrprint.error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(-1);
     }
     /* now create the currentrulesetfile */
-    if(ruleset_fill_file(debuglvl, rules, &ruleset, iptcap, ruleset_fd, cnf) < 0)
+    if(ruleset_fill_file(debuglvl, vctx->rules, &ruleset, vctx->iptcaps, ruleset_fd, vctx->conf) < 0)
     {
         (void)vrprint.error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -1669,8 +1639,8 @@ load_ruleset(   const int debuglvl,
         return(-1);
     }
     /* cleanup */
-    d_list_cleanup(debuglvl, &rules->custom_chain_list);
-    
+    d_list_cleanup(debuglvl, &vctx->rules->custom_chain_list);
+
     /* now create the shape file */
     if(ruleset_fill_shaping_file(debuglvl, &ruleset, shape_fd) < 0)
     {
@@ -1689,7 +1659,7 @@ load_ruleset(   const int debuglvl,
     }
 
     /* load the shaping rules */
-    if(ruleset_load_shape_ruleset(debuglvl, cur_shape_path, cur_result_path, cnf) != 0)
+    if(ruleset_load_shape_ruleset(debuglvl, cur_shape_path, cur_result_path, vctx->conf) != 0)
     {
         /* oops, something went wrong */
         (void)vrprint.error(-1, "Error", "shape rulesetfile will be stored as '%s.failed' (in: %s:%d).",
@@ -1700,7 +1670,7 @@ load_ruleset(   const int debuglvl,
         return(-1);
     }
     /* now load the iptables ruleset */
-    if(ruleset_load_ruleset(debuglvl, cur_ruleset_path, cur_result_path, cnf) != 0)
+    if(ruleset_load_ruleset(debuglvl, cur_ruleset_path, cur_result_path, vctx->conf) != 0)
     {
         /* oops, something went wrong */
         (void)vrprint.error(-1, "Error", "rulesetfile will be stored as '%s.failed' (in: %s:%d).",

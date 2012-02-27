@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2008 by Victor Julien                              *
+ *   Copyright (C) 2002-2012 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #include "main.h"
 
 #include <sys/types.h>
@@ -60,6 +60,7 @@ main(int argc, char *argv[])
     BlockList       blocklist;
 
     IptCap          iptcap;
+    VuurmuurCtx     vctx;
     pid_t           pid;
 
     char            reload_shm = FALSE,
@@ -106,6 +107,14 @@ main(int argc, char *argv[])
     ushort          seminit[] = { 1,0 };
 
     struct rgx_     reg;    // regexes
+
+    vctx.zones = &zones;
+    vctx.rules = &rules;
+    vctx.services = &services;
+    vctx.blocklist = &blocklist;
+    vctx.iptcaps = &iptcap;
+    vctx.interfaces = &interfaces;
+    vctx.conf = &conf;
 
     snprintf(version_string,sizeof(version_string),"%s (using libvuurmuur %s)", VUURMUUR_VERSION, libvuurmuur_get_version());
 
@@ -483,7 +492,7 @@ main(int argc, char *argv[])
     }
 
     /* analyzing the rules */
-    if(analyze_all_rules(debuglvl, &rules, &zones, &services, &interfaces) != 0)
+    if(analyze_all_rules(debuglvl, &vctx, vctx.rules) != 0)
     {
         (void)vrprint.error(-1, "Error", "analizing the rules failed.");
         exit(EXIT_FAILURE);
@@ -496,7 +505,7 @@ main(int argc, char *argv[])
     if(conf.old_rulecreation_method == TRUE || conf.bash_out == TRUE)
     {
         /* call with create_prerules == 1 */
-        if(create_all_rules(debuglvl, &rules, &zones, &interfaces, &blocklist, &iptcap, &conf, 1) != 0)
+        if(create_all_rules(debuglvl, &vctx, 1) != 0)
         {
             (void)vrprint.error(-1, "Error", "creating rules failed.");
             exit(EXIT_FAILURE);
@@ -504,7 +513,7 @@ main(int argc, char *argv[])
     }
     else
     {
-        if(load_ruleset(debuglvl, &rules, &zones, &interfaces, &services, &blocklist, &iptcap, &conf) < 0)
+        if(load_ruleset(debuglvl, &vctx) < 0)
         {
             (void)vrprint.error(-1, "Error", "creating rules failed.");
             exit(EXIT_FAILURE);
@@ -685,7 +694,7 @@ main(int argc, char *argv[])
                 if(sighup_count > 0 || reload_shm == TRUE || reload_dyn == TRUE)
                 {
                     /* apply changes */
-                    result = apply_changes(debuglvl, &services, &zones, &interfaces, &rules, &blocklist, &iptcap, &reg);
+                    result = apply_changes(debuglvl, &vctx, &reg);
                     if(result < 0)
                     {
                         (void)vrprint.error(-1, "Error", "applying changes failed.");
