@@ -836,10 +836,8 @@ reload_zonedata_check(const int debuglvl, Zones *zones, Interfaces *interfaces, 
                                 /* change */
                                 if(!d_node_orig)
                                     (void)vrprint.info("Info", "Network '%s': network now has (an) interface(s).", zone_ptr->name);
-                                    
                                 if(!d_node_new)
                                     (void)vrprint.info("Info", "Network '%s': network now has (an) interface(s).", zone_ptr->name);
-                                
                                 status = ST_CHANGED;
                             }
                             else
@@ -893,10 +891,8 @@ reload_zonedata_check(const int debuglvl, Zones *zones, Interfaces *interfaces, 
                                 /* change */
                                 if(!protect_d_node_orig)
                                     (void)vrprint.info("Info", "Network '%s': network now has (an) protectrule(s).", zone_ptr->name);
-                                    
                                 if(!protect_d_node_new)
                                     (void)vrprint.info("Info", "Network '%s': network now has (an) protectrule(s).", zone_ptr->name);
-                                
                                 status = ST_CHANGED;
                             }
                             else
@@ -935,6 +931,17 @@ reload_zonedata_check(const int debuglvl, Zones *zones, Interfaces *interfaces, 
                         (void)vrprint.info("Info", "Network '%s': network address changed to: '%s'.", zone_ptr->name, new_zone_ptr->ipv4.network);
                         status = ST_CHANGED;
                     }
+#ifdef IPV6_ENABLED
+                    /* network address */
+                    if (strcmp(zone_ptr->ipv6.net6, new_zone_ptr->ipv6.net6) != 0) {
+                        (void)vrprint.info("Info", "Network '%s' has a new ipv6 network address: '%s'.", zone_ptr->name, new_zone_ptr->ipv6.net6);
+                        status = ST_CHANGED;
+                    }
+                    if (zone_ptr->ipv6.cidr6 != new_zone_ptr->ipv6.cidr6) {
+                        (void)vrprint.info("Info", "Network '%s' has a new ipv6 CIDR: '%d'.", zone_ptr->name, new_zone_ptr->ipv6.cidr6);
+                        status = ST_CHANGED;
+                    }
+#endif
                 }
                 else
                 {
@@ -1013,7 +1020,6 @@ reload_zonedata_check(const int debuglvl, Zones *zones, Interfaces *interfaces, 
                             {
                                 (void)vrprint.info("Info", "Host '%s' no longer has a mac-address.", zone_ptr->name);
                             }
-                            
                             status = ST_CHANGED;
                         }
                     }
@@ -1022,6 +1028,14 @@ reload_zonedata_check(const int debuglvl, Zones *zones, Interfaces *interfaces, 
                         (void)vrprint.info("Info", "Host '%s' has a new ipaddress: '%s'.", zone_ptr->name, new_zone_ptr->ipv4.ipaddress);
                         status = ST_CHANGED;
                     }
+
+#ifdef IPV6_ENABLED
+                    /* ipaddress */
+                    if (strcmp(zone_ptr->ipv6.ip6, new_zone_ptr->ipv6.ip6) != 0) {
+                        (void)vrprint.info("Info", "Host '%s' has a new ipv6 address: '%s'.", zone_ptr->name, new_zone_ptr->ipv6.ip6);
+                        status = ST_CHANGED;
+                    }
+#endif
                 }
                 else
                 {
@@ -1095,7 +1109,6 @@ reload_zonedata_check(const int debuglvl, Zones *zones, Interfaces *interfaces, 
 
                         if(!d_node_new)
                             (void)vrprint.info("Info", "Group '%s': group no longer has members.", zone_ptr->name);
-                                
                     }
                     else
                     {
@@ -1447,10 +1460,8 @@ reload_interfaces_check(const int debuglvl, struct InterfaceData_ *iface_ptr)
                                     /* change */
                                     if(!protect_d_node_orig)
                                         (void)vrprint.info("Info", "Interface '%s': interface now has (an) protectrule(s).", iface_ptr->name);
-                                    
                                     if(!protect_d_node_new)
                                         (void)vrprint.info("Info", "Interface '%s': interface no longer has (an) protectrule(s).", iface_ptr->name);
-                                
                                     status = ST_CHANGED;
                                 }
                                 else
@@ -1490,6 +1501,13 @@ reload_interfaces_check(const int debuglvl, struct InterfaceData_ *iface_ptr)
                             (void)vrprint.info("Info", "Interface '%s' has a new ipaddress: '%s'.", iface_ptr->name, new_iface_ptr->ipv4.ipaddress);
                             status = ST_CHANGED;
                         }
+
+#ifdef IPV6_ENABLED
+                        if (strcmp(iface_ptr->ipv6.ip6, new_iface_ptr->ipv6.ip6) != 0) {
+                            (void)vrprint.info("Info", "Interface '%s' has a new ipv6 ipaddress: '%s'.", iface_ptr->name, new_iface_ptr->ipv6.ip6);
+                            status = ST_CHANGED;
+                        }
+#endif
                     }
                     else
                     {
