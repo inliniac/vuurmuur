@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2007 by Victor Julien                              *
+ *   Copyright (C) 2003-2012 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #include "main.h"
 
 
@@ -439,6 +439,9 @@ struct
             *ipaddressfld,
             *ipaddresslabelfld,
 
+            *ip6addressfld,
+            *ip6addresslabelfld,
+
             *dynamicfld,
             *dynamiclabelfld,
             *dynamicbracketsfld,
@@ -549,7 +552,7 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
         
     getmaxyx(stdscr, max_height, max_width);
 
-    InterfacesSection.EditInterface.n_fields = 32;
+    InterfacesSection.EditInterface.n_fields = 34;
     InterfacesSection.EditInterface.fields = (FIELD **)calloc(InterfacesSection.EditInterface.n_fields + 1, sizeof(FIELD *));
 
     /*
@@ -567,13 +570,24 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
     set_field_buffer_wrap(debuglvl, IfSec.activefld, 0, iface_ptr->active ? STR_YES : STR_NO);
 
 
+    /* device */
+    IfSec.devicelabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 5, 0, 0, 0));
+    field_num++;
+    set_field_buffer_wrap(debuglvl, IfSec.devicelabelfld, 0, STR_CDEVICE);
+    field_opts_off(IfSec.devicelabelfld, O_AUTOSKIP | O_ACTIVE);
+
+    IfSec.devicefld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 12, 6, 1, 0, 0));
+    field_num++;
+    set_field_buffer_wrap(debuglvl, IfSec.devicefld, 0, iface_ptr->device);
+
+
     /* ipaddress */
-    IfSec.ipaddresslabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 5, 0, 0, 0));
+    IfSec.ipaddresslabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 7, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(debuglvl, IfSec.ipaddresslabelfld, 0, STR_IPADDRESS);
     field_opts_off(IfSec.ipaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
-    
-    IfSec.ipaddressfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 6, 1, 0, 0));
+
+    IfSec.ipaddressfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 8, 1, 0, 0));
     field_num++;
     set_field_type(IfSec.ipaddressfld, TYPE_IPV4);
     set_field_buffer_wrap(debuglvl, IfSec.ipaddressfld, 0, iface_ptr->ipv4.ipaddress);
@@ -581,6 +595,15 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
     /* if ipaddress is dynamic, we don't want to edit the ipaddress */
     if(iface_ptr->dynamic)
         field_opts_off(IfSec.ipaddressfld, O_AUTOSKIP | O_ACTIVE);
+
+    /* ip6address */
+    IfSec.ip6addresslabelfld = (InterfacesSection.EditInterface.fields[field_num++] = new_field(1, 16, 9, 0, 0, 0));
+    set_field_buffer_wrap(debuglvl, IfSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
+    field_opts_off(IfSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
+
+    IfSec.ip6addressfld = (InterfacesSection.EditInterface.fields[field_num++] = new_field(1, MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
+    //set_field_type(IfSec.ip6addressfld, TYPE_IPV6);
+    set_field_buffer_wrap(debuglvl, IfSec.ip6addressfld, 0, iface_ptr->ipv6.ip6);
 
 
     /* dynamic ip toggle */
@@ -597,17 +620,6 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
     IfSec.dynamicfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 1, 6, 21, 0, 0));
     field_num++;
     set_field_buffer_wrap(debuglvl, IfSec.dynamicfld, 0, iface_ptr->dynamic ? "X" : " ");
-
-
-    /* device */
-    IfSec.devicelabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 7, 0, 0, 0));
-    field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.devicelabelfld, 0, STR_CDEVICE);
-    field_opts_off(IfSec.devicelabelfld, O_AUTOSKIP | O_ACTIVE);
-
-    IfSec.devicefld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 12, 8, 1, 0, 0));
-    field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.devicefld, 0, iface_ptr->device);
 
 
     /* is the device virtual */
@@ -709,7 +721,7 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
 
 
     /* comment */
-    IfSec.commentlabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 10, 0, 0, 0));
+    IfSec.commentlabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 12, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(debuglvl, IfSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(IfSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
@@ -717,7 +729,7 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
     comment_y = 5;
     comment_x = 48;
 
-    IfSec.commentfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(comment_y, comment_x, 11, 1, 0, 0));
+    IfSec.commentfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(comment_y, comment_x, 13, 1, 0, 0));
     field_num++;
     if(af->ask(debuglvl, ifac_backend, iface_ptr->name, "COMMENT", InterfacesSection.comment, sizeof(InterfacesSection.comment), TYPE_INTERFACE, 0) < 0)
         (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
@@ -766,6 +778,7 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
     /* labels are blue-white */
     set_field_back(IfSec.activelabelfld, vccnf.color_win);
     set_field_back(IfSec.ipaddresslabelfld, vccnf.color_win);
+    set_field_back(IfSec.ip6addresslabelfld, vccnf.color_win);
     set_field_back(IfSec.devicelabelfld, vccnf.color_win);
     set_field_back(IfSec.commentlabelfld, vccnf.color_win);
     set_field_back(IfSec.interfaceuplabelfld, vccnf.color_win);
@@ -785,7 +798,7 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
     set_field_back(IfSec.srcrtpktsfld, vccnf.color_win);
     set_field_back(IfSec.srcrtpktslabelfld, vccnf.color_win);
     set_field_back(IfSec.srcrtpktsbracketsfld, vccnf.color_win);
-        
+
     set_field_back(IfSec.icmpredirectfld, vccnf.color_win);
     set_field_back(IfSec.icmpredirectlabelfld, vccnf.color_win);
     set_field_back(IfSec.icmpredirectbracketsfld, vccnf.color_win);
@@ -793,11 +806,11 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
     set_field_back(IfSec.sendredirectfld, vccnf.color_win);
     set_field_back(IfSec.sendredirectlabelfld, vccnf.color_win);
     set_field_back(IfSec.sendredirectbracketsfld, vccnf.color_win);
-        
+
     set_field_back(IfSec.rpfilterfld, vccnf.color_win);
     set_field_back(IfSec.rpfilterlabelfld, vccnf.color_win);
     set_field_back(IfSec.rpfilterbracketsfld, vccnf.color_win);
-        
+
     set_field_back(IfSec.logmartiansfld, vccnf.color_win);
     set_field_back(IfSec.logmartianslabelfld, vccnf.color_win);
     set_field_back(IfSec.logmartiansbracketsfld, vccnf.color_win);
@@ -1053,6 +1066,31 @@ edit_interface_save(const int debuglvl, struct InterfaceData_ *iface_ptr)
                                 STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
                                 STR_IPADDRESS, STR_IS_NOW_SET_TO, tempiface_ptr->ipv4.ipaddress,
                                 STR_WAS, iface_ptr->ipv4.ipaddress);
+            }
+            else if(InterfacesSection.EditInterface.fields[i] == IfSec.ip6addressfld)
+            {
+                // ipaddress
+                status = ST_CHANGED;
+
+                if(!(copy_field2buf(tempiface_ptr->ipv6.ip6,
+                                    field_buffer(InterfacesSection.EditInterface.fields[i], 0),
+                                    sizeof(tempiface_ptr->ipv6.ip6))))
+                    return(-1);
+
+                result = af->tell(debuglvl, ifac_backend, tempiface_ptr->name, "IPV6ADDRESS", tempiface_ptr->ipv6.ip6, 1, TYPE_INTERFACE);
+                if(result < 0)
+                {
+                    (void)vrprint.error(-1, VR_ERR, "%s (in: %s:%d).",
+                                STR_SAVING_TO_BACKEND_FAILED,
+                                __FUNC__, __LINE__);
+                    return(-1);
+                }
+
+                /* example: "interface 'lan' has been changed: IP address is now set to '1.2.3.4' (was: '4.3.2.1')." */
+                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                                STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                                STR_IP6ADDRESS, STR_IS_NOW_SET_TO, tempiface_ptr->ipv6.ip6,
+                                STR_WAS, iface_ptr->ipv6.ip6);
             }
             else if(InterfacesSection.EditInterface.fields[i] == IfSec.dynamicfld)
             {
@@ -1420,7 +1458,8 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
                 not_defined = 1;
         }
         else if(cur == IfSec.ipaddressfld ||
-            cur == IfSec.devicefld)
+                cur == IfSec.devicefld ||
+                cur == IfSec.ip6addressfld)
         {
             if(nav_field_simpletext(debuglvl, InterfacesSection.EditInterface.form, ch) < 0)
                 not_defined = 1;

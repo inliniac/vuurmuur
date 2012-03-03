@@ -56,6 +56,7 @@
 #define STR_PROTOHELP       gettext("protocol helper")
 #define STR_CPROTOHELP      gettext("Protocol Helper")
 #define STR_IPADDRESS       gettext("IP address")
+#define STR_IP6ADDRESS      gettext("IPv6 address")
 #define STR_MACADDRESS      gettext("MAC address")
 /* TRANSLATORS: max 18 chars */
 #define STR_DYNAMICIP       gettext("dynamic IP Address")
