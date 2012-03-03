@@ -4006,13 +4006,19 @@ struct
 {
     FIELD   *activefld,
             *activelabelfld,
-            
+
             *networkfld,
             *networklabelfld,
-            
+
             *netmaskfld,
             *netmasklabelfld,
-            
+
+            *network6fld,
+            *network6labelfld,
+
+            *cidr6fld,
+            *cidr6labelfld,
+
             *commentfld,
             *commentlabelfld,
 
@@ -4385,7 +4391,7 @@ edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height,
     /* get screen size */
     getmaxyx(stdscr, max_height, max_width);
 
-    ZonesSection.EditZone.n_fields = 48;
+    ZonesSection.EditZone.n_fields = 52;
     if(!(ZonesSection.EditZone.fields = (FIELD **)calloc(ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *))))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
@@ -4423,6 +4429,26 @@ edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height,
     set_field_type(NetworkSec.netmaskfld, TYPE_IPV4);
     field_num++;
     set_field_buffer_wrap(debuglvl, NetworkSec.netmaskfld, 0, zone_ptr->ipv4.netmask);
+
+    /* network */
+    NetworkSec.network6labelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 12, 9, 0, 0, 0));
+    field_num++;
+    set_field_buffer_wrap(debuglvl, NetworkSec.network6labelfld, 0, gettext("IPv6 Network"));
+    field_opts_off(NetworkSec.network6labelfld, O_AUTOSKIP | O_ACTIVE);
+
+    NetworkSec.network6fld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
+    //set_field_type(NetworkSec.networkfld, TYPE_IPV4);
+    set_field_buffer_wrap(debuglvl, NetworkSec.network6fld, 0, zone_ptr->ipv6.net6);
+
+    /* cidr */
+    NetworkSec.cidr6labelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 9, 11, 0, 0, 0));
+    set_field_buffer_wrap(debuglvl, NetworkSec.cidr6labelfld, 0, gettext("IPv6 CIDR"));
+    field_opts_off(NetworkSec.cidr6labelfld, O_AUTOSKIP | O_ACTIVE);
+
+    NetworkSec.cidr6fld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 3, 12, 1, 0, 0));
+    char cidr[3] = "";
+    snprintf(cidr, sizeof(cidr), "%d", zone_ptr->ipv6.cidr6);
+    set_field_buffer_wrap(debuglvl, NetworkSec.cidr6fld, 0, cidr);
 
 
     /* anti-spoof loopback */
@@ -4626,18 +4652,15 @@ edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height,
     comment_x = 48;
 
     /* comment */
-    NetworkSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 10, 0, 0, 0));
+    NetworkSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 13, 0, 0, 0));
     field_num++;
     set_field_buffer_wrap(debuglvl, NetworkSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(NetworkSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.commentfld = (ZonesSection.EditZone.fields[field_num] = new_field(comment_y, comment_x, 11, 1, 0, 0));
+    NetworkSec.commentfld = (ZonesSection.EditZone.fields[field_num] = new_field(comment_y, comment_x, 14, 1, 0, 0));
     field_num++;
 
-    if(height == 18 || height == 19) /* default xterm height && linux console */
-        NetworkSec.warningfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, width-4, 1,  0, 0, 0));
-    else
-        NetworkSec.warningfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, width-4, 17, 0, 0, 0));
+    NetworkSec.warningfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, width-4, 1, 0, 0, 0));
 
     field_opts_off(NetworkSec.warningfld, O_VISIBLE | O_ACTIVE);
     field_num++;
@@ -4678,6 +4701,8 @@ edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height,
     set_field_back(NetworkSec.activefld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
     set_field_back(NetworkSec.networkfld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
     set_field_back(NetworkSec.netmaskfld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_field_back(NetworkSec.network6fld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_field_back(NetworkSec.cidr6fld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
     set_field_back(NetworkSec.commentfld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
 
     set_field_fore(NetworkSec.warningfld, (chtype)COLOR_PAIR(CP_YELLOW_RED)|A_BOLD);
@@ -4813,6 +4838,57 @@ edit_zone_network_save(const int debuglvl, struct ZoneData_ *zone_ptr)
                     STR_NETWORK, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETMASK,
                     STR_IS_NOW_SET_TO, zone_ptr->ipv4.netmask,
                     STR_WAS, netmask);
+            }
+            else if(ZonesSection.EditZone.fields[i] == NetworkSec.network6fld)
+            {
+                char network6[MAX_IPV6_ADDR_LEN] = "";
+
+                /* network */
+                zone_ptr->status = ST_CHANGED;
+
+                (void)strlcpy(network6, zone_ptr->ipv6.net6, sizeof(network6));
+
+                if(!(copy_field2buf(zone_ptr->ipv6.net6,
+                                    field_buffer(ZonesSection.EditZone.fields[i], 0),
+                                    sizeof(zone_ptr->ipv6.net6))))
+                    return(-1);
+
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6NETWORK", zone_ptr->ipv6.net6, 1, TYPE_NETWORK) < 0)
+                {
+                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    return(-1);
+                }
+
+                /* for the log */
+                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                    STR_IP6NETWORK, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETADDR,
+                    STR_IS_NOW_SET_TO, zone_ptr->ipv6.net6,
+                    STR_WAS, network6);
+            }
+            else if(ZonesSection.EditZone.fields[i] == NetworkSec.cidr6fld)
+            {
+                /* netmask */
+                zone_ptr->status = ST_CHANGED;
+
+                int cidr = zone_ptr->ipv6.cidr6;
+                char cidrstr[3] = "";
+
+                if(!(copy_field2buf(cidrstr,
+                                    field_buffer(ZonesSection.EditZone.fields[i], 0),
+                                    sizeof(cidrstr))))
+                    return(-1);
+
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6CIDR", cidrstr, 1, TYPE_NETWORK) < 0)
+                {
+                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    return(-1);
+                }
+
+                /* for the log */
+                (void)vrprint.audit("%s '%s' %s: %s %s '%d' (%s: '%d').",
+                    STR_IP6CIDR, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETMASK,
+                    STR_IS_NOW_SET_TO, zone_ptr->ipv6.cidr6,
+                    STR_WAS, cidr);
             }
             /* save the comment to the backend */
             else if(ZonesSection.EditZone.fields[i] == NetworkSec.commentfld)
@@ -5024,8 +5100,8 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
             if(nav_field_yesno(debuglvl, ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
         }
-        else if(cur == NetworkSec.networkfld ||
-            cur == NetworkSec.netmaskfld)
+        else if(cur == NetworkSec.networkfld || cur == NetworkSec.network6fld ||
+            cur == NetworkSec.netmaskfld || cur == NetworkSec.cidr6fld)
         {
             if(nav_field_simpletext(debuglvl, ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
