@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2007 by Victor Julien                              *
+ *   Copyright (C) 2003-2012 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,14 +17,14 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #include "main.h"
 
 
 struct ZonesSection_
 {
     /*  first the menus
-    
+
         they each have their own data struct because they can
         be shown at the same time, only hosts and groups share
         the data struct
@@ -66,7 +66,7 @@ struct ZonesSection_
     ITEM    **hostitems;
     size_t  host_n;
     d_list  group_desc_list;
-  
+
     ITEM    *h_top,
             *h_bot;
     PANEL   *h_panel_top[1];
@@ -174,6 +174,9 @@ struct
             *ipaddressfld,
             *ipaddresslabelfld,
 
+            *ip6addressfld,
+            *ip6addresslabelfld,
+
             *macaddressfld,
             *macaddresslabelfld,
 
@@ -209,7 +212,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     getmaxyx(stdscr, max_height, max_width);
 
     /* alloc fields */
-    ZonesSection.EditZone.n_fields = 9;
+    ZonesSection.EditZone.n_fields = 11;
     if(!(ZonesSection.EditZone.fields = (FIELD **)calloc(ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *))))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
@@ -225,25 +228,34 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     HostSec.activefld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 3, 3, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, HostSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
-    HostSec.ipaddresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 2, 22, 0, 0));
+    HostSec.ipaddresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 2, 8, 0, 0));
     set_field_buffer_wrap(debuglvl, HostSec.ipaddresslabelfld, 0, STR_IPADDRESS);
     field_opts_off(HostSec.ipaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    HostSec.ipaddressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 3, 23, 0, 0));
+    HostSec.ipaddressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 3, 9, 0, 0));
     set_field_type(HostSec.ipaddressfld, TYPE_IPV4);
     set_field_buffer_wrap(debuglvl, HostSec.ipaddressfld, 0, zone_ptr->ipv4.ipaddress);
     field_opts_on(HostSec.ipaddressfld, O_BLANK);
 
-    HostSec.macaddresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 5, 22, 0, 0));
+    HostSec.ip6addresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 4, 8, 0, 0));
+    set_field_buffer_wrap(debuglvl, HostSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
+    field_opts_off(HostSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
+
+    HostSec.ip6addressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, MAX_IPV6_ADDR_LEN, 5, 9, 0, 0));
+    //set_field_type(HostSec.ipaddressfld, TYPE_IPV4);
+    set_field_buffer_wrap(debuglvl, HostSec.ip6addressfld, 0, zone_ptr->ipv6.ip6);
+    field_opts_on(HostSec.ip6addressfld, O_BLANK);
+
+    HostSec.macaddresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 6, 8, 0, 0));
     set_field_buffer_wrap(debuglvl, HostSec.macaddresslabelfld, 0, STR_MACADDRESS);
     field_opts_off(HostSec.macaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    HostSec.macaddressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 19, 6, 23, 0, 0));
+    HostSec.macaddressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 19, 7, 9, 0, 0));
     set_field_buffer_wrap(debuglvl, HostSec.macaddressfld, 0, zone_ptr->mac);
     field_opts_on(HostSec.macaddressfld, O_BLANK);
 
     /* comment label */
-    HostSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 8, 0, 0, 0));
+    HostSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 10, 0, 0, 0));
     set_field_buffer_wrap(debuglvl, HostSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(HostSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
@@ -251,7 +263,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     comment_y = 5;
     comment_x = 48;
     /* create the comment field */
-    HostSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 9, 1, 0, 0));
+    HostSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 11, 1, 0, 0));
 
     /* load the comment from the backend */
     if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), TYPE_HOST, 0) < 0)
@@ -295,6 +307,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
 
     set_field_back(HostSec.activelabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     set_field_back(HostSec.ipaddresslabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(HostSec.ip6addresslabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     set_field_back(HostSec.macaddresslabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
     set_field_back(HostSec.commentlabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
 
@@ -355,8 +368,10 @@ edit_zone_host_save(const int debuglvl, struct ZoneData_ *zone_ptr, struct rgx_ 
     int     active = 0;
     char    ipaddress[16] = "",
             mac[19] = "";
+#ifdef IPV6_ENABLED
+    char    ip6address[MAX_IPV6_ADDR_LEN] = "";
+#endif
     size_t  i = 0;
-        
 
     /* safety */
     if(zone_ptr == NULL || reg == NULL)
@@ -364,7 +379,7 @@ edit_zone_host_save(const int debuglvl, struct ZoneData_ *zone_ptr, struct rgx_ 
         (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s).", __FUNC__);
         return(-1);
     }
-    
+
     /* check for changed fields */
     for(i = 0; i < ZonesSection.EditZone.n_fields; i++)
     {
@@ -413,10 +428,10 @@ edit_zone_host_save(const int debuglvl, struct ZoneData_ *zone_ptr, struct rgx_ 
                                     sizeof(zone_ptr->ipv4.ipaddress))))
                     return(-1);
 
-                /*  we dont check for invalid ip 
+                /*  we dont check for invalid ip
                     (check_ip == 0), because this is done
                     by the fieldvalidation
-                    
+
                     also, we first check if the network
                     has the network address and netmask
                     set.
@@ -456,6 +471,69 @@ edit_zone_host_save(const int debuglvl, struct ZoneData_ *zone_ptr, struct rgx_ 
                 }
             }
 
+#ifdef IPV6_ENABLED
+            /* ip6address field */
+            else if(ZonesSection.EditZone.fields[i] == HostSec.ip6addressfld)
+            {
+                /* for the log and incase something goes wrong */
+                if(strlcpy(ip6address, zone_ptr->ipv6.ip6, sizeof(ip6address)) >= sizeof(ip6address))
+                {
+                    (void)vrprint.error(-1, VR_INTERR, "copying ipaddress failed (in: %s).", __FUNC__);
+                    return(-1);
+                }
+
+                if(!(copy_field2buf(zone_ptr->ipv6.ip6,
+                                    field_buffer(ZonesSection.EditZone.fields[i], 0),
+                                    sizeof(zone_ptr->ipv6.ip6))))
+                    return(-1);
+
+                /*  we dont check for invalid ip
+                    (check_ip == 0), because this is done
+                    by the fieldvalidation
+
+                    also, we first check if the network
+                    has the network address and netmask
+                    set.
+                */
+#if 0
+                if( zone_ptr->network_parent->ipv4.network[0] == '\0' ||
+                    zone_ptr->network_parent->ipv4.netmask[0] == '\0' ||
+                    check_ipv4address(debuglvl, zone_ptr->network_parent->ipv4.network,
+                        zone_ptr->network_parent->ipv4.netmask, zone_ptr->ipv4.ipaddress, 0))
+                {
+#endif
+                    if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6ADDRESS", zone_ptr->ipv6.ip6, 1, TYPE_HOST) < 0)
+                    {
+                        (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                        return(-1);
+                    }
+
+                    /* audit log */
+                    (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                        STR_HOST, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_IP6ADDRESS,
+                        STR_IS_NOW_SET_TO, zone_ptr->ipv6.ip6,
+                        STR_WAS, ip6address);
+
+                    zone_ptr->status = ST_CHANGED;
+//                }
+#if 0
+                else
+                {
+                    (void)vrprint.error(-1, VR_ERR, gettext("ipaddress '%s' doesn't belong in the network %s/%s."), zone_ptr->ipv4.ipaddress, zone_ptr->network_parent->ipv4.network, zone_ptr->network_parent->ipv4.netmask);
+
+                    /* copy the old ipaddress back */
+                    if(strlcpy(zone_ptr->ipv4.ipaddress, ipaddress, sizeof(zone_ptr->ipv4.ipaddress)) >= sizeof(zone_ptr->ipv4.ipaddress))
+                    {
+                        (void)vrprint.error(-1, VR_INTERR, "copying ipaddress failed (in: %s).", __FUNC__);
+                        return(-1);
+                    }
+
+                    /* error so the user can edit this host again */
+                    return(-1);
+                }
+#endif
+            }
+#endif
             /* MAC field */
             else if(ZonesSection.EditZone.fields[i] == HostSec.macaddressfld)
             {
@@ -640,7 +718,8 @@ edit_zone_host(const int debuglvl, Zones *zones, char *name, struct rgx_ *reg)
                 not_defined = 1;
         }
         else if(cur == HostSec.ipaddressfld ||
-            cur == HostSec.macaddressfld)
+                cur == HostSec.ip6addressfld ||
+                cur == HostSec.macaddressfld)
         {
             if(nav_field_simpletext(debuglvl, ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
