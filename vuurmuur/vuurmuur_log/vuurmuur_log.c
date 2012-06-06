@@ -393,8 +393,19 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
             break;
 #endif /* IPV6_ENABLED */
         default:
+            snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s PROTO %d len:%u ttl:%u)\n",
+                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
+                logrule->action, logrule->ser_name,
+                logrule->from_name, logrule->to_name,
+                logrule->logprefix,
+                logrule->from_int, logrule->to_int,
+                logrule->src_ip, logrule->src_mac,
+                logrule->dst_ip, logrule->dst_mac,
+                logrule->protocol,
+                logrule->packet_len, logrule->ttl);
+
             (void)vrprint.debug(__FUNC__, "unknown protocol");
-            return(-1);
+            break;
     }
 
     return (0);
