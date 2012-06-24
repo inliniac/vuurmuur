@@ -439,6 +439,10 @@ VrMenuDefaultNavigation(const int debuglvl, VrMenu *menu, int key)
             menu_driver(menu->m, REQ_LAST_ITEM);
             match = TRUE;
             break;
+        case 9: /* TAB */
+            menu_driver(menu->m, REQ_NEXT_ITEM);
+            match = TRUE;
+            break;
     }
 
     return(match);
@@ -998,6 +1002,10 @@ VrFormTextNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
             form_driver(form->f, REQ_END_LINE);
             match = TRUE;
             break;
+        case 9: /* TAB */
+            form_driver(form->f, REQ_NEXT_FIELD);
+            match = TRUE;
+            break;
         default:
             //(void)vrprint.info(VR_INFO, "default");
             if (isprint(key)) {
@@ -1040,6 +1048,10 @@ VrFormCheckboxNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
             {
                 while(form_driver(form->f, REQ_PREV_FIELD) == E_OK);
             }
+            match = TRUE;
+            break;
+        case 9: /* TAB */
+            form_driver(form->f, REQ_NEXT_FIELD);
             match = TRUE;
             break;
         case 32: /* SPACE */
@@ -1130,6 +1142,10 @@ VrFormDefaultNavigation(const int debuglvl, VrForm *form, int key)
             break;
         case KEY_END:
             form_driver(form->f, REQ_LAST_FIELD);
+            match = TRUE;
+            break;
+        case 9: /* TAB */
+            form_driver(form->f, REQ_NEXT_FIELD);
             match = TRUE;
             break;
     }
