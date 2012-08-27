@@ -557,7 +557,7 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, Rules *rules, u
         return(0);
 
     // create window, panel, fields, form and post it
-    if(!(move_win = create_newwin(6, 40, (LINES-6)/2, (COLS-40)/2, gettext("Move Rule"), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(move_win = create_newwin(6, 40, (LINES-6)/2, (COLS-40)/2, gettext("Move Rule"), vccnf.color_bgd_rev)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -571,7 +571,7 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, Rules *rules, u
     set_field_type(fields[0], TYPE_INTEGER, 5, 1, 99999);
     fields[1] = NULL;
 
-    set_field_back(fields[0], (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_field_back(fields[0], vccnf.color_bgd_rev);
     field_opts_off(fields[0], O_AUTOSKIP);
     set_field_status(fields[0], FALSE);
 

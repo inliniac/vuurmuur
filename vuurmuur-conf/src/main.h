@@ -103,6 +103,7 @@
 #define CP_WHITE_CYAN   16
 #define CP_WHITE_BLACK  17
 #define CP_WHITE_YELLOW 18
+#define CP_YELLOW_BLACK 19
 
 #define CP_WIN          20
 #define CP_WIN_REV      21
@@ -161,6 +162,7 @@ typedef struct
     short           bgd_back;
 
     chtype          color_bgd;
+    chtype          color_bgd_hi;
     chtype          color_bgd_rev;
 
 } vc_cnf;

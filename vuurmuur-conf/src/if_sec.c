@@ -119,7 +119,7 @@ void VrTcpmssIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
     }
     
     /* create the window and put it in the middle of the screen */
-    win = VrNewWin(11,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    win = VrNewWin(11,51,0,0,vccnf.color_win);
     if(win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
@@ -127,12 +127,12 @@ void VrTcpmssIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
     }
     VrWinSetTitle(win, gettext("Tcpmss"));
 
-    form = VrNewForm(9, 58, 1, 1, 2, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+    form = VrNewForm(9, 58, 1, 1, 2, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
 
     VrFormSetSaveFunc(debuglvl, form, VrTcpmssIfaceSave, &config);
 
-    VrFormAddLabelField(debuglvl,   form, 1, 25, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Enable TCP MSS clamping"));
-    VrFormAddCheckboxField(debuglvl,form,        1, 28, (chtype)COLOR_PAIR(CP_BLUE_WHITE), "S", config.enabled);
+    VrFormAddLabelField(debuglvl,   form, 1, 25, 1, 1,  vccnf.color_win, gettext("Enable TCP MSS clamping"));
+    VrFormAddCheckboxField(debuglvl,form,        1, 28, vccnf.color_win, "S", config.enabled);
 
     VrFormConnectToWin(debuglvl, form, win);
 
@@ -345,7 +345,7 @@ void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
     }
 
     /* create the window and put it in the middle of the screen */
-    win = VrNewWin(11,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    win = VrNewWin(11,51,0,0,vccnf.color_win);
     if(win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
@@ -353,18 +353,18 @@ void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
     }
     VrWinSetTitle(win, gettext("Shaping"));
 
-    form = VrNewForm(9, 58, 1, 1, 9, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+    form = VrNewForm(9, 58, 1, 1, 9, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
 
     VrFormSetSaveFunc(debuglvl, form, VrShapeIfaceSave, &config);
 
-    VrFormAddLabelField(debuglvl,   form, 1, 25, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Enable shaping"));
-    VrFormAddCheckboxField(debuglvl,form,        1, 28, (chtype)COLOR_PAIR(CP_BLUE_WHITE), "S", config.enabled);
-    VrFormAddLabelField(debuglvl,   form, 1, 25, 3, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Incoming bandwidth"));
-    VrFormAddTextField(debuglvl,    form, 1, 10, 3, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "in", config.in);
-    VrFormAddTextField(debuglvl,    form, 1,  5, 3, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit1", config.in_unit);
-    VrFormAddLabelField(debuglvl,   form, 1, 25, 5, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Outgoing bandwidth"));
-    VrFormAddTextField(debuglvl,    form, 1, 10, 5, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "out", config.out);
-    VrFormAddTextField(debuglvl,    form, 1,  5, 5, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit2", config.out_unit);
+    VrFormAddLabelField(debuglvl,   form, 1, 25, 1, 1,  vccnf.color_win, gettext("Enable shaping"));
+    VrFormAddCheckboxField(debuglvl,form,        1, 28, vccnf.color_win, "S", config.enabled);
+    VrFormAddLabelField(debuglvl,   form, 1, 25, 3, 1,  vccnf.color_win, gettext("Incoming bandwidth"));
+    VrFormAddTextField(debuglvl,    form, 1, 10, 3, 28, vccnf.color_win_rev | A_BOLD, "in", config.in);
+    VrFormAddTextField(debuglvl,    form, 1,  5, 3, 41, vccnf.color_win_rev | A_BOLD, "unit1", config.in_unit);
+    VrFormAddLabelField(debuglvl,   form, 1, 25, 5, 1,  vccnf.color_win, gettext("Outgoing bandwidth"));
+    VrFormAddTextField(debuglvl,    form, 1, 10, 5, 28, vccnf.color_win_rev | A_BOLD, "out", config.out);
+    VrFormAddTextField(debuglvl,    form, 1,  5, 5, 41, vccnf.color_win_rev | A_BOLD, "unit2", config.out_unit);
 
     VrFormConnectToWin(debuglvl, form, win);
 

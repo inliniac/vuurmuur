@@ -46,13 +46,13 @@ keyprint(const int debuglvl, WINDOW *win, int y, int x, const char *keystr, cons
     if(x > COLS - 2)
         return(0);
 
-    wattron(win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+    wattron(win, vccnf.color_bgd | A_BOLD);
     mvwprintw(win, y, x, "%s:", keystr);
-    wattroff(win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+    wattroff(win, vccnf.color_bgd | A_BOLD);
 
-    wattron(win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+    wattron(win, vccnf.color_bgd_hi | A_BOLD);
     mvwprintw(win, y, (int)(x +  StrLen(keystr) + 1), fmt);
-    wattroff(win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+    wattroff(win, vccnf.color_bgd_hi | A_BOLD);
 
     res = (int)(x + StrLen(keystr) + 1 + StrLen(fmt) + 2);
 
@@ -82,9 +82,9 @@ setup_topmenu(WINDOW *local_win)
         (void)strlcpy(TopMenu.hostname, gettext("error"),
                 sizeof(TopMenu.hostname));
 
-    wattron(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    wattron(local_win, vccnf.color_bgd|A_BOLD);
     mvwprintw(local_win, 0, (int)(max_width - 4 - StrLen(TopMenu.hostname)), " %s ", TopMenu.hostname);
-    wattroff(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    wattroff(local_win, vccnf.color_bgd|A_BOLD);
 }
 
 void
@@ -106,10 +106,10 @@ draw_top_menu(const int debuglvl, WINDOW *local_win, char *title, int key_n, cha
     werase(local_win);
 
     /* draw the box and the title */
-    wattron(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    wattron(local_win, vccnf.color_bgd);
     box(local_win, 0 , 0);
     menunameprint(debuglvl, local_win, title);
-    wattroff(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    wattroff(local_win, vccnf.color_bgd);
 
     for(i = 0; i < key_n; i++)
     {

@@ -30,7 +30,7 @@ VrBusyWinCreate(const int debuglvl)
     int width = 20,
         height = 5;
 
-    vr_busywin = VrNewWin(height, width, 0, 0, COLOR_PAIR(CP_BLUE_WHITE));
+    vr_busywin = VrNewWin(height, width, 0, 0, vccnf.color_win);
 
     mvwprintw(vr_busywin->w, 2, 4, gettext("Please Wait"));
 }

@@ -260,7 +260,7 @@ input_box(size_t length, char *title, char *description)
     starty = (max_width-width)/2;
 
     // create window
-    ib_win = create_newwin(height, width, startx, starty, title, (chtype)COLOR_PAIR(5));
+    ib_win = create_newwin(height, width, startx, starty, title, vccnf.color_win);
 
     my_panels[0] = new_panel(ib_win);
 
@@ -268,7 +268,7 @@ input_box(size_t length, char *title, char *description)
 
     fields[0] = new_field(1, (int)length-1, 3, (int)(((width-length)/2)-2), 0, 0);
 
-    set_field_back(fields[0], (chtype)COLOR_PAIR(3));
+    set_field_back(fields[0], vccnf.color_win_rev);
     field_opts_off(fields[0], O_AUTOSKIP);
     // set status to false
     set_field_status(fields[0], FALSE);
@@ -528,7 +528,7 @@ vuumuurconf_print_warning(char *title, char *fmt, ...)
     starty = (max_height - height) / 2;
     startx = (max_width - width) / 2;
 
-    err_win = create_newwin(height, width, starty, startx, title, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    err_win = create_newwin(height, width, starty, startx, title, vccnf.color_win);
     if(err_win == NULL)
         return(-1);
 
@@ -536,7 +536,7 @@ vuumuurconf_print_warning(char *title, char *fmt, ...)
     if(print_err_win == NULL)
         return(-1);
 
-    wbkgd(print_err_win, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(print_err_win, vccnf.color_win);
     my_panels[0] = new_panel(err_win);
     keypad(err_win, TRUE);
 
@@ -591,7 +591,7 @@ vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
     starty = (max_height - height) / 2;
     startx = (max_width - width) / 2;
     
-    err_win = create_newwin(height, width, starty, startx, title, (chtype)COLOR_PAIR(6)|A_BOLD);
+    err_win = create_newwin(height, width, starty, startx, title, (chtype)COLOR_PAIR(CP_YELLOW_RED)|A_BOLD);
     if(err_win == NULL)
         return(-1);
     
@@ -793,7 +793,7 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
     confirm_menu = new_menu((ITEM **)menu_items);
 
     confirm_win = newwin(height, width, starty, startx);
-    wbkgd(confirm_win, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(confirm_win, vccnf.color_win);
     keypad(confirm_win, TRUE);
     wrefresh(confirm_win);
 
@@ -805,11 +805,11 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
     set_menu_format(confirm_menu, height-5, (int)cols);
 
     box(confirm_win, 0, 0);
-    print_in_middle(confirm_win, 0, 0, width, print_title, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    print_in_middle(confirm_win, 2, 0, width, text, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    print_in_middle(confirm_win, 0, 0, width, print_title, vccnf.color_win);
+    print_in_middle(confirm_win, 2, 0, width, text, vccnf.color_win);
 
-    set_menu_back(confirm_menu, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_menu_fore(confirm_menu, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_menu_back(confirm_menu, vccnf.color_win);
+    set_menu_fore(confirm_menu, vccnf.color_win_rev);
 
     /*
         make sure the colums are filled top->down, not left->right
@@ -869,7 +869,7 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(NULL);
     }
-    wbkgd(win_top, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(win_top, vccnf.color_win);
     panel_top[0] = new_panel(win_top);
     /* TRANSLATORS: max 4 chars */
     wprintw(win_top, "(%s)", gettext("more"));
@@ -880,7 +880,7 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(NULL);
     }
-    wbkgd(win_bot, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(win_bot, vccnf.color_win);
     panel_bot[0] = new_panel(win_bot);
     /* TRANSLATORS: max 4 chars */
     wprintw(win_bot, "(%s)", gettext("more"));
@@ -1032,9 +1032,9 @@ status_print(WINDOW *local_win, char *fmt, ...)
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
 
-    wattron(local_win, (chtype)COLOR_PAIR(4) | A_BOLD);
+    wattron(local_win, vccnf.color_bgd | A_BOLD);
     mvwprintw(local_win, 0, 0, "%s", long_str);
-    wattroff(local_win, (chtype)COLOR_PAIR(4)| A_BOLD);
+    wattroff(local_win, vccnf.color_bgd | A_BOLD);
     wrefresh(local_win);
 
     return(0);

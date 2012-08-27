@@ -257,6 +257,7 @@ main(int argc, char *argv[])
     (void)init_pair(CP_WHITE_CYAN,   COLOR_WHITE,  COLOR_CYAN);
     (void)init_pair(CP_WHITE_BLACK,  COLOR_WHITE,  COLOR_BLACK);
     (void)init_pair(CP_WHITE_YELLOW, COLOR_WHITE,  COLOR_YELLOW);
+    (void)init_pair(CP_YELLOW_BLACK, COLOR_YELLOW, COLOR_BLACK);
 
     vccnf.win_fore = COLOR_BLUE;
     vccnf.win_back = COLOR_WHITE;
@@ -272,28 +273,29 @@ main(int argc, char *argv[])
     vccnf.color_win_field = (chtype)COLOR_PAIR(CP_WIN_FIELD);
 
     vccnf.color_bgd     = (chtype)COLOR_PAIR(CP_WHITE_BLUE);
+    vccnf.color_bgd_hi  = (chtype)COLOR_PAIR(CP_YELLOW_BLUE);
     vccnf.color_bgd_rev = (chtype)COLOR_PAIR(CP_BLUE_WHITE);
 
     /* create the three main windows */
-    if(!(status_frame_win = create_newwin(3, COLS, LINES-3, 0, NULL, (chtype)COLOR_PAIR(CP_WHITE_BLUE))))
+    if(!(status_frame_win = create_newwin(3, COLS, LINES-3, 0, NULL, vccnf.color_bgd)))
         exit(EXIT_FAILURE);
-    if(!(status_win = create_newwin(1, COLS-4, LINES-2, 2, NULL, (chtype)COLOR_PAIR(CP_WHITE_BLUE))))
+    if(!(status_win = create_newwin(1, COLS-4, LINES-2, 2, NULL, vccnf.color_bgd)))
         exit(EXIT_FAILURE);
-    if(!(top_win = create_newwin(3, COLS, 0, 0, NULL, (chtype)COLOR_PAIR(CP_WHITE_BLUE))))
+    if(!(top_win = create_newwin(3, COLS, 0, 0, NULL, vccnf.color_bgd)))
         exit(EXIT_FAILURE);
-    if(!(main_win = create_newwin(LINES-6, COLS, 3, 0, NULL, (chtype)COLOR_PAIR(CP_WHITE_BLUE))))
+    if(!(main_win = create_newwin(LINES-6, COLS, 3, 0, NULL, vccnf.color_bgd)))
         exit(EXIT_FAILURE);
 
     getmaxyx(stdscr, max_height, max_width);
     if(!(mainlog_win = newwin(max_height-8, max_width-2, 4, 1)))
         exit(EXIT_FAILURE);
 
-    (void)wbkgd(mainlog_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    (void)wbkgd(mainlog_win, vccnf.color_bgd);
 
-    wattron(status_frame_win, (chtype)COLOR_PAIR(3));
+    wattron(status_frame_win, vccnf.color_bgd);
     mvwprintw(status_frame_win, 0, 2, " %s ", gettext("Status"));
     mvwprintw(status_frame_win, 2, (int)(max_width - 4 - StrLen(user_data.realusername) - 6), " user: %s ", user_data.realusername);
-    wattroff(status_frame_win, (chtype)COLOR_PAIR(3));
+    wattroff(status_frame_win, vccnf.color_bgd);
 
     /* Attach a panel to each window */
     main_panels[0] = new_panel(top_win);
@@ -573,7 +575,7 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
     mvwprintw(startup_win, 5, 4, "    \\//  \\/| \\/| |\\ ||   || \\/| \\/| |\\ ");
     mvwprintw(startup_win, 6, 4, "                                Config ");
     mvwprintw(startup_win, 7, 4, "  ------------------------------------ ");
-    mvwprintw(startup_win, 9, 4, "  Copyright (c) 2003-2008 by Victor Julien ");
+    mvwprintw(startup_win, 9, 4, "  Copyright (c) 2003-2012 by Victor Julien ");
     mvwprintw(startup_win, 10, 6, gettext("Version: %s"), VUURMUURCONF_VERSION);
     mvwprintw(startup_win, 12, 4, "[");
     mvwprintw(startup_win, 12, 4+print_pan_width+1, "]");

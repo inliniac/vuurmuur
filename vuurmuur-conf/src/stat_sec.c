@@ -399,7 +399,7 @@ status_section_init(const int debuglvl, int height, int width, int startx, int s
     StatusSection.fields[StatusSection.n_fields] = NULL;
 
     /* create the window and the panel */
-    if(!(StatusSection.win = create_newwin(height, width, startx, starty, gettext("Status Section"), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(StatusSection.win = create_newwin(height, width, startx, starty, gettext("Status Section"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);

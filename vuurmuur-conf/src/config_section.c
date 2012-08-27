@@ -1719,7 +1719,7 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
 
     /* create win & pan */
-    if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Vuurmuur_conf Settings"), (chtype)COLOR_PAIR(5))))
+    if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Vuurmuur_conf Settings"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);

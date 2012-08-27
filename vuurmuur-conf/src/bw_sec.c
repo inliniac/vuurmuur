@@ -522,8 +522,7 @@ trafvol_section_init(const int debuglvl, int height, int width, int startx,
 
     /* create the window and the panel */
     if(!(TrafVolSection.win = create_newwin(height, width, startx, starty,
-            gettext("Traffic Volume Section"),
-            (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+            gettext("Traffic Volume Section"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);

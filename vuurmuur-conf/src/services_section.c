@@ -378,9 +378,9 @@ edit_tcpudp(const int debuglvl, struct portdata *port_ptr)
 
     /* create window and panel */
     if(port_ptr->protocol == 6)
-        new_portrange_win = create_newwin(height, width, starty, startx, gettext("TCP Portrange"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+        new_portrange_win = create_newwin(height, width, starty, startx, gettext("TCP Portrange"), vccnf.color_win);
     else
-        new_portrange_win = create_newwin(height, width, starty, startx, gettext("UDP Portrange"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+        new_portrange_win = create_newwin(height, width, starty, startx, gettext("UDP Portrange"), vccnf.color_win);
     if(new_portrange_win == NULL)
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -438,7 +438,7 @@ edit_tcpudp(const int debuglvl, struct portdata *port_ptr)
 
     for(i = 0; i < 4; i++)
     {
-        set_field_back(fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+        set_field_back(fields[i], vccnf.color_win_rev);
         field_opts_off(fields[i], O_AUTOSKIP);
         set_field_status(fields[i], FALSE);
     }
@@ -717,10 +717,10 @@ icmp_choose_type(void)
         (void)vrprint.error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    wbkgd(win, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(win, vccnf.color_win);
     keypad(win, TRUE);
     box(win, 0, 0);
-    print_in_middle(win, 1, 0, width, gettext("ICMP Types"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    print_in_middle(win, 1, 0, width, gettext("ICMP Types"), vccnf.color_win);
     wrefresh(win);
 
     panel[0] = new_panel(win);
@@ -741,8 +741,8 @@ icmp_choose_type(void)
     mvwhline(win, 2, 1, ACS_HLINE, width-2);
     mvwaddch(win, 2, width-1, ACS_RTEE);
 
-    set_menu_back(menu, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_menu_fore(menu, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_menu_back(menu, vccnf.color_win);
+    set_menu_fore(menu, vccnf.color_win_rev);
 
     post_menu(menu);
     doupdate();
@@ -960,9 +960,9 @@ icmp_choose_code(const int icmp_type)
         return(-1);
     }
     box(win, 0, 0);
-    wbkgd(win, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(win, vccnf.color_win_rev);
     keypad(win, TRUE);
-    print_in_middle(win, 1, 0, width, gettext("ICMP Codes"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    print_in_middle(win, 1, 0, width, gettext("ICMP Codes"), vccnf.color_win_rev);
     wrefresh(win);
     update_panels();
 
@@ -974,8 +974,8 @@ icmp_choose_code(const int icmp_type)
     mvwhline(win, 2, 1, ACS_HLINE, width-2);
     mvwaddch(win, 2, width-1, ACS_RTEE);
 
-    set_menu_back(menu, (chtype)COLOR_PAIR(5));
-    set_menu_fore(menu, (chtype)COLOR_PAIR(3));
+    set_menu_back(menu, vccnf.color_win_rev);
+    set_menu_fore(menu, vccnf.color_win);
 
     post_menu(menu);
     doupdate();
@@ -1100,7 +1100,7 @@ edit_icmp(const int debuglvl, struct portdata *port_ptr)
     startx = (max_width - width) / 2;
 
     /* create window and panel */
-    new_portrange_win = create_newwin(height, width, starty, startx, "ICMP", (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    new_portrange_win = create_newwin(height, width, starty, startx, "ICMP", vccnf.color_win);
     if(new_portrange_win == NULL)
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -1137,7 +1137,7 @@ edit_icmp(const int debuglvl, struct portdata *port_ptr)
 
     for(i = 0; i < 2; i++)
     {
-        set_field_back(fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+        set_field_back(fields[i], vccnf.color_win_rev);
         field_opts_off(fields[i], O_AUTOSKIP);
         set_field_status(fields[i], FALSE);
     }
@@ -1771,7 +1771,7 @@ edit_serv_portranges_init(const int debuglvl, struct ServicesData_ *ser_ptr)
         return(-1);
     }
 
-    wbkgd(ServicesSection.EditServicePrt.win, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ServicesSection.EditServicePrt.win, vccnf.color_win);
     keypad(ServicesSection.EditServicePrt.win, TRUE);
 
     ServicesSection.EditServicePrt.panel[0] = new_panel(ServicesSection.EditServicePrt.win);
@@ -1793,13 +1793,13 @@ edit_serv_portranges_init(const int debuglvl, struct ServicesData_ *ser_ptr)
     set_menu_format(ServicesSection.EditServicePrt.menu, height-8, 1);
 
     box(ServicesSection.EditServicePrt.win, 0, 0);
-    print_in_middle(ServicesSection.EditServicePrt.win, 1, 0, width, STR_CPORTRANGES, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    print_in_middle(ServicesSection.EditServicePrt.win, 1, 0, width, STR_CPORTRANGES, vccnf.color_win);
     mvwaddch(ServicesSection.EditServicePrt.win, 2, 0, ACS_LTEE);
     mvwhline(ServicesSection.EditServicePrt.win, 2, 1, ACS_HLINE, width-2);
     mvwaddch(ServicesSection.EditServicePrt.win, 2, width-1, ACS_RTEE);
 
-    set_menu_back(ServicesSection.EditServicePrt.menu, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_menu_fore(ServicesSection.EditServicePrt.menu, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_menu_back(ServicesSection.EditServicePrt.menu, vccnf.color_win);
+    set_menu_fore(ServicesSection.EditServicePrt.menu, vccnf.color_win_rev);
 
     post_menu(ServicesSection.EditServicePrt.menu);
 
@@ -2226,22 +2226,22 @@ edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
     for(i = 0; i < ServicesSection.EditService.n_fields; i++)
     {
         // set field options
-        set_field_back(ServicesSection.EditService.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+        set_field_back(ServicesSection.EditService.fields[i], vccnf.color_win_rev);
         field_opts_off(ServicesSection.EditService.fields[i], O_AUTOSKIP);
         // set status to false
         set_field_status(ServicesSection.EditService.fields[i], FALSE);
     }
 
-    set_field_back(ServiceSec.activelabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(ServiceSec.broadcastlabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(ServiceSec.helperlabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(ServiceSec.commentlabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(ServiceSec.activelabelfld, vccnf.color_win);
+    set_field_back(ServiceSec.broadcastlabelfld, vccnf.color_win);
+    set_field_back(ServiceSec.helperlabelfld, vccnf.color_win);
+    set_field_back(ServiceSec.commentlabelfld, vccnf.color_win);
 
-    set_field_back(ServiceSec.norangewarningfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(ServiceSec.norangewarningfld, vccnf.color_win);
     set_field_fore(ServiceSec.norangewarningfld, (chtype)COLOR_PAIR(CP_YELLOW_RED)|A_BOLD);
 
     /* create window and panel */
-    ServicesSection.EditService.win = create_newwin(height, width, startx, starty, gettext("Edit Service"), (chtype)COLOR_PAIR(5));
+    ServicesSection.EditService.win = create_newwin(height, width, startx, starty, gettext("Edit Service"), vccnf.color_win);
     keypad(ServicesSection.EditService.win, TRUE);
     ServicesSection.EditService.panel[0] = new_panel(ServicesSection.EditService.win);
 
@@ -2641,7 +2641,7 @@ init_services_section(const int debuglvl, Services *services, int height, int wi
     }
 
     ServicesSection.win = newwin(height, width, startx, starty);
-    wbkgd(ServicesSection.win, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ServicesSection.win, vccnf.color_win);
     keypad(ServicesSection.win, TRUE);
     ServicesSection.panel[0] = new_panel(ServicesSection.win);
 
@@ -2651,13 +2651,13 @@ init_services_section(const int debuglvl, Services *services, int height, int wi
     set_menu_format(ServicesSection.menu, height-8, 1);
 
     box(ServicesSection.win, 0, 0);
-    print_in_middle(ServicesSection.win, 1, 0, width, gettext("Services"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    print_in_middle(ServicesSection.win, 1, 0, width, gettext("Services"), vccnf.color_win);
     mvwaddch(ServicesSection.win, 2, 0, ACS_LTEE);
     mvwhline(ServicesSection.win, 2, 1, ACS_HLINE, width-2);
     mvwaddch(ServicesSection.win, 2, width-1, ACS_RTEE);
 
-    set_menu_back(ServicesSection.menu, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_menu_fore(ServicesSection.menu, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_menu_back(ServicesSection.menu, vccnf.color_win);
+    set_menu_fore(ServicesSection.menu, vccnf.color_win_rev);
 
     post_menu(ServicesSection.menu);
 
@@ -2675,7 +2675,7 @@ init_services_section(const int debuglvl, Services *services, int height, int wi
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ServicesSection.win_top, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ServicesSection.win_top, vccnf.color_win);
     ServicesSection.panel_top[0] = new_panel(ServicesSection.win_top);
     /* TRANSLATORS: max 4 chars */
     wprintw(ServicesSection.win_top, "(%s)", gettext("more"));
@@ -2686,7 +2686,7 @@ init_services_section(const int debuglvl, Services *services, int height, int wi
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ServicesSection.win_bot, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ServicesSection.win_bot, vccnf.color_win);
     ServicesSection.panel_bot[0] = new_panel(ServicesSection.win_bot);
     /* TRANSLATORS: max 4 chars */
     wprintw(ServicesSection.win_bot, "(%s)", gettext("more"));
