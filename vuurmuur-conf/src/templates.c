@@ -591,7 +591,7 @@ vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
     starty = (max_height - height) / 2;
     startx = (max_width - width) / 2;
     
-    err_win = create_newwin(height, width, starty, startx, title, (chtype)COLOR_PAIR(CP_YELLOW_RED)|A_BOLD);
+    err_win = create_newwin(height, width, starty, startx, title, vccnf.color_win_warn|A_BOLD);
     if(err_win == NULL)
         return(-1);
     
@@ -599,7 +599,7 @@ vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
     if(print_err_win == NULL)
         return(-1);
 
-    wbkgd(print_err_win, (chtype)COLOR_PAIR(CP_YELLOW_RED)|A_BOLD);
+    wbkgd(print_err_win, vccnf.color_win_warn|A_BOLD);
     my_panels[0] = new_panel(err_win);
     keypad(err_win, TRUE);
 

@@ -539,11 +539,11 @@ trafvol_section_init(const int debuglvl, int height, int width, int startx,
     {
         if(debuglvl >= LOW)
             set_field_back(TrafVolSection.fields[i],
-                    (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+                    vccnf.color_win);
         else
             set_field_back(TrafVolSection.fields[i],
-                    (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-        
+                    vccnf.color_win);
+
         field_opts_off(TrafVolSection.fields[i], O_AUTOSKIP);
         /* set status to false */
         set_field_status(TrafVolSection.fields[i], FALSE);

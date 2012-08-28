@@ -155,7 +155,7 @@ filter_input_box(const int debuglvl, VR_filter *filter)
     starty = (max_width - width) / 2;
 
     /* create window */
-    ib_win = create_newwin(height, width, startx, starty, gettext("Filter"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    ib_win = create_newwin(height, width, startx, starty, gettext("Filter"), vccnf.color_win);
     if(ib_win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
@@ -182,13 +182,13 @@ filter_input_box(const int debuglvl, VR_filter *filter)
     FiFi.string_fld = (FiFi.fields[0] = new_field(1, 31, 3,  4, 0, 0));
     FiFi.check_fld = (FiFi.fields[1]  = new_field(1,  1, 5,  5, 0, 0));
 
-    set_field_back(FiFi.string_fld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_field_back(FiFi.string_fld, vccnf.color_win_rev);
     field_opts_off(FiFi.string_fld, O_AUTOSKIP);
     set_field_status(FiFi.string_fld, FALSE);
     set_field_buffer_wrap(debuglvl, FiFi.string_fld, 0, filter->str);
 
 
-    set_field_back(FiFi.check_fld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(FiFi.check_fld, vccnf.color_win);
     field_opts_off(FiFi.check_fld, O_AUTOSKIP);
     set_field_status(FiFi.check_fld, FALSE);
     set_field_buffer_wrap(debuglvl, FiFi.check_fld, 0, filter->neg ? "X" : " ");
@@ -222,7 +222,7 @@ filter_input_box(const int debuglvl, VR_filter *filter)
     while(quit == 0)
     {
         /* draw nice markers */
-        draw_field_active_mark(cur, prev, ib_win, my_form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ib_win, my_form, CP_WIN_MARK|A_BOLD);
 
         not_defined = 0;
 

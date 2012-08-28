@@ -473,7 +473,7 @@ edit_tcpudp(const int debuglvl, struct portdata *port_ptr)
 
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, new_portrange_win, my_form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, new_portrange_win, my_form, vccnf.color_win_mark|A_BOLD);
 
         if(cur == TCPUDPSec.src_lo_fld)
             status_print(status_win, gettext("Enter a portnumber (1-65535)."));
@@ -1160,7 +1160,7 @@ edit_icmp(const int debuglvl, struct portdata *port_ptr)
 
     while(quit == 0) // F10 exits
     {
-        draw_field_active_mark(cur_field, prev_field, new_portrange_win, my_form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur_field, prev_field, new_portrange_win, my_form, vccnf.color_win_mark|A_BOLD);
 
         if(cur_field  == ICMPSec.typefld)
             status_print(status_win, gettext("Press SPACE to select an ICMP-type."));
@@ -1570,7 +1570,8 @@ edit_serv_portranges_del(const int debuglvl, int place, struct ServicesData_ *se
     }
     
     /* get user confimation */
-    if(confirm(gettext("Delete portrange"), gettext("Are you sure?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0) == 0)
+    if (confirm(gettext("Delete portrange"), gettext("Are you sure?"),
+                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 0)
         return(0);
 
     /* loop trough the list until we are at 'place'. */
@@ -2238,7 +2239,7 @@ edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
     set_field_back(ServiceSec.commentlabelfld, vccnf.color_win);
 
     set_field_back(ServiceSec.norangewarningfld, vccnf.color_win);
-    set_field_fore(ServiceSec.norangewarningfld, (chtype)COLOR_PAIR(CP_YELLOW_RED)|A_BOLD);
+    set_field_fore(ServiceSec.norangewarningfld, vccnf.color_win_warn|A_BOLD);
 
     /* create window and panel */
     ServicesSection.EditService.win = create_newwin(height, width, startx, starty, gettext("Edit Service"), vccnf.color_win);
@@ -2388,7 +2389,7 @@ edit_service(const int debuglvl, Services *services, const char *name)
     /* Loop through to get user requests */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ServicesSection.EditService.win, ServicesSection.EditService.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ServicesSection.EditService.win, ServicesSection.EditService.form, vccnf.color_win_mark|A_BOLD);
 
         ch = wgetch(ServicesSection.EditService.win);
 
@@ -2895,7 +2896,8 @@ services_section(const int debuglvl, Services *services, Rules *rules, struct rg
                     cur = current_item(ServicesSection.menu);
                     if(cur)
                     {
-                        if(confirm(gettext("Delete"), gettext("Are you sure?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0) == 1)
+                        if (confirm(gettext("Delete"), gettext("Are you sure?"),
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
                         {
                             (void)strlcpy(save_ser_name, (char *)item_name(cur), sizeof(save_ser_name));
 

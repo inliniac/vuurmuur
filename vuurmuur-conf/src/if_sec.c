@@ -768,7 +768,7 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
     for(i = 0; i < InterfacesSection.EditInterface.n_fields; i++)
     {
         // set field options
-        set_field_back(InterfacesSection.EditInterface.fields[i], vccnf.color_win_field);
+        set_field_back(InterfacesSection.EditInterface.fields[i], vccnf.color_win_rev);
 
         field_opts_off(InterfacesSection.EditInterface.fields[i], O_AUTOSKIP);
         // set status to false
@@ -1688,7 +1688,7 @@ init_interfaces_section(const int debuglvl, Interfaces *interfaces)
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(InterfacesSection.win_top, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(InterfacesSection.win_top, vccnf.color_win);
     InterfacesSection.panel_top[0] = new_panel(InterfacesSection.win_top);
     /* TRANSLATORS: max 4 chars */
     wprintw(InterfacesSection.win_top, "(%s)", gettext("more"));
@@ -1699,7 +1699,7 @@ init_interfaces_section(const int debuglvl, Interfaces *interfaces)
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(InterfacesSection.win_bot, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(InterfacesSection.win_bot, vccnf.color_win);
     InterfacesSection.panel_bot[0] = new_panel(InterfacesSection.win_bot);
     /* TRANSLATORS: max 4 chars */
     wprintw(InterfacesSection.win_bot, "(%s)", gettext("more"));
@@ -2096,7 +2096,8 @@ interfaces_section(const int debuglvl, Interfaces *interfaces, Zones *zones,
                     cur = current_item(InterfacesSection.menu);
                     if(cur)
                     {
-                        if(confirm(gettext("Delete"), gettext("Are you sure?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0) == 1)
+                        if (confirm(gettext("Delete"), gettext("Are you sure?"),
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
                         {
                             char *n = (char *)item_name(cur);
 
@@ -2105,7 +2106,7 @@ interfaces_section(const int debuglvl, Interfaces *interfaces, Zones *zones,
                             {
                                 (void)vrprint.error(-1, VR_ERR, gettext("deleting interface %s failed."), (char *)item_name(cur));
                             }
-                            
+
                             reload = 1;
                         }
                     }

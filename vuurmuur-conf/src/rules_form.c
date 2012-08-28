@@ -32,14 +32,14 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
                                           dup because we free at the caller*/
 
     /* create the window and put it in the middle of the screen */
-    win = VrNewWin(menu_items + 2,width,y,x,COLOR_PAIR(CP_BLUE_WHITE));
+    win = VrNewWin(menu_items + 2,width,y,x,vccnf.color_win);
     if(win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
         return NULL;
     }
 
-    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,COLOR_PAIR(CP_BLUE_WHITE),COLOR_PAIR(CP_WHITE_BLUE));
+    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win_rev);
     if(menu == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewMenu failed");
@@ -201,7 +201,7 @@ void VrShapeRule(const int debuglvl, struct options *opt) {
     }
 
     /* create the window and put it in the middle of the screen */
-    win = VrNewWin(16,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    win = VrNewWin(16,51,0,0,vccnf.color_win);
     if (win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
@@ -209,26 +209,26 @@ void VrShapeRule(const int debuglvl, struct options *opt) {
     }
     VrWinSetTitle(win, gettext("Shaping"));
 
-    form = VrNewForm(14, 58, 1, 1, 14, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+    form = VrNewForm(14, 58, 1, 1, 14, vccnf.color_win, vccnf.color_win | A_BOLD);
 
     VrFormSetSaveFunc(debuglvl, form, VrShapeRuleSave, &config);
 
-    VrFormAddLabelField(debuglvl, form, 1, 25, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Incoming guaranteed rate"));
-    VrFormAddTextField(debuglvl, form,  1, 10, 1, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "in_min", config.in_min);
-    VrFormAddTextField(debuglvl, form,  1,  5, 1, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit1", config.in_min_unit);
-    VrFormAddLabelField(debuglvl, form, 1, 25, 3, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Incoming maximum rate"));
-    VrFormAddTextField(debuglvl, form,  1, 10, 3, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "in_max", config.in_max);
-    VrFormAddTextField(debuglvl, form,  1,  5, 3, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit2", config.in_max_unit);
+    VrFormAddLabelField(debuglvl, form, 1, 25, 1, 1,  vccnf.color_win, gettext("Incoming guaranteed rate"));
+    VrFormAddTextField(debuglvl, form,  1, 10, 1, 28, vccnf.color_win_rev | A_BOLD, "in_min", config.in_min);
+    VrFormAddTextField(debuglvl, form,  1,  5, 1, 41, vccnf.color_win_rev | A_BOLD, "unit1", config.in_min_unit);
+    VrFormAddLabelField(debuglvl, form, 1, 25, 3, 1,  vccnf.color_win, gettext("Incoming maximum rate"));
+    VrFormAddTextField(debuglvl, form,  1, 10, 3, 28, vccnf.color_win_rev | A_BOLD, "in_max", config.in_max);
+    VrFormAddTextField(debuglvl, form,  1,  5, 3, 41, vccnf.color_win_rev | A_BOLD, "unit2", config.in_max_unit);
 
-    VrFormAddLabelField(debuglvl, form, 1, 25, 5, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Outgoing guaranteed rate"));
-    VrFormAddTextField(debuglvl, form,  1, 10, 5, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "out_min", config.out_min);
-    VrFormAddTextField(debuglvl, form,  1,  5, 5, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit3", config.out_min_unit);
-    VrFormAddLabelField(debuglvl, form, 1, 25, 7, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Outgoing maximum rate"));
-    VrFormAddTextField(debuglvl, form,  1, 10, 7, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "out_max", config.out_max);
-    VrFormAddTextField(debuglvl, form,  1,  5, 7, 41, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "unit4", config.out_max_unit);
+    VrFormAddLabelField(debuglvl, form, 1, 25, 5, 1,  vccnf.color_win, gettext("Outgoing guaranteed rate"));
+    VrFormAddTextField(debuglvl, form,  1, 10, 5, 28, vccnf.color_win_rev | A_BOLD, "out_min", config.out_min);
+    VrFormAddTextField(debuglvl, form,  1,  5, 5, 41, vccnf.color_win_rev | A_BOLD, "unit3", config.out_min_unit);
+    VrFormAddLabelField(debuglvl, form, 1, 25, 7, 1,  vccnf.color_win, gettext("Outgoing maximum rate"));
+    VrFormAddTextField(debuglvl, form,  1, 10, 7, 28, vccnf.color_win_rev | A_BOLD, "out_max", config.out_max);
+    VrFormAddTextField(debuglvl, form,  1,  5, 7, 41, vccnf.color_win_rev | A_BOLD, "unit4", config.out_max_unit);
 
-    VrFormAddLabelField(debuglvl, form, 1, 25, 9, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Priority"));
-    VrFormAddTextField(debuglvl, form,  1,  5, 9, 28, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "prio", config.prio);
+    VrFormAddLabelField(debuglvl, form, 1, 25, 9, 1,  vccnf.color_win, gettext("Priority"));
+    VrFormAddTextField(debuglvl, form,  1,  5, 9, 28, vccnf.color_win_rev | A_BOLD, "prio", config.prio);
 
     VrFormConnectToWin(debuglvl, form, win);
     VrFormPost(debuglvl, form);
@@ -557,7 +557,7 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, Rules *rules, u
         return(0);
 
     // create window, panel, fields, form and post it
-    if(!(move_win = create_newwin(6, 40, (LINES-6)/2, (COLS-40)/2, gettext("Move Rule"), vccnf.color_bgd_rev)))
+    if(!(move_win = create_newwin(6, 40, (LINES-6)/2, (COLS-40)/2, gettext("Move Rule"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -571,7 +571,7 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, Rules *rules, u
     set_field_type(fields[0], TYPE_INTEGER, 5, 1, 99999);
     fields[1] = NULL;
 
-    set_field_back(fields[0], vccnf.color_bgd_rev);
+    set_field_back(fields[0], vccnf.color_win_rev);
     field_opts_off(fields[0], O_AUTOSKIP);
     set_field_status(fields[0], FALSE);
 
@@ -697,236 +697,84 @@ rulebar_setcolor(   FIELD *active,
                     FIELD *to,
                     FIELD *options,
                     FIELD *separator,
-                    chtype color)
+                    int hi)
 {
     char    active_rule = 0;
+static int color = COLOR_BLUE;
+
+    if (hi) {
+        set_field_back(active, (chtype)COLOR_PAIR(CP_RULE_BAR));
+        set_field_back(num_field, (chtype)COLOR_PAIR(CP_RULE_BAR));
+        set_field_back(action, (chtype)COLOR_PAIR(CP_RULE_BAR));
+        set_field_back(service, (chtype)COLOR_PAIR(CP_RULE_BAR));
+        set_field_back(from, (chtype)COLOR_PAIR(CP_RULE_BAR));
+        set_field_back(to, (chtype)COLOR_PAIR(CP_RULE_BAR));
+        set_field_back(options, (chtype)COLOR_PAIR(CP_RULE_BAR));
+        set_field_back(separator, (chtype)COLOR_PAIR(CP_RULE_BAR));
+        return;
+    }
+
+    if (!(strncmp(field_buffer(active, 0), "[x]", 3) == 0)) {
+        set_field_back(active, vccnf.color_bgd);
+        set_field_back(num_field, vccnf.color_bgd);
+        set_field_back(action, vccnf.color_bgd);
+        set_field_back(service, vccnf.color_bgd);
+        set_field_back(from, vccnf.color_bgd);
+        set_field_back(to, vccnf.color_bgd);
+        set_field_back(options, vccnf.color_bgd);
+        set_field_back(separator, vccnf.color_bgd);
+        return;
+    }
 
     /* active */
-    if(color == COLOR_BLUE)
-        set_field_back(active, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    else if(color == COLOR_WHITE)
-        set_field_back(active, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    else if(color == COLOR_RED)
-        set_field_back(active, (chtype)COLOR_PAIR(CP_RED_WHITE));
-
-    if(strncmp(field_buffer(active, 0), "[x]", 3) == 0)
-    {
-        active_rule = 1;
-    }
+    set_field_back(active, vccnf.color_bgd);
 
     /* num_field */
-    if(color == COLOR_BLUE)
-        set_field_back(num_field, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    else if(color == COLOR_WHITE)
-        set_field_back(num_field, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    else if(color == COLOR_RED)
-        set_field_back(num_field, (chtype)COLOR_PAIR(CP_RED_WHITE));
+    set_field_back(num_field, vccnf.color_bgd);
 
     /* action */
-    if(strncasecmp(field_buffer(action, 0), "drop", 4) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
+    if (strncasecmp(field_buffer(action, 0), "drop", 4) == 0)
+        set_field_back(action, vccnf.color_bgd_red|A_BOLD);
     else if(strncasecmp(field_buffer(action, 0), "reject", 6) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_BLUE));
-        else if(color == COLOR_WHITE)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else if(color == COLOR_RED)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
+        set_field_back(action, vccnf.color_bgd_red);
     else if(strncasecmp(field_buffer(action, 0), "accept", 6) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_GREEN_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_GREEN_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
+        set_field_back(action, vccnf.color_bgd_green|A_BOLD);
     else if(strncasecmp(field_buffer(action, 0), "log", 3) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_BLUE_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
-    else if(strncasecmp(field_buffer(action, 0), "portfw", 6) == 0 ||
-        strncasecmp(field_buffer(action, 0), "dnat", 4) == 0 ||
-        strncasecmp(field_buffer(action, 0), "bounce", 6) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_YELLOW_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_YELLOW_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
-    else if(strncasecmp(field_buffer(action, 0), "snat", 4) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_YELLOW_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_YELLOW_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
-    else if(strncasecmp(field_buffer(action, 0), "masq", 4) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_YELLOW_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_YELLOW_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
-    else if(strncasecmp(field_buffer(action, 0), "redirect", 8) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_YELLOW_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_YELLOW_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
+        set_field_back(action, vccnf.color_bgd|A_BOLD);
+    else if(strncasecmp(field_buffer(action, 0), "portfw", 6) == 0  ||
+            strncasecmp(field_buffer(action, 0), "dnat", 4) == 0    ||
+            strncasecmp(field_buffer(action, 0), "bounce", 6) == 0  ||
+            strncasecmp(field_buffer(action, 0), "snat", 4) == 0    ||
+            strncasecmp(field_buffer(action, 0), "masq", 4) == 0    ||
+            strncasecmp(field_buffer(action, 0), "redirect", 8) == 0)
+        set_field_back(action, vccnf.color_bgd_yellow|A_BOLD);
     else if(strncasecmp(field_buffer(action, 0), "queue", 5) == 0 ||
-        strncasecmp(field_buffer(action, 0), "nfqueue", 6) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_BLUE_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
+            strncasecmp(field_buffer(action, 0), "nfqueue", 6) == 0)
+        set_field_back(action, vccnf.color_bgd|A_BOLD);
     else if(strncasecmp(field_buffer(action, 0), "chain", 5) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_BLUE_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
+        set_field_back(action, vccnf.color_bgd|A_BOLD);
     else
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-        else if(color == COLOR_WHITE)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-        else if(color == COLOR_RED)
-            set_field_back(action, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(action, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
-
+        set_field_back(action, vccnf.color_bgd);
 
     /* service */
-    if(color == COLOR_BLUE && active_rule)
-        set_field_back(service, (chtype)COLOR_PAIR(CP_CYAN_BLUE)|A_BOLD);
-    else if(color == COLOR_WHITE)
-        set_field_back(service, (chtype)COLOR_PAIR(CP_CYAN_WHITE)|A_BOLD);
-    else if(color == COLOR_RED)
-        set_field_back(service, (chtype)COLOR_PAIR(CP_RED_WHITE));
-    else
-        set_field_back(service, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_field_back(service, vccnf.color_bgd_cyan|A_BOLD);
 
     /* from zone or firewall */
-    if(strncasecmp(field_buffer(from, 0), "firewall", 8) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(from, (chtype)COLOR_PAIR(CP_YELLOW_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(from, (chtype)COLOR_PAIR(CP_YELLOW_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(from, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(from, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
+    if (strncasecmp(field_buffer(from, 0), "firewall", 8) == 0)
+        set_field_back(from, vccnf.color_bgd_yellow|A_BOLD);
     else
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(from, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(from, (chtype)COLOR_PAIR(CP_BLUE_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(from, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(from, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
+        set_field_back(from, vccnf.color_bgd|A_BOLD);
 
-    // to
-    if(strncasecmp(field_buffer(to, 0), "firewall", 8) == 0)
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(to, (chtype)COLOR_PAIR(CP_YELLOW_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(to, (chtype)COLOR_PAIR(CP_YELLOW_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(to, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(to, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-
-    }
+    if (strncasecmp(field_buffer(to, 0), "firewall", 8) == 0)
+        set_field_back(to, vccnf.color_bgd_yellow|A_BOLD);
     else
-    {
-        if(color == COLOR_BLUE && active_rule)
-            set_field_back(to, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
-        else if(color == COLOR_WHITE)
-            set_field_back(to, (chtype)COLOR_PAIR(CP_BLUE_WHITE)|A_BOLD);
-        else if(color == COLOR_RED)
-            set_field_back(to, (chtype)COLOR_PAIR(CP_RED_WHITE));
-        else
-            set_field_back(to, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    }
+        set_field_back(to, vccnf.color_bgd|A_BOLD);
 
     // options field
-    if(color == COLOR_BLUE)
-        set_field_back(options, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    else if(color == COLOR_WHITE)
-        set_field_back(options, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    else if(color == COLOR_RED)
-        set_field_back(options, (chtype)COLOR_PAIR(CP_RED_WHITE));
-    else
-        set_field_back(options, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_field_back(options, vccnf.color_bgd);
 
-
-    if(color == COLOR_BLUE)
-        set_field_back(separator, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
-    else if(color == COLOR_WHITE)
-        set_field_back(separator, (chtype)COLOR_PAIR(CP_BLUE_WHITE)|A_BOLD);
-    else if(color == COLOR_RED)
-        set_field_back(separator, (chtype)COLOR_PAIR(CP_RED_WHITE));
-    else
-        set_field_back(separator, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    /* separator */
+    set_field_back(separator, vccnf.color_bgd);
 }
 
 /*  Highlight_RuleBar
@@ -937,10 +785,8 @@ void
 HighlightRuleBar(rulebar *bar)
 {
     if(bar != NULL)
-    {
         rulebar_setcolor( bar->active, bar->num_field, bar->action, bar->service,
-                    bar->from, bar->to, bar->options, bar->separator, COLOR_RED);
-    }
+                    bar->from, bar->to, bar->options, bar->separator, /* hilight */1);
     else
         (void)vrprint.debug(__FUNC__, "warning: no bar (bar == NULL).");
 }
@@ -1514,7 +1360,7 @@ draw_rules(const int debuglvl, Rules *rules, struct RuleBarForm_ *rbform)
 
                 /* colorize the bar */
                 rulebar_setcolor(cur_bar->active, cur_bar->num_field, cur_bar->action, cur_bar->service,
-                        cur_bar->from, cur_bar->to, cur_bar->options, cur_bar->separator, COLOR_BLUE);
+                        cur_bar->from, cur_bar->to, cur_bar->options, cur_bar->separator, /* clear */0);
 
                 /* point to the next bar */
                 d_node = d_node->next;
@@ -1548,7 +1394,9 @@ draw_rules(const int debuglvl, Rules *rules, struct RuleBarForm_ *rbform)
         set_field_buffer_wrap(debuglvl, cur_bar->options, 0, "");
         set_field_buffer_wrap(debuglvl, cur_bar->separator, 0, "");
 
-        rulebar_setcolor(cur_bar->num_field, cur_bar->active, cur_bar->action, cur_bar->service, cur_bar->from, cur_bar->to, cur_bar->options, cur_bar->separator, COLOR_BLUE);
+        rulebar_setcolor(cur_bar->num_field, cur_bar->active, cur_bar->action,
+                cur_bar->service, cur_bar->from, cur_bar->to, cur_bar->options,
+                cur_bar->separator, /* clear */0);
     }
 
     /* don' t show (more) panel if list size is 0 */
@@ -1722,7 +1570,7 @@ rules_form(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interface
     bars = (unsigned int)(max_height - 10);
 
     /* Create the window to be associated with the menu */
-    if(!(rules_win = create_newwin(height, width, starty, startx, gettext("Rules Section"), (chtype)COLOR_PAIR(CP_WHITE_BLUE))))
+    if(!(rules_win = create_newwin(height, width, starty, startx, gettext("Rules Section"), vccnf.color_win_rev)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -1746,7 +1594,7 @@ rules_form(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interface
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(rbform->more_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    wbkgd(rbform->more_win, vccnf.color_win_rev);
     rbform->more_pan[0] = new_panel(rbform->more_win);
     /* TRANSLATORS: max 4 chars */
     wprintw(rbform->more_win, "(%s)", gettext("more"));
@@ -1842,7 +1690,7 @@ rules_form(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interface
     for(i = 0; i < (unsigned int)n_fields; i++)
     {
         // set field options
-        set_field_back(fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+        set_field_back(fields[i], vccnf.color_win_rev);
         field_opts_off(fields[i], O_AUTOSKIP);
         // set status to false
         set_field_status(fields[i], FALSE);
@@ -1861,7 +1709,7 @@ rules_form(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interface
     
      this is a bit of a mess, but we need to do it like this because the
      field sizes aren't fixed. */
-    wattron(rules_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+    wattron(rules_win, vccnf.color_win_rev | A_BOLD);
     /* TRANSLATORS: max 3 chars */
     mvwprintw(rules_win, 1, (int)(2+rbform->active_size), gettext("Nr."));
     mvwprintw(rules_win, 1, (int)(2+rbform->num_field_size+rbform->active_size), gettext("Action"));
@@ -1869,7 +1717,7 @@ rules_form(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interface
     mvwprintw(rules_win, 1, (int)(2+rbform->num_field_size+rbform->active_size+rbform->action_size+rbform->service_size), gettext("Source"));
     mvwprintw(rules_win, 1, (int)(2+rbform->num_field_size+rbform->active_size+rbform->action_size+rbform->service_size+rbform->from_size), gettext("Destination"));
     mvwprintw(rules_win, 1, (int)(2+rbform->num_field_size+rbform->active_size+rbform->action_size+rbform->service_size+rbform->from_size+rbform->to_size), gettext("Options"));
-    wattroff(rules_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+    wattroff(rules_win, vccnf.color_win_rev | A_BOLD);
 
     /* horizontal bar below the labels */
     mvwhline(rules_win,  2, 1, ACS_HLINE, width-2);
@@ -2558,7 +2406,8 @@ delete_rule(const int debuglvl, Rules *rules, unsigned int rule_num,
     if(call_confirm == 1)
     {
         /* first ask the user to confirm */
-        result = confirm(gettext("Delete rule"), gettext("Are you sure?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0);
+        result = confirm(gettext("Delete rule"), gettext("Are you sure?"),
+                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0);
         if(result == 1)
             remove_rule = 1;
         else
@@ -3589,15 +3438,15 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.action_label_fld_ptr = (fields[field_num] = new_field(1, 8, 1, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.action_label_fld_ptr, 0, gettext("Action"));
     field_opts_off(RuleFlds.action_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.action_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.action_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.action_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.action_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* action */
     RuleFlds.action_fld_ptr = (fields[field_num] = new_field(1, 16, 1, 10, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.action_fld_ptr, 0, rules_itoaction(rule_ptr->action));
-    set_field_back(RuleFlds.action_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.action_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.action_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* random */
@@ -3605,21 +3454,21 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     /* TRANSLATORS: max 7 chars */
     set_field_buffer_wrap(debuglvl, RuleFlds.random_label_fld_ptr, 0, gettext("Random"));
     field_opts_off(RuleFlds.random_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.random_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.random_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.random_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.random_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     RuleFlds.random_brackets_fld_ptr = (fields[field_num] = new_field(1, 3, 3, 17, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.random_brackets_fld_ptr, 0, "[ ]");
     field_opts_off(RuleFlds.random_brackets_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.random_brackets_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.random_brackets_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.random_brackets_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.random_brackets_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* random toggle */
     RuleFlds.random_fld_ptr = (fields[field_num] = new_field(1, 1, 3, 18, 0, 0));
-    set_field_back(RuleFlds.random_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.random_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.random_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.random_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* enable */
@@ -3637,21 +3486,21 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.queue_label_fld_ptr = (fields[field_num] = new_field(1, 7, 5, 10, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.queue_label_fld_ptr, 0, gettext("Queue"));
     field_opts_off(RuleFlds.queue_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.queue_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.queue_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.queue_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.queue_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     RuleFlds.queue_brackets_fld_ptr = (fields[field_num] = new_field(1, 3, 5, 17, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.queue_brackets_fld_ptr, 0, "[ ]");
     field_opts_off(RuleFlds.queue_brackets_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.queue_brackets_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.queue_brackets_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.queue_brackets_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.queue_brackets_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* portfw/redirect queue */
     RuleFlds.queue_fld_ptr = (fields[field_num] = new_field(1, 1, 5, 18, 0, 0));
-    set_field_back(RuleFlds.queue_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.queue_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.queue_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.queue_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* enable */
@@ -3668,14 +3517,14 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.nfqueuenum_label_fld_ptr = (fields[field_num] = new_field(1, 18, 5, 10, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.nfqueuenum_label_fld_ptr, 0, gettext("Queue number"));
     field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.nfqueuenum_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.nfqueuenum_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.nfqueuenum_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.nfqueuenum_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* nfqueuenum */
     RuleFlds.nfqueuenum_fld_ptr = (fields[field_num] = new_field(1, 6, 5, 30, 0, 0));
-    set_field_back(RuleFlds.nfqueuenum_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.nfqueuenum_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.nfqueuenum_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.nfqueuenum_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* enable nfqueuenum option */
@@ -3693,15 +3542,15 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.service_label_fld_ptr = (fields[field_num] = new_field(1, 8, 7, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.service_label_fld_ptr, 0, gettext("Service"));
     field_opts_off(RuleFlds.service_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.service_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.service_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.service_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.service_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* service */
     RuleFlds.service_fld_ptr = (fields[field_num] = new_field(1, 32, 7, 10, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.service_fld_ptr, 0, rule_ptr->service);
-    set_field_back(RuleFlds.service_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.service_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.service_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.service_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
 
@@ -3710,13 +3559,13 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     /* TRANSLATORS: max 7 chars */
     set_field_buffer_wrap(debuglvl, RuleFlds.nfmark_label_fld_ptr, 0, gettext("Mark"));
     field_opts_off(RuleFlds.nfmark_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.nfmark_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.nfmark_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.nfmark_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.nfmark_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     RuleFlds.nfmark_fld_ptr = (fields[field_num] = new_field(1, 8, 9, 19, 0, 0));
-    set_field_back(RuleFlds.nfmark_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.nfmark_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.nfmark_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.nfmark_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* enable nfmark option */
@@ -3735,15 +3584,15 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.fromzone_label_fld_ptr = (fields[field_num] = new_field(1, 8, 11, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.fromzone_label_fld_ptr, 0, gettext("From"));
     field_opts_off(RuleFlds.fromzone_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.fromzone_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.fromzone_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.fromzone_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.fromzone_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* from zone */
     RuleFlds.fromzone_fld_ptr = (fields[field_num] = new_field(1, 48, 11, 10, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.fromzone_fld_ptr, 0, rule_ptr->from);
-    set_field_back(RuleFlds.fromzone_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.fromzone_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.fromzone_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.fromzone_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
 
@@ -3751,8 +3600,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.in_int_label_fld_ptr = (fields[field_num] = new_field(1, 24, 12, 10, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.in_int_label_fld_ptr, 0, gettext("Listen Interface"));
     field_opts_off(RuleFlds.in_int_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.in_int_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.in_int_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.in_int_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.in_int_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* in_int interface */
@@ -3760,8 +3609,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     if(rule_ptr->opt != NULL)
         set_field_buffer_wrap(debuglvl, RuleFlds.in_int_fld_ptr, 0, rule_ptr->opt->in_int);
 
-    set_field_back(RuleFlds.in_int_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_RED));
-    set_field_fore(RuleFlds.in_int_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD);
+    set_field_back(RuleFlds.in_int_fld_ptr, vccnf.color_win_note);
+    set_field_fore(RuleFlds.in_int_fld_ptr, vccnf.color_win_note|A_BOLD);
     field_num++;
 
     /* in_int interface starts disabled */
@@ -3773,15 +3622,15 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.tozone_label_fld_ptr = (fields[field_num] = new_field(1, 8, 14, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.tozone_label_fld_ptr, 0, gettext("To"));
     field_opts_off(RuleFlds.tozone_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.tozone_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.tozone_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.tozone_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.tozone_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* to zone */
     RuleFlds.tozone_fld_ptr = (fields[field_num] = new_field(1, 48, 14, 10, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.tozone_fld_ptr, 0, rule_ptr->to);
-    set_field_back(RuleFlds.tozone_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.tozone_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.tozone_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.tozone_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
 
@@ -3789,8 +3638,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.out_int_label_fld_ptr = (fields[field_num] = new_field(1, 24, 15, 10, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.out_int_label_fld_ptr, 0, gettext("Outgoing Interface"));
     field_opts_off(RuleFlds.out_int_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.out_int_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.out_int_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.out_int_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.out_int_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* out_int interface */
@@ -3798,8 +3647,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     if(rule_ptr->opt != NULL)
         set_field_buffer_wrap(debuglvl, RuleFlds.out_int_fld_ptr, 0, rule_ptr->opt->out_int);
 
-    set_field_back(RuleFlds.out_int_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_RED));
-    set_field_fore(RuleFlds.out_int_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD);
+    set_field_back(RuleFlds.out_int_fld_ptr, vccnf.color_win_note);
+    set_field_fore(RuleFlds.out_int_fld_ptr, vccnf.color_win_note|A_BOLD);
     field_num++;
 
     /* out_int interface starts disabled */
@@ -3812,16 +3661,16 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.comment_label_fld_ptr = (fields[field_num] = new_field(1, 8, 17, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.comment_label_fld_ptr, 0, gettext("Comment"));
     field_opts_off(RuleFlds.comment_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.comment_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.comment_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.comment_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.comment_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* comment */
     RuleFlds.comment_fld_ptr = (fields[field_num] = new_field(1, 63, 17, 10, 0, 0));
     if(rule_ptr->opt != NULL && rule_ptr->opt->rule_comment == 1)
         set_field_buffer_wrap(debuglvl, RuleFlds.comment_fld_ptr, 0, rule_ptr->opt->comment);
-    set_field_back(RuleFlds.comment_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.comment_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.comment_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.comment_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
 
@@ -3830,15 +3679,15 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.log_label_fld_ptr = (fields[field_num] = new_field(1, 4, 1, 29, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.log_label_fld_ptr, 0, gettext("Log"));
     field_opts_off(RuleFlds.log_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.log_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.log_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.log_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.log_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     RuleFlds.log_brackets_fld_ptr = (fields[field_num] = new_field(1, 3, 1, 34, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.log_brackets_fld_ptr, 0, "[ ]");
     field_opts_off(RuleFlds.log_brackets_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.log_brackets_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.log_brackets_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.log_brackets_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.log_brackets_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* log */
@@ -3848,8 +3697,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     if(rule_ptr->opt != NULL && rule_ptr->opt->rule_log == 1)
         set_field_buffer_wrap(debuglvl, RuleFlds.log_fld_ptr, 0, "X");
 
-    set_field_back(RuleFlds.log_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.log_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.log_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.log_fld_ptr, vccnf.color_win);
     field_num++;
 
 
@@ -3858,16 +3707,16 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.logprefix_label_fld_ptr = (fields[field_num] = new_field(1, 8, 1, 39, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.logprefix_label_fld_ptr, 0, gettext("Prefix"));
     field_opts_off(RuleFlds.logprefix_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.logprefix_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.logprefix_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.logprefix_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.logprefix_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* log prefix */
     RuleFlds.logprefix_fld_ptr = (fields[field_num] = new_field(1, 12, 1, 48, 0, 0));
     if(rule_ptr->opt != NULL)
         set_field_buffer_wrap(debuglvl, RuleFlds.logprefix_fld_ptr, 0, rule_ptr->opt->logprefix);
-    set_field_back(RuleFlds.logprefix_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.logprefix_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.logprefix_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.logprefix_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* limit label */
@@ -3875,8 +3724,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.loglimit_label_fld_ptr = (fields[field_num] = new_field(1, 8, 1, 62, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.loglimit_label_fld_ptr, 0, gettext("Limit"));
     field_opts_off(RuleFlds.loglimit_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.loglimit_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.loglimit_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.loglimit_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.loglimit_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* limit */
@@ -3889,8 +3738,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
             set_field_buffer_wrap(debuglvl, RuleFlds.loglimit_fld_ptr, 0, loglimit_string);
         }
     }
-    set_field_back(RuleFlds.loglimit_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.loglimit_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.loglimit_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.loglimit_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
 
@@ -3899,8 +3748,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.limit_label_fld_ptr = (fields[field_num] = new_field(1, 12, 3, 29, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.limit_label_fld_ptr, 0, gettext("Rule Limit"));
     field_opts_off(RuleFlds.limit_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.limit_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.limit_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.limit_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.limit_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* log prefix */
@@ -3913,8 +3762,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
             set_field_buffer_wrap(debuglvl, RuleFlds.limit_fld_ptr, 0, loglimit_string);
         }
     }
-    set_field_back(RuleFlds.limit_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.limit_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.limit_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.limit_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* start disabled and set the field to dynamic */
@@ -3925,8 +3774,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.limit_unit_label_fld_ptr = (fields[field_num] = new_field(1, 1, 3, 48, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.limit_unit_label_fld_ptr, 0, "/");
     field_opts_off(RuleFlds.limit_unit_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.limit_unit_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.limit_unit_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.limit_unit_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.limit_unit_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* Limit Unit  */
@@ -3936,8 +3785,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
         set_field_buffer_wrap(debuglvl, RuleFlds.limit_unit_fld_ptr, 0,
             rule_ptr->opt->limit_unit);
     }
-    set_field_back(RuleFlds.limit_unit_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.limit_unit_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.limit_unit_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.limit_unit_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* start disabled and set the field to dynamic */
@@ -3949,8 +3798,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.burst_label_fld_ptr = (fields[field_num] = new_field(1, 8, 3, 60, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.burst_label_fld_ptr, 0, gettext("Burst"));
     field_opts_off(RuleFlds.burst_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.burst_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.burst_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.burst_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.burst_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* limit */
@@ -3963,8 +3812,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
             set_field_buffer_wrap(debuglvl, RuleFlds.burst_fld_ptr, 0, loglimit_string);
         }
     }
-    set_field_back(RuleFlds.burst_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.burst_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.burst_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.burst_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* start disabled and set the field to dynamic */
@@ -3976,8 +3825,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.chain_label_fld_ptr = (fields[field_num] = new_field(1, 9, 5, 29, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.chain_label_fld_ptr, 0, gettext("Chain"));
     field_opts_off(RuleFlds.chain_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.chain_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.chain_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.chain_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.chain_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* chain */
@@ -3985,8 +3834,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     if(rule_ptr->opt != NULL)
         set_field_buffer_wrap(debuglvl, RuleFlds.chain_fld_ptr, 0, rule_ptr->opt->chain);
 
-    set_field_back(RuleFlds.chain_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.chain_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.chain_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.chain_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* interface starts disabled */
@@ -3998,8 +3847,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.via_int_label_fld_ptr = (fields[field_num] = new_field(1, 9, 5, 29, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.via_int_label_fld_ptr, 0, gettext("Via"));
     field_opts_off(RuleFlds.via_int_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.via_int_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.via_int_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.via_int_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.via_int_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* chain */
@@ -4007,8 +3856,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     if(rule_ptr->opt != NULL)
         set_field_buffer_wrap(debuglvl, RuleFlds.via_int_fld_ptr, 0, rule_ptr->opt->via_int);
 
-    set_field_back(RuleFlds.via_int_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.via_int_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.via_int_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.via_int_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* interface starts disabled */
@@ -4020,8 +3869,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.reject_label_fld_ptr = (fields[field_num] = new_field(1, 12, 5, 29, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.reject_label_fld_ptr, 0, gettext("Reject type"));
     field_opts_off(RuleFlds.reject_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.reject_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.reject_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.reject_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.reject_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* Reject type */
@@ -4030,8 +3879,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     if(rule_ptr->opt != NULL && rule_ptr->opt->reject_option == 1)
         set_field_buffer_wrap(debuglvl, RuleFlds.reject_fld_ptr, 0, rule_ptr->opt->reject_type);
 
-    set_field_back(RuleFlds.reject_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.reject_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.reject_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.reject_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* reject starts disabled */
@@ -4043,8 +3892,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.redirect_label_fld_ptr = (fields[field_num] = new_field(1, 14, 7, 45, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.redirect_label_fld_ptr, 0, gettext("Redirect port"));
     field_opts_off(RuleFlds.redirect_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.redirect_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.redirect_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.redirect_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.redirect_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* Redirectport */
@@ -4054,8 +3903,8 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
         snprintf(redirect_port, sizeof(redirect_port), "%d", rule_ptr->opt->redirectport);
         set_field_buffer_wrap(debuglvl, RuleFlds.redirect_fld_ptr, 0, redirect_port);
     }
-    set_field_back(RuleFlds.redirect_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.redirect_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.redirect_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.redirect_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* start disabled */
@@ -4068,14 +3917,14 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.listen_label_fld_ptr = (fields[field_num] = new_field(1, 12, 7, 45, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.listen_label_fld_ptr, 0, gettext("Listen port"));
     field_opts_off(RuleFlds.listen_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.listen_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.listen_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.listen_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.listen_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* listenport */
     RuleFlds.listen_fld_ptr = (fields[field_num] = new_field(1, 14, 7, 58, 0, 0));
-    set_field_back(RuleFlds.listen_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.listen_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.listen_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.listen_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* start disabled and set the field to dynamic */
@@ -4092,14 +3941,14 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
     RuleFlds.remote_label_fld_ptr = (fields[field_num] = new_field(1, 12, 9, 45, 0, 0));
     set_field_buffer_wrap(debuglvl, RuleFlds.remote_label_fld_ptr, 0, gettext("Remote port"));
     field_opts_off(RuleFlds.remote_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.remote_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(RuleFlds.remote_label_fld_ptr, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(RuleFlds.remote_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.remote_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     /* remoteport - total field size: 64 -> 50 offscreen */
     RuleFlds.remote_fld_ptr = (fields[field_num] = new_field(1, 14, 9, 58, 0, 0));
-    set_field_back(RuleFlds.remote_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(RuleFlds.remote_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(RuleFlds.remote_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.remote_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* start disabled and set the field to dynamic */
@@ -4118,7 +3967,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
 
     /* create the window, panel, form */
     snprintf(window_title, sizeof(window_title), gettext("Edit Rule: %d"), rule_ptr->number);
-    if(!(edit_win = create_newwin(height, width, starty, startx, window_title, (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(edit_win = create_newwin(height, width, starty, startx, window_title, vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -4361,40 +4210,40 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
         /* do some nice coloring of the action field */
         if(rule_ptr->action == AT_ACCEPT)
         {
-            set_field_back(RuleFlds.action_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_GREEN));
-            set_field_fore(RuleFlds.action_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_GREEN)|A_BOLD);
+            set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_green_rev);
+            set_field_fore(RuleFlds.action_fld_ptr, vccnf.color_win_green_rev|A_BOLD);
         }
         else if(rule_ptr->action == AT_DROP || rule_ptr->action == AT_REJECT)
         {
-            set_field_back(RuleFlds.action_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_RED));
-            set_field_fore(RuleFlds.action_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD);
+            set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_red_rev);
+            set_field_fore(RuleFlds.action_fld_ptr, vccnf.color_win_red_rev|A_BOLD);
         }
         else if(rule_ptr->action == AT_LOG)
         {
-            set_field_back(RuleFlds.action_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
-            set_field_fore(RuleFlds.action_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+            set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_rev|A_BOLD);
+            set_field_fore(RuleFlds.action_fld_ptr, vccnf.color_win_rev|A_BOLD);
         }
         else
         {
-            set_field_back(RuleFlds.action_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-            set_field_fore(RuleFlds.action_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+            set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_rev);
+            set_field_fore(RuleFlds.action_fld_ptr, vccnf.color_win_rev|A_BOLD);
         }
 
         /* color firewall zones */
         if(strncasecmp(field_buffer(RuleFlds.fromzone_fld_ptr, 0), "firewall", 8) == 0)
-            set_field_fore(RuleFlds.fromzone_fld_ptr, (chtype)COLOR_PAIR(CP_YELLOW_BLUE)|A_BOLD);
+            set_field_fore(RuleFlds.fromzone_fld_ptr, vccnf.color_win_rev_yellow|A_BOLD);
         else
-            set_field_fore(RuleFlds.fromzone_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+            set_field_fore(RuleFlds.fromzone_fld_ptr, vccnf.color_win_rev|A_BOLD);
 
         if(strncasecmp(field_buffer(RuleFlds.tozone_fld_ptr, 0), "firewall", 8) == 0)
-            set_field_fore(RuleFlds.tozone_fld_ptr, (chtype)COLOR_PAIR(CP_YELLOW_BLUE)|A_BOLD);
+            set_field_fore(RuleFlds.tozone_fld_ptr, vccnf.color_win_rev_yellow|A_BOLD);
         else
-            set_field_fore(RuleFlds.tozone_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+            set_field_fore(RuleFlds.tozone_fld_ptr, vccnf.color_win_rev|A_BOLD);
 
         prev = cur;
         cur = current_field(form);
 
-        draw_field_active_mark(cur, prev, edit_win, form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, edit_win, form, vccnf.color_win_mark|A_BOLD);
 
         /*
             now give some help message in the status win
@@ -4953,7 +4802,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
                         {
                             if(!(confirm(gettext("Not all required fields are filled in"),
                                     gettext("Do you want to look at the rule again? (no will delete the rule)"),
-                                    (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1)))
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1)))
                             {
                                 retval = -1;
                                 quit = 1;
@@ -4970,7 +4819,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, Interfaces *interfaces,
                                 /* ask the user if he/she want to look at the rule again */
                                 if(!(confirm(gettext("An error was detected in the rule"),
                                         gettext("Do you want to look at it again? (no will delete the rule)"),
-                                        (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1)))
+                                        vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1)))
                                 {
                                     retval = -1;
                                     quit = 1;
@@ -5217,8 +5066,8 @@ edit_rule_separator(const int debuglvl,
     SepRuleFlds.comment_fld_ptr = (fields[field_num] = new_field(1, 63, 1, 2, 0, 0));
     if(rule_ptr->opt != NULL && rule_ptr->opt->rule_comment == 1)
         set_field_buffer_wrap(debuglvl, SepRuleFlds.comment_fld_ptr, 0, rule_ptr->opt->comment);
-    set_field_back(SepRuleFlds.comment_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_fore(SepRuleFlds.comment_fld_ptr, (chtype)COLOR_PAIR(CP_WHITE_BLUE)|A_BOLD);
+    set_field_back(SepRuleFlds.comment_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(SepRuleFlds.comment_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_opts_off(SepRuleFlds.comment_fld_ptr, O_AUTOSKIP);
     set_field_status(SepRuleFlds.comment_fld_ptr, FALSE);
     field_num++;
@@ -5230,7 +5079,7 @@ edit_rule_separator(const int debuglvl,
         (void)vrprint.error(-1, VR_INTERR, "oops! n_fields: %d, field_num: %d.", n_fields, field_num);
 
     /* create the window, panel, form */
-    if(!(edit_win = create_newwin(height, width, starty, startx, gettext("Enter comment (optional)"), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(edit_win = create_newwin(height, width, starty, startx, gettext("Enter comment (optional)"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);

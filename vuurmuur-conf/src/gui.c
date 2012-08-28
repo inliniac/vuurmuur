@@ -857,7 +857,7 @@ VrFormAddOKCancel(const int debuglvl, VrForm *form) {
     set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "save");
     set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "btn");
 
-    result = set_field_back(form->fields[form->cur_field], (chtype)COLOR_PAIR(CP_WHITE_GREEN) | A_BOLD);
+    result = set_field_back(form->fields[form->cur_field], vccnf.color_win_green_rev | A_BOLD);
     if(result != E_OK)
     {
         (void)vrprint.error(-1, VR_ERR, "set_field_back failed");
@@ -878,7 +878,7 @@ VrFormAddOKCancel(const int debuglvl, VrForm *form) {
     set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "nosave");
     set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "btn");
 
-    result = set_field_back(form->fields[form->cur_field], (chtype)COLOR_PAIR(CP_WHITE_RED) | A_BOLD);
+    result = set_field_back(form->fields[form->cur_field], vccnf.color_win_red_rev | A_BOLD);
     if(result != E_OK)
     {
         (void)vrprint.error(-1, VR_ERR, "set_field_back failed");
@@ -1241,7 +1241,7 @@ VrFormDrawMarker(const int debuglvl, VrWin *win, VrForm *form) {
         y,
         off_row,
         wrk_buff;
-    int ch = (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD;
+    int ch = CP_WIN_MARK|A_BOLD;
 
     form->prev = form->cur;
     form->cur  = current_field(form->f);
@@ -1307,7 +1307,7 @@ void form_test (const int debuglvl) {
     strlcpy(config.file, "/tmp", sizeof(config.file));
 
     /* create the window and put it in the middle of the screen */
-    win = VrNewWin(30,80,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    win = VrNewWin(30,80,0,0,vccnf.color_win);
     if(win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
@@ -1315,14 +1315,14 @@ void form_test (const int debuglvl) {
     }
     VrWinSetTitle(win, "title");
 
-    form = VrNewForm(20, 60, 1, 1, 4, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+    form = VrNewForm(20, 60, 1, 1, 4, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
 
     VrFormSetSaveFunc(debuglvl, form, form_test_save, &config);
 
-    VrFormAddLabelField(debuglvl, form, 1, 6, 1, 1, (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Label1");
-    VrFormAddTextField(debuglvl, form, 1, 10, 1, 9, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "test1", "test1");
-    VrFormAddLabelField(debuglvl, form, 1, 6, 3, 1, (chtype)COLOR_PAIR(CP_BLUE_WHITE), "Label2");
-    VrFormAddTextField(debuglvl, form, 1, 10, 3, 9, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD, "test2", "test2");
+    VrFormAddLabelField(debuglvl, form, 1, 6, 1, 1, vccnf.color_win, "Label1");
+    VrFormAddTextField(debuglvl, form, 1, 10, 1, 9, vccnf.color_win_rev | A_BOLD, "test1", "test1");
+    VrFormAddLabelField(debuglvl, form, 1, 6, 3, 1, vccnf.color_win, "Label2");
+    VrFormAddTextField(debuglvl, form, 1, 10, 3, 9, vccnf.color_win_rev | A_BOLD, "test2", "test2");
 
     VrFormConnectToWin(debuglvl, form, win);
 

@@ -57,13 +57,13 @@ edit_sysopt_init(const int debuglvl, int height, int width, int starty, int star
 
     SystemSection.fields[2] = NULL;
 
-    SystemSection.win = create_newwin(height, width, starty, startx, gettext("System Protection"), (chtype)COLOR_PAIR(5));
+    SystemSection.win = create_newwin(height, width, starty, startx, gettext("System Protection"), vccnf.color_win);
     SystemSection.panel[0] = new_panel(SystemSection.win);
 
     for(i = 0; i < SystemSection.n_fields; i++)
     {
         // set field options
-        set_field_back(SystemSection.fields[i], (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+        set_field_back(SystemSection.fields[i], vccnf.color_win);
         field_opts_off(SystemSection.fields[i], O_AUTOSKIP);
         // set status to false
         set_field_status(SystemSection.fields[i], FALSE);
@@ -201,7 +201,7 @@ edit_sysopt(const int debuglvl)
     // Loop through to get user requests
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, SystemSection.win, SystemSection.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, SystemSection.win, SystemSection.form, vccnf.color_win_mark|A_BOLD);
 
         ch = wgetch(SystemSection.win);
 

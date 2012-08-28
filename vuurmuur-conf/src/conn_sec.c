@@ -109,7 +109,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
         /*
             display count
         */
-        wattron(local_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+        wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
 
         printline_width = spaceleft;
         if(printline_width >= sizeof(printline))
@@ -120,7 +120,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
         //mvwprintw(local_win, start_print, 0, "%s", printline);
         wprintw(local_win, "%s", printline);
 
-        wattroff(local_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+        wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
 
         spaceleft = spaceleft - StrLen(printline);
         if(!spaceleft)
@@ -130,7 +130,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
     /*
         SERVICE name
     */
-    wattron(local_win, (chtype)COLOR_PAIR(CP_CYAN_BLUE)|A_BOLD);
+    wattron(local_win, vccnf.color_bgd_cyan|A_BOLD);
 
     printline_width = spaceleft;
     if(printline_width >= sizeof(printline))
@@ -141,7 +141,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
     snprintf(printline, printline_width, ser_snprintf_str, servicename);
 
     wprintw(local_win, "%s", printline);
-    wattroff(local_win, (chtype)COLOR_PAIR(CP_CYAN_BLUE)|A_BOLD);
+    wattroff(local_win, vccnf.color_bgd_cyan|A_BOLD);
 
     spaceleft = spaceleft - StrLen(printline);
     if(!spaceleft)
@@ -151,9 +151,9 @@ print_connection(const int debuglvl, WINDOW *local_win,
         FROM name
     */
     if(strncmp(cd_ptr->fromname, "firewall", 8) == 0)
-        wattron(local_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+        wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
     else
-        wattron(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+        wattron(local_win, vccnf.color_bgd | A_BOLD);
 
     printline_width = spaceleft;
     if(printline_width >= sizeof(printline))
@@ -168,9 +168,9 @@ print_connection(const int debuglvl, WINDOW *local_win,
 
     
     if(strncmp(cd_ptr->fromname, "firewall", 8) == 0)
-        wattroff(local_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+        wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
     else
-        wattroff(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+        wattroff(local_win, vccnf.color_bgd | A_BOLD);
 
     if(!spaceleft)
         return(1);
@@ -194,9 +194,9 @@ print_connection(const int debuglvl, WINDOW *local_win,
         TO name
     */
     if(strncmp(cd_ptr->toname, "firewall", 8) == 0)
-        wattron(local_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+        wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
     else
-        wattron(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+        wattron(local_win, vccnf.color_bgd | A_BOLD);
 
     printline_width = spaceleft;
     if(printline_width >= sizeof(printline))
@@ -210,9 +210,9 @@ print_connection(const int debuglvl, WINDOW *local_win,
     wprintw(local_win, "%s", printline);
     
     if(strncmp(cd_ptr->toname, "firewall", 8) == 0)
-        wattroff(local_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+        wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
     else
-        wattroff(local_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+        wattroff(local_win, vccnf.color_bgd | A_BOLD);
 
 
     if(!spaceleft)
@@ -235,7 +235,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
 
         if(cd_ptr->connect_status == CONN_CONNECTING)
         {
-            wattron(local_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+            wattron(local_win, vccnf.color_bgd_green | A_BOLD);
             
             printline_width = spaceleft;
             if(printline_width >= sizeof(printline))
@@ -247,11 +247,11 @@ print_connection(const int debuglvl, WINDOW *local_win,
 
             wprintw(local_win, "%s", printline);
 
-            wattroff(local_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+            wattroff(local_win, vccnf.color_bgd_green | A_BOLD);
         }
         else if(cd_ptr->connect_status == CONN_CONNECTED)
         {
-            wattron(local_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
 
             printline_width = spaceleft;
             if(printline_width >= sizeof(printline))
@@ -263,11 +263,11 @@ print_connection(const int debuglvl, WINDOW *local_win,
 
             wprintw(local_win, "%s", printline);
 
-            wattroff(local_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
         }
         else if(cd_ptr->connect_status == CONN_DISCONNECTING)
         {
-            wattron(local_win, (chtype)COLOR_PAIR(CP_RED_BLUE) | A_BOLD);
+            wattron(local_win, vccnf.color_bgd_red | A_BOLD);
             
             printline_width = spaceleft;
             if(printline_width >= sizeof(printline))
@@ -279,7 +279,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
 
             wprintw(local_win, "%s", printline);
 
-            wattroff(local_win, (chtype)COLOR_PAIR(CP_RED_BLUE) | A_BOLD);
+            wattroff(local_win, vccnf.color_bgd_red | A_BOLD);
         }
         else
             wprintw(local_win, "%-5s", " ");
@@ -303,7 +303,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
 
         if(cd_ptr->direction_status == CONN_IN)
         {
-            wattron(local_win, (chtype)COLOR_PAIR(CP_CYAN_BLUE)|A_BOLD);
+            wattron(local_win, vccnf.color_bgd_cyan|A_BOLD);
 
             printline_width = spaceleft;
             if(printline_width >= sizeof(printline))
@@ -314,11 +314,11 @@ print_connection(const int debuglvl, WINDOW *local_win,
             spaceleft = spaceleft - StrLen(printline);
 
             wprintw(local_win, "%s", printline);
-            wattroff(local_win, (chtype)COLOR_PAIR(CP_CYAN_BLUE) | A_BOLD);
+            wattroff(local_win, vccnf.color_bgd_cyan | A_BOLD);
         }
         else if(cd_ptr->direction_status == CONN_OUT)
         {
-            wattron(local_win, (chtype)COLOR_PAIR(CP_CYAN_BLUE)|A_BOLD);
+            wattron(local_win, vccnf.color_bgd_cyan|A_BOLD);
 
             printline_width = spaceleft;
             if(printline_width >= sizeof(printline))
@@ -329,11 +329,11 @@ print_connection(const int debuglvl, WINDOW *local_win,
             spaceleft = spaceleft - StrLen(printline);
 
             wprintw(local_win, "%s", printline);
-            wattroff(local_win, (chtype)COLOR_PAIR(CP_CYAN_BLUE) | A_BOLD);
+            wattroff(local_win, vccnf.color_bgd_cyan | A_BOLD);
         }
         else if(cd_ptr->direction_status == CONN_FW)
         {
-            wattron(local_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
 
             printline_width = spaceleft;
             if(printline_width >= sizeof(printline))
@@ -344,7 +344,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
             spaceleft = spaceleft - StrLen(printline);
 
             wprintw(local_win, "%s", printline);
-            wattroff(local_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
         }
     }
 
@@ -712,7 +712,7 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
     getmaxyx(stdscr, max_height, max_width);
     max_onscreen = max_height-8;
     conn_win = newwin(max_height-8, max_width-2, 4, 1);
-    wbkgd(conn_win, (chtype)COLOR_PAIR(3));
+    wbkgd(conn_win, vccnf.color_bgd);
     my_panels[0] = new_panel(conn_win);
     keypad(conn_win, TRUE);
 
@@ -895,7 +895,7 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                 /* print the seperators */
                 if(connreq.sort_conn_status)
                 {
-                    wattron(conn_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+                    wattron(conn_win, vccnf.color_bgd_green | A_BOLD);
                     mvwprintw(conn_win, 0, 4, "%s:",  gettext("Connections"));
                     mvwprintw(conn_win, 0, 20, "%s:", gettext("Total"));
                     mvwprintw(conn_win, 0, 40, "%s:", gettext("Incoming"));
@@ -907,27 +907,27 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                     mvwprintw(conn_win, 0, 78, "%4d", ct->conn_stats.conn_fw);
                     mvwprintw(conn_win, 1, 58, "%4d", ct->conn_stats.conn_out);
 
-                    wattroff(conn_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+                    wattroff(conn_win, vccnf.color_bgd_green | A_BOLD);
 
                     //
                     mvwhline(conn_win, 2, 0, ACS_HLINE, max_width-2);
-                    wattron(conn_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+                    wattron(conn_win, vccnf.color_bgd_yellow | A_BOLD);
                     mvwprintw(conn_win, 2, 3, " %s ", gettext("Established Connections"));
                     mvwprintw(conn_win, 2, max_width-11, " (%d) ", ct->conn_stats.stat_estab);
-                    wattroff(conn_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+                    wattroff(conn_win, vccnf.color_bgd_yellow | A_BOLD);
 
                     // print at the half of the screen
                     mvwhline(conn_win, (max_onscreen/4)*2, 0, ACS_HLINE, max_width-2);
-                    wattron(conn_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+                    wattron(conn_win, vccnf.color_bgd_green | A_BOLD);
                     mvwprintw(conn_win, (max_onscreen/4)*2, 3, " %s ", gettext("Connections Initializing"));
                     mvwprintw(conn_win, (max_onscreen/4)*2, max_width-11, " (%d) ", ct->conn_stats.stat_connect);
-                    wattroff(conn_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+                    wattroff(conn_win, vccnf.color_bgd_green | A_BOLD);
 
                     mvwhline(conn_win, (max_onscreen/4)*3, 0, ACS_HLINE, max_width-2);
-                    wattron(conn_win, (chtype)COLOR_PAIR(CP_RED_BLUE) | A_BOLD);
+                    wattron(conn_win, vccnf.color_bgd_red | A_BOLD);
                     mvwprintw(conn_win, (max_onscreen/4)*3, 3, " %s ", gettext("Connections Closing"));
                     mvwprintw(conn_win, (max_onscreen/4)*3, max_width-11, " (%d) ", ct->conn_stats.stat_closing);
-                    wattroff(conn_win, (chtype)COLOR_PAIR(CP_RED_BLUE) | A_BOLD);
+                    wattroff(conn_win, vccnf.color_bgd_red | A_BOLD);
 
                     // move the cursor a bit out of sight
                     mvwprintw(conn_win, max_onscreen-1, max_width-3, " ");
@@ -935,7 +935,7 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
 
                 if(connreq.sort_in_out_fwd)
                 {
-                    wattron(conn_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+                    wattron(conn_win, vccnf.color_bgd_green | A_BOLD);
                     mvwprintw(conn_win, 0, 4, "%s:",  gettext("Connections"));
                     mvwprintw(conn_win, 0, 20, "%s:", gettext("Total"));
                     mvwprintw(conn_win, 0, 40, "%s:", gettext("Connecting"));
@@ -946,27 +946,27 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                     mvwprintw(conn_win, 0, 58, "%4d", ct->conn_stats.stat_connect);
                     mvwprintw(conn_win, 0, 78, "%4d", ct->conn_stats.stat_estab);
                     mvwprintw(conn_win, 1, 58, "%4d", ct->conn_stats.stat_closing);
-                    wattroff(conn_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+                    wattroff(conn_win, vccnf.color_bgd_green | A_BOLD);
 
                     /* */
                     mvwhline(conn_win, 2, 0, ACS_HLINE, max_width-2);
-                    wattron(conn_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+                    wattron(conn_win, vccnf.color_bgd_yellow | A_BOLD);
                     mvwprintw(conn_win, 2, 3, " %s ", gettext("Forwarded Connections"));
                     mvwprintw(conn_win, 2, max_width-11, " (%d) ", ct->conn_stats.conn_fw);
-                    wattroff(conn_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+                    wattroff(conn_win, vccnf.color_bgd_yellow | A_BOLD);
 
                     /* print at the one third of the screen */
                     mvwhline(conn_win, (max_onscreen/3)+3, 0, ACS_HLINE, max_width-2);
-                    wattron(conn_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+                    wattron(conn_win, vccnf.color_bgd_green | A_BOLD);
                     mvwprintw(conn_win, (max_onscreen/3)+3, 3, " %s ", gettext("Incoming Connections"));
                     mvwprintw(conn_win, (max_onscreen/3)+3, max_width-11, " (%d) ", ct->conn_stats.conn_in);
-                    wattroff(conn_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+                    wattroff(conn_win, vccnf.color_bgd_green | A_BOLD);
 
                     mvwhline(conn_win, (max_onscreen/3)*2+2, 0, ACS_HLINE, max_width-2);
-                    wattron(conn_win, (chtype)COLOR_PAIR(CP_RED_BLUE) | A_BOLD);
+                    wattron(conn_win, vccnf.color_bgd_red | A_BOLD);
                     mvwprintw(conn_win, (max_onscreen/3)*2+2, 3, " %s ", gettext("Outgoing Connections"));
                     mvwprintw(conn_win, (max_onscreen/3)*2+2, max_width-11, " (%d) ", ct->conn_stats.conn_out);
-                    wattroff(conn_win, (chtype)COLOR_PAIR(CP_RED_BLUE) | A_BOLD);
+                    wattroff(conn_win, vccnf.color_bgd_red | A_BOLD);
 
                     /* move the cursor a bit out of sight */
                     mvwprintw(conn_win, max_onscreen-1, max_width-3, " ");

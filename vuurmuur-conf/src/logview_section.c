@@ -327,29 +327,29 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
     {
         /* ACTION */
         if(strcmp(logrule_ptr->action, "DROP") == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_RED_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd_red | A_BOLD);
         else if(strcmp(logrule_ptr->action, "REJECT") == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_RED_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd_red | A_BOLD);
         else if(strcmp(logrule_ptr->action, "ACCEPT") == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd_green | A_BOLD);
         else if(strcmp(logrule_ptr->action, "LOG") == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd | A_BOLD);
         else if(strcmp(logrule_ptr->action, "SNAT") == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "MASQ") == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "DNAT") == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "BOUNCE") == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "PORTFW") == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "REDIRECT") == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "QUEUE") == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd | A_BOLD);
         else
-            wattron(log_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd | A_BOLD);
 
         tmpstr_i = StrLen(logrule_ptr->action)+1;//1 nul, action
         if(tmpstr_i < 8)
@@ -365,29 +365,29 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
         cur_logrule_length = cur_logrule_length + tmpstr_i-1;
 
         if(strcmp(logrule_ptr->action, "DROP") == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_RED_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd_red | A_BOLD);
         else if(strcmp(logrule_ptr->action, "REJECT") == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_RED_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd_red | A_BOLD);
         else if(strcmp(logrule_ptr->action, "ACCEPT") == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd_green | A_BOLD);
         else if(strcmp(logrule_ptr->action, "LOG") == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd | A_BOLD);
         else if(strcmp(logrule_ptr->action, "SNAT") == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "MASQ") == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "DNAT") == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "BOUNCE") == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "PORTFW") == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "REDIRECT") == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(logrule_ptr->action, "QUEUE") == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd | A_BOLD);
         else
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd | A_BOLD);
 
         // 1 SPACE
         if((cur_logrule_length + 1) < max_logrule_length)
@@ -400,7 +400,7 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
     if(!hide_service)
     {
         /* SERVICE */
-        wattron(log_win, (chtype)COLOR_PAIR(CP_CYAN_BLUE)|A_BOLD);
+        wattron(log_win, vccnf.color_bgd_cyan|A_BOLD);
 
         tmpstr_i = StrLen(logrule_ptr->service)+1;//1 nul, service
         if(cur_logrule_length + tmpstr_i >= max_logrule_length)
@@ -413,7 +413,7 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
 
         cur_logrule_length = cur_logrule_length + tmpstr_i-1;
 
-        wattroff(log_win, (chtype)COLOR_PAIR(CP_CYAN_BLUE)|A_BOLD);
+        wattroff(log_win, vccnf.color_bgd_cyan|A_BOLD);
 
         /* 2 SPACES */
         if((cur_logrule_length + 2) < max_logrule_length)
@@ -427,9 +427,9 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
     {
         /* FROM */
         if(strncmp(logrule_ptr->from, "firewall", 8) == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
-            wattron(log_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd | A_BOLD);
 
         tmpstr_i = StrLen(logrule_ptr->from)+1;//1 nul, from
         if(cur_logrule_length + tmpstr_i >= max_logrule_length)
@@ -443,9 +443,9 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
         cur_logrule_length = cur_logrule_length + tmpstr_i-1;
 
         if(strncmp(logrule_ptr->from, "firewall", 8) == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd | A_BOLD);
     }
 
     if(!hide_from && !hide_to)
@@ -462,9 +462,9 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
     {
         /* TO */
         if(strncmp(logrule_ptr->to, "firewall", 8) == 0)
-            wattron(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
-            wattron(log_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+            wattron(log_win, vccnf.color_bgd | A_BOLD);
     
         tmpstr_i = StrLen(logrule_ptr->to)+1;//1 nul, from
         if(cur_logrule_length + tmpstr_i >= max_logrule_length)
@@ -478,9 +478,9 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
         cur_logrule_length = cur_logrule_length + tmpstr_i-1;
     
         if(strncmp(logrule_ptr->to, "firewall", 8) == 0)
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_YELLOW_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+            wattroff(log_win, vccnf.color_bgd | A_BOLD);
     }
 
     if(!hide_to || (hide_to && !hide_from))
@@ -498,7 +498,7 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
         /* PREFIX */
         if(strcmp(logrule_ptr->prefix, "none") != 0)
         {
-            wattron(log_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE));
+            wattron(log_win, vccnf.color_bgd_green);
 
             tmpstr_i = StrLen(logrule_ptr->prefix) + 2 + 1;//1 nul, prefix, 2 quotes
             if(cur_logrule_length + tmpstr_i >= max_logrule_length)
@@ -511,7 +511,7 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
 
             cur_logrule_length = cur_logrule_length + tmpstr_i - 1;
 
-            wattroff(log_win, (chtype)COLOR_PAIR(CP_GREEN_BLUE));
+            wattroff(log_win, vccnf.color_bgd_green);
 
             // 1 SPACE (only if we have a prefix)
             if((cur_logrule_length + 1) < max_logrule_length)
@@ -868,8 +868,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
 
     /* create a little wait dialog */
     if(!(wait_win = create_newwin(5, 40, (max_height-5)/2, (max_width-40)/2,
-            gettext("One moment please..."),
-            (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+            gettext("One moment please..."), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -1037,7 +1036,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(filter_ib_win, (chtype)COLOR_PAIR(5));
+    wbkgd(filter_ib_win, vccnf.color_win);
     info_bar_panels[0] = new_panel(filter_ib_win);
     hide_panel(info_bar_panels[0]);
 
@@ -1047,7 +1046,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(search_ib_win, (chtype)COLOR_PAIR(5));
+    wbkgd(search_ib_win, vccnf.color_win);
     info_bar_panels[1] = new_panel(search_ib_win);
     hide_panel(info_bar_panels[1]);
 
@@ -1060,7 +1059,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
         return(-1);
     }
 
-    wbkgd(log_win, (chtype)COLOR_PAIR(3));
+    wbkgd(log_win, vccnf.color_bgd);
     my_panels[0] = new_panel(log_win);
 
     /* print initial banner */
@@ -1401,7 +1400,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
                 /*
                     create a little wait dialog
                 */
-                if(!(wait_win = create_newwin(5, 40, (max_height-5)/2, (max_width-40)/2, gettext("One moment please..."), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+                if(!(wait_win = create_newwin(5, 40, (max_height-5)/2, (max_width-40)/2, gettext("One moment please..."), vccnf.color_win)))
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
                     return(-1);

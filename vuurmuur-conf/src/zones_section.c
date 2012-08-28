@@ -285,7 +285,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
 
     /* create the window & panel */
-    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Host"), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Host"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -300,19 +300,19 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     /* set field options */
     for(i = 0; i < ZonesSection.EditZone.n_fields; i++)
     {
-        set_field_back(ZonesSection.EditZone.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+        set_field_back(ZonesSection.EditZone.fields[i], vccnf.color_win_rev);
         field_opts_off(ZonesSection.EditZone.fields[i], O_AUTOSKIP);
         set_field_status(ZonesSection.EditZone.fields[i], FALSE);
     }
 
-    set_field_back(HostSec.activelabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(HostSec.ipaddresslabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(HostSec.ip6addresslabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(HostSec.macaddresslabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(HostSec.commentlabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(HostSec.activelabelfld, vccnf.color_win);
+    set_field_back(HostSec.ipaddresslabelfld, vccnf.color_win);
+    set_field_back(HostSec.ip6addresslabelfld, vccnf.color_win);
+    set_field_back(HostSec.macaddresslabelfld, vccnf.color_win);
+    set_field_back(HostSec.commentlabelfld, vccnf.color_win);
 
-    set_field_back(HostSec.warningfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(HostSec.warningfld, (chtype)COLOR_PAIR(CP_YELLOW_RED)|A_BOLD);
+    set_field_back(HostSec.warningfld, vccnf.color_win);
+    set_field_fore(HostSec.warningfld, vccnf.color_win_warn|A_BOLD);
 
     /* Create the form and post it */
     if(!(ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields)))
@@ -700,7 +700,7 @@ edit_zone_host(const int debuglvl, Zones *zones, char *name, struct rgx_ *reg)
     while(quit == 0)
     {
         /* draw nice markers */
-        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win, ZonesSection.EditZone.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win, ZonesSection.EditZone.form, vccnf.color_win_mark|A_BOLD);
 
         not_defined = 0;
 
@@ -737,13 +737,11 @@ edit_zone_host(const int debuglvl, Zones *zones, char *name, struct rgx_ *reg)
                 case KEY_DOWN:
                 case 10:    // enter
                 case 9: // tab
-                
                     form_driver(ZonesSection.EditZone.form, REQ_NEXT_FIELD);
                     form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
                     break;
 
                 case KEY_UP:
-                    
                     form_driver(ZonesSection.EditZone.form, REQ_PREV_FIELD);
                     form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
                     break;
@@ -758,14 +756,12 @@ edit_zone_host(const int debuglvl, Zones *zones, char *name, struct rgx_ *reg)
                     {
                         if(confirm( gettext("saving host failed."),
                                     gettext("Look at the host again?"),
-                                    (chtype)COLOR_PAIR(CP_WHITE_BLUE),
-                                    (chtype)COLOR_PAIR(CP_BLUE_WHITE), 1) == 0)
+                                    vccnf.color_win_rev,
+                                    vccnf.color_win, 1) == 0)
                             quit = 1;
                     }
                     else
                     {
-                        
-                        
                         quit = 1;
                     }
 
@@ -945,10 +941,10 @@ zones_section_menu_hosts_init(const int debuglvl, Zones *zones, char *zonename, 
         (void)vrprint.error(-1, VR_INTERR, "creating the host win failed (in: %s).", __FUNC__);
         return(-1);
     }
-    wbkgd(ZonesSection.h_win, (chtype)COLOR_PAIR(5));
+    wbkgd(ZonesSection.h_win, vccnf.color_win);
     keypad(ZonesSection.h_win, TRUE);
     box(ZonesSection.h_win, 0, 0);
-    print_in_middle(ZonesSection.h_win, 1, 0, width, gettext("Hosts"), (chtype)COLOR_PAIR(5));
+    print_in_middle(ZonesSection.h_win, 1, 0, width, gettext("Hosts"), vccnf.color_win);
     wrefresh(ZonesSection.h_win);
 
     if(!(ZonesSection.h_panel[0] = new_panel(ZonesSection.h_win)))
@@ -966,8 +962,8 @@ zones_section_menu_hosts_init(const int debuglvl, Zones *zones, char *zonename, 
     mvwhline(ZonesSection.h_win, 2, 1, ACS_HLINE, width-2);
     mvwaddch(ZonesSection.h_win, 2, width-1, ACS_RTEE);
 
-    set_menu_back(ZonesSection.h_menu, (chtype)COLOR_PAIR(5));
-    set_menu_fore(ZonesSection.h_menu, (chtype)COLOR_PAIR(3));
+    set_menu_back(ZonesSection.h_menu, vccnf.color_win);
+    set_menu_fore(ZonesSection.h_menu, vccnf.color_win_rev);
 
     result = post_menu(ZonesSection.h_menu);
     if(result != E_OK && result != E_NOT_CONNECTED)
@@ -990,7 +986,7 @@ zones_section_menu_hosts_init(const int debuglvl, Zones *zones, char *zonename, 
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.h_win_top, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.h_win_top, vccnf.color_win);
     ZonesSection.h_panel_top[0] = new_panel(ZonesSection.h_win_top);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.h_win_top, "(%s)", gettext("more"));
@@ -1001,7 +997,7 @@ zones_section_menu_hosts_init(const int debuglvl, Zones *zones, char *zonename, 
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.h_win_bot, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.h_win_bot, vccnf.color_win);
     ZonesSection.h_panel_bot[0] = new_panel(ZonesSection.h_win_bot);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.h_win_bot, "(%s)", gettext("more"));
@@ -1519,7 +1515,8 @@ zones_section_menu_hosts(const int debuglvl, Zones *zones, Rules *rules, BlockLi
 
                     if(current_item(ZonesSection.h_menu))
                     {
-                        if(confirm(gettext("Delete"), gettext("This host?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0) == 1)
+                        if (confirm(gettext("Delete"), gettext("This host?"),
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
                         {
                             /* get the current item */
                             if(!(cur = current_item(ZonesSection.h_menu)))
@@ -1768,7 +1765,7 @@ edit_zone_group_members_init(const int debuglvl, Zones *zones, struct ZoneData_ 
         (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d)", __FUNC__, __LINE__);
         return(-1);
     }
-    wbkgd(ZonesSection.EditZoneGrp.win, (chtype)COLOR_PAIR(5));
+    wbkgd(ZonesSection.EditZoneGrp.win, vccnf.color_win);
     keypad(ZonesSection.EditZoneGrp.win, TRUE);
 
     if(!(ZonesSection.EditZoneGrp.menu = new_menu((ITEM **)ZonesSection.EditZoneGrp.items)))
@@ -1782,13 +1779,13 @@ edit_zone_group_members_init(const int debuglvl, Zones *zones, struct ZoneData_ 
 
     /* markup */
     box(ZonesSection.EditZoneGrp.win, 0, 0);
-    print_in_middle(ZonesSection.EditZoneGrp.win, 1, 0, width, gettext("Members"), (chtype)COLOR_PAIR(5));
+    print_in_middle(ZonesSection.EditZoneGrp.win, 1, 0, width, gettext("Members"), vccnf.color_win);
     mvwaddch(ZonesSection.EditZoneGrp.win, 2, 0, ACS_LTEE);
     mvwhline(ZonesSection.EditZoneGrp.win, 2, 1, ACS_HLINE, width-2);
     mvwaddch(ZonesSection.EditZoneGrp.win, 2, width-1, ACS_RTEE);
 
-    set_menu_back(ZonesSection.EditZoneGrp.menu, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_menu_fore(ZonesSection.EditZoneGrp.menu, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_menu_back(ZonesSection.EditZoneGrp.menu, vccnf.color_win);
+    set_menu_fore(ZonesSection.EditZoneGrp.menu, vccnf.color_win_rev);
 
     post_menu(ZonesSection.EditZoneGrp.menu);
 
@@ -1805,7 +1802,7 @@ edit_zone_group_members_init(const int debuglvl, Zones *zones, struct ZoneData_ 
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.EditZoneGrp.win_top, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.EditZoneGrp.win_top, vccnf.color_win);
     ZonesSection.EditZoneGrp.panel_top[0] = new_panel(ZonesSection.EditZoneGrp.win_top);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.EditZoneGrp.win_top, "(%s)", gettext("more"));
@@ -1816,7 +1813,7 @@ edit_zone_group_members_init(const int debuglvl, Zones *zones, struct ZoneData_ 
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.EditZoneGrp.win_bot, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.EditZoneGrp.win_bot, vccnf.color_win);
     ZonesSection.EditZoneGrp.panel_bot[0] = new_panel(ZonesSection.EditZoneGrp.win_bot);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.EditZoneGrp.win_bot, "(%s)", gettext("more"));
@@ -2257,7 +2254,7 @@ edit_zone_group_init(int debuglvl, Zones *zones, char *name, struct ZoneData_ *z
     /* terminate */
     ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
 
-    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Group"), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Group"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -2271,15 +2268,15 @@ edit_zone_group_init(int debuglvl, Zones *zones, char *name, struct ZoneData_ *z
     /* set field options */
     for(i = 0; i < ZonesSection.EditZone.n_fields; i++)
     {
-        set_field_back(ZonesSection.EditZone.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+        set_field_back(ZonesSection.EditZone.fields[i], vccnf.color_win_rev);
         field_opts_off(ZonesSection.EditZone.fields[i], O_AUTOSKIP);
         set_field_status(ZonesSection.EditZone.fields[i], FALSE);
     }
-    set_field_back(GroupSec.activelabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(GroupSec.commentlabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(GroupSec.activelabelfld, vccnf.color_win);
+    set_field_back(GroupSec.commentlabelfld, vccnf.color_win);
 
-    set_field_back(GroupSec.warningfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_fore(GroupSec.warningfld, (chtype)COLOR_PAIR(CP_YELLOW_RED)|A_BOLD);
+    set_field_back(GroupSec.warningfld, vccnf.color_win);
+    set_field_fore(GroupSec.warningfld, vccnf.color_win_warn|A_BOLD);
 
     /* Create the form and post it */
     if(!(ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields)))
@@ -2514,7 +2511,7 @@ edit_zone_group(const int debuglvl, Zones *zones, char *name)
     /* loop through to get user requests */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win, ZonesSection.EditZone.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win, ZonesSection.EditZone.form, vccnf.color_win_mark|A_BOLD);
 
         /* get user input */
         ch = wgetch(ZonesSection.EditZone.win);
@@ -2762,10 +2759,10 @@ zones_section_menu_groups_init(const int debuglvl, Zones *zones, char *zonename,
     }
     
     ZonesSection.h_win = newwin(height, width, starty, startx);
-    wbkgd(ZonesSection.h_win, (chtype)COLOR_PAIR(5));
+    wbkgd(ZonesSection.h_win, vccnf.color_win);
     keypad(ZonesSection.h_win, TRUE);
     box(ZonesSection.h_win, 0, 0);
-    print_in_middle(ZonesSection.h_win, 1, 0, width, gettext("Groups"), (chtype)COLOR_PAIR(5));
+    print_in_middle(ZonesSection.h_win, 1, 0, width, gettext("Groups"), vccnf.color_win);
     wrefresh(ZonesSection.h_win);
 
     ZonesSection.h_panel[0] = new_panel(ZonesSection.h_win);
@@ -2780,8 +2777,8 @@ zones_section_menu_groups_init(const int debuglvl, Zones *zones, char *zonename,
     mvwhline(ZonesSection.h_win, 2, 1, ACS_HLINE, width-2);
     mvwaddch(ZonesSection.h_win, 2, width-1, ACS_RTEE);
 
-    set_menu_back(ZonesSection.h_menu, (chtype)COLOR_PAIR(5));
-    set_menu_fore(ZonesSection.h_menu, (chtype)COLOR_PAIR(3));
+    set_menu_back(ZonesSection.h_menu, vccnf.color_win);
+    set_menu_fore(ZonesSection.h_menu, vccnf.color_win_rev);
 
     post_menu(ZonesSection.h_menu);
     doupdate();
@@ -2800,7 +2797,7 @@ zones_section_menu_groups_init(const int debuglvl, Zones *zones, char *zonename,
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.h_win_top, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.h_win_top, vccnf.color_win);
     ZonesSection.h_panel_top[0] = new_panel(ZonesSection.h_win_top);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.h_win_top, "(%s)", gettext("more"));
@@ -2811,7 +2808,7 @@ zones_section_menu_groups_init(const int debuglvl, Zones *zones, char *zonename,
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.h_win_bot, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.h_win_bot, vccnf.color_win);
     ZonesSection.h_panel_bot[0] = new_panel(ZonesSection.h_win_bot);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.h_win_bot, "(%s)", gettext("more"));
@@ -3087,7 +3084,8 @@ zones_section_menu_groups(const int debuglvl, Zones *zones, Rules *rules, BlockL
                     cur = current_item(ZonesSection.h_menu);
                     if(cur)
                     {
-                        if(confirm(gettext("Delete"), gettext("This group?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0) == 1)
+                        if (confirm(gettext("Delete"), gettext("This group?"),
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
                         {
                             size = StrMemLen((char *)item_name(cur))+1+StrMemLen(networkname)+1+StrMemLen(zonename)+1;
                     
@@ -3771,7 +3769,7 @@ edit_zone_network_interfaces_init(const int debuglvl, struct ZoneData_ *zone_ptr
         (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    wbkgd(ZonesSection.EditZoneInt.win, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.EditZoneInt.win, vccnf.color_win);
     keypad(ZonesSection.EditZoneInt.win, TRUE);
     wrefresh(ZonesSection.EditZoneInt.win);
 
@@ -3785,12 +3783,12 @@ edit_zone_network_interfaces_init(const int debuglvl, struct ZoneData_ *zone_ptr
     set_menu_format(ZonesSection.EditZoneInt.menu, height-7, 1);
 
     box(ZonesSection.EditZoneInt.win, 0, 0);
-    print_in_middle(ZonesSection.EditZoneInt.win, 1, 0, width, gettext("Interfaces"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    print_in_middle(ZonesSection.EditZoneInt.win, 1, 0, width, gettext("Interfaces"), vccnf.color_win);
     mvwaddch(ZonesSection.EditZoneInt.win, 2, 0, ACS_LTEE);
     mvwhline(ZonesSection.EditZoneInt.win, 2, 1, ACS_HLINE, width-2);
     mvwaddch(ZonesSection.EditZoneInt.win, 2, width - 1, ACS_RTEE);
-    set_menu_back(ZonesSection.EditZoneInt.menu, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_menu_fore(ZonesSection.EditZoneInt.menu, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_menu_back(ZonesSection.EditZoneInt.menu, vccnf.color_win);
+    set_menu_fore(ZonesSection.EditZoneInt.menu, vccnf.color_win_rev);
     post_menu(ZonesSection.EditZoneInt.menu);
 
     mvwaddch(ZonesSection.EditZoneInt.win, height-4, 0, ACS_LTEE);
@@ -3806,7 +3804,7 @@ edit_zone_network_interfaces_init(const int debuglvl, struct ZoneData_ *zone_ptr
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.EditZoneInt.win_top, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.EditZoneInt.win_top, vccnf.color_win);
     ZonesSection.EditZoneInt.panel_top[0] = new_panel(ZonesSection.EditZoneInt.win_top);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.EditZoneInt.win_top, "(%s)", gettext("more"));
@@ -3817,7 +3815,7 @@ edit_zone_network_interfaces_init(const int debuglvl, struct ZoneData_ *zone_ptr
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.EditZoneInt.win_bot, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.EditZoneInt.win_bot, vccnf.color_win);
     ZonesSection.EditZoneInt.panel_bot[0] = new_panel(ZonesSection.EditZoneInt.win_bot);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.EditZoneInt.win_bot, "(%s)", gettext("more"));
@@ -4678,7 +4676,7 @@ edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height,
     set_field_buffer_wrap(debuglvl, NetworkSec.commentfld, 0, ZonesSection.comment);
 
     /* create window and panel */
-    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Network"), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Network"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -4693,19 +4691,19 @@ edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height,
     /* set field options */
     for(i = 0; i < ZonesSection.EditZone.n_fields; i++)
     {
-        set_field_back(ZonesSection.EditZone.fields[i], (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+        set_field_back(ZonesSection.EditZone.fields[i], vccnf.color_win);
         field_opts_off(ZonesSection.EditZone.fields[i], O_AUTOSKIP);
         set_field_status(ZonesSection.EditZone.fields[i], FALSE);
     }
 
-    set_field_back(NetworkSec.activefld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_back(NetworkSec.networkfld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_back(NetworkSec.netmaskfld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_back(NetworkSec.network6fld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_back(NetworkSec.cidr6fld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
-    set_field_back(NetworkSec.commentfld, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_field_back(NetworkSec.activefld, vccnf.color_win_rev);
+    set_field_back(NetworkSec.networkfld, vccnf.color_win_rev);
+    set_field_back(NetworkSec.netmaskfld, vccnf.color_win_rev);
+    set_field_back(NetworkSec.network6fld, vccnf.color_win_rev);
+    set_field_back(NetworkSec.cidr6fld, vccnf.color_win_rev);
+    set_field_back(NetworkSec.commentfld, vccnf.color_win_rev);
 
-    set_field_fore(NetworkSec.warningfld, (chtype)COLOR_PAIR(CP_YELLOW_RED)|A_BOLD);
+    set_field_fore(NetworkSec.warningfld, vccnf.color_win_warn|A_BOLD);
     set_field_just(NetworkSec.warningfld, JUSTIFY_CENTER);
 
     /* Create the form and post it */
@@ -5083,7 +5081,7 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
         cur = current_field(ZonesSection.EditZone.form);
 
         /* draw the arrow around the active field */
-        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win, ZonesSection.EditZone.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win, ZonesSection.EditZone.form, vccnf.color_win_mark|A_BOLD);
 
         not_defined = 0;
 
@@ -5364,7 +5362,7 @@ zones_section_menu_networks_init(const int debuglvl, Zones *zones, char *zonenam
         (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    wbkgd(ZonesSection.n_win, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.n_win, vccnf.color_win);
     keypad(ZonesSection.n_win, TRUE);
 
     set_menu_win(ZonesSection.n_menu, ZonesSection.n_win);
@@ -5372,13 +5370,13 @@ zones_section_menu_networks_init(const int debuglvl, Zones *zones, char *zonenam
     set_menu_format(ZonesSection.n_menu, height-9, 1);
 
     box(ZonesSection.n_win, 0, 0);
-    print_in_middle(ZonesSection.n_win, 1, 0, width, gettext("Networks"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    print_in_middle(ZonesSection.n_win, 1, 0, width, gettext("Networks"), vccnf.color_win);
     mvwaddch(ZonesSection.n_win, 2, 0, ACS_LTEE);
     mvwhline(ZonesSection.n_win, 2, 1, ACS_HLINE, width-2);
     mvwaddch(ZonesSection.n_win, 2, width-1, ACS_RTEE);
 
-    set_menu_back(ZonesSection.n_menu, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_menu_fore(ZonesSection.n_menu, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_menu_back(ZonesSection.n_menu, vccnf.color_win);
+    set_menu_fore(ZonesSection.n_menu, vccnf.color_win_rev);
     post_menu(ZonesSection.n_menu);
     
     mvwaddch(ZonesSection.n_win, height-6, 0, ACS_LTEE);
@@ -5396,7 +5394,7 @@ zones_section_menu_networks_init(const int debuglvl, Zones *zones, char *zonenam
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.n_win_top, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.n_win_top, vccnf.color_win);
     ZonesSection.n_panel_top[0] = new_panel(ZonesSection.n_win_top);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.n_win_top, "(%s)", gettext("more"));
@@ -5407,7 +5405,7 @@ zones_section_menu_networks_init(const int debuglvl, Zones *zones, char *zonenam
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.n_win_bot, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.n_win_bot, vccnf.color_win);
     ZonesSection.n_panel_bot[0] = new_panel(ZonesSection.n_win_bot);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.n_win_bot, "(%s)", gettext("more"));
@@ -5675,7 +5673,8 @@ zones_section_menu_networks(const int debuglvl,
                         if( count_zones(debuglvl, zones, TYPE_HOST, (char *)item_name(cur), zonename) <= 0   &&
                             count_zones(debuglvl, zones, TYPE_GROUP, (char *)item_name(cur), zonename) <= 0)
                         {
-                            if(confirm(gettext("Delete"), gettext("This network?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0) == 1)
+                            if (confirm(gettext("Delete"), gettext("This network?"),
+                                        vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
                             {
                                 size = StrMemLen((char *)item_name(cur))+1+StrMemLen(zonename)+1;
                                 if(size > 0)
@@ -5934,7 +5933,7 @@ edit_zone_zone_init(const int debuglvl, Zones *zones, char *name, int height, in
     ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
 
     /* create the window and panel */
-    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Zone"), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Zone"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -5949,12 +5948,12 @@ edit_zone_zone_init(const int debuglvl, Zones *zones, char *name, int height, in
     /* set the options */
     for(i=0; i < ZonesSection.EditZone.n_fields; i++)
     {
-        set_field_back(ZonesSection.EditZone.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+        set_field_back(ZonesSection.EditZone.fields[i], vccnf.color_win_rev);
         field_opts_off(ZonesSection.EditZone.fields[i], O_AUTOSKIP);
         set_field_status(ZonesSection.EditZone.fields[i], FALSE);
     }
-    set_field_back(ZoneSec.activelabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(ZoneSec.commentlabelfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(ZoneSec.activelabelfld, vccnf.color_win);
+    set_field_back(ZoneSec.commentlabelfld, vccnf.color_win);
 
     /* Create the form and post it */
     if(!(ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields)))
@@ -6154,7 +6153,7 @@ edit_zone_zone(const int debuglvl, Zones *zones, char *name)
     /* Loop through to get user requests/commands */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win, ZonesSection.EditZone.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win, ZonesSection.EditZone.form, vccnf.color_win_mark|A_BOLD);
 
         not_defined = 0;
 
@@ -6340,7 +6339,7 @@ zones_section_init(const int debuglvl, Zones *zones)
         (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    wbkgd(ZonesSection.win, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.win, vccnf.color_win);
     keypad(ZonesSection.win, TRUE);
 
     set_menu_win(ZonesSection.menu, ZonesSection.win);
@@ -6348,13 +6347,13 @@ zones_section_init(const int debuglvl, Zones *zones)
     set_menu_format(ZonesSection.menu, height-9, 1);
 
     box(ZonesSection.win, 0, 0);
-    print_in_middle(ZonesSection.win, 1, 0, width, gettext("Zones"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    print_in_middle(ZonesSection.win, 1, 0, width, gettext("Zones"), vccnf.color_win);
     mvwaddch(ZonesSection.win, 2, 0, ACS_LTEE);
     mvwhline(ZonesSection.win, 2, 1, ACS_HLINE, width-2);
     mvwaddch(ZonesSection.win, 2, width-1, ACS_RTEE);
     
-    set_menu_back(ZonesSection.menu, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_menu_fore(ZonesSection.menu, (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+    set_menu_back(ZonesSection.menu, vccnf.color_win);
+    set_menu_fore(ZonesSection.menu, vccnf.color_win_rev);
     post_menu(ZonesSection.menu);
 
     mvwaddch(ZonesSection.win, height-6, 0, ACS_LTEE);
@@ -6373,7 +6372,7 @@ zones_section_init(const int debuglvl, Zones *zones)
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.z_win_top, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.z_win_top, vccnf.color_win);
     ZonesSection.z_panel_top[0] = new_panel(ZonesSection.z_win_top);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.z_win_top, "(%s)", gettext("more"));
@@ -6384,7 +6383,7 @@ zones_section_init(const int debuglvl, Zones *zones)
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.z_win_bot, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.z_win_bot, vccnf.color_win);
     ZonesSection.z_panel_bot[0] = new_panel(ZonesSection.z_win_bot);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.z_win_bot, "(%s)", gettext("more"));
@@ -6576,7 +6575,8 @@ zones_section(const int debuglvl, Zones *zones, Interfaces *interfaces, Rules *r
                             count_zones(debuglvl, zones, TYPE_HOST, NULL, (char *)item_name(cur)) <= 0   &&
                             count_zones(debuglvl, zones, TYPE_GROUP, NULL, (char *)item_name(cur)) <= 0)
                         {
-                            if(confirm(gettext("Delete"), gettext("This zone?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0) == 1)
+                            if (confirm(gettext("Delete"), gettext("This zone?"),
+                                        vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
                             {
                                 /* for logging */
                                 (void)strlcpy(save_zone_name, (char *)item_name(cur), sizeof(save_zone_name));
@@ -6777,10 +6777,10 @@ zones_blocklist_init(const int debuglvl, BlockList *blocklist)
         (void)vrprint.error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    wbkgd(ZonesSection.h_win, (chtype)COLOR_PAIR(5));
+    wbkgd(ZonesSection.h_win, vccnf.color_win);
     keypad(ZonesSection.h_win, TRUE);
     box(ZonesSection.h_win, 0, 0);
-    print_in_middle(ZonesSection.h_win, 1, 0, width, gettext("BlockList"), (chtype)COLOR_PAIR(CP_BLUE_WHITE)); 
+    print_in_middle(ZonesSection.h_win, 1, 0, width, gettext("BlockList"), vccnf.color_win); 
     wrefresh(ZonesSection.h_win);
 
     if(!(ZonesSection.h_panel[0] = new_panel(ZonesSection.h_win)))
@@ -6798,8 +6798,8 @@ zones_blocklist_init(const int debuglvl, BlockList *blocklist)
     mvwhline(ZonesSection.h_win, 2, 1, ACS_HLINE, width-2);
     mvwaddch(ZonesSection.h_win, 2, width-1, ACS_RTEE);
 
-    set_menu_back(ZonesSection.h_menu, (chtype)COLOR_PAIR(5));
-    set_menu_fore(ZonesSection.h_menu, (chtype)COLOR_PAIR(3));
+    set_menu_back(ZonesSection.h_menu, vccnf.color_win);
+    set_menu_fore(ZonesSection.h_menu, vccnf.color_win_rev);
 
     result = post_menu(ZonesSection.h_menu);
     if(result != E_OK && result != E_NOT_CONNECTED)
@@ -6821,7 +6821,7 @@ zones_blocklist_init(const int debuglvl, BlockList *blocklist)
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.h_win_top, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.h_win_top, vccnf.color_win);
     ZonesSection.h_panel_top[0] = new_panel(ZonesSection.h_win_top);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.h_win_top, "(%s)", gettext("more"));
@@ -6832,7 +6832,7 @@ zones_blocklist_init(const int debuglvl, BlockList *blocklist)
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
-    wbkgd(ZonesSection.h_win_bot, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    wbkgd(ZonesSection.h_win_bot, vccnf.color_win);
     ZonesSection.h_panel_bot[0] = new_panel(ZonesSection.h_win_bot);
     /* TRANSLATORS: max 4 chars */
     wprintw(ZonesSection.h_win_bot, "(%s)", gettext("more"));
@@ -7138,7 +7138,8 @@ zones_blocklist(const int debuglvl, BlockList *blocklist, Zones *zones, struct r
 
                     if(blocklist->list.len > 0)
                     {
-                        if(confirm(gettext("Remove"), gettext("This IP/Host/Group?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0) == 1)
+                        if (confirm(gettext("Remove"), gettext("This IP/Host/Group?"),
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
                         {
                             /* get the current item */
                             if(!(cur = current_item(ZonesSection.h_menu)))

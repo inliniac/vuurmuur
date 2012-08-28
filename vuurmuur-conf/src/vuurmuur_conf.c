@@ -139,9 +139,6 @@ main(int argc, char *argv[])
                 "%s/vuurmuur/vuurmuur_conf.conf",
                 conf.etcdir);
 
-    vccnf.win_fore = COLOR_BLUE;
-    vccnf.win_back = COLOR_WHITE;
-
 #ifdef ENABLE_NLS
     setlocale(LC_ALL, "");
     setlocale(LC_TIME, "");
@@ -239,42 +236,64 @@ main(int argc, char *argv[])
     (void)keypad(stdscr, (bool)TRUE);
 
     /* Initialize all the colors */
-    (void)init_pair(CP_RED_BLUE,     COLOR_RED,    COLOR_BLUE);
-    (void)init_pair(CP_GREEN_BLUE,   COLOR_GREEN,  COLOR_BLUE);
-    (void)init_pair(CP_WHITE_BLUE,   COLOR_WHITE,  COLOR_BLUE);
-    (void)init_pair(CP_YELLOW_BLUE,  COLOR_YELLOW, COLOR_BLUE);
-    (void)init_pair(CP_BLUE_WHITE,   COLOR_BLUE,   COLOR_WHITE);
-    (void)init_pair(CP_YELLOW_RED,   COLOR_YELLOW, COLOR_RED);
-    (void)init_pair(CP_WHITE_RED,    COLOR_WHITE,  COLOR_RED);
-    (void)init_pair(CP_WHITE_GREEN,  COLOR_WHITE,  COLOR_GREEN);
-    (void)init_pair(CP_RED_WHITE,    COLOR_RED,    COLOR_WHITE);
-    (void)init_pair(CP_YELLOW_WHITE, COLOR_YELLOW, COLOR_WHITE);
-    (void)init_pair(CP_CYAN_BLUE,    COLOR_CYAN,   COLOR_BLUE);
-    (void)init_pair(CP_CYAN_WHITE,   COLOR_CYAN,   COLOR_WHITE);
-    (void)init_pair(CP_GREEN_WHITE,  COLOR_GREEN,  COLOR_WHITE);
-    (void)init_pair(CP_CYAN_GREEN,   COLOR_CYAN,   COLOR_GREEN);
-    (void)init_pair(CP_BLACK_WHITE,  COLOR_BLACK,  COLOR_WHITE);
-    (void)init_pair(CP_WHITE_CYAN,   COLOR_WHITE,  COLOR_CYAN);
-    (void)init_pair(CP_WHITE_BLACK,  COLOR_WHITE,  COLOR_BLACK);
-    (void)init_pair(CP_WHITE_YELLOW, COLOR_WHITE,  COLOR_YELLOW);
-    (void)init_pair(CP_YELLOW_BLACK, COLOR_YELLOW, COLOR_BLACK);
 
     vccnf.win_fore = COLOR_BLUE;
     vccnf.win_back = COLOR_WHITE;
+    vccnf.bgd_fore = COLOR_WHITE;
+    vccnf.bgd_back = COLOR_BLUE;
 
     init_pair(CP_WIN,       vccnf.win_fore, vccnf.win_back);
     init_pair(CP_WIN_REV,   vccnf.win_back, vccnf.win_fore);
     init_pair(CP_WIN_MARK,  COLOR_RED,      vccnf.win_back);
     init_pair(CP_WIN_FIELD, COLOR_WHITE,    COLOR_BLUE);
 
+    init_pair(CP_WIN_RED,       COLOR_RED, vccnf.win_back);
+    init_pair(CP_WIN_RED_REV,   vccnf.win_back, COLOR_RED);
+    init_pair(CP_WIN_GREEN,     COLOR_GREEN, vccnf.win_back);
+    init_pair(CP_WIN_GREEN_REV, vccnf.win_back, COLOR_GREEN);
+    init_pair(CP_WIN_YELLOW,    COLOR_YELLOW, vccnf.win_back);
+    init_pair(CP_WIN_MAGENTA,   COLOR_MAGENTA, vccnf.win_back);
+    init_pair(CP_WIN_CYAN,      COLOR_CYAN, vccnf.win_back);
+
+    init_pair(CP_WIN_INIT,      COLOR_YELLOW, COLOR_RED);
+    init_pair(CP_WIN_WARN,      COLOR_YELLOW, COLOR_RED);
+    init_pair(CP_WIN_NOTE,      COLOR_WHITE, COLOR_RED);
+
+    init_pair(CP_RULE_BAR,      COLOR_RED, COLOR_WHITE);
+
+    init_pair(CP_BGD,           vccnf.bgd_fore, vccnf.bgd_back);
+    init_pair(CP_BGD_REV,       vccnf.bgd_back, vccnf.bgd_fore);
+    init_pair(CP_BGD_RED,       COLOR_RED, vccnf.bgd_back);
+    init_pair(CP_BGD_GREEN,     COLOR_GREEN, vccnf.bgd_back);
+    init_pair(CP_BGD_YELLOW,    COLOR_YELLOW, vccnf.bgd_back);
+    init_pair(CP_BGD_MAGENTA,   COLOR_MAGENTA, vccnf.bgd_back);
+    init_pair(CP_BGD_CYAN,      COLOR_CYAN, vccnf.bgd_back);
+
     vccnf.color_win       = (chtype)COLOR_PAIR(CP_WIN);
     vccnf.color_win_rev   = (chtype)COLOR_PAIR(CP_WIN_REV);
     vccnf.color_win_mark  = (chtype)COLOR_PAIR(CP_WIN_MARK);
     vccnf.color_win_field = (chtype)COLOR_PAIR(CP_WIN_FIELD);
+    vccnf.color_win_red = (chtype)COLOR_PAIR(CP_WIN_RED);
+    vccnf.color_win_green = (chtype)COLOR_PAIR(CP_WIN_GREEN);
+    vccnf.color_win_yellow = (chtype)COLOR_PAIR(CP_WIN_YELLOW);
+    vccnf.color_win_magenta = (chtype)COLOR_PAIR(CP_WIN_MAGENTA);
+    vccnf.color_win_cyan = (chtype)COLOR_PAIR(CP_WIN_CYAN);
 
-    vccnf.color_bgd     = (chtype)COLOR_PAIR(CP_WHITE_BLUE);
-    vccnf.color_bgd_hi  = (chtype)COLOR_PAIR(CP_YELLOW_BLUE);
-    vccnf.color_bgd_rev = (chtype)COLOR_PAIR(CP_BLUE_WHITE);
+    vccnf.color_win_init = (chtype)COLOR_PAIR(CP_WIN_INIT);
+    vccnf.color_win_warn = (chtype)COLOR_PAIR(CP_WIN_WARN);
+    vccnf.color_win_note = (chtype)COLOR_PAIR(CP_WIN_NOTE);
+    vccnf.color_win_note_rev = (chtype)COLOR_PAIR(CP_WIN_NOTE_REV);
+
+    vccnf.color_bgd     = (chtype)COLOR_PAIR(CP_BGD);
+    vccnf.color_bgd_hi  = (chtype)COLOR_PAIR(CP_BGD_YELLOW);
+    vccnf.color_bgd_rev = (chtype)COLOR_PAIR(CP_BGD_REV);
+    vccnf.color_bgd_red = (chtype)COLOR_PAIR(CP_BGD_RED);
+    vccnf.color_bgd_green = (chtype)COLOR_PAIR(CP_BGD_GREEN);
+    vccnf.color_bgd_yellow = (chtype)COLOR_PAIR(CP_BGD_YELLOW);
+    vccnf.color_bgd_magenta = (chtype)COLOR_PAIR(CP_BGD_MAGENTA);
+    vccnf.color_bgd_cyan = (chtype)COLOR_PAIR(CP_BGD_CYAN);
+
+    vccnf.color_rule_bar = (chtype)COLOR_PAIR(CP_RULE_BAR);
 
     /* create the three main windows */
     if(!(status_frame_win = create_newwin(3, COLS, LINES-3, 0, NULL, vccnf.color_bgd)))
@@ -560,9 +579,9 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
 
     // create the windows and panels
     startup_win = create_newwin(heigth, width, y, x, "Vuurmuur_conf",
-            (chtype)COLOR_PAIR(CP_YELLOW_RED)|A_BOLD);
+            vccnf.color_win_init|A_BOLD);
     startup_print_win = newwin(1, print_pan_width, y+heigth-3, x+5);
-    wbkgd(startup_print_win, (chtype)COLOR_PAIR(CP_YELLOW_RED)|A_BOLD);
+    wbkgd(startup_print_win, vccnf.color_win_init|A_BOLD);
     startup_panel[0] = new_panel(startup_win);
     startup_panel[1] = new_panel(startup_print_win);
     update_panels();
@@ -608,8 +627,7 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
         {
             if(confirm(gettext("Problem with the Vuurmuur_conf settings"),
                 gettext("Do you want to edit the settings now?"),
-                (chtype)COLOR_PAIR(CP_RED_WHITE),
-                (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1))
+                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1))
             {
                 /* this prompt the user with the config menu */
                 cnfresult = edit_vcconfig(debuglvl);
@@ -668,8 +686,7 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
         {
             if(confirm(gettext("Problem with the Vuurmuur config"),
                 gettext("Do you want to edit the config now?"),
-                (chtype)COLOR_PAIR(CP_RED_WHITE),
-                (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1))
+                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1))
             {
                 /* this prompt the user with the config menu */
                 cnfresult = config_menu(debuglvl);

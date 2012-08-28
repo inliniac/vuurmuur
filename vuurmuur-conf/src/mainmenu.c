@@ -230,7 +230,7 @@ mm_select_logfile(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
 
     main_menu = new_menu((ITEM **)menu_items);
 
-    mainmenu_win = create_newwin(y, x, starty, startx, gettext("Logview"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    mainmenu_win = create_newwin(y, x, starty, startx, gettext("Logview"), vccnf.color_win);
     keypad(mainmenu_win, TRUE);
     wrefresh(mainmenu_win);
 
@@ -240,8 +240,8 @@ mm_select_logfile(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
     set_menu_win(main_menu, mainmenu_win);
     set_menu_sub(main_menu, derwin(mainmenu_win, y-8, x-12, 6, 6));
     set_menu_format(main_menu, y-4, 1);
-    set_menu_back(main_menu, (chtype)COLOR_PAIR(5));
-    set_menu_fore(main_menu, (chtype)COLOR_PAIR(3));
+    set_menu_back(main_menu, vccnf.color_win);
+    set_menu_fore(main_menu, vccnf.color_win_rev);
 
     post_menu(main_menu);
 
@@ -1159,7 +1159,7 @@ mm_reload_shm(const int debuglvl)
     getmaxyx(stdscr, max_height, max_width);
 
     /* create a little wait dialog */
-    if(!(wait_win = create_newwin(7, 45, (max_height-7)/4, (max_width-45)/2, gettext("One moment please..."), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(wait_win = create_newwin(7, 45, (max_height-7)/4, (max_width-45)/2, gettext("One moment please..."), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -1172,11 +1172,11 @@ mm_reload_shm(const int debuglvl)
     /* overall */
     vuurmuurfld = (fields[0] = new_field(1, 3, 3, 20, 0, 0));
     set_field_buffer_wrap(debuglvl, vuurmuurfld, 0, "  0");
-    set_field_back(vuurmuurfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(vuurmuurfld, vccnf.color_win);
 
     vuurmuurlogfld  = (fields[1] = new_field(1, 3, 4, 20, 0, 0));
     set_field_buffer_wrap(debuglvl, vuurmuurlogfld, 0, "  0");
-    set_field_back(vuurmuurlogfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(vuurmuurlogfld, vccnf.color_win);
 
     /* terminate */
     fields[n_fields] = NULL;
@@ -1268,9 +1268,9 @@ mm_reload_shm(const int debuglvl)
         {
             if(vuurmuur_semid == -1)
             {
-                wattron(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+                wattron(wait_win, vccnf.color_win_red);
                 mvwprintw(wait_win, 4, 29, SHM_REL_NOT_CONN);
-                wattroff(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+                wattroff(wait_win, vccnf.color_win_red);
 
                 last_vuurmuur_result = 0;
                 failed = 1;
@@ -1282,9 +1282,9 @@ mm_reload_shm(const int debuglvl)
 
                 if(vuurmuur_result == VR_RR_SUCCES)
                 {
-                    wattron(wait_win, (chtype)COLOR_PAIR(CP_GREEN_WHITE));
+                    wattron(wait_win, vccnf.color_win_green);
                     mvwprintw(wait_win, 4, 29, SHM_REL_SUCCESS);
-                    wattroff(wait_win, (chtype)COLOR_PAIR(CP_GREEN_WHITE));
+                    wattroff(wait_win, vccnf.color_win_green);
                 }
                 else if(vuurmuur_result == VR_RR_NOCHANGES)
                 {
@@ -1292,9 +1292,9 @@ mm_reload_shm(const int debuglvl)
                 }
                 else
                 {
-                    wattron(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+                    wattron(wait_win, vccnf.color_win_red);
                     mvwprintw(wait_win, 4, 29, SHM_REL_ERROR);
-                    wattroff(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+                    wattroff(wait_win, vccnf.color_win_red);
 
                     last_vuurmuur_result = 0;
                     failed = 1;
@@ -1323,9 +1323,9 @@ mm_reload_shm(const int debuglvl)
         {
             if(vuurmuurlog_semid == -1)
             {
-                wattron(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+                wattron(wait_win, vccnf.color_win_red);
                 mvwprintw(wait_win, 5, 29, SHM_REL_NOT_CONN);
-                wattroff(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+                wattroff(wait_win, vccnf.color_win_red);
 
                 last_vuurmuur_log_result = 0;
             }
@@ -1336,9 +1336,9 @@ mm_reload_shm(const int debuglvl)
 
                 if(vuurmuurlog_result == VR_RR_SUCCES)
                 {
-                    wattron(wait_win, (chtype)COLOR_PAIR(CP_GREEN_WHITE));
+                    wattron(wait_win, vccnf.color_win_green);
                     mvwprintw(wait_win, 5, 29, SHM_REL_SUCCESS);
-                    wattroff(wait_win, (chtype)COLOR_PAIR(CP_GREEN_WHITE));
+                    wattroff(wait_win, vccnf.color_win_green);
                 }
                 else if(vuurmuur_result == VR_RR_NOCHANGES)
                 {
@@ -1346,9 +1346,9 @@ mm_reload_shm(const int debuglvl)
                 }
                 else
                 {
-                    wattron(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+                    wattron(wait_win, vccnf.color_win_red);
                     mvwprintw(wait_win, 5, 29, SHM_REL_ERROR);
-                    wattroff(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+                    wattroff(wait_win, vccnf.color_win_red);
 
                     last_vuurmuur_log_result = 0;
                     failed = 1;
@@ -1371,9 +1371,9 @@ mm_reload_shm(const int debuglvl)
     /* timed out */
     if(vuurmuur_progress < 100)
     {
-        wattron(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+        wattron(wait_win, vccnf.color_win_red);
         mvwprintw(wait_win, 4, 29, SHM_REL_TIMEOUT);
-        wattroff(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+        wattroff(wait_win, vccnf.color_win_red);
 
         last_vuurmuur_result = 0;
         failed = 1;
@@ -1382,9 +1382,9 @@ mm_reload_shm(const int debuglvl)
     /* timed out */
     if(vuurmuurlog_progress < 100)
     {
-        wattron(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+        wattron(wait_win, vccnf.color_win_red);
         mvwprintw(wait_win, 5, 29, SHM_REL_TIMEOUT);
-        wattroff(wait_win, (chtype)COLOR_PAIR(CP_RED_WHITE));
+        wattroff(wait_win, vccnf.color_win_red);
 
         last_vuurmuur_log_result = 0;
         failed = 1;
@@ -1454,19 +1454,19 @@ mm_set_status_field(const int debuglvl, int status, FIELD *fld)
     {
         /* TRANSLATORS: max 6 characters */
         set_field_buffer_wrap(debuglvl, fld, 0, gettext("  OK  "));
-        set_field_back(fld, (chtype)COLOR_PAIR(CP_GREEN_WHITE));
+        set_field_back(fld, vccnf.color_win_green);
     }
     else if(status == 0) /* Attention */
     {
         /* TRANSLATORS: max 6 characters */
         set_field_buffer_wrap(debuglvl, fld, 0, gettext(" Warn "));
-        set_field_back(fld, (chtype)COLOR_PAIR(CP_YELLOW_WHITE)|A_BOLD);
+        set_field_back(fld, vccnf.color_win_yellow|A_BOLD);
     }
     else /* Warning */
     {
         /* TRANSLATORS: max 6 characters */
         set_field_buffer_wrap(debuglvl, fld, 0, gettext(" Fail "));
-        set_field_back(fld, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        set_field_back(fld, vccnf.color_win_red|A_BOLD);
     }
 }
 
@@ -1527,8 +1527,7 @@ vc_apply_changes(const int debuglvl)
     {
         if((confirm(gettext("Apply Changes"),
             gettext("The overall status is not OK. Apply anyway?"),
-            (chtype)COLOR_PAIR(CP_RED_WHITE),
-            (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0) == 1))
+            vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1))
         {
             /* reload the shm */
             reload_result = mm_reload_shm(debuglvl);
@@ -1793,8 +1792,7 @@ main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces
         {
             if((confirm(gettext("Convert Rules"),
                         gettext("Convert the rules to the new format (recommended)?"),
-                        (chtype)COLOR_PAIR(CP_RED_WHITE),
-                        (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1))
+                        vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1))
             {
                 if(convert_rulesfile_to_backend(debuglvl, rules, &conf) < 0)
                 {
@@ -1819,8 +1817,7 @@ main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces
         {
             if((confirm(gettext("Convert BlockList"),
                         gettext("Convert the BlockList to the new format (recommended)?"),
-                        (chtype)COLOR_PAIR(CP_RED_WHITE),
-                        (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1))
+                        vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1))
             {
                 if(convert_blocklistfile_to_backend(debuglvl, blocklist, &conf) < 0)
                 {

@@ -876,7 +876,7 @@ print_list(const int debuglvl, d_list *list, char *title, int height,
 
     end_print = (size_t)height - 2;
 
-    if(!(boxwin = create_newwin(height, width, starty, startx, title, (chtype)COLOR_PAIR(CP_RED_WHITE))))
+    if(!(boxwin = create_newwin(height, width, starty, startx, title, vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_ERR, "could not create window (in: %s:%d).", __FUNC__, __LINE__);
         return;
@@ -891,7 +891,7 @@ print_list(const int debuglvl, d_list *list, char *title, int height,
         (void)vrprint.error(-1, VR_ERR, "could not create window (in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
-    (void)wbkgd(printwin, (chtype)COLOR_PAIR(CP_BLACK_WHITE));
+    (void)wbkgd(printwin, vccnf.color_win);
     if(!(panel[1] = new_panel(printwin)))
     {
         (void)vrprint.error(-1, VR_ERR, "could not create panel (in: %s:%d).", __FUNC__, __LINE__);

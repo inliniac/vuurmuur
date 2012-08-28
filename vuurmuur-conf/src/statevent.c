@@ -514,7 +514,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
     }
 
     /* create the window and put it in the middle of the screen */
-    win = VrNewWin(menu_items + 2,width,0,0,COLOR_PAIR(CP_WHITE_BLUE));
+    win = VrNewWin(menu_items + 2,width,0,0,vccnf.color_win);
     if(win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
@@ -522,7 +522,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
     }
     VrWinSetTitle(win, title);
 
-    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,COLOR_PAIR(CP_WHITE_BLUE),COLOR_PAIR(CP_BLUE_WHITE));
+    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win_rev);
     if(menu == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewMenu failed");
@@ -607,7 +607,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
                             else if(con->cnt == 1)
                             {
                                 if(confirm(gettext("Kill connection"),gettext("Are you sure?"),
-                                    (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                                 {
                                     kill_connection(debuglvl, conf.conntrack_location,
                                         con->src_ip, con->dst_ip, con->protocol,
@@ -619,17 +619,16 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
                                 vrprint.debug(__FUNC__, "cnt %u, src %s srcip %s dst %s dstip %s ser %s",
                                         con->cnt, con->src, con->src_ip, con->dst,
                                         con->dst_ip, con->ser);
-                                
-                                
+
                                 if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                    (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                                 {
                                     kill_connections(debuglvl, &conf, connreq, ct, con);
                                 }
                             }
                             break;
                         }
-                
+
                         case 2: /* kill all src ip */
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
@@ -637,7 +636,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
                                 (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL, CONN_UNUSED);
                             }
@@ -650,7 +649,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
                                 (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->dst_ip, NULL, CONN_UNUSED);
                             }
@@ -663,13 +662,13 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
                                 (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->src_ip, NULL, CONN_UNUSED);
                                 kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL, CONN_UNUSED);
                             }
                             break;
-                
+
                         case 5:
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
@@ -677,7 +676,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
                                 (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->dst_ip, NULL, CONN_UNUSED);
                                 kill_connections_by_ip(debuglvl, &conf, ct, con->dst_ip, NULL, NULL, CONN_UNUSED);
@@ -687,7 +686,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
 
                         case 6:
                             if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 block_and_kill(debuglvl, ct, zones, blocklist, interfaces, con->src_ip);
                             }
@@ -695,7 +694,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
 
                         case 7:
                             if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 block_and_kill(debuglvl, ct, zones, blocklist, interfaces, con->dst_ip);
                             }
@@ -703,7 +702,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
 
                         case 8:
                             if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 block_and_kill(debuglvl, ct, zones, blocklist, interfaces, con->src_ip);
                                 block_and_kill(debuglvl, ct, zones, blocklist, interfaces, con->dst_ip);
@@ -805,7 +804,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
         menu_items--;
 
     /* create the window and put it in the middle of the screen */
-    win = VrNewWin(menu_items + 2,width,0,0,COLOR_PAIR(CP_WHITE_BLUE));
+    win = VrNewWin(menu_items + 2,width,0,0,vccnf.color_win);
     if(win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
@@ -813,7 +812,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
     }
     VrWinSetTitle(win, title);
 
-    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,COLOR_PAIR(CP_WHITE_BLUE),COLOR_PAIR(CP_BLUE_WHITE));
+    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win);
     if(menu == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewMenu failed");
@@ -902,7 +901,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
                             else
                             {
                                 if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                    (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                                 {
                                     kill_connections_by_ip(debuglvl, &conf, ctr,
                                         log->src_ip, log->dst_ip, log->ser, CONN_UNUSED);
@@ -910,7 +909,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
                             }
                             break;
                         }
-                
+
                         case 2: /* kill all src ip */
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
@@ -918,7 +917,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
                                 (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL, CONN_UNUSED);
                             }
@@ -931,7 +930,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
                                 (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL, CONN_UNUSED);
                             }
@@ -944,7 +943,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
                                 (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->src_ip, NULL, CONN_UNUSED);
                                 kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL, CONN_UNUSED);
@@ -958,7 +957,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
                                 (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL, CONN_UNUSED);
                                 kill_connections_by_ip(debuglvl, &conf, ctr, log->dst_ip, NULL, NULL, CONN_UNUSED);
@@ -968,7 +967,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
 
                         case 6:
                             if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->src_ip);
                             }
@@ -976,7 +975,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
 
                         case 7:
                             if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->dst_ip);
                             }
@@ -984,7 +983,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
 
                         case 8:
                             if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                (chtype)COLOR_PAIR(CP_RED_WHITE),(chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 1) == 1)
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
                                 block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->src_ip);
                                 block_and_kill(debuglvl, ctr, zones, blocklist, interfaces, log->dst_ip);
@@ -1103,7 +1102,7 @@ statevent_menu(const int debuglvl, struct vuurmuur_config *cnf, int type,
         return(0);
     }
 
-    win = VrNewWin(LINES - 6,COLS - 2,3,1,COLOR_PAIR(CP_BLUE_WHITE));
+    win = VrNewWin(LINES - 6,COLS - 2,3,1,vccnf.color_win);
     if(win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
@@ -1115,7 +1114,7 @@ statevent_menu(const int debuglvl, struct vuurmuur_config *cnf, int type,
             key_choices, cmd_choices_n, cmd_choices);
 
     menu = VrNewMenu(LINES - 8,COLS - 4,1,1,ctl->list.len,
-            COLOR_PAIR(CP_BLUE_WHITE),COLOR_PAIR(CP_WHITE_BLUE));
+            vccnf.color_win,vccnf.color_win_rev);
     if(menu == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewMenu failed");

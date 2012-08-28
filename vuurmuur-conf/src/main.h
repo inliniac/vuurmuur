@@ -85,30 +85,33 @@
 #define SILENT_UNLOCK(x)    LockSHM(0, x)
 
 /* Initialize all the color pairs */
-#define CP_RED_BLUE     1
-#define CP_GREEN_BLUE   2
-#define CP_WHITE_BLUE   3
-#define CP_YELLOW_BLUE  4
-#define CP_BLUE_WHITE   5
-#define CP_YELLOW_RED   6
-#define CP_WHITE_RED    7
-#define CP_WHITE_GREEN  8
-#define CP_RED_WHITE    9
-#define CP_YELLOW_WHITE 10
-#define CP_CYAN_BLUE    11
-#define CP_CYAN_WHITE   12
-#define CP_GREEN_WHITE  13
-#define CP_CYAN_GREEN   14
-#define CP_BLACK_WHITE  15
-#define CP_WHITE_CYAN   16
-#define CP_WHITE_BLACK  17
-#define CP_WHITE_YELLOW 18
-#define CP_YELLOW_BLACK 19
+#define CP_WIN          1
+#define CP_WIN_REV      2
+#define CP_WIN_MARK     3
+#define CP_WIN_FIELD    4
 
-#define CP_WIN          20
-#define CP_WIN_REV      21
-#define CP_WIN_MARK     22
-#define CP_WIN_FIELD    23
+#define CP_WIN_RED      5
+#define CP_WIN_RED_REV  6
+#define CP_WIN_GREEN    7
+#define CP_WIN_GREEN_REV 8
+#define CP_WIN_YELLOW   9
+#define CP_WIN_MAGENTA  10
+#define CP_WIN_CYAN     11
+
+#define CP_BGD          12
+#define CP_BGD_REV      13
+#define CP_BGD_RED      14
+#define CP_BGD_GREEN    15
+#define CP_BGD_YELLOW   16
+#define CP_BGD_MAGENTA  17
+#define CP_BGD_CYAN     18
+
+#define CP_WIN_INIT     19
+#define CP_WIN_WARN     20
+#define CP_WIN_NOTE     21
+#define CP_WIN_NOTE_REV 22
+
+#define CP_RULE_BAR     23
 
 /* the lists */
 d_list  PluginList;
@@ -151,11 +154,25 @@ typedef struct
     short           win_fore;
     short           win_back;
 
+    chtype          color_win_init;
+    chtype          color_win_warn;
+    chtype          color_win_note;
+    chtype          color_win_note_rev;
+
     chtype          color_win;
-    chtype          color_win_rev;
     chtype          color_win_mark;
     chtype          color_win_field;
 
+    chtype          color_win_red;
+    chtype          color_win_red_rev;
+    chtype          color_win_green;
+    chtype          color_win_green_rev;
+    chtype          color_win_yellow;
+    chtype          color_win_magenta;
+    chtype          color_win_cyan;
+
+    chtype          color_win_rev;
+    chtype          color_win_rev_yellow;
 
     /* background */
     short           bgd_fore;
@@ -165,6 +182,13 @@ typedef struct
     chtype          color_bgd_hi;
     chtype          color_bgd_rev;
 
+    chtype          color_bgd_red;
+    chtype          color_bgd_green;
+    chtype          color_bgd_yellow;
+    chtype          color_bgd_magenta;
+    chtype          color_bgd_cyan;
+
+    chtype          color_rule_bar;
 } vc_cnf;
 
 vc_cnf vccnf;

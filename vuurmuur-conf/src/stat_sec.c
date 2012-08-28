@@ -414,9 +414,9 @@ status_section_init(const int debuglvl, int height, int width, int startx, int s
     for(i = 0; i < StatusSection.n_fields; i++)
     {
         if(debuglvl >= LOW)
-            set_field_back(StatusSection.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE));
+            set_field_back(StatusSection.fields[i], vccnf.color_win_rev);
         else
-            set_field_back(StatusSection.fields[i], (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+            set_field_back(StatusSection.fields[i], vccnf.color_win);
         
         field_opts_off(StatusSection.fields[i], O_AUTOSKIP);
         /* set status to false */
@@ -910,11 +910,11 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, In
                 if(strncmp(field_buffer(cur, 1), "ld_s", 4) == 0)
                 {
                     if(load_s > 2 && load_s < 5)
-                        set_field_fore(cur, (chtype)COLOR_PAIR(CP_YELLOW_WHITE)|A_BOLD);
+                        set_field_fore(cur, vccnf.color_win_yellow|A_BOLD);
                     else if(load_s >= 5)
-                        set_field_fore(cur, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+                        set_field_fore(cur, vccnf.color_win_red|A_BOLD);
                     else
-                        set_field_fore(cur, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+                        set_field_fore(cur, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_s);
                     set_field_buffer_wrap(debuglvl, cur, 0, load_str);
@@ -922,11 +922,11 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, In
                 else if(strncmp(field_buffer(cur, 1), "ld_m", 4) == 0)
                 {
                     if(load_m > 2 && load_m < 5)
-                        set_field_fore(cur, (chtype)COLOR_PAIR(CP_YELLOW_WHITE)|A_BOLD);
+                        set_field_fore(cur, vccnf.color_win_yellow|A_BOLD);
                     else if(load_m >= 5)
-                        set_field_fore(cur, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+                        set_field_fore(cur, vccnf.color_win_red|A_BOLD);
                     else
-                        set_field_fore(cur, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+                        set_field_fore(cur, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_m);
                     set_field_buffer_wrap(debuglvl, cur, 0, load_str);
@@ -934,11 +934,11 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, In
                 else if(strncmp(field_buffer(cur, 1), "ld_l", 4) == 0)
                 {
                     if(load_l > 2 && load_l < 5)
-                        set_field_fore(cur, (chtype)COLOR_PAIR(CP_YELLOW_WHITE)|A_BOLD);
+                        set_field_fore(cur, vccnf.color_win_yellow|A_BOLD);
                     else if(load_l >= 5)
-                        set_field_fore(cur, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+                        set_field_fore(cur, vccnf.color_win_red|A_BOLD);
                     else
-                        set_field_fore(cur, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+                        set_field_fore(cur, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_l);
                     set_field_buffer_wrap(debuglvl, cur, 0, load_str);
@@ -1148,12 +1148,12 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, In
                     snprintf(interfacename, sizeof(interfacename), "%s", iface_ptr->name);
             
                     if(iface_ptr->up == TRUE)
-                        wattron(StatusSection.win, (chtype)COLOR_PAIR(CP_BLUE_WHITE)|A_BOLD);
+                        wattron(StatusSection.win, vccnf.color_win|A_BOLD);
             
                     mvwprintw(StatusSection.win, y, 2,  "%s", interfacename);
 
                     if(iface_ptr->up == TRUE)
-                        wattroff(StatusSection.win, (chtype)COLOR_PAIR(CP_BLUE_WHITE)|A_BOLD);
+                        wattroff(StatusSection.win, vccnf.color_win|A_BOLD);
 
                     /* store the number of bytes */
                     shadow_ptr->prev_recv_bytes = recv_bytes;

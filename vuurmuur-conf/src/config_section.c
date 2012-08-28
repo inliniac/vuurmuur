@@ -124,7 +124,7 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     /* terminate */
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
 
-    ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: General"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: General"), vccnf.color_win);
     ConfigSection.panel[0] = new_panel(ConfigSection.win);
 
     /* set buffers - first the visible, then the label */
@@ -142,7 +142,7 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     /* set buffers done */
     for(i = 0; i < ConfigSection.n_fields; i++)
     {
-        set_field_back(ConfigSection.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
         field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
         // set status to false
         set_field_status(ConfigSection.fields[i], FALSE);
@@ -341,7 +341,7 @@ edit_genconfig(const int debuglvl)
     /* Loop through to get user requests */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
 
         ch = wgetch(ConfigSection.win);
 
@@ -382,7 +382,9 @@ edit_genconfig(const int debuglvl)
                     /* save the field to the conf struct */
                     if(edit_genconfig_save(debuglvl) < 0)
                     {
-                        if(confirm(gettext("Saving config failed"), gettext("Saving the config failed. Sure you want to quit?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0))
+                        if (confirm(gettext("Saving config failed"),
+                                    gettext("Saving the config failed. Sure you want to quit?"),
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0))
                         {
                             retval = -1;
                             quit = 1;
@@ -486,7 +488,7 @@ edit_intconfig_init(const int debuglvl, int height, int width, int starty, int s
     /* terminate */
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
 
-    ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Interfaces"), (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Interfaces"), vccnf.color_win);
     ConfigSection.panel[0] = new_panel(ConfigSection.win);
 
     /* set buffers - first the visible, then the label */
@@ -498,13 +500,13 @@ edit_intconfig_init(const int debuglvl, int height, int width, int starty, int s
     /* set buffers done */
     for(i = 0; i < ConfigSection.n_fields; i++)
     {
-        set_field_back(ConfigSection.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
         field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
         // set status to false
         set_field_status(ConfigSection.fields[i], FALSE);
     }
     /* toggle */
-    set_field_back(IntConfig.dynchkfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(IntConfig.dynchkfld, vccnf.color_win);
 
     // Create the form and post it
     ConfigSection.form = new_form(ConfigSection.fields);
@@ -613,7 +615,7 @@ edit_intconfig(const int debuglvl)
     /* Loop through to get user requests */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
 
         ch = wgetch(ConfigSection.win);
 
@@ -646,7 +648,9 @@ edit_intconfig(const int debuglvl)
                     /* save the field to the conf struct */
                     if(edit_intconfig_save(debuglvl) < 0)
                     {
-                        if(confirm(gettext("Saving config failed"), gettext("Saving the config failed. Sure you want to quit?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0))
+                        if (confirm(gettext("Saving config failed"),
+                                    gettext("Saving the config failed. Sure you want to quit?"),
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0))
                         {
                             retval = -1;
                             quit = 1;
@@ -753,7 +757,7 @@ edit_modconfig_init(const int debuglvl, int height, int width, int starty, int s
     /* terminate */
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
 
-    ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Modules"), (chtype)COLOR_PAIR(5));
+    ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Modules"), vccnf.color_win);
     ConfigSection.panel[0] = new_panel(ConfigSection.win);
 
     /* set buffers - first the visible, then the label */
@@ -767,13 +771,13 @@ edit_modconfig_init(const int debuglvl, int height, int width, int starty, int s
     /* set buffers done */
     for(i = 0; i < ConfigSection.n_fields; i++)
     {
-        set_field_back(ConfigSection.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
         field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
         // set status to false
         set_field_status(ConfigSection.fields[i], FALSE);
     }
     /* toggle */
-    set_field_back(ModConfig.loadmodulesfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(ModConfig.loadmodulesfld, vccnf.color_win);
 
     // Create the form and post it
     ConfigSection.form = new_form(ConfigSection.fields);
@@ -895,7 +899,7 @@ edit_modconfig(const int debuglvl)
     /* Loop through to get user requests */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
 
         ch = wgetch(ConfigSection.win);
 
@@ -929,7 +933,9 @@ edit_modconfig(const int debuglvl)
                     /* save the field to the conf struct */
                     if(edit_modconfig_save(debuglvl) < 0)
                     {
-                        if(confirm(gettext("Saving config failed"), gettext("Saving the config failed. Sure you want to quit?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0))
+                        if (confirm(gettext("Saving config failed"),
+                                    gettext("Saving the config failed. Sure you want to quit?"),
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0))
                         {
                             retval = -1;
                             quit = 1;
@@ -1034,7 +1040,7 @@ edit_plugconfig_init(const int debuglvl, int height, int width, int starty, int 
     /* terminate */
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
 
-    ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Plugins"), (chtype)COLOR_PAIR(5));
+    ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Plugins"), vccnf.color_win);
     ConfigSection.panel[0] = new_panel(ConfigSection.win);
 
     /* set buffers - first the visible, then the label */
@@ -1046,7 +1052,7 @@ edit_plugconfig_init(const int debuglvl, int height, int width, int starty, int 
     /* set buffers done */
     for(i = 0; i < ConfigSection.n_fields; i++)
     {
-        set_field_back(ConfigSection.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
         field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
         // set status to false
         set_field_status(ConfigSection.fields[i], FALSE);
@@ -1173,7 +1179,7 @@ edit_plugconfig(const int debuglvl)
     /* Loop through to get user requests */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
 
         ch = wgetch(ConfigSection.win);
 
@@ -1204,7 +1210,9 @@ edit_plugconfig(const int debuglvl)
                     /* save the field to the conf struct */
                     if(edit_plugconfig_save(debuglvl) < 0)
                     {
-                        if(confirm(gettext("Saving config failed"), gettext("Saving the config failed. Sure you want to quit?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0))
+                        if (confirm(gettext("Saving config failed"),
+                                    gettext("Saving the config failed. Sure you want to quit?"),
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0))
                         {
                             retval = -1;
                             quit = 1;
@@ -1317,7 +1325,7 @@ edit_conconfig_init(const int debuglvl, int height, int width, int starty, int s
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
 
     /* create win & pan */
-    if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Connections"), (chtype)COLOR_PAIR(5))))
+    if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Connections"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1353,14 +1361,14 @@ edit_conconfig_init(const int debuglvl, int height, int width, int starty, int s
     for(i = 0; i < ConfigSection.n_fields; i++)
     {
         /* background */
-        set_field_back(ConfigSection.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
         /* no autoskip */
         field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
         /* set status to false */
         set_field_status(ConfigSection.fields[i], FALSE);
     }
-    set_field_back(ConConfig.usesynlimitfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(ConConfig.useudplimitfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(ConConfig.usesynlimitfld, vccnf.color_win);
+    set_field_back(ConConfig.useudplimitfld, vccnf.color_win);
 
     /* Create the form and post it */
     if(!(ConfigSection.form = new_form(ConfigSection.fields)))
@@ -1549,7 +1557,7 @@ edit_conconfig(const int debuglvl)
     while(quit == 0)
     {
         /* visual support */
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
 
         /* when not using synlimit, deactivated the fields */
         if(field_buffer(ConConfig.usesynlimitfld, 0)[0] == 'X')
@@ -1749,15 +1757,15 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
     for(i = 0; i < ConfigSection.n_fields; i++)
     {
         /* background */
-        set_field_back(ConfigSection.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
         /* no autoskip */
         field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
         /* set status to false */
         set_field_status(ConfigSection.fields[i], FALSE);
     }
-    set_field_back(VcConfig.newrule_logfld,     (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(VcConfig.advancedmodefld,    (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(VcConfig.mainmenu_statusfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(VcConfig.newrule_logfld,     vccnf.color_win);
+    set_field_back(VcConfig.advancedmodefld,    vccnf.color_win);
+    set_field_back(VcConfig.mainmenu_statusfld, vccnf.color_win);
 
     /* Create the form and post it */
     if(!(ConfigSection.form = new_form(ConfigSection.fields)))
@@ -1932,7 +1940,7 @@ edit_vcconfig(const int debuglvl)
     while(quit == 0)
     {
         /* visual support */
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
 
         /* keyboard input */
         ch = wgetch(ConfigSection.win);
@@ -2090,7 +2098,7 @@ edit_logconfig_init(const int debuglvl, int height, int width, int starty, int s
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
 
 
-    if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Logging"), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Logging"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -2129,19 +2137,19 @@ edit_logconfig_init(const int debuglvl, int height, int width, int starty, int s
     for(i = 0; i < ConfigSection.n_fields; i++)
     {
         // set field options
-        set_field_back(ConfigSection.fields[i], (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+        set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
         field_opts_off(ConfigSection.fields[i], O_AUTOSKIP);
         // set status to false
         set_field_status(ConfigSection.fields[i], FALSE);
     }
-    set_field_back(LogConfig.rule_nflogfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(LogConfig.logpolicyfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(LogConfig.logtcpoptionsfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(LogConfig.logblocklistfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(LogConfig.loginvalidfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(LogConfig.lognosynfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(LogConfig.logprobesfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
-    set_field_back(LogConfig.logfragfld, (chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    set_field_back(LogConfig.rule_nflogfld, vccnf.color_win);
+    set_field_back(LogConfig.logpolicyfld, vccnf.color_win);
+    set_field_back(LogConfig.logtcpoptionsfld, vccnf.color_win);
+    set_field_back(LogConfig.logblocklistfld, vccnf.color_win);
+    set_field_back(LogConfig.loginvalidfld, vccnf.color_win);
+    set_field_back(LogConfig.lognosynfld, vccnf.color_win);
+    set_field_back(LogConfig.logprobesfld, vccnf.color_win);
+    set_field_back(LogConfig.logfragfld, vccnf.color_win);
 
     /* Create the form and post it */
     ConfigSection.form = new_form(ConfigSection.fields);
@@ -2471,7 +2479,7 @@ edit_logconfig(const int debuglvl)
     while(quit == 0)
     {
         /* visual support */
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, (chtype)COLOR_PAIR(CP_RED_WHITE)|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
 
         /* keyboard input */
         ch = wgetch(ConfigSection.win);
@@ -2516,7 +2524,9 @@ edit_logconfig(const int debuglvl)
                     /* save the field to the conf struct */
                     if(edit_logconfig_save(debuglvl) < 0)
                     {
-                        if(confirm(gettext("Saving config failed"), gettext("Saving the config failed. Sure you want to quit?"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0))
+                        if (confirm(gettext("Saving config failed"),
+                                    gettext("Saving the config failed. Sure you want to quit?"),
+                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0))
                         {
                             retval = -1;
                             quit = 1;
@@ -2652,7 +2662,7 @@ static void VrEditConntrack(const int debuglvl) {
     }
 
     /* create the window and put it in the middle of the screen */
-    win = VrNewWin(11,51,0,0,(chtype)COLOR_PAIR(CP_BLUE_WHITE));
+    win = VrNewWin(11,51,0,0,vccnf.color_win);
     if(win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
@@ -2660,12 +2670,12 @@ static void VrEditConntrack(const int debuglvl) {
     }
     VrWinSetTitle(win, gettext("Conntrack"));
 
-    form = VrNewForm(9, 58, 1, 1, 2, (chtype)COLOR_PAIR(CP_BLUE_WHITE), (chtype)COLOR_PAIR(CP_WHITE_BLUE) | A_BOLD);
+    form = VrNewForm(9, 58, 1, 1, 2, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
 
     VrFormSetSaveFunc(debuglvl, form, VrEditConntrackSave, &config);
 
-    VrFormAddLabelField(debuglvl,   form, 1, 35, 1, 1,  (chtype)COLOR_PAIR(CP_BLUE_WHITE), gettext("Enable dropping INVALID packets"));
-    VrFormAddCheckboxField(debuglvl,form,        1, 38, (chtype)COLOR_PAIR(CP_BLUE_WHITE), "S", config.invalid_drop_enabled);
+    VrFormAddLabelField(debuglvl,   form, 1, 35, 1, 1,  vccnf.color_win, gettext("Enable dropping INVALID packets"));
+    VrFormAddCheckboxField(debuglvl,form,        1, 38, vccnf.color_win, "S", config.invalid_drop_enabled);
 
     VrFormConnectToWin(debuglvl, form, win);
 
@@ -2733,7 +2743,7 @@ view_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
         return(-1);
     }
 
-    if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("View Capabilities"), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("View Capabilities"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -2890,7 +2900,9 @@ view_caps(const int debuglvl)
             case KEY_F(5):
             case 'p':
             case 'P':
-                if(confirm(gettext("Probe Capabilities"), gettext("Try to determine capabities? Warning: this may load iptables modules!"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0))
+                if (confirm(gettext("Probe Capabilities"),
+                            gettext("Try to determine capabities? Warning: this may load iptables modules!"),
+                            vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0))
                 {
                     result = load_iptcaps(debuglvl, &conf, &iptcap, 1);
                     if(result == -1)
@@ -2939,7 +2951,7 @@ view_ip6_caps_init(int height, int width, int starty, int startx, IptCap *iptcap
         return(-1);
     }
 
-    if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("View IPv6 Capabilities"), (chtype)COLOR_PAIR(CP_BLUE_WHITE))))
+    if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("View IPv6 Capabilities"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -3098,7 +3110,9 @@ view_ip6_caps(const int debuglvl)
             case KEY_F(5):
             case 'p':
             case 'P':
-                if(confirm(gettext("Probe Capabilities"), gettext("Try to determine capabities? Warning: this may load iptables modules!"), (chtype)COLOR_PAIR(CP_RED_WHITE), (chtype)COLOR_PAIR(CP_WHITE_RED)|A_BOLD, 0))
+                if (confirm(gettext("Probe Capabilities"),
+                            gettext("Try to determine capabities? Warning: this may load iptables modules!"),
+                            vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0))
                 {
                     result = load_ip6tcaps(debuglvl, &conf, &iptcap, 1);
                     if(result == -1)
@@ -3219,7 +3233,7 @@ config_menu(const int debuglvl)
 
     main_menu = new_menu((ITEM **)menu_items);
 
-    mainmenu_win = create_newwin(y, x, starty, startx, gettext("Configuration Menu"), (chtype)COLOR_PAIR(5));
+    mainmenu_win = create_newwin(y, x, starty, startx, gettext("Configuration Menu"), vccnf.color_win);
     keypad(mainmenu_win, TRUE);
     wrefresh(mainmenu_win);
 
@@ -3229,8 +3243,8 @@ config_menu(const int debuglvl)
     set_menu_win(main_menu, mainmenu_win);
     set_menu_sub(main_menu, derwin(mainmenu_win, y-8, x-12, 6, 6));
     set_menu_format(main_menu, y-4, 1);
-    set_menu_back(main_menu, (chtype)COLOR_PAIR(5));
-    set_menu_fore(main_menu, (chtype)COLOR_PAIR(3));
+    set_menu_back(main_menu, vccnf.color_win);
+    set_menu_fore(main_menu, vccnf.color_win_rev);
 
     post_menu(main_menu);
 
