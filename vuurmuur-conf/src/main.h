@@ -149,7 +149,8 @@ typedef struct
     /*
         colors
     */
-    
+    int background; /* 0 blue, 1 black */
+
     /* windows */
     short           win_fore;
     short           win_back;

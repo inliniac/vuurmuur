@@ -222,7 +222,7 @@ filter_input_box(const int debuglvl, VR_filter *filter)
     while(quit == 0)
     {
         /* draw nice markers */
-        draw_field_active_mark(cur, prev, ib_win, my_form, CP_WIN_MARK|A_BOLD);
+        draw_field_active_mark(cur, prev, ib_win, my_form, vccnf.color_win_mark|A_BOLD);
 
         not_defined = 0;
 

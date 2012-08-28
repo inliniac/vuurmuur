@@ -228,6 +228,9 @@ main(int argc, char *argv[])
         has negative side-effects. */
     close(STDERR_FILENO);
 
+    /* init vuurmuur_conf config already to get background */
+    (void)init_vcconfig(debuglvl, vccnf.configfile_location, &vccnf);
+
     /* Initialize curses */
     (void)initscr();
     (void)start_color();
@@ -237,10 +240,15 @@ main(int argc, char *argv[])
 
     /* Initialize all the colors */
 
-    vccnf.win_fore = COLOR_BLUE;
+    if (vccnf.background == 0) {
+        vccnf.win_fore = COLOR_BLUE;
+        vccnf.bgd_back = COLOR_BLUE;
+    } else {
+        vccnf.win_fore = COLOR_BLACK;
+        vccnf.bgd_back = COLOR_BLACK;
+    }
     vccnf.win_back = COLOR_WHITE;
     vccnf.bgd_fore = COLOR_WHITE;
-    vccnf.bgd_back = COLOR_BLUE;
 
     init_pair(CP_WIN,       vccnf.win_fore, vccnf.win_back);
     init_pair(CP_WIN_REV,   vccnf.win_back, vccnf.win_fore);

@@ -39,6 +39,7 @@ vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf)
     cnf->newrule_loglimit = DEFAULT_NEWRULE_LOGLIMIT;
     cnf->newrule_logburst = cnf->newrule_loglimit * 2;
     cnf->logview_bufsize = DEFAULT_LOGVIEW_BUFFERSIZE;
+    cnf->background = 0; /* blue */
 
     size = strlcpy(cnf->iptrafvol_location, DEFAULT_IPTRAFVOL_LOCATION,
         sizeof(cnf->iptrafvol_location));
@@ -312,6 +313,17 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     else
         return(VR_CNF_E_UNKNOWN_ERR);
 
+    /* BACKGROUND */
+    result = ask_configfile(debuglvl, &conf, "BACKGROUND", answer, configfile_location, sizeof(answer));
+    if(result == 1)
+    {
+        /* ok, found */
+        if (strcasecmp(answer, "blue") == 0)
+            cnf->background = 0;
+        else if (strcasecmp(answer, "black") == 0)
+            cnf->background = 1;
+    }
+
     return(retval);
 }
 
@@ -365,6 +377,9 @@ write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf)
 
     fprintf(fp, "# The location of the iptrafvol.pl command.\n");
     fprintf(fp, "IPTRAFVOL=\"%s\"\n\n", cnf->iptrafvol_location);
+
+    fprintf(fp, "# Background color: blue or black.\n");
+    fprintf(fp, "BACKGROUND=\"%s\"\n\n", cnf->background ? "black" : "blue");
 
     fprintf(fp, "# end of file\n");
 

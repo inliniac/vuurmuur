@@ -341,7 +341,7 @@ edit_genconfig(const int debuglvl)
     /* Loop through to get user requests */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, vccnf.color_win_mark|A_BOLD);
 
         ch = wgetch(ConfigSection.win);
 
@@ -615,7 +615,7 @@ edit_intconfig(const int debuglvl)
     /* Loop through to get user requests */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, vccnf.color_win_mark|A_BOLD);
 
         ch = wgetch(ConfigSection.win);
 
@@ -899,7 +899,7 @@ edit_modconfig(const int debuglvl)
     /* Loop through to get user requests */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, vccnf.color_win_mark|A_BOLD);
 
         ch = wgetch(ConfigSection.win);
 
@@ -1179,7 +1179,7 @@ edit_plugconfig(const int debuglvl)
     /* Loop through to get user requests */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, vccnf.color_win_mark|A_BOLD);
 
         ch = wgetch(ConfigSection.win);
 
@@ -1557,7 +1557,7 @@ edit_conconfig(const int debuglvl)
     while(quit == 0)
     {
         /* visual support */
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, vccnf.color_win_mark|A_BOLD);
 
         /* when not using synlimit, deactivated the fields */
         if(field_buffer(ConConfig.usesynlimitfld, 0)[0] == 'X')
@@ -1690,16 +1690,13 @@ struct
 {
     FIELD   *newrule_loglimitfld,
             *newrule_logfld,
-
             *logview_bufsizefld,
-
             *advancedmodefld,
-        
             *mainmenu_statusfld,
-        
+            *backgroundfld,
             *iptrafvollocfld;
 
-    char    number[7];
+    char    number[8];
 
 } VcConfig;
 
@@ -1711,7 +1708,7 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
     int     rows = 0,
             cols = 0;
 
-    ConfigSection.n_fields = 6;
+    ConfigSection.n_fields = 7;
     ConfigSection.fields = (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
 
     /* fields */
@@ -1721,8 +1718,9 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
     VcConfig.logview_bufsizefld  = (ConfigSection.fields[2] = new_field(1, 6,  5, 52, 0, 0));
     VcConfig.advancedmodefld     = (ConfigSection.fields[3] = new_field(1, 1,  6, 53, 0, 0));
     VcConfig.mainmenu_statusfld  = (ConfigSection.fields[4] = new_field(1, 1,  7, 53, 0, 0));
+    VcConfig.backgroundfld       = (ConfigSection.fields[5] = new_field(1, 1,  8, 53, 0, 0));
 
-    VcConfig.iptrafvollocfld     = (ConfigSection.fields[5] = new_field(1, 64, 11, 1, 0, 0));
+    VcConfig.iptrafvollocfld     = (ConfigSection.fields[6] = new_field(1, 64, 11, 1, 0, 0));
 
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
 
@@ -1751,6 +1749,7 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
 
     set_field_buffer_wrap(debuglvl, VcConfig.advancedmodefld, 0, vccnf.advanced_mode ? "X" : " ");
     set_field_buffer_wrap(debuglvl, VcConfig.mainmenu_statusfld, 0, vccnf.draw_status ? "X" : " ");
+    set_field_buffer_wrap(debuglvl, VcConfig.backgroundfld, 0, vccnf.background ? "X" : " ");
     set_field_buffer_wrap(debuglvl, VcConfig.iptrafvollocfld, 0, vccnf.iptrafvol_location);
 
     /* set the field options */
@@ -1766,6 +1765,7 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
     set_field_back(VcConfig.newrule_logfld,     vccnf.color_win);
     set_field_back(VcConfig.advancedmodefld,    vccnf.color_win);
     set_field_back(VcConfig.mainmenu_statusfld, vccnf.color_win);
+    set_field_back(VcConfig.backgroundfld,      vccnf.color_win);
 
     /* Create the form and post it */
     if(!(ConfigSection.form = new_form(ConfigSection.fields)))
@@ -1798,6 +1798,10 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
     mvwprintw(ConfigSection.win, 8, 2,  gettext("Draw status in Main Menu:"));
     mvwprintw(ConfigSection.win, 8, 54, "[");
     mvwprintw(ConfigSection.win, 8, 56, "]");
+
+    mvwprintw(ConfigSection.win, 9, 2,  gettext("Use black background?:"));
+    mvwprintw(ConfigSection.win, 9, 54, "[");
+    mvwprintw(ConfigSection.win, 9, 56, "]");
 
     mvwprintw(ConfigSection.win, 11, 2, gettext("iptrafvol.pl location (full path)"));
 
@@ -1853,6 +1857,13 @@ edit_vcconfig_save(const int debuglvl)
                     vccnf.draw_status = 1;
                 else
                     vccnf.draw_status = 0;
+            }
+            else if(ConfigSection.fields[i] == VcConfig.backgroundfld)
+            {
+                if(field_buffer(ConfigSection.fields[i], 0)[0] == 'X')
+                    vccnf.background = 1;
+                else
+                    vccnf.background = 0;
             }
             else if(ConfigSection.fields[i] == VcConfig.logview_bufsizefld)
             {
@@ -1940,7 +1951,7 @@ edit_vcconfig(const int debuglvl)
     while(quit == 0)
     {
         /* visual support */
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, vccnf.color_win_mark|A_BOLD);
 
         /* keyboard input */
         ch = wgetch(ConfigSection.win);
@@ -1956,7 +1967,8 @@ edit_vcconfig(const int debuglvl)
         }
         else if(cur == VcConfig.newrule_logfld ||
             cur == VcConfig.advancedmodefld ||
-            cur == VcConfig.mainmenu_statusfld)
+            cur == VcConfig.mainmenu_statusfld ||
+            cur == VcConfig.backgroundfld)
         {
             if(nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0)
                 not_defined = 1;
@@ -2479,7 +2491,7 @@ edit_logconfig(const int debuglvl)
     while(quit == 0)
     {
         /* visual support */
-        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, CP_WIN_MARK|A_BOLD);
+        draw_field_active_mark(cur, prev, ConfigSection.win, ConfigSection.form, vccnf.color_win_mark|A_BOLD);
 
         /* keyboard input */
         ch = wgetch(ConfigSection.win);
