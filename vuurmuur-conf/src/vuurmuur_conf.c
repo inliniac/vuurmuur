@@ -282,7 +282,9 @@ main(int argc, char *argv[])
     vccnf.color_win_mark  = (chtype)COLOR_PAIR(CP_WIN_MARK);
     vccnf.color_win_field = (chtype)COLOR_PAIR(CP_WIN_FIELD);
     vccnf.color_win_red = (chtype)COLOR_PAIR(CP_WIN_RED);
+    vccnf.color_win_red_rev = (chtype)COLOR_PAIR(CP_WIN_RED_REV);
     vccnf.color_win_green = (chtype)COLOR_PAIR(CP_WIN_GREEN);
+    vccnf.color_win_green_rev = (chtype)COLOR_PAIR(CP_WIN_GREEN_REV);
     vccnf.color_win_yellow = (chtype)COLOR_PAIR(CP_WIN_YELLOW);
     vccnf.color_win_magenta = (chtype)COLOR_PAIR(CP_WIN_MAGENTA);
     vccnf.color_win_cyan = (chtype)COLOR_PAIR(CP_WIN_CYAN);

@@ -1241,7 +1241,7 @@ VrFormDrawMarker(const int debuglvl, VrWin *win, VrForm *form) {
         y,
         off_row,
         wrk_buff;
-    int ch = CP_WIN_MARK|A_BOLD;
+    int ch = vccnf.color_win_mark|A_BOLD;
 
     form->prev = form->cur;
     form->cur  = current_field(form->f);
