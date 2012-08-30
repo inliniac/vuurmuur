@@ -1,13 +1,10 @@
-INCLUDES = 
-METASOURCES = AUTO
-noinst_DOCS =
-docsdir = "$(datadir)/doc/vuurmuur"
+docsdir = $(datadir)/doc/@PACKAGE@
 docs_DATA = INSTALL.DEBIAN \
 	INSTALL.MANDRAKE \
 	INSTALL.SUSE \
 	INSTALL.SLACKWARE \
 	README INSTALL
-docsrudir = "$(datadir)/doc/vuurmuur/ru"
+docsrudir = $(datadir)/doc/@PACKAGE@/ru
 docsru_DATA = INSTALL-RU \
 	INSTALL-RU.DEBIAN \
 	INSTALL-RU.MANDRAKE \
