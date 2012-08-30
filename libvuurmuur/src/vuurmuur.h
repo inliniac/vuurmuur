@@ -49,7 +49,7 @@
 #define __FUNC__        (char *)__FUNCTION__
 
 /* our version */
-#define LIBVUURMUUR_VERSION	"0.8beta2"
+#define LIBVUURMUUR_VERSION	"0.8beta3"
 
 /* we need this to stringify the VUURMUUR_CONFIGDIR which is supplied at compiletime see:
    http://gcc.gnu.org/onlinedocs/gcc-3.4.1/cpp/Stringification.html#Stringification */
