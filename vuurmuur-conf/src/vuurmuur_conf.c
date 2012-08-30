@@ -265,7 +265,8 @@ main(int argc, char *argv[])
 
     init_pair(CP_WIN_INIT,      COLOR_YELLOW, COLOR_RED);
     init_pair(CP_WIN_WARN,      COLOR_YELLOW, COLOR_RED);
-    init_pair(CP_WIN_NOTE,      COLOR_WHITE, COLOR_RED);
+    init_pair(CP_WIN_NOTE,      COLOR_RED, COLOR_WHITE);
+    init_pair(CP_WIN_NOTE_REV,  COLOR_WHITE, COLOR_RED);
 
     init_pair(CP_RULE_BAR,      COLOR_RED, COLOR_WHITE);
 
