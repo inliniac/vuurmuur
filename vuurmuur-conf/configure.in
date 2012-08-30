@@ -10,10 +10,8 @@ AC_LANG_C
 AC_PROG_CC
 AM_PROG_LIBTOOL
 
-# this is required for older automake or gettext, for example for Mandrake 10.0
-ALL_LINGUAS="nl ru en@boldquot en@quot pt_BR de fr no nb"
-
 AM_GNU_GETTEXT
+AM_GNU_GETTEXT_VERSION
 
 AC_ARG_ENABLE(binreloc,
         [  --enable-binreloc        enable binreloc support (for autopackage)],
