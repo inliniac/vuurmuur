@@ -10,7 +10,7 @@ AC_LANG_C
 AC_PROG_CC
 AM_PROG_LIBTOOL
 
-AM_GNU_GETTEXT
+AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION
 
 AC_ARG_ENABLE(binreloc,
@@ -323,5 +323,5 @@ else
 	fi
 fi
 
-AC_OUTPUT(Makefile src/Makefile po/Makefile.in help/Makefile scripts/Makefile config/Makefile man/Makefile man/en/Makefile man/ru/Makefile intl/Makefile)
+AC_OUTPUT(Makefile src/Makefile po/Makefile.in help/Makefile scripts/Makefile config/Makefile man/Makefile man/en/Makefile man/ru/Makefile)
 
