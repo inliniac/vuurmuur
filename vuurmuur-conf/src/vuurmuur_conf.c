@@ -77,9 +77,7 @@ main(int argc, char *argv[])
     BlockList   blocklist;
 
     int         retval=0,
-                optch = 0,
-                max_height = 0,
-                max_width = 0;
+                optch = 0;
 
     static char optstring[] = "c:d:hVW";
     struct option long_options[] =
@@ -152,7 +150,7 @@ main(int argc, char *argv[])
     /* check if we are in utf-8 mode */
     utf8_mode = 0;
 
-    if( (s = getenv("LC_ALL")) ||
+    if ((s = getenv("LC_ALL")) ||
         (s = getenv("LC_CTYPE")) ||
         (s = getenv("LANG"))) {
         if (strstr(s, "UTF-8"))
@@ -315,16 +313,14 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     if(!(main_win = create_newwin(LINES-6, COLS, 3, 0, NULL, vccnf.color_bgd)))
         exit(EXIT_FAILURE);
-
-    getmaxyx(stdscr, max_height, max_width);
-    if(!(mainlog_win = newwin(max_height-8, max_width-2, 4, 1)))
+    if(!(mainlog_win = newwin(LINES-8, COLS-2, 4, 1)))
         exit(EXIT_FAILURE);
 
     (void)wbkgd(mainlog_win, vccnf.color_bgd);
 
     wattron(status_frame_win, vccnf.color_bgd);
     mvwprintw(status_frame_win, 0, 2, " %s ", gettext("Status"));
-    mvwprintw(status_frame_win, 2, (int)(max_width - 4 - StrLen(user_data.realusername) - 6), " user: %s ", user_data.realusername);
+    mvwprintw(status_frame_win, 2, (int)(COLS - 4 - StrLen(user_data.realusername) - 6), " user: %s ", user_data.realusername);
     wattroff(status_frame_win, vccnf.color_bgd);
 
     /* Attach a panel to each window */
@@ -333,7 +329,7 @@ main(int argc, char *argv[])
     main_panels[2] = new_panel(status_win);
     main_panels[3] = new_panel(mainlog_win);
     main_panels[4] = new_panel(status_frame_win);
- 
+
     (void)update_panels();
     (void)doupdate();
 
