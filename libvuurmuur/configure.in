@@ -50,4 +50,4 @@ else
    CPPFLAGS="${CPPFLAGS} -DDATADIR=\"${datadir}/vuurmuur\""
 fi
 
-AC_OUTPUT(Makefile src/Makefile plugins/Makefile plugins/textdir/Makefile doc/Makefile)
+AC_OUTPUT(Makefile src/Makefile plugins/Makefile plugins/textdir/Makefile doc/Makefile debian/Makefile)

@@ -129,5 +129,6 @@ fi
 
 AC_OUTPUT(Makefile vuurmuur/Makefile vuurmuur_log/Makefile
 	    vuurmuur_script/Makefile scripts/Makefile services/Makefile
-	    config/Makefile man/Makefile man/en/Makefile man/ru/Makefile)
+	    config/Makefile man/Makefile man/en/Makefile man/ru/Makefile
+        debian/Makefile)
 
