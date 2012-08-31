@@ -20,8 +20,6 @@
 
 #include "config.h"
 #include "vuurmuur.h"
-#include "binreloc.h"
-
 
 static int
 check_logfile(const int debuglvl, const char *logloc)
@@ -2137,11 +2135,6 @@ br_extract_prefix (const char *path)
 int
 pre_init_config(struct vuurmuur_config *cnf)
 {
-#ifdef BINRELOC_ENABLED
-    char            *exe = NULL;
-    BrFindExeError  err = 0;
-#endif  /* BINRELOC_ENABLED */
-
     /* safety */
     if(cnf == NULL)
     {
@@ -2154,51 +2147,12 @@ pre_init_config(struct vuurmuur_config *cnf)
     memset(cnf, 0, sizeof(struct vuurmuur_config));
 
     /* set the configdir location */
-#ifndef BINRELOC_ENABLED
     if(strlcpy(cnf->etcdir, xstr(SYSCONFDIR), sizeof(cnf->etcdir)) >= sizeof(cnf->etcdir))
     {
         (void)vrprint.error(-1, "Error", "buffer too small for config-dir supplied at compile-time (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
-#else
-    exe = br_find_exe(&err);
-    if(exe == NULL)
-    {
-        (void)vrprint.error(-1, "Internal Error", "br_find_exe() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-    //printf("exe %s\n", exe);
-
-    cnf->prefix = br_extract_prefix(exe);
-    if(cnf->prefix == NULL)
-    {
-        (void)vrprint.error(-1, "Internal Error", "br_extract_prefix() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-    //printf("prefix %s\n", prefix);
-
-    /* we have prefix now, so exe can go */
-    free(exe);
-    exe = NULL;
-
-    /* is the prefix is /usr, we use /etc instead of /usr/etc */
-    if(strcmp(cnf->prefix, "/usr") == 0 || strcmp(cnf->prefix, "/usr/") == 0)
-    {
-        strlcpy(cnf->etcdir, "/etc", sizeof(cnf->etcdir));
-    }
-    else
-    {
-        if(snprintf(cnf->etcdir, sizeof(cnf->etcdir), "%s/etc", cnf->prefix) >= sizeof(cnf->etcdir))
-        {
-            (void)vrprint.error(-1, "Error", "buffer too small for config-dir supplied at compile-time (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
-        }
-    }
-#endif  /* BINRELOC_ENABLED */
     //printf("cnf->etcdir %s\n", cnf->etcdir);
 
     if(snprintf(cnf->configfile, sizeof(cnf->configfile), "%s/vuurmuur/config.conf", cnf->etcdir) >= (int)sizeof(cnf->configfile))
@@ -2211,11 +2165,7 @@ pre_init_config(struct vuurmuur_config *cnf)
 
 
     /* set the plugin location */
-#ifndef BINRELOC_ENABLED
     if(strlcpy(cnf->plugdir, xstr(PLUGINDIR), sizeof(cnf->plugdir)) >= sizeof(cnf->plugdir))
-#else
-    if(snprintf(cnf->plugdir, sizeof(cnf->plugdir), "%s/lib/vuurmuur", cnf->prefix) >= sizeof(cnf->plugdir))
-#endif  /* BINRELOC_ENABLED */
     {
         (void)vrprint.error(-1, "Error", "buffer too small for plugdir supplied at compile-time (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -2225,11 +2175,7 @@ pre_init_config(struct vuurmuur_config *cnf)
 
 
     /* set the datadir location */
-#ifndef BINRELOC_ENABLED
     if(strlcpy(cnf->datadir, xstr(DATADIR), sizeof(cnf->datadir)) >= sizeof(cnf->datadir))
-#else
-    if(snprintf(cnf->datadir, sizeof(cnf->datadir), "%s/share/vuurmuur", cnf->prefix) >= sizeof(cnf->datadir))
-#endif  /* BINRELOC_ENABLED */
     {
         (void)vrprint.error(-1, "Error", "buffer too small for sysconfdir supplied at compile-time (in: %s:%d).",
                 __FUNC__, __LINE__);

@@ -96,9 +96,6 @@ main(int argc, char *argv[])
     int         debuglvl = 0;
     PANEL       *main_panels[5];
     char        *s = NULL;
-#ifdef BINRELOC_ENABLED
-    char        locale_path[256] = "";
-#endif /* BINRELOC_ENABLED */
 
     /* some defaults */
     vuurmuur_semid = -1;
@@ -157,12 +154,7 @@ main(int argc, char *argv[])
             utf8_mode = 1;
     }
 
-#ifndef BINRELOC_ENABLED
     bindtextdomain("vuurmuur_conf", xstr(VRMR_LOCALEDIR));
-#else
-    snprintf(locale_path, sizeof(locale_path), "%s/share/locale", conf.prefix);
-    bindtextdomain("vuurmuur_conf", locale_path);
-#endif /* BINRELOC_ENABLED */
     textdomain("vuurmuur_conf");
 
     /* process commandline options */

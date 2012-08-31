@@ -352,9 +352,6 @@ struct SHM_TABLE
 /* configuration */
 struct vuurmuur_config
 {
-    /* autopackage binreloc prefix */
-    char            *prefix;
-
     /* etcdir */
     char            etcdir[256];
     /* datadir */

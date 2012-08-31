@@ -13,11 +13,6 @@ AM_PROG_LIBTOOL
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION
 
-AC_ARG_ENABLE(binreloc,
-        [  --enable-binreloc        enable binreloc support (for autopackage)],
-            CFLAGS="$CFLAGS -DBINRELOC_ENABLED"
-        ,)
-
 AC_ARG_WITH(libvuurmuur_includes,
 	[  --with-libvuurmuur-includes=DIR  libvuurmuur includes directory],
 	[with_libvuurmuur_includes="$withval"],[with_libvuurmuur_includes=no])
