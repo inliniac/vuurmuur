@@ -8,7 +8,7 @@
 # Copyright (c) 2004-2009 by Victor Julien, Stefan Ubbink
 # Licenced under the GPL.
 #
-VERSION="0.8beta3"
+VERSION="0.8beta4"
 
 # progams
 ACLOCAL="aclocal"
@@ -869,7 +869,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
                 --with-libvuurmuur-includes=$INSTALLDIR/include \
                 --with-libvuurmuur-libraries=$LIBDIR \
                 --with-widec=$WIDESTR"
-    if [ "${DISABLE_IPV6}" = "1" [; then
+    if [ "${DISABLE_IPV6}" = "1" ]; then
         CONFIG_OPTS="${CONFIG_OPTS} --disable-ipv6"
     fi
     Configure ${CONFIG_OPTS}
