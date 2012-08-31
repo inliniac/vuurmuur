@@ -1895,5 +1895,7 @@ load_ruleset(const int debuglvl, VuurmuurCtx *vctx)
         return(-1);
     }
 #endif
+
+    return(0);
 }
 

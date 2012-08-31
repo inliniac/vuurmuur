@@ -29,7 +29,6 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
     /*@null@*/
     struct SHM_TABLE    *vuurmuur_shmtable = NULL;
     char                *vuurmuur_shmp = NULL;
-    pid_t               vuurmuur_pid = 0;
 
     /* vuurmuur_log */
     int                 vuurmuurlog_shmid = 0;
@@ -37,7 +36,6 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
     char                *vuurmuurlog_shmp = NULL;
     /*@null@*/
     struct SHM_TABLE    *vuurmuurlog_shmtable = NULL;
-    pid_t               vuurmuurlog_pid = 0;
     int                 vuurmuur_result = 0,
                         vuurmuurlog_result = 0;
     int                 waittime = 0;

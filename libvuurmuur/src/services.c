@@ -846,9 +846,8 @@ new_service(const int debuglvl, Services *services, char *sername, int sertype)
 int
 delete_service(const int debuglvl, Services *services, char *sername, int sertype)
 {
-    struct ServicesData_    *ser_ptr = NULL,
-                            *ser_list_ptr = NULL;
-    d_list_node             *d_node = NULL;
+    struct ServicesData_ *ser_list_ptr = NULL;
+    d_list_node *d_node = NULL;
 
     /* safety */
     if(!sername || !services)
