@@ -2,7 +2,7 @@
 # have all needed files, that a GNU package needs
 AUTOMAKE_OPTIONS = foreign 1.4
 
-SUBDIRS = src po help scripts config man
+SUBDIRS = src po help scripts config man debian
 
 ACLOCAL_AMFLAGS = -I m4
 
