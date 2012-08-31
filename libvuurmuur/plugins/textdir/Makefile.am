@@ -11,3 +11,5 @@ libtextdir_la_CFLAGS = -fPIC
 
 noinst_HEADERS = textdir_plugin.h
 
+EXTRA_DIST = textdir.conf textdir.conf.debian
+
