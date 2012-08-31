@@ -282,11 +282,11 @@ read_service(const int debuglvl, char *sername, struct ServicesData_ *service_pt
     if(d_list_setup(debuglvl, &service_ptr->PortrangeList, free) < 0)
         return(-1);
 
-    /* first check TCP */
-    while((result = sf->ask(debuglvl, serv_backend, sername, "TCP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
+    /* first check RANGE */
+    while((result = sf->ask(debuglvl, serv_backend, sername, "RANGE", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
     {
         /* process */
-        if(process_portrange(debuglvl, "TCP", portrange, service_ptr) < 0)
+        if(process_portrange(debuglvl, "RANGE", portrange, service_ptr) < 0)
             retval = -1;
     }
     if(result < 0)
@@ -295,89 +295,105 @@ read_service(const int debuglvl, char *sername, struct ServicesData_ *service_pt
                 __FILE__, __LINE__);
         return(-1);
     }
+    /* no ranges, fallback to old behavior */
+    if (service_ptr->PortrangeList.len == 0) {
+        /* first check TCP */
+        while((result = sf->ask(debuglvl, serv_backend, sername, "TCP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
+        {
+            /* process */
+            if(process_portrange(debuglvl, "TCP", portrange, service_ptr) < 0)
+                retval = -1;
+        }
+        if(result < 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
+                    __FILE__, __LINE__);
+            return(-1);
+        }
 
-    /* then check udp */
-    while((result = sf->ask(debuglvl, serv_backend, sername, "UDP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
-    {
-        /* process */
-        if(process_portrange(debuglvl, "UDP", portrange, service_ptr) < 0)
-            retval = -1;
-    }
-    if(result < 0)
-    {
-        (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
-                __FILE__, __LINE__);
-        return(-1);
-    }
+        /* then check udp */
+        while((result = sf->ask(debuglvl, serv_backend, sername, "UDP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
+        {
+            /* process */
+            if(process_portrange(debuglvl, "UDP", portrange, service_ptr) < 0)
+                retval = -1;
+        }
+        if(result < 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
+                    __FILE__, __LINE__);
+            return(-1);
+        }
 
-    /* then check icmp */
-    while((result = sf->ask(debuglvl, serv_backend, sername, "ICMP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
-    {
-        /* process */
-        if(process_portrange(debuglvl, "ICMP", portrange, service_ptr) < 0)
-            retval = -1;
-    }
-    if(result < 0)
-    {
-        (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
-                __FILE__, __LINE__);
-        return(-1);
-    }
+        /* then check icmp */
+        while((result = sf->ask(debuglvl, serv_backend, sername, "ICMP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
+        {
+            /* process */
+            if(process_portrange(debuglvl, "ICMP", portrange, service_ptr) < 0)
+                retval = -1;
+        }
+        if(result < 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
+                    __FILE__, __LINE__);
+            return(-1);
+        }
 
-    /* then check gre */
-    while((result = sf->ask(debuglvl, serv_backend, sername, "GRE", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
-    {
-        /* process */
-        if(process_portrange(debuglvl, "GRE", portrange, service_ptr) < 0)
-            retval = -1;
-    }
-    if(result < 0)
-    {
-        (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
-                __FILE__, __LINE__);
-        return(-1);
-    }
+        /* then check gre */
+        while((result = sf->ask(debuglvl, serv_backend, sername, "GRE", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
+        {
+            /* process */
+            if(process_portrange(debuglvl, "GRE", portrange, service_ptr) < 0)
+                retval = -1;
+        }
+        if(result < 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
+                    __FILE__, __LINE__);
+            return(-1);
+        }
 
-    /* then check ah */
-    while((result = sf->ask(debuglvl, serv_backend, sername, "AH", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
-    {
-        /* process */
-        if(process_portrange(debuglvl, "AH", portrange, service_ptr) < 0)
-            retval = -1;
-    }
-    if(result < 0)
-    {
-        (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
-                __FILE__, __LINE__);
-        return(-1);
-    }
+        /* then check ah */
+        while((result = sf->ask(debuglvl, serv_backend, sername, "AH", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
+        {
+            /* process */
+            if(process_portrange(debuglvl, "AH", portrange, service_ptr) < 0)
+                retval = -1;
+        }
+        if(result < 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
+                    __FILE__, __LINE__);
+            return(-1);
+        }
 
-    /* then check esp */
-    while((result = sf->ask(debuglvl, serv_backend, sername, "ESP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
-    {
-        /* process */
-        if(process_portrange(debuglvl, "ESP", portrange, service_ptr) < 0)
-            retval = -1;
-    }
-    if(result < 0)
-    {
-        (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
-                __FILE__, __LINE__);
-        return(-1);
-    }
+        /* then check esp */
+        while((result = sf->ask(debuglvl, serv_backend, sername, "ESP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
+        {
+            /* process */
+            if(process_portrange(debuglvl, "ESP", portrange, service_ptr) < 0)
+                retval = -1;
+        }
+        if(result < 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
+                    __FILE__, __LINE__);
+            return(-1);
+        }
 
-    /* then check protocol 41 */
-    while((result = sf->ask(debuglvl, serv_backend, sername, "PROTO_41", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
-    {
-        /* process */
-        if(process_portrange(debuglvl, "PROTO_41", portrange, service_ptr) < 0)
-            retval = -1;
-    }
-    if(result < 0)
-    {
-        (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
-                __FILE__, __LINE__);
-        return(-1);
+        /* then check protocol 41 */
+        while((result = sf->ask(debuglvl, serv_backend, sername, "PROTO_41", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
+        {
+            /* process */
+            if(process_portrange(debuglvl, "PROTO_41", portrange, service_ptr) < 0)
+                retval = -1;
+        }
+        if(result < 0)
+        {
+            (void)vrprint.error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
+                    __FILE__, __LINE__);
+            return(-1);
+        }
     }
 
     /* see if we need a helper */
@@ -566,7 +582,7 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
     int                 port=0,
                         range=0;
 
-    char                current_portrange[24] = "",   /* 5+1+5+1+5+1+5+1 eg. 12345:56789*12345:56789 */
+    char                current_portrange[28] = "",   /* 3+1+5+1+5+1+5+1+5+1 eg. 6,12345:56789*12345:56789 */
                         src_portrange[12] = "",
                         dst_portrange[12] = "";
 
@@ -609,8 +625,29 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
             /* init */
             memset(portrange_ptr, 0, sizeof(struct portdata));
 
-            /* first set the protocol */
-            if(strncasecmp(proto, "TCP", 3) == 0)
+            range = 0;
+            /* parse new RANGE format first */
+            if (strncasecmp(proto, "RANGE", 5) == 0) {
+                char protostr[4] = "";
+                range = 0;
+                int i = 0;
+                while (range < strlen(current_portrange) &&
+                        i < sizeof(protostr) &&
+                        current_portrange[range] != ';')
+                {
+                    protostr[i] = current_portrange[range];
+                    i++; range++;
+                }
+                protostr[i] = '\0';
+                portrange_ptr->protocol = atoi(protostr);
+                if (portrange_ptr->protocol < 0 || portrange_ptr->protocol > 65535) {
+                    (void)vrprint.error(-1, "Error", "invalid protocol '%s' (in: %s:%d).",
+                            protostr, __FUNC__, __LINE__);
+                }
+
+                range++;
+
+            } else if(strncasecmp(proto, "TCP", 3) == 0)
             {
                 portrange_ptr->protocol = 6;
             }
@@ -651,7 +688,7 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
             /*
                 split current_portrange to dst_portrange and src_portrange, and split both of them
             */
-            range=0, port=0;
+            port=0;
             while (range < strlen(current_portrange) &&
                     port < sizeof(dst_portrange) &&
                     current_portrange[range] != '*')
@@ -948,7 +985,7 @@ services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
 
     d_list_node     *d_node = NULL;
 
-    char            overwrite = 0,
+    char            overwrite = 1,
                     first_tcp = 1,
                     first_udp = 1,
                     first_gre = 1,
@@ -968,47 +1005,11 @@ services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
     /* empty list, so clear all */
     if(ser_ptr->PortrangeList.len == 0)
     {
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "TCP", "", 1, TYPE_SERVICE) < 0)
+        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "RANGE", "", 1, TYPE_SERVICE) < 0)
         {
             (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
-        }
-
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "UDP", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-        }
-
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "GRE", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-        }
-
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "ICMP", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-        }
-
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "AH", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-        }
-
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "ESP", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-        }
-
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "PROTO_41", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
         }
     }
     else
@@ -1023,17 +1024,11 @@ services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
                 return(-1);
             }
 
-            /* tcp */
-            if(port_ptr->protocol == 6)
-            {
-                if(first_tcp)
-                {
-                    overwrite = 1;
-                    first_tcp = 0;
-                }
-                else
-                    overwrite = 0;
+            snprintf(prot_format, sizeof(prot_format), "%d;", port_ptr->protocol);
 
+            /* tcp and udp*/
+            if(port_ptr->protocol == 6 || port_ptr->protocol == 17)
+            {
                 /* assemble the string */
                 if(port_ptr->dst_high == 0)
                     snprintf(frmt_dst, sizeof(frmt_dst), "%d", port_ptr->dst_low);
@@ -1045,7 +1040,7 @@ services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
                 else
                     snprintf(frmt_src, sizeof(frmt_src), "%d:%d", port_ptr->src_low, port_ptr->src_high);
 
-                if(strlcpy(prot_format, frmt_dst, sizeof(prot_format)) >= sizeof(prot_format))
+                if(strlcat(prot_format, frmt_dst, sizeof(prot_format)) >= sizeof(prot_format))
                 {
                     (void)vrprint.error(-1, "Internal Error", "string "
                             "overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -1065,56 +1060,7 @@ services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
                 }
 
                 /* write to the backend */
-                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "TCP", prot_format, overwrite, TYPE_SERVICE) < 0)
-                {
-                    (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                            __FUNC__, __LINE__);
-                    return(-1);
-                }
-            }
-            /* udp */
-            else if(port_ptr->protocol == 17)
-            {
-                if(first_udp)
-                {
-                    overwrite = 1;
-                    first_udp = 0;
-                }
-                else
-                    overwrite = 0;
-
-                /* assemble the string */
-                if(port_ptr->dst_high == 0)
-                    snprintf(frmt_dst, sizeof(frmt_dst), "%d", port_ptr->dst_low);
-                else
-                    snprintf(frmt_dst, sizeof(frmt_dst), "%d:%d", port_ptr->dst_low, port_ptr->dst_high);
-
-                if(port_ptr->src_high == 0)
-                    snprintf(frmt_src, sizeof(frmt_src), "%d", port_ptr->src_low);
-                else
-                    snprintf(frmt_src, sizeof(frmt_src), "%d:%d", port_ptr->src_low, port_ptr->src_high);
-
-                if(strlcpy(prot_format, frmt_dst, sizeof(prot_format)) >= sizeof(prot_format))
-                {
-                    (void)vrprint.error(-1, "Internal Error", "string "
-                            "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
-                if(strlcat(prot_format, "*", sizeof(prot_format)) >= sizeof(prot_format))
-                {
-                    (void)vrprint.error(-1, "Internal Error", "string "
-                            "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
-                if(strlcat(prot_format, frmt_src, sizeof(prot_format)) >= sizeof(prot_format))
-                {
-                    (void)vrprint.error(-1, "Internal Error", "string "
-                            "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-                /* write to the backend */
-                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "UDP", prot_format, overwrite, TYPE_SERVICE) < 0)
+                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "RANGE", prot_format, overwrite, TYPE_SERVICE) < 0)
                 {
                     (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
@@ -1124,14 +1070,6 @@ services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
             /* icmp */
             else if(port_ptr->protocol == 1)
             {
-                if(first_icmp)
-                {
-                    overwrite = 1;
-                    first_icmp = 0;
-                }
-                else
-                    overwrite = 0;
-
                 /* assemble the string */
                 if(port_ptr->dst_high == -1)
                     snprintf(frmt_dst, sizeof(frmt_dst), "%d", port_ptr->dst_low);
@@ -1143,7 +1081,7 @@ services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
                 else
                     snprintf(frmt_src, sizeof(frmt_src), "%d:%d", port_ptr->src_low, port_ptr->src_high);
 
-                if(strlcpy(prot_format, frmt_dst, sizeof(prot_format)) >= sizeof(prot_format))
+                if(strlcat(prot_format, frmt_dst, sizeof(prot_format)) >= sizeof(prot_format))
                 {
                     (void)vrprint.error(-1, "Internal Error", "string "
                             "overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -1163,115 +1101,7 @@ services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
                 }
 
                 /* write to the backend */
-                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "ICMP", prot_format, overwrite, TYPE_SERVICE) < 0)
-                {
-                    (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                            __FUNC__, __LINE__);
-                    return(-1);
-                }
-            }
-            /* protocol 41 (ipv6 over ipv4) */
-            else if(port_ptr->protocol == 41)
-            {
-                if(first_p41)
-                {
-                    overwrite = 1;
-                    first_p41 = 0;
-                }
-                else
-                    overwrite = 0;
-
-                /* assemble the string */
-                if(strlcpy(prot_format, "0*0", sizeof(prot_format)) >= sizeof(prot_format))
-                {
-                    (void)vrprint.error(-1, "Internal Error", "string "
-                            "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-                /* write to the backend */
-                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "PROTO_41", prot_format, overwrite, TYPE_SERVICE) < 0)
-                {
-                    (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                            __FUNC__, __LINE__);
-                    return(-1);
-                }
-            }
-            /* gre */
-            else if(port_ptr->protocol == 47)
-            {
-                if(first_gre)
-                {
-                    overwrite = 1;
-                    first_gre = 0;
-                }
-                else
-                    overwrite = 0;
-
-                /* assemble the string */
-                if(strlcpy(prot_format, "0*0", sizeof(prot_format)) >= sizeof(prot_format))
-                {
-                    (void)vrprint.error(-1, "Internal Error", "string "
-                            "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-                /* write to the backend */
-                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "GRE", prot_format, overwrite, TYPE_SERVICE) < 0)
-                {
-                    (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                            __FUNC__, __LINE__);
-                    return(-1);
-                }
-            }
-            /* esp */
-            else if(port_ptr->protocol == 50)
-            {
-                if(first_esp)
-                {
-                    overwrite = 1;
-                    first_esp = 0;
-                }
-                else
-                    overwrite = 0;
-
-                /* assemble the string */
-                if(strlcpy(prot_format, "0*0", sizeof(prot_format)) >= sizeof(prot_format))
-                {
-                    (void)vrprint.error(-1, "Internal Error", "string "
-                            "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-                /* write to the backend */
-                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "ESP", prot_format, overwrite, TYPE_SERVICE) < 0)
-                {
-                    (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                            __FUNC__, __LINE__);
-                    return(-1);
-                }
-            }
-            /* ah */
-            else if(port_ptr->protocol == 51)
-            {
-                if(first_ah)
-                {
-                    overwrite = 1;
-                    first_ah = 0;
-                }
-                else
-                    overwrite = 0;
-
-                /* assemble the string */
-                if(strlcpy(prot_format, "0*0", sizeof(prot_format)) >= sizeof(prot_format))
-                {
-                    (void)vrprint.error(-1, "Internal Error", "string "
-                            "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-                /* write to the backend */
-                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "AH", prot_format, overwrite, TYPE_SERVICE) < 0)
+                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "RANGE", prot_format, overwrite, TYPE_SERVICE) < 0)
                 {
                     (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
@@ -1280,77 +1110,24 @@ services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
             }
             else
             {
-                (void)vrprint.error(-1, "Internal Error", "unknown protocol '%d' (in: %s:%d).",
-                        port_ptr->protocol, __FUNC__, __LINE__);
-                return(-1);
-            }
-        }
-    }
+                /* assemble the string */
+                if(strlcat(prot_format, "0*0", sizeof(prot_format)) >= sizeof(prot_format))
+                {
+                    (void)vrprint.error(-1, "Internal Error", "string "
+                            "overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    return(-1);
+                }
 
-    /*
-        if the first_xxx is 1, it needs to be cleared because it was not in the list
-    */
-    if(first_tcp)
-    {
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "TCP", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
-        }
-    }
-    if(first_udp)
-    {
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "UDP", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
-        }
-    }
-    if(first_p41)
-    {
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "PROTO_41", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
-        }
-    }
-    if(first_gre)
-    {
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "GRE", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
-        }
-    }
-    if(first_ah)
-    {
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "AH", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
-        }
-    }
-    if(first_esp)
-    {
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "ESP", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
-        }
-    }
-    if(first_icmp)
-    {
-        if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "ICMP", "", 1, TYPE_SERVICE) < 0)
-        {
-            (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
+                /* write to the backend */
+                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "RANGE", prot_format, overwrite, TYPE_SERVICE) < 0)
+                {
+                    (void)vrprint.error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
+                            __FUNC__, __LINE__);
+                    return(-1);
+                }
+            }
+
+            overwrite = 0;
         }
     }
 
