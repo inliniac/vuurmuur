@@ -798,7 +798,6 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
     {
         /* TRANSLATORS: max 40 characters */
         werase(startup_print_win); wprintw(startup_print_win, "%s... %s", STR_INIT_RULES, STR_CFAILED); update_panels(); doupdate();
-        sleep(1);
     }
     else
     {
@@ -815,7 +814,6 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
     {
         /* TRANSLATORS: max 40 characters */
         werase(startup_print_win); wprintw(startup_print_win, "%s... %s", STR_INIT_BLOCKLIST, STR_CFAILED); update_panels(); doupdate();
-        sleep(1);
     }
     else
     {
@@ -857,7 +855,6 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
             {
                 werase(startup_print_win); wprintw(startup_print_win, "%s Vuurmuur... %s", STR_CONNECTING_TO, STR_CFAILED); update_panels(); doupdate();
                 vuurmuur_shmp = NULL;
-                sleep(1);
             }
         }
     }
@@ -866,7 +863,6 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
         /* TRANSLATORS: max 40 characters */
         werase(startup_print_win); wprintw(startup_print_win, "%s Vuurmuur... %s", STR_CONNECTING_TO, STR_CFAILED); update_panels(); doupdate();
         vuurmuur_shmp = NULL;
-        sleep(1);
     }
 
     /*
@@ -906,7 +902,6 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
             {
                 werase(startup_print_win); wprintw(startup_print_win, "%s Vuurmuur_log... %s", STR_CONNECTING_TO, STR_CFAILED); update_panels(); doupdate();
                 vuurmuurlog_shmp = NULL;
-                sleep(1);
             }
         }
     }
@@ -914,7 +909,6 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
     {
         werase(startup_print_win); wprintw(startup_print_win, "%s Vuurmuur_log... %s", STR_CONNECTING_TO, STR_CFAILED); update_panels(); doupdate();
         vuurmuurlog_shmp = NULL;
-        sleep(1);
     }
 
 
