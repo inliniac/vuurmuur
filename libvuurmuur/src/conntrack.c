@@ -194,8 +194,15 @@ conn_line_to_data(  const int debuglvl,
             connline_ptr->dst_port, connline_ptr->src_port,
             connline_ptr->protocol, serhash)) == NULL)
         {
-            snprintf(service_name, sizeof(service_name), "%d -> %d",
-                    connline_ptr->src_port, connline_ptr->dst_port);
+            if (connline_ptr->protocol == 6 || connline_ptr->protocol == 17)
+                snprintf(service_name, sizeof(service_name), "%d -> %d",
+                        connline_ptr->src_port, connline_ptr->dst_port);
+            else if (connline_ptr->protocol == 1)
+                snprintf(service_name, sizeof(service_name), "%d:%d",
+                        connline_ptr->src_port, connline_ptr->dst_port);
+            else
+                snprintf(service_name, sizeof(service_name), "proto %d",
+                        connline_ptr->protocol);
 
             size = strlen(service_name) + 1;
 

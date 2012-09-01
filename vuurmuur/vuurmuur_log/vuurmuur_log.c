@@ -250,12 +250,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, Hash *ZoneH
 
     /*  here we handle the rest
     */
-    else if(logrule_ptr->protocol == 6  ||
-            logrule_ptr->protocol == 17 ||
-            logrule_ptr->protocol == 41 ||
-            logrule_ptr->protocol == 47 ||
-            logrule_ptr->protocol == 50 ||
-            logrule_ptr->protocol == 51)
+    else
     {
         /* first a normal search */
         if(!(ser_search_ptr = search_service_in_hash(debuglvl, logrule_ptr->src_port, logrule_ptr->dst_port, logrule_ptr->protocol, ServiceHash)))
@@ -298,10 +293,6 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, Hash *ZoneH
             if(strlcpy(logrule_ptr->ser_name, ser_search_ptr->name, sizeof(logrule_ptr->ser_name)) >= sizeof(logrule_ptr->ser_name))
                 (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
         }
-    }
-    else
-    {
-        snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "proto-%d", logrule_ptr->protocol);
     }
 
     return(1);

@@ -321,26 +321,6 @@ compare_ports(const void *serv_hash, const void *serv_req)
             {
                 return(1);
             }
-            /* the protocol 41 has no ports, so match */
-            else if(table_port_ptr->protocol == 41)
-            {
-                return(1);
-            }
-            /* the gre protocol has no ports, so match */
-            else if(table_port_ptr->protocol == 47)
-            {
-                return(1);
-            }
-            /* the esp protocol has no ports, so match */
-            else if(table_port_ptr->protocol == 50)
-            {
-                return(1);
-            }
-            /* the ah protocol has no ports, so match */
-            else if(table_port_ptr->protocol == 51)
-            {
-                return(1);
-            }
             /* now compare the tcp/udp ports
 
                 First compare the dst port (most likely to match) after that the src port.
@@ -349,19 +329,22 @@ compare_ports(const void *serv_hash, const void *serv_req)
 
                 both can be in a range or an exact match.
             */
-            else if( (table_port_ptr->dst_high == 0 &&  table_port_ptr->dst_low == search_port_ptr->dst_low) || /* not a range */
-
-                    (table_port_ptr->dst_high != 0 && /* range */
-                    (search_port_ptr->dst_low >= table_port_ptr->dst_low && search_port_ptr->dst_low <= table_port_ptr->dst_high)))
-            {
-                if( (table_port_ptr->src_high == 0 && table_port_ptr->src_low == search_port_ptr->src_low) || /* not a range */
-
-                    (table_port_ptr->src_high != 0 && /* range */
-                    (search_port_ptr->src_low >= table_port_ptr->src_low && search_port_ptr->src_low <= table_port_ptr->src_high)))
+            else if(table_port_ptr->protocol == 6 || table_port_ptr->protocol == 17) {
+                if ((table_port_ptr->dst_high == 0 && table_port_ptr->dst_low == search_port_ptr->dst_low) || /* not a range */
+                        (table_port_ptr->dst_high != 0 && /* range */
+                         (search_port_ptr->dst_low >= table_port_ptr->dst_low && search_port_ptr->dst_low <= table_port_ptr->dst_high)))
                 {
-                    /* match! */
-                    return(1);
+                    if ((table_port_ptr->src_high == 0 && table_port_ptr->src_low == search_port_ptr->src_low) || /* not a range */
+                            (table_port_ptr->src_high != 0 && /* range */
+                             (search_port_ptr->src_low >= table_port_ptr->src_low && search_port_ptr->src_low <= table_port_ptr->src_high)))
+                    {
+                        /* match! */
+                        return(1);
+                    }
                 }
+            /* all other protos use no ports, so a proto match is a full match */
+            } else {
+                return(1);
             }
         }
     }
@@ -562,31 +545,22 @@ init_services_hashtable(    const int debuglvl,
                     return(-1);
                 }
 
-                if(portrange_ptr->dst_high == 0)
+                if (portrange_ptr->dst_high == 0)
                 {
                     /*  once a service is inserted into the hash, we dont need to insert it again under the same hash
 
                         we don't do this check for GRE, because dst_low and hash_port are both 0
                     */
-                    if( portrange_ptr->dst_low == ser_ptr->hash_port &&
-                        portrange_ptr->protocol != 41 &&
-                        portrange_ptr->protocol != 47 &&
-                        portrange_ptr->protocol != 50 &&
-                        portrange_ptr->protocol != 51)
+                    if ((portrange_ptr->protocol == 1 || portrange_ptr->protocol == 6 || portrange_ptr->protocol == 17) &&
+                            portrange_ptr->dst_low == ser_ptr->hash_port)
                     {
                         if(debuglvl >= HIGH)
                             (void)vrprint.debug(__FUNC__, "dupe! service '%s': hashport: %d, prot: %d, src_low: %d, src_high: %d, dst_low: %d, dst_high: %d", ser_ptr->name, ser_ptr->hash_port, portrange_ptr->protocol, portrange_ptr->src_low, portrange_ptr->src_high, portrange_ptr->dst_low, portrange_ptr->dst_high);
                     }
                     else
                     {
-                        if(portrange_ptr->protocol == 41)
-                            ser_ptr->hash_port = 41;
-                        else if(portrange_ptr->protocol == 47)
-                            ser_ptr->hash_port = 47;
-                        else if(portrange_ptr->protocol == 50)
-                            ser_ptr->hash_port = 50;
-                        else if(portrange_ptr->protocol == 51)
-                            ser_ptr->hash_port = 51;
+                        if (!(portrange_ptr->protocol == 1 || portrange_ptr->protocol == 6 || portrange_ptr->protocol == 17))
+                            ser_ptr->hash_port = portrange_ptr->protocol;
                         else
                             ser_ptr->hash_port = portrange_ptr->dst_low;
 
@@ -715,30 +689,6 @@ search_service_in_hash(const int debuglvl, const int src, const int dst, const i
         src_port = src;
         dst_port = dst;
     }
-    else if(protocol == 41)
-    {
-        hash_port = 41;
-        src_port = 1;
-        dst_port = 1;
-    }
-    else if(protocol == 47)
-    {
-        hash_port = 47;
-        src_port = 1;
-        dst_port = 1;
-    }
-    else if(protocol == 50)
-    {
-        hash_port = 50;
-        src_port = 1;
-        dst_port = 1;
-    }
-    else if(protocol == 51)
-    {
-        hash_port = 51;
-        src_port = 1;
-        dst_port = 1;
-    }
     else if(protocol == 1)
     {
         /* hashport is the icmptype */
@@ -748,8 +698,9 @@ search_service_in_hash(const int debuglvl, const int src, const int dst, const i
     }
     else
     {
-        (void)vrprint.debug(__FUNC__, "FIXME: protocol '%d' not yet supported.", protocol);
-        return(NULL);
+        hash_port = protocol;
+        src_port = 1;
+        dst_port = 1;
     }
 
 
