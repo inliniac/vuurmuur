@@ -102,20 +102,6 @@ edit_serv_portranges_new_validate(const int debuglvl, struct ServicesData_ *ser_
             "(in: %s:%d).", port_ptr->protocol, __FUNC__, __LINE__);
         return(-1);
     }
-    if( port_ptr->protocol != 1 &&
-        port_ptr->protocol != 6 &&
-        port_ptr->protocol != 17 &&
-        port_ptr->protocol != 41 &&
-        port_ptr->protocol != 47 &&
-        port_ptr->protocol != 50 &&
-        port_ptr->protocol != 51)
-    {
-        (void)vrprint.error(-1, VR_INTERR, "unsupported protocol: %d. "
-            "Currently supported protocols are: TCP (6), UDP (17), "
-            "ICMP (1), AH (51), ESP (50) and GRE (47) (in: %s:%d).",
-            port_ptr->protocol, __FUNC__, __LINE__);
-        return(-1);
-    }
 
     /*  check the ports
 
@@ -171,7 +157,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct ServicesData_ *ser_
     }
 
     /* now look for the place in the list to insert */
-    while(!insert_now)
+    while (!insert_now)
     {
         if(!(portlist_ptr = d_node->data))
         {
@@ -179,88 +165,13 @@ edit_serv_portranges_new_validate(const int debuglvl, struct ServicesData_ *ser_
             return(-1);
         }
 
-        /* the order is: tcp, udp, icmp, gre, ah */
-        if(portlist_ptr->protocol == 17)
-        {
-            if(port_ptr->protocol == 6)
-                insert_now = 1;
-        }
-        else if(portlist_ptr->protocol == 1)
-        {
-            if(port_ptr->protocol == 6)
-                insert_now = 1;
-            if(port_ptr->protocol == 17)
-                insert_now = 1;
-        }
-        else if(portlist_ptr->protocol == 41)
-        {
-            if(port_ptr->protocol == 6)
-                insert_now = 1;
-            if(port_ptr->protocol == 17)
-                insert_now = 1;
-            if(port_ptr->protocol == 1)
-                insert_now = 1;
-            if(port_ptr->protocol == 41)
-            {
+        if (port_ptr->protocol < portlist_ptr->protocol)
+            insert_now = 1;
+
+        if (!(port_ptr->protocol == 1 || port_ptr->protocol == 6 || port_ptr->protocol == 17)) {
+            if (port_ptr->protocol == portlist_ptr->protocol) {
                 /* this is an error because of wrong user input, so no function name */
-                (void)vrprint.error(-1, VR_ERR, gettext("only one %s portrange is allowed."), "protocol 41");
-                return(-1);
-            }
-        }
-        else if(portlist_ptr->protocol == 47)
-        {
-            if(port_ptr->protocol == 6)
-                insert_now = 1;
-            if(port_ptr->protocol == 17)
-                insert_now = 1;
-            if(port_ptr->protocol == 1)
-                insert_now = 1;
-            if(port_ptr->protocol == 41)
-                insert_now = 1;
-            if(port_ptr->protocol == 47)
-            {
-                /* this is an error because of wrong user input, so no function name */
-                (void)vrprint.error(-1, VR_ERR, gettext("only one %s portrange is allowed."), "GRE");
-                return(-1);
-            }
-        }
-        else if(portlist_ptr->protocol == 50)
-        {
-            if(port_ptr->protocol == 6)
-                insert_now = 1;
-            if(port_ptr->protocol == 17)
-                insert_now = 1;
-            if(port_ptr->protocol == 1)
-                insert_now = 1;
-            if(port_ptr->protocol == 41)
-                insert_now = 1;
-            if(port_ptr->protocol == 47)
-                insert_now = 1;
-            if(port_ptr->protocol == 50)
-            {
-                /* this is an error because of wrong user input, so no function name */
-                (void)vrprint.error(-1, VR_ERR, gettext("only one %s portrange is allowed."), "ESP");
-                return(-1);
-            }
-        }
-        else if(portlist_ptr->protocol == 51)
-        {
-            if(port_ptr->protocol == 6)
-                insert_now = 1;
-            if(port_ptr->protocol == 17)
-                insert_now = 1;
-            if(port_ptr->protocol == 1)
-                insert_now = 1;
-            if(port_ptr->protocol == 41)
-                insert_now = 1;
-            if(port_ptr->protocol == 47)
-                insert_now = 1;
-            if(port_ptr->protocol == 50)
-                insert_now = 1;
-            if(port_ptr->protocol == 51)
-            {
-                /* this is an error because of wrong user input, so no function name */
-                (void)vrprint.error(-1, VR_ERR, gettext("only one %s portrange is allowed."), "AH");
+                (void)vrprint.error(-1, VR_ERR, gettext("only one protocol %d portrange is allowed."), port_ptr->protocol);
                 return(-1);
             }
         }
@@ -1350,7 +1261,7 @@ edit_serv_portranges_new(const int debuglvl, struct ServicesData_ *ser_ptr)
 
     /* select protocol setup */
     char            *choice_ptr = NULL,
-                    *choices[]= { "TCP", "UDP", "ICMP", "GRE", "AH", "ESP", "41" };
+                    *choices[]= { "TCP", "UDP", "ICMP", "GRE", "AH", "ESP", "Other" };
     size_t          n_choices = 7;
 
     struct portdata *portrange_ptr = NULL;
@@ -1408,15 +1319,6 @@ edit_serv_portranges_new(const int debuglvl, struct ServicesData_ *ser_ptr)
             if(edit_icmp(debuglvl, portrange_ptr) < 0)
                 retval = -1;
         }
-        else if(strncmp(choice_ptr, "41", 2) == 0)
-        {
-            /* gre has no ports */
-            portrange_ptr->protocol = 41;
-            portrange_ptr->src_low  =  0;
-            portrange_ptr->src_high =  0;
-            portrange_ptr->dst_low  =  0;
-            portrange_ptr->dst_high =  0;
-        }
         else if(strncmp(choice_ptr, "GRE", 3) == 0)
         {
             /* gre has no ports */
@@ -1443,6 +1345,23 @@ edit_serv_portranges_new(const int debuglvl, struct ServicesData_ *ser_ptr)
             portrange_ptr->src_high =  0;
             portrange_ptr->dst_low  =  0;
             portrange_ptr->dst_high =  0;
+        }
+        else if(strncmp(choice_ptr, "Other", 5) == 0)
+        {
+            char *protostr = input_box(4, gettext("Protocol"), gettext("Enter protocol number"));
+            if (protostr != NULL) {
+                int proto = atoi(protostr);
+                if (proto >= 0 && proto <= 255) {
+                    portrange_ptr->protocol = proto;
+                    portrange_ptr->src_low  =  0;
+                    portrange_ptr->src_high =  0;
+                    portrange_ptr->dst_low  =  0;
+                    portrange_ptr->dst_high =  0;
+                } else {
+                    (void)vrprint.error(-1, VR_ERR, gettext("invalid protocol. Enter a number in the range 0-255."));
+                    retval = -1;
+                }
+            }
         }
         else
         {
@@ -2300,17 +2219,13 @@ edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
                     else
                         wprintw(ServicesSection.EditService.win, "%d:%d", portrange_ptr->dst_low, portrange_ptr->dst_high);
                 }
-                else if(portrange_ptr->protocol == 41 || portrange_ptr->protocol == 47 || portrange_ptr->protocol == 50 || portrange_ptr->protocol == 51)
-                {
-                    wprintw(ServicesSection.EditService.win, gettext("uses no ports."));
-                }
                 else if(portrange_ptr->protocol == 1)
                 {
                     wprintw(ServicesSection.EditService.win, "type: %d, code: %d.", portrange_ptr->dst_low, portrange_ptr->dst_high);
                 }
                 else
                 {
-                    wprintw(ServicesSection.EditService.win, gettext("unknown."));
+                    wprintw(ServicesSection.EditService.win, gettext("uses no ports."));
                 }
 
                 if((int)(18+i) == height-1) /* -1 is for the border */
