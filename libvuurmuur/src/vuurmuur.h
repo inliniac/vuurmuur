@@ -448,7 +448,7 @@ struct vuurmuur_config
 
 
     /* this is detected at runtime */
-    char            use_nfconntrack;
+    char            use_ipconntrack;
 
 	/* Maximum permissions for files and directories used by vuurmuur
 	   (config & log files). This should include x bits, which are
@@ -952,6 +952,7 @@ enum
 struct ConntrackData
 {
     int                     protocol;
+    int                     ipv6;
 
     /*  the service
 
@@ -974,13 +975,13 @@ struct ConntrackData
     /* from/source */
     char                    *fromname;
     struct ZoneData_        *from;
-    char                    src_ip[16];
+    char                    src_ip[46];
 
     /* to/destination */
     char                    *toname;
     struct ZoneData_        *to;
-    char                    dst_ip[16];
-    char                    orig_dst_ip[16]; /* ip before nat correction */
+    char                    dst_ip[46];
+    char                    orig_dst_ip[46]; /* ip before nat correction */
 
     /* counter */
     int                     cnt;
@@ -1017,6 +1018,10 @@ struct ConntrackStats_
     int active_serv;
     int active_from;
     int active_to;
+
+    int sername_max;
+    int fromname_max;
+    int toname_max;
 };
 
 

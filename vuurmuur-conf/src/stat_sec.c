@@ -156,9 +156,9 @@ int count_conntrack_conn(struct vuurmuur_config *cnf, int *conntrack_count,
             udp=0,
             other=0;
 
-    if(cnf->use_nfconntrack == TRUE || (!(fp = fopen(PROC_IPCONNTRACK, "r"))))
+    if(cnf->use_ipconntrack == TRUE || (!(fp = fopen(PROC_NFCONNTRACK, "r"))))
     {
-        if (!(fp = fopen(PROC_NFCONNTRACK, "r")))
+        if (!(fp = fopen(PROC_IPCONNTRACK, "r")))
             return(-1);
     }
 

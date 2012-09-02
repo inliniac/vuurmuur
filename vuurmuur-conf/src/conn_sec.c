@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2008 by Victor Julien                              *
+ *   Copyright (C) 2003-2012 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,15 +17,16 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #include "main.h"
 
 /* internal stuff */
-size_t  zone_width,
-        service_width;
-char    ser_snprintf_str[32],
-        zone_snprintf_str[32];
-
+static int  fromzone_width = 0,
+            tozone_width = 0,
+            service_width = 0;
+static char ser_snprintf_str[32] = "",
+            fromzone_snprintf_str[32] = "",
+            tozone_snprintf_str[32] = "";
 
 /* wrapper for strlcpy, that truncates a string a little nicer */
 static void
@@ -42,9 +43,9 @@ copy_name(char *dst, char *src, size_t size)
     {
         (void)strlcpy(dst, src, size);
 
-        dst[size - 4] = '.';
-        dst[size - 3] = '.';
-        dst[size - 2] = '.';
+//        dst[size - 4] = '.';
+        dst[size - 3] = '>';
+        dst[size - 2] = '>';
     }
 }
 
@@ -60,7 +61,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
     size_t  spaceleft = 0,
             printline_width = 0;
     char    servicename[32] = "";
-    char    zonename[32] = "";
+    char    zonename[46] = "";
     char    bw_str[9] = "";
 
     spaceleft = (size_t)screen_width;
@@ -159,14 +160,13 @@ print_connection(const int debuglvl, WINDOW *local_win,
     if(printline_width >= sizeof(printline))
         printline_width = sizeof(printline);
 
-    copy_name(zonename, cd_ptr->fromname, zone_width);
+    copy_name(zonename, cd_ptr->fromname, fromzone_width);
 
-        snprintf(printline, printline_width, zone_snprintf_str, zonename);
+    snprintf(printline, printline_width, fromzone_snprintf_str, zonename);
     spaceleft = spaceleft - StrLen(printline);
 
     wprintw(local_win, "%s", printline);
 
-    
     if(strncmp(cd_ptr->fromname, "firewall", 8) == 0)
         wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
     else
@@ -182,7 +182,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
     if(printline_width >= sizeof(printline))
         printline_width = sizeof(printline);
 
-    snprintf(printline, printline_width, " -> ");
+    snprintf(printline, printline_width, "-> ");
     spaceleft = spaceleft - StrLen(printline);
 
     wprintw(local_win, "%s", printline);
@@ -202,18 +202,17 @@ print_connection(const int debuglvl, WINDOW *local_win,
     if(printline_width >= sizeof(printline))
         printline_width = sizeof(printline);
 
-    copy_name(zonename, cd_ptr->toname, zone_width);
+    copy_name(zonename, cd_ptr->toname, tozone_width);
 
-    snprintf(printline, printline_width, zone_snprintf_str, zonename);
+    snprintf(printline, printline_width, tozone_snprintf_str, zonename);
     spaceleft = spaceleft - StrLen(printline);
 
     wprintw(local_win, "%s", printline);
-    
+
     if(strncmp(cd_ptr->toname, "firewall", 8) == 0)
         wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
     else
         wattroff(local_win, vccnf.color_bgd | A_BOLD);
-
 
     if(!spaceleft)
         return(1);
@@ -227,7 +226,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
         printline_width = spaceleft;
         if(printline_width >= sizeof(printline))
             printline_width = sizeof(printline);
-    
+
         snprintf(printline, printline_width, "%s", " ");
         spaceleft = spaceleft - StrLen(printline);
 
@@ -236,13 +235,13 @@ print_connection(const int debuglvl, WINDOW *local_win,
         if(cd_ptr->connect_status == CONN_CONNECTING)
         {
             wattron(local_win, vccnf.color_bgd_green | A_BOLD);
-            
+
             printline_width = spaceleft;
             if(printline_width >= sizeof(printline))
                 printline_width = sizeof(printline);
-    
+
             /* TRANSLATORS: max 4 chars: CONNECTING, like building a new connection. */
-            snprintf(printline, printline_width, "%-5s", gettext("CONN"));
+            snprintf(printline, printline_width, "%-4s", gettext("CONN"));
             spaceleft = spaceleft - StrLen(printline);
 
             wprintw(local_win, "%s", printline);
@@ -256,9 +255,9 @@ print_connection(const int debuglvl, WINDOW *local_win,
             printline_width = spaceleft;
             if(printline_width >= sizeof(printline))
                 printline_width = sizeof(printline);
-    
+
             /* TRANSLATORS: max 4 chars: ESTABLISHED, an existing connection. */
-            snprintf(printline, printline_width, "%-5s", gettext("ESTA"));
+            snprintf(printline, printline_width, "%-4s", gettext("ESTA"));
             spaceleft = spaceleft - StrLen(printline);
 
             wprintw(local_win, "%s", printline);
@@ -268,21 +267,23 @@ print_connection(const int debuglvl, WINDOW *local_win,
         else if(cd_ptr->connect_status == CONN_DISCONNECTING)
         {
             wattron(local_win, vccnf.color_bgd_red | A_BOLD);
-            
+
             printline_width = spaceleft;
             if(printline_width >= sizeof(printline))
                 printline_width = sizeof(printline);
-    
+
             /* TRANSLATORS: max 4 chars: DISCONNECTING, an existing connection is shutting down. */
-            snprintf(printline, printline_width, "%-5s", gettext("DISC"));
+            snprintf(printline, printline_width, "%-4s", gettext("DISC"));
             spaceleft = spaceleft - StrLen(printline);
 
             wprintw(local_win, "%s", printline);
 
             wattroff(local_win, vccnf.color_bgd_red | A_BOLD);
         }
-        else
-            wprintw(local_win, "%-5s", " ");
+        else {
+            wprintw(local_win, "%-4s", "-");
+            spaceleft = spaceleft - 4;
+        }
 
     }
 
@@ -423,26 +424,29 @@ print_connection(const int debuglvl, WINDOW *local_win,
 
     if(connreq->draw_details == TRUE)
     {
+        if(spaceleft < 10)
+            return(1);
+
         printline_width = spaceleft;
         if(printline_width >= sizeof(printline))
             printline_width = sizeof(printline);
 
         if(cd_ptr->src_port == 0 && cd_ptr->dst_port == 0)
         {
-            snprintf(printline, printline_width, "%s -> %s (%d) ",
+            snprintf(printline, printline_width, "%s -> %s (%d)",
                     cd_ptr->src_ip, cd_ptr->dst_ip,
                     cd_ptr->protocol);
         }
         else if(cd_ptr->cnt > 1)
         {
-            snprintf(printline, printline_width, "%s -> %s:%d (%d) ",
+            snprintf(printline, printline_width, "%s -> %s:%d (%d)",
                     cd_ptr->src_ip, cd_ptr->dst_ip,
                     cd_ptr->dst_port,
                     cd_ptr->protocol);
         }
         else
         {
-            snprintf(printline, printline_width, "%s:%d -> %s:%d (%d) ",
+            snprintf(printline, printline_width, "%s:%d -> %s:%d (%d)",
                     cd_ptr->src_ip, cd_ptr->src_port,
                     cd_ptr->dst_ip, cd_ptr->dst_port,
                     cd_ptr->protocol);
@@ -458,30 +462,40 @@ print_connection(const int debuglvl, WINDOW *local_win,
     return(1);
 }
 
+static void
+update_draw_size_do(int *s, int sr, int sm, char *str, size_t strsize) {
+    *s = sm;
+    if (sr < sm)
+        *s = sr;
+
+    snprintf(str, strsize, "%%-%ds", *s);
+}
 
 static void
-update_draw_size(const int debuglvl, VR_ConntrackRequest *connreq)
+update_draw_size(const int debuglvl, VR_ConntrackRequest *connreq, int width, int ser, int from, int to)
 {
-    if(connreq->draw_details == FALSE)
-    {
-        zone_width = 26;
-        service_width = 16;
+    /* max: cnt sp ser sp from sp arrow sp to sp stat sp dir
+     *        5  1   15 1   46  1     2  1 46  1    5  1   4 = 129 */
+#define FIXED 20
+    int left = width - FIXED;
+    int serw = left * 0.2;
+    if (serw > ser)
+        serw = ser;
+    left -= serw;
 
-        (void)strlcpy(ser_snprintf_str, "\%-16s ",
-                sizeof(ser_snprintf_str));
-        (void)strlcpy(zone_snprintf_str, "\%-26s ",
-                sizeof(zone_snprintf_str));
-    }
-    else
-    {
-        zone_width = 20;
-        service_width = 12;
+    int fromw = left * 0.5;
+    if (fromw > from)
+        fromw = from;
+    left -= fromw;
 
-        (void)strlcpy(ser_snprintf_str, "\%-12s ",
-                sizeof(ser_snprintf_str));
-        (void)strlcpy(zone_snprintf_str, "\%-20s ",
-                sizeof(zone_snprintf_str));
-    }
+    int tow = left;
+    if (tow > to)
+        tow = to;
+    left -= tow;
+
+    update_draw_size_do(&service_width, ser, serw, ser_snprintf_str, sizeof(ser_snprintf_str));
+    update_draw_size_do(&fromzone_width, from, fromw, fromzone_snprintf_str, sizeof(fromzone_snprintf_str));
+    update_draw_size_do(&tozone_width, to, tow, tozone_snprintf_str, sizeof(tozone_snprintf_str));
 }
 
 
@@ -585,6 +599,8 @@ conn_free_ct(const int debuglvl, Conntrack **ct, Zones *zones)
 int
 conn_ct_get_connections(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, VR_ConntrackRequest *req)
 {
+    ct->conn_stats.fromname_max = ct->conn_stats.toname_max = ct->conn_stats.sername_max = 0;
+
     if(d_list_setup(debuglvl, &ct->conn_list, NULL) < 0)
     {
         (void)vrprint.error(-1, VR_INTERR, "d_list_setup() "
@@ -722,8 +738,6 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
     /* dont display the cursor */
     curs_set(0);
 
-    update_draw_size(debuglvl, &connreq);
-
     ct = conn_init_ct(debuglvl, zones, interfaces, services, blocklist);
     if(ct == NULL)
         return(-1);
@@ -752,6 +766,10 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
 
             /* TODO retval */
             conn_ct_get_connections(debuglvl, cnf, ct, &connreq);
+
+            update_draw_size(debuglvl, &connreq, max_width-2,
+                    ct->conn_stats.sername_max+1, ct->conn_stats.fromname_max+1,
+                    ct->conn_stats.toname_max+1);
 
             /* determine how many lines we can draw for each section */
             if(connreq.sort_conn_status)
@@ -971,7 +989,7 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                     /* move the cursor a bit out of sight */
                     mvwprintw(conn_win, max_onscreen-1, max_width-3, " ");
                 }
-        
+
                 wrefresh(conn_win);
             }
 
@@ -1051,14 +1069,10 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                 if(connreq.draw_details == TRUE)
                 {
                     connreq.draw_details = FALSE;
-
-                    update_draw_size(debuglvl, &connreq);
                 }
                 else
                 {
                     connreq.draw_details = TRUE;
-
-                    update_draw_size(debuglvl, &connreq);
                 }
 
                 control.sleep = 0;
