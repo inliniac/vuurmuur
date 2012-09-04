@@ -496,7 +496,7 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
     if(!hide_prefix)
     {
         /* PREFIX */
-        if(strcmp(logrule_ptr->prefix, "none") != 0)
+        if(strcmp(logrule_ptr->prefix, "none") != 0 && strlen(logrule_ptr->prefix) > 0)
         {
             wattron(log_win, vccnf.color_bgd_green);
 
