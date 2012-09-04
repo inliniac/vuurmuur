@@ -24,6 +24,7 @@
 #define TB_FILTER           "-t filter"
 #define TB_MANGLE           "-t mangle"
 #define TB_NAT              "-t nat"
+#define TB_RAW              "-t raw"
 
 /* iptables chains */
 #define CH_PREROUTING       "-A PREROUTING"
@@ -389,6 +390,11 @@ process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, int ipv, char *tabl
             return(ruleset_add_rule_to_set(debuglvl, &ruleset->nat_output, chain, cmd, packets, bytes));
         else if(strcmp(chain, CH_POSTROUTING) == 0)
             return(ruleset_add_rule_to_set(debuglvl, &ruleset->nat_postroute, chain, cmd, packets, bytes));
+    }
+    else if(strcmp(table, TB_RAW) == 0)
+    {
+        if(strcmp(chain, CH_PREROUTING) == 0)
+            return(ruleset_add_rule_to_set(debuglvl, &ruleset->raw_preroute, chain, cmd, packets, bytes));
     }
 
     /* default case, should never happen */
@@ -2514,6 +2520,13 @@ static int pre_rules_flush_chains(const int debuglvl, /*@null@*/RuleSet *ruleset
         if (result < 0)
             return(-1);
 
+        if (conf.check_iptcaps == FALSE || iptcap->table_raw) {
+            snprintf(cmd, MAX_PIPE_COMMAND, "%s -t raw --flush", conf.iptables_location);
+            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            if (result < 0)
+                return(-1);
+        }
+
 #ifdef IPV6_ENABLED
         snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush", conf.ip6tables_location);
         result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
@@ -2524,6 +2537,13 @@ static int pre_rules_flush_chains(const int debuglvl, /*@null@*/RuleSet *ruleset
         result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
         if (result < 0)
             return(-1);
+
+        if (conf.check_iptcaps == FALSE || iptcap->table_ip6_raw) {
+            snprintf(cmd, MAX_PIPE_COMMAND, "%s -t raw --flush", conf.ip6tables_location);
+            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            if (result < 0)
+                return(-1);
+        }
 #endif
     }
     return(0);
@@ -4490,9 +4510,106 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap,
     return(retval);
 }
 
+static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
+                                IptCap *iptcap, struct RuleCache_ *create,
+                                struct InterfaceData_ *if_ptr)
+{
+    char input_device[16 + 3] = "";  /* 16 + '-i ' */
+    char limit[] = "-m limit --limit 1/s --limit-burst 5";
+    char logprefix[64] = "";
+    char cmd[MAX_PIPE_COMMAND] = "";
+
+    if (if_ptr->device_virtual_oldstyle == TRUE) {
+        /* here we print the description if we are in bashmode */
+        if(conf.bash_out == TRUE)
+        {
+            fprintf(stdout, "# rpfilter rule for interface '%s' "
+                "not created. The interface uses \"old style\" "
+                "virtual setting.\n", if_ptr->name);
+        }
+
+        return(0);
+    }
+
+    /*  see if the interface is active */
+    if (if_ptr->active == FALSE || (if_ptr->dynamic == TRUE && if_ptr->up == FALSE))
+    {
+        /* here we print the description if we are in bashmode */
+        if(conf.bash_out == TRUE)
+        {
+            fprintf(stdout, "# rpfilter rule for interface '%s' "
+                "not created. The interface is inactive or "
+                "dynamic and down.\n", if_ptr->name);
+        }
+
+        return(0);
+    }
+
+    snprintf(input_device, sizeof(input_device),
+            "-i %s", if_ptr->device);
+
+    /* create the log rule */
+
+    /* create the logprefix string */
+    create_logprefix_string(debuglvl, logprefix,
+            sizeof(logprefix), RT_NOTSET, "DROP", "%s",
+            "rpfilter");
+
+    /* log rule string */
+    if (conf.rule_nflog == 1)
+    {
+        snprintf(cmd, sizeof(cmd), "%s -m rpfilter --invert %s -j NFLOG %s %s --nflog-group %u",
+                input_device, limit, logprefix, loglevel, conf.nfgrp);
+    }
+    else
+    {
+        snprintf(cmd, sizeof(cmd), "%s -m rpfilter --invert %s -j LOG %s %s %s",
+                input_device, limit, logprefix, loglevel, log_tcp_options);
+    }
+
+    if (conf.check_iptcaps == FALSE ||
+            (iptcap->table_raw && iptcap->match_rpfilter &&
+             ((conf.rule_nflog == 0 && iptcap->target_log == TRUE) ||
+              (conf.rule_nflog == 1 && iptcap->target_nflog == TRUE)))) {
+
+        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
+            return(-1);
+    }
+#ifdef IPV6_ENABLED
+    if (interface_ipv6_enabled(debuglvl, if_ptr)) {
+        if (conf.check_iptcaps == FALSE ||
+                (iptcap->table_ip6_raw && iptcap->match_ip6_rpfilter)) {
+            //             ((conf.rule_nflog == 0 && iptcap->target_ip6_log == TRUE) ||
+            //              (conf.rule_nflog == 1 && iptcap->target_ip6_nflog == TRUE)))) {
+
+            if (process_rule(debuglvl, ruleset, VR_IPV6, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
+                return(-1);
+        }
+    }
+#endif
+
+
+    /* and the DROP rule */
+    snprintf(cmd, sizeof(cmd), "%s -m rpfilter --invert -j DROP", input_device);
+
+    if (conf.check_iptcaps == FALSE ||
+            (iptcap->table_raw && iptcap->match_rpfilter)) {
+        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
+            return(-1);
+    }
+#ifdef IPV6_ENABLED
+    if (interface_ipv6_enabled(debuglvl, if_ptr)) {
+        if (conf.check_iptcaps == FALSE ||
+                (iptcap->table_ip6_raw && iptcap->match_ip6_rpfilter)) {
+            if(process_rule(debuglvl, ruleset, VR_IPV6, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
+                return(-1);
+        }
+    }
+#endif
+}
 
 int
-create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces)
+create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, Interfaces *interfaces)
 {
     struct RuleCache_       *create = NULL;
     d_list_node             *d_node = NULL,
@@ -4537,7 +4654,6 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interface
             if(conf.bash_out && create->description != NULL)
             {
                 fprintf(stdout, "\n# %s\n", create->description);
-        
                 free(create->description);
                 create->description = NULL;
             }
@@ -4545,7 +4661,7 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interface
             /*
                 prot rule, proc only for interface
             */
-            if(create->danger.solution == PROT_PROC_INT)
+            if (create->danger.solution == PROT_PROC_INT)
             {
                 if(debuglvl >= HIGH)
                     (void)vrprint.debug(__FUNC__, "protect proc (int)... ");
@@ -4556,8 +4672,15 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interface
                     return(-1);
                 }
 
+                /* special case: for rp-filter we create iptables rules as well */
+                if (strcasecmp(rule_ptr->danger, "rp-filter") == 0) {
+                    if (create_interface_rpfilter_rules(debuglvl, ruleset, iptcap, create, create->who_int) < 0) {
+                        (void)vrprint.error(-1, "Error", "creating rpfilter rules failed (in: %s:%d).", __FUNC__, __LINE__);
+                    }
+                }
+
                 /*  only set if int is active and up.
-        
+
                     NOTE: this is different from iptables rules, which are also created if the interface is
                     down. However the proc entries are only available when the interface is up!
                 */

@@ -534,7 +534,7 @@ typedef struct
     d_list  system_chain_filter;
     d_list  system_chain_mangle;
     d_list  system_chain_nat;
-    //d_list  system_chain_raw;
+    d_list  system_chain_raw;
 
 } Rules;
 
@@ -1058,6 +1058,7 @@ typedef struct
     char    table_filter;
     char    table_mangle;
     char    table_nat;
+    char    table_raw;
 
     /* targets */
     char    target_snat;
@@ -1092,6 +1093,7 @@ typedef struct
     char    match_limit;
     char    match_mac;
     char    match_connmark;
+    char    match_rpfilter;
 
     char    target_nat_random;
 
@@ -1107,6 +1109,7 @@ typedef struct
     char    table_ip6_filter;
     char    table_ip6_mangle;
     /* there is no NAT table available for IPv6 */
+    char    table_ip6_raw;
 
     /* IPv6 targets */
     /* No snat, dnat, redirect or masquerade available for IPv6 */
@@ -1137,6 +1140,7 @@ typedef struct
     char    match_ip6_mac;
 
     char    match_ip6_connmark;
+    char    match_ip6_rpfilter;
 #endif
 } IptCap;
 

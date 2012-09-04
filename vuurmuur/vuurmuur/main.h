@@ -174,6 +174,12 @@ typedef struct
     int ipv;
 
     /*
+        raw
+    */
+    d_list  raw_preroute;               /* list with rules */
+    char    raw_preroute_policy;
+
+    /*
         mangle
     */
     d_list  mangle_preroute;            /* list with rules */
@@ -307,7 +313,7 @@ int create_newnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *, int);
 int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *, int);
 
 int create_network_protect_rules(const int, /*@null@*/RuleSet *, Zones *, IptCap *);
-int create_interface_rules(const int, /*@null@*/RuleSet *, Interfaces *);
+int create_interface_rules(const int, /*@null@*/RuleSet *, IptCap *, Interfaces *);
 int create_system_protectrules(const int, struct vuurmuur_config *);
 int create_normal_rules(const int, VuurmuurCtx *, /*@null@*/RuleSet *, char *);
 

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2008 by Victor Julien                              *
+ *   Copyright (C) 2002-2012 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -58,6 +58,10 @@ ruleset_setup(const int debuglvl, RuleSet *ruleset)
     memset(ruleset, 0, sizeof(RuleSet));
 
     /* init the lists */
+
+    /* raw */
+    if(d_list_setup(debuglvl, &ruleset->raw_preroute, free) < 0)
+        return(-1);
 
     /* mangle */
     if(d_list_setup(debuglvl, &ruleset->mangle_preroute, free) < 0)
@@ -145,6 +149,9 @@ ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
             "(in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
+
+    /* raw */
+    d_list_cleanup(debuglvl, &ruleset->raw_preroute);
 
     /* mangle */
     d_list_cleanup(debuglvl, &ruleset->mangle_preroute);
@@ -429,6 +436,32 @@ ruleset_fill_file(const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset,
     ruleset_writeprint(ruleset_fd, cmd);
     snprintf(cmd, sizeof(cmd), "# DO NOT EDIT: file will be overwritten.\n");
     ruleset_writeprint(ruleset_fd, cmd);
+
+    if (vctx->conf->check_iptcaps == FALSE ||
+            (ipver == VR_IPV4 && vctx->iptcaps->table_raw == TRUE) ||
+            (ipver == VR_IPV6 && vctx->iptcaps->table_ip6_raw == TRUE))
+    {
+        /* first process the mangle table */
+        snprintf(cmd, sizeof(cmd), "*raw\n");
+        ruleset_writeprint(ruleset_fd, cmd);
+        snprintf(cmd, sizeof(cmd), ":PREROUTING %s [0:0]\n", ruleset->raw_preroute_policy ? "DROP" : "ACCEPT");
+        ruleset_writeprint(ruleset_fd, cmd);
+
+        for(d_node = ruleset->raw_preroute.top; d_node; d_node = d_node->next)
+        {
+            if(!(rule = d_node->data))
+            {
+                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            snprintf(cmd, sizeof(cmd), "%s\n", rule);
+            ruleset_writeprint(ruleset_fd, cmd);
+        }
+
+        snprintf(cmd, sizeof(cmd), "COMMIT\n");
+        ruleset_writeprint(ruleset_fd, cmd);
+    }
 
     if(vctx->conf->check_iptcaps == FALSE || vctx->iptcaps->table_mangle == TRUE)
     {
@@ -1322,7 +1355,7 @@ ruleset_create_ruleset( const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset)
     }
 
     /* create the interface rules */
-    if(create_interface_rules(debuglvl, ruleset, vctx->interfaces) < 0)
+    if(create_interface_rules(debuglvl, ruleset, vctx->iptcaps, vctx->interfaces) < 0)
     {
         (void)vrprint.error(-1, "Error", "create protectrules failed.");
     }

@@ -514,7 +514,7 @@ create_all_rules(const int debuglvl, VuurmuurCtx *vctx, int create_prerules)
     }
 
     /* create the interface rules */
-    if(create_interface_rules(debuglvl, NULL, vctx->interfaces) < 0)
+    if(create_interface_rules(debuglvl, NULL, vctx->iptcaps, vctx->interfaces) < 0)
     {
         (void)vrprint.error(-1, "Error", "create protectrules failed.");
     }
