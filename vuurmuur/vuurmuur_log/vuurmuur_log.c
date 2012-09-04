@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2010 by Victor Julien                              *
+ *   Copyright (C) 2002-2012 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -411,7 +411,6 @@ print_help(void)
     fprintf(stdout, " -h, --help\t\t\tgives this help\n");
     fprintf(stdout, " -v, --verbose\t\t\tverbose mode\n");
     fprintf(stdout, " -n, --nodaemon\t\t\tdo NOT start as a daemon\n");
-    fprintf(stdout, " -N, --nflog\t\t\tuse experimental nflog mode\n");
     fprintf(stdout, " -c, --configfile\t\tuse the given configfile\n");
     fprintf(stdout, " -d, --debug\t\t\tenable debugging (1 = low, 3 = high)\n");
     fprintf(stdout, " -K, --killme\t\t\tkill running daemon\n");
@@ -481,7 +480,6 @@ main(int argc, char *argv[])
         { "nodaemon", no_argument, &nodaemon, 1 },
         { "configfile", required_argument, NULL, 'c' },
         { "debug", required_argument, NULL, 'd' },
-        { "nflog", no_argument, NULL, 'N' },
         { "killme", required_argument, NULL, 'K' },
         { "version", no_argument, NULL, 'V' },
         { 0, 0, 0, 0 },
@@ -572,12 +570,8 @@ main(int argc, char *argv[])
                 fprintf(stdout, "vuurmuur-log: debug level: %d\n", debuglvl);
                 break;
 
-            case 'N' :
-                syslog = 0;
-                break;
-
             case 'K' :
-                if (check_pidfile (PIDFILE, SVCNAME, &pid) == -1) 
+                if (check_pidfile (PIDFILE, SVCNAME, &pid) == -1)
                 {
                     (void)vrprint.debug(__FUNC__, "Terminating %u", pid);
                     kill (pid, 15);
@@ -599,6 +593,19 @@ main(int argc, char *argv[])
     if(check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
         exit(EXIT_FAILURE);
 
+    /* init the config file */
+    if(init_config(debuglvl, &conf) < VR_CNF_OK)
+    {
+        (void)vrprint.error(-1, "Error", "initializing the config failed.");
+        exit(EXIT_FAILURE);
+    }
+
+    if (conf.rule_nflog) {
+        syslog = 0;
+    } else {
+        syslog = 1;
+    }
+
     /* set up the sscanf parser string if we're using the legacy syslog parsing */
     if(syslog && !(sscanf_str = assemble_logline_sscanf_string(debuglvl, &logrule)))
     {
@@ -606,13 +613,6 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-
-    /* init the config file */
-    if(init_config(debuglvl, &conf) < VR_CNF_OK)
-    {
-        (void)vrprint.error(-1, "Error", "initializing the config failed.");
-        exit(EXIT_FAILURE);
-    }
 
     if(verbose)
         (void)vrprint.info("Info", "Vuurmuur_log %s", version_string);
