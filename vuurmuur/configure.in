@@ -117,7 +117,7 @@ if test "$with_libnetfilter_log_libraries" != "no"; then
 LDFLAGS="${LDFLAGS}  -L${with_libnetfilter_log_libraries}"
 fi
 
-AC_CHECK_LIB(netfilter_log, nfct_fd,, NFLOG="no")
+AC_CHECK_LIB(netfilter_log, nflog_open,, NFLOG="no")
 if test "$NFLOG" != "no"; then
 CFLAGS="${CFLAGS} -DHAVE_LIBNETFILTER_LOG"
 fi
