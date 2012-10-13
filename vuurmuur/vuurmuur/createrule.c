@@ -4490,6 +4490,15 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap,
             /* if it fails, we dont really care, its not fatal */
             (void)vrprint.error(-1, "Error", "enabling ip-forwarding failed.");
         }
+
+#ifdef IPV6_ENABLED
+        result = set_proc_entry(debuglvl, &conf, "/proc/sys/net/ipv6/conf/all/forwarding", 1, NULL);
+        if (result != 0)
+        {
+            /* if it fails, we dont really care, its not fatal */
+            (void)vrprint.error(-1, "Error", "enabling ip-forwarding for ipv6 failed.");
+        }
+#endif
     }
     else
     {
@@ -4505,6 +4514,15 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap,
             /* if it fails, we dont really care, its not fatal */
             (void)vrprint.error(-1, "Error", "enabling ip-forwarding failed.");
         }
+
+#ifdef IPV6_ENABLED
+        result = set_proc_entry(debuglvl, &conf, "/proc/sys/net/ipv6/conf/all/forwarding", 0, NULL);
+        if (result != 0)
+        {
+            /* if it fails, we dont really care, its not fatal */
+            (void)vrprint.error(-1, "Error", "enabling ip-forwarding for ipv6 failed.");
+        }
+#endif
     }
 
     return(retval);
