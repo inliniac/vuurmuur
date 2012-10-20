@@ -2125,8 +2125,9 @@ rulecreate_ipv4ipv6_loop(const int debuglvl, VuurmuurCtx *vctx,
     rule->ipv = VR_IPV6;
 
     /** \todo rules can explicitly set a the reject option, which will be IPv4 only. */
-    if (strncasecmp(rule->action, "REJECT --reject-with", 20) == 0)
-        return 0;
+    if (strncasecmp(rule->action, "REJECT --reject-with", 20) == 0 &&
+            strncasecmp(rule->action, "REJECT --reject-with tcp-reset", 30) != 0)
+        strlcpy(rule->action, "REJECT", sizeof(rule->action));
 
     if (rulecreate_src_iface_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
         (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
@@ -2528,6 +2529,7 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vuurmuur_config *c
     return (retval);
 }
 
+#ifdef IPV6_ENABLED
 /*  clear_vuurmuur_iptables_rule
 
     Clears vuurmuur rules and chains created by Vuurmuur.
@@ -2622,6 +2624,7 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vuurmuur_config *c
 
     return (retval);
 }
+#endif
 
 /*  clear_vuurmuur_iptables_rule
 
@@ -2713,6 +2716,7 @@ clear_all_iptables_rules_ipv4(const int debuglvl)
     return(retval);
 }
 
+#ifdef IPV6_ENABLED
 static int
 clear_all_iptables_rules_ipv6(const int debuglvl)
 {
@@ -2763,6 +2767,7 @@ clear_all_iptables_rules_ipv6(const int debuglvl)
 
     return(retval);
 }
+#endif
 
 /*  clear_all_iptables_rule
 

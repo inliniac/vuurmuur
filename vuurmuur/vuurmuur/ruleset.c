@@ -438,8 +438,11 @@ ruleset_fill_file(const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset,
     ruleset_writeprint(ruleset_fd, cmd);
 
     if (vctx->conf->check_iptcaps == FALSE ||
-            (ipver == VR_IPV4 && vctx->iptcaps->table_raw == TRUE) ||
-            (ipver == VR_IPV6 && vctx->iptcaps->table_ip6_raw == TRUE))
+            (ipver == VR_IPV4 && vctx->iptcaps->table_raw == TRUE)
+#ifdef IPV6_ENABLED
+        ||  (ipver == VR_IPV6 && vctx->iptcaps->table_ip6_raw == TRUE)
+#endif
+        )
     {
         /* first process the mangle table */
         snprintf(cmd, sizeof(cmd), "*raw\n");

@@ -2444,13 +2444,16 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 fprintf(stdout, "# No support for IPv4 TCPMSS target.\n");
             return(0);
         }
-    } else {
+    }
+#ifdef IPV6_ENABLED
+    else {
         if (conf.check_iptcaps == TRUE && iptcap->target_ip6_tcpmss == FALSE) {
             if (conf.bash_out)
                 fprintf(stdout, "# No support for IPv6 TCPMSS target.\n");
             return(0);
         }
     }
+#endif
 
     if (conf.bash_out)
         fprintf(stdout, "\n# TCPMSS rules\n");
@@ -2467,8 +2470,10 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
         if (iface_ptr->tcpmss_clamp == TRUE && iface_ptr->device_virtual == FALSE)
         {
+#ifdef IPV6_ENABLED
             if (ipv == VR_IPV6 && !interface_ipv6_enabled(debuglvl, iface_ptr))
                 continue;
+#endif
 
             snprintf(cmd, sizeof(cmd), "-o %s -p tcp --tcp-flags SYN,RST SYN "
                     "-j TCPMSS --clamp-mss-to-pmtu", iface_ptr->device);
@@ -2562,9 +2567,13 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
          start mark:    0
          end mark:      16777216
     */
+
     if (conf.check_iptcaps == FALSE ||
-            (iptcap->match_mark == TRUE && ipv == VR_IPV4) ||
-            (iptcap->match_ip6_mark == TRUE && ipv == VR_IPV6))
+            (iptcap->match_mark == TRUE && ipv == VR_IPV4)
+#ifdef IPV6_ENABLED
+        ||  (iptcap->match_ip6_mark == TRUE && ipv == VR_IPV6)
+#endif
+        )
     {
         if (conf.bash_out == TRUE)
             fprintf(stdout, "\n# Setting up connection-tracking...\n");
@@ -2639,8 +2648,11 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
          end mark:      33554432
     */
     if (conf.check_iptcaps == FALSE ||
-            (iptcap->target_queue == TRUE && iptcap->match_mark == TRUE && ipv == VR_IPV4) ||
-            (iptcap->target_ip6_queue == TRUE && iptcap->match_ip6_mark == TRUE && ipv == VR_IPV6))
+            (iptcap->target_queue == TRUE && iptcap->match_mark == TRUE && ipv == VR_IPV4)
+#ifdef IPV6_ENABLED
+         || (iptcap->target_ip6_queue == TRUE && iptcap->match_ip6_mark == TRUE && ipv == VR_IPV6)
+#endif
+        )
     {
         if (conf.bash_out == TRUE)
             fprintf(stdout, "\n# Setting up connection-tracking for QUEUE targets...\n");
@@ -3721,8 +3733,8 @@ static int pre_rules_udplimit(const int debuglvl, /*@null@*/RuleSet *ruleset,
             snprintf(cmd, sizeof(cmd), "%s -N UDPLIMIT 2>/dev/null",
                     conf.ip6tables_location);
             (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
-        }
 #endif
+        }
     }
 
     /* create the rules */
@@ -4214,8 +4226,8 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
             result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if(result < 0)
                 retval = -1;
-        }
 #endif
+        }
     }
 
     /* if we don't use syn_limit bail out now */
