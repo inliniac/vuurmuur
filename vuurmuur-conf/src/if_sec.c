@@ -598,12 +598,16 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
 
     /* ip6address */
     IfSec.ip6addresslabelfld = (InterfacesSection.EditInterface.fields[field_num++] = new_field(1, 16, 9, 0, 0, 0));
+#ifdef IPV6_ENABLED
     set_field_buffer_wrap(debuglvl, IfSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
+#endif
     field_opts_off(IfSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.ip6addressfld = (InterfacesSection.EditInterface.fields[field_num++] = new_field(1, MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
     //set_field_type(IfSec.ip6addressfld, TYPE_IPV6);
+#ifdef IPV6_ENABLED
     set_field_buffer_wrap(debuglvl, IfSec.ip6addressfld, 0, iface_ptr->ipv6.ip6);
+#endif
 
 
     /* dynamic ip toggle */
@@ -774,6 +778,17 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
         // set status to false
         set_field_status(InterfacesSection.EditInterface.fields[i], FALSE);
     }
+
+    /* disable ipv6 if not supported */
+#ifndef IPV6_ENABLED
+    set_field_back(IfSec.ip6addresslabelfld, vccnf.color_win | A_BOLD);
+    field_opts_on(IfSec.ip6addresslabelfld, O_AUTOSKIP);
+    field_opts_off(IfSec.ip6addresslabelfld, O_ACTIVE);
+
+    set_field_back(IfSec.ip6addressfld, vccnf.color_win | A_BOLD);
+    field_opts_on(IfSec.ip6addressfld, O_AUTOSKIP);
+    field_opts_off(IfSec.ip6addressfld, O_ACTIVE);
+#endif
 
     /* labels are blue-white */
     set_field_back(IfSec.activelabelfld, vccnf.color_win);
@@ -1069,6 +1084,7 @@ edit_interface_save(const int debuglvl, struct InterfaceData_ *iface_ptr)
             }
             else if(InterfacesSection.EditInterface.fields[i] == IfSec.ip6addressfld)
             {
+#ifdef IPV6_ENABLED
                 // ipaddress
                 status = ST_CHANGED;
 
@@ -1091,6 +1107,7 @@ edit_interface_save(const int debuglvl, struct InterfaceData_ *iface_ptr)
                                 STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
                                 STR_IP6ADDRESS, STR_IS_NOW_SET_TO, tempiface_ptr->ipv6.ip6,
                                 STR_WAS, iface_ptr->ipv6.ip6);
+#endif
             }
             else if(InterfacesSection.EditInterface.fields[i] == IfSec.dynamicfld)
             {

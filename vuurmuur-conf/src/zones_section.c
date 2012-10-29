@@ -238,12 +238,16 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     field_opts_on(HostSec.ipaddressfld, O_BLANK);
 
     HostSec.ip6addresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 4, 8, 0, 0));
+#ifdef IPV6_ENABLED
     set_field_buffer_wrap(debuglvl, HostSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
+#endif
     field_opts_off(HostSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     HostSec.ip6addressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, MAX_IPV6_ADDR_LEN, 5, 9, 0, 0));
     //set_field_type(HostSec.ipaddressfld, TYPE_IPV4);
+#ifdef IPV6_ENABLED
     set_field_buffer_wrap(debuglvl, HostSec.ip6addressfld, 0, zone_ptr->ipv6.ip6);
+#endif
     field_opts_on(HostSec.ip6addressfld, O_BLANK);
 
     HostSec.macaddresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 6, 8, 0, 0));
@@ -311,6 +315,15 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     set_field_back(HostSec.macaddresslabelfld, vccnf.color_win);
     set_field_back(HostSec.commentlabelfld, vccnf.color_win);
 
+#ifndef IPV6_ENABLED
+    set_field_back(HostSec.ip6addresslabelfld, vccnf.color_win | A_BOLD);
+    field_opts_on(HostSec.ip6addresslabelfld, O_AUTOSKIP);
+    field_opts_off(HostSec.ip6addresslabelfld, O_ACTIVE);
+
+    set_field_back(HostSec.ip6addressfld, vccnf.color_win | A_BOLD);
+    field_opts_on(HostSec.ip6addressfld, O_AUTOSKIP);
+    field_opts_off(HostSec.ip6addressfld, O_ACTIVE);
+#endif
     set_field_back(HostSec.warningfld, vccnf.color_win);
     set_field_fore(HostSec.warningfld, vccnf.color_win_warn|A_BOLD);
 
@@ -4431,23 +4444,30 @@ edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height,
     /* network */
     NetworkSec.network6labelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 12, 9, 0, 0, 0));
     field_num++;
+#ifdef IPV6_ENABLED
     set_field_buffer_wrap(debuglvl, NetworkSec.network6labelfld, 0, gettext("IPv6 Network"));
+#endif
     field_opts_off(NetworkSec.network6labelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.network6fld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
     //set_field_type(NetworkSec.networkfld, TYPE_IPV4);
+#ifdef IPV6_ENABLED
     set_field_buffer_wrap(debuglvl, NetworkSec.network6fld, 0, zone_ptr->ipv6.net6);
+#endif
 
     /* cidr */
     NetworkSec.cidr6labelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 9, 11, 0, 0, 0));
+#ifdef IPV6_ENABLED
     set_field_buffer_wrap(debuglvl, NetworkSec.cidr6labelfld, 0, gettext("IPv6 CIDR"));
+#endif
     field_opts_off(NetworkSec.cidr6labelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.cidr6fld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 3, 12, 1, 0, 0));
+#ifdef IPV6_ENABLED
     char cidr[3] = "";
     snprintf(cidr, sizeof(cidr), "%d", zone_ptr->ipv6.cidr6);
     set_field_buffer_wrap(debuglvl, NetworkSec.cidr6fld, 0, cidr);
-
+#endif
 
     /* anti-spoof loopback */
     NetworkSec.loopbacklabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 8, 4, 20, 0, 0));
@@ -4706,6 +4726,24 @@ edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height,
     set_field_fore(NetworkSec.warningfld, vccnf.color_win_warn|A_BOLD);
     set_field_just(NetworkSec.warningfld, JUSTIFY_CENTER);
 
+#ifndef IPV6_ENABLED
+    set_field_back(NetworkSec.network6labelfld, vccnf.color_win | A_BOLD);
+    field_opts_on(NetworkSec.network6labelfld, O_AUTOSKIP);
+    field_opts_off(NetworkSec.network6labelfld, O_ACTIVE);
+
+    set_field_back(NetworkSec.network6fld, vccnf.color_win | A_BOLD);
+    field_opts_on(NetworkSec.network6fld, O_AUTOSKIP);
+    field_opts_off(NetworkSec.network6fld, O_ACTIVE);
+
+    set_field_back(NetworkSec.cidr6labelfld, vccnf.color_win | A_BOLD);
+    field_opts_on(NetworkSec.cidr6labelfld, O_AUTOSKIP);
+    field_opts_off(NetworkSec.cidr6labelfld, O_ACTIVE);
+
+    set_field_back(NetworkSec.cidr6fld, vccnf.color_win | A_BOLD);
+    field_opts_on(NetworkSec.cidr6fld, O_AUTOSKIP);
+    field_opts_off(NetworkSec.cidr6fld, O_ACTIVE);
+#endif
+
     /* Create the form and post it */
     if(!(ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields)))
     {
@@ -4839,6 +4877,7 @@ edit_zone_network_save(const int debuglvl, struct ZoneData_ *zone_ptr)
             }
             else if(ZonesSection.EditZone.fields[i] == NetworkSec.network6fld)
             {
+#ifdef IPV6_ENABLED
                 char network6[MAX_IPV6_ADDR_LEN] = "";
 
                 /* network */
@@ -4862,9 +4901,11 @@ edit_zone_network_save(const int debuglvl, struct ZoneData_ *zone_ptr)
                     STR_IP6NETWORK, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETADDR,
                     STR_IS_NOW_SET_TO, zone_ptr->ipv6.net6,
                     STR_WAS, network6);
+#endif
             }
             else if(ZonesSection.EditZone.fields[i] == NetworkSec.cidr6fld)
             {
+#ifdef IPV6_ENABLED
                 /* netmask */
                 zone_ptr->status = ST_CHANGED;
 
@@ -4887,6 +4928,7 @@ edit_zone_network_save(const int debuglvl, struct ZoneData_ *zone_ptr)
                     STR_IP6CIDR, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETMASK,
                     STR_IS_NOW_SET_TO, zone_ptr->ipv6.cidr6,
                     STR_WAS, cidr);
+#endif
             }
             /* save the comment to the backend */
             else if(ZonesSection.EditZone.fields[i] == NetworkSec.commentfld)

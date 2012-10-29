@@ -1417,7 +1417,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
     sanitize_path(debuglvl, cnf->iptablesrestore_location, sizeof(cnf->iptablesrestore_location));
 
-
+#ifdef IPV6_ENABLED
     result = ask_configfile(askconfig_debuglvl, cnf, "IP6TABLES", cnf->ip6tables_location, cnf->configfile, sizeof(cnf->ip6tables_location));
     if(result == 1)
     {
@@ -1464,6 +1464,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
         return(VR_CNF_E_UNKNOWN_ERR);
 
     sanitize_path(debuglvl, cnf->ip6tablesrestore_location, sizeof(cnf->ip6tablesrestore_location));
+#endif
 
     result = ask_configfile(askconfig_debuglvl, cnf, "CONNTRACK", cnf->conntrack_location, cnf->configfile, sizeof(cnf->conntrack_location));
     if(result == 1)
@@ -1946,12 +1947,12 @@ write_configfile(const int debuglvl, char *file_location)
     fprintf(fp, "IPTABLES=\"%s\"\n\n", conf.iptables_location);
     fprintf(fp, "# Location of the iptables-restore-command (full path).\n");
     fprintf(fp, "IPTABLES_RESTORE=\"%s\"\n\n", conf.iptablesrestore_location);
-//#ifdef IPV6_ENABLED
+#ifdef IPV6_ENABLED
     fprintf(fp, "# Location of the ip6tables-command (full path).\n");
     fprintf(fp, "IP6TABLES=\"%s\"\n\n", conf.ip6tables_location);
     fprintf(fp, "# Location of the ip6tables-restore-command (full path).\n");
     fprintf(fp, "IP6TABLES_RESTORE=\"%s\"\n\n", conf.ip6tablesrestore_location);
-//#endif
+#endif
     fprintf(fp, "# Location of the conntrack-command (full path).\n");
     fprintf(fp, "CONNTRACK=\"%s\"\n\n", conf.conntrack_location);
     fprintf(fp, "# Location of the tc-command (full path).\n");

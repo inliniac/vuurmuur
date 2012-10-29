@@ -190,9 +190,7 @@
 #define CONFIG_REGEX            "^[A-Z]+[=]\".*\"$"
 
 /* Some defines for character buffers we define in this file */
-#ifdef IPV6_ENABLED
 #define MAX_IPV6_ADDR_LEN       40 /* 39 + null */
-#endif
 
 #define VR_IPV4                 4
 #define VR_IPV6                 6

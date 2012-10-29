@@ -77,12 +77,8 @@ struct
 {
     FIELD   *iptableslocfld,
             *iptablesrestorelocfld,
-#ifdef IPV6_ENABLED
             *ip6tableslocfld,
             *ip6tablesrestorelocfld,
-#else
-#error Missing IPv6 support
-#endif
             *conntracklocfld,
             *tclocfld,
             *max_permission,
@@ -102,20 +98,14 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     char    number[5];
 
 
-#ifdef IPV6_ENABLED
     ConfigSection.n_fields = 7;
-#else
-    ConfigSection.n_fields = 5;
-#endif
     ConfigSection.fields = (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
 
     /* external programs */
     GenConfig.iptableslocfld =  (ConfigSection.fields[0] = new_field(1, 64, 1, 1, 0, 0));  /* iptables */
     GenConfig.iptablesrestorelocfld =  (ConfigSection.fields[1] = new_field(1, 64, 3, 1, 0, 0));  /*  */
-#ifdef IPV6_ENABLED
     GenConfig.ip6tableslocfld =  (ConfigSection.fields[2] = new_field(1, 64, 5, 1, 0, 0));  /* ip6tables */
     GenConfig.ip6tablesrestorelocfld =  (ConfigSection.fields[3] = new_field(1, 64, 7, 1, 0, 0));
-#endif
     GenConfig.conntracklocfld =  (ConfigSection.fields[4] = new_field(1, 64, 9, 1, 0, 0));  /*  */
     GenConfig.tclocfld =  (ConfigSection.fields[5] = new_field(1, 64, 11, 1, 0, 0));  /*  */
     /* Config file permissions */
@@ -147,6 +137,15 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
         // set status to false
         set_field_status(ConfigSection.fields[i], FALSE);
     }
+
+#ifndef IPV6_ENABLED
+    set_field_back(GenConfig.ip6tableslocfld, vccnf.color_win | A_BOLD);
+    field_opts_on(GenConfig.ip6tableslocfld, O_AUTOSKIP);
+    field_opts_off(GenConfig.ip6tableslocfld, O_ACTIVE);
+    set_field_back(GenConfig.ip6tablesrestorelocfld, vccnf.color_win | A_BOLD);
+    field_opts_on(GenConfig.ip6tablesrestorelocfld, O_AUTOSKIP);
+    field_opts_off(GenConfig.ip6tablesrestorelocfld, O_ACTIVE);
+#endif
 
     // Create the form and post it
     ConfigSection.form = new_form(ConfigSection.fields);
