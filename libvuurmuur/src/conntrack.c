@@ -1084,11 +1084,12 @@ parse_icmp_line(const int debuglvl, const char *line,
             }
         }
 
-        (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
-                connline_ptr->to_dst_packets_str,
-                connline_ptr->to_dst_bytes_str,
-                connline_ptr->to_src_packets_str,
-                connline_ptr->to_src_bytes_str);
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
+                    connline_ptr->to_dst_packets_str,
+                    connline_ptr->to_dst_bytes_str,
+                    connline_ptr->to_src_packets_str,
+                    connline_ptr->to_src_bytes_str);
     }
     else
     {
@@ -1189,11 +1190,12 @@ parse_icmp_line_ipv6(const int debuglvl, const char *line,
             }
         }
 
-        (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
-                connline_ptr->to_dst_packets_str,
-                connline_ptr->to_dst_bytes_str,
-                connline_ptr->to_src_packets_str,
-                connline_ptr->to_src_bytes_str);
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
+                    connline_ptr->to_dst_packets_str,
+                    connline_ptr->to_dst_bytes_str,
+                    connline_ptr->to_src_packets_str,
+                    connline_ptr->to_src_bytes_str);
     }
     else
     {
@@ -1452,7 +1454,8 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
 
     /* first determine protocol */
     sscanf(line, "%s", protocol);
-    (void)vrprint.debug(__FUNC__, "protocol %s", protocol);
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "protocol %s", protocol);
 
     if(strcmp(protocol, "tcp") == 0)
     {
@@ -1628,7 +1631,8 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
 
     /* first determine protocol */
     sscanf(line, "%s", protocol);
-    (void)vrprint.debug(__FUNC__, "protocol %s", protocol);
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "protocol %s", protocol);
 
     if(strcmp(protocol, "tcp") == 0)
     {
