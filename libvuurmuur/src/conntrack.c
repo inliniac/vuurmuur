@@ -2061,7 +2061,8 @@ conn_get_connections(   const int debuglvl,
     unsigned int            hashtbl_size = 256;
     Hash                    conn_hash;
     d_list_node             *d_node = NULL;
-
+    char                    tmpfile[] = "/tmp/vuurmuur-conntrack-XXXXXX";
+    int                     conntrack_cmd = 0;
 
     /* safety */
     if(serv_hash == NULL || zone_hash == NULL ||
@@ -2086,6 +2087,34 @@ conn_get_connections(   const int debuglvl,
         return(-1);
     }
 
+    if (strlen(cnf->conntrack_location) > 0) {
+        conntrack_cmd = 1;
+
+        /* create the tempfile */
+        int fd = create_tempfile(debuglvl, tmpfile);
+        if(fd == -1)
+            return(-1);
+        else
+            close(fd);
+
+        char *args[] = { cnf->conntrack_location,
+                         "-L", NULL };
+        int result = libvuurmuur_exec_command(debuglvl, &conf, cnf->conntrack_location, args, tmpfile);
+        if (result == -1) {
+            (void)vrprint.error(-1, "Error", "unable to execute "
+                    "conntrack: %s (in: %s:%d).", strerror(errno),
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
+
+        fp = fopen(tmpfile, "r");
+        if (fp == NULL) {
+            (void)vrprint.error(-1, "Error", "unable to open proc "
+                    "conntrack: %s (in: %s:%d).", strerror(errno),
+                    __FUNC__, __LINE__);
+            return(-1);
+        }
+    } else
     /* open conntrack file (fopen)... default to nf_conntrack */
     if(cnf->use_ipconntrack == TRUE || (!(fp = fopen(PROC_NFCONNTRACK, "r"))))
     {
@@ -2379,6 +2408,18 @@ conn_get_connections(   const int debuglvl,
     /* close the file */
     if(fclose(fp) < 0)
         retval = -1;
+
+    if (conntrack_cmd) {
+        /* remove the file */
+        if(unlink(tmpfile) == -1)
+        {
+            (void)vrprint.error(-1, "Error",
+                    "removing '%s' failed (unlink): %s (in: %s:%d).",
+                    tmpfile, strerror(errno), __FUNC__, __LINE__);
+            retval = -1;
+        }
+
+    }
 
     /* cleanup */
     hash_cleanup(debuglvl, &conn_hash);
