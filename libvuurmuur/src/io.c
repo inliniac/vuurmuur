@@ -553,19 +553,23 @@ pipe_command(const int debuglvl, struct vuurmuur_config *cnf, char *command,
     return(retval);
 }
 
-/* libvuurmuur_exec_command
+/** \brief Execute a system command.
  *
- * Execute a system command. This functions blocks.
+ *  This functions blocks.
  *
- * Returns: -1 if the command failed to start (ie not found)
- *          otherwise the return code of the command.
+ *  \param argv array of strings with a NULL as final member
+ *  \param output array of strings with a NULL as final member
+ *
+ *  \retval: -1 if the command failed to start (ie not found)
+ *              otherwise the return code of the command.
  */
 int
-libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *path, char *argv[], char *output_path)
+libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *path, char *argv[], char *output[])
 {
     int retval = 0;
     FILE *fp = NULL;
     char dev_null[] = "/dev/null";
+    char *output_path = NULL;
 
     if (debuglvl >= MEDIUM)
         (void)vrprint.debug(__FUNC__, "starting, path %s", path);
@@ -584,8 +588,10 @@ libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *
             exit(127);
         }
 
-        if (output_path == NULL)
+        if (output == NULL)
             output_path = dev_null;
+        else
+            output_path = output[0];
 
         fp = freopen(output_path, "wb", stdout);
         if (fp == NULL) {
@@ -593,6 +599,11 @@ libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *
                 output_path, strerror(errno));
             exit(127);
         }
+
+        if (output == NULL)
+            output_path = dev_null;
+        else
+            output_path = output[1];
 
         fp = freopen(output_path, "wb", stderr);
         if (fp == NULL) {

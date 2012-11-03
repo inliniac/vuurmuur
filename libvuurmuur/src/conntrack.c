@@ -2103,7 +2103,8 @@ conn_get_connections(   const int debuglvl,
 
         char *args[] = { cnf->conntrack_location,
                          "-L", NULL };
-        int result = libvuurmuur_exec_command(debuglvl, &conf, cnf->conntrack_location, args, tmpfile);
+        char *outputs[] = { tmpfile, "/dev/null", NULL };
+        int result = libvuurmuur_exec_command(debuglvl, &conf, cnf->conntrack_location, args, outputs);
         if (result == -1) {
             (void)vrprint.error(-1, "Error", "unable to execute "
                     "conntrack: %s (in: %s:%d).", strerror(errno),
