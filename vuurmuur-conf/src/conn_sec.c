@@ -49,12 +49,15 @@ copy_name(char *dst, char *src, size_t size)
     }
 }
 
+/**
+ *  \param acct print accounting is enabled
+ */
 static int
 print_connection(const int debuglvl, WINDOW *local_win,
             struct ConntrackData *cd_ptr,
             VR_ConntrackRequest *connreq,
             int max_onscreen, int cnt,
-            int screen_width)
+            int screen_width, int acct)
 {
     int     start_print = 0;
     char    printline[128] = "";
@@ -353,13 +356,15 @@ print_connection(const int debuglvl, WINDOW *local_win,
     if(!spaceleft)
         return(1);
 
-    if(connreq->draw_acc_data == TRUE && cd_ptr->use_acc == TRUE)
+    if(connreq->draw_acc_data == TRUE && acct == TRUE)
     {
         printline_width = spaceleft;
         if(printline_width >= sizeof(printline))
             printline_width = sizeof(printline);
 
-        if(cd_ptr->to_src_bytes == 0)
+        if (cd_ptr->use_acc == FALSE)
+            snprintf(bw_str, sizeof(bw_str), "  n/a");
+        else if(cd_ptr->to_src_bytes == 0)
             snprintf(bw_str, sizeof(bw_str), "  0 b");
         /* 1 byte - 999 bytes */
         else if(cd_ptr->to_src_bytes > 0 && cd_ptr->to_src_bytes < 1000)
@@ -392,7 +397,9 @@ print_connection(const int debuglvl, WINDOW *local_win,
         if(printline_width >= sizeof(printline))
             printline_width = sizeof(printline);
 
-        if(cd_ptr->to_dst_bytes == 0)
+        if (cd_ptr->use_acc == FALSE)
+            snprintf(bw_str, sizeof(bw_str), "  n/a");
+        else if(cd_ptr->to_dst_bytes == 0)
             snprintf(bw_str, sizeof(bw_str), "  0 b");
         /* 1 byte - 999 bytes */
         else if(cd_ptr->to_dst_bytes > 0 && cd_ptr->to_dst_bytes < 1000)
@@ -711,7 +718,7 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
     Conntrack           *ct = NULL;
     VR_ConntrackRequest connreq;
     int                 printed = 0;
-
+    int                 print_accounting = 0;
 
     /* init filter */
     VR_connreq_setup(debuglvl, &connreq);
@@ -767,6 +774,11 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
             /* TODO retval */
             conn_ct_get_connections(debuglvl, cnf, ct, &connreq);
 
+            if (ct->conn_stats.accounting == 1)
+                print_accounting = 1;
+            else
+                print_accounting = 0;
+
             update_draw_size(debuglvl, &connreq, max_width-2,
                     ct->conn_stats.sername_max+1, ct->conn_stats.fromname_max+1,
                     ct->conn_stats.toname_max+1);
@@ -815,7 +827,9 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                         {
                             if(connecting < max_connecting)
                             {
-                                if(print_connection(debuglvl, conn_win, cd_ptr, &connreq, max_onscreen, connecting, max_width-2) == 1)
+                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                            &connreq, max_onscreen, connecting,
+                                            max_width-2, print_accounting) == 1)
                                 {
                                     connecting++;
                                     printed++;
@@ -826,7 +840,9 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                         {
                             if(disconnecting < max_disconnecting)
                             {
-                                if(print_connection(debuglvl, conn_win, cd_ptr, &connreq, max_onscreen, disconnecting, max_width-2) == 1)
+                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                            &connreq, max_onscreen, disconnecting,
+                                            max_width-2, print_accounting) == 1)
                                 {
                                     disconnecting++;
                                     printed++;
@@ -837,7 +853,9 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                         {
                             if(connected < max_connected)
                             {
-                                if(print_connection(debuglvl, conn_win, cd_ptr, &connreq, max_onscreen, connected, max_width - 2) == 1)
+                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                            &connreq, max_onscreen, connected,
+                                            max_width-2, print_accounting) == 1)
                                 {
                                     connected++;
                                     printed++;
@@ -859,7 +877,9 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                         {
                             if(incoming < max_incoming)
                             {
-                                if(print_connection(debuglvl, conn_win, cd_ptr, &connreq, max_onscreen, incoming, max_width - 2) == 1)
+                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                            &connreq, max_onscreen, incoming,
+                                            max_width-2, print_accounting) == 1)
                                 {
                                     incoming++;
                                     printed++;
@@ -870,7 +890,9 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                         {
                             if(outgoing < max_outgoing)
                             {
-                                if(print_connection(debuglvl, conn_win, cd_ptr, &connreq, max_onscreen, outgoing, max_width - 2) == 1)
+                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                            &connreq, max_onscreen, outgoing,
+                                            max_width-2, print_accounting) == 1)
                                 {
                                     outgoing++;
                                     printed++;
@@ -881,7 +903,9 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                         {
                             if(forwarding < max_forwarding)
                             {
-                                if(print_connection(debuglvl, conn_win, cd_ptr, &connreq, max_onscreen, forwarding, max_width - 2) == 1)
+                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                            &connreq, max_onscreen, forwarding,
+                                            max_width-2, print_accounting) == 1)
                                 {
                                     forwarding++;
                                     printed++;
@@ -899,7 +923,9 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                     }
                     else
                     {
-                        if(print_connection(debuglvl, conn_win, cd_ptr, &connreq, max_onscreen, printed, max_width - 2) == 1)
+                        if (print_connection(debuglvl, conn_win, cd_ptr,
+                                    &connreq, max_onscreen, printed,
+                                    max_width-2, print_accounting) == 1)
                         {
                             printed++;
                         }

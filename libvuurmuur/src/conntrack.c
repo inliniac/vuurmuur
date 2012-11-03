@@ -2142,6 +2142,8 @@ conn_get_connections(   const int debuglvl,
     connstat_ptr->stat_closing = 0,
     connstat_ptr->stat_other = 0;
 
+    connstat_ptr->accounting = 0;
+
 
     /*  now read the file, interpret the line and trough hash_look up
         if the line is already in the list
@@ -2247,6 +2249,9 @@ conn_get_connections(   const int debuglvl,
                 connstat_ptr->fromname_max = strlen(cd_ptr->fromname);
             if (strlen(cd_ptr->toname) > connstat_ptr->toname_max)
                 connstat_ptr->toname_max = strlen(cd_ptr->toname);
+
+            if (cd_ptr->use_acc == 1)
+                connstat_ptr->accounting = 1;
 
             /* now check if the cd is already in the list */
             if(req->group_conns == TRUE &&

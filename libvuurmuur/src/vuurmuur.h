@@ -1020,6 +1020,10 @@ struct ConntrackStats_
     int sername_max;
     int fromname_max;
     int toname_max;
+
+    /** if any of the flows/connections has accounting info, this
+     *  is set to 1. */
+    int accounting;
 };
 
 
