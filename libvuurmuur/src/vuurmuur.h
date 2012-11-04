@@ -929,6 +929,7 @@ enum
     TIME_WAIT,
     CLOSE,
     CLOSE_WAIT,
+    LAST_ACK,
     UNREPLIED,
     NONE,
 };

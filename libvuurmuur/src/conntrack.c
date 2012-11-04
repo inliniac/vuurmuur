@@ -440,7 +440,7 @@ conn_line_to_data(  const int debuglvl,
         conndata_ptr->connect_status = CONN_CONNECTING;
     else if(connline_ptr->state == TCP_ESTABLISHED || connline_ptr->state == UDP_ESTABLISHED)
         conndata_ptr->connect_status = CONN_CONNECTED;
-    else if(connline_ptr->state == FIN_WAIT || connline_ptr->state == TIME_WAIT || connline_ptr->state == CLOSE || connline_ptr->state == CLOSE_WAIT)
+    else if(connline_ptr->state == FIN_WAIT || connline_ptr->state == TIME_WAIT || connline_ptr->state == CLOSE || connline_ptr->state == CLOSE_WAIT || connline_ptr->state == LAST_ACK)
         conndata_ptr->connect_status = CONN_DISCONNECTING;
     else
         conndata_ptr->connect_status = CONN_UNUSED;
@@ -1600,6 +1600,8 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
         connline_ptr->state = CLOSE;
     else if(strcmp(connline_ptr->status, "CLOSE_WAIT") == 0)
         connline_ptr->state = CLOSE_WAIT;
+    else if(strcmp(connline_ptr->status, "LAST_ACK") == 0)
+        connline_ptr->state = LAST_ACK;
     else if(strcmp(connline_ptr->status, "[UNREPLIED]") == 0)
         connline_ptr->state = UNREPLIED;
     else
@@ -1815,6 +1817,8 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
         connline_ptr->state = CLOSE;
     else if(strcmp(connline_ptr->status, "CLOSE_WAIT") == 0)
         connline_ptr->state = CLOSE_WAIT;
+    else if(strcmp(connline_ptr->status, "LAST_ACK") == 0)
+        connline_ptr->state = LAST_ACK;
     else if(strcmp(connline_ptr->status, "[UNREPLIED]") == 0)
         connline_ptr->state = UNREPLIED;
     else
@@ -2039,8 +2043,8 @@ conn_list_cleanup(int debuglvl, d_list *conn_dlist)
     Do this by the way we create a hash, so set the options into the
     cd struct
 */
-int
-conn_get_connections(   const int debuglvl,
+static int
+conn_get_connections_do(const int debuglvl,
                         struct vuurmuur_config *cnf,
                         const unsigned int prev_conn_cnt,
                         Hash *serv_hash,
@@ -2048,7 +2052,8 @@ conn_get_connections(   const int debuglvl,
                         d_list *conn_dlist,
                         d_list *zone_list,
                         VR_ConntrackRequest *req,
-                        struct ConntrackStats_ *connstat_ptr
+                        struct ConntrackStats_ *connstat_ptr,
+                        int ipver
                     )
 {
     int                     retval = 0;
@@ -2091,7 +2096,7 @@ conn_get_connections(   const int debuglvl,
         return(-1);
     }
 
-    if (strlen(cnf->conntrack_location) > 0) {
+    if (ipver != 0) {
         conntrack_cmd = 1;
 
         /* create the tempfile */
@@ -2101,15 +2106,27 @@ conn_get_connections(   const int debuglvl,
         else
             close(fd);
 
-        char *args[] = { cnf->conntrack_location,
-                         "-L", NULL };
         char *outputs[] = { tmpfile, "/dev/null", NULL };
-        int result = libvuurmuur_exec_command(debuglvl, &conf, cnf->conntrack_location, args, outputs);
-        if (result == -1) {
-            (void)vrprint.error(-1, "Error", "unable to execute "
-                    "conntrack: %s (in: %s:%d).", strerror(errno),
-                    __FUNC__, __LINE__);
-            return(-1);
+        if (ipver == VR_IPV4) {
+            char *args[] = { cnf->conntrack_location,
+                "-L", "-f", "ipv4", NULL };
+            int result = libvuurmuur_exec_command(debuglvl, &conf, cnf->conntrack_location, args, outputs);
+            if (result == -1) {
+                (void)vrprint.error(-1, "Error", "unable to execute "
+                        "conntrack: %s (in: %s:%d).", strerror(errno),
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
+        } else {
+            char *args[] = { cnf->conntrack_location,
+                "-L", "-f", "ipv6", NULL };
+            int result = libvuurmuur_exec_command(debuglvl, &conf, cnf->conntrack_location, args, outputs);
+            if (result == -1) {
+                (void)vrprint.error(-1, "Error", "unable to execute "
+                        "conntrack: %s (in: %s:%d).", strerror(errno),
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
         }
 
         fp = fopen(tmpfile, "r");
@@ -2119,9 +2136,9 @@ conn_get_connections(   const int debuglvl,
                     __FUNC__, __LINE__);
             return(-1);
         }
-    } else
+
     /* open conntrack file (fopen)... default to nf_conntrack */
-    if(cnf->use_ipconntrack == TRUE || (!(fp = fopen(PROC_NFCONNTRACK, "r"))))
+    } else if (cnf->use_ipconntrack == TRUE || (!(fp = fopen(PROC_NFCONNTRACK, "r"))))
     {
         if((fp = fopen(PROC_IPCONNTRACK, "r")))
         {
@@ -2134,20 +2151,9 @@ conn_get_connections(   const int debuglvl,
                     __FUNC__, __LINE__);
             return(-1);
         }
+    } else {
+        return(-1);
     }
-
-    /* set stat counters to zero */
-    connstat_ptr->conn_total = 0,
-    connstat_ptr->conn_in = 0,
-    connstat_ptr->conn_out = 0,
-    connstat_ptr->conn_fw = 0;
-
-    connstat_ptr->stat_connect = 0,
-    connstat_ptr->stat_estab = 0,
-    connstat_ptr->stat_closing = 0,
-    connstat_ptr->stat_other = 0;
-
-    connstat_ptr->accounting = 0;
 
 
     /*  now read the file, interpret the line and trough hash_look up
@@ -2170,7 +2176,11 @@ conn_get_connections(   const int debuglvl,
         memset(&cl, 0, sizeof(cl));
 
         /* parse the line */
-        int r = conn_process_one_conntrack_line(debuglvl, line, &cl);
+        int r;
+        if (ipver == 0 || ipver == VR_IPV4)
+            r = conn_process_one_conntrack_line(debuglvl, line, &cl);
+        else
+            r = conn_process_one_conntrack_line_ipv6(debuglvl, line, &cl);
         if (r < 0) {
             (void)vrprint.error(-1, "Internal Error",
                     "conn_process_one_conntrack_line() failed "
@@ -2433,6 +2443,88 @@ conn_get_connections(   const int debuglvl,
 
     /* cleanup */
     hash_cleanup(debuglvl, &conn_hash);
+
+    return(retval);
+}
+
+static int
+conn_get_connections_cmd (const int debuglvl,
+                        struct vuurmuur_config *cnf,
+                        const unsigned int prev_conn_cnt,
+                        Hash *serv_hash,
+                        Hash *zone_hash,
+                        d_list *conn_dlist,
+                        d_list *zone_list,
+                        VR_ConntrackRequest *req,
+                        struct ConntrackStats_ *connstat_ptr,
+                        int ipver
+                    )
+{
+    return conn_get_connections_do(debuglvl, cnf, prev_conn_cnt,
+            serv_hash, zone_hash, conn_dlist, zone_list,
+            req, connstat_ptr, ipver);
+}
+
+static int
+conn_get_connections_proc (const int debuglvl,
+                        struct vuurmuur_config *cnf,
+                        const unsigned int prev_conn_cnt,
+                        Hash *serv_hash,
+                        Hash *zone_hash,
+                        d_list *conn_dlist,
+                        d_list *zone_list,
+                        VR_ConntrackRequest *req,
+                        struct ConntrackStats_ *connstat_ptr
+                    )
+{
+    return conn_get_connections_do(debuglvl, cnf, prev_conn_cnt,
+            serv_hash, zone_hash, conn_dlist, zone_list,
+            req, connstat_ptr, 0);
+}
+
+int
+conn_get_connections(   const int debuglvl,
+                        struct vuurmuur_config *cnf,
+                        const unsigned int prev_conn_cnt,
+                        Hash *serv_hash,
+                        Hash *zone_hash,
+                        d_list *conn_dlist,
+                        d_list *zone_list,
+                        VR_ConntrackRequest *req,
+                        struct ConntrackStats_ *connstat_ptr
+                    )
+{
+    int retval = 0;
+
+    /* set stat counters to zero */
+    connstat_ptr->conn_total = 0,
+    connstat_ptr->conn_in = 0,
+    connstat_ptr->conn_out = 0,
+    connstat_ptr->conn_fw = 0;
+
+    connstat_ptr->stat_connect = 0,
+    connstat_ptr->stat_estab = 0,
+    connstat_ptr->stat_closing = 0,
+    connstat_ptr->stat_other = 0;
+
+    connstat_ptr->accounting = 0;
+
+    if (strlen(cnf->conntrack_location) > 0) {
+        retval = conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
+                serv_hash, zone_hash, conn_dlist, zone_list,
+                req, connstat_ptr, VR_IPV4);
+#ifdef IPV6_ENABLED
+        if (retval == 0) {
+            retval = conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
+                    serv_hash, zone_hash, conn_dlist, zone_list,
+                    req, connstat_ptr, VR_IPV6);
+        }
+#endif
+    } else {
+        retval = conn_get_connections_proc(debuglvl, cnf, prev_conn_cnt,
+                serv_hash, zone_hash, conn_dlist, zone_list,
+                req, connstat_ptr);
+    }
 
     return(retval);
 }
