@@ -2926,7 +2926,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
     }
 
-    return 0;
+    return retval;
 }
 
 static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
@@ -4000,6 +4000,7 @@ static int pre_rules_antispoof_ipv4(const int debuglvl, /*@null@*/RuleSet *rules
     return (retval);
 }
 
+#ifdef IPV6_ENABLED
 static int pre_rules_icmp_ipv6(const int debuglvl, /*@null@*/RuleSet *ruleset,
         IptCap *iptcap)
 {
@@ -4025,6 +4026,7 @@ static int pre_rules_icmp_ipv6(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     return (retval);
 }
+#endif
 
 /* pre_rules
 
@@ -4636,6 +4638,7 @@ static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet
         }
     }
 #endif
+    return(0);
 }
 
 int

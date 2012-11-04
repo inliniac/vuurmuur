@@ -120,13 +120,13 @@ nav_field_comment(const int debuglvl, FORM *form, int key)
 int
 nav_field_simpletext(const int debuglvl, FORM *form, int key)
 {
-    int ch = 0;
+//    int ch = 0;
 
     switch(key)
     {
         case 9: /* tab */
             return(-1);
-        
+
         case KEY_F(5):  /* f5  */
         case KEY_F(6):  /* f6  */
         case KEY_F(10): /* f10 */
@@ -136,7 +136,7 @@ nav_field_simpletext(const int debuglvl, FORM *form, int key)
             form_driver(form, REQ_NEXT_FIELD); // this is to make sure the field is saved
             form_driver(form, REQ_PREV_FIELD); /* But we don't want to move down */
             return(-1);
-        
+
         case 32: // space
             form_driver(form, key);
             break;

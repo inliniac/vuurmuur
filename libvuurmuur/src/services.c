@@ -978,21 +978,12 @@ int
 services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
 {
     struct portdata *port_ptr = NULL;
-
     char            prot_format[24] = "",
                     frmt_src[12] = "",
                     frmt_dst[12] = "";
 
     d_list_node     *d_node = NULL;
-
-    char            overwrite = 1,
-                    first_tcp = 1,
-                    first_udp = 1,
-                    first_gre = 1,
-                    first_icmp = 1,
-                    first_ah = 1,
-                    first_esp = 1,
-                    first_p41 = 1;
+    char            overwrite = 1;
 
     /* safety */
     if(ser_ptr == NULL)

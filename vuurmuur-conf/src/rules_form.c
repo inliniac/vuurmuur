@@ -699,9 +699,6 @@ rulebar_setcolor(   FIELD *active,
                     FIELD *separator,
                     int hi)
 {
-    char    active_rule = 0;
-static int color = COLOR_BLUE;
-
     if (hi) {
         set_field_back(active, (chtype)COLOR_PAIR(CP_RULE_BAR));
         set_field_back(num_field, (chtype)COLOR_PAIR(CP_RULE_BAR));

@@ -543,14 +543,10 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
     int     retval=0,   // return value
             rows,
             cols,
-            max_height,
-            max_width,
             comment_y=0,    // number of lines of the commentfield
             comment_x=0;    // number of colums of the commentfield
     size_t  field_num = 0;
     size_t  i = 0;
-        
-    getmaxyx(stdscr, max_height, max_width);
 
     InterfacesSection.EditInterface.n_fields = 34;
     InterfacesSection.EditInterface.fields = (FIELD **)calloc(InterfacesSection.EditInterface.n_fields + 1, sizeof(FIELD *));

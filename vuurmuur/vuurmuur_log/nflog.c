@@ -79,20 +79,15 @@ static int
 createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         struct nflog_data *nfa, void *data)
 {
-    char dbgline[1024] = "";
     struct nfulnl_msg_packet_hdr *ph;
-    struct nfulnl_msg_packet_hw *hw;
     char *hwhdr;
     char macstr[20];
-    u_int32_t mark;
     u_int32_t indev;
     u_int32_t outdev;
-    struct protoent *pe;
     void *protoh;
     struct tcphdr *tcph;
     struct udphdr *udph;
     struct icmphdr *icmph;
-    struct sk_buf *skb;
     struct iphdr *iph;
     char *prefix;
     char *payload;
@@ -101,8 +96,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     struct log_rule *logrule_ptr = data;
     time_t when;
     char    s[256];
-    char    *c;
-    int     i, ip_hdr_len;
+    int     i;
     union ipv4_adress ip;
 
     memset(logrule_ptr, 0, sizeof(struct log_rule));

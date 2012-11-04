@@ -510,8 +510,7 @@ vuumuurconf_print_warning(char *title, char *fmt, ...)
             startx,
             starty,
             max_height,
-            max_width,
-            ch;
+            max_width;
 
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
@@ -573,8 +572,7 @@ vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
             startx,
             starty,
             max_height,
-            max_width,
-            ch;
+            max_width;
 
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);

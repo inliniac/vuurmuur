@@ -1776,6 +1776,7 @@ load_ruleset_ipv4(const int debuglvl, VuurmuurCtx *vctx)
     return(0);
 }
 
+#ifdef IPV6_ENABLED
 /** \internal
  *
  *  \brief load the ipv6 ruleset
@@ -1916,6 +1917,7 @@ load_ruleset_ipv6(const int debuglvl, VuurmuurCtx *vctx)
     (void)vrprint.info("Info", "ruleset loading completed successfully.");
     return(0);
 }
+#endif
 
 int
 load_ruleset(const int debuglvl, VuurmuurCtx *vctx)
