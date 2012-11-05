@@ -886,11 +886,11 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
         {
             if(create->option.loglimit > 0) {
                 limit = create->option.loglimit;
-                                unit = "sec";
-                        } else {
+                unit = "sec";
+            } else {
                 limit = create->option.limit;
-                                unit = create->option.limit_unit;
-                        }
+                unit = create->option.limit_unit;
+            }
 
             if(create->option.logburst > 0)
                 burst = create->option.logburst;
@@ -1072,6 +1072,14 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
         }
 
         (void)strlcpy(rule->action, create->action, sizeof(rule->action));
+#ifdef IPV6_ENABLED
+        if (rule->ipv == VR_IPV6) {
+            /* rules can explicitly set a the reject option, which will be IPv4 only. */
+            if (strncasecmp(rule->action, "REJECT --reject-with", 20) == 0 &&
+                    strncasecmp(rule->action, "REJECT --reject-with tcp-reset", 30) != 0)
+                strlcpy(rule->action, "REJECT", sizeof(rule->action));
+        }
+#endif
     }
 
     /* set ip and netmask */
@@ -2124,7 +2132,7 @@ rulecreate_ipv4ipv6_loop(const int debuglvl, VuurmuurCtx *vctx,
 #ifdef IPV6_ENABLED
     rule->ipv = VR_IPV6;
 
-    /** \todo rules can explicitly set a the reject option, which will be IPv4 only. */
+    /* rules can explicitly set a the reject option, which will be IPv4 only. */
     if (strncasecmp(rule->action, "REJECT --reject-with", 20) == 0 &&
             strncasecmp(rule->action, "REJECT --reject-with tcp-reset", 30) != 0)
         strlcpy(rule->action, "REJECT", sizeof(rule->action));
