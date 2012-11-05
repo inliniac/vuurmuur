@@ -106,6 +106,7 @@
 /*
     default locations of files
 */
+#define DEFAULT_SYSCTL_LOCATION         "/sbin/sysctl"
 #define DEFAULT_IPTABLES_LOCATION       "/sbin/iptables"
 #define DEFAULT_IPTABLES_REST_LOCATION  "/sbin/iptables-restore"
 #ifdef IPV6_ENABLED
@@ -360,6 +361,7 @@ struct vuurmuur_config
     char            configfile[256];
 
     /* program locations */
+    char            sysctl_location[128];
     char            iptables_location[128];
     char            iptablesrestore_location[128];
 #ifdef IPV6_ENABLED

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2008 by Victor Julien                              *
+ *   Copyright (C) 2003-2012 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -82,7 +82,8 @@ struct
             *conntracklocfld,
             *tclocfld,
             *max_permission,
-            *oldcreatefld;
+//            *oldcreatefld,
+            *sysctllocfld;
 
 } GenConfig;
 
@@ -98,7 +99,7 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     char    number[5];
 
 
-    ConfigSection.n_fields = 7;
+    ConfigSection.n_fields = 8;
     ConfigSection.fields = (FIELD **)calloc(ConfigSection.n_fields + 1, sizeof(FIELD *));
 
     /* external programs */
@@ -110,6 +111,7 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     GenConfig.tclocfld =  (ConfigSection.fields[5] = new_field(1, 64, 11, 1, 0, 0));  /*  */
     /* Config file permissions */
     GenConfig.max_permission =  (ConfigSection.fields[6] = new_field(1, 4, 13, 1, 0, 0));  /* max_permissions */
+    GenConfig.sysctllocfld =  (ConfigSection.fields[7] = new_field(1, 64, 15, 1, 0, 0));  /*  */
 
     /* terminate */
     ConfigSection.fields[ConfigSection.n_fields] = NULL;
@@ -128,6 +130,7 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     set_field_buffer_wrap(debuglvl, GenConfig.tclocfld, 0, conf.tc_location);
     (void)snprintf(number, sizeof(number), "%o", conf.max_permission);
     set_field_buffer_wrap(debuglvl, GenConfig.max_permission, 0, number);
+    set_field_buffer_wrap(debuglvl, GenConfig.sysctllocfld, 0, conf.sysctl_location);
 
     /* set buffers done */
     for(i = 0; i < ConfigSection.n_fields; i++)
@@ -168,6 +171,7 @@ edit_genconfig_init(const int debuglvl, int height, int width, int starty, int s
     mvwprintw(ConfigSection.win, 9, 2,  gettext("Conntrack location (full path):"));
     mvwprintw(ConfigSection.win, 11, 2, gettext("Tc location (full path):"));
     mvwprintw(ConfigSection.win, 13, 2, gettext("Maximum config and log file and dir permissions (octal):"));
+    mvwprintw(ConfigSection.win, 15, 2, gettext("Sysctl location (full path):"));
 
     return(retval);
 }
@@ -296,6 +300,20 @@ edit_genconfig_save(const int debuglvl)
                         STR_IS_NOW_SET_TO, conf.max_permission);
                 }
             }
+            else if(ConfigSection.fields[i] == GenConfig.sysctllocfld)
+            {
+                /* tc location */
+                if(!(copy_field2buf(conf.sysctl_location,
+                                    field_buffer(ConfigSection.fields[i], 0),
+                                    sizeof(conf.sysctl_location))))
+                    return(-1);
+
+                sanitize_path(debuglvl, conf.sysctl_location,
+                        StrLen(conf.sysctl_location));
+
+                (void)vrprint.audit("'sysctl location' %s '%s'.",
+                    STR_IS_NOW_SET_TO, conf.sysctl_location);
+            }
             else
             {
                 (void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
@@ -348,6 +366,7 @@ edit_genconfig(const int debuglvl)
 
         if( cur == GenConfig.iptableslocfld ||
             cur == GenConfig.iptablesrestorelocfld ||
+            cur == GenConfig.sysctllocfld ||
 #ifdef IPV6_ENABLED
             cur == GenConfig.ip6tableslocfld ||
             cur == GenConfig.ip6tablesrestorelocfld ||
@@ -357,11 +376,6 @@ edit_genconfig(const int debuglvl)
             cur == GenConfig.max_permission)
         {
             if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
-                not_defined = 1;
-        }
-        else if(cur == GenConfig.oldcreatefld)
-        {
-            if(nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else

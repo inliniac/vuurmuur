@@ -4160,6 +4160,11 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces
         retval = -1;
 #endif
 
+    /* enabling conntrack accounting */
+    if (conf.bash_out)
+        fprintf(stdout, "\n# Enabling conntrack accounting...\n");
+    (void)sysctl_exec(debuglvl, &conf, "net.netfilter.nf_conntrack_acct", "1", conf.bash_out);
+
     /* set up blocklist targets */
     if (pre_rules_blocklist_ipv4(debuglvl, ruleset, iptcap) < 0)
         retval = -1;
@@ -4498,7 +4503,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap,
             (void)vrprint.debug(__FUNC__, "Enabling ip-forwarding because "
                     "forwarding rules were created.");
 
-        result = set_proc_entry(debuglvl, &conf, "/proc/sys/net/ipv4/ip_forward", 1, NULL);
+        result = sysctl_exec(debuglvl, &conf, "net.ipv4.ip_forward", "1", conf.bash_out);
         if (result != 0)
         {
             /* if it fails, we dont really care, its not fatal */
@@ -4506,7 +4511,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap,
         }
 
 #ifdef IPV6_ENABLED
-        result = set_proc_entry(debuglvl, &conf, "/proc/sys/net/ipv6/conf/all/forwarding", 1, NULL);
+        result = sysctl_exec(debuglvl, &conf, "net.ipv6.conf.all.forwarding", "1", conf.bash_out);
         if (result != 0)
         {
             /* if it fails, we dont really care, its not fatal */
@@ -4522,7 +4527,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap,
             (void)vrprint.debug(__FUNC__, "Disabling ip-forwarding because no "
                     "forwarding rules were created.");
 
-        result = set_proc_entry(debuglvl, &conf, "/proc/sys/net/ipv4/ip_forward", 0, NULL);
+        result = sysctl_exec(debuglvl, &conf, "net.ipv4.ip_forward", "0", conf.bash_out);
         if (result != 0)
         {
             /* if it fails, we dont really care, its not fatal */
@@ -4530,7 +4535,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap,
         }
 
 #ifdef IPV6_ENABLED
-        result = set_proc_entry(debuglvl, &conf, "/proc/sys/net/ipv6/conf/all/forwarding", 0, NULL);
+        result = sysctl_exec(debuglvl, &conf, "net.ipv6.conf.all.forwarding", "0", conf.bash_out);
         if (result != 0)
         {
             /* if it fails, we dont really care, its not fatal */

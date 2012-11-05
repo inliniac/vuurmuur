@@ -1370,6 +1370,29 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
     else
         return(VR_CNF_E_UNKNOWN_ERR);
 
+    result = ask_configfile(askconfig_debuglvl, cnf, "SYSCTL", cnf->sysctl_location, cnf->configfile, sizeof(cnf->sysctl_location));
+    if(result == 1)
+    {
+        /* ok */
+    }
+    else if(result == 0)
+    {
+        (void)vrprint.warning("Warning", "Variable SYSCTL not found in '%s', using default value.", cnf->configfile);
+        if(strlcpy(cnf->sysctl_location, DEFAULT_SYSCTL_LOCATION, sizeof(cnf->sysctl_location)) >= sizeof(cnf->sysctl_location))
+        {
+            (void)vrprint.error(VR_CNF_E_UNKNOWN_ERR, "Internal Error",
+                    "string overflow (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return(VR_CNF_E_UNKNOWN_ERR);
+        }
+
+        retval = VR_CNF_W_MISSING_VAR;
+    }
+    else
+        return(VR_CNF_E_UNKNOWN_ERR);
+
+    sanitize_path(debuglvl, cnf->sysctl_location, sizeof(cnf->sysctl_location));
+
 
     result = ask_configfile(askconfig_debuglvl, cnf, "IPTABLES", cnf->iptables_location, cnf->configfile, sizeof(cnf->iptables_location));
     if(result == 1)
@@ -1943,6 +1966,8 @@ write_configfile(const int debuglvl, char *file_location)
     fprintf(fp, "# Location of the blocklistfile (full path).\n");
     fprintf(fp, "BLOCKLISTFILE=\"%s\"\n\n", conf.blocklist_location);
 
+    fprintf(fp, "# Location of the sysctl-command (full path).\n");
+    fprintf(fp, "SYSCTL=\"%s\"\n\n", conf.sysctl_location);
     fprintf(fp, "# Location of the iptables-command (full path).\n");
     fprintf(fp, "IPTABLES=\"%s\"\n\n", conf.iptables_location);
     fprintf(fp, "# Location of the iptables-restore-command (full path).\n");

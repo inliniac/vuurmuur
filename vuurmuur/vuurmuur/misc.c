@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2007 by Victor Julien                              *
+ *   Copyright (C) 2003-2012 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #include "main.h"
 
 void
@@ -73,5 +73,23 @@ void cmdline_override_config(const int debuglvl) {
         (void)vrprint.debug(__FUNC__, "overriding verbose_out from loglevel to %s.",
             conf.loglevel);
     }
+}
+
+int sysctl_exec(const int debuglvl, struct vuurmuur_config *cnf, char *key, char *value, int bash_out) {
+    if (bash_out) {
+        fprintf(stdout, "%s -w %s=%s\n", cnf->sysctl_location, key, value);
+        return 0;
+    }
+
+    char line[1024];
+    snprintf(line, sizeof(line), "%s=%s", key, value);
+
+    char *args[] = { cnf->sysctl_location, "-w", line, NULL };
+    int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->sysctl_location, args, NULL);
+    if (result != 0) {
+        //(void)vrprint.error(result, "Error", "sysctl %s=%s failed", key, value);
+        return -1;
+    }
+    return 0;
 }
 

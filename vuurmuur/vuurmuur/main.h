@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2011 by Victor Julien                              *
+ *   Copyright (C) 2002-2012 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -338,6 +338,7 @@ int process_queued_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct 
 /* misc.c */
 void send_hup_to_vuurmuurlog(const int debuglvl);
 void cmdline_override_config(const int debuglvl);
+int sysctl_exec(const int debuglvl, struct vuurmuur_config *cnf, char *key, char *value, int bash_out);
 
 /* main.c */
 // none ;-)
