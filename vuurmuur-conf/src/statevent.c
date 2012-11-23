@@ -258,12 +258,12 @@ parse_log_srcdst(const int debuglvl, char *str, char *ret_ip, size_t ip_size,
     char mac[18] = "";
     char port[6] = "";
 
-    for(s = 0; s < strlen(str); s++)
+    for (s = 0; s < strlen(str); s++)
     {
         if(what == 0) {
             ip[i] = str[s];
 
-            if(str[s] == '(') {
+            if(str[s] == '(' || (i + 1) == sizeof(ip)) {
                 what++;
                 ip[i] = '\0';
             } else if(str[s] == ':') {
@@ -273,27 +273,31 @@ parse_log_srcdst(const int debuglvl, char *str, char *ret_ip, size_t ip_size,
                 i++;
         } else if(what == 1) {
             mac[m] = str[s];
-        
-            if(str[s] == ')') {
+
+            if(str[s] == ')' || (m + 1) == sizeof(mac)) {
                 what++;
                 mac[m] = '\0';
 
-                                s++; /* skip past : */
+                s++; /* skip past : */
             } else
                 m++;
         } else if(what == 2) {
             port[p] = str[s];
+            if ((p + 1) == sizeof(port)) {
+                port[p] = '\0';
+                break;
+            }
 
             p++;
         }
-
     }
+
     /* term all */
     ip[i] = '\0';
     mac[m] = '\0';
     port[p] = '\0';
 
-        if (debuglvl >= MEDIUM) {
+    if (debuglvl >= MEDIUM) {
         (void)vrprint.debug(__FUNC__, "src ip   '%s'", ip);
         (void)vrprint.debug(__FUNC__, "src mac  '%s'", mac);
         (void)vrprint.debug(__FUNC__, "src port '%s'", port);
