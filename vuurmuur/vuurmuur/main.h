@@ -65,6 +65,8 @@
 
 #define PIDFILE                 "/var/run/vuurmuur.pid"
 
+#define NFQ_MARK_BASE           3
+
 #define LOCK(x)                 LockSHM(1, x)
 #define UNLOCK(x)               LockSHM(0, x)
 

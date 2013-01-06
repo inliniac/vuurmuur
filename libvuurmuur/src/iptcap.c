@@ -1009,18 +1009,28 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
         iptcap->conntrack = TRUE;
     }
     /* try nf_conntrack if ip_conntrack failed */
-    if(iptcap->conntrack == FALSE) {
-        if(!(iptcap_check_file(debuglvl, proc_net_nfconntrack)))
+    if (iptcap->conntrack == FALSE) {
+        if (!(iptcap_check_file(debuglvl, proc_net_nfconntrack)))
         {
-            if(load_modules == TRUE)
+            if (load_modules == TRUE)
             {
                 /* try to load the module, if it fails, return 0 */
                 (void)iptcap_load_module(debuglvl, cnf, "nf_conntrack_ipv4");
 
                 /* check again */
-                if(!(iptcap_check_file(debuglvl, proc_net_nfconntrack)))
-                    iptcap->conntrack = FALSE;
-                else
+                if (!(iptcap_check_file(debuglvl, proc_net_nfconntrack))) {
+                    char *args[] = { cnf->conntrack_location,
+                        "-L", "-f", "ipv4", NULL };
+                    int result = libvuurmuur_exec_command(debuglvl, &conf, cnf->conntrack_location, args, NULL);
+                    if (result == -1) {
+                        (void)vrprint.error(-1, "Error", "unable to execute "
+                                "conntrack: %s (in: %s:%d).", strerror(errno),
+                                __FUNC__, __LINE__);
+                        iptcap->conntrack = FALSE;
+                    } else {
+                        iptcap->conntrack = TRUE;
+                    }
+                } else
                     iptcap->conntrack = TRUE;
             }
         }
@@ -1229,8 +1239,13 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 
         /* rpfilter match */
         result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "rpfilter", "ipt_rpfilter", load_modules);
-        if(result == 1) iptcap->match_rpfilter = TRUE;
-        else {
+        if(result == 1) {
+            result = iptcap_test_filter_rpfilter_match(debuglvl, cnf, cnf->iptables_location);
+            if (result == 1)
+                iptcap->match_rpfilter = TRUE;
+            else
+                iptcap->match_rpfilter = FALSE;
+        } else {
             iptcap->match_rpfilter = FALSE;
 
             result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "rpfilter", "xt_rpfilter", load_modules);

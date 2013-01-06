@@ -219,7 +219,7 @@ rules_analyze_rule( const int debuglvl,
             }
 
             /* if 'from' is 'any' we cannot get the interfaces for it */
-            if(create->from_any == FALSE)
+            if(create->from_any == FALSE && create->from->type != TYPE_ZONE)
             {
                 /* assemble the network name */
                 snprintf(network, sizeof(network), "%s.%s", create->from->network_name, create->from->zone_name);
@@ -263,7 +263,7 @@ rules_analyze_rule( const int debuglvl,
             }
 
             /* if to is any we cannot get the interfaces from it */
-            if(create->to_any == FALSE)
+            if(create->to_any == FALSE && create->to->type != TYPE_ZONE)
             {
                 /* get the pointer to the zonedata in the ZonedataList */
                 snprintf(network, sizeof(network), "%s.%s", create->to->network_name, create->to->zone_name);

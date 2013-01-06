@@ -522,7 +522,6 @@ main(int argc, char *argv[])
 
     // ** analyzing and creating rules done ** //
 
-
     /* enter the infinite loop... */
     if(cmdline.loop == TRUE)
     {

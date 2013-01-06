@@ -527,11 +527,18 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     create->iptcount.input++;
 
-    /*  if the target is NEWQUEUE we connmark the traffic */
-    if(strcasecmp(rule->action, "NEWNFQUEUE") == 0)
+    if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 || strcasecmp(rule->action, "NEWQUEUE") == 0 || strcasecmp(rule->action, "NEWACCEPT") == 0)
     {
-        if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
+        uint32_t connmark = 0;
+        if (strcasecmp(rule->action, "NEWNFQUEUE") == 0) {
+            if(debuglvl >= MEDIUM)
+                (void)vrprint.debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
+
+            connmark = create->option.nfqueue_num + NFQ_MARK_BASE;
+        } else if (strcasecmp(rule->action, "NEWQUEUE") == 0)
+            connmark = 2;
+        else if (strcasecmp(rule->action, "NEWACCEPT") == 0)
+            connmark = 1;
 
         /* check cap */
         if(conf.check_iptcaps == TRUE)
@@ -556,10 +563,10 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW,RELATED -j CONNMARK --set-mark %u",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW,RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
             input_device, rule->proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
-            rule->from_mac, create->option.nfqueue_num + 1);
+            rule->from_mac, connmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             return(-1);
@@ -568,10 +575,10 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -j CONNMARK --set-mark %u",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
             reverse_input_device, rule->proto, rule->temp_src,
             temp_dst_port, rule->temp_dst, temp_src_port,
-            create->option.nfqueue_num + 1);
+            connmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             return(-1);
@@ -591,10 +598,10 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 input_device, rule->proto, rule->temp_src,
                 rule->temp_dst, rule->from_mac, rule->helper,
-                create->option.nfqueue_num + 1);
+                connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -602,9 +609,9 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 reverse_input_device, rule->proto, rule->temp_src,
-                rule->temp_dst, rule->helper, create->option.nfqueue_num + 1);
+                rule->temp_dst, rule->helper, connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -617,17 +624,11 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
         if the protocol is ICMP, we dont create mark rules
     */
-    if( (strcasecmp(rule->action, "NEWQUEUE") == 0
-            ||
-        (create->option.nfmark > 0 && strncasecmp(rule->action, "LOG", 3) != 0))
+    if( (create->option.nfmark > 0 && strncasecmp(rule->action, "LOG", 3) != 0)
             &&
         (rule->portrange_ptr == NULL || rule->portrange_ptr->protocol != 1))
     {
-        /* see what nfmark we use, either the option or the queue default 20000000. */
-        if(create->option.nfmark > 0)
-            nfmark = create->option.nfmark;
-        else
-            nfmark = 20000000;
+        nfmark = create->option.nfmark;
 
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "nfmark '%lu'.", nfmark);
@@ -643,7 +644,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
 
         /* swap source ports and dest ports for the rules in the opposite direction */
-                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+        if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
         {
             /* really, really ugly hack to make this work for icmp ping-pong */
             if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
@@ -955,10 +956,18 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
     /* update rule counter */
     create->iptcount.output++;
 
-    if (strcasecmp(rule->action, "NEWNFQUEUE") == 0)
+    if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 || strcasecmp(rule->action, "NEWQUEUE") == 0 || strcasecmp(rule->action, "NEWACCEPT") == 0)
     {
-        if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
+        uint32_t connmark = 0;
+        if (strcasecmp(rule->action, "NEWNFQUEUE") == 0) {
+            if(debuglvl >= MEDIUM)
+                (void)vrprint.debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
+
+            connmark = create->option.nfqueue_num + NFQ_MARK_BASE;
+        } else if (strcasecmp(rule->action, "NEWQUEUE") == 0)
+            connmark = 2;
+        else if (strcasecmp(rule->action, "NEWACCEPT") == 0)
+            connmark = 1;
 
         /* check cap */
         if(conf.check_iptcaps == TRUE)
@@ -983,10 +992,10 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW,RELATED -j CONNMARK --set-mark %u",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW,RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
             output_device, rule->proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
-            create->option.nfqueue_num + 1);
+            connmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             return(-1);
@@ -995,10 +1004,10 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -j CONNMARK --set-mark %u",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
             reverse_output_device, rule->proto, rule->temp_src,
             temp_dst_port, rule->temp_dst, temp_src_port,
-            create->option.nfqueue_num + 1);
+            connmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             return(-1);
@@ -1020,9 +1029,9 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                     output_device, rule->proto, rule->temp_src,
-                    rule->temp_dst, rule->helper, create->option.nfqueue_num + 1);
+                    rule->temp_dst, rule->helper, connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -1031,9 +1040,9 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 reverse_output_device, rule->proto, rule->temp_src,
-                rule->temp_dst, rule->helper, create->option.nfqueue_num + 1);
+                rule->temp_dst, rule->helper, connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -1044,17 +1053,11 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
     
         if nfmark is set as well, unless we handle the LOG rule
     */
-    if( (strcasecmp(rule->action, "NEWQUEUE") == 0
-            ||
-        (create->option.nfmark > 0 && strncasecmp(rule->action, "LOG", 3) != 0))
+    if( (create->option.nfmark > 0 && strncasecmp(rule->action, "LOG", 3) != 0)
             &&
         (rule->portrange_ptr == NULL || rule->portrange_ptr->protocol != 1))
     {
-        /* see what nfmark we use, either the option or the queue default 20000000. */
-        if(create->option.nfmark > 0)
-            nfmark = create->option.nfmark;
-        else
-            nfmark = 20000000;
+        nfmark = create->option.nfmark;
 
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "nfmark '%lu'.", nfmark);
@@ -1070,7 +1073,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
 
         /* swap source ports and dest ports for the rules in the opposite direction */
-                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+        if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
         {
             /* really, really ugly hack to make this work for icmp ping-pong */
             if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
@@ -1184,7 +1187,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             }
         }
         /* swap source ports and dest ports for the rules in the opposite direction */
-                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+        if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
         {
             /* really, really ugly hack to make this work for icmp ping-pong */
             if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
@@ -1387,10 +1390,18 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 
     create->iptcount.forward++;
 
-    if (strcasecmp(rule->action, "NEWNFQUEUE") == 0)
+    if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 || strcasecmp(rule->action, "NEWQUEUE") == 0 || strcasecmp(rule->action, "NEWACCEPT") == 0)
     {
-        if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
+        uint32_t connmark = 0;
+        if (strcasecmp(rule->action, "NEWNFQUEUE") == 0) {
+            if(debuglvl >= MEDIUM)
+                (void)vrprint.debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
+
+            connmark = create->option.nfqueue_num + NFQ_MARK_BASE;
+        } else if (strcasecmp(rule->action, "NEWQUEUE") == 0)
+            connmark = 2;
+        else if (strcasecmp(rule->action, "NEWACCEPT") == 0)
+            connmark = 1;
 
         /* check cap */
         if(conf.check_iptcaps == TRUE)
@@ -1403,7 +1414,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
         }
 
         /* swap source ports and dest ports for the rules in the opposite direction */
-                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+        if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
         {
             /* really, really ugly hack to make this work for icmp ping-pong */
             if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
@@ -1447,10 +1458,10 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW,RELATED -j CONNMARK --set-mark %u",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW,RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
             input_device, output_device, rule->proto,
             rule->temp_src, rule->temp_src_port, rule->temp_dst,
-            rule->temp_dst_port, rule->from_mac, create->option.nfqueue_num + 1);
+            rule->temp_dst_port, rule->from_mac, connmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             return(-1);
@@ -1459,10 +1470,10 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
             
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED -j CONNMARK --set-mark %u",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
             reverse_output_device, reverse_input_device, rule->proto,
             rule->temp_src, temp_dst_port, rule->temp_dst,
-            temp_src_port, create->option.nfqueue_num + 1);
+            temp_src_port, connmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             return(-1);
@@ -1484,10 +1495,10 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 input_device, output_device, stripped_proto,
                 rule->temp_src, rule->temp_dst, rule->from_mac,
-                rule->helper, create->option.nfqueue_num + 1);
+                rule->helper, connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return(-1);
@@ -1496,10 +1507,9 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 reverse_output_device, reverse_input_device, stripped_proto,
-                rule->temp_src, rule->temp_dst, rule->helper,
-                create->option.nfqueue_num + 1);
+                rule->temp_src, rule->temp_dst, rule->helper, connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return(-1);
@@ -1512,17 +1522,11 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
     
         if nfmark is set as well, unless we handle the LOG rule
     */
-    if( (strcasecmp(rule->action, "NEWQUEUE") == 0
-            ||
-        (create->option.nfmark > 0 && strncasecmp(rule->action, "LOG", 3) != 0))
+    if( (create->option.nfmark > 0 && strncasecmp(rule->action, "LOG", 3) != 0)
             &&
         (rule->portrange_ptr == NULL || rule->portrange_ptr->protocol != 1))
     {
-        /* see what nfmark we use, either the option or the queue default 20000000. */
-        if(create->option.nfmark > 0)
-            nfmark = create->option.nfmark;
-        else
-            nfmark = 20000000;
+        nfmark = create->option.nfmark;
 
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "nfmark '%lu'.", nfmark);
@@ -1538,7 +1542,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
         }
 
         /* swap source ports and dest ports for the rules in the opposite direction */
-                if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
+        if (strcmp(rule->proto, "-p icmp -m icmp") == 0)
         {
             /* really, really ugly hack to make this work for icmp ping-pong */
             if (strcmp(rule->temp_dst_port, "--icmp-type 8/0") == 0)
@@ -2569,9 +2573,9 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
     */
 
     if (conf.check_iptcaps == FALSE ||
-            (iptcap->match_mark == TRUE && ipv == VR_IPV4)
+            (iptcap->match_connmark == TRUE && ipv == VR_IPV4)
 #ifdef IPV6_ENABLED
-        ||  (iptcap->match_ip6_mark == TRUE && ipv == VR_IPV6)
+        ||  (iptcap->match_ip6_connmark == TRUE && ipv == VR_IPV6)
 #endif
         )
     {
@@ -2581,27 +2585,19 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "Setting up connection-tracking...");
 
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
+        snprintf(cmd, sizeof(cmd), "-m connmark --mark %u -m state --state ESTABLISHED -j ACCEPT", 1);
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state ESTABLISHED -j ACCEPT");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
 
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
+        snprintf(cmd, sizeof(cmd), "-m connmark --mark %u -m state --state RELATED -j NEWACCEPT", 1);
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x0/0xff000000 -m state --state RELATED -j NEWACCEPT");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
@@ -2648,9 +2644,9 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
          end mark:      33554432
     */
     if (conf.check_iptcaps == FALSE ||
-            (iptcap->target_queue == TRUE && iptcap->match_mark == TRUE && ipv == VR_IPV4)
+            (iptcap->target_queue == TRUE && iptcap->match_connmark == TRUE && ipv == VR_IPV4)
 #ifdef IPV6_ENABLED
-         || (iptcap->target_ip6_queue == TRUE && iptcap->match_ip6_mark == TRUE && ipv == VR_IPV6)
+         || (iptcap->target_ip6_queue == TRUE && iptcap->match_ip6_connmark == TRUE && ipv == VR_IPV6)
 #endif
         )
     {
@@ -2660,27 +2656,21 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "Setting up connection-tracking for QUEUE targets...");
 
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
+        snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+                "-m state --state ESTABLISHED -j QUEUE", 2);
         if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
         if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state ESTABLISHED -j QUEUE");
         if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
 
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
+        snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+                "-m state --state RELATED -j NEWQUEUE", 2);
         if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
         if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m mark --mark 0x1000000/0xff000000 -m state --state RELATED -j NEWQUEUE");
         if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
@@ -3771,16 +3761,24 @@ static int pre_rules_newaccept(const int debuglvl, /*@null@*/RuleSet *ruleset,
 #endif
         }
     }
+    char connmark[] = "-m connmark --mark 1";
 
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
+    if (conf.check_iptcaps == TRUE && ipv == VR_IPV4 && iptcap->match_connmark == FALSE)
+        memset(connmark, 0, sizeof(connmark));
+#ifdef IPV6_ENABLED
+    if (conf.check_iptcaps == TRUE && ipv == VR_IPV6 && iptcap->match_ip6_connmark == FALSE)
+        memset(connmark, 0, sizeof(connmark));
+#endif
+
+    snprintf(cmd, sizeof(cmd), "%s -p tcp -m tcp --syn -j SYNLIMIT", connmark);
     if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
         retval = -1;
 
-    snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
+    snprintf(cmd, sizeof(cmd), "%s -p udp -m state --state NEW -j UDPLIMIT", connmark);
     if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
         retval = -1;
 
-    snprintf(cmd, sizeof(cmd), "-j ACCEPT");
+    snprintf(cmd, sizeof(cmd), "%s -j ACCEPT", connmark);
     if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
         retval = -1;
 
@@ -3802,7 +3800,7 @@ static int pre_rules_newqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__, "Setting up NEWQUEUE target...");
 
-    if (conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE) {
+    if (conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE && iptcap->match_connmark) {
         if(ruleset == NULL) {
             if (ipv == VR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null",
@@ -3817,15 +3815,15 @@ static int pre_rules_newqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
             }
         }
 
-        snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
+        snprintf(cmd, sizeof(cmd), "-m connmark --mark 2 -p tcp -m tcp --syn -j SYNLIMIT");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
             retval = -1;
 
-        snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW -j UDPLIMIT");
+        snprintf(cmd, sizeof(cmd), "-m connmark --mark 2 -p udp -m state --state NEW -j UDPLIMIT");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
             retval = -1;
 
-        snprintf(cmd, sizeof(cmd), "-j QUEUE");
+        snprintf(cmd, sizeof(cmd), "-m connmark --mark 2 -j QUEUE");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
             retval = -1;
     } else {
@@ -3852,7 +3850,7 @@ static int pre_rules_nfqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__, "Setting up NEWNFQUEUE target...");
 
-    if (conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE) {
+    if (conf.check_iptcaps == FALSE || iptcap->target_nfqueue == TRUE) {
         if (ruleset == NULL) {
             if (ipv == VR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null",
@@ -5394,14 +5392,14 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 /* ESTABLISHED */
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
                     "-m state --state ESTABLISHED -j NFQUEUE --queue-num %u",
-                    queue_num + 1, queue_num);
+                    queue_num + NFQ_MARK_BASE, queue_num);
                 if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
                     retval = -1;
 
                 /* RELATED */
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
                     "-m state --state RELATED -j NEWNFQUEUE",
-                    queue_num + 1);
+                    queue_num + NFQ_MARK_BASE);
                 if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
                     retval=-1;
 
@@ -5484,7 +5482,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 /* NEW */
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
                     "-m state --state NEW,RELATED -j NFQUEUE --queue-num %u",
-                    queue_num + 1, queue_num);
+                    queue_num + NFQ_MARK_BASE, queue_num);
 
                 if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
                     retval = -1;

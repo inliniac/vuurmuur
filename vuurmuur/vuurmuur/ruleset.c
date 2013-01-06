@@ -1329,27 +1329,15 @@ ruleset_create_ruleset( const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset)
     }
 
     /* create NEWNFQUEUE target */
-    if(create_newnfqueue_rules(debuglvl, ruleset, vctx->rules, VR_IPV4) < 0)
+    if(create_newnfqueue_rules(debuglvl, ruleset, vctx->rules, ruleset->ipv) < 0)
     {
         (void)vrprint.error(-1, "Error", "create newnfqueue failed.");
     }
-#ifdef IPV6_ENABLED
-    if(create_newnfqueue_rules(debuglvl, ruleset, vctx->rules, VR_IPV6) < 0)
-    {
-        (void)vrprint.error(-1, "Error", "create newnfqueue failed.");
-    }
-#endif
     /* NFQUEUE related established */
-    if(create_estrelnfqueue_rules(debuglvl, ruleset, vctx->rules, VR_IPV4) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, ruleset, vctx->rules, ruleset->ipv) < 0)
     {
         (void)vrprint.error(-1, "Error", "create estrelnfqueue failed.");
     }
-#ifdef IPV6_ENABLED
-    if(create_estrelnfqueue_rules(debuglvl, ruleset, vctx->rules, VR_IPV6) < 0)
-    {
-        (void)vrprint.error(-1, "Error", "create estrelnfqueue failed.");
-    }
-#endif
 
     /* create the blocklist */
     if(create_block_rules(debuglvl, ruleset, vctx->blocklist) < 0)
@@ -1928,6 +1916,7 @@ load_ruleset(const int debuglvl, VuurmuurCtx *vctx)
     }
 
 #ifdef IPV6_ENABLED
+    (void)vrprint.info("Info", "loading ipv6 ruleset");
     r = load_ruleset_ipv6(debuglvl, vctx);
     if (r == -1) {
         return(-1);

@@ -1121,6 +1121,37 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
     else if (create->to_firewall == TRUE) {
         if (create->to_firewall_any == TRUE || create->from_any == TRUE) {
             /* clear */
+        } else if (create->from->type == TYPE_ZONE) {
+            (void)vrprint.debug(__FUNC__, "source firewall, dest zone");
+
+            if (rule->ipv == VR_IPV4) {
+                /* set addresses */
+                (void)strlcpy(rule->ipv4_to.ipaddress,
+                        rule->from_if_ptr->ipv4.ipaddress,
+                        sizeof(rule->ipv4_to.ipaddress));
+                (void)strlcpy(rule->ipv4_to.netmask,
+                        "255.255.255.255",
+                        sizeof(rule->ipv4_to.netmask));
+#ifdef IPV6_ENABLED
+            } else {
+                (void)strlcpy(rule->ipv6_to.ip6,
+                        rule->from_if_ptr->ipv6.ip6,
+                        sizeof(rule->ipv6_to.ip6));
+                rule->ipv6_to.cidr6 = rule->from_if_ptr->ipv6.cidr6;
+#endif
+            }
+
+            /* set interface */
+            if(rule->from_if_ptr->device_virtual_oldstyle == TRUE)
+            {
+                memset(rule->from_int, 0, sizeof(rule->from_int));
+            }
+            else
+            {
+                (void)strlcpy(rule->from_int,
+                    rule->from_if_ptr->device,
+                    sizeof(rule->from_int));
+            }
         } else {
             if (rule->ipv == VR_IPV4) {
                 /* set addresses */
@@ -1300,10 +1331,47 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (create->from_firewall_any == TRUE || create->to_any == TRUE) {
             /* clear */
             (void)vrprint.debug(__FUNC__, "source firewall(any)");
+        } else if (create->to->type == TYPE_ZONE) {
+            (void)vrprint.debug(__FUNC__, "source firewall, dest zone");
+
+            if (rule->ipv == VR_IPV4) {
+                if (rule->to_if_ptr == NULL)
+                    abort();
+
+                /* set addresses */
+                (void)strlcpy(rule->ipv4_from.ipaddress,
+                        rule->to_if_ptr->ipv4.ipaddress,
+                        sizeof(rule->ipv4_from.ipaddress));
+                (void)strlcpy(rule->ipv4_from.netmask,
+                        "255.255.255.255",
+                        sizeof(rule->ipv4_from.netmask));
+#ifdef IPV6_ENABLED
+            } else {
+                (void)strlcpy(rule->ipv6_from.ip6,
+                        rule->to_if_ptr->ipv6.ip6,
+                        sizeof(rule->ipv6_from.ip6));
+                rule->ipv6_from.cidr6 = rule->to_if_ptr->ipv6.cidr6;
+#endif
+            }
+
+            /* set interface */
+            if(rule->to_if_ptr->device_virtual_oldstyle == TRUE)
+            {
+                memset(rule->to_int, 0, sizeof(rule->to_int));
+            }
+            else
+            {
+                (void)strlcpy(rule->to_int,
+                    rule->to_if_ptr->device,
+                    sizeof(rule->to_int));
+            }
         } else {
             (void)vrprint.debug(__FUNC__, "source firewall");
 
             if (rule->ipv == VR_IPV4) {
+                if (rule->from_if_ptr == NULL)
+                    abort();
+
                 /* set addresses */
                 (void)strlcpy(rule->ipv4_from.ipaddress,
                         rule->from_if_ptr->ipv4.ipaddress,
@@ -1922,6 +1990,8 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
 
         if(create->option.out_int[0] != '\0') /* interface option is set */
         {
+            (void)vrprint.debug(__FUNC__, "create->option.out_int %s", create->option.out_int);
+
             rule->from_if_ptr = search_interface(debuglvl, vctx->interfaces, create->option.out_int);
             if(rule->from_if_ptr == NULL)
             {
@@ -1996,7 +2066,7 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
 
             retval = rulecreate_dst_iface_loop(debuglvl, vctx, ruleset, rule, create);
         } else {
-            (void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
+            (void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE (any loop).", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
         }
 
         return(retval);
@@ -2053,6 +2123,7 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
             }
 
             active = rule->from_if_ptr->active;
+            (void)vrprint.debug(__FUNC__, "active %d", active);
 
             /*  set the interface
                 if the device is virtual (oldstyle) we don't want it in our
@@ -2067,11 +2138,13 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
             {
                 (void)vrprint.info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
                 active = 0;
+            (void)vrprint.debug(__FUNC__, "active %d (dynamic up check)", active);
             }
 #ifdef IPV6_ENABLED
             if (rule->ipv == VR_IPV6 &&
                     !interface_ipv6_enabled(debuglvl, rule->from_if_ptr)) {
                 active = 0;
+            (void)vrprint.debug(__FUNC__, "active %d (ipv6)", active);
             }
 #endif
             if (active == 1) {
@@ -2108,7 +2181,7 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
                     (void)vrprint.debug(__FUNC__, "src interface %s. Interface is FILTERED.", rule->from_if_ptr->name);
                 }
             } else {
-                (void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE.", rule->from_if_ptr->name);
+                (void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE (final loop).", rule->from_if_ptr->name);
             }
         }
     }
@@ -2123,22 +2196,26 @@ static int
 rulecreate_ipv4ipv6_loop(const int debuglvl, VuurmuurCtx *vctx,
         /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct RuleCache_ *create)
 {
-    rule->ipv = VR_IPV4;
+    if (ruleset == NULL || ruleset->ipv == VR_IPV4) {
+        rule->ipv = VR_IPV4;
 
-    if (rulecreate_src_iface_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
-        (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
+        if (rulecreate_src_iface_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
+            (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
+        }
     }
 
 #ifdef IPV6_ENABLED
-    rule->ipv = VR_IPV6;
+    if (ruleset == NULL || ruleset->ipv == VR_IPV6) {
+        rule->ipv = VR_IPV6;
 
-    /* rules can explicitly set a the reject option, which will be IPv4 only. */
-    if (strncasecmp(rule->action, "REJECT --reject-with", 20) == 0 &&
-            strncasecmp(rule->action, "REJECT --reject-with tcp-reset", 30) != 0)
-        strlcpy(rule->action, "REJECT", sizeof(rule->action));
+        /* rules can explicitly set a the reject option, which will be IPv4 only. */
+        if (strncasecmp(rule->action, "REJECT --reject-with", 20) == 0 &&
+                strncasecmp(rule->action, "REJECT --reject-with tcp-reset", 30) != 0)
+            strlcpy(rule->action, "REJECT", sizeof(rule->action));
 
-    if (rulecreate_src_iface_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
-        (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
+        if (rulecreate_src_iface_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
+            (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
+        }
     }
 #endif
 
@@ -2180,7 +2257,7 @@ create_rule(const int debuglvl, VuurmuurCtx *vctx,
     /* if bash, print comment (if any) */
     if(create->option.rule_comment == TRUE && conf.bash_out == TRUE)
     {
-        fprintf(stdout, "# comment: '%s'\n", create->option.comment);
+        fprintf(stdout, "# comment: '%s'%s\n", create->option.comment, create->active ? "" : " (rule inactive)");
     }
 
     if (create->active == 0)
@@ -2383,16 +2460,14 @@ create_normal_rules(const int debuglvl,
             active = FALSE;
 
         /* check protect rule */
-        if(rule_ptr->rulecache.who != NULL)
-        {
-            if(rule_ptr->rulecache.who->active == FALSE)
-            {
+        if (rule_ptr->rulecache.who != NULL) {
+            if (rule_ptr->rulecache.who->active == FALSE) {
                 active = FALSE;
             }
         }
 
         /* create the rule */
-        if(active == TRUE)
+        if (active == TRUE)
         {
             if(rule_ptr->action == AT_SEPARATOR)
             {
@@ -2401,15 +2476,7 @@ create_normal_rules(const int debuglvl,
                 {
                     fprintf(stdout, "\n#\n# %s\n#\n", rule_ptr->rulecache.description);
                 }
-            }
-            else if((rule_ptr->rulecache.from != NULL    || rule_ptr->rulecache.from_any == TRUE || 
-                    (rule_ptr->rulecache.from_firewall == TRUE && rule_ptr->rulecache.to_any == TRUE))
-                         &&
-                (rule_ptr->rulecache.to != NULL      || rule_ptr->rulecache.to_any == TRUE   ||
-                    (rule_ptr->rulecache.to_firewall == TRUE && rule_ptr->rulecache.from_any == TRUE))
-                        &&
-                (rule_ptr->rulecache.service != NULL || rule_ptr->rulecache.service_any == TRUE))
-            {
+            } else {
                 if(create_rule(debuglvl, vctx, ruleset, &rule_ptr->rulecache) == 0)
                 {
                     if(debuglvl >= HIGH)
