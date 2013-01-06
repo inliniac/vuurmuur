@@ -571,17 +571,19 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             return(-1);
 
-        /* related, established */
-        create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-        create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+        if (strcmp(rule->proto, "-p icmp -m icmp") != 0) {
+            /* related, established */
+            create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+            create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
-            reverse_input_device, rule->proto, rule->temp_src,
-            temp_dst_port, rule->temp_dst, temp_src_port,
-            connmark);
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+                    reverse_input_device, rule->proto, rule->temp_src,
+                    temp_dst_port, rule->temp_dst, temp_src_port,
+                    connmark);
 
-        if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
-            return(-1);
+            if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+                return(-1);
+        }
 
         if(strcmp(rule->helper, "") != 0)
         {
@@ -1001,16 +1003,18 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             return(-1);
 
         /* REVERSE! related */
-        create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-        create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
+        if (strcmp(rule->proto, "-p icmp -m icmp") != 0) {
+            create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+            create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
-            reverse_output_device, rule->proto, rule->temp_src,
-            temp_dst_port, rule->temp_dst, temp_src_port,
-            connmark);
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+                reverse_output_device, rule->proto, rule->temp_src,
+                temp_dst_port, rule->temp_dst, temp_src_port,
+                connmark);
 
-        if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
-            return(-1);
+            if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+                return(-1);
+        }
 
         /* helperrrr */
         if(strcmp(rule->helper, "") != 0)
@@ -1467,18 +1471,19 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             return(-1);
 
         /* REVERSE! related */
-        create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
-        create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
-            
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
-            reverse_output_device, reverse_input_device, rule->proto,
-            rule->temp_src, temp_dst_port, rule->temp_dst,
-            temp_src_port, connmark);
+        if (strcmp(rule->proto, "-p icmp -m icmp") != 0) {
+            create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
+            create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
-            return(-1);
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+                    reverse_output_device, reverse_input_device, rule->proto,
+                    rule->temp_src, temp_dst_port, rule->temp_dst,
+                    temp_src_port, connmark);
 
-        
+            if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+                return(-1);
+        }
+
         if(strcmp(rule->helper, "") != 0)
         {
             /* check cap */
