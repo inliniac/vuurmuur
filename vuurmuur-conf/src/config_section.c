@@ -2835,6 +2835,7 @@ view_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
         mvwprintw(ConfigSection.win, 9,  52, "length\t%s", iptcap->match_length ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 10, 52, "connmark\t%s", iptcap->match_connmark ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 11, 52, "rpfilter\t%s", iptcap->match_rpfilter ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 12, 52, "conntrack\t%s", iptcap->match_conntrack ? STR_YES : STR_NO);
     }
     else
     {
@@ -3048,6 +3049,7 @@ view_ip6_caps_init(int height, int width, int starty, int startx, IptCap *iptcap
         mvwprintw(ConfigSection.win, 9,  52, "length\t%s", iptcap->match_ip6_length ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 10, 52, "connmark\t%s", iptcap->match_ip6_connmark ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 11, 52, "rpfilter\t%s", iptcap->match_ip6_rpfilter ? STR_YES : STR_NO);
+        mvwprintw(ConfigSection.win, 12, 52, "conntrack\t%s", iptcap->match_ip6_conntrack ? STR_YES : STR_NO);
     }
     else
     {

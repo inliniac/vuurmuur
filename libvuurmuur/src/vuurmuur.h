@@ -1098,6 +1098,7 @@ typedef struct
     char    match_limit;
     char    match_mac;
     char    match_connmark;
+    char    match_conntrack;
     char    match_rpfilter;
 
     char    target_nat_random;
@@ -1145,6 +1146,7 @@ typedef struct
     char    match_ip6_mac;
 
     char    match_ip6_connmark;
+    char    match_ip6_conntrack;
     char    match_ip6_rpfilter;
 #endif
 } IptCap;

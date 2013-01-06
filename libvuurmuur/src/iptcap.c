@@ -462,6 +462,34 @@ iptcap_test_filter_connmark_match(const int debuglvl, struct vuurmuur_config *cn
     return retval;
 }
 
+int
+iptcap_test_filter_conntrack_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+{
+    int retval = 1;
+
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+    }
+
+    if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+        return -1;
+    }
+
+    char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "conntrack", "--ctstate", "NEW", NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
+    if (r != 0) {
+        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        retval = -1;
+    }
+
+    if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
+        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+    }
+
+    return retval;
+}
+
 /** \internal
  *  \brief test rpfilter module in RAW table
  */
@@ -1237,6 +1265,23 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
             }
         }
 
+        /* conntrack match */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "conntrack", "ipt_conntrack", load_modules);
+        if(result == 1) iptcap->match_conntrack = TRUE;
+        else {
+            iptcap->match_conntrack = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "conntrack", "xt_conntrack", load_modules);
+            if(result == 1) iptcap->match_conntrack = TRUE;
+            else {
+                iptcap->match_conntrack = FALSE;
+
+                result = iptcap_test_filter_conntrack_match(debuglvl, cnf, cnf->iptables_location);
+                if (result == 1)
+                    iptcap->match_conntrack = TRUE;
+            }
+        }
+
         /* rpfilter match */
         result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "rpfilter", "ipt_rpfilter", load_modules);
         if(result == 1) {
@@ -1896,6 +1941,23 @@ load_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, c
                 result = iptcap_test_filter_connmark_match(debuglvl, cnf, cnf->ip6tables_location);
                 if (result == 1)
                     iptcap->match_ip6_connmark = TRUE;
+            }
+        }
+
+        /* conntrack match */
+        result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "conntrack", "ipt_conntrack", load_modules);
+        if(result == 1) iptcap->match_ip6_conntrack = TRUE;
+        else {
+            iptcap->match_ip6_conntrack = FALSE;
+
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "conntrack", "xt_conntrack", load_modules);
+            if(result == 1) iptcap->match_ip6_conntrack = TRUE;
+            else {
+                iptcap->match_ip6_conntrack = FALSE;
+
+                result = iptcap_test_filter_conntrack_match(debuglvl, cnf, cnf->ip6tables_location);
+                if (result == 1)
+                    iptcap->match_ip6_conntrack = TRUE;
             }
         }
 
