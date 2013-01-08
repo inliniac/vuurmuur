@@ -1746,8 +1746,9 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             
             snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
                 reverse_output_device, reverse_input_device, stripped_proto,
-                rule->temp_src, temp_dst_port, rule->temp_dst, create_state_string(rule->ipv, iptcap),
-                temp_src_port, rule->from_if_ptr->shape_handle, rule->shape_class_in);
+                rule->temp_src, temp_dst_port, rule->temp_dst, temp_src_port,
+                create_state_string(rule->ipv, iptcap),
+                rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
                 return(-1);
@@ -3814,7 +3815,7 @@ static int pre_rules_newqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__, "Setting up NEWQUEUE target...");
 
-    if (conf.check_iptcaps == FALSE || iptcap->target_queue == TRUE && iptcap->match_connmark) {
+    if (conf.check_iptcaps == FALSE || (iptcap->target_queue == TRUE && iptcap->match_connmark)) {
         if(ruleset == NULL) {
             if (ipv == VR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null",
