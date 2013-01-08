@@ -79,7 +79,9 @@ iptcap_get_one_cap_from_proc(const int debuglvl, char *procpath, char *request)
         return(-1);
     }
 
-    (void)vrprint.debug(__FUNC__, "procpath: %s request: %s retval: %u", procpath, request, retval);
+    if (debuglvl >= LOW)
+        (void)vrprint.debug(__FUNC__, "procpath: %s request: %s retval: %u", procpath, request, retval);
+
     /* return retval, 1 if found, 0 if not found */
     return(retval);
 }
@@ -419,7 +421,8 @@ iptcap_delete_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf,
     char *argsF[] = { ipt_loc, "-t", "filter", "-F", "VRMRIPTCAP", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, argsF, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "flush failed (ok if chain didn't exist)");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "flush failed (ok if chain didn't exist)");
         return -1;
     }
 
@@ -427,7 +430,8 @@ iptcap_delete_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf,
     char *argsX[] = { ipt_loc, "-t", "filter", "-X", "VRMRIPTCAP", NULL };
     r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, argsX, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "delete failed");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "delete failed");
         return -1;
     }
 
@@ -440,23 +444,27 @@ iptcap_test_filter_connmark_match(const int debuglvl, struct vuurmuur_config *cn
     int retval = 1;
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
     char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "connmark", "--mark", "1", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -468,23 +476,27 @@ iptcap_test_filter_conntrack_match(const int debuglvl, struct vuurmuur_config *c
     int retval = 1;
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
     char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "conntrack", "--ctstate", "NEW", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -499,23 +511,27 @@ iptcap_test_filter_rpfilter_match(const int debuglvl, struct vuurmuur_config *cn
     int retval = 1;
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
     char *args[] = { ipt_loc, "-t", "raw", "-A", "VRMRIPTCAP", "-m", "rpfilter", "--invert", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -866,6 +882,27 @@ check_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, c
     return(0);
 }
 
+/**
+ *  \retval 1 conntrack available
+ *  \retval 0 not available
+ */
+static int check_conntrack(const int debuglvl, struct vuurmuur_config *cnf, int ipv) {
+    char *args[] = { cnf->conntrack_location,
+        "-L", "-f", "ipv4", NULL };
+
+    if (ipv == VR_IPV6)
+        args[3] = "ipv6";
+
+    int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->conntrack_location, args, NULL);
+    if (result == -1) {
+        (void)vrprint.error(-1, "Error", "unable to execute "
+                "conntrack: %s (in: %s:%d).", strerror(errno),
+                __FUNC__, __LINE__);
+        return 0;
+    }
+    return 1;
+}
+
 int
 load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, char load_modules)
 {
@@ -1018,53 +1055,24 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 
 
     /* check for the CONNTRACK */
-    if(!(iptcap_check_file(debuglvl, proc_net_ipconntrack)))
-    {
-        if(load_modules == TRUE)
-        {
-            /* try to load the module, if it fails, return 0 */
-            (void)iptcap_load_module(debuglvl, cnf, "ip_conntrack");
-
-            /* check again */
-            if(!(iptcap_check_file(debuglvl, proc_net_ipconntrack)))
-                iptcap->conntrack = FALSE;
-            else
-                iptcap->conntrack = TRUE;
-        }
-    }
-    else
-    {
+    if ((check_conntrack(debuglvl, cnf, VR_IPV4) == 1) ||
+            (iptcap_check_file(debuglvl, proc_net_ipconntrack)) ||
+            (iptcap_check_file(debuglvl, proc_net_nfconntrack))) {
         iptcap->conntrack = TRUE;
-    }
-    /* try nf_conntrack if ip_conntrack failed */
-    if (iptcap->conntrack == FALSE) {
-        if (!(iptcap_check_file(debuglvl, proc_net_nfconntrack)))
-        {
-            if (load_modules == TRUE)
-            {
-                /* try to load the module, if it fails, return 0 */
-                (void)iptcap_load_module(debuglvl, cnf, "nf_conntrack_ipv4");
+    } else {
+        if (load_modules == TRUE) {
+            (void)iptcap_load_module(debuglvl, cnf, "ip_conntrack");
+            (void)iptcap_load_module(debuglvl, cnf, "nf_conntrack_ipv4");
 
-                /* check again */
-                if (!(iptcap_check_file(debuglvl, proc_net_nfconntrack))) {
-                    char *args[] = { cnf->conntrack_location,
-                        "-L", "-f", "ipv4", NULL };
-                    int result = libvuurmuur_exec_command(debuglvl, &conf, cnf->conntrack_location, args, NULL);
-                    if (result == -1) {
-                        (void)vrprint.error(-1, "Error", "unable to execute "
-                                "conntrack: %s (in: %s:%d).", strerror(errno),
-                                __FUNC__, __LINE__);
-                        iptcap->conntrack = FALSE;
-                    } else {
-                        iptcap->conntrack = TRUE;
-                    }
-                } else
-                    iptcap->conntrack = TRUE;
+            if ((check_conntrack(debuglvl, cnf, VR_IPV4) == 1) ||
+                    (iptcap_check_file(debuglvl, proc_net_ipconntrack)) ||
+                    (iptcap_check_file(debuglvl, proc_net_nfconntrack))) {
+                iptcap->conntrack = TRUE;
+            } else {
+                iptcap->conntrack = FALSE;
             }
-        }
-        else
-        {
-            iptcap->conntrack = TRUE;
+        } else {
+            iptcap->conntrack = FALSE;
         }
     }
 
