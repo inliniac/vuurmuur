@@ -65,6 +65,19 @@ typedef struct
 
 } IptRule;
 
+static char *create_state_string(int ipv, IptCap *iptcap) {
+    if (ipv == VR_IPV4) {
+        if (conf.check_iptcaps == FALSE || iptcap->match_conntrack == TRUE)
+            return "-m conntrack --ctstate";
+        else
+            return "-m state --state";
+    } else {
+        if (conf.check_iptcaps == FALSE || iptcap->match_ip6_conntrack == TRUE)
+            return "-m conntrack --ctstate";
+        else
+            return "-m state --state";
+    }
+}
 
 /*
     this function empties the string if either ipaddress and/or netmask are empty.
@@ -515,11 +528,11 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             sizeof(rule->temp_dst));
 
     /* create the rule */
-    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW -j %s",
+    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s %s NEW -j %s",
             input_device, rule->proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst,
             rule->temp_dst_port, rule->from_mac, rule->limit,
-            rule->action);
+            create_state_string(rule->ipv, iptcap), rule->action);
 
     /* add it to the list */
     if(queue_rule(debuglvl, rule, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
@@ -563,10 +576,10 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW,RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s NEW,RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
             input_device, rule->proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
-            rule->from_mac, connmark);
+            rule->from_mac, create_state_string(rule->ipv, iptcap), connmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             return(-1);
@@ -576,10 +589,10 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                     reverse_input_device, rule->proto, rule->temp_src,
                     temp_dst_port, rule->temp_dst, temp_src_port,
-                    connmark);
+                    create_state_string(rule->ipv, iptcap), connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -600,10 +613,10 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" %s -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 input_device, rule->proto, rule->temp_src,
                 rule->temp_dst, rule->from_mac, rule->helper,
-                connmark);
+                create_state_string(rule->ipv, iptcap), connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -611,9 +624,9 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" %s RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 reverse_input_device, rule->proto, rule->temp_src,
-                rule->temp_dst, rule->helper, connmark);
+                rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap), connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -684,10 +697,10 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
             input_device, stripped_proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
-            rule->from_mac, nfmark);
+            rule->from_mac, create_state_string(rule->ipv, iptcap), nfmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             return(-1);
@@ -696,9 +709,9 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j MARK --set-mark %lu",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s RELATED,ESTABLISHED -j MARK --set-mark %lu",
             reverse_input_device, stripped_proto, rule->temp_src,
-            temp_dst_port, rule->temp_dst, temp_src_port, nfmark);
+            temp_dst_port, rule->temp_dst, temp_src_port, create_state_string(rule->ipv, iptcap), nfmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             return(-1);
@@ -718,10 +731,10 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j MARK --set-mark %lu",
                 input_device, stripped_proto, rule->temp_src,
                 rule->temp_dst, rule->from_mac, rule->helper,
-                nfmark);
+                create_state_string(rule->ipv, iptcap), nfmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -729,9 +742,9 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j MARK --set-mark %lu",
                 reverse_input_device, stripped_proto, rule->temp_src,
-                rule->temp_dst, rule->helper, nfmark);
+                rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap), nfmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -797,10 +810,10 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s NEW,RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
                 input_device, stripped_proto, rule->temp_src,
                 rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
-                rule->from_mac, rule->to_if_ptr->shape_handle, rule->shape_class_out);
+                rule->from_mac, create_state_string(rule->ipv, iptcap), rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
                 return(-1);
@@ -813,9 +826,10 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
                 reverse_input_device, stripped_proto, rule->temp_src,
-                temp_dst_port, rule->temp_dst, temp_src_port, rule->from_if_ptr->shape_handle, rule->shape_class_in);
+                temp_dst_port, rule->temp_dst, temp_src_port, create_state_string(rule->ipv, iptcap),
+                rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -839,9 +853,9 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
                 create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-                snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+                snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
                     input_device, stripped_proto, rule->temp_src,
-                    rule->temp_dst, rule->from_mac, rule->helper,
+                    rule->temp_dst, rule->from_mac, rule->helper, create_state_string(rule->ipv, iptcap),
                     rule->to_if_ptr->shape_handle, rule->shape_class_in);
 
                 if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
@@ -854,9 +868,10 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
                 create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-                snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+                snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
                     reverse_input_device, stripped_proto, rule->temp_src,
-                    rule->temp_dst, rule->helper, rule->from_if_ptr->shape_handle, rule->shape_class_out);
+                    rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap),
+                    rule->from_if_ptr->shape_handle, rule->shape_class_out);
 
                 if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
                     return(-1);
@@ -946,11 +961,11 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             rule->to_netmask, rule->temp_dst,
             sizeof(rule->temp_dst));
 
-    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW -j %s",
+    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s NEW -j %s",
             output_device, rule->proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst,
             rule->temp_dst_port, rule->limit, /* log limit */
-            rule->action);
+            create_state_string(rule->ipv, iptcap), rule->action);
 
     if(queue_rule(debuglvl, rule, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         return(-1);
@@ -994,10 +1009,10 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW,RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s NEW,RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
             output_device, rule->proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
-            connmark);
+            create_state_string(rule->ipv, iptcap), connmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             return(-1);
@@ -1007,10 +1022,10 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 reverse_output_device, rule->proto, rule->temp_src,
                 temp_dst_port, rule->temp_dst, temp_src_port,
-                connmark);
+                create_state_string(rule->ipv, iptcap), connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -1033,9 +1048,9 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" %s RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                     output_device, rule->proto, rule->temp_src,
-                    rule->temp_dst, rule->helper, connmark);
+                    rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap), connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -1044,9 +1059,9 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" %s RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 reverse_output_device, rule->proto, rule->temp_src,
-                rule->temp_dst, rule->helper, connmark);
+                rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap), connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -1054,7 +1069,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 
     /*  if the target is QUEUE we mark the traffic
-    
+
         if nfmark is set as well, unless we handle the LOG rule
     */
     if( (create->option.nfmark > 0 && strncasecmp(rule->action, "LOG", 3) != 0)
@@ -1115,10 +1130,10 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
             output_device, stripped_proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
-            nfmark);
+            create_state_string(rule->ipv, iptcap), nfmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             return(-1);
@@ -1127,10 +1142,10 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j MARK --set-mark %lu",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s RELATED,ESTABLISHED -j MARK --set-mark %lu",
             reverse_output_device, stripped_proto, rule->temp_src,
             temp_dst_port, rule->temp_dst, temp_src_port,
-            nfmark);
+            create_state_string(rule->ipv, iptcap), nfmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             return(-1);
@@ -1152,9 +1167,9 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j MARK --set-mark %lu",
                 output_device, stripped_proto, rule->temp_src,
-                rule->temp_dst, rule->helper, nfmark);
+                rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap), nfmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -1163,9 +1178,9 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j MARK --set-mark %lu",
                 reverse_output_device, stripped_proto, rule->temp_src,
-                rule->temp_dst, rule->helper, nfmark);
+                rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap), nfmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -1229,10 +1244,10 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s NEW,RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
                 output_device, stripped_proto, rule->temp_src,
                 rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
-                rule->to_if_ptr->shape_handle, rule->shape_class_out);
+                create_state_string(rule->ipv, iptcap), rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
                 return(-1);
@@ -1246,9 +1261,9 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
                 reverse_output_device, stripped_proto, rule->temp_src,
-                temp_dst_port, rule->temp_dst, temp_src_port,
+                temp_dst_port, rule->temp_dst, temp_src_port, create_state_string(rule->ipv, iptcap),
                 rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
@@ -1275,9 +1290,9 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
                 create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-                snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+                snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
                     output_device, stripped_proto, rule->temp_src,
-                    rule->temp_dst, rule->helper,
+                    rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap),
                     rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
                 if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
@@ -1292,9 +1307,9 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
                 create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-                snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+                snprintf(cmd, sizeof(cmd), "%s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
                     reverse_output_device, stripped_proto, rule->temp_src,
-                    rule->temp_dst, rule->helper,
+                    rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap),
                     rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
                 if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
@@ -1383,11 +1398,11 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             sizeof(rule->temp_dst));
 
     /* create the rule */
-    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s %s -m state --state NEW -j %s",
+    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s %s %s NEW -j %s",
             input_device, output_device, rule->proto,
             rule->temp_src, rule->temp_src_port,
             rule->temp_dst, rule->temp_dst_port,
-            rule->from_mac, rule->limit, rule->action);
+            rule->from_mac, rule->limit, create_state_string(rule->ipv, iptcap), rule->action);
 
     if(queue_rule(debuglvl, rule, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         return(-1);
@@ -1462,10 +1477,10 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW,RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s %s NEW,RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
             input_device, output_device, rule->proto,
             rule->temp_src, rule->temp_src_port, rule->temp_dst,
-            rule->temp_dst_port, rule->from_mac, connmark);
+            rule->temp_dst_port, rule->from_mac, create_state_string(rule->ipv, iptcap), connmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             return(-1);
@@ -1475,10 +1490,10 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                     reverse_output_device, reverse_input_device, rule->proto,
                     rule->temp_src, temp_dst_port, rule->temp_dst,
-                    temp_src_port, connmark);
+                    temp_src_port, create_state_string(rule->ipv, iptcap), connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return(-1);
@@ -1500,10 +1515,10 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" %s RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 input_device, output_device, stripped_proto,
                 rule->temp_src, rule->temp_dst, rule->from_mac,
-                rule->helper, connmark);
+                rule->helper, create_state_string(rule->ipv, iptcap), connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return(-1);
@@ -1512,9 +1527,9 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" %s RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 reverse_output_device, reverse_input_device, stripped_proto,
-                rule->temp_src, rule->temp_dst, rule->helper, connmark);
+                rule->temp_src, rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap), connmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return(-1);
@@ -1591,10 +1606,10 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s %s NEW,RELATED,ESTABLISHED -j MARK --set-mark %lu",
             input_device, output_device, stripped_proto,
             rule->temp_src, rule->temp_src_port, rule->temp_dst,
-            rule->temp_dst_port, rule->from_mac, nfmark);
+            rule->temp_dst_port, rule->from_mac, create_state_string(rule->ipv, iptcap), nfmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             return(-1);
@@ -1603,10 +1618,10 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
             
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j MARK --set-mark %lu",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s RELATED,ESTABLISHED -j MARK --set-mark %lu",
             reverse_output_device, reverse_input_device, stripped_proto,
             rule->temp_src, temp_dst_port, rule->temp_dst,
-            temp_src_port, nfmark);
+            temp_src_port, create_state_string(rule->ipv, iptcap), nfmark);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             return(-1);
@@ -1628,10 +1643,10 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j MARK --set-mark %lu",
                 input_device, output_device, stripped_proto,
                 rule->temp_src, rule->temp_dst, rule->from_mac,
-                rule->helper, nfmark);
+                rule->helper, create_state_string(rule->ipv, iptcap), nfmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return(-1);
@@ -1640,9 +1655,9 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j MARK --set-mark %lu",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j MARK --set-mark %lu",
                 reverse_output_device, reverse_input_device, stripped_proto,
-                rule->temp_src, rule->temp_dst, rule->helper, nfmark);
+                rule->temp_src, rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap), nfmark);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return(-1);
@@ -1713,10 +1728,10 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW,RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s %s NEW,RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
                 input_device, output_device, stripped_proto,
                 rule->temp_src, rule->temp_src_port, rule->temp_dst,
-                rule->temp_dst_port, rule->from_mac,
+                rule->temp_dst_port, rule->from_mac, create_state_string(rule->ipv, iptcap),
                 rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
@@ -1729,9 +1744,9 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
             
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s RELATED,ESTABLISHED -j CLASSIFY --set-class %u:%u",
                 reverse_output_device, reverse_input_device, stripped_proto,
-                rule->temp_src, temp_dst_port, rule->temp_dst,
+                rule->temp_src, temp_dst_port, rule->temp_dst, create_state_string(rule->ipv, iptcap),
                 temp_src_port, rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
             if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
@@ -1757,10 +1772,11 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
                 create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-                snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+                snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
                     input_device, output_device, stripped_proto,
                     rule->temp_src, rule->temp_dst, rule->from_mac,
-                    rule->helper, rule->to_if_ptr->shape_handle, rule->shape_class_out);
+                    rule->helper, create_state_string(rule->ipv, iptcap),
+                    rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
                 if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
                     return(-1);
@@ -1772,9 +1788,10 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
                 create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->to_ip, rule->to_netmask, rule->temp_src, sizeof(rule->temp_src));
                 create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->from_ip, rule->from_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-                snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" -m state --state ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
+                snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" %s ESTABLISHED,RELATED -j CLASSIFY --set-class %u:%u",
                     reverse_output_device, reverse_input_device, stripped_proto,
-                    rule->temp_src, rule->temp_dst, rule->helper, rule->from_if_ptr->shape_handle, rule->shape_class_in);
+                    rule->temp_src, rule->temp_dst, rule->helper, create_state_string(rule->ipv, iptcap),
+                    rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
                 if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
                     return(-1);
@@ -1988,11 +2005,11 @@ create_rule_portfw(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCr
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->serverip, "255.255.255.255", rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW -j %s",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s %s NEW -j %s",
             input_device, rule->proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst,
             rule->temp_dst_port, rule->from_mac,
-            rule->limit, rule->action);
+            rule->limit, create_state_string(rule->ipv, iptcap), rule->action);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
             return(-1);
@@ -2095,11 +2112,11 @@ create_rule_redirect(const int debuglvl, /*@null@*/RuleSet *ruleset, struct Rule
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW -j %s",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s %s NEW -j %s",
             input_device, rule->proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst,
             rule->temp_dst_port, rule->from_mac,
-            rule->limit, rule->action);
+            rule->limit, create_state_string(rule->ipv, iptcap), rule->action);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
             return(-1);
@@ -2260,10 +2277,10 @@ create_rule_dnat(   const int debuglvl, /*@null@*/RuleSet *ruleset,
     create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
     create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->serverip, "255.255.255.255", rule->temp_dst, sizeof(rule->temp_dst));
 
-    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW -j %s",
+    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s %s NEW -j %s",
         input_device, rule->proto, rule->temp_src,
         rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
-        rule->from_mac, rule->limit, rule->action);
+        rule->from_mac, rule->limit, create_state_string(rule->ipv, iptcap), rule->action);
 
     if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
         return(-1);
@@ -2348,11 +2365,11 @@ create_rule_bounce( const int debuglvl, /*@null@*/RuleSet *ruleset,
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, create->via_int->ipv4.ipaddress, "255.255.255.255", rule->temp_dst, sizeof(rule->temp_dst));
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -m state --state NEW -j %s",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s %s NEW -j %s",
             input_device, rule->proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst,
             rule->temp_dst_port, rule->from_mac,
-            rule->limit, rule->action);
+            rule->limit, create_state_string(rule->ipv, iptcap), rule->action);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
             return(-1);
@@ -2372,10 +2389,10 @@ create_rule_bounce( const int debuglvl, /*@null@*/RuleSet *ruleset,
         if(rule->from_int[0] != '\0')
             snprintf(input_device, sizeof(input_device), "-o %s", rule->from_int);
 
-        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -m state --state NEW -j %s",
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s NEW -j %s",
             input_device, rule->proto, rule->temp_src,
             rule->temp_src_port, rule->temp_dst,
-            rule->temp_dst_port, rule->limit, rule->action);
+            rule->temp_dst_port, rule->limit, create_state_string(rule->ipv, iptcap), rule->action);
 
         if(queue_rule(debuglvl, rule, ruleset, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
             return(-1);
@@ -2590,7 +2607,7 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "Setting up connection-tracking...");
 
-        snprintf(cmd, sizeof(cmd), "-m connmark --mark %u -m state --state ESTABLISHED -j ACCEPT", 1);
+        snprintf(cmd, sizeof(cmd), "-m connmark --mark %u %s ESTABLISHED -j ACCEPT", 1, create_state_string(ipv, iptcap));
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
@@ -2598,7 +2615,7 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
 
-        snprintf(cmd, sizeof(cmd), "-m connmark --mark %u -m state --state RELATED -j NEWACCEPT", 1);
+        snprintf(cmd, sizeof(cmd), "-m connmark --mark %u %s RELATED -j NEWACCEPT", 1, create_state_string(ipv, iptcap));
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
@@ -2615,27 +2632,19 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "Setting up connection-tracking...");
 
-        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
+        snprintf(cmd, sizeof(cmd), "%s ESTABLISHED -j ACCEPT", create_state_string(ipv, iptcap));
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED -j ACCEPT");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
 
-        snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
+        snprintf(cmd, sizeof(cmd), "%s RELATED -j NEWACCEPT", create_state_string(ipv, iptcap));
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m state --state RELATED -j NEWACCEPT");
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
@@ -2662,7 +2671,7 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
             (void)vrprint.debug(__FUNC__, "Setting up connection-tracking for QUEUE targets...");
 
         snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
-                "-m state --state ESTABLISHED -j QUEUE", 2);
+                "%s ESTABLISHED -j QUEUE", 2, create_state_string(ipv, iptcap));
         if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
         if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
@@ -2671,7 +2680,7 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
-                "-m state --state RELATED -j NEWQUEUE", 2);
+                "%s RELATED -j NEWQUEUE", 2, create_state_string(ipv, iptcap));
         if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
         if(process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
@@ -3434,11 +3443,11 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 RT_NOTSET, "DROP", "no SYN");
 
         if (conf.rule_nflog == 1) {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW %s -j NFLOG %s %s --nflog-group %u",
-                    limit, logprefix, loglevel, conf.nfgrp);
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn %s NEW %s -j NFLOG %s %s --nflog-group %u",
+                    create_state_string(ipv, iptcap), limit, logprefix, loglevel, conf.nfgrp);
         } else {
-            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW %s -j LOG %s %s %s",
-                    limit, logprefix, loglevel, log_tcp_options);
+            snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn %s NEW %s -j LOG %s %s %s",
+                    create_state_string(ipv, iptcap), limit, logprefix, loglevel, log_tcp_options);
         }
 
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
@@ -3449,7 +3458,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
             retval = -1;
     }
 
-    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn -m state --state NEW -j DROP");
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn %s NEW -j DROP", create_state_string(ipv, iptcap));
     if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval = -1;
     if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
@@ -3520,18 +3529,18 @@ static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ru
                     RT_INPUT, "DROP", "in INVALID");
 
             if (conf.rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
-                        limit, logprefix, loglevel, conf.nfgrp);
+                snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s %s --nflog-group %u",
+                        create_state_string(ipv, iptcap), limit, logprefix, loglevel, conf.nfgrp);
             } else {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
-                        limit, logprefix, loglevel, log_tcp_options);
+                snprintf(cmd, sizeof(cmd), "%s INVALID %s -j LOG %s %s %s",
+                        create_state_string(ipv, iptcap), limit, logprefix, loglevel, log_tcp_options);
             }
 
             if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
                 retval = -1;
         }
 
-        snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
+        snprintf(cmd, sizeof(cmd), "%s INVALID -j DROP", create_state_string(ipv, iptcap));
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval = -1;
 
@@ -3545,18 +3554,18 @@ static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ru
                     RT_OUTPUT, "DROP", "out INVALID");
 
             if (conf.rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
-                        limit, logprefix, loglevel, conf.nfgrp);
+                snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s %s --nflog-group %u",
+                        create_state_string(ipv, iptcap), limit, logprefix, loglevel, conf.nfgrp);
             } else {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
-                        limit, logprefix, loglevel, log_tcp_options);
+                snprintf(cmd, sizeof(cmd), "%s INVALID %s -j LOG %s %s %s",
+                        create_state_string(ipv, iptcap), limit, logprefix, loglevel, log_tcp_options);
             }
 
             if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
                 retval = -1;
         }
 
-        snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
+        snprintf(cmd, sizeof(cmd), "%s INVALID -j DROP", create_state_string(ipv, iptcap));
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval = -1;
 
@@ -3570,18 +3579,18 @@ static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ru
                     RT_FORWARD, "DROP", "fw INVALID");
 
             if (conf.rule_nflog == 1) {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j NFLOG %s %s --nflog-group %u",
-                        limit, logprefix, loglevel, conf.nfgrp);
+                snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s %s --nflog-group %u",
+                        create_state_string(ipv, iptcap), limit, logprefix, loglevel, conf.nfgrp);
             } else {
-                snprintf(cmd, sizeof(cmd), "-m state --state INVALID %s -j LOG %s %s %s",
-                        limit, logprefix, loglevel, log_tcp_options);
+                snprintf(cmd, sizeof(cmd), "%s INVALID %s -j LOG %s %s %s",
+                        create_state_string(ipv, iptcap), limit, logprefix, loglevel, log_tcp_options);
             }
 
             if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
                 retval = -1;
         }
 
-        snprintf(cmd, sizeof(cmd), "-m state --state INVALID -j DROP");
+        snprintf(cmd, sizeof(cmd), "%s INVALID -j DROP", create_state_string(ipv, iptcap));
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval = -1;
     } else {
@@ -3779,7 +3788,7 @@ static int pre_rules_newaccept(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
         retval = -1;
 
-    snprintf(cmd, sizeof(cmd), "%s -p udp -m state --state NEW -j UDPLIMIT", connmark);
+    snprintf(cmd, sizeof(cmd), "%s -p udp %s NEW -j UDPLIMIT", connmark, create_state_string(ipv, iptcap));
     if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWACCEPT, cmd, 0, 0) < 0)
         retval = -1;
 
@@ -3824,7 +3833,7 @@ static int pre_rules_newqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
             retval = -1;
 
-        snprintf(cmd, sizeof(cmd), "-m connmark --mark 2 -p udp -m state --state NEW -j UDPLIMIT");
+        snprintf(cmd, sizeof(cmd), "-m connmark --mark 2 -p udp %s NEW -j UDPLIMIT", create_state_string(ipv, iptcap));
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
             retval = -1;
 
@@ -3908,8 +3917,8 @@ static int pre_rules_nfqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
             }
         }
 
-        snprintf(cmd, sizeof(cmd), "-m state --state ESTABLISHED,RELATED "
-                "-m connmark ! --mark 0 -j ESTRELNFQUEUE");
+        snprintf(cmd, sizeof(cmd), "%s ESTABLISHED,RELATED "
+                "-m connmark ! --mark 0 -j ESTRELNFQUEUE", create_state_string(ipv, iptcap));
         if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval = -1;
 
@@ -5344,7 +5353,7 @@ create_block_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, BlockList *bl
  */
 int
 create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
-        Rules *rules, int ipv)
+        Rules *rules, IptCap *iptcap, int ipv)
 {
     char                cmd[MAX_PIPE_COMMAND] = "";
     d_list_node         *d_node = NULL;
@@ -5396,15 +5405,15 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
             {
                 /* ESTABLISHED */
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
-                    "-m state --state ESTABLISHED -j NFQUEUE --queue-num %u",
-                    queue_num + NFQ_MARK_BASE, queue_num);
+                    "%s ESTABLISHED -j NFQUEUE --queue-num %u",
+                    queue_num + NFQ_MARK_BASE, create_state_string(ipv, iptcap), queue_num);
                 if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
                     retval = -1;
 
                 /* RELATED */
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
-                    "-m state --state RELATED -j NEWNFQUEUE",
-                    queue_num + NFQ_MARK_BASE);
+                    "%s RELATED -j NEWNFQUEUE",
+                    queue_num + NFQ_MARK_BASE, create_state_string(ipv, iptcap));
                 if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_ESTRELNFQUEUE, cmd, 0, 0) < 0)
                     retval=-1;
 
@@ -5426,7 +5435,7 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
  */
 int
 create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
-        Rules *rules, int ipv)
+        Rules *rules, IptCap *iptcap, int ipv)
 {
     char cmd[MAX_PIPE_COMMAND] = "";
     d_list_node *d_node = NULL;
@@ -5451,7 +5460,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
         retval = -1;
 
-    snprintf(cmd, sizeof(cmd), "-p udp -m state --state NEW,RELATED -j UDPLIMIT");
+    snprintf(cmd, sizeof(cmd), "-p udp %s NEW,RELATED -j UDPLIMIT", create_state_string(ipv, iptcap));
     if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
         retval = -1;
 
@@ -5486,8 +5495,8 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
             {
                 /* NEW */
                 snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
-                    "-m state --state NEW,RELATED -j NFQUEUE --queue-num %u",
-                    queue_num + NFQ_MARK_BASE, queue_num);
+                    "%s NEW,RELATED -j NFQUEUE --queue-num %u",
+                    queue_num + NFQ_MARK_BASE, create_state_string(ipv, iptcap), queue_num);
 
                 if (process_rule(debuglvl, ruleset, ipv, TB_FILTER, CH_NEWNFQUEUE, cmd, 0, 0) < 0)
                     retval = -1;

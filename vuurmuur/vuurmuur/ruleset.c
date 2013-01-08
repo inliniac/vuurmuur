@@ -1329,12 +1329,12 @@ ruleset_create_ruleset( const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset)
     }
 
     /* create NEWNFQUEUE target */
-    if(create_newnfqueue_rules(debuglvl, ruleset, vctx->rules, ruleset->ipv) < 0)
+    if(create_newnfqueue_rules(debuglvl, ruleset, vctx->rules, vctx->iptcaps, ruleset->ipv) < 0)
     {
         (void)vrprint.error(-1, "Error", "create newnfqueue failed.");
     }
     /* NFQUEUE related established */
-    if(create_estrelnfqueue_rules(debuglvl, ruleset, vctx->rules, ruleset->ipv) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, ruleset, vctx->rules, vctx->iptcaps, ruleset->ipv) < 0)
     {
         (void)vrprint.error(-1, "Error", "create estrelnfqueue failed.");
     }

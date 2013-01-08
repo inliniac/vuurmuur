@@ -486,22 +486,22 @@ create_all_rules(const int debuglvl, VuurmuurCtx *vctx, int create_prerules)
     }
 
     /* create the nfqueue state rules */
-    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, VR_IPV4) < 0)
+    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VR_IPV4) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
 #ifdef IPV6_ENABLED
-    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, VR_IPV6) < 0)
+    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VR_IPV6) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
 #endif
-    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, VR_IPV4) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VR_IPV4) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
 #ifdef IPV6_ENABLED
-    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, VR_IPV6) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VR_IPV6) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
