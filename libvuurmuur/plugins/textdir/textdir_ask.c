@@ -149,7 +149,8 @@ ask_textdir(const int debuglvl,
 
         strlcpy(variable, line, var_len);
 
-        (void)vrprint.debug(__FUNC__, "variable %s", variable);
+        if (debuglvl >= LOW)
+            (void)vrprint.debug(__FUNC__, "variable %s", variable);
 
         /* now see if this was what we were looking for */
         if(strcmp(question, variable) != 0) {
