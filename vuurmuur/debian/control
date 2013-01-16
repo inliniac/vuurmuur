@@ -7,7 +7,7 @@ Build-Depends: debhelper, libvuurmuur, libtool, libnfnetlink-dev, libnetfilter-l
 
 Package: vuurmuur
 Architecture: any
-Depends: libvuurmuur
+Depends: libvuurmuur, libnfnetlink0, libnetfilter-log1
 Recommends: iptables, vuurmuur-conf, iproute
 Conflicts: vuurmuur-log
 Description: Iptables frontend. Rule- and logdaemons and commandline utils.
