@@ -3,7 +3,7 @@ Priority: optional
 Maintainer: Victor Julien <victor@vuurmuur.org>
 Section: contrib/net
 Standards-Version: 3.6.2.1
-Build-Depends: debhelper, libvuurmuur, libtool
+Build-Depends: debhelper, libvuurmuur, libtool, libnfnetlink-dev, libnetfilter-log-dev
 
 Package: vuurmuur
 Architecture: any
