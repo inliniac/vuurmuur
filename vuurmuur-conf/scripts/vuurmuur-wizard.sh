@@ -278,7 +278,7 @@ function CreateInternetInterface
     DEV=$2
 
     if [ "$INET_DEV_DYNAMIC" = "1" ]; then
-        IP="";
+        IP="dynamic";
     else
         IP=`getipfordevice $DEV`
     fi
@@ -289,9 +289,6 @@ function CreateInternetInterface
     echo "$VMS --modify --interface $NAME --variable ACTIVE --set Yes  --overwrite" >> $CMD
     echo "$VMS --modify --interface $NAME --variable DEVICE --set $DEV  --overwrite" >> $CMD
     echo "$VMS --modify --interface $NAME --variable IPADDRESS --set \"$IP\"  --overwrite" >> $CMD
-    if [ "$INET_DEV_DYNAMIC" = "1" ]; then
-        echo "$VMS --modify --interface $NAME --variable DYNAMIC --set Yes  --overwrite" >> $CMD
-    fi
     echo "$VMS --modify --interface $NAME --variable COMMENT --set \"The network interface that is connected to the Internet\"  --overwrite" >> $CMD
 
     echo "# FIXME: interface rules" >> $CMD
@@ -303,7 +300,7 @@ function CreateLanInterface
     DEV=$2
 
     if [ "$LAN_DEV_DYNAMIC" = "1" ]; then
-        IP=""
+        IP="dynamic"
     else
         IP=`getipfordevice $DEV`
     fi
@@ -314,9 +311,6 @@ function CreateLanInterface
     echo "$VMS --modify --interface $NAME --variable ACTIVE --set Yes  --overwrite" >> $CMD
     echo "$VMS --modify --interface $NAME --variable DEVICE --set $DEV  --overwrite" >> $CMD
     echo "$VMS --modify --interface $NAME --variable IPADDRESS --set \"$IP\"  --overwrite" >> $CMD
-    if [ "$LAN_DEV_DYNAMIC" = "1" ]; then
-        echo "$VMS --modify --interface $NAME --variable DYNAMIC --set Yes  --overwrite" >> $CMD
-    fi
     echo "$VMS --modify --interface $NAME --variable COMMENT --set \"The network interface that is connected to the Lan\"  --overwrite" >> $CMD
 
     echo "# FIXME: interface rules" >> $CMD
@@ -434,7 +428,7 @@ function InitRules
     # first clear the rules
     echo "" >> $CMD
     echo "# Clearing existing rules..." >> $CMD
-    echo "$VMS --modify --rule rules --overwrite --variable RULES --set \"\"" >> $CMD
+    echo "$VMS --modify --rule rules --overwrite --variable rules --set \"\"" >> $CMD
 }
 
 function SelectForwardingRules
@@ -447,6 +441,7 @@ function SelectForwardingRules
 	"ftp" "file transfer protocol" ON \
 	"pop3" "email retrieval" OFF \
 	"imap" "remote email management" OFF \
+	"smtp" "sending email" OFF \
 	"ssh" "secure remote shell access" OFF \
 	"snat" "Apply Source NAT to the enabled services " ON \
 	2> $TMP
@@ -474,12 +469,13 @@ function SelectOutgoingRules
 	"ftp" "file transfer protocol" ON \
 	"pop3" "email retrieval" OFF \
 	"imap" "remote email management" OFF \
+	"smtp" "sending email" OFF \
 	"ssh" "secure remote shell access" OFF \
 	2> $TMP
 
     echo "" >> $CMD
     echo "# OUTGOING Rules..." >> $CMD
-    echo "$VMS --modify --rule rules --append --variable RULE --set \"separator options comment=\\\"OUTGOING rules\\\"\"" >> $CMD
+    echo "$VMS --modify --rule rules --variable RULE --set \"separator options comment=\\\"OUTGOING rules\\\"\"" >> $CMD
     for rawservice in `cat $TMP`; do
     	SERVICE=`stripit $rawservice`
     	echo "$VMS --modify --rule rules --append --variable RULE --set \"accept service $SERVICE from firewall to $INTERNET options log,loglimit=\\\"1\\\"\"" >> $CMD
@@ -528,7 +524,7 @@ SelectInternetInterface
 
 SelectLanInterface
 
-InitRules
+#InitRules
 SelectOutgoingRules
 SelectIncomingInternetRules
 if [ $HAVE_LAN = "1" ]; then
@@ -539,5 +535,9 @@ fi
 #cat $CMD
 
 echo ""
-echo "The commands the wizard creates are not yet automatically executed. See $CMD for the script that is created."
+#echo "The commands the wizard creates are not yet automatically executed. See $CMD for the script that is created."
+chmod a+x ${CMD}
+eval ${CMD}
+echo "Done. Use \"vuurmuur_conf\" to fine tune your config."
+
 
