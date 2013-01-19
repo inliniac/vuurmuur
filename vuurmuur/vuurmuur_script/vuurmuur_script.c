@@ -45,11 +45,6 @@ main(int argc, char *argv[])
     char            tmp_set[sizeof(vr_script.set)] = "";
     char            *str = NULL;
 
-    static struct option long_options2[] =
-    {
-        {"list-devices",0, NULL, 0},
-        {NULL,          0, NULL, 0}
-    };
     static struct option long_options[] =
     {
         /* commands */
@@ -138,24 +133,9 @@ main(int argc, char *argv[])
 
     /* handle commandline options that don't require a config so they can be
      * used by the wizard. */
-    opterr = 0; /* no need for getopt_long to emit errors */
-    while((opt = getopt_long(argc, argv, optstring, long_options2, &longopt_index)) >= 0)
-    {
-        switch(opt)
-        {
-            /* first handle the longoption only options */
-            case 0:
-                /* If this option set a flag, do nothing else now. */
-
-                if(long_options2[longopt_index].flag != NULL)
-                    break;
-                else if(strcmp(long_options2[longopt_index].name, "list-devices") == 0)
-                {
-                    script_list_devices(debuglvl);
-                    exit(EXIT_SUCCESS);
-                }
-                break;
-        }
+    if (argc > 1 && strcmp(argv[1], "--list-devices") == 0) {
+        script_list_devices(debuglvl);
+        exit(EXIT_SUCCESS);
     }
 
     /* some initilization */
@@ -179,12 +159,6 @@ main(int argc, char *argv[])
 
                 if(long_options[longopt_index].flag != NULL)
                     break;
-/*
-                printf ("option %s", long_options[longopt_index].name);
-                if (optarg)
-                    printf (" with arg %s", optarg);
-                printf ("\n");
-*/
                 if(strcmp(long_options[longopt_index].name, "block") == 0)
                 {
                     /* block
