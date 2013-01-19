@@ -112,6 +112,7 @@ binary-arch: build install
 #	install -m 700 -o root -g root scripts/vuurmuur-searchlog.sh debian/vuurmuur-conf/usr/share/vuurmuur/scripts/vuurmuur-searchlog.sh
 
 	install -m 700 -o root -g root -d debian/vuurmuur-conf/var/log/vuurmuur
+	chmod a+x debian/vuurmuur-conf/usr/share/vuurmuur/scripts/vuurmuur-wizard.sh
 
 # default settings file
 
