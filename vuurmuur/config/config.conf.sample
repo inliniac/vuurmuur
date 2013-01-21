@@ -9,6 +9,9 @@ INTERFACES_BACKEND="textdir"
 
 RULES_BACKEND="textdir"
 
+# Location of the sysctl-command (full path).
+SYSCTL="/sbin/sysctl"
+
 # Location of the iptables-command (full path).
 IPTABLES="/sbin/iptables"
 
