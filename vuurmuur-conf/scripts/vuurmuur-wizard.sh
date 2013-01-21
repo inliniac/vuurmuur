@@ -229,6 +229,9 @@ function CreateInternetNetwork
         echo "# Enabling DHCP client access for $INTERNET" >> $CMD
     	echo "$VMS --modify --network $INTERNET --overwrite --variable RULE --set \"accept dhcp-client\"" >> $CMD
     fi
+
+    echo "# Updating network $INTERNET with interface $INET_INT..." >> $CMD
+    echo "$VMS --modify --network $INTERNET --variable INTERFACE --set $INET_INT  --overwrite" >> $CMD
 }
 
 function CreateLanNetwork
@@ -366,9 +369,6 @@ function SelectInternetInterface
 
     INET_INT=`GetInternetInterfaceName $INET_DEV`
     CreateInternetInterface $INET_INT $INET_DEV
-
-    echo "# Updating network $INTERNET with interface $INET_INT..." >> $CMD
-    echo "$VMS --modify --network $INTERNET --variable INTERFACE --set $INET_INT  --overwrite" >> $CMD
 }
 
 function SelectLanInterface
@@ -519,8 +519,8 @@ DisplayInitialWarning
 
 CreateZones
 
-CreateInternetNetwork
 SelectInternetInterface
+CreateInternetNetwork
 
 SelectLanInterface
 
