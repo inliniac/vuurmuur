@@ -427,8 +427,8 @@ function InitRules
 {
     # first clear the rules
     echo "" >> $CMD
-    echo "# Clearing existing rules..." >> $CMD
-    echo "$VMS --modify --rule rules --overwrite --variable rules --set \"\"" >> $CMD
+    echo "# Create rules in backend..." >> $CMD
+    echo "$VMS --create --rule rules" >> $CMD
 }
 
 function SelectForwardingRules
@@ -524,7 +524,7 @@ CreateInternetNetwork
 
 SelectLanInterface
 
-#InitRules
+InitRules
 SelectOutgoingRules
 SelectIncomingInternetRules
 if [ $HAVE_LAN = "1" ]; then
