@@ -1,7 +1,7 @@
 AC_INIT(configure.in)
 
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(libvuurmuur,0.8beta4)
+AM_INIT_AUTOMAKE(libvuurmuur,0.8rc1)
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_LANG_C

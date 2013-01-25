@@ -3,7 +3,7 @@ AC_INIT(configure.in)
 AC_USE_SYSTEM_EXTENSIONS
 
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(vuurmuur_conf,0.8beta4)
+AM_INIT_AUTOMAKE(vuurmuur_conf,0.8rc1)
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_LANG_C

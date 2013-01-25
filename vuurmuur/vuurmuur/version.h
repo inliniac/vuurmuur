@@ -21,6 +21,6 @@
 #ifndef __VERSION_H__
 #define __VERSION_H__
 
-#define VUURMUUR_VERSION		"0.8beta4"
+#define VUURMUUR_VERSION		"0.8rc1"
  
 #endif
