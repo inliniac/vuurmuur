@@ -72,7 +72,11 @@ static char *create_state_string(int ipv, IptCap *iptcap) {
         else
             return "-m state --state";
     } else {
-        if (conf.check_iptcaps == FALSE || iptcap->match_ip6_conntrack == TRUE)
+        if (conf.check_iptcaps == FALSE
+#ifdef IPV6_ENABLED
+            || iptcap->match_ip6_conntrack == TRUE
+#endif
+            )
             return "-m conntrack --ctstate";
         else
             return "-m state --state";
@@ -613,7 +617,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
             create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
 
-            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" %s -m connmark --mark 0 -j CONNMARK --set-mark %u",
+            snprintf(cmd, sizeof(cmd), "%s %s %s %s %s -m helper --helper \"%s\" %s RELATED -m connmark --mark 0 -j CONNMARK --set-mark %u",
                 input_device, rule->proto, rule->temp_src,
                 rule->temp_dst, rule->from_mac, rule->helper,
                 create_state_string(rule->ipv, iptcap), connmark);
