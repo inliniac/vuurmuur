@@ -582,9 +582,9 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
     int                 port=0,
                         range=0;
 
-    char                current_portrange[28] = "",   /* 3+1+5+1+5+1+5+1+5+1 eg. 6,12345:56789*12345:56789 */
-                        src_portrange[12] = "",
-                        dst_portrange[12] = "";
+    char                current_portrange[32] = "",   /* 3+1+5+1+5+1+5+1+5+1 eg. 6,12345:56789*12345:56789 */
+                        src_portrange[16] = "",
+                        dst_portrange[16] = "";
 
     struct portdata     *portrange_ptr = NULL;
 
@@ -978,10 +978,9 @@ int
 services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
 {
     struct portdata *port_ptr = NULL;
-    char            prot_format[24] = "",
-                    frmt_src[12] = "",
-                    frmt_dst[12] = "";
-
+    char            prot_format[32] = "",
+                    frmt_src[16] = "",
+                    frmt_dst[16] = "";
     d_list_node     *d_node = NULL;
     char            overwrite = 1;
 
