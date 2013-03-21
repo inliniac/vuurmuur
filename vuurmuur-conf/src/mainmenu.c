@@ -989,7 +989,7 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ d_list *status_list, Zones 
                 VuurmuurStatus.zones = 0;
 
                 queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.zones,
-                    gettext("- The network '%s' as no interfaces attached to it. Please attach one or more interfaces to it in the Zones Section\n"),
+                    gettext("- The network '%s' has no interfaces attached to it. Please attach one or more interfaces to it in the Zones Section\n"),
                     zone_ptr->name);
             }
 
