@@ -5075,12 +5075,14 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
     getmaxyx(stdscr, max_height, max_width);
 
     height = 21;
-    if(height > max_height - 6)
-        height = max_height - 6;
-
     width = 78;
     startx = 1;
     starty = 3;
+
+    if (height > max_height - 6) {
+        height = max_height - 3;
+        starty = 2;
+    }
 
     if(!(zone_ptr = search_zonedata(debuglvl, zones, name)))
     {
