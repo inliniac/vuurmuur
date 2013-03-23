@@ -61,6 +61,76 @@ VrBusyWinDelete(const int debuglvl)
     VrDelWin(vr_busywin);
 }
 
+/**
+ *  \param yj y justify: -1 up, 0 center, 1 down
+ *  \param xj x justify: -1 left, 0 center, 1 right
+ */
+int VrWinGetOffset(int yj, int xj, int h, int w, int yo, int xo, int *y, int *x) {
+    int maxy, maxx;
+    int starty, startx;
+
+    /* get current screen size */
+    getmaxyx(stdscr, maxy, maxx);
+
+    if (h > maxy || w > maxx)
+        return -1;
+
+    if (yj == -1) {
+        starty = 0;
+        while (starty + h < maxy) {
+            starty++;
+            if (starty == yo)
+                break;
+        }
+        if (starty < yo && starty > 0)
+            starty--;
+
+    } else if (yj == 1) {
+        starty = maxy - h;
+        while (starty > 0) {
+            starty--;
+            if (starty == yo)
+                break;
+        }
+    } else {
+        starty = (maxy - h) / 2;
+    }
+
+    if (xj == -1) {
+        startx = 0;
+        while (startx + w < maxx) {
+            startx++;
+            if (startx == xo)
+                break;
+        }
+        if (startx < xo && startx > 0)
+            startx--;
+    } else if (xj == 1) {
+        startx = maxx - w;
+        while (startx > 0) {
+            startx--;
+            if (startx == xo)
+                break;
+        }
+    } else {
+        startx = (maxx - w) / 2;
+    }
+
+    while (starty + h > maxy)
+        starty--;
+    while (startx + w > maxx)
+        startx--;
+
+    /* magic: keep upper and lower 3 lines free if possible */
+    while (starty > 3 && maxy - (starty + h) < 3)
+        starty--;
+
+    *y = starty;
+    *x = startx;
+    return 0;
+}
+
+
 
 VrWin *
 VrNewWin(int h, int w, int y, int x, chtype cp)

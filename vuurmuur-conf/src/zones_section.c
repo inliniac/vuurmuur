@@ -44,6 +44,9 @@ struct ZonesSection_
     WINDOW  *z_win_top;
     WINDOW  *z_win_bot;
 
+    int z_yle;  /**< window y lower edge */
+    int z_xre;  /**< window x right edge */
+
     /* networks */
     WINDOW  *n_win;
     PANEL   *n_panel[1];
@@ -58,6 +61,9 @@ struct ZonesSection_
     PANEL   *n_panel_bot[1];
     WINDOW  *n_win_top;
     WINDOW  *n_win_bot;
+
+    int n_yle;  /**< window y lower edge */
+    int n_xre;  /**< window x right edge */
 
     /* hosts and groups */
     WINDOW  *h_win;
@@ -74,8 +80,10 @@ struct ZonesSection_
     WINDOW  *h_win_top;
     WINDOW  *h_win_bot;
 
+    int h_yle;  /**< window y lower edge */
+    int h_xre;  /**< window x right edge */
 
-    /* edit a zone/network/host/group */ 
+    /* edit a zone/network/host/group */
     struct EditZone_
     {
         PANEL   *panel[1];
@@ -189,12 +197,10 @@ struct
 
 
 static int
-edit_zone_host_init(const int debuglvl, char *name, int height, int width, int startx, int starty, struct ZoneData_ *zone_ptr)
+edit_zone_host_init(const int debuglvl, char *name, int height, int width, int starty, int startx, struct ZoneData_ *zone_ptr)
 {
     int     rows,
             cols,
-            max_height,
-            max_width,
             comment_y = 0,  /* for the dimentions of */
             comment_x = 0;  /* the comment field */
     int     field_num = 0;
@@ -207,9 +213,6 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
                                 __FUNC__, __LINE__);
         return(-1);
     }
-
-    /* get screen dimensions */
-    getmaxyx(stdscr, max_height, max_width);
 
     /* alloc fields */
     ZonesSection.EditZone.n_fields = 11;
@@ -289,7 +292,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
 
     /* create the window & panel */
-    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Host"), vccnf.color_win)))
+    if(!(ZonesSection.EditZone.win = create_newwin(height, width, starty, startx, gettext("Edit Zone: Host"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -343,6 +346,8 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
 
     /* draw */
     wrefresh(ZonesSection.EditZone.win);
+    update_panels();
+    doupdate();
     return(0);
 }
 
@@ -665,15 +670,10 @@ edit_zone_host(const int debuglvl, Zones *zones, char *name, struct rgx_ *reg)
         return(-1);
     }
 
-    /* screen dimentions */
-    getmaxyx(stdscr, max_height, max_width);
     height = 18;
-    if(height > max_height - 6)
-        height = max_height - 6;
-
     width = 54;
-    startx = 3;
-    starty = 24;
+    /* place on the same y as zones list */
+    VrWinGetOffset(-1, -1, height, width, ZonesSection.h_yle + 1, ZonesSection.n_xre + 1, &starty, &startx);
 
     /* search the host in memory */
     if(!(zone_ptr = search_zonedata(debuglvl, zones, name)))
@@ -684,7 +684,7 @@ edit_zone_host(const int debuglvl, Zones *zones, char *name, struct rgx_ *reg)
     }
 
     /* init */
-    if(edit_zone_host_init(debuglvl, name, height, width, startx, starty, zone_ptr) < 0)
+    if(edit_zone_host_init(debuglvl, name, height, width, starty, startx, zone_ptr) < 0)
     {
         (void)vrprint.error(-1, VR_INTERR, "setting up the host window failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
@@ -707,6 +707,8 @@ edit_zone_host(const int debuglvl, Zones *zones, char *name, struct rgx_ *reg)
 
     draw_top_menu(debuglvl, top_win, gettext("Edit Host"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
+    update_panels();
+    doupdate();
     status_print(status_win, "Ready.");
 
     /* loop through to get user requests */
@@ -940,14 +942,10 @@ zones_section_menu_hosts_init(const int debuglvl, Zones *zones, char *zonename, 
     /* now set the size of the window */
     height = (int)(ZonesSection.host_n + 9);
     width  = MAX_HOST + 18 + 2;
-    startx = 3;
-    starty = 8;
-
-    if((starty + height) > (maxy - 3))
-    {
-        starty = 3;
-        height = maxy - 2 * starty;
-    }
+    /* place on the same y as zones list */
+    VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.n_xre + 1, &starty, &startx);
+    ZonesSection.h_yle = starty + height;
+    ZonesSection.h_xre = startx + width;
 
     if(!(ZonesSection.h_win = newwin(height, width, starty, startx)))
     {
@@ -5028,12 +5026,11 @@ edit_zone_network_destroy(void)
     return(retval);
 }
 
-
 /*  edit_zone_network
 
     The TmpZone crap here is the fault of edit_zone_network_save.
     See the comment above that function for more horror...
-    
+
     Returncodes:
          1: ok, changes
          0: ok, no changes
@@ -5052,7 +5049,8 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
                         startx = 0,
                         starty = 0,
                         max_height = 0,
-                        max_width = 0;
+                        max_width = 0,
+                        yoff;
     FIELD               *cur = NULL,
                         *prev = NULL;
     char                *key_choices[] =    {   "F12",
@@ -5071,18 +5069,10 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
         return(-1);
     }
 
-    /* get current screen size */
-    getmaxyx(stdscr, max_height, max_width);
-
     height = 21;
     width = 78;
-    startx = 1;
-    starty = 3;
-
-    if (height > max_height - 6) {
-        height = max_height - 3;
-        starty = 2;
-    }
+    yoff = ZonesSection.n_yle + 1 > ZonesSection.z_yle + 1 ? ZonesSection.n_yle + 1 : ZonesSection.z_yle + 1;
+    VrWinGetOffset(-1, -1, height, width, yoff, ZonesSection.z_xre/2, &starty, &startx);
 
     if(!(zone_ptr = search_zonedata(debuglvl, zones, name)))
     {
@@ -5290,7 +5280,7 @@ zones_section_menu_networks_init(const int debuglvl, Zones *zones, char *zonenam
         (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    
+
     /* get screen dimentions */
     getmaxyx(stdscr, maxy, maxx);
 
@@ -5317,7 +5307,7 @@ zones_section_menu_networks_init(const int debuglvl, Zones *zones, char *zonenam
     }
 
     i = ZonesSection.network_n - 1;
-    
+
     if(!(ZonesSection.networkitems = (ITEM **)calloc(ZonesSection.network_n + 1, sizeof(ITEM *))))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
@@ -5333,7 +5323,7 @@ zones_section_menu_networks_init(const int debuglvl, Zones *zones, char *zonenam
             (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        
+
         if(zone_ptr->type == TYPE_NETWORK  && strcmp(zone_ptr->zone_name, zonename)== 0)
         {
             if(zone_ptr->ipv4.network[0] == '\0' || zone_ptr->ipv4.netmask[0] == '\0')
@@ -5387,14 +5377,10 @@ zones_section_menu_networks_init(const int debuglvl, Zones *zones, char *zonenam
 
     height = (int)(ZonesSection.network_n + 10);
     width  = MAX_NETWORK + 32 + 4;
-    startx = 2;
-    starty = 6;
-
-    if(maxy < starty + height + 3)
-    {
-        starty = 3;
-        height = maxy - 2 * starty;
-    }
+    /* place on the same y as zones list */
+    VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.z_xre + 1, &starty, &startx);
+    ZonesSection.n_yle = starty + height;
+    ZonesSection.n_xre = startx + width;
 
     if(!(ZonesSection.n_win = newwin(height, width, starty, startx)))
     {
@@ -6372,6 +6358,9 @@ zones_section_init(const int debuglvl, Zones *zones)
         starty = 3;
         height = maxy - 2 * starty;
     }
+
+    ZonesSection.z_yle = starty + height;
+    ZonesSection.z_xre = startx + width;
 
     if(!(ZonesSection.win = newwin(height, width, starty, startx)))
     {

@@ -101,6 +101,7 @@ void VrBusyWinShow(void);
 void VrBusyWinHide(void);
 void VrBusyWinDelete(const int debuglvl);
 
+int VrWinGetOffset(int yj, int xj, int h, int w, int yo, int xo, int *y, int *x);
 VrWin *VrNewWin(int h, int w, int y, int x, chtype cp);
 void VrDelWin(VrWin *win);
 int VrWinSetTitle(VrWin *win, char *title);
