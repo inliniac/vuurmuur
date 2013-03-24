@@ -27,7 +27,6 @@ struct ServicesSection_
     WINDOW  *win;
     MENU    *menu;
     ITEM    **items;
-
     ITEM    *top,
             *bot;
     PANEL   *panel_top[1];
@@ -35,6 +34,8 @@ struct ServicesSection_
     WINDOW  *win_top;
     WINDOW  *win_bot;
 
+    int sl_xre; /**< x right edge */
+    int sl_yle; /**< y lower edge */
     unsigned int     list_items;
 
     struct EditService_
@@ -53,13 +54,14 @@ struct ServicesSection_
 
         d_list  item_list;
         d_list  item_number_list;
-    
+
+        int se_xre; /**< x right edge */
+        int se_yle; /**< y lower edge */
     } EditService;
 
     struct EditService_ EditServicePrt;
-    
-    char comment[512];
 
+    char comment[512];
 } ServicesSection;
 
 
@@ -1579,9 +1581,8 @@ edit_serv_portranges_init(const int debuglvl, struct ServicesData_ *ser_ptr)
     if((height + 6) > max_height)
         height = max_height - 6;
 
-    /* place on 2/3 of the screen */
-    starty = (max_height - height) / 2;
-    startx = (max_width - width) / 2;
+    /* place on the same y as "edit service" */
+    VrWinGetOffset(-1, -1, height, width, 4, ServicesSection.EditService.se_xre + 1, &starty, &startx);
 
     // string item list
     d_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_list, free);
@@ -2060,7 +2061,7 @@ edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
     struct portdata *portrange_ptr = NULL;
     d_list_node     *d_node = NULL;
     size_t          field_num = 0,
-            i = 0;
+                    i = 0;
 
     /* safety */
     if(ser_ptr == NULL)
@@ -2071,17 +2072,18 @@ edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
 
     memset(&ServiceSec, 0, sizeof(ServiceSec));
 
-    /* get the screen dimentions */
+    /* get the screen dimentions for dynamically
+     * sizing the window */
     getmaxyx(stdscr, max_height, max_width);
-
     height = 20 + ser_ptr->PortrangeList.len;
     if(height > max_height - 6)
         height = max_height - 6;
-
     width = 54;
 
-    startx = 3;
-    starty = 24;
+    /* place on the same y as "edit service" */
+    VrWinGetOffset(-1, -1, height, width, 4, ServicesSection.sl_xre + 1, &starty, &startx);
+    ServicesSection.EditService.se_xre = startx + width;
+    ServicesSection.EditService.se_yle = starty + height;
 
     /* 4 fields: active, broadcast, comment and helper */
     ServicesSection.EditService.n_fields = 9;
@@ -2161,7 +2163,7 @@ edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
     set_field_fore(ServiceSec.norangewarningfld, vccnf.color_win_warn|A_BOLD);
 
     /* create window and panel */
-    ServicesSection.EditService.win = create_newwin(height, width, startx, starty, gettext("Edit Service"), vccnf.color_win);
+    ServicesSection.EditService.win = create_newwin(height, width, starty, startx, gettext("Edit Service"), vccnf.color_win);
     keypad(ServicesSection.EditService.win, TRUE);
     ServicesSection.EditService.panel[0] = new_panel(ServicesSection.EditService.win);
 
@@ -2523,7 +2525,7 @@ rename_service(const int debuglvl, Services *services, Rules *rules, char *cur_n
 
 
 static int
-init_services_section(const int debuglvl, Services *services, int height, int width, int startx, int starty)
+init_services_section(const int debuglvl, Services *services, int height, int width, int starty, int startx)
 {
     int                     retval=0,
                             i=0;
@@ -2556,7 +2558,7 @@ init_services_section(const int debuglvl, Services *services, int height, int wi
         ServicesSection.bot = NULL;
     }
 
-    ServicesSection.win = newwin(height, width, startx, starty);
+    ServicesSection.win = newwin(height, width, starty, startx);
     wbkgd(ServicesSection.win, vccnf.color_win);
     keypad(ServicesSection.win, TRUE);
     ServicesSection.panel[0] = new_panel(ServicesSection.win);
@@ -2677,10 +2679,13 @@ services_section(const int debuglvl, Services *services, Rules *rules, struct rg
     // todo
     height = LINES-8;
     width = 34;
-    startx = 4;
-    starty = 1;
 
-    result = init_services_section(debuglvl, services, height, width, startx, starty);
+    /* place on the same y as "edit service" */
+    VrWinGetOffset(-1, -1, height, width, 4, 1, &starty, &startx);
+    ServicesSection.sl_xre = startx + width;
+    ServicesSection.sl_yle = starty + height;
+
+    result = init_services_section(debuglvl, services, height, width, starty, startx);
     if(result < 0)
         return;
 
@@ -2697,7 +2702,7 @@ services_section(const int debuglvl, Services *services, Rules *rules, struct rg
             if(result < 0)
                 return;
 
-            result = init_services_section(debuglvl, services, height, width, startx, starty);
+            result = init_services_section(debuglvl, services, height, width, starty, startx);
             if(result < 0)
                 return;
 
