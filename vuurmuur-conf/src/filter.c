@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2008 by Victor Julien                              *
+ *   Copyright (C) 2003-2013 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -151,11 +151,11 @@ filter_input_box(const int debuglvl, VR_filter *filter)
     width = 48;
 
     /* print on the center of the screen */
-    startx = (max_height - height) / 2;
-    starty = (max_width - width) / 2;
+    starty = (max_height - height) / 2;
+    startx = (max_width - width) / 2;
 
     /* create window */
-    ib_win = create_newwin(height, width, startx, starty, gettext("Filter"), vccnf.color_win);
+    ib_win = create_newwin(height, width, starty, startx, gettext("Filter"), vccnf.color_win);
     if(ib_win == NULL)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
@@ -178,7 +178,7 @@ filter_input_box(const int debuglvl, VR_filter *filter)
                                 strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
- 
+
     FiFi.string_fld = (FiFi.fields[0] = new_field(1, 31, 3,  4, 0, 0));
     FiFi.check_fld = (FiFi.fields[1]  = new_field(1,  1, 5,  5, 0, 0));
 
@@ -204,7 +204,6 @@ filter_input_box(const int debuglvl, VR_filter *filter)
      * in the middle of a window to prevent hacks like this. */
     char *s = gettext("Enter filter (leave empty for no filter)");
     mvwprintw(ib_win, 2, (width - StrLen(s))/2, s);
-    
     mvwprintw(ib_win, 6, 6, "[");
     mvwprintw(ib_win, 6, 8, "]");
     mvwprintw(ib_win, 6, 11, gettext("show lines that don't match"));
