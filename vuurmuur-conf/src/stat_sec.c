@@ -294,13 +294,13 @@ int get_system_uptime(char *s_day, char *s_hour, char *s_minute, char *s_second)
 
     This function creates the status section window and the fields inside it.
     It also draws - alot of - lines.
-    
+
     Returncodes:
          0: ok
         -1: error
 */
 int
-status_section_init(const int debuglvl, int height, int width, int startx, int starty, unsigned int ifac_num)
+status_section_init(const int debuglvl, int height, int width, int starty, int startx, unsigned int ifac_num)
 {
     int             rows,
                     cols,
@@ -320,7 +320,7 @@ status_section_init(const int debuglvl, int height, int width, int startx, int s
 
     /* set the number of fields */
     StatusSection.n_fields = (size_t)(16 + (6 * ifac_num));
-    
+
     /* alloc the needed memory */
     if(!(StatusSection.fields = (FIELD **)calloc(StatusSection.n_fields + 1, sizeof(FIELD *))))
     {
@@ -399,7 +399,7 @@ status_section_init(const int debuglvl, int height, int width, int startx, int s
     StatusSection.fields[StatusSection.n_fields] = NULL;
 
     /* create the window and the panel */
-    if(!(StatusSection.win = create_newwin(height, width, startx, starty, gettext("Status Section"), vccnf.color_win)))
+    if(!(StatusSection.win = create_newwin(height, width, starty, startx, gettext("Status Section"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -417,7 +417,7 @@ status_section_init(const int debuglvl, int height, int width, int startx, int s
             set_field_back(StatusSection.fields[i], vccnf.color_win_rev);
         else
             set_field_back(StatusSection.fields[i], vccnf.color_win);
-        
+
         field_opts_off(StatusSection.fields[i], O_AUTOSKIP);
         /* set status to false */
         set_field_status(StatusSection.fields[i], FALSE);
@@ -512,12 +512,12 @@ status_section_init(const int debuglvl, int height, int width, int startx, int s
     /*
         DRAW THE LINES
     */
-    
+
     /* kernel and domainname */
     mvwvline(StatusSection.win,  1, 14, ACS_VLINE, 2);
     mvwvline(StatusSection.win,  1, 53, ACS_VLINE, 2);
     mvwvline(StatusSection.win,  1, 62, ACS_VLINE, 2);
-    
+
     /* T-pieces on top */
     mvwaddch(StatusSection.win,  0, 14, ACS_TTEE);
     mvwaddch(StatusSection.win,  0, 53, ACS_TTEE);
@@ -526,7 +526,7 @@ status_section_init(const int debuglvl, int height, int width, int startx, int s
     mvwhline(StatusSection.win,  3, 1,  ACS_HLINE, 76);
     mvwaddch(StatusSection.win,  3, 0,  ACS_LTEE);
     mvwaddch(StatusSection.win,  3, 77, ACS_RTEE);
-    
+
     mvwaddch(StatusSection.win,  3, 14, ACS_PLUS);
     mvwaddch(StatusSection.win,  3, 20, ACS_TTEE);
     mvwaddch(StatusSection.win,  3, 26, ACS_TTEE);
@@ -553,7 +553,7 @@ status_section_init(const int debuglvl, int height, int width, int startx, int s
     mvwhline(StatusSection.win,  6, 1,  ACS_HLINE, 76);
     mvwaddch(StatusSection.win,  6, 0,  ACS_LTEE);
     mvwaddch(StatusSection.win,  6, 77, ACS_RTEE);
-    
+
     mvwaddch(StatusSection.win,  6, 14, ACS_PLUS);
 
     mvwaddch(StatusSection.win,  6, 20, ACS_BTEE);
@@ -562,10 +562,10 @@ status_section_init(const int debuglvl, int height, int width, int startx, int s
     mvwaddch(StatusSection.win,  6, 44, ACS_BTEE);
     mvwaddch(StatusSection.win,  6, 50, ACS_TTEE);
     mvwaddch(StatusSection.win,  6, 52, ACS_BTEE);
-    
+
     mvwaddch(StatusSection.win,  6, 60, ACS_BTEE);
     mvwaddch(StatusSection.win,  6, 68, ACS_PLUS);
-    
+
     /* uptime fields */
     mvwvline(StatusSection.win,  7, 14, ACS_VLINE, 2);
     mvwvline(StatusSection.win,  7, 32, ACS_VLINE, 2);
@@ -748,7 +748,7 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, In
 
                             send_net,
                             recv_net,
-                            
+
                             send_net_packets,
                             recv_net_packets;
 

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2008 by Victor Julien                              *
+ *   Copyright (C) 2003-2013 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -25,7 +25,7 @@
 #endif /* HAVE_NC_WIDE_HEADERS */
 #if defined(NCURSES_VERSION_PATCH) && (NCURSES_VERSION_PATCH < 20071013)
 #define NCURSES_FIELD_INTERNALS char** expanded; WINDOW *working;
-#endif 
+#endif
 #endif /* USE_WIDEC */
 #include "main.h"
 
@@ -56,7 +56,7 @@ confirm(char *title, char *text, chtype forecolor, chtype backcolor, int def)
 
     size_t  n_choices = 2,
             i = 0;
-        
+
     int     ch,
             quit = 0;
 
@@ -199,7 +199,6 @@ confirm(char *title, char *text, chtype forecolor, chtype backcolor, int def)
     free(print_title);
     update_panels();
     doupdate();
-      
     return(retval);
 }
 
@@ -231,7 +230,7 @@ input_box(size_t length, char *title, char *description)
         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(NULL);
     }
-    
+
     // set the window size
     getmaxyx(stdscr, max_height, max_width);
     height = 8;
@@ -246,7 +245,7 @@ input_box(size_t length, char *title, char *description)
         return NULL;
     }
     else
-    {  
+    {
         width = (int)length + 8;
         if((int)StrLen(title) + 8 > width)
             width = (int)StrLen(title)+8;
@@ -256,11 +255,11 @@ input_box(size_t length, char *title, char *description)
     }
 
     // print on the centre of the screen
-    startx = (max_height-height)/2;
-    starty = (max_width-width)/2;
+    starty = (max_height-height)/2;
+    startx = (max_width-width)/2;
 
     // create window
-    ib_win = create_newwin(height, width, startx, starty, title, vccnf.color_win);
+    ib_win = create_newwin(height, width, starty, startx, title, vccnf.color_win);
 
     my_panels[0] = new_panel(ib_win);
 
@@ -282,7 +281,7 @@ input_box(size_t length, char *title, char *description)
 
     mvwprintw(ib_win, 2, 4, "%s", description);
     mvwprintw(ib_win, 6, 4, gettext("Note: whitespaces not allowed."));
-  
+
     update_panels();
     doupdate();
 
@@ -339,7 +338,7 @@ input_box(size_t length, char *title, char *description)
     }
 
     free(temp_ptr);
-  
+
     unpost_form(my_form);
     free_form(my_form);
 
@@ -366,9 +365,9 @@ input_box(size_t length, char *title, char *description)
     length of the items and correct the flawed values ncurses comes up with.
     Of course, we don't touch it when we are not in wide mode, and try not
     to change anything unneeded.
-    
+
     Currently we handle two cases:
-    
+
     1. one column, name + desc:
         - name len
         - desc len
@@ -401,7 +400,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
     {
         name_len = 0;
         desc_len = 0;
-    
+
         if(items[i] != NULL)
         {
             /* name */
@@ -416,7 +415,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
                     "%s, len %u", items[i]->name.str,
                     name_len);
             }
-        
+
             /* description */
             if(items[i]->description.str != NULL)
             {
@@ -452,7 +451,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
 
         menu->desclen = max_desc_len;
     }
-    
+
     /* adjust menu->width if needed */
     if(menu->cols == 1)
     {
@@ -577,7 +576,7 @@ vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
     va_end(ap);
-  
+
     getmaxyx(stdscr, max_height, max_width);
 
     width = (int)StrLen(long_str) + 13;
@@ -588,11 +587,11 @@ vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
 
     starty = (max_height - height) / 2;
     startx = (max_width - width) / 2;
-    
+
     err_win = create_newwin(height, width, starty, startx, title, vccnf.color_win_warn|A_BOLD);
     if(err_win == NULL)
         return(-1);
-    
+
     print_err_win = newwin(height-4, width-6, starty+2, startx+3);
     if(print_err_win == NULL)
         return(-1);

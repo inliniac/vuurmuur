@@ -2057,7 +2057,7 @@ edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
                     cols,
                     comment_y=0,
                     comment_x=0;
-    int             height, width, startx, starty, max_height, max_width;
+    int             height, width, starty, startx, max_height, max_width;
     struct portdata *portrange_ptr = NULL;
     d_list_node     *d_node = NULL;
     size_t          field_num = 0,
