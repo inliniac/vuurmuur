@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2012 by Victor Julien                              *
+ *   Copyright (C) 2003-2013 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -37,6 +37,9 @@ struct InterfacesSection_
     PANEL           *panel_bot[1];
     WINDOW          *win_top;
     WINDOW          *win_bot;
+
+    int i_yle;
+    int i_xre;
 
     struct EditInterface_
     {
@@ -117,7 +120,7 @@ void VrTcpmssIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
         (void)vrprint.error(-1, VR_ERR, "VrTcpmssIfaceSetup failed");
         return;
     }
-    
+
     /* create the window and put it in the middle of the screen */
     win = VrNewWin(11,51,0,0,vccnf.color_win);
     if(win == NULL)
@@ -460,11 +463,11 @@ struct
             *commentlabelfld;
 
     FIELD   *labelfld,
-    
+
             *srcrtpktsfld,
             *srcrtpktslabelfld,
             *srcrtpktsbracketsfld,
-            
+
             *icmpredirectfld,
             *icmpredirectlabelfld,
             *icmpredirectbracketsfld,
@@ -472,11 +475,11 @@ struct
             *sendredirectfld,
             *sendredirectlabelfld,
             *sendredirectbracketsfld,
-            
+
             *rpfilterfld,
             *rpfilterlabelfld,
             *rpfilterbracketsfld,
-            
+
             *logmartiansfld,
             *logmartianslabelfld,
             *logmartiansbracketsfld;
@@ -538,7 +541,7 @@ protectrule_loaded(const int debuglvl, d_list *rules_list, char *action, char *d
 
 
 static int
-edit_interface_init(const int debuglvl, char *name, int height, int width, int startx, int starty, struct InterfaceData_ *iface_ptr)
+edit_interface_init(const int debuglvl, char *name, int height, int width, int starty, int startx, struct InterfaceData_ *iface_ptr)
 {
     int     retval=0,   // return value
             rows,
@@ -761,7 +764,7 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
         (void)vrprint.error(-1, VR_INTERR, "InterfacesSection.EditInterface.n_fields != field_num.");
 
     /* create the window & panel */
-    InterfacesSection.EditInterface.win = create_newwin(height, width, startx, starty, gettext("Edit Interface"), vccnf.color_win);
+    InterfacesSection.EditInterface.win = create_newwin(height, width, starty, startx, gettext("Edit Interface"), vccnf.color_win);
     InterfacesSection.EditInterface.panel[0] = new_panel(InterfacesSection.EditInterface.win);
     keypad(InterfacesSection.EditInterface.win, TRUE);
 
@@ -866,8 +869,7 @@ edit_interface_destroy(void)
     update_panels();
     doupdate();
 
-    strcpy(InterfacesSection.comment, "");
-    
+    strlcpy(InterfacesSection.comment, "", sizeof(InterfacesSection.comment));
     return(retval);
 }
 
@@ -1024,7 +1026,7 @@ edit_interface_save(const int debuglvl, struct InterfaceData_ *iface_ptr)
             if(InterfacesSection.EditInterface.fields[i] == IfSec.activefld)
             {
                 status = ST_CHANGED;
-                
+
                 if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), STR_YES, StrLen(STR_YES)) == 0)
                 {
                     tempiface_ptr->active = 1;
@@ -1334,17 +1336,9 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
     int                     cmd_choices_n = 5;
     int                     retval = 0;
 
-
-    /* get screen dimentions */
-    getmaxyx(stdscr, max_height, max_width);
-
     height = 20;
-    if(height > max_height - 6)
-        height = max_height - 6;
-
     width  = 62;
-    startx = 3;
-    starty = 16;
+    VrWinGetOffset(-1, -1, height, width, 4, InterfacesSection.i_xre + 1, &starty, &startx);
 
     /* TODO: advanced option */
 
@@ -1355,7 +1349,7 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
         return(-1);
     }
 
-    edit_interface_init(debuglvl, name, height, width, startx, starty, iface_ptr);
+    edit_interface_init(debuglvl, name, height, width, starty, startx, iface_ptr);
     cur = current_field(InterfacesSection.EditInterface.form);
 
     draw_top_menu(debuglvl, top_win, gettext("Edit Interface"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
@@ -1658,7 +1652,10 @@ init_interfaces_section(const int debuglvl, Interfaces *interfaces)
     height = (int)InterfacesSection.list_items + 8;
     if(height > LINES - 8)
         height = LINES - 8;
-    
+
+    InterfacesSection.i_yle = starty + height;
+    InterfacesSection.i_xre = startx + width;
+
 //TODO
     InterfacesSection.win = newwin(height, width, starty, startx);
     wbkgd(InterfacesSection.win, vccnf.color_win);
