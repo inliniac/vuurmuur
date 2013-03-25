@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2012 by Victor Julien                              *
+ *   Copyright (C) 2003-2013 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -1702,8 +1702,8 @@ edit_zone_group_members_init(const int debuglvl, Zones *zones, struct ZoneData_ 
     int                 i=0;
     int                 height = 30,
                         width  = 54, /* max width of host_name (32) + box (2) + 4 + 16 */
-                        startx = 5,
-                        starty = 5,
+                        startx = 0,
+                        starty = 0,
                         max_height = 0,
                         max_width = 0;
 
@@ -1719,8 +1719,6 @@ edit_zone_group_members_init(const int debuglvl, Zones *zones, struct ZoneData_ 
         return(-1);
     }
 
-    getmaxyx(stdscr, max_height, max_width);
-
     ZonesSection.EditZoneGrp.n_items = group_ptr->GroupList.len;
 
     if(!(ZonesSection.EditZoneGrp.items = (ITEM **)calloc(ZonesSection.EditZoneGrp.n_items + 1, sizeof(ITEM *))))
@@ -1729,12 +1727,14 @@ edit_zone_group_members_init(const int debuglvl, Zones *zones, struct ZoneData_ 
         return(-1);
     }
 
+    getmaxyx(stdscr, max_height, max_width);
     height = (int)(ZonesSection.EditZoneGrp.n_items + 7); /* 7 because: 3 above the list, 4 below */
-    if(height >= max_height - starty - 3)
+    if (height >= max_height - 6)
     {
         height = max_height - 6;
-        starty = 3;
     }
+    /* place on the same y as zones list */
+    VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.h_xre + 1, &starty, &startx);
 
     /* load the items */
     for(i = 0, d_node = group_ptr->GroupList.top; d_node ; d_node = d_node->next, i++)
@@ -2008,7 +2008,7 @@ edit_zone_group_members_newmem(const int debuglvl, Zones *zones, struct ZoneData
         free(choice_ptr);
         return(-1);
     }
-    
+
     /* and free the hostname */
     free(choice_ptr);
 
@@ -2098,7 +2098,7 @@ edit_zone_group_members(const int debuglvl, Zones *zones, struct ZoneData_ *zone
                 case 'q':
                 case 'Q':
                 case KEY_F(10): //quit
-                
+
                     quit = 1;
                     break;
 
@@ -2174,7 +2174,7 @@ struct
 {
     FIELD   *activefld,
             *activelabelfld,
-            
+
             *commentfld,
             *commentlabelfld,
 
@@ -2214,8 +2214,7 @@ edit_zone_group_init(int debuglvl, Zones *zones, char *name, struct ZoneData_ *z
     if(height > max_height - 6)
         height = max_height - 6;
     width = 54;
-    startx = 3;
-    starty = 24;
+    VrWinGetOffset(-1, -1, height, width, ZonesSection.h_yle + 1, ZonesSection.n_xre + 1, &starty, &startx);
 
     memset(&GroupSec, 0, sizeof(GroupSec));
     ZonesSection.EditZone.n_fields = 5;
@@ -2265,7 +2264,7 @@ edit_zone_group_init(int debuglvl, Zones *zones, char *name, struct ZoneData_ *z
     /* terminate */
     ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
 
-    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Group"), vccnf.color_win)))
+    if(!(ZonesSection.EditZone.win = create_newwin(height, width, starty, startx, gettext("Edit Zone: Group"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -2319,10 +2318,10 @@ edit_zone_group_init(int debuglvl, Zones *zones, char *name, struct ZoneData_ *z
             {
                 if(!(member_ptr = d_node->data))
                     return(-1);
-                    
+
                 mvwprintw(ZonesSection.EditZone.win, (int)(15 + i), 2, "  %s", member_ptr->host_name);
                 mvwprintw(ZonesSection.EditZone.win, (int)(15 + i), width - 20, "  %s", member_ptr->ipv4.ipaddress);
-                
+
                 if((int)(15 + i) == height - 3) /* -1 is for the border */
                 {
                     if((zone_ptr->GroupList.len - i) > 1)
@@ -2617,7 +2616,7 @@ edit_zone_group(const int debuglvl, Zones *zones, char *name)
         {
             field_opts_off(GroupSec.warningfld, O_VISIBLE);
         }
-            
+
         mvwprintw(ZonesSection.EditZone.win, 4, 37, "%s: %4d", gettext("Members"), zone_ptr->GroupList.len);
 
         /* refresh and restore cursor. */
@@ -2635,7 +2634,7 @@ edit_zone_group(const int debuglvl, Zones *zones, char *name)
     /* cleanup */
     if(edit_zone_group_destroy() < 0)
         retval = -1;
-    
+
     update_panels();
     doupdate();
 
@@ -2652,8 +2651,8 @@ zones_section_menu_groups_init(const int debuglvl, Zones *zones, char *zonename,
     struct ZoneData_    *zone_ptr = NULL;
     int                 height,
                         width,
-                        startx,
                         starty,
+                        startx,
                         maxx,
                         maxy;
     d_list_node         *d_node = NULL;
@@ -2759,16 +2758,16 @@ zones_section_menu_groups_init(const int debuglvl, Zones *zones, char *zonename,
     ZonesSection.h_menu = new_menu((ITEM **)ZonesSection.hostitems);
 
     height = (int)(ZonesSection.host_n + 9);
-    width = MAX_HOST + 18; // count for "20 members" too
-    startx = 3;
-    starty = 8;
-
-    if((starty + height) > (maxy - 3))
-    {
-        starty = 3;
-        height = maxy - 6;
+    if (height > maxy - 8) {
+        height = maxy - 8;
     }
-    
+    width = 54; // same as edit zone: group win
+
+    /* place on the same y as zones list */
+    VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.n_xre + 1, &starty, &startx);
+    ZonesSection.h_yle = starty + height;
+    ZonesSection.h_xre = startx + width;
+
     ZonesSection.h_win = newwin(height, width, starty, startx);
     wbkgd(ZonesSection.h_win, vccnf.color_win);
     keypad(ZonesSection.h_win, TRUE);
@@ -4379,12 +4378,10 @@ edit_zone_network_save_protectrules(const int debuglvl, struct ZoneData_ *networ
 
 
 static int
-edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height, int width, int startx, int starty, struct ZoneData_ *zone_ptr)
+edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height, int width, int starty, int startx, struct ZoneData_ *zone_ptr)
 {
     int     rows,
             cols,
-            max_height,
-            max_width,
             comment_y=0,
             comment_x=0;
     size_t  i = 0,
@@ -4396,9 +4393,6 @@ edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height,
         (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-
-    /* get screen size */
-    getmaxyx(stdscr, max_height, max_width);
 
     ZonesSection.EditZone.n_fields = 52;
     if(!(ZonesSection.EditZone.fields = (FIELD **)calloc(ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *))))
@@ -4694,7 +4688,7 @@ edit_zone_network_init(const int debuglvl, Zones *zones, char *name, int height,
     set_field_buffer_wrap(debuglvl, NetworkSec.commentfld, 0, ZonesSection.comment);
 
     /* create window and panel */
-    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Network"), vccnf.color_win)))
+    if(!(ZonesSection.EditZone.win = create_newwin(height, width, starty, startx, gettext("Edit Zone: Network"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -5049,8 +5043,7 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
                         startx = 0,
                         starty = 0,
                         max_height = 0,
-                        max_width = 0,
-                        yoff;
+                        max_width = 0;
     FIELD               *cur = NULL,
                         *prev = NULL;
     char                *key_choices[] =    {   "F12",
@@ -5071,8 +5064,7 @@ edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char
 
     height = 21;
     width = 78;
-    yoff = ZonesSection.n_yle + 1 > ZonesSection.z_yle + 1 ? ZonesSection.n_yle + 1 : ZonesSection.z_yle + 1;
-    VrWinGetOffset(-1, -1, height, width, yoff, ZonesSection.z_xre/2, &starty, &startx);
+    VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.n_xre + 1, &starty, &startx);
 
     if(!(zone_ptr = search_zonedata(debuglvl, zones, name)))
     {
@@ -5893,22 +5885,19 @@ struct
 {
     FIELD   *activefld,
             *activelabelfld,
-            
+
             *commentfld,
             *commentlabelfld;
-
 } ZoneSec;
 
 
 static int
-edit_zone_zone_init(const int debuglvl, Zones *zones, char *name, int height, int width, int startx, int starty, struct ZoneData_ *zone_ptr)
+edit_zone_zone_init(const int debuglvl, Zones *zones, char *name, int height, int width, int starty, int startx, struct ZoneData_ *zone_ptr)
 {
     int     retval = 0;
     int     rows,
             cols;
     size_t  i = 0;
-    int     max_height,
-            max_width;
     int     comment_y = 0,
             comment_x = 0;
     int     field_num = 0;
@@ -5919,9 +5908,6 @@ edit_zone_zone_init(const int debuglvl, Zones *zones, char *name, int height, in
         (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-
-    /* get screen dimentions */
-    getmaxyx(stdscr, max_height, max_width);
 
     /* alloc fields */
     ZonesSection.EditZone.n_fields = 4;
@@ -5963,7 +5949,7 @@ edit_zone_zone_init(const int debuglvl, Zones *zones, char *name, int height, in
     ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
 
     /* create the window and panel */
-    if(!(ZonesSection.EditZone.win = create_newwin(height, width, startx, starty, gettext("Edit Zone: Zone"), vccnf.color_win)))
+    if(!(ZonesSection.EditZone.win = create_newwin(height, width, starty, startx, gettext("Edit Zone: Zone"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -6152,15 +6138,11 @@ edit_zone_zone(const int debuglvl, Zones *zones, char *name)
         (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    
-    /* get the screen size */
-    getmaxyx(stdscr, max_height, max_width);
+
     height = 20;
-    if(height > max_height - 6)
-        height = max_height-6;
     width = 54;
-    startx = 3;
-    starty = 24;
+    /* place on the same y as zones list */
+    VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.z_xre + 1, &starty, &startx);
 
     /* look for the zone in the list */
     if(!(zone_ptr = search_zonedata(debuglvl, zones, name)))
@@ -6170,7 +6152,7 @@ edit_zone_zone(const int debuglvl, Zones *zones, char *name)
     }
 
     /* setup the window and fields */
-    if(edit_zone_zone_init(debuglvl, zones, name, height, width, startx, starty, zone_ptr) < 0)
+    if(edit_zone_zone_init(debuglvl, zones, name, height, width, starty, startx, zone_ptr) < 0)
         return(-1);
 
     cur = current_field(ZonesSection.EditZone.form);
