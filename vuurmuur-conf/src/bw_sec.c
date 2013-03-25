@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2008 by Victor Julien                              *
+ *   Copyright (C) 2003-2013 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -86,13 +86,13 @@ bandwidth_store(const int debuglvl, d_list *list, int year, int month, int day,
                 strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
-    
+
     bw_ptr->year = year;
     bw_ptr->month = month;
     bw_ptr->day = day;
-    
+
     bw_ptr->total = total;
-    
+
     bw_ptr->recv_mb = recv;
     bw_ptr->send_mb = send;
 
@@ -423,14 +423,14 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
 /*  trafvol_section_init
 
     This function creates the trafvol section window and the fields inside it.
-    
+
     Returncodes:
          0: ok
         -1: error
 */
 static int
-trafvol_section_init(const int debuglvl, int height, int width, int startx,
-            int starty, unsigned int ifac_num)
+trafvol_section_init(const int debuglvl, int height, int width, int starty,
+            int startx, unsigned int ifac_num)
 {
     size_t          i = 0;
     int             rows = 0,
@@ -448,8 +448,8 @@ trafvol_section_init(const int debuglvl, int height, int width, int startx,
     if(width > max_width)
         return(-1);
 
-    /* set the number of fields: 
-    
+    /* set the number of fields:
+
         interfacename,
         today in, today out,
         yesterday in, yesterday out,
@@ -458,7 +458,7 @@ trafvol_section_init(const int debuglvl, int height, int width, int startx,
         last month in, last month out
     */
     TrafVolSection.n_fields = 11 * (size_t)ifac_num;
-    
+
     /* alloc the needed memory */
     if(!(TrafVolSection.fields = (FIELD **)calloc(TrafVolSection.n_fields + 1, sizeof(FIELD *))))
     {
@@ -523,7 +523,7 @@ trafvol_section_init(const int debuglvl, int height, int width, int startx,
     TrafVolSection.fields[TrafVolSection.n_fields] = NULL;
 
     /* create the window and the panel */
-    if(!(TrafVolSection.win = create_newwin(height, width, startx, starty,
+    if(!(TrafVolSection.win = create_newwin(height, width, starty, startx,
             gettext("Traffic Volume Section"), vccnf.color_win)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
@@ -787,7 +787,6 @@ trafvol_section(const int debuglvl, Zones *zones, Interfaces *interfaces,
         /* check if we have slept long enough */
         if(slept_so_far >= update_interval)
         {
-            
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "slept_so_far: %d -> now print.", slept_so_far);
 
@@ -963,7 +962,6 @@ trafvol_section(const int debuglvl, Zones *zones, Interfaces *interfaces,
                         set_field_buffer_wrap(debuglvl, TrafVolSection.fields[8 + (11 * i)], 0, gettext("error"));
                     }
 
-            
                     /* get the bw for the last month */
                     year = cur_tm.tm_year + 1900;
                     /* get prev month (by not adding +1) */
@@ -1057,9 +1055,7 @@ trafvol_section(const int debuglvl, Zones *zones, Interfaces *interfaces,
 
     /* destroy the window and form */
     trafvol_section_destroy();
-    
     update_panels();
     doupdate();
-
     return(retval);
 }
