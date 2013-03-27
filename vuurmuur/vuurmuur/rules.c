@@ -1736,7 +1736,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
             retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, vctx->iptcaps);
 
             /* shaping rules */
-            if (libvuurmuur_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
+            if (vrmr_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
                 retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
                     rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
@@ -1747,7 +1747,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
                     return(retval);
                 }
             }
-            if (libvuurmuur_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
+            if (vrmr_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
                 retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
                     rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
@@ -1802,7 +1802,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
             retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, vctx->iptcaps);
 
             /* shaping rules */
-            if (libvuurmuur_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
+            if (vrmr_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
                 retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
                     rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
@@ -1813,7 +1813,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
                     return(retval);
                 }
             }
-            if (libvuurmuur_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
+            if (vrmr_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
                 retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
                     rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
@@ -1938,7 +1938,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
                     }
 
                     /* shaping rules */
-                    if (libvuurmuur_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
+                    if (vrmr_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
                         /* at this point we can create the tc rules */
                         retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
                                 rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
@@ -1949,7 +1949,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
                             return(retval);
                         }
                     }
-                    if (libvuurmuur_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
+                    if (vrmr_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
                         /* at this point we can create the tc rules */
                         retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
                                 rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
@@ -2282,7 +2282,7 @@ create_rule(const int debuglvl, VuurmuurCtx *vctx,
         (void)strlcpy(rule->helper, create->service->helper, sizeof(rule->helper));
 
     /* SHAPING PREPARATION */
-    if (libvuurmuur_is_shape_rule(debuglvl, &create->option) == 1) {
+    if (vrmr_is_shape_rule(debuglvl, &create->option) == 1) {
         rule->shape_class_out = vctx->interfaces->shape_handle;
         vctx->interfaces->shape_handle++;
         rule->shape_class_in = vctx->interfaces->shape_handle;

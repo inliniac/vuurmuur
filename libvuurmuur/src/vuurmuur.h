@@ -1659,10 +1659,10 @@ char * VrGetLenString(size_t max, char *fmt, ...);
 /*
  * shape.c
  */
-int libvuurmuur_is_shape_rule(const int, /*@null@*/struct options *);
-int libvuurmuur_is_shape_incoming_rule(const int, /*@null@*/struct options *);
-int libvuurmuur_is_shape_outgoing_rule(const int, /*@null@*/struct options *);
-int libvuurmuur_is_shape_interface(const int, /*@null@*/InterfaceData *);
+int vrmr_is_shape_rule(const int, /*@null@*/struct options *);
+int vrmr_is_shape_incoming_rule(const int, /*@null@*/struct options *);
+int vrmr_is_shape_outgoing_rule(const int, /*@null@*/struct options *);
+int vrmr_is_shape_interface(const int, /*@null@*/InterfaceData *);
 
 
 /*

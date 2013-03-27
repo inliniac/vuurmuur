@@ -730,7 +730,7 @@ mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, Rules 
             return;
         }
 
-        if (libvuurmuur_is_shape_rule(debuglvl,rule_ptr->opt) == 1 && rule_ptr->active == TRUE) {
+        if (vrmr_is_shape_rule(debuglvl,rule_ptr->opt) == 1 && rule_ptr->active == TRUE) {
             if (tc_location_not_set == TRUE) {
                 queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.rules,
                         gettext("- Shaping rules present while the 'tc'-location is not set. Please set the 'tc'-location\n"));

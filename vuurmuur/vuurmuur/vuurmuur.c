@@ -49,6 +49,18 @@ setup_signal_handler(int sig, void (*handler)())
     sigaction(sig, &action, 0);
 }
 
+/** \brief UP all interfaces in bash mode */
+void bash_enable_interfaces(Interfaces *ifaces) {
+    d_list_node *node;
+    struct InterfaceData_  *iface_ptr = NULL;
+
+    for (node = ifaces->list.top; node != NULL; node = node->next) {
+        iface_ptr = (struct InterfaceData_ *)node->data;
+        if (iface_ptr->up == FALSE)
+            iface_ptr->up = TRUE;
+    }
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -451,6 +463,9 @@ main(int argc, char *argv[])
     result = load_interfaces(debuglvl, &interfaces);
     if(result == -1)
         exit(EXIT_FAILURE);
+    if (conf.bash_out) {
+        bash_enable_interfaces(&interfaces);
+    }
 
     /* load the zonedata into memory */
     result = load_zones(debuglvl, &zones, &interfaces, &reg);

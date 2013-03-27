@@ -22,7 +22,7 @@
 #include "vuurmuur.h"
 
 int
-libvuurmuur_is_shape_rule(const int debuglvl, /*@null@*/struct options *opt) {
+vrmr_is_shape_rule(const int debuglvl, /*@null@*/struct options *opt) {
     if (opt != NULL &&
         (opt->bw_in_min > 0 ||
         opt->bw_in_max > 0 ||
@@ -37,7 +37,7 @@ libvuurmuur_is_shape_rule(const int debuglvl, /*@null@*/struct options *opt) {
 }
 
 int
-libvuurmuur_is_shape_incoming_rule(const int debuglvl, /*@null@*/struct options *opt) {
+vrmr_is_shape_incoming_rule(const int debuglvl, /*@null@*/struct options *opt) {
     if (opt != NULL &&
         (opt->bw_in_min > 0 ||
         opt->bw_in_max > 0 ||
@@ -50,7 +50,7 @@ libvuurmuur_is_shape_incoming_rule(const int debuglvl, /*@null@*/struct options 
 }
 
 int
-libvuurmuur_is_shape_outgoing_rule(const int debuglvl, /*@null@*/struct options *opt) {
+vrmr_is_shape_outgoing_rule(const int debuglvl, /*@null@*/struct options *opt) {
     if (opt != NULL &&
         (opt->bw_out_min > 0 ||
         opt->bw_out_max > 0 ||
@@ -63,11 +63,11 @@ libvuurmuur_is_shape_outgoing_rule(const int debuglvl, /*@null@*/struct options 
 }
 
 int
-libvuurmuur_is_shape_interface(const int debuglvl, /*@null@*/InterfaceData *iface_ptr) {
+vrmr_is_shape_interface(const int debuglvl, /*@null@*/InterfaceData *iface_ptr) {
     if (iface_ptr != NULL &&
         iface_ptr->shape == TRUE &&
         iface_ptr->device_virtual == FALSE &&
-        (conf.bash_out || iface_ptr->up == TRUE))
+        iface_ptr->up == TRUE)
     {
         return(1);
     }

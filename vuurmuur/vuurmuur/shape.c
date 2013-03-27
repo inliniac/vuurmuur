@@ -281,7 +281,7 @@ shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf
         inner_iface_ptr = d_node->data;
 
         if (iface_ptr != inner_iface_ptr && /* don't add a class for yourself */
-            libvuurmuur_is_shape_interface(debuglvl, inner_iface_ptr) == 1)
+            vrmr_is_shape_interface(debuglvl, inner_iface_ptr) == 1)
         {
             rate = shaping_convert_rate(debuglvl, inner_iface_ptr->bw_in, inner_iface_ptr->bw_in_unit);
             if (iface_rate < rate)
@@ -318,7 +318,7 @@ shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces
         iface_ptr = d_node->data;
         (void)vrprint.debug(__FUNC__, "interface %s", iface_ptr->name);
 
-        if (libvuurmuur_is_shape_interface(debuglvl, iface_ptr) == 1)
+        if (vrmr_is_shape_interface(debuglvl, iface_ptr) == 1)
         {
             iface_ptr->shape_handle = handle;
             handle++;
@@ -331,7 +331,7 @@ shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces
         iface_ptr = d_node->data;
         (void)vrprint.debug(__FUNC__, "interface %s", iface_ptr->name);
 
-        if (libvuurmuur_is_shape_interface(debuglvl, iface_ptr) == 1)
+        if (vrmr_is_shape_interface(debuglvl, iface_ptr) == 1)
         {
             snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s root handle %u: htb default %u",
                 cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle, handle);
@@ -456,7 +456,7 @@ shaping_determine_minimal_default_rates(const int debuglvl, Interfaces *interfac
     for (d_node_iface = interfaces->list.top; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
         iface_ptr = d_node_iface->data;
 
-        if (libvuurmuur_is_shape_interface(debuglvl, iface_ptr) == 1)
+        if (vrmr_is_shape_interface(debuglvl, iface_ptr) == 1)
         {
             rate = shaping_convert_rate(debuglvl, iface_ptr->bw_out, iface_ptr->bw_out_unit);
 
@@ -501,7 +501,7 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
     for (d_node = interfaces->list.top; d_node != NULL; d_node = d_node->next) {
         iface_ptr = d_node->data;
 
-        if (libvuurmuur_is_shape_interface(debuglvl, iface_ptr) == 1)
+        if (vrmr_is_shape_interface(debuglvl, iface_ptr) == 1)
         {
             rate = shaping_convert_rate(debuglvl, iface_ptr->bw_out, iface_ptr->bw_out_unit);
 
@@ -547,13 +547,13 @@ shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf,
     if (strcmp(cnf->tc_location,"") == 0)
         return(0);
 
-    if (libvuurmuur_is_shape_interface(debuglvl, shape_iface_ptr) == 0)
+    if (vrmr_is_shape_interface(debuglvl, shape_iface_ptr) == 0)
         return(0);
 
     (void)vrprint.debug(__FUNC__, "shape on interface %s (handle %u)",
         shape_iface_ptr->name, shape_iface_ptr->shape_handle);
 
-    if (libvuurmuur_is_shape_interface(debuglvl, class_iface_ptr) == 1) {
+    if (vrmr_is_shape_interface(debuglvl, class_iface_ptr) == 1) {
         class_handle = class_iface_ptr->shape_handle;
 
         (void)vrprint.debug(__FUNC__, "class of interface %s (handle %u)",
