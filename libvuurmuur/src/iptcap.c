@@ -103,8 +103,8 @@ iptcap_load_module(const int debuglvl, struct vuurmuur_config *cnf, char *module
     }
 
     /* now execute the command */
-    char *args[] = { conf.modprobe_location, "-q", modulename, NULL };
-    int r = libvuurmuur_exec_command(debuglvl, cnf, conf.modprobe_location, args, NULL);
+    char *args[] = { cnf->modprobe_location, "-q", modulename, NULL };
+    int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->modprobe_location, args, NULL);
     if (r != 0)
     {
         if(debuglvl >= LOW)
