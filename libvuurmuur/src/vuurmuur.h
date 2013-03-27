@@ -1664,12 +1664,6 @@ int libvuurmuur_is_shape_interface(const int, /*@null@*/InterfaceData *);
 */
 char bash_description[512];
 
-/*
-    this is the backend api
-*/
-#define BACKENDAPI_VERSION_MAJOR    0
-#define BACKENDAPI_VERSION_MINOR    6
-
 /* the backend structure pointers */
 /*@null@*/
 void *serv_backend;
