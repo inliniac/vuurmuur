@@ -1493,8 +1493,8 @@ char *rules_itoaction_cap(const int);
 */
 int blocklist_add_one(const int, Zones *, BlockList *, char, char, char *);
 int blocklist_rem_one(const int, Zones *, BlockList *, char *);
-int blocklist_init_list(const int, Zones *, BlockList *, char, char);
-int blocklist_save_list(const int, BlockList *);
+int vrmr_blocklist_init_list(const int, struct vuurmuur_config *cfg, Zones *, BlockList *, char, char);
+int vrmr_blocklist_save_list(const int, struct vuurmuur_config *cfg, BlockList *);
 
 
 /*

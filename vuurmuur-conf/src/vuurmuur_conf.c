@@ -798,7 +798,7 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_BLOCKLIST); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = blocklist_init_list(debuglvl, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE);
+    result = vrmr_blocklist_init_list(debuglvl, &conf, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE);
     if(result < 0)
     {
         /* TRANSLATORS: max 40 characters */

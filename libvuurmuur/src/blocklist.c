@@ -375,7 +375,8 @@ blocklist_rem_one(const int debuglvl, Zones *zones, BlockList *blocklist, char *
     be loaded, otherwise just the name in the file
 */
 static int
-blocklist_read_file(const int debuglvl, Zones *zones, BlockList *blocklist, char load_ips, char no_refcnt)
+blocklist_read_file(const int debuglvl, struct vuurmuur_config *cfg,
+        Zones *zones, BlockList *blocklist, char load_ips, char no_refcnt)
 {
     FILE        *fp = NULL;
     char        line[128] = "";
@@ -394,10 +395,10 @@ blocklist_read_file(const int debuglvl, Zones *zones, BlockList *blocklist, char
         (void)vrprint.debug(__FUNC__, "load_ips: %c, no_refcnt: %c.", load_ips, no_refcnt);
 
 	/* open the blocklist-file */
-	if(!(fp = vuurmuur_fopen(debuglvl, &conf, conf.blocklist_location, "r")))
+	if(!(fp = vuurmuur_fopen(debuglvl, cfg, cfg->blocklist_location, "r")))
 	{
 		(void)vrprint.error(-1, "Error", "opening blockfile '%s' failed: %s (in: %s:%d).",
-							conf.blocklist_location,
+							cfg->blocklist_location,
 							strerror(errno),
 							__FUNC__, __LINE__);
 		return(-1);
@@ -443,7 +444,8 @@ blocklist_read_file(const int debuglvl, Zones *zones, BlockList *blocklist, char
 
 
 int
-blocklist_init_list(const int debuglvl, Zones *zones, BlockList *blocklist, char load_ips, char no_refcnt)
+vrmr_blocklist_init_list(const int debuglvl, struct vuurmuur_config *cfg,
+        Zones *zones, BlockList *blocklist, char load_ips, char no_refcnt)
 {
     FILE        *fp = NULL;
     char        line[128] = "";
@@ -478,7 +480,7 @@ blocklist_init_list(const int debuglvl, Zones *zones, BlockList *blocklist, char
     }
 
     /* open the blocklist-file */
-    if((fp = fopen(conf.blocklist_location, "r")))
+    if((fp = fopen(cfg->blocklist_location, "r")))
     {
         (void)fclose(fp);
 
@@ -487,7 +489,7 @@ blocklist_init_list(const int debuglvl, Zones *zones, BlockList *blocklist, char
 
         blocklist->old_blocklistfile_used = TRUE;
 
-        result = blocklist_read_file(debuglvl, zones, blocklist, load_ips, no_refcnt);
+        result = blocklist_read_file(debuglvl, cfg, zones, blocklist, load_ips, no_refcnt);
         if(result < 0)
             return(-1);
     }
@@ -557,7 +559,7 @@ blocklist_init_list(const int debuglvl, Zones *zones, BlockList *blocklist, char
 
 
 static int
-blocklist_write_file(const int debuglvl, d_list *block_list)
+blocklist_write_file(const int debuglvl, struct vuurmuur_config *cfg, d_list *block_list)
 {
     d_list_node *d_node   = NULL;
     char        *itemname = NULL;
@@ -572,10 +574,10 @@ blocklist_write_file(const int debuglvl, d_list *block_list)
     }
 
     /* open the blockfile */
-    if(!(fp = fopen(conf.blocklist_location, "w+")))
+    if(!(fp = fopen(cfg->blocklist_location, "w+")))
     {
         (void)vrprint.error(-1, "Error", "opening blocklistfile '%s' failed: %s (in: %s:%d).",
-                conf.blocklist_location, strerror(errno), __FUNC__, __LINE__);
+                cfg->blocklist_location, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -607,7 +609,7 @@ blocklist_write_file(const int debuglvl, d_list *block_list)
 
 
 int
-blocklist_save_list(const int debuglvl, BlockList *blocklist)
+vrmr_blocklist_save_list(const int debuglvl, struct vuurmuur_config *cfg, BlockList *blocklist)
 {
     int         result = 0;
     char        *line = NULL;
@@ -625,7 +627,7 @@ blocklist_save_list(const int debuglvl, BlockList *blocklist)
 
     if(blocklist->old_blocklistfile_used == TRUE)
     {
-        result = blocklist_write_file(debuglvl, &blocklist->list);
+        result = blocklist_write_file(debuglvl, cfg, &blocklist->list);
         if(result < 0)
             return(-1);
     }

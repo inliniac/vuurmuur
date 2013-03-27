@@ -1444,7 +1444,7 @@ block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
     }
 
     /* save the list */
-    if(blocklist_save_list(debuglvl, blocklist) < 0)
+    if(vrmr_blocklist_save_list(debuglvl, &conf, blocklist) < 0)
     {
         (void)vrprint.error(-1, VR_INTERR, "blocklist_save_list() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);

@@ -460,7 +460,8 @@ main(int argc, char *argv[])
 
     /* load the blockfile if any */
     /* call it with load_ips == TRUE */
-    if(blocklist_init_list(debuglvl, &zones, &blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0)
+    if (vrmr_blocklist_init_list(debuglvl, &conf, &zones,
+                &blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0)
     {
         (void)vrprint.error(-1, "Error", "blocklist_read_file failed.");
     }

@@ -1209,7 +1209,7 @@ zones_rename_host_group(const int debuglvl, Zones *zones, Rules *rules, BlockLis
     /* if we have made changes we write the blocklistfile */
     if(blocklist_changed == 1)
     {
-        if(blocklist_save_list(debuglvl, blocklist) < 0)
+        if(vrmr_blocklist_save_list(debuglvl, &conf, blocklist) < 0)
             return(-1);
     }
 
@@ -3396,7 +3396,7 @@ zones_rename_network_zone(const int debuglvl, Zones *zones, Rules *rules, BlockL
     /* if we have made changes we write the blocklistfile */
     if(blocklist_changed == 1)
     {
-        if(blocklist_save_list(debuglvl, blocklist) < 0)
+        if(vrmr_blocklist_save_list(debuglvl, &conf, blocklist) < 0)
             return(-1);
     }
 
@@ -7232,7 +7232,7 @@ zones_blocklist(const int debuglvl, BlockList *blocklist, Zones *zones, struct r
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "changes and retval == 0 so save the list to disk.");
 
-        if(blocklist_save_list(debuglvl, blocklist) < 0)
+        if(vrmr_blocklist_save_list(debuglvl, &conf, blocklist) < 0)
             retval = -1;
     }
 

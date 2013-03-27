@@ -21,7 +21,7 @@
 
 
 /* prototypes */
-int reload_blocklist(const int, Zones *, BlockList *);
+int reload_blocklist(const int, struct vuurmuur_config *, Zones *, BlockList *);
 int reload_rules(const int, VuurmuurCtx *, struct rgx_ *);
 int check_for_changed_networks(const int, Zones *);
 
@@ -164,7 +164,7 @@ apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
 
 
     /* reload the blocklist */
-    result = reload_blocklist(debuglvl, vctx->zones, vctx->blocklist);
+    result = reload_blocklist(debuglvl, vctx->conf, vctx->zones, vctx->blocklist);
     if(result == -1)
     {
         (void)vrprint.error(-1, "Error", "Reloading blocklist failed.");
@@ -1595,7 +1595,7 @@ reload_interfaces_check(const int debuglvl, struct InterfaceData_ *iface_ptr)
         1: changes
 */
 int
-reload_blocklist(const int debuglvl, Zones *zones, BlockList *blocklist)
+reload_blocklist(const int debuglvl, struct vuurmuur_config *cfg, Zones *zones, BlockList *blocklist)
 {
     BlockList   *new_blocklist = NULL;
     int         status = 0;
@@ -1621,7 +1621,8 @@ reload_blocklist(const int debuglvl, Zones *zones, BlockList *blocklist)
 
     /*  and reload it (with load_ips == TRUE and no_refcnt == TRUE because
         we don't care about the refcnt now */
-    if(blocklist_init_list(debuglvl, zones, new_blocklist, /*load_ips*/TRUE, /*no_refcnt*/TRUE) < 0)
+    if (vrmr_blocklist_init_list(debuglvl, cfg, zones, new_blocklist,
+                /*load_ips*/TRUE, /*no_refcnt*/TRUE) < 0)
     {
         (void)vrprint.error(-1, "Error","reading the blocklist failed (in: %s:%d).",
                                     __FUNC__, __LINE__);

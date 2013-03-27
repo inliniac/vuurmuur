@@ -1775,7 +1775,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
 
                 (void)zones_blocklist_add_one(debuglvl,
                     blocklist, zones);
-                (void)blocklist_save_list(debuglvl, blocklist);
+                (void)vrmr_blocklist_save_list(debuglvl, &conf, blocklist);
                 break;
 
             case 'm':

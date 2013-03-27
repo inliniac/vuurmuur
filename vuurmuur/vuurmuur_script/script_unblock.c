@@ -136,7 +136,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
 
     if(removed == TRUE)
     {
-        if(blocklist_save_list(debuglvl, &blocklist) != 0)
+        if(vrmr_blocklist_save_list(debuglvl, &conf, &blocklist) != 0)
         {
             (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR,
                 "could not save updated blocklist (in: %s:%d).",

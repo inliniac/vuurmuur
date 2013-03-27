@@ -134,7 +134,7 @@ convert_blocklistfile_to_backend(const int debuglvl, BlockList *blocklist, struc
     }
 
     /* call rules_save_list */
-    if(blocklist_save_list(debuglvl, blocklist) < 0)
+    if(vrmr_blocklist_save_list(debuglvl, cnf, blocklist) < 0)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("saving blocklist failed"));
         return(-1);
