@@ -113,15 +113,13 @@
 
 #define CP_RULE_BAR     23
 
-/* the lists */
-d_list  PluginList;
-
 #ifdef SYSCONFDIR
 #define VUURMUURCONF_CONFIGFILE SYSCONFDIR "/vuurmuur/vuurmuur_conf.conf"
 #else
 #define VUURMUURCONF_CONFIGFILE "/etc/vuurmuur/vuurmuur_conf.conf"
 #endif
 
+struct vrprint_ vrprint;
 
 /* Vuurmuur_conf settings
 

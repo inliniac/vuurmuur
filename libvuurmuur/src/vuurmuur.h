@@ -347,6 +347,31 @@ struct SHM_TABLE
     int reload_progress; /* in per cent */
 };
 
+/* in this structure we register the print functions. */
+struct vrprint_
+{
+    /* the name of the program that is logging */
+    char *logger;
+
+    /* print error. Head may be null. */
+    int(*error)(int errorcode, char *head, char *fmt, ...);
+
+    /* print warning */
+    int(*warning)(char *head, char *fmt, ...);
+
+    /* print info */
+    int(*info)(char *head, char *fmt, ...);
+
+    /* print debug */
+    int(*debug)(char *head, char *fmt, ...);
+
+    /* the username used in the auditlog */
+    char *username;
+
+    /* auditlog */
+    int(*audit)(char *fmt, ...);
+};
+struct vrprint_ vrprint;
 
 /* configuration */
 struct vuurmuur_config
@@ -458,34 +483,8 @@ struct vuurmuur_config
     /* conntrack options */
     char            invalid_drop_enabled;
 
+    struct vrprint_ vrprint;
 } conf;
-
-
-/* in this structure we register the print functions. */
-struct vrprint_
-{
-    /* the name of the program that is logging */
-    char *logger;
-
-    /* print error. Head may be null. */
-    int(*error)(int errorcode, char *head, char *fmt, ...);
-
-    /* print warning */
-    int(*warning)(char *head, char *fmt, ...);
-
-    /* print info */
-    int(*info)(char *head, char *fmt, ...);
-
-    /* print debug */
-    int(*debug)(char *head, char *fmt, ...);
-
-    /* the username used in the auditlog */
-    char *username;
-
-    /* auditlog */
-    int(*audit)(char *fmt, ...);
-
-} vrprint;
 
 
 /* DATA STRUCTURES */
@@ -1559,8 +1558,8 @@ int pre_init_config(struct vuurmuur_config *);
 /*
     backendapi.c
 */
-int load_backends(int debuglvl, d_list *plugin_list);
-int unload_backends(int debuglvl, d_list *plugin_list);
+int load_backends(int debuglvl);
+int unload_backends(int debuglvl);
 
 
 /*
@@ -1677,17 +1676,7 @@ VR_user_t vr_user;
 #define BACKENDAPI_VERSION_MAJOR    0
 #define BACKENDAPI_VERSION_MINOR    6
 
-
-/* the plugin handle pointers */
-void *gen_plugin_handle;
-void *serv_plugin_handle;
-void *zone_plugin_handle;
-void *ifac_plugin_handle;
-
-
 /* the backend structure pointers */
-/*@null@*/
-void *gen_backend;
 /*@null@*/
 void *serv_backend;
 /*@null@*/
@@ -1697,12 +1686,8 @@ void *ifac_backend;
 /*@null@*/
 void *rule_backend;
 
-
-/*  These functions are to be used for modifing the backend, reading from it, etc.
-
-*/
-struct BackendFunctions_
-{
+/*  These functions are to be used for modifing the backend, reading from it, etc. */
+struct vrmr_plugin_data {
     /* asking from and telling to the backend */
     int (*ask)(int debuglvl, void *backend, char *name, char *question, char *answer, size_t max_answer, int type, int multi);
     int (*tell)(int debuglvl, void *backend, char *name, char *question, char *answer, int overwrite, int type);
@@ -1733,16 +1718,14 @@ struct BackendFunctions_
 
     /* version */
     char *version;
+    char *name;
+};
 
-} BackendFunctions;
-
-
-struct PluginData_
-{
+struct vrmr_plugin {
     char                        name[32];
     int                         ref_cnt;
 
-    struct BackendFunctions_    *f;
+    struct vrmr_plugin_data     *f;
 
     void                        *handle;
 
@@ -1750,17 +1733,19 @@ struct PluginData_
     char                        *version;
 };
 
+d_list vrmr_plugin_list;
+void vrmr_plugin_register(struct vrmr_plugin_data *plugin_data);
 
 /* services */
-struct BackendFunctions_    *sf;
+struct vrmr_plugin_data    *sf;
 
 /* zones */
-struct BackendFunctions_    *zf;
+struct vrmr_plugin_data    *zf;
 
-/* interfAces (not 'if' because is a c-keyword.) */
-struct BackendFunctions_    *af;
+/* interfaces (not 'if' because is a c-keyword.) */
+struct vrmr_plugin_data    *af;
 
 /* rules */
-struct BackendFunctions_    *rf;
+struct vrmr_plugin_data    *rf;
 
 #endif

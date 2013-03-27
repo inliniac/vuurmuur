@@ -275,9 +275,6 @@ struct SHM_TABLE *shm_table;
 /* counters */
 int ipt_rulecount;
 
-/* pluginlist */
-d_list PluginList;
-
 /* semaphore id */
 int sem_id;
 

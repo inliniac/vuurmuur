@@ -21,6 +21,51 @@
 #include "config.h"
 #include "vuurmuur.h"
 
+/** \brief Plugin registration function
+ *  To be called from plugin
+ */
+void
+vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
+{
+    struct vrmr_plugin  *plugin = NULL;
+    d_list_node         *d_node = NULL;
+
+    if (!plugin_data) {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: load_plugin).");
+        return;
+    }
+
+    if (!(plugin = malloc(sizeof(struct vrmr_plugin)))) {
+        (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).",
+                strerror(errno), __FUNC__, __LINE__);
+        return;
+    }
+    memset(plugin, 0x00, sizeof(*plugin));
+
+    plugin->f = plugin_data;
+    plugin->ref_cnt = 1;
+
+    /* store the name of the plugin */
+    if (strlcpy(plugin->name, plugin_data->name, sizeof(plugin->name)) >= sizeof(plugin->name))
+    {
+        (void)vrprint.error(-1, "Internal Error", "pluginname "
+                "overflow (in: %s:%d).", __FUNC__, __LINE__);
+        free(plugin);
+        return;
+    }
+
+    printf("vrmr_plugin_register: &vrmr_plugin_list %p\n", &vrmr_plugin_list);
+
+    /* insert into the list */
+    if (d_list_append(/* no dbg */0, &vrmr_plugin_list, plugin) == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "d_list_append() "
+                "failed (in: %s:%d).", __FUNC__, __LINE__);
+        free(plugin);
+        return;
+    }
+    return;
+}
 
 /*  open_plugin
 
@@ -44,7 +89,6 @@ open_plugin(const int debuglvl, char *plugin)
     if(debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__, "this is the plugin: '%s'.", plugin);
 
-    /* TODO: i have to figure out what RTLD_NOW means and what other options are */
     ptr = dlopen(plugin, RTLD_NOW);
     if(ptr == NULL)
     {
@@ -77,11 +121,11 @@ open_plugin(const int debuglvl, char *plugin)
         -1: error
 */
 static int
-load_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct BackendFunctions_ **func_ptr)
+load_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct vrmr_plugin_data **func_ptr)
 {
     int                 retval=0;
     char                plugin_location[512] = "";
-    struct PluginData_  *plugin = NULL;
+    struct vrmr_plugin  *plugin = NULL;
     d_list_node         *d_node = NULL;
 
     if(!plugin_list || !plugin_name || !func_ptr)
@@ -108,104 +152,56 @@ load_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct B
     {
         plugin = d_node->data;
 
-        if(strcmp(plugin->name, plugin_name) == 0)
+        if(strcmp(plugin->name, plugin_name) == 0) {
+            *func_ptr = plugin->f;
+            plugin->ref_cnt++;
+            return(0);
+        }
+    }
+
+    if(debuglvl >= HIGH)
+        (void)vrprint.debug(__FUNC__, "opening plugin.");
+
+    if(snprintf(plugin_location, sizeof(plugin_location), "%s/lib%s.so", conf.plugdir, plugin_name) >= (int)sizeof(plugin_location))
+    {
+        (void)vrprint.error(-1, "Internal Error", "pluginpath "
+                "overflow (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    void *handle = open_plugin(debuglvl, plugin_location);
+    if(!handle)
+    {
+        (void)vrprint.error(-1, "Internal Error", "pluginpath "
+                "overflow (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    plugin = NULL;
+    for(d_node = plugin_list->top; d_node; d_node = d_node->next)
+    {
+        plugin = d_node->data;
+
+        vrprint.info(__FUNC__, "plugin->name %s", plugin->name);
+        if(strcmp(plugin->name, plugin_name) == 0) {
             break;
-
-        plugin = NULL;
+        }
+    }
+    if (!plugin) {
+        (void)vrprint.error(-1, "Internal Error", "plugin not registered "
+                "(in: %s:%d).", __FUNC__, __LINE__);
+        dlclose(handle);
+        return(-1);
     }
 
-    /*
-        if plugin == NULL create it
-    */
-    if(!plugin)
+    /* set func_ptr */
+    *func_ptr = plugin->f;
+    plugin->handle = handle;
+
+    if(conf.verbose_out == TRUE && debuglvl >= LOW)
     {
-        if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "opening plugin.");
-
-        if(!(plugin = malloc(sizeof(struct PluginData_))))
-        {
-            (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
-            return(-1);
-        }
-
-        if(!(plugin->f = malloc(sizeof(struct BackendFunctions_))))
-        {
-            (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
-            free(plugin);
-            return(-1);
-        }
-
-        if(snprintf(plugin_location, sizeof(plugin_location), "%s/lib%s.so", conf.plugdir, plugin_name) >= (int)sizeof(plugin_location))
-        {
-            (void)vrprint.error(-1, "Internal Error", "pluginpath "
-                "overflow (in: %s:%d).", __FUNC__, __LINE__);
-            free(plugin->f);
-            free(plugin);
-            return(-1);
-        }
-
-        plugin->handle = open_plugin(debuglvl, plugin_location);
-        if(!plugin->handle)
-        {
-            free(plugin->f);
-            free(plugin);
-            return(-1);
-        }
-
-        /* store the functions */
-        plugin->f->ask      = BackendFunctions.ask;
-        plugin->f->tell     = BackendFunctions.tell;
-        plugin->f->open     = BackendFunctions.open;
-        plugin->f->close    = BackendFunctions.close;
-        plugin->f->list     = BackendFunctions.list;
-        plugin->f->init     = BackendFunctions.init;
-        plugin->f->add      = BackendFunctions.add;
-        plugin->f->del      = BackendFunctions.del;
-        plugin->f->rename   = BackendFunctions.rename;
-        plugin->f->conf     = BackendFunctions.conf;
-        plugin->f->setup    = BackendFunctions.setup;
-
-        /* get the versions */
-        plugin->version         = BackendFunctions.version;
-
-        /* store the name of the plugin */
-        if(strlcpy(plugin->name, plugin_name, sizeof(plugin->name)) >= sizeof(plugin->name))
-        {
-            (void)vrprint.error(-1, "Internal Error", "pluginname "
-                "overflow (in: %s:%d).", __FUNC__, __LINE__);
-            free(plugin->f);
-            free(plugin);
-            return(-1);
-        }
-        plugin->ref_cnt = 1;
-
-        /* set func_ptr */
-        *func_ptr = plugin->f;
-
-        /* insert into the list */
-        if(d_list_append(debuglvl, plugin_list, plugin) == NULL)
-        {
-            (void)vrprint.error(-1, "Internal Error", "d_list_append() "
-                "failed (in: %s:%d).", __FUNC__, __LINE__);
-            free(plugin->f);
-            free(plugin);
-            return(-1);
-        }
-
-        if(conf.verbose_out == TRUE && debuglvl >= LOW)
-        {
-            (void)vrprint.info("Info", "Successfully loaded plugin '%s' version %s.",
-                    plugin_name, plugin->version);
-        }
-
-    }
-    /*
-        else increment ref_cnt and set func_ptr to plugin->f
-    */
-    else
-    {
-        plugin->ref_cnt++;
-        *func_ptr = plugin->f;
+        (void)vrprint.info("Info", "Successfully loaded plugin '%s' version %s.",
+                plugin_name, plugin->version);
     }
 
     return(retval);
@@ -235,9 +231,9 @@ load_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct B
         -1: error
 */
 static int
-unload_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct BackendFunctions_ **func_ptr)
+unload_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct vrmr_plugin_data **func_ptr)
 {
-    struct PluginData_  *plugin = NULL;
+    struct vrmr_plugin  *plugin = NULL;
     d_list_node         *d_node = NULL;
 
     /* safety first */
@@ -298,7 +294,6 @@ unload_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct
             }
 
             /* finally free the memory */
-            free(plugin->f);
             free(plugin);
             plugin = NULL;
         }
@@ -325,22 +320,12 @@ unload_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct
         -1: error
 */
 int
-load_backends(const int debuglvl, d_list *plugin_list)
+load_backends(const int debuglvl)
 {
-    /* safety first */
-    if(!plugin_list)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: load_backends).");
-        return(-1);
-    }
-
-    /* setup the list */
-    if(d_list_setup(debuglvl, plugin_list, NULL) < 0)
-        return(-1);
-
     /* first the SERVICES */
-    if(load_plugin(debuglvl, plugin_list, conf.serv_backend_name, &sf) < 0)
+    if(load_plugin(debuglvl, &vrmr_plugin_list, conf.serv_backend_name, &sf) < 0)
         return(-1);
+    fprintf(stdout, "load_backends: &conf %p, etc %s\n", &conf, conf.etcdir);
     if(sf->setup(debuglvl, &conf, &serv_backend) < 0)
         return(-1);
     if(sf->conf(debuglvl, serv_backend) < 0)
@@ -351,7 +336,7 @@ load_backends(const int debuglvl, d_list *plugin_list)
     /*
         second ZONES
     */
-    if(load_plugin(debuglvl, plugin_list, conf.zone_backend_name, &zf) < 0)
+    if(load_plugin(debuglvl, &vrmr_plugin_list, conf.zone_backend_name, &zf) < 0)
         return(-1);
     if(zf->setup(debuglvl, &conf, &zone_backend) < 0)
         return(-1);
@@ -363,7 +348,7 @@ load_backends(const int debuglvl, d_list *plugin_list)
     /*
         third INTERFACES
     */
-    if(load_plugin(debuglvl, plugin_list, conf.ifac_backend_name, &af) < 0)
+    if(load_plugin(debuglvl, &vrmr_plugin_list, conf.ifac_backend_name, &af) < 0)
         return(-1);
     if(af->setup(debuglvl, &conf, &ifac_backend) < 0)
         return(-1);
@@ -375,7 +360,7 @@ load_backends(const int debuglvl, d_list *plugin_list)
     /*
         last RULES
     */
-    if(load_plugin(debuglvl, plugin_list, conf.rule_backend_name, &rf) < 0)
+    if(load_plugin(debuglvl, &vrmr_plugin_list, conf.rule_backend_name, &rf) < 0)
         return(-1);
     if(rf->setup(debuglvl, &conf, &rule_backend) < 0)
         return(-1);
@@ -405,63 +390,54 @@ load_backends(const int debuglvl, d_list *plugin_list)
         -1: error
 */
 int
-unload_backends(const int debuglvl, d_list *plugin_list)
+unload_backends(const int debuglvl)
 {
-    /*
-        safety
-    */
-    if(!plugin_list)
-    {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: unload_backends).");
-        return(-1);
-    }
-
     /*
         SERVICES
     */
-    if(sf->close(debuglvl, serv_backend, CAT_SERVICES) < 0)
+    if (sf->close(debuglvl, serv_backend, CAT_SERVICES) < 0)
         return(-1);
 
     free(serv_backend);
     serv_backend = NULL;
 
-    if(unload_plugin(debuglvl, plugin_list, conf.serv_backend_name, &sf) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, conf.serv_backend_name, &sf) < 0)
         return(-1);
 
     /*
         ZONES
     */
-    if(zf->close(debuglvl, zone_backend, CAT_ZONES) < 0)
+    if (zf->close(debuglvl, zone_backend, CAT_ZONES) < 0)
         return(-1);
 
     free(zone_backend);
     zone_backend = NULL;
 
-    if(unload_plugin(debuglvl, plugin_list, conf.zone_backend_name, &zf) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, conf.zone_backend_name, &zf) < 0)
         return(-1);
 
     /*
         INTERFACES
     */
-    if(af->close(debuglvl, ifac_backend, CAT_INTERFACES) < 0)
+    if (af->close(debuglvl, ifac_backend, CAT_INTERFACES) < 0)
         return(-1);
 
     free(ifac_backend);
     ifac_backend = NULL;
 
-    if(unload_plugin(debuglvl, plugin_list, conf.ifac_backend_name, &af) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, conf.ifac_backend_name, &af) < 0)
         return(-1);
 
     /*
         RULES
     */
-    if(rf->close(debuglvl, rule_backend, CAT_RULES) < 0)
+    if (rf->close(debuglvl, rule_backend, CAT_RULES) < 0)
         return(-1);
 
     free(rule_backend);
     rule_backend = NULL;
 
-    if(unload_plugin(debuglvl, plugin_list, conf.rule_backend_name, &rf) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, conf.rule_backend_name, &rf) < 0)
         return(-1);
 
     return(0);

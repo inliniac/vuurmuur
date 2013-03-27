@@ -46,27 +46,27 @@ ask_textdir(const int debuglvl,
                             val_pos = 0;
     char                    delt = 'a' - 'A';
     size_t                  line_length = 0;
-    struct TextdirBackend_  *ptr = NULL;
+    struct TextdirBackend_  *tb = NULL;
     size_t                  len = 0;
 
     /* better safe than sorry */
     if(!backend || !name || !question)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        (void)tb->cfg->vrprint.error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "question: %s, name: %s, multi: %d", question, name, multi);
+        (void)tb->cfg->vrprint.debug(__FUNC__, "question: %s, name: %s, multi: %d", question, name, multi);
 
-    if(!(ptr = (struct TextdirBackend_ *)backend))
+    if(!(tb = (struct TextdirBackend_ *)backend))
         return(-1);
 
     /* check if backend is open */
-    if(!ptr->backend_open)
+    if(!tb->backend_open)
     {
-        (void)vrprint.error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
+        (void)tb->cfg->vrprint.error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -82,20 +82,20 @@ ask_textdir(const int debuglvl,
         return(-1);
 
     /* check if we are clean */
-    if(ptr->file != NULL && multi == 0)
+    if(tb->file != NULL && multi == 0)
     {
-        (void)vrprint.warning("Warning", "the last 'multi' call to '%s' probably failed, because the file is still open when it shouldn't.", __FUNC__);
+        (void)tb->cfg->vrprint.warning("Warning", "the last 'multi' call to '%s' probably failed, because the file is still open when it shouldn't.", __FUNC__);
 
-        fclose(ptr->file);
-        ptr->file = NULL;
+        fclose(tb->file);
+        tb->file = NULL;
     }
 
     /* now open and read the file, but only if it is not already open */
-    if(ptr->file == NULL)
+    if(tb->file == NULL)
     {
-        if(!(ptr->file = vuurmuur_fopen(debuglvl, ptr->vuurmuur_config, file_location, "r")))
+        if(!(tb->file = vuurmuur_fopen(debuglvl, tb->cfg, file_location, "r")))
         {
-            (void)vrprint.error(-1, "Error", "Unable to open file '%s'.", file_location);
+            (void)tb->cfg->vrprint.error(-1, "Error", "Unable to open file '%s'.", file_location);
 
             free(file_location);
             return(-1);
@@ -103,25 +103,25 @@ ask_textdir(const int debuglvl,
     }
 
     /* start (or continue) looping trough the file */
-    while (fgets(line, (int)sizeof(line), ptr->file) != NULL)
+    while (fgets(line, (int)sizeof(line), tb->file) != NULL)
     {
         line_length = strlen(line);
         if(line_length < 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "unable to determine the length of 'line' (in: %s).", __FUNC__);
+            (void)tb->cfg->vrprint.error(-1, "Internal Error", "unable to determine the length of 'line' (in: %s).", __FUNC__);
 
             free(file_location);
-            fclose(ptr->file);
-            ptr->file = NULL;
+            fclose(tb->file);
+            tb->file = NULL;
             return(-1);
         }
         else if(line_length > MAX_LINE_LENGTH)
         {
-            (void)vrprint.error(-1, "Error", "line is longer than allowed (line: %d, max: %d) (in: %s).", line_length, MAX_LINE_LENGTH, __FUNC__);
+            (void)tb->cfg->vrprint.error(-1, "Error", "line is longer than allowed (line: %d, max: %d) (in: %s).", line_length, MAX_LINE_LENGTH, __FUNC__);
 
             free(file_location);
-            fclose(ptr->file);
-            ptr->file = NULL;
+            fclose(tb->file);
+            tb->file = NULL;
             return(-1);
         }
 
@@ -150,7 +150,7 @@ ask_textdir(const int debuglvl,
         strlcpy(variable, line, var_len);
 
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "variable %s", variable);
+            (void)tb->cfg->vrprint.debug(__FUNC__, "variable %s", variable);
 
         /* now see if this was what we were looking for */
         if(strcmp(question, variable) != 0) {
@@ -189,18 +189,18 @@ ask_textdir(const int debuglvl,
             value[val_pos] = '\0';
 
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "question '%s' matched, value: '%s'", question, value);
+            (void)tb->cfg->vrprint.debug(__FUNC__, "question '%s' matched, value: '%s'", question, value);
 
         /* copy back the value to "answer" */
         len = strlcpy(answer, value, max_answer);
         if(len >= max_answer)
         {
-            (void)vrprint.error(-1, "Error", "buffer overrun when reading file '%s', question '%s': len %u, max: %u (in: %s:%d).",
+            (void)tb->cfg->vrprint.error(-1, "Error", "buffer overrun when reading file '%s', question '%s': len %u, max: %u (in: %s:%d).",
                     file_location, question, len, max_answer, __FUNC__, __LINE__);
 
             free(file_location);
-            fclose(ptr->file);
-            ptr->file = NULL;
+            fclose(tb->file);
+            tb->file = NULL;
             return(-1);
         }
 
@@ -216,14 +216,14 @@ ask_textdir(const int debuglvl,
     if((multi == 1 && retval != 1) || multi == 0)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "close the file.");
+            (void)tb->cfg->vrprint.debug(__FUNC__, "close the file.");
 
-        if(fclose(ptr->file) != 0)
+        if(fclose(tb->file) != 0)
         {
-            (void)vrprint.error(-1, "Error", "closing file '%s' failed: %s (in: %s).", file_location, strerror(errno), __FUNC__);
+            (void)tb->cfg->vrprint.error(-1, "Error", "closing file '%s' failed: %s (in: %s).", file_location, strerror(errno), __FUNC__);
             retval = -1;
         }
-        ptr->file = NULL;
+        tb->file = NULL;
     }
 
     /* cleanup filelocation */
@@ -231,8 +231,8 @@ ask_textdir(const int debuglvl,
 
     if(debuglvl >= HIGH)
     {
-        (void)vrprint.debug(__FUNC__, "at exit: ptr->file: %p (retval: %d).", ptr->file, retval);
-        (void)vrprint.debug(__FUNC__, "** end **, retval=%d", retval);
+        (void)tb->cfg->vrprint.debug(__FUNC__, "at exit: tb->file: %p (retval: %d).", tb->file, retval);
+        (void)tb->cfg->vrprint.debug(__FUNC__, "** end **, retval=%d", retval);
     }
 
     return(retval);

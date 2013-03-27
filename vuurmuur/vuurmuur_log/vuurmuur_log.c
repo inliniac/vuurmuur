@@ -654,7 +654,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if(load_backends(debuglvl, &PluginList) < 0)
+    if(load_backends(debuglvl) < 0)
     {
         (void)vrprint.error(-1, "Error", "loading plugins failed, bailing out.");
         exit(EXIT_FAILURE);
@@ -852,7 +852,7 @@ main(int argc, char *argv[])
             destroy_interfaceslist(debuglvl, &interfaces);
 
             /* close backend */
-            result = unload_backends(debuglvl, &PluginList);
+            result = unload_backends(debuglvl);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Error", "unloading backends failed.");
@@ -873,7 +873,7 @@ main(int argc, char *argv[])
             shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 20);
 
             /* open backends */
-            result = load_backends(debuglvl, &PluginList);
+            result = load_backends(debuglvl);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Error", "re-opening backends failed.");
@@ -1002,7 +1002,7 @@ main(int argc, char *argv[])
     if(nodaemon)
         show_stats (&Counters);
 
-    if(unload_backends(debuglvl, &PluginList) < 0)
+    if(unload_backends(debuglvl) < 0)
     {
         (void)vrprint.error(-1, "Error", "unloading backends failed.");
     }

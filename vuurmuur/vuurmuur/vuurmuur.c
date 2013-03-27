@@ -430,7 +430,7 @@ main(int argc, char *argv[])
     }
 
     /* load the backends */
-    result = load_backends(debuglvl, &PluginList);
+    result = load_backends(debuglvl);
     if(result < 0)
     {
         fprintf(stdout, "Error: loading backends failed\n");
@@ -819,7 +819,7 @@ main(int argc, char *argv[])
     }
 
     /* unload the backends */
-    result = unload_backends(debuglvl, &PluginList);
+    result = unload_backends(debuglvl);
     if(result < 0)
     {
         fprintf(stdout, "Error: unloading backends failed.\n");

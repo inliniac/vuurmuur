@@ -78,9 +78,6 @@
 /*@null@*/
 struct SHM_TABLE *shm_table;
 
-/* pluginlist */
-d_list PluginList;
-
 /* semaphore id */
 int sem_id;
 

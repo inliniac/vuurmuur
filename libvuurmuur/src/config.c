@@ -2172,6 +2172,14 @@ pre_init_config(struct vuurmuur_config *cnf)
     /* init the struct */
     memset(cnf, 0, sizeof(struct vuurmuur_config));
 
+    cnf->vrprint.logger = vrprint.logger = "<not set>";
+    cnf->vrprint.error = vrprint.error = libvuurmuur_stdoutprint_error;
+    cnf->vrprint.warning = vrprint.warning = libvuurmuur_stdoutprint_warning;
+    cnf->vrprint.info = vrprint.info = libvuurmuur_stdoutprint_info;
+    cnf->vrprint.debug = vrprint.debug = libvuurmuur_stdoutprint_debug;
+    cnf->vrprint.username = vrprint.username = "<not set>";
+    cnf->vrprint.audit = vrprint.audit = libvuurmuur_stdoutprint_audit;
+
     /* set the configdir location */
     if(strlcpy(cnf->etcdir, xstr(SYSCONFDIR), sizeof(cnf->etcdir)) >= sizeof(cnf->etcdir))
     {
@@ -2214,5 +2222,6 @@ pre_init_config(struct vuurmuur_config *cnf)
     /* Don't do any permissin checks until we loaded MAX_PERMISSION from the config file */
     cnf->max_permission = ANY_PERMISSION;
 
+    d_list_setup(0, &vrmr_plugin_list, NULL);
     return(0);
 }

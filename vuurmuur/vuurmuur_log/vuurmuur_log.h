@@ -63,8 +63,6 @@
 #define VR_INFO         "Info"
 #define VR_WARN         "Warning"
 
-d_list  PluginList;
-
 struct log_rule
 {
     char            month[4];

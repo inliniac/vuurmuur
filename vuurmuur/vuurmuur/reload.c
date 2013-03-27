@@ -45,7 +45,7 @@ apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
     (void)vrprint.info("Info", "Reloading config...");
 
     /* close the current backends */
-    result = unload_backends(debuglvl, &PluginList);
+    result = unload_backends(debuglvl);
     if(result < 0)
     {
         (void)vrprint.error(-1, "Error", "unloading backends failed.");
@@ -78,7 +78,7 @@ apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
 
 
     /* reopen the backends */
-    result = load_backends(debuglvl, &PluginList);
+    result = load_backends(debuglvl);
     if(result < 0)
     {
         (void)vrprint.error(-1, "Error", "re-opening backends failed.");

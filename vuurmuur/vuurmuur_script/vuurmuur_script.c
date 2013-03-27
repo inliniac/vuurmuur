@@ -744,14 +744,14 @@ main(int argc, char *argv[])
     }
     /* audit only to the log, no matter if we are in verbose mode or not
        because it prints: username: message... example:
-       
+
        victor : interface 'abcd' added.
     */
     vrprint.audit = libvuurmuur_logprint_audit;
 
 
     /* load the backends */
-    result = load_backends(debuglvl, &PluginList);
+    result = load_backends(debuglvl);
     if(result < 0)
     {
         fprintf(stdout, "Error: loading backends failed\n");
@@ -903,7 +903,7 @@ main(int argc, char *argv[])
     }
 
     /* unload the backends */
-    result = unload_backends(debuglvl, &PluginList);
+    result = unload_backends(debuglvl);
     if(result < 0)
     {
         fprintf(stdout, "Error: unloading backends failed.\n");

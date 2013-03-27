@@ -71,7 +71,7 @@ struct TextdirBackend_
 
 	/* Vuurmuur configuration. Some libvuurmuur functions need this to
 	 * do their work, but we shouldn't be accessing it ourselves. */
-	const struct vuurmuur_config *vuurmuur_config;
+	const struct vuurmuur_config *cfg;
 };
 
 
