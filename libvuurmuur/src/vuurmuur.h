@@ -1433,8 +1433,6 @@ int load_services(const int, Services *, struct rgx_ *);
 /*
     info.c
 */
-int determine_action(const int debuglvl, char *query, char *action, size_t size, struct options *option);
-//int determine_chain(const int debuglvl, struct RuleData_ *rule_ptr, char *chain, size_t size, int *ruletype);
 int get_ip_info(const int debuglvl, char *name, struct ZoneData_ *answer_ptr, struct rgx_ *reg);
 int create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broadcast_ip, size_t size);
 int get_group_info(const int, Zones *, char *, struct ZoneData_ *);
@@ -1575,7 +1573,7 @@ int delete_interface(const int, Interfaces *, char *);
 int ins_iface_into_zonelist(const int debuglvl, d_list *ifacelist, d_list *zonelist);
 int rem_iface_from_zonelist(const int debuglvl, d_list *zonelist);
 int get_iface_stats(const int, const char *, unsigned long *, unsigned long *, unsigned long *, unsigned long *);
-int get_iface_stats_from_ipt(const int debuglvl, const char *iface_name, const char *chain, unsigned long long *recv_packets, unsigned long long *recv_bytes, unsigned long long *trans_packets, unsigned long long *trans_bytes);
+int vrmr_get_iface_stats_from_ipt(const int debuglvl, struct vuurmuur_config *cfg, const char *iface_name, const char *chain, unsigned long long *recv_packets, unsigned long long *recv_bytes, unsigned long long *trans_packets, unsigned long long *trans_bytes);
 int validate_interfacename(const int, const char *, regex_t *);
 void destroy_interfaceslist(const int debuglvl, Interfaces *interfaces);
 int interfaces_get_rules(const int debuglvl, struct InterfaceData_ *iface_ptr);

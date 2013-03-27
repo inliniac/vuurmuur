@@ -2110,7 +2110,7 @@ conn_get_connections_do(const int debuglvl,
         if (ipver == VR_IPV4) {
             char *args[] = { cnf->conntrack_location,
                 "-L", "-f", "ipv4", NULL };
-            int result = libvuurmuur_exec_command(debuglvl, &conf, cnf->conntrack_location, args, outputs);
+            int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->conntrack_location, args, outputs);
             if (result == -1) {
                 (void)vrprint.error(-1, "Error", "unable to execute "
                         "conntrack: %s (in: %s:%d).", strerror(errno),
@@ -2120,7 +2120,7 @@ conn_get_connections_do(const int debuglvl,
         } else {
             char *args[] = { cnf->conntrack_location,
                 "-L", "-f", "ipv6", NULL };
-            int result = libvuurmuur_exec_command(debuglvl, &conf, cnf->conntrack_location, args, outputs);
+            int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->conntrack_location, args, outputs);
             if (result == -1) {
                 (void)vrprint.error(-1, "Error", "unable to execute "
                         "conntrack: %s (in: %s:%d).", strerror(errno),

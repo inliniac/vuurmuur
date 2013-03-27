@@ -25,6 +25,136 @@
 #include "vuurmuur.h"
 #include <ctype.h>
 
+/* - determine_action -
+ * In this function we translate the 'accept' or 'drop' from the 'rules.conf' file to the
+ * values that iptables understands, like 'ACCEPT, DROP, REJECT'.
+ *
+ * The function is called with the action from the rulesfile 'query' and returns the iptables
+ * action trough 'action'.
+ *
+ * Returncodes:
+ *      0: ok, found
+ *     -1: invalid query
+ */
+static int
+determine_action(const int debuglvl, struct vuurmuur_config *cfg, char *query, char *action, size_t size, struct options *option)
+{
+    int action_type = 0;
+
+    /* safety */
+    if(query == NULL || action == NULL || option == NULL || cfg == NULL)
+    {
+        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+            "(in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    action_type = rules_actiontoi(query);
+    if(action_type <= AT_ERROR || action_type >= AT_TOO_BIG)
+    {
+        (void)vrprint.error(-1, "Error", "unknown action '%s' "
+            "(in: %s:%d).", query, __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    if(action_type == AT_ACCEPT)
+    {
+        (void)strlcpy(action, "NEWACCEPT", size);
+    }
+    else if(action_type == AT_DROP)
+    {
+        (void)strlcpy(action, "DROP", size);
+    }
+    else if(action_type == AT_REJECT)
+    {
+        (void)strlcpy(action, "REJECT", size);
+        if(option->reject_option == 1)
+        {
+            if(debuglvl >= MEDIUM)
+                (void)vrprint.debug(__FUNC__, "reject option: "
+                        "'%s'.", option->reject_type);
+
+            if(strcmp(option->reject_type, "tcp-reset") == 0)
+            {
+                (void)strlcpy(action, "TCPRESET", size);
+            }
+            else
+            {
+                snprintf(action, size, "REJECT --reject-with "
+                        "%s", option->reject_type);
+            }
+        }
+    }
+    else if(action_type == AT_CHAIN)
+    {
+        (void)strlcpy(action, option->chain, size);
+    }
+    else if(action_type == AT_REDIRECT)
+    {
+        (void)strlcpy(action, "REDIRECT", size);
+        if(option->redirectport > 0)
+        {
+            if(debuglvl >= MEDIUM)
+                (void)vrprint.debug(__FUNC__, "redirect "
+                        "option: '%d'.", option->redirectport);
+
+            snprintf(action, size, "REDIRECT --to-ports "
+                    "%d", option->redirectport);
+        }
+        else
+        {
+            (void)vrprint.error(-1, "Error", "target REDIRECT "
+                    "requires option 'redirectport'.");
+            return(-1);
+        }
+    }
+    else if(action_type == AT_LOG)
+    {
+        if(strcmp(cfg->loglevel, "") == 0)
+            (void)strlcpy(action, "LOG", size);
+        else
+            snprintf(action, size, "LOG --log-level %s",
+                    cfg->loglevel);
+
+        /* when action is LOG, the log option must not be set */
+        option->rule_log = FALSE;
+
+        if(debuglvl >= MEDIUM)
+            (void)vrprint.debug(__FUNC__, "set option->rule_log "
+                    "to FALSE because action is LOG.");
+    }
+    else if(action_type == AT_MASQ)
+    {
+        (void)strlcpy(action, "MASQUERADE", size);
+    }
+    else if(action_type == AT_SNAT)
+    {
+        (void)strlcpy(action, "SNAT", size);
+    }
+    else if(action_type == AT_PORTFW ||
+        action_type == AT_DNAT ||
+        action_type == AT_BOUNCE)
+    {
+        (void)strlcpy(action, "DNAT", size);
+    }
+    else if(action_type == AT_QUEUE)
+    {
+        (void)strlcpy(action, "NEWQUEUE", size);
+    }
+    else if(action_type == AT_NFQUEUE)
+    {
+        (void)strlcpy(action, "NEWNFQUEUE", size);
+    }
+    else
+    {
+        (void)vrprint.error(-1, "Error", "unknown action '%s' "
+            "(in: %s:%d).", query, __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    return(0);
+}
+
 /*  rules_analyse_rule
 
     Function for gathering the info for creation of the rule
@@ -295,7 +425,7 @@ rules_analyze_rule( const int debuglvl,
             create->option = *rule_ptr->opt;
 
         /* determine which action to take (ACCEPT, DROP, REJECT etc.). */
-        if(determine_action(debuglvl, rules_itoaction(rule_ptr->action), create->action, sizeof(create->action), &create->option) == 0)
+        if(determine_action(debuglvl, cnf, rules_itoaction(rule_ptr->action), create->action, sizeof(create->action), &create->option) == 0)
         {
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "determine_action succes, create->action = %s",

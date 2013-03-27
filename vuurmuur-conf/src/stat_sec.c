@@ -1018,9 +1018,9 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, In
                     get_iface_stats(debuglvl, iface_ptr->device, &recv_bytes, NULL, &trans_bytes, NULL);
 
                     /* get the real counters from iptables */
-                    get_iface_stats_from_ipt(debuglvl, iface_ptr->device, "INPUT", &shadow_ptr->recv_host_packets, &shadow_ptr->recv_host, &tmp_ull, &tmp_ull);
-                    get_iface_stats_from_ipt(debuglvl, iface_ptr->device, "OUTPUT", &tmp_ull, &tmp_ull, &shadow_ptr->send_host_packets, &shadow_ptr->send_host);
-                    get_iface_stats_from_ipt(debuglvl, iface_ptr->device, "FORWARD", &shadow_ptr->recv_net_packets, &shadow_ptr->recv_net, &shadow_ptr->send_net_packets, &shadow_ptr->send_net);
+                    vrmr_get_iface_stats_from_ipt(debuglvl, cnf, iface_ptr->device, "INPUT", &shadow_ptr->recv_host_packets, &shadow_ptr->recv_host, &tmp_ull, &tmp_ull);
+                    vrmr_get_iface_stats_from_ipt(debuglvl, cnf, iface_ptr->device, "OUTPUT", &tmp_ull, &tmp_ull, &shadow_ptr->send_host_packets, &shadow_ptr->send_host);
+                    vrmr_get_iface_stats_from_ipt(debuglvl, cnf, iface_ptr->device, "FORWARD", &shadow_ptr->recv_net_packets, &shadow_ptr->recv_net, &shadow_ptr->send_net_packets, &shadow_ptr->send_net);
 
                     /* RECV host/firewall */
                     if((shadow_ptr->recv_host/(1024*1024)) >= 1000)

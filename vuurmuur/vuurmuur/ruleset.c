@@ -1376,7 +1376,7 @@ ruleset_create_ruleset( const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset)
 
 
 static int
-ruleset_save_interface_counters(const int debuglvl, Interfaces *interfaces)
+ruleset_save_interface_counters(const int debuglvl, struct vuurmuur_config *cfg, Interfaces *interfaces)
 {
     d_list_node             *d_node = NULL;
     struct InterfaceData_   *iface_ptr = NULL;
@@ -1414,15 +1414,15 @@ ruleset_save_interface_counters(const int debuglvl, Interfaces *interfaces)
             memset(iface_ptr->cnt, 0, sizeof(InterfaceCount));
 
             /* get the real counters from iptables */
-            get_iface_stats_from_ipt(debuglvl, iface_ptr->device, "INPUT",
+            vrmr_get_iface_stats_from_ipt(debuglvl, cfg, iface_ptr->device, "INPUT",
                                         &iface_ptr->cnt->input_packets,
                                         &iface_ptr->cnt->input_bytes,
                                         &tmp_ull, &tmp_ull);
-            get_iface_stats_from_ipt(debuglvl, iface_ptr->device, "OUTPUT",
+            vrmr_get_iface_stats_from_ipt(debuglvl, cfg, iface_ptr->device, "OUTPUT",
                                         &tmp_ull, &tmp_ull,
                                         &iface_ptr->cnt->output_packets,
                                         &iface_ptr->cnt->output_bytes);
-            get_iface_stats_from_ipt(debuglvl, iface_ptr->device, "FORWARD",
+            vrmr_get_iface_stats_from_ipt(debuglvl, cfg, iface_ptr->device, "FORWARD",
                                         &iface_ptr->cnt->forwardin_packets,
                                         &iface_ptr->cnt->forwardin_bytes,
                                         &iface_ptr->cnt->forwardout_packets,
@@ -1445,7 +1445,7 @@ ruleset_save_interface_counters(const int debuglvl, Interfaces *interfaces)
                 (void)vrprint.debug(__FUNC__, "acc_chain '%s'.", acc_chain);
 
             /* get the accounting chains numbers */
-            get_iface_stats_from_ipt(debuglvl, iface_ptr->device, acc_chain,
+            vrmr_get_iface_stats_from_ipt(debuglvl, cfg, iface_ptr->device, acc_chain,
                                         &iface_ptr->cnt->acc_in_packets,
                                         &iface_ptr->cnt->acc_in_bytes,
                                         &iface_ptr->cnt->acc_out_packets,
@@ -1608,7 +1608,7 @@ load_ruleset_ipv4(const int debuglvl, VuurmuurCtx *vctx)
     ruleset.ipv = VR_IPV4;
 
     /* store counters */
-    if(ruleset_save_interface_counters(debuglvl, vctx->interfaces) < 0)
+    if(ruleset_save_interface_counters(debuglvl, vctx->conf, vctx->interfaces) < 0)
     {
         (void)vrprint.error(-1, "Error", "saving interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1794,7 +1794,7 @@ load_ruleset_ipv6(const int debuglvl, VuurmuurCtx *vctx)
     ruleset.ipv = VR_IPV6;
 
     /* store counters */
-    if(ruleset_save_interface_counters(debuglvl, vctx->interfaces) < 0)
+    if(ruleset_save_interface_counters(debuglvl, vctx->conf, vctx->interfaces) < 0)
     {
         (void)vrprint.error(-1, "Error", "saving interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);

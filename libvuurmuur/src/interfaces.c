@@ -1520,7 +1520,8 @@ get_iface_stats(    const int debuglvl,
         -1: error
 */
 int
-get_iface_stats_from_ipt(   const int debuglvl,
+vrmr_get_iface_stats_from_ipt(const int debuglvl,
+                            struct vuurmuur_config *cfg,
                             const char *iface_name,
                             const char *chain,
                             unsigned long long *recv_packets,
@@ -1558,7 +1559,7 @@ get_iface_stats_from_ipt(   const int debuglvl,
         recv_done = 1;
 
     /* set the command to get the data from iptables */
-    snprintf(command, sizeof(command), "%s -vnL %s --exact 2> /dev/null", conf.iptables_location, chain);
+    snprintf(command, sizeof(command), "%s -vnL %s --exact 2> /dev/null", cfg->iptables_location, chain);
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "command: '%s'.", command);
 
