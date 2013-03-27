@@ -103,25 +103,15 @@ main(int argc, char *argv[])
     vuurmuurlog_semid = -1;
     vuurmuurlog_shmid = -1;
 
-    /* get the current user */
-    vrmr_user_get_info(debuglvl, &user_data);
-
-    /* initialize the print functions */
-    vrprint.logger = "vuurmuur_conf";
-    vrprint.error = libvuurmuur_stdoutprint_error;
-    vrprint.warning = libvuurmuur_stdoutprint_warning;
-    vrprint.info = libvuurmuur_stdoutprint_info;
-    vrprint.debug = libvuurmuur_stdoutprint_debug;
-    vrprint.username = user_data.realusername;
-    vrprint.audit = libvuurmuur_stdoutprint_audit;
-
     /* create the version string */
     snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
             VUURMUURCONF_VERSION, libvuurmuur_get_version());
 
     /* some initilization */
-    if(pre_init_config(&conf) < 0)
+    if (vrmr_init(&conf, "vuurmuur_conf") < 0)
         exit(EXIT_FAILURE);
+    /* get the current user */
+    vrmr_user_get_info(debuglvl, &user_data);
 
     /* settings file */
     memset(vccnf.configfile_location, 0, sizeof(vccnf.configfile_location));

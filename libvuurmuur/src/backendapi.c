@@ -54,8 +54,6 @@ vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
         return;
     }
 
-    printf("vrmr_plugin_register: &vrmr_plugin_list %p\n", &vrmr_plugin_list);
-
     /* insert into the list */
     if (d_list_append(/* no dbg */0, &vrmr_plugin_list, plugin) == NULL)
     {
@@ -182,7 +180,6 @@ load_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct v
     {
         plugin = d_node->data;
 
-        vrprint.info(__FUNC__, "plugin->name %s", plugin->name);
         if(strcmp(plugin->name, plugin_name) == 0) {
             break;
         }
@@ -325,7 +322,6 @@ load_backends(const int debuglvl)
     /* first the SERVICES */
     if(load_plugin(debuglvl, &vrmr_plugin_list, conf.serv_backend_name, &sf) < 0)
         return(-1);
-    fprintf(stdout, "load_backends: &conf %p, etc %s\n", &conf, conf.etcdir);
     if(sf->setup(debuglvl, &conf, &serv_backend) < 0)
         return(-1);
     if(sf->conf(debuglvl, serv_backend) < 0)

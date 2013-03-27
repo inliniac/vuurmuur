@@ -455,7 +455,7 @@ main(int argc, char *argv[])
     Interfaces  interfaces;
     Services    services;
     Zones       zones;
-
+    struct vrmr_user user_data;
     FILE        *system_log = NULL;
     char        line_in[1024] = "";
     char        line_out[1024] = "";
@@ -497,29 +497,15 @@ main(int argc, char *argv[])
     struct rgx_ reg;
     char        quit = 0;
 
-    /* get the current user */
-    vrmr_user_get_info(debuglvl, &user_data);
-
     snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
             VUURMUUR_VERSION, libvuurmuur_get_version());
+
+    vrmr_init(&conf, "vuurmuur_log");
 
     /* init signals */
     setup_signal_handler(SIGINT, handle_sigint);
     setup_signal_handler(SIGTERM, handle_sigterm);
     setup_signal_handler(SIGHUP, handle_sighup);
-
-    /* initialize the print functions */
-    vrprint.logger = "vuurmuur_log";
-    vrprint.error = libvuurmuur_stdoutprint_error;
-    vrprint.warning = libvuurmuur_stdoutprint_warning;
-    vrprint.info = libvuurmuur_stdoutprint_info;
-    vrprint.debug = libvuurmuur_stdoutprint_debug;
-    vrprint.username = user_data.realusername;
-    vrprint.audit = libvuurmuur_stdoutprint_audit;
-
-    /* set default configfile location */
-    if(pre_init_config(&conf) < 0)
-        exit(EXIT_FAILURE);
 
     /* process the options */
     while((optch = getopt_long(argc, argv, optstring, prog_opts,
@@ -628,6 +614,8 @@ main(int argc, char *argv[])
     vrprint.debug = libvuurmuur_logprint_debug;
     vrprint.audit = libvuurmuur_logprint_audit;
 
+    /* get the current user */
+    vrmr_user_get_info(debuglvl, &user_data);
     (void)vrprint.audit("Vuurmuur_log %s %s started by user %s.", version_string, (syslog) ? "" :"(experimental nflog mode)", user_data.realusername);
 
 #ifdef HAVE_LIBNETFILTER_LOG

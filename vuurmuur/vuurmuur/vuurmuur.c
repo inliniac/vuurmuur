@@ -62,7 +62,7 @@ main(int argc, char *argv[])
     IptCap          iptcap;
     VuurmuurCtx     vctx;
     pid_t           pid;
-
+    struct vrmr_user user_data;
     char            reload_shm = FALSE,
                     reload_dyn = FALSE;
 
@@ -118,26 +118,12 @@ main(int argc, char *argv[])
 
     snprintf(version_string,sizeof(version_string),"%s (using libvuurmuur %s)", VUURMUUR_VERSION, libvuurmuur_get_version());
 
-    /* get the current user */
-    vrmr_user_get_info(debuglvl, &user_data);
-
-    /* init the print functions: all to stdout */
-    vrprint.logger = "vuurmuur";
-    vrprint.error = libvuurmuur_stdoutprint_error;
-    vrprint.warning = libvuurmuur_stdoutprint_warning;
-    vrprint.info = libvuurmuur_stdoutprint_info;
-    vrprint.debug = libvuurmuur_stdoutprint_debug;
-    vrprint.username = user_data.realusername;
-    vrprint.audit = libvuurmuur_stdoutprint_audit;
+    vrmr_init(&conf, "vuurmuur");
 
     /* registering signals we use */
     setup_signal_handler(SIGINT, handle_sigint);
     setup_signal_handler(SIGTERM, handle_sigterm);
     setup_signal_handler(SIGHUP, handle_sighup);
-
-    /* some initilization */
-    if(pre_init_config(&conf) < 0)
-        exit(EXIT_FAILURE);
 
     shm_table = NULL;
     sem_id = 0;
@@ -307,6 +293,7 @@ main(int argc, char *argv[])
     }
 
     /*  exit if the user is not root. */
+    vrmr_user_get_info(debuglvl, &user_data);
     if(user_data.user > 0 || user_data.group > 0)
     {
         fprintf(stdout, "Error: you are not root! Exitting.\n");

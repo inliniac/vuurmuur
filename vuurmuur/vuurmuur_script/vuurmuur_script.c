@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2008 by Victor Julien                              *
+ *   Copyright (C) 2002-2013 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #include "vuurmuur_script.h"
 
 
@@ -99,7 +99,6 @@ main(int argc, char *argv[])
 
     /* get the current user */
     vrmr_user_get_info(debuglvl, &user_data);
-
     /*  exit if the user is not root. */
     if(user_data.user > 0 || user_data.group > 0)
     {
@@ -138,8 +137,7 @@ main(int argc, char *argv[])
         exit(EXIT_SUCCESS);
     }
 
-    /* some initilization */
-    if(pre_init_config(&conf) < 0)
+    if (vrmr_init(&conf, "vuurmuur_scrp") < 0)
         exit(VRS_ERR_INTERNAL);
 
     /* prepare for later shm connection */
