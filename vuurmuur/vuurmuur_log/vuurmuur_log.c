@@ -498,7 +498,7 @@ main(int argc, char *argv[])
     char        quit = 0;
 
     /* get the current user */
-    get_user_info(debuglvl, &user_data);
+    vrmr_user_get_info(debuglvl, &user_data);
 
     snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
             VUURMUUR_VERSION, libvuurmuur_get_version());

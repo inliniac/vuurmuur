@@ -119,7 +119,7 @@ main(int argc, char *argv[])
     snprintf(version_string,sizeof(version_string),"%s (using libvuurmuur %s)", VUURMUUR_VERSION, libvuurmuur_get_version());
 
     /* get the current user */
-    get_user_info(debuglvl, &user_data);
+    vrmr_user_get_info(debuglvl, &user_data);
 
     /* init the print functions: all to stdout */
     vrprint.logger = "vuurmuur";

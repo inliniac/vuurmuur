@@ -104,7 +104,7 @@ main(int argc, char *argv[])
     vuurmuurlog_shmid = -1;
 
     /* get the current user */
-    get_user_info(debuglvl, &user_data);
+    vrmr_user_get_info(debuglvl, &user_data);
 
     /* initialize the print functions */
     vrprint.logger = "vuurmuur_conf";

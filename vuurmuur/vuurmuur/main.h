@@ -83,7 +83,7 @@
 char        version_string[128];
 char        loglevel[32];           /* --log-level warning */
 char        log_tcp_options[18];    /* --log-tcp-options */
-VR_user_t   user_data;
+struct vrmr_user user_data;
 
 struct RuleCreateData_
 {

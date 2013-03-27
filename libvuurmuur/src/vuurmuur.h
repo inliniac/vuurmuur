@@ -1308,8 +1308,7 @@ enum actiontypes
 };
 
 
-typedef struct
-{
+struct vrmr_user {
     uid_t   user;
     char    username[32];
 
@@ -1318,8 +1317,7 @@ typedef struct
 
     uid_t   realuser;
     char    realusername[32];
-
-} VR_user_t;
+};
 
 
 /*
@@ -1448,7 +1446,7 @@ int check_ipv4address(const int debuglvl, char *network, char *netmask, char *ip
 int get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_t size, regex_t *mac_rgx);
 int get_danger_info(const int debuglvl, char *danger, char *source, struct danger_info *danger_struct);
 char *get_network_for_ipv4(const int debuglvl, const char *ipaddress, d_list *zonelist);
-int get_user_info(const int, VR_user_t *);
+int vrmr_user_get_info(const int, struct vrmr_user *);
 
 
 /*
@@ -1665,10 +1663,6 @@ int libvuurmuur_is_shape_interface(const int, /*@null@*/InterfaceData *);
     global vars
 */
 char bash_description[512];
-
-/* user data */
-VR_user_t vr_user;
-
 
 /*
     this is the backend api

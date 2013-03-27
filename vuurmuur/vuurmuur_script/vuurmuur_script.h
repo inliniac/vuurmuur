@@ -84,7 +84,7 @@ int sem_id;
 /* pointer to the environment */
 extern char **environ;
 
-VR_user_t user_data;
+struct vrmr_user user_data;
 
 enum
 {

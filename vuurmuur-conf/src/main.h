@@ -263,7 +263,7 @@ pid_t               vuurmuurlog_pid;
 
 char                version_string[128];
 
-VR_user_t           user_data;
+struct vrmr_user    user_data;
 
 int                 utf8_mode;
 

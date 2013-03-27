@@ -98,7 +98,7 @@ main(int argc, char *argv[])
     vr_script.overwrite = TRUE;
 
     /* get the current user */
-    get_user_info(debuglvl, &user_data);
+    vrmr_user_get_info(debuglvl, &user_data);
 
     /*  exit if the user is not root. */
     if(user_data.user > 0 || user_data.group > 0)

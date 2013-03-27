@@ -1379,7 +1379,7 @@ char
  *          -1: error
  */
 int
-get_user_info(const int debuglvl, VR_user_t *user)
+vrmr_user_get_info(const int debuglvl, struct vrmr_user *user)
 {
     char            *proc_self_fd_0 = "/proc/self/fd/0",
                     term_path[256] = "";
@@ -1396,7 +1396,7 @@ get_user_info(const int debuglvl, VR_user_t *user)
     }
 
     /* clear the memory */
-    memset(user, 0, sizeof(VR_user_t));
+    memset(user, 0, sizeof(*user));
 
     /* get the effective user id */
     user->user = getuid();
