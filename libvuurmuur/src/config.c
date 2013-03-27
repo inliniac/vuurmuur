@@ -385,9 +385,10 @@ check_tc_command(const int debuglvl, struct vuurmuur_config *cnf, char *tc_locat
 }
 
 
-/* updates the logdirlocations in the cnf struct based on cnf->vuurmuur_log_dir */
+/* updates the logdirlocations in the cnf struct based on cnf->vuurmuur_log_dir,
+ * also updates vrprint. */
 int
-config_set_log_names(const int debuglvl, struct vuurmuur_config *cnf)
+vrmr_config_set_log_names(const int debuglvl, struct vuurmuur_config *cnf)
 {
     int retval = 0;
 
@@ -403,6 +404,7 @@ config_set_log_names(const int debuglvl, struct vuurmuur_config *cnf)
         (void)vrprint.error(-1, "Error", "vuurmuur.log location was truncated (in: %s:%d).", __FUNC__, __LINE__);
         retval = -1;
     }
+    vrprint.infolog = cnf->vuurmuurlog_location;
 
     if(snprintf(cnf->trafficlog_location,  sizeof(cnf->trafficlog_location),  "%s/traffic.log",  cnf->vuurmuur_logdir_location) >= (int)sizeof(cnf->trafficlog_location))
     {
@@ -415,18 +417,21 @@ config_set_log_names(const int debuglvl, struct vuurmuur_config *cnf)
         (void)vrprint.error(-1, "Error", "debug.log location was truncated (in: %s:%d).", __FUNC__, __LINE__);
         retval = -1;
     }
+    vrprint.debuglog = cnf->debuglog_location;
 
     if(snprintf(cnf->errorlog_location,    sizeof(cnf->errorlog_location),    "%s/error.log",    cnf->vuurmuur_logdir_location) >= (int)sizeof(cnf->errorlog_location))
     {
         (void)vrprint.error(-1, "Error", "error.log location was truncated (in: %s:%d).", __FUNC__, __LINE__);
         retval = -1;
     }
+    vrprint.errorlog = cnf->errorlog_location;
 
     if(snprintf(cnf->auditlog_location,    sizeof(cnf->auditlog_location),    "%s/audit.log",    cnf->vuurmuur_logdir_location) >= (int)sizeof(cnf->auditlog_location))
     {
         (void)vrprint.error(-1, "Error", "audit.log location was truncated (in: %s:%d).", __FUNC__, __LINE__);
         retval = -1;
     }
+    vrprint.auditlog = cnf->auditlog_location;
 
     return(retval);
 }
@@ -1700,7 +1705,7 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
     /* set/update the lognames */
-    if(config_set_log_names(debuglvl, cnf) < 0)
+    if(vrmr_config_set_log_names(debuglvl, cnf) < 0)
         return(VR_CNF_E_UNKNOWN_ERR);
 
 

@@ -73,9 +73,9 @@ vrmr_logprint_error(int errorlevel, char *head, char *fmt, ...)
     snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel, long_str);
 
     /* print in the error log */
-    vrmr_logprint(conf.errorlog_location, prnt_str);
+    vrmr_logprint(vrprint.errorlog, prnt_str);
     /* and in the info log */
-    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
+    vrmr_logprint(vrprint.infolog, prnt_str);
 
     return(0);
 }
@@ -95,7 +95,7 @@ vrmr_logprint_warning(char *head, char *fmt, ...)
     snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
 
     /* now print in the warning log */
-    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
+    vrmr_logprint(vrprint.infolog, prnt_str);
 
     return(0);
 }
@@ -114,7 +114,7 @@ vrmr_logprint_info(char *head, char *fmt, ...)
 
     snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
 
-    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
+    vrmr_logprint(vrprint.infolog, prnt_str);
     return(0);
 }
 
@@ -132,7 +132,7 @@ vrmr_logprint_audit(char *fmt, ...)
 
     snprintf(prnt_str, sizeof(prnt_str), "%s : %s", vrprint.username, long_str);
 
-    vrmr_logprint(conf.auditlog_location, prnt_str);
+    vrmr_logprint(vrprint.auditlog, prnt_str);
     return(0);
 }
 
@@ -154,7 +154,7 @@ vrmr_logprint_debug(char *head, char *fmt, ...)
         (void)strlcpy(prnt_str, long_str, sizeof(prnt_str));
 
     /* print in the debug log */
-    vrmr_logprint(conf.debuglog_location, prnt_str);
+    vrmr_logprint(vrprint.debuglog, prnt_str);
     return(0);
 }
 
@@ -261,9 +261,9 @@ vrmr_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
     snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel, long_str);
 
     /* print in the error log */
-    vrmr_logprint(conf.errorlog_location, prnt_str);
+    vrmr_logprint(vrprint.errorlog, prnt_str);
     /* and in the info log */
-    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
+    vrmr_logprint(vrprint.infolog, prnt_str);
 
     fprintf(stdout, "%s\n", prnt_str);
     fflush(stdout);
@@ -286,7 +286,7 @@ vrmr_logstdoutprint_warning(char *head, char *fmt, ...)
     snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
 
     /* now print in the warning log */
-    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
+    vrmr_logprint(vrprint.infolog, prnt_str);
 
     fprintf(stdout, "%s\n", prnt_str);
     fflush(stdout);
@@ -308,7 +308,7 @@ vrmr_logstdoutprint_info(char *head, char *fmt, ...)
 
     snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
 
-    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
+    vrmr_logprint(vrprint.infolog, prnt_str);
 
     fprintf(stdout, "%s\n", prnt_str);
     fflush(stdout);
@@ -330,7 +330,7 @@ vrmr_logstdoutprint_audit(char *fmt, ...)
 
     snprintf(prnt_str, sizeof(prnt_str), "%s : %s", vrprint.username, long_str);
 
-    vrmr_logprint(conf.auditlog_location, prnt_str);
+    vrmr_logprint(vrprint.auditlog, prnt_str);
 
     fprintf(stdout, "%s\n", prnt_str);
     fflush(stdout);
@@ -356,7 +356,7 @@ vrmr_logstdoutprint_debug(char *head, char *fmt, ...)
         (void)strlcpy(prnt_str, long_str, sizeof(prnt_str));
 
     /* print in the debug log */
-    vrmr_logprint(conf.debuglog_location, prnt_str);
+    vrmr_logprint(vrprint.debuglog, prnt_str);
 
     fprintf(stdout, "%s\n", prnt_str);
     fflush(stdout);

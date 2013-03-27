@@ -1516,7 +1516,7 @@ vc_apply_changes(const int debuglvl)
         /* update the vuurmuurlognames because the logs might
            have moved after applying the changes because of
            configuration changes made by the user */
-        (void)config_set_log_names(debuglvl, &conf);
+        (void)vrmr_config_set_log_names(debuglvl, &conf);
     }
     else if(VuurmuurStatus.vuurmuur != 1)
     {
@@ -1534,7 +1534,7 @@ vc_apply_changes(const int debuglvl)
             /* update the vuurmuurlognames because the logs might
                have moved after applying the changes because of
                configuration changes made by the user */
-            (void)config_set_log_names(debuglvl, &conf);
+            (void)vrmr_config_set_log_names(debuglvl, &conf);
         }
     }
     else

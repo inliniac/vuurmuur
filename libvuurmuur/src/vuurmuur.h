@@ -355,21 +355,26 @@ struct vrprint_
 
     /* print error. Head may be null. */
     int(*error)(int errorcode, char *head, char *fmt, ...);
+    char *errorlog;
 
     /* print warning */
     int(*warning)(char *head, char *fmt, ...);
+    /* no location, warning is put in info and error */
 
     /* print info */
     int(*info)(char *head, char *fmt, ...);
+    char *infolog;
 
     /* print debug */
     int(*debug)(char *head, char *fmt, ...);
+    char *debuglog;
 
     /* the username used in the auditlog */
     char *username;
 
     /* auditlog */
     int(*audit)(char *fmt, ...);
+    char *auditlog;
 };
 struct vrprint_ vrprint;
 
@@ -1536,7 +1541,7 @@ void sanitize_path(const int, char *, size_t);
 /*
     config.c
 */
-int config_set_log_names(const int debuglvl, struct vuurmuur_config *cnf);
+int vrmr_config_set_log_names(const int debuglvl, struct vuurmuur_config *cnf);
 int config_check_logdir(const int debuglvl, const char *logdir);
 int config_check_vuurmuurdir(const int debuglvl, const struct vuurmuur_config *, const char *logdir);
 int check_iptables_command(const int, struct vuurmuur_config *, char *, char);
