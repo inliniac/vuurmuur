@@ -1731,7 +1731,7 @@ reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
     /* stage 1 starting... */
 
     /* re-initialize the rules_list */
-    if(rules_init_list(debuglvl, new_rules, reg) < 0)
+    if(vrmr_rules_init_list(debuglvl, vctx->conf, new_rules, reg) < 0)
     {
         (void)vrprint.error(-1, "Error", "rules_init_list() failed.");
 

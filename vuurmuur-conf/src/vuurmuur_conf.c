@@ -782,7 +782,7 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_RULES); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = rules_init_list(debuglvl, rules, reg);
+    result = vrmr_rules_init_list(debuglvl, &conf, rules, reg);
     if(result < 0)
     {
         /* TRANSLATORS: max 40 characters */

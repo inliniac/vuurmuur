@@ -1464,7 +1464,7 @@ int set_proc_entry(const int debuglvl, struct vuurmuur_config *, char *proc_entr
 */
 int rules_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, Services *, Zones *, Interfaces *, struct vuurmuur_config *);
 int rules_parse_line(const int, char *, struct RuleData_ *, struct rgx_ *);
-int rules_init_list(const int, /*@out@*/ Rules *, struct rgx_ *);
+int vrmr_rules_init_list(const int, struct vuurmuur_config *cfg, /*@out@*/ Rules *, struct rgx_ *);
 int rules_cleanup_list(const int, Rules *);
 int rules_insert_list(const int, Rules *, unsigned int, struct RuleData_ *);
 char *rules_assemble_options_string(const int, struct options *, const char *);

@@ -705,7 +705,7 @@ rules_analyze_rule( const int debuglvl,
         -1: error
 */
 int
-rules_init_list(const int debuglvl, Rules *rules, struct rgx_ *reg)
+vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, Rules *rules, struct rgx_ *reg)
 {
     FILE                *fp = NULL;
     int                 retval = 0;
@@ -739,10 +739,10 @@ rules_init_list(const int debuglvl, Rules *rules, struct rgx_ *reg)
     }
 
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "rules_location: '%s'", conf.rules_location);
+        (void)vrprint.debug(__FUNC__, "rules_location: '%s'", cfg->rules_location);
 
     /* open the rulesfile */
-    if((fp = fopen(conf.rules_location, "r")))
+    if((fp = fopen(cfg->rules_location, "r")))
     {
         rules->old_rulesfile_used = TRUE;
 

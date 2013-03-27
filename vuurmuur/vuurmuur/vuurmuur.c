@@ -468,7 +468,7 @@ main(int argc, char *argv[])
 
     /* load the rulesfile into memory */
     (void)vrprint.info("Info", "Loading rulesfile...");
-    result = rules_init_list(debuglvl, &rules, &reg);
+    result = vrmr_rules_init_list(debuglvl, &conf, &rules, &reg);
     if(result == 0)
     {
         (void)vrprint.info("Info", "Loading rulesfile succesfull.");
