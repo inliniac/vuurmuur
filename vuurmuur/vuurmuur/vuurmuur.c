@@ -317,9 +317,19 @@ main(int argc, char *argv[])
     }
 
     /* now we know the logfile locations, so init the log functions */
-    vrprint.error = libvuurmuur_logprint_error;
-    vrprint.warning = libvuurmuur_logprint_warning;
-    vrprint.info = libvuurmuur_logprint_info;
+    if (conf.verbose_out) {
+        vrprint.error = libvuurmuur_logstdoutprint_error;
+        vrprint.warning = libvuurmuur_logstdoutprint_warning;
+        vrprint.info = libvuurmuur_logstdoutprint_info;
+    } else if (conf.bash_out) {
+        vrprint.error = logprint_error_bash;
+        vrprint.warning = logprint_warning_bash;
+        vrprint.info = logprint_info_bash;
+    } else {
+        vrprint.error = libvuurmuur_logprint_error;
+        vrprint.warning = libvuurmuur_logprint_warning;
+        vrprint.info = libvuurmuur_logprint_info;
+    }
     vrprint.debug = libvuurmuur_logprint_debug;
     vrprint.audit = libvuurmuur_logprint_audit;
 

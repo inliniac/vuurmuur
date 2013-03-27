@@ -338,6 +338,10 @@ void send_hup_to_vuurmuurlog(const int debuglvl);
 void cmdline_override_config(const int debuglvl);
 int sysctl_exec(const int debuglvl, struct vuurmuur_config *cnf, char *key, char *value, int bash_out);
 
+int logprint_error_bash(int errorlevel, char *head, char *fmt, ...);
+int logprint_warning_bash(char *head, char *fmt, ...);
+int logprint_info_bash(char *head, char *fmt, ...);
+
 /* main.c */
 // none ;-)
 

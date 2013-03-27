@@ -93,3 +93,66 @@ int sysctl_exec(const int debuglvl, struct vuurmuur_config *cnf, char *key, char
     return 0;
 }
 
+int
+logprint_error_bash(int errorlevel, char *head, char *fmt, ...)
+{
+    va_list ap;
+    char    long_str[MAX_LOGRULE_SIZE] = "",
+            prnt_str[MAX_LOGRULE_SIZE] = "";
+
+    va_start(ap, fmt);
+    vsnprintf(long_str, sizeof(long_str), fmt, ap);
+    va_end(ap);
+
+    snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel, long_str);
+
+    /* print in the error log */
+    vrmr_logprint(conf.errorlog_location, conf.verbose_out, prnt_str);
+    /* and in the info log */
+    vrmr_logprint(conf.vuurmuurlog_location, 0, prnt_str);
+    /* finally the bash out */
+    fprintf(stdout, "# %s\n", prnt_str);
+    return(0);
+}
+
+
+int
+logprint_warning_bash(char *head, char *fmt, ...)
+{
+    va_list ap;
+    char    long_str[MAX_LOGRULE_SIZE] = "",
+            prnt_str[MAX_LOGRULE_SIZE] = "";
+
+    va_start(ap, fmt);
+    vsnprintf(long_str, sizeof(long_str), fmt, ap);
+    va_end(ap);
+
+    snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
+
+    /* now print in the warning log */
+    vrmr_logprint(conf.vuurmuurlog_location, conf.verbose_out, prnt_str);
+    /* finally the bash out */
+    fprintf(stdout, "# %s\n", prnt_str);
+    return(0);
+}
+
+
+int
+logprint_info_bash(char *head, char *fmt, ...)
+{
+    va_list ap;
+    char    long_str[MAX_LOGRULE_SIZE] = "",
+            prnt_str[MAX_LOGRULE_SIZE] = "";
+
+    va_start(ap, fmt);
+    vsnprintf(long_str, sizeof(long_str), fmt, ap);
+    va_end(ap);
+
+    snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
+
+    vrmr_logprint(conf.vuurmuurlog_location, conf.verbose_out, prnt_str);
+    /* finally the bash out */
+    fprintf(stdout, "# %s\n", prnt_str);
+    return(0);
+}
+
