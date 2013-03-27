@@ -421,7 +421,7 @@ main(int argc, char *argv[])
     vrprint.audit = libvuurmuur_stdoutprint_audit;
 
     /* unload the backends */
-    if(unload_backends(debuglvl) < 0)
+    if(vrmr_backends_unload(debuglvl, &conf) < 0)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("unloading the backends failed (in: %s:%d)."), __FUNCTION__, __LINE__);
         retval=-1;
@@ -731,7 +731,7 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
     /* now load the backends */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_PLUGINS); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = load_backends(debuglvl);
+    result = vrmr_backends_load(debuglvl, &conf);
     if(result < 0)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("loading the plugins failed."));

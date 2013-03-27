@@ -1557,8 +1557,8 @@ int vrmr_init(struct vuurmuur_config *, char *toolname);
 /*
     backendapi.c
 */
-int load_backends(int debuglvl);
-int unload_backends(int debuglvl);
+int vrmr_backends_load(int debuglvl, struct vuurmuur_config *cfg);
+int vrmr_backends_unload(int debuglvl, struct vuurmuur_config *cfg);
 
 
 /*

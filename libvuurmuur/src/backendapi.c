@@ -119,7 +119,8 @@ open_plugin(const int debuglvl, char *plugin)
         -1: error
 */
 static int
-load_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct vrmr_plugin_data **func_ptr)
+load_plugin(const int debuglvl, struct vuurmuur_config *cfg, d_list *plugin_list,
+        char *plugin_name, struct vrmr_plugin_data **func_ptr)
 {
     int                 retval=0;
     char                plugin_location[512] = "";
@@ -160,7 +161,7 @@ load_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct v
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "opening plugin.");
 
-    if(snprintf(plugin_location, sizeof(plugin_location), "%s/lib%s.so", conf.plugdir, plugin_name) >= (int)sizeof(plugin_location))
+    if(snprintf(plugin_location, sizeof(plugin_location), "%s/lib%s.so", cfg->plugdir, plugin_name) >= (int)sizeof(plugin_location))
     {
         (void)vrprint.error(-1, "Internal Error", "pluginpath "
                 "overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -195,7 +196,7 @@ load_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct v
     *func_ptr = plugin->f;
     plugin->handle = handle;
 
-    if(conf.verbose_out == TRUE && debuglvl >= LOW)
+    if(cfg->verbose_out == TRUE && debuglvl >= LOW)
     {
         (void)vrprint.info("Info", "Successfully loaded plugin '%s' version %s.",
                 plugin_name, plugin->version);
@@ -317,52 +318,52 @@ unload_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct
         -1: error
 */
 int
-load_backends(const int debuglvl)
+vrmr_backends_load(const int debuglvl, struct vuurmuur_config *cfg)
 {
     /* first the SERVICES */
-    if(load_plugin(debuglvl, &vrmr_plugin_list, conf.serv_backend_name, &sf) < 0)
+    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->serv_backend_name, &sf) < 0)
         return(-1);
-    if(sf->setup(debuglvl, &conf, &serv_backend) < 0)
+    if (sf->setup(debuglvl, cfg, &serv_backend) < 0)
         return(-1);
-    if(sf->conf(debuglvl, serv_backend) < 0)
+    if (sf->conf(debuglvl, serv_backend) < 0)
         return(-1);
-    if(sf->open(debuglvl, serv_backend, 0, CAT_SERVICES) < 0)
+    if (sf->open(debuglvl, serv_backend, 0, CAT_SERVICES) < 0)
         return(-1);
 
     /*
         second ZONES
     */
-    if(load_plugin(debuglvl, &vrmr_plugin_list, conf.zone_backend_name, &zf) < 0)
+    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->zone_backend_name, &zf) < 0)
         return(-1);
-    if(zf->setup(debuglvl, &conf, &zone_backend) < 0)
+    if (zf->setup(debuglvl, cfg, &zone_backend) < 0)
         return(-1);
-    if(zf->conf(debuglvl, zone_backend) < 0)
+    if (zf->conf(debuglvl, zone_backend) < 0)
         return(-1);
-    if(zf->open(debuglvl, zone_backend, 0, CAT_ZONES) < 0)
+    if (zf->open(debuglvl, zone_backend, 0, CAT_ZONES) < 0)
         return(-1);
 
     /*
         third INTERFACES
     */
-    if(load_plugin(debuglvl, &vrmr_plugin_list, conf.ifac_backend_name, &af) < 0)
+    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->ifac_backend_name, &af) < 0)
         return(-1);
-    if(af->setup(debuglvl, &conf, &ifac_backend) < 0)
+    if (af->setup(debuglvl, cfg, &ifac_backend) < 0)
         return(-1);
-    if(af->conf(debuglvl, ifac_backend) < 0)
+    if (af->conf(debuglvl, ifac_backend) < 0)
         return(-1);
-    if(af->open(debuglvl, ifac_backend, 0, CAT_INTERFACES) < 0)
+    if (af->open(debuglvl, ifac_backend, 0, CAT_INTERFACES) < 0)
         return(-1);
 
     /*
         last RULES
     */
-    if(load_plugin(debuglvl, &vrmr_plugin_list, conf.rule_backend_name, &rf) < 0)
+    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->rule_backend_name, &rf) < 0)
         return(-1);
-    if(rf->setup(debuglvl, &conf, &rule_backend) < 0)
+    if (rf->setup(debuglvl, cfg, &rule_backend) < 0)
         return(-1);
-    if(rf->conf(debuglvl, rule_backend) < 0)
+    if (rf->conf(debuglvl, rule_backend) < 0)
         return(-1);
-    if(rf->open(debuglvl, rule_backend, 0, CAT_RULES) < 0)
+    if (rf->open(debuglvl, rule_backend, 0, CAT_RULES) < 0)
         return(-1);
 
     return(0);
@@ -386,7 +387,7 @@ load_backends(const int debuglvl)
         -1: error
 */
 int
-unload_backends(const int debuglvl)
+vrmr_backends_unload(const int debuglvl, struct vuurmuur_config *cfg)
 {
     /*
         SERVICES
@@ -397,7 +398,7 @@ unload_backends(const int debuglvl)
     free(serv_backend);
     serv_backend = NULL;
 
-    if (unload_plugin(debuglvl, &vrmr_plugin_list, conf.serv_backend_name, &sf) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->serv_backend_name, &sf) < 0)
         return(-1);
 
     /*
@@ -409,7 +410,7 @@ unload_backends(const int debuglvl)
     free(zone_backend);
     zone_backend = NULL;
 
-    if (unload_plugin(debuglvl, &vrmr_plugin_list, conf.zone_backend_name, &zf) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->zone_backend_name, &zf) < 0)
         return(-1);
 
     /*
@@ -421,7 +422,7 @@ unload_backends(const int debuglvl)
     free(ifac_backend);
     ifac_backend = NULL;
 
-    if (unload_plugin(debuglvl, &vrmr_plugin_list, conf.ifac_backend_name, &af) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->ifac_backend_name, &af) < 0)
         return(-1);
 
     /*
@@ -433,7 +434,7 @@ unload_backends(const int debuglvl)
     free(rule_backend);
     rule_backend = NULL;
 
-    if (unload_plugin(debuglvl, &vrmr_plugin_list, conf.rule_backend_name, &rf) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->rule_backend_name, &rf) < 0)
         return(-1);
 
     return(0);

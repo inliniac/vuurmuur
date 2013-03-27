@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2002-2007 by Victor Julien                              *
+ *   Copyright (C) 2002-2013 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -45,7 +45,7 @@ apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
     (void)vrprint.info("Info", "Reloading config...");
 
     /* close the current backends */
-    result = unload_backends(debuglvl);
+    result = vrmr_backends_unload(debuglvl, vctx->conf);
     if(result < 0)
     {
         (void)vrprint.error(-1, "Error", "unloading backends failed.");
@@ -78,7 +78,7 @@ apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
 
 
     /* reopen the backends */
-    result = load_backends(debuglvl);
+    result = vrmr_backends_load(debuglvl, vctx->conf);
     if(result < 0)
     {
         (void)vrprint.error(-1, "Error", "re-opening backends failed.");

@@ -417,7 +417,7 @@ main(int argc, char *argv[])
     }
 
     /* load the backends */
-    result = load_backends(debuglvl);
+    result = vrmr_backends_load(debuglvl, &conf);
     if(result < 0)
     {
         fprintf(stdout, "Error: loading backends failed\n");
@@ -806,7 +806,7 @@ main(int argc, char *argv[])
     }
 
     /* unload the backends */
-    result = unload_backends(debuglvl);
+    result = vrmr_backends_unload(debuglvl, &conf);
     if(result < 0)
     {
         fprintf(stdout, "Error: unloading backends failed.\n");
