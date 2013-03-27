@@ -119,7 +119,7 @@
 #define VUURMUURCONF_CONFIGFILE "/etc/vuurmuur/vuurmuur_conf.conf"
 #endif
 
-struct vrprint_ vrprint;
+struct vuurmuur_config conf;
 
 /* Vuurmuur_conf settings
 

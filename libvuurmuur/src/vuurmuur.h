@@ -489,7 +489,7 @@ struct vuurmuur_config
     char            invalid_drop_enabled;
 
     struct vrprint_ vrprint;
-} conf;
+};
 
 
 /* DATA STRUCTURES */
