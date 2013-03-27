@@ -23,7 +23,7 @@
 
 
 int
-vrmr_logprint(char *logfile, int logconsole, char *logstring)
+vrmr_logprint(char *logfile, char *logstring)
 {
     int         retval=0;
     pid_t       pid;
@@ -35,31 +35,25 @@ vrmr_logprint(char *logfile, int logconsole, char *logstring)
     (void)time(&td);
     dcp = localtime(&td);
 
-    if (logconsole == 1) {
-        fprintf(stdout, "%s\n", logstring);
-    }
-
     fp = fopen(logfile, "a");
-    if(!fp)
-    {
+    if(!fp) {
         fprintf(stdout, "Error opening logfile '%s', %s.\n", logfile, strerror(errno));
-        retval=-1;
+        return(-1);
     }
-    else
-    {
-        fprintf(fp, "%02d/%02d/%04d %02d:%02d:%02d : PID %-5d : %-13s : %s\n",  dcp->tm_mon +1, // Month
-                dcp->tm_mday,       // Day
-                dcp->tm_year + 1900,// Year
-                dcp->tm_hour,       // Hour
-                dcp->tm_min,        // Minute
-                dcp->tm_sec,        // Second
-                pid,
-                vrprint.logger,     /* the name of the logger */
-                logstring);
 
-        fflush(fp);
-        fclose(fp);
-    }
+    fprintf(fp, "%02d/%02d/%04d %02d:%02d:%02d : PID %-5d : %-13s : %s\n",
+            dcp->tm_mon +1,     // Month
+            dcp->tm_mday,       // Day
+            dcp->tm_year + 1900,// Year
+            dcp->tm_hour,       // Hour
+            dcp->tm_min,        // Minute
+            dcp->tm_sec,        // Second
+            pid,                /* process id */
+            vrprint.logger,     /* the name of the logger */
+            logstring);
+
+    fflush(fp);
+    fclose(fp);
 
     return(retval);
 }
@@ -79,9 +73,9 @@ libvuurmuur_logprint_error(int errorlevel, char *head, char *fmt, ...)
     snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel, long_str);
 
     /* print in the error log */
-    vrmr_logprint(conf.errorlog_location, conf.verbose_out, prnt_str);
+    vrmr_logprint(conf.errorlog_location, prnt_str);
     /* and in the info log */
-    vrmr_logprint(conf.vuurmuurlog_location, 0, prnt_str);
+    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
 
     return(0);
 }
@@ -101,7 +95,7 @@ libvuurmuur_logprint_warning(char *head, char *fmt, ...)
     snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
 
     /* now print in the warning log */
-    vrmr_logprint(conf.vuurmuurlog_location, conf.verbose_out, prnt_str);
+    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
 
     return(0);
 }
@@ -120,7 +114,7 @@ libvuurmuur_logprint_info(char *head, char *fmt, ...)
 
     snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
 
-    vrmr_logprint(conf.vuurmuurlog_location, conf.verbose_out, prnt_str);
+    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
     return(0);
 }
 
@@ -138,7 +132,7 @@ libvuurmuur_logprint_audit(char *fmt, ...)
 
     snprintf(prnt_str, sizeof(prnt_str), "%s : %s", vrprint.username, long_str);
 
-    vrmr_logprint(conf.auditlog_location, 0, prnt_str);
+    vrmr_logprint(conf.auditlog_location, prnt_str);
     return(0);
 }
 
@@ -160,7 +154,7 @@ libvuurmuur_logprint_debug(char *head, char *fmt, ...)
         (void)strlcpy(prnt_str, long_str, sizeof(prnt_str));
 
     /* print in the debug log */
-    vrmr_logprint(conf.debuglog_location, 0, prnt_str);
+    vrmr_logprint(conf.debuglog_location, prnt_str);
     return(0);
 }
 
@@ -267,9 +261,9 @@ libvuurmuur_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
     snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel, long_str);
 
     /* print in the error log */
-    vrmr_logprint(conf.errorlog_location, 0, prnt_str);
+    vrmr_logprint(conf.errorlog_location, prnt_str);
     /* and in the info log */
-    vrmr_logprint(conf.vuurmuurlog_location, 0, prnt_str);
+    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
 
     fprintf(stdout, "%s\n", prnt_str);
     fflush(stdout);
@@ -292,7 +286,7 @@ libvuurmuur_logstdoutprint_warning(char *head, char *fmt, ...)
     snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
 
     /* now print in the warning log */
-    vrmr_logprint(conf.vuurmuurlog_location, 0, prnt_str);
+    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
 
     fprintf(stdout, "%s\n", prnt_str);
     fflush(stdout);
@@ -314,7 +308,7 @@ libvuurmuur_logstdoutprint_info(char *head, char *fmt, ...)
 
     snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
 
-    vrmr_logprint(conf.vuurmuurlog_location, 0, prnt_str);
+    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
 
     fprintf(stdout, "%s\n", prnt_str);
     fflush(stdout);
@@ -336,7 +330,7 @@ libvuurmuur_logstdoutprint_audit(char *fmt, ...)
 
     snprintf(prnt_str, sizeof(prnt_str), "%s : %s", vrprint.username, long_str);
 
-    vrmr_logprint(conf.auditlog_location, 0, prnt_str);
+    vrmr_logprint(conf.auditlog_location, prnt_str);
 
     fprintf(stdout, "%s\n", prnt_str);
     fflush(stdout);
@@ -362,7 +356,7 @@ libvuurmuur_logstdoutprint_debug(char *head, char *fmt, ...)
         (void)strlcpy(prnt_str, long_str, sizeof(prnt_str));
 
     /* print in the debug log */
-    vrmr_logprint(conf.debuglog_location, 0, prnt_str);
+    vrmr_logprint(conf.debuglog_location, prnt_str);
 
     fprintf(stdout, "%s\n", prnt_str);
     fflush(stdout);

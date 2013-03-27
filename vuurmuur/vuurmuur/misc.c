@@ -107,9 +107,9 @@ logprint_error_bash(int errorlevel, char *head, char *fmt, ...)
     snprintf(prnt_str, sizeof(prnt_str), "%s (%d): %s", head, errorlevel, long_str);
 
     /* print in the error log */
-    vrmr_logprint(conf.errorlog_location, conf.verbose_out, prnt_str);
+    vrmr_logprint(conf.errorlog_location, prnt_str);
     /* and in the info log */
-    vrmr_logprint(conf.vuurmuurlog_location, 0, prnt_str);
+    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
     /* finally the bash out */
     fprintf(stdout, "# %s\n", prnt_str);
     return(0);
@@ -130,7 +130,7 @@ logprint_warning_bash(char *head, char *fmt, ...)
     snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
 
     /* now print in the warning log */
-    vrmr_logprint(conf.vuurmuurlog_location, conf.verbose_out, prnt_str);
+    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
     /* finally the bash out */
     fprintf(stdout, "# %s\n", prnt_str);
     return(0);
@@ -150,7 +150,7 @@ logprint_info_bash(char *head, char *fmt, ...)
 
     snprintf(prnt_str, sizeof(prnt_str), "%s: %s", head, long_str);
 
-    vrmr_logprint(conf.vuurmuurlog_location, conf.verbose_out, prnt_str);
+    vrmr_logprint(conf.vuurmuurlog_location, prnt_str);
     /* finally the bash out */
     fprintf(stdout, "# %s\n", prnt_str);
     return(0);

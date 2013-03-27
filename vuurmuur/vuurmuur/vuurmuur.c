@@ -317,7 +317,7 @@ main(int argc, char *argv[])
     }
 
     /* now we know the logfile locations, so init the log functions */
-    if (conf.verbose_out) {
+    if (cmdline.verbose_out) {
         vrprint.error = libvuurmuur_logstdoutprint_error;
         vrprint.warning = libvuurmuur_logstdoutprint_warning;
         vrprint.info = libvuurmuur_logstdoutprint_info;

@@ -1495,7 +1495,7 @@ int blocklist_save_list(const int, BlockList *);
 /*
     log.c
 */
-int vrmr_logprint(char *logfile, int logconsole, char *logstring);
+int vrmr_logprint(char *logfile, char *logstring);
 
 int libvuurmuur_logprint_error(int errorlevel, char *head, char *fmt, ...);
 int libvuurmuur_logprint_warning(char *head, char *fmt, ...);
