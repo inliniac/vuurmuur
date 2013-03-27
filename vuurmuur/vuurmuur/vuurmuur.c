@@ -318,20 +318,20 @@ main(int argc, char *argv[])
 
     /* now we know the logfile locations, so init the log functions */
     if (cmdline.verbose_out) {
-        vrprint.error = libvuurmuur_logstdoutprint_error;
-        vrprint.warning = libvuurmuur_logstdoutprint_warning;
-        vrprint.info = libvuurmuur_logstdoutprint_info;
+        vrprint.error = vrmr_logstdoutprint_error;
+        vrprint.warning = vrmr_logstdoutprint_warning;
+        vrprint.info = vrmr_logstdoutprint_info;
     } else if (conf.bash_out) {
         vrprint.error = logprint_error_bash;
         vrprint.warning = logprint_warning_bash;
         vrprint.info = logprint_info_bash;
     } else {
-        vrprint.error = libvuurmuur_logprint_error;
-        vrprint.warning = libvuurmuur_logprint_warning;
-        vrprint.info = libvuurmuur_logprint_info;
+        vrprint.error = vrmr_logprint_error;
+        vrprint.warning = vrmr_logprint_warning;
+        vrprint.info = vrmr_logprint_info;
     }
-    vrprint.debug = libvuurmuur_logprint_debug;
-    vrprint.audit = libvuurmuur_logprint_audit;
+    vrprint.debug = vrmr_logprint_debug;
+    vrprint.audit = vrmr_logprint_audit;
 
     /* commandline vars overriding the config */
     cmdline_override_config(debuglvl);

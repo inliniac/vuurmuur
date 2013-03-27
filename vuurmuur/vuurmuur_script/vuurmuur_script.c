@@ -111,12 +111,12 @@ main(int argc, char *argv[])
 
     /* init the print functions: all to stdout */
     vrprint.logger = "vuurmuur_scrp";
-    vrprint.error = libvuurmuur_stdoutprint_error;
-    vrprint.warning = libvuurmuur_stdoutprint_warning;
-    vrprint.info = libvuurmuur_stdoutprint_info;
-    vrprint.debug = libvuurmuur_stdoutprint_debug;
+    vrprint.error = vrmr_stdoutprint_error;
+    vrprint.warning = vrmr_stdoutprint_warning;
+    vrprint.info = vrmr_stdoutprint_info;
+    vrprint.debug = vrmr_stdoutprint_debug;
     vrprint.username = user_data.realusername;
-    vrprint.audit = libvuurmuur_stdoutprint_audit;
+    vrprint.audit = vrmr_stdoutprint_audit;
 
     /* registering signals we use */
     if(signal(SIGINT, &catch_sigint) == SIG_ERR)
@@ -728,24 +728,24 @@ main(int argc, char *argv[])
     if(conf.verbose_out == TRUE)
     {
         /* if we use verbose output, we still print the logfiles as well */
-        vrprint.error = libvuurmuur_logstdoutprint_error;
-        vrprint.warning = libvuurmuur_logstdoutprint_warning;
-        vrprint.info = libvuurmuur_logstdoutprint_info;
-        vrprint.debug = libvuurmuur_logstdoutprint_debug;
+        vrprint.error = vrmr_logstdoutprint_error;
+        vrprint.warning = vrmr_logstdoutprint_warning;
+        vrprint.info = vrmr_logstdoutprint_info;
+        vrprint.debug = vrmr_logstdoutprint_debug;
     }
     else
     {
-        vrprint.error = libvuurmuur_logprint_error;
-        vrprint.warning = libvuurmuur_logprint_warning;
-        vrprint.info = libvuurmuur_logprint_info;
-        vrprint.debug = libvuurmuur_logprint_debug;
+        vrprint.error = vrmr_logprint_error;
+        vrprint.warning = vrmr_logprint_warning;
+        vrprint.info = vrmr_logprint_info;
+        vrprint.debug = vrmr_logprint_debug;
     }
     /* audit only to the log, no matter if we are in verbose mode or not
        because it prints: username: message... example:
 
        victor : interface 'abcd' added.
     */
-    vrprint.audit = libvuurmuur_logprint_audit;
+    vrprint.audit = vrmr_logprint_audit;
 
 
     /* load the backends */

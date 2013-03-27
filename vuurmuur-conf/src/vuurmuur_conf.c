@@ -414,11 +414,11 @@ main(int argc, char *argv[])
     (void)endwin();
 
     /* set error functions to the stdout versions */
-    vrprint.error = libvuurmuur_stdoutprint_error;
-    vrprint.warning = libvuurmuur_stdoutprint_warning;
-    vrprint.info = libvuurmuur_stdoutprint_info;
-    vrprint.debug = libvuurmuur_stdoutprint_debug;
-    vrprint.audit = libvuurmuur_stdoutprint_audit;
+    vrprint.error = vrmr_stdoutprint_error;
+    vrprint.warning = vrmr_stdoutprint_warning;
+    vrprint.info = vrmr_stdoutprint_info;
+    vrprint.debug = vrmr_stdoutprint_debug;
+    vrprint.audit = vrmr_stdoutprint_audit;
 
     /* unload the backends */
     if(vrmr_backends_unload(debuglvl, &conf) < 0)
@@ -717,11 +717,10 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
     if(debuglvl >= LOW)
         vrprint.info = vuumuurconf_print_info;
     else
-        vrprint.info = libvuurmuur_logprint_info;
+        vrprint.info = vrmr_logprint_info;
 
-    vrprint.debug = libvuurmuur_logprint_debug;
-
-    vrprint.audit = libvuurmuur_logprint_audit;
+    vrprint.debug = vrmr_logprint_debug;
+    vrprint.audit = vrmr_logprint_audit;
 
     /* print that we started */
     (void)vrprint.audit("started: effective user %s (%ld), real user %s (%ld).",

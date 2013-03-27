@@ -60,7 +60,7 @@ vrmr_logprint(char *logfile, char *logstring)
 
 
 int
-libvuurmuur_logprint_error(int errorlevel, char *head, char *fmt, ...)
+vrmr_logprint_error(int errorlevel, char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "",
@@ -82,7 +82,7 @@ libvuurmuur_logprint_error(int errorlevel, char *head, char *fmt, ...)
 
 
 int
-libvuurmuur_logprint_warning(char *head, char *fmt, ...)
+vrmr_logprint_warning(char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "",
@@ -102,7 +102,7 @@ libvuurmuur_logprint_warning(char *head, char *fmt, ...)
 
 
 int
-libvuurmuur_logprint_info(char *head, char *fmt, ...)
+vrmr_logprint_info(char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "",
@@ -120,7 +120,7 @@ libvuurmuur_logprint_info(char *head, char *fmt, ...)
 
 
 int
-libvuurmuur_logprint_audit(char *fmt, ...)
+vrmr_logprint_audit(char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "",
@@ -138,7 +138,7 @@ libvuurmuur_logprint_audit(char *fmt, ...)
 
 
 int
-libvuurmuur_logprint_debug(char *head, char *fmt, ...)
+vrmr_logprint_debug(char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "",
@@ -160,7 +160,7 @@ libvuurmuur_logprint_debug(char *head, char *fmt, ...)
 
 
 int
-libvuurmuur_stdoutprint_error(int errorlevel, char *head, char *fmt, ...)
+vrmr_stdoutprint_error(int errorlevel, char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "";
@@ -177,7 +177,7 @@ libvuurmuur_stdoutprint_error(int errorlevel, char *head, char *fmt, ...)
 
 
 int
-libvuurmuur_stdoutprint_warning(char *head, char *fmt, ...)
+vrmr_stdoutprint_warning(char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "";
@@ -194,7 +194,7 @@ libvuurmuur_stdoutprint_warning(char *head, char *fmt, ...)
 
 
 int
-libvuurmuur_stdoutprint_info(char *head, char *fmt, ...)
+vrmr_stdoutprint_info(char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "";
@@ -211,7 +211,7 @@ libvuurmuur_stdoutprint_info(char *head, char *fmt, ...)
 
 
 int
-libvuurmuur_stdoutprint_audit(char *fmt, ...)
+vrmr_stdoutprint_audit(char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "";
@@ -228,7 +228,7 @@ libvuurmuur_stdoutprint_audit(char *fmt, ...)
 
 
 int
-libvuurmuur_stdoutprint_debug(char *head, char *fmt, ...)
+vrmr_stdoutprint_debug(char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "";
@@ -248,7 +248,7 @@ libvuurmuur_stdoutprint_debug(char *head, char *fmt, ...)
 }
 
 int
-libvuurmuur_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
+vrmr_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "",
@@ -273,7 +273,7 @@ libvuurmuur_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...)
 
 
 int
-libvuurmuur_logstdoutprint_warning(char *head, char *fmt, ...)
+vrmr_logstdoutprint_warning(char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "",
@@ -296,7 +296,7 @@ libvuurmuur_logstdoutprint_warning(char *head, char *fmt, ...)
 
 
 int
-libvuurmuur_logstdoutprint_info(char *head, char *fmt, ...)
+vrmr_logstdoutprint_info(char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "",
@@ -318,7 +318,7 @@ libvuurmuur_logstdoutprint_info(char *head, char *fmt, ...)
 
 
 int
-libvuurmuur_logstdoutprint_audit(char *fmt, ...)
+vrmr_logstdoutprint_audit(char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "",
@@ -340,7 +340,7 @@ libvuurmuur_logstdoutprint_audit(char *fmt, ...)
 
 
 int
-libvuurmuur_logstdoutprint_debug(char *head, char *fmt, ...)
+vrmr_logstdoutprint_debug(char *head, char *fmt, ...)
 {
     va_list ap;
     char    long_str[MAX_LOGRULE_SIZE] = "",

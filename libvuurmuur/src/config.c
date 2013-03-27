@@ -2224,12 +2224,12 @@ int vrmr_init(struct vuurmuur_config *cnf, char *toolname) {
         return(-1);
 
     cnf->vrprint.logger = vrprint.logger = toolname;
-    cnf->vrprint.error = vrprint.error = libvuurmuur_stdoutprint_error;
-    cnf->vrprint.warning = vrprint.warning = libvuurmuur_stdoutprint_warning;
-    cnf->vrprint.info = vrprint.info = libvuurmuur_stdoutprint_info;
-    cnf->vrprint.debug = vrprint.debug = libvuurmuur_stdoutprint_debug;
+    cnf->vrprint.error = vrprint.error = vrmr_stdoutprint_error;
+    cnf->vrprint.warning = vrprint.warning = vrmr_stdoutprint_warning;
+    cnf->vrprint.info = vrprint.info = vrmr_stdoutprint_info;
+    cnf->vrprint.debug = vrprint.debug = vrmr_stdoutprint_debug;
     cnf->vrprint.username = vrprint.username = user_data.realusername;
-    cnf->vrprint.audit = vrprint.audit = libvuurmuur_stdoutprint_audit;
+    cnf->vrprint.audit = vrprint.audit = vrmr_stdoutprint_audit;
 
     /* init plugin list */
     d_list_setup(debuglvl, &vrmr_plugin_list, NULL);

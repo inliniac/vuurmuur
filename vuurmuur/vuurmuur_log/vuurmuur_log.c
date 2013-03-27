@@ -605,14 +605,14 @@ main(int argc, char *argv[])
 
     /* now setup the print function */
     if(verbose)
-        vrprint.error = libvuurmuur_stdoutprint_error;
+        vrprint.error = vrmr_stdoutprint_error;
     else
-        vrprint.error = libvuurmuur_logprint_error;
+        vrprint.error = vrmr_logprint_error;
 
-    vrprint.warning = libvuurmuur_logprint_warning;
-    vrprint.info = libvuurmuur_logprint_info;
-    vrprint.debug = libvuurmuur_logprint_debug;
-    vrprint.audit = libvuurmuur_logprint_audit;
+    vrprint.warning = vrmr_logprint_warning;
+    vrprint.info = vrmr_logprint_info;
+    vrprint.debug = vrmr_logprint_debug;
+    vrprint.audit = vrmr_logprint_audit;
 
     /* get the current user */
     vrmr_user_get_info(debuglvl, &user_data);
