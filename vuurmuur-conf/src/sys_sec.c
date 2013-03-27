@@ -283,7 +283,7 @@ edit_sysopt(const int debuglvl)
     /* write configfile */
     if(retval == 0)
     {
-        if(write_configfile(debuglvl, conf.configfile) < 0)
+        if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;

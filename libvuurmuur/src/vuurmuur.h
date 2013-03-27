@@ -1549,7 +1549,7 @@ int check_tc_command(const int, struct vuurmuur_config *, char *, char);
 int init_config(const int, struct vuurmuur_config *cnf);
 int reload_config(const int, struct vuurmuur_config *);
 int ask_configfile(const int debuglvl, const struct vuurmuur_config *, char *question, char *answer_ptr, char *file_location, size_t size);
-int write_configfile(const int debuglvl, char *file_location);
+int vrmr_write_configfile(const int debuglvl, char *file_location, struct vuurmuur_config *cfg);
 
 int vrmr_init(struct vuurmuur_config *, char *toolname);
 

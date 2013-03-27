@@ -1931,7 +1931,7 @@ ask_configfile(const int debuglvl, const struct vuurmuur_config *cnf, char *ques
     Writes the config to disk.
 */
 int
-write_configfile(const int debuglvl, char *file_location)
+vrmr_write_configfile(const int debuglvl, char *file_location, struct vuurmuur_config *cfg)
 {
     FILE *fp = NULL;
 
@@ -1956,103 +1956,103 @@ write_configfile(const int debuglvl, char *file_location)
     fprintf(fp, "# vuurmuur config file\n\n");
 
     fprintf(fp, "# Which plugin to use for which type of data.\n");
-    fprintf(fp, "SERVICES_BACKEND=\"%s\"\n\n", conf.serv_backend_name);
-    fprintf(fp, "ZONES_BACKEND=\"%s\"\n\n", conf.zone_backend_name);
-    fprintf(fp, "INTERFACES_BACKEND=\"%s\"\n\n", conf.ifac_backend_name);
-    fprintf(fp, "RULES_BACKEND=\"%s\"\n\n", conf.rule_backend_name);
+    fprintf(fp, "SERVICES_BACKEND=\"%s\"\n\n", cfg->serv_backend_name);
+    fprintf(fp, "ZONES_BACKEND=\"%s\"\n\n", cfg->zone_backend_name);
+    fprintf(fp, "INTERFACES_BACKEND=\"%s\"\n\n", cfg->ifac_backend_name);
+    fprintf(fp, "RULES_BACKEND=\"%s\"\n\n", cfg->rule_backend_name);
 
     fprintf(fp, "# Location of the rulesfile (full path).\n");
-    fprintf(fp, "RULESFILE=\"%s\"\n\n", conf.rules_location);
+    fprintf(fp, "RULESFILE=\"%s\"\n\n", cfg->rules_location);
     fprintf(fp, "# Location of the blocklistfile (full path).\n");
-    fprintf(fp, "BLOCKLISTFILE=\"%s\"\n\n", conf.blocklist_location);
+    fprintf(fp, "BLOCKLISTFILE=\"%s\"\n\n", cfg->blocklist_location);
 
     fprintf(fp, "# Location of the sysctl-command (full path).\n");
-    fprintf(fp, "SYSCTL=\"%s\"\n\n", conf.sysctl_location);
+    fprintf(fp, "SYSCTL=\"%s\"\n\n", cfg->sysctl_location);
     fprintf(fp, "# Location of the iptables-command (full path).\n");
-    fprintf(fp, "IPTABLES=\"%s\"\n\n", conf.iptables_location);
+    fprintf(fp, "IPTABLES=\"%s\"\n\n", cfg->iptables_location);
     fprintf(fp, "# Location of the iptables-restore-command (full path).\n");
-    fprintf(fp, "IPTABLES_RESTORE=\"%s\"\n\n", conf.iptablesrestore_location);
+    fprintf(fp, "IPTABLES_RESTORE=\"%s\"\n\n", cfg->iptablesrestore_location);
 #ifdef IPV6_ENABLED
     fprintf(fp, "# Location of the ip6tables-command (full path).\n");
-    fprintf(fp, "IP6TABLES=\"%s\"\n\n", conf.ip6tables_location);
+    fprintf(fp, "IP6TABLES=\"%s\"\n\n", cfg->ip6tables_location);
     fprintf(fp, "# Location of the ip6tables-restore-command (full path).\n");
-    fprintf(fp, "IP6TABLES_RESTORE=\"%s\"\n\n", conf.ip6tablesrestore_location);
+    fprintf(fp, "IP6TABLES_RESTORE=\"%s\"\n\n", cfg->ip6tablesrestore_location);
 #endif
     fprintf(fp, "# Location of the conntrack-command (full path).\n");
-    fprintf(fp, "CONNTRACK=\"%s\"\n\n", conf.conntrack_location);
+    fprintf(fp, "CONNTRACK=\"%s\"\n\n", cfg->conntrack_location);
     fprintf(fp, "# Location of the tc-command (full path).\n");
-    fprintf(fp, "TC=\"%s\"\n\n", conf.tc_location);
+    fprintf(fp, "TC=\"%s\"\n\n", cfg->tc_location);
 
     fprintf(fp, "# Location of the modprobe-command (full path).\n");
-    fprintf(fp, "MODPROBE=\"%s\"\n\n", conf.modprobe_location);
+    fprintf(fp, "MODPROBE=\"%s\"\n\n", cfg->modprobe_location);
 
-    fprintf(fp, "# Maximum permissions for config and log files and directories.\n");
-    fprintf(fp, "MAX_PERMISSION=\"%o\"\n\n", conf.max_permission);
+    fprintf(fp, "# Maximum permissions for cfg->g and log files and directories.\n");
+    fprintf(fp, "MAX_PERMISSION=\"%o\"\n\n", cfg->max_permission);
 
     fprintf(fp, "# Load modules if needed? (yes/no)\n");
-    fprintf(fp, "LOAD_MODULES=\"%s\"\n\n", conf.load_modules ? "Yes" : "No");
+    fprintf(fp, "LOAD_MODULES=\"%s\"\n\n", cfg->load_modules ? "Yes" : "No");
     fprintf(fp, "# Wait after loading a module in 1/10th of a second\n");
-    fprintf(fp, "MODULES_WAIT_TIME=\"%u\"\n\n", conf.modules_wait_time);
+    fprintf(fp, "MODULES_WAIT_TIME=\"%u\"\n\n", cfg->modules_wait_time);
 
     fprintf(fp, "# If set to yes, each rule will be loaded into the system individually using\n");
     fprintf(fp, "# iptables. Otherwise iptables-restore will be used (yes/no).\n");
-    fprintf(fp, "OLD_CREATE_METHOD=\"%s\"\n\n", conf.old_rulecreation_method ? "Yes" : "No");
+    fprintf(fp, "OLD_CREATE_METHOD=\"%s\"\n\n", cfg->old_rulecreation_method ? "Yes" : "No");
 
     fprintf(fp, "# Will we be using NFLOG logging?\n");
-    fprintf(fp, "RULE_NFLOG=\"%s\"\n\n", conf.rule_nflog ? "Yes" : "No");
+    fprintf(fp, "RULE_NFLOG=\"%s\"\n\n", cfg->rule_nflog ? "Yes" : "No");
     fprintf(fp, "# netfilter group (only applicable when RULE_NFLOG=\"Yes\"\n");
-    fprintf(fp, "NFGRP=\"%u\"\n\n", conf.nfgrp);
+    fprintf(fp, "NFGRP=\"%u\"\n\n", cfg->nfgrp);
     fprintf(fp, "# The directory where the logs will be written to (full path).\n");
-    fprintf(fp, "LOGDIR=\"%s\"\n\n", conf.vuurmuur_logdir_location);
+    fprintf(fp, "LOGDIR=\"%s\"\n\n", cfg->vuurmuur_logdir_location);
     fprintf(fp, "# The logfile where the kernel writes the logs to e.g. /var/log/messages (full path).\n");
-    fprintf(fp, "SYSTEMLOG=\"%s\"\n\n", conf.systemlog_location);
+    fprintf(fp, "SYSTEMLOG=\"%s\"\n\n", cfg->systemlog_location);
     fprintf(fp, "# The loglevel to use when logging traffic. For use with syslog.\n");
-    fprintf(fp, "LOGLEVEL=\"%s\"\n\n", conf.loglevel);
+    fprintf(fp, "LOGLEVEL=\"%s\"\n\n", cfg->loglevel);
 
     fprintf(fp, "# Check the dynamic interfaces for changes?\n");
-    fprintf(fp, "DYN_INT_CHECK=\"%s\"\n\n", conf.dynamic_changes_check ? "Yes" : "No");
+    fprintf(fp, "DYN_INT_CHECK=\"%s\"\n\n", cfg->dynamic_changes_check ? "Yes" : "No");
     fprintf(fp, "# Check every x seconds.\n");
-    fprintf(fp, "DYN_INT_INTERVAL=\"%u\"\n\n", conf.dynamic_changes_interval);
+    fprintf(fp, "DYN_INT_INTERVAL=\"%u\"\n\n", cfg->dynamic_changes_interval);
 
     fprintf(fp, "# LOG_POLICY controls the logging of the default policy.\n");
-    fprintf(fp, "LOG_POLICY=\"%s\"\n\n", conf.log_policy ? "Yes" : "No");
+    fprintf(fp, "LOG_POLICY=\"%s\"\n\n", cfg->log_policy ? "Yes" : "No");
     fprintf(fp, "# LOG_POLICY_LIMIT sets the maximum number of logs per second.\n");
-    fprintf(fp, "LOG_POLICY_LIMIT=\"%u\"\n\n", conf.log_policy_limit);
+    fprintf(fp, "LOG_POLICY_LIMIT=\"%u\"\n\n", cfg->log_policy_limit);
     fprintf(fp, "# LOG_BLOCKLIST enables/disables logging of items on the blocklist.\n");
-    fprintf(fp, "LOG_BLOCKLIST=\"%s\"\n\n", conf.log_blocklist ? "Yes" : "No");
+    fprintf(fp, "LOG_BLOCKLIST=\"%s\"\n\n", cfg->log_blocklist ? "Yes" : "No");
 
     fprintf(fp, "# LOG_INVALID enables/disables logging of INVALID traffic.\n");
-    fprintf(fp, "LOG_INVALID=\"%s\"\n\n", conf.log_invalid ? "Yes" : "No");
+    fprintf(fp, "LOG_INVALID=\"%s\"\n\n", cfg->log_invalid ? "Yes" : "No");
     fprintf(fp, "# LOG_NO_SYN enables/disables logging of new tcp packets without the SIN flag set.\n");
-    fprintf(fp, "LOG_NO_SYN=\"%s\"\n\n", conf.log_no_syn ? "Yes" : "No");
+    fprintf(fp, "LOG_NO_SYN=\"%s\"\n\n", cfg->log_no_syn ? "Yes" : "No");
     fprintf(fp, "# LOG_PROBES enables/disables logging of probes. Probes are packets that are used in portscans.\n");
-    fprintf(fp, "LOG_PROBES=\"%s\"\n\n", conf.log_probes ? "Yes" : "No");
+    fprintf(fp, "LOG_PROBES=\"%s\"\n\n", cfg->log_probes ? "Yes" : "No");
     fprintf(fp, "# LOG_FRAG enables/disables logging of fragmented packets.\n");
-    fprintf(fp, "LOG_FRAG=\"%s\"\n\n", conf.log_frag ? "Yes" : "No");
+    fprintf(fp, "LOG_FRAG=\"%s\"\n\n", cfg->log_frag ? "Yes" : "No");
 
     fprintf(fp, "# LOG_TCP_OPTIONS controls the logging of tcp options. This is.\n");
     fprintf(fp, "# not used by Vuurmuur itself. PSAD 1.4.x uses it for OS-detection.\n");
-    fprintf(fp, "LOG_TCP_OPTIONS=\"%s\"\n\n", conf.log_tcp_options ? "Yes" : "No");
+    fprintf(fp, "LOG_TCP_OPTIONS=\"%s\"\n\n", cfg->log_tcp_options ? "Yes" : "No");
 
     fprintf(fp, "# DROP_INVALID enables/disables dropping of packets marked INVALID by conntrack.\n");
-    fprintf(fp, "DROP_INVALID=\"%s\"\n\n", conf.invalid_drop_enabled ? "Yes" : "No");
+    fprintf(fp, "DROP_INVALID=\"%s\"\n\n", cfg->invalid_drop_enabled ? "Yes" : "No");
 
     fprintf(fp, "# SYN_LIMIT sets the maximum number of SYN-packets per second.\n");
-    fprintf(fp, "USE_SYN_LIMIT=\"%s\"\n\n", conf.use_syn_limit ? "Yes" : "No");
-    fprintf(fp, "SYN_LIMIT=\"%u\"\n", conf.syn_limit);
-    fprintf(fp, "SYN_LIMIT_BURST=\"%u\"\n\n", conf.syn_limit_burst);
+    fprintf(fp, "USE_SYN_LIMIT=\"%s\"\n\n", cfg->use_syn_limit ? "Yes" : "No");
+    fprintf(fp, "SYN_LIMIT=\"%u\"\n", cfg->syn_limit);
+    fprintf(fp, "SYN_LIMIT_BURST=\"%u\"\n\n", cfg->syn_limit_burst);
 
     fprintf(fp, "# UDP_LIMIT sets the maximum number of udp 'connections' per second.\n");
-    fprintf(fp, "USE_UDP_LIMIT=\"%s\"\n\n", conf.use_udp_limit ? "Yes" : "No");
-    fprintf(fp, "UDP_LIMIT=\"%u\"\n", conf.udp_limit);
-    fprintf(fp, "UDP_LIMIT_BURST=\"%u\"\n\n", conf.udp_limit_burst);
+    fprintf(fp, "USE_UDP_LIMIT=\"%s\"\n\n", cfg->use_udp_limit ? "Yes" : "No");
+    fprintf(fp, "UDP_LIMIT=\"%u\"\n", cfg->udp_limit);
+    fprintf(fp, "UDP_LIMIT_BURST=\"%u\"\n\n", cfg->udp_limit_burst);
 
     /* protect */
     fprintf(fp, "# Protect against syn-flooding? (yes/no)\n");
-    fprintf(fp, "PROTECT_SYNCOOKIE=\"%s\"\n", conf.protect_syncookie ? "Yes" : "No");
+    fprintf(fp, "PROTECT_SYNCOOKIE=\"%s\"\n", cfg->protect_syncookie ? "Yes" : "No");
 
     fprintf(fp, "# Ignore echo-broadcasts? (yes/no)\n");
-    fprintf(fp, "PROTECT_ECHOBROADCAST=\"%s\"\n\n", conf.protect_echobroadcast ? "Yes" : "No");
+    fprintf(fp, "PROTECT_ECHOBROADCAST=\"%s\"\n\n", cfg->protect_echobroadcast ? "Yes" : "No");
 
     fprintf(fp, "# end of file\n");
 

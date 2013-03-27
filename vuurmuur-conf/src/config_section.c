@@ -459,7 +459,7 @@ edit_genconfig(const int debuglvl)
     /* write configfile */
     if(retval == 0)
     {
-        if(write_configfile(debuglvl, conf.configfile) < 0)
+        if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;
@@ -725,7 +725,7 @@ edit_intconfig(const int debuglvl)
     /* write configfile */
     if(retval == 0)
     {
-        if(write_configfile(debuglvl, conf.configfile) < 0)
+        if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;
@@ -1010,7 +1010,7 @@ edit_modconfig(const int debuglvl)
     /* write configfile */
     if(retval == 0)
     {
-        if(write_configfile(debuglvl, conf.configfile) < 0)
+        if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;
@@ -1287,7 +1287,7 @@ edit_plugconfig(const int debuglvl)
     /* write configfile */
     if(retval == 0)
     {
-        if(write_configfile(debuglvl, conf.configfile) < 0)
+        if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;
@@ -1685,7 +1685,7 @@ edit_conconfig(const int debuglvl)
     /* write configfile */
     if(retval == 0)
     {
-        if(write_configfile(debuglvl, conf.configfile) < 0)
+        if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
             retval=-1;
@@ -2614,7 +2614,7 @@ edit_logconfig(const int debuglvl)
     /* write configfile */
     if(retval == 0)
     {
-        if(write_configfile(debuglvl, conf.configfile) < 0)
+        if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
             retval=-1;
@@ -2663,7 +2663,7 @@ VrEditConntrackSave(const int debuglvl, void *ctx, char *name, char *value)
             (void)vrprint.audit("'drop INVALID packet flag' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.invalid_drop_enabled ? STR_YES : STR_NO);
 
-            if(write_configfile(debuglvl, conf.configfile) < 0)
+            if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
             {
                 (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
                 retval=-1;
