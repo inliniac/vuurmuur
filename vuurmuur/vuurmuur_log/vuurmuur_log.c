@@ -494,7 +494,7 @@ main(int argc, char *argv[])
     int             shm_id;
     int             reload = 0;
 
-    struct rgx_ reg;
+    struct vrmr_regex reg;
     char        quit = 0;
 
     snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
@@ -636,7 +636,7 @@ main(int argc, char *argv[])
 #endif /* HAVE_LIBNETFILTER_LOG */
 
     /* setup regexes */
-    if(setup_rgx(1, &reg) < 0)
+    if(vrmr_regex_setup(1, &reg) < 0)
     {
         (void)vrprint.error(-1, "Internal Error", "setting up regular expressions failed.");
         exit(EXIT_FAILURE);
@@ -662,7 +662,7 @@ main(int argc, char *argv[])
     }
 
     /* load the services into memory */
-    if(load_services(debuglvl, &services, &reg)== -1)
+    if(vrmr_services_load(debuglvl, &services, &reg)== -1)
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
@@ -670,7 +670,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* load the zonedata into memory */
-    if(load_zones(debuglvl, &zones, &interfaces, &reg) == -1)
+    if(vrmr_zones_load(debuglvl, &zones, &interfaces, &reg) == -1)
         exit(EXIT_FAILURE);
 
 
@@ -996,7 +996,7 @@ main(int argc, char *argv[])
     }
 
     /* cleanup regexes */
-    (void)setup_rgx(0, &reg);
+    (void)vrmr_regex_setup(0, &reg);
 
     /* remove the pidfile */
     if(remove_pidfile(PIDFILE) < 0)

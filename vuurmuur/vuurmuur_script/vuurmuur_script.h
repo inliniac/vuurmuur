@@ -137,7 +137,7 @@ typedef struct VuurmuurScript_
     /* some data used by most function */
     int         zonetype;
     char        bdat[1024];
-    struct rgx_ reg;
+    struct vrmr_regex reg;
 
     /* try to instruct vuurmuur and vuurmuur_log to reload? */
     char        apply;
@@ -165,7 +165,7 @@ int script_apply(const int debuglvl, VuurmuurScript *vr_script);
 int script_unblock(const int debuglvl, VuurmuurScript *vr_script);
 int script_list_devices(const int);
 
-int backend_check(const int, int, char *, char *, char, struct rgx_ *);
+int backend_check(const int, int, char *, char *, char, struct vrmr_regex *);
 
 char * remove_leading_part(char *input);
 

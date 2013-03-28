@@ -22,7 +22,7 @@
 
 /* prototypes */
 int reload_blocklist(const int, struct vuurmuur_config *, Zones *, struct vrmr_blocklist *);
-int reload_rules(const int, VuurmuurCtx *, struct rgx_ *);
+int reload_rules(const int, VuurmuurCtx *, struct vrmr_regex *);
 int check_for_changed_networks(const int, Zones *);
 
 
@@ -37,7 +37,7 @@ int check_for_changed_networks(const int, Zones *);
         -1: error
 */
 static int
-apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
+apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
 {
     int     retval=0,   // start at no changes
             result=0;
@@ -224,7 +224,7 @@ apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
 
 
 int
-apply_changes(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
+apply_changes(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
 {
     if(conf.old_rulecreation_method == TRUE)
     {
@@ -555,7 +555,7 @@ reload_services_check(const int debuglvl, struct ServicesData_ *ser_ptr)
 
 // reload_zonedata
 int
-reload_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, struct rgx_ *reg)
+reload_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, struct vrmr_regex *reg)
 {
     int                 retval = 0,
                         result = 0;
@@ -712,7 +712,7 @@ reload_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, struct
         -1: error
 */
 int
-reload_zonedata_check(const int debuglvl, Zones *zones, Interfaces *interfaces, struct ZoneData_ *zone_ptr, struct rgx_ *reg)
+reload_zonedata_check(const int debuglvl, Zones *zones, Interfaces *interfaces, struct ZoneData_ *zone_ptr, struct vrmr_regex *reg)
 {
     int                     result = 0,
                             retval = 0;
@@ -1709,7 +1709,7 @@ reload_blocklist(const int debuglvl, struct vuurmuur_config *cfg, Zones *zones, 
         2. check if the zones, services etc are changed
 */
 int
-reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct rgx_ *reg)
+reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
 {
     Rules                   *new_rules = NULL;
     char                    status = 0,

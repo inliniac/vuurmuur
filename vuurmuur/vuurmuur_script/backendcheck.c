@@ -27,7 +27,7 @@
 
 */
 int
-backend_check_active(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_active(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -50,7 +50,7 @@ backend_check_active(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_comment(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_comment(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -73,7 +73,7 @@ backend_check_comment(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_host_ipaddress(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_host_ipaddress(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -96,7 +96,7 @@ backend_check_host_ipaddress(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_host_macaddress(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_host_macaddress(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -123,7 +123,7 @@ backend_check_host_macaddress(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_group_member(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_group_member(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -150,7 +150,7 @@ backend_check_group_member(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_network_network(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_network_network(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -173,7 +173,7 @@ backend_check_network_network(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_network_netmask(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_network_netmask(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -196,7 +196,7 @@ backend_check_network_netmask(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_network_interface(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_network_interface(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -223,7 +223,7 @@ backend_check_network_interface(const int debuglvl, char *value, struct rgx_ *re
 
 */
 int
-backend_check_network_rule(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_network_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     char                line[1024] = "";
     struct RuleData_    rule;
@@ -270,7 +270,7 @@ backend_check_network_rule(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_interface_ipaddress(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_interface_ipaddress(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -295,7 +295,7 @@ backend_check_interface_ipaddress(const int debuglvl, char *value, struct rgx_ *
 
 */
 int
-backend_check_interface_device(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_interface_device(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     struct InterfaceData_   interface;
 
@@ -324,7 +324,7 @@ backend_check_interface_device(const int debuglvl, char *value, struct rgx_ *reg
 
 */
 int
-backend_check_interface_virtual(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_interface_virtual(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -347,7 +347,7 @@ backend_check_interface_virtual(const int debuglvl, char *value, struct rgx_ *re
 
 */
 int
-backend_check_interface_rule(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_interface_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     char                line[1024] = "";
     struct RuleData_    rule;
@@ -393,7 +393,7 @@ backend_check_interface_rule(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_interface_shape(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_interface_shape(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -421,7 +421,7 @@ backend_check_interface_shape(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_interface_bw(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_interface_bw(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     int i = 0;
 
@@ -462,7 +462,7 @@ backend_check_interface_bw(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_interface_bw_unit(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_interface_bw_unit(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -490,7 +490,7 @@ backend_check_interface_bw_unit(const int debuglvl, char *value, struct rgx_ *re
 
 */
 int
-backend_check_interface_tcpmss(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_interface_tcpmss(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -517,7 +517,7 @@ backend_check_interface_tcpmss(const int debuglvl, char *value, struct rgx_ *reg
 
 */
 int
-backend_check_service_broadcast(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_service_broadcast(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -540,7 +540,7 @@ backend_check_service_broadcast(const int debuglvl, char *value, struct rgx_ *re
 
 */
 int
-backend_check_service_helper(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_service_helper(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     struct ServicesData_    service;
 
@@ -569,7 +569,7 @@ backend_check_service_helper(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_service_tcp(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_service_tcp(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     struct ServicesData_    service;
 
@@ -598,7 +598,7 @@ backend_check_service_tcp(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_service_udp(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_service_udp(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     struct ServicesData_    service;
 
@@ -627,7 +627,7 @@ backend_check_service_udp(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_service_icmp(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_service_icmp(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     struct ServicesData_    service;
 
@@ -656,7 +656,7 @@ backend_check_service_icmp(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_service_gre(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_service_gre(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     struct ServicesData_    service;
 
@@ -685,7 +685,7 @@ backend_check_service_gre(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_service_ah(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_service_ah(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     struct ServicesData_    service;
 
@@ -714,7 +714,7 @@ backend_check_service_ah(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_service_esp(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_service_esp(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     struct ServicesData_    service;
 
@@ -743,7 +743,7 @@ backend_check_service_esp(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_service_proto41(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_service_proto41(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     struct ServicesData_    service;
 
@@ -769,7 +769,7 @@ backend_check_service_proto41(const int debuglvl, char *value, struct rgx_ *reg)
 
 
 int
-backend_check_blocklist_rule(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_blocklist_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
 //    char                line[1024] = "";
 //    char                action[32] = "";
@@ -796,7 +796,7 @@ backend_check_blocklist_rule(const int debuglvl, char *value, struct rgx_ *reg)
 
 */
 int
-backend_check_rule_rule(const int debuglvl, char *value, struct rgx_ *reg)
+backend_check_rule_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     char                line[1024] = "";
     char                action[32] = "";
@@ -836,7 +836,7 @@ backend_check_rule_rule(const int debuglvl, char *value, struct rgx_ *reg)
     }
     else
     {
-        if(rules_parse_line(debuglvl, line, &rule, reg) < 0)
+        if(vrmr_rules_parse_line(debuglvl, line, &rule, reg) < 0)
         {
             (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
@@ -849,7 +849,7 @@ backend_check_rule_rule(const int debuglvl, char *value, struct rgx_ *reg)
 
 
 int
-backend_check(const int debuglvl, int type, char *var, char *val, char overwrite, struct rgx_ *reg)
+backend_check(const int debuglvl, int type, char *var, char *val, char overwrite, struct vrmr_regex *reg)
 {
     int i = 0;
 

@@ -1148,7 +1148,7 @@ valid_tcpudp_port(const int debuglvl, int port)
         -1: error
 */
 int
-init_services(const int debuglvl, Services *services, struct rgx_ *reg)
+init_services(const int debuglvl, Services *services, struct vrmr_regex *reg)
 {
     int     retval=0,
             result=0;
@@ -1250,7 +1250,7 @@ services_check(const int debuglvl, struct ServicesData_ *ser_ptr)
         -1: error
 */
 int
-load_services(const int debuglvl, Services *services, struct rgx_ *reg)
+vrmr_services_load(const int debuglvl, Services *services, struct vrmr_regex *reg)
 {
     int                     result = 0;
     d_list_node             *d_node = NULL;

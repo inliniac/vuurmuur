@@ -284,7 +284,7 @@ int                 utf8_mode;
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);
 WINDOW *create_newwin(int height, int width, int starty, int startx, /*@null@*/ char *title, chtype ch);
 void destroy_win(WINDOW *local_win);
-int startup_screen(const int, Rules *, Zones *, Services *, Interfaces *, struct vrmr_blocklist *, struct rgx_ *);
+int startup_screen(const int, Rules *, Zones *, Services *, Interfaces *, struct vrmr_blocklist *, struct vrmr_regex *);
 void draw_field_active_mark(const FIELD *cur, const FIELD *prev, WINDOW *formwin, FORM *form, chtype ch);
 int copy_field2buf(char *buf, char *fieldbuf, size_t bufsize);
 int protectrule_loaded(const int, d_list *, char *, char *, char *);
@@ -299,25 +299,25 @@ void draw_top_menu(const int, WINDOW *, char *, int, char **, int, char **);
 /*
     services section
 */
-void services_section(const int, Services *, Rules *, struct rgx_ *);
+void services_section(const int, Services *, Rules *, struct vrmr_regex *);
 
 
 /*
     zones section
 */
-int zones_section(const int, Zones *, Interfaces *, Rules *, struct vrmr_blocklist *, struct rgx_ *);
-int zones_blocklist(const int, struct vrmr_blocklist *, Zones *, struct rgx_ *);
+int zones_section(const int, Zones *, Interfaces *, Rules *, struct vrmr_blocklist *, struct vrmr_regex *);
+int zones_blocklist(const int, struct vrmr_blocklist *, Zones *, struct vrmr_regex *);
 int zones_blocklist_add_one(const int, struct vrmr_blocklist *, Zones *);
 
 
 /*
     rules_section
 */
-int rules_form(const int, Rules *, Zones *, Interfaces *, Services *, struct rgx_ *);
+int rules_form(const int, Rules *, Zones *, Interfaces *, Services *, struct vrmr_regex *);
 int delete_rule(const int, Rules *, unsigned int, int);
 int insert_new_rule(const int, Rules *, unsigned int, const char *);
-int edit_rule(const int, Rules *, Zones *, Interfaces *, Services *, unsigned int, struct rgx_ *);
-int edit_rule_normal(const int, Zones *, Interfaces *, Services *, struct RuleData_ *, unsigned int, struct rgx_ *);
+int edit_rule(const int, Rules *, Zones *, Interfaces *, Services *, unsigned int, struct vrmr_regex *);
+int edit_rule_normal(const int, Zones *, Interfaces *, Services *, struct RuleData_ *, unsigned int, struct vrmr_regex *);
 char *VrShapeUnitMenu(const int, char *, int, int, char);
 
 
@@ -365,7 +365,7 @@ int logview_section(const int, struct vuurmuur_config *, Zones *, struct vrmr_bl
 /*
     interfaces section
 */
-void interfaces_section(const int, Interfaces *, Zones *, Rules *, struct rgx_ *reg);
+void interfaces_section(const int, Interfaces *, Zones *, Rules *, struct vrmr_regex *reg);
 
 
 /*
@@ -411,7 +411,7 @@ int vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf);
 /*
     main menu
 */
-int main_menu(const int, Rules *,  Zones *, Interfaces *, Services *, struct vrmr_blocklist *, struct rgx_ *);
+int main_menu(const int, Rules *,  Zones *, Interfaces *, Services *, struct vrmr_blocklist *, struct vrmr_regex *);
 void mm_status_checkall(int, d_list *, Rules *, Zones *, Interfaces *, Services *);
 int vc_apply_changes(const int debuglvl);
 

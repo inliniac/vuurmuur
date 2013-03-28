@@ -259,7 +259,7 @@ range_strcpy(char *dest, const char *src, const size_t start,
 
 */
 int
-setup_rgx(int action, struct rgx_ *reg)
+vrmr_regex_setup(int action, struct vrmr_regex *reg)
 {
     if(!reg)
         return(-1);

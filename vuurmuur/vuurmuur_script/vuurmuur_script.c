@@ -486,7 +486,7 @@ main(int argc, char *argv[])
     }
 
     /* setup regexes */
-    if(setup_rgx(1, &vr_script.reg) < 0)
+    if(vrmr_regex_setup(1, &vr_script.reg) < 0)
     {
         (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "setting up regular expressions failed.");
         exit(VRS_ERR_INTERNAL);
@@ -913,7 +913,7 @@ main(int argc, char *argv[])
     */
 
     /* cleanup regexes */
-    (void)setup_rgx(0, &vr_script.reg);
+    (void)vrmr_regex_setup(0, &vr_script.reg);
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "** end **, return = %d", retval);

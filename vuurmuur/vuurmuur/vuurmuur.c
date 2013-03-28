@@ -118,7 +118,7 @@ main(int argc, char *argv[])
     union semun     semarg;
     ushort          seminit[] = { 1,0 };
 
-    struct rgx_     reg;    // regexes
+    struct vrmr_regex     reg;    // regexes
 
     vctx.zones = &zones;
     vctx.rules = &rules;
@@ -432,7 +432,7 @@ main(int argc, char *argv[])
     }
 
     /* setup regexes */
-    if(setup_rgx(1, &reg) < 0)
+    if (vrmr_regex_setup(1, &reg) < 0)
     {
         (void)vrprint.error(-1, "Internal Error", "setting up regular expressions failed.");
         exit(EXIT_FAILURE);
@@ -455,7 +455,7 @@ main(int argc, char *argv[])
     ipt_rulecount = 0;
 
     /* load the services into memory */
-    result = load_services(debuglvl, &services, &reg);
+    result = vrmr_services_load(debuglvl, &services, &reg);
     if(result == -1)
         exit(EXIT_FAILURE);
 
@@ -468,7 +468,7 @@ main(int argc, char *argv[])
     }
 
     /* load the zonedata into memory */
-    result = load_zones(debuglvl, &zones, &interfaces, &reg);
+    result = vrmr_zones_load(debuglvl, &zones, &interfaces, &reg);
     if(result == -1)
         exit(EXIT_FAILURE);
 
@@ -860,7 +860,7 @@ main(int argc, char *argv[])
     d_list_cleanup(debuglvl, &blocklist.list);
 
     /* cleanup regexes */
-    (void)setup_rgx(0, &reg);
+    (void)vrmr_regex_setup(0, &reg);
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "** end **, return = %d", retval);

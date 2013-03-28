@@ -1948,7 +1948,7 @@ interfaces_section_delete_interface(const int debuglvl, Interfaces *interfaces, 
 
 void
 interfaces_section(const int debuglvl, Interfaces *interfaces, Zones *zones,
-            Rules *rules, struct rgx_ *reg)
+            Rules *rules, struct vrmr_regex *reg)
 {
     int     result = 0,
             quit = 0,

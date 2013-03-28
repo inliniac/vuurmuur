@@ -357,7 +357,7 @@ insert_zonedata_list(const int debuglvl, Zones *zones,
 */
 int
 insert_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces,
-        char *name, int type, struct rgx_ *reg)
+        char *name, int type, struct vrmr_regex *reg)
 {
     struct ZoneData_    *zone_ptr = NULL;
 
@@ -410,7 +410,7 @@ insert_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces,
 */
 int
 read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces,
-          char *name, int type, struct ZoneData_ *zone_ptr, struct rgx_ *reg)
+          char *name, int type, struct ZoneData_ *zone_ptr, struct vrmr_regex *reg)
 {
     int     result = 0;
 
@@ -502,7 +502,7 @@ read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces,
         /*
             get ip and mask
         */
-        result = get_ip_info(debuglvl, name, zone_ptr, reg);
+        result = vrmr_get_ip_info(debuglvl, name, zone_ptr, reg);
         if(result != 0)
         {
             (void)vrprint.error(-1, "Internal Error", "get_ip_info() "
@@ -610,7 +610,7 @@ zonedata_print_list(const Zones *zones)
         -1: error
 */
 int
-init_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, struct rgx_ *reg)
+init_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, struct vrmr_regex *reg)
 {
     int     retval = 0,
             result = 0,
@@ -2303,7 +2303,7 @@ zones_check_group(const int debuglvl, struct ZoneData_ *zone_ptr)
         -1: error
 */
 int
-load_zones(const int debuglvl, Zones *zones, Interfaces *interfaces, struct rgx_ *reg)
+vrmr_zones_load(const int debuglvl, Zones *zones, Interfaces *interfaces, struct vrmr_regex *reg)
 {
     struct ZoneData_    *zone_ptr = NULL;
     d_list_node         *d_node = NULL;

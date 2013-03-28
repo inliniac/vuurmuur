@@ -23,7 +23,7 @@
 
 
 int
-get_ip_info(const int debuglvl, char *name, struct ZoneData_ *answer_ptr, struct rgx_ *reg)
+vrmr_get_ip_info(const int debuglvl, char *name, struct ZoneData_ *answer_ptr, struct vrmr_regex *reg)
 {
     int retval = 0,
         result = 0;

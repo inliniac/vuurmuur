@@ -349,13 +349,13 @@ int logprint_info_bash(char *head, char *fmt, ...);
 
 
 /* reload.c */
-int apply_changes(const int, VuurmuurCtx *vctx, struct rgx_ *);
+int apply_changes(const int, VuurmuurCtx *vctx, struct vrmr_regex *);
 
 int reload_services(const int, Services *, regex_t *);
 int reload_services_check(const int, struct ServicesData_ *);
 
-int reload_zonedata(const int, Zones *, Interfaces *, struct rgx_ *);
-int reload_zonedata_check(const int, Zones *, Interfaces *, struct ZoneData_ *, struct rgx_ *);
+int reload_zonedata(const int, Zones *, Interfaces *, struct vrmr_regex *);
+int reload_zonedata_check(const int, Zones *, Interfaces *, struct ZoneData_ *, struct vrmr_regex *);
 
 int reload_interfaces(const int, Interfaces *);
 int reload_interfaces_check(const int, struct InterfaceData_ *iface_ptr);

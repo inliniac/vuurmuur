@@ -2640,7 +2640,7 @@ destroy_services_section(void)
 
 
 void
-services_section(const int debuglvl, Services *services, Rules *rules, struct rgx_ *reg)
+services_section(const int debuglvl, Services *services, Rules *rules, struct vrmr_regex *reg)
 {
     int     result = 0,
             quit = 0,

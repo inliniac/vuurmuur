@@ -21,39 +21,39 @@
 #ifndef __BACKENDCHECK_H__
 #define __BACKENDCHECK_H__
 
-int backend_check_active(const int, char *, struct rgx_ *);
-int backend_check_comment(const int, char *, struct rgx_ *);
+int backend_check_active(const int, char *, struct vrmr_regex *);
+int backend_check_comment(const int, char *, struct vrmr_regex *);
 
-int backend_check_host_ipaddress(const int, char *, struct rgx_ *);
-int backend_check_host_macaddress(const int, char *, struct rgx_ *);
+int backend_check_host_ipaddress(const int, char *, struct vrmr_regex *);
+int backend_check_host_macaddress(const int, char *, struct vrmr_regex *);
 
-int backend_check_group_member(const int, char *, struct rgx_ *);
+int backend_check_group_member(const int, char *, struct vrmr_regex *);
 
-int backend_check_network_network(const int, char *, struct rgx_ *);
-int backend_check_network_netmask(const int, char *, struct rgx_ *);
-int backend_check_network_interface(const int, char *, struct rgx_ *);
-int backend_check_network_rule(const int, char *, struct rgx_ *);
+int backend_check_network_network(const int, char *, struct vrmr_regex *);
+int backend_check_network_netmask(const int, char *, struct vrmr_regex *);
+int backend_check_network_interface(const int, char *, struct vrmr_regex *);
+int backend_check_network_rule(const int, char *, struct vrmr_regex *);
 
-int backend_check_interface_ipaddress(const int, char *, struct rgx_ *);
-int backend_check_interface_device(const int, char *, struct rgx_ *);
-int backend_check_interface_virtual(const int, char *, struct rgx_ *);
-int backend_check_interface_shape(const int, char *, struct rgx_ *);
-int backend_check_interface_bw(const int, char *, struct rgx_ *);
-int backend_check_interface_bw_unit(const int, char *, struct rgx_ *);
-int backend_check_interface_rule(const int, char *, struct rgx_ *);
-int backend_check_interface_tcpmss(const int, char *, struct rgx_ *);
+int backend_check_interface_ipaddress(const int, char *, struct vrmr_regex *);
+int backend_check_interface_device(const int, char *, struct vrmr_regex *);
+int backend_check_interface_virtual(const int, char *, struct vrmr_regex *);
+int backend_check_interface_shape(const int, char *, struct vrmr_regex *);
+int backend_check_interface_bw(const int, char *, struct vrmr_regex *);
+int backend_check_interface_bw_unit(const int, char *, struct vrmr_regex *);
+int backend_check_interface_rule(const int, char *, struct vrmr_regex *);
+int backend_check_interface_tcpmss(const int, char *, struct vrmr_regex *);
 
-int backend_check_service_broadcast(const int, char *, struct rgx_ *);
-int backend_check_service_helper(const int, char *, struct rgx_ *);
-int backend_check_service_tcp(const int, char *, struct rgx_ *);
-int backend_check_service_udp(const int, char *, struct rgx_ *);
-int backend_check_service_icmp(const int, char *, struct rgx_ *);
-int backend_check_service_gre(const int, char *, struct rgx_ *);
-int backend_check_service_esp(const int, char *, struct rgx_ *);
-int backend_check_service_ah(const int, char *, struct rgx_ *) ;
-int backend_check_service_proto41(const int, char *, struct rgx_ *);
+int backend_check_service_broadcast(const int, char *, struct vrmr_regex *);
+int backend_check_service_helper(const int, char *, struct vrmr_regex *);
+int backend_check_service_tcp(const int, char *, struct vrmr_regex *);
+int backend_check_service_udp(const int, char *, struct vrmr_regex *);
+int backend_check_service_icmp(const int, char *, struct vrmr_regex *);
+int backend_check_service_gre(const int, char *, struct vrmr_regex *);
+int backend_check_service_esp(const int, char *, struct vrmr_regex *);
+int backend_check_service_ah(const int, char *, struct vrmr_regex *) ;
+int backend_check_service_proto41(const int, char *, struct vrmr_regex *);
 
-int backend_check_rule_rule(const int, char *, struct rgx_ *);
+int backend_check_rule_rule(const int, char *, struct vrmr_regex *);
 
 
 struct backend_vars_
@@ -61,7 +61,7 @@ struct backend_vars_
     int     type;
     char    var[32];
     char    multi;
-    int     (*chk)(const int debuglvl, char *value, struct rgx_ *reg);
+    int     (*chk)(const int debuglvl, char *value, struct vrmr_regex *reg);
 }
 backend_vars[] =
 {

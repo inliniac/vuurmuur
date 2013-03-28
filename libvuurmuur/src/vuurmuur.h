@@ -278,7 +278,7 @@ typedef struct Hash_
 /*
     regular expressions
 */
-struct rgx_
+struct vrmr_regex
 {
     /* names of objects */
     regex_t *zonename;
@@ -1338,7 +1338,7 @@ char *libvuurmuur_get_version(void);
 int range_strcpy(char *dest, const char *src, const size_t start, const size_t end, size_t size);
 size_t strlcat(char *dst, const char *src, size_t size);
 size_t strlcpy(char *dst, const char *src, size_t size);
-int setup_rgx(int action, struct rgx_ *reg);
+int vrmr_regex_setup(int action, struct vrmr_regex *reg);
 
 
 /*
@@ -1379,9 +1379,9 @@ void rules_free_options(const int debuglvl, struct vrmr_rule_options *opt);
 //int zones_split_zonename(const int, Zones *, struct ZoneData_ *, regex_t *);
 int insert_zonedata_list(const int, Zones *, const struct ZoneData_ *);
 void zonedata_print_list(const Zones *);
-int init_zonedata(const int, /*@out@*/ Zones *, Interfaces *, struct rgx_ *);
-int insert_zonedata(const int, Zones *, Interfaces *, char *, int, struct rgx_ *);
-int read_zonedata(const int, Zones *, Interfaces *, char *, int, struct ZoneData_ *, struct rgx_ *);
+int init_zonedata(const int, /*@out@*/ Zones *, Interfaces *, struct vrmr_regex *);
+int insert_zonedata(const int, Zones *, Interfaces *, char *, int, struct vrmr_regex *);
+int read_zonedata(const int, Zones *, Interfaces *, char *, int, struct ZoneData_ *, struct vrmr_regex *);
 void *search_zonedata(const int, const Zones *, char *);
 void destroy_zonedatalist(const int, Zones *);
 int count_zones(const int, Zones *, int, char *, char *);
@@ -1402,7 +1402,7 @@ int zones_active(const int, struct ZoneData_ *);
 int zones_check_host(const int, struct ZoneData_ *);
 int zones_check_group(const int, struct ZoneData_ *);
 int zones_check_network(const int, struct ZoneData_ *);
-int load_zones(const int, Zones *, Interfaces *, struct rgx_ *);
+int vrmr_zones_load(const int, Zones *, Interfaces *, struct vrmr_regex *);
 int zones_network_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, Zones *, struct vuurmuur_config *);
 int zones_network_rule_parse_line(const int, const char *, struct RuleData_ *);
 int zones_host_ipv6_enabled(const int, struct ZoneData_ *);
@@ -1411,7 +1411,7 @@ int zones_network_ipv6_enabled(const int, struct ZoneData_ *);
 /*
     services.c
 */
-int init_services(const int, /*@out@*/ Services *, struct rgx_ *);
+int init_services(const int, /*@out@*/ Services *, struct vrmr_regex *);
 int insert_service(const int, Services *, char *);
 void *search_service(const int, const Services *, char *);
 int read_service(const int, char *, struct ServicesData_ *);
@@ -1426,13 +1426,13 @@ int validate_servicename(const int, const char *, regex_t *, char);
 int services_save_portranges(const int, struct ServicesData_ *);
 int valid_tcpudp_port(const int, int);
 int services_check(const int, struct ServicesData_ *);
-int load_services(const int, Services *, struct rgx_ *);
+int vrmr_services_load(const int, Services *, struct vrmr_regex *);
 
 
 /*
     info.c
 */
-int get_ip_info(const int debuglvl, char *name, struct ZoneData_ *answer_ptr, struct rgx_ *reg);
+int vrmr_get_ip_info(const int debuglvl, char *name, struct ZoneData_ *answer_ptr, struct vrmr_regex *reg);
 int create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broadcast_ip, size_t size);
 int get_group_info(const int, Zones *, char *, struct ZoneData_ *);
 char *list_to_portopts(const int, d_list *, /*@null@*/char *);
@@ -1457,8 +1457,8 @@ int set_proc_entry(const int debuglvl, struct vuurmuur_config *, char *proc_entr
     rules.c
 */
 int rules_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, Services *, Zones *, Interfaces *, struct vuurmuur_config *);
-int rules_parse_line(const int, char *, struct RuleData_ *, struct rgx_ *);
-int vrmr_rules_init_list(const int, struct vuurmuur_config *cfg, /*@out@*/ Rules *, struct rgx_ *);
+int rules_parse_line(const int, char *, struct RuleData_ *, struct vrmr_regex *);
+int vrmr_rules_init_list(const int, struct vuurmuur_config *cfg, /*@out@*/ Rules *, struct vrmr_regex *);
 int rules_cleanup_list(const int, Rules *);
 int rules_insert_list(const int, Rules *, unsigned int, struct RuleData_ *);
 char *rules_assemble_options_string(const int, struct vrmr_rule_options *, const char *);

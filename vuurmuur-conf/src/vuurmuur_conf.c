@@ -91,7 +91,7 @@ main(int argc, char *argv[])
     };
     int     longopt_index = 0;
 
-    struct rgx_ reg;
+    struct vrmr_regex reg;
 
     int         debuglvl = 0;
     PANEL       *main_panels[5];
@@ -324,9 +324,9 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* setup regexes */
-    if(setup_rgx(1, &reg) < 0)
+    if(vrmr_regex_setup(1, &reg) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "setup_rgx() failed (in: %s:%d).",
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_regex_setup() failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
         exit(EXIT_FAILURE);
     }
@@ -428,7 +428,7 @@ main(int argc, char *argv[])
     }
 
     /* cleanup regexes */
-    (void)setup_rgx(0, &reg);
+    (void)vrmr_regex_setup(0, &reg);
 
     /* cleanup the datastructures */
     (void)d_list_cleanup(debuglvl, &blocklist.list);
@@ -544,7 +544,7 @@ destroy_win(WINDOW *local_win)
         -1: error
 */
 int
-startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *services, Interfaces *interfaces, struct vrmr_blocklist *blocklist, struct rgx_ *reg)
+startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *services, Interfaces *interfaces, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
     WINDOW  *startup_win = NULL,
             *startup_print_win = NULL;

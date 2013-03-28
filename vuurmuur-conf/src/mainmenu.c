@@ -1557,7 +1557,7 @@ vc_apply_changes(const int debuglvl)
     the main menu, here you choose between rules, zones, config, logview, etc.
 */
 int
-main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces, Services *services, struct vrmr_blocklist *blocklist, struct rgx_ *reg)
+main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces, Services *services, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
 #define MM_ITEM_RULES           gettext("Rules")
 #define MM_ITEM_BLOCKLIST       gettext("BlockList")

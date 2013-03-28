@@ -705,7 +705,7 @@ rules_analyze_rule( const int debuglvl,
         -1: error
 */
 int
-vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, Rules *rules, struct rgx_ *reg)
+vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, Rules *rules, struct vrmr_regex *reg)
 {
     FILE                *fp = NULL;
     int                 retval = 0;
@@ -774,7 +774,7 @@ vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, Rules *rul
                 }
 
                 /* parse the line. We don't really care if it fails, we just ignore it. */
-                if(rules_parse_line(debuglvl, line, rule_ptr, reg) < 0)
+                if(vrmr_rules_parse_line(debuglvl, line, rule_ptr, reg) < 0)
                 {
                     (void)vrprint.debug(__FUNC__, "parsing rule failed: %s", line);
                 }
@@ -865,7 +865,7 @@ vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, Rules *rul
                 }
 
                 /* parse the line. We don't really care if it fails, we just ignore it. */
-                if(rules_parse_line(debuglvl, line, rule_ptr, reg) < 0)
+                if(vrmr_rules_parse_line(debuglvl, line, rule_ptr, reg) < 0)
                 {
                     (void)vrprint.debug(__FUNC__, "parsing rule failed: %s", line);
                 }
@@ -915,7 +915,7 @@ vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, Rules *rul
         -1: error
 */
 int
-rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr, struct rgx_ *reg)
+vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr, struct vrmr_regex *reg)
 {
     size_t  line_pos = 0,   // position in line
             var_pos = 0;    // position in varible
