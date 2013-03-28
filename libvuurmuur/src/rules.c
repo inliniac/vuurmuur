@@ -170,7 +170,7 @@ rules_analyze_rule( const int debuglvl,
                     struct RuleCache_ *create,
                     Services *services,
                     Zones *zones,
-                    Interfaces *interfaces,
+                    struct vrmr_interfaces *interfaces,
                     struct vuurmuur_config *cnf)
 {
     int     result = 0;
@@ -212,7 +212,7 @@ rules_analyze_rule( const int debuglvl,
                 create->who = NULL;
                 create->who_int = NULL;
 
-                if(!(create->who_int = search_interface(debuglvl, interfaces, rule_ptr->who)))
+                if(!(create->who_int = vrmr_search_interface(debuglvl, interfaces, rule_ptr->who)))
                 {
                     (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
                     return(-1);
@@ -561,7 +561,7 @@ rules_analyze_rule( const int debuglvl,
                 return(-1);
             }
 
-            create->via_int = search_interface(debuglvl, interfaces,
+            create->via_int = vrmr_search_interface(debuglvl, interfaces,
                 rule_ptr->opt->via_int);
             if(create->via_int == NULL)
             {

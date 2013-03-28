@@ -493,8 +493,7 @@ struct vuurmuur_config
 
 
 /* DATA STRUCTURES */
-typedef struct
-{
+struct vrmr_interfaces {
     /* the list with interfaces */
     d_list      list;
 
@@ -506,7 +505,7 @@ typedef struct
 
     u_int16_t   shape_handle;
 
-} Interfaces;
+};
 
 
 typedef struct
@@ -1151,7 +1150,7 @@ typedef struct
 
 typedef struct VuurmuurCtx_ {
     Zones *zones;
-    Interfaces *interfaces;
+    struct vrmr_interfaces *interfaces;
     struct vrmr_blocklist *blocklist;
     Rules *rules;
     Services *services;
@@ -1379,9 +1378,9 @@ void rules_free_options(const int debuglvl, struct vrmr_rule_options *opt);
 //int zones_split_zonename(const int, Zones *, struct ZoneData_ *, regex_t *);
 int insert_zonedata_list(const int, Zones *, const struct ZoneData_ *);
 void zonedata_print_list(const Zones *);
-int init_zonedata(const int, /*@out@*/ Zones *, Interfaces *, struct vrmr_regex *);
-int insert_zonedata(const int, Zones *, Interfaces *, char *, int, struct vrmr_regex *);
-int read_zonedata(const int, Zones *, Interfaces *, char *, int, struct ZoneData_ *, struct vrmr_regex *);
+int init_zonedata(const int, /*@out@*/ Zones *, struct vrmr_interfaces *, struct vrmr_regex *);
+int insert_zonedata(const int, Zones *, struct vrmr_interfaces *, char *, int, struct vrmr_regex *);
+int read_zonedata(const int, Zones *, struct vrmr_interfaces *, char *, int, struct ZoneData_ *, struct vrmr_regex *);
 void *search_zonedata(const int, const Zones *, char *);
 void destroy_zonedatalist(const int, Zones *);
 int count_zones(const int, Zones *, int, char *, char *);
@@ -1391,9 +1390,9 @@ int zonelist_to_networklist(const int, Zones *, d_list *);
 int add_broadcasts_zonelist(const int, Zones *);
 int validate_zonename(const int, const char *, int, char *, char *, char *, regex_t *, char);
 int zones_group_save_members(const int, struct ZoneData_ *);
-int zones_network_add_iface(const int, Interfaces *, struct ZoneData_ *, char *);
+int zones_network_add_iface(const int, struct vrmr_interfaces *, struct ZoneData_ *, char *);
 int zones_network_rem_iface(const int, struct ZoneData_ *, char *);
-int zones_network_get_interfaces(const int, struct ZoneData_ *, Interfaces *);
+int zones_network_get_interfaces(const int, struct ZoneData_ *, struct vrmr_interfaces *);
 int zones_network_save_interfaces(const int, struct ZoneData_ *);
 int zones_network_get_protectrules(const int, struct ZoneData_ *);
 int zones_group_rem_member(const int, struct ZoneData_ *, char *);
@@ -1402,7 +1401,7 @@ int zones_active(const int, struct ZoneData_ *);
 int zones_check_host(const int, struct ZoneData_ *);
 int zones_check_group(const int, struct ZoneData_ *);
 int zones_check_network(const int, struct ZoneData_ *);
-int vrmr_zones_load(const int, Zones *, Interfaces *, struct vrmr_regex *);
+int vrmr_zones_load(const int, Zones *, struct vrmr_interfaces *, struct vrmr_regex *);
 int zones_network_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, Zones *, struct vuurmuur_config *);
 int zones_network_rule_parse_line(const int, const char *, struct RuleData_ *);
 int zones_host_ipv6_enabled(const int, struct ZoneData_ *);
@@ -1456,7 +1455,7 @@ int set_proc_entry(const int debuglvl, struct vuurmuur_config *, char *proc_entr
 /*
     rules.c
 */
-int rules_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, Services *, Zones *, Interfaces *, struct vuurmuur_config *);
+int rules_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, Services *, Zones *, struct vrmr_interfaces *, struct vuurmuur_config *);
 int rules_parse_line(const int, char *, struct RuleData_ *, struct vrmr_regex *);
 int vrmr_rules_init_list(const int, struct vuurmuur_config *cfg, /*@out@*/ Rules *, struct vrmr_regex *);
 int rules_cleanup_list(const int, Rules *);
@@ -1563,26 +1562,26 @@ int vrmr_backends_unload(int debuglvl, struct vuurmuur_config *cfg);
 /*
     interfaces.c
 */
-void *search_interface(const int, const Interfaces *, const char *);
-void *search_interface_by_ip(const int, Interfaces *, const char *);
-void interfaces_print_list(const Interfaces *interfaces);
+void *vrmr_search_interface(const int, const struct vrmr_interfaces *, const char *);
+void *vrmr_search_interface_by_ip(const int, struct vrmr_interfaces *, const char *);
+void interfaces_print_list(const struct vrmr_interfaces *interfaces);
 int read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr);
-int insert_interface(const int debuglvl, Interfaces *interfaces, char *name);
-int init_interfaces(const int debuglvl, /*@out@*/ Interfaces *interfaces);
-int new_interface(const int, Interfaces *, char *);
-int delete_interface(const int, Interfaces *, char *);
+int vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *name);
+int vrmr_init_interfaces(const int debuglvl, /*@out@*/ struct vrmr_interfaces *interfaces);
+int new_interface(const int, struct vrmr_interfaces *, char *);
+int delete_interface(const int, struct vrmr_interfaces *, char *);
 int ins_iface_into_zonelist(const int debuglvl, d_list *ifacelist, d_list *zonelist);
 int rem_iface_from_zonelist(const int debuglvl, d_list *zonelist);
 int get_iface_stats(const int, const char *, unsigned long *, unsigned long *, unsigned long *, unsigned long *);
 int vrmr_get_iface_stats_from_ipt(const int debuglvl, struct vuurmuur_config *cfg, const char *iface_name, const char *chain, unsigned long long *recv_packets, unsigned long long *recv_bytes, unsigned long long *trans_packets, unsigned long long *trans_bytes);
 int validate_interfacename(const int, const char *, regex_t *);
-void destroy_interfaceslist(const int debuglvl, Interfaces *interfaces);
+void destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfaces);
 int interfaces_get_rules(const int debuglvl, struct InterfaceData_ *iface_ptr);
 int interfaces_save_rules(const int, struct InterfaceData_ *);
 int interfaces_check(const int, struct InterfaceData_ *);
-int load_interfaces(const int, Interfaces *);
+int vrmr_interfaces_load(const int, struct vrmr_interfaces *);
 int interfaces_iface_up(const int, struct InterfaceData_ *);
-int interfaces_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, Interfaces *, struct vuurmuur_config *);
+int interfaces_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, struct vrmr_interfaces *, struct vuurmuur_config *);
 int interfaces_rule_parse_line(const int, const char *, struct RuleData_ *);
 int interface_check_devicename(const int, char *);
 #ifdef IPV6_ENABLED

@@ -70,7 +70,7 @@ exec_wizard(const int debuglvl, char *path)
 int
 main(int argc, char *argv[])
 {
-    Interfaces  interfaces;
+    struct vrmr_interfaces  interfaces;
     Zones       zones;
     Services    services;
     Rules       rules;
@@ -435,7 +435,7 @@ main(int argc, char *argv[])
     (void)destroy_serviceslist(debuglvl, &services);
     (void)destroy_zonedatalist(debuglvl, &zones);
     (void)rules_cleanup_list(debuglvl, &rules);
-    (void)destroy_interfaceslist(debuglvl, &interfaces);
+    (void)vrmr_destroy_interfaceslist(debuglvl, &interfaces);
     return(retval);
 }
 
@@ -544,7 +544,7 @@ destroy_win(WINDOW *local_win)
         -1: error
 */
 int
-startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *services, Interfaces *interfaces, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
+startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *services, struct vrmr_interfaces *interfaces, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
     WINDOW  *startup_win = NULL,
             *startup_print_win = NULL;
@@ -756,7 +756,7 @@ startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *service
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_INTERFACES); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = init_interfaces(debuglvl, interfaces);
+    result = vrmr_init_interfaces(debuglvl, interfaces);
     if(result < 0)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("intializing the interfaces failed."));

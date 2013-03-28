@@ -555,7 +555,7 @@ reload_services_check(const int debuglvl, struct ServicesData_ *ser_ptr)
 
 // reload_zonedata
 int
-reload_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, struct vrmr_regex *reg)
+reload_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     int                 retval = 0,
                         result = 0;
@@ -712,7 +712,7 @@ reload_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, struct
         -1: error
 */
 int
-reload_zonedata_check(const int debuglvl, Zones *zones, Interfaces *interfaces, struct ZoneData_ *zone_ptr, struct vrmr_regex *reg)
+reload_zonedata_check(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces, struct ZoneData_ *zone_ptr, struct vrmr_regex *reg)
 {
     int                     result = 0,
                             retval = 0;
@@ -1227,7 +1227,7 @@ reload_zonedata_check(const int debuglvl, Zones *zones, Interfaces *interfaces, 
         -1: error
 */
 int
-reload_interfaces(const int debuglvl, Interfaces *interfaces)
+reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
     int                     retval = 0,
                             result = 0;
@@ -1274,13 +1274,13 @@ reload_interfaces(const int debuglvl, Interfaces *interfaces)
     /* now loop trough the interfaces and check them */
     while(af->list(debuglvl, ifac_backend, name, &zonetype, CAT_INTERFACES) != NULL)
     {
-        iface_ptr = search_interface(debuglvl, interfaces, name);
+        iface_ptr = vrmr_search_interface(debuglvl, interfaces, name);
         if(iface_ptr == NULL)
         {
             (void)vrprint.info("Info", "Interface '%s' is added.", name);
 
             /* this is a new interface */
-            result = insert_interface(debuglvl, interfaces, name);
+            result = vrmr_insert_interface(debuglvl, interfaces, name);
             if(result != 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "insert_interface() failed (in: %s:%d).",
@@ -1288,7 +1288,7 @@ reload_interfaces(const int debuglvl, Interfaces *interfaces)
                 return(-1);
             }
 
-            iface_ptr = search_interface(debuglvl, interfaces, name);
+            iface_ptr = vrmr_search_interface(debuglvl, interfaces, name);
             if(iface_ptr == NULL)
             {
                 (void)vrprint.error(-1, "Internal Error", "interface not found (in: %s:%d).",
@@ -2009,7 +2009,7 @@ check_for_changed_networks(const int debuglvl, Zones *zones)
         1: changes
 */
 int
-check_for_changed_dynamic_ips(const int debuglvl, Interfaces *interfaces)
+check_for_changed_dynamic_ips(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
     d_list_node             *d_node = NULL;
     struct InterfaceData_   *iface_ptr = NULL;

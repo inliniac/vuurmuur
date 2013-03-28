@@ -2455,7 +2455,7 @@ create_rule_bounce( const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 static int
 create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
-        Interfaces *interfaces, IptCap *iptcap, int ipv)
+        struct vrmr_interfaces *interfaces, IptCap *iptcap, int ipv)
 {
     d_list_node *d_node = NULL;
     struct InterfaceData_ *iface_ptr = NULL;
@@ -2531,7 +2531,7 @@ static char limit[] = "-m limit --limit 1/s --limit-burst 2";
  *  \brief Flush chains (bash output mode)
  */
 static int pre_rules_flush_chains(const int debuglvl, /*@null@*/RuleSet *ruleset,
-        Interfaces *interfaces, IptCap *iptcap)
+        struct vrmr_interfaces *interfaces, IptCap *iptcap)
 {
     if(ruleset == NULL)
     {
@@ -3016,7 +3016,7 @@ static int pre_rules_loopback(const int debuglvl, /*@null@*/RuleSet *ruleset,
 }
 
 static int pre_rules_interface_counters_ipv4(const int debuglvl,
-        /*@null@*/RuleSet *ruleset, Interfaces *interfaces, IptCap *iptcap, int ipv)
+        /*@null@*/RuleSet *ruleset, struct vrmr_interfaces *interfaces, IptCap *iptcap, int ipv)
 {
     int retval = 0;
     char cmd[MAX_PIPE_COMMAND] = "";
@@ -4055,7 +4055,7 @@ static int pre_rules_icmp_ipv6(const int debuglvl, /*@null@*/RuleSet *ruleset,
         portscan detection
 */
 int
-pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Interfaces *interfaces, IptCap *iptcap)
+pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_interfaces *interfaces, IptCap *iptcap)
 {
     int retval = 0;
 
@@ -4664,7 +4664,7 @@ static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet
 }
 
 int
-create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, Interfaces *interfaces)
+create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap, struct vrmr_interfaces *interfaces)
 {
     struct RuleCache_       *create = NULL;
     d_list_node             *d_node = NULL,

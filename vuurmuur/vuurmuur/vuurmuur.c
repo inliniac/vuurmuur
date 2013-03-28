@@ -50,7 +50,7 @@ setup_signal_handler(int sig, void (*handler)())
 }
 
 /** \brief UP all interfaces in bash mode */
-void bash_enable_interfaces(Interfaces *ifaces) {
+void bash_enable_interfaces(struct vrmr_interfaces *ifaces) {
     d_list_node *node;
     struct InterfaceData_  *iface_ptr = NULL;
 
@@ -64,7 +64,7 @@ void bash_enable_interfaces(Interfaces *ifaces) {
 int
 main(int argc, char *argv[])
 {
-    Interfaces      interfaces;
+    struct vrmr_interfaces      interfaces;
     Services        services;
     Zones           zones;
     Rules           rules;
@@ -460,7 +460,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
-    result = load_interfaces(debuglvl, &interfaces);
+    result = vrmr_interfaces_load(debuglvl, &interfaces);
     if(result == -1)
         exit(EXIT_FAILURE);
     if (conf.bash_out) {
@@ -851,7 +851,7 @@ main(int argc, char *argv[])
     destroy_zonedatalist(debuglvl, &zones);
 
     /* destroy the InterfacesList */
-    destroy_interfaceslist(debuglvl, &interfaces);
+    vrmr_destroy_interfaceslist(debuglvl, &interfaces);
 
     /* destroy the QuerydataList */
     if(rules_cleanup_list(debuglvl, &rules) < 0)

@@ -356,7 +356,7 @@ insert_zonedata_list(const int debuglvl, Zones *zones,
          0: succes
 */
 int
-insert_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces,
+insert_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces,
         char *name, int type, struct vrmr_regex *reg)
 {
     struct ZoneData_    *zone_ptr = NULL;
@@ -409,7 +409,7 @@ insert_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces,
         -1: error
 */
 int
-read_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces,
+read_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces,
           char *name, int type, struct ZoneData_ *zone_ptr, struct vrmr_regex *reg)
 {
     int     result = 0;
@@ -610,7 +610,7 @@ zonedata_print_list(const Zones *zones)
         -1: error
 */
 int
-init_zonedata(const int debuglvl, Zones *zones, Interfaces *interfaces, struct vrmr_regex *reg)
+init_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     int     retval = 0,
             result = 0,
@@ -1474,7 +1474,7 @@ zones_group_add_member(const int debuglvl, Zones *zones, struct ZoneData_ *group
          0: ok
 */
 int
-zones_network_add_iface(const int debuglvl, Interfaces *interfaces, struct ZoneData_ *network_ptr, char *interfacename)
+zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfaces, struct ZoneData_ *network_ptr, char *interfacename)
 {
     struct InterfaceData_   *iface_ptr = NULL,
                             *list_iface_ptr = NULL;
@@ -1504,7 +1504,7 @@ zones_network_add_iface(const int debuglvl, Interfaces *interfaces, struct ZoneD
     }
 
     /* search the interface in the interface list */
-    if(!(iface_ptr = search_interface(debuglvl, interfaces, interfacename)))
+    if(!(iface_ptr = vrmr_search_interface(debuglvl, interfaces, interfacename)))
     {
         (void)vrprint.warning("Warning", "the interface '%s' of network '%s' was not found in memory.", interfacename, network_ptr->name);
         return(0); /* non-fatal */
@@ -1591,7 +1591,7 @@ zones_network_rem_iface(const int debuglvl, struct ZoneData_ *network_ptr, char 
         -1: error
  */
 int
-zones_network_get_interfaces(const int debuglvl, struct ZoneData_ *zone_ptr, Interfaces *interfaces)
+zones_network_get_interfaces(const int debuglvl, struct ZoneData_ *zone_ptr, struct vrmr_interfaces *interfaces)
 {
     char    cur_ifac[MAX_INTERFACE] = "";
 
@@ -2303,7 +2303,7 @@ zones_check_group(const int debuglvl, struct ZoneData_ *zone_ptr)
         -1: error
 */
 int
-vrmr_zones_load(const int debuglvl, Zones *zones, Interfaces *interfaces, struct vrmr_regex *reg)
+vrmr_zones_load(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     struct ZoneData_    *zone_ptr = NULL;
     d_list_node         *d_node = NULL;

@@ -168,7 +168,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
 
 
 int
-mm_select_logfile(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, struct vrmr_blocklist *blocklist, Interfaces *interfaces, Services *services)
+mm_select_logfile(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, Services *services)
 {
     size_t  i = 0,
             n_choices = 6;
@@ -748,7 +748,7 @@ mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, Rules 
 
 */
 static void
-mm_check_status_interfaces(const int debuglvl, /*@null@*/ d_list *status_list, Interfaces *interfaces)
+mm_check_status_interfaces(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_interfaces *interfaces)
 {
     d_list_node             *d_node = NULL;
     struct InterfaceData_   *iface_ptr = NULL;
@@ -1557,7 +1557,7 @@ vc_apply_changes(const int debuglvl)
     the main menu, here you choose between rules, zones, config, logview, etc.
 */
 int
-main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces, Services *services, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
+main_menu(const int debuglvl, Rules *rules, Zones *zones, struct vrmr_interfaces *interfaces, Services *services, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
 #define MM_ITEM_RULES           gettext("Rules")
 #define MM_ITEM_BLOCKLIST       gettext("BlockList")
@@ -2173,7 +2173,7 @@ main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces
     check all the statusses
 */
 void
-mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, Rules *rules, Zones *zones, Interfaces *interfaces, Services *services)
+mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, Rules *rules, Zones *zones, struct vrmr_interfaces *interfaces, Services *services)
 {
     unsigned int    list_len = 0;
 

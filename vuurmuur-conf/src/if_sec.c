@@ -1302,7 +1302,7 @@ edit_interface_save(const int debuglvl, struct InterfaceData_ *iface_ptr)
     -1: error.
 */
 static int
-edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
+edit_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *name)
 {
     int                     ch; /* keystroke catcher */
     int                     height,
@@ -1343,7 +1343,7 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
     /* TODO: advanced option */
 
     /* search the interface in memory */
-    iface_ptr = search_interface(debuglvl, interfaces, name);
+    iface_ptr = vrmr_search_interface(debuglvl, interfaces, name);
     if (iface_ptr == NULL) {
         (void)vrprint.error(-1, VR_INTERR, "interface not found in memory");
         return(-1);
@@ -1563,7 +1563,7 @@ edit_interface(const int debuglvl, Interfaces *interfaces, char *name)
 
 
 static int
-init_interfaces_section(const int debuglvl, Interfaces *interfaces)
+init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
     int                     retval = 0,
                             i = 0;
@@ -1750,7 +1750,7 @@ destroy_interfaces_section(const int debuglvl)
 
 
 static int
-rename_interface(const int debuglvl, Interfaces *interfaces, Zones *zones,
+rename_interface(const int debuglvl, struct vrmr_interfaces *interfaces, Zones *zones,
             Rules *rules, char *cur_name_ptr, char *new_name_ptr)
 {
     int                     result = 0;
@@ -1775,7 +1775,7 @@ rename_interface(const int debuglvl, Interfaces *interfaces, Zones *zones,
     (void)strlcpy(save_name, cur_name_ptr, sizeof(save_name));
 
     /* get the int from the list */
-    if(!(iface_ptr = search_interface(debuglvl, interfaces, cur_name_ptr)))
+    if(!(iface_ptr = vrmr_search_interface(debuglvl, interfaces, cur_name_ptr)))
     {
         (void)vrprint.error(-1, VR_INTERR, "interface not found in "
             "the list (in: %s:%d).", __FUNC__, __LINE__);
@@ -1903,7 +1903,7 @@ rename_interface(const int debuglvl, Interfaces *interfaces, Zones *zones,
 
 
 static int
-interfaces_section_delete_interface(const int debuglvl, Interfaces *interfaces, char *cur_name_ptr)
+interfaces_section_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *cur_name_ptr)
 {
     int                     result = 0;
     struct InterfaceData_   *iface_ptr = NULL;
@@ -1920,7 +1920,7 @@ interfaces_section_delete_interface(const int debuglvl, Interfaces *interfaces, 
     /* for audit log */
     (void)strlcpy(save_name, cur_name_ptr, sizeof(save_name));
 
-    if(!(iface_ptr = search_interface(debuglvl, interfaces, cur_name_ptr)))
+    if(!(iface_ptr = vrmr_search_interface(debuglvl, interfaces, cur_name_ptr)))
     {
         (void)vrprint.error(-1, VR_INTERR, "search_interface() failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
@@ -1934,7 +1934,7 @@ interfaces_section_delete_interface(const int debuglvl, Interfaces *interfaces, 
         return(-1);
     }
 
-    result = delete_interface(debuglvl, interfaces, iface_ptr->name);
+    result = vrmr_delete_interface(debuglvl, interfaces, iface_ptr->name);
     if(result < 0)
     {
         return(-1);
@@ -1947,7 +1947,7 @@ interfaces_section_delete_interface(const int debuglvl, Interfaces *interfaces, 
 
 
 void
-interfaces_section(const int debuglvl, Interfaces *interfaces, Zones *zones,
+interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces, Zones *zones,
             Rules *rules, struct vrmr_regex *reg)
 {
     int     result = 0,
@@ -2075,7 +2075,7 @@ interfaces_section(const int debuglvl, Interfaces *interfaces, Zones *zones,
                     {
                         if(validate_interfacename(debuglvl, new_name_ptr, reg->interfacename) == 0)
                         {
-                            result = new_interface(debuglvl, interfaces, new_name_ptr);
+                            result = vrmr_new_interface(debuglvl, interfaces, new_name_ptr);
                             if(result == 0)
                             {
                                 /* example: "interface '%s' has been created." */

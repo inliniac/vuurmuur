@@ -215,7 +215,7 @@ analyze_interface_rules(const int debuglvl,
                 Rules *rules,
                 Zones *zones,
                 Services *services,
-                Interfaces *interfaces)
+                struct vrmr_interfaces *interfaces)
 {
     struct RuleData_        *rule_ptr = NULL;
     d_list_node             *d_node = NULL,
@@ -248,7 +248,7 @@ analyze_interface_rules(const int debuglvl,
                 return(-1);
             }
 
-            if(interfaces_analyze_rule(debuglvl, rule_ptr, &rule_ptr->rulecache, interfaces, &conf) == 0)
+            if(vrmr_interfaces_analyze_rule(debuglvl, rule_ptr, &rule_ptr->rulecache, interfaces, &conf) == 0)
             {
                 if(debuglvl >= HIGH)
                     (void)vrprint.debug(__FUNC__, "analizing protectrule success, active = 1.");
@@ -270,7 +270,7 @@ analyze_interface_rules(const int debuglvl,
 
 
 int
-analyze_network_protect_rules(const int debuglvl, Rules *rules, Zones *zones, Services *services, Interfaces *interfaces)
+analyze_network_protect_rules(const int debuglvl, Rules *rules, Zones *zones, Services *services, struct vrmr_interfaces *interfaces)
 {
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL,
@@ -327,7 +327,7 @@ analyze_network_protect_rules(const int debuglvl, Rules *rules, Zones *zones, Se
 
 
 int
-analyze_normal_rules(const int debuglvl, Rules *rules, Zones *zones, Services *services, Interfaces *interfaces)
+analyze_normal_rules(const int debuglvl, Rules *rules, Zones *zones, Services *services, struct vrmr_interfaces *interfaces)
 {
     struct RuleData_    *rule_ptr = NULL;
     unsigned int        rulescount = 0,
@@ -1708,7 +1708,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
 
         if(create->option.in_int[0] != '\0') /* interface option is set */
         {
-            rule->to_if_ptr = search_interface(debuglvl, vctx->interfaces, create->option.in_int);
+            rule->to_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.in_int);
             if(rule->to_if_ptr == NULL)
             {
                 (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",
@@ -1774,7 +1774,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
 
         if(create->option.out_int[0] != '\0') /* interface option is set */
         {
-            rule->to_if_ptr = search_interface(debuglvl, vctx->interfaces, create->option.out_int);
+            rule->to_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.out_int);
             if(rule->to_if_ptr == NULL)
             {
                 (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",
@@ -1992,7 +1992,7 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
         {
             (void)vrprint.debug(__FUNC__, "create->option.out_int %s", create->option.out_int);
 
-            rule->from_if_ptr = search_interface(debuglvl, vctx->interfaces, create->option.out_int);
+            rule->from_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.out_int);
             if(rule->from_if_ptr == NULL)
             {
                 (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",
@@ -2038,7 +2038,7 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
 
         if(create->option.in_int[0] != '\0') /* interface option is set */
         {
-            rule->from_if_ptr = search_interface(debuglvl, vctx->interfaces, create->option.in_int);
+            rule->from_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.in_int);
             if(rule->from_if_ptr == NULL)
             {
                 (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",

@@ -507,7 +507,7 @@ update_draw_size(const int debuglvl, VR_ConntrackRequest *connreq, int width, in
 
 
 Conntrack *
-conn_init_ct(const int debuglvl, Zones *zones, Interfaces *interfaces,
+conn_init_ct(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces,
             Services *services, struct vrmr_blocklist *blocklist )
 {
     Conntrack   *ct = NULL;
@@ -641,7 +641,7 @@ conn_ct_clear_connections(const int debuglvl, Conntrack *ct)
 
 int
 connections_section(const int debuglvl, struct vuurmuur_config *cnf,
-            Zones *zones, Interfaces *interfaces,
+            Zones *zones, struct vrmr_interfaces *interfaces,
             Services *services, struct vrmr_blocklist *blocklist)
 {
     int                     retval=0;
@@ -1417,13 +1417,13 @@ kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
 */
 int
 block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
-        struct vrmr_blocklist *blocklist, Interfaces *interfaces, char *ip)
+        struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, char *ip)
 {
     struct InterfaceData_   *iface_ptr = NULL;
 
     VrBusyWinShow();
 
-    iface_ptr = search_interface_by_ip(debuglvl, interfaces, ip);
+    iface_ptr = vrmr_search_interface_by_ip(debuglvl, interfaces, ip);
     if(iface_ptr != NULL)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("ipaddress belongs to "

@@ -142,7 +142,7 @@ static int zones_section_menu_hosts_init(const int, Zones *, char *, char *);
 static int zones_section_menu_groups(const int, Zones *, Rules *, struct vrmr_blocklist *, char *, char *, struct vrmr_regex *);
 
 static int zones_section_menu_networks_init(const int, Zones *, char *);
-static int zones_section_menu_networks(const int, Zones *, Interfaces *, Rules *, struct vrmr_blocklist *, char *, struct vrmr_regex *);
+static int zones_section_menu_networks(const int, Zones *, struct vrmr_interfaces *, Rules *, struct vrmr_blocklist *, char *, struct vrmr_regex *);
 
 
 static int edit_zone_host_init(const int, char *, int, int, int, int, struct ZoneData_ *);
@@ -157,7 +157,7 @@ static int edit_zone_group_save(const int, struct ZoneData_ *);
 static int edit_zone_group(const int, Zones *, char *);
 
 static int edit_zone_network_init(const int, Zones *, char *, int, int, int, int, struct ZoneData_ *);
-static int edit_zone_network(const int, Zones *, Interfaces *, char *);
+static int edit_zone_network(const int, Zones *, struct vrmr_interfaces *, char *);
 
 static int edit_zone_zone_init(const int, Zones *, char *, int, int, int, int, struct ZoneData_ *);
 static int edit_zone_zone(const int debuglvl, Zones *zones, char *name);
@@ -3617,7 +3617,7 @@ zones_rename_network_zone(const int debuglvl, Zones *zones, Rules *rules, struct
 
 
 static int
-edit_zone_network_interfaces_newiface(const int debuglvl, Interfaces *interfaces, struct ZoneData_ *zone_ptr)
+edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_interfaces *interfaces, struct ZoneData_ *zone_ptr)
 {
     d_list_node             *d_node = NULL;
     char                    **choices,
@@ -3861,7 +3861,7 @@ edit_zone_network_interfaces_destroy(void)
 
 
 int
-edit_zone_network_interfaces(const int debuglvl, Interfaces *interfaces, struct ZoneData_ *zone_ptr)
+edit_zone_network_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces, struct ZoneData_ *zone_ptr)
 {
     int     quit = 0,
             reload = 0,
@@ -5031,7 +5031,7 @@ edit_zone_network_destroy(void)
         -1: error
 */
 static int
-edit_zone_network(const int debuglvl, Zones *zones, Interfaces *interfaces, char *name)
+edit_zone_network(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces, char *name)
 {
     int                 ch = 0,
                         not_defined = 0,
@@ -5470,7 +5470,7 @@ zones_section_menu_networks_destroy(const int debuglvl)
 int
 zones_section_menu_networks(const int debuglvl,
                             Zones *zones,
-                            Interfaces *interfaces,
+                            struct vrmr_interfaces *interfaces,
                             Rules *rules,
                             struct vrmr_blocklist *blocklist,
                             char *zonename,
@@ -6437,7 +6437,7 @@ zones_section_destroy(void)
 
 
 int
-zones_section(const int debuglvl, Zones *zones, Interfaces *interfaces, Rules *rules, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
+zones_section(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces, Rules *rules, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
     int     ch = 0,
             quit = 0,

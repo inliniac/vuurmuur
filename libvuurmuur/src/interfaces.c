@@ -23,7 +23,7 @@
 
 
 static int
-insert_interface_list(const int debuglvl, Interfaces *interfaces,
+vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interfaces,
             const struct InterfaceData_ *iface_ptr)
 {
     struct InterfaceData_   *check_iface_ptr = NULL;
@@ -134,7 +134,7 @@ insert_interface_list(const int debuglvl, Interfaces *interfaces,
     It returns the pointer or a NULL-pointer if not found.
 */
 void *
-search_interface(const int debuglvl, const Interfaces *interfaces, const char *name)
+vrmr_search_interface(const int debuglvl, const struct vrmr_interfaces *interfaces, const char *name)
 {
     d_list_node             *d_node = NULL;
     struct InterfaceData_   *iface_ptr = NULL;
@@ -193,7 +193,7 @@ search_interface(const int debuglvl, const Interfaces *interfaces, const char *n
 
 */
 void *
-search_interface_by_ip(const int debuglvl, Interfaces *interfaces, const char *ip)
+vrmr_search_interface_by_ip(const int debuglvl, struct vrmr_interfaces *interfaces, const char *ip)
 {
     d_list_node             *d_node = NULL;
     struct InterfaceData_   *iface_ptr = NULL;
@@ -254,7 +254,7 @@ search_interface_by_ip(const int debuglvl, Interfaces *interfaces, const char *i
     Prints the interface list to stdout
 */
 void
-interfaces_print_list(const Interfaces *interfaces)
+vrmr_interfaces_print_list(const struct vrmr_interfaces *interfaces)
 {
     d_list_node             *d_node = NULL;
     struct InterfaceData_   *iface_ptr = NULL;
@@ -722,7 +722,7 @@ read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr)
          1: interface failed, maybe it is inactive
 */
 int
-insert_interface(const int debuglvl, Interfaces *interfaces, char *name)
+vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *name)
 {
     struct InterfaceData_   *iface_ptr = NULL;
 
@@ -768,7 +768,7 @@ insert_interface(const int debuglvl, Interfaces *interfaces, char *name)
 
 
     /* insert into the list (sorted) */
-    if(insert_interface_list(debuglvl, interfaces, iface_ptr) < 0)
+    if(vrmr_insert_interface_list(debuglvl, interfaces, iface_ptr) < 0)
         return(-1);
 
 
@@ -799,7 +799,7 @@ insert_interface(const int debuglvl, Interfaces *interfaces, char *name)
         -1: error
 */
 int
-init_interfaces(const int debuglvl, Interfaces *interfaces)
+vrmr_init_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
     int     result = 0,
             counter = 0,
@@ -820,7 +820,7 @@ init_interfaces(const int debuglvl, Interfaces *interfaces)
 
 
     /* init */
-    memset(interfaces, 0, sizeof(Interfaces));
+    memset(interfaces, 0, sizeof(struct vrmr_interfaces));
     /* setup the list */
     if(d_list_setup(debuglvl, &interfaces->list, NULL) < 0)
         return(-1);
@@ -832,7 +832,7 @@ init_interfaces(const int debuglvl, Interfaces *interfaces)
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "loading interface %s", ifacname);
 
-        result = insert_interface(debuglvl, interfaces, ifacname);
+        result = vrmr_insert_interface(debuglvl, interfaces, ifacname);
         if(result < 0)
         {
             (void)vrprint.error(-1, "Internal Error", "insert_interface() failed (in: %s:%d).",
@@ -931,7 +931,7 @@ interfaces_save_rules(const int debuglvl, struct InterfaceData_ *iface_ptr)
 
 
 int
-new_interface(const int debuglvl, Interfaces *interfaces, char *iface_name)
+vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *iface_name)
 {
     int                     result = 0;
     struct InterfaceData_   *iface_ptr = NULL;
@@ -965,7 +965,7 @@ new_interface(const int debuglvl, Interfaces *interfaces, char *iface_name)
     }
 
     /* insert into the list (sorted) */
-    if(insert_interface_list(debuglvl, interfaces, iface_ptr) < 0)
+    if(vrmr_insert_interface_list(debuglvl, interfaces, iface_ptr) < 0)
         return(-1);
 
 
@@ -1091,7 +1091,7 @@ new_interface(const int debuglvl, Interfaces *interfaces, char *iface_name)
         -1: error
 */
 int
-delete_interface(const int debuglvl, Interfaces *interfaces, char *iface_name)
+vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *iface_name)
 {
     struct InterfaceData_   *iface_ptr = NULL;
     d_list_node             *d_node = NULL;
@@ -1105,7 +1105,7 @@ delete_interface(const int debuglvl, Interfaces *interfaces, char *iface_name)
     }
 
     /* first search the interface in the list */
-    if(!(iface_ptr = search_interface(debuglvl, interfaces, iface_name)))
+    if(!(iface_ptr = vrmr_search_interface(debuglvl, interfaces, iface_name)))
     {
         (void)vrprint.error(-1, "Internal Error", "interface '%s' not found in memory (in: %s:%d).",
                 iface_name, __FUNC__, __LINE__);
@@ -1673,7 +1673,7 @@ validate_interfacename(const int debuglvl, const char *interfacename, regex_t *r
 
 */
 void
-destroy_interfaceslist(const int debuglvl, Interfaces *interfaces)
+vrmr_destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
     d_list_node             *d_node = NULL;
     struct InterfaceData_   *iface_ptr = NULL;
@@ -1719,10 +1719,10 @@ destroy_interfaceslist(const int debuglvl, Interfaces *interfaces)
         -1: error
  */
 int
-interfaces_analyze_rule(const int debuglvl,
+vrmr_interfaces_analyze_rule(const int debuglvl,
             struct RuleData_ *rule_ptr,
             struct RuleCache_ *create,
-            Interfaces *interfaces,
+            struct vrmr_interfaces *interfaces,
             struct vuurmuur_config *cnf)
 {
     int result = 0;
@@ -1775,7 +1775,7 @@ interfaces_analyze_rule(const int debuglvl,
                 create->who = NULL;
                 create->who_int = NULL;
 
-                if(!(create->who_int = search_interface(debuglvl, interfaces, rule_ptr->who)))
+                if(!(create->who_int = vrmr_search_interface(debuglvl, interfaces, rule_ptr->who)))
                 {
                     (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
                     return(-1);
@@ -2085,7 +2085,7 @@ interfaces_check(const int debuglvl, struct InterfaceData_ *iface_ptr)
         -1: error
 */
 int
-load_interfaces(const int debuglvl, Interfaces *interfaces)
+vrmr_interfaces_load(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
     struct InterfaceData_   *iface_ptr = NULL;
     d_list_node             *d_node = NULL;
@@ -2095,7 +2095,7 @@ load_interfaces(const int debuglvl, Interfaces *interfaces)
 
 
     /* load the interfaces into memory */
-    result = init_interfaces(debuglvl, interfaces);
+    result = vrmr_init_interfaces(debuglvl, interfaces);
     if(result == -1)
     {
         (void)vrprint.error(-1, "Error", "Loading interfaces failed.");

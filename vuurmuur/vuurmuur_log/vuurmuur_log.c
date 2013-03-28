@@ -452,7 +452,7 @@ int process_logrecord(struct log_rule *logrule_ptr) {
 int
 main(int argc, char *argv[])
 {
-    Interfaces  interfaces;
+    struct vrmr_interfaces  interfaces;
     Services    services;
     Zones       zones;
     struct vrmr_user user_data;
@@ -666,7 +666,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
-    if(load_interfaces(debuglvl, &interfaces) == -1)
+    if(vrmr_interfaces_load(debuglvl, &interfaces) == -1)
         exit(EXIT_FAILURE);
 
     /* load the zonedata into memory */
@@ -837,7 +837,7 @@ main(int argc, char *argv[])
             /* destroy the ZonedataList */
             destroy_zonedatalist(debuglvl, &zones);
             /* destroy the InterfacesList */
-            destroy_interfaceslist(debuglvl, &interfaces);
+            vrmr_destroy_interfaceslist(debuglvl, &interfaces);
 
             /* close backend */
             result = vrmr_backends_unload(debuglvl, &conf);
@@ -872,7 +872,7 @@ main(int argc, char *argv[])
 
             /* re-initialize the data */
             (void)vrprint.info("Info", "Initializing interfaces...");
-            if(init_interfaces(debuglvl, &interfaces) < 0)
+            if(vrmr_init_interfaces(debuglvl, &interfaces) < 0)
             {
                 (void)vrprint.error(-1, "Error", "initializing interfaces failed.");
                 exit(EXIT_FAILURE);
@@ -985,7 +985,7 @@ main(int argc, char *argv[])
     /* destroy the ZonedataList */
     destroy_zonedatalist(debuglvl, &zones);
     /* destroy the InterfacesList */
-    destroy_interfaceslist(debuglvl, &interfaces);
+    vrmr_destroy_interfaceslist(debuglvl, &interfaces);
 
     if(nodaemon)
         show_stats (&Counters);

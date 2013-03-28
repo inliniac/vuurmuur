@@ -215,7 +215,7 @@ shaping_process_queued_rules(const int debuglvl, struct vuurmuur_config *cnf, /*
  * Returns 0: ok -1: error
  */
 int
-shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
+shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     d_list_node     *d_node = NULL;
     InterfaceData   *iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
@@ -255,7 +255,7 @@ shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, Inter
 }
 
 static int
-shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, InterfaceData *iface_ptr, /*@null@*/RuleSet *ruleset) {
+shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, InterfaceData *iface_ptr, /*@null@*/RuleSet *ruleset) {
     d_list_node     *d_node = NULL;
     InterfaceData   *inner_iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
@@ -303,7 +303,7 @@ shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf
 }
 
 int
-shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
+shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     d_list_node     *d_node = NULL;
     InterfaceData   *iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
@@ -385,7 +385,7 @@ shaping_add_rate_to_iface(const int debuglvl, InterfaceData *iface_ptr, u_int32_
 
  * call after analyzing the rules */
 int
-shaping_determine_minimal_default_rates(const int debuglvl, Interfaces *interfaces, Rules *rules) {
+shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, Rules *rules) {
     d_list_node         *d_node = NULL,
                         *d_node_iface = NULL;
     struct RuleData_    *rule_ptr = NULL;
@@ -489,7 +489,7 @@ shaping_determine_minimal_default_rates(const int debuglvl, Interfaces *interfac
 /* create the default rule per interface. This rule will be used when
  * no class is picked. */
 int
-shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, Interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
+shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     d_list_node     *d_node = NULL;
     InterfaceData   *iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
@@ -536,7 +536,7 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, In
 
 int
 shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf,
-    Interfaces *interfaces, struct RuleCreateData_ *rule, /*@null@*/RuleSet *ruleset,
+    struct vrmr_interfaces *interfaces, struct RuleCreateData_ *rule, /*@null@*/RuleSet *ruleset,
     InterfaceData *shape_iface_ptr, InterfaceData *class_iface_ptr,
     u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil,
     char *ceil_unit, u_int8_t prio)
