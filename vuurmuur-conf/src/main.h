@@ -344,9 +344,7 @@ int check_box(int status, char *title, char *description);
 void set_field_buffer_wrap(const int, FIELD *, int, const char *);
 FIELD *new_field_wrap(int rows, int cols, int frow, int fcol, int nrow, int nbuf);
 
-//void filter_setup(const int, vr_filter *);
-//void filter_cleanup(const int, vr_filter *);
-int filter_input_box(const int, VR_filter *);
+int filter_input_box(const int, struct vrmr_filter *);
 
 
 /*

@@ -908,7 +908,7 @@ struct RuleData_
 } RuleData;
 
 
-typedef struct VR_filter_
+struct vrmr_filter
 {
     char        str[32];
 
@@ -919,7 +919,7 @@ typedef struct VR_filter_
     char        reg_active;
     regex_t     reg;
 
-} VR_filter;
+};
 
 
 #ifndef _NETINET_TCP_H
@@ -1036,7 +1036,7 @@ struct ConntrackStats_
 
 typedef struct
 {
-    VR_filter   filter;
+    struct vrmr_filter   filter;
     char        use_filter;
 
     char        group_conns;
@@ -1647,8 +1647,8 @@ int check_ip6tcaps(const int, struct vuurmuur_config *, /*@out@*/ IptCap *, char
 /*
     filter
 */
-void VR_filter_setup(const int debuglvl, VR_filter *filter);
-void VR_filter_cleanup(const int debuglvl, VR_filter *filter);
+void vrmr_filter_setup(const int debuglvl, struct vrmr_filter *filter);
+void vrmr_filter_cleanup(const int debuglvl, struct vrmr_filter *filter);
 
 /*
     util.c

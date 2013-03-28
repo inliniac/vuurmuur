@@ -35,7 +35,7 @@ struct FilterFields_
 
 
 static int
-filter_save(const int debuglvl, VR_filter *filter)
+filter_save(const int debuglvl, struct vrmr_filter *filter)
 {
     size_t  i = 0;
     char    filter_str[48] = "";
@@ -122,7 +122,7 @@ filter_save(const int debuglvl, VR_filter *filter)
 
 
 int
-filter_input_box(const int debuglvl, VR_filter *filter)
+filter_input_box(const int debuglvl, struct vrmr_filter *filter)
 {
     WINDOW  *ib_win = NULL;
     PANEL   *my_panels[1];

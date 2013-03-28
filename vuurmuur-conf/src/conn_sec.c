@@ -1131,7 +1131,7 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                 }
                 else
                 {
-                    VR_filter_cleanup(debuglvl, &connreq.filter);
+                    vrmr_filter_cleanup(debuglvl, &connreq.filter);
                 }
 
                 if(connreq.filter.reg_active == TRUE)

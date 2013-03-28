@@ -59,7 +59,7 @@ struct ConntrackLine
         In case of error we return 0.
 */
 static int
-filtered_connection(const int debuglvl, struct ConntrackData *cd_ptr, VR_filter *filter)
+filtered_connection(const int debuglvl, struct ConntrackData *cd_ptr, struct vrmr_filter *filter)
 {
     char    line[512] = "";
 
@@ -2540,7 +2540,7 @@ VR_connreq_setup(const int debuglvl, VR_ConntrackRequest *connreq)
         return;
     }
 
-    VR_filter_setup(debuglvl, &connreq->filter);
+    vrmr_filter_setup(debuglvl, &connreq->filter);
 
     memset(connreq, 0, sizeof(VR_ConntrackRequest));
 }
@@ -2557,7 +2557,7 @@ VR_connreq_cleanup(const int debuglvl, VR_ConntrackRequest *connreq)
         return;
     }
 
-    VR_filter_cleanup(debuglvl, &connreq->filter);
+    vrmr_filter_cleanup(debuglvl, &connreq->filter);
 
     memset(connreq, 0, sizeof(VR_ConntrackRequest));
 }

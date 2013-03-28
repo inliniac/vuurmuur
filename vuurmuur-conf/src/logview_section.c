@@ -131,7 +131,7 @@ logline2plainlogrule(char *logline, struct PlainLogRule_ *logrule)
         In case of error we return 0.
 */
 static int
-logrule_filtered(const int debuglvl, struct LogRule_ *logrule_ptr, VR_filter *filter)
+logrule_filtered(const int debuglvl, struct LogRule_ *logrule_ptr, struct vrmr_filter *filter)
 {
     char    line[512];
 
@@ -180,7 +180,7 @@ logrule_filtered(const int debuglvl, struct LogRule_ *logrule_ptr, VR_filter *fi
         In case of error we return 0.
 */
 static int
-plainlogrule_filtered(const int debuglvl, char *line, VR_filter *filter)
+plainlogrule_filtered(const int debuglvl, char *line, struct vrmr_filter *filter)
 {
     if(line == NULL || filter == NULL)
         return(0);
@@ -688,7 +688,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
     size_t                  max_logrule_length=0,
                             cur_logrule_length=0;
 
-    VR_filter               vfilter;
+    struct vrmr_filter      vfilter;
     
     int                     done = 0,
                             first_logline_done = 0,
@@ -768,7 +768,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
     }
 
     /* init filter */
-    VR_filter_setup(debuglvl, &vfilter);
+    vrmr_filter_setup(debuglvl, &vfilter);
 
 
     /* if no logfile is supplied, we assume trafficlog */
@@ -1372,7 +1372,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
                 }
                 else
                 {
-                    VR_filter_cleanup(debuglvl, &vfilter);
+                    vrmr_filter_cleanup(debuglvl, &vfilter);
                 }
 
                 if(vfilter.reg_active == TRUE)
@@ -2005,7 +2005,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
 
 
     /* filter clean up */
-    VR_filter_cleanup(debuglvl, &vfilter);
+    vrmr_filter_cleanup(debuglvl, &vfilter);
 
     nodelay(log_win, FALSE);
     d_list_cleanup(debuglvl, buffer_ptr);

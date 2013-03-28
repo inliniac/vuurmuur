@@ -22,7 +22,7 @@
 #include "vuurmuur.h"
 
 void
-VR_filter_setup(const int debuglvl, VR_filter *filter)
+vrmr_filter_setup(const int debuglvl, struct vrmr_filter *filter)
 {
     /* safety */
     if(filter == NULL)
@@ -32,12 +32,12 @@ VR_filter_setup(const int debuglvl, VR_filter *filter)
         return;
     }
 
-    memset(filter, 0, sizeof(VR_filter));
+    memset(filter, 0, sizeof(struct vrmr_filter));
 }
 
 
 void
-VR_filter_cleanup(const int debuglvl, VR_filter *filter)
+vrmr_filter_cleanup(const int debuglvl, struct vrmr_filter *filter)
 {
     /* safety */
     if(filter == NULL)
@@ -55,5 +55,5 @@ VR_filter_cleanup(const int debuglvl, VR_filter *filter)
         filter->reg_active = FALSE;
     }
 
-    memset(filter, 0, sizeof(VR_filter));
+    memset(filter, 0, sizeof(struct vrmr_filter));
 }
