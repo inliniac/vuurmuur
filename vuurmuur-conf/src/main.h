@@ -497,7 +497,7 @@ void fix_wide_menu(const int, MENU *, ITEM **);
 
 void form_test (const int debuglvl);
 
-void VrShapeRule(const int debuglvl, struct options *opt);
+void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt);
 void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr);
 
 #ifdef USE_WIDEC

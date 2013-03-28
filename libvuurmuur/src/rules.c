@@ -37,7 +37,7 @@
  *     -1: invalid query
  */
 static int
-determine_action(const int debuglvl, struct vuurmuur_config *cfg, char *query, char *action, size_t size, struct options *option)
+determine_action(const int debuglvl, struct vuurmuur_config *cfg, char *query, char *action, size_t size, struct vrmr_rule_options *option)
 {
     int action_type = 0;
 
@@ -1837,7 +1837,7 @@ rules_insert_list(const int debuglvl, Rules *rules, unsigned int place, struct R
 
 
 char *
-rules_assemble_options_string(const int debuglvl, struct options *opt,
+rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options *opt,
                                 const char *action)
 {
     char    *option_ptr = NULL,
@@ -2381,7 +2381,7 @@ rules_assemble_options_string(const int debuglvl, struct options *opt,
          1: change
 */
 int
-rules_compare_options(const int debuglvl, struct options *old_opt, struct options *new_opt, char *action)
+rules_compare_options(const int debuglvl, struct vrmr_rule_options *old_opt, struct vrmr_rule_options *new_opt, char *action)
 {
     char    *old_str = NULL,
             *new_str = NULL;
@@ -2513,7 +2513,7 @@ search_rule(const int debuglvl, Rules *rules, struct RuleData_ *searchrule_ptr)
 
 */
 int
-rules_read_options(const int debuglvl, char *optstr, struct options *op)
+rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_options *op)
 {
     int     retval = 0,
             trema = 0;
@@ -4018,7 +4018,7 @@ rules_print_list(const Rules *rules)
 
 
 void
-rules_free_options(const int debuglvl, struct options *opt)
+rules_free_options(const int debuglvl, struct vrmr_rule_options *opt)
 {
     d_list_node     *d_node = NULL;
     struct portdata *port_ptr = NULL;

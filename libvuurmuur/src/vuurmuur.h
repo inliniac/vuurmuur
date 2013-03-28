@@ -570,7 +570,7 @@ struct vrmr_ipv6_data
 #endif
 
 /* rule options */
-struct options
+struct vrmr_rule_options
 {
     char            rule_log;       /* 0 = don't log rule, 1 = log this rule */
 
@@ -870,7 +870,7 @@ struct RuleCache_
 
     ServicesData        *service;           /* pointer to the service in the services-linked-list */
 
-    struct options      option;
+    struct vrmr_rule_options      option;
 
     char                *description;       /* only used for bash_out, and maybe later for vuurmuur-conf */
 } RuleCache;
@@ -900,7 +900,7 @@ struct RuleData_
 //TODO size right?
     char                source[32];
 
-    struct options      *opt;
+    struct vrmr_rule_options      *opt;
 
     struct RuleCache_   rulecache;
 
@@ -1376,7 +1376,7 @@ void *search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, c
 int rules_remove_rule_from_list(const int, Rules *, unsigned int, int);
 void rules_update_numbers(const int, Rules *, unsigned int place, int);
 void rules_print_list(const Rules *);
-void rules_free_options(const int debuglvl, struct options *opt);
+void rules_free_options(const int debuglvl, struct vrmr_rule_options *opt);
 
 
 /*
@@ -1467,10 +1467,10 @@ int rules_parse_line(const int, char *, struct RuleData_ *, struct rgx_ *);
 int vrmr_rules_init_list(const int, struct vuurmuur_config *cfg, /*@out@*/ Rules *, struct rgx_ *);
 int rules_cleanup_list(const int, Rules *);
 int rules_insert_list(const int, Rules *, unsigned int, struct RuleData_ *);
-char *rules_assemble_options_string(const int, struct options *, const char *);
-int rules_compare_options(const int, struct options *, struct options *, char *);
+char *rules_assemble_options_string(const int, struct vrmr_rule_options *, const char *);
+int rules_compare_options(const int, struct vrmr_rule_options *, struct vrmr_rule_options *, char *);
 void *search_rule(const int, Rules *, struct RuleData_ *);
-int rules_read_options(const int, char *, struct options *);
+int rules_read_options(const int, char *, struct vrmr_rule_options *);
 struct RuleData_ *rules_create_protect_rule(const int, char *, /*@null@*/ char *, char *, /*@null@*/char *);
 char *rules_assemble_rule(const int, struct RuleData_ *);
 int rules_save_list(const int, Rules *, struct vuurmuur_config *);
@@ -1659,9 +1659,9 @@ char * VrGetLenString(size_t max, char *fmt, ...);
 /*
  * shape.c
  */
-int vrmr_is_shape_rule(const int, /*@null@*/struct options *);
-int vrmr_is_shape_incoming_rule(const int, /*@null@*/struct options *);
-int vrmr_is_shape_outgoing_rule(const int, /*@null@*/struct options *);
+int vrmr_is_shape_rule(const int, /*@null@*/struct vrmr_rule_options *);
+int vrmr_is_shape_incoming_rule(const int, /*@null@*/struct vrmr_rule_options *);
+int vrmr_is_shape_outgoing_rule(const int, /*@null@*/struct vrmr_rule_options *);
 int vrmr_is_shape_interface(const int, /*@null@*/InterfaceData *);
 
 

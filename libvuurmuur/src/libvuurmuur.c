@@ -49,16 +49,16 @@ rule_malloc(void)
 void *
 ruleoption_malloc(const int debuglvl)
 {
-    struct options  *opt_ptr = NULL;
+    struct vrmr_rule_options  *opt_ptr = NULL;
 
     /* alloc the memory */
-    opt_ptr = malloc(sizeof(struct options));
+    opt_ptr = malloc(sizeof(struct vrmr_rule_options));
     if(opt_ptr == NULL)
     {
         return(NULL);
     }
     /* initialize the mem */
-    memset(opt_ptr, 0, sizeof(struct options));
+    memset(opt_ptr, 0, sizeof(struct vrmr_rule_options));
 
     /* setup the lists */
     (void)d_list_setup(debuglvl, &opt_ptr->RemoteportList, NULL);

@@ -22,7 +22,7 @@
 #include "vuurmuur.h"
 
 int
-vrmr_is_shape_rule(const int debuglvl, /*@null@*/struct options *opt) {
+vrmr_is_shape_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt) {
     if (opt != NULL &&
         (opt->bw_in_min > 0 ||
         opt->bw_in_max > 0 ||
@@ -37,7 +37,7 @@ vrmr_is_shape_rule(const int debuglvl, /*@null@*/struct options *opt) {
 }
 
 int
-vrmr_is_shape_incoming_rule(const int debuglvl, /*@null@*/struct options *opt) {
+vrmr_is_shape_incoming_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt) {
     if (opt != NULL &&
         (opt->bw_in_min > 0 ||
         opt->bw_in_max > 0 ||
@@ -50,7 +50,7 @@ vrmr_is_shape_incoming_rule(const int debuglvl, /*@null@*/struct options *opt) {
 }
 
 int
-vrmr_is_shape_outgoing_rule(const int debuglvl, /*@null@*/struct options *opt) {
+vrmr_is_shape_outgoing_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt) {
     if (opt != NULL &&
         (opt->bw_out_min > 0 ||
         opt->bw_out_max > 0 ||

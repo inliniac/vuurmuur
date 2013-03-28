@@ -115,14 +115,14 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
 }
 
 struct ShapeRuleCnf_ {
-    struct options *opt;
+    struct vrmr_rule_options *opt;
 
     char in_min[10], out_min[10], in_max[10], out_max[10], prio[4];
     char in_min_unit[5], out_min_unit[5], in_max_unit[5], out_max_unit[5];
 };
 
 static int
-VrShapeRuleSetup(const int debuglvl, struct ShapeRuleCnf_ *c, struct options *opt) {
+VrShapeRuleSetup(const int debuglvl, struct ShapeRuleCnf_ *c, struct vrmr_rule_options *opt) {
     if (c == NULL || opt == NULL)
         return(-1);
 
@@ -188,7 +188,7 @@ VrShapeRuleSave(const int debuglvl, void *ctx, char *name, char *value)
     return(0);
 }
 
-void VrShapeRule(const int debuglvl, struct options *opt) {
+void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
     VrWin   *win = NULL;
     VrForm  *form = NULL;
     int     ch = 0, result = 0;
