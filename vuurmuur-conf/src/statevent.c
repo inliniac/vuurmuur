@@ -163,7 +163,7 @@ statevent_print2str_log(const int debuglvl, StatEventGen *evt, size_t len)
         return(NULL);
     }
 
-    str = VrGetLenString(len, "%s %s %s %s -> %s %s",
+    str = vrmr_get_len_string(len, "%s %s %s %s -> %s %s",
         log->timedate_str, log->action, log->ser, log->src, log->dst,
         log->details);
 
@@ -199,7 +199,7 @@ statevent_print2str_conn(const int debuglvl, StatEventGen *evt, size_t len)
     }
 
     /* get the string */
-    str = VrGetLenString(len, "[%3u] %s  %s -> %s  %s -> %s (%u)",
+    str = vrmr_get_len_string(len, "[%3u] %s  %s -> %s  %s -> %s (%u)",
         conn->cnt, conn->ser, conn->src, conn->dst,
         src, dst, conn->protocol);
 
@@ -538,35 +538,35 @@ statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
     VrMenuSetupDescList(debuglvl, menu);
 
     /* setup menu items */
-    if(con->cnt == 1)   str = VrGetString(gettext("Kill this connection"));
-    else                str = VrGetString(gettext("Kill all connections with this service/source/destination"),con->cnt);
+    if(con->cnt == 1)   str = vrmr_get_string(gettext("Kill this connection"));
+    else                str = vrmr_get_string(gettext("Kill all connections with this service/source/destination"),con->cnt);
     VrMenuAddItem(debuglvl, menu, "1", str);
 
-    str = VrGetString("--- %s ---", gettext("Kill options"));
+    str = vrmr_get_string("--- %s ---", gettext("Kill options"));
     VrMenuAddSepItem(debuglvl, menu, str);
 
-    str = VrGetString(gettext("Kill all connections with source %s"), con->src_ip);
+    str = vrmr_get_string(gettext("Kill all connections with source %s"), con->src_ip);
     VrMenuAddItem(debuglvl, menu, "2", str);
 
-    str = VrGetString(gettext("Kill all connections with destination %s"), con->dst_ip);
+    str = vrmr_get_string(gettext("Kill all connections with destination %s"), con->dst_ip);
     VrMenuAddItem(debuglvl, menu, "3", str);
 
-    str = VrGetString(gettext("Kill all connections of %s"), con->src_ip);
+    str = vrmr_get_string(gettext("Kill all connections of %s"), con->src_ip);
     VrMenuAddItem(debuglvl, menu, "4", str);
 
-    str = VrGetString(gettext("Kill all connections of %s"), con->dst_ip);
+    str = vrmr_get_string(gettext("Kill all connections of %s"), con->dst_ip);
     VrMenuAddItem(debuglvl, menu, "5", str);
 
-    str = VrGetString("--- %s ---", gettext("BlockList options"));
+    str = vrmr_get_string("--- %s ---", gettext("BlockList options"));
     VrMenuAddSepItem(debuglvl, menu, str);
 
-    str = VrGetString(gettext("Add source %s to BlockList"), con->src_ip);
+    str = vrmr_get_string(gettext("Add source %s to BlockList"), con->src_ip);
     VrMenuAddItem(debuglvl, menu, "6", str);
 
-    str = VrGetString(gettext("Add destination %s to BlockList"), con->dst_ip);
+    str = vrmr_get_string(gettext("Add destination %s to BlockList"), con->dst_ip);
     VrMenuAddItem(debuglvl, menu, "7", str);
 
-    str = VrGetString(gettext("Add both source and destination to BlockList"));
+    str = vrmr_get_string(gettext("Add both source and destination to BlockList"));
     VrMenuAddItem(debuglvl, menu, "8", str);
 
     VrMenuConnectToWin(debuglvl, menu, win);
@@ -830,35 +830,35 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
     if(action != AT_DROP && action != AT_REJECT)
     {
         /* setup menu items */
-        str = VrGetString(gettext("Kill this connection"));
+        str = vrmr_get_string(gettext("Kill this connection"));
         VrMenuAddItem(debuglvl, menu, nums[n], str); n++;
     }
 
-    str = VrGetString("--- %s ---", gettext("Kill options"));
+    str = vrmr_get_string("--- %s ---", gettext("Kill options"));
     VrMenuAddSepItem(debuglvl, menu, str);
 
-    str = VrGetString(gettext("Kill all connections with source %s"), log->src_ip);
+    str = vrmr_get_string(gettext("Kill all connections with source %s"), log->src_ip);
     VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
-    str = VrGetString(gettext("Kill all connections with destination %s"), log->dst_ip);
+    str = vrmr_get_string(gettext("Kill all connections with destination %s"), log->dst_ip);
     VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
-    str = VrGetString(gettext("Kill all connections of %s"), log->src_ip);
+    str = vrmr_get_string(gettext("Kill all connections of %s"), log->src_ip);
     VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
-    str = VrGetString(gettext("Kill all connections of %s"), log->dst_ip);
+    str = vrmr_get_string(gettext("Kill all connections of %s"), log->dst_ip);
     VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
-    str = VrGetString("--- %s ---", gettext("BlockList options"));
+    str = vrmr_get_string("--- %s ---", gettext("BlockList options"));
     VrMenuAddSepItem(debuglvl, menu, str);
 
-    str = VrGetString(gettext("Add source %s to BlockList"), log->src_ip);
+    str = vrmr_get_string(gettext("Add source %s to BlockList"), log->src_ip);
     VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
-    str = VrGetString(gettext("Add destination %s to BlockList"), log->dst_ip);
+    str = vrmr_get_string(gettext("Add destination %s to BlockList"), log->dst_ip);
     VrMenuAddItem(debuglvl, menu, nums[n++], str);
 
-    str = VrGetString(gettext("Add both source and destination to BlockList"));
+    str = vrmr_get_string(gettext("Add both source and destination to BlockList"));
     VrMenuAddItem(debuglvl, menu, nums[n], str); /* n != n++ */
 
     VrMenuConnectToWin(debuglvl, menu, win);

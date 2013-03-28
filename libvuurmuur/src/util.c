@@ -22,7 +22,7 @@
 #include "vuurmuur.h"
 
 char *
-VrGetString(char *fmt, ...)
+vrmr_get_string(char *fmt, ...)
 {
     va_list ap;
     char    str[2048] = "";
@@ -45,7 +45,7 @@ VrGetString(char *fmt, ...)
 }
 
 char *
-VrGetLenString(size_t max, char *fmt, ...)
+vrmr_get_len_string(size_t max, char *fmt, ...)
 {
     va_list ap;
     char    str[2048] = "";

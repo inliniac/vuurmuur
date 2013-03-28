@@ -1653,8 +1653,8 @@ void VR_filter_cleanup(const int debuglvl, VR_filter *filter);
 /*
     util.c
 */
-char * VrGetString( char *fmt, ... );
-char * VrGetLenString(size_t max, char *fmt, ...);
+char *vrmr_get_string( char *fmt, ... );
+char *vrmr_get_len_string(size_t max, char *fmt, ...);
 
 /*
  * shape.c
