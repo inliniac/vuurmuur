@@ -614,7 +614,7 @@ sanitize_search_str(const int debuglvl, char *str, size_t size)
 
 int
 logview_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones,
-        BlockList *blocklist, Interfaces *interfaces,
+        struct vrmr_blocklist *blocklist, Interfaces *interfaces,
         Services *services, /*@null@*/ char *logname)
 {
     int             result=0;

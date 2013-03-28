@@ -508,7 +508,7 @@ update_draw_size(const int debuglvl, VR_ConntrackRequest *connreq, int width, in
 
 Conntrack *
 conn_init_ct(const int debuglvl, Zones *zones, Interfaces *interfaces,
-            Services *services, BlockList *blocklist )
+            Services *services, struct vrmr_blocklist *blocklist )
 {
     Conntrack   *ct = NULL;
 
@@ -642,7 +642,7 @@ conn_ct_clear_connections(const int debuglvl, Conntrack *ct)
 int
 connections_section(const int debuglvl, struct vuurmuur_config *cnf,
             Zones *zones, Interfaces *interfaces,
-            Services *services, BlockList *blocklist)
+            Services *services, struct vrmr_blocklist *blocklist)
 {
     int                     retval=0;
     WINDOW                  *conn_win=NULL;
@@ -1417,7 +1417,7 @@ kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
 */
 int
 block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
-        BlockList *blocklist, Interfaces *interfaces, char *ip)
+        struct vrmr_blocklist *blocklist, Interfaces *interfaces, char *ip)
 {
     struct InterfaceData_   *iface_ptr = NULL;
 
@@ -1434,7 +1434,7 @@ block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
     }
 
     /* add to list */
-    if(blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE,
+    if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE,
         /*no_refcnt*/FALSE, ip) < 0)
     {
         (void)vrprint.error(-1, VR_INTERR, "blocklist_add_one() "

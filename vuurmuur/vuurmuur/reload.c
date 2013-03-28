@@ -21,7 +21,7 @@
 
 
 /* prototypes */
-int reload_blocklist(const int, struct vuurmuur_config *, Zones *, BlockList *);
+int reload_blocklist(const int, struct vuurmuur_config *, Zones *, struct vrmr_blocklist *);
 int reload_rules(const int, VuurmuurCtx *, struct rgx_ *);
 int check_for_changed_networks(const int, Zones *);
 
@@ -1595,9 +1595,9 @@ reload_interfaces_check(const int debuglvl, struct InterfaceData_ *iface_ptr)
         1: changes
 */
 int
-reload_blocklist(const int debuglvl, struct vuurmuur_config *cfg, Zones *zones, BlockList *blocklist)
+reload_blocklist(const int debuglvl, struct vuurmuur_config *cfg, Zones *zones, struct vrmr_blocklist *blocklist)
 {
-    BlockList   *new_blocklist = NULL;
+    struct vrmr_blocklist   *new_blocklist = NULL;
     int         status = 0;
     d_list_node *new_node = NULL,
                 *old_node = NULL;
@@ -1612,7 +1612,7 @@ reload_blocklist(const int debuglvl, struct vuurmuur_config *cfg, Zones *zones, 
         return(-1);
     }
 
-    if(!(new_blocklist = malloc(sizeof(BlockList))))
+    if(!(new_blocklist = malloc(sizeof(struct vrmr_blocklist))))
     {
         (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).",
                                     strerror(errno), __FUNC__, __LINE__);

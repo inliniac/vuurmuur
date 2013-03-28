@@ -96,7 +96,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
 {
     char        removed = FALSE;    /* used to track if we really removed the
                                        object */
-    BlockList   blocklist;      /* "new" blocklist (object to be removed will
+    struct vrmr_blocklist   blocklist;      /* "new" blocklist (object to be removed will
                                    not be added to this list) */
     int         retval = VRS_SUCCESS;
     char        *str = NULL;

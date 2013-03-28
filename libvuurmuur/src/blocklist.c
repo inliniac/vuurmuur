@@ -27,7 +27,7 @@
         -1: error
 */
 static int
-blocklist_add_ip_to_list(const int debuglvl, BlockList *blocklist, char *ip)
+blocklist_add_ip_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, char *ip)
 {
     size_t  len = 0;
     char    *ipaddress = NULL;
@@ -79,7 +79,7 @@ blocklist_add_ip_to_list(const int debuglvl, BlockList *blocklist, char *ip)
 
 
 static int
-blocklist_add_string_to_list(const int debuglvl, BlockList *blocklist, char *str)
+blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, char *str)
 {
     size_t  len = 0;
     char    *string = NULL;
@@ -135,7 +135,7 @@ blocklist_add_string_to_list(const int debuglvl, BlockList *blocklist, char *str
     we reload in vuurmuur.
 */
 int
-blocklist_add_one(const int debuglvl, Zones *zones, BlockList *blocklist, char load_ips, char no_refcnt, char *line)
+vrmr_blocklist_add_one(const int debuglvl, Zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt, char *line)
 {
     ZoneData    *zone_ptr = NULL,
                 *member_ptr = NULL;
@@ -307,7 +307,7 @@ blocklist_add_one(const int debuglvl, Zones *zones, BlockList *blocklist, char l
 
 
 int
-blocklist_rem_one(const int debuglvl, Zones *zones, BlockList *blocklist, char *itemname)
+vrmr_blocklist_rem_one(const int debuglvl, Zones *zones, struct vrmr_blocklist *blocklist, char *itemname)
 {
     char                *listitemname = NULL;
     d_list_node         *d_node = NULL;
@@ -376,7 +376,7 @@ blocklist_rem_one(const int debuglvl, Zones *zones, BlockList *blocklist, char *
 */
 static int
 blocklist_read_file(const int debuglvl, struct vuurmuur_config *cfg,
-        Zones *zones, BlockList *blocklist, char load_ips, char no_refcnt)
+        Zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt)
 {
     FILE        *fp = NULL;
     char        line[128] = "";
@@ -416,7 +416,7 @@ blocklist_read_file(const int debuglvl, struct vuurmuur_config *cfg,
                 line[len - 1] = '\0';
 
             /* add it to the list */
-            if(blocklist_add_one(debuglvl, zones, blocklist, load_ips, no_refcnt, line) < 0)
+            if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, load_ips, no_refcnt, line) < 0)
             {
                 (void)vrprint.error(-1, "Error", "adding to the blocklist failed (in: %s:%d).", __FUNC__, __LINE__);
 
@@ -445,7 +445,7 @@ blocklist_read_file(const int debuglvl, struct vuurmuur_config *cfg,
 
 int
 vrmr_blocklist_init_list(const int debuglvl, struct vuurmuur_config *cfg,
-        Zones *zones, BlockList *blocklist, char load_ips, char no_refcnt)
+        Zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt)
 {
     FILE        *fp = NULL;
     char        line[128] = "";
@@ -469,7 +469,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vuurmuur_config *cfg,
         (void)vrprint.debug(__FUNC__, "start");
 
     /* init */
-    memset(blocklist, 0, sizeof(BlockList));
+    memset(blocklist, 0, sizeof(struct vrmr_blocklist));
 
     /* setup the blocklist */
     if(d_list_setup(debuglvl, &blocklist->list, free) < 0)
@@ -542,7 +542,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vuurmuur_config *cfg,
                     if(strlen(value) > 0)
                     {
                         /* add it to the list */
-                        if(blocklist_add_one(debuglvl, zones, blocklist, load_ips, no_refcnt, value) < 0)
+                        if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, load_ips, no_refcnt, value) < 0)
                         {
                             (void)vrprint.error(-1, "Error", "adding to the blocklist failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
@@ -609,7 +609,7 @@ blocklist_write_file(const int debuglvl, struct vuurmuur_config *cfg, d_list *bl
 
 
 int
-vrmr_blocklist_save_list(const int debuglvl, struct vuurmuur_config *cfg, BlockList *blocklist)
+vrmr_blocklist_save_list(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_blocklist *blocklist)
 {
     int         result = 0;
     char        *line = NULL;

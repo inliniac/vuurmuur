@@ -284,7 +284,7 @@ int                 utf8_mode;
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);
 WINDOW *create_newwin(int height, int width, int starty, int startx, /*@null@*/ char *title, chtype ch);
 void destroy_win(WINDOW *local_win);
-int startup_screen(const int, Rules *, Zones *, Services *, Interfaces *, BlockList *, struct rgx_ *);
+int startup_screen(const int, Rules *, Zones *, Services *, Interfaces *, struct vrmr_blocklist *, struct rgx_ *);
 void draw_field_active_mark(const FIELD *cur, const FIELD *prev, WINDOW *formwin, FORM *form, chtype ch);
 int copy_field2buf(char *buf, char *fieldbuf, size_t bufsize);
 int protectrule_loaded(const int, d_list *, char *, char *, char *);
@@ -305,9 +305,9 @@ void services_section(const int, Services *, Rules *, struct rgx_ *);
 /*
     zones section
 */
-int zones_section(const int, Zones *, Interfaces *, Rules *, BlockList *, struct rgx_ *);
-int zones_blocklist(const int, BlockList *, Zones *, struct rgx_ *);
-int zones_blocklist_add_one(const int, BlockList *, Zones *);
+int zones_section(const int, Zones *, Interfaces *, Rules *, struct vrmr_blocklist *, struct rgx_ *);
+int zones_blocklist(const int, struct vrmr_blocklist *, Zones *, struct rgx_ *);
+int zones_blocklist_add_one(const int, struct vrmr_blocklist *, Zones *);
 
 
 /*
@@ -359,7 +359,7 @@ int edit_sysopt(int debuglvl);
 /*
     logview section
 */
-int logview_section(const int, struct vuurmuur_config *, Zones *, BlockList *, Interfaces *, Services *, /*@null@*/ char *);
+int logview_section(const int, struct vuurmuur_config *, Zones *, struct vrmr_blocklist *, Interfaces *, Services *, /*@null@*/ char *);
 
 
 /*
@@ -387,7 +387,7 @@ int status_section(const int, struct vuurmuur_config *, Zones *, Interfaces *, S
 /*
     connections
 */
-int connections_section(const int, struct vuurmuur_config *, Zones *, Interfaces *, Services *, BlockList *);
+int connections_section(const int, struct vuurmuur_config *, Zones *, Interfaces *, Services *, struct vrmr_blocklist *);
 
 
 /*
@@ -411,7 +411,7 @@ int vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf);
 /*
     main menu
 */
-int main_menu(const int, Rules *,  Zones *, Interfaces *, Services *, BlockList *, struct rgx_ *);
+int main_menu(const int, Rules *,  Zones *, Interfaces *, Services *, struct vrmr_blocklist *, struct rgx_ *);
 void mm_status_checkall(int, d_list *, Rules *, Zones *, Interfaces *, Services *);
 int vc_apply_changes(const int debuglvl);
 
@@ -465,16 +465,16 @@ typedef struct ct_
 } Conntrack;
 
 int kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, char *srcip, char *dstip, char *sername, char connect_status);
-int block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones, BlockList *blocklist, Interfaces *interfaces, char *ip);
+int block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones, struct vrmr_blocklist *blocklist, Interfaces *interfaces, char *ip);
 int kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int proto, int sp, int dp);
 int kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, char *srcname, char *dstname, char *sername, char connect_status);
 
-Conntrack *conn_init_ct(const int debuglvl, Zones *zones, Interfaces *interfaces, Services *services, BlockList *blocklist );
+Conntrack *conn_init_ct(const int debuglvl, Zones *zones, Interfaces *interfaces, Services *services, struct vrmr_blocklist *blocklist );
 void conn_free_ct(const int debuglvl, Conntrack **ct, Zones *zones);
 int conn_ct_get_connections(const int, struct vuurmuur_config *, Conntrack *, VR_ConntrackRequest *);
 void conn_ct_clear_connections(const int debuglvl, Conntrack *ct);
 
-void statevent(const int, struct vuurmuur_config *, int, d_list *, Conntrack *, VR_ConntrackRequest *, Zones *, BlockList *, Interfaces *, Services *);
+void statevent(const int, struct vuurmuur_config *, int, d_list *, Conntrack *, VR_ConntrackRequest *, Zones *, struct vrmr_blocklist *, Interfaces *, Services *);
 
 
 /* length in chars (be it wide chars or normal chars) */

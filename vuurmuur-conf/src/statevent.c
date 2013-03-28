@@ -97,7 +97,7 @@ typedef struct StatEventCtl_
 
     char   (*convert   )(const int debuglvl, struct StatEventCtl_ *, d_list *);
     /* ptr to interactive menu function */
-    void   (*menu      )(const int debuglvl, struct vuurmuur_config *, struct StatEventCtl_ *, Conntrack *, VR_ConntrackRequest *, Zones *, BlockList *, Interfaces *, Services *, StatEventGen *);
+    void   (*menu      )(const int debuglvl, struct vuurmuur_config *, struct StatEventCtl_ *, Conntrack *, VR_ConntrackRequest *, Zones *, struct vrmr_blocklist *, Interfaces *, Services *, StatEventGen *);
     //build menu func?
 
     /* GUI names and texts */
@@ -479,7 +479,7 @@ static void
 statevent_interactivemenu_conn( const int debuglvl, struct vuurmuur_config *cnf,
                                 StatEventCtl *ctl, Conntrack *ct,
                                 VR_ConntrackRequest *connreq, Zones *zones,
-                                BlockList *blocklist, Interfaces *interfaces,
+                                struct vrmr_blocklist *blocklist, Interfaces *interfaces,
                                 Services *services, StatEventGen *gen_ptr)
 {
     VrWin           *win = NULL;
@@ -759,7 +759,7 @@ static void
 statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
                                 StatEventCtl *ctl, Conntrack *ct,
                                 VR_ConntrackRequest *connreqnull, Zones *zones,
-                                BlockList *blocklist, Interfaces *interfaces,
+                                struct vrmr_blocklist *blocklist, Interfaces *interfaces,
                                 Services *services, StatEventGen *gen_ptr)
 {
     VrWin               *win = NULL;
@@ -1080,7 +1080,7 @@ statevent_free_ctl(const int debuglvl, StatEventCtl **ctl)
 int
 statevent_menu(const int debuglvl, struct vuurmuur_config *cnf, int type,
         StatEventCtl *ctl, Conntrack *ct,
-        VR_ConntrackRequest *connreq, Zones *zones, BlockList *blocklist,
+        VR_ConntrackRequest *connreq, Zones *zones, struct vrmr_blocklist *blocklist,
         Interfaces *interfaces, Services *services)
 {
     VrWin           *win = NULL;
@@ -1288,7 +1288,7 @@ void
 statevent(const int debuglvl, struct vuurmuur_config *cnf, int type,
         d_list *list, Conntrack *ct,
         VR_ConntrackRequest *connreq, Zones *zones,
-        BlockList *blocklist, Interfaces *interfaces,
+        struct vrmr_blocklist *blocklist, Interfaces *interfaces,
         Services *services)
 {
     StatEventCtl    *ctl = NULL;

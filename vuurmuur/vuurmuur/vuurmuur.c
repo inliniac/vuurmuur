@@ -69,7 +69,7 @@ main(int argc, char *argv[])
     Zones           zones;
     Rules           rules;
     /* list of ipaddresses to be blocked */
-    BlockList       blocklist;
+    struct vrmr_blocklist       blocklist;
 
     IptCap          iptcap;
     VuurmuurCtx     vctx;

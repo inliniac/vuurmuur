@@ -5297,7 +5297,7 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Zon
 
 
 int
-create_block_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, BlockList *blocklist)
+create_block_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_blocklist *blocklist)
 {
     char        cmd[MAX_PIPE_COMMAND] = "",
                 *ipaddress = NULL;

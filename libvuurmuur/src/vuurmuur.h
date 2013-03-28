@@ -543,14 +543,14 @@ typedef struct
 } Rules;
 
 
-typedef struct
+struct vrmr_blocklist
 {
     /* the list with blocked ips/hosts/groups */
     d_list  list;
 
     char    old_blocklistfile_used;
 
-} BlockList;
+};
 
 struct vrmr_ipv4_data
 {
@@ -686,12 +686,6 @@ typedef struct InterfaceCount_
     unsigned long long  acc_out_bytes;
 
 } InterfaceCount;
-
-
-typedef struct GeneralData_
-{
-    int type;
-} GenObj;
 
 
 typedef struct InterfaceData_
@@ -1158,7 +1152,7 @@ typedef struct
 typedef struct VuurmuurCtx_ {
     Zones *zones;
     Interfaces *interfaces;
-    BlockList *blocklist;
+    struct vrmr_blocklist *blocklist;
     Rules *rules;
     Services *services;
     struct vuurmuur_config *conf;
@@ -1491,10 +1485,10 @@ char *rules_itoaction_cap(const int);
 /*
     blocklist
 */
-int blocklist_add_one(const int, Zones *, BlockList *, char, char, char *);
-int blocklist_rem_one(const int, Zones *, BlockList *, char *);
-int vrmr_blocklist_init_list(const int, struct vuurmuur_config *cfg, Zones *, BlockList *, char, char);
-int vrmr_blocklist_save_list(const int, struct vuurmuur_config *cfg, BlockList *);
+int vrmr_blocklist_add_one(const int, Zones *, struct vrmr_blocklist *, char, char, char *);
+int vrmr_blocklist_rem_one(const int, Zones *, struct vrmr_blocklist *, char *);
+int vrmr_blocklist_init_list(const int, struct vuurmuur_config *cfg, Zones *, struct vrmr_blocklist *, char, char);
+int vrmr_blocklist_save_list(const int, struct vuurmuur_config *cfg, struct vrmr_blocklist *);
 
 
 /*

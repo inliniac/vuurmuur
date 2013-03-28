@@ -74,7 +74,7 @@ main(int argc, char *argv[])
     Zones       zones;
     Services    services;
     Rules       rules;
-    BlockList   blocklist;
+    struct vrmr_blocklist   blocklist;
 
     int         retval=0,
                 optch = 0;
@@ -544,7 +544,7 @@ destroy_win(WINDOW *local_win)
         -1: error
 */
 int
-startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *services, Interfaces *interfaces, BlockList *blocklist, struct rgx_ *reg)
+startup_screen(const int debuglvl, Rules *rules, Zones *zones, Services *services, Interfaces *interfaces, struct vrmr_blocklist *blocklist, struct rgx_ *reg)
 {
     WINDOW  *startup_win = NULL,
             *startup_print_win = NULL;

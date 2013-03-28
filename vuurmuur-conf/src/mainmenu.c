@@ -100,7 +100,7 @@ convert_rulesfile_to_backend(const int debuglvl, Rules *rules, struct vuurmuur_c
 
 
 int
-convert_blocklistfile_to_backend(const int debuglvl, BlockList *blocklist, struct vuurmuur_config *cnf)
+convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *blocklist, struct vuurmuur_config *cnf)
 {
     char    path[96] = "";
     char    rule_name[32] = "";
@@ -168,7 +168,7 @@ convert_blocklistfile_to_backend(const int debuglvl, BlockList *blocklist, struc
 
 
 int
-mm_select_logfile(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, BlockList *blocklist, Interfaces *interfaces, Services *services)
+mm_select_logfile(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, struct vrmr_blocklist *blocklist, Interfaces *interfaces, Services *services)
 {
     size_t  i = 0,
             n_choices = 6;
@@ -1557,7 +1557,7 @@ vc_apply_changes(const int debuglvl)
     the main menu, here you choose between rules, zones, config, logview, etc.
 */
 int
-main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces, Services *services, BlockList *blocklist, struct rgx_ *reg)
+main_menu(const int debuglvl, Rules *rules, Zones *zones, Interfaces *interfaces, Services *services, struct vrmr_blocklist *blocklist, struct rgx_ *reg)
 {
 #define MM_ITEM_RULES           gettext("Rules")
 #define MM_ITEM_BLOCKLIST       gettext("BlockList")

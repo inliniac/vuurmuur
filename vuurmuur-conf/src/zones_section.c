@@ -139,10 +139,10 @@ struct ZonesSection_
 */
 static int zones_section_menu_hosts_init(const int, Zones *, char *, char *);
 
-static int zones_section_menu_groups(const int, Zones *, Rules *, BlockList *, char *, char *, struct rgx_ *);
+static int zones_section_menu_groups(const int, Zones *, Rules *, struct vrmr_blocklist *, char *, char *, struct rgx_ *);
 
 static int zones_section_menu_networks_init(const int, Zones *, char *);
-static int zones_section_menu_networks(const int, Zones *, Interfaces *, Rules *, BlockList *, char *, struct rgx_ *);
+static int zones_section_menu_networks(const int, Zones *, Interfaces *, Rules *, struct vrmr_blocklist *, char *, struct rgx_ *);
 
 
 static int edit_zone_host_init(const int, char *, int, int, int, int, struct ZoneData_ *);
@@ -165,7 +165,7 @@ static int edit_zone_zone(const int debuglvl, Zones *zones, char *name);
 static int zones_section_init(const int, Zones *);
 static int zones_section_destroy(void);
 
-static int zones_blocklist_init(const int, BlockList *);
+static int zones_blocklist_init(const int, struct vrmr_blocklist *);
 static int zones_blocklist_destroy(void);
 
 
@@ -1049,7 +1049,7 @@ zones_section_menu_hosts_destroy(void)
 
 /* rename a host or a group */
 static int
-zones_rename_host_group(const int debuglvl, Zones *zones, Rules *rules, BlockList *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct rgx_ *reg)
+zones_rename_host_group(const int debuglvl, Zones *zones, Rules *rules, struct vrmr_blocklist *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct rgx_ *reg)
 {
     int                 result = 0;
     struct ZoneData_    *zone_ptr = NULL,
@@ -1272,7 +1272,7 @@ zones_rename_host_group(const int debuglvl, Zones *zones, Rules *rules, BlockLis
 
 
 static int
-zones_section_menu_hosts(const int debuglvl, Zones *zones, Rules *rules, BlockList *blocklist, char *zonename, char *networkname, struct rgx_ *reg)
+zones_section_menu_hosts(const int debuglvl, Zones *zones, Rules *rules, struct vrmr_blocklist *blocklist, char *zonename, char *networkname, struct rgx_ *reg)
 {
     int                 ch = 0,
                         quit = 0,
@@ -2857,7 +2857,7 @@ zones_section_menu_groups_destroy(const int debuglvl)
 
 
 int
-zones_section_menu_groups(const int debuglvl, Zones *zones, Rules *rules, BlockList *blocklist, char *zonename, char *networkname, struct rgx_ *reg)
+zones_section_menu_groups(const int debuglvl, Zones *zones, Rules *rules, struct vrmr_blocklist *blocklist, char *zonename, char *networkname, struct rgx_ *reg)
 {
     int                 ch = 0,
                         quit = 0,
@@ -3232,7 +3232,7 @@ zones_section_menu_groups(const int debuglvl, Zones *zones, Rules *rules, BlockL
 
 /* rename a network or a zone */
 static int
-zones_rename_network_zone(const int debuglvl, Zones *zones, Rules *rules, BlockList *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct rgx_ *reg)
+zones_rename_network_zone(const int debuglvl, Zones *zones, Rules *rules, struct vrmr_blocklist *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct rgx_ *reg)
 {
     int                 result = 0;
     struct ZoneData_    *zone_ptr = NULL;
@@ -5472,7 +5472,7 @@ zones_section_menu_networks(const int debuglvl,
                             Zones *zones,
                             Interfaces *interfaces,
                             Rules *rules,
-                            BlockList *blocklist,
+                            struct vrmr_blocklist *blocklist,
                             char *zonename,
                             struct rgx_ *reg)
 {
@@ -6437,7 +6437,7 @@ zones_section_destroy(void)
 
 
 int
-zones_section(const int debuglvl, Zones *zones, Interfaces *interfaces, Rules *rules, BlockList *blocklist, struct rgx_ *reg)
+zones_section(const int debuglvl, Zones *zones, Interfaces *interfaces, Rules *rules, struct vrmr_blocklist *blocklist, struct rgx_ *reg)
 {
     int     ch = 0,
             quit = 0,
@@ -6703,7 +6703,7 @@ zones_section(const int debuglvl, Zones *zones, Interfaces *interfaces, Rules *r
 
 
 static int
-zones_blocklist_init(const int debuglvl, BlockList *blocklist)
+zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
 {
     int         retval=0,
                 i = 0,
@@ -6795,7 +6795,7 @@ zones_blocklist_init(const int debuglvl, BlockList *blocklist)
     wbkgd(ZonesSection.h_win, vccnf.color_win);
     keypad(ZonesSection.h_win, TRUE);
     box(ZonesSection.h_win, 0, 0);
-    print_in_middle(ZonesSection.h_win, 1, 0, width, gettext("BlockList"), vccnf.color_win); 
+    print_in_middle(ZonesSection.h_win, 1, 0, width, gettext("BlockList"), vccnf.color_win);
     wrefresh(ZonesSection.h_win);
 
     if(!(ZonesSection.h_panel[0] = new_panel(ZonesSection.h_win)))
@@ -6887,7 +6887,7 @@ zones_blocklist_destroy(void)
 
 
 int
-zones_blocklist_add_one(const int debuglvl, BlockList *blocklist, Zones *zones)
+zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, Zones *zones)
 {
     char                *new_ipaddress = NULL,
                         *choices[] = {  gettext("IPAddress"),
@@ -6928,7 +6928,7 @@ zones_blocklist_add_one(const int debuglvl, BlockList *blocklist, Zones *zones)
                 else
                 {
                     /* add to list */
-                    if(blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, new_ipaddress) < 0)
+                    if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, new_ipaddress) < 0)
                     {
                         (void)vrprint.error(-1, VR_INTERR, "blocklist_add_one() failed (in: %s:%d).", __FUNC__, __LINE__);
                         return(-1);
@@ -6999,7 +6999,7 @@ zones_blocklist_add_one(const int debuglvl, BlockList *blocklist, Zones *zones)
             if((choice_ptr = selectbox(gettext("Select"), gettext("Select a host or group to block"), i, zone_choices, 2, NULL)))
             {
                 /* add to list */
-                if(blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, choice_ptr) < 0)
+                if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, choice_ptr) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("adding host/group to list failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -7028,7 +7028,7 @@ zones_blocklist_add_one(const int debuglvl, BlockList *blocklist, Zones *zones)
 
 
 int
-zones_blocklist(const int debuglvl, BlockList *blocklist, Zones *zones, struct rgx_ *reg)
+zones_blocklist(const int debuglvl, struct vrmr_blocklist *blocklist, Zones *zones, struct rgx_ *reg)
 {
     int     ch = 0,
             quit = 0,
@@ -7177,7 +7177,7 @@ zones_blocklist(const int debuglvl, BlockList *blocklist, Zones *zones, struct r
                             /* save the name */
                             (void)strlcpy(saveitemname, itemname, sizeof(saveitemname));
 
-                            if(blocklist_rem_one(debuglvl, zones, blocklist, itemname) == 0)
+                            if(vrmr_blocklist_rem_one(debuglvl, zones, blocklist, itemname) == 0)
                             {
                                 (void)vrprint.audit("'%s' %s.",
                                     saveitemname,

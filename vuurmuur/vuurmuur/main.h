@@ -307,7 +307,7 @@ int post_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
 
 int update_synlimit_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
 int update_udplimit_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
-int create_block_rules(const int, /*@null@*/RuleSet *, BlockList *);
+int create_block_rules(const int, /*@null@*/RuleSet *, struct vrmr_blocklist *);
 
 int create_newnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *, IptCap *, int);
 int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *, IptCap *, int);
