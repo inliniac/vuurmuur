@@ -111,11 +111,11 @@ struct RuleCreateData_
     /* mac - only from */
     char                    from_mac[48]; /* --m mac --from-mac mac */
 
-    struct ipdata           ipv4_from;
-    struct ipdata           ipv4_to;
+    struct vrmr_ipv4_data   ipv4_from;
+    struct vrmr_ipv4_data   ipv4_to;
 #ifdef IPV6_ENABLED
-    struct ip6data          ipv6_from;
-    struct ip6data          ipv6_to;
+    struct vrmr_ipv6_data   ipv6_from;
+    struct vrmr_ipv6_data   ipv6_to;
 #endif
 
     /* interfaces */

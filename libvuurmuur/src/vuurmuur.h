@@ -552,7 +552,7 @@ typedef struct
 
 } BlockList;
 
-struct ipdata
+struct vrmr_ipv4_data
 {
     char    ipaddress[16];            //16 should be enough for an ipaddress.
     char    network[16];
@@ -561,7 +561,7 @@ struct ipdata
 };
 
 #ifdef IPV6_ENABLED
-struct ip6data
+struct vrmr_ipv6_data
 {
     char ip6[MAX_IPV6_ADDR_LEN];    /* host ip-address */
     char net6[MAX_IPV6_ADDR_LEN];   /* network address string */
@@ -658,7 +658,7 @@ struct danger_info
     int             proc_set_on;
     int             proc_set_off;
 
-    struct ipdata   source_ip;      //
+    struct vrmr_ipv4_data source_ip;
 
     char            type[16];
     char            source[16];
@@ -719,9 +719,9 @@ typedef struct InterfaceData_
     char            device_virtual_oldstyle;
 
     /* the ipaddress */
-    struct ipdata   ipv4;
+    struct vrmr_ipv4_data ipv4;
 #ifdef IPV6_ENABLED
-    struct ip6data   ipv6;
+    struct vrmr_ipv6_data ipv6;
 #endif
 
     /*  is a ipaddress dynamic?
@@ -786,9 +786,9 @@ typedef struct ZoneData_
     struct ZoneData_    *zone_parent;
     struct ZoneData_    *network_parent;
 
-    struct ipdata       ipv4;
+    struct vrmr_ipv4_data ipv4;
 #ifdef IPV6_ENABLED
-    struct ip6data      ipv6;
+    struct vrmr_ipv6_data ipv6;
 #endif
 
     /* TODO: 18 is enough: 00:20:1b:10:1D:0F = 17 + '\0' = 18. */
