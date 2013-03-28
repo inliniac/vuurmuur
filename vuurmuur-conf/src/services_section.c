@@ -74,10 +74,10 @@ struct ServicesSection_
         -1: error
 */
 static int
-edit_serv_portranges_new_validate(const int debuglvl, struct ServicesData_ *ser_ptr, struct portdata *port_ptr)
+edit_serv_portranges_new_validate(const int debuglvl, struct ServicesData_ *ser_ptr, struct vrmr_portdata *port_ptr)
 {
     d_list_node     *d_node = NULL;
-    struct portdata *portlist_ptr = NULL;
+    struct vrmr_portdata *portlist_ptr = NULL;
     int             insert_now = 0,
                     insert_append = 0;
 
@@ -245,7 +245,7 @@ struct
 
 
 static int
-edit_tcpudp(const int debuglvl, struct portdata *port_ptr)
+edit_tcpudp(const int debuglvl, struct vrmr_portdata *port_ptr)
 {
     WINDOW  *new_portrange_win;
     PANEL   *my_panels[1];
@@ -970,7 +970,7 @@ struct
 
 
 static int
-edit_icmp(const int debuglvl, struct portdata *port_ptr)
+edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
 {
     WINDOW  *new_portrange_win;
     PANEL   *my_panels[1];
@@ -1195,7 +1195,7 @@ edit_icmp(const int debuglvl, struct portdata *port_ptr)
 }
 
 static int
-create_portrange_string(const int debuglvl, struct portdata *portrange_ptr, char *buf, size_t size)
+create_portrange_string(const int debuglvl, struct vrmr_portdata *portrange_ptr, char *buf, size_t size)
 {
     char    proto[5] = "",
             src[12] = "",
@@ -1266,7 +1266,7 @@ edit_serv_portranges_new(const int debuglvl, struct ServicesData_ *ser_ptr)
                     *choices[]= { "TCP", "UDP", "ICMP", "GRE", "AH", "ESP", "Other" };
     size_t          n_choices = 7;
 
-    struct portdata *portrange_ptr = NULL;
+    struct vrmr_portdata *portrange_ptr = NULL;
 
     /* safety */
     if(!ser_ptr)
@@ -1276,7 +1276,7 @@ edit_serv_portranges_new(const int debuglvl, struct ServicesData_ *ser_ptr)
     }
 
     /* alloc a new portrange */
-    if(!(portrange_ptr = malloc(sizeof(struct portdata))))
+    if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
@@ -1410,7 +1410,7 @@ edit_serv_portranges_edit(const int debuglvl, int place, struct ServicesData_ *s
 {
     int             i = 0;
     d_list_node     *d_node = NULL;
-    struct portdata *port_ptr = NULL;
+    struct vrmr_portdata *port_ptr = NULL;
 
 
     /* safety */
@@ -1481,7 +1481,7 @@ edit_serv_portranges_del(const int debuglvl, int place, struct ServicesData_ *se
     int             i = 0;
     d_list_node     *d_node = NULL;
     char            str[64] = "";
-    struct portdata *portrange_ptr = NULL;
+    struct vrmr_portdata *portrange_ptr = NULL;
 
     /* safety */
     if(ser_ptr == 0)
@@ -1545,7 +1545,7 @@ edit_serv_portranges_init(const int debuglvl, struct ServicesData_ *ser_ptr)
                     starty = 5,
                     max_height,
                     max_width;
-    struct portdata *portrange_ptr = NULL;
+    struct vrmr_portdata *portrange_ptr = NULL;
 
     char            *port_string_ptr = NULL,
                     *item_number_ptr = NULL,
@@ -2058,7 +2058,7 @@ edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
                     comment_y=0,
                     comment_x=0;
     int             height, width, starty, startx, max_height, max_width;
-    struct portdata *portrange_ptr = NULL;
+    struct vrmr_portdata *portrange_ptr = NULL;
     d_list_node     *d_node = NULL;
     size_t          field_num = 0,
                     i = 0;

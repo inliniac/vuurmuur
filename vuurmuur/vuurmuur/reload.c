@@ -377,7 +377,7 @@ reload_services_check(const int debuglvl, struct ServicesData_ *ser_ptr)
     /* these are for the comparisson between the portranges */
     d_list_node             *list_node = NULL,
                             *temp_node = NULL;
-    struct portdata         *list_port = NULL,
+    struct vrmr_portdata         *list_port = NULL,
                             *temp_port = NULL;
 
     /* safety */

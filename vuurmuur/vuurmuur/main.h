@@ -133,9 +133,9 @@ struct RuleCreateData_
     char                    temp_dst_port[32];
     char                    temp_src_port[32];
 
-    struct portdata         *portrange_ptr;
-    struct portdata         *listenport_ptr;
-    struct portdata         *remoteport_ptr;
+    struct vrmr_portdata         *portrange_ptr;
+    struct vrmr_portdata         *listenport_ptr;
+    struct vrmr_portdata         *remoteport_ptr;
 
     char                    limit[42]; /*  -m limit --limit 999/s --limit-burst 9999 */
 

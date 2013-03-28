@@ -549,7 +549,7 @@ create_all_rules(const int debuglvl, VuurmuurCtx *vctx, int create_prerules)
 
 
 static int
-create_rule_set_ports(struct RuleCreateData_ *rule, struct portdata *portrange_ptr)
+create_rule_set_ports(struct RuleCreateData_ *rule, struct vrmr_portdata *portrange_ptr)
 {
     /* from */
     if(portrange_ptr->protocol == 6 || portrange_ptr->protocol == 17)

@@ -312,7 +312,7 @@ struct vrmr_regex
     With icmp the dst_low is the icmp type (eg. 0 for echo reply) while dst_high is the icmp code.
     If dst_high is -1, code is not used. With icmp we don't use src, make sure they are 0.
 */
-struct portdata
+struct vrmr_portdata
 {
     int protocol;   /* 6 for tcp, 17 for udp, 47 for gre, 1 for icmp, etc */
 

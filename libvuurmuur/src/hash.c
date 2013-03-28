@@ -267,7 +267,7 @@ compare_ports(const void *serv_hash, const void *serv_req)
 {
     struct ServicesData_    *sertable = NULL,
                             *sersearch = NULL;
-    struct portdata         *table_port_ptr = NULL,
+    struct vrmr_portdata         *table_port_ptr = NULL,
                             *search_port_ptr = NULL;
     d_list_node             *d_node = NULL;
 
@@ -500,7 +500,7 @@ init_services_hashtable(    const int debuglvl,
     d_list_node             *d_node = NULL;
     int                     port = 0;
     struct ServicesData_    *ser_ptr = NULL;
-    struct portdata         *portrange_ptr = NULL;
+    struct vrmr_portdata         *portrange_ptr = NULL;
     d_list_node             *d_node_serlist = NULL;
 
     if(debuglvl >= LOW)
@@ -668,7 +668,7 @@ search_service_in_hash(const int debuglvl, const int src, const int dst, const i
 {
     struct ServicesData_    *ser_search_ptr = NULL,
                             *return_ptr = NULL;
-    struct portdata         *portrange_ptr = NULL;
+    struct vrmr_portdata         *portrange_ptr = NULL;
     int                     hash_port = 0,
                             src_port = 0,
                             dst_port = 0;
@@ -713,7 +713,7 @@ search_service_in_hash(const int debuglvl, const int src, const int dst, const i
     d_list_setup(debuglvl, &ser_search_ptr->PortrangeList, free);
 
     /* alloc the portrange */
-    if(!(portrange_ptr = malloc(sizeof(struct portdata))))
+    if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
     {
         (void)vrprint.error(-1, "Error", "malloc failed: %s (in: search_service_in_hash).", strerror(errno));
         return(NULL);

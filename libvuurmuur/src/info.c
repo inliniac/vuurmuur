@@ -326,7 +326,7 @@ list_to_portopts(const int debuglvl, d_list *dlist, /*@null@*/char *option_name)
     char            options[MAX_OPTIONS_LENGTH] = "",
                     oneport[32] = "",
                     *return_ptr = NULL;
-    struct portdata *portrange_ptr = NULL;
+    struct vrmr_portdata *portrange_ptr = NULL;
     size_t          size = 0;
 
     if(option_name != NULL)
@@ -414,7 +414,7 @@ portopts_to_list(const int debuglvl, const char *opt, d_list *dlist)
                     o=0,
                     p=0;
     char            option_string[MAX_OPTIONS_LENGTH] = "";
-    struct portdata *portrange_ptr = NULL;
+    struct vrmr_portdata *portrange_ptr = NULL;
 
     if(debuglvl >= MEDIUM)
         (void)vrprint.debug(__FUNC__, "opt: '%s'", opt);
@@ -457,7 +457,7 @@ portopts_to_list(const int debuglvl, const char *opt, d_list *dlist)
                 if(debuglvl >= HIGH)
                     (void)vrprint.debug(__FUNC__, "now trying to insert: %s", option_string);
 
-                if(!(portrange_ptr = malloc(sizeof(struct portdata))))
+                if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
                 {
                     (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
                     return(-1);

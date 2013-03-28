@@ -461,7 +461,7 @@ void
 portrange_print_dlist(const d_list *dlist)
 {
     d_list_node     *d_node = NULL;
-    struct portdata *port_ptr = NULL;
+    struct vrmr_portdata *port_ptr = NULL;
 
     // Display the linked list.
     fprintf(stdout, "list size: %u\n", dlist->len);
@@ -586,7 +586,7 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
                         src_portrange[16] = "",
                         dst_portrange[16] = "";
 
-    struct portdata     *portrange_ptr = NULL;
+    struct vrmr_portdata     *portrange_ptr = NULL;
 
     size_t              cur_pos=0, /* current position in the protocol string */
                         port_pos=0; /* position in portrange string */
@@ -616,14 +616,14 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
             current_portrange[cur_pos-1]='\0';
 
             /* alloc memory */
-            if(!(portrange_ptr = malloc(sizeof(struct portdata))))
+            if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
             {
                 (void)vrprint.error(-1, "Internal Error", "malloc() failed: %s (in: %s:%d).",
                         strerror(errno), __FUNC__, __LINE__);
                 return(-1);
             }
             /* init */
-            memset(portrange_ptr, 0, sizeof(struct portdata));
+            memset(portrange_ptr, 0, sizeof(struct vrmr_portdata));
 
             range = 0;
             /* parse new RANGE format first */
@@ -977,7 +977,7 @@ validate_servicename(const int debuglvl, const char *servicename, regex_t *reg_e
 int
 services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
 {
-    struct portdata *port_ptr = NULL;
+    struct vrmr_portdata *port_ptr = NULL;
     char            prot_format[32] = "",
                     frmt_src[16] = "",
                     frmt_dst[16] = "";
