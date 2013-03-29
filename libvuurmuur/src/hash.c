@@ -357,7 +357,7 @@ compare_ports(const void *serv_hash, const void *serv_req)
 int
 compare_ipaddress(const void *string1, const void *string2)
 {
-    struct ZoneData_ *zone1, *zone2;
+    struct vrmr_zone *zone1, *zone2;
 
 
     /* safety */
@@ -368,8 +368,8 @@ compare_ipaddress(const void *string1, const void *string2)
     }
 
     /* cast to zonedata */
-    zone1 = (struct ZoneData_ *)string1;
-    zone2 = (struct ZoneData_ *)string2;
+    zone1 = (struct vrmr_zone *)string1;
+    zone2 = (struct vrmr_zone *)string2;
 
     /* Compare two strings */
     if(strcmp(zone1->ipv4.ipaddress, zone2->ipv4.ipaddress) == 0)
@@ -398,7 +398,7 @@ hash_port(const void *key)
 unsigned int
 hash_ipaddress(const void *key)
 {
-    struct ZoneData_    *zone_ptr;
+    struct vrmr_zone    *zone_ptr;
     struct in_addr      ip;
     uint32_t            ip_i = 0;
     unsigned int        retval = 0;
@@ -407,7 +407,7 @@ hash_ipaddress(const void *key)
     if(!key)
         return(1);
 
-    zone_ptr = (struct ZoneData_ *)key;
+    zone_ptr = (struct vrmr_zone *)key;
 
     /* if inet_aton failes, return 1 (BUG fix) */
     if(inet_aton(zone_ptr->ipv4.ipaddress, &ip) == 0)
@@ -609,7 +609,7 @@ init_zonedata_hashtable(    const int debuglvl,
                             int (*compare_func)(const void *table_data, const void *search_data),
                             Hash *hash_table)
 {
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     d_list_node         *d_node = NULL;
 
     /* safety */
@@ -764,7 +764,7 @@ search_service_in_hash(const int debuglvl, const int src, const int dst, const i
 void *
 search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, const Hash *zonehash)
 {
-    struct ZoneData_    *search_ptr = NULL,
+    struct vrmr_zone    *search_ptr = NULL,
                         *return_ptr = NULL;
 
     /* safety */
@@ -775,7 +775,7 @@ search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, const H
     }
 
     /* search zone ptr */
-    if(!(search_ptr = malloc(sizeof(struct ZoneData_))))
+    if(!(search_ptr = malloc(sizeof(struct vrmr_zone))))
     {
         (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
         return(NULL);

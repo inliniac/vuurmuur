@@ -1755,7 +1755,7 @@ rename_interface(const int debuglvl, struct vrmr_interfaces *interfaces, struct 
 {
     int                     result = 0;
     struct vrmr_interface   *iface_ptr = NULL;
-    struct ZoneData_        *zone_ptr = NULL;
+    struct vrmr_zone        *zone_ptr = NULL;
     d_list_node             *zone_d_node = NULL,
                             *iface_d_node = NULL;
     char                    save_name[MAX_INTERFACE] = "";

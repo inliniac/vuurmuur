@@ -23,7 +23,7 @@
 
 
 int
-vrmr_get_ip_info(const int debuglvl, char *name, struct ZoneData_ *answer_ptr, struct vrmr_regex *reg)
+vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, struct vrmr_regex *reg)
 {
     int retval = 0,
         result = 0;
@@ -231,12 +231,12 @@ create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broa
         -1: error
  */
 int
-get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, struct ZoneData_ *answer_ptr)
+get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, struct vrmr_zone *answer_ptr)
 {
     int                 result = 0;
     char                total_zone[MAX_HOST_NET_ZONE] = "",
                         cur_mem[MAX_HOST] = "";
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
 
 
     /* safety */
@@ -1143,7 +1143,7 @@ char
 
     unsigned long int   best_so_far = 0;
 
-    struct ZoneData_    *zone_ptr = NULL,
+    struct vrmr_zone    *zone_ptr = NULL,
                         *best_so_far_ptr = NULL;
 
     char                *result_ptr = NULL;

@@ -1177,7 +1177,7 @@ int
 ins_iface_into_zonelist(const int debuglvl, d_list *ifacelist, d_list *zonelist)
 {
     struct vrmr_interface   *iface_ptr = NULL;
-    struct ZoneData_        *zone_ptr = NULL;
+    struct vrmr_zone        *zone_ptr = NULL;
     d_list_node             *iface_node = NULL;
     char                    name[MAX_INTERFACE + 8 + 2 + 1]; // 32 max iface length, 8 firewall, 2 () and 1 \0
 
@@ -1294,7 +1294,7 @@ ins_iface_into_zonelist(const int debuglvl, d_list *ifacelist, d_list *zonelist)
 int
 rem_iface_from_zonelist(const int debuglvl, d_list *zonelist)
 {
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     d_list_node         *d_node = NULL,
                         *next_node = NULL;
     int                 i = 0;

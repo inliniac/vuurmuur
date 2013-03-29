@@ -3366,7 +3366,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                 service_choices_n=0,
                 n_choices = 0;
     d_list_node             *d_node = NULL;
-    struct ZoneData_        *zone_ptr = NULL,
+    struct vrmr_zone        *zone_ptr = NULL,
                             *network_ptr = NULL;
     struct ServicesData_    *service_ptr = NULL;
     struct vrmr_interface   *iface_ptr = NULL;

@@ -752,8 +752,7 @@ struct vrmr_interface
 
 
 /* this is our structure for the zone data */
-typedef struct ZoneData_
-{
+struct vrmr_zone {
     int                 type;   /* this should always be on top */
 
     /* basic vars */
@@ -772,8 +771,8 @@ typedef struct ZoneData_
     char                zone_name[MAX_ZONE];
 
     /* pointers to parent zone and network (NULL if zone/network) */
-    struct ZoneData_    *zone_parent;
-    struct ZoneData_    *network_parent;
+    struct vrmr_zone    *zone_parent;
+    struct vrmr_zone    *network_parent;
 
     struct vrmr_ipv4_data ipv4;
 #ifdef IPV6_ENABLED
@@ -795,8 +794,7 @@ typedef struct ZoneData_
     unsigned int        refcnt_group;
     unsigned int        refcnt_rule;
     unsigned int        refcnt_blocklist;
-
-} ZoneData;
+};
 
 
 /*
@@ -836,10 +834,10 @@ struct RuleCache_
     char                to_any;             /* to is 'any' */
     char                service_any;        /* service is 'any' */
 
-    ZoneData            *from;              /* from data */
-    ZoneData            *to;                /* to data */
+    struct vrmr_zone            *from;              /* from data */
+    struct vrmr_zone            *to;                /* to data */
 
-    ZoneData            *who;               /* for protect */
+    struct vrmr_zone            *who;               /* for protect */
     struct vrmr_interface       *who_int;           /* for protect */
 
     struct vrmr_interface       *via_int;           /* for bounce rules */
@@ -968,12 +966,12 @@ struct ConntrackData
 
     /* from/source */
     char                    *fromname;
-    struct ZoneData_        *from;
+    struct vrmr_zone        *from;
     char                    src_ip[46];
 
     /* to/destination */
     char                    *toname;
-    struct ZoneData_        *to;
+    struct vrmr_zone        *to;
     char                    dst_ip[46];
     char                    orig_dst_ip[46]; /* ip before nat correction */
 
@@ -1321,7 +1319,7 @@ struct vrmr_user {
 void *rule_malloc(void);
 /*@null@*/
 void *zone_malloc(int debuglvl);
-void zone_free(int debuglvl, struct ZoneData_ *zone_ptr);
+void zone_free(int debuglvl, struct vrmr_zone *zone_ptr);
 /*@null@*/
 void *service_malloc(void);
 /*@null@*/
@@ -1371,12 +1369,12 @@ void rules_free_options(const int debuglvl, struct vrmr_rule_options *opt);
 /*
     zones.c
 */
-//int zones_split_zonename(const int, struct vrmr_zones *, struct ZoneData_ *, regex_t *);
-int insert_zonedata_list(const int, struct vrmr_zones *, const struct ZoneData_ *);
+//int zones_split_zonename(const int, struct vrmr_zones *, struct vrmr_zone *, regex_t *);
+int insert_zonedata_list(const int, struct vrmr_zones *, const struct vrmr_zone *);
 void zonedata_print_list(const struct vrmr_zones *);
 int init_zonedata(const int, /*@out@*/ struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
 int insert_zonedata(const int, struct vrmr_zones *, struct vrmr_interfaces *, char *, int, struct vrmr_regex *);
-int read_zonedata(const int, struct vrmr_zones *, struct vrmr_interfaces *, char *, int, struct ZoneData_ *, struct vrmr_regex *);
+int read_zonedata(const int, struct vrmr_zones *, struct vrmr_interfaces *, char *, int, struct vrmr_zone *, struct vrmr_regex *);
 void *search_zonedata(const int, const struct vrmr_zones *, char *);
 void destroy_zonedatalist(const int, struct vrmr_zones *);
 int count_zones(const int, struct vrmr_zones *, int, char *, char *);
@@ -1385,23 +1383,23 @@ int delete_zone(const int, struct vrmr_zones *, char *, int);
 int zonelist_to_networklist(const int, struct vrmr_zones *, d_list *);
 int add_broadcasts_zonelist(const int, struct vrmr_zones *);
 int validate_zonename(const int, const char *, int, char *, char *, char *, regex_t *, char);
-int zones_group_save_members(const int, struct ZoneData_ *);
-int zones_network_add_iface(const int, struct vrmr_interfaces *, struct ZoneData_ *, char *);
-int zones_network_rem_iface(const int, struct ZoneData_ *, char *);
-int zones_network_get_interfaces(const int, struct ZoneData_ *, struct vrmr_interfaces *);
-int zones_network_save_interfaces(const int, struct ZoneData_ *);
-int zones_network_get_protectrules(const int, struct ZoneData_ *);
-int zones_group_rem_member(const int, struct ZoneData_ *, char *);
-int zones_group_add_member(const int, struct vrmr_zones *, struct ZoneData_ *, char *);
-int zones_active(const int, struct ZoneData_ *);
-int zones_check_host(const int, struct ZoneData_ *);
-int zones_check_group(const int, struct ZoneData_ *);
-int zones_check_network(const int, struct ZoneData_ *);
+int zones_group_save_members(const int, struct vrmr_zone *);
+int zones_network_add_iface(const int, struct vrmr_interfaces *, struct vrmr_zone *, char *);
+int zones_network_rem_iface(const int, struct vrmr_zone *, char *);
+int zones_network_get_interfaces(const int, struct vrmr_zone *, struct vrmr_interfaces *);
+int zones_network_save_interfaces(const int, struct vrmr_zone *);
+int zones_network_get_protectrules(const int, struct vrmr_zone *);
+int zones_group_rem_member(const int, struct vrmr_zone *, char *);
+int zones_group_add_member(const int, struct vrmr_zones *, struct vrmr_zone *, char *);
+int zones_active(const int, struct vrmr_zone *);
+int zones_check_host(const int, struct vrmr_zone *);
+int zones_check_group(const int, struct vrmr_zone *);
+int zones_check_network(const int, struct vrmr_zone *);
 int vrmr_zones_load(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
 int zones_network_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, struct vrmr_zones *, struct vuurmuur_config *);
 int zones_network_rule_parse_line(const int, const char *, struct RuleData_ *);
-int zones_host_ipv6_enabled(const int, struct ZoneData_ *);
-int zones_network_ipv6_enabled(const int, struct ZoneData_ *);
+int zones_host_ipv6_enabled(const int, struct vrmr_zone *);
+int zones_network_ipv6_enabled(const int, struct vrmr_zone *);
 
 /*
     services.c
@@ -1427,9 +1425,9 @@ int vrmr_services_load(const int, struct vrmr_services *, struct vrmr_regex *);
 /*
     info.c
 */
-int vrmr_get_ip_info(const int debuglvl, char *name, struct ZoneData_ *answer_ptr, struct vrmr_regex *reg);
+int vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, struct vrmr_regex *reg);
 int create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broadcast_ip, size_t size);
-int get_group_info(const int, struct vrmr_zones *, char *, struct ZoneData_ *);
+int get_group_info(const int, struct vrmr_zones *, char *, struct vrmr_zone *);
 char *list_to_portopts(const int, d_list *, /*@null@*/char *);
 int portopts_to_list(const int debuglvl, const char *opt, d_list *dlist);
 int check_active(const int debuglvl, char *data, int type);

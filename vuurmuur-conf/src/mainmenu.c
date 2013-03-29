@@ -902,7 +902,7 @@ static void
 mm_check_status_zones(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_zones *zones)
 {
     d_list_node         *d_node = NULL;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     char                at_least_one_active_network = FALSE;
     char                at_least_one_network = FALSE;
     int                 result = 0;

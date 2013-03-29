@@ -275,7 +275,7 @@ analyze_network_protect_rules(const int debuglvl, Rules *rules, struct vrmr_zone
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL,
                         *net_d_node = NULL;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
 
     /* safety */
     if(!rules || !zones || !services || !interfaces)
@@ -1109,7 +1109,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
 {
     d_list_node         *d_node = NULL;
     int                 retval = 0;
-    struct ZoneData_    *host_ptr = NULL;
+    struct vrmr_zone    *host_ptr = NULL;
 
     /* any */
     if (create->to_any == TRUE) {
@@ -1316,7 +1316,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
     char                from_mac[19] = "";
     d_list_node         *d_node = NULL;
     int                 retval = 0;
-    struct ZoneData_    *host_ptr = NULL;
+    struct vrmr_zone    *host_ptr = NULL;
 
     /* any */
     if (create->from_any == TRUE) {
@@ -1837,7 +1837,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
         iterations = 1;
     } else if (create->to->type == TYPE_ZONE) {
         for (d_node = vctx->zones->list.top; d_node != NULL; d_node = d_node->next) {
-            ZoneData *zone_ptr = (ZoneData *)d_node->data;
+            struct vrmr_zone *zone_ptr = (struct vrmr_zone *)d_node->data;
             if (zone_ptr != NULL &&
                     zone_ptr->type == TYPE_NETWORK &&
                     strcmp(zone_ptr->zone_name, create->to->name) == 0) {
@@ -1864,7 +1864,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
                 net_d_node = net_d_node->next;
 
             if (net_d_node != NULL) {
-                rule->to_network = (ZoneData *)net_d_node->data;
+                rule->to_network = (struct vrmr_zone *)net_d_node->data;
                 d_node = rule->to_network->InterfaceList.top;
             }
         }
@@ -2080,7 +2080,7 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
         iterations = 1;
     } else if (create->from->type == TYPE_ZONE) {
         for (d_node = vctx->zones->list.top; d_node != NULL; d_node = d_node->next) {
-            ZoneData *zone_ptr = (ZoneData *)d_node->data;
+            struct vrmr_zone *zone_ptr = (struct vrmr_zone *)d_node->data;
             if (zone_ptr != NULL &&
                     zone_ptr->type == TYPE_NETWORK &&
                     strcmp(zone_ptr->zone_name, create->from->name) == 0) {
@@ -2107,7 +2107,7 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
                 net_d_node = net_d_node->next;
 
             if (net_d_node != NULL) {
-                rule->from_network = (ZoneData *)net_d_node->data;
+                rule->from_network = (struct vrmr_zone *)net_d_node->data;
                 d_node = rule->from_network->InterfaceList.top;
             }
         }

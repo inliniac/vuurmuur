@@ -161,8 +161,8 @@ struct RuleCreateData_
     d_list                  to_network_list;
 
     /** in case of ZONE, this is the current network ptr */
-    ZoneData                *from_network;
-    ZoneData                *to_network;
+    struct vrmr_zone                *from_network;
+    struct vrmr_zone                *to_network;
 };
 
 
@@ -355,7 +355,7 @@ int reload_services(const int, struct vrmr_services *, regex_t *);
 int reload_services_check(const int, struct ServicesData_ *);
 
 int reload_zonedata(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
-int reload_zonedata_check(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct ZoneData_ *, struct vrmr_regex *);
+int reload_zonedata_check(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_zone *, struct vrmr_regex *);
 
 int reload_interfaces(const int, struct vrmr_interfaces *);
 int reload_interfaces_check(const int, struct vrmr_interface *iface_ptr);

@@ -71,16 +71,16 @@ ruleoption_malloc(const int debuglvl)
 void *
 zone_malloc(const int debuglvl)
 {
-    struct ZoneData_ *zone_ptr = NULL;
+    struct vrmr_zone *zone_ptr = NULL;
 
     /* alloc memory */
-    zone_ptr = malloc(sizeof(struct ZoneData_));
+    zone_ptr = malloc(sizeof(struct vrmr_zone));
     if(zone_ptr == NULL)
     {
         return(NULL);
     }
     /* initialize */
-    memset(zone_ptr, 0, sizeof(struct ZoneData_));
+    memset(zone_ptr, 0, sizeof(struct vrmr_zone));
 
 #ifdef IPV6_ENABLED
     zone_ptr->ipv6.cidr6 = -1;
@@ -106,7 +106,7 @@ zone_malloc(const int debuglvl)
 
 
 void
-zone_free(const int debuglvl, struct ZoneData_ *zone_ptr)
+zone_free(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     if(!zone_ptr)
         return;

@@ -5157,7 +5157,7 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, str
 {
     struct RuleCache_ *create = NULL;
     d_list_node *d_node = NULL, *net_d_node = NULL, *from_if_node = NULL;
-    struct ZoneData_ *zone_ptr = NULL;
+    struct vrmr_zone *zone_ptr = NULL;
     struct RuleData_ *rule_ptr = NULL;
     struct vrmr_interface *from_if_ptr = NULL;
 

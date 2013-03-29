@@ -145,21 +145,21 @@ static int zones_section_menu_networks_init(const int, struct vrmr_zones *, char
 static int zones_section_menu_networks(const int, struct vrmr_zones *, struct vrmr_interfaces *, Rules *, struct vrmr_blocklist *, char *, struct vrmr_regex *);
 
 
-static int edit_zone_host_init(const int, char *, int, int, int, int, struct ZoneData_ *);
+static int edit_zone_host_init(const int, char *, int, int, int, int, struct vrmr_zone *);
 static int edit_zone_host_destroy(void);
-static int edit_zone_host_save(const int, struct ZoneData_ *, struct vrmr_regex *);
+static int edit_zone_host_save(const int, struct vrmr_zone *, struct vrmr_regex *);
 static int edit_zone_host(const int, struct vrmr_zones *, char *, struct vrmr_regex *);
 
-static int edit_zone_group_members_init(const int, struct vrmr_zones *, struct ZoneData_ *);
-static int edit_zone_group_members(const int, struct vrmr_zones *, struct ZoneData_ *);
-static int edit_zone_group_init(const int, struct vrmr_zones *, char *, struct ZoneData_ *);
-static int edit_zone_group_save(const int, struct ZoneData_ *);
+static int edit_zone_group_members_init(const int, struct vrmr_zones *, struct vrmr_zone *);
+static int edit_zone_group_members(const int, struct vrmr_zones *, struct vrmr_zone *);
+static int edit_zone_group_init(const int, struct vrmr_zones *, char *, struct vrmr_zone *);
+static int edit_zone_group_save(const int, struct vrmr_zone *);
 static int edit_zone_group(const int, struct vrmr_zones *, char *);
 
-static int edit_zone_network_init(const int, struct vrmr_zones *, char *, int, int, int, int, struct ZoneData_ *);
+static int edit_zone_network_init(const int, struct vrmr_zones *, char *, int, int, int, int, struct vrmr_zone *);
 static int edit_zone_network(const int, struct vrmr_zones *, struct vrmr_interfaces *, char *);
 
-static int edit_zone_zone_init(const int, struct vrmr_zones *, char *, int, int, int, int, struct ZoneData_ *);
+static int edit_zone_zone_init(const int, struct vrmr_zones *, char *, int, int, int, int, struct vrmr_zone *);
 static int edit_zone_zone(const int debuglvl, struct vrmr_zones *zones, char *name);
 
 static int zones_section_init(const int, struct vrmr_zones *);
@@ -197,7 +197,7 @@ struct
 
 
 static int
-edit_zone_host_init(const int debuglvl, char *name, int height, int width, int starty, int startx, struct ZoneData_ *zone_ptr)
+edit_zone_host_init(const int debuglvl, char *name, int height, int width, int starty, int startx, struct vrmr_zone *zone_ptr)
 {
     int     rows,
             cols,
@@ -381,7 +381,7 @@ edit_zone_host_destroy(void)
 
 
 static int
-edit_zone_host_save(const int debuglvl, struct ZoneData_ *zone_ptr, struct vrmr_regex *reg)
+edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_regex *reg)
 {
     int     active = 0;
     char    ipaddress[16] = "",
@@ -645,7 +645,7 @@ edit_zone_host(const int debuglvl, struct vrmr_zones *zones, char *name, struct 
                         not_defined = 0,
                         quit = 0,
                         retval = 0;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     int                 height,
                         width,
                         startx,
@@ -843,7 +843,7 @@ static int
 zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char *zonename, char *networkname)
 {
     int                 retval=0;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     int                 height = 0,
                         width = 0,
                         startx = 0,
@@ -1052,7 +1052,7 @@ static int
 zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, Rules *rules, struct vrmr_blocklist *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct vrmr_regex *reg)
 {
     int                 result = 0;
-    struct ZoneData_    *zone_ptr = NULL,
+    struct vrmr_zone    *zone_ptr = NULL,
                         *member_ptr = NULL;
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL,
@@ -1280,7 +1280,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, Rules *ru
                         result = 0,
                         retval = 0;
     size_t              size = 0;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     char                *new_zone_ptr = NULL,
                         *temp_ptr = NULL,
                         *cur_zonename_ptr = NULL;
@@ -1694,11 +1694,11 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, Rules *ru
 
 
 static int
-edit_zone_group_members_init(const int debuglvl, struct vrmr_zones *zones, struct ZoneData_ *group_ptr)
+edit_zone_group_members_init(const int debuglvl, struct vrmr_zones *zones, struct vrmr_zone *group_ptr)
 {
     int                 retval=0;
     d_list_node         *d_node = NULL;
-    struct ZoneData_    *member_ptr = NULL;
+    struct vrmr_zone    *member_ptr = NULL;
     int                 i=0;
     int                 height = 30,
                         width  = 54, /* max width of host_name (32) + box (2) + 4 + 16 */
@@ -1878,7 +1878,7 @@ edit_zone_group_members_destroy(void)
         -1: error
 */
 static int
-edit_zone_group_members_delmem(const int debuglvl, struct ZoneData_ *group_ptr, char *member_name)
+edit_zone_group_members_delmem(const int debuglvl, struct vrmr_zone *group_ptr, char *member_name)
 {
     int     result = 0;
     char    logname[MAX_HOST_NET_ZONE] = "";
@@ -1907,7 +1907,7 @@ edit_zone_group_members_delmem(const int debuglvl, struct ZoneData_ *group_ptr, 
         -1: error
 */
 static int
-edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, struct ZoneData_ *group_ptr)
+edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, struct vrmr_zone *group_ptr)
 {
     d_list_node         *d_node = NULL;
     char                **choices,
@@ -1915,7 +1915,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
                         search_name[MAX_HOST_NET_ZONE]="";
     size_t              n_choices=0,
                         i=0;
-    struct ZoneData_    *zonelist_ptr=NULL;
+    struct vrmr_zone    *zonelist_ptr=NULL;
     int                 result = 0;
 
     /* safety */
@@ -2034,7 +2034,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
         -1: error
 */
 int
-edit_zone_group_members(const int debuglvl, struct vrmr_zones *zones, struct ZoneData_ *zone_ptr)
+edit_zone_group_members(const int debuglvl, struct vrmr_zones *zones, struct vrmr_zone *zone_ptr)
 {
     int     quit = 0,
             reload = 0,
@@ -2184,7 +2184,7 @@ struct
 
 
 static int
-edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct ZoneData_ *zone_ptr)
+edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct vrmr_zone *zone_ptr)
 {
     int                 retval = 0,
                         rows,
@@ -2199,7 +2199,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct 
                         comment_x = 0;
     size_t              i,
                         field_num = 0;
-    struct ZoneData_    *member_ptr = NULL;
+    struct vrmr_zone    *member_ptr = NULL;
     d_list_node         *d_node = NULL;
 
     /* safety */
@@ -2344,7 +2344,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct 
 
 
 static int
-edit_zone_group_save(const int debuglvl, struct ZoneData_ *group_ptr)
+edit_zone_group_save(const int debuglvl, struct vrmr_zone *group_ptr)
 {
     int     retval = 0,
             active = 0;
@@ -2461,7 +2461,7 @@ edit_zone_group(const int debuglvl, struct vrmr_zones *zones, char *name)
     int                 ch,
                         not_defined = 0,
                         retval = 0;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     int                 quit = 0;
     FIELD               *cur = NULL,
                         *prev = NULL;
@@ -2648,7 +2648,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
 {
     int                 retval=0;
     size_t              i = 0;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     int                 height,
                         width,
                         starty,
@@ -2864,7 +2864,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, Rules *r
                         reload = 0,
                         retval = 0;
     size_t              size = 0;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     char                *new_zone_ptr = NULL,
                         *temp_ptr = NULL,
                         *cur_zonename_ptr = NULL;
@@ -3235,7 +3235,7 @@ static int
 zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, Rules *rules, struct vrmr_blocklist *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct vrmr_regex *reg)
 {
     int                 result = 0;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
     char                rules_changed = 0,
@@ -3617,7 +3617,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, Rules *r
 
 
 static int
-edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_interfaces *interfaces, struct ZoneData_ *zone_ptr)
+edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_zone *zone_ptr)
 {
     d_list_node             *d_node = NULL;
     char                    **choices,
@@ -3699,7 +3699,7 @@ edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_interfaces
 
 
 static int
-edit_zone_network_interfaces_init(const int debuglvl, struct ZoneData_ *zone_ptr)
+edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     d_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -3861,7 +3861,7 @@ edit_zone_network_interfaces_destroy(void)
 
 
 int
-edit_zone_network_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces, struct ZoneData_ *zone_ptr)
+edit_zone_network_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_zone *zone_ptr)
 {
     int     quit = 0,
             reload = 0,
@@ -4098,7 +4098,7 @@ struct
         -1: error
 */
 int
-zones_network_save_protectrules(const int debuglvl, struct ZoneData_ *network_ptr)
+zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_ptr)
 {
     d_list_node         *d_node = NULL;
     struct RuleData_    *rule_ptr = NULL;
@@ -4169,7 +4169,7 @@ zones_network_save_protectrules(const int debuglvl, struct ZoneData_ *network_pt
          0: ok
 */
 static int
-edit_zone_network_save_protectrules(const int debuglvl, struct ZoneData_ *network_ptr)
+edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_ptr)
 {
     struct RuleData_    *rule_ptr = NULL;
 
@@ -4378,7 +4378,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct ZoneData_ *networ
 
 
 static int
-edit_zone_network_init(const int debuglvl, struct vrmr_zones *zones, char *name, int height, int width, int starty, int startx, struct ZoneData_ *zone_ptr)
+edit_zone_network_init(const int debuglvl, struct vrmr_zones *zones, char *name, int height, int width, int starty, int startx, struct vrmr_zone *zone_ptr)
 {
     int     rows,
             cols,
@@ -4773,7 +4773,7 @@ edit_zone_network_init(const int debuglvl, struct vrmr_zones *zones, char *name,
         -1: error
 */
 static int
-edit_zone_network_save(const int debuglvl, struct ZoneData_ *zone_ptr)
+edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     int                 retval = 0;
     char                network[16] = "",
@@ -5037,7 +5037,7 @@ edit_zone_network(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inte
                         not_defined = 0,
                         quit = 0,
                         retval = 0;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     int                 height = 0,
                         width = 0,
                         startx = 0,
@@ -5252,7 +5252,7 @@ static int
 zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, char *zonename)
 {
     int                 retval=0;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     int                 height,
                         width,
                         startx,
@@ -5892,7 +5892,7 @@ struct
 
 
 static int
-edit_zone_zone_init(const int debuglvl, struct vrmr_zones *zones, char *name, int height, int width, int starty, int startx, struct ZoneData_ *zone_ptr)
+edit_zone_zone_init(const int debuglvl, struct vrmr_zones *zones, char *name, int height, int width, int starty, int startx, struct vrmr_zone *zone_ptr)
 {
     int     retval = 0;
     int     rows,
@@ -6004,7 +6004,7 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_zones *zones, char *name, in
 
 
 static int
-edit_zone_zone_save(const int debuglvl, struct ZoneData_ *zone_ptr)
+edit_zone_zone_save(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     int     retval = 0,
             active = 0;
@@ -6116,7 +6116,7 @@ edit_zone_zone(const int debuglvl, struct vrmr_zones *zones, char *name)
                         not_defined = 0,/* 1 is a key is defined */
                         quit = 0,
                         retval = 0;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     int                 height,
                         width,
                         startx,
@@ -6255,7 +6255,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
 {
     int                 retval = 0;
     size_t              i = 0;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     int                 height,
                         width,
                         startx,
@@ -6898,7 +6898,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
                         **zone_choices;
     size_t              i = 0;
     char                changes = TRUE;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     d_list_node         *d_node = NULL;
 
 

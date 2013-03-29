@@ -561,7 +561,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                         result = 0;
     int                 check_result = 0;
     d_list_node         *d_node = NULL;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     char                name[MAX_HOST_NET_ZONE];
     int                 zonetype;
 
@@ -712,12 +712,12 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
         -1: error
 */
 int
-reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct ZoneData_ *zone_ptr, struct vrmr_regex *reg)
+reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_zone *zone_ptr, struct vrmr_regex *reg)
 {
     int                     result = 0,
                             retval = 0;
     int                     check_result = 0;
-    struct ZoneData_        *host_ptr_new  =NULL,
+    struct vrmr_zone        *host_ptr_new  =NULL,
                             *host_ptr_orig,
                             *new_zone_ptr=NULL;
     struct vrmr_interface   *iface_ptr_new,
@@ -1718,7 +1718,7 @@ reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
                             *old_node = NULL;
     struct RuleData_        *new_rule_ptr = NULL,
                             *org_rule_ptr = NULL;
-    struct ZoneData_        *new_zone_ptr = NULL;
+    struct vrmr_zone        *new_zone_ptr = NULL;
     struct ServicesData_    *new_serv_ptr = NULL;
     struct RuleCache_       *rulecache = NULL;
 
@@ -1966,7 +1966,7 @@ int
 check_for_changed_networks(const int debuglvl, struct vrmr_zones *zones)
 {
     d_list_node         *d_node = NULL;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     char                status = 0;
 
 

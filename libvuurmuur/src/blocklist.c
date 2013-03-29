@@ -137,7 +137,7 @@ blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklis
 int
 vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt, char *line)
 {
-    ZoneData    *zone_ptr = NULL,
+    struct vrmr_zone    *zone_ptr = NULL,
                 *member_ptr = NULL;
     d_list_node *d_node = NULL;
 
@@ -311,7 +311,7 @@ vrmr_blocklist_rem_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
 {
     char                *listitemname = NULL;
     d_list_node         *d_node = NULL;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
 
     /* safety */
     if(!zones || !blocklist || !itemname)

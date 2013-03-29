@@ -39,7 +39,7 @@
  */
 int
 zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
-            struct ZoneData_ *zone_ptr, regex_t *reg_ex)
+            struct vrmr_zone *zone_ptr, regex_t *reg_ex)
 {
     int     arg_count = 0;
     char    check_str[MAX_HOST_NET_ZONE] = "";
@@ -187,9 +187,9 @@ zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
 */
 int
 insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
-             const struct ZoneData_ *zone_ptr)
+             const struct vrmr_zone *zone_ptr)
 {
-    struct ZoneData_    *check_zone_ptr = NULL,
+    struct vrmr_zone    *check_zone_ptr = NULL,
                         *cur_zone = NULL,
                         *cur_network = NULL;
     int                 insert_here = 0,
@@ -359,7 +359,7 @@ int
 insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
         char *name, int type, struct vrmr_regex *reg)
 {
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
 
     /* please put on your safetybelt */
     if(zones == NULL || name == NULL || reg == NULL || interfaces == NULL) {
@@ -410,7 +410,7 @@ insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
 */
 int
 read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
-          char *name, int type, struct ZoneData_ *zone_ptr, struct vrmr_regex *reg)
+          char *name, int type, struct vrmr_zone *zone_ptr, struct vrmr_regex *reg)
 {
     int     result = 0;
 
@@ -536,7 +536,7 @@ void *
 search_zonedata(const int debuglvl, const struct vrmr_zones *zones, char *name)
 {
     d_list_node         *d_node = NULL;
-    struct ZoneData_    *zonedata_ptr = NULL;
+    struct vrmr_zone    *zonedata_ptr = NULL;
 
 
     /* safety */
@@ -583,7 +583,7 @@ void
 zonedata_print_list(const struct vrmr_zones *zones)
 {
     d_list_node         *d_node = NULL;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
 
     // print size
     fprintf(stdout, "ZonedataList size: %u\n", zones->list.len);
@@ -670,7 +670,7 @@ void
 destroy_zonedatalist(const int debuglvl, struct vrmr_zones *zones)
 {
     d_list_node         *d_node = NULL;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
 
     if(!zones)
         return;
@@ -694,7 +694,7 @@ destroy_zonedatalist(const int debuglvl, struct vrmr_zones *zones)
 int
 delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonetype)
 {
-    struct ZoneData_        *zone_ptr = NULL,
+    struct vrmr_zone        *zone_ptr = NULL,
                             *zone_list_ptr = NULL;
     d_list_node             *d_node = NULL;
     char                    name[MAX_HOST_NET_ZONE] = "";
@@ -845,7 +845,7 @@ delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zo
 int
 new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonetype)
 {
-    struct ZoneData_    *zone_ptr=NULL;
+    struct vrmr_zone    *zone_ptr=NULL;
     size_t              dotcount=0,
                         i=0,
                         x=0;
@@ -1009,7 +1009,7 @@ int
 count_zones(const int debuglvl, struct vrmr_zones *zones, int type, char *filter_network,
         char *filter_zone)
 {
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     int                 count = 0;
     d_list_node         *d_node = NULL;
 
@@ -1066,7 +1066,7 @@ int
 zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, d_list *network_list)
 {
     d_list_node         *d_node = NULL;
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
 
     /*
         safety
@@ -1113,7 +1113,7 @@ zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, d_list *ne
 int
 add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
 {
-    struct ZoneData_    *zone_ptr = NULL,
+    struct vrmr_zone    *zone_ptr = NULL,
                         *broadcast_ptr = NULL;
     d_list_node         *d_node = NULL;
 
@@ -1277,10 +1277,10 @@ validate_zonename(const int debuglvl, const char *zonename, int onlyvalidate, ch
         -1: error
 */
 int
-zones_group_save_members(const int debuglvl, struct ZoneData_ *group_ptr)
+zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
 {
     d_list_node         *d_node = NULL;
-    struct ZoneData_    *member_ptr = NULL;
+    struct vrmr_zone    *member_ptr = NULL;
 
     /* safety */
     if(!group_ptr)
@@ -1343,10 +1343,10 @@ zones_group_save_members(const int debuglvl, struct ZoneData_ *group_ptr)
 
 
 int
-zones_group_rem_member(const int debuglvl, struct ZoneData_ *group_ptr, char *hostname)
+zones_group_rem_member(const int debuglvl, struct vrmr_zone *group_ptr, char *hostname)
 {
     d_list_node         *d_node = NULL;
-    struct ZoneData_    *member_ptr = NULL;
+    struct vrmr_zone    *member_ptr = NULL;
 
     /* safety */
     if(!group_ptr || !hostname)
@@ -1401,9 +1401,9 @@ zones_group_rem_member(const int debuglvl, struct ZoneData_ *group_ptr, char *ho
 
 
 int
-zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct ZoneData_ *group_ptr, char *hostname)
+zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct vrmr_zone *group_ptr, char *hostname)
 {
-    struct ZoneData_    *new_member_ptr = NULL,
+    struct vrmr_zone    *new_member_ptr = NULL,
                         *list_member_ptr = NULL;
     d_list_node         *d_node = NULL;
 
@@ -1474,7 +1474,7 @@ zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct Zone
          0: ok
 */
 int
-zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfaces, struct ZoneData_ *network_ptr, char *interfacename)
+zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_zone *network_ptr, char *interfacename)
 {
     struct vrmr_interface   *iface_ptr = NULL,
                             *list_iface_ptr = NULL;
@@ -1531,7 +1531,7 @@ zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfaces, 
 
 
 int
-zones_network_rem_iface(const int debuglvl, struct ZoneData_ *network_ptr, char *interfacename)
+zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, char *interfacename)
 {
     d_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -1591,7 +1591,7 @@ zones_network_rem_iface(const int debuglvl, struct ZoneData_ *network_ptr, char 
         -1: error
  */
 int
-zones_network_get_interfaces(const int debuglvl, struct ZoneData_ *zone_ptr, struct vrmr_interfaces *interfaces)
+zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_interfaces *interfaces)
 {
     char    cur_ifac[MAX_INTERFACE] = "";
 
@@ -1633,7 +1633,7 @@ zones_network_get_interfaces(const int debuglvl, struct ZoneData_ *zone_ptr, str
 
 
 int
-zones_network_save_interfaces(const int debuglvl, struct ZoneData_ *network_ptr)
+zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network_ptr)
 {
     d_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -1983,7 +1983,7 @@ zones_network_rule_parse_line(const int debuglvl, const char *line, struct RuleD
 
 
 int
-zones_network_get_protectrules(const int debuglvl, struct ZoneData_ *network_ptr)
+zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr)
 {
     char                currule[MAX_RULE_LENGTH] = "";
     struct RuleData_    *rule_ptr = NULL;
@@ -2059,7 +2059,7 @@ zones_network_get_protectrules(const int debuglvl, struct ZoneData_ *network_ptr
         -1: error
 */
 int
-zones_active(const int debuglvl, struct ZoneData_ *zone_ptr)
+zones_active(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     /* safety first */
     if(zone_ptr == NULL)
@@ -2105,7 +2105,7 @@ zones_active(const int debuglvl, struct ZoneData_ *zone_ptr)
         -1: error
 */
 int
-zones_check_network(const int debuglvl, struct ZoneData_ *zone_ptr)
+zones_check_network(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     int retval = 1,
         result = 0;
@@ -2197,7 +2197,7 @@ zones_check_network(const int debuglvl, struct ZoneData_ *zone_ptr)
         -1: error
 */
 int
-zones_check_host(const int debuglvl, struct ZoneData_ *zone_ptr)
+zones_check_host(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     int retval = 1,
         result = 0;
@@ -2260,7 +2260,7 @@ zones_check_host(const int debuglvl, struct ZoneData_ *zone_ptr)
         -1: error
 */
 int
-zones_check_group(const int debuglvl, struct ZoneData_ *zone_ptr)
+zones_check_group(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     int retval = 1,
         result = 0;
@@ -2305,7 +2305,7 @@ zones_check_group(const int debuglvl, struct ZoneData_ *zone_ptr)
 int
 vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
-    struct ZoneData_    *zone_ptr = NULL;
+    struct vrmr_zone    *zone_ptr = NULL;
     d_list_node         *d_node = NULL;
     int                 result = 0;
 
@@ -2380,7 +2380,7 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
  *  \retval 0 no
  */
 int
-zones_host_ipv6_enabled(const int debuglvl, struct ZoneData_ *host_ptr) {
+zones_host_ipv6_enabled(const int debuglvl, struct vrmr_zone *host_ptr) {
     if (host_ptr != NULL && host_ptr->type == TYPE_HOST &&
             host_ptr->ipv6.cidr6 != -1)
     {
@@ -2394,7 +2394,7 @@ zones_host_ipv6_enabled(const int debuglvl, struct ZoneData_ *host_ptr) {
  *  \retval 0 no
  */
 int
-zones_network_ipv6_enabled(const int debuglvl, struct ZoneData_ *network_ptr) {
+zones_network_ipv6_enabled(const int debuglvl, struct vrmr_zone *network_ptr) {
     if (network_ptr != NULL && network_ptr->type == TYPE_NETWORK &&
             network_ptr->ipv6.cidr6 != -1)
     {
