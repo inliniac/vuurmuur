@@ -542,7 +542,7 @@ backend_check_service_broadcast(const int debuglvl, char *value, struct vrmr_reg
 int
 backend_check_service_helper(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
-    struct ServicesData_    service;
+    struct vrmr_service    service;
 
     /* safety */
     if(value == NULL || reg == NULL)
@@ -571,7 +571,7 @@ backend_check_service_helper(const int debuglvl, char *value, struct vrmr_regex 
 int
 backend_check_service_tcp(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
-    struct ServicesData_    service;
+    struct vrmr_service    service;
 
     /* safety */
     if(value == NULL || reg == NULL)
@@ -600,7 +600,7 @@ backend_check_service_tcp(const int debuglvl, char *value, struct vrmr_regex *re
 int
 backend_check_service_udp(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
-    struct ServicesData_    service;
+    struct vrmr_service    service;
 
     /* safety */
     if(value == NULL || reg == NULL)
@@ -629,7 +629,7 @@ backend_check_service_udp(const int debuglvl, char *value, struct vrmr_regex *re
 int
 backend_check_service_icmp(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
-    struct ServicesData_    service;
+    struct vrmr_service    service;
 
     /* safety */
     if(value == NULL || reg == NULL)
@@ -658,7 +658,7 @@ backend_check_service_icmp(const int debuglvl, char *value, struct vrmr_regex *r
 int
 backend_check_service_gre(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
-    struct ServicesData_    service;
+    struct vrmr_service    service;
 
     /* safety */
     if(value == NULL || reg == NULL)
@@ -687,7 +687,7 @@ backend_check_service_gre(const int debuglvl, char *value, struct vrmr_regex *re
 int
 backend_check_service_ah(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
-    struct ServicesData_    service;
+    struct vrmr_service    service;
 
     /* safety */
     if(value == NULL || reg == NULL)
@@ -716,7 +716,7 @@ backend_check_service_ah(const int debuglvl, char *value, struct vrmr_regex *reg
 int
 backend_check_service_esp(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
-    struct ServicesData_    service;
+    struct vrmr_service    service;
 
     /* safety */
     if(value == NULL || reg == NULL)
@@ -745,7 +745,7 @@ backend_check_service_esp(const int debuglvl, char *value, struct vrmr_regex *re
 int
 backend_check_service_proto41(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
-    struct ServicesData_    service;
+    struct vrmr_service    service;
 
     /* safety */
     if(value == NULL || reg == NULL)

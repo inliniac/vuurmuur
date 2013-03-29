@@ -244,7 +244,7 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
 {
     int                     retval=0,
                             result;
-    struct ServicesData_    *ser_ptr = NULL;
+    struct vrmr_service    *ser_ptr = NULL;
     char                    name[MAX_SERVICE];
     int                     zonetype;
     d_list_node             *d_node = NULL;
@@ -367,13 +367,13 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
         -1: error
 */
 int
-reload_services_check(const int debuglvl, struct ServicesData_ *ser_ptr)
+reload_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     int                     retval = 0,
                             result = 0,
                             status = 0;
     int                     check_result = 0;
-    struct ServicesData_    *new_ser_ptr = NULL;
+    struct vrmr_service    *new_ser_ptr = NULL;
     /* these are for the comparisson between the portranges */
     d_list_node             *list_node = NULL,
                             *temp_node = NULL;
@@ -1719,7 +1719,7 @@ reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
     struct RuleData_        *new_rule_ptr = NULL,
                             *org_rule_ptr = NULL;
     struct vrmr_zone        *new_zone_ptr = NULL;
-    struct ServicesData_    *new_serv_ptr = NULL;
+    struct vrmr_service    *new_serv_ptr = NULL;
     struct RuleCache_       *rulecache = NULL;
 
 

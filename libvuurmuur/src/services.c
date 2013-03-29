@@ -23,9 +23,9 @@
 
 
 static int
-insert_service_list(const int debuglvl, struct vrmr_services *services, const struct ServicesData_ *ser_ptr)
+insert_service_list(const int debuglvl, struct vrmr_services *services, const struct vrmr_service *ser_ptr)
 {
-    struct ServicesData_    *check_ser_ptr = NULL;
+    struct vrmr_service    *check_ser_ptr = NULL;
     int                     result = 0;
     int                     insert_here = 0;
     d_list_node             *d_node = NULL;
@@ -130,7 +130,7 @@ insert_service(const int debuglvl, struct vrmr_services *services, char *name)
 {
     int                     retval = 0,
                             result = 0;
-    struct ServicesData_    *ser_ptr = NULL;
+    struct vrmr_service    *ser_ptr = NULL;
 
 
     /* check our input */
@@ -182,7 +182,7 @@ void *
 search_service(const int debuglvl, const struct vrmr_services *services, char *servicename)
 {
     d_list_node             *d_node = NULL;
-    struct ServicesData_    *service_ptr = NULL;
+    struct vrmr_service    *service_ptr = NULL;
 
 
     /* safety */
@@ -237,7 +237,7 @@ search_service(const int debuglvl, const struct vrmr_services *services, char *s
         -1: error
 */
 int
-read_service(const int debuglvl, char *sername, struct ServicesData_ *service_ptr)
+read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr)
 {
     int     retval = 0,
             result = 0;
@@ -441,7 +441,7 @@ void
 services_print_list(const struct vrmr_services *services)
 {
     d_list_node             *d_node = NULL;
-    struct ServicesData_    *ser_ptr = NULL;
+    struct vrmr_service    *ser_ptr = NULL;
 
     fprintf(stdout, "list size: %u\n", services->list.len);
 
@@ -577,7 +577,7 @@ split_portrange(char *portrange, int *lowport, int *highport)
         -1: error
 */
 int
-process_portrange(const int debuglvl, const char *proto, const char *portrange, struct ServicesData_ *ser_ptr)
+process_portrange(const int debuglvl, const char *proto, const char *portrange, struct vrmr_service *ser_ptr)
 {
     int                 port=0,
                         range=0;
@@ -756,7 +756,7 @@ void
 destroy_serviceslist(const int debuglvl, struct vrmr_services *services)
 {
     d_list_node             *d_node = NULL;
-    struct ServicesData_    *ser_ptr = NULL;
+    struct vrmr_service    *ser_ptr = NULL;
 
     /* safety */
     if(!services)
@@ -797,7 +797,7 @@ new_service(const int debuglvl, struct vrmr_services *services, char *sername, i
 {
     int                     retval = 0,
                             result = 0;
-    struct ServicesData_    *ser_ptr = NULL;
+    struct vrmr_service    *ser_ptr = NULL;
 
     /* safety */
     if(!sername || !services)
@@ -883,7 +883,7 @@ new_service(const int debuglvl, struct vrmr_services *services, char *sername, i
 int
 delete_service(const int debuglvl, struct vrmr_services *services, char *sername, int sertype)
 {
-    struct ServicesData_ *ser_list_ptr = NULL;
+    struct vrmr_service *ser_list_ptr = NULL;
     d_list_node *d_node = NULL;
 
     /* safety */
@@ -975,7 +975,7 @@ validate_servicename(const int debuglvl, const char *servicename, regex_t *reg_e
 
 
 int
-services_save_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
+services_save_portranges(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     struct vrmr_portdata *port_ptr = NULL;
     char            prot_format[32] = "",
@@ -1218,7 +1218,7 @@ init_services(const int debuglvl, struct vrmr_services *services, struct vrmr_re
         -1: error
 */
 int
-services_check(const int debuglvl, struct ServicesData_ *ser_ptr)
+services_check(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     int retval = 1;
 
@@ -1254,7 +1254,7 @@ vrmr_services_load(const int debuglvl, struct vrmr_services *services, struct vr
 {
     int                     result = 0;
     d_list_node             *d_node = NULL;
-    struct ServicesData_    *ser_ptr = NULL;
+    struct vrmr_service    *ser_ptr = NULL;
 
 
     (void)vrprint.info("Info", "Loading services...");

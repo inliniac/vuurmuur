@@ -74,7 +74,7 @@ struct ServicesSection_
         -1: error
 */
 static int
-edit_serv_portranges_new_validate(const int debuglvl, struct ServicesData_ *ser_ptr, struct vrmr_portdata *port_ptr)
+edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_ptr, struct vrmr_portdata *port_ptr)
 {
     d_list_node     *d_node = NULL;
     struct vrmr_portdata *portlist_ptr = NULL;
@@ -1256,7 +1256,7 @@ create_portrange_string(const int debuglvl, struct vrmr_portdata *portrange_ptr,
 
 
 static int
-edit_serv_portranges_new(const int debuglvl, struct ServicesData_ *ser_ptr)
+edit_serv_portranges_new(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     int             retval=0;
     char            str[64] = "";
@@ -1406,7 +1406,7 @@ edit_serv_portranges_new(const int debuglvl, struct ServicesData_ *ser_ptr)
          1: ok, editted 
 */
 static int
-edit_serv_portranges_edit(const int debuglvl, int place, struct ServicesData_ *ser_ptr)
+edit_serv_portranges_edit(const int debuglvl, int place, struct vrmr_service *ser_ptr)
 {
     int             i = 0;
     d_list_node     *d_node = NULL;
@@ -1476,7 +1476,7 @@ edit_serv_portranges_edit(const int debuglvl, int place, struct ServicesData_ *s
          1: removed
 */
 static int
-edit_serv_portranges_del(const int debuglvl, int place, struct ServicesData_ *ser_ptr)
+edit_serv_portranges_del(const int debuglvl, int place, struct vrmr_service *ser_ptr)
 {
     int             i = 0;
     d_list_node     *d_node = NULL;
@@ -1534,7 +1534,7 @@ edit_serv_portranges_del(const int debuglvl, int place, struct ServicesData_ *se
 
 
 static int
-edit_serv_portranges_init(const int debuglvl, struct ServicesData_ *ser_ptr)
+edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     int             retval = 0;
     d_list_node     *d_node = NULL;
@@ -1769,7 +1769,7 @@ edit_serv_portranges_destroy(const int debuglvl)
 }
 
 static int
-edit_serv_portranges(const int debuglvl, struct ServicesData_ *ser_ptr)
+edit_serv_portranges(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     int     quit = 0,
             reload = 0,
@@ -1936,7 +1936,7 @@ struct
 
 
 static int
-edit_service_save(const int debuglvl, struct ServicesData_ *ser_ptr)
+edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     int     retval=0,
             result = 0,
@@ -2051,7 +2051,7 @@ edit_service_save(const int debuglvl, struct ServicesData_ *ser_ptr)
 
 
 static int
-edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
+edit_service_init(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     int             rows,
                     cols,
@@ -2256,7 +2256,7 @@ edit_service(const int debuglvl, struct vrmr_services *services, const char *nam
                             quit = 0,
                             not_defined = 0,
                             retval = 0;
-    struct ServicesData_    *ser_ptr = NULL;
+    struct vrmr_service    *ser_ptr = NULL;
     FIELD                   *cur = NULL,
                             *prev = NULL;
     /* top menu */
@@ -2439,7 +2439,7 @@ static int
 rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_rules *rules, char *cur_name_ptr, char *new_name_ptr)
 {
     int                     result = 0;
-    struct ServicesData_    *ser_ptr = NULL;
+    struct vrmr_service    *ser_ptr = NULL;
     struct RuleData_        *rule_ptr = NULL;
     d_list_node             *d_node = NULL;
     char                    changed = 0;
@@ -2529,7 +2529,7 @@ init_services_section(const int debuglvl, struct vrmr_services *services, int he
 {
     int                     retval=0,
                             i=0;
-    struct ServicesData_    *ser_ptr = NULL;
+    struct vrmr_service    *ser_ptr = NULL;
     d_list_node             *d_node = NULL;
 
     ServicesSection.list_items = services->list.len;

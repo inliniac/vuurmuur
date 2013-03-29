@@ -155,7 +155,7 @@ static int
 get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, Hash *ZoneHash, Hash *ServiceHash)
 {
     struct vrmr_zone        *search_ptr = NULL;
-    struct ServicesData_    *ser_search_ptr = NULL;
+    struct vrmr_service    *ser_search_ptr = NULL;
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "start");

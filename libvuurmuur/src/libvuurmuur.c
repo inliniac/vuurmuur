@@ -127,17 +127,17 @@ zone_free(const int debuglvl, struct vrmr_zone *zone_ptr)
 void *
 service_malloc(void)
 {
-    struct ServicesData_ *ser_ptr = NULL;
+    struct vrmr_service *ser_ptr = NULL;
 
     /* alloc some mem */
-    ser_ptr = malloc(sizeof(struct ServicesData_));
+    ser_ptr = malloc(sizeof(struct vrmr_service));
     if(ser_ptr == NULL)
     {
         return(NULL);
     }
 
     /* init */
-    memset(ser_ptr, 0, sizeof(struct ServicesData_));
+    memset(ser_ptr, 0, sizeof(struct vrmr_service));
 
     ser_ptr->type = TYPE_SERVICE;
 

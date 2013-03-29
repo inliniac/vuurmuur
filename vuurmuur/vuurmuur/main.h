@@ -352,7 +352,7 @@ int logprint_info_bash(char *head, char *fmt, ...);
 int apply_changes(const int, VuurmuurCtx *vctx, struct vrmr_regex *);
 
 int reload_services(const int, struct vrmr_services *, regex_t *);
-int reload_services_check(const int, struct ServicesData_ *);
+int reload_services_check(const int, struct vrmr_service *);
 
 int reload_zonedata(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
 int reload_zonedata_check(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_zone *, struct vrmr_regex *);

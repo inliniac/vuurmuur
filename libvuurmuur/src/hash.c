@@ -265,7 +265,7 @@ hash_search(const int debuglvl, const Hash *hash_table, void *data)
 int
 compare_ports(const void *serv_hash, const void *serv_req)
 {
-    struct ServicesData_    *sertable = NULL,
+    struct vrmr_service    *sertable = NULL,
                             *sersearch = NULL;
     struct vrmr_portdata         *table_port_ptr = NULL,
                             *search_port_ptr = NULL;
@@ -280,8 +280,8 @@ compare_ports(const void *serv_hash, const void *serv_req)
     }
 
     /* cast */
-    sertable  = (struct ServicesData_ *)serv_hash;
-    sersearch = (struct ServicesData_ *)serv_req;
+    sertable  = (struct vrmr_service *)serv_hash;
+    sersearch = (struct vrmr_service *)serv_req;
 
     /* here we just take the top node, because thats the only one we use for a request */
     if(!(d_node = sersearch->PortrangeList.top))
@@ -383,12 +383,12 @@ compare_ipaddress(const void *string1, const void *string2)
 unsigned int
 hash_port(const void *key)
 {
-    struct ServicesData_  *ser_ptr;
+    struct vrmr_service  *ser_ptr;
 
     if(!key)
         return(1);
 
-    ser_ptr = (struct ServicesData_ *)key;
+    ser_ptr = (struct vrmr_service *)key;
 
     return((unsigned int)ser_ptr->hash_port);
 }
@@ -499,7 +499,7 @@ init_services_hashtable(    const int debuglvl,
 {
     d_list_node             *d_node = NULL;
     int                     port = 0;
-    struct ServicesData_    *ser_ptr = NULL;
+    struct vrmr_service    *ser_ptr = NULL;
     struct vrmr_portdata         *portrange_ptr = NULL;
     d_list_node             *d_node_serlist = NULL;
 
@@ -666,7 +666,7 @@ init_zonedata_hashtable(    const int debuglvl,
 void *
 search_service_in_hash(const int debuglvl, const int src, const int dst, const int protocol, const Hash *serhash)
 {
-    struct ServicesData_    *ser_search_ptr = NULL,
+    struct vrmr_service    *ser_search_ptr = NULL,
                             *return_ptr = NULL;
     struct vrmr_portdata         *portrange_ptr = NULL;
     int                     hash_port = 0,

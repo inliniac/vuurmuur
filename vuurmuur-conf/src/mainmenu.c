@@ -658,7 +658,7 @@ static void
 mm_check_status_services(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_services *services)
 {
     d_list_node             *d_node = NULL;
-    struct ServicesData_    *ser_ptr = NULL;
+    struct vrmr_service    *ser_ptr = NULL;
 
     if(services == NULL)
     {

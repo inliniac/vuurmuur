@@ -781,7 +781,7 @@ struct vrmr_zone {
 /*
     this is our structure for the services data
 */
-typedef struct ServicesData_
+typedef struct vrmr_service
 {
     int     type;               /* this should always be on top */
 
@@ -947,10 +947,10 @@ struct ConntrackData
         sername is a pointer to service->name unless service is NULL
     */
     char                    *sername;
-    struct ServicesData_    *service;
+    struct vrmr_service    *service;
 
     /*  this is for hashing the service. It is also supplied in
-        struct ServicesData_, but we need it also for undefined
+        struct vrmr_service, but we need it also for undefined
         services, so we suppy it here. We only hash on protocol and
         dst_port, because the src_port is almost always different.
     */
@@ -1403,18 +1403,18 @@ int zones_network_ipv6_enabled(const int, struct vrmr_zone *);
 int init_services(const int, /*@out@*/ struct vrmr_services *, struct vrmr_regex *);
 int insert_service(const int, struct vrmr_services *, char *);
 void *search_service(const int, const struct vrmr_services *, char *);
-int read_service(const int, char *, struct ServicesData_ *);
+int read_service(const int, char *, struct vrmr_service *);
 void services_print_list(const struct vrmr_services *);
 int split_portrange(char *, int *, int *);
-int process_portrange(const int, const char *, const char *, struct ServicesData_ *);
+int process_portrange(const int, const char *, const char *, struct vrmr_service *);
 void portrange_print_dlist(const d_list *);
 void destroy_serviceslist(const int, struct vrmr_services *);
 int new_service(const int, struct vrmr_services *, char *, int);
 int delete_service(const int, struct vrmr_services *, char *, int);
 int validate_servicename(const int, const char *, regex_t *, char);
-int services_save_portranges(const int, struct ServicesData_ *);
+int services_save_portranges(const int, struct vrmr_service *);
 int valid_tcpudp_port(const int, int);
-int services_check(const int, struct ServicesData_ *);
+int services_check(const int, struct vrmr_service *);
 int vrmr_services_load(const int, struct vrmr_services *, struct vrmr_regex *);
 
 
