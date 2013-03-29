@@ -2469,7 +2469,7 @@ create_normal_rules(const int debuglvl,
         /* create the rule */
         if (active == TRUE)
         {
-            if(rule_ptr->action == AT_SEPARATOR)
+            if(rule_ptr->action == VRMR_AT_SEPARATOR)
             {
                 /* here we print the description if we are in bashmode */
                 if(conf.bash_out == TRUE && rule_ptr->rulecache.description != NULL)

@@ -513,7 +513,7 @@ protectrule_loaded(const int debuglvl, d_list *rules_list, char *action, char *d
         if(act == rule_ptr->action)
         {
             /* accept rule */
-            if(act == AT_ACCEPT)
+            if(act == VRMR_AT_ACCEPT)
             {
                 if(strcasecmp(danger,rule_ptr->service) == 0)
                     return(1);
@@ -1283,7 +1283,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
         {
             rule_ptr = d_node->data;
 
-            if(rule_ptr->action == AT_PROTECT)
+            if(rule_ptr->action == VRMR_AT_PROTECT)
             {
                 (void)vrprint.audit("%2d: %s against %s",
                             i, rules_itoaction(rule_ptr->action),

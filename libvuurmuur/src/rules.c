@@ -50,22 +50,22 @@ determine_action(const int debuglvl, struct vuurmuur_config *cfg, char *query, c
     }
 
     action_type = rules_actiontoi(query);
-    if(action_type <= AT_ERROR || action_type >= AT_TOO_BIG)
+    if(action_type <= VRMR_AT_ERROR || action_type >= VRMR_AT_TOO_BIG)
     {
         (void)vrprint.error(-1, "Error", "unknown action '%s' "
             "(in: %s:%d).", query, __FUNC__, __LINE__);
         return(-1);
     }
 
-    if(action_type == AT_ACCEPT)
+    if(action_type == VRMR_AT_ACCEPT)
     {
         (void)strlcpy(action, "NEWACCEPT", size);
     }
-    else if(action_type == AT_DROP)
+    else if(action_type == VRMR_AT_DROP)
     {
         (void)strlcpy(action, "DROP", size);
     }
-    else if(action_type == AT_REJECT)
+    else if(action_type == VRMR_AT_REJECT)
     {
         (void)strlcpy(action, "REJECT", size);
         if(option->reject_option == 1)
@@ -85,11 +85,11 @@ determine_action(const int debuglvl, struct vuurmuur_config *cfg, char *query, c
             }
         }
     }
-    else if(action_type == AT_CHAIN)
+    else if(action_type == VRMR_AT_CHAIN)
     {
         (void)strlcpy(action, option->chain, size);
     }
-    else if(action_type == AT_REDIRECT)
+    else if(action_type == VRMR_AT_REDIRECT)
     {
         (void)strlcpy(action, "REDIRECT", size);
         if(option->redirectport > 0)
@@ -108,7 +108,7 @@ determine_action(const int debuglvl, struct vuurmuur_config *cfg, char *query, c
             return(-1);
         }
     }
-    else if(action_type == AT_LOG)
+    else if(action_type == VRMR_AT_LOG)
     {
         if(strcmp(cfg->loglevel, "") == 0)
             (void)strlcpy(action, "LOG", size);
@@ -123,25 +123,25 @@ determine_action(const int debuglvl, struct vuurmuur_config *cfg, char *query, c
             (void)vrprint.debug(__FUNC__, "set option->rule_log "
                     "to FALSE because action is LOG.");
     }
-    else if(action_type == AT_MASQ)
+    else if(action_type == VRMR_AT_MASQ)
     {
         (void)strlcpy(action, "MASQUERADE", size);
     }
-    else if(action_type == AT_SNAT)
+    else if(action_type == VRMR_AT_SNAT)
     {
         (void)strlcpy(action, "SNAT", size);
     }
-    else if(action_type == AT_PORTFW ||
-        action_type == AT_DNAT ||
-        action_type == AT_BOUNCE)
+    else if(action_type == VRMR_AT_PORTFW ||
+        action_type == VRMR_AT_DNAT ||
+        action_type == VRMR_AT_BOUNCE)
     {
         (void)strlcpy(action, "DNAT", size);
     }
-    else if(action_type == AT_QUEUE)
+    else if(action_type == VRMR_AT_QUEUE)
     {
         (void)strlcpy(action, "NEWQUEUE", size);
     }
-    else if(action_type == AT_NFQUEUE)
+    else if(action_type == VRMR_AT_NFQUEUE)
     {
         (void)strlcpy(action, "NEWNFQUEUE", size);
     }
@@ -187,7 +187,7 @@ rules_analyze_rule( const int debuglvl,
     }
 
     /* first the protect rule */
-    if(rule_ptr->action == AT_PROTECT)
+    if(rule_ptr->action == VRMR_AT_PROTECT)
     {
         if(debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "action: %s, who: %s, danger: %s, source: %s",
@@ -252,7 +252,7 @@ rules_analyze_rule( const int debuglvl,
     }
     /* network accept rule */
     else if(rule_ptr->type == PROT_IPTABLES &&
-        (rule_ptr->action == AT_ACCEPT || rule_ptr->action == AT_QUEUE))
+        (rule_ptr->action == VRMR_AT_ACCEPT || rule_ptr->action == VRMR_AT_QUEUE))
     {
         create->danger.solution = PROT_IPTABLES;
 
@@ -286,7 +286,7 @@ rules_analyze_rule( const int debuglvl,
         }
     }
     /* separator */
-    else if(rule_ptr->action == AT_SEPARATOR)
+    else if(rule_ptr->action == VRMR_AT_SEPARATOR)
     {
         /* not much here */
         if(debuglvl >= MEDIUM)
@@ -450,14 +450,14 @@ rules_analyze_rule( const int debuglvl,
         }
 
         /* QUEUE-ing can only be in input, output and forward rules */
-        if( rule_ptr->action == AT_QUEUE &&
+        if( rule_ptr->action == VRMR_AT_QUEUE &&
             (create->ruletype != RT_INPUT && create->ruletype != RT_OUTPUT && create->ruletype != RT_FORWARD))
         {
             (void)vrprint.error(-1, "Error", "the QUEUE target can only be used in the input, output and forward chains (in: %s).", __FUNC__);
             return(-1);
         }
 
-        if( rule_ptr->action == AT_CHAIN &&
+        if( rule_ptr->action == VRMR_AT_CHAIN &&
             (rule_ptr->opt == NULL || rule_ptr->opt->chain[0] == '\0'))
         {
             (void)vrprint.error(-1, "Error", "the CHAIN target needs option 'chain' to be set (in: %s:%d).",
@@ -629,7 +629,7 @@ rules_analyze_rule( const int debuglvl,
         create->description = NULL;
     }
 
-    if(rule_ptr->action == AT_PROTECT)
+    if(rule_ptr->action == VRMR_AT_PROTECT)
     {
         /* description */
         if(cnf->bash_out && create->description != NULL)
@@ -641,7 +641,7 @@ rules_analyze_rule( const int debuglvl,
         }
     }
     else if(rule_ptr->type == PROT_IPTABLES &&
-        (rule_ptr->action == AT_ACCEPT || rule_ptr->action == AT_QUEUE))
+        (rule_ptr->action == VRMR_AT_ACCEPT || rule_ptr->action == VRMR_AT_QUEUE))
     {
         /* description */
         if(cnf->bash_out && create->description != NULL)
@@ -653,7 +653,7 @@ rules_analyze_rule( const int debuglvl,
         }
     }
     /* separator */
-    else if(cnf->bash_out == TRUE && rule_ptr->action == AT_SEPARATOR)
+    else if(cnf->bash_out == TRUE && rule_ptr->action == VRMR_AT_SEPARATOR)
     {
         char *str = NULL;
 
@@ -781,7 +781,7 @@ vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, struct vrm
                 else
                 {
                     /* protect rules are no longer supported in the main rules list */
-                    if(rule_ptr->action == AT_PROTECT)
+                    if(rule_ptr->action == VRMR_AT_PROTECT)
                     {
                         if(protect_warning_shown == FALSE)
                         {
@@ -872,7 +872,7 @@ vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, struct vrm
                 else
                 {
                     /* protect rules are no longer supported in the main rules list */
-                    if(rule_ptr->action == AT_PROTECT)
+                    if(rule_ptr->action == VRMR_AT_PROTECT)
                     {
                         if(protect_warning_shown == FALSE)
                         {
@@ -981,13 +981,13 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
     action_str[var_pos] = '\0';
 
     rule_ptr->action = rules_actiontoi(action_str);
-    if(rule_ptr->action <= AT_ERROR || rule_ptr->action >= AT_TOO_BIG)
+    if(rule_ptr->action <= VRMR_AT_ERROR || rule_ptr->action >= VRMR_AT_TOO_BIG)
         return(-1);
 
     /*
         now we analyze the action
     */
-    if(rule_ptr->action == AT_PROTECT)
+    if(rule_ptr->action == VRMR_AT_PROTECT)
     {
         /*
             get the who, or 'against'
@@ -1123,7 +1123,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
     }
     else
     {
-        if(rule_ptr->action != AT_SEPARATOR)
+        if(rule_ptr->action != VRMR_AT_SEPARATOR)
         {
             /*
                 first check for the keyword 'service'
@@ -1409,7 +1409,7 @@ rules_assemble_rule(const int debuglvl, struct RuleData_ *rule_ptr)
     }
 
     /* assemble the line */
-    if( rule_ptr->action == AT_SEPARATOR)
+    if( rule_ptr->action == VRMR_AT_SEPARATOR)
     {
         snprintf(buf, sizeof(buf), "separator");
     }
@@ -1863,7 +1863,7 @@ rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options *opt,
         (void)vrprint.debug(__FUNC__, "action: '%s'.", action);
 
     action_type = rules_actiontoi(action);
-    if(action_type <= AT_ERROR || action_type >= AT_TOO_BIG)
+    if(action_type <= VRMR_AT_ERROR || action_type >= VRMR_AT_TOO_BIG)
     {
         (void)vrprint.error(-1, "Error", "unknown action '%s' "
                 "(in: %s:%d).", action, __FUNC__, __LINE__);
@@ -1879,7 +1879,7 @@ rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options *opt,
     }
 
     /* this one comes first so it's clearly visible in vuurmuur_conf */
-    if(opt->via_int[0] != '\0' && action_type == AT_BOUNCE)
+    if(opt->via_int[0] != '\0' && action_type == VRMR_AT_BOUNCE)
     {
         snprintf(interfacestr, sizeof(interfacestr),
                 "via_int=\"%s\",", opt->via_int);
@@ -1918,7 +1918,7 @@ rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options *opt,
         }
     }
 
-    if(action_type == AT_NFQUEUE)
+    if(action_type == VRMR_AT_NFQUEUE)
     {
         snprintf(nfqueue_string, sizeof(nfqueue_string),
                 "nfqueuenum=\"%u\",", opt->nfqueue_num);
@@ -1931,7 +1931,7 @@ rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options *opt,
         }
     }
 
-    if(opt->chain[0] != '\0' && action_type == AT_CHAIN)
+    if(opt->chain[0] != '\0' && action_type == VRMR_AT_CHAIN)
     {
         snprintf(chainstr, sizeof(chainstr),
                 "chain=\"%s\",", opt->chain);
@@ -1945,11 +1945,11 @@ rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options *opt,
     }
 
     /* the log options are also valid for the action LOG */
-    if((opt->rule_log == TRUE || action_type == AT_LOG) && action_type != AT_SEPARATOR)
+    if((opt->rule_log == TRUE || action_type == VRMR_AT_LOG) && action_type != VRMR_AT_SEPARATOR)
     {
         /* log option is only valid when action is not LOG */
         if( opt->rule_log == TRUE &&
-            action_type != AT_LOG)
+            action_type != VRMR_AT_LOG)
         {
             if(strlcat(options, "log,", sizeof(options)) >= sizeof(options))
             {
@@ -2009,7 +2009,7 @@ rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options *opt,
     }
 
     /* queue, for portfw and redirect */
-    if(opt->queue == 1 && (action_type == AT_PORTFW || action_type == AT_REDIRECT))
+    if(opt->queue == 1 && (action_type == VRMR_AT_PORTFW || action_type == VRMR_AT_REDIRECT))
     {
         if(strlcat(options, "queue,", sizeof(options)) >= sizeof(options))
         {
@@ -2020,7 +2020,7 @@ rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options *opt,
     }
 
     /* listenport and remoteport */
-    if(action_type == AT_PORTFW || action_type == AT_DNAT)
+    if(action_type == VRMR_AT_PORTFW || action_type == VRMR_AT_DNAT)
     {
         if(opt->listenport == 1)
         {
@@ -2070,7 +2070,7 @@ rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options *opt,
 
     if(opt->reject_option == 1)
     {
-        if(action_type == AT_REJECT)
+        if(action_type == VRMR_AT_REJECT)
         {
             if(strlcat(options, "rejecttype=\"", sizeof(options)) >= sizeof(options))
             {
@@ -2095,7 +2095,7 @@ rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options *opt,
 
     if(opt->redirectport > 0 && opt->redirectport <= 65535)
     {
-        if(action_type == AT_REDIRECT)
+        if(action_type == VRMR_AT_REDIRECT)
         {
             snprintf(redirect_port, sizeof(redirect_port), "%d", opt->redirectport);
 
@@ -2460,7 +2460,7 @@ search_rule(const int debuglvl, struct vrmr_rules *rules, struct RuleData_ *sear
         if(listrule_ptr->action == searchrule_ptr->action)
         {
             /* protect rule */
-            if(searchrule_ptr->action == AT_PROTECT)
+            if(searchrule_ptr->action == VRMR_AT_PROTECT)
             {
                 /* compare who */
                 if(strcmp(listrule_ptr->who, searchrule_ptr->who) == 0)
@@ -3218,19 +3218,19 @@ rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_options *o
 
 
 /*
-    AT_ERROR = -1,
-    AT_ACCEPT,
-    AT_DROP,
-    AT_REJECT,
-    AT_LOG,
-    AT_PORTFW,
-    AT_REDIRECT,
-    AT_SNAT,
-    AT_MASQ,
-    AT_QUEUE,
-    AT_CHAIN,
+    VRMR_AT_ERROR = -1,
+    VRMR_AT_ACCEPT,
+    VRMR_AT_DROP,
+    VRMR_AT_REJECT,
+    VRMR_AT_LOG,
+    VRMR_AT_PORTFW,
+    VRMR_AT_REDIRECT,
+    VRMR_AT_SNAT,
+    VRMR_AT_MASQ,
+    VRMR_AT_QUEUE,
+    VRMR_AT_CHAIN,
 
-    AT_SEPARATOR,
+    VRMR_AT_SEPARATOR,
 */
 
 char *actions[] =
@@ -3308,45 +3308,45 @@ rules_actiontoi(const char *action)
     {
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
-        return(AT_ERROR);
+        return(VRMR_AT_ERROR);
     }
 
     if(strcasecmp(action, "accept") == 0)
-        return(AT_ACCEPT);
+        return(VRMR_AT_ACCEPT);
     else if(strcasecmp(action, "drop") == 0)
-        return(AT_DROP);
+        return(VRMR_AT_DROP);
     else if(strcasecmp(action, "reject") == 0)
-        return(AT_REJECT);
+        return(VRMR_AT_REJECT);
     else if(strcasecmp(action, "log") == 0)
-        return(AT_LOG);
+        return(VRMR_AT_LOG);
     else if(strcasecmp(action, "portfw") == 0)
-        return(AT_PORTFW);
+        return(VRMR_AT_PORTFW);
     else if(strcasecmp(action, "redirect") == 0)
-        return(AT_REDIRECT);
+        return(VRMR_AT_REDIRECT);
     else if(strcasecmp(action, "snat") == 0)
-        return(AT_SNAT);
+        return(VRMR_AT_SNAT);
     else if(strcasecmp(action, "masq") == 0)
-        return(AT_MASQ);
+        return(VRMR_AT_MASQ);
     else if(strcasecmp(action, "queue") == 0)
-        return(AT_QUEUE);
+        return(VRMR_AT_QUEUE);
     else if(strcasecmp(action, "chain") == 0)
-        return(AT_CHAIN);
+        return(VRMR_AT_CHAIN);
     else if(strcasecmp(action, "dnat") == 0)
-        return(AT_DNAT);
+        return(VRMR_AT_DNAT);
     else if(strcasecmp(action, "bounce") == 0)
-        return(AT_BOUNCE);
+        return(VRMR_AT_BOUNCE);
     else if(strcasecmp(action, "nfqueue") == 0)
-        return(AT_NFQUEUE);
+        return(VRMR_AT_NFQUEUE);
     else if(strcasecmp(action, "sepparator") == 0 ||
         strcasecmp(action, "separator") == 0)
-        return(AT_SEPARATOR);
+        return(VRMR_AT_SEPARATOR);
     else if(strcasecmp(action, "protect") == 0)
-        return(AT_PROTECT);
+        return(VRMR_AT_PROTECT);
     else
     {
         (void)vrprint.error(-1, "Error", "unknown action '%s' (in: %s:%d).",
                 action, __FUNC__, __LINE__);
-        return(AT_ERROR);
+        return(VRMR_AT_ERROR);
     }
 }
 
@@ -3369,13 +3369,13 @@ rules_create_protect_rule(const int debuglvl, char *action, /*@null@*/ char *who
         return(NULL);
 
     rule_ptr->action = rules_actiontoi(action);
-    if(rule_ptr->action <= AT_ERROR || rule_ptr->action >= AT_TOO_BIG)
+    if(rule_ptr->action <= VRMR_AT_ERROR || rule_ptr->action >= VRMR_AT_TOO_BIG)
     {
         free(rule_ptr);
         return(NULL);
     }
 
-    if(rule_ptr->action == AT_ACCEPT)
+    if(rule_ptr->action == VRMR_AT_ACCEPT)
     {
         /* who do we protect */
         if(strlcpy(rule_ptr->service, danger, sizeof(rule_ptr->service)) >= sizeof(rule_ptr->service))
@@ -3833,29 +3833,29 @@ rules_determine_ruletype(const int debuglvl, struct RuleData_ *rule_ptr)
     }
 
     /* for some actions, we have special chains */
-    if(rule_ptr->action == AT_MASQ)
+    if(rule_ptr->action == VRMR_AT_MASQ)
     {
         ruletype = RT_MASQ;
     }
-    else if(rule_ptr->action == AT_SNAT)
+    else if(rule_ptr->action == VRMR_AT_SNAT)
     {
         ruletype = RT_SNAT;
     }
     /* prerouting chain for portfw/dnat */
-    else if(rule_ptr->action == AT_PORTFW)
+    else if(rule_ptr->action == VRMR_AT_PORTFW)
     {
         ruletype = RT_PORTFW;
     }
     /* prerouting for redirect */
-    else if(rule_ptr->action == AT_REDIRECT)
+    else if(rule_ptr->action == VRMR_AT_REDIRECT)
     {
         ruletype = RT_REDIRECT;
     }
-    else if(rule_ptr->action == AT_DNAT)
+    else if(rule_ptr->action == VRMR_AT_DNAT)
     {
         ruletype = RT_DNAT;
     }
-    else if(rule_ptr->action == AT_BOUNCE)
+    else if(rule_ptr->action == VRMR_AT_BOUNCE)
     {
         ruletype = RT_BOUNCE;
     }

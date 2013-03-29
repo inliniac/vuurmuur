@@ -4132,7 +4132,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_pt
                 return(-1);
             }
 
-            if(rule_ptr->action == AT_PROTECT)
+            if(rule_ptr->action == VRMR_AT_PROTECT)
                 snprintf(rule_str, sizeof(rule_str), "protect against %s from %s", rule_ptr->danger, rule_ptr->source);
             else
                 snprintf(rule_str, sizeof(rule_str), "%s %s", rules_itoaction(rule_ptr->action), rule_ptr->service);
@@ -4974,7 +4974,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
         {
             rule_ptr = d_node->data;
 
-            if(rule_ptr->action == AT_PROTECT)
+            if(rule_ptr->action == VRMR_AT_PROTECT)
             {
                 if(rule_ptr->source[0] != '\0')
                     (void)vrprint.audit("%2d: %s against %s from %s",

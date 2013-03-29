@@ -5398,7 +5398,7 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
             return(-1);
         }
 
-        if (rule_ptr->action == AT_NFQUEUE)
+        if (rule_ptr->action == VRMR_AT_NFQUEUE)
         {
             if (rule_ptr->opt != NULL)
                 queue_num = rule_ptr->opt->nfqueue_num;
@@ -5488,7 +5488,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
             return(-1);
         }
 
-        if (rule_ptr->action == AT_NFQUEUE)
+        if (rule_ptr->action == VRMR_AT_NFQUEUE)
         {
             if (rule_ptr->opt != NULL)
                 queue_num = rule_ptr->opt->nfqueue_num;

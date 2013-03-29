@@ -1752,7 +1752,7 @@ vrmr_interfaces_analyze_rule(const int debuglvl,
     }
 
     /* first the protect rule */
-    if(rule_ptr->action == AT_PROTECT)
+    if(rule_ptr->action == VRMR_AT_PROTECT)
     {
         if(debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "action: %s, who: %s, danger: %s, source: %s",
@@ -1861,11 +1861,11 @@ interfaces_rule_parse_line(const int debuglvl, const char *line, struct RuleData
     action_str[var_pos] = '\0';
 
     rule_ptr->action = rules_actiontoi(action_str);
-    if(rule_ptr->action <= AT_ERROR || rule_ptr->action >= AT_TOO_BIG)
+    if(rule_ptr->action <= VRMR_AT_ERROR || rule_ptr->action >= VRMR_AT_TOO_BIG)
         return(-1);
 
     /* now we analyze the action */
-    if(rule_ptr->action == AT_PROTECT)
+    if(rule_ptr->action == VRMR_AT_PROTECT)
     {
         /* get the 'against' */
         for(line_pos++, var_pos = 0; var_pos < sizeof(against_keyw) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)

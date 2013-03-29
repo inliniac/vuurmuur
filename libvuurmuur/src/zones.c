@@ -1748,7 +1748,7 @@ zones_network_analyze_rule( const int debuglvl,
     }
 
     /* first the protect rule */
-    if(rule_ptr->action == AT_PROTECT)
+    if(rule_ptr->action == VRMR_AT_PROTECT)
     {
         if(debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "action: %s, who: %s, danger: %s, source: %s",
@@ -1810,8 +1810,8 @@ zones_network_analyze_rule( const int debuglvl,
     }
     /* network accept rule */
     else if(rule_ptr->type == PROT_IPTABLES &&
-        (rule_ptr->action == AT_ACCEPT ||
-        rule_ptr->action == AT_QUEUE))
+        (rule_ptr->action == VRMR_AT_ACCEPT ||
+        rule_ptr->action == VRMR_AT_QUEUE))
     {
         create->danger.solution = PROT_IPTABLES;
 
@@ -1891,11 +1891,11 @@ zones_network_rule_parse_line(const int debuglvl, const char *line, struct RuleD
     action_str[var_pos] = '\0';
 
     rule_ptr->action = rules_actiontoi(action_str);
-    if(rule_ptr->action <= AT_ERROR || rule_ptr->action >= AT_TOO_BIG)
+    if(rule_ptr->action <= VRMR_AT_ERROR || rule_ptr->action >= VRMR_AT_TOO_BIG)
         return(-1);
 
     /* now we analyze the action */
-    if(rule_ptr->action == AT_PROTECT)
+    if(rule_ptr->action == VRMR_AT_PROTECT)
     {
         /* get the 'against' */
         for(line_pos++, var_pos = 0; var_pos < sizeof(against_keyw) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
@@ -1959,7 +1959,7 @@ zones_network_rule_parse_line(const int debuglvl, const char *line, struct RuleD
         rule_ptr->type = PROT_IPTABLES;
     }
     /* accept target */
-    else if(rule_ptr->action == AT_ACCEPT)
+    else if(rule_ptr->action == VRMR_AT_ACCEPT)
     {
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "action: '%s'", rules_itoaction(rule_ptr->action));

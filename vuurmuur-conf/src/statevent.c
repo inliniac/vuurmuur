@@ -804,7 +804,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
     conn_ct_get_connections(debuglvl, cnf, ctr, &connreq);
 
     action = rules_actiontoi(log->action);
-    if(action == AT_DROP || action == AT_REJECT)
+    if(action == VRMR_AT_DROP || action == VRMR_AT_REJECT)
         menu_items--;
 
     /* create the window and put it in the middle of the screen */
@@ -827,7 +827,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vuurmuur_config *cnf,
     VrMenuSetupNameList(debuglvl, menu);
     VrMenuSetupDescList(debuglvl, menu);
 
-    if(action != AT_DROP && action != AT_REJECT)
+    if(action != VRMR_AT_DROP && action != VRMR_AT_REJECT)
     {
         /* setup menu items */
         str = vrmr_get_string(gettext("Kill this connection"));

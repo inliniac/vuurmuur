@@ -1268,31 +1268,31 @@ enum
 /*  Valid actions are: "Accept", "Drop", "Reject", "Log",
     "Portfw", "Redirect", "Snat", "Masq", "Queue", "Chain"
 */
-enum actiontypes
+enum vrmr_actiontypes
 {
-    AT_ERROR = -1,
-    AT_ACCEPT,      /* ACCEPT */
-    AT_DROP,        /* DROP */
-    AT_REJECT,      /* REJECT */
-    AT_LOG,         /* LOG */
-    AT_PORTFW,      /* DNAT+ACCEPT( or QUEUE) */
-    AT_REDIRECT,    /* REDIRECT+ACCEPT( or QUEUE) */
-    AT_SNAT,        /* SNAT */
-    AT_MASQ,        /* MASQUERADE */
-    AT_QUEUE,       /* QUEUE */
-    AT_CHAIN,       /* custom chain */
-    AT_DNAT,        /* DNAT */
-    AT_BOUNCE,      /* DNAT+SNAT */
-    AT_NFQUEUE,     /* NFQUEUE */
+    VRMR_AT_ERROR = -1,
+    VRMR_AT_ACCEPT,      /* ACCEPT */
+    VRMR_AT_DROP,        /* DROP */
+    VRMR_AT_REJECT,      /* REJECT */
+    VRMR_AT_LOG,         /* LOG */
+    VRMR_AT_PORTFW,      /* DNAT+ACCEPT( or QUEUE) */
+    VRMR_AT_REDIRECT,    /* REDIRECT+ACCEPT( or QUEUE) */
+    VRMR_AT_SNAT,        /* SNAT */
+    VRMR_AT_MASQ,        /* MASQUERADE */
+    VRMR_AT_QUEUE,       /* QUEUE */
+    VRMR_AT_CHAIN,       /* custom chain */
+    VRMR_AT_DNAT,        /* DNAT */
+    VRMR_AT_BOUNCE,      /* DNAT+SNAT */
+    VRMR_AT_NFQUEUE,     /* NFQUEUE */
 
     /* special for networks and interfaces */
-    AT_PROTECT,
+    VRMR_AT_PROTECT,
 
     /* special, not really an action */
-    AT_SEPARATOR,
+    VRMR_AT_SEPARATOR,
 
     /* this is of course not an action */
-    AT_TOO_BIG,
+    VRMR_AT_TOO_BIG,
 };
 
 

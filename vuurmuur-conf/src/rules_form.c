@@ -1209,7 +1209,7 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
         if(d_list_node_is_bot(debuglvl, dl_node))
             bot_visible = TRUE;
 
-        if(rule_ptr->action == AT_SEPARATOR)
+        if(rule_ptr->action == VRMR_AT_SEPARATOR)
         {
             field_opts_off(cur_bar->action, O_VISIBLE);
             field_opts_off(cur_bar->service, O_VISIBLE);
@@ -2343,7 +2343,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
             {
                 rule_ptr = d_node->data;
 
-                if(rule_ptr->action == AT_SEPARATOR)
+                if(rule_ptr->action == VRMR_AT_SEPARATOR)
                 {
                     if(rule_ptr->opt != NULL && rule_ptr->opt->comment[0] != '\0')
                         (void)vrprint.audit("%2d: === %s ===",
@@ -2592,12 +2592,12 @@ edit_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
 
     if(rule_ptr != NULL)
     {
-        if(rule_ptr->action == AT_PROTECT)
+        if(rule_ptr->action == VRMR_AT_PROTECT)
         {
             (void)vrprint.error(-1, VR_INTERR, "edit_rule can no longer be used for editting protect rules (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        else if(rule_ptr->action == AT_SEPARATOR)
+        else if(rule_ptr->action == VRMR_AT_SEPARATOR)
         {
             retval = edit_rule_separator(debuglvl, zones, interfaces, services, rule_ptr, rule_num, reg);
         }
@@ -3271,7 +3271,7 @@ edit_rule_simple_check(const int debuglvl, struct RuleData_ *rule_ptr)
 static int
 edit_rule_check_action_opts(const int debuglvl, struct RuleData_ *rule_ptr)
 {
-    if(rule_ptr->action == AT_BOUNCE)
+    if(rule_ptr->action == VRMR_AT_BOUNCE)
     {
         if(rule_ptr->opt == NULL || rule_ptr->opt->via_int[0] == '\0')
         {
@@ -3279,7 +3279,7 @@ edit_rule_check_action_opts(const int debuglvl, struct RuleData_ *rule_ptr)
             return(0);
         }
     }
-    else if(rule_ptr->action == AT_REDIRECT)
+    else if(rule_ptr->action == VRMR_AT_REDIRECT)
     {
         if(rule_ptr->opt == NULL || rule_ptr->opt->redirectport == 0)
         {
@@ -4001,39 +4001,39 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
     while(quit == 0)
     {
         /* hide/disable fields we don't need */
-        if(rule_ptr->action != AT_REJECT)
+        if(rule_ptr->action != VRMR_AT_REJECT)
         {
             field_opts_off(RuleFlds.reject_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.reject_label_fld_ptr, O_VISIBLE);
         }
-        if(rule_ptr->action != AT_CHAIN)
+        if(rule_ptr->action != VRMR_AT_CHAIN)
         {
             field_opts_off(RuleFlds.chain_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.chain_label_fld_ptr, O_VISIBLE);
         }
-        if(rule_ptr->action != AT_REDIRECT)
+        if(rule_ptr->action != VRMR_AT_REDIRECT)
         {
             field_opts_off(RuleFlds.redirect_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.redirect_label_fld_ptr, O_VISIBLE);
         }
-        if(rule_ptr->action != AT_BOUNCE)
+        if(rule_ptr->action != VRMR_AT_BOUNCE)
         {
             field_opts_off(RuleFlds.via_int_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.via_int_label_fld_ptr, O_VISIBLE);
         }
-        if( (rule_ptr->action != AT_SNAT &&
-             rule_ptr->action != AT_MASQ &&
-             rule_ptr->action != AT_PORTFW &&
-             rule_ptr->action != AT_BOUNCE &&
-             rule_ptr->action != AT_DNAT) ||
+        if( (rule_ptr->action != VRMR_AT_SNAT &&
+             rule_ptr->action != VRMR_AT_MASQ &&
+             rule_ptr->action != VRMR_AT_PORTFW &&
+             rule_ptr->action != VRMR_AT_BOUNCE &&
+             rule_ptr->action != VRMR_AT_DNAT) ||
              !advanced_mode)
         {
             field_opts_off(RuleFlds.random_brackets_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.random_label_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.random_fld_ptr, O_VISIBLE);
         }
-        if( (rule_ptr->action != AT_REDIRECT &&
-             rule_ptr->action != AT_PORTFW) ||
+        if( (rule_ptr->action != VRMR_AT_REDIRECT &&
+             rule_ptr->action != VRMR_AT_PORTFW) ||
              !advanced_mode)
         {
             field_opts_off(RuleFlds.queue_brackets_fld_ptr, O_VISIBLE);
@@ -4051,8 +4051,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
             field_opts_off(RuleFlds.limit_fld_ptr, O_VISIBLE|O_STATIC);
             field_opts_off(RuleFlds.limit_label_fld_ptr, O_VISIBLE);
         }
-        if( (rule_ptr->action != AT_PORTFW &&
-            rule_ptr->action != AT_DNAT) ||
+        if( (rule_ptr->action != VRMR_AT_PORTFW &&
+            rule_ptr->action != VRMR_AT_DNAT) ||
             !advanced_mode)
         {
             field_opts_off(RuleFlds.listen_fld_ptr, O_VISIBLE);
@@ -4061,25 +4061,25 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
             field_opts_off(RuleFlds.remote_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.remote_label_fld_ptr, O_VISIBLE);
         }
-        if(rule_ptr->action == AT_LOG)
+        if(rule_ptr->action == VRMR_AT_LOG)
         {
             field_opts_off(RuleFlds.log_fld_ptr, O_ACTIVE);
         }
-        if( ((rule_ptr->action != AT_NFQUEUE)) ||
+        if( ((rule_ptr->action != VRMR_AT_NFQUEUE)) ||
             !advanced_mode)
         {
             field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
         }
-        if(rule_ptr->action != AT_LOG || !advanced_mode)
+        if(rule_ptr->action != VRMR_AT_LOG || !advanced_mode)
         {
             field_opts_off(RuleFlds.loglimit_label_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.loglimit_fld_ptr, O_VISIBLE);
         }
         if( !advanced_mode ||
-            rule_ptr->action == AT_SNAT ||
-            rule_ptr->action == AT_DNAT ||
-            rule_ptr->action == AT_MASQ)
+            rule_ptr->action == VRMR_AT_SNAT ||
+            rule_ptr->action == VRMR_AT_DNAT ||
+            rule_ptr->action == VRMR_AT_MASQ)
         {
             field_opts_off(RuleFlds.nfmark_label_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.nfmark_fld_ptr, O_VISIBLE);
@@ -4098,22 +4098,22 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
         }
 
         /* show/enable fields we need */
-        if(rule_ptr->action == AT_REJECT)
+        if(rule_ptr->action == VRMR_AT_REJECT)
         {
             field_opts_on(RuleFlds.reject_fld_ptr, O_VISIBLE);
             field_opts_on(RuleFlds.reject_label_fld_ptr, O_VISIBLE);
         }
-        if(rule_ptr->action == AT_CHAIN)
+        if(rule_ptr->action == VRMR_AT_CHAIN)
         {
             field_opts_on(RuleFlds.chain_fld_ptr, O_VISIBLE);
             field_opts_on(RuleFlds.chain_label_fld_ptr, O_VISIBLE);
         }
-        if(rule_ptr->action == AT_BOUNCE)
+        if(rule_ptr->action == VRMR_AT_BOUNCE)
         {
             field_opts_on(RuleFlds.via_int_fld_ptr, O_VISIBLE);
             field_opts_on(RuleFlds.via_int_label_fld_ptr, O_VISIBLE);
         }
-        if(rule_ptr->action == AT_REDIRECT)
+        if(rule_ptr->action == VRMR_AT_REDIRECT)
         {
             field_opts_on(RuleFlds.redirect_fld_ptr, O_VISIBLE);
             field_opts_on(RuleFlds.redirect_label_fld_ptr, O_VISIBLE);
@@ -4125,9 +4125,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                 field_opts_on(RuleFlds.queue_fld_ptr, O_VISIBLE);
             }
         }
-        if(rule_ptr->action == AT_SNAT || rule_ptr->action == AT_MASQ ||
-           rule_ptr->action == AT_DNAT || rule_ptr->action == AT_PORTFW ||
-           rule_ptr->action == AT_BOUNCE)
+        if(rule_ptr->action == VRMR_AT_SNAT || rule_ptr->action == VRMR_AT_MASQ ||
+           rule_ptr->action == VRMR_AT_DNAT || rule_ptr->action == VRMR_AT_PORTFW ||
+           rule_ptr->action == VRMR_AT_BOUNCE)
         {
             if(advanced_mode)
             {
@@ -4136,8 +4136,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                 field_opts_on(RuleFlds.random_fld_ptr, O_VISIBLE);
             }
         }
-        if( (rule_ptr->action == AT_PORTFW ||
-            rule_ptr->action == AT_DNAT) &&
+        if( (rule_ptr->action == VRMR_AT_PORTFW ||
+            rule_ptr->action == VRMR_AT_DNAT) &&
             advanced_mode)
         {
             field_opts_on(RuleFlds.listen_fld_ptr, O_VISIBLE);
@@ -4146,14 +4146,14 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
             field_opts_on(RuleFlds.remote_fld_ptr, O_VISIBLE);
             field_opts_on(RuleFlds.remote_label_fld_ptr, O_VISIBLE);
         }
-        if( rule_ptr->action == AT_PORTFW &&
+        if( rule_ptr->action == VRMR_AT_PORTFW &&
             advanced_mode)
         {
             field_opts_on(RuleFlds.queue_brackets_fld_ptr, O_VISIBLE);
             field_opts_on(RuleFlds.queue_label_fld_ptr, O_VISIBLE);
             field_opts_on(RuleFlds.queue_fld_ptr, O_VISIBLE);
         }
-        if( rule_ptr->action == AT_NFQUEUE
+        if( rule_ptr->action == VRMR_AT_NFQUEUE
             && advanced_mode)
         {
             field_opts_on(RuleFlds.nfqueuenum_label_fld_ptr, O_VISIBLE);
@@ -4172,18 +4172,18 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
             field_opts_on(RuleFlds.limit_label_fld_ptr, O_VISIBLE);
         }
 
-        if(rule_ptr->action != AT_LOG)
+        if(rule_ptr->action != VRMR_AT_LOG)
         {
             field_opts_on(RuleFlds.log_fld_ptr, O_ACTIVE);
         }
-        if(rule_ptr->action != AT_LOG && advanced_mode)
+        if(rule_ptr->action != VRMR_AT_LOG && advanced_mode)
         {
             field_opts_on(RuleFlds.loglimit_label_fld_ptr, O_VISIBLE);
             field_opts_on(RuleFlds.loglimit_fld_ptr, O_VISIBLE);
         }
-        if( rule_ptr->action != AT_SNAT &&
-            rule_ptr->action != AT_DNAT &&
-            rule_ptr->action != AT_MASQ &&
+        if( rule_ptr->action != VRMR_AT_SNAT &&
+            rule_ptr->action != VRMR_AT_DNAT &&
+            rule_ptr->action != VRMR_AT_MASQ &&
             advanced_mode)
         {
             field_opts_on(RuleFlds.nfmark_label_fld_ptr, O_VISIBLE);
@@ -4205,17 +4205,17 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
         }
 
         /* do some nice coloring of the action field */
-        if(rule_ptr->action == AT_ACCEPT)
+        if(rule_ptr->action == VRMR_AT_ACCEPT)
         {
             set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_green_rev);
             set_field_fore(RuleFlds.action_fld_ptr, vccnf.color_win_green_rev|A_BOLD);
         }
-        else if(rule_ptr->action == AT_DROP || rule_ptr->action == AT_REJECT)
+        else if(rule_ptr->action == VRMR_AT_DROP || rule_ptr->action == VRMR_AT_REJECT)
         {
             set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_red_rev);
             set_field_fore(RuleFlds.action_fld_ptr, vccnf.color_win_red_rev|A_BOLD);
         }
-        else if(rule_ptr->action == AT_LOG)
+        else if(rule_ptr->action == VRMR_AT_LOG)
         {
             set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_rev|A_BOLD);
             set_field_fore(RuleFlds.action_fld_ptr, vccnf.color_win_rev|A_BOLD);
@@ -4371,7 +4371,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                             free(action_ptr);
 
                             /* if action is LOG, disable the log option. */
-                            if(rule_ptr->action == AT_LOG)
+                            if(rule_ptr->action == VRMR_AT_LOG)
                             {
                                 set_field_buffer_wrap(debuglvl, RuleFlds.log_fld_ptr, 0, " ");
                             }
@@ -5039,7 +5039,7 @@ edit_rule_separator(const int debuglvl,
     starty = (max_height - height) /2;
 
     /* init the action_type */
-    if(rule_ptr->action != AT_SEPARATOR)
+    if(rule_ptr->action != VRMR_AT_SEPARATOR)
     {
         (void)vrprint.error(-1, VR_INTERR, "wrong action_type (in: %s:%d).",
                                 __FUNC__, __LINE__);
