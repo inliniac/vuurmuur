@@ -936,7 +936,7 @@ get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_t siz
         -1: error
 */
 int
-get_danger_info(const int debuglvl, char *danger, char *source, struct danger_info *danger_struct)
+get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr_danger_info *danger_struct)
 {
     /* safety */
     if(danger == NULL || source == NULL || danger_struct == NULL)

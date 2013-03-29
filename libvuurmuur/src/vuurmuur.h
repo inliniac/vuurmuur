@@ -626,8 +626,7 @@ struct vrmr_rule_options
     char            random; /* adds --random to the DNAT/SNAT/??? target */
 };
 
-struct danger_info
-{
+struct vrmr_danger_info {
     int             solution;                 // 1 = iptables, 2 = change proc
 
     char            proc_entry[MAX_PROC_ENTRY_LENGHT];          // line with the proc dir
@@ -849,7 +848,7 @@ struct RuleCache_
     int                 ruletype;           /* type of rule: input, output, forward, masq etc. */
     int                 ruleaction;         /* type of action: append, insert */
 
-    struct danger_info  danger;
+    struct vrmr_danger_info  danger;
 
     ServicesData        *service;           /* pointer to the service in the services-linked-list */
 
@@ -1430,7 +1429,7 @@ int check_active(const int debuglvl, char *data, int type);
 int get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t size);
 int check_ipv4address(const int debuglvl, char *network, char *netmask, char *ipaddress, char quiet);
 int get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_t size, regex_t *mac_rgx);
-int get_danger_info(const int debuglvl, char *danger, char *source, struct danger_info *danger_struct);
+int get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr_danger_info *danger_struct);
 char *get_network_for_ipv4(const int debuglvl, const char *ipaddress, d_list *zonelist);
 int vrmr_user_get_info(const int, struct vrmr_user *);
 
