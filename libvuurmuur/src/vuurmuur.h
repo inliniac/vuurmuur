@@ -626,23 +626,6 @@ struct vrmr_rule_options
     char            random; /* adds --random to the DNAT/SNAT/??? target */
 };
 
-
-struct chaincount
-{
-    int input;              /* number of input rules for this rule */
-    int output;
-    int forward;
-    int preroute;
-    int postroute;
-
-    int start_input;        /* where to insert this rule */
-    int start_output;
-    int start_forward;
-    int start_preroute;
-    int start_postroute;
-};
-
-
 struct danger_info
 {
     int             solution;                 // 1 = iptables, 2 = change proc
@@ -817,6 +800,21 @@ typedef struct ServicesData_
 } ServicesData;
 
 
+struct vrmr_rules_chaincount
+{
+    int input;              /* number of input rules for this rule */
+    int output;
+    int forward;
+    int preroute;
+    int postroute;
+
+    int start_input;        /* where to insert this rule */
+    int start_output;
+    int start_forward;
+    int start_preroute;
+    int start_postroute;
+};
+
 /* here we assemble the data for creating the actual rule */
 struct RuleCache_
 {
@@ -840,7 +838,7 @@ struct RuleCache_
 
     struct vrmr_interface       *via_int;           /* for bounce rules */
 
-    struct chaincount   iptcount;           /* the counters */
+    struct vrmr_rules_chaincount   iptcount;           /* the counters */
 
     char                action[122];        /* max: REJECT --reject-with icmp-proto-unreachable (42)
                                                 LOG --log-prefix 12345678901234567890123456789 (45)
