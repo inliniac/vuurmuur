@@ -758,7 +758,7 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, st
     };
 
     struct shadow_ifac_     *shadow_ptr=NULL;
-    struct InterfaceData_   *iface_ptr=NULL;
+    struct vrmr_interface   *iface_ptr=NULL;
 
     d_list_node             *d_node = NULL;
     d_list_node             *shadow_node = NULL;

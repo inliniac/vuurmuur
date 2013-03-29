@@ -3369,7 +3369,7 @@ edit_rule_normal(const int debuglvl, Zones *zones, struct vrmr_interfaces *inter
     struct ZoneData_        *zone_ptr = NULL,
                             *network_ptr = NULL;
     struct ServicesData_    *service_ptr = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     
     int                     result = 0;
     struct RuleCache_       tmp_ruledata;

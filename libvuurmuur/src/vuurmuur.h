@@ -687,7 +687,7 @@ typedef struct InterfaceCount_
 } InterfaceCount;
 
 
-typedef struct InterfaceData_
+struct vrmr_interface
 {
     /* this should always be on top */
     int             type;
@@ -752,7 +752,7 @@ typedef struct InterfaceData_
     /* tcpmss clamping */
     char            tcpmss_clamp;
 
-} InterfaceData;
+};
 
 
 /* this is our structure for the zone data */
@@ -844,9 +844,9 @@ struct RuleCache_
     ZoneData            *to;                /* to data */
 
     ZoneData            *who;               /* for protect */
-    InterfaceData       *who_int;           /* for protect */
+    struct vrmr_interface       *who_int;           /* for protect */
 
-    InterfaceData       *via_int;           /* for bounce rules */
+    struct vrmr_interface       *via_int;           /* for bounce rules */
 
     struct chaincount   iptcount;           /* the counters */
 
@@ -1565,7 +1565,7 @@ int vrmr_backends_unload(int debuglvl, struct vuurmuur_config *cfg);
 void *vrmr_search_interface(const int, const struct vrmr_interfaces *, const char *);
 void *vrmr_search_interface_by_ip(const int, struct vrmr_interfaces *, const char *);
 void interfaces_print_list(const struct vrmr_interfaces *interfaces);
-int read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr);
+int read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr);
 int vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *name);
 int vrmr_init_interfaces(const int debuglvl, /*@out@*/ struct vrmr_interfaces *interfaces);
 int new_interface(const int, struct vrmr_interfaces *, char *);
@@ -1576,16 +1576,16 @@ int get_iface_stats(const int, const char *, unsigned long *, unsigned long *, u
 int vrmr_get_iface_stats_from_ipt(const int debuglvl, struct vuurmuur_config *cfg, const char *iface_name, const char *chain, unsigned long long *recv_packets, unsigned long long *recv_bytes, unsigned long long *trans_packets, unsigned long long *trans_bytes);
 int validate_interfacename(const int, const char *, regex_t *);
 void destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfaces);
-int interfaces_get_rules(const int debuglvl, struct InterfaceData_ *iface_ptr);
-int interfaces_save_rules(const int, struct InterfaceData_ *);
-int interfaces_check(const int, struct InterfaceData_ *);
+int interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr);
+int interfaces_save_rules(const int, struct vrmr_interface *);
+int interfaces_check(const int, struct vrmr_interface *);
 int vrmr_interfaces_load(const int, struct vrmr_interfaces *);
-int interfaces_iface_up(const int, struct InterfaceData_ *);
+int interfaces_iface_up(const int, struct vrmr_interface *);
 int interfaces_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, struct vrmr_interfaces *, struct vuurmuur_config *);
 int interfaces_rule_parse_line(const int, const char *, struct RuleData_ *);
 int interface_check_devicename(const int, char *);
 #ifdef IPV6_ENABLED
-int interface_ipv6_enabled(const int, struct InterfaceData_ *);
+int interface_ipv6_enabled(const int, struct vrmr_interface *);
 #endif
 
 /*
@@ -1655,7 +1655,7 @@ char *vrmr_get_len_string(size_t max, char *fmt, ...);
 int vrmr_is_shape_rule(const int, /*@null@*/struct vrmr_rule_options *);
 int vrmr_is_shape_incoming_rule(const int, /*@null@*/struct vrmr_rule_options *);
 int vrmr_is_shape_outgoing_rule(const int, /*@null@*/struct vrmr_rule_options *);
-int vrmr_is_shape_interface(const int, /*@null@*/InterfaceData *);
+int vrmr_is_shape_interface(const int, /*@null@*/struct vrmr_interface *);
 
 
 /*

@@ -122,8 +122,8 @@ struct RuleCreateData_
     char                    from_int[16];
     char                    to_int[16];
 
-    struct InterfaceData_   *from_if_ptr;
-    struct InterfaceData_   *to_if_ptr;
+    struct vrmr_interface   *from_if_ptr;
+    struct vrmr_interface   *to_if_ptr;
 
     /* proto */
     char                    proto[16+6]; // why 16+6? <- the 6 is for ' --syn' for tcp
@@ -358,7 +358,7 @@ int reload_zonedata(const int, Zones *, struct vrmr_interfaces *, struct vrmr_re
 int reload_zonedata_check(const int, Zones *, struct vrmr_interfaces *, struct ZoneData_ *, struct vrmr_regex *);
 
 int reload_interfaces(const int, struct vrmr_interfaces *);
-int reload_interfaces_check(const int, struct InterfaceData_ *iface_ptr);
+int reload_interfaces_check(const int, struct vrmr_interface *iface_ptr);
 
 int check_for_changed_dynamic_ips(const int debuglvl, struct vrmr_interfaces *interfaces);
 
@@ -374,8 +374,8 @@ int shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf
 int shaping_shape_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt);
 int shaping_shape_incoming_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt);
 int shaping_shape_outgoing_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt);
-int shaping_shape_interface(const int debuglvl, InterfaceData *iface_ptr);
-int shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, struct RuleCreateData_ *rule, /*@null@*/RuleSet *ruleset, InterfaceData *shape_iface_ptr, InterfaceData *class_iface_ptr, u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil, char *ceil_unit, u_int8_t prio);
+int shaping_shape_interface(const int debuglvl, struct vrmr_interface *iface_ptr);
+int shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, struct RuleCreateData_ *rule, /*@null@*/RuleSet *ruleset, struct vrmr_interface *shape_iface_ptr, struct vrmr_interface *class_iface_ptr, u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil, char *ceil_unit, u_int8_t prio);
 int shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, Rules *rules);
 int shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset);
 int shaping_process_queued_rules(const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule);

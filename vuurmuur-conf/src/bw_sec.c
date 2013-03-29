@@ -700,7 +700,7 @@ trafvol_section(const int debuglvl, Zones *zones, struct vrmr_interfaces *interf
                             max_width = 0;
     unsigned int            i = 0;
     unsigned int            ifac_num = 0;
-    struct InterfaceData_   *iface_ptr=NULL;
+    struct vrmr_interface   *iface_ptr=NULL;
 
     d_list_node             *d_node = NULL,
                             *bw_d_node = NULL;

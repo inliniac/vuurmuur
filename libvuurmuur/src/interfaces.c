@@ -24,9 +24,9 @@
 
 static int
 vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interfaces,
-            const struct InterfaceData_ *iface_ptr)
+            const struct vrmr_interface *iface_ptr)
 {
-    struct InterfaceData_   *check_iface_ptr = NULL;
+    struct vrmr_interface   *check_iface_ptr = NULL;
     int                     result = 0;
     int                     insert_here = 0;
     d_list_node             *d_node = NULL;
@@ -137,7 +137,7 @@ void *
 vrmr_search_interface(const int debuglvl, const struct vrmr_interfaces *interfaces, const char *name)
 {
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety check */
     if(name == NULL || interfaces == NULL)
@@ -196,7 +196,7 @@ void *
 vrmr_search_interface_by_ip(const int debuglvl, struct vrmr_interfaces *interfaces, const char *ip)
 {
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety check */
     if(ip == NULL || interfaces == NULL)
@@ -257,7 +257,7 @@ void
 vrmr_interfaces_print_list(const struct vrmr_interfaces *interfaces)
 {
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     if(!interfaces)
         return;
@@ -313,7 +313,7 @@ interface_check_devicename(const int debuglvl, char *devicename)
  *  \retval 0 no
  */
 int
-interface_ipv6_enabled(const int debuglvl, struct InterfaceData_ *iface_ptr) {
+interface_ipv6_enabled(const int debuglvl, struct vrmr_interface *iface_ptr) {
     if (iface_ptr != NULL && iface_ptr->ipv6.cidr6 != -1) {
         return 1;
     }
@@ -336,7 +336,7 @@ interface_ipv6_enabled(const int debuglvl, struct InterfaceData_ *iface_ptr) {
     backend. It will issue an error but set the interface to inactive.
 */
 int
-read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr)
+read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     int     result = 0;
     char    yesno[4] = "";
@@ -724,7 +724,7 @@ read_interface_info(const int debuglvl, struct InterfaceData_ *iface_ptr)
 int
 vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *name)
 {
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "start: name: %s.", name);
@@ -864,7 +864,7 @@ vrmr_init_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
         -1: error
 */
 int
-interfaces_save_rules(const int debuglvl, struct InterfaceData_ *iface_ptr)
+interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     d_list_node         *d_node = NULL;
     struct RuleData_    *rule_ptr = NULL;
@@ -934,7 +934,7 @@ int
 vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *iface_name)
 {
     int                     result = 0;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     struct RuleData_        *rule_ptr = NULL;
 
 
@@ -1093,7 +1093,7 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
 int
 vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *iface_name)
 {
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     d_list_node             *d_node = NULL;
 
     /* safety */
@@ -1176,7 +1176,7 @@ vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
 int
 ins_iface_into_zonelist(const int debuglvl, d_list *ifacelist, d_list *zonelist)
 {
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     struct ZoneData_        *zone_ptr = NULL;
     d_list_node             *iface_node = NULL;
     char                    name[MAX_INTERFACE + 8 + 2 + 1]; // 32 max iface length, 8 firewall, 2 () and 1 \0
@@ -1676,7 +1676,7 @@ void
 vrmr_destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
 
     /* safety */
@@ -1910,7 +1910,7 @@ interfaces_rule_parse_line(const int debuglvl, const char *line, struct RuleData
 
 
 int
-interfaces_get_rules(const int debuglvl, struct InterfaceData_ *iface_ptr)
+interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     char                currule[MAX_RULE_LENGTH] = "";
     struct RuleData_    *rule_ptr = NULL;
@@ -1985,7 +1985,7 @@ interfaces_get_rules(const int debuglvl, struct InterfaceData_ *iface_ptr)
         -1: error
 */
 int
-interfaces_check(const int debuglvl, struct InterfaceData_ *iface_ptr)
+interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     int     retval = 1;
     int     ipresult = 0;
@@ -2087,7 +2087,7 @@ interfaces_check(const int debuglvl, struct InterfaceData_ *iface_ptr)
 int
 vrmr_interfaces_load(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     d_list_node             *d_node = NULL;
     int                     result = 0;
 
@@ -2130,7 +2130,7 @@ vrmr_interfaces_load(const int debuglvl, struct vrmr_interfaces *interfaces)
 }
 
 int
-interfaces_iface_up(const int debuglvl, struct InterfaceData_ *iface_ptr)
+interfaces_iface_up(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     char    ipaddress[16] = "";
 

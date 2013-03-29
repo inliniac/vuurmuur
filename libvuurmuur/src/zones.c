@@ -698,7 +698,7 @@ delete_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
                             *zone_list_ptr = NULL;
     d_list_node             *d_node = NULL;
     char                    name[MAX_HOST_NET_ZONE] = "";
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety */
     if(zonename == NULL || zones == NULL)
@@ -1476,7 +1476,7 @@ zones_group_add_member(const int debuglvl, Zones *zones, struct ZoneData_ *group
 int
 zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfaces, struct ZoneData_ *network_ptr, char *interfacename)
 {
-    struct InterfaceData_   *iface_ptr = NULL,
+    struct vrmr_interface   *iface_ptr = NULL,
                             *list_iface_ptr = NULL;
     d_list_node             *d_node = NULL;
 
@@ -1534,7 +1534,7 @@ int
 zones_network_rem_iface(const int debuglvl, struct ZoneData_ *network_ptr, char *interfacename)
 {
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety */
     if(!interfacename || !network_ptr)
@@ -1636,7 +1636,7 @@ int
 zones_network_save_interfaces(const int debuglvl, struct ZoneData_ *network_ptr)
 {
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety */
     if(!network_ptr)

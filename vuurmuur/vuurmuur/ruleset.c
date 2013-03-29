@@ -1379,7 +1379,7 @@ static int
 ruleset_save_interface_counters(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_interfaces *interfaces)
 {
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     unsigned long long      tmp_ull = 0;
     char                    acc_chain[32] = "";
 
@@ -1468,7 +1468,7 @@ static int
 ruleset_clear_interface_counters(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety */
     if(!interfaces)

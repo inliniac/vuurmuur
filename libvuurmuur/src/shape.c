@@ -63,7 +63,7 @@ vrmr_is_shape_outgoing_rule(const int debuglvl, /*@null@*/struct vrmr_rule_optio
 }
 
 int
-vrmr_is_shape_interface(const int debuglvl, /*@null@*/InterfaceData *iface_ptr) {
+vrmr_is_shape_interface(const int debuglvl, /*@null@*/struct vrmr_interface *iface_ptr) {
     if (iface_ptr != NULL &&
         iface_ptr->shape == TRUE &&
         iface_ptr->device_virtual == FALSE &&

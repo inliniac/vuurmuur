@@ -57,12 +57,12 @@ struct InterfacesSection_
 
 
 struct TcpmssIfaceCnf_ {
-    struct InterfaceData_ *iface_ptr;
+    struct vrmr_interface *iface_ptr;
     char enabled;
 };
 
 static int
-VrTcpmssIfaceSetup(const int debuglvl, struct TcpmssIfaceCnf_ *c, struct InterfaceData_ *iface_ptr) {
+VrTcpmssIfaceSetup(const int debuglvl, struct TcpmssIfaceCnf_ *c, struct vrmr_interface *iface_ptr) {
     if (c == NULL || iface_ptr == NULL)
         return(-1);
 
@@ -109,7 +109,7 @@ VrTcpmssIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
     return(0);
 }
 
-void VrTcpmssIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
+void VrTcpmssIface(const int debuglvl, struct vrmr_interface *iface_ptr) {
     VrWin   *win = NULL;
     VrForm  *form = NULL;
     int     ch = 0, result = 0;
@@ -190,14 +190,14 @@ void VrTcpmssIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
 }
 
 struct ShapeIfaceCnf_ {
-    struct InterfaceData_ *iface_ptr;
+    struct vrmr_interface *iface_ptr;
     char in[10], out[10];
     char in_unit[5], out_unit[5];
     char enabled;
 };
 
 static int
-VrShapeIfaceSetup(const int debuglvl, struct ShapeIfaceCnf_ *c, struct InterfaceData_ *iface_ptr) {
+VrShapeIfaceSetup(const int debuglvl, struct ShapeIfaceCnf_ *c, struct vrmr_interface *iface_ptr) {
     if (c == NULL || iface_ptr == NULL)
         return(-1);
 
@@ -335,7 +335,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
     return(0);
 }
 
-void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr) {
+void VrShapeIface(const int debuglvl, struct vrmr_interface *iface_ptr) {
     VrWin   *win = NULL;
     VrForm  *form = NULL;
     int     ch = 0, result = 0;
@@ -541,7 +541,7 @@ protectrule_loaded(const int debuglvl, d_list *rules_list, char *action, char *d
 
 
 static int
-edit_interface_init(const int debuglvl, char *name, int height, int width, int starty, int startx, struct InterfaceData_ *iface_ptr)
+edit_interface_init(const int debuglvl, char *name, int height, int width, int starty, int startx, struct vrmr_interface *iface_ptr)
 {
     int     retval=0,   // return value
             rows,
@@ -875,7 +875,7 @@ edit_interface_destroy(void)
 
 
 static int
-edit_interface_save_rules(const int debuglvl, struct InterfaceData_ *iface_ptr)
+edit_interface_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     struct RuleData_    *rule_ptr = NULL;
 
@@ -987,13 +987,13 @@ edit_interface_save_rules(const int debuglvl, struct InterfaceData_ *iface_ptr)
     -1: error
 */
 static int
-edit_interface_save(const int debuglvl, struct InterfaceData_ *iface_ptr)
+edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     int                     retval = 0,
                             result = 0,
                             status = 0;
     size_t                  i = 0;
-    struct InterfaceData_   *tempiface_ptr = NULL;
+    struct vrmr_interface   *tempiface_ptr = NULL;
     char                    rules_changed = FALSE;
     struct RuleData_        *rule_ptr = NULL;
     d_list_node             *d_node = NULL;
@@ -1313,7 +1313,7 @@ edit_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *nam
                             max_width,
                             not_defined;    /* 1 if a key is undefined */
 
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     FIELD                   *cur  = NULL,
                             *prev = NULL;
@@ -1568,7 +1568,7 @@ init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
     int                     retval = 0,
                             i = 0;
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     int                     height = 0,
                             width = 0,
                             startx = 0,
@@ -1754,7 +1754,7 @@ rename_interface(const int debuglvl, struct vrmr_interfaces *interfaces, Zones *
             Rules *rules, char *cur_name_ptr, char *new_name_ptr)
 {
     int                     result = 0;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     struct ZoneData_        *zone_ptr = NULL;
     d_list_node             *zone_d_node = NULL,
                             *iface_d_node = NULL;
@@ -1906,7 +1906,7 @@ static int
 interfaces_section_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *cur_name_ptr)
 {
     int                     result = 0;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     char                    save_name[MAX_INTERFACE] = "";
 
     /* safety */

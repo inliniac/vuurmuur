@@ -1419,7 +1419,7 @@ int
 block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, char *ip)
 {
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     VrBusyWinShow();
 

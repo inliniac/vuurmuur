@@ -720,7 +720,7 @@ reload_zonedata_check(const int debuglvl, Zones *zones, struct vrmr_interfaces *
     struct ZoneData_        *host_ptr_new  =NULL,
                             *host_ptr_orig,
                             *new_zone_ptr=NULL;
-    struct InterfaceData_   *iface_ptr_new,
+    struct vrmr_interface   *iface_ptr_new,
                             *iface_ptr_orig;
     d_list_node             *d_node_orig = NULL,
                             *d_node_new  = NULL;
@@ -1232,7 +1232,7 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
     int                     retval = 0,
                             result = 0;
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     char                    name[MAX_INTERFACE] = "";
     int                     zonetype = 0;
 
@@ -1364,11 +1364,11 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
         -1: error
 */
 int
-reload_interfaces_check(const int debuglvl, struct InterfaceData_ *iface_ptr)
+reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     int                     retval = 0;
     int                     check_result = 0;
-    struct InterfaceData_   *new_iface_ptr = NULL;
+    struct vrmr_interface   *new_iface_ptr = NULL;
     int                     status = 0;
     d_list_node             *protect_d_node_orig = NULL,
                             *protect_d_node_new  = NULL;
@@ -2012,7 +2012,7 @@ int
 check_for_changed_dynamic_ips(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     char                    ipaddress[16] = "";
     int                     result = 0,
                             retval = 0;

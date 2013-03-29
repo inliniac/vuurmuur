@@ -2458,7 +2458,7 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
         struct vrmr_interfaces *interfaces, IptCap *iptcap, int ipv)
 {
     d_list_node *d_node = NULL;
-    struct InterfaceData_ *iface_ptr = NULL;
+    struct vrmr_interface *iface_ptr = NULL;
     char cmd[MAX_PIPE_COMMAND] = "";
 
     /* safety */
@@ -3021,7 +3021,7 @@ static int pre_rules_interface_counters_ipv4(const int debuglvl,
     int retval = 0;
     char cmd[MAX_PIPE_COMMAND] = "";
     d_list_node *d_node = NULL;
-    struct InterfaceData_ *iface_ptr = NULL;
+    struct vrmr_interface *iface_ptr = NULL;
     char acc_chain_name[32+3] = ""; /* chain name 32 + '-A ' = 3 */
 
     /*
@@ -4566,7 +4566,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *iptcap,
 
 static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
                                 IptCap *iptcap, struct RuleCache_ *create,
-                                struct InterfaceData_ *if_ptr)
+                                struct vrmr_interface *if_ptr)
 {
     char input_device[16 + 3] = "";  /* 16 + '-i ' */
     char limit[] = "-m limit --limit 1/s --limit-burst 5";
@@ -4670,7 +4670,7 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *i
     d_list_node             *d_node = NULL,
                             *if_d_node = NULL;
     struct RuleData_        *rule_ptr = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety */
     if(!interfaces)
@@ -4789,7 +4789,7 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *i
 static int
 create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 IptCap *iptcap, struct RuleCache_ *create,
-                struct InterfaceData_ *from_if_ptr)
+                struct vrmr_interface *from_if_ptr)
 {
     char input_device[16 + 3] = "";  /* 16 + '-i ' */
     char output_device[16 + 3] = ""; /* 16 + '-i ' */
@@ -4995,7 +4995,7 @@ create_network_protect_rules_dhcp_server(   const int debuglvl,
                                             /*@null@*/RuleSet *ruleset,
                                             Zones *zones, IptCap *iptcap,
                                             struct RuleCache_ *create,
-                                            struct InterfaceData_ *if_ptr)
+                                            struct vrmr_interface *if_ptr)
 {
     int     retval = 0;
     char    cmd[MAX_PIPE_COMMAND] = "";
@@ -5083,7 +5083,7 @@ create_network_protect_rules_dhcp_client(   const int debuglvl,
                                             /*@null@*/RuleSet *ruleset,
                                             Zones *zones, IptCap *iptcap,
                                             struct RuleCache_ *create,
-                                            struct InterfaceData_ *if_ptr)
+                                            struct vrmr_interface *if_ptr)
 {
     int     retval = 0;
     char    cmd[MAX_PIPE_COMMAND] = "";
@@ -5159,7 +5159,7 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Zon
     d_list_node *d_node = NULL, *net_d_node = NULL, *from_if_node = NULL;
     struct ZoneData_ *zone_ptr = NULL;
     struct RuleData_ *rule_ptr = NULL;
-    struct InterfaceData_ *from_if_ptr = NULL;
+    struct vrmr_interface *from_if_ptr = NULL;
 
     /* safety */
     if(zones == NULL || iptcap == NULL)

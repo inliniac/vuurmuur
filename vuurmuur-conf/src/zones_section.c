@@ -3624,7 +3624,7 @@ edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_interfaces
                             *choice_ptr = NULL;
     size_t                  n_choices = 0,
                             i = 0;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     int                     result = 0;
 
     /* safety */
@@ -3702,7 +3702,7 @@ static int
 edit_zone_network_interfaces_init(const int debuglvl, struct ZoneData_ *zone_ptr)
 {
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     int                     i=0;
     int                     height = 30,
                             width  = 34, // max width of interface (32) + box (2)

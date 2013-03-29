@@ -52,10 +52,10 @@ setup_signal_handler(int sig, void (*handler)())
 /** \brief UP all interfaces in bash mode */
 void bash_enable_interfaces(struct vrmr_interfaces *ifaces) {
     d_list_node *node;
-    struct InterfaceData_  *iface_ptr = NULL;
+    struct vrmr_interface  *iface_ptr = NULL;
 
     for (node = ifaces->list.top; node != NULL; node = node->next) {
-        iface_ptr = (struct InterfaceData_ *)node->data;
+        iface_ptr = (struct vrmr_interface *)node->data;
         if (iface_ptr->up == FALSE)
             iface_ptr->up = TRUE;
     }

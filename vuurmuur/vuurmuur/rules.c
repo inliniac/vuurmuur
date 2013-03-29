@@ -220,7 +220,7 @@ analyze_interface_rules(const int debuglvl,
     struct RuleData_        *rule_ptr = NULL;
     d_list_node             *d_node = NULL,
                             *if_d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety */
     if(rules == NULL || zones == NULL || services == NULL || interfaces == NULL)

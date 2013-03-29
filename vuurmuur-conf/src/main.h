@@ -496,7 +496,7 @@ void fix_wide_menu(const int, MENU *, ITEM **);
 void form_test (const int debuglvl);
 
 void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt);
-void VrShapeIface(const int debuglvl, struct InterfaceData_ *iface_ptr);
+void VrShapeIface(const int debuglvl, struct vrmr_interface *iface_ptr);
 
 #ifdef USE_WIDEC
 #define wsizeof(s)  sizeof(s)/sizeof(wchar_t)

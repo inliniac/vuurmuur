@@ -751,7 +751,7 @@ static void
 mm_check_status_interfaces(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_interfaces *interfaces)
 {
     d_list_node             *d_node = NULL;
-    struct InterfaceData_   *iface_ptr = NULL;
+    struct vrmr_interface   *iface_ptr = NULL;
     char                    at_least_one_active = FALSE;
     char                    ipaddress[16] = "";
     int                     ipresult = 0;

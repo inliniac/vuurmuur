@@ -149,15 +149,15 @@ service_malloc(void)
 void *
 interface_malloc(const int debuglvl)
 {
-    struct InterfaceData_ *iface_ptr = NULL;
+    struct vrmr_interface *iface_ptr = NULL;
 
-    iface_ptr = malloc(sizeof(struct InterfaceData_));
+    iface_ptr = malloc(sizeof(struct vrmr_interface));
     if(iface_ptr == NULL)
     {
         return(NULL);
     }
 
-    memset(iface_ptr, 0, sizeof(struct InterfaceData_));
+    memset(iface_ptr, 0, sizeof(struct vrmr_interface));
 #ifdef IPV6_ENABLED
     iface_ptr->ipv6.cidr6 = -1;
 #endif

@@ -297,7 +297,7 @@ backend_check_interface_ipaddress(const int debuglvl, char *value, struct vrmr_r
 int
 backend_check_interface_device(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
-    struct InterfaceData_   interface;
+    struct vrmr_interface   interface;
 
     /* safety */
     if(value == NULL || reg == NULL)
