@@ -2250,7 +2250,7 @@ edit_service_init(const int debuglvl, struct ServicesData_ *ser_ptr)
 
 
 static int
-edit_service(const int debuglvl, Services *services, const char *name)
+edit_service(const int debuglvl, struct vrmr_services *services, const char *name)
 {
     int                     ch, /* for recording keystrokes */
                             quit = 0,
@@ -2436,7 +2436,7 @@ edit_service(const int debuglvl, Services *services, const char *name)
 
 
 static int
-rename_service(const int debuglvl, Services *services, Rules *rules, char *cur_name_ptr, char *new_name_ptr)
+rename_service(const int debuglvl, struct vrmr_services *services, Rules *rules, char *cur_name_ptr, char *new_name_ptr)
 {
     int                     result = 0;
     struct ServicesData_    *ser_ptr = NULL;
@@ -2525,7 +2525,7 @@ rename_service(const int debuglvl, Services *services, Rules *rules, char *cur_n
 
 
 static int
-init_services_section(const int debuglvl, Services *services, int height, int width, int starty, int startx)
+init_services_section(const int debuglvl, struct vrmr_services *services, int height, int width, int starty, int startx)
 {
     int                     retval=0,
                             i=0;
@@ -2640,7 +2640,7 @@ destroy_services_section(void)
 
 
 void
-services_section(const int debuglvl, Services *services, Rules *rules, struct vrmr_regex *reg)
+services_section(const int debuglvl, struct vrmr_services *services, Rules *rules, struct vrmr_regex *reg)
 {
     int     result = 0,
             quit = 0,

@@ -23,7 +23,7 @@
 
 
 static int
-insert_service_list(const int debuglvl, Services *services, const struct ServicesData_ *ser_ptr)
+insert_service_list(const int debuglvl, struct vrmr_services *services, const struct ServicesData_ *ser_ptr)
 {
     struct ServicesData_    *check_ser_ptr = NULL;
     int                     result = 0;
@@ -126,7 +126,7 @@ insert_service_list(const int debuglvl, Services *services, const struct Service
     and by error an internal program error.
 */
 int
-insert_service(const int debuglvl, Services *services, char *name)
+insert_service(const int debuglvl, struct vrmr_services *services, char *name)
 {
     int                     retval = 0,
                             result = 0;
@@ -179,7 +179,7 @@ insert_service(const int debuglvl, Services *services, char *name)
     It returns the pointer or a NULL-pointer if not found.
 */
 void *
-search_service(const int debuglvl, const Services *services, char *servicename)
+search_service(const int debuglvl, const struct vrmr_services *services, char *servicename)
 {
     d_list_node             *d_node = NULL;
     struct ServicesData_    *service_ptr = NULL;
@@ -438,7 +438,7 @@ read_service(const int debuglvl, char *sername, struct ServicesData_ *service_pt
 
 /* debug function */
 void
-services_print_list(const Services *services)
+services_print_list(const struct vrmr_services *services)
 {
     d_list_node             *d_node = NULL;
     struct ServicesData_    *ser_ptr = NULL;
@@ -753,7 +753,7 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
 
 */
 void
-destroy_serviceslist(const int debuglvl, Services *services)
+destroy_serviceslist(const int debuglvl, struct vrmr_services *services)
 {
     d_list_node             *d_node = NULL;
     struct ServicesData_    *ser_ptr = NULL;
@@ -793,7 +793,7 @@ destroy_serviceslist(const int debuglvl, Services *services)
         -1: error
 */
 int
-new_service(const int debuglvl, Services *services, char *sername, int sertype)
+new_service(const int debuglvl, struct vrmr_services *services, char *sername, int sertype)
 {
     int                     retval = 0,
                             result = 0;
@@ -881,7 +881,7 @@ new_service(const int debuglvl, Services *services, char *sername, int sertype)
     TODO: memory is not freed?
 */
 int
-delete_service(const int debuglvl, Services *services, char *sername, int sertype)
+delete_service(const int debuglvl, struct vrmr_services *services, char *sername, int sertype)
 {
     struct ServicesData_ *ser_list_ptr = NULL;
     d_list_node *d_node = NULL;
@@ -1148,7 +1148,7 @@ valid_tcpudp_port(const int debuglvl, int port)
         -1: error
 */
 int
-init_services(const int debuglvl, Services *services, struct vrmr_regex *reg)
+init_services(const int debuglvl, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     int     retval=0,
             result=0;
@@ -1163,7 +1163,7 @@ init_services(const int debuglvl, Services *services, struct vrmr_regex *reg)
         return(-1);
     }
     /* init */
-    memset(services, 0, sizeof(Services));
+    memset(services, 0, sizeof(*services));
 
     /* setup the list */
     if(d_list_setup(debuglvl, &services->list, free) < 0)
@@ -1250,7 +1250,7 @@ services_check(const int debuglvl, struct ServicesData_ *ser_ptr)
         -1: error
 */
 int
-vrmr_services_load(const int debuglvl, Services *services, struct vrmr_regex *reg)
+vrmr_services_load(const int debuglvl, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     int                     result = 0;
     d_list_node             *d_node = NULL;

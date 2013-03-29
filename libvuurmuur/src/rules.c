@@ -168,7 +168,7 @@ int
 rules_analyze_rule( const int debuglvl,
                     struct RuleData_ *rule_ptr,
                     struct RuleCache_ *create,
-                    Services *services,
+                    struct vrmr_services *services,
                     Zones *zones,
                     struct vrmr_interfaces *interfaces,
                     struct vuurmuur_config *cnf)

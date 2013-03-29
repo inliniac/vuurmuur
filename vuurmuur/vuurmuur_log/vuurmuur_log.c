@@ -453,7 +453,7 @@ int
 main(int argc, char *argv[])
 {
     struct vrmr_interfaces  interfaces;
-    Services    services;
+    struct vrmr_services    services;
     Zones       zones;
     struct vrmr_user user_data;
     FILE        *system_log = NULL;

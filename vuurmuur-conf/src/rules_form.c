@@ -379,8 +379,8 @@ static int move_rule(const int, Rules *, unsigned int, unsigned int);
 static int MatchFilter_RuleBar(struct RuleData_ *rule_ptr, regex_t *reg, char only_in, char only_out, char only_forward);
 static int Toggle_RuleBar(const int debuglvl, rulebar *bar, Rules *rules);
 static int draw_rules(const int, Rules *, struct RuleBarForm_ *);
-static int Enter_RuleBar(const int, rulebar *, Rules *, Zones *, struct vrmr_interfaces *, Services *, struct vrmr_regex *);
-static int edit_rule_separator(const int, Zones *, struct vrmr_interfaces *, Services *, struct RuleData_ *, unsigned int, struct vrmr_regex *);
+static int Enter_RuleBar(const int, rulebar *, Rules *, Zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
+static int edit_rule_separator(const int, Zones *, struct vrmr_interfaces *, struct vrmr_services *, struct RuleData_ *, unsigned int, struct vrmr_regex *);
 
 
 static int
@@ -797,7 +797,7 @@ HighlightRuleBar(rulebar *bar)
         -1: error
 */
 static int
-Enter_RuleBar(const int debuglvl, rulebar *bar, Rules *rules, Zones *zones, struct vrmr_interfaces *interfaces, Services *services, struct vrmr_regex *reg)
+Enter_RuleBar(const int debuglvl, rulebar *bar, Rules *rules, Zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     unsigned int        rule_num = 0;
     int                 result = 0,
@@ -1484,7 +1484,7 @@ rules_update_filter(const int debuglvl, Rules *rules, struct RuleBarForm_ *rbfor
         -1: error
 */
 int
-rules_form(const int debuglvl, Rules *rules, Zones *zones, struct vrmr_interfaces *interfaces, Services *services, struct vrmr_regex *reg)
+rules_form(const int debuglvl, Rules *rules, Zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     WINDOW              *rules_win;
     PANEL               *panels[1];
@@ -2544,7 +2544,7 @@ insert_new_rule(const int debuglvl, Rules *rules, unsigned int rule_num,
 // returns 0: no change, or 1: change
 int
 edit_rule(const int debuglvl, Rules *rules, Zones *zones,
-        struct vrmr_interfaces *interfaces, Services *services,
+        struct vrmr_interfaces *interfaces, struct vrmr_services *services,
         unsigned int rule_num, struct vrmr_regex *reg)
 {
     struct RuleData_    *rule_ptr = NULL;
@@ -3304,7 +3304,7 @@ edit_rule_check_action_opts(const int debuglvl, struct RuleData_ *rule_ptr)
 */
 int
 edit_rule_normal(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces,
-            Services *services, struct RuleData_ *rule_ptr,
+            struct vrmr_services *services, struct RuleData_ *rule_ptr,
             unsigned int rule_num, struct vrmr_regex *reg)
 {
     PANEL       *my_panels[1];
@@ -4985,7 +4985,7 @@ int
 edit_rule_separator(const int debuglvl,
                     Zones *zones,
                     struct vrmr_interfaces *interfaces,
-                    Services *services,
+                    struct vrmr_services *services,
                     struct RuleData_ *rule_ptr,
                     unsigned int rule_num,
                     struct vrmr_regex *reg)

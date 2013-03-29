@@ -508,12 +508,10 @@ struct vrmr_interfaces {
 };
 
 
-typedef struct
-{
+struct vrmr_services {
     /* the list with services */
     d_list  list;
-
-} Services;
+};
 
 
 typedef struct
@@ -1153,7 +1151,7 @@ typedef struct VuurmuurCtx_ {
     struct vrmr_interfaces *interfaces;
     struct vrmr_blocklist *blocklist;
     Rules *rules;
-    Services *services;
+    struct vrmr_services *services;
     struct vuurmuur_config *conf;
     IptCap *iptcaps;
 } VuurmuurCtx;
@@ -1410,22 +1408,22 @@ int zones_network_ipv6_enabled(const int, struct ZoneData_ *);
 /*
     services.c
 */
-int init_services(const int, /*@out@*/ Services *, struct vrmr_regex *);
-int insert_service(const int, Services *, char *);
-void *search_service(const int, const Services *, char *);
+int init_services(const int, /*@out@*/ struct vrmr_services *, struct vrmr_regex *);
+int insert_service(const int, struct vrmr_services *, char *);
+void *search_service(const int, const struct vrmr_services *, char *);
 int read_service(const int, char *, struct ServicesData_ *);
-void services_print_list(const Services *);
+void services_print_list(const struct vrmr_services *);
 int split_portrange(char *, int *, int *);
 int process_portrange(const int, const char *, const char *, struct ServicesData_ *);
 void portrange_print_dlist(const d_list *);
-void destroy_serviceslist(const int, Services *);
-int new_service(const int, Services *, char *, int);
-int delete_service(const int, Services *, char *, int);
+void destroy_serviceslist(const int, struct vrmr_services *);
+int new_service(const int, struct vrmr_services *, char *, int);
+int delete_service(const int, struct vrmr_services *, char *, int);
 int validate_servicename(const int, const char *, regex_t *, char);
 int services_save_portranges(const int, struct ServicesData_ *);
 int valid_tcpudp_port(const int, int);
 int services_check(const int, struct ServicesData_ *);
-int vrmr_services_load(const int, Services *, struct vrmr_regex *);
+int vrmr_services_load(const int, struct vrmr_services *, struct vrmr_regex *);
 
 
 /*
@@ -1455,7 +1453,7 @@ int set_proc_entry(const int debuglvl, struct vuurmuur_config *, char *proc_entr
 /*
     rules.c
 */
-int rules_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, Services *, Zones *, struct vrmr_interfaces *, struct vuurmuur_config *);
+int rules_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, struct vrmr_services *, Zones *, struct vrmr_interfaces *, struct vuurmuur_config *);
 int rules_parse_line(const int, char *, struct RuleData_ *, struct vrmr_regex *);
 int vrmr_rules_init_list(const int, struct vuurmuur_config *cfg, /*@out@*/ Rules *, struct vrmr_regex *);
 int rules_cleanup_list(const int, Rules *);

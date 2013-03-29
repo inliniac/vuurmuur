@@ -508,7 +508,7 @@ update_draw_size(const int debuglvl, VR_ConntrackRequest *connreq, int width, in
 
 Conntrack *
 conn_init_ct(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces,
-            Services *services, struct vrmr_blocklist *blocklist )
+            struct vrmr_services *services, struct vrmr_blocklist *blocklist )
 {
     Conntrack   *ct = NULL;
 
@@ -642,7 +642,7 @@ conn_ct_clear_connections(const int debuglvl, Conntrack *ct)
 int
 connections_section(const int debuglvl, struct vuurmuur_config *cnf,
             Zones *zones, struct vrmr_interfaces *interfaces,
-            Services *services, struct vrmr_blocklist *blocklist)
+            struct vrmr_services *services, struct vrmr_blocklist *blocklist)
 {
     int                     retval=0;
     WINDOW                  *conn_win=NULL;

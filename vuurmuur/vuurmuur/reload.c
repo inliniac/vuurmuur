@@ -240,7 +240,7 @@ apply_changes(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
 /*  reload_services
 */
 int
-reload_services(const int debuglvl, Services *services, regex_t *servicename_regex)
+reload_services(const int debuglvl, struct vrmr_services *services, regex_t *servicename_regex)
 {
     int                     retval=0,
                             result;

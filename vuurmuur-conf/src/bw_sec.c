@@ -689,7 +689,7 @@ create_bw_string(const int debuglvl, unsigned int mb, char *str, size_t len)
 */
 int
 trafvol_section(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces,
-            Services *services)
+            struct vrmr_services *services)
 {
     int                     retval = 0;
     int                     quit = 0,

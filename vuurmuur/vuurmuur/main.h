@@ -295,9 +295,9 @@ void create_logtcpoptions_string(const int, struct vuurmuur_config *, char *, si
 
 int oldrules_create_custom_chains(const int, Rules *, struct vuurmuur_config *);
 
-int analyze_interface_rules(const int, Rules *, Zones *, Services *, struct vrmr_interfaces *);
-int analyze_network_protect_rules(const int, Rules *, Zones *, Services *, struct vrmr_interfaces *);
-int analyze_normal_rules(const int, Rules *, Zones *, Services *, struct vrmr_interfaces *);
+int analyze_interface_rules(const int, Rules *, Zones *, struct vrmr_services *, struct vrmr_interfaces *);
+int analyze_network_protect_rules(const int, Rules *, Zones *, struct vrmr_services *, struct vrmr_interfaces *);
+int analyze_normal_rules(const int, Rules *, Zones *, struct vrmr_services *, struct vrmr_interfaces *);
 int analyze_all_rules(const int, VuurmuurCtx *, Rules *);
 
 int create_all_rules(const int, VuurmuurCtx *, int);
@@ -351,7 +351,7 @@ int logprint_info_bash(char *head, char *fmt, ...);
 /* reload.c */
 int apply_changes(const int, VuurmuurCtx *vctx, struct vrmr_regex *);
 
-int reload_services(const int, Services *, regex_t *);
+int reload_services(const int, struct vrmr_services *, regex_t *);
 int reload_services_check(const int, struct ServicesData_ *);
 
 int reload_zonedata(const int, Zones *, struct vrmr_interfaces *, struct vrmr_regex *);

@@ -657,7 +657,7 @@ int status_section_destroy(void)
         -1: error
 */
 int
-status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, struct vrmr_interfaces *interfaces, Services *services)
+status_section(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
 {
     FIELD   *cur = NULL;
     int     retval = 0;
