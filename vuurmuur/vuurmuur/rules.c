@@ -158,7 +158,7 @@ create_logprefix_string(const int debuglvl, char *resultstr, size_t size,
 
 
 int
-oldrules_create_custom_chains(const int debuglvl, Rules *rules, struct vuurmuur_config *cnf)
+oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_config *cnf)
 {
     char        *chainname = NULL;
     d_list_node *d_node = NULL;
@@ -212,7 +212,7 @@ oldrules_create_custom_chains(const int debuglvl, Rules *rules, struct vuurmuur_
 
 int
 analyze_interface_rules(const int debuglvl,
-                Rules *rules,
+                struct vrmr_rules *rules,
                 struct vrmr_zones *zones,
                 struct vrmr_services *services,
                 struct vrmr_interfaces *interfaces)
@@ -270,7 +270,7 @@ analyze_interface_rules(const int debuglvl,
 
 
 int
-analyze_network_protect_rules(const int debuglvl, Rules *rules, struct vrmr_zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces)
+analyze_network_protect_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces)
 {
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL,
@@ -327,7 +327,7 @@ analyze_network_protect_rules(const int debuglvl, Rules *rules, struct vrmr_zone
 
 
 int
-analyze_normal_rules(const int debuglvl, Rules *rules, struct vrmr_zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces)
+analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces)
 {
     struct RuleData_    *rule_ptr = NULL;
     unsigned int        rulescount = 0,
@@ -420,7 +420,7 @@ analyze_normal_rules(const int debuglvl, Rules *rules, struct vrmr_zones *zones,
  *  \retval -1 error
  */
 int
-analyze_all_rules(const int debuglvl, VuurmuurCtx *vctx, Rules *rules)
+analyze_all_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_rules *rules)
 {
     (void)vrprint.info("Info", "Analyzing the rules... ");
 
@@ -2522,7 +2522,7 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vuurmuur_config *c
 {
     int         retval = 0,
                 result = 0;
-    Rules       rules;
+    struct vrmr_rules rules;
     char        *chainname = NULL;
     d_list_node *d_node = NULL;
     d_list_node *chains[3];
@@ -2619,7 +2619,7 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vuurmuur_config *c
 {
     int         retval = 0,
                 result = 0;
-    Rules       rules;
+    struct vrmr_rules rules;
     char        *chainname = NULL;
     d_list_node *d_node = NULL;
     d_list_node *chains[2];

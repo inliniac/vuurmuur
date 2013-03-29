@@ -520,8 +520,7 @@ struct vrmr_zones {
 };
 
 
-typedef struct
-{
+struct vrmr_rules {
     /* the list with rules */
     d_list  list;
 
@@ -534,8 +533,7 @@ typedef struct
     d_list  system_chain_mangle;
     d_list  system_chain_nat;
     d_list  system_chain_raw;
-
-} Rules;
+};
 
 
 struct vrmr_blocklist
@@ -1146,7 +1144,7 @@ typedef struct VuurmuurCtx_ {
     struct vrmr_zones *zones;
     struct vrmr_interfaces *interfaces;
     struct vrmr_blocklist *blocklist;
-    Rules *rules;
+    struct vrmr_rules *rules;
     struct vrmr_services *services;
     struct vuurmuur_config *conf;
     IptCap *iptcaps;
@@ -1360,9 +1358,9 @@ void *search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, c
 /*
     query.c
 */
-int rules_remove_rule_from_list(const int, Rules *, unsigned int, int);
-void rules_update_numbers(const int, Rules *, unsigned int place, int);
-void rules_print_list(const Rules *);
+int rules_remove_rule_from_list(const int, struct vrmr_rules *, unsigned int, int);
+void rules_update_numbers(const int, struct vrmr_rules *, unsigned int place, int);
+void rules_print_list(const struct vrmr_rules *);
 void rules_free_options(const int debuglvl, struct vrmr_rule_options *opt);
 
 
@@ -1451,19 +1449,19 @@ int set_proc_entry(const int debuglvl, struct vuurmuur_config *, char *proc_entr
 */
 int rules_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, struct vrmr_services *, struct vrmr_zones *, struct vrmr_interfaces *, struct vuurmuur_config *);
 int rules_parse_line(const int, char *, struct RuleData_ *, struct vrmr_regex *);
-int vrmr_rules_init_list(const int, struct vuurmuur_config *cfg, /*@out@*/ Rules *, struct vrmr_regex *);
-int rules_cleanup_list(const int, Rules *);
-int rules_insert_list(const int, Rules *, unsigned int, struct RuleData_ *);
+int vrmr_rules_init_list(const int, struct vuurmuur_config *cfg, /*@out@*/ struct vrmr_rules *, struct vrmr_regex *);
+int rules_cleanup_list(const int, struct vrmr_rules *);
+int rules_insert_list(const int, struct vrmr_rules *, unsigned int, struct RuleData_ *);
 char *rules_assemble_options_string(const int, struct vrmr_rule_options *, const char *);
 int rules_compare_options(const int, struct vrmr_rule_options *, struct vrmr_rule_options *, char *);
-void *search_rule(const int, Rules *, struct RuleData_ *);
+void *search_rule(const int, struct vrmr_rules *, struct RuleData_ *);
 int rules_read_options(const int, char *, struct vrmr_rule_options *);
 struct RuleData_ *rules_create_protect_rule(const int, char *, /*@null@*/ char *, char *, /*@null@*/char *);
 char *rules_assemble_rule(const int, struct RuleData_ *);
-int rules_save_list(const int, Rules *, struct vuurmuur_config *);
-int rules_get_custom_chains(const int, Rules *);
+int rules_save_list(const int, struct vrmr_rules *, struct vuurmuur_config *);
+int rules_get_custom_chains(const int, struct vrmr_rules *);
 int rules_chain_in_list(const int, d_list *, char *);
-int rules_get_system_chains(const int, Rules *, struct vuurmuur_config *, int);
+int rules_get_system_chains(const int, struct vrmr_rules *, struct vuurmuur_config *, int);
 int rules_encode_rule(const int, char *, size_t);
 int rules_decode_rule(const int, char *, size_t);
 int rules_determine_ruletype(const int, struct RuleData_ *);

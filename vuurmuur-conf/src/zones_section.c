@@ -139,10 +139,10 @@ struct ZonesSection_
 */
 static int zones_section_menu_hosts_init(const int, struct vrmr_zones *, char *, char *);
 
-static int zones_section_menu_groups(const int, struct vrmr_zones *, Rules *, struct vrmr_blocklist *, char *, char *, struct vrmr_regex *);
+static int zones_section_menu_groups(const int, struct vrmr_zones *, struct vrmr_rules *, struct vrmr_blocklist *, char *, char *, struct vrmr_regex *);
 
 static int zones_section_menu_networks_init(const int, struct vrmr_zones *, char *);
-static int zones_section_menu_networks(const int, struct vrmr_zones *, struct vrmr_interfaces *, Rules *, struct vrmr_blocklist *, char *, struct vrmr_regex *);
+static int zones_section_menu_networks(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_rules *, struct vrmr_blocklist *, char *, struct vrmr_regex *);
 
 
 static int edit_zone_host_init(const int, char *, int, int, int, int, struct vrmr_zone *);
@@ -1049,7 +1049,7 @@ zones_section_menu_hosts_destroy(void)
 
 /* rename a host or a group */
 static int
-zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, Rules *rules, struct vrmr_blocklist *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct vrmr_regex *reg)
+zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrmr_rules *rules, struct vrmr_blocklist *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct vrmr_regex *reg)
 {
     int                 result = 0;
     struct vrmr_zone    *zone_ptr = NULL,
@@ -1272,7 +1272,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, Rules *rul
 
 
 static int
-zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, Rules *rules, struct vrmr_blocklist *blocklist, char *zonename, char *networkname, struct vrmr_regex *reg)
+zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vrmr_rules *rules, struct vrmr_blocklist *blocklist, char *zonename, char *networkname, struct vrmr_regex *reg)
 {
     int                 ch = 0,
                         quit = 0,
@@ -2857,7 +2857,7 @@ zones_section_menu_groups_destroy(const int debuglvl)
 
 
 int
-zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, Rules *rules, struct vrmr_blocklist *blocklist, char *zonename, char *networkname, struct vrmr_regex *reg)
+zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct vrmr_rules *rules, struct vrmr_blocklist *blocklist, char *zonename, char *networkname, struct vrmr_regex *reg)
 {
     int                 ch = 0,
                         quit = 0,
@@ -3232,7 +3232,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, Rules *r
 
 /* rename a network or a zone */
 static int
-zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, Rules *rules, struct vrmr_blocklist *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct vrmr_regex *reg)
+zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct vrmr_rules *rules, struct vrmr_blocklist *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct vrmr_regex *reg)
 {
     int                 result = 0;
     struct vrmr_zone    *zone_ptr = NULL;
@@ -5471,7 +5471,7 @@ int
 zones_section_menu_networks(const int debuglvl,
                             struct vrmr_zones *zones,
                             struct vrmr_interfaces *interfaces,
-                            Rules *rules,
+                            struct vrmr_rules *rules,
                             struct vrmr_blocklist *blocklist,
                             char *zonename,
                             struct vrmr_regex *reg)
@@ -6437,7 +6437,7 @@ zones_section_destroy(void)
 
 
 int
-zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, Rules *rules, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
+zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_rules *rules, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
     int     ch = 0,
             quit = 0,

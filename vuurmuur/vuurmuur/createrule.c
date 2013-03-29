@@ -5358,7 +5358,7 @@ create_block_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_b
  */
 int
 create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
-        Rules *rules, IptCap *iptcap, int ipv)
+        struct vrmr_rules *rules, IptCap *iptcap, int ipv)
 {
     char                cmd[MAX_PIPE_COMMAND] = "";
     d_list_node         *d_node = NULL;
@@ -5440,7 +5440,7 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
  */
 int
 create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
-        Rules *rules, IptCap *iptcap, int ipv)
+        struct vrmr_rules *rules, IptCap *iptcap, int ipv)
 {
     char cmd[MAX_PIPE_COMMAND] = "";
     d_list_node *d_node = NULL;

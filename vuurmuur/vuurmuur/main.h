@@ -293,12 +293,12 @@ void create_loglevel_string(const int, struct vuurmuur_config *, char *, size_t)
 void create_logprefix_string(const int, char *, size_t, int, char *, char *, ...);
 void create_logtcpoptions_string(const int, struct vuurmuur_config *, char *, size_t);
 
-int oldrules_create_custom_chains(const int, Rules *, struct vuurmuur_config *);
+int oldrules_create_custom_chains(const int, struct vrmr_rules *, struct vuurmuur_config *);
 
-int analyze_interface_rules(const int, Rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
-int analyze_network_protect_rules(const int, Rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
-int analyze_normal_rules(const int, Rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
-int analyze_all_rules(const int, VuurmuurCtx *, Rules *);
+int analyze_interface_rules(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
+int analyze_network_protect_rules(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
+int analyze_normal_rules(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
+int analyze_all_rules(const int, VuurmuurCtx *, struct vrmr_rules *);
 
 int create_all_rules(const int, VuurmuurCtx *, int);
 
@@ -309,8 +309,8 @@ int update_synlimit_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
 int update_udplimit_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
 int create_block_rules(const int, /*@null@*/RuleSet *, struct vrmr_blocklist *);
 
-int create_newnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *, IptCap *, int);
-int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *, IptCap *, int);
+int create_newnfqueue_rules(const int, /*@null@*/RuleSet *, struct vrmr_rules *, IptCap *, int);
+int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, struct vrmr_rules *, IptCap *, int);
 
 int create_network_protect_rules(const int, /*@null@*/RuleSet *, struct vrmr_zones *, IptCap *);
 int create_interface_rules(const int, /*@null@*/RuleSet *, IptCap *, struct vrmr_interfaces *);
@@ -369,14 +369,14 @@ int load_ruleset(const int, VuurmuurCtx *);
 /* shape */
 int shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *);
 int shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset);
-int determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, Rules *rules);
+int determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_rules *rules);
 int shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset);
 int shaping_shape_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt);
 int shaping_shape_incoming_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt);
 int shaping_shape_outgoing_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt);
 int shaping_shape_interface(const int debuglvl, struct vrmr_interface *iface_ptr);
 int shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, struct RuleCreateData_ *rule, /*@null@*/RuleSet *ruleset, struct vrmr_interface *shape_iface_ptr, struct vrmr_interface *class_iface_ptr, u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil, char *ceil_unit, u_int8_t prio);
-int shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, Rules *rules);
+int shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_rules *rules);
 int shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset);
 int shaping_process_queued_rules(const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule);
 

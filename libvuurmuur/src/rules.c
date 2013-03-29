@@ -705,7 +705,7 @@ rules_analyze_rule( const int debuglvl,
         -1: error
 */
 int
-vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, Rules *rules, struct vrmr_regex *reg)
+vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_rules *rules, struct vrmr_regex *reg)
 {
     FILE                *fp = NULL;
     int                 retval = 0;
@@ -727,7 +727,7 @@ vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, Rules *rul
     }
 
     /* init */
-    memset(rules, 0, sizeof(Rules));
+    memset(rules, 0, sizeof(*rules));
 
     /*  setup the list: the cleanup function is set to NULL
         so it's the users responsibility to free memory. */
@@ -1484,7 +1484,7 @@ rules_assemble_rule(const int debuglvl, struct RuleData_ *rule_ptr)
     TODO: mask! it should we only read/write for owner root, and nothing to the others
 */
 static int
-rules_write_file(const int debuglvl, const struct vuurmuur_config *cnf, Rules *rules, const char *rulesfile_location)
+rules_write_file(const int debuglvl, const struct vuurmuur_config *cnf, struct vrmr_rules *rules, const char *rulesfile_location)
 {
     FILE                *fp = NULL;
     int                 retval = 0;
@@ -1551,7 +1551,7 @@ rules_write_file(const int debuglvl, const struct vuurmuur_config *cnf, Rules *r
 
 
 int
-rules_save_list(const int debuglvl, Rules *rules, struct vuurmuur_config *cnf)
+rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_config *cnf)
 {
     int                 result = 0;
     char                *line = NULL,
@@ -1657,7 +1657,7 @@ rules_save_list(const int debuglvl, Rules *rules, struct vuurmuur_config *cnf)
         -1: error
 */
 int
-rules_cleanup_list(const int debuglvl, Rules *rules)
+rules_cleanup_list(const int debuglvl, struct vrmr_rules *rules)
 {
     d_list_node         *d_node = NULL;
     struct RuleData_    *rule_ptr = NULL;
@@ -1711,7 +1711,7 @@ rules_cleanup_list(const int debuglvl, Rules *rules)
         -1: error
 */
 int
-rules_insert_list(const int debuglvl, Rules *rules, unsigned int place, struct RuleData_ *rule_ptr)
+rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned int place, struct RuleData_ *rule_ptr)
 {
     struct RuleData_    *listrule_ptr = NULL;
     int                 retval = 0;
@@ -2437,7 +2437,7 @@ rules_compare_options(const int debuglvl, struct vrmr_rule_options *old_opt, str
     TODO: compare active
 */
 void *
-search_rule(const int debuglvl, Rules *rules, struct RuleData_ *searchrule_ptr)
+search_rule(const int debuglvl, struct vrmr_rules *rules, struct RuleData_ *searchrule_ptr)
 {
     d_list_node         *d_node = NULL;
     struct RuleData_    *listrule_ptr = NULL;
@@ -3473,7 +3473,7 @@ rules_chain_in_list(const int debuglvl, d_list *list, char *chainname)
         -1: error
 */
 int
-rules_get_custom_chains(const int debuglvl, Rules *rules)
+rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
 {
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
@@ -3640,7 +3640,7 @@ rules_get_system_chains_per_table(const int debuglvl, char *tablename,
          0: ok
 */
 int
-rules_get_system_chains(const int debuglvl, Rules *rules, struct vuurmuur_config *cnf, int ipv)
+rules_get_system_chains(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_config *cnf, int ipv)
 {
     /* safety */
     if(cnf == NULL || rules == NULL)
@@ -3868,7 +3868,7 @@ rules_determine_ruletype(const int debuglvl, struct RuleData_ *rule_ptr)
     Remove a rule from the list.
 */
 int
-rules_remove_rule_from_list(const int debuglvl, Rules *rules, unsigned int place, int updatenumbers)
+rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, unsigned int place, int updatenumbers)
 {
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
@@ -3956,7 +3956,7 @@ rules_remove_rule_from_list(const int debuglvl, Rules *rules, unsigned int place
         1: increase
 */
 void
-rules_update_numbers(const int debuglvl, Rules *rules, unsigned int place, int action)
+rules_update_numbers(const int debuglvl, struct vrmr_rules *rules, unsigned int place, int action)
 {
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
@@ -3996,7 +3996,7 @@ rules_update_numbers(const int debuglvl, Rules *rules, unsigned int place, int a
 
 /*- rules_print_list - */
 void
-rules_print_list(const Rules *rules)
+rules_print_list(const struct vrmr_rules *rules)
 {
     d_list_node         *d_node = NULL;
     struct RuleData_    *rule_ptr = NULL;

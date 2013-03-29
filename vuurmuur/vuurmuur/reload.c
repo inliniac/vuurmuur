@@ -1711,7 +1711,7 @@ reload_blocklist(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_zo
 int
 reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
 {
-    Rules                   *new_rules = NULL;
+    struct vrmr_rules       *new_rules = NULL;
     char                    status = 0,
                             changed = 0;
     d_list_node             *new_node = NULL,
@@ -1723,7 +1723,7 @@ reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
     struct RuleCache_       *rulecache = NULL;
 
 
-    if(!(new_rules = malloc(sizeof(Rules))))
+    if(!(new_rules = malloc(sizeof(*new_rules))))
     {
         (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
         return(-1);

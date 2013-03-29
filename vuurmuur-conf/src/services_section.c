@@ -2436,7 +2436,7 @@ edit_service(const int debuglvl, struct vrmr_services *services, const char *nam
 
 
 static int
-rename_service(const int debuglvl, struct vrmr_services *services, Rules *rules, char *cur_name_ptr, char *new_name_ptr)
+rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_rules *rules, char *cur_name_ptr, char *new_name_ptr)
 {
     int                     result = 0;
     struct ServicesData_    *ser_ptr = NULL;
@@ -2640,7 +2640,7 @@ destroy_services_section(void)
 
 
 void
-services_section(const int debuglvl, struct vrmr_services *services, Rules *rules, struct vrmr_regex *reg)
+services_section(const int debuglvl, struct vrmr_services *services, struct vrmr_rules *rules, struct vrmr_regex *reg)
 {
     int     result = 0,
             quit = 0,

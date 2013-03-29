@@ -385,7 +385,7 @@ shaping_add_rate_to_iface(const int debuglvl, struct vrmr_interface *iface_ptr, 
 
  * call after analyzing the rules */
 int
-shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, Rules *rules) {
+shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_rules *rules) {
     d_list_node         *d_node = NULL,
                         *d_node_iface = NULL;
     struct RuleData_    *rule_ptr = NULL;

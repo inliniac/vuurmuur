@@ -1751,7 +1751,7 @@ destroy_interfaces_section(const int debuglvl)
 
 static int
 rename_interface(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_zones *zones,
-            Rules *rules, char *cur_name_ptr, char *new_name_ptr)
+            struct vrmr_rules *rules, char *cur_name_ptr, char *new_name_ptr)
 {
     int                     result = 0;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -1948,7 +1948,7 @@ interfaces_section_delete_interface(const int debuglvl, struct vrmr_interfaces *
 
 void
 interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_zones *zones,
-            Rules *rules, struct vrmr_regex *reg)
+            struct vrmr_rules *rules, struct vrmr_regex *reg)
 {
     int     result = 0,
             quit = 0,

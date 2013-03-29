@@ -32,7 +32,7 @@ static void mm_check_status_services(const int, /*@null@*/ d_list *, struct vrmr
 
 
 int
-convert_rulesfile_to_backend(const int debuglvl, Rules *rules, struct vuurmuur_config *cnf)
+convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_config *cnf)
 {
     char    path[96] = "";
     char    rule_name[32] = "";
@@ -699,7 +699,7 @@ mm_check_status_services(const int debuglvl, /*@null@*/ d_list *status_list, str
 /*
 */
 static void
-mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, Rules *rules)
+mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_rules *rules)
 {
     d_list_node      *d_node = NULL;
     struct RuleData_ *rule_ptr = NULL;
@@ -1557,7 +1557,7 @@ vc_apply_changes(const int debuglvl)
     the main menu, here you choose between rules, zones, config, logview, etc.
 */
 int
-main_menu(const int debuglvl, Rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
+main_menu(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
 #define MM_ITEM_RULES           gettext("Rules")
 #define MM_ITEM_BLOCKLIST       gettext("BlockList")
@@ -2173,7 +2173,7 @@ main_menu(const int debuglvl, Rules *rules, struct vrmr_zones *zones, struct vrm
     check all the statusses
 */
 void
-mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, Rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
 {
     unsigned int    list_len = 0;
 
