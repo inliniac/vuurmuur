@@ -384,15 +384,15 @@ mm_shm_connect_vuurmuur(const int debuglvl)
         }
         else
         {
-            vuurmuur_shmtable = (struct SHM_TABLE *)vuurmuur_shmp;
+            vuurmuur_shmtable = (struct vrmr_shm_table *)vuurmuur_shmp;
             vuurmuur_semid = vuurmuur_shmtable->sem_id;
 
             /* now try to connect to the shared memory */
-            if(SILENT_LOCK(vuurmuur_semid))
+            if(vrmr_lock(vuurmuur_semid))
             {
                 vuurmuur_shmtable->configtool.connected = 1;
                 snprintf(vuurmuur_shmtable->configtool.name, sizeof(vuurmuur_shmtable->configtool.name), "Vuurmuur_conf %s", version_string);
-                SILENT_UNLOCK(vuurmuur_semid);
+                vrmr_unlock(vuurmuur_semid);
             }
             else
             {
@@ -429,15 +429,15 @@ mm_shm_connect_vuurmuurlog(const int debuglvl)
         }
         else
         {
-            vuurmuurlog_shmtable = (struct SHM_TABLE *)vuurmuurlog_shmp;
+            vuurmuurlog_shmtable = (struct vrmr_shm_table *)vuurmuurlog_shmp;
             vuurmuurlog_semid = vuurmuurlog_shmtable->sem_id;
 
             /* now try to connect to the shared memory */
-            if(SILENT_LOCK(vuurmuurlog_semid))
+            if(vrmr_lock(vuurmuurlog_semid))
             {
                 vuurmuurlog_shmtable->configtool.connected = 1;
                 snprintf(vuurmuurlog_shmtable->configtool.name, sizeof(vuurmuurlog_shmtable->configtool.name), "Vuurmuur_conf %s", version_string);
-                SILENT_UNLOCK(vuurmuurlog_semid);
+                vrmr_unlock(vuurmuurlog_semid);
             }
             else
             {
@@ -535,13 +535,13 @@ mm_check_status_shm(const int debuglvl, /*@null@*/ d_list *status_list)
     }
     else
     {
-        if(!(SILENT_LOCK(vuurmuur_semid)))
+        if(!(vrmr_lock(vuurmuur_semid)))
         {
             VuurmuurStatus.vuurmuur = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.vuurmuur, gettext("- The connection with Vuurmuur seems to be lost. Please make sure that it is running\n"));
         }
         else
-            SILENT_UNLOCK(vuurmuur_semid);
+            vrmr_unlock(vuurmuur_semid);
     }
 
     /* shm connection with Vuurmuur_log */
@@ -552,13 +552,13 @@ mm_check_status_shm(const int debuglvl, /*@null@*/ d_list *status_list)
     }
     else
     {
-        if(!(SILENT_LOCK(vuurmuurlog_semid)))
+        if(!(vrmr_lock(vuurmuurlog_semid)))
         {
             VuurmuurStatus.vuurmuur_log = 0;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.vuurmuur_log, gettext("- The connection with Vuurmuur_log seems to be lost. Please make sure that it is running\n"));
         }
         else
-            SILENT_UNLOCK(vuurmuurlog_semid);
+            vrmr_unlock(vuurmuurlog_semid);
     }
 
 
@@ -1200,13 +1200,13 @@ mm_reload_shm(const int debuglvl)
     /* notify both vuurmuur and vuurmuurlog */
     if(vuurmuur_semid != -1)
     {
-        if(LOCK(vuurmuur_semid))
+        if(vrmr_lock(vuurmuur_semid))
         {
             vuurmuur_shmtable->backend_changed = 1;
             (void)strlcpy(vuurmuur_shmtable->configtool.username,
                     user_data.realusername,
                     sizeof(vuurmuur_shmtable->configtool.username));
-            UNLOCK(vuurmuur_semid);
+            vrmr_unlock(vuurmuur_semid);
 
             vuurmuur_result = VR_RR_NO_RESULT_YET;
         }
@@ -1222,13 +1222,13 @@ mm_reload_shm(const int debuglvl)
     }
     if(vuurmuurlog_semid != -1)
     {
-        if(LOCK(vuurmuurlog_semid))
+        if(vrmr_lock(vuurmuurlog_semid))
         {
             vuurmuurlog_shmtable->backend_changed = 1;
             (void)strlcpy(vuurmuurlog_shmtable->configtool.username,
                     user_data.realusername,
                     sizeof(vuurmuurlog_shmtable->configtool.username));
-            UNLOCK(vuurmuurlog_semid);
+            vrmr_unlock(vuurmuurlog_semid);
 
             vuurmuurlog_result = VR_RR_NO_RESULT_YET;
         }
@@ -1249,7 +1249,7 @@ mm_reload_shm(const int debuglvl)
     {
         if(vuurmuur_progress < 100)
         {
-            if(SILENT_LOCK(vuurmuur_semid))
+            if(vrmr_lock(vuurmuur_semid))
             {
                 if(vuurmuur_shmtable->reload_result != VR_RR_READY)
                 {
@@ -1257,7 +1257,7 @@ mm_reload_shm(const int debuglvl)
                 }
                 vuurmuur_progress = vuurmuur_shmtable->reload_progress;
 
-                SILENT_UNLOCK(vuurmuur_semid);
+                vrmr_unlock(vuurmuur_semid);
             }
 
             (void)snprintf(str, sizeof(str), "%3d", vuurmuur_progress);
@@ -1275,10 +1275,10 @@ mm_reload_shm(const int debuglvl)
                 last_vuurmuur_result = 0;
                 failed = 1;
             }
-            else if(SILENT_LOCK(vuurmuur_semid))
+            else if(vrmr_lock(vuurmuur_semid))
             {
                 vuurmuur_shmtable->reload_result = VR_RR_RESULT_ACK;
-                SILENT_UNLOCK(vuurmuur_semid);
+                vrmr_unlock(vuurmuur_semid);
 
                 if(vuurmuur_result == VR_RR_SUCCES)
                 {
@@ -1304,7 +1304,7 @@ mm_reload_shm(const int debuglvl)
 
         if(vuurmuurlog_progress < 100)
         {
-            if(SILENT_LOCK(vuurmuurlog_semid))
+            if(vrmr_lock(vuurmuurlog_semid))
             {
                 if(vuurmuurlog_shmtable->reload_result != VR_RR_READY)
                 {
@@ -1312,7 +1312,7 @@ mm_reload_shm(const int debuglvl)
                 }
                 vuurmuurlog_progress = vuurmuurlog_shmtable->reload_progress;
 
-                SILENT_UNLOCK(vuurmuurlog_semid);
+                vrmr_unlock(vuurmuurlog_semid);
             }
 
             (void)snprintf(str, sizeof(str), "%3d", vuurmuurlog_progress);
@@ -1329,10 +1329,10 @@ mm_reload_shm(const int debuglvl)
 
                 last_vuurmuur_log_result = 0;
             }
-            else if(SILENT_LOCK(vuurmuurlog_semid))
+            else if(vrmr_lock(vuurmuurlog_semid))
             {
                 vuurmuurlog_shmtable->reload_result = VR_RR_RESULT_ACK;
-                SILENT_UNLOCK(vuurmuurlog_semid);
+                vrmr_unlock(vuurmuurlog_semid);
 
                 if(vuurmuurlog_result == VR_RR_SUCCES)
                 {

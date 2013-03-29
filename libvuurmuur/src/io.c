@@ -644,11 +644,11 @@ libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *
 void
 shm_update_progress(const int debuglvl, int semid, int *shm_progress, int set_percent)
 {
-    if(LockSHM(1, semid)) /* lock */
+    if(vrmr_lock(semid))
     {
         *shm_progress = set_percent;
 
-        LockSHM(0, semid); /* unlock */
+        vrmr_unlock(semid);
     }
 
     if(debuglvl >= HIGH)

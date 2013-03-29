@@ -597,7 +597,7 @@ main(int argc, char *argv[])
                 }
                 else
                 {
-                    shm_table = (struct SHM_TABLE *)shmp;
+                    shm_table = (struct vrmr_shm_table *)shmp;
                     (void)vrprint.info("Info", "Attaching to shared memory successfull.");
                 }
 
@@ -627,13 +627,13 @@ main(int argc, char *argv[])
                     }
 
                     /* now initialize the shared mem */
-                    if(LOCK(sem_id))
+                    if(vrmr_lock(sem_id))
                     {
                         shm_table->sem_id = sem_id;
                         shm_table->backend_changed = 0;
                         shm_table->reload_result = VR_RR_READY;
 
-                        UNLOCK(sem_id);
+                        vrmr_unlock(sem_id);
                     }
                 }
             }
@@ -653,7 +653,7 @@ main(int argc, char *argv[])
                 sigint_count == 0 &&
                 sigterm_count == 0)
             {
-                if(LOCK(sem_id))
+                if(vrmr_lock(sem_id))
                 {
                     if(shm_table->configtool.connected == 1)
                     {
@@ -676,7 +676,7 @@ main(int argc, char *argv[])
                         shm_table->reload_progress = FALSE;
                     }
 
-                    UNLOCK(sem_id);
+                    vrmr_unlock(sem_id);
                 }
 
                 /*  if we have one or more dynamic interfaces
@@ -715,7 +715,7 @@ main(int argc, char *argv[])
                     /* if we are reloading because of an IPC command, we need to communicate with the caller */
                     if(reload_shm == TRUE)
                     {
-                        if(LOCK(sem_id))
+                        if(vrmr_lock(sem_id))
                         {
                             /* finished so 100% */
                             shm_table->reload_progress = 100;
@@ -733,7 +733,7 @@ main(int argc, char *argv[])
                             {
                                 shm_table->reload_result = VR_RR_NOCHANGES;
                             }
-                            UNLOCK(sem_id);
+                            vrmr_unlock(sem_id);
                         }
 
                         (void)vrprint.info("Info", "Waiting for an VR_RR_RESULT_ACK");
@@ -744,7 +744,7 @@ main(int argc, char *argv[])
                         /* now wait max 30 seconds for an ACK from the caller */
                         while(result == 0 && wait_time < 30)
                         {
-                            if(LOCK(sem_id))
+                            if(vrmr_lock(sem_id))
                             {
                                 /* ah, we got one */
                                 if(shm_table->reload_result == VR_RR_RESULT_ACK)
@@ -755,7 +755,7 @@ main(int argc, char *argv[])
 
                                     (void)vrprint.info("Info", "We got an VR_RR_RESULT_ACK!");
                                 }
-                                UNLOCK(sem_id);
+                                vrmr_unlock(sem_id);
                             }
 
                             wait_time++;
@@ -766,11 +766,11 @@ main(int argc, char *argv[])
                         if(result == 0)
                         {
                             (void)vrprint.info("Info", "We've waited for %d seconds for an VR_RR_RESULT_ACK, but got none. Setting to VR_RR_READY", wait_time);
-                            if(LOCK(sem_id))
+                            if(vrmr_lock(sem_id))
                             {
                                 shm_table->reload_result = VR_RR_READY;
                                 shm_table->reload_progress = 0;
-                                UNLOCK(sem_id);
+                                vrmr_unlock(sem_id);
                             }
                             else
                             {

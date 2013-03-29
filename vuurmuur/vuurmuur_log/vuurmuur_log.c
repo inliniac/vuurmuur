@@ -32,7 +32,7 @@
 #endif /* HAVE_NFNETLINK */
 
 /*@null@*/
-struct SHM_TABLE *shm_table = 0;
+struct vrmr_shm_table *shm_table = 0;
 static int g_debuglvl = 0;
 static Hash zone_htbl;
 static Hash service_htbl;

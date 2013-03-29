@@ -375,19 +375,19 @@ main(int argc, char *argv[])
     /* detach from shared memory, if we were attached */
     if(vuurmuur_shmp != NULL && vuurmuur_shmp != (char *)(-1) && vuurmuur_shmtable != 0)
     {
-        if(SILENT_LOCK(vuurmuur_semid))
+        if(vrmr_lock(vuurmuur_semid))
         {
             vuurmuur_shmtable->configtool.connected = 3;
-            SILENT_UNLOCK(vuurmuur_semid);
+            vrmr_unlock(vuurmuur_semid);
         }
         (void)shmdt(vuurmuur_shmp);
     }
     if(vuurmuurlog_shmp != NULL && vuurmuurlog_shmp != (char *)(-1) && vuurmuurlog_shmtable != 0)
     {
-        if(SILENT_LOCK(vuurmuurlog_semid))
+        if(vrmr_lock(vuurmuurlog_semid))
         {
             vuurmuurlog_shmtable->configtool.connected = 3;
-            SILENT_UNLOCK(vuurmuurlog_semid);
+            vrmr_unlock(vuurmuurlog_semid);
         }
         (void)shmdt(vuurmuurlog_shmp);
     }
@@ -827,16 +827,16 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
         }
         else
         {
-            vuurmuur_shmtable = (struct SHM_TABLE *)vuurmuur_shmp;
+            vuurmuur_shmtable = (struct vrmr_shm_table *)vuurmuur_shmp;
             vuurmuur_semid = vuurmuur_shmtable->sem_id;
 
             /* now try to connect to the shared memory */
-            if(LOCK(vuurmuur_semid))
+            if(vrmr_lock(vuurmuur_semid))
             {
                 vuurmuur_shmtable->configtool.connected = 1;
                 (void)snprintf(vuurmuur_shmtable->configtool.name, sizeof(vuurmuur_shmtable->configtool.name), "Vuurmuur_conf %s (user: %s)", version_string, user_data.realusername);
                 (void)strlcpy(vuurmuur_shmtable->configtool.username, user_data.realusername, sizeof(vuurmuur_shmtable->configtool.username));
-                UNLOCK(vuurmuur_semid);
+                vrmr_unlock(vuurmuur_semid);
 
                 werase(startup_print_win); wprintw(startup_print_win, "%s Vuurmuur... %s", STR_CONNECTING_TO, STR_COK); update_panels(); doupdate();
             }
@@ -871,19 +871,19 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
         }
         else
         {
-            vuurmuurlog_shmtable = (struct SHM_TABLE *)vuurmuurlog_shmp;
+            vuurmuurlog_shmtable = (struct vrmr_shm_table *)vuurmuurlog_shmp;
             vuurmuurlog_semid = vuurmuurlog_shmtable->sem_id;
 
             if(debuglvl >= LOW)
                 (void)vrprint.debug(__FUNC__, "vuurmuur_log: sem_id: %d.", vuurmuurlog_semid);
 
             /* now try to connect to the shared memory */
-            if(LOCK(vuurmuurlog_semid))
+            if(vrmr_lock(vuurmuurlog_semid))
             {
                 vuurmuurlog_shmtable->configtool.connected = 1;
                 (void)snprintf(vuurmuurlog_shmtable->configtool.name, sizeof(vuurmuurlog_shmtable->configtool.name), "Vuurmuur_conf %s (user: %s)", version_string, user_data.realusername);
                 (void)strlcpy(vuurmuurlog_shmtable->configtool.username, user_data.realusername, sizeof(vuurmuurlog_shmtable->configtool.username));
-                UNLOCK(vuurmuurlog_semid);
+                vrmr_unlock(vuurmuurlog_semid);
 
                 werase(startup_print_win); wprintw(startup_print_win, "%s Vuurmuur_log... %s", STR_CONNECTING_TO, STR_COK); update_panels(); doupdate();
             }

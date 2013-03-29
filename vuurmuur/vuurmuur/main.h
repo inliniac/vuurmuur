@@ -67,9 +67,6 @@
 
 #define NFQ_MARK_BASE           3
 
-#define LOCK(x)                 LockSHM(1, x)
-#define UNLOCK(x)               LockSHM(0, x)
-
 /* define these here so converting to gettext will be easier */
 #define VR_ERR                  "Error"
 #define VR_INTERR               "Internal Error"
@@ -269,7 +266,7 @@ typedef struct VrCmdline_ {
 } VrCmdline;
 
 /*@null@*/
-struct SHM_TABLE *shm_table;
+struct vrmr_shm_table *shm_table;
 
 /* counters */
 int ipt_rulecount;

@@ -178,7 +178,7 @@ interface_malloc(const int debuglvl)
 
 */
 int
-LockSHM(int lock, int sem_id)
+vrmr_shm_lock(int lock, int sem_id)
 {
     int                     z;
     static struct sembuf    sops = { 0, -1, 0 };

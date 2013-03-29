@@ -58,9 +58,6 @@
 #define YES                 1
 #define NO                  0
 
-#define LOCK(x)             LockSHM(1, x)
-#define UNLOCK(x)           LockSHM(0, x)
-
 /* define these here so converting to gettext will be easier */
 #define VR_ERR              "Error"
 #define VR_INTERR           "Internal Error"
@@ -76,7 +73,7 @@
 \*************************************************************************************************************************/
 
 /*@null@*/
-struct SHM_TABLE *shm_table;
+struct vrmr_shm_table *shm_table;
 
 /* semaphore id */
 int sem_id;

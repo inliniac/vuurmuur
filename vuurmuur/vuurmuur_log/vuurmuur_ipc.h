@@ -20,9 +20,9 @@
 #ifndef __VUURMUURIPC_H__
 #define __VUURMUURIPC_H__
 
-int SetupVMIPC (int *, struct SHM_TABLE **);
+int SetupVMIPC (int *, struct vrmr_shm_table **);
 int ClearVMIPC (const int, int);
-int CheckVMIPC (const int, struct SHM_TABLE *);
-int WaitVMIPCACK (int, int *, struct SHM_TABLE *, int *);
+int CheckVMIPC (const int, struct vrmr_shm_table *);
+int WaitVMIPCACK (int, int *, struct vrmr_shm_table *, int *);
 
 #endif

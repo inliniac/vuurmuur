@@ -27,7 +27,7 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
     int                 vuurmuur_shmid = 0;
     int                 vuurmuur_semid = -1;
     /*@null@*/
-    struct SHM_TABLE    *vuurmuur_shmtable = NULL;
+    struct vrmr_shm_table    *vuurmuur_shmtable = NULL;
     char                *vuurmuur_shmp = NULL;
 
     /* vuurmuur_log */
@@ -35,7 +35,7 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
     int                 vuurmuurlog_semid = -1;
     char                *vuurmuurlog_shmp = NULL;
     /*@null@*/
-    struct SHM_TABLE    *vuurmuurlog_shmtable = NULL;
+    struct vrmr_shm_table    *vuurmuurlog_shmtable = NULL;
     int                 vuurmuur_result = 0,
                         vuurmuurlog_result = 0;
     int                 waittime = 0;
@@ -60,16 +60,16 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
         }
         else
         {
-            vuurmuur_shmtable = (struct SHM_TABLE *)vuurmuur_shmp;
+            vuurmuur_shmtable = (struct vrmr_shm_table *)vuurmuur_shmp;
             vuurmuur_semid = vuurmuur_shmtable->sem_id;
 
             /* now try to connect to the shared memory */
-            if(LOCK(vuurmuur_semid))
+            if(vrmr_lock(vuurmuur_semid))
             {
                 vuurmuur_shmtable->configtool.connected = 1;
                 (void)strlcpy(vuurmuur_shmtable->configtool.username, user_data.realusername, sizeof(vuurmuur_shmtable->configtool.username));
                 snprintf(vuurmuur_shmtable->configtool.name, sizeof(vuurmuur_shmtable->configtool.name), "Vuurmuur_script %s (user: %s)", version_string, user_data.realusername);
-                UNLOCK(vuurmuur_semid);
+                vrmr_unlock(vuurmuur_semid);
             }
             else
             {
@@ -98,16 +98,16 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
         }
         else
         {
-            vuurmuurlog_shmtable = (struct SHM_TABLE *)vuurmuurlog_shmp;
+            vuurmuurlog_shmtable = (struct vrmr_shm_table *)vuurmuurlog_shmp;
             vuurmuurlog_semid = vuurmuurlog_shmtable->sem_id;
 
             /* now try to connect to the shared memory */
-            if(LOCK(vuurmuurlog_semid))
+            if(vrmr_lock(vuurmuurlog_semid))
             {
                 vuurmuurlog_shmtable->configtool.connected = 1;
                 (void)strlcpy(vuurmuurlog_shmtable->configtool.username, user_data.realusername, sizeof(vuurmuurlog_shmtable->configtool.username));
                 snprintf(vuurmuurlog_shmtable->configtool.name, sizeof(vuurmuurlog_shmtable->configtool.name), "Vuurmuur_script %s (user: %s)", version_string, user_data.realusername);
-                UNLOCK(vuurmuurlog_semid);
+                vrmr_unlock(vuurmuurlog_semid);
             }
             else
             {
@@ -125,10 +125,10 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
     /* handle no vuurmuur connection */
     if(vuurmuur_shmtable != NULL && vuurmuur_semid != -1)
     {
-        if(LOCK(vuurmuur_semid))
+        if(vrmr_lock(vuurmuur_semid))
         {
             vuurmuur_shmtable->backend_changed = 1;
-            UNLOCK(vuurmuur_semid);
+            vrmr_unlock(vuurmuur_semid);
 
             vuurmuur_result = VR_RR_NO_RESULT_YET;
         }
@@ -141,10 +141,10 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
     /* handle no vuurmuur_log connection */
     if(vuurmuurlog_shmtable != NULL && vuurmuurlog_semid != -1)
     {
-        if(LOCK(vuurmuurlog_semid))
+        if(vrmr_lock(vuurmuurlog_semid))
         {
             vuurmuurlog_shmtable->backend_changed = 1;
-            UNLOCK(vuurmuurlog_semid);
+            vrmr_unlock(vuurmuurlog_semid);
 
             vuurmuurlog_result = VR_RR_NO_RESULT_YET;
         }
@@ -162,7 +162,7 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
         if(vuurmuur_shmtable != NULL && vuurmuur_semid != -1) {
             if(vuurmuur_progress < 100)
             {
-                if(LOCK(vuurmuur_semid))
+                if(vrmr_lock(vuurmuur_semid))
                 {
                     if(vuurmuur_shmtable->reload_result != VR_RR_READY)
                     {
@@ -170,7 +170,7 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
                     }
                     vuurmuur_progress = vuurmuur_shmtable->reload_progress;
 
-                    UNLOCK(vuurmuur_semid);
+                    vrmr_unlock(vuurmuur_semid);
                 }
             }
 
@@ -181,10 +181,10 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
                     vuurmuur_result = VR_RR_READY;
                     failed = 1;
                 }
-                else if(LOCK(vuurmuur_semid))
+                else if(vrmr_lock(vuurmuur_semid))
                 {
                     vuurmuur_shmtable->reload_result = VR_RR_RESULT_ACK;
-                    UNLOCK(vuurmuur_semid);
+                    vrmr_unlock(vuurmuur_semid);
 
                     if(vuurmuur_result != VR_RR_SUCCES && vuurmuur_result != VR_RR_NOCHANGES)
                     {
@@ -201,7 +201,7 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
         if(vuurmuurlog_shmtable != NULL && vuurmuurlog_semid != -1) {
             if(vuurmuurlog_progress < 100)
             {
-                if(LOCK(vuurmuurlog_semid))
+                if(vrmr_lock(vuurmuurlog_semid))
                 {
                     if(vuurmuurlog_shmtable->reload_result != VR_RR_READY)
                     {
@@ -209,7 +209,7 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
                     }
                     vuurmuurlog_progress = vuurmuurlog_shmtable->reload_progress;
 
-                    UNLOCK(vuurmuurlog_semid);
+                    vrmr_unlock(vuurmuurlog_semid);
                 }
             }
 
@@ -218,10 +218,10 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
                 if(vuurmuurlog_semid == -1)
                 {
                 }
-                else if(LOCK(vuurmuurlog_semid))
+                else if(vrmr_lock(vuurmuurlog_semid))
                 {
                     vuurmuurlog_shmtable->reload_result = VR_RR_RESULT_ACK;
-                    UNLOCK(vuurmuurlog_semid);
+                    vrmr_unlock(vuurmuurlog_semid);
 
                     if(vuurmuurlog_result != VR_RR_SUCCES && vuurmuur_result != VR_RR_NOCHANGES)
                     {
@@ -259,19 +259,19 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
     /* detach from shared memory, if we were attached */
     if(vuurmuur_shmp != NULL && vuurmuur_shmp != (char *)(-1) && vuurmuur_shmtable != 0)
     {
-        if(LOCK(vuurmuur_semid))
+        if(vrmr_lock(vuurmuur_semid))
         {
             vuurmuur_shmtable->configtool.connected = 3;
-            UNLOCK(vuurmuur_semid);
+            vrmr_unlock(vuurmuur_semid);
         }
         (void)shmdt(vuurmuur_shmp);
     }
     if(vuurmuurlog_shmp != NULL && vuurmuurlog_shmp != (char *)(-1) && vuurmuurlog_shmtable != 0)
     {
-        if(LOCK(vuurmuurlog_semid))
+        if(vrmr_lock(vuurmuurlog_semid))
         {
             vuurmuurlog_shmtable->configtool.connected = 3;
-            UNLOCK(vuurmuurlog_semid);
+            vrmr_unlock(vuurmuurlog_semid);
         }
         (void)shmdt(vuurmuurlog_shmp);
     }

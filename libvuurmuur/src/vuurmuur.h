@@ -323,10 +323,11 @@ struct vrmr_portdata
     int dst_high;
 };
 
+#define vrmr_lock(x) vrmr_shm_lock(1,(x))
+#define vrmr_unlock(x) vrmr_shm_lock(0,(x))
 
 /* shared memory */
-struct SHM_TABLE
-{
+struct vrmr_shm_table {
     int sem_id;
 
     struct
@@ -1321,7 +1322,7 @@ void *service_malloc(void);
 void *interface_malloc(const int debuglvl);
 /*@null@*/
 void *ruleoption_malloc(int debuglvl);
-int LockSHM(int, int);
+int vrmr_shm_lock(int, int);
 char *libvuurmuur_get_version(void);
 int range_strcpy(char *dest, const char *src, const size_t start, const size_t end, size_t size);
 size_t strlcat(char *dst, const char *src, size_t size);

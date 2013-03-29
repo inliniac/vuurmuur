@@ -31,7 +31,7 @@ static union semun     semarg;
 static ushort          seminit[] = { 1,0 };
 
 int
-SetupVMIPC (int *shm_id, struct SHM_TABLE **shm_table)
+SetupVMIPC (int *shm_id, struct vrmr_shm_table **shm_table)
 {
 
     char            *shmp;
@@ -82,7 +82,7 @@ SetupVMIPC (int *shm_id, struct SHM_TABLE **shm_table)
         }
         else
         {
-            *shm_table = (struct SHM_TABLE *)shmp;
+            *shm_table = (struct vrmr_shm_table *)shmp;
             (void)vrprint.info("Info", "Attaching to shared memory successfull.");
         }
 
@@ -112,13 +112,13 @@ SetupVMIPC (int *shm_id, struct SHM_TABLE **shm_table)
             }
 
             /* now initialize the shared mem */
-            if(LOCK)
+            if(vrmr_lock(sem_id))
             {
                 (*shm_table)->sem_id = sem_id;
                 (*shm_table)->backend_changed = 0;
                 (*shm_table)->reload_result = VR_RR_READY;
 
-                UNLOCK;
+                vrmr_unlock(sem_id);
             }
         }
     }
@@ -155,12 +155,12 @@ ClearVMIPC (const int debuglvl, int shm_id)
  *  \retval 0 don't reload
  */
 int
-CheckVMIPC (const int debuglvl, struct SHM_TABLE *shm_table)
+CheckVMIPC (const int debuglvl, struct vrmr_shm_table *shm_table)
 {
     int retval = 0;
 
     /* check the shm for changes */
-    if(LOCK)
+    if(vrmr_lock(sem_id))
     {
         if(shm_table->configtool.connected == 1)
         {
@@ -183,17 +183,17 @@ CheckVMIPC (const int debuglvl, struct SHM_TABLE *shm_table)
             shm_table->reload_progress = 0;
         }
 
-        UNLOCK;
+        vrmr_unlock(sem_id);
     }
     return (retval);
 }
 
 int
-WaitVMIPCACK (int wait_time, int *result, struct SHM_TABLE *shm_table, int *reload)
+WaitVMIPCACK (int wait_time, int *result, struct vrmr_shm_table *shm_table, int *reload)
 {
     int     waited = 0;
 
-    if(LOCK)
+    if(vrmr_lock(sem_id))
     {
         /* finished so 100% */
         shm_table->reload_progress = 100;
@@ -211,7 +211,7 @@ WaitVMIPCACK (int wait_time, int *result, struct SHM_TABLE *shm_table, int *relo
         {
             shm_table->reload_result = VR_RR_NOCHANGES;
         }
-        UNLOCK;
+        vrmr_unlock(sem_id);
     }
     *reload = 0;
 
@@ -223,7 +223,7 @@ WaitVMIPCACK (int wait_time, int *result, struct SHM_TABLE *shm_table, int *relo
     /* now wait max wait_time seconds for an ACK from the caller */
     while(*result == 0 && waited < wait_time)
     {
-        if(LOCK)
+        if(vrmr_lock(sem_id))
         {
             /* ah, we got one */
             if(shm_table->reload_result == VR_RR_RESULT_ACK)
@@ -234,7 +234,7 @@ WaitVMIPCACK (int wait_time, int *result, struct SHM_TABLE *shm_table, int *relo
 
                 (void)vrprint.info("Info", "We got an VR_RR_RESULT_ACK!");
             }
-            UNLOCK;
+            vrmr_unlock(sem_id);
         }
 
         waited++;
@@ -243,11 +243,11 @@ WaitVMIPCACK (int wait_time, int *result, struct SHM_TABLE *shm_table, int *relo
     if (*result == 0)
     {
         (void)vrprint.info("Info", "We've waited for 30 seconds for an VR_RR_RESULT_ACK, but got none. Setting to VR_RR_READY");
-        if(LOCK)
+        if(vrmr_lock(sem_id))
         {
             shm_table->reload_result = VR_RR_READY;
             shm_table->reload_progress = 0;
-            UNLOCK;
+            vrmr_unlock(sem_id);
         }
         else
         {

@@ -78,12 +78,6 @@
 
 #define VUURMUURCONF_VERSION	"0.8rc1"
 
-#define LOCK(x)             LockSHM(1, x)
-#define UNLOCK(x)           LockSHM(0, x)
-
-#define SILENT_LOCK(x)      LockSHM(1, x)
-#define SILENT_UNLOCK(x)    LockSHM(0, x)
-
 /* Initialize all the color pairs */
 #define CP_WIN          1
 #define CP_WIN_REV      2
@@ -249,7 +243,7 @@ WINDOW *status_frame_win, *status_win, *top_win, *main_win, *mainlog_win;
 int                 vuurmuur_shmid;
 int                 vuurmuur_semid;
 /*@null@*/
-struct SHM_TABLE    *vuurmuur_shmtable;
+struct vrmr_shm_table    *vuurmuur_shmtable;
 char                *vuurmuur_shmp;
 pid_t               vuurmuur_pid;
 
@@ -258,7 +252,7 @@ int                 vuurmuurlog_shmid;
 int                 vuurmuurlog_semid;
 char                *vuurmuurlog_shmp;
 /*@null@*/
-struct SHM_TABLE    *vuurmuurlog_shmtable;
+struct vrmr_shm_table    *vuurmuurlog_shmtable;
 pid_t               vuurmuurlog_pid;
 
 char                version_string[128];

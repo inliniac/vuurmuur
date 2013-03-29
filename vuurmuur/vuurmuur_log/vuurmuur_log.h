@@ -131,7 +131,4 @@ int         sem_id;
 char        version_string[128];
 struct vuurmuur_config conf;
 
-#define LOCK                          LockSHM(1, sem_id)
-#define UNLOCK                        LockSHM(0, sem_id)
-
 #endif /* __VUURMUUR_LOG_H__ */
