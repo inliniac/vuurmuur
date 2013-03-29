@@ -38,7 +38,7 @@
          0: ok
  */
 int
-zones_split_zonename(const int debuglvl, Zones *zones,
+zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
             struct ZoneData_ *zone_ptr, regex_t *reg_ex)
 {
     int     arg_count = 0;
@@ -186,7 +186,7 @@ zones_split_zonename(const int debuglvl, Zones *zones,
         -1: (serious) error
 */
 int
-insert_zonedata_list(const int debuglvl, Zones *zones,
+insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
              const struct ZoneData_ *zone_ptr)
 {
     struct ZoneData_    *check_zone_ptr = NULL,
@@ -356,7 +356,7 @@ insert_zonedata_list(const int debuglvl, Zones *zones,
          0: succes
 */
 int
-insert_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces,
+insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
         char *name, int type, struct vrmr_regex *reg)
 {
     struct ZoneData_    *zone_ptr = NULL;
@@ -409,7 +409,7 @@ insert_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interf
         -1: error
 */
 int
-read_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces,
+read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
           char *name, int type, struct ZoneData_ *zone_ptr, struct vrmr_regex *reg)
 {
     int     result = 0;
@@ -533,7 +533,7 @@ read_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfac
     It returns the pointer or a NULL-pointer if not found.
 */
 void *
-search_zonedata(const int debuglvl, const Zones *zones, char *name)
+search_zonedata(const int debuglvl, const struct vrmr_zones *zones, char *name)
 {
     d_list_node         *d_node = NULL;
     struct ZoneData_    *zonedata_ptr = NULL;
@@ -580,7 +580,7 @@ search_zonedata(const int debuglvl, const Zones *zones, char *name)
 
 /*- print_list - */
 void
-zonedata_print_list(const Zones *zones)
+zonedata_print_list(const struct vrmr_zones *zones)
 {
     d_list_node         *d_node = NULL;
     struct ZoneData_    *zone_ptr = NULL;
@@ -610,7 +610,7 @@ zonedata_print_list(const Zones *zones)
         -1: error
 */
 int
-init_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
+init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     int     retval = 0,
             result = 0,
@@ -626,7 +626,7 @@ init_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfac
     }
 
     /* init */
-    memset(zones, 0, sizeof(Zones));
+    memset(zones, 0, sizeof(*zones));
 
     /* create the list */
     if(d_list_setup(debuglvl, &zones->list, NULL) < 0)
@@ -667,7 +667,7 @@ init_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfac
 
 
 void
-destroy_zonedatalist(const int debuglvl, Zones *zones)
+destroy_zonedatalist(const int debuglvl, struct vrmr_zones *zones)
 {
     d_list_node         *d_node = NULL;
     struct ZoneData_    *zone_ptr = NULL;
@@ -692,7 +692,7 @@ destroy_zonedatalist(const int debuglvl, Zones *zones)
 
 
 int
-delete_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
+delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonetype)
 {
     struct ZoneData_        *zone_ptr = NULL,
                             *zone_list_ptr = NULL;
@@ -843,7 +843,7 @@ delete_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
     TODO: the spliting of name is totally wacked
 */
 int
-new_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
+new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonetype)
 {
     struct ZoneData_    *zone_ptr=NULL;
     size_t              dotcount=0,
@@ -1006,7 +1006,7 @@ new_zone(const int debuglvl, Zones *zones, char *zonename, int zonetype)
     TODO: input check
 */
 int
-count_zones(const int debuglvl, Zones *zones, int type, char *filter_network,
+count_zones(const int debuglvl, struct vrmr_zones *zones, int type, char *filter_network,
         char *filter_zone)
 {
     struct ZoneData_    *zone_ptr = NULL;
@@ -1063,7 +1063,7 @@ count_zones(const int debuglvl, Zones *zones, int type, char *filter_network,
 
 */
 int
-zonelist_to_networklist(const int debuglvl, Zones *zones, d_list *network_list)
+zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, d_list *network_list)
 {
     d_list_node         *d_node = NULL;
     struct ZoneData_    *zone_ptr = NULL;
@@ -1111,7 +1111,7 @@ zonelist_to_networklist(const int debuglvl, Zones *zones, d_list *network_list)
         -1: error
 */
 int
-add_broadcasts_zonelist(const int debuglvl, Zones *zones)
+add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
 {
     struct ZoneData_    *zone_ptr = NULL,
                         *broadcast_ptr = NULL;
@@ -1401,7 +1401,7 @@ zones_group_rem_member(const int debuglvl, struct ZoneData_ *group_ptr, char *ho
 
 
 int
-zones_group_add_member(const int debuglvl, Zones *zones, struct ZoneData_ *group_ptr, char *hostname)
+zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct ZoneData_ *group_ptr, char *hostname)
 {
     struct ZoneData_    *new_member_ptr = NULL,
                         *list_member_ptr = NULL;
@@ -1718,7 +1718,7 @@ int
 zones_network_analyze_rule( const int debuglvl,
                             struct RuleData_ *rule_ptr,
                             struct RuleCache_ *create,
-                            Zones *zones,
+                            struct vrmr_zones *zones,
                             struct vuurmuur_config *cnf)
 {
     int result = 0;
@@ -2303,7 +2303,7 @@ zones_check_group(const int debuglvl, struct ZoneData_ *zone_ptr)
         -1: error
 */
 int
-vrmr_zones_load(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
+vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     struct ZoneData_    *zone_ptr = NULL;
     d_list_node         *d_node = NULL;

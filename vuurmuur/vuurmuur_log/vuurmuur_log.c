@@ -454,7 +454,7 @@ main(int argc, char *argv[])
 {
     struct vrmr_interfaces  interfaces;
     struct vrmr_services    services;
-    Zones       zones;
+    struct vrmr_zones zones;
     struct vrmr_user user_data;
     FILE        *system_log = NULL;
     char        line_in[1024] = "";

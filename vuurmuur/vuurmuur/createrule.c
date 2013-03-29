@@ -4993,7 +4993,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
 int
 create_network_protect_rules_dhcp_server(   const int debuglvl,
                                             /*@null@*/RuleSet *ruleset,
-                                            Zones *zones, IptCap *iptcap,
+                                            struct vrmr_zones *zones, IptCap *iptcap,
                                             struct RuleCache_ *create,
                                             struct vrmr_interface *if_ptr)
 {
@@ -5081,7 +5081,7 @@ create_network_protect_rules_dhcp_server(   const int debuglvl,
 int
 create_network_protect_rules_dhcp_client(   const int debuglvl,
                                             /*@null@*/RuleSet *ruleset,
-                                            Zones *zones, IptCap *iptcap,
+                                            struct vrmr_zones *zones, IptCap *iptcap,
                                             struct RuleCache_ *create,
                                             struct vrmr_interface *if_ptr)
 {
@@ -5153,7 +5153,7 @@ create_network_protect_rules_dhcp_client(   const int debuglvl,
     we don't care if the network is active or not
 */
 int
-create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, Zones *zones, IptCap *iptcap)
+create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_zones *zones, IptCap *iptcap)
 {
     struct RuleCache_ *create = NULL;
     d_list_node *d_node = NULL, *net_d_node = NULL, *from_if_node = NULL;

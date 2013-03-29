@@ -213,7 +213,7 @@ oldrules_create_custom_chains(const int debuglvl, Rules *rules, struct vuurmuur_
 int
 analyze_interface_rules(const int debuglvl,
                 Rules *rules,
-                Zones *zones,
+                struct vrmr_zones *zones,
                 struct vrmr_services *services,
                 struct vrmr_interfaces *interfaces)
 {
@@ -270,7 +270,7 @@ analyze_interface_rules(const int debuglvl,
 
 
 int
-analyze_network_protect_rules(const int debuglvl, Rules *rules, Zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces)
+analyze_network_protect_rules(const int debuglvl, Rules *rules, struct vrmr_zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces)
 {
     struct RuleData_    *rule_ptr = NULL;
     d_list_node         *d_node = NULL,
@@ -327,7 +327,7 @@ analyze_network_protect_rules(const int debuglvl, Rules *rules, Zones *zones, st
 
 
 int
-analyze_normal_rules(const int debuglvl, Rules *rules, Zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces)
+analyze_normal_rules(const int debuglvl, Rules *rules, struct vrmr_zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces)
 {
     struct RuleData_    *rule_ptr = NULL;
     unsigned int        rulescount = 0,

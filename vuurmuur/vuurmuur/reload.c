@@ -21,9 +21,9 @@
 
 
 /* prototypes */
-int reload_blocklist(const int, struct vuurmuur_config *, Zones *, struct vrmr_blocklist *);
+int reload_blocklist(const int, struct vuurmuur_config *, struct vrmr_zones *, struct vrmr_blocklist *);
 int reload_rules(const int, VuurmuurCtx *, struct vrmr_regex *);
-int check_for_changed_networks(const int, Zones *);
+int check_for_changed_networks(const int, struct vrmr_zones *);
 
 
 /*  apply changes
@@ -555,7 +555,7 @@ reload_services_check(const int debuglvl, struct ServicesData_ *ser_ptr)
 
 // reload_zonedata
 int
-reload_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
+reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     int                 retval = 0,
                         result = 0;
@@ -712,7 +712,7 @@ reload_zonedata(const int debuglvl, Zones *zones, struct vrmr_interfaces *interf
         -1: error
 */
 int
-reload_zonedata_check(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces, struct ZoneData_ *zone_ptr, struct vrmr_regex *reg)
+reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct ZoneData_ *zone_ptr, struct vrmr_regex *reg)
 {
     int                     result = 0,
                             retval = 0;
@@ -1595,7 +1595,7 @@ reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
         1: changes
 */
 int
-reload_blocklist(const int debuglvl, struct vuurmuur_config *cfg, Zones *zones, struct vrmr_blocklist *blocklist)
+reload_blocklist(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist)
 {
     struct vrmr_blocklist   *new_blocklist = NULL;
     int         status = 0;
@@ -1963,7 +1963,7 @@ reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
         1: changes
 */
 int
-check_for_changed_networks(const int debuglvl, Zones *zones)
+check_for_changed_networks(const int debuglvl, struct vrmr_zones *zones)
 {
     d_list_node         *d_node = NULL;
     struct ZoneData_    *zone_ptr = NULL;

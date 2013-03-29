@@ -688,7 +688,7 @@ create_bw_string(const int debuglvl, unsigned int mb, char *str, size_t len)
         -1: error
 */
 int
-trafvol_section(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces,
+trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
             struct vrmr_services *services)
 {
     int                     retval = 0;

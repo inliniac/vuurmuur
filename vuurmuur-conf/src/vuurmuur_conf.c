@@ -71,7 +71,7 @@ int
 main(int argc, char *argv[])
 {
     struct vrmr_interfaces  interfaces;
-    Zones       zones;
+    struct vrmr_zones zones;
     struct vrmr_services services;
     Rules       rules;
     struct vrmr_blocklist   blocklist;
@@ -544,7 +544,7 @@ destroy_win(WINDOW *local_win)
         -1: error
 */
 int
-startup_screen(const int debuglvl, Rules *rules, Zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
+startup_screen(const int debuglvl, Rules *rules, struct vrmr_zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
     WINDOW  *startup_win = NULL,
             *startup_print_win = NULL;

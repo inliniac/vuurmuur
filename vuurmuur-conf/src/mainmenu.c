@@ -27,7 +27,7 @@ char    last_vuurmuur_log_result = 1;
 char    rules_convert_question_asked = FALSE,
         blocklist_convert_question_asked = FALSE;
 
-static void mm_check_status_zones(const int, /*@null@*/ d_list *, Zones *);
+static void mm_check_status_zones(const int, /*@null@*/ d_list *, struct vrmr_zones *);
 static void mm_check_status_services(const int, /*@null@*/ d_list *, struct vrmr_services *);
 
 
@@ -168,7 +168,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
 
 
 int
-mm_select_logfile(const int debuglvl, struct vuurmuur_config *cnf, Zones *zones, struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+mm_select_logfile(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
 {
     size_t  i = 0,
             n_choices = 6;
@@ -899,7 +899,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ d_list *status_list, s
 /*
 */
 static void
-mm_check_status_zones(const int debuglvl, /*@null@*/ d_list *status_list, Zones *zones)
+mm_check_status_zones(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_zones *zones)
 {
     d_list_node         *d_node = NULL;
     struct ZoneData_    *zone_ptr = NULL;
@@ -1557,7 +1557,7 @@ vc_apply_changes(const int debuglvl)
     the main menu, here you choose between rules, zones, config, logview, etc.
 */
 int
-main_menu(const int debuglvl, Rules *rules, Zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
+main_menu(const int debuglvl, Rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
 #define MM_ITEM_RULES           gettext("Rules")
 #define MM_ITEM_BLOCKLIST       gettext("BlockList")
@@ -2173,7 +2173,7 @@ main_menu(const int debuglvl, Rules *rules, Zones *zones, struct vrmr_interfaces
     check all the statusses
 */
 void
-mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, Rules *rules, Zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, Rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
 {
     unsigned int    list_len = 0;
 

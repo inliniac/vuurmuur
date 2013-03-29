@@ -514,12 +514,10 @@ struct vrmr_services {
 };
 
 
-typedef struct
-{
+struct vrmr_zones {
     /* the list with zones */
     d_list  list;
-
-} Zones;
+};
 
 
 typedef struct
@@ -1147,7 +1145,7 @@ typedef struct
 } IptCap;
 
 typedef struct VuurmuurCtx_ {
-    Zones *zones;
+    struct vrmr_zones *zones;
     struct vrmr_interfaces *interfaces;
     struct vrmr_blocklist *blocklist;
     Rules *rules;
@@ -1373,19 +1371,19 @@ void rules_free_options(const int debuglvl, struct vrmr_rule_options *opt);
 /*
     zones.c
 */
-//int zones_split_zonename(const int, Zones *, struct ZoneData_ *, regex_t *);
-int insert_zonedata_list(const int, Zones *, const struct ZoneData_ *);
-void zonedata_print_list(const Zones *);
-int init_zonedata(const int, /*@out@*/ Zones *, struct vrmr_interfaces *, struct vrmr_regex *);
-int insert_zonedata(const int, Zones *, struct vrmr_interfaces *, char *, int, struct vrmr_regex *);
-int read_zonedata(const int, Zones *, struct vrmr_interfaces *, char *, int, struct ZoneData_ *, struct vrmr_regex *);
-void *search_zonedata(const int, const Zones *, char *);
-void destroy_zonedatalist(const int, Zones *);
-int count_zones(const int, Zones *, int, char *, char *);
-int new_zone(const int, Zones *, char *, int);
-int delete_zone(const int, Zones *, char *, int);
-int zonelist_to_networklist(const int, Zones *, d_list *);
-int add_broadcasts_zonelist(const int, Zones *);
+//int zones_split_zonename(const int, struct vrmr_zones *, struct ZoneData_ *, regex_t *);
+int insert_zonedata_list(const int, struct vrmr_zones *, const struct ZoneData_ *);
+void zonedata_print_list(const struct vrmr_zones *);
+int init_zonedata(const int, /*@out@*/ struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
+int insert_zonedata(const int, struct vrmr_zones *, struct vrmr_interfaces *, char *, int, struct vrmr_regex *);
+int read_zonedata(const int, struct vrmr_zones *, struct vrmr_interfaces *, char *, int, struct ZoneData_ *, struct vrmr_regex *);
+void *search_zonedata(const int, const struct vrmr_zones *, char *);
+void destroy_zonedatalist(const int, struct vrmr_zones *);
+int count_zones(const int, struct vrmr_zones *, int, char *, char *);
+int new_zone(const int, struct vrmr_zones *, char *, int);
+int delete_zone(const int, struct vrmr_zones *, char *, int);
+int zonelist_to_networklist(const int, struct vrmr_zones *, d_list *);
+int add_broadcasts_zonelist(const int, struct vrmr_zones *);
 int validate_zonename(const int, const char *, int, char *, char *, char *, regex_t *, char);
 int zones_group_save_members(const int, struct ZoneData_ *);
 int zones_network_add_iface(const int, struct vrmr_interfaces *, struct ZoneData_ *, char *);
@@ -1394,13 +1392,13 @@ int zones_network_get_interfaces(const int, struct ZoneData_ *, struct vrmr_inte
 int zones_network_save_interfaces(const int, struct ZoneData_ *);
 int zones_network_get_protectrules(const int, struct ZoneData_ *);
 int zones_group_rem_member(const int, struct ZoneData_ *, char *);
-int zones_group_add_member(const int, Zones *, struct ZoneData_ *, char *);
+int zones_group_add_member(const int, struct vrmr_zones *, struct ZoneData_ *, char *);
 int zones_active(const int, struct ZoneData_ *);
 int zones_check_host(const int, struct ZoneData_ *);
 int zones_check_group(const int, struct ZoneData_ *);
 int zones_check_network(const int, struct ZoneData_ *);
-int vrmr_zones_load(const int, Zones *, struct vrmr_interfaces *, struct vrmr_regex *);
-int zones_network_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, Zones *, struct vuurmuur_config *);
+int vrmr_zones_load(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
+int zones_network_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, struct vrmr_zones *, struct vuurmuur_config *);
 int zones_network_rule_parse_line(const int, const char *, struct RuleData_ *);
 int zones_host_ipv6_enabled(const int, struct ZoneData_ *);
 int zones_network_ipv6_enabled(const int, struct ZoneData_ *);
@@ -1431,7 +1429,7 @@ int vrmr_services_load(const int, struct vrmr_services *, struct vrmr_regex *);
 */
 int vrmr_get_ip_info(const int debuglvl, char *name, struct ZoneData_ *answer_ptr, struct vrmr_regex *reg);
 int create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broadcast_ip, size_t size);
-int get_group_info(const int, Zones *, char *, struct ZoneData_ *);
+int get_group_info(const int, struct vrmr_zones *, char *, struct ZoneData_ *);
 char *list_to_portopts(const int, d_list *, /*@null@*/char *);
 int portopts_to_list(const int debuglvl, const char *opt, d_list *dlist);
 int check_active(const int debuglvl, char *data, int type);
@@ -1453,7 +1451,7 @@ int set_proc_entry(const int debuglvl, struct vuurmuur_config *, char *proc_entr
 /*
     rules.c
 */
-int rules_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, struct vrmr_services *, Zones *, struct vrmr_interfaces *, struct vuurmuur_config *);
+int rules_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, struct vrmr_services *, struct vrmr_zones *, struct vrmr_interfaces *, struct vuurmuur_config *);
 int rules_parse_line(const int, char *, struct RuleData_ *, struct vrmr_regex *);
 int vrmr_rules_init_list(const int, struct vuurmuur_config *cfg, /*@out@*/ Rules *, struct vrmr_regex *);
 int rules_cleanup_list(const int, Rules *);
@@ -1482,9 +1480,9 @@ char *rules_itoaction_cap(const int);
 /*
     blocklist
 */
-int vrmr_blocklist_add_one(const int, Zones *, struct vrmr_blocklist *, char, char, char *);
-int vrmr_blocklist_rem_one(const int, Zones *, struct vrmr_blocklist *, char *);
-int vrmr_blocklist_init_list(const int, struct vuurmuur_config *cfg, Zones *, struct vrmr_blocklist *, char, char);
+int vrmr_blocklist_add_one(const int, struct vrmr_zones *, struct vrmr_blocklist *, char, char, char *);
+int vrmr_blocklist_rem_one(const int, struct vrmr_zones *, struct vrmr_blocklist *, char *);
+int vrmr_blocklist_init_list(const int, struct vuurmuur_config *cfg, struct vrmr_zones *, struct vrmr_blocklist *, char, char);
 int vrmr_blocklist_save_list(const int, struct vuurmuur_config *cfg, struct vrmr_blocklist *);
 
 

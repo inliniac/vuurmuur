@@ -295,9 +295,9 @@ void create_logtcpoptions_string(const int, struct vuurmuur_config *, char *, si
 
 int oldrules_create_custom_chains(const int, Rules *, struct vuurmuur_config *);
 
-int analyze_interface_rules(const int, Rules *, Zones *, struct vrmr_services *, struct vrmr_interfaces *);
-int analyze_network_protect_rules(const int, Rules *, Zones *, struct vrmr_services *, struct vrmr_interfaces *);
-int analyze_normal_rules(const int, Rules *, Zones *, struct vrmr_services *, struct vrmr_interfaces *);
+int analyze_interface_rules(const int, Rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
+int analyze_network_protect_rules(const int, Rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
+int analyze_normal_rules(const int, Rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
 int analyze_all_rules(const int, VuurmuurCtx *, Rules *);
 
 int create_all_rules(const int, VuurmuurCtx *, int);
@@ -312,7 +312,7 @@ int create_block_rules(const int, /*@null@*/RuleSet *, struct vrmr_blocklist *);
 int create_newnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *, IptCap *, int);
 int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, Rules *, IptCap *, int);
 
-int create_network_protect_rules(const int, /*@null@*/RuleSet *, Zones *, IptCap *);
+int create_network_protect_rules(const int, /*@null@*/RuleSet *, struct vrmr_zones *, IptCap *);
 int create_interface_rules(const int, /*@null@*/RuleSet *, IptCap *, struct vrmr_interfaces *);
 int create_system_protectrules(const int, struct vuurmuur_config *);
 int create_normal_rules(const int, VuurmuurCtx *, /*@null@*/RuleSet *, char *);
@@ -354,8 +354,8 @@ int apply_changes(const int, VuurmuurCtx *vctx, struct vrmr_regex *);
 int reload_services(const int, struct vrmr_services *, regex_t *);
 int reload_services_check(const int, struct ServicesData_ *);
 
-int reload_zonedata(const int, Zones *, struct vrmr_interfaces *, struct vrmr_regex *);
-int reload_zonedata_check(const int, Zones *, struct vrmr_interfaces *, struct ZoneData_ *, struct vrmr_regex *);
+int reload_zonedata(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
+int reload_zonedata_check(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct ZoneData_ *, struct vrmr_regex *);
 
 int reload_interfaces(const int, struct vrmr_interfaces *);
 int reload_interfaces_check(const int, struct vrmr_interface *iface_ptr);

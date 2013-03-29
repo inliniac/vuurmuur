@@ -66,7 +66,7 @@ main(int argc, char *argv[])
 {
     struct vrmr_interfaces      interfaces;
     struct vrmr_services        services;
-    Zones           zones;
+    struct vrmr_zones zones;
     Rules           rules;
     /* list of ipaddresses to be blocked */
     struct vrmr_blocklist       blocklist;

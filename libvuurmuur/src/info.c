@@ -231,7 +231,7 @@ create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broa
         -1: error
  */
 int
-get_group_info(const int debuglvl, Zones *zones, char *groupname, struct ZoneData_ *answer_ptr)
+get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, struct ZoneData_ *answer_ptr)
 {
     int                 result = 0;
     char                total_zone[MAX_HOST_NET_ZONE] = "",

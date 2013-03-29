@@ -507,7 +507,7 @@ update_draw_size(const int debuglvl, VR_ConntrackRequest *connreq, int width, in
 
 
 Conntrack *
-conn_init_ct(const int debuglvl, Zones *zones, struct vrmr_interfaces *interfaces,
+conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
             struct vrmr_services *services, struct vrmr_blocklist *blocklist )
 {
     Conntrack   *ct = NULL;
@@ -576,7 +576,7 @@ conn_init_ct(const int debuglvl, Zones *zones, struct vrmr_interfaces *interface
 }
 
 void
-conn_free_ct(const int debuglvl, Conntrack **ct, Zones *zones)
+conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones)
 {
     /* zones may be NULL if we have multiple ct's */
     if (zones != NULL) {
@@ -641,7 +641,7 @@ conn_ct_clear_connections(const int debuglvl, Conntrack *ct)
 
 int
 connections_section(const int debuglvl, struct vuurmuur_config *cnf,
-            Zones *zones, struct vrmr_interfaces *interfaces,
+            struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
             struct vrmr_services *services, struct vrmr_blocklist *blocklist)
 {
     int                     retval=0;
@@ -1416,7 +1416,7 @@ kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
     new connections to be established.
 */
 int
-block_and_kill(const int debuglvl, Conntrack *ct, Zones *zones,
+block_and_kill(const int debuglvl, Conntrack *ct, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, char *ip)
 {
     struct vrmr_interface   *iface_ptr = NULL;
