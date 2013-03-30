@@ -102,7 +102,7 @@ filtered_connection(const int debuglvl, struct vrmr_conntrack_entry *cd_ptr, str
 void
 conn_print_dlist(const d_list *dlist)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
     char                    status[16] = "";
     char                    direction[16] = "";
@@ -1881,7 +1881,7 @@ conn_match_name(const void *ser1, const void *ser2)
 void
 conn_list_print(const d_list *conn_list)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *item_ptr = NULL;
 
     // Display the linked list.
@@ -2003,7 +2003,7 @@ conn_match_conntrackdata(const void *check, const void *hash)
 void
 conn_list_cleanup(int debuglvl, d_list *conn_dlist)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
 
     for(d_node = conn_dlist->top; d_node; d_node = d_node->next)
@@ -2020,7 +2020,7 @@ conn_list_cleanup(int debuglvl, d_list *conn_dlist)
         free(cd_ptr);
     }
 
-    d_list_cleanup(debuglvl, conn_dlist);
+    vrmr_list_cleanup(debuglvl, conn_dlist);
 }
 
 
@@ -2069,7 +2069,7 @@ conn_get_connections_do(const int debuglvl,
     /* default hashtable size */
     unsigned int            hashtbl_size = 256;
     struct vrmr_hash_table  conn_hash;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     char                    tmpfile[] = "/tmp/vuurmuur-conntrack-XXXXXX";
     int                     conntrack_cmd = 0;
 
@@ -2303,14 +2303,14 @@ conn_get_connections_do(const int debuglvl,
                     if(cd_ptr->cnt > prev_cd_ptr->cnt)
                     {
                         /* yes, so now we move one up */
-                        if(d_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
+                        if(vrmr_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
                         {
                             (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: conn_get_connections).");
                             return(-1);
                         }
 
                         /* now reinsert */
-                        if(!(cd_ptr->d_node = d_list_insert_before(debuglvl, conn_dlist, d_node, cd_ptr)))
+                        if(!(cd_ptr->d_node = vrmr_list_insert_before(debuglvl, conn_dlist, d_node, cd_ptr)))
                         {
                             (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: conn_get_connections).");
                             return(-1);
@@ -2326,14 +2326,14 @@ conn_get_connections_do(const int debuglvl,
                         if(cd_ptr->cnt < next_cd_ptr->cnt)
                         {
                             /* yes, so now we move one down */
-                            if(d_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
+                            if(vrmr_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
                             {
                                 (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: conn_get_connections).");
                                 return(-1);
                             }
 
                             /* now reinsert */
-                            if(!(cd_ptr->d_node = d_list_insert_after(debuglvl, conn_dlist, d_node, cd_ptr)))
+                            if(!(cd_ptr->d_node = vrmr_list_insert_after(debuglvl, conn_dlist, d_node, cd_ptr)))
                             {
                                 (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: conn_get_connections).");
                                 return(-1);
@@ -2356,14 +2356,14 @@ conn_get_connections_do(const int debuglvl,
                     if(prev_cd_ptr->cnt == 1 && d_node->prev != NULL)
                     {
                         /* yes, so now we first remove */
-                        if(d_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
+                        if(vrmr_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
                         {
                             (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: conn_get_connections).");
                             return(-1);
                         }
 
                         /* and then re-insert */
-                        if(!(prev_cd_ptr->d_node = d_list_append(debuglvl, conn_dlist, prev_cd_ptr)))
+                        if(!(prev_cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, prev_cd_ptr)))
                         {
                             (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: conn_get_connections).");
                             return(-1);
@@ -2381,14 +2381,14 @@ conn_get_connections_do(const int debuglvl,
                     if(next_cd_ptr->cnt == 1 && d_node->next != NULL)
                     {
                         /* yes, so now remove */
-                        if(d_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
+                        if(vrmr_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
                         {
                             (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: conn_get_connections).");
                             return(-1);
                         }
 
                         /* now reinsert */
-                        if(!(next_cd_ptr->d_node = d_list_append(debuglvl, conn_dlist, next_cd_ptr)))
+                        if(!(next_cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, next_cd_ptr)))
                         {
                             (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: conn_get_connections).");
                             return(-1);
@@ -2405,7 +2405,7 @@ conn_get_connections_do(const int debuglvl,
                 cd_ptr = old_cd_ptr;
 
                 /* append the new cd to the list */
-                cd_ptr->d_node = d_list_append(debuglvl, conn_dlist, cd_ptr);
+                cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, cd_ptr);
                 if(!cd_ptr->d_node)
                 {
                     (void)vrprint.error(-1, "Internal Error", "unable to append into list (in: conn_get_connections).");

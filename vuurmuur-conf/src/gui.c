@@ -273,7 +273,7 @@ VrNewMenu(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
 void
 VrMenuSetupNameList(const int debuglvl, VrMenu *menu)
 {
-    d_list_setup(debuglvl, &menu->name, menu->free_name);
+    vrmr_list_setup(debuglvl, &menu->name, menu->free_name);
     menu->use_namelist = TRUE;
 }
 
@@ -281,7 +281,7 @@ VrMenuSetupNameList(const int debuglvl, VrMenu *menu)
 void
 VrMenuSetupDescList(const int debuglvl, VrMenu *menu)
 {
-    d_list_setup(debuglvl, &menu->desc, menu->free_desc);
+    vrmr_list_setup(debuglvl, &menu->desc, menu->free_desc);
     menu->use_desclist = TRUE;
 }
 
@@ -322,9 +322,9 @@ VrDelMenu(const int debuglvl, VrMenu *menu)
 
     /* clear the lists if used */
     if(menu->use_namelist == TRUE)
-        d_list_cleanup(debuglvl, &menu->name);
+        vrmr_list_cleanup(debuglvl, &menu->name);
     if(menu->use_desclist == TRUE)
-        d_list_cleanup(debuglvl, &menu->desc);
+        vrmr_list_cleanup(debuglvl, &menu->desc);
 
     /* free memory */
     free(menu);
@@ -341,17 +341,17 @@ VrMenuAddItem(const int debuglvl, VrMenu *menu, char *name, char *desc)
 
     if(menu->use_namelist == TRUE)
     {
-        if(d_list_append(debuglvl, &menu->name, name) == NULL)
+        if(vrmr_list_append(debuglvl, &menu->name, name) == NULL)
         {
-            (void)vrprint.error(-1, VR_ERR, "d_list_append failed");
+            (void)vrprint.error(-1, VR_ERR, "vrmr_list_append failed");
             return(-1);
         }
     }
     if(menu->use_desclist == TRUE)
     {
-        if(d_list_append(debuglvl, &menu->desc, desc) == NULL)
+        if(vrmr_list_append(debuglvl, &menu->desc, desc) == NULL)
         {
-            (void)vrprint.error(-1, VR_ERR, "d_list_append failed");
+            (void)vrprint.error(-1, VR_ERR, "vrmr_list_append failed");
             return(-1);
         }
     }
@@ -378,9 +378,9 @@ VrMenuAddSepItem(const int debuglvl, VrMenu *menu, char *desc)
 
     if(menu->use_desclist == TRUE)
     {
-        if(d_list_append(debuglvl, &menu->desc, desc) == NULL)
+        if(vrmr_list_append(debuglvl, &menu->desc, desc) == NULL)
         {
-            (void)vrprint.error(-1, VR_ERR, "d_list_append failed");
+            (void)vrprint.error(-1, VR_ERR, "vrmr_list_append failed");
             return(-1);
         }
     }

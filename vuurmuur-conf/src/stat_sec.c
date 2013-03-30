@@ -760,8 +760,8 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zone
     struct shadow_ifac_     *shadow_ptr=NULL;
     struct vrmr_interface   *iface_ptr=NULL;
 
-    d_list_node             *d_node = NULL;
-    d_list_node             *shadow_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
+    struct vrmr_list_node             *shadow_node = NULL;
 
     // list which will hold the structs analog to the interfaces list
     d_list                  shadow_list;
@@ -783,7 +783,7 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zone
 
 
     // first create our shadow list
-    if(d_list_setup(debuglvl, &shadow_list, free) < 0)
+    if(vrmr_list_setup(debuglvl, &shadow_list, free) < 0)
         return(-1);
 
     for(i=0; i < interfaces->list.len; i++)
@@ -801,7 +801,7 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zone
         gettimeofday(&shadow_ptr->begin_tv, 0);
 
         /* append to the list */
-        if(d_list_append(debuglvl, &shadow_list, shadow_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &shadow_list, shadow_ptr)  == NULL)
             return(-1);
     }
 
@@ -1206,7 +1206,7 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zone
     }
 
     /* destroy hashtables and the shadowlist */
-    d_list_cleanup(debuglvl, &shadow_list);
+    vrmr_list_cleanup(debuglvl, &shadow_list);
 
     /* EXIT: cleanup */
     nodelay(StatusSection.win, FALSE);

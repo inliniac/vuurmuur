@@ -221,14 +221,13 @@ union semun
 */
 
 /* the node */
-typedef struct d_list_node_
-{
-    struct d_list_node_ *next;
-    struct d_list_node_ *prev;
+struct vrmr_list_node {
+    struct vrmr_list_node *next;
+    struct vrmr_list_node *prev;
 
     void                *data;
 
-} d_list_node;
+};
 
 
 /* the list, containing the metadata */
@@ -236,8 +235,8 @@ typedef struct d_list_
 {
     unsigned int    len;
 
-    d_list_node     *top;
-    d_list_node     *bot;
+    struct vrmr_list_node     *top;
+    struct vrmr_list_node     *bot;
 
     void(*remove)(void *data);
 }
@@ -984,7 +983,7 @@ struct vrmr_conntrack_entry
     /* counter */
     int                     cnt;
 
-    d_list_node             *d_node;
+    struct vrmr_list_node             *d_node;
 
     /* connection status - 0 for unused */
     int                     connect_status;
@@ -1596,17 +1595,17 @@ void VR_connreq_cleanup(const int debuglvl, struct vrmr_conntrack_request *connr
 /*
     linked list
 */
-int d_list_setup(int debuglvl, /*@out@*/ d_list *d_list, /*@null@*/ void (*remove)(void *data));
-int d_list_remove_node(int debuglvl, d_list *d_list, d_list_node *d_node);
-int d_list_remove_top(int debuglvl, d_list *d_list);
-int d_list_remove_bot(int debuglvl, d_list *d_list);
-d_list_node *d_list_append(int debuglvl, d_list *d_list, const void *data);
-d_list_node *d_list_prepend(int debuglvl, d_list *d_list, const void *data);
-d_list_node *d_list_insert_after(int debuglvl, d_list *d_list, d_list_node *d_node, const void *data);
-d_list_node *d_list_insert_before(int debuglvl, d_list *d_list, d_list_node *d_node, const void *data);
-int d_list_node_is_top(int debuglvl, d_list_node *d_node);
-int d_list_node_is_bot(int debuglvl, d_list_node *d_node);
-int d_list_cleanup(int debuglvl, d_list *d_list);
+int vrmr_list_setup(int debuglvl, /*@out@*/ d_list *d_list, /*@null@*/ void (*remove)(void *data));
+int vrmr_list_remove_node(int debuglvl, d_list *d_list, struct vrmr_list_node *d_node);
+int vrmr_list_remove_top(int debuglvl, d_list *d_list);
+int vrmr_list_remove_bot(int debuglvl, d_list *d_list);
+struct vrmr_list_node *vrmr_list_append(int debuglvl, d_list *d_list, const void *data);
+struct vrmr_list_node *vrmr_list_prepend(int debuglvl, d_list *d_list, const void *data);
+struct vrmr_list_node *vrmr_list_insert_after(int debuglvl, d_list *d_list, struct vrmr_list_node *d_node, const void *data);
+struct vrmr_list_node *vrmr_list_insert_before(int debuglvl, d_list *d_list, struct vrmr_list_node *d_node, const void *data);
+int vrmr_list_node_is_top(int debuglvl, struct vrmr_list_node *d_node);
+int vrmr_list_node_is_bot(int debuglvl, struct vrmr_list_node *d_node);
+int vrmr_list_cleanup(int debuglvl, d_list *d_list);
 
 
 /*

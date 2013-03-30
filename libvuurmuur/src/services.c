@@ -28,7 +28,7 @@ insert_service_list(const int debuglvl, struct vrmr_services *services, const st
     struct vrmr_service    *check_ser_ptr = NULL;
     int                     result = 0;
     int                     insert_here = 0;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
 
     /*
         check our input
@@ -74,9 +74,9 @@ insert_service_list(const int debuglvl, struct vrmr_services *services, const st
             (void)vrprint.debug(__FUNC__, "prepend %s", ser_ptr->name);
 
         /* prepend if an empty list */
-        if(!(d_list_prepend(debuglvl, &services->list, ser_ptr)))
+        if(!(vrmr_list_prepend(debuglvl, &services->list, ser_ptr)))
         {
-            (void)vrprint.error(-1, "Internal Error", "d_list_prepend() failed (in: %s:%d).", __FUNC__, __LINE__);
+            (void)vrprint.error(-1, "Internal Error", "vrmr_list_prepend() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -88,9 +88,9 @@ insert_service_list(const int debuglvl, struct vrmr_services *services, const st
         /*
             insert before the current node
         */
-        if(!(d_list_insert_before(debuglvl, &services->list, d_node, ser_ptr)))
+        if(!(vrmr_list_insert_before(debuglvl, &services->list, d_node, ser_ptr)))
         {
-            (void)vrprint.error(-1, "Internal Error", "d_list_insert_before() failed (in: %s:%d).", __FUNC__, __LINE__);
+            (void)vrprint.error(-1, "Internal Error", "vrmr_list_insert_before() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -102,9 +102,9 @@ insert_service_list(const int debuglvl, struct vrmr_services *services, const st
         /*
             append if we were bigger than all others
         */
-        if(!(d_list_append(debuglvl, &services->list, ser_ptr)))
+        if(!(vrmr_list_append(debuglvl, &services->list, ser_ptr)))
         {
-            (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+            (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -181,7 +181,7 @@ insert_service(const int debuglvl, struct vrmr_services *services, char *name)
 void *
 search_service(const int debuglvl, const struct vrmr_services *services, char *servicename)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_service    *service_ptr = NULL;
 
 
@@ -279,7 +279,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
         return(-1);
     }
 
-    if(d_list_setup(debuglvl, &service_ptr->PortrangeList, free) < 0)
+    if(vrmr_list_setup(debuglvl, &service_ptr->PortrangeList, free) < 0)
         return(-1);
 
     /* first check RANGE */
@@ -440,7 +440,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
 void
 services_print_list(const struct vrmr_services *services)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_service    *ser_ptr = NULL;
 
     fprintf(stdout, "list size: %u\n", services->list.len);
@@ -460,7 +460,7 @@ services_print_list(const struct vrmr_services *services)
 void
 portrange_print_dlist(const d_list *dlist)
 {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     struct vrmr_portdata *port_ptr = NULL;
 
     // Display the linked list.
@@ -725,9 +725,9 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
                 if all went well, insert the portrange into the list, and update the counter
                 now insert the entry into the list
             */
-            if(d_list_append(debuglvl, &ser_ptr->PortrangeList, portrange_ptr) == NULL)
+            if(vrmr_list_append(debuglvl, &ser_ptr->PortrangeList, portrange_ptr) == NULL)
             {
-                (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+                (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -755,7 +755,7 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
 void
 destroy_serviceslist(const int debuglvl, struct vrmr_services *services)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_service    *ser_ptr = NULL;
 
     /* safety */
@@ -776,11 +776,11 @@ destroy_serviceslist(const int debuglvl, struct vrmr_services *services)
             return;
         }
 
-        d_list_cleanup(debuglvl, &ser_ptr->PortrangeList);
+        vrmr_list_cleanup(debuglvl, &ser_ptr->PortrangeList);
     }
 
     /* then the list itself */
-    d_list_cleanup(debuglvl, &services->list);
+    vrmr_list_cleanup(debuglvl, &services->list);
 }
 
 
@@ -824,7 +824,7 @@ new_service(const int debuglvl, struct vrmr_services *services, char *sername, i
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(d_list_setup(debuglvl, &ser_ptr->PortrangeList, free))
+    if(vrmr_list_setup(debuglvl, &ser_ptr->PortrangeList, free))
         return(-1);
 
     /* insert into the list */
@@ -884,7 +884,7 @@ int
 delete_service(const int debuglvl, struct vrmr_services *services, char *sername, int sertype)
 {
     struct vrmr_service *ser_list_ptr = NULL;
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
 
     /* safety */
     if(!sername || !services)
@@ -918,9 +918,9 @@ delete_service(const int debuglvl, struct vrmr_services *services, char *sername
 
         if(strcmp(sername, ser_list_ptr->name) == 0)
         {
-            if(d_list_remove_node(debuglvl, &services->list, d_node) < 0)
+            if(vrmr_list_remove_node(debuglvl, &services->list, d_node) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "d_list_remove_node() failed (in: %s:%d).",
+                (void)vrprint.error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -981,7 +981,7 @@ services_save_portranges(const int debuglvl, struct vrmr_service *ser_ptr)
     char            prot_format[32] = "",
                     frmt_src[16] = "",
                     frmt_dst[16] = "";
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     char            overwrite = 1;
 
     /* safety */
@@ -1166,9 +1166,9 @@ init_services(const int debuglvl, struct vrmr_services *services, struct vrmr_re
     memset(services, 0, sizeof(*services));
 
     /* setup the list */
-    if(d_list_setup(debuglvl, &services->list, free) < 0)
+    if(vrmr_list_setup(debuglvl, &services->list, free) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_setup() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1253,7 +1253,7 @@ int
 vrmr_services_load(const int debuglvl, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     int                     result = 0;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_service    *ser_ptr = NULL;
 
 

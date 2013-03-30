@@ -247,7 +247,7 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
     struct vrmr_service    *ser_ptr = NULL;
     char                    name[MAX_SERVICE];
     int                     zonetype;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
 
     if(debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__,  "** start **");
@@ -375,7 +375,7 @@ reload_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
     int                     check_result = 0;
     struct vrmr_service    *new_ser_ptr = NULL;
     /* these are for the comparisson between the portranges */
-    d_list_node             *list_node = NULL,
+    struct vrmr_list_node             *list_node = NULL,
                             *temp_node = NULL;
     struct vrmr_portdata         *list_port = NULL,
                             *temp_port = NULL;
@@ -395,9 +395,9 @@ reload_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
                                     strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
-    if(d_list_setup(debuglvl, &new_ser_ptr->PortrangeList, free) < 0)
+    if(vrmr_list_setup(debuglvl, &new_ser_ptr->PortrangeList, free) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_setup() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(-1);
     }
@@ -525,7 +525,7 @@ reload_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
         (void)vrprint.info("Info", "Service '%s' has been changed.", ser_ptr->name);
 
         /* delete the old portrange list */
-        d_list_cleanup(debuglvl, &ser_ptr->PortrangeList);
+        vrmr_list_cleanup(debuglvl, &ser_ptr->PortrangeList);
 
         /* copy the data */
         *ser_ptr = *new_ser_ptr;
@@ -539,7 +539,7 @@ reload_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
     else if(status == ST_REMOVED || status == ST_KEEP)
     {
         /* destroy the portrangelist of the temp service */
-        d_list_cleanup(debuglvl, &new_ser_ptr->PortrangeList);
+        vrmr_list_cleanup(debuglvl, &new_ser_ptr->PortrangeList);
 
         /* set the status */
         ser_ptr->status = status;
@@ -560,7 +560,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     int                 retval = 0,
                         result = 0;
     int                 check_result = 0;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
     char                name[MAX_HOST_NET_ZONE];
     int                 zonetype;
@@ -722,9 +722,9 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                             *new_zone_ptr=NULL;
     struct vrmr_interface   *iface_ptr_new,
                             *iface_ptr_orig;
-    d_list_node             *d_node_orig = NULL,
+    struct vrmr_list_node             *d_node_orig = NULL,
                             *d_node_new  = NULL;
-    d_list_node             *protect_d_node_orig = NULL,
+    struct vrmr_list_node             *protect_d_node_orig = NULL,
                             *protect_d_node_new  = NULL;
     struct vrmr_rule        *org_rule_ptr = NULL,
                             *new_rule_ptr = NULL;
@@ -1181,11 +1181,11 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
 
         /* first destroy the old lists */
         if(zone_ptr->type == TYPE_GROUP)
-            d_list_cleanup(debuglvl, &zone_ptr->GroupList);
+            vrmr_list_cleanup(debuglvl, &zone_ptr->GroupList);
         if(zone_ptr->type == TYPE_NETWORK)
         {
-            d_list_cleanup(debuglvl, &zone_ptr->InterfaceList);
-            d_list_cleanup(debuglvl, &zone_ptr->ProtectList);
+            vrmr_list_cleanup(debuglvl, &zone_ptr->InterfaceList);
+            vrmr_list_cleanup(debuglvl, &zone_ptr->ProtectList);
         }
 
         /* copy the zone */
@@ -1201,11 +1201,11 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
     {
         /* first destroy the new lists, the struct will be free'd later */
         if(new_zone_ptr->type == TYPE_GROUP)
-            d_list_cleanup(debuglvl, &new_zone_ptr->GroupList);
+            vrmr_list_cleanup(debuglvl, &new_zone_ptr->GroupList);
         if(new_zone_ptr->type == TYPE_NETWORK)
         {
-            d_list_cleanup(debuglvl, &new_zone_ptr->InterfaceList);
-            d_list_cleanup(debuglvl, &new_zone_ptr->ProtectList);
+            vrmr_list_cleanup(debuglvl, &new_zone_ptr->InterfaceList);
+            vrmr_list_cleanup(debuglvl, &new_zone_ptr->ProtectList);
         }
                         
         /* status to keep */
@@ -1231,7 +1231,7 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
     int                     retval = 0,
                             result = 0;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char                    name[MAX_INTERFACE] = "";
     int                     zonetype = 0;
@@ -1370,7 +1370,7 @@ reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
     int                     check_result = 0;
     struct vrmr_interface   *new_iface_ptr = NULL;
     int                     status = 0;
-    d_list_node             *protect_d_node_orig = NULL,
+    struct vrmr_list_node             *protect_d_node_orig = NULL,
                             *protect_d_node_new  = NULL;
     struct vrmr_rule        *org_rule_ptr = NULL,
                             *new_rule_ptr = NULL;
@@ -1561,7 +1561,7 @@ reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
 
     if(status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED)
     {
-        d_list_cleanup(debuglvl, &iface_ptr->ProtectList);
+        vrmr_list_cleanup(debuglvl, &iface_ptr->ProtectList);
 
         /* copy the data */
         *iface_ptr = *new_iface_ptr;
@@ -1571,7 +1571,7 @@ reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
     }
     else if(status == ST_KEEP || status == ST_REMOVED)
     {
-        d_list_cleanup(debuglvl, &new_iface_ptr->ProtectList);
+        vrmr_list_cleanup(debuglvl, &new_iface_ptr->ProtectList);
     }
 
     /* free the temp data */
@@ -1599,7 +1599,7 @@ reload_blocklist(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_zo
 {
     struct vrmr_blocklist   *new_blocklist = NULL;
     int         status = 0;
-    d_list_node *new_node = NULL,
+    struct vrmr_list_node *new_node = NULL,
                 *old_node = NULL;
     char        *new_ip = NULL,
                 *org_ip = NULL;
@@ -1686,14 +1686,14 @@ reload_blocklist(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_zo
     /* see if we need to swap the lists */
     if(status == 1)
     {
-        d_list_cleanup(debuglvl, &blocklist->list);
+        vrmr_list_cleanup(debuglvl, &blocklist->list);
 
         /* copy the new list to the old */
         *blocklist = *new_blocklist;
     }
     else
     {
-        d_list_cleanup(debuglvl, &new_blocklist->list);
+        vrmr_list_cleanup(debuglvl, &new_blocklist->list);
     }
     free(new_blocklist);
 
@@ -1714,7 +1714,7 @@ reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
     struct vrmr_rules       *new_rules = NULL;
     char                    status = 0,
                             changed = 0;
-    d_list_node             *new_node = NULL,
+    struct vrmr_list_node             *new_node = NULL,
                             *old_node = NULL;
     struct vrmr_rule        *new_rule_ptr = NULL,
                             *org_rule_ptr = NULL;
@@ -1965,7 +1965,7 @@ reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
 int
 check_for_changed_networks(const int debuglvl, struct vrmr_zones *zones)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
     char                status = 0;
 
@@ -2011,7 +2011,7 @@ check_for_changed_networks(const int debuglvl, struct vrmr_zones *zones)
 int
 check_for_changed_dynamic_ips(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char                    ipaddress[16] = "";
     int                     result = 0,

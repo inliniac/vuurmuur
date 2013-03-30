@@ -51,7 +51,7 @@ setup_signal_handler(int sig, void (*handler)())
 
 /** \brief UP all interfaces in bash mode */
 void bash_enable_interfaces(struct vrmr_interfaces *ifaces) {
-    d_list_node *node;
+    struct vrmr_list_node *node;
     struct vrmr_interface  *iface_ptr = NULL;
 
     for (node = ifaces->list.top; node != NULL; node = node->next) {
@@ -857,7 +857,7 @@ main(int argc, char *argv[])
     if(rules_cleanup_list(debuglvl, &rules) < 0)
         retval = -1;
 
-    d_list_cleanup(debuglvl, &blocklist.list);
+    vrmr_list_cleanup(debuglvl, &blocklist.list);
 
     /* cleanup regexes */
     (void)vrmr_regex_setup(0, &reg);

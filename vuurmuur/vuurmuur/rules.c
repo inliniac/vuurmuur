@@ -161,7 +161,7 @@ int
 oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_config *cnf)
 {
     char        *chainname = NULL;
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     char        cmd[128] = "";
 
     /* safety */
@@ -199,12 +199,12 @@ oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, stru
     }
 
     /* list of chains in the system */
-    d_list_cleanup(debuglvl, &rules->system_chain_filter);
-    d_list_cleanup(debuglvl, &rules->system_chain_mangle);
-    d_list_cleanup(debuglvl, &rules->system_chain_nat);
-    //d_list_cleanup(debuglvl, &rules->system_chain_raw);
+    vrmr_list_cleanup(debuglvl, &rules->system_chain_filter);
+    vrmr_list_cleanup(debuglvl, &rules->system_chain_mangle);
+    vrmr_list_cleanup(debuglvl, &rules->system_chain_nat);
+    //vrmr_list_cleanup(debuglvl, &rules->system_chain_raw);
     /* cleanup */
-    d_list_cleanup(debuglvl, &rules->custom_chain_list);
+    vrmr_list_cleanup(debuglvl, &rules->custom_chain_list);
 
     return(0);
 }
@@ -218,7 +218,7 @@ analyze_interface_rules(const int debuglvl,
                 struct vrmr_interfaces *interfaces)
 {
     struct vrmr_rule        *rule_ptr = NULL;
-    d_list_node             *d_node = NULL,
+    struct vrmr_list_node             *d_node = NULL,
                             *if_d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
 
@@ -273,7 +273,7 @@ int
 analyze_network_protect_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces)
 {
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL,
+    struct vrmr_list_node         *d_node = NULL,
                         *net_d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
 
@@ -332,7 +332,7 @@ analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_z
     struct vrmr_rule    *rule_ptr = NULL;
     unsigned int        rulescount = 0,
                         rulesfailedcount = 0;
-    d_list_node         *d_node = NULL,
+    struct vrmr_list_node         *d_node = NULL,
                         *next_d_node = NULL;
 
     /* safety */
@@ -387,9 +387,9 @@ analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_z
             next_d_node = d_node->next;
 
             /* remove the failed rule from the list */
-            if(d_list_remove_node(debuglvl, &rules->list, d_node) < 0)
+            if(vrmr_list_remove_node(debuglvl, &rules->list, d_node) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "d_list_remove_node() failed (in: %s:%d).",
+                (void)vrprint.error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
                                                 __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1107,7 +1107,7 @@ static int
 rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         struct RuleCreateData_ *rule, struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     int                 retval = 0;
     struct vrmr_zone    *host_ptr = NULL;
 
@@ -1314,7 +1314,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
 {
     char                from_has_mac = FALSE;
     char                from_mac[19] = "";
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     int                 retval = 0;
     struct vrmr_zone    *host_ptr = NULL;
 
@@ -1576,9 +1576,9 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         struct RuleCreateData_ *rule, struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int         retval = 0;
-    d_list_node *port_d_node = NULL;
-    d_list_node *listenport_d_node = NULL;
-    d_list_node *remoteport_d_node = NULL;
+    struct vrmr_list_node *port_d_node = NULL;
+    struct vrmr_list_node *listenport_d_node = NULL;
+    struct vrmr_list_node *remoteport_d_node = NULL;
 
     /* handle 'any' service first */
     if( create->service == NULL ||
@@ -1694,7 +1694,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
     struct RuleCreateData_ *rule, struct vrmr_rule_cache *create)
 {
     int         retval = 0;
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     char        active = 0;
 
     /* handle firewall -> any and firewall(any) */
@@ -1841,14 +1841,14 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
             if (zone_ptr != NULL &&
                     zone_ptr->type == TYPE_NETWORK &&
                     strcmp(zone_ptr->zone_name, create->to->name) == 0) {
-                d_list_append(debuglvl, &rule->to_network_list, zone_ptr);
+                vrmr_list_append(debuglvl, &rule->to_network_list, zone_ptr);
             }
         }
 
         iterations = rule->to_network_list.len;
     }
 
-    d_list_node *net_d_node = NULL;
+    struct vrmr_list_node *net_d_node = NULL;
     int iter;
     for (iter = 0; iter < iterations; iter++) {
         d_node = NULL;
@@ -1976,7 +1976,7 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
         struct RuleCreateData_ *rule, struct vrmr_rule_cache *create)
 {
     int         retval = 0;
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     char        active = 0;
 
     /* handle firewall -> any & firewall(any) */
@@ -2084,14 +2084,14 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
             if (zone_ptr != NULL &&
                     zone_ptr->type == TYPE_NETWORK &&
                     strcmp(zone_ptr->zone_name, create->from->name) == 0) {
-                d_list_append(debuglvl, &rule->from_network_list, zone_ptr);
+                vrmr_list_append(debuglvl, &rule->from_network_list, zone_ptr);
             }
         }
 
         iterations = rule->from_network_list.len;
     }
 
-    d_list_node *net_d_node = NULL;
+    struct vrmr_list_node *net_d_node = NULL;
     int iter;
     for (iter = 0; iter < iterations; iter++) {
         d_node = NULL;
@@ -2272,10 +2272,10 @@ create_rule(const int debuglvl, VuurmuurCtx *vctx,
     }
     /* init */
     memset(rule, 0, sizeof(struct RuleCreateData_));
-    d_list_setup(debuglvl, &rule->iptrulelist, free);
-    d_list_setup(debuglvl, &rule->shaperulelist, free);
-    d_list_setup(debuglvl, &rule->from_network_list, NULL);
-    d_list_setup(debuglvl, &rule->to_network_list, NULL);
+    vrmr_list_setup(debuglvl, &rule->iptrulelist, free);
+    vrmr_list_setup(debuglvl, &rule->shaperulelist, free);
+    vrmr_list_setup(debuglvl, &rule->from_network_list, NULL);
+    vrmr_list_setup(debuglvl, &rule->to_network_list, NULL);
 
     /* copy the helper */
     if(create->service != NULL)
@@ -2301,10 +2301,10 @@ create_rule(const int debuglvl, VuurmuurCtx *vctx,
     shaping_process_queued_rules(debuglvl, vctx->conf, ruleset, rule);
 
     /* free the temp data */
-    d_list_cleanup(debuglvl, &rule->iptrulelist);
-    d_list_cleanup(debuglvl, &rule->shaperulelist);
-    d_list_cleanup(debuglvl, &rule->from_network_list);
-    d_list_cleanup(debuglvl, &rule->to_network_list);
+    vrmr_list_cleanup(debuglvl, &rule->iptrulelist);
+    vrmr_list_cleanup(debuglvl, &rule->shaperulelist);
+    vrmr_list_cleanup(debuglvl, &rule->from_network_list);
+    vrmr_list_cleanup(debuglvl, &rule->to_network_list);
     free(rule);
 
     return(retval);
@@ -2429,7 +2429,7 @@ create_normal_rules(const int debuglvl,
                     /*@null@*/RuleSet *ruleset,
                     char *forward_rules)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
     char                active = 0;
     int                 rulescount = 0;
@@ -2524,8 +2524,8 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vuurmuur_config *c
                 result = 0;
     struct vrmr_rules rules;
     char        *chainname = NULL;
-    d_list_node *d_node = NULL;
-    d_list_node *chains[3];
+    struct vrmr_list_node *d_node = NULL;
+    struct vrmr_list_node *chains[3];
     char        *tables[] = {"mangle", "filter", "nat"};
     int         table;
     char        PRE_VRMR_CHAINS_PREFIX[] = "PRE-VRMR-";
@@ -2621,8 +2621,8 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vuurmuur_config *c
                 result = 0;
     struct vrmr_rules rules;
     char        *chainname = NULL;
-    d_list_node *d_node = NULL;
-    d_list_node *chains[2];
+    struct vrmr_list_node *d_node = NULL;
+    struct vrmr_list_node *chains[2];
     char        *tables[] = {"mangle", "filter" };
     int         table;
     char        PRE_VRMR_CHAINS_PREFIX[] = "PRE-VRMR-";

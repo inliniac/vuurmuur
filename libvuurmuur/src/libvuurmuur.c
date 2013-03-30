@@ -61,8 +61,8 @@ ruleoption_malloc(const int debuglvl)
     memset(opt_ptr, 0, sizeof(struct vrmr_rule_options));
 
     /* setup the lists */
-    (void)d_list_setup(debuglvl, &opt_ptr->RemoteportList, NULL);
-    (void)d_list_setup(debuglvl, &opt_ptr->ListenportList, NULL);
+    (void)vrmr_list_setup(debuglvl, &opt_ptr->RemoteportList, NULL);
+    (void)vrmr_list_setup(debuglvl, &opt_ptr->ListenportList, NULL);
 
     return(opt_ptr);
 }
@@ -87,15 +87,15 @@ zone_malloc(const int debuglvl)
 #endif
 
     zone_ptr->GroupList.len = 0;
-    if(d_list_setup(debuglvl, &zone_ptr->GroupList, NULL) < 0)
+    if(vrmr_list_setup(debuglvl, &zone_ptr->GroupList, NULL) < 0)
         return(NULL);
 
     zone_ptr->InterfaceList.len = 0;
-    if(d_list_setup(debuglvl, &zone_ptr->InterfaceList, NULL) < 0)
+    if(vrmr_list_setup(debuglvl, &zone_ptr->InterfaceList, NULL) < 0)
         return(NULL);
 
     zone_ptr->ProtectList.len = 0;
-    if(d_list_setup(debuglvl, &zone_ptr->ProtectList, free) < 0)
+    if(vrmr_list_setup(debuglvl, &zone_ptr->ProtectList, free) < 0)
         return(NULL);
 
     zone_ptr->type = TYPE_UNSET;
@@ -112,12 +112,12 @@ zone_free(const int debuglvl, struct vrmr_zone *zone_ptr)
         return;
 
     if(zone_ptr->type == TYPE_GROUP)
-        (void)d_list_cleanup(debuglvl, &zone_ptr->GroupList);
+        (void)vrmr_list_cleanup(debuglvl, &zone_ptr->GroupList);
 
     if(zone_ptr->type == TYPE_NETWORK)
     {
-        (void)d_list_cleanup(debuglvl, &zone_ptr->InterfaceList);
-        (void)d_list_cleanup(debuglvl, &zone_ptr->ProtectList);
+        (void)vrmr_list_cleanup(debuglvl, &zone_ptr->InterfaceList);
+        (void)vrmr_list_cleanup(debuglvl, &zone_ptr->ProtectList);
     }
 
     free(zone_ptr);
@@ -165,7 +165,7 @@ interface_malloc(const int debuglvl)
 
     iface_ptr->active = TRUE;
 
-    if(d_list_setup(debuglvl, &iface_ptr->ProtectList, free) < 0)
+    if(vrmr_list_setup(debuglvl, &iface_ptr->ProtectList, free) < 0)
         return(NULL);
 
     iface_ptr->cnt = NULL;

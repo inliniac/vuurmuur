@@ -254,7 +254,7 @@ get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, st
     }
 
     /* setup the list (allready done in zone_malloc?) */
-    d_list_setup(debuglvl, &answer_ptr->GroupList, NULL);
+    vrmr_list_setup(debuglvl, &answer_ptr->GroupList, NULL);
     answer_ptr->group_member_count = 0;
 
     /* get the members */
@@ -290,9 +290,9 @@ get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, st
                         (void)vrprint.debug(__FUNC__, "member %s is not active", zone_ptr->name);
                 }
 
-                if(d_list_append(debuglvl, &answer_ptr->GroupList, zone_ptr) == NULL)
+                if(vrmr_list_append(debuglvl, &answer_ptr->GroupList, zone_ptr) == NULL)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+                    (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -322,7 +322,7 @@ get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, st
 char *
 list_to_portopts(const int debuglvl, d_list *dlist, /*@null@*/char *option_name)
 {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     char            options[MAX_OPTIONS_LENGTH] = "",
                     oneport[32] = "",
                     *return_ptr = NULL;
@@ -497,7 +497,7 @@ portopts_to_list(const int debuglvl, const char *opt, d_list *dlist)
                 }
 
                 /* append to the list */
-                if(d_list_append(debuglvl, dlist, portrange_ptr) == NULL)
+                if(vrmr_list_append(debuglvl, dlist, portrange_ptr) == NULL)
                 {
                     (void)vrprint.error(-1, "Internal Error", "appending to list failed (in: %s:%d).", __FUNC__, __LINE__);
 
@@ -1147,7 +1147,7 @@ char
                         *best_so_far_ptr = NULL;
 
     char                *result_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     /*
         safety

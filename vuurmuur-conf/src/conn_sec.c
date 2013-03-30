@@ -556,9 +556,9 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
 
     /*  initialize this list with destroy is null, because it only
         points to zonedatalist nodes */
-    if(d_list_setup(debuglvl, &ct->network_list, NULL) < 0)
+    if(vrmr_list_setup(debuglvl, &ct->network_list, NULL) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "d_list_setup() failed "
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup() failed "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -592,7 +592,7 @@ conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones)
 
 
     /* EXIT: cleanup */
-    d_list_cleanup(debuglvl, &(*ct)->network_list);
+    vrmr_list_cleanup(debuglvl, &(*ct)->network_list);
 
     /*
         destroy hashtables
@@ -608,9 +608,9 @@ conn_ct_get_connections(const int debuglvl, struct vuurmuur_config *cnf, Conntra
 {
     ct->conn_stats.fromname_max = ct->conn_stats.toname_max = ct->conn_stats.sername_max = 0;
 
-    if(d_list_setup(debuglvl, &ct->conn_list, NULL) < 0)
+    if(vrmr_list_setup(debuglvl, &ct->conn_list, NULL) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "d_list_setup() "
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -666,7 +666,7 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                             max_forwarding=0,
                             max_outgoing=0;
 
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
 //    unsigned int            prev_list_size = 0;
 
@@ -1267,7 +1267,7 @@ kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf,
                 Conntrack *ct, char *srcname, char *dstname,
                 char *sername, char connect_status)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
     int                     cnt = 0,
                             failed = 0;
@@ -1340,7 +1340,7 @@ kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
             Conntrack *ct, char *srcip, char *dstip, char *sername,
             char connect_status)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
     int                     cnt = 0,
                             failed = 0;

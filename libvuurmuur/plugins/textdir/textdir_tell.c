@@ -38,7 +38,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     FILE                    *fp = NULL;
     struct TextdirBackend_  *tb = NULL;
     d_list                  storelist;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
 
     /*
         safety
@@ -96,7 +96,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     /*
         initialize the store list
     */
-    if(d_list_setup(debuglvl, &storelist, free) < 0)
+    if(vrmr_list_setup(debuglvl, &storelist, free) < 0)
     {
         free(file_location);
         fclose(fp);
@@ -113,7 +113,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
             (void)tb->cfg->vrprint.error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
 
             /* cleanup */
-            d_list_cleanup(debuglvl, &storelist);
+            vrmr_list_cleanup(debuglvl, &storelist);
             free(file_location);
             fclose(fp);
 
@@ -145,7 +145,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
                     (void)tb->cfg->vrprint.error(-1, "Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
 
                     /* cleanup */
-                    d_list_cleanup(debuglvl, &storelist);
+                    vrmr_list_cleanup(debuglvl, &storelist);
                     free(line_ptr);
                     free(file_location);
                     fclose(fp);
@@ -162,7 +162,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
                 (void)tb->cfg->vrprint.error(-1, "Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
 
                 /* cleanup */
-                d_list_cleanup(debuglvl, &storelist);
+                vrmr_list_cleanup(debuglvl, &storelist);
                 free(line_ptr);
                 free(file_location);
                 fclose(fp);
@@ -175,12 +175,12 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         */
         if(!skip)
         {
-            if(d_list_append(debuglvl, &storelist, line_ptr) == NULL)
+            if(vrmr_list_append(debuglvl, &storelist, line_ptr) == NULL)
             {
                 (void)tb->cfg->vrprint.error(-1, "Internal Error", "inserting line into temporary storage list failed (in: %s).", __FUNC__);
 
                 /* cleanup */
-                d_list_cleanup(debuglvl, &storelist);
+                vrmr_list_cleanup(debuglvl, &storelist);
                 free(line_ptr);
                 free(file_location);
                 fclose(fp);
@@ -211,7 +211,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
             (void)tb->cfg->vrprint.error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
 
             /* cleanup */
-            d_list_cleanup(debuglvl, &storelist);
+            vrmr_list_cleanup(debuglvl, &storelist);
             free(file_location);
             fclose(fp);
             return(-1);
@@ -231,7 +231,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
                 (void)tb->cfg->vrprint.error(-1, "Internal Error", "NULL pointer (in: %s)", __FUNC__);
 
                 /* cleanup */
-                d_list_cleanup(debuglvl, &storelist);
+                vrmr_list_cleanup(debuglvl, &storelist);
                 free(file_location);
                 free(line_ptr);
                 fclose(fp);
@@ -243,12 +243,12 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
             */
             if(strncmp(question, tmp_line_ptr, strlen(question)) == 0)
             {
-                if(d_list_insert_after(debuglvl, &storelist, d_node, line_ptr) < 0)
+                if(vrmr_list_insert_after(debuglvl, &storelist, d_node, line_ptr) < 0)
                 {
                     (void)tb->cfg->vrprint.error(-1, "Internal Error", "inserting line into temporary storage list failed (in: %s).", __FUNC__);
 
                     /* cleanup */
-                    d_list_cleanup(debuglvl, &storelist);
+                    vrmr_list_cleanup(debuglvl, &storelist);
                     free(file_location);
                     free(line_ptr);
                     fclose(fp);
@@ -276,7 +276,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
             (void)tb->cfg->vrprint.error(-1, "Error", "malloc failed: %s.", strerror(errno));
 
             /* cleanup */
-            d_list_cleanup(debuglvl, &storelist);
+            vrmr_list_cleanup(debuglvl, &storelist);
             free(file_location);
             fclose(fp);
             return(-1);
@@ -287,12 +287,12 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         snprintf(line_ptr, sizeof(line), "%s=\"%s\"\n", question, answer);
 
         /* append into the list */
-        if(d_list_append(debuglvl, &storelist, line_ptr) == NULL)
+        if(vrmr_list_append(debuglvl, &storelist, line_ptr) == NULL)
         {
             (void)tb->cfg->vrprint.error(-1, "Internal Error", "inserting line into temporary storage list failed (in: %s).", __FUNC__);
 
             /* cleanup */
-            d_list_cleanup(debuglvl, &storelist);
+            vrmr_list_cleanup(debuglvl, &storelist);
             free(file_location);
             free(line_ptr);
             fclose(fp);
@@ -311,7 +311,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         (void)tb->cfg->vrprint.error(-1, "Error", "closing file '%s' failed: %s.", file_location, strerror(errno));
 
         /* cleanup */
-        d_list_cleanup(debuglvl, &storelist);
+        vrmr_list_cleanup(debuglvl, &storelist);
         free(file_location);
         return(-1);
     }
@@ -324,7 +324,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         (void)tb->cfg->vrprint.error(-1, "Error", "unable to open file '%s' for writing: %s (in: %s).", file_location, strerror(errno), __FUNC__);
 
         /* cleanup */
-        d_list_cleanup(debuglvl, &storelist);
+        vrmr_list_cleanup(debuglvl, &storelist);
         free(file_location);
         return(-1);
     }
@@ -342,7 +342,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         (void)tb->cfg->vrprint.error(-1, "Error", "closing file '%s' failed: %s.", file_location, strerror(errno));
 
         /* cleanup */
-        d_list_cleanup(debuglvl, &storelist);
+        vrmr_list_cleanup(debuglvl, &storelist);
         free(file_location);
         return(-1);
     }
@@ -350,7 +350,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     /*
         destroy the temp storage
     */
-    d_list_cleanup(debuglvl, &storelist);
+    vrmr_list_cleanup(debuglvl, &storelist);
     free(file_location);
 
     return(retval);

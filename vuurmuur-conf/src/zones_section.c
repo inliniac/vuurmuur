@@ -851,7 +851,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
                         maxx = 0,
                         maxy = 0,
                         result = 0;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     size_t              i = 0;
 
     /* safety */
@@ -1055,7 +1055,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
     struct vrmr_zone    *zone_ptr = NULL,
                         *member_ptr = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL,
+    struct vrmr_list_node         *d_node = NULL,
                         *grp_d_node = NULL;
     char                rules_changed = 0,
                         blocklist_changed = 0,
@@ -1697,7 +1697,7 @@ static int
 edit_zone_group_members_init(const int debuglvl, struct vrmr_zones *zones, struct vrmr_zone *group_ptr)
 {
     int                 retval=0;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *member_ptr = NULL;
     int                 i=0;
     int                 height = 30,
@@ -1909,7 +1909,7 @@ edit_zone_group_members_delmem(const int debuglvl, struct vrmr_zone *group_ptr, 
 static int
 edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, struct vrmr_zone *group_ptr)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     char                **choices,
                         *choice_ptr=NULL,
                         search_name[MAX_HOST_NET_ZONE]="";
@@ -2200,7 +2200,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct 
     size_t              i,
                         field_num = 0;
     struct vrmr_zone    *member_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     /* safety */
     if(name == NULL || zone_ptr == NULL)
@@ -2655,7 +2655,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
                         startx,
                         maxx,
                         maxy;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     char                temp[32],
                         *desc_ptr = NULL;
     size_t              size = 0;
@@ -2691,9 +2691,9 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
         }
     }
 
-    if(d_list_setup(debuglvl, &ZonesSection.group_desc_list, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ZonesSection.group_desc_list, free) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "d_list_setup() failed (in: %s:%d).", __FUNC__, __LINE__);
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2730,9 +2730,9 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
 
                 (void)strlcpy(desc_ptr, temp, size);
 
-                if(d_list_append(debuglvl, &ZonesSection.group_desc_list, desc_ptr)  == NULL)
+                if(vrmr_list_append(debuglvl, &ZonesSection.group_desc_list, desc_ptr)  == NULL)
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "d_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+                    (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
 
@@ -2839,7 +2839,7 @@ zones_section_menu_groups_destroy(const int debuglvl)
     for(i = 0; i < ZonesSection.host_n; ++i)
         free_item(ZonesSection.hostitems[i]);
 
-    d_list_cleanup(debuglvl, &ZonesSection.group_desc_list);
+    vrmr_list_cleanup(debuglvl, &ZonesSection.group_desc_list);
 
     free(ZonesSection.hostitems);
 
@@ -3237,7 +3237,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
     int                 result = 0;
     struct vrmr_zone    *zone_ptr = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     char                rules_changed = 0,
                         blocklist_changed = 0;
     char                old_name[MAX_NET_ZONE] = "",
@@ -3619,7 +3619,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
 static int
 edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_zone *zone_ptr)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     char                    **choices,
                             *choice_ptr = NULL;
     size_t                  n_choices = 0,
@@ -3701,7 +3701,7 @@ edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_interfaces
 static int
 edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     int                     i=0;
     int                     height = 30,
@@ -4100,7 +4100,7 @@ struct
 int
 zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_ptr)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
     char                rule_str[MAX_RULE_LENGTH] = "";
     
@@ -4182,7 +4182,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     }
 
     /* cleanup the existing list */
-    d_list_cleanup(debuglvl, &network_ptr->ProtectList);
+    vrmr_list_cleanup(debuglvl, &network_ptr->ProtectList);
 
     if(field_buffer(NetworkSec.dhcpsrvfld, 0)[0] == 'X')
     {
@@ -4191,7 +4191,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating network rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending network rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4205,7 +4205,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4219,7 +4219,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4233,7 +4233,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4247,7 +4247,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4261,7 +4261,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4275,7 +4275,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4289,7 +4289,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4303,7 +4303,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4317,7 +4317,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4331,7 +4331,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4345,7 +4345,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4359,7 +4359,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
             (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
             (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -4780,7 +4780,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
                         netmask[16] = "";
     char                rules_changed = FALSE;
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     int                 active = 0;
     size_t              i = 0;
 
@@ -5259,7 +5259,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
                         starty,
                         maxx,
                         maxy;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     char                temp[64] = "", /* set to twice 32 because it
                           can contain widec */
                         *desc_ptr = NULL;
@@ -5292,9 +5292,9 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
             ZonesSection.network_n++;
     }
 
-    if(d_list_setup(debuglvl, &ZonesSection.network_desc_list, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ZonesSection.network_desc_list, free) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "d_list_setup() failed (in: %s:%d).", __FUNC__, __LINE__);
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -5333,9 +5333,9 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
 
             (void)strlcpy(desc_ptr, temp, size);
 
-            if(d_list_append(debuglvl, &ZonesSection.group_desc_list, desc_ptr)  == NULL)
+            if(vrmr_list_append(debuglvl, &ZonesSection.group_desc_list, desc_ptr)  == NULL)
             {
-                (void)vrprint.error(-1, VR_INTERR, "d_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+                (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -5456,7 +5456,7 @@ zones_section_menu_networks_destroy(const int debuglvl)
     del_panel(ZonesSection.n_panel[0]);
     destroy_win(ZonesSection.n_win);
 
-    d_list_cleanup(debuglvl, &ZonesSection.network_desc_list);
+    vrmr_list_cleanup(debuglvl, &ZonesSection.network_desc_list);
 
     del_panel(ZonesSection.n_panel_top[0]);
     destroy_win(ZonesSection.n_win_top);
@@ -6263,7 +6263,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
                         maxx,
                         maxy;
     size_t              zones_cnt = 0;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     getmaxyx(stdscr, maxy, maxx);
 
@@ -6714,7 +6714,7 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
                 starty = 0,
                 maxx = 0,
                 maxy = 0;
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     char        *string = NULL;
     
     /* get the screensize */
@@ -6899,7 +6899,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
     size_t              i = 0;
     char                changes = TRUE;
     struct vrmr_zone    *zone_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
 
     /* safety */
@@ -6945,7 +6945,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
         }
         else if(strcasecmp(choice_ptr, gettext("Host")) == 0 || strcasecmp(choice_ptr, gettext("Group")) == 0)
         {
-            (void)d_list_setup(debuglvl, &ZonesSection.group_desc_list, free);
+            (void)vrmr_list_setup(debuglvl, &ZonesSection.group_desc_list, free);
 
             /* get the type */
             if(strcasecmp(choice_ptr, gettext("Host")) == 0)

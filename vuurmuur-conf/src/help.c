@@ -98,7 +98,7 @@ read_helpline(const int debuglvl, d_list *help_list, char *line)
                 (void)strlcpy(hw->word, oneword,
                         StrMemLen(oneword) + 1);
 
-                if(d_list_append(debuglvl, help_list, hw) == NULL)
+                if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
                 {
                     (void)vrprint.error(-1, VR_INTERR, "append to list failed (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
@@ -127,7 +127,7 @@ read_helpline(const int debuglvl, d_list *help_list, char *line)
                 hw->newline = 1;
                 hw->line_num = 0;
 
-                if(d_list_append(debuglvl, help_list, hw) == NULL)
+                if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
                 {
                     (void)vrprint.error(-1, VR_INTERR, "append to list (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
@@ -182,7 +182,7 @@ read_wide_helpline(const int debuglvl, d_list *help_list, wchar_t *line)
                 }
                 wcsncpy(hw->word, oneword, wcslen(oneword) + 1);
 
-                if(d_list_append(debuglvl, help_list, hw) == NULL)
+                if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
                 {
                     (void)vrprint.error(-1, VR_INTERR, "append to list failed (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
@@ -211,7 +211,7 @@ read_wide_helpline(const int debuglvl, d_list *help_list, wchar_t *line)
                 hw->newline = 1;
                 hw->line_num = 0;
 
-                if(d_list_append(debuglvl, help_list, hw) == NULL)
+                if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
                 {
                     (void)vrprint.error(-1, VR_INTERR, "append to list (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
@@ -248,9 +248,9 @@ read_helpfile(const int debuglvl, d_list *help_list, char *part)
     }
 
     /* setup the list */
-    if(d_list_setup(debuglvl, help_list, free_helpword) < 0)
+    if(vrmr_list_setup(debuglvl, help_list, free_helpword) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "d_list_setup failed "
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -344,9 +344,9 @@ read_wide_helpfile(const int debuglvl, d_list *help_list, wchar_t *part)
     }
 
     /* setup the list */
-    if(d_list_setup(debuglvl, help_list, free_helpword) < 0)
+    if(vrmr_list_setup(debuglvl, help_list, free_helpword) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "d_list_setup failed "
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -464,7 +464,7 @@ set_lines(const int debuglvl, d_list *help_list, size_t width)
                 words = 0;
     helpword    *hw = NULL,
                 *next_hw = NULL;
-    d_list_node *d_node = NULL,
+    struct vrmr_list_node *d_node = NULL,
                 *next_d_node = NULL;
 
 
@@ -594,7 +594,7 @@ set_wide_lines(const int debuglvl, d_list *help_list, int width)
                 words = 0;
     whelpword   *hw = NULL,
                 *next_hw = NULL;
-    d_list_node *d_node = NULL,
+    struct vrmr_list_node *d_node = NULL,
                 *next_d_node = NULL;
 
 
@@ -721,7 +721,7 @@ do_print(const int debuglvl, WINDOW *printwin, d_list *list,
 {
     helpword    *hw = NULL,
                 *next_hw = NULL;
-    d_list_node *d_node = NULL,
+    struct vrmr_list_node *d_node = NULL,
                 *next_d_node = NULL;
 
     /* print the text */
@@ -791,7 +791,7 @@ do_wide_print(const int debuglvl, WINDOW *printwin, d_list *list,
 {
     whelpword   *hw = NULL,
                 *next_hw = NULL;
-    d_list_node *d_node = NULL,
+    struct vrmr_list_node *d_node = NULL,
                 *next_d_node = NULL;
 
     /* print the text */
@@ -1048,7 +1048,7 @@ print_help(const int debuglvl, char *part)
 
         print_list(debuglvl, &HelpList, gettext("Help"), height, width, starty, startx, UTF8_FALSE);
 
-        d_list_cleanup(debuglvl, &HelpList);
+        vrmr_list_cleanup(debuglvl, &HelpList);
 #ifdef USE_WIDEC
     }
     else
@@ -1067,7 +1067,7 @@ print_help(const int debuglvl, char *part)
 
         print_list(debuglvl, &HelpList, gettext("Help"), height, width, starty, startx, UTF8_TRUE);
 
-        d_list_cleanup(debuglvl, &HelpList);
+        vrmr_list_cleanup(debuglvl, &HelpList);
     }
 #endif /* USE_WIDEC */
 }
@@ -1126,7 +1126,7 @@ setup_statuslist(const int debuglvl)
     VuurmuurStatus.system = 1;
 
     /* setup the status list */
-    if(d_list_setup(debuglvl, &VuurmuurStatus.StatusList, free_helpword) < 0)
+    if(vrmr_list_setup(debuglvl, &VuurmuurStatus.StatusList, free_helpword) < 0)
     {
         (void)vrprint.error(-1, VR_INTERR, "setup the statuslist failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1165,7 +1165,7 @@ print_about(const int debuglvl)
     startx = (max_width - width) / 2;
     starty = 3;
 
-    d_list_setup(debuglvl, &about_list, free_helpword);
+    vrmr_list_setup(debuglvl, &about_list, free_helpword);
 
     (void)read_helpline(debuglvl, &about_list, "Vuurmuur_conf\n");
     (void)read_helpline(debuglvl, &about_list, "\n");
@@ -1220,5 +1220,5 @@ print_about(const int debuglvl)
     /* print the status list */
     print_list(debuglvl, &about_list, gettext("About"), height, width, starty, startx, UTF8_FALSE);
 
-    d_list_cleanup(debuglvl, &about_list);
+    vrmr_list_cleanup(debuglvl, &about_list);
 }

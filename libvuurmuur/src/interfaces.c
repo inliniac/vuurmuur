@@ -29,7 +29,7 @@ vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interface
     struct vrmr_interface   *check_iface_ptr = NULL;
     int                     result = 0;
     int                     insert_here = 0;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
 
     /* check our input */
     if(interfaces == NULL || iface_ptr == NULL)
@@ -80,10 +80,10 @@ vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interface
             (void)vrprint.debug(__FUNC__, "prepend %s", iface_ptr->name);
 
         /* prepend if an empty list */
-        if(!(d_list_prepend(debuglvl, &interfaces->list, iface_ptr)))
+        if(!(vrmr_list_prepend(debuglvl, &interfaces->list, iface_ptr)))
         {
             (void)vrprint.error(-1, "Internal Error",
-                    "d_list_prepend() failed (in: %s:%d).",
+                    "vrmr_list_prepend() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -96,10 +96,10 @@ vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interface
         /*
             insert before the current node
         */
-        if(!(d_list_insert_before(debuglvl, &interfaces->list, d_node, iface_ptr)))
+        if(!(vrmr_list_insert_before(debuglvl, &interfaces->list, d_node, iface_ptr)))
         {
             (void)vrprint.error(-1, "Internal Error",
-                    "d_list_insert_before() failed (in: %s:%d).",
+                    "vrmr_list_insert_before() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -112,10 +112,10 @@ vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interface
         /*
             append if we were bigger than all others
         */
-        if(!(d_list_append(debuglvl, &interfaces->list, iface_ptr)))
+        if(!(vrmr_list_append(debuglvl, &interfaces->list, iface_ptr)))
         {
             (void)vrprint.error(-1, "Internal Error",
-                    "d_list_append() failed (in: %s:%d).",
+                    "vrmr_list_append() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -136,7 +136,7 @@ vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interface
 void *
 vrmr_search_interface(const int debuglvl, const struct vrmr_interfaces *interfaces, const char *name)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety check */
@@ -195,7 +195,7 @@ vrmr_search_interface(const int debuglvl, const struct vrmr_interfaces *interfac
 void *
 vrmr_search_interface_by_ip(const int debuglvl, struct vrmr_interfaces *interfaces, const char *ip)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety check */
@@ -256,7 +256,7 @@ vrmr_search_interface_by_ip(const int debuglvl, struct vrmr_interfaces *interfac
 void
 vrmr_interfaces_print_list(const struct vrmr_interfaces *interfaces)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
 
     if(!interfaces)
@@ -822,7 +822,7 @@ vrmr_init_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
     /* init */
     memset(interfaces, 0, sizeof(struct vrmr_interfaces));
     /* setup the list */
-    if(d_list_setup(debuglvl, &interfaces->list, NULL) < 0)
+    if(vrmr_list_setup(debuglvl, &interfaces->list, NULL) < 0)
         return(-1);
 
 
@@ -866,7 +866,7 @@ vrmr_init_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
 int
 interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
     char                rule_str[MAX_RULE_LENGTH] = "";
 
@@ -1009,9 +1009,9 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(d_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
+    if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1022,9 +1022,9 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(d_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
+    if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1035,9 +1035,9 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(d_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
+    if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1048,9 +1048,9 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(d_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
+    if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1061,9 +1061,9 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(d_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
+    if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1094,7 +1094,7 @@ int
 vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *iface_name)
 {
     struct vrmr_interface   *iface_ptr = NULL;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
 
     /* safety */
     if(iface_name == NULL || interfaces == NULL)
@@ -1146,9 +1146,9 @@ vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
 
                 now remove it from the list
             */
-            if(d_list_remove_node(debuglvl, &interfaces->list, d_node) < 0)
+            if(vrmr_list_remove_node(debuglvl, &interfaces->list, d_node) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "d_list_remove_node() failed (in: %s:%d).",
+                (void)vrprint.error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1178,7 +1178,7 @@ ins_iface_into_zonelist(const int debuglvl, d_list *ifacelist, d_list *zonelist)
 {
     struct vrmr_interface   *iface_ptr = NULL;
     struct vrmr_zone        *zone_ptr = NULL;
-    d_list_node             *iface_node = NULL;
+    struct vrmr_list_node             *iface_node = NULL;
     char                    name[MAX_INTERFACE + 8 + 2 + 1]; // 32 max iface length, 8 firewall, 2 () and 1 \0
 
     if(debuglvl >= HIGH)
@@ -1262,9 +1262,9 @@ ins_iface_into_zonelist(const int debuglvl, d_list *ifacelist, d_list *zonelist)
             /*
                 append to the zoneslist
             */
-            if(d_list_append(debuglvl, zonelist, zone_ptr) == NULL)
+            if(vrmr_list_append(debuglvl, zonelist, zone_ptr) == NULL)
             {
-                (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+                (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
 
                 free(zone_ptr);
@@ -1295,7 +1295,7 @@ int
 rem_iface_from_zonelist(const int debuglvl, d_list *zonelist)
 {
     struct vrmr_zone    *zone_ptr = NULL;
-    d_list_node         *d_node = NULL,
+    struct vrmr_list_node         *d_node = NULL,
                         *next_node = NULL;
     int                 i = 0;
 
@@ -1337,9 +1337,9 @@ rem_iface_from_zonelist(const int debuglvl, d_list *zonelist)
             /*
                 remove the node from the list
             */
-            if(d_list_remove_node(debuglvl, zonelist, d_node) < 0)
+            if(vrmr_list_remove_node(debuglvl, zonelist, d_node) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "d_list_remove_node() failed (in: %s:%d).",
+                (void)vrprint.error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1347,7 +1347,7 @@ rem_iface_from_zonelist(const int debuglvl, d_list *zonelist)
             /*
                 free the memory, but only if the remove function
                 in the list is NULL. Otherwise it is already free'd
-                by d_list_remove_node.
+                by vrmr_list_remove_node.
             */
             if(zonelist->remove == NULL)
                 free(zone_ptr);
@@ -1675,7 +1675,7 @@ validate_interfacename(const int debuglvl, const char *interfacename, regex_t *r
 void
 vrmr_destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
 
 
@@ -1698,14 +1698,14 @@ vrmr_destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfac
             return;
         }
 
-        d_list_cleanup(debuglvl, &iface_ptr->ProtectList);
+        vrmr_list_cleanup(debuglvl, &iface_ptr->ProtectList);
 
         free(iface_ptr);
         iface_ptr = NULL;
     }
 
     /* then the list itself */
-    d_list_cleanup(debuglvl, &interfaces->list);
+    vrmr_list_cleanup(debuglvl, &interfaces->list);
 }
 
 
@@ -1914,7 +1914,7 @@ interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     char                currule[MAX_RULE_LENGTH] = "";
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
 
     /* safety */
@@ -1954,9 +1954,9 @@ interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
         else
         {
             /* append to list */
-            if(d_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
+            if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
             {
-                (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+                (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 free(rule_ptr);
                 return(-1);
@@ -2088,7 +2088,7 @@ int
 vrmr_interfaces_load(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
     struct vrmr_interface   *iface_ptr = NULL;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     int                     result = 0;
 
     (void)vrprint.info("Info", "Loading interfaces...");

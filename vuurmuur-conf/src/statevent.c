@@ -210,7 +210,7 @@ statevent_print2str_conn(const int debuglvl, StatEventGen *evt, size_t len)
 static char
 statevent_convert_conn(const int debuglvl, StatEventCtl *ctl, d_list *list)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
     StatEventConn           *conn = NULL;
 
@@ -233,7 +233,7 @@ statevent_convert_conn(const int debuglvl, StatEventCtl *ctl, d_list *list)
         conn->dst_port = cd_ptr->dst_port;
         conn->cnt = cd_ptr->cnt;
 
-        if(d_list_append(debuglvl, &ctl->list, conn) == NULL)
+        if(vrmr_list_append(debuglvl, &ctl->list, conn) == NULL)
             return(FALSE);
     }
 
@@ -315,7 +315,7 @@ parse_log_srcdst(const int debuglvl, char *str, char *ret_ip, size_t ip_size,
 static char
 statevent_convert_log(const int debuglvl, StatEventCtl *ctl, d_list *list)
 {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     LogRule         *logrule_ptr = NULL;
     StatEventLog    *log = NULL;
 
@@ -448,8 +448,8 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, d_list *list)
 
         //vrprint.debug(__FUNC__, "x = %d, y = %d, z = %d", x,y,z);
 
-        if(d_list_append(debuglvl, &ctl->list, log) == NULL) {
-            (void)vrprint.error(-1, VR_INTERR, "d_list_append failed "
+        if(vrmr_list_append(debuglvl, &ctl->list, log) == NULL) {
+            (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
             return(FALSE);
         }
@@ -1062,7 +1062,7 @@ statevent_init_ctl(const int debuglvl, int type)
         ctl->help_actions     = ":[VUURMUUR:LOGVIEW:ACTIONS]:";
     }
 
-    d_list_setup(debuglvl, &ctl->list, ctl->remove);
+    vrmr_list_setup(debuglvl, &ctl->list, ctl->remove);
 
     return(ctl);
 }
@@ -1070,7 +1070,7 @@ statevent_init_ctl(const int debuglvl, int type)
 static void
 statevent_free_ctl(const int debuglvl, StatEventCtl **ctl)
 {
-    d_list_cleanup(debuglvl, &(*ctl)->list);
+    vrmr_list_cleanup(debuglvl, &(*ctl)->list);
     memset(*ctl, 0, sizeof(StatEventCtl));
     free(*ctl);
     *ctl = NULL;
@@ -1086,7 +1086,7 @@ statevent_menu(const int debuglvl, struct vuurmuur_config *cnf, int type,
     VrWin           *win = NULL;
     VrMenu          *menu = NULL;
     int             ch = 0;
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     StatEventGen    *gen_ptr = NULL;
 
     /* top menu */

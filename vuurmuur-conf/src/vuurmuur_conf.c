@@ -370,7 +370,7 @@ main(int argc, char *argv[])
     /* main menu loop */
     while(main_menu(debuglvl, &rules, &zones, &interfaces, &services, &blocklist, &reg) == 1);
     /* clean up the status list */
-    d_list_cleanup(debuglvl, &VuurmuurStatus.StatusList);
+    vrmr_list_cleanup(debuglvl, &VuurmuurStatus.StatusList);
 
     /* detach from shared memory, if we were attached */
     if(vuurmuur_shmp != NULL && vuurmuur_shmp != (char *)(-1) && vuurmuur_shmtable != 0)
@@ -431,7 +431,7 @@ main(int argc, char *argv[])
     (void)vrmr_regex_setup(0, &reg);
 
     /* cleanup the datastructures */
-    (void)d_list_cleanup(debuglvl, &blocklist.list);
+    (void)vrmr_list_cleanup(debuglvl, &blocklist.list);
     (void)destroy_serviceslist(debuglvl, &services);
     (void)destroy_zonedatalist(debuglvl, &zones);
     (void)rules_cleanup_list(debuglvl, &rules);

@@ -731,9 +731,9 @@ vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, struct vrm
 
     /*  setup the list: the cleanup function is set to NULL
         so it's the users responsibility to free memory. */
-    if(d_list_setup(debuglvl, &rules->list, NULL) < 0)
+    if(vrmr_list_setup(debuglvl, &rules->list, NULL) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_setup() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -795,9 +795,9 @@ vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, struct vrm
                     else
                     {
                         /* append to the rules list */
-                        if(!(d_list_append(debuglvl, &rules->list, rule_ptr)))
+                        if(!(vrmr_list_append(debuglvl, &rules->list, rule_ptr)))
                         {
-                            (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+                            (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
                             return(-1);
                         }
@@ -886,9 +886,9 @@ vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, struct vrm
                     else
                     {
                         /* append to the rules list */
-                        if(!(d_list_append(debuglvl, &rules->list, rule_ptr)))
+                        if(!(vrmr_list_append(debuglvl, &rules->list, rule_ptr)))
                         {
-                            (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+                            (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
                             return(-1);
                         }
@@ -1488,7 +1488,7 @@ rules_write_file(const int debuglvl, const struct vuurmuur_config *cnf, struct v
 {
     FILE                *fp = NULL;
     int                 retval = 0;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     char                *line = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
 
@@ -1556,7 +1556,7 @@ rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_co
     int                 result = 0;
     char                *line = NULL,
                         eline[1024] = "";
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
     char                overwrite = FALSE;
 
@@ -1659,7 +1659,7 @@ rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_co
 int
 rules_cleanup_list(const int debuglvl, struct vrmr_rules *rules)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
 
 
@@ -1695,7 +1695,7 @@ rules_cleanup_list(const int debuglvl, struct vrmr_rules *rules)
     /*
         cleanup the list
     */
-    if(d_list_cleanup(debuglvl, &rules->list) < 0)
+    if(vrmr_list_cleanup(debuglvl, &rules->list) < 0)
         return(-1);
 
     return(0);
@@ -1715,7 +1715,7 @@ rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned int pla
 {
     struct vrmr_rule    *listrule_ptr = NULL;
     int                 retval = 0;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
 
     /* safety */
@@ -1765,14 +1765,14 @@ rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned int pla
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "place to insert: top");
 
-        if(!(d_list_prepend(debuglvl, &rules->list, rule_ptr)))
+        if(!(vrmr_list_prepend(debuglvl, &rules->list, rule_ptr)))
         {
             (void)vrprint.error(-1, "Internal Error", "inserting the data to the top of list failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "d_list_prepend succes, now update numbers (place: %d)", place);
+            (void)vrprint.debug(__FUNC__, "vrmr_list_prepend succes, now update numbers (place: %d)", place);
 
         rules_update_numbers(debuglvl, rules, place, 1);
 
@@ -1803,7 +1803,7 @@ rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned int pla
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "place to insert: place: %d, %s %s %s %s %s", place, rules_itoaction(listrule_ptr->action), listrule_ptr->service, listrule_ptr->danger, listrule_ptr->who, listrule_ptr->source);
 
-            if(!(d_list_insert_after(debuglvl, &rules->list, d_node, rule_ptr)))
+            if(!(vrmr_list_insert_after(debuglvl, &rules->list, d_node, rule_ptr)))
             {
                 (void)vrprint.error(-1, "Internal Error", "inserting the data into the list failed.");
                 return(-1);
@@ -1811,13 +1811,13 @@ rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned int pla
 
             /* update numbers after count */
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "d_list_insert_after succes, now update numbers (place: %d)", place);
+                (void)vrprint.debug(__FUNC__, "vrmr_list_insert_after succes, now update numbers (place: %d)", place);
 
             rules_update_numbers(debuglvl, rules, place - 1, 1);
 
             /* set the number */
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "d_list_insert_after succes, now set rule_ptr->number to place: %d.", place);
+                (void)vrprint.debug(__FUNC__, "vrmr_list_insert_after succes, now set rule_ptr->number to place: %d.", place);
 
             rule_ptr->number = place;
 
@@ -2439,7 +2439,7 @@ rules_compare_options(const int debuglvl, struct vrmr_rule_options *old_opt, str
 void *
 search_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_rule *searchrule_ptr)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_rule    *listrule_ptr = NULL;
 
     /* safety */
@@ -3434,7 +3434,7 @@ int
 rules_chain_in_list(const int debuglvl, d_list *list, char *chainname)
 {
     char        *str = NULL;
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
 
     /* safety */
     if(list == NULL || chainname == NULL)
@@ -3476,7 +3476,7 @@ int
 rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
 {
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     char                *str = NULL;
     size_t              size = 0;
 
@@ -3488,9 +3488,9 @@ rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
         return(-1);
     }
 
-    if(d_list_setup(debuglvl, &rules->custom_chain_list, free) < 0)
+    if(vrmr_list_setup(debuglvl, &rules->custom_chain_list, free) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_setup() "
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -3529,9 +3529,9 @@ rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
                         return(-1);
                     }
 
-                    if(d_list_append(debuglvl, &rules->custom_chain_list, str) == NULL)
+                    if(vrmr_list_append(debuglvl, &rules->custom_chain_list, str) == NULL)
                     {
-                        (void)vrprint.error(-1, "Internal Error", "d_list_append() failed (in: %s:%d).",
+                        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
                         free(str);
                         return(-1);
@@ -3606,10 +3606,10 @@ rules_get_system_chains_per_table(const int debuglvl, char *tablename,
                     return(-1);
                 }
 
-                if(d_list_append(debuglvl, list, name) == NULL)
+                if(vrmr_list_append(debuglvl, list, name) == NULL)
                 {
                     (void)vrprint.error(-1, "Internal Error",
-                            "d_list_append() failed (in: %s:%d).",
+                            "vrmr_list_append() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     free(name);
                     pclose(p);
@@ -3651,25 +3651,25 @@ rules_get_system_chains(const int debuglvl, struct vrmr_rules *rules, struct vuu
     }
 
     /* initialize the lists */
-    if(d_list_setup(debuglvl, &rules->system_chain_filter, free) < 0) {
-        (void)vrprint.error(-1, "Internal Error", "d_list_setup() failed (in: %s:%d).",
+    if(vrmr_list_setup(debuglvl, &rules->system_chain_filter, free) < 0) {
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(d_list_setup(debuglvl, &rules->system_chain_mangle, free) < 0) {
-        (void)vrprint.error(-1, "Internal Error", "d_list_setup() failed (in: %s:%d).",
+    if(vrmr_list_setup(debuglvl, &rules->system_chain_mangle, free) < 0) {
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
     if (ipv == VR_IPV4) {
-        if(d_list_setup(debuglvl, &rules->system_chain_nat, free) < 0) {
-            (void)vrprint.error(-1, "Internal Error", "d_list_setup() failed (in: %s:%d).",
+        if(vrmr_list_setup(debuglvl, &rules->system_chain_nat, free) < 0) {
+            (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
     }
-    //if(d_list_setup(debuglvl, &rules->system_chain_raw, free) < 0) {
-    //    (void)vrprint.error(-1, "Internal Error", "d_list_setup() failed (in: %s:%d).",
+    //if(vrmr_list_setup(debuglvl, &rules->system_chain_raw, free) < 0) {
+    //    (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
     //            __FUNC__, __LINE__);
     //    return(-1);
     //}
@@ -3871,7 +3871,7 @@ int
 rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, unsigned int place, int updatenumbers)
 {
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
 
     /* safety */
@@ -3906,14 +3906,14 @@ rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, unsign
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "now we have to remove (query_ptr->number: %d, place: %d)", rule_ptr->number, place);
 
-            if(d_list_node_is_bot(debuglvl, d_node))
+            if(vrmr_list_node_is_bot(debuglvl, d_node))
             {
                 if(debuglvl >= HIGH)
                     (void)vrprint.debug(__FUNC__, "removing last entry");
 
-                if(d_list_remove_bot(debuglvl, &rules->list) < 0)
+                if(vrmr_list_remove_bot(debuglvl, &rules->list) < 0)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "d_list_remove_bot() failed (in: %s:%d).",
+                    (void)vrprint.error(-1, "Internal Error", "vrmr_list_remove_bot() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -3924,9 +3924,9 @@ rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, unsign
                 if(debuglvl >= HIGH)
                     (void)vrprint.debug(__FUNC__, "removing normal entry");
 
-                if(d_list_remove_node(debuglvl, &rules->list, d_node) < 0)
+                if(vrmr_list_remove_node(debuglvl, &rules->list, d_node) < 0)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "d_list_remove_node() failed (in: %s:%d).",
+                    (void)vrprint.error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -3959,7 +3959,7 @@ void
 rules_update_numbers(const int debuglvl, struct vrmr_rules *rules, unsigned int place, int action)
 {
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     unsigned int        i = 0;
 
     /* safety */
@@ -3998,7 +3998,7 @@ rules_update_numbers(const int debuglvl, struct vrmr_rules *rules, unsigned int 
 void
 rules_print_list(const struct vrmr_rules *rules)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
 
     for(d_node = rules->list.top; d_node ; d_node = d_node->next)
@@ -4020,7 +4020,7 @@ rules_print_list(const struct vrmr_rules *rules)
 void
 rules_free_options(const int debuglvl, struct vrmr_rule_options *opt)
 {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     struct portdata *port_ptr = NULL;
 
     if(!opt)
@@ -4037,7 +4037,7 @@ rules_free_options(const int debuglvl, struct vrmr_rule_options *opt)
             free(port_ptr);
         }
 
-        d_list_cleanup(debuglvl, &opt->RemoteportList);
+        vrmr_list_cleanup(debuglvl, &opt->RemoteportList);
     }
 
     if(opt->ListenportList.len > 0)
@@ -4051,7 +4051,7 @@ rules_free_options(const int debuglvl, struct vrmr_rule_options *opt)
             free(port_ptr);
         }
 
-        d_list_cleanup(debuglvl, &opt->ListenportList);
+        vrmr_list_cleanup(debuglvl, &opt->ListenportList);
     }
 
     free(opt);

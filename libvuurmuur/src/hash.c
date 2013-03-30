@@ -69,7 +69,7 @@ hash_setup( const int debuglvl,                         /* debug level */
     */
     for(cur_row = 0; cur_row < hash_table->rows; cur_row++)
     {
-        if(d_list_setup(debuglvl, &hash_table->table[cur_row], NULL) < 0)
+        if(vrmr_list_setup(debuglvl, &hash_table->table[cur_row], NULL) < 0)
         {
             (void)vrprint.error(-1, "Internal Error", "setting up the hash row %d failed (in: %s, %s:%d).", cur_row, __FUNC__);
             return(-1);
@@ -106,7 +106,7 @@ hash_cleanup(const int debuglvl, struct vrmr_hash_table *hash_table)
     /* clear all rows */
     for(cur_row = 0; cur_row < hash_table->rows; cur_row++)
     {
-        if(d_list_cleanup(debuglvl, &hash_table->table[cur_row]) < 0)
+        if(vrmr_list_cleanup(debuglvl, &hash_table->table[cur_row]) < 0)
         {
             (void)vrprint.error(-1, "Internal Error", "cleaning up row %d failed (in: hash_cleanup).", cur_row);
             return(-1);
@@ -144,7 +144,7 @@ hash_insert(const int debuglvl, struct vrmr_hash_table *hash_table, const void *
     row = hash_table->hash_func(data) % hash_table->rows;
 
     /* insert the data into the row */
-    if(!(d_list_append(debuglvl, &hash_table->table[row], data)))
+    if(!(vrmr_list_append(debuglvl, &hash_table->table[row], data)))
     {
         (void)vrprint.error(-1, "Internal Error", "appending to the list failed (in: hash_insert).");
         return(-1);
@@ -168,7 +168,7 @@ hash_insert(const int debuglvl, struct vrmr_hash_table *hash_table, const void *
 int
 hash_remove(const int debuglvl, struct vrmr_hash_table *hash_table, void *data)
 {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     unsigned int    row = 0;
     void            *table_data = NULL;
 
@@ -197,7 +197,7 @@ hash_remove(const int debuglvl, struct vrmr_hash_table *hash_table, void *data)
         if(hash_table->compare_func(table_data, data))
         {
             /* remove the data from the row/list. */
-            if(d_list_remove_node(debuglvl, &hash_table->table[row], d_node) < 0)
+            if(vrmr_list_remove_node(debuglvl, &hash_table->table[row], d_node) < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "removing from the list failed (in: hash_remove).");
                 return(-1);
@@ -225,7 +225,7 @@ hash_search(const int debuglvl, const struct vrmr_hash_table *hash_table, void *
 {
     unsigned int    row = 0;
     void            *table_data = NULL;
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
 
     /* safety */
     if(!hash_table || !data)
@@ -269,7 +269,7 @@ compare_ports(const void *serv_hash, const void *serv_req)
                             *sersearch = NULL;
     struct vrmr_portdata         *table_port_ptr = NULL,
                             *search_port_ptr = NULL;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
 
 
     /* safety */
@@ -466,7 +466,7 @@ void print_table_service(const int debuglvl, const struct vrmr_hash_table *hash_
 {
     unsigned int    i;
     void            *list_data = NULL;
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
 
     fprintf(stdout, "Hashtable has %u rows and %u cells.\n", hash_table->rows, hash_table->cells);
 
@@ -497,11 +497,11 @@ init_services_hashtable(    const int debuglvl,
                             int (*compare_func)(const void *table_data, const void *search_data),
                             struct vrmr_hash_table *hash_table)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     int                     port = 0;
     struct vrmr_service    *ser_ptr = NULL;
     struct vrmr_portdata         *portrange_ptr = NULL;
-    d_list_node             *d_node_serlist = NULL;
+    struct vrmr_list_node             *d_node_serlist = NULL;
 
     if(debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__, "services hashtable size will be %d rows.", n_rows);
@@ -610,7 +610,7 @@ init_zonedata_hashtable(    const int debuglvl,
                             struct vrmr_hash_table *hash_table)
 {
     struct vrmr_zone    *zone_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     /* safety */
     if(!zones_list)
@@ -710,7 +710,7 @@ search_service_in_hash(const int debuglvl, const int src, const int dst, const i
         (void)vrprint.error(-1, "Error", "malloc failed: %s (in: search_service_in_hash).", strerror(errno));
         return(NULL);
     }
-    d_list_setup(debuglvl, &ser_search_ptr->PortrangeList, free);
+    vrmr_list_setup(debuglvl, &ser_search_ptr->PortrangeList, free);
 
     /* alloc the portrange */
     if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
@@ -735,7 +735,7 @@ search_service_in_hash(const int debuglvl, const int src, const int dst, const i
     /* set the hash port */
     ser_search_ptr->hash_port = hash_port;
 
-    if(d_list_append(debuglvl, &ser_search_ptr->PortrangeList, portrange_ptr) == NULL)
+    if(vrmr_list_append(debuglvl, &ser_search_ptr->PortrangeList, portrange_ptr) == NULL)
     {
         (void)vrprint.error(-1, "Error", "insert into list failed for src: %d, dst: %d, prot: %d (in: search_service_in_hash).", src, dst, protocol);
         return(NULL);
@@ -746,7 +746,7 @@ search_service_in_hash(const int debuglvl, const int src, const int dst, const i
 
     /* cleanup */
     portrange_ptr = NULL;
-    d_list_cleanup(debuglvl, &ser_search_ptr->PortrangeList);
+    vrmr_list_cleanup(debuglvl, &ser_search_ptr->PortrangeList);
     free(ser_search_ptr);
 
     if(debuglvl >= HIGH)

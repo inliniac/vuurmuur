@@ -657,7 +657,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ d_list *status_list)
 static void
 mm_check_status_services(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_services *services)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_service    *ser_ptr = NULL;
 
     if(services == NULL)
@@ -701,7 +701,7 @@ mm_check_status_services(const int debuglvl, /*@null@*/ d_list *status_list, str
 static void
 mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_rules *rules)
 {
-    d_list_node      *d_node = NULL;
+    struct vrmr_list_node      *d_node = NULL;
     struct vrmr_rule *rule_ptr = NULL;
     char tc_location_not_set = FALSE;
 
@@ -750,7 +750,7 @@ mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, struct
 static void
 mm_check_status_interfaces(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_interfaces *interfaces)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char                    at_least_one_active = FALSE;
     char                    ipaddress[16] = "";
@@ -901,7 +901,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ d_list *status_list, s
 static void
 mm_check_status_zones(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_zones *zones)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
     char                at_least_one_active_network = FALSE;
     char                at_least_one_network = FALSE;
@@ -2180,7 +2180,7 @@ mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, struct vr
     /* if we have one, manage the list */
     if(status_list != NULL)
     {
-        d_list_cleanup(debuglvl, status_list);
+        vrmr_list_cleanup(debuglvl, status_list);
         /* send a status of '1', so no status is printed */
         queue_status_msg(debuglvl, status_list, 1, gettext("One or more problems were detected in your current setup. Below is a list\n"));
         /* store the list length so we can check for changes after all the check functions */
@@ -2218,7 +2218,7 @@ mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, struct vr
         if(status_list->len == list_len)
         {
             /* nothing was added to the list */
-            d_list_cleanup(debuglvl, status_list);
+            vrmr_list_cleanup(debuglvl, status_list);
             /* send a status of '1', so no status is printed */
             queue_status_msg(debuglvl, status_list, 1, gettext("No problems were detected in your setup\n"));
         }

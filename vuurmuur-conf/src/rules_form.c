@@ -410,7 +410,7 @@ SetupRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, unsigned int m
     rbform->show_only_forward = 0;
 
     /* setup list */
-    if(d_list_setup(debuglvl, &rbform->RuleBar_list, free) < 0)
+    if(vrmr_list_setup(debuglvl, &rbform->RuleBar_list, free) < 0)
         return(-1);
 
     /* calculate field sizes */
@@ -475,7 +475,7 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     int                 retval = 0,
                         i = 0;
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
 
     /* safety */
@@ -657,7 +657,7 @@ CurrentBar(struct RuleBarForm_ *rbform, FORM *form)
 {
     FIELD       *cur_field = NULL;
     rulebar     *cur_bar = NULL;
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
 
     /* safety */
     if(!rbform || !form)
@@ -803,7 +803,7 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules, struct
     int                 result = 0,
                         retval = 0;
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     /* safety */
     if(!bar || !rules || !reg)
@@ -926,7 +926,7 @@ static int
 rulebar_copy_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int orig_rule_num, struct vrmr_regex *reg)
 {
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     /* safety */
     if(!rules || !reg)
@@ -965,7 +965,7 @@ Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules)
     int                 rule_num = 0,
                         retval = 0;
     int                 i = 0;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
 
     if(debuglvl >= HIGH)
@@ -1025,7 +1025,7 @@ static void
 Set_RuleBar(const int debuglvl, struct RuleBarForm_ *rbform, FORM *form,
         unsigned int pos)
 {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     rulebar         *cur_bar = NULL;
     unsigned int    i = 0;
     int             result = 0;
@@ -1088,7 +1088,7 @@ Insert_RuleBar( const int debuglvl,
     bar->separator = separator;
 
     /* insert the bar into the list */
-    if(!(d_list_append(debuglvl, &rbform->RuleBar_list, bar)))
+    if(!(vrmr_list_append(debuglvl, &rbform->RuleBar_list, bar)))
     {
         (void)vrprint.error(-1, VR_INTERR, "insert into list failed (in: Insert_RuleBar).");
         return(-1);
@@ -1160,8 +1160,8 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
 {
     struct vrmr_rule    *rule_ptr = NULL;
     rulebar             *cur_bar = NULL;
-    d_list_node         *d_node = NULL;
-    d_list_node         *dl_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
+    struct vrmr_list_node         *dl_node = NULL;
 
     unsigned int        draw_count = 0,
                         printable_lines = 0,
@@ -1206,7 +1206,7 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
 
         /*  if the last item in the list is visible, we will hide
             the (more) panel below */
-        if(d_list_node_is_bot(debuglvl, dl_node))
+        if(vrmr_list_node_is_bot(debuglvl, dl_node))
             bot_visible = TRUE;
 
         if(rule_ptr->action == VRMR_AT_SEPARATOR)
@@ -1413,7 +1413,7 @@ static int
 rules_update_filter(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
 {
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     char                filter = 0;
 
     /* count the number of lines that are filtered */
@@ -1541,7 +1541,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                                             gettext("filter"),
                                             gettext("back")};
     int                 cmd_choices_n = 7;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
     char                *str = NULL;
 
@@ -2367,7 +2367,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
     del_panel(rbform->more_pan[0]);
     destroy_win(rbform->more_win);
 
-    d_list_cleanup(debuglvl, &rbform->RuleBar_list);
+    vrmr_list_cleanup(debuglvl, &rbform->RuleBar_list);
     free(rbform);
 
     unpost_form(form);
@@ -2394,7 +2394,7 @@ delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     int                 result = 0;
     int                 retval = 0;
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     if (rule_num == 0) {
         return(-1);
@@ -2548,7 +2548,7 @@ edit_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
         unsigned int rule_num, struct vrmr_regex *reg)
 {
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     int                 retval = 0;
 
     /* safety */
@@ -2851,7 +2851,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
                 /* first clear the list */
                 if(rule_ptr->opt->listenport == 1 && rule_ptr->opt->ListenportList.len > 0)
-                    d_list_cleanup(debuglvl, &rule_ptr->opt->ListenportList);
+                    vrmr_list_cleanup(debuglvl, &rule_ptr->opt->ListenportList);
 
                 /* if the first char is a whitespace, we asume the field is empty */
                 if(field_buffer(fields[i], 0)[0] == ' ')
@@ -2887,7 +2887,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
                 /* first clear the list */
                 if(rule_ptr->opt->remoteport == 1 && rule_ptr->opt->RemoteportList.len > 0)
-                    d_list_cleanup(debuglvl, &rule_ptr->opt->RemoteportList);
+                    vrmr_list_cleanup(debuglvl, &rule_ptr->opt->RemoteportList);
 
                 /* if the first char is a whitespace, we asume the field is empty */
                 if(field_buffer(fields[i], 0)[0] == ' ')
@@ -3365,7 +3365,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
     size_t      zone_choices_n=0,
                 service_choices_n=0,
                 n_choices = 0;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_zone        *zone_ptr = NULL,
                             *network_ptr = NULL;
     struct vrmr_service    *service_ptr = NULL;

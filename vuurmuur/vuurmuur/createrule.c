@@ -217,7 +217,7 @@ static int
 iptrule_insert(const int debuglvl, struct RuleCreateData_ *rule,
         IptRule *iptrule)
 {
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     IptRule     *listrule = NULL;
 
     if(iptrule == NULL || rule == NULL)
@@ -238,9 +238,9 @@ iptrule_insert(const int debuglvl, struct RuleCreateData_ *rule,
         }
     }
 
-    if(d_list_append(debuglvl, &rule->iptrulelist, iptrule) == NULL)
+    if(vrmr_list_append(debuglvl, &rule->iptrulelist, iptrule) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_append() "
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -425,7 +425,7 @@ process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, int ipv, char *tabl
 int
 process_queued_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule)
 {
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     IptRule     *r = NULL;
 
     if(rule == NULL)
@@ -2457,7 +2457,7 @@ static int
 create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
         struct vrmr_interfaces *interfaces, struct vrmr_iptcaps *iptcap, int ipv)
 {
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
     char cmd[MAX_PIPE_COMMAND] = "";
 
@@ -3020,7 +3020,7 @@ static int pre_rules_interface_counters_ipv4(const int debuglvl,
 {
     int retval = 0;
     char cmd[MAX_PIPE_COMMAND] = "";
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
     char acc_chain_name[32+3] = ""; /* chain name 32 + '-A ' = 3 */
 
@@ -4667,7 +4667,7 @@ int
 create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *iptcap, struct vrmr_interfaces *interfaces)
 {
     struct vrmr_rule_cache       *create = NULL;
-    d_list_node             *d_node = NULL,
+    struct vrmr_list_node             *d_node = NULL,
                             *if_d_node = NULL;
     struct vrmr_rule        *rule_ptr = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -5156,7 +5156,7 @@ int
 create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_zones *zones, struct vrmr_iptcaps *iptcap)
 {
     struct vrmr_rule_cache *create = NULL;
-    d_list_node *d_node = NULL, *net_d_node = NULL, *from_if_node = NULL;
+    struct vrmr_list_node *d_node = NULL, *net_d_node = NULL, *from_if_node = NULL;
     struct vrmr_zone *zone_ptr = NULL;
     struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_interface *from_if_ptr = NULL;
@@ -5301,7 +5301,7 @@ create_block_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_b
 {
     char        cmd[MAX_PIPE_COMMAND] = "",
                 *ipaddress = NULL;
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     int         retval = 0;
 
 
@@ -5361,7 +5361,7 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
         struct vrmr_rules *rules, struct vrmr_iptcaps *iptcap, int ipv)
 {
     char                cmd[MAX_PIPE_COMMAND] = "";
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     int                 retval = 0;
     struct vrmr_rule    *rule_ptr = NULL;
     u_int16_t           queue_num = 0;
@@ -5443,7 +5443,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
         struct vrmr_rules *rules, struct vrmr_iptcaps *iptcap, int ipv)
 {
     char cmd[MAX_PIPE_COMMAND] = "";
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     int retval = 0;
     struct vrmr_rule *rule_ptr = NULL;
     u_int16_t queue_num = 0;

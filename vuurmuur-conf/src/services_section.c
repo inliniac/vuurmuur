@@ -76,7 +76,7 @@ struct ServicesSection_
 static int
 edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_ptr, struct vrmr_portdata *port_ptr)
 {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     struct vrmr_portdata *portlist_ptr = NULL;
     int             insert_now = 0,
                     insert_append = 0;
@@ -183,7 +183,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "don't insert at this run.");
 
-            if(d_list_node_is_bot(debuglvl, d_node))
+            if(vrmr_list_node_is_bot(debuglvl, d_node))
             {
                 /* if we reach the bot, insert now */
                 insert_now = 1;
@@ -200,22 +200,22 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
     */
     if(insert_now)
     {
-        /*  for appending at the bot we call d_list_append because d_list_insert_before is unable to
+        /*  for appending at the bot we call vrmr_list_append because vrmr_list_insert_before is unable to
             insert at the bot.
         */
         if(!insert_append)
         {
-            if(d_list_insert_before(debuglvl, &ser_ptr->PortrangeList, d_node, port_ptr) == NULL)
+            if(vrmr_list_insert_before(debuglvl, &ser_ptr->PortrangeList, d_node, port_ptr) == NULL)
             {
-                (void)vrprint.error(-1, VR_INTERR, "d_list_insert_before() failed (in: %s:%d).", __FUNC__, __LINE__);
+                (void)vrprint.error(-1, VR_INTERR, "vrmr_list_insert_before() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
         }
         else
         {
-            if(d_list_append(debuglvl, &ser_ptr->PortrangeList, port_ptr) == NULL)
+            if(vrmr_list_append(debuglvl, &ser_ptr->PortrangeList, port_ptr) == NULL)
             {
-                (void)vrprint.error(-1, VR_INTERR, "d_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+                (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
         }
@@ -1409,7 +1409,7 @@ static int
 edit_serv_portranges_edit(const int debuglvl, int place, struct vrmr_service *ser_ptr)
 {
     int             i = 0;
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     struct vrmr_portdata *port_ptr = NULL;
 
 
@@ -1479,7 +1479,7 @@ static int
 edit_serv_portranges_del(const int debuglvl, int place, struct vrmr_service *ser_ptr)
 {
     int             i = 0;
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     char            str[64] = "";
     struct vrmr_portdata *portrange_ptr = NULL;
 
@@ -1506,7 +1506,7 @@ edit_serv_portranges_del(const int debuglvl, int place, struct vrmr_service *ser
             create_portrange_string(debuglvl, portrange_ptr, str, sizeof(str));
 
             /* remove */
-            if(d_list_remove_node(debuglvl, &ser_ptr->PortrangeList, d_node) < 0)
+            if(vrmr_list_remove_node(debuglvl, &ser_ptr->PortrangeList, d_node) < 0)
             {
                 (void)vrprint.error(-1, VR_INTERR, "unable to delete portrange '%d' from service '%s' (in: %s).", place, ser_ptr->name, __FUNC__);
                 return(-1);
@@ -1537,7 +1537,7 @@ static int
 edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     int             retval = 0;
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     int             i=0;
     int             height = 30,
                     width  = 64, // max width of host_name (32) + box (2) + 4 + 16
@@ -1585,9 +1585,9 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
     VrWinGetOffset(-1, -1, height, width, 4, ServicesSection.EditService.se_xre + 1, &starty, &startx);
 
     // string item list
-    d_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_list, free);
+    vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_list, free);
     // number item list
-    d_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_number_list, free);
+    vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_number_list, free);
 
     for(i = 0, d_node = ser_ptr->PortrangeList.top; d_node ; d_node = d_node->next, i++)
     {
@@ -1671,14 +1671,14 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
         }
 
         /* store in list */
-        if(d_list_append(debuglvl, &ServicesSection.EditServicePrt.item_list, port_string_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &ServicesSection.EditServicePrt.item_list, port_string_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "d_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+            (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        if(d_list_append(debuglvl, &ServicesSection.EditServicePrt.item_number_list, item_number_ptr)  == NULL)
+        if(vrmr_list_append(debuglvl, &ServicesSection.EditServicePrt.item_number_list, item_number_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "d_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+            (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -1759,8 +1759,8 @@ edit_serv_portranges_destroy(const int debuglvl)
     del_panel(ServicesSection.EditServicePrt.panel[0]);
     destroy_win(ServicesSection.EditServicePrt.win);
 
-    d_list_cleanup(debuglvl, &ServicesSection.EditServicePrt.item_list);
-    d_list_cleanup(debuglvl, &ServicesSection.EditServicePrt.item_number_list);
+    vrmr_list_cleanup(debuglvl, &ServicesSection.EditServicePrt.item_list);
+    vrmr_list_cleanup(debuglvl, &ServicesSection.EditServicePrt.item_number_list);
 
     update_panels();
     doupdate();
@@ -2059,7 +2059,7 @@ edit_service_init(const int debuglvl, struct vrmr_service *ser_ptr)
                     comment_x=0;
     int             height, width, starty, startx, max_height, max_width;
     struct vrmr_portdata *portrange_ptr = NULL;
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     size_t          field_num = 0,
                     i = 0;
 
@@ -2441,7 +2441,7 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
     int                     result = 0;
     struct vrmr_service    *ser_ptr = NULL;
     struct vrmr_rule        *rule_ptr = NULL;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     char                    changed = 0;
     char                    old_ser_name[MAX_SERVICE] = "";
 
@@ -2530,7 +2530,7 @@ init_services_section(const int debuglvl, struct vrmr_services *services, int he
     int                     retval=0,
                             i=0;
     struct vrmr_service    *ser_ptr = NULL;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
 
     ServicesSection.list_items = services->list.len;
     ServicesSection.items = (ITEM **)calloc(ServicesSection.list_items + 1, sizeof(ITEM *));

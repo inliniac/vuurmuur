@@ -60,72 +60,72 @@ ruleset_setup(const int debuglvl, RuleSet *ruleset)
     /* init the lists */
 
     /* raw */
-    if(d_list_setup(debuglvl, &ruleset->raw_preroute, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->raw_preroute, free) < 0)
         return(-1);
 
     /* mangle */
-    if(d_list_setup(debuglvl, &ruleset->mangle_preroute, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->mangle_preroute, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->mangle_input, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->mangle_input, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->mangle_forward, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->mangle_forward, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->mangle_output, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->mangle_output, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->mangle_postroute, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->mangle_postroute, free) < 0)
         return(-1);
 
-    if(d_list_setup(debuglvl, &ruleset->mangle_shape_in, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->mangle_shape_in, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->mangle_shape_out, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->mangle_shape_out, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->mangle_shape_fw, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->mangle_shape_fw, free) < 0)
         return(-1);
 
     /* nat */
-    if(d_list_setup(debuglvl, &ruleset->nat_preroute, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->nat_preroute, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->nat_postroute, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->nat_postroute, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->nat_output, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->nat_output, free) < 0)
         return(-1);
 
     /* filter */
-    if(d_list_setup(debuglvl, &ruleset->filter_input, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_input, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->filter_forward, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_forward, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->filter_output, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_output, free) < 0)
         return(-1);
 
-    if(d_list_setup(debuglvl, &ruleset->filter_antispoof, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_antispoof, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->filter_blocklist, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_blocklist, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->filter_blocktarget, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_blocktarget, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->filter_badtcp, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_badtcp, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->filter_synlimittarget, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_synlimittarget, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->filter_udplimittarget, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_udplimittarget, free) < 0)
         return(-1);
     /* NFQueue state */
-    if(d_list_setup(debuglvl, &ruleset->filter_newnfqueuetarget, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_newnfqueuetarget, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &ruleset->filter_estrelnfqueuetarget, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_estrelnfqueuetarget, free) < 0)
         return(-1);
     /* tcp reset */
-    if(d_list_setup(debuglvl, &ruleset->filter_tcpresettarget, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_tcpresettarget, free) < 0)
         return(-1);
     /* accounting */
-    if(d_list_setup(debuglvl, &ruleset->filter_accounting, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_accounting, free) < 0)
         return(-1);
-    if(d_list_setup(debuglvl, &accounting_chain_names, free) < 0)
+    if(vrmr_list_setup(debuglvl, &accounting_chain_names, free) < 0)
         return(-1);
 
     /* shaping */
-    if(d_list_setup(debuglvl, &ruleset->tc_rules, free) < 0)
+    if(vrmr_list_setup(debuglvl, &ruleset->tc_rules, free) < 0)
         return(-1);
 
     return(0);
@@ -151,43 +151,43 @@ ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
     }
 
     /* raw */
-    d_list_cleanup(debuglvl, &ruleset->raw_preroute);
+    vrmr_list_cleanup(debuglvl, &ruleset->raw_preroute);
 
     /* mangle */
-    d_list_cleanup(debuglvl, &ruleset->mangle_preroute);
-    d_list_cleanup(debuglvl, &ruleset->mangle_input);
-    d_list_cleanup(debuglvl, &ruleset->mangle_forward);
-    d_list_cleanup(debuglvl, &ruleset->mangle_output);
-    d_list_cleanup(debuglvl, &ruleset->mangle_postroute);
+    vrmr_list_cleanup(debuglvl, &ruleset->mangle_preroute);
+    vrmr_list_cleanup(debuglvl, &ruleset->mangle_input);
+    vrmr_list_cleanup(debuglvl, &ruleset->mangle_forward);
+    vrmr_list_cleanup(debuglvl, &ruleset->mangle_output);
+    vrmr_list_cleanup(debuglvl, &ruleset->mangle_postroute);
 
-    d_list_cleanup(debuglvl, &ruleset->mangle_shape_in);
-    d_list_cleanup(debuglvl, &ruleset->mangle_shape_out);
-    d_list_cleanup(debuglvl, &ruleset->mangle_shape_fw);
+    vrmr_list_cleanup(debuglvl, &ruleset->mangle_shape_in);
+    vrmr_list_cleanup(debuglvl, &ruleset->mangle_shape_out);
+    vrmr_list_cleanup(debuglvl, &ruleset->mangle_shape_fw);
 
     /* nat */
-    d_list_cleanup(debuglvl, &ruleset->nat_preroute);
-    d_list_cleanup(debuglvl, &ruleset->nat_postroute);
-    d_list_cleanup(debuglvl, &ruleset->nat_output);
+    vrmr_list_cleanup(debuglvl, &ruleset->nat_preroute);
+    vrmr_list_cleanup(debuglvl, &ruleset->nat_postroute);
+    vrmr_list_cleanup(debuglvl, &ruleset->nat_output);
 
     /* filter */
-    d_list_cleanup(debuglvl, &ruleset->filter_input);
-    d_list_cleanup(debuglvl, &ruleset->filter_forward);
-    d_list_cleanup(debuglvl, &ruleset->filter_output);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_input);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_forward);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_output);
 
-    d_list_cleanup(debuglvl, &ruleset->filter_antispoof);
-    d_list_cleanup(debuglvl, &ruleset->filter_blocklist);
-    d_list_cleanup(debuglvl, &ruleset->filter_blocktarget);
-    d_list_cleanup(debuglvl, &ruleset->filter_badtcp);
-    d_list_cleanup(debuglvl, &ruleset->filter_synlimittarget);
-    d_list_cleanup(debuglvl, &ruleset->filter_udplimittarget);
-    d_list_cleanup(debuglvl, &ruleset->filter_estrelnfqueuetarget);
-    d_list_cleanup(debuglvl, &ruleset->filter_newnfqueuetarget);
-    d_list_cleanup(debuglvl, &ruleset->filter_tcpresettarget);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_antispoof);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_blocklist);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_blocktarget);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_badtcp);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_synlimittarget);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_udplimittarget);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_estrelnfqueuetarget);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_newnfqueuetarget);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_tcpresettarget);
 
-    d_list_cleanup(debuglvl, &ruleset->filter_accounting);
-    d_list_cleanup(debuglvl, &accounting_chain_names);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_accounting);
+    vrmr_list_cleanup(debuglvl, &accounting_chain_names);
 
-    d_list_cleanup(debuglvl, &ruleset->tc_rules);
+    vrmr_list_cleanup(debuglvl, &ruleset->tc_rules);
 
     /* clear all memory */
     memset(ruleset, 0, sizeof(RuleSet));
@@ -204,7 +204,7 @@ ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
 static int
 ruleset_check_accounting(const int debuglvl, char *chain)
 {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     char            chain_found = 0;
     char            stripped_chain[32] = "",
                     commandline_switch[3] = ""; /* '-A' =2 + '\0' = 1 == 3 */
@@ -272,7 +272,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
                 (void)vrprint.debug(__FUNC__, "appending chain '%s' to the list.", chainref_ptr->chain);
 
             /* append to the list */
-            if(d_list_append(debuglvl, &accounting_chain_names, chainref_ptr) == NULL)
+            if(vrmr_list_append(debuglvl, &accounting_chain_names, chainref_ptr) == NULL)
             {
                 (void)vrprint.error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
@@ -363,7 +363,7 @@ ruleset_add_rule_to_set(const int debuglvl, d_list *list, char *chain, char *rul
     }
 
     /* append to the list */
-    if(d_list_append(debuglvl, list, line) == NULL)
+    if(vrmr_list_append(debuglvl, list, line) == NULL)
     {
         (void)vrprint.error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -387,7 +387,7 @@ ruleset_writeprint(const int fd, const char *line)
 /* Create the shaping script file */
 static int
 ruleset_fill_shaping_file(const int debuglvl, RuleSet *ruleset, int fd) {
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     char        *ptr = NULL;
     char        cmd[MAX_PIPE_COMMAND] = "";
 
@@ -416,7 +416,7 @@ static int
 ruleset_fill_file(const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset,
         int ruleset_fd, int ipver)
 {
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     char        *rule = NULL,
                 *cname = NULL;
     char        cmd[512] = "";
@@ -1130,10 +1130,10 @@ ruleset_fill_file(const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset,
     ruleset_writeprint(ruleset_fd, cmd);
 
     /* list of chains in the system */
-    d_list_cleanup(debuglvl, &vctx->rules->system_chain_filter);
-    d_list_cleanup(debuglvl, &vctx->rules->system_chain_mangle);
-    d_list_cleanup(debuglvl, &vctx->rules->system_chain_nat);
-    //d_list_cleanup(debuglvl, &rules->system_chain_raw);
+    vrmr_list_cleanup(debuglvl, &vctx->rules->system_chain_filter);
+    vrmr_list_cleanup(debuglvl, &vctx->rules->system_chain_mangle);
+    vrmr_list_cleanup(debuglvl, &vctx->rules->system_chain_nat);
+    //vrmr_list_cleanup(debuglvl, &rules->system_chain_raw);
 
     return(0);
 }
@@ -1378,7 +1378,7 @@ ruleset_create_ruleset( const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset)
 static int
 ruleset_save_interface_counters(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_interfaces *interfaces)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     unsigned long long      tmp_ull = 0;
     char                    acc_chain[32] = "";
@@ -1467,7 +1467,7 @@ ruleset_save_interface_counters(const int debuglvl, struct vuurmuur_config *cfg,
 static int
 ruleset_clear_interface_counters(const int debuglvl, struct vrmr_interfaces *interfaces)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety */
@@ -1679,7 +1679,7 @@ load_ruleset_ipv4(const int debuglvl, VuurmuurCtx *vctx)
         return(-1);
     }
     /* cleanup */
-    d_list_cleanup(debuglvl, &vctx->rules->custom_chain_list);
+    vrmr_list_cleanup(debuglvl, &vctx->rules->custom_chain_list);
 
     /* now create the shape file */
     if(ruleset_fill_shaping_file(debuglvl, &ruleset, shape_fd) < 0)
@@ -1854,7 +1854,7 @@ load_ruleset_ipv6(const int debuglvl, VuurmuurCtx *vctx)
         return(-1);
     }
     /* cleanup */
-    d_list_cleanup(debuglvl, &vctx->rules->custom_chain_list);
+    vrmr_list_cleanup(debuglvl, &vctx->rules->custom_chain_list);
 
     if(debuglvl >= HIGH)
     {

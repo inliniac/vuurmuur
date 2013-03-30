@@ -194,7 +194,7 @@ insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
                         *cur_network = NULL;
     int                 insert_here = 0,
                         in_the_right_scope = 0;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
 
     /* safety first */
@@ -288,10 +288,10 @@ insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "prepend %s", zone_ptr->name);
 
-        if(d_list_prepend(debuglvl, &zones->list, zone_ptr) < 0)
+        if(vrmr_list_prepend(debuglvl, &zones->list, zone_ptr) < 0)
         {
             (void)vrprint.error(-1, "Internal Error",
-                    "d_list_prepend() failed (in: %s:%d).",
+                    "vrmr_list_prepend() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -302,10 +302,10 @@ insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "insert %s", zone_ptr->name);
 
-        if(d_list_insert_before(debuglvl, &zones->list, d_node, zone_ptr) < 0)
+        if(vrmr_list_insert_before(debuglvl, &zones->list, d_node, zone_ptr) < 0)
         {
             (void)vrprint.error(-1, "Internal Error",
-                    "d_list_insert_before() failed (in: %s:%d).",
+                    "vrmr_list_insert_before() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -316,10 +316,10 @@ insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "append %s", zone_ptr->name);
 
-        if(d_list_append(debuglvl, &zones->list, zone_ptr) == NULL)
+        if(vrmr_list_append(debuglvl, &zones->list, zone_ptr) == NULL)
         {
             (void)vrprint.error(-1, "Internal Error",
-                    "d_list_append() failed (in: %s:%d).",
+                    "vrmr_list_append() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -535,7 +535,7 @@ read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
 void *
 search_zonedata(const int debuglvl, const struct vrmr_zones *zones, char *name)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zonedata_ptr = NULL;
 
 
@@ -582,7 +582,7 @@ search_zonedata(const int debuglvl, const struct vrmr_zones *zones, char *name)
 void
 zonedata_print_list(const struct vrmr_zones *zones)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
 
     // print size
@@ -629,7 +629,7 @@ init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
     memset(zones, 0, sizeof(*zones));
 
     /* create the list */
-    if(d_list_setup(debuglvl, &zones->list, NULL) < 0)
+    if(vrmr_list_setup(debuglvl, &zones->list, NULL) < 0)
         return(-1);
 
     /* get the info from the backend */
@@ -669,7 +669,7 @@ init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
 void
 destroy_zonedatalist(const int debuglvl, struct vrmr_zones *zones)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
 
     if(!zones)
@@ -687,7 +687,7 @@ destroy_zonedatalist(const int debuglvl, struct vrmr_zones *zones)
         zone_free(debuglvl, zone_ptr);
     }
 
-    d_list_cleanup(debuglvl, &zones->list);
+    vrmr_list_cleanup(debuglvl, &zones->list);
 }
 
 
@@ -696,7 +696,7 @@ delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zo
 {
     struct vrmr_zone        *zone_ptr = NULL,
                             *zone_list_ptr = NULL;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     char                    name[MAX_HOST_NET_ZONE] = "";
     struct vrmr_interface   *iface_ptr = NULL;
 
@@ -816,7 +816,7 @@ delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zo
         if(strcmp(zonename, zone_list_ptr->name) == 0)
         {
             /* remove from list */
-            if(d_list_remove_node(debuglvl, &zones->list, d_node) < 0)
+            if(vrmr_list_remove_node(debuglvl, &zones->list, d_node) < 0)
             {
                 (void)vrprint.error(-1, "Internal Error",
                         "NULL pointer (in: %s:%d).",
@@ -1011,7 +1011,7 @@ count_zones(const int debuglvl, struct vrmr_zones *zones, int type, char *filter
 {
     struct vrmr_zone    *zone_ptr = NULL;
     int                 count = 0;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     for(d_node = zones->list.top; d_node; d_node = d_node->next)
     {
@@ -1065,7 +1065,7 @@ count_zones(const int debuglvl, struct vrmr_zones *zones, int type, char *filter
 int
 zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, d_list *network_list)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
 
     /*
@@ -1087,7 +1087,7 @@ zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, d_list *ne
 
         if(zone_ptr->type == TYPE_NETWORK)
         {
-            if(d_list_append(debuglvl, network_list, zone_ptr) == NULL)
+            if(vrmr_list_append(debuglvl, network_list, zone_ptr) == NULL)
             {
                 (void)vrprint.error(-1, "Internal Error", "appending to the list failed (in: zonelist_to_networklist).");
                 return(-1);
@@ -1115,7 +1115,7 @@ add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
 {
     struct vrmr_zone    *zone_ptr = NULL,
                         *broadcast_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     /* safety */
     if(!zones)
@@ -1164,7 +1164,7 @@ add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
                     (void)vrprint.debug(__FUNC__, "%s addr: %s", broadcast_ptr->name, broadcast_ptr->ipv4.ipaddress);
 
                 /* insert into the list */
-                if(d_list_append(debuglvl, &zones->list, broadcast_ptr) == NULL)
+                if(vrmr_list_append(debuglvl, &zones->list, broadcast_ptr) == NULL)
                 {
                     (void)vrprint.error(-1, "Internal Error", "appending to the list failed (in: %s:%d).", __FUNC__, __LINE__);
                     zone_free(debuglvl, broadcast_ptr);
@@ -1279,7 +1279,7 @@ validate_zonename(const int debuglvl, const char *zonename, int onlyvalidate, ch
 int
 zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *member_ptr = NULL;
 
     /* safety */
@@ -1345,7 +1345,7 @@ zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
 int
 zones_group_rem_member(const int debuglvl, struct vrmr_zone *group_ptr, char *hostname)
 {
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *member_ptr = NULL;
 
     /* safety */
@@ -1377,7 +1377,7 @@ zones_group_rem_member(const int debuglvl, struct vrmr_zone *group_ptr, char *ho
             member_ptr->refcnt_group--;
 
             /* okay, lets remove the hugeassmotherf*cker */
-            if(d_list_remove_node(debuglvl, &group_ptr->GroupList, d_node) < 0)
+            if(vrmr_list_remove_node(debuglvl, &group_ptr->GroupList, d_node) < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "unable to remove member from the list (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
@@ -1405,7 +1405,7 @@ zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct vrmr
 {
     struct vrmr_zone    *new_member_ptr = NULL,
                         *list_member_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     /* safety */
     if(!group_ptr || !zones || !hostname)
@@ -1449,7 +1449,7 @@ zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct vrmr
     new_member_ptr->refcnt_group++;
 
     /* now append the new at the tail of the list */
-    if(d_list_append(debuglvl, &group_ptr->GroupList, new_member_ptr) == NULL)
+    if(vrmr_list_append(debuglvl, &group_ptr->GroupList, new_member_ptr) == NULL)
     {
         (void)vrprint.error(-1, "Internal Error", "unable to append member to groupslist (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1478,7 +1478,7 @@ zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfaces, 
 {
     struct vrmr_interface   *iface_ptr = NULL,
                             *list_iface_ptr = NULL;
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
 
     /* safety */
     if(!interfaces || !network_ptr || !interfacename)
@@ -1511,7 +1511,7 @@ zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfaces, 
     }
 
     /* append to the list */
-    if(!(d_list_append(debuglvl, &network_ptr->InterfaceList, iface_ptr)))
+    if(!(vrmr_list_append(debuglvl, &network_ptr->InterfaceList, iface_ptr)))
     {
         (void)vrprint.error(-1, "Internal Error", "appending to the list failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1533,7 +1533,7 @@ zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfaces, 
 int
 zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, char *interfacename)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety */
@@ -1562,7 +1562,7 @@ zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, char 
         /* check if this is the one */
         if(strcmp(interfacename, iface_ptr->name) == 0)
         {
-            if(d_list_remove_node(debuglvl, &network_ptr->InterfaceList, d_node) < 0)
+            if(vrmr_list_remove_node(debuglvl, &network_ptr->InterfaceList, d_node) < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "unable to remove interface from the list (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
@@ -1635,7 +1635,7 @@ zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr, str
 int
 zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network_ptr)
 {
-    d_list_node             *d_node = NULL;
+    struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety */
@@ -1987,7 +1987,7 @@ zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr
 {
     char                currule[MAX_RULE_LENGTH] = "";
     struct vrmr_rule    *rule_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     /* safety */
     if(network_ptr == NULL)
@@ -2029,7 +2029,7 @@ zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr
         }
 
         /* append to list */
-        if(d_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL)
+        if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL)
         {
             (void)vrprint.error(-1, "Internal Error", "appending protect rule to list failed (in: %s:%d).", __FUNC__, __LINE__);
             free(rule_ptr);
@@ -2306,7 +2306,7 @@ int
 vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     struct vrmr_zone    *zone_ptr = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     int                 result = 0;
 
     (void)vrprint.info("Info", "Loading zones...");

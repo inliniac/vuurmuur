@@ -650,7 +650,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
 
     char            use_filter = FALSE;
 
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
 
     int             max_onscreen=0;
     unsigned int    offset=0,
@@ -810,7 +810,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
 
 
     /* setup the buffer */
-    if(d_list_setup(debuglvl, &LogBufferList, free) < 0)
+    if(vrmr_list_setup(debuglvl, &LogBufferList, free) < 0)
     {
         (void)vrprint.error(-1, VR_INTERR, "setting up buffer failed (in: %s:%d).", __FUNCTION__, __LINE__);
         return(-1);
@@ -824,7 +824,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
     if(!traffic_fp)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("opening logfile '%s' failed: %s."), conf.trafficlog_location, strerror(errno));
-        d_list_cleanup(debuglvl, buffer_ptr);
+        vrmr_list_cleanup(debuglvl, buffer_ptr);
         return(-1);
     }
     /* point it to the fp */
@@ -894,7 +894,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
         if(!(line = malloc(READLINE_LEN)))
         {
             (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
-            d_list_cleanup(debuglvl, buffer_ptr);
+            vrmr_list_cleanup(debuglvl, buffer_ptr);
             return(-1);
         }
 
@@ -948,7 +948,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
                     }
 
                     /* now insert the rule */
-                    if(d_list_append(debuglvl, buffer_ptr, logrule_ptr)  == NULL)
+                    if(vrmr_list_append(debuglvl, buffer_ptr, logrule_ptr)  == NULL)
                     {
                         (void)vrprint.error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
@@ -957,7 +957,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
                     /* if the bufferlist is full, remove the oldest item from it */
                     if(buffer_ptr->len > max_buffer_size)
                     {
-                        if(d_list_remove_top(debuglvl, buffer_ptr) < 0)
+                        if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
                         {
                             (void)vrprint.error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
                             return(-1);
@@ -989,7 +989,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
                     }
 
                     /* now insert the rule */
-                    if(d_list_append(debuglvl, buffer_ptr, plainlogrule_ptr)  == NULL)
+                    if(vrmr_list_append(debuglvl, buffer_ptr, plainlogrule_ptr)  == NULL)
                     {
                         (void)vrprint.error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
@@ -998,7 +998,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
                     /* if the bufferlist is full, remove the oldest item from it */
                     if(buffer_ptr->len > max_buffer_size)
                     {
-                        if(d_list_remove_top(debuglvl, buffer_ptr) < 0)
+                        if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
                         {
                             (void)vrprint.error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
                             return(-1);
@@ -1080,7 +1080,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
         if(!(line = malloc(READLINE_LEN)))
         {
             (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
-            d_list_cleanup(debuglvl, buffer_ptr);
+            vrmr_list_cleanup(debuglvl, buffer_ptr);
             return(-1);
         }
 
@@ -1157,7 +1157,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
                     }
                     
                     /* now really insert the rule into the buffer */
-                    if(d_list_append(debuglvl, buffer_ptr, logrule_ptr)  == NULL)
+                    if(vrmr_list_append(debuglvl, buffer_ptr, logrule_ptr)  == NULL)
                     {
                         (void)vrprint.error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
@@ -1166,7 +1166,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
                     /* if the bufferlist is full, remove the oldest item from it */
                     if(buffer_ptr->len > max_buffer_size)
                     {
-                        if(d_list_remove_top(debuglvl, buffer_ptr) < 0)
+                        if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
                         {
                             (void)vrprint.error(-1, VR_INTERR, "unable to remove line from buffer (runtime).");
                             return(-1);
@@ -1204,7 +1204,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
                     }
 
                     /* now insert the rule */
-                    if(d_list_append(debuglvl, buffer_ptr, plainlogrule_ptr)  == NULL)
+                    if(vrmr_list_append(debuglvl, buffer_ptr, plainlogrule_ptr)  == NULL)
                     {
                         (void)vrprint.error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
@@ -1213,7 +1213,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
                     /* if the bufferlist is full, remove the oldest item from it */
                     if(buffer_ptr->len > max_buffer_size)
                     {
-                        if(d_list_remove_top(debuglvl, buffer_ptr) < 0)
+                        if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
                         {
                             (void)vrprint.error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
                             return(-1);
@@ -1463,9 +1463,9 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
             case 'c':
                 werase(log_win);
 
-                d_list_cleanup(debuglvl, buffer_ptr);
+                vrmr_list_cleanup(debuglvl, buffer_ptr);
 
-                if(d_list_setup(debuglvl, buffer_ptr, free) < 0)
+                if(vrmr_list_setup(debuglvl, buffer_ptr, free) < 0)
                 {
                     (void)vrprint.error(-1, VR_INTERR, "re-initializing buffer failed.");
                     return(-1);
@@ -1507,7 +1507,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
                     if(search_completed)
                     {
                         /* cleanup the buffer */
-                        d_list_cleanup(debuglvl, buffer_ptr);
+                        vrmr_list_cleanup(debuglvl, buffer_ptr);
 
                         /* restore buffer pointer */
                         buffer_ptr = &LogBufferList;
@@ -1712,7 +1712,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
                             sanitize_search_str(debuglvl, search_ptr, strlen(search_ptr));
 
                             /* setup the search-buffer */
-                            if(d_list_setup(debuglvl, &SearchBufferList, free) < 0)
+                            if(vrmr_list_setup(debuglvl, &SearchBufferList, free) < 0)
                             {
                                 (void)vrprint.error(-1, VR_INTERR, "initializing search buffer failed.");
                                 return(-1);
@@ -2008,7 +2008,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
     vrmr_filter_cleanup(debuglvl, &vfilter);
 
     nodelay(log_win, FALSE);
-    d_list_cleanup(debuglvl, buffer_ptr);
+    vrmr_list_cleanup(debuglvl, buffer_ptr);
 
     if(fclose(fp) < 0)
     {

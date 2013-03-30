@@ -83,7 +83,7 @@ shaping_rulecmp(const int debuglvl, ShapeRule *r1, ShapeRule *r2)
 static int
 shaping_ruleinsert(const int debuglvl, struct RuleCreateData_ *rule, ShapeRule *shape_rule)
 {
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     ShapeRule   *listrule = NULL;
 
     if(shape_rule == NULL || rule == NULL)
@@ -104,9 +104,9 @@ shaping_ruleinsert(const int debuglvl, struct RuleCreateData_ *rule, ShapeRule *
         }
     }
 
-    if(d_list_append(debuglvl, &rule->shaperulelist, shape_rule) == NULL)
+    if(vrmr_list_append(debuglvl, &rule->shaperulelist, shape_rule) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_append() "
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -166,7 +166,7 @@ shaping_process_rule (const int debuglvl, struct vuurmuur_config *cnf, /*@null@*
             return(-1);
         }
 
-        if (d_list_append(debuglvl, &ruleset->tc_rules, buf) == NULL) {
+        if (vrmr_list_append(debuglvl, &ruleset->tc_rules, buf) == NULL) {
             (void)vrprint.error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).",
                 __FUNC__, __LINE__);
             free(buf);
@@ -186,7 +186,7 @@ shaping_process_rule (const int debuglvl, struct vuurmuur_config *cnf, /*@null@*
 int
 shaping_process_queued_rules(const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule)
 {
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     ShapeRule   *r = NULL;
 
     if(rule == NULL)
@@ -216,7 +216,7 @@ shaping_process_queued_rules(const int debuglvl, struct vuurmuur_config *cnf, /*
  */
 int
 shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
 
@@ -256,7 +256,7 @@ shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, struc
 
 static int
 shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, struct vrmr_interface *iface_ptr, /*@null@*/RuleSet *ruleset) {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *inner_iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
     u_int32_t       rate = 0;
@@ -304,7 +304,7 @@ shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf
 
 int
 shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
     u_int16_t       handle = 2; /* start at 2 so the parents can be parent:current */
@@ -386,7 +386,7 @@ shaping_add_rate_to_iface(const int debuglvl, struct vrmr_interface *iface_ptr, 
  * call after analyzing the rules */
 int
 shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_rules *rules) {
-    d_list_node         *d_node = NULL,
+    struct vrmr_list_node         *d_node = NULL,
                         *d_node_iface = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
     struct vrmr_interface       *iface_ptr = NULL;
@@ -490,7 +490,7 @@ shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfac
  * no class is picked. */
 int
 shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
-    d_list_node     *d_node = NULL;
+    struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
     u_int16_t       handle = 0;

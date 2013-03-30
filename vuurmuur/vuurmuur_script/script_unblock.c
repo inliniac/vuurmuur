@@ -102,7 +102,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
     char        *str = NULL;
 
 
-    d_list_setup(debuglvl, &blocklist.list, free);
+    vrmr_list_setup(debuglvl, &blocklist.list, free);
     blocklist.old_blocklistfile_used = FALSE;
 
     while(rf->ask(debuglvl, rule_backend, "blocklist", "RULE",
@@ -115,7 +115,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
         if(strcmp(vr_script->set, str))
         {
             /* ok, no match; keep it in the list */
-            if(d_list_append(debuglvl, &blocklist.list,
+            if(vrmr_list_append(debuglvl, &blocklist.list,
                     remove_leading_part(vr_script->bdat)) == NULL)
             {
                 (void)vrprint.error(VRS_ERR_INTERNAL, VR_ERR,
@@ -153,7 +153,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
         retval = VRS_ERR_COMMANDLINE;
     }
 
-    d_list_cleanup(debuglvl, &blocklist.list);
+    vrmr_list_cleanup(debuglvl, &blocklist.list);
 
     return(retval);
 }

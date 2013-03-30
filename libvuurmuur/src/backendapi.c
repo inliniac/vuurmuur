@@ -28,7 +28,7 @@ void
 vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
 {
     struct vrmr_plugin  *plugin = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     if (!plugin_data) {
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: load_plugin).");
@@ -55,9 +55,9 @@ vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
     }
 
     /* insert into the list */
-    if (d_list_append(/* no dbg */0, &vrmr_plugin_list, plugin) == NULL)
+    if (vrmr_list_append(/* no dbg */0, &vrmr_plugin_list, plugin) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_append() "
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() "
                 "failed (in: %s:%d).", __FUNC__, __LINE__);
         free(plugin);
         return;
@@ -125,7 +125,7 @@ load_plugin(const int debuglvl, struct vuurmuur_config *cfg, d_list *plugin_list
     int                 retval=0;
     char                plugin_location[512] = "";
     struct vrmr_plugin  *plugin = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     if(!plugin_list || !plugin_name || !func_ptr)
     {
@@ -232,7 +232,7 @@ static int
 unload_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct vrmr_plugin_data **func_ptr)
 {
     struct vrmr_plugin  *plugin = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
 
     /* safety first */
     if(!plugin_list || !plugin_name || !func_ptr)
@@ -285,7 +285,7 @@ unload_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct
             plugin->handle = NULL;
 
             /* remove the plugindata from the list */
-            if(d_list_remove_node(debuglvl, plugin_list, d_node) < 0)
+            if(vrmr_list_remove_node(debuglvl, plugin_list, d_node) < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "removing plugin form list (in: %s).", __FUNC__);
                 return(-1);

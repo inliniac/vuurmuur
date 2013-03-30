@@ -67,7 +67,7 @@ blocklist_add_ip_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, c
     }
 
     /* append to list */
-    if(d_list_append(debuglvl, &blocklist->list, ipaddress) == NULL)
+    if(vrmr_list_append(debuglvl, &blocklist->list, ipaddress) == NULL)
     {
         (void)vrprint.error(-1, "Internal Error", "appending into the "
             "list failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -119,7 +119,7 @@ blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklis
     }
 
     /* append to list */
-    if(d_list_append(debuglvl, &blocklist->list, string) == NULL)
+    if(vrmr_list_append(debuglvl, &blocklist->list, string) == NULL)
     {
         (void)vrprint.error(-1, "Internal Error", "appending into the "
             "list failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -139,7 +139,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
 {
     struct vrmr_zone    *zone_ptr = NULL,
                 *member_ptr = NULL;
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
 
     /* safety */
     if(!zones || !blocklist || !line)
@@ -310,7 +310,7 @@ int
 vrmr_blocklist_rem_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char *itemname)
 {
     char                *listitemname = NULL;
-    d_list_node         *d_node = NULL;
+    struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
 
     /* safety */
@@ -350,7 +350,7 @@ vrmr_blocklist_rem_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
             }
 
             /* this one needs to be removed */
-            if(d_list_remove_node(debuglvl, &blocklist->list, d_node) < 0)
+            if(vrmr_list_remove_node(debuglvl, &blocklist->list, d_node) < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "removing item from list failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
@@ -472,9 +472,9 @@ vrmr_blocklist_init_list(const int debuglvl, struct vuurmuur_config *cfg,
     memset(blocklist, 0, sizeof(struct vrmr_blocklist));
 
     /* setup the blocklist */
-    if(d_list_setup(debuglvl, &blocklist->list, free) < 0)
+    if(vrmr_list_setup(debuglvl, &blocklist->list, free) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "d_list_setup() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
         return(-1);
     }
@@ -561,7 +561,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vuurmuur_config *cfg,
 static int
 blocklist_write_file(const int debuglvl, struct vuurmuur_config *cfg, d_list *block_list)
 {
-    d_list_node *d_node   = NULL;
+    struct vrmr_list_node *d_node   = NULL;
     char        *itemname = NULL;
     int         retval = 0;
     FILE        *fp = NULL;
@@ -614,7 +614,7 @@ vrmr_blocklist_save_list(const int debuglvl, struct vuurmuur_config *cfg, struct
     int         result = 0;
     char        *line = NULL;
     int         overwrite = 0;
-    d_list_node *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     char        rule_str[128] = "";
 
     /* safety */

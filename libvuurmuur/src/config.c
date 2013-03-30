@@ -2237,7 +2237,7 @@ int vrmr_init(struct vuurmuur_config *cnf, char *toolname) {
     cnf->vrprint.audit = vrprint.audit = vrmr_stdoutprint_audit;
 
     /* init plugin list */
-    d_list_setup(debuglvl, &vrmr_plugin_list, NULL);
+    vrmr_list_setup(debuglvl, &vrmr_plugin_list, NULL);
     return(0);
 }
 
