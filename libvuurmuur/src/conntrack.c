@@ -2052,7 +2052,7 @@ conn_get_connections_do(const int debuglvl,
                         d_list *conn_dlist,
                         d_list *zone_list,
                         VR_ConntrackRequest *req,
-                        struct ConntrackStats_ *connstat_ptr,
+                        struct vrmr_conntrack_stats *connstat_ptr,
                         int ipver
                     )
 {
@@ -2456,7 +2456,7 @@ conn_get_connections_cmd (const int debuglvl,
                         d_list *conn_dlist,
                         d_list *zone_list,
                         VR_ConntrackRequest *req,
-                        struct ConntrackStats_ *connstat_ptr,
+                        struct vrmr_conntrack_stats *connstat_ptr,
                         int ipver
                     )
 {
@@ -2474,7 +2474,7 @@ conn_get_connections_proc (const int debuglvl,
                         d_list *conn_dlist,
                         d_list *zone_list,
                         VR_ConntrackRequest *req,
-                        struct ConntrackStats_ *connstat_ptr
+                        struct vrmr_conntrack_stats *connstat_ptr
                     )
 {
     return conn_get_connections_do(debuglvl, cnf, prev_conn_cnt,
@@ -2491,7 +2491,7 @@ conn_get_connections(   const int debuglvl,
                         d_list *conn_dlist,
                         d_list *zone_list,
                         VR_ConntrackRequest *req,
-                        struct ConntrackStats_ *connstat_ptr
+                        struct vrmr_conntrack_stats *connstat_ptr
                     )
 {
     int retval = 0;

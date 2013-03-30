@@ -453,7 +453,7 @@ typedef struct ct_
 
     d_list                  conn_list;
 
-    struct ConntrackStats_  conn_stats;
+    struct vrmr_conntrack_stats  conn_stats;
 
     unsigned int            prev_list_size;
 } Conntrack;
