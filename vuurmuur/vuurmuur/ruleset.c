@@ -1405,13 +1405,13 @@ ruleset_save_interface_counters(const int debuglvl, struct vuurmuur_config *cfg,
             if(iface_ptr->cnt == NULL)
             {
                 /* alloc the counters */
-                if(!(iface_ptr->cnt = malloc(sizeof(InterfaceCount))))
+                if(!(iface_ptr->cnt = malloc(sizeof(struct vrmr_interface_counters))))
                 {
                     (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
             }
-            memset(iface_ptr->cnt, 0, sizeof(InterfaceCount));
+            memset(iface_ptr->cnt, 0, sizeof(struct vrmr_interface_counters));
 
             /* get the real counters from iptables */
             vrmr_get_iface_stats_from_ipt(debuglvl, cfg, iface_ptr->device, "INPUT",

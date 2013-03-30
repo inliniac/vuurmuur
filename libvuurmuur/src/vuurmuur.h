@@ -641,8 +641,7 @@ struct vrmr_danger_info {
 };
 
 
-typedef struct InterfaceCount_
-{
+struct vrmr_interface_counters {
     unsigned long long  input_packets;
     unsigned long long  input_bytes;
 
@@ -660,8 +659,7 @@ typedef struct InterfaceCount_
     unsigned long long  acc_in_bytes;
     unsigned long long  acc_out_packets;
     unsigned long long  acc_out_bytes;
-
-} InterfaceCount;
+};
 
 
 struct vrmr_interface
@@ -704,7 +702,7 @@ struct vrmr_interface
     d_list          ProtectList;
 
     /* counters for iptables-restore */
-    InterfaceCount  *cnt;
+    struct vrmr_interface_counters *cnt;
 
     /* reference counters */
     unsigned int    refcnt_network;
