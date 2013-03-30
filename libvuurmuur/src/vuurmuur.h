@@ -1034,8 +1034,7 @@ typedef struct
 /*
     Iptables Capabilities
 */
-typedef struct
-{
+struct vrmr_iptcaps {
     char    proc_net_names;
     char    proc_net_matches;
     char    proc_net_targets;
@@ -1132,7 +1131,7 @@ typedef struct
     char    match_ip6_conntrack;
     char    match_ip6_rpfilter;
 #endif
-} IptCap;
+};
 
 typedef struct VuurmuurCtx_ {
     struct vrmr_zones *zones;
@@ -1141,7 +1140,7 @@ typedef struct VuurmuurCtx_ {
     struct vrmr_rules *rules;
     struct vrmr_services *services;
     struct vuurmuur_config *conf;
-    IptCap *iptcaps;
+    struct vrmr_iptcaps *iptcaps;
 } VuurmuurCtx;
 
 enum objectstatus
@@ -1615,11 +1614,11 @@ int d_list_cleanup(int debuglvl, d_list *d_list);
 /*
     iptcap.c
 */
-int load_iptcaps(const int, struct vuurmuur_config *, IptCap *, char);
-int check_iptcaps(const int, struct vuurmuur_config *, /*@out@*/ IptCap *, char);
+int load_iptcaps(const int, struct vuurmuur_config *, struct vrmr_iptcaps *, char);
+int check_iptcaps(const int, struct vuurmuur_config *, /*@out@*/ struct vrmr_iptcaps *, char);
 #ifdef IPV6_ENABLED
-int load_ip6tcaps(const int, struct vuurmuur_config *, IptCap *, char);
-int check_ip6tcaps(const int, struct vuurmuur_config *, /*@out@*/ IptCap *, char);
+int load_ip6tcaps(const int, struct vuurmuur_config *, struct vrmr_iptcaps *, char);
+int check_ip6tcaps(const int, struct vuurmuur_config *, /*@out@*/ struct vrmr_iptcaps *, char);
 #endif
 
 

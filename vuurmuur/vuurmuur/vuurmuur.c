@@ -71,7 +71,7 @@ main(int argc, char *argv[])
     /* list of ipaddresses to be blocked */
     struct vrmr_blocklist       blocklist;
 
-    IptCap          iptcap;
+    struct vrmr_iptcaps          iptcap;
     VuurmuurCtx     vctx;
     pid_t           pid;
     struct vrmr_user user_data;
@@ -428,7 +428,7 @@ main(int argc, char *argv[])
     else
     {
         /* when not using the iptcap clear it just to be sure (and to please splint) */
-        memset(&iptcap, 0, sizeof(IptCap));
+        memset(&iptcap, 0, sizeof(struct vrmr_iptcaps));
     }
 
     /* setup regexes */

@@ -299,33 +299,33 @@ int analyze_all_rules(const int, VuurmuurCtx *, struct vrmr_rules *);
 
 int create_all_rules(const int, VuurmuurCtx *, int);
 
-int pre_rules(const int, /*@null@*/RuleSet *, struct vrmr_interfaces *, IptCap *);
-int post_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
+int pre_rules(const int, /*@null@*/RuleSet *, struct vrmr_interfaces *, struct vrmr_iptcaps *);
+int post_rules(const int, /*@null@*/RuleSet *, struct vrmr_iptcaps *, int);
 
-int update_synlimit_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
-int update_udplimit_rules(const int, /*@null@*/RuleSet *, IptCap *, int);
+int update_synlimit_rules(const int, /*@null@*/RuleSet *, struct vrmr_iptcaps *, int);
+int update_udplimit_rules(const int, /*@null@*/RuleSet *, struct vrmr_iptcaps *, int);
 int create_block_rules(const int, /*@null@*/RuleSet *, struct vrmr_blocklist *);
 
-int create_newnfqueue_rules(const int, /*@null@*/RuleSet *, struct vrmr_rules *, IptCap *, int);
-int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, struct vrmr_rules *, IptCap *, int);
+int create_newnfqueue_rules(const int, /*@null@*/RuleSet *, struct vrmr_rules *, struct vrmr_iptcaps *, int);
+int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, struct vrmr_rules *, struct vrmr_iptcaps *, int);
 
-int create_network_protect_rules(const int, /*@null@*/RuleSet *, struct vrmr_zones *, IptCap *);
-int create_interface_rules(const int, /*@null@*/RuleSet *, IptCap *, struct vrmr_interfaces *);
+int create_network_protect_rules(const int, /*@null@*/RuleSet *, struct vrmr_zones *, struct vrmr_iptcaps *);
+int create_interface_rules(const int, /*@null@*/RuleSet *, struct vrmr_iptcaps *, struct vrmr_interfaces *);
 int create_system_protectrules(const int, struct vuurmuur_config *);
 int create_normal_rules(const int, VuurmuurCtx *, /*@null@*/RuleSet *, char *);
 
 int create_rule(const int, VuurmuurCtx*, /*@null@*/RuleSet *, struct RuleCache_ *);
 int remove_rule(const int debuglvl, int chaintype, int first_ipt_rule, int rules);
 
-int create_rule_input(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, IptCap *);
-int create_rule_output(const int,  /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, IptCap *);
-int create_rule_forward(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, IptCap *);
-int create_rule_masq(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, IptCap *);
-int create_rule_snat(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, IptCap *);
-int create_rule_portfw(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, IptCap *);
-int create_rule_redirect(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, IptCap *);
-int create_rule_dnat(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, IptCap *);
-int create_rule_bounce(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, IptCap *);
+int create_rule_input(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
+int create_rule_output(const int,  /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
+int create_rule_forward(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
+int create_rule_masq(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
+int create_rule_snat(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
+int create_rule_portfw(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
+int create_rule_redirect(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
+int create_rule_dnat(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
+int create_rule_bounce(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
 
 int clear_vuurmuur_iptables_rules(const int debuglvl, struct vuurmuur_config *cnf);
 int clear_all_iptables_rules(const int debuglvl);

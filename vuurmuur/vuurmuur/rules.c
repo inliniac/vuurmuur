@@ -630,7 +630,7 @@ create_rule_set_proto(struct RuleCreateData_ *rule, struct RuleCache_ *create)
 
 static int
 rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_  *rule,
-                struct RuleCache_ *create, IptCap *iptcap)
+                struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
 
@@ -843,7 +843,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
 
 static int
 rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct RuleCache_ *create, IptCap *iptcap)
+        struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
 {
     char            action[64] = ""; /* if changes to size: see sscanf below as well */
     char            logprefix[64] = "";
@@ -1105,7 +1105,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
 
 static int
 rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct RuleCache_ *create, IptCap *iptcap)
+        struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
 {
     d_list_node         *d_node = NULL;
     int                 retval = 0;
@@ -1310,7 +1310,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 static int
 rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct RuleCache_ *create, IptCap *iptcap)
+        struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
 {
     char                from_has_mac = FALSE;
     char                from_mac[19] = "";
@@ -1573,7 +1573,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 static int
 rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct RuleCache_ *create, IptCap *iptcap)
+        struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
 {
     int         retval = 0;
     d_list_node *port_d_node = NULL;

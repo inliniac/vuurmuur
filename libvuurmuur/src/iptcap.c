@@ -223,7 +223,7 @@ iptcap_check_file(const int debuglvl, char *path)
 
 
 static int
-iptcap_get_queue_peer_pid(const int debuglvl, IptCap *iptcap)
+iptcap_get_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
 {
     char    proc_net_ipqueue[] = "/proc/net/ip_queue",
             line[128] = "",
@@ -297,7 +297,7 @@ iptcap_get_queue_peer_pid(const int debuglvl, IptCap *iptcap)
 
 #ifdef IPV6_ENABLED
 static int
-iptcap_get_ip6_queue_peer_pid(const int debuglvl, IptCap *iptcap)
+iptcap_get_ip6_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
 {
     char    proc_net_ip6queue[] = "/proc/net/ip6_queue",
             line[128] = "",
@@ -804,7 +804,7 @@ iptcap_test_nat_random(const int debuglvl, struct vuurmuur_config *cnf) {
 }
 
 int
-check_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, char load_modules)
+check_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     int result = 0;
 
@@ -904,7 +904,7 @@ static int check_conntrack(const int debuglvl, struct vuurmuur_config *cnf, int 
 }
 
 int
-load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, char load_modules)
+load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     char    proc_net_match[]    = "/proc/net/ip_tables_matches",
             proc_net_target[]   = "/proc/net/ip_tables_targets",
@@ -924,7 +924,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
         return(-1);
     }
     /* init */
-    memset(iptcap, 0, sizeof(IptCap));
+    memset(iptcap, 0, sizeof(struct vrmr_iptcaps));
 
     /*
         PROC FILES
@@ -1497,7 +1497,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, ch
 
 #ifdef IPV6_ENABLED
 int
-check_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, char load_modules)
+check_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     int result = 0;
 
@@ -1576,7 +1576,7 @@ check_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, 
 }
 
 int
-load_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, char load_modules)
+load_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     char    proc_net_ip6_match[] = "/proc/net/ip6_tables_matches",
             proc_net_ip6_target[] = "/proc/net/ip6_tables_targets",
@@ -1601,7 +1601,7 @@ load_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, IptCap *iptcap, c
         (void)vrprint.debug(__FUNC__, "Starting the loading of IPv6 capabilities" );
 #if 0
     /* init */
-    memset(iptcap, 0, sizeof(IptCap));
+    memset(iptcap, 0, sizeof(struct vrmr_iptcaps));
 #endif
 
     /*

@@ -2757,7 +2757,7 @@ static void VrEditConntrack(const int debuglvl) {
 
 
 static int
-view_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
+view_caps_init(int height, int width, int starty, int startx, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
 
@@ -2859,7 +2859,7 @@ view_caps(const int debuglvl)
             starty,
             max_height,
             max_width;
-    IptCap  iptcap;
+    struct vrmr_iptcaps  iptcap;
     char    reload = 0;
     /* top menu */
     char    *key_choices[] =    {   "F12",
@@ -2968,7 +2968,7 @@ view_caps(const int debuglvl)
 
 #ifdef IPV6_ENABLED
 static int
-view_ip6_caps_init(int height, int width, int starty, int startx, IptCap *iptcap)
+view_ip6_caps_init(int height, int width, int starty, int startx, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
 
@@ -3072,7 +3072,7 @@ view_ip6_caps(const int debuglvl)
             starty,
             max_height,
             max_width;
-    IptCap  iptcap;
+    struct vrmr_iptcaps  iptcap;
     char    reload = 0;
     /* top menu */
     char    *key_choices[] =    {   "F12",
