@@ -712,7 +712,7 @@ main(int argc, char *argv[])
         (void)vrprint.debug(__FUNC__, "initializing config... calling init_config()");
 
     result = init_config(debuglvl, &conf);
-    if(result >= VR_CNF_OK)
+    if(result >= VRMR_CNF_OK)
     {
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "initializing config complete and succesful.");

@@ -60,7 +60,7 @@ vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf)
 int
 init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 {
-    int     retval = VR_CNF_OK,
+    int     retval = VRMR_CNF_OK,
             result = 0;
     char    answer[32] = "";
     FILE    *fp = NULL;
@@ -69,7 +69,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
     /* safety first */
     if(configfile_location == NULL || cnf == NULL)
-        return(VR_CNF_E_PARAMETER);
+        return(VRMR_CNF_E_PARAMETER);
 
 
     /* now, based on this, the helpdir location */
@@ -105,18 +105,18 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
                     __FUNC__, __LINE__);
 
         if(errno == ENOENT)
-            return(VR_CNF_E_FILE_MISSING);
+            return(VRMR_CNF_E_FILE_MISSING);
         else if(errno == EACCES)
-            return(VR_CNF_E_FILE_PERMISSION);
+            return(VRMR_CNF_E_FILE_PERMISSION);
         else
-            return(VR_CNF_E_UNKNOWN_ERR);
+            return(VRMR_CNF_E_UNKNOWN_ERR);
     }
     fclose(fp);
 
 
     /* check if we like the configfile */
     if(!(stat_ok(debuglvl, &conf, configfile_location, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
-        return(VR_CNF_E_FILE_PERMISSION);
+        return(VRMR_CNF_E_FILE_PERMISSION);
 
 
     /* ADVANCED_MODE */
@@ -150,7 +150,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         cnf->advanced_mode = DEFAULT_ADVANCED_MODE;
     }
     else
-        return(VR_CNF_E_UNKNOWN_ERR);
+        return(VRMR_CNF_E_UNKNOWN_ERR);
 
 
     /* MAINMENU_STATUS */
@@ -184,7 +184,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         cnf->draw_status = DEFAULT_MAINMENU_STATUS;
     }
     else
-        return(VR_CNF_E_UNKNOWN_ERR);
+        return(VRMR_CNF_E_UNKNOWN_ERR);
 
 
     /* IPTRAFVOL */
@@ -209,7 +209,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         }
     }
     else
-        return(VR_CNF_E_UNKNOWN_ERR);
+        return(VRMR_CNF_E_UNKNOWN_ERR);
 
     sanitize_path(debuglvl, cnf->iptrafvol_location,
             sizeof(cnf->iptrafvol_location));
@@ -246,7 +246,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         cnf->newrule_log = DEFAULT_NEWRULE_LOG;
     }
     else
-        return(VR_CNF_E_UNKNOWN_ERR);
+        return(VRMR_CNF_E_UNKNOWN_ERR);
 
 
     /* NEWRULE_LOGLIMIT */
@@ -280,7 +280,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         cnf->newrule_logburst = (unsigned int)(cnf->newrule_loglimit * 2);
     }
     else
-        return(VR_CNF_E_UNKNOWN_ERR);
+        return(VRMR_CNF_E_UNKNOWN_ERR);
 
 
     /* LOGVIEW_BUFSIZE */
@@ -311,7 +311,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         cnf->logview_bufsize = (unsigned int)DEFAULT_LOGVIEW_BUFFERSIZE;
     }
     else
-        return(VR_CNF_E_UNKNOWN_ERR);
+        return(VRMR_CNF_E_UNKNOWN_ERR);
 
     /* BACKGROUND */
     result = ask_configfile(debuglvl, &conf, "BACKGROUND", answer, configfile_location, sizeof(answer));

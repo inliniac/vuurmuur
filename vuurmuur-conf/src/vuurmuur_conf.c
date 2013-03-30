@@ -595,24 +595,24 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     while(!config_done)
     {
         result = init_vcconfig(debuglvl, vccnf.configfile_location, &vccnf);
-        if(result == VR_CNF_E_UNKNOWN_ERR || result == VR_CNF_E_PARAMETER)
+        if(result == VRMR_CNF_E_UNKNOWN_ERR || result == VRMR_CNF_E_PARAMETER)
             return(-1);
-        else if(result == VR_CNF_E_FILE_PERMISSION)
+        else if(result == VRMR_CNF_E_FILE_PERMISSION)
         {
             return(-1);
         }
         /* missing file? use defaults */
-        else if(result == VR_CNF_E_FILE_MISSING)
+        else if(result == VRMR_CNF_E_FILE_MISSING)
         {
             vcconfig_use_defaults(debuglvl, &vccnf);
 
             werase(startup_print_win); wprintw(startup_print_win, "%s... %s", STR_LOAD_VUURMUUR_CONF_SETTINGS, STR_COK); update_panels(); doupdate();
             config_done = 1;
         }
-        else if(result == VR_CNF_E_MISSING_VAR  ||
-                result == VR_CNF_E_ILLEGAL_VAR  ||
-                result == VR_CNF_W_MISSING_VAR  ||
-                result == VR_CNF_W_ILLEGAL_VAR)
+        else if(result == VRMR_CNF_E_MISSING_VAR  ||
+                result == VRMR_CNF_E_ILLEGAL_VAR  ||
+                result == VRMR_CNF_W_MISSING_VAR  ||
+                result == VRMR_CNF_W_ILLEGAL_VAR)
         {
             if(confirm(gettext("Problem with the Vuurmuur_conf settings"),
                 gettext("Do you want to edit the settings now?"),
@@ -628,7 +628,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
                 /* if the user doesn't want to solve the problem we exit if we had an error
                    in case of a warning, we continue
                 */
-                if(result == VR_CNF_E_MISSING_VAR || result == VR_CNF_E_FILE_MISSING)
+                if(result == VRMR_CNF_E_MISSING_VAR || result == VRMR_CNF_E_FILE_MISSING)
                     return(-1);
                 else
                 {
@@ -637,7 +637,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
                 }
             }
         }
-        else if(result == VR_CNF_OK)
+        else if(result == VRMR_CNF_OK)
         {
             werase(startup_print_win); wprintw(startup_print_win, "%s... %s",STR_LOAD_VUURMUUR_CONF_SETTINGS, STR_COK); update_panels(); doupdate();
             config_done = 1;
@@ -661,17 +661,17 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     while(!config_done)
     {
         result = init_config(debuglvl, &conf);
-        if(result == VR_CNF_E_UNKNOWN_ERR || result == VR_CNF_E_PARAMETER)
+        if(result == VRMR_CNF_E_UNKNOWN_ERR || result == VRMR_CNF_E_PARAMETER)
             return(-1);
-        else if(result == VR_CNF_E_FILE_PERMISSION)
+        else if(result == VRMR_CNF_E_FILE_PERMISSION)
         {
             return(-1);
         }
-        else if(result == VR_CNF_E_FILE_MISSING ||
-                result == VR_CNF_E_MISSING_VAR  ||
-                result == VR_CNF_E_ILLEGAL_VAR  ||
-                result == VR_CNF_W_MISSING_VAR  ||
-                result == VR_CNF_W_ILLEGAL_VAR)
+        else if(result == VRMR_CNF_E_FILE_MISSING ||
+                result == VRMR_CNF_E_MISSING_VAR  ||
+                result == VRMR_CNF_E_ILLEGAL_VAR  ||
+                result == VRMR_CNF_W_MISSING_VAR  ||
+                result == VRMR_CNF_W_ILLEGAL_VAR)
         {
             if(confirm(gettext("Problem with the Vuurmuur config"),
                 gettext("Do you want to edit the config now?"),
@@ -687,7 +687,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
                 /* if the user doesn't want to solve the problem we exit if we had an error
                    in case of a warning, we continue
                 */
-                if(result == VR_CNF_E_MISSING_VAR || result == VR_CNF_E_FILE_MISSING)
+                if(result == VRMR_CNF_E_MISSING_VAR || result == VRMR_CNF_E_FILE_MISSING)
                     return(-1);
                 else
                 {
@@ -696,7 +696,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
                 }
             }
         }
-        else if(result == VR_CNF_OK)
+        else if(result == VRMR_CNF_OK)
         {
             werase(startup_print_win); wprintw(startup_print_win, "%s... %s", STR_LOAD_VUURMUUR_CONFIG, STR_COK); update_panels(); doupdate();
             config_done = 1;

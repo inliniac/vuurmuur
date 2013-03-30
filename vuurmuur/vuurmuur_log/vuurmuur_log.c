@@ -580,7 +580,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* init the config file */
-    if(init_config(debuglvl, &conf) < VR_CNF_OK)
+    if(init_config(debuglvl, &conf) < VRMR_CNF_OK)
     {
         (void)vrprint.error(-1, "Error", "initializing the config failed.");
         exit(EXIT_FAILURE);
@@ -853,7 +853,7 @@ main(int argc, char *argv[])
 
                if it fails it's no big deal, we just keep using the old config.
             */
-            if(reload_config(debuglvl, &conf) < VR_CNF_OK)
+            if(reload_config(debuglvl, &conf) < VRMR_CNF_OK)
             {
                 (void)vrprint.warning("Warning", "reloading config failed, using old config.");
             }

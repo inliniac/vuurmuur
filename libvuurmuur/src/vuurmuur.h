@@ -1231,31 +1231,31 @@ enum questiontypes
 /* posible results for initializing the config */
 enum
 {
-    VR_CNF_E_UNKNOWN_ERR = -6,
+    VRMR_CNF_E_UNKNOWN_ERR = -6,
 
     /* function was called wrong */
-    VR_CNF_E_PARAMETER = -5,
+    VRMR_CNF_E_PARAMETER = -5,
 
     /* serious permission problem with configfile */
-    VR_CNF_E_FILE_PERMISSION = -4,
+    VRMR_CNF_E_FILE_PERMISSION = -4,
 
     /* configfile missing */
-    VR_CNF_E_FILE_MISSING = -3,
+    VRMR_CNF_E_FILE_MISSING = -3,
 
     /* eg an negative unsigned int, or an wrong iptables command */
-    VR_CNF_E_ILLEGAL_VAR = -2,
+    VRMR_CNF_E_ILLEGAL_VAR = -2,
 
     /* missing variable in config file, fatal */
-    VR_CNF_E_MISSING_VAR = -1,
+    VRMR_CNF_E_MISSING_VAR = -1,
 
     /* all went well! */
-    VR_CNF_OK = 0,
+    VRMR_CNF_OK = 0,
 
     /* missing variable in config file, non fatal */
-    VR_CNF_W_MISSING_VAR,
+    VRMR_CNF_W_MISSING_VAR,
 
     /* eg an negative unsigned int */
-    VR_CNF_W_ILLEGAL_VAR,
+    VRMR_CNF_W_ILLEGAL_VAR,
 
 };
 

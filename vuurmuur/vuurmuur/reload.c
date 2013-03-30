@@ -58,7 +58,7 @@ apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *
 
        if it fails it's no big deal, we just keep using the old config.
     */
-    if(reload_config(debuglvl, vctx->conf) < VR_CNF_OK)
+    if(reload_config(debuglvl, vctx->conf) < VRMR_CNF_OK)
     {
         (void)vrprint.warning("Warning", "reloading config failed, using old config.");
     }
