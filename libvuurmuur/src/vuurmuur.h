@@ -1533,6 +1533,7 @@ int vrmr_ask_configfile(const int debuglvl, const struct vrmr_config *, char *qu
 int vrmr_write_configfile(const int debuglvl, char *file_location, struct vrmr_config *cfg);
 
 int vrmr_init(struct vrmr_config *, char *toolname);
+void vrmr_enable_logprint(struct vrmr_config *cnf);
 
 
 /*

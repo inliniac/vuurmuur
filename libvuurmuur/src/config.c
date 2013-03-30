@@ -2241,3 +2241,11 @@ int vrmr_init(struct vrmr_config *cnf, char *toolname) {
     return(0);
 }
 
+void vrmr_enable_logprint(struct vrmr_config *cnf) {
+    cnf->vrprint.error = vrprint.error = vrmr_logprint_error;
+    cnf->vrprint.warning = vrprint.warning = vrmr_logprint_warning;
+    cnf->vrprint.info = vrprint.info = vrmr_logprint_info;
+    cnf->vrprint.debug = vrprint.debug = vrmr_logprint_debug;
+    cnf->vrprint.audit = vrprint.audit = vrmr_logprint_audit;
+}
+
