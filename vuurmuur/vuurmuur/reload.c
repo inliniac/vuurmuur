@@ -22,7 +22,7 @@
 
 /* prototypes */
 int reload_blocklist(const int, struct vrmr_config *, struct vrmr_zones *, struct vrmr_blocklist *);
-int reload_rules(const int, VuurmuurCtx *, struct vrmr_regex *);
+int reload_rules(const int, struct vrmr_ctx *, struct vrmr_regex *);
 int check_for_changed_networks(const int, struct vrmr_zones *);
 
 
@@ -37,7 +37,7 @@ int check_for_changed_networks(const int, struct vrmr_zones *);
         -1: error
 */
 static int
-apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
+apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
 {
     int     retval=0,   // start at no changes
             result=0;
@@ -224,7 +224,7 @@ apply_changes_ruleset(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *
 
 
 int
-apply_changes(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
+apply_changes(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
 {
     if(conf.old_rulecreation_method == TRUE)
     {
@@ -1709,7 +1709,7 @@ reload_blocklist(const int debuglvl, struct vrmr_config *cfg, struct vrmr_zones 
         2. check if the zones, services etc are changed
 */
 int
-reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
+reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
 {
     struct vrmr_rules       *new_rules = NULL;
     char                    status = 0,

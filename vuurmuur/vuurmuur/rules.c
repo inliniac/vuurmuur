@@ -420,7 +420,7 @@ analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_z
  *  \retval -1 error
  */
 int
-analyze_all_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_rules *rules)
+analyze_all_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules)
 {
     (void)vrprint.info("Info", "Analyzing the rules... ");
 
@@ -454,7 +454,7 @@ analyze_all_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_rules *rule
         -1: error
 */
 int
-create_all_rules(const int debuglvl, VuurmuurCtx *vctx, int create_prerules)
+create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
 {
     int     result = 0;
     char    forward_rules = 0;
@@ -1690,7 +1690,7 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
 }
 
 static int
-rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/RuleSet *ruleset,
+rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/RuleSet *ruleset,
     struct RuleCreateData_ *rule, struct vrmr_rule_cache *create)
 {
     int         retval = 0;
@@ -1972,7 +1972,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
  *  \brief create rules for each src interface
  */
 static int
-rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/RuleSet *ruleset,
+rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/RuleSet *ruleset,
         struct RuleCreateData_ *rule, struct vrmr_rule_cache *create)
 {
     int         retval = 0;
@@ -2193,7 +2193,7 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
  *  \brief create IPv4 and IPv6 rules
  *  \retval 0 ok */
 static int
-rulecreate_ipv4ipv6_loop(const int debuglvl, VuurmuurCtx *vctx,
+rulecreate_ipv4ipv6_loop(const int debuglvl, struct vrmr_ctx *vctx,
         /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct vrmr_rule_cache *create)
 {
     if (ruleset == NULL || ruleset->ipv == VR_IPV4) {
@@ -2232,7 +2232,7 @@ rulecreate_ipv4ipv6_loop(const int debuglvl, VuurmuurCtx *vctx,
         -1: error
 */
 int
-create_rule(const int debuglvl, VuurmuurCtx *vctx,
+create_rule(const int debuglvl, struct vrmr_ctx *vctx,
     /*@null@*/RuleSet *ruleset, struct vrmr_rule_cache *create)
 {
     int                     retval = 0;
@@ -2425,7 +2425,7 @@ create_system_protectrules(const int debuglvl, struct vrmr_config *conf)
 
 int
 create_normal_rules(const int debuglvl,
-                    VuurmuurCtx *vctx,
+                    struct vrmr_ctx *vctx,
                     /*@null@*/RuleSet *ruleset,
                     char *forward_rules)
 {

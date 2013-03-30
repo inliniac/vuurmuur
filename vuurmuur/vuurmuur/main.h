@@ -295,9 +295,9 @@ int oldrules_create_custom_chains(const int, struct vrmr_rules *, struct vrmr_co
 int analyze_interface_rules(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
 int analyze_network_protect_rules(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
 int analyze_normal_rules(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
-int analyze_all_rules(const int, VuurmuurCtx *, struct vrmr_rules *);
+int analyze_all_rules(const int, struct vrmr_ctx *, struct vrmr_rules *);
 
-int create_all_rules(const int, VuurmuurCtx *, int);
+int create_all_rules(const int, struct vrmr_ctx *, int);
 
 int pre_rules(const int, /*@null@*/RuleSet *, struct vrmr_interfaces *, struct vrmr_iptcaps *);
 int post_rules(const int, /*@null@*/RuleSet *, struct vrmr_iptcaps *, int);
@@ -312,9 +312,9 @@ int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, struct vrmr_rules
 int create_network_protect_rules(const int, /*@null@*/RuleSet *, struct vrmr_zones *, struct vrmr_iptcaps *);
 int create_interface_rules(const int, /*@null@*/RuleSet *, struct vrmr_iptcaps *, struct vrmr_interfaces *);
 int create_system_protectrules(const int, struct vrmr_config *);
-int create_normal_rules(const int, VuurmuurCtx *, /*@null@*/RuleSet *, char *);
+int create_normal_rules(const int, struct vrmr_ctx *, /*@null@*/RuleSet *, char *);
 
-int create_rule(const int, VuurmuurCtx*, /*@null@*/RuleSet *, struct vrmr_rule_cache *);
+int create_rule(const int, struct vrmr_ctx*, /*@null@*/RuleSet *, struct vrmr_rule_cache *);
 int remove_rule(const int debuglvl, int chaintype, int first_ipt_rule, int rules);
 
 int create_rule_input(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
@@ -346,7 +346,7 @@ int logprint_info_bash(char *head, char *fmt, ...);
 
 
 /* reload.c */
-int apply_changes(const int, VuurmuurCtx *vctx, struct vrmr_regex *);
+int apply_changes(const int, struct vrmr_ctx *vctx, struct vrmr_regex *);
 
 int reload_services(const int, struct vrmr_services *, regex_t *);
 int reload_services_check(const int, struct vrmr_service *);
@@ -361,7 +361,7 @@ int check_for_changed_dynamic_ips(const int debuglvl, struct vrmr_interfaces *in
 
 /* ruleset */
 int ruleset_add_rule_to_set(const int, struct vrmr_list *, char *, char *, unsigned long long, unsigned long long);
-int load_ruleset(const int, VuurmuurCtx *);
+int load_ruleset(const int, struct vrmr_ctx *);
 
 /* shape */
 int shaping_setup_roots (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *);

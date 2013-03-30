@@ -1143,7 +1143,7 @@ struct vrmr_iptcaps {
 #endif
 };
 
-typedef struct VuurmuurCtx_ {
+struct vrmr_ctx {
     struct vrmr_zones *zones;
     struct vrmr_interfaces *interfaces;
     struct vrmr_blocklist *blocklist;
@@ -1151,7 +1151,7 @@ typedef struct VuurmuurCtx_ {
     struct vrmr_services *services;
     struct vrmr_config *conf;
     struct vrmr_iptcaps *iptcaps;
-} VuurmuurCtx;
+};
 
 enum objectstatus
 {

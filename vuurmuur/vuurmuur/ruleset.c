@@ -413,7 +413,7 @@ ruleset_fill_shaping_file(const int debuglvl, RuleSet *ruleset, int fd) {
  *  \retval -1 error
  */
 static int
-ruleset_fill_file(const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset,
+ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         int ruleset_fd, int ipver)
 {
     struct vrmr_list_node *d_node = NULL;
@@ -1295,7 +1295,7 @@ ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path
         -1: error
 */
 static int
-ruleset_create_ruleset( const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset)
+ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset)
 {
     int     result = 0;
     char    forward_rules = 0;
@@ -1588,7 +1588,7 @@ ruleset_log_resultfile(const int debuglvl, char *path)
  *  \retval -1 error
  */
 static int
-load_ruleset_ipv4(const int debuglvl, VuurmuurCtx *vctx)
+load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
 {
     RuleSet ruleset;
     char    cur_ruleset_path[] = "/tmp/vuurmuur-XXXXXX";
@@ -1776,7 +1776,7 @@ load_ruleset_ipv4(const int debuglvl, VuurmuurCtx *vctx)
  *  \retval -1 error
  */
 static int
-load_ruleset_ipv6(const int debuglvl, VuurmuurCtx *vctx)
+load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
 {
     RuleSet ruleset;
     char    cur_ruleset_path[] = "/tmp/vuurmuur-XXXXXX";
@@ -1908,7 +1908,7 @@ load_ruleset_ipv6(const int debuglvl, VuurmuurCtx *vctx)
 #endif
 
 int
-load_ruleset(const int debuglvl, VuurmuurCtx *vctx)
+load_ruleset(const int debuglvl, struct vrmr_ctx *vctx)
 {
     int r = load_ruleset_ipv4(debuglvl, vctx);
     if (r == -1) {

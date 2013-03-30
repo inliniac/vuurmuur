@@ -72,7 +72,7 @@ main(int argc, char *argv[])
     struct vrmr_blocklist       blocklist;
 
     struct vrmr_iptcaps          iptcap;
-    VuurmuurCtx     vctx;
+    struct vrmr_ctx     vctx;
     pid_t           pid;
     struct vrmr_user user_data;
     char            reload_shm = FALSE,
