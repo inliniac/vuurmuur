@@ -504,7 +504,7 @@ struct vrmr_interfaces {
     /* is at least one of the interfaces dynamic? */
     char        dynamic_interfaces;
 
-    u_int16_t   shape_handle;
+    uint16_t   shape_handle;
 
 };
 
@@ -611,18 +611,18 @@ struct vrmr_rule_options
     unsigned int    burst;
 
     /* queue num for the NFQUEUE action. There can be 65536: 0-65535 */
-    u_int16_t       nfqueue_num;
+    uint16_t       nfqueue_num;
 
     /* shaping */
-    u_int32_t       bw_in_max;          /* ceil from dst to src */
+    uint32_t       bw_in_max;          /* ceil from dst to src */
     char            bw_in_max_unit[5];  /* kbit, mbit, kbps, mbps */
-    u_int32_t       bw_in_min;          /* rate from dst to src */
+    uint32_t       bw_in_min;          /* rate from dst to src */
     char            bw_in_min_unit[5];  /* kbit, mbit, kbps, mbps */
-    u_int32_t       bw_out_max;         /* ceil from src to dst */
+    uint32_t       bw_out_max;         /* ceil from src to dst */
     char            bw_out_max_unit[5]; /* kbit, mbit, kbps, mbps */
-    u_int32_t       bw_out_min;         /* rate from src to dst */
+    uint32_t       bw_out_min;         /* rate from src to dst */
     char            bw_out_min_unit[5]; /* kbit, mbit, kbps, mbps */
-    u_int8_t        prio;               /* priority */
+    uint8_t        prio;               /* priority */
 
     char            random; /* adds --random to the DNAT/SNAT/??? target */
 };
@@ -711,20 +711,20 @@ struct vrmr_interface
 
     /* traffic shaping */
     char            shape;              /* shape on this interface? 1: yes, 0: no */
-    u_int32_t       bw_in;              /* maximal bw in "unit" (download) */
-    u_int32_t       bw_out;             /* maximal bw in "unit" (upload) */
+    uint32_t       bw_in;              /* maximal bw in "unit" (download) */
+    uint32_t       bw_out;             /* maximal bw in "unit" (upload) */
     char            bw_in_unit[5];      /* kbit or mbit */
     char            bw_out_unit[5];     /* kbit or mbit */
-    u_int32_t       min_bw_in;          /* minimal per rule rate in kbits (download) */
-    u_int32_t       min_bw_out;         /* minimal per rule rate in kbits (upload) */
+    uint32_t       min_bw_in;          /* minimal per rule rate in kbits (download) */
+    uint32_t       min_bw_out;         /* minimal per rule rate in kbits (upload) */
 
-    u_int16_t       shape_handle;       /* tc handle */
-    u_int32_t       shape_default_rate; /* rate used by default rule and shaping rules
+    uint16_t       shape_handle;       /* tc handle */
+    uint32_t       shape_default_rate; /* rate used by default rule and shaping rules
                                          * w/o an explicit rate */
 
-    u_int32_t       total_shape_rate;
-    u_int32_t       total_shape_rules;
-    u_int32_t       total_default_shape_rules;
+    uint32_t       total_shape_rate;
+    uint32_t       total_shape_rules;
+    uint32_t       total_default_shape_rules;
 
     /* tcpmss clamping */
     char            tcpmss_clamp;
