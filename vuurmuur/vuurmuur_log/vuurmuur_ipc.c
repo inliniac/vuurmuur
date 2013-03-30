@@ -116,7 +116,7 @@ SetupVMIPC (int *shm_id, struct vrmr_shm_table **shm_table)
             {
                 (*shm_table)->sem_id = sem_id;
                 (*shm_table)->backend_changed = 0;
-                (*shm_table)->reload_result = VR_RR_READY;
+                (*shm_table)->reload_result = VRMR_RR_READY;
 
                 vrmr_unlock(sem_id);
             }
@@ -201,21 +201,21 @@ WaitVMIPCACK (int wait_time, int *result, struct vrmr_shm_table *shm_table, int 
         /* tell the caller about the reload result */
         if(*result < 0)
         {
-            shm_table->reload_result = VR_RR_ERROR;
+            shm_table->reload_result = VRMR_RR_ERROR;
         }
         else if(*result == 0)
         {
-            shm_table->reload_result = VR_RR_SUCCES;
+            shm_table->reload_result = VRMR_RR_SUCCES;
         }
         else
         {
-            shm_table->reload_result = VR_RR_NOCHANGES;
+            shm_table->reload_result = VRMR_RR_NOCHANGES;
         }
         vrmr_unlock(sem_id);
     }
     *reload = 0;
 
-    (void)vrprint.info("Info", "Waiting for an VR_RR_RESULT_ACK");
+    (void)vrprint.info("Info", "Waiting for an VRMR_RR_RESULT_ACK");
 
     *result = 0;
     waited = 0;
@@ -226,13 +226,13 @@ WaitVMIPCACK (int wait_time, int *result, struct vrmr_shm_table *shm_table, int 
         if(vrmr_lock(sem_id))
         {
             /* ah, we got one */
-            if(shm_table->reload_result == VR_RR_RESULT_ACK)
+            if(shm_table->reload_result == VRMR_RR_RESULT_ACK)
             {
-                shm_table->reload_result = VR_RR_READY;
+                shm_table->reload_result = VRMR_RR_READY;
                 shm_table->reload_progress = 0;
                 *result = 1;
 
-                (void)vrprint.info("Info", "We got an VR_RR_RESULT_ACK!");
+                (void)vrprint.info("Info", "We got an VRMR_RR_RESULT_ACK!");
             }
             vrmr_unlock(sem_id);
         }
@@ -242,10 +242,10 @@ WaitVMIPCACK (int wait_time, int *result, struct vrmr_shm_table *shm_table, int 
     }
     if (*result == 0)
     {
-        (void)vrprint.info("Info", "We've waited for 30 seconds for an VR_RR_RESULT_ACK, but got none. Setting to VR_RR_READY");
+        (void)vrprint.info("Info", "We've waited for 30 seconds for an VRMR_RR_RESULT_ACK, but got none. Setting to VRMR_RR_READY");
         if(vrmr_lock(sem_id))
         {
-            shm_table->reload_result = VR_RR_READY;
+            shm_table->reload_result = VRMR_RR_READY;
             shm_table->reload_progress = 0;
             vrmr_unlock(sem_id);
         }

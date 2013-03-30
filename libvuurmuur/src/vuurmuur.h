@@ -348,6 +348,22 @@ struct vrmr_shm_table {
     int reload_progress; /* in per cent */
 };
 
+/*  RR is Reload Result
+
+    it is used for the IPC with SHM between Vuurmuur,
+    Vuurmuur_log and Vuurmuur_conf
+*/
+enum
+{
+    VRMR_RR_ERROR = -1,
+    VRMR_RR_NO_RESULT_YET = 0,
+    VRMR_RR_READY,
+    VRMR_RR_SUCCES,
+    VRMR_RR_NOCHANGES,
+    VRMR_RR_RESULT_ACK,
+};
+
+
 /* in this structure we register the print functions. */
 struct vrprint_
 {
@@ -1209,22 +1225,6 @@ enum questiontypes
     CAT_SERVICES,
     CAT_INTERFACES,
     CAT_RULES
-};
-
-
-/*  RR is Reload Result
- 
-    it is used for the IPC with SHM between Vuurmuur,
-    Vuurmuur_log and Vuurmuur_conf 
-*/
-enum
-{
-    VR_RR_ERROR = -1,
-    VR_RR_NO_RESULT_YET = 0,
-    VR_RR_READY,
-    VR_RR_SUCCES,
-    VR_RR_NOCHANGES,
-    VR_RR_RESULT_ACK,
 };
 
 

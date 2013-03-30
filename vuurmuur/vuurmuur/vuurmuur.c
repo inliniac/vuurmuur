@@ -88,7 +88,7 @@ main(int argc, char *argv[])
                     debuglvl = 0;
 
     unsigned int    dynamic_wait_time = 0;  /* for checking the dynamic ipaddresses */
-    unsigned int    wait_time = 0;          /* time in seconds we have waited for an VR_RR_RESULT_ACK when using SHM-IPC */
+    unsigned int    wait_time = 0;          /* time in seconds we have waited for an VRMR_RR_RESULT_ACK when using SHM-IPC */
     static char optstring[] = "hd:bVlvnc:L:CFDtkfK";
     struct option prog_opts[] =
     {
@@ -631,7 +631,7 @@ main(int argc, char *argv[])
                     {
                         shm_table->sem_id = sem_id;
                         shm_table->backend_changed = 0;
-                        shm_table->reload_result = VR_RR_READY;
+                        shm_table->reload_result = VRMR_RR_READY;
 
                         vrmr_unlock(sem_id);
                     }
@@ -723,20 +723,20 @@ main(int argc, char *argv[])
                             /* tell the caller about the reload result */
                             if(result < 0)
                             {
-                                shm_table->reload_result = VR_RR_ERROR;
+                                shm_table->reload_result = VRMR_RR_ERROR;
                             }
                             else if(result == 0)
                             {
-                                shm_table->reload_result = VR_RR_SUCCES;
+                                shm_table->reload_result = VRMR_RR_SUCCES;
                             }
                             else
                             {
-                                shm_table->reload_result = VR_RR_NOCHANGES;
+                                shm_table->reload_result = VRMR_RR_NOCHANGES;
                             }
                             vrmr_unlock(sem_id);
                         }
 
-                        (void)vrprint.info("Info", "Waiting for an VR_RR_RESULT_ACK");
+                        (void)vrprint.info("Info", "Waiting for an VRMR_RR_RESULT_ACK");
 
                         result = 0;
                         wait_time = 0;
@@ -747,13 +747,13 @@ main(int argc, char *argv[])
                             if(vrmr_lock(sem_id))
                             {
                                 /* ah, we got one */
-                                if(shm_table->reload_result == VR_RR_RESULT_ACK)
+                                if(shm_table->reload_result == VRMR_RR_RESULT_ACK)
                                 {
-                                    shm_table->reload_result = VR_RR_READY;
+                                    shm_table->reload_result = VRMR_RR_READY;
                                     shm_table->reload_progress = 0;
                                     result = 1;
 
-                                    (void)vrprint.info("Info", "We got an VR_RR_RESULT_ACK!");
+                                    (void)vrprint.info("Info", "We got an VRMR_RR_RESULT_ACK!");
                                 }
                                 vrmr_unlock(sem_id);
                             }
@@ -765,10 +765,10 @@ main(int argc, char *argv[])
                         /* damn, we didn't get one */
                         if(result == 0)
                         {
-                            (void)vrprint.info("Info", "We've waited for %d seconds for an VR_RR_RESULT_ACK, but got none. Setting to VR_RR_READY", wait_time);
+                            (void)vrprint.info("Info", "We've waited for %d seconds for an VRMR_RR_RESULT_ACK, but got none. Setting to VRMR_RR_READY", wait_time);
                             if(vrmr_lock(sem_id))
                             {
-                                shm_table->reload_result = VR_RR_READY;
+                                shm_table->reload_result = VRMR_RR_READY;
                                 shm_table->reload_progress = 0;
                                 vrmr_unlock(sem_id);
                             }

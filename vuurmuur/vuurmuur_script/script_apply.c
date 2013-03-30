@@ -130,12 +130,12 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
             vuurmuur_shmtable->backend_changed = 1;
             vrmr_unlock(vuurmuur_semid);
 
-            vuurmuur_result = VR_RR_NO_RESULT_YET;
+            vuurmuur_result = VRMR_RR_NO_RESULT_YET;
         }
     }
     else
     {
-        vuurmuur_result = VR_RR_READY;
+        vuurmuur_result = VRMR_RR_READY;
     }
 
     /* handle no vuurmuur_log connection */
@@ -146,17 +146,17 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
             vuurmuurlog_shmtable->backend_changed = 1;
             vrmr_unlock(vuurmuurlog_semid);
 
-            vuurmuurlog_result = VR_RR_NO_RESULT_YET;
+            vuurmuurlog_result = VRMR_RR_NO_RESULT_YET;
         }
     }
     else
     {
-        vuurmuurlog_result = VR_RR_READY;
+        vuurmuurlog_result = VRMR_RR_READY;
     }
 
     /* wait max 60 seconds */
-    while (((vuurmuur_result == VR_RR_NO_RESULT_YET || vuurmuur_result == VR_RR_RESULT_ACK) ||
-                (vuurmuurlog_result == VR_RR_NO_RESULT_YET || vuurmuurlog_result == VR_RR_RESULT_ACK))
+    while (((vuurmuur_result == VRMR_RR_NO_RESULT_YET || vuurmuur_result == VRMR_RR_RESULT_ACK) ||
+                (vuurmuurlog_result == VRMR_RR_NO_RESULT_YET || vuurmuurlog_result == VRMR_RR_RESULT_ACK))
             && waittime < 60000000)
     {
         if(vuurmuur_shmtable != NULL && vuurmuur_semid != -1) {
@@ -164,7 +164,7 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
             {
                 if(vrmr_lock(vuurmuur_semid))
                 {
-                    if(vuurmuur_shmtable->reload_result != VR_RR_READY)
+                    if(vuurmuur_shmtable->reload_result != VRMR_RR_READY)
                     {
                         vuurmuur_result   = vuurmuur_shmtable->reload_result;
                     }
@@ -178,23 +178,23 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
             {
                 if(vuurmuur_semid == -1)
                 {
-                    vuurmuur_result = VR_RR_READY;
+                    vuurmuur_result = VRMR_RR_READY;
                     failed = 1;
                 }
                 else if(vrmr_lock(vuurmuur_semid))
                 {
-                    vuurmuur_shmtable->reload_result = VR_RR_RESULT_ACK;
+                    vuurmuur_shmtable->reload_result = VRMR_RR_RESULT_ACK;
                     vrmr_unlock(vuurmuur_semid);
 
-                    if(vuurmuur_result != VR_RR_SUCCES && vuurmuur_result != VR_RR_NOCHANGES)
+                    if(vuurmuur_result != VRMR_RR_SUCCES && vuurmuur_result != VRMR_RR_NOCHANGES)
                     {
-                        vuurmuur_result = VR_RR_READY;
+                        vuurmuur_result = VRMR_RR_READY;
                         failed = 1;
                     }
                 }
             }
         } else {
-            vuurmuur_result = VR_RR_READY;
+            vuurmuur_result = VRMR_RR_READY;
             failed = 1;
         }
 
@@ -203,7 +203,7 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
             {
                 if(vrmr_lock(vuurmuurlog_semid))
                 {
-                    if(vuurmuurlog_shmtable->reload_result != VR_RR_READY)
+                    if(vuurmuurlog_shmtable->reload_result != VRMR_RR_READY)
                     {
                         vuurmuurlog_result = vuurmuurlog_shmtable->reload_result;
                     }
@@ -220,24 +220,24 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
                 }
                 else if(vrmr_lock(vuurmuurlog_semid))
                 {
-                    vuurmuurlog_shmtable->reload_result = VR_RR_RESULT_ACK;
+                    vuurmuurlog_shmtable->reload_result = VRMR_RR_RESULT_ACK;
                     vrmr_unlock(vuurmuurlog_semid);
 
-                    if(vuurmuurlog_result != VR_RR_SUCCES && vuurmuur_result != VR_RR_NOCHANGES)
+                    if(vuurmuurlog_result != VRMR_RR_SUCCES && vuurmuur_result != VRMR_RR_NOCHANGES)
                     {
-                        vuurmuurlog_result = VR_RR_READY;
+                        vuurmuurlog_result = VRMR_RR_READY;
                         failed = 1;
                     }
                 }
             } else {
-                vuurmuurlog_result = VR_RR_READY;
+                vuurmuurlog_result = VRMR_RR_READY;
                 failed = 1;
             }
         }
 
         /* no result yet, sleep 1 sec, or if the server didn't have a chance to do anything */
-        if( (vuurmuur_result    == VR_RR_NO_RESULT_YET || vuurmuur_result    == VR_RR_RESULT_ACK) ||
-            (vuurmuurlog_result == VR_RR_NO_RESULT_YET || vuurmuurlog_result == VR_RR_RESULT_ACK))
+        if( (vuurmuur_result    == VRMR_RR_NO_RESULT_YET || vuurmuur_result    == VRMR_RR_RESULT_ACK) ||
+            (vuurmuurlog_result == VRMR_RR_NO_RESULT_YET || vuurmuurlog_result == VRMR_RR_RESULT_ACK))
         {
             waittime += 1000;
             usleep(1000);

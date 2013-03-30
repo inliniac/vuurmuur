@@ -1208,12 +1208,12 @@ mm_reload_shm(const int debuglvl)
                     sizeof(vuurmuur_shmtable->configtool.username));
             vrmr_unlock(vuurmuur_semid);
 
-            vuurmuur_result = VR_RR_NO_RESULT_YET;
+            vuurmuur_result = VRMR_RR_NO_RESULT_YET;
         }
     }
     else
     {
-        vuurmuur_result   = VR_RR_READY;
+        vuurmuur_result   = VRMR_RR_READY;
         vuurmuur_progress = 100;
 
         (void)snprintf(str, sizeof(str), " - ");
@@ -1230,12 +1230,12 @@ mm_reload_shm(const int debuglvl)
                     sizeof(vuurmuurlog_shmtable->configtool.username));
             vrmr_unlock(vuurmuurlog_semid);
 
-            vuurmuurlog_result = VR_RR_NO_RESULT_YET;
+            vuurmuurlog_result = VRMR_RR_NO_RESULT_YET;
         }
     }
     else
     {
-        vuurmuurlog_result = VR_RR_READY;
+        vuurmuurlog_result = VRMR_RR_READY;
         vuurmuurlog_progress = 100;
 
         (void)snprintf(str, sizeof(str), " - ");
@@ -1243,15 +1243,15 @@ mm_reload_shm(const int debuglvl)
     }
 
     /* wait max 60 seconds */
-    while(((vuurmuur_result == VR_RR_NO_RESULT_YET || vuurmuur_result    == VR_RR_RESULT_ACK) ||
-        (vuurmuurlog_result == VR_RR_NO_RESULT_YET || vuurmuurlog_result == VR_RR_RESULT_ACK))
+    while(((vuurmuur_result == VRMR_RR_NO_RESULT_YET || vuurmuur_result    == VRMR_RR_RESULT_ACK) ||
+        (vuurmuurlog_result == VRMR_RR_NO_RESULT_YET || vuurmuurlog_result == VRMR_RR_RESULT_ACK))
         && waittime < 60000000)
     {
         if(vuurmuur_progress < 100)
         {
             if(vrmr_lock(vuurmuur_semid))
             {
-                if(vuurmuur_shmtable->reload_result != VR_RR_READY)
+                if(vuurmuur_shmtable->reload_result != VRMR_RR_READY)
                 {
                     vuurmuur_result   = vuurmuur_shmtable->reload_result;
                 }
@@ -1277,16 +1277,16 @@ mm_reload_shm(const int debuglvl)
             }
             else if(vrmr_lock(vuurmuur_semid))
             {
-                vuurmuur_shmtable->reload_result = VR_RR_RESULT_ACK;
+                vuurmuur_shmtable->reload_result = VRMR_RR_RESULT_ACK;
                 vrmr_unlock(vuurmuur_semid);
 
-                if(vuurmuur_result == VR_RR_SUCCES)
+                if(vuurmuur_result == VRMR_RR_SUCCES)
                 {
                     wattron(wait_win, vccnf.color_win_green);
                     mvwprintw(wait_win, 4, 29, SHM_REL_SUCCESS);
                     wattroff(wait_win, vccnf.color_win_green);
                 }
-                else if(vuurmuur_result == VR_RR_NOCHANGES)
+                else if(vuurmuur_result == VRMR_RR_NOCHANGES)
                 {
                     mvwprintw(wait_win, 4, 29, SHM_REL_NO_CHANGES);
                 }
@@ -1306,7 +1306,7 @@ mm_reload_shm(const int debuglvl)
         {
             if(vrmr_lock(vuurmuurlog_semid))
             {
-                if(vuurmuurlog_shmtable->reload_result != VR_RR_READY)
+                if(vuurmuurlog_shmtable->reload_result != VRMR_RR_READY)
                 {
                     vuurmuurlog_result = vuurmuurlog_shmtable->reload_result;
                 }
@@ -1331,16 +1331,16 @@ mm_reload_shm(const int debuglvl)
             }
             else if(vrmr_lock(vuurmuurlog_semid))
             {
-                vuurmuurlog_shmtable->reload_result = VR_RR_RESULT_ACK;
+                vuurmuurlog_shmtable->reload_result = VRMR_RR_RESULT_ACK;
                 vrmr_unlock(vuurmuurlog_semid);
 
-                if(vuurmuurlog_result == VR_RR_SUCCES)
+                if(vuurmuurlog_result == VRMR_RR_SUCCES)
                 {
                     wattron(wait_win, vccnf.color_win_green);
                     mvwprintw(wait_win, 5, 29, SHM_REL_SUCCESS);
                     wattroff(wait_win, vccnf.color_win_green);
                 }
-                else if(vuurmuur_result == VR_RR_NOCHANGES)
+                else if(vuurmuur_result == VRMR_RR_NOCHANGES)
                 {
                     mvwprintw(wait_win, 5, 29, SHM_REL_NO_CHANGES);
                 }
@@ -1360,8 +1360,8 @@ mm_reload_shm(const int debuglvl)
         doupdate();
 
         /* no result yet, sleep 1 sec, or if the server didn't have a chance to do anything */
-        if( (vuurmuur_result    == VR_RR_NO_RESULT_YET || vuurmuur_result    == VR_RR_RESULT_ACK) ||
-            (vuurmuurlog_result == VR_RR_NO_RESULT_YET || vuurmuurlog_result == VR_RR_RESULT_ACK))
+        if( (vuurmuur_result    == VRMR_RR_NO_RESULT_YET || vuurmuur_result    == VRMR_RR_RESULT_ACK) ||
+            (vuurmuurlog_result == VRMR_RR_NO_RESULT_YET || vuurmuurlog_result == VRMR_RR_RESULT_ACK))
         {
             waittime += 1000;
             usleep(1000);
