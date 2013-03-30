@@ -46,7 +46,7 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
                 if(strcmp(vr_script->name,"any") != 0)
                 {
                     /* validate and split the new name */
-                    if(vrmr_validate_zonename(debuglvl, vr_script->bdat, 0, back_zone, back_net, back_host, vr_script->reg.zonename, VALNAME_VERBOSE) != 0)
+                    if(vrmr_validate_zonename(debuglvl, vr_script->bdat, 0, back_zone, back_net, back_host, vr_script->reg.zonename, VRMR_VERBOSE) != 0)
                     {
                         (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "invalid name '%s' returned from backend (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
                         return(VRS_ERR_INTERNAL);
@@ -76,7 +76,7 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
                 if(strcmp(vr_script->name,"any") != 0)
                 {
                     /* validate and split the new name */
-                    if(vrmr_validate_zonename(debuglvl, vr_script->bdat, 0, back_zone, back_net, back_host, vr_script->reg.zonename, VALNAME_VERBOSE) != 0)
+                    if(vrmr_validate_zonename(debuglvl, vr_script->bdat, 0, back_zone, back_net, back_host, vr_script->reg.zonename, VRMR_VERBOSE) != 0)
                     {
                         (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "invalid name '%s' returned from backend (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
                         return(VRS_ERR_INTERNAL);

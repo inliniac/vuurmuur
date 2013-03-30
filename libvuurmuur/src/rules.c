@@ -1034,7 +1034,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             /*
                 validate the who-zone
             */
-            if(vrmr_validate_zonename(debuglvl, rule_ptr->who, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) != 0)
+            if(vrmr_validate_zonename(debuglvl, rule_ptr->who, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) != 0)
             {
                 (void)vrprint.error(-1, "Error", "invalid zonename: '%s' (in: %s).", rule_ptr->who, __FUNC__);
                 return(-1);
@@ -1176,7 +1176,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             /*
                 validate the service name
             */
-            if(vrmr_validate_servicename(debuglvl, rule_ptr->service, reg->servicename, VALNAME_QUIET) != 0)
+            if(vrmr_validate_servicename(debuglvl, rule_ptr->service, reg->servicename, VRMR_QUIET) != 0)
             {
                 (void)vrprint.error(-1, "Error", "invalid servicename: '%s' (in: %s:%d).", rule_ptr->service, __FUNC__, __LINE__);
                 return(-1);
@@ -1238,7 +1238,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
                 /*
                     now validate the from-zone
                 */
-                if(vrmr_validate_zonename(debuglvl, rule_ptr->from, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) != 0)
+                if(vrmr_validate_zonename(debuglvl, rule_ptr->from, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) != 0)
                 {
                     (void)vrprint.error(-1, "Error", "invalid from-zonename: '%s' (in: %s).", rule_ptr->from, __FUNC__);
                     return(-1);
@@ -1301,7 +1301,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
                 /*
                     now validate the to-zone
                 */
-                if(vrmr_validate_zonename(debuglvl, rule_ptr->to, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) != 0)
+                if(vrmr_validate_zonename(debuglvl, rule_ptr->to, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) != 0)
                 {
                     (void)vrprint.error(-1, "Error", "invalid zonename: '%s' (in: %s).", rule_ptr->to, __FUNC__);
                     return(-1);

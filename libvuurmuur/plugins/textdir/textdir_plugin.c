@@ -67,7 +67,7 @@ char
             (void)tb->cfg->vrprint.debug(__FUNC__, "looking up data from zones.");
 
         /* validate the name */
-        if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VRMR_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "zonename '%s' is not valid.", name);
             return(NULL);
@@ -170,7 +170,7 @@ char
     else if(type == VRMR_TYPE_SERVICE || type == VRMR_VRMR_TYPE_SERVICEGRP)
     {
         /* validate the name */
-        if(vrmr_validate_servicename(debuglvl, name, tb->servicename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_servicename(debuglvl, name, tb->servicename_reg, VRMR_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "servicename '%s' is not valid.", name);
             return(NULL);
@@ -581,7 +581,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
     if(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK)
     {
         /* split up the name */
-        if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VRMR_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "Zonename '%s' is not valid.", name);
 
@@ -872,7 +872,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
     if(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK)
     {
         // split up the name
-        if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VRMR_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "Zonename '%s' is not valid.", name);
             return(-1);
@@ -1121,14 +1121,14 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
     if(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK)
     {
         /* validate the name */
-        if(vrmr_validate_zonename(debuglvl, name, 0, old_zone_name, old_net_name, old_host_name, tb->zonename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_zonename(debuglvl, name, 0, old_zone_name, old_net_name, old_host_name, tb->zonename_reg, VRMR_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "zonename '%s' is not valid.", newname);
             return(-1);
         }
 
         /* validate the name */
-        if(vrmr_validate_zonename(debuglvl, newname, 0, vrmr_new_zone_name, new_net_name, new_host_name, tb->zonename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_zonename(debuglvl, newname, 0, vrmr_new_zone_name, new_net_name, new_host_name, tb->zonename_reg, VRMR_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "zonename '%s' is not valid.", newname);
             return(-1);

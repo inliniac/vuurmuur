@@ -1083,7 +1083,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
     }
 
     /* validate and split the new name */
-    if(vrmr_validate_zonename(debuglvl, new_name_ptr, 0, vrmr_new_zone, new_net, new_host, reg->zonename, VALNAME_VERBOSE) != 0)
+    if(vrmr_validate_zonename(debuglvl, new_name_ptr, 0, vrmr_new_zone, new_net, new_host, reg->zonename, VRMR_VERBOSE) != 0)
     {
         (void)vrprint.error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", new_name_ptr, __FUNC__, __LINE__);
         return(-1);
@@ -1417,7 +1417,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                         vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Host"), gettext("Enter the new name of the host"));
                         if(vrmr_new_zone_ptr != NULL)
                         {
-                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VALNAME_VERBOSE) == -1)
+                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                             {
                                 (void)vrprint.warning(VR_WARN, gettext("invalid hostname '%s'."), vrmr_new_zone_ptr);
                             }
@@ -1440,7 +1440,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                                 (void)strlcat(temp_ptr, ".", size);
                                 (void)strlcat(temp_ptr, zonename, size);
 
-                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == -1)
+                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
                                 {
                                     (void)vrprint.warning(VR_WARN, gettext("invalid hostname '%s'."), temp_ptr);
                                 }
@@ -1470,7 +1470,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                     vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("New Host"), gettext("Enter the name of the new host"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
-                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VALNAME_VERBOSE) == -1)
+                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                         {
                             (void)vrprint.warning(VR_WARN, gettext("invalid hostname '%s'."), vrmr_new_zone_ptr);
                         }
@@ -1493,7 +1493,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                             (void)strlcat(temp_ptr, ".", size);
                             (void)strlcat(temp_ptr, zonename, size);
 
-                            if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == -1)
+                            if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
                             {
                                 (void)vrprint.warning(VR_WARN, gettext("invalid hostname '%s'."), temp_ptr);
                             }
@@ -2987,7 +2987,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                         vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Group"), gettext("Enter the new name of the group"));
                         if(vrmr_new_zone_ptr != NULL)
                         {
-                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VALNAME_VERBOSE) == -1)
+                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                             {
                                 (void)vrprint.warning(VR_WARN, gettext("invalid groupname '%s'."), vrmr_new_zone_ptr);
                             }
@@ -3010,7 +3010,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                                 (void)strlcat(temp_ptr, ".", size);
                                 (void)strlcat(temp_ptr, zonename, size);
 
-                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == -1)
+                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
                                 {
                                     (void)vrprint.warning(VR_WARN, gettext("invalid groupname '%s'."), temp_ptr);
                                 }
@@ -3038,7 +3038,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                     vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("New Group"), gettext("Enter the name of the new group"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
-                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VALNAME_VERBOSE) == -1)
+                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                         {
                             (void)vrprint.warning(VR_WARN, gettext("invalid groupname '%s'."), vrmr_new_zone_ptr);
                         }
@@ -3055,7 +3055,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                                 (void)strlcat(temp_ptr, ".", size);
                                 (void)strlcat(temp_ptr, zonename, size);
 
-                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == 0)
+                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
                                 {
                                     if(vrmr_new_zone(debuglvl, zones, temp_ptr, VRMR_TYPE_GROUP) >= 0)
                                     {
@@ -3268,7 +3268,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
     }
 
     /* validate and split the new name */
-    if(vrmr_validate_zonename(debuglvl, new_name_ptr, 0, vrmr_new_zone, new_net, new_host, reg->zonename, VALNAME_VERBOSE) != 0)
+    if(vrmr_validate_zonename(debuglvl, new_name_ptr, 0, vrmr_new_zone, new_net, new_host, reg->zonename, VRMR_VERBOSE) != 0)
     {
         (void)vrprint.error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", new_name_ptr, __FUNC__, __LINE__);
         return(-1);
@@ -3277,7 +3277,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
         (void)vrprint.debug(__FUNC__, "new_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", new_name_ptr, new_host, new_net, vrmr_new_zone);
 
     /* validate and split the old name */
-    if(vrmr_validate_zonename(debuglvl, cur_name_ptr, 0, old_zone, old_net, old_host, reg->zonename, VALNAME_VERBOSE) != 0)
+    if(vrmr_validate_zonename(debuglvl, cur_name_ptr, 0, old_zone, old_net, old_host, reg->zonename, VRMR_VERBOSE) != 0)
     {
         (void)vrprint.error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", cur_name_ptr, __FUNC__, __LINE__);
         return(-1);
@@ -3485,7 +3485,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
         if(strncasecmp(rule_ptr->from, "firewall", 8) != 0 && strcmp(rule_ptr->from, "") != 0)
         {
             /* check the fromname */
-            if(vrmr_validate_zonename(debuglvl, rule_ptr->from, 0, rule_zone, rule_net, rule_host, reg->zonename, VALNAME_VERBOSE) != 0)
+            if(vrmr_validate_zonename(debuglvl, rule_ptr->from, 0, rule_zone, rule_net, rule_host, reg->zonename, VRMR_VERBOSE) != 0)
             {
                 (void)vrprint.error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", rule_ptr->from, __FUNC__, __LINE__);
                 return(-1);
@@ -3543,7 +3543,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
         if(strncasecmp(rule_ptr->to, "firewall", 8) != 0 && strcmp(rule_ptr->to, "") != 0)
         {
             /* check the toname */
-            if(vrmr_validate_zonename(debuglvl, rule_ptr->to, 0, rule_zone, rule_net, rule_host, reg->zonename, VALNAME_VERBOSE) != 0)
+            if(vrmr_validate_zonename(debuglvl, rule_ptr->to, 0, rule_zone, rule_net, rule_host, reg->zonename, VRMR_VERBOSE) != 0)
             {
                 (void)vrprint.error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", rule_ptr->to, __FUNC__, __LINE__);
                 return(-1);
@@ -5589,7 +5589,7 @@ zones_section_menu_networks(const int debuglvl,
                         vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Network"), gettext("Enter the new name of the network"));
                         if(vrmr_new_zone_ptr != NULL)
                         {
-                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VALNAME_VERBOSE) == -1)
+                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VRMR_VERBOSE) == -1)
                             {
                                 (void)vrprint.warning(VR_WARN, gettext("invalid networkname '%s'."), vrmr_new_zone_ptr);
                             }
@@ -5611,7 +5611,7 @@ zones_section_menu_networks(const int debuglvl,
                                 (void)strlcat(temp_ptr, ".", size);
                                 (void)strlcat(temp_ptr, zonename, size);
 
-                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == 0)
+                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
                                 {
                                     if(zones_rename_network_zone(debuglvl, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_NETWORK, reg) < 0)
                                     {
@@ -5643,7 +5643,7 @@ zones_section_menu_networks(const int debuglvl,
                     vrmr_new_zone_ptr = input_box(VRMR_MAX_NETWORK, gettext("New Network"), gettext("Enter the name of the new network"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
-                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VALNAME_VERBOSE) == -1)
+                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VRMR_VERBOSE) == -1)
                         {
                             (void)vrprint.warning(VR_WARN, gettext("invalid networkname '%s'."), vrmr_new_zone_ptr);
                         }
@@ -5658,7 +5658,7 @@ zones_section_menu_networks(const int debuglvl,
                                 (void)strlcat(temp_ptr, ".", size);
                                 (void)strlcat(temp_ptr, zonename, size);
 
-                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == 0)
+                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
                                 {
                                     if(vrmr_new_zone(debuglvl, zones, temp_ptr, VRMR_TYPE_NETWORK) < 0)
                                     {
@@ -6529,7 +6529,7 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
                         vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Zone"), gettext("Enter the new name of the zone"));
                         if(vrmr_new_zone_ptr != NULL)
                         {
-                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VALNAME_VERBOSE) == 0)
+                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VRMR_VERBOSE) == 0)
                             {
                                 if(zones_rename_network_zone(debuglvl, zones, rules, blocklist, (char *)item_name(cur), vrmr_new_zone_ptr, VRMR_TYPE_ZONE, reg) == 0)
                                 {
@@ -6550,7 +6550,7 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
                     vrmr_new_zone_ptr = input_box(VRMR_MAX_ZONE, gettext("New Zone"), gettext("Enter the name of the new zone"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
-                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VALNAME_VERBOSE) == 0)
+                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VRMR_VERBOSE) == 0)
                         {
                             if(vrmr_new_zone(debuglvl, zones, vrmr_new_zone_ptr, VRMR_TYPE_ZONE) < 0)
                             {

@@ -110,7 +110,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
         vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
         /* validate and split the new name */
-        if(vrmr_validate_zonename(debuglvl, vr_script->set, 1, NULL, NULL, NULL, vr_script->reg.zonename, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_zonename(debuglvl, vr_script->set, 1, NULL, NULL, NULL, vr_script->reg.zonename, VRMR_VERBOSE) != 0)
         {
             if(vr_script->type == VRMR_TYPE_ZONE)
                 (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid zone name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
@@ -126,7 +126,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        if(vrmr_validate_servicename(debuglvl, vr_script->set, vr_script->reg.servicename, VALNAME_QUIET) != 0)
+        if(vrmr_validate_servicename(debuglvl, vr_script->set, vr_script->reg.servicename, VRMR_QUIET) != 0)
         {
             (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid service name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
             return(VRS_ERR_COMMANDLINE);

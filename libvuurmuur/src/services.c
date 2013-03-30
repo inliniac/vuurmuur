@@ -1182,7 +1182,7 @@ vrmr_init_services(const int debuglvl, struct vrmr_services *services, struct vr
             (void)vrprint.debug(__FUNC__, "loading service '%s' ...", name);
 
         /* but first validate the name */
-        if(vrmr_validate_servicename(debuglvl, name, reg->servicename, VALNAME_VERBOSE) == 0)
+        if(vrmr_validate_servicename(debuglvl, name, reg->servicename, VRMR_VERBOSE) == 0)
         {
             /* now call vrmr_insert_service, which will gather the info and insert it into the list */
             result = vrmr_insert_service(debuglvl, services, name);

@@ -285,7 +285,7 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
     /* loop trough the services in the backend */
     while(sf->list(debuglvl, serv_backend, name, &zonetype, VRMR_BT_SERVICES) != NULL)
     {
-        if(vrmr_validate_servicename(debuglvl, name, servicename_regex, VALNAME_VERBOSE) == 0)
+        if(vrmr_validate_servicename(debuglvl, name, servicename_regex, VRMR_VERBOSE) == 0)
         {
             ser_ptr = vrmr_search_service(debuglvl, services, name);
             if(ser_ptr == NULL) /* not found */

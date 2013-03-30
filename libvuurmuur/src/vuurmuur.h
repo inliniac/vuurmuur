@@ -169,6 +169,7 @@
 /* Special permission value, meaning don't check permissions. The value
  * is simply all ones. */
 #define VRMR_ANY_PERMISSION                  (~((mode_t)0))
+
 /*
     regexes
 */
@@ -195,15 +196,11 @@
 /* Some defines for character buffers we define in this file */
 #define VRMR_MAX_IPV6_ADDR_LEN       40 /* 39 + null */
 
-#define VRMR_IPV4                 4
-#define VRMR_IPV6                 6
+#define VRMR_IPV4                   4
+#define VRMR_IPV6                   6
 
-/* name validation VERBOSE or QUIET */
-enum
-{
-    VALNAME_VERBOSE=0,
-    VALNAME_QUIET
-};
+#define VRMR_VERBOSE                0
+#define VRMR_QUIET                  1
 
 #if defined (__GNU_LIBRARY__) && !defined (_SEM_SEMUN_UNDEFINED)
     /* use semun from sys/sem.h */
@@ -1640,7 +1637,6 @@ int vrmr_is_shape_interface(const int, /*@null@*/struct vrmr_interface *);
 /*
     global vars
 */
-//char bash_description[512];
 
 /* the backend structure pointers */
 /*@null@*/

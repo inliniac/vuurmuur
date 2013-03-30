@@ -98,7 +98,7 @@ char
                     strcmp(name, "..") != 0)
                 {
                     /* now validate the name */
-                    if(vrmr_validate_servicename(debuglvl, name, tb->servicename_reg, VALNAME_QUIET) == 0)
+                    if(vrmr_validate_servicename(debuglvl, name, tb->servicename_reg, VRMR_QUIET) == 0)
                     {
                         /* determine the location of the file */
                         if(!(file_location = get_filelocation(debuglvl, backend, name, VRMR_TYPE_SERVICE)))
@@ -326,7 +326,7 @@ char
                             snprintf(cur_zonename, sizeof(cur_zonename), "%s.%s.%s", tb->cur_host, tb->cur_network, tb->cur_zone);
 
                             // lets check against regex
-                            if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
+                            if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VRMR_QUIET) == 0)
                             {
                                 // determine the location of the file
                                 if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, VRMR_TYPE_HOST)))
@@ -382,7 +382,7 @@ char
                             snprintf(cur_zonename, sizeof(cur_zonename), "%s.%s.%s", tb->cur_host, tb->cur_network, tb->cur_zone);
 
                             // lets check against regex
-                            if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
+                            if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VRMR_QUIET) == 0)
                             {
                                 // determine the location of the file
                                 if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, VRMR_TYPE_GROUP)))
@@ -453,7 +453,7 @@ char
                         snprintf(cur_zonename, sizeof(cur_zonename), "%s.%s", tb->cur_network, tb->cur_zone);
 
                         /* lets check against regex */
-                        if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
+                        if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VRMR_QUIET) == 0)
                         {
                             // determine the location of the file
                             if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, VRMR_TYPE_NETWORK)))
@@ -515,7 +515,7 @@ char
                         tb->network_p = vuurmuur_opendir(debuglvl, tb->cfg, netdir_location);
 
                         // lets check against regex
-                        if(vrmr_validate_zonename(debuglvl, dir_entry_p->d_name, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
+                        if(vrmr_validate_zonename(debuglvl, dir_entry_p->d_name, 1, NULL, NULL, NULL, tb->zonename_reg, VRMR_QUIET) == 0)
                         {
                             // determine the location of the file
                             if(!(file_location = get_filelocation(debuglvl, backend, dir_entry_p->d_name, VRMR_TYPE_ZONE)))

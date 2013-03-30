@@ -61,7 +61,7 @@ zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
 
     /* validate and split up */
     if(vrmr_validate_zonename(debuglvl, zone_ptr->name, 0, zonename, netname,
-        hostname, reg_ex, VALNAME_VERBOSE) != 0)
+        hostname, reg_ex, VRMR_VERBOSE) != 0)
     {
         (void)vrprint.error(-1, "Internal Error", "name '%s' not "
                 "valid (in: %s:%d).", zone_ptr->name,
@@ -430,7 +430,7 @@ vrmr_read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
         return(-1);
     }
 
-    if(vrmr_validate_zonename(debuglvl, name, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) != 0)
+    if(vrmr_validate_zonename(debuglvl, name, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) != 0)
     {
         (void)vrprint.error(-1, "Internal Error", "invalid zonename "
                 "'%s' (in: %s:%d).", name, __FUNC__, __LINE__);
@@ -639,7 +639,7 @@ vrmr_init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
             (void)vrprint.debug(__FUNC__, "loading zone: '%s', "
                     "type: %d", zonename, zonetype);
 
-        if(vrmr_validate_zonename(debuglvl, zonename, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == 0)
+        if(vrmr_validate_zonename(debuglvl, zonename, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
         {
             result = vrmr_insert_zonedata(debuglvl, zones, interfaces, zonename, zonetype, reg);
             if(result < 0)
@@ -1198,7 +1198,7 @@ vrmr_validate_zonename(const int debuglvl, const char *zonename, int onlyvalidat
     {
         if(regexec(reg_ex, zonename, 0, NULL, 0) != 0)
         {
-            if(quiet == VALNAME_VERBOSE)
+            if(quiet == VRMR_VERBOSE)
                 (void)vrprint.error(-1, "Error", "zonename '%s' is invalid. A zonename can contain normal letters and numbers and the underscore (_) and minus (-) characters.", zonename);
 
             if(debuglvl >= MEDIUM)
@@ -1212,7 +1212,7 @@ vrmr_validate_zonename(const int debuglvl, const char *zonename, int onlyvalidat
     {
         if(regexec(reg_ex, zonename, 8, reg_match, 0) != 0)
         {
-            if(quiet == VALNAME_VERBOSE)
+            if(quiet == VRMR_VERBOSE)
                 (void)vrprint.error(-1, "Error", "zonename '%s' is invalid. A zonename can contain normal letters and numbers and the underscore (_) and minus (-) characters.", zonename);
 
             if(debuglvl >= MEDIUM)

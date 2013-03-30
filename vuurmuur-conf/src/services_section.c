@@ -2750,7 +2750,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                         new_name_ptr = input_box(32, gettext("Rename Service"), STR_PLEASE_ENTER_THE_NAME);
                         if(new_name_ptr != NULL)
                         {
-                            if(vrmr_validate_servicename(debuglvl, new_name_ptr, reg->servicename, VALNAME_VERBOSE) == 0)
+                            if(vrmr_validate_servicename(debuglvl, new_name_ptr, reg->servicename, VRMR_VERBOSE) == 0)
                             {
                                 char *n = (char *)item_name(cur);
 
@@ -2776,7 +2776,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                     new_name_ptr = input_box(32, gettext("New Service"), gettext("Please enter the name of the new service"));
                     if(new_name_ptr != NULL)
                     {
-                        if(vrmr_validate_servicename(debuglvl, new_name_ptr, reg->servicename, VALNAME_QUIET) == 0)
+                        if(vrmr_validate_servicename(debuglvl, new_name_ptr, reg->servicename, VRMR_QUIET) == 0)
                         {
                             if((vrmr_search_service(debuglvl, services, new_name_ptr) != NULL))
                             {

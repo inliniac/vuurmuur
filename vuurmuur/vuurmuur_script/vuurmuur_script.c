@@ -643,7 +643,7 @@ main(int argc, char *argv[])
             vr_script.type == VRMR_TYPE_HOST || vr_script.type == VRMR_TYPE_GROUP)
         {
             /* validate and split the new name */
-            if(vrmr_validate_zonename(debuglvl, vr_script.name, 0, vr_script.name_zone, vr_script.name_net, vr_script.name_host, vr_script.reg.zonename, VALNAME_VERBOSE) != 0)
+            if(vrmr_validate_zonename(debuglvl, vr_script.name, 0, vr_script.name_zone, vr_script.name_net, vr_script.name_host, vr_script.reg.zonename, VRMR_VERBOSE) != 0)
             {
                 if(vr_script.type == VRMR_TYPE_ZONE)
                     (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid zone name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
@@ -663,7 +663,7 @@ main(int argc, char *argv[])
         }
         else if(vr_script.type == VRMR_TYPE_SERVICE)
         {
-            if(vrmr_validate_servicename(debuglvl, vr_script.name, vr_script.reg.servicename, VALNAME_QUIET) != 0)
+            if(vrmr_validate_servicename(debuglvl, vr_script.name, vr_script.reg.servicename, VRMR_QUIET) != 0)
             {
                 (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid service name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 exit(VRS_ERR_COMMANDLINE);
