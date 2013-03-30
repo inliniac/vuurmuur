@@ -81,7 +81,7 @@ bandwidth_store(const int debuglvl, struct vrmr_list *list, int year, int month,
     bw_ptr = malloc(sizeof(struct TrafVol_));
     if(bw_ptr == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR,
+        vrmr_error(-1, VR_ERR,
                 gettext("malloc failed: %s (in: %s:%d)."),
                 strerror(errno), __FUNC__, __LINE__);
         return(-1);
@@ -99,7 +99,7 @@ bandwidth_store(const int debuglvl, struct vrmr_list *list, int year, int month,
     /* append to the list */
     if(vrmr_list_append(debuglvl, list, bw_ptr) == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append() failed "
+        vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
 
         free(bw_ptr);
@@ -176,7 +176,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
     /* safety */
     if(device == NULL || list == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem "
+        vrmr_error(-1, VR_INTERR, "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -185,7 +185,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
     vrmr_list_setup(debuglvl, list, free);
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "looking for data for '%s'.", device);
+        vrmr_debug(__FUNC__, "looking for data for '%s'.", device);
 
     /* create the tempfile */
     fd = vrmr_create_tempfile(debuglvl, tmpfile);
@@ -225,7 +225,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
     fd = open(tmpfile, 0);
     if(fd < 0)
     {
-        (void)vrprint.error(-1, VR_ERR,
+        vrmr_error(-1, VR_ERR,
                 gettext("opening '%s' failed: %s (in: %s:%d)."),
                 tmpfile, strerror(errno), __FUNC__, __LINE__);
         return(-1);
@@ -242,7 +242,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
 
             for(i = 0; i < (unsigned int)readsize; i++)
             {
-                //(void)vrprint.info(__FUNC__, "bw_buf[%d] = '%c', k = %d", i, bw_buf[i], k);
+                //vrmr_info(__FUNC__, "bw_buf[%d] = '%c', k = %d", i, bw_buf[i], k);
 
                 if(bw_buf[i] == '\n')
                 {
@@ -253,7 +253,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
                     sect_buf[k] = '\0';
                     k = 0;
 
-                    //(void)vrprint.info(__FUNC__, "newline (act_border: %d, k: %d, line_num: %d, sect_buf '%s'.)", act_border, k, line_num, sect_buf);
+                    //vrmr_info(__FUNC__, "newline (act_border: %d, k: %d, line_num: %d, sect_buf '%s'.)", act_border, k, line_num, sect_buf);
 
                     if(parsing_device_line == 1)
                     {
@@ -274,7 +274,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
                     sect_buf[k] = '\0';
                     k = 0;
 
-                    //(void)vrprint.info(__FUNC__, "border  (act_border: %d, k: %d, line_num: %d, sect_buf '%s'.)", act_border, k, line_num, sect_buf);
+                    //vrmr_info(__FUNC__, "border  (act_border: %d, k: %d, line_num: %d, sect_buf '%s'.)", act_border, k, line_num, sect_buf);
                     buf_done = 1;
                 }
                 else
@@ -306,7 +306,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
                     if(line_num == 1)
                     {
                         if(debuglvl >= HIGH)
-                            (void)vrprint.debug(__FUNC__, "line_num == 1: '%s'", sect_buf_stripped);
+                            vrmr_debug(__FUNC__, "line_num == 1: '%s'", sect_buf_stripped);
 
                         if(strncmp("no data", sect_buf_stripped, 7) == 0)
                         {
@@ -344,13 +344,13 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
                         else if(strcmp(month_str, "Dec") == 0)  data_month = 12;
                         else
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("could not parse month '%s' (in: %s:%d)."),
+                            vrmr_error(-1, VR_ERR, gettext("could not parse month '%s' (in: %s:%d)."),
                                                     month_str,
                                                     __FUNC__, __LINE__);
                             return(-1);
                         }
 
-                        //(void)vrprint.info(__FUNC__, "day: '%d', month: '%d'", data_day, data_month);
+                        //vrmr_info(__FUNC__, "day: '%d', month: '%d'", data_day, data_month);
                     }
                     /* device column */
                     if( parsing_data == 1 && device_column > 1 && cur_column == device_column &&
@@ -362,7 +362,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
                         send = ((send * 10) + send_sub) / 10;
 
                         if(debuglvl >= LOW)
-                            (void)vrprint.info(__FUNC__, "recv = %.1u, send = %.1u.", recv, send);
+                            vrmr_info(__FUNC__, "recv = %.1u, send = %.1u.", recv, send);
 
                         retval = 1;
 
@@ -370,7 +370,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
                         result = bandwidth_store(debuglvl, list, year, data_month, data_day, parsing_total_line, recv, send);
                         if(result < 0)
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "bandwidth_store() failed (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "bandwidth_store() failed (in: %s:%d).", __FUNC__, __LINE__);
 
                             done = TRUE;
                             retval = -1;
@@ -386,7 +386,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
                             device_column = cur_column;
 
                             if(debuglvl >= LOW)
-                                (void)vrprint.info(__FUNC__, "sect_buf_stripped '%s' match! (device: %s) column = %d.", sect_buf_stripped, device, device_column);
+                                vrmr_info(__FUNC__, "sect_buf_stripped '%s' match! (device: %s) column = %d.", sect_buf_stripped, device, device_column);
                         }
                     }
                 }
@@ -401,7 +401,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
     /* close the file again */
     if(close(fd) == -1)
     {
-        (void)vrprint.error(-1, VR_ERR,
+        vrmr_error(-1, VR_ERR,
                 gettext("closing of '%s' failed: %s (in: %s:%d)."),
                 tmpfile, strerror(errno), __FUNC__, __LINE__);
         return(-1);
@@ -410,7 +410,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
     /* remove the file */
     if(unlink(tmpfile) == -1)
     {
-        (void)vrprint.error(-1, VR_ERR,
+        vrmr_error(-1, VR_ERR,
                 gettext("removing '%s' failed (unlink): %s (in: %s:%d)."),
                 tmpfile, strerror(errno), __FUNC__, __LINE__);
         return(-1);
@@ -462,7 +462,7 @@ trafvol_section_init(const int debuglvl, int height, int width, int starty,
     /* alloc the needed memory */
     if(!(TrafVolSection.fields = (FIELD **)calloc(TrafVolSection.n_fields + 1, sizeof(FIELD *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
                                 strerror(errno),
                                 __FUNC__, __LINE__);
         return(-1);
@@ -526,13 +526,13 @@ trafvol_section_init(const int debuglvl, int height, int width, int starty,
     if(!(TrafVolSection.win = create_newwin(height, width, starty, startx,
             gettext("Traffic Volume Section"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
 
     if(!(TrafVolSection.panel[0] = new_panel(TrafVolSection.win)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating panel failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating panel failed."));
         return(-1);
     }
 
@@ -554,7 +554,7 @@ trafvol_section_init(const int debuglvl, int height, int width, int starty,
     /* Create the form and post it */
     if(!(TrafVolSection.form = new_form(TrafVolSection.fields)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating form failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating form failed."));
         return(-1);
     }
     /* Calculate the area required for the form */
@@ -566,7 +566,7 @@ trafvol_section_init(const int debuglvl, int height, int width, int starty,
 
     if(post_form(TrafVolSection.form) != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("posting the form failed."));
+        vrmr_error(-1, VR_ERR, gettext("posting the form failed."));
         return(-1);
     }
 
@@ -734,13 +734,13 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
 
     if(interfaces->list.len == 0)
     {
-        (void)vrprint.warning(VR_WARN, gettext("no interfaces found. Please define an interface first."));
+        vrmr_warning(VR_WARN, gettext("no interfaces found. Please define an interface first."));
         return(0);
     }
 
     if(strcmp(vccnf.iptrafvol_location, "") == 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("please set the location of the iptrafvol.pl command in the Settings."));
+        vrmr_error(-1, VR_ERR, gettext("please set the location of the iptrafvol.pl command in the Settings."));
         return(-1);
     }
 
@@ -752,7 +752,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -782,13 +782,13 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     while(quit == 0 && retval == 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "slept_so_far: %d, update_interval: %d.", slept_so_far, update_interval);
+            vrmr_debug(__FUNC__, "slept_so_far: %d, update_interval: %d.", slept_so_far, update_interval);
 
         /* check if we have slept long enough */
         if(slept_so_far >= update_interval)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "slept_so_far: %d -> now print.", slept_so_far);
+                vrmr_debug(__FUNC__, "slept_so_far: %d -> now print.", slept_so_far);
 
             slept_so_far = 0;
 
@@ -796,7 +796,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
             cur_time = time(NULL);
             if(cur_time == -1)
             {
-                (void)vrprint.error(-1, VR_INTERR, "getting current time failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "getting current time failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
             yesterday_time = cur_time - 86400;
@@ -804,19 +804,19 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
 
             if(localtime_r(&cur_time, &cur_tm) == NULL)
             {
-                (void)vrprint.error(-1, VR_INTERR, "converting current time failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "converting current time failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
             if(localtime_r(&yesterday_time, &yesterday_tm) == NULL)
             {
-                (void)vrprint.error(-1, VR_INTERR, "converting yesterday's time failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "converting yesterday's time failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
             if(localtime_r(&lastweek_time, &lastweek_tm) == NULL)
             {
-                (void)vrprint.error(-1, VR_INTERR, "converting lastweeks's time failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "converting lastweeks's time failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -825,7 +825,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
             {
                 if(!(iface_ptr = d_node->data))
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
 
@@ -842,7 +842,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                         {
                             if(!(bw_ptr = bw_d_node->data))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                                 return(-1);
                             }
                             //printf("%2d/%2d/%4d: in: %u, out: %u %s\n", bw_ptr->day, bw_ptr->month, bw_ptr->year, bw_ptr->recv_mb, bw_ptr->send_mb, bw_ptr->total ? "(total)" : "");
@@ -874,7 +874,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                         {
                             if(!(bw_ptr = bw_d_node->data))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                                 return(-1);
                             }
                             //printf("%2d/%2d/%4d: in: %u, out: %u %s\n", bw_ptr->day, bw_ptr->month, bw_ptr->year, bw_ptr->recv_mb, bw_ptr->send_mb, bw_ptr->total ? "(total)" : "");
@@ -906,7 +906,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                         {
                             if(!(bw_ptr = bw_d_node->data))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                                 return(-1);
                             }
                             //printf("%2d/%2d/%4d: in: %u, out: %u %s\n", bw_ptr->day, bw_ptr->month, bw_ptr->year, bw_ptr->recv_mb, bw_ptr->send_mb, bw_ptr->total ? "(total)" : "");
@@ -938,7 +938,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                         {
                             if(!(bw_ptr = bw_d_node->data))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                                 return(-1);
                             }
                             //printf("%2d/%2d/%4d: in: %u, out: %u %s\n", bw_ptr->day, bw_ptr->month, bw_ptr->year, bw_ptr->recv_mb, bw_ptr->send_mb, bw_ptr->total ? "(total)" : "");
@@ -984,7 +984,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                         {
                             if(!(bw_ptr = bw_d_node->data))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                                 return(-1);
                             }
                             //printf("%2d/%2d/%4d: in: %u, out: %u %s\n", bw_ptr->day, bw_ptr->month, bw_ptr->year, bw_ptr->recv_mb, bw_ptr->send_mb, bw_ptr->total ? "(total)" : "");
@@ -1046,7 +1046,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
             slept_so_far = slept_so_far + 10000;
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "just slept: slept_so_far '%d'.", slept_so_far);
+                vrmr_debug(__FUNC__, "just slept: slept_so_far '%d'.", slept_so_far);
         }
     }
 

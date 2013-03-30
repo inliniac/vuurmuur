@@ -40,7 +40,7 @@ SetupVMIPC (int *shm_id, struct vrmr_shm_table **shm_table)
     *shm_id = shmget(IPC_PRIVATE, sizeof(**shm_table), 0600);
     if(*shm_id < 0)
     {
-        (void)vrprint.error(-1, "Error", "unable to create shared memory: %s.", strerror(errno));
+        vrmr_error(-1, "Error", "unable to create shared memory: %s.", strerror(errno));
         return (-1);
     }
 
@@ -54,21 +54,21 @@ SetupVMIPC (int *shm_id, struct vrmr_shm_table **shm_table)
         *shm_id = shmget(IPC_PRIVATE, sizeof(**shm_table), 0600);
         if(shm_id < 0)
         {
-            (void)vrprint.error(-1, "Error", "Unable to create shared memory: %s (retry).", strerror(errno));
+            vrmr_error(-1, "Error", "Unable to create shared memory: %s (retry).", strerror(errno));
             return (-1);
         }
         else if(*shm_id == 0)
         {
-            (void)vrprint.info("Info", "Still no valid shm_id. Giving up.");
+            vrmr_info("Info", "Still no valid shm_id. Giving up.");
         }
         else
         {
-            (void)vrprint.info("Info", "Creating shared memory successfull: shm_id: %d (retry).", *shm_id);
+            vrmr_info("Info", "Creating shared memory successfull: shm_id: %d (retry).", *shm_id);
         }
     }
     else
     {
-        (void)vrprint.debug(__FUNC__, "Creating shared memory successfull: shm_id: %d.", *shm_id);
+        vrmr_debug(__FUNC__, "Creating shared memory successfull: shm_id: %d.", *shm_id);
     }
 
     /* now attach to the shared mem */
@@ -77,13 +77,13 @@ SetupVMIPC (int *shm_id, struct vrmr_shm_table **shm_table)
         shmp = shmat(*shm_id, 0, 0);
         if(shmp == (char *)(-1))
         {
-            (void)vrprint.error(-1, "Error", "unable to attach to shared memory: %s.", strerror(errno));
+            vrmr_error(-1, "Error", "unable to attach to shared memory: %s.", strerror(errno));
             exit(EXIT_FAILURE);
         }
         else
         {
             *shm_table = (struct vrmr_shm_table *)shmp;
-            (void)vrprint.info("Info", "Attaching to shared memory successfull.");
+            vrmr_info("Info", "Attaching to shared memory successfull.");
         }
 
         /* if all went well we create a semaphore */
@@ -92,23 +92,23 @@ SetupVMIPC (int *shm_id, struct vrmr_shm_table **shm_table)
             sem_id = semget(IPC_PRIVATE, 2, 0600);
             if(sem_id == -1)
             {
-                (void)vrprint.error(-1, "Error", "Unable to create semaphore: %s.", strerror(errno));
+                vrmr_error(-1, "Error", "Unable to create semaphore: %s.", strerror(errno));
                 return (-1);
             }
             else
             {
-                (void)vrprint.info("Info", "Creating a semaphore success: %d", sem_id);
+                vrmr_info("Info", "Creating a semaphore success: %d", sem_id);
             }
 
             semarg.array = seminit;
             if(semctl(sem_id, 0, SETALL, semarg) == -1)
             {
-                (void)vrprint.error(-1, "Error", "Unable to initialize semaphore: %s.", strerror(errno));
+                vrmr_error(-1, "Error", "Unable to initialize semaphore: %s.", strerror(errno));
                 return (-1);
             }
             else
             {
-                (void)vrprint.info("Info", "Initializing the semaphore successfull.");
+                vrmr_info("Info", "Initializing the semaphore successfull.");
             }
 
             /* now initialize the shared mem */
@@ -129,21 +129,21 @@ int
 ClearVMIPC (const int debuglvl, int shm_id)
 {
     /* destroy shm */
-    (void)vrprint.info("Info", "Destroying shared memory...");
+    vrmr_info("Info", "Destroying shared memory...");
 
     if(shmctl(shm_id, IPC_RMID, NULL) < 0)
     {
-        (void)vrprint.error(-1, "Error", "destroying shared memory failed: %s.", strerror(errno));
+        vrmr_error(-1, "Error", "destroying shared memory failed: %s.", strerror(errno));
         return (-1);
     }
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "shared memory destroyed.");
+        vrmr_debug(__FUNC__, "shared memory destroyed.");
 
     /* destroy semaphore */
     if(semctl(sem_id, 0, IPC_RMID, semarg) == -1)
     {
-        (void)vrprint.error(-1, "Error", "failed to remove semaphore.");
+        vrmr_error(-1, "Error", "failed to remove semaphore.");
         return (-1);
     }
 
@@ -164,18 +164,18 @@ CheckVMIPC (const int debuglvl, struct vrmr_shm_table *shm_table)
     {
         if(shm_table->configtool.connected == 1)
         {
-            (void)vrprint.info("Info", "Configtool connected: %s.", shm_table->configtool.name);
+            vrmr_info("Info", "Configtool connected: %s.", shm_table->configtool.name);
             shm_table->configtool.connected = 2;
         }
         else if(shm_table->configtool.connected == 3)
         {
-            (void)vrprint.info("Info", "Configtool disconnected: %s.", shm_table->configtool.name);
+            vrmr_info("Info", "Configtool disconnected: %s.", shm_table->configtool.name);
             shm_table->configtool.connected = 0;
         }
 
         if(shm_table->backend_changed == 1)
         {
-            (void)vrprint.audit("IPC-SHM: backend changed: reload (user: %s).", shm_table->configtool.username);
+            vrmr_audit("IPC-SHM: backend changed: reload (user: %s).", shm_table->configtool.username);
             retval = 1;
             shm_table->backend_changed = 0;
 
@@ -215,7 +215,7 @@ WaitVMIPCACK (int wait_time, int *result, struct vrmr_shm_table *shm_table, int 
     }
     *reload = 0;
 
-    (void)vrprint.info("Info", "Waiting for an VRMR_RR_RESULT_ACK");
+    vrmr_info("Info", "Waiting for an VRMR_RR_RESULT_ACK");
 
     *result = 0;
     waited = 0;
@@ -232,7 +232,7 @@ WaitVMIPCACK (int wait_time, int *result, struct vrmr_shm_table *shm_table, int 
                 shm_table->reload_progress = 0;
                 *result = 1;
 
-                (void)vrprint.info("Info", "We got an VRMR_RR_RESULT_ACK!");
+                vrmr_info("Info", "We got an VRMR_RR_RESULT_ACK!");
             }
             vrmr_unlock(sem_id);
         }
@@ -242,7 +242,7 @@ WaitVMIPCACK (int wait_time, int *result, struct vrmr_shm_table *shm_table, int 
     }
     if (*result == 0)
     {
-        (void)vrprint.info("Info", "We've waited for 30 seconds for an VRMR_RR_RESULT_ACK, but got none. Setting to VRMR_RR_READY");
+        vrmr_info("Info", "We've waited for 30 seconds for an VRMR_RR_RESULT_ACK, but got none. Setting to VRMR_RR_READY");
         if(vrmr_lock(sem_id))
         {
             shm_table->reload_result = VRMR_RR_READY;
@@ -251,7 +251,7 @@ WaitVMIPCACK (int wait_time, int *result, struct vrmr_shm_table *shm_table, int 
         }
         else
         {
-            (void)vrprint.info("Info", "Hmmmm, failed to set to ready. Did the client crash?");
+            vrmr_info("Info", "Hmmmm, failed to set to ready. Did the client crash?");
         }
     }
     return *result;

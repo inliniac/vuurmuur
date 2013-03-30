@@ -52,7 +52,7 @@ vuurmuur_fopen(const int debuglvl, const struct vrmr_config *cnf, const char *pa
        but we check to be sure. */
     if(!(fp=fopen(path, mode)))
     {
-        (void)vrprint.error(-1, "Error", "opening '%s' failed: %s (in: vuurmuur_fopen).", path, strerror(errno));
+        vrmr_error(-1, "Error", "opening '%s' failed: %s (in: vuurmuur_fopen).", path, strerror(errno));
         return NULL;
     }
 
@@ -71,7 +71,7 @@ vuurmuur_opendir(const int debuglvl, const struct vrmr_config *cnf, const char *
     /* finally try to open */
     if(!(dir_p = opendir(name)))
     {
-        (void)vrprint.error(-1, "Error", "opening '%s' failed: %s.", name, strerror(errno));
+        vrmr_error(-1, "Error", "opening '%s' failed: %s.", name, strerror(errno));
         return NULL;
     }
 
@@ -109,7 +109,7 @@ vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file
     /* safety */
     if(file_loc == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(0);
     }
 
@@ -121,11 +121,11 @@ vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file
                 /* Allow the file to be non-existing. */
                 return(1);
             } else {
-                (void)vrprint.error(-1, "Error",  "File not found: '%s'.", file_loc);
+                vrmr_error(-1, "Error",  "File not found: '%s'.", file_loc);
                 return(0);
             }
         } else {
-            (void)vrprint.error(-1, "Error",  "checking failed for '%s': %s.", file_loc, strerror(errno));
+            vrmr_error(-1, "Error",  "checking failed for '%s': %s.", file_loc, strerror(errno));
             return(0);
         }
     }
@@ -134,28 +134,28 @@ vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file
     if(S_ISLNK(stat_buf.st_mode) == 1)
     {
         if(output == VRMR_STATOK_VERBOSE)
-            (void)vrprint.error(-1, "Error", "opening '%s': For security reasons Vuurmuur will not allow following symbolic-links.", file_loc);
+            vrmr_error(-1, "Error", "opening '%s': For security reasons Vuurmuur will not allow following symbolic-links.", file_loc);
 
         return(0);
     }
     else if(type == VRMR_STATOK_WANT_FILE && S_ISREG(stat_buf.st_mode) != 1)
     {
         if(output == VRMR_STATOK_VERBOSE)
-            (void)vrprint.error(-1, "Error", "opening '%s' failed: not a file.", file_loc);
+            vrmr_error(-1, "Error", "opening '%s' failed: not a file.", file_loc);
 
         return(0);
     }
     else if(type == VRMR_STATOK_WANT_DIR && S_ISDIR(stat_buf.st_mode) != 1)
     {
         if(output == VRMR_STATOK_VERBOSE)
-            (void)vrprint.error(-1, "Error", "opening '%s' failed: not a directory.", file_loc);
+            vrmr_error(-1, "Error", "opening '%s' failed: not a directory.", file_loc);
 
         return(0);
     }
     else if(type == VRMR_STATOK_WANT_BOTH && S_ISREG(stat_buf.st_mode) != 1 && S_ISDIR(stat_buf.st_mode) != 1)
     {
         if(output == VRMR_STATOK_VERBOSE)
-            (void)vrprint.error(-1, "Error", "opening '%s' failed: not a file or a directory.", file_loc);
+            vrmr_error(-1, "Error", "opening '%s' failed: not a file or a directory.", file_loc);
 
         return(0);
     }
@@ -164,7 +164,7 @@ vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file
     if(stat_buf.st_uid != 0 || stat_buf.st_gid != 0)
     {
         if(output == VRMR_STATOK_VERBOSE)
-            (void)vrprint.error(-1, "Error", "opening '%s': For security reasons Vuurmuur will not open files or directories that are not owned by root.", file_loc);
+            vrmr_error(-1, "Error", "opening '%s': For security reasons Vuurmuur will not open files or directories that are not owned by root.", file_loc);
 
         return(0);
     }
@@ -181,11 +181,11 @@ vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file
         /* See if the file mode has more bits set than the maximum allowed */
         if(perm & ~max)
         {
-            (void)vrprint.info("Info", "'%s' has mode %o, which is more than maximum allowed mode %o. Resetting to %o.", file_loc, perm, max, max);
+            vrmr_info("Info", "'%s' has mode %o, which is more than maximum allowed mode %o. Resetting to %o.", file_loc, perm, max, max);
 
             if(chmod(file_loc, max) == -1)
             {
-                (void)vrprint.error(-1, "Error", "failed to repair permissions for '%s': %s.", file_loc, strerror(errno));
+                vrmr_error(-1, "Error", "failed to repair permissions for '%s': %s.", file_loc, strerror(errno));
                 return(0);
             }
         }
@@ -268,17 +268,17 @@ vrmr_create_pidfile(char *pidfile_location, int shm_id)
     fp = fopen(pidfile_location, "w+");
     if(!fp)
     {
-        (void)vrprint.error(-1, "Error", "opening pid-file '%s' for writing failed: %s.", pidfile_location, strerror(errno));
+        vrmr_error(-1, "Error", "opening pid-file '%s' for writing failed: %s.", pidfile_location, strerror(errno));
         return(-1);
     }
     if(fprintf(fp, "%ld %d\n", (long)pid, shm_id) < 0)
     {
-        (void)vrprint.error(-1, "Error", "writing pid-file '%s' failed: %s.", pidfile_location, strerror(errno));
+        vrmr_error(-1, "Error", "writing pid-file '%s' failed: %s.", pidfile_location, strerror(errno));
         return(-1);
     }
     if(fclose(fp) < 0)
     {
-        (void)vrprint.error(-1, "Error", "closing pid-file '%s' failed: %s.", pidfile_location, strerror(errno));
+        vrmr_error(-1, "Error", "closing pid-file '%s' failed: %s.", pidfile_location, strerror(errno));
         return(-1);
     }
 
@@ -294,7 +294,7 @@ vrmr_remove_pidfile(char *pidfile_location)
 
     if(remove(pidfile_location) != 0)
     {
-        (void)vrprint.error(-1, "Error", "removing pid-file '%s' failed: %s.", pidfile_location, strerror(errno));
+        vrmr_error(-1, "Error", "removing pid-file '%s' failed: %s.", pidfile_location, strerror(errno));
         return(-1);
     }
 
@@ -319,7 +319,7 @@ vrmr_rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const ch
     /* safety */
     if(!path || !mode)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -330,21 +330,21 @@ vrmr_rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const ch
 
     if(!(lock_path = malloc(lockpath_len)))
     {
-        (void)vrprint.error(-1, "Error", "malloc failed: %s "
+        vrmr_error(-1, "Error", "malloc failed: %s "
             "(in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
         return(NULL);
     }
 
     if(strlcpy(lock_path, path, lockpath_len) >= lockpath_len)
     {
-        (void)vrprint.error(-1, "Error", "string overflow "
+        vrmr_error(-1, "Error", "string overflow "
             "(in: %s:%d).", __FUNC__, __LINE__);
         free(lock_path);
         return(NULL);
     }
     if(strlcat(lock_path, ".LOCK", lockpath_len) >= lockpath_len)
     {
-        (void)vrprint.error(-1, "Error", "string overflow "
+        vrmr_error(-1, "Error", "string overflow "
             "(in: %s:%d).", __FUNC__, __LINE__);
         free(lock_path);
         return(NULL);
@@ -355,7 +355,7 @@ vrmr_rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const ch
     if(lock_fp != NULL)
     {
         /* we are locked! enter wait loop */
-        (void)vrprint.warning("Warning", "rulesfile is locked, will try for 60 seconds.");
+        vrmr_warning("Warning", "rulesfile is locked, will try for 60 seconds.");
         for(i = 0; i < 60; i++)
         {
             /* close the lockfile */
@@ -376,7 +376,7 @@ vrmr_rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const ch
         lock_fp = fopen(lock_path, "r");
         if(lock_fp != NULL)
         {
-            (void)vrprint.error(-1, "Error", "opening rulesfile timed out, check if there was a crash.");
+            vrmr_error(-1, "Error", "opening rulesfile timed out, check if there was a crash.");
 
             fclose(lock_fp);
             free(lock_path);
@@ -388,7 +388,7 @@ vrmr_rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const ch
     lock_fp = fopen(lock_path, "w");
     if(!lock_fp)
     {
-        (void)vrprint.error(-1, "Error", "creating lockfile failed: %s.", strerror(errno));
+        vrmr_error(-1, "Error", "creating lockfile failed: %s.", strerror(errno));
         return(NULL);
     }
     else
@@ -417,7 +417,7 @@ vrmr_rules_file_close(FILE *file, const char *path)
     /* safety */
     if(!file || !path)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -427,20 +427,20 @@ vrmr_rules_file_close(FILE *file, const char *path)
 
     if(!(lock_path = malloc(lockpath_len)))
     {
-        (void)vrprint.error(-1, "Error", "malloc failed: %s.", strerror(errno));
+        vrmr_error(-1, "Error", "malloc failed: %s.", strerror(errno));
         return(-1);
     }
 
     if(strlcpy(lock_path, path, lockpath_len) >= lockpath_len)
     {
-        (void)vrprint.error(-1, "Error", "string overflow "
+        vrmr_error(-1, "Error", "string overflow "
             "(in: %s:%d).", __FUNC__, __LINE__);
         free(lock_path);
         return(-1);
     }
     if(strlcat(lock_path, ".LOCK", lockpath_len) >= lockpath_len)
     {
-        (void)vrprint.error(-1, "Error", "string overflow "
+        vrmr_error(-1, "Error", "string overflow "
             "(in: %s:%d).", __FUNC__, __LINE__);
         free(lock_path);
         return(-1);
@@ -456,19 +456,19 @@ vrmr_rules_file_close(FILE *file, const char *path)
         /* good, the file exists */
         if(remove(lock_path) < 0)
         {
-            (void)vrprint.error(-1, "Error", "removing lockfile failed: %s.", strerror(errno));
+            vrmr_error(-1, "Error", "removing lockfile failed: %s.", strerror(errno));
             retval = -1;
         }
     }
     else
     {
-        (void)vrprint.warning("Warning", "lockfile was already removed.");
+        vrmr_warning("Warning", "lockfile was already removed.");
     }
 
     /* close the file */
     if(fclose(file) < 0)
     {
-        (void)vrprint.error(-1, "Error", "closing file failed: %s (in: %s).", strerror(errno), __FUNC__);
+        vrmr_error(-1, "Error", "closing file failed: %s (in: %s).", strerror(errno), __FUNC__);
         retval = -1;
     }
 
@@ -497,21 +497,21 @@ vrmr_pipe_command(const int debuglvl, struct vrmr_config *cnf, char *command,
     /* safety */
     if(cnf == NULL || command == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= MEDIUM)
     {
-        (void)vrprint.debug(__FUNC__, "command: %s", command);
-        (void)vrprint.debug(__FUNC__, "strlen(command) = %d, max = %d",
+        vrmr_debug(__FUNC__, "command: %s", command);
+        vrmr_debug(__FUNC__, "strlen(command) = %d, max = %d",
                 strlen(command), VRMR_MAX_PIPE_COMMAND);
     }
 
     if(strlen(command) > VRMR_MAX_PIPE_COMMAND)
     {
-        (void)vrprint.error(-1, "Internal Error", "Command to pipe too "
+        vrmr_error(-1, "Internal Error", "Command to pipe too "
                 "long! (%d, while max is: %d).",
                 strlen(command), VRMR_MAX_PIPE_COMMAND);
         return(-1);
@@ -526,19 +526,19 @@ vrmr_pipe_command(const int debuglvl, struct vrmr_config *cnf, char *command,
 
     if(!(p = popen(command,"r")))
     {
-        (void)vrprint.error(-1, "Error", "opening pipe to '%s' failed.", command);
+        vrmr_error(-1, "Error", "opening pipe to '%s' failed.", command);
         return(-1);
     }
 
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "pipe opened succesfully.");
+        vrmr_debug(__FUNC__, "pipe opened succesfully.");
 
     int r = pclose(p);
     if(r != 0)
     {
         if(!ignore_error)
         {
-            (void)vrprint.error(-1, "Error", "command '%s' failed.",
+            vrmr_error(-1, "Error", "command '%s' failed.",
                     command);
         }
 
@@ -547,7 +547,7 @@ vrmr_pipe_command(const int debuglvl, struct vrmr_config *cnf, char *command,
     else
     {
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "pipe closed!");
+            vrmr_debug(__FUNC__, "pipe closed!");
     }
 
     return(retval);
@@ -572,18 +572,18 @@ libvuurmuur_exec_command(const int debuglvl, struct vrmr_config *cnf, char *path
     char *output_path = NULL;
 
     if (debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "starting, path %s", path);
+        vrmr_debug(__FUNC__, "starting, path %s", path);
 
     pid_t pid = fork();
     if (pid == 0) {
         if (debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "(child) started");
+            vrmr_debug(__FUNC__, "(child) started");
 
         /* close stdout so we don't see the output of the
          * command we execute */
         fp = freopen("/dev/null", "rb", stdin);
         if (fp == NULL) {
-            (void)vrprint.error(127, "Internal Error", "freopen stdin to /dev/null failed: %s",
+            vrmr_error(127, "Internal Error", "freopen stdin to /dev/null failed: %s",
                 strerror(errno));
             exit(127);
         }
@@ -595,7 +595,7 @@ libvuurmuur_exec_command(const int debuglvl, struct vrmr_config *cnf, char *path
 
         fp = freopen(output_path, "wb", stdout);
         if (fp == NULL) {
-            (void)vrprint.error(127, "Internal Error", "freopen stdout to %s failed: %s",
+            vrmr_error(127, "Internal Error", "freopen stdout to %s failed: %s",
                 output_path, strerror(errno));
             exit(127);
         }
@@ -607,7 +607,7 @@ libvuurmuur_exec_command(const int debuglvl, struct vrmr_config *cnf, char *path
 
         fp = freopen(output_path, "wb", stderr);
         if (fp == NULL) {
-            (void)vrprint.error(127, "Internal Error", "freopen stdin to %s failed: %s",
+            vrmr_error(127, "Internal Error", "freopen stdin to %s failed: %s",
                 output_path, strerror(errno));
             exit(127);
         }
@@ -620,7 +620,7 @@ libvuurmuur_exec_command(const int debuglvl, struct vrmr_config *cnf, char *path
         exit(127);
     }
     if (debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "child pid is %u", pid);
+        vrmr_debug(__FUNC__, "child pid is %u", pid);
 
     int status;
     pid_t rpid;
@@ -630,14 +630,14 @@ libvuurmuur_exec_command(const int debuglvl, struct vrmr_config *cnf, char *path
 
     if (pid != -1 && WIFEXITED(status) && WEXITSTATUS(status)) {
         if (debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "WEXITSTATUS(status) %d", WEXITSTATUS(status));
+            vrmr_debug(__FUNC__, "WEXITSTATUS(status) %d", WEXITSTATUS(status));
         retval = WEXITSTATUS(status);
     }
     else if (rpid == -1)
         retval = -1;
 
     if (debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "(%s) retval %d", path, retval);
+        vrmr_debug(__FUNC__, "(%s) retval %d", path, retval);
     return retval;
 }
 
@@ -652,7 +652,7 @@ vrmr_shm_update_progress(const int debuglvl, int semid, int *shm_progress, int s
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "set_percent %d.", set_percent);
+        vrmr_debug(__FUNC__, "set_percent %d.", set_percent);
 }
 
 
@@ -687,7 +687,7 @@ get_vuurmuur_pid(char *vuurmuur_pidfile_location, int *shmid)
     else
     {
         /* no need to return, because pid isn't touched, so still -1 */
-        (void)vrprint.error(-1, "Error", "empty or corrupted pid file: '%s' (in: %s).",
+        vrmr_error(-1, "Error", "empty or corrupted pid file: '%s' (in: %s).",
                 vuurmuur_pidfile_location,
                 __FUNC__);
     }
@@ -715,7 +715,7 @@ vrmr_create_tempfile(const int debuglvl, char *pathname)
     /* safety */
     if(!pathname)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -727,9 +727,9 @@ vrmr_create_tempfile(const int debuglvl, char *pathname)
     if(fd == -1)
     {
         if(errno == 0)
-            (void)vrprint.error(-1, "Error", "could not create tempfile (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "could not create tempfile (in: %s:%d).", __FUNC__, __LINE__);
         else
-            (void)vrprint.error(-1, "Error", "could not create tempfile: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "could not create tempfile: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
     }
 
     return(fd);

@@ -34,7 +34,7 @@ vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interface
     /* check our input */
     if(interfaces == NULL || iface_ptr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -51,14 +51,14 @@ vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interface
         {
             if(!(check_iface_ptr = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error",
+                vrmr_error(-1, "Internal Error",
                         "NULL pointer (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "iface_ptr->name: %s, "
+                vrmr_debug(__FUNC__, "iface_ptr->name: %s, "
                         "check_iface_ptr->name: %s",
                         iface_ptr->name, check_iface_ptr->name);
 
@@ -66,7 +66,7 @@ vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interface
             if(result <= 0)
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "insert here.");
+                    vrmr_debug(__FUNC__, "insert here.");
 
                 insert_here = 1;
                 break;
@@ -77,12 +77,12 @@ vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interface
     if(insert_here == 1 && d_node == NULL)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "prepend %s", iface_ptr->name);
+            vrmr_debug(__FUNC__, "prepend %s", iface_ptr->name);
 
         /* prepend if an empty list */
         if(!(vrmr_list_prepend(debuglvl, &interfaces->list, iface_ptr)))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
                     "vrmr_list_prepend() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -91,14 +91,14 @@ vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interface
     else if(insert_here == 1 && d_node != NULL)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "insert %s", iface_ptr->name);
+            vrmr_debug(__FUNC__, "insert %s", iface_ptr->name);
 
         /*
             insert before the current node
         */
         if(!(vrmr_list_insert_before(debuglvl, &interfaces->list, d_node, iface_ptr)))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
                     "vrmr_list_insert_before() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -107,14 +107,14 @@ vrmr_insert_interface_list(const int debuglvl, struct vrmr_interfaces *interface
     else
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "append %s", iface_ptr->name);
+            vrmr_debug(__FUNC__, "append %s", iface_ptr->name);
 
         /*
             append if we were bigger than all others
         */
         if(!(vrmr_list_append(debuglvl, &interfaces->list, iface_ptr)))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
                     "vrmr_list_append() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -142,13 +142,13 @@ vrmr_search_interface(const int debuglvl, const struct vrmr_interfaces *interfac
     /* safety check */
     if(name == NULL || interfaces == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "looking for "
+        vrmr_debug(__FUNC__, "looking for "
             "interface '%s'.", name);
 
     /*
@@ -164,7 +164,7 @@ vrmr_search_interface(const int debuglvl, const struct vrmr_interfaces *interfac
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL "
+            vrmr_error(-1, "Internal Error", "NULL "
                     "pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -173,7 +173,7 @@ vrmr_search_interface(const int debuglvl, const struct vrmr_interfaces *interfac
         {
             /* Found! */
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "Interface '%s' "
+                vrmr_debug(__FUNC__, "Interface '%s' "
                         "found!", name);
 
             /* return the pointer we found */
@@ -183,7 +183,7 @@ vrmr_search_interface(const int debuglvl, const struct vrmr_interfaces *interfac
 
     /* if we get here, the interface was not found, so return NULL */
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "interface '%s' not found.", name);
+        vrmr_debug(__FUNC__, "interface '%s' not found.", name);
 
     return(NULL);
 }
@@ -201,13 +201,13 @@ vrmr_search_interface_by_ip(const int debuglvl, struct vrmr_interfaces *interfac
     /* safety check */
     if(ip == NULL || interfaces == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "looking for interface "
+        vrmr_debug(__FUNC__, "looking for interface "
             "with ip '%s'.", ip);
 
     /*
@@ -223,7 +223,7 @@ vrmr_search_interface_by_ip(const int debuglvl, struct vrmr_interfaces *interfac
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL "
+            vrmr_error(-1, "Internal Error", "NULL "
                     "pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -232,7 +232,7 @@ vrmr_search_interface_by_ip(const int debuglvl, struct vrmr_interfaces *interfac
         {
             /* Found! */
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "Interface with "
+                vrmr_debug(__FUNC__, "Interface with "
                         "ip '%s' found!", ip);
 
             /* return the pointer we found */
@@ -242,7 +242,7 @@ vrmr_search_interface_by_ip(const int debuglvl, struct vrmr_interfaces *interfac
 
     /* if we get here, the interface was not found, so return NULL */
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "interface with ip '%s' "
+        vrmr_debug(__FUNC__, "interface with ip '%s' "
             "not found.", ip);
 
     return(NULL);
@@ -346,13 +346,13 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     /* safety first */
     if(iface_ptr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "start: name: %s", iface_ptr->name);
+        vrmr_debug(__FUNC__, "start: name: %s", iface_ptr->name);
 
     /* check if the interface is active */
     result = vrmr_check_active(debuglvl, iface_ptr->name, VRMR_TYPE_INTERFACE);
@@ -366,7 +366,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_check_active() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "vrmr_check_active() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -385,14 +385,14 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     {
         /* if the interface is undefined, issue a warning and set inactive */
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "no VIRTUAL defined for interface '%s', assuming not virtual.",
+            vrmr_debug(__FUNC__, "no VIRTUAL defined for interface '%s', assuming not virtual.",
                     iface_ptr->name);
 
         iface_ptr->device_virtual = FALSE;
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -403,7 +403,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     if(result == 1)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "device: %s.", iface_ptr->device);
+            vrmr_debug(__FUNC__, "device: %s.", iface_ptr->device);
 
         if(iface_ptr->device_virtual == TRUE)
         {
@@ -418,14 +418,14 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     {
         /* if the interface is undefined, issue a warning and set inactive */
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "no DEVICE defined for interface '%s', trying pre-0.5.68s INTERFACE.",
+            vrmr_debug(__FUNC__, "no DEVICE defined for interface '%s', trying pre-0.5.68s INTERFACE.",
                     iface_ptr->name);
 
         result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "INTERFACE", iface_ptr->device, sizeof(iface_ptr->device), VRMR_TYPE_INTERFACE, 0);
         if(result == 1)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "device: %s.", iface_ptr->device);
+                vrmr_debug(__FUNC__, "device: %s.", iface_ptr->device);
 
             if(iface_ptr->device_virtual == TRUE)
             {
@@ -440,19 +440,19 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
         {
             /* if the interface is undefined, issue a warning and set inactive */
             if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "no INTERFACE defined for interface '%s', assuming not virtual.",
+                vrmr_debug(__FUNC__, "no INTERFACE defined for interface '%s', assuming not virtual.",
                         iface_ptr->name);
         }
         else
         {
-            (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -463,7 +463,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     if(result == 1)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "ipaddress: %s.", iface_ptr->ipv4.ipaddress);
+            vrmr_debug(__FUNC__, "ipaddress: %s.", iface_ptr->ipv4.ipaddress);
 
         /* check if ip is dynamic */
         if(strcmp(iface_ptr->ipv4.ipaddress, "dynamic") == 0)
@@ -475,12 +475,12 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     else if(result == 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "no IPADDRESS defined for interface '%s', assuming not virtual.",
+            vrmr_debug(__FUNC__, "no IPADDRESS defined for interface '%s', assuming not virtual.",
                     iface_ptr->name);
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -491,7 +491,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     if(result == 1)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "ipaddress: %s.", iface_ptr->ipv6.ip6);
+            vrmr_debug(__FUNC__, "ipaddress: %s.", iface_ptr->ipv6.ip6);
 
         /* check if ip is dynamic */
         if(strcmp(iface_ptr->ipv6.ip6, "dynamic") == 0)
@@ -504,12 +504,12 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     else if(result == 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "no IPV6ADDRESS defined for interface '%s', assuming not virtual.",
+            vrmr_debug(__FUNC__, "no IPV6ADDRESS defined for interface '%s', assuming not virtual.",
                     iface_ptr->name);
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -528,14 +528,14 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     {
         /* if the interface is undefined, issue a warning and set inactive */
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "no SHAPE defined for interface '%s', assuming no shaping.",
+            vrmr_debug(__FUNC__, "no SHAPE defined for interface '%s', assuming no shaping.",
                     iface_ptr->name);
 
         iface_ptr->shape = FALSE;
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -545,20 +545,20 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     if(result == 1)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "raw bw_str: %s.", bw_str);
+            vrmr_debug(__FUNC__, "raw bw_str: %s.", bw_str);
 
         iface_ptr->bw_in = atoi(bw_str);
     }
     else if(result == 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "no BW_IN defined for interface '%s', setting to 0.",
+            vrmr_debug(__FUNC__, "no BW_IN defined for interface '%s', setting to 0.",
                     iface_ptr->name);
         iface_ptr->bw_in = 0;
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -567,7 +567,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     if(result == 1)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "raw bw_str (unit): %s.", iface_ptr->bw_in_unit);
+            vrmr_debug(__FUNC__, "raw bw_str (unit): %s.", iface_ptr->bw_in_unit);
 
         if (strcasecmp(iface_ptr->bw_in_unit, "kbit") == 0) {
             /* okay do nothing */
@@ -580,13 +580,13 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     else if(result == 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "no BW_IN_UNIT defined for interface '%s', setting to 0.",
+            vrmr_debug(__FUNC__, "no BW_IN_UNIT defined for interface '%s', setting to 0.",
                     iface_ptr->name);
         iface_ptr->bw_in = 0;
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -597,20 +597,20 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     if(result == 1)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "raw bw_str: %s.", bw_str);
+            vrmr_debug(__FUNC__, "raw bw_str: %s.", bw_str);
 
         iface_ptr->bw_out = atoi(bw_str);
     }
     else if(result == 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "no BW_OUT defined for interface '%s', setting to 0.",
+            vrmr_debug(__FUNC__, "no BW_OUT defined for interface '%s', setting to 0.",
                     iface_ptr->name);
         iface_ptr->bw_out = 0;
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -619,7 +619,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     if(result == 1)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "raw bw_str (unit): %s.", iface_ptr->bw_out_unit);
+            vrmr_debug(__FUNC__, "raw bw_str (unit): %s.", iface_ptr->bw_out_unit);
 
         if (strcasecmp(iface_ptr->bw_out_unit, "kbit") == 0) {
             /* okay do nothing */
@@ -630,13 +630,13 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     else if(result == 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "no BW_OUT_UNIT defined for interface '%s', setting to 0.",
+            vrmr_debug(__FUNC__, "no BW_OUT_UNIT defined for interface '%s', setting to 0.",
                     iface_ptr->name);
         iface_ptr->bw_out = 0;
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -647,7 +647,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
         /* get the rules */
         if(vrmr_interfaces_get_rules(debuglvl, iface_ptr) < 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "vrmr_interfaces_get_rules() failed (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "vrmr_interfaces_get_rules() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -666,14 +666,14 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     {
         /* if the interface is undefined, issue a warning and set inactive */
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "no TCPMSS defined for interface '%s', assuming no tcpmss setting.",
+            vrmr_debug(__FUNC__, "no TCPMSS defined for interface '%s', assuming no tcpmss setting.",
                     iface_ptr->name);
 
         iface_ptr->tcpmss_clamp = FALSE;
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->ask() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -686,27 +686,27 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
         if(result == 0)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "interface '%s' is up.", iface_ptr->name);
+                vrmr_debug(__FUNC__, "interface '%s' is up.", iface_ptr->name);
 
             iface_ptr->up = TRUE;
         }
         else if(result == 1)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "interface '%s' is down.", iface_ptr->name);
+                vrmr_debug(__FUNC__, "interface '%s' is down.", iface_ptr->name);
 
             iface_ptr->up = FALSE;
         }
         else
         {
-            (void)vrprint.error(-1, "Internal Error", "vrmr_get_iface_stats() failed (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "vrmr_get_iface_stats() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "end: succes. name: %s.", iface_ptr->name);
+        vrmr_debug(__FUNC__, "end: succes. name: %s.", iface_ptr->name);
 
     return(0);
 }
@@ -727,13 +727,13 @@ vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
     struct vrmr_interface   *iface_ptr = NULL;
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "start: name: %s.", name);
+        vrmr_debug(__FUNC__, "start: name: %s.", name);
 
 
     /* safety */
     if(name == NULL || interfaces == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -743,7 +743,7 @@ vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
     iface_ptr = vrmr_interface_malloc(debuglvl);
     if(iface_ptr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "malloc() failed: %s (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "malloc() failed: %s (in: %s:%d).",
                 strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -752,7 +752,7 @@ vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
     /* set the name in the new structure */
     if(strlcpy(iface_ptr->name, name, sizeof(iface_ptr->name)) >= sizeof(iface_ptr->name))
     {
-        (void)vrprint.error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -761,7 +761,7 @@ vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
     /* call vrmr_read_interface_info. here the info is read. */
     if(vrmr_read_interface_info(debuglvl, iface_ptr) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_read_interface_info() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "vrmr_read_interface_info() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -784,7 +784,7 @@ vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
 
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "end: succes.");
+        vrmr_debug(__FUNC__, "end: succes.");
 
     return(0);
 }
@@ -807,13 +807,13 @@ vrmr_init_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
     char    ifacname[VRMR_MAX_INTERFACE] = "";
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "start");
+        vrmr_debug(__FUNC__, "start");
 
 
     /* safety */
     if(interfaces == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -830,12 +830,12 @@ vrmr_init_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
     while(af->list(debuglvl, ifac_backend, ifacname, &zonetype, VRMR_BT_INTERFACES) != NULL)
     {
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "loading interface %s", ifacname);
+            vrmr_debug(__FUNC__, "loading interface %s", ifacname);
 
         result = vrmr_insert_interface(debuglvl, interfaces, ifacname);
         if(result < 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "insert_interface() failed (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "insert_interface() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -844,12 +844,12 @@ vrmr_init_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
             counter++;
 
             if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "loading interface succes: '%s'.", ifacname);
+                vrmr_debug(__FUNC__, "loading interface succes: '%s'.", ifacname);
         }
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "end");
+        vrmr_debug(__FUNC__, "end");
 
     return(0);
 }
@@ -873,7 +873,7 @@ vrmr_interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
     /* safety */
     if(iface_ptr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -884,7 +884,7 @@ vrmr_interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
         /* clear */
         if(af->tell(debuglvl, ifac_backend, iface_ptr->name, "RULE", "", 1, VRMR_TYPE_INTERFACE) < 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -896,7 +896,7 @@ vrmr_interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
         {
             if(!(rule_ptr = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -908,7 +908,7 @@ vrmr_interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
                 /* save to backend */
                 if(af->tell(debuglvl, ifac_backend, iface_ptr->name, "RULE", rule_str, 1, VRMR_TYPE_INTERFACE) < 0)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -918,7 +918,7 @@ vrmr_interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
                 /* save to backend */
                 if(af->tell(debuglvl, ifac_backend, iface_ptr->name, "RULE", rule_str, 0, VRMR_TYPE_INTERFACE) < 0)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -941,7 +941,7 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
     /* safety */
     if(iface_name == NULL || interfaces == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -951,7 +951,7 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
     iface_ptr = vrmr_interface_malloc(debuglvl);
     if(iface_ptr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "malloc() failed: %s (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "malloc() failed: %s (in: %s:%d).",
                 strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -959,7 +959,7 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
     /* copy name */
     if(strlcpy(iface_ptr->name, iface_name, sizeof(iface_ptr->name)) >= sizeof(iface_ptr->name))
     {
-        (void)vrprint.error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -971,24 +971,24 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
 
     /* add to the backend */
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "calling af->add for '%s'.", iface_name);
+        vrmr_debug(__FUNC__, "calling af->add for '%s'.", iface_name);
 
     result = af->add(debuglvl, ifac_backend, iface_name, VRMR_TYPE_INTERFACE);
     if(result < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "af->add() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->add() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "calling af->add for '%s' success.", iface_name);
+        vrmr_debug(__FUNC__, "calling af->add for '%s' success.", iface_name);
 
     /* set active */
     result = af->tell(debuglvl, ifac_backend, iface_ptr->name, "ACTIVE", iface_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
     if(result < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -997,7 +997,7 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
     result = af->tell(debuglvl, ifac_backend, iface_ptr->name, "VIRTUAL", iface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
     if(result < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1005,65 +1005,65 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
     /* interface protection options are 'on' by default */
     if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "source-routed-packets", NULL)))
     {
-        (void)vrprint.error(-1, "Internal Error", "rules_create_protect_rule() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "rules_create_protect_rule() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
     if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "icmp-redirect", NULL)))
     {
-        (void)vrprint.error(-1, "Internal Error", "rules_create_protect_rule() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "rules_create_protect_rule() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
     if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "send-redirect", NULL)))
     {
-        (void)vrprint.error(-1, "Internal Error", "rules_create_protect_rule() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "rules_create_protect_rule() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
     if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "rp-filter", NULL)))
     {
-        (void)vrprint.error(-1, "Internal Error", "rules_create_protect_rule() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "rules_create_protect_rule() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
     if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "log-martians", NULL)))
     {
-        (void)vrprint.error(-1, "Internal Error", "rules_create_protect_rule() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "rules_create_protect_rule() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
     if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1071,7 +1071,7 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
     /* now let try to write this to the backend */
     if(vrmr_interfaces_save_rules(debuglvl, iface_ptr) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "interfaces_save_protectrules() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "interfaces_save_protectrules() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1099,7 +1099,7 @@ vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
     /* safety */
     if(iface_name == NULL || interfaces == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1107,7 +1107,7 @@ vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
     /* first search the interface in the list */
     if(!(iface_ptr = vrmr_search_interface(debuglvl, interfaces, iface_name)))
     {
-        (void)vrprint.error(-1, "Internal Error", "interface '%s' not found in memory (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "interface '%s' not found in memory (in: %s:%d).",
                 iface_name, __FUNC__, __LINE__);
         return(-1);
     }
@@ -1115,7 +1115,7 @@ vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
     /* check the refernce counters */
     if(iface_ptr->refcnt_network > 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "interface '%s' is still attached to %u network(s).",
+        vrmr_error(-1, "Internal Error", "interface '%s' is still attached to %u network(s).",
                 iface_ptr->name, iface_ptr->refcnt_network);
         return(-1);
     }
@@ -1125,7 +1125,7 @@ vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
     /* remove the interface from the backend */
     if(af->del(debuglvl, ifac_backend, iface_name, VRMR_TYPE_INTERFACE, 1) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "af->del() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "af->del() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1135,7 +1135,7 @@ vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -1148,7 +1148,7 @@ vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
             */
             if(vrmr_list_remove_node(debuglvl, &interfaces->list, d_node) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1182,13 +1182,13 @@ vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, st
     char                    name[VRMR_MAX_INTERFACE + 8 + 2 + 1]; // 32 max iface length, 8 firewall, 2 () and 1 \0
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "start.");
+        vrmr_debug(__FUNC__, "start.");
 
 
     /* safety check */
     if(!ifacelist || !zonelist)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1204,7 +1204,7 @@ vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, st
     {
         if(!(iface_ptr = iface_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -1219,7 +1219,7 @@ vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, st
             */
             if(snprintf(name, sizeof(name), "firewall(%s)", iface_ptr->name) >= (int)sizeof(name))
             {
-                (void)vrprint.error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1229,7 +1229,7 @@ vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, st
             */
             if(!(zone_ptr = vrmr_zone_malloc(debuglvl)))
             {
-                (void)vrprint.error(-1, "Internal Error", "vrmr_zone_malloc() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "vrmr_zone_malloc() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1239,7 +1239,7 @@ vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, st
             */
             if(strlcpy(zone_ptr->name, name, sizeof(zone_ptr->name)) >= sizeof(zone_ptr->name))
             {
-                (void)vrprint.error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1249,7 +1249,7 @@ vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, st
             */
             if(strlcpy(zone_ptr->ipv4.ipaddress, iface_ptr->ipv4.ipaddress, sizeof(zone_ptr->ipv4.ipaddress)) >= sizeof(zone_ptr->ipv4.ipaddress))
             {
-                (void)vrprint.error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1264,7 +1264,7 @@ vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, st
             */
             if(vrmr_list_append(debuglvl, zonelist, zone_ptr) == NULL)
             {
-                (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
 
                 free(zone_ptr);
@@ -1272,7 +1272,7 @@ vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, st
             }
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "inserted '%s' into zonelist.", zone_ptr->name);
+                vrmr_debug(__FUNC__, "inserted '%s' into zonelist.", zone_ptr->name);
 
         }
     }
@@ -1300,14 +1300,14 @@ vrmr_rem_iface_from_zonelist(const int debuglvl, struct vrmr_list *zonelist)
     int                 i = 0;
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "start.");
+        vrmr_debug(__FUNC__, "start.");
 
     /*
         safety
     */
     if(!zonelist)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1316,7 +1316,7 @@ vrmr_rem_iface_from_zonelist(const int debuglvl, struct vrmr_list *zonelist)
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -1332,14 +1332,14 @@ vrmr_rem_iface_from_zonelist(const int debuglvl, struct vrmr_list *zonelist)
         if(zone_ptr->type == VRMR_TYPE_FIREWALL)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "type: VRMR_TYPE_FIREWALL '%s'.", zone_ptr->name);
+                vrmr_debug(__FUNC__, "type: VRMR_TYPE_FIREWALL '%s'.", zone_ptr->name);
 
             /*
                 remove the node from the list
             */
             if(vrmr_list_remove_node(debuglvl, zonelist, d_node) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1357,7 +1357,7 @@ vrmr_rem_iface_from_zonelist(const int debuglvl, struct vrmr_list *zonelist)
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "%d interfaces/broadcasts removed.", i);
+        vrmr_debug(__FUNC__, "%d interfaces/broadcasts removed.", i);
 
     return(0);
 }
@@ -1421,7 +1421,7 @@ vrmr_get_iface_stats(    const int debuglvl,
     /* open the proc entry */
     if(!(fp = fopen(proc_net_dev, "r")))
     {
-        (void)vrprint.error(-1, "Internal Error", "unable to open '%s': %s (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "unable to open '%s': %s (in: %s:%d).",
                 proc_net_dev, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -1474,7 +1474,7 @@ vrmr_get_iface_stats(    const int debuglvl,
                 /* now convert to unsigned long */
                 recv.bytes = strtoul(recv_byte_str, (char **)NULL, 10);
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "recv_byte_str: '%s', recv.bytes: '%lu'.",
+                    vrmr_debug(__FUNC__, "recv_byte_str: '%s', recv.bytes: '%lu'.",
                             recv_byte_str,
                             recv.bytes);
 
@@ -1561,12 +1561,12 @@ vrmr_get_iface_stats_from_ipt(const int debuglvl,
     /* set the command to get the data from iptables */
     snprintf(command, sizeof(command), "%s -vnL %s --exact 2> /dev/null", cfg->iptables_location, chain);
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "command: '%s'.", command);
+        vrmr_debug(__FUNC__, "command: '%s'.", command);
 
     /* open the pipe to the command */
     if(!(p = popen(command, "r")))
     {
-        (void)vrprint.error(-1, "Internal Error", "pipe failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "pipe failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1576,7 +1576,7 @@ vrmr_get_iface_stats_from_ipt(const int debuglvl,
     {
 //        if(line[strlen(line)-1] == '\n')
 //            line[strlen(line)-1] = '\0';
-//        (void)vrprint.debug(__FUNC__, "line: '%s'.", line);
+//        vrmr_debug(__FUNC__, "line: '%s'.", line);
 
         /* we start looking after the first two lines */
         if(line_count >= 4)
@@ -1585,7 +1585,7 @@ vrmr_get_iface_stats_from_ipt(const int debuglvl,
             sscanf(line, "%llu %llu %s %s %s %s %s %s %s", &packets, &bytes, target, proto, options, interface_in, interface_out, source, dest);
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "%s: tgt %s: iin: %s oin: %s packets: %llu, bytes: %llu", iface_name, target, interface_in, interface_out, packets, bytes);
+                vrmr_debug(__FUNC__, "%s: tgt %s: iin: %s oin: %s packets: %llu, bytes: %llu", iface_name, target, interface_in, interface_out, packets, bytes);
 
             if( strcmp(source, "0.0.0.0/0") == 0 &&
                 strcmp(dest, "0.0.0.0/0") == 0 &&
@@ -1600,7 +1600,7 @@ vrmr_get_iface_stats_from_ipt(const int debuglvl,
                     trans_done = 1;
 
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "%s: trans: %llu (%llu) (trans done)",
+                        vrmr_debug(__FUNC__, "%s: trans: %llu (%llu) (trans done)",
                                 iface_name,
                                 *trans_bytes,
                                 bytes);
@@ -1613,7 +1613,7 @@ vrmr_get_iface_stats_from_ipt(const int debuglvl,
                     recv_done = 1;
 
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "%s: recv: %llu (%llu) (recv done)",
+                        vrmr_debug(__FUNC__, "%s: recv: %llu (%llu) (recv done)",
                                 iface_name,
                                 *recv_bytes,
                                 bytes);
@@ -1643,13 +1643,13 @@ vrmr_validate_interfacename(const int debuglvl, const char *interfacename, regex
     /* safety */
     if(interfacename == NULL || reg_ex == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "checking: %s", interfacename);
+        vrmr_debug(__FUNC__, "checking: %s", interfacename);
 
     /*
         run the regex
@@ -1657,13 +1657,13 @@ vrmr_validate_interfacename(const int debuglvl, const char *interfacename, regex
     if(regexec(reg_ex, interfacename, 0, NULL, 0) != 0)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "'%s' is invalid", interfacename);
+            vrmr_debug(__FUNC__, "'%s' is invalid", interfacename);
 
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "'%s' is valid", interfacename);
+        vrmr_debug(__FUNC__, "'%s' is valid", interfacename);
 
     return(0);
 }
@@ -1682,7 +1682,7 @@ vrmr_destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfac
     /* safety */
     if(!interfaces)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return;
     }
@@ -1693,7 +1693,7 @@ vrmr_destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfac
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                     __FUNC__, __LINE__);
             return;
         }
@@ -1731,7 +1731,7 @@ vrmr_interfaces_analyze_rule(const int debuglvl,
     /* safety */
     if( rule_ptr == NULL || create == NULL || interfaces == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1741,7 +1741,7 @@ vrmr_interfaces_analyze_rule(const int debuglvl,
     {
         if(!(create->description = malloc(VRMR_MAX_BASH_DESC)))
         {
-            (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).",
+            vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
             return(-1);
         }
@@ -1755,7 +1755,7 @@ vrmr_interfaces_analyze_rule(const int debuglvl,
     if(rule_ptr->action == VRMR_AT_PROTECT)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "action: %s, who: %s, danger: %s, source: %s",
+            vrmr_debug(__FUNC__, "action: %s, who: %s, danger: %s, source: %s",
                     vrmr_rules_itoaction(rule_ptr->action), rule_ptr->who,
                     rule_ptr->danger, rule_ptr->source);
 
@@ -1777,30 +1777,30 @@ vrmr_interfaces_analyze_rule(const int debuglvl,
 
                 if(!(create->who_int = vrmr_search_interface(debuglvl, interfaces, rule_ptr->who)))
                 {
-                    (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
+                    vrmr_error(-1, "Error", "interface '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
                     return(-1);
                 }
             }
             else
             {
                 create->who = NULL;
-                (void)vrprint.error(-1, "Error", "don't know what to do with '%s' for rule type '%d' (in: %s).", rule_ptr->who, rule_ptr->type, __FUNC__);
+                vrmr_error(-1, "Error", "don't know what to do with '%s' for rule type '%d' (in: %s).", rule_ptr->who, rule_ptr->type, __FUNC__);
                 return(-1);
             }
         }
 
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "calling vrmr_get_danger_info() for danger...");
+            vrmr_debug(__FUNC__, "calling vrmr_get_danger_info() for danger...");
 
         result = vrmr_get_danger_info(debuglvl, rule_ptr->danger, rule_ptr->source, &create->danger);
         if(result == 0)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "vrmr_get_danger_info successfull.");
+                vrmr_debug(__FUNC__, "vrmr_get_danger_info successfull.");
         }
         else
         {
-            (void)vrprint.error(-1, "Error", "getting danger '%s' failed (in: %s).",
+            vrmr_error(-1, "Error", "getting danger '%s' failed (in: %s).",
                     rule_ptr->danger, __FUNC__);
             return(-1);
         }
@@ -1808,7 +1808,7 @@ vrmr_interfaces_analyze_rule(const int debuglvl,
         /* set the action */
         if(strlcpy(create->action, "protect", sizeof(create->action)) > sizeof(create->action))
         {
-            (void)vrprint.error(-1, "Error", "buffer overflow (in: %s:%d).",
+            vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -1836,7 +1836,7 @@ vrmr_interfaces_rule_parse_line(const int debuglvl, const char *line, struct vrm
     /* safety first */
     if(line == NULL || rule_ptr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1844,7 +1844,7 @@ vrmr_interfaces_rule_parse_line(const int debuglvl, const char *line, struct vrm
     /* this should not happen, but it can't hurt to check, right? */
     if(strlen(line) > VRMR_MAX_RULE_LENGTH)
     {
-        (void)vrprint.error(-1, "Internal Error", "rule is too long (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "rule is too long (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1879,7 +1879,7 @@ vrmr_interfaces_rule_parse_line(const int debuglvl, const char *line, struct vrm
         */
         if(strcasecmp(against_keyw, "against") != 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "expected keyword 'against', got '%s' (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "expected keyword 'against', got '%s' (in: %s:%d).",
                     against_keyw, __FUNC__, __LINE__);
             return(-1);
         }
@@ -1894,13 +1894,13 @@ vrmr_interfaces_rule_parse_line(const int debuglvl, const char *line, struct vrm
         rule_ptr->danger[var_pos] = '\0';
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "protect: danger: '%s'", rule_ptr->danger);
+            vrmr_debug(__FUNC__, "protect: danger: '%s'", rule_ptr->danger);
 
         rule_ptr->type = VRMR_PROT_PROC_INT;
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "expected action 'protect', got '%s' (in: %s:%d).",
+        vrmr_error(-1, "Error", "expected action 'protect', got '%s' (in: %s:%d).",
                 action_str, __FUNC__, __LINE__);
         return(-1);
     }
@@ -1920,7 +1920,7 @@ vrmr_interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
     /* safety */
     if(iface_ptr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1935,19 +1935,19 @@ vrmr_interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
         /* copy name */
         if(strlcpy(rule_ptr->who, iface_ptr->name, sizeof(rule_ptr->who)) >= sizeof(rule_ptr->who))
         {
-            (void)vrprint.error(-1, "Internal Error", "buffer too small (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "buffer too small (in: %s:%d).",
                     __FUNC__, __LINE__);
             free(rule_ptr);
             return(-1);
         }
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "currule: '%s'.", currule);
+            vrmr_debug(__FUNC__, "currule: '%s'.", currule);
 
         /* parse the line */
         if(vrmr_interfaces_rule_parse_line(debuglvl, currule, rule_ptr) < 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "vrmr_interfaces_rule_parse_line() failed (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "vrmr_interfaces_rule_parse_line() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             free(rule_ptr);
         }
@@ -1956,7 +1956,7 @@ vrmr_interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
             /* append to list */
             if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL)
             {
-                (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 free(rule_ptr);
                 return(-1);
@@ -1972,7 +1972,7 @@ vrmr_interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
         }
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "a: %s, w: %s, d: %s, s: %s.", vrmr_rules_itoaction(rule_ptr->action), rule_ptr->who, rule_ptr->danger, rule_ptr->source);
+            vrmr_debug(__FUNC__, "a: %s, w: %s, d: %s, s: %s.", vrmr_rules_itoaction(rule_ptr->action), rule_ptr->who, rule_ptr->danger, rule_ptr->source);
     }
 
     return(0);
@@ -1994,14 +1994,14 @@ vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
     /* safety first */
     if(iface_ptr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(iface_ptr->device[0] == '\0')
     {
-        (void)vrprint.warning("Warning", "the interface '%s' does not have a device.",
+        vrmr_warning("Warning", "the interface '%s' does not have a device.",
                 iface_ptr->name);
         retval = 0;
     }
@@ -2018,11 +2018,11 @@ vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
             /* clear the ip field */
             memset(iface_ptr->ipv4.ipaddress, 0, sizeof(iface_ptr->ipv4.ipaddress));
 
-            (void)vrprint.info("Info", "interface '%s' is down.", iface_ptr->name);
+            vrmr_info("Info", "interface '%s' is down.", iface_ptr->name);
         }
         else if(ipresult < 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "vrmr_get_dynamic_ip() failed (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "vrmr_get_dynamic_ip() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -2033,7 +2033,7 @@ vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
     {
         if(vrmr_check_ipv4address(debuglvl, NULL, NULL, iface_ptr->ipv4.ipaddress, 0) != 1)
         {
-            (void)vrprint.warning("Warning", "the ipaddress '%s' of interface '%s' (%s) is invalid.",
+            vrmr_warning("Warning", "the ipaddress '%s' of interface '%s' (%s) is invalid.",
                     iface_ptr->ipv4.ipaddress, iface_ptr->name, iface_ptr->device);
 
             retval = 0;
@@ -2048,7 +2048,7 @@ vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
         ipresult = vrmr_get_dynamic_ip(debuglvl, iface_ptr->device, ipaddress, sizeof(ipaddress));
         if(ipresult < 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "vrmr_get_dynamic_ip() failed (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "vrmr_get_dynamic_ip() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -2058,13 +2058,13 @@ vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
             iface_ptr->up = FALSE;
 
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "interface '%s' is down after all.", iface_ptr->name);
+                vrmr_debug(__FUNC__, "interface '%s' is down after all.", iface_ptr->name);
         }
         else
         {
             if(strcmp(ipaddress, iface_ptr->ipv4.ipaddress) != 0)
             {
-                (void)vrprint.warning("Warning", "the ipaddress '%s' of interface '%s' (%s) does not match the ipaddress of the actual interface (%s).",
+                vrmr_warning("Warning", "the ipaddress '%s' of interface '%s' (%s) does not match the ipaddress of the actual interface (%s).",
                         iface_ptr->ipv4.ipaddress, iface_ptr->name, iface_ptr->device, ipaddress);
 
                 retval = 0;
@@ -2091,14 +2091,14 @@ vrmr_interfaces_load(const int debuglvl, struct vrmr_interfaces *interfaces)
     struct vrmr_list_node             *d_node = NULL;
     int                     result = 0;
 
-    (void)vrprint.info("Info", "Loading interfaces...");
+    vrmr_info("Info", "Loading interfaces...");
 
 
     /* load the interfaces into memory */
     result = vrmr_init_interfaces(debuglvl, interfaces);
     if(result == -1)
     {
-        (void)vrprint.error(-1, "Error", "Loading interfaces failed.");
+        vrmr_error(-1, "Error", "Loading interfaces failed.");
         return(-1);
     }
 
@@ -2109,7 +2109,7 @@ vrmr_interfaces_load(const int debuglvl, struct vrmr_interfaces *interfaces)
         iface_ptr = d_node->data;
         if(iface_ptr == NULL)
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -2119,13 +2119,13 @@ vrmr_interfaces_load(const int debuglvl, struct vrmr_interfaces *interfaces)
             return(-1);
         else if(result == 0)
         {
-            (void)vrprint.info("Info", "Interface '%s' has been deactivated because of errors while checking it.",
+            vrmr_info("Info", "Interface '%s' has been deactivated because of errors while checking it.",
                     iface_ptr->name);
             iface_ptr->active = FALSE;
         }
     }
 
-    (void)vrprint.info("Info", "Loading interfaces succesfull.");
+    vrmr_info("Info", "Loading interfaces succesfull.");
     return(0);
 }
 
@@ -2137,7 +2137,7 @@ vrmr_interfaces_iface_up(const int debuglvl, struct vrmr_interface *iface_ptr)
     /* safety first */
     if(iface_ptr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }

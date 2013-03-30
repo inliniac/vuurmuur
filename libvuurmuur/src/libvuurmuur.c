@@ -266,7 +266,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
 
     if(action < 0 || action > 1 || reg == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -276,7 +276,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
         /* regex setup */
         if(!(reg->zonename = malloc(sizeof(regex_t))))
         {
-            (void)vrprint.error(-1, "Internal Error", "malloc "
+            vrmr_error(-1, "Internal Error", "malloc "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
             return(-1);
@@ -284,7 +284,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
 
         if(regcomp(reg->zonename, VRMR_ZONE_REGEX, REG_EXTENDED) != 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+            vrmr_error(-1, "Internal Error", "regcomp() "
                     "failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -293,7 +293,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
         /* regex setup */
         if(!(reg->zone_part = malloc(sizeof(regex_t))))
         {
-            (void)vrprint.error(-1, "Internal Error", "malloc "
+            vrmr_error(-1, "Internal Error", "malloc "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
             return(-1);
@@ -301,7 +301,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
 
         if(regcomp(reg->zone_part, VRMR_VRMR_ZONE_REGEX_ZONEPART, REG_EXTENDED) != 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+            vrmr_error(-1, "Internal Error", "regcomp() "
                     "failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -310,7 +310,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
         /* regex setup */
         if(!(reg->network_part = malloc(sizeof(regex_t))))
         {
-            (void)vrprint.error(-1, "Internal Error", "malloc "
+            vrmr_error(-1, "Internal Error", "malloc "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
             return(-1);
@@ -318,7 +318,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
 
         if(regcomp(reg->network_part, VRMR_VRMR_ZONE_REGEX_NETWORKPART, REG_EXTENDED) != 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+            vrmr_error(-1, "Internal Error", "regcomp() "
                     "failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -327,7 +327,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
         /* regex setup */
         if(!(reg->host_part = malloc(sizeof(regex_t))))
         {
-            (void)vrprint.error(-1, "Internal Error", "malloc "
+            vrmr_error(-1, "Internal Error", "malloc "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
             return(-1);
@@ -335,7 +335,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
 
         if(regcomp(reg->host_part, VRMR_VRMR_ZONE_REGEX_HOSTPART, REG_EXTENDED) != 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+            vrmr_error(-1, "Internal Error", "regcomp() "
                     "failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -344,7 +344,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
         /* regex setup */
         if(!(reg->servicename = malloc(sizeof(regex_t))))
         {
-            (void)vrprint.error(-1, "Internal Error", "malloc "
+            vrmr_error(-1, "Internal Error", "malloc "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
             return(-1);
@@ -352,7 +352,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
 
         if(regcomp(reg->servicename, VRMR_SERV_REGEX, REG_EXTENDED) != 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+            vrmr_error(-1, "Internal Error", "regcomp() "
                     "failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -361,7 +361,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
         /* regex setup */
         if(!(reg->interfacename = malloc(sizeof(regex_t))))
         {
-            (void)vrprint.error(-1, "Internal Error", "malloc "
+            vrmr_error(-1, "Internal Error", "malloc "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
             return(-1);
@@ -369,7 +369,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
 
         if(regcomp(reg->interfacename, VRMR_IFAC_REGEX, REG_EXTENDED) != 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+            vrmr_error(-1, "Internal Error", "regcomp() "
                     "failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -378,7 +378,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
         /* regex setup */
         if(!(reg->macaddr = malloc(sizeof(regex_t))))
         {
-            (void)vrprint.error(-1, "Internal Error", "malloc "
+            vrmr_error(-1, "Internal Error", "malloc "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
             return(-1);
@@ -386,7 +386,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
 
         if(regcomp(reg->macaddr, VRMR_MAC_REGEX, REG_EXTENDED) != 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+            vrmr_error(-1, "Internal Error", "regcomp() "
                     "failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -395,7 +395,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
         /* regex setup */
         if(!(reg->configline = malloc(sizeof(regex_t))))
         {
-            (void)vrprint.error(-1, "Internal Error", "malloc "
+            vrmr_error(-1, "Internal Error", "malloc "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
             return(-1);
@@ -403,7 +403,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
 
         if(regcomp(reg->configline, VRMR_CONFIG_REGEX, REG_EXTENDED) != 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+            vrmr_error(-1, "Internal Error", "regcomp() "
                     "failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -412,7 +412,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
         /* regex setup */
 /*        if(!(reg->comment = malloc(sizeof(regex_t))))
         {
-            (void)vrprint.error(-1, "Internal Error", "malloc "
+            vrmr_error(-1, "Internal Error", "malloc "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
             return(-1);
@@ -420,7 +420,7 @@ vrmr_regex_setup(int action, struct vrmr_regex *reg)
 
         if(regcomp(reg->comment, TEXTFIELD_REGEX, REG_EXTENDED) != 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "regcomp() "
+            vrmr_error(-1, "Internal Error", "regcomp() "
                     "failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);

@@ -200,7 +200,7 @@ edit_genconfig_save(const int debuglvl)
                 vrmr_sanitize_path(debuglvl, conf.iptables_location,
                         StrLen(conf.iptables_location));
 
-                (void)vrprint.audit("'iptables location' %s '%s'.",
+                vrmr_audit("'iptables location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.iptables_location);
             }
             else if(ConfigSection.fields[i] == GenConfig.iptablesrestorelocfld)
@@ -214,7 +214,7 @@ edit_genconfig_save(const int debuglvl)
                 vrmr_sanitize_path(debuglvl, conf.iptablesrestore_location,
                         StrLen(conf.iptablesrestore_location));
 
-                (void)vrprint.audit("'iptables-restore location' %s '%s'.",
+                vrmr_audit("'iptables-restore location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.iptablesrestore_location);
             }
 #ifdef IPV6_ENABLED
@@ -229,7 +229,7 @@ edit_genconfig_save(const int debuglvl)
                 vrmr_sanitize_path(debuglvl, conf.ip6tables_location,
                         StrLen(conf.ip6tables_location));
 
-                (void)vrprint.audit("'ip6tables location' %s '%s'.",
+                vrmr_audit("'ip6tables location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.ip6tables_location);
             }
             else if(ConfigSection.fields[i] == GenConfig.ip6tablesrestorelocfld)
@@ -243,7 +243,7 @@ edit_genconfig_save(const int debuglvl)
                 vrmr_sanitize_path(debuglvl, conf.ip6tablesrestore_location,
                         StrLen(conf.ip6tablesrestore_location));
 
-                (void)vrprint.audit("'ip6tables-restore location' %s '%s'.",
+                vrmr_audit("'ip6tables-restore location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.ip6tablesrestore_location);
             }
 #endif
@@ -258,7 +258,7 @@ edit_genconfig_save(const int debuglvl)
                 vrmr_sanitize_path(debuglvl, conf.conntrack_location,
                         StrLen(conf.conntrack_location));
 
-                (void)vrprint.audit("'conntrack location' %s '%s'.",
+                vrmr_audit("'conntrack location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.conntrack_location);
             }
             else if(ConfigSection.fields[i] == GenConfig.tclocfld)
@@ -272,7 +272,7 @@ edit_genconfig_save(const int debuglvl)
                 vrmr_sanitize_path(debuglvl, conf.tc_location,
                         StrLen(conf.tc_location));
 
-                (void)vrprint.audit("'tc location' %s '%s'.",
+                vrmr_audit("'tc location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.tc_location);
             }
             else if(ConfigSection.fields[i] == GenConfig.max_permission)
@@ -296,7 +296,7 @@ edit_genconfig_save(const int debuglvl)
                 {
                     conf.max_permission = newval;
 
-                    (void)vrprint.audit("'maximum permissions' %s '%o'.",
+                    vrmr_audit("'maximum permissions' %s '%o'.",
                         STR_IS_NOW_SET_TO, conf.max_permission);
                 }
             }
@@ -311,12 +311,12 @@ edit_genconfig_save(const int debuglvl)
                 vrmr_sanitize_path(debuglvl, conf.sysctl_location,
                         StrLen(conf.sysctl_location));
 
-                (void)vrprint.audit("'sysctl location' %s '%s'.",
+                vrmr_audit("'sysctl location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.sysctl_location);
             }
             else
             {
-                (void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
                 retval = -1;
             }
         }
@@ -461,7 +461,7 @@ edit_genconfig(const int debuglvl)
     {
         if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
+            vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;
         }
     }
@@ -569,7 +569,7 @@ edit_intconfig_save(const int debuglvl)
                 {
                     conf.dynamic_changes_interval = (unsigned int)interval;
 
-                    (void)vrprint.audit("'dynamic changes interval' %s '%u'.",
+                    vrmr_audit("'dynamic changes interval' %s '%u'.",
                         STR_IS_NOW_SET_TO, conf.dynamic_changes_interval);
                 }
             }
@@ -580,13 +580,13 @@ edit_intconfig_save(const int debuglvl)
                 else
                     conf.dynamic_changes_check = 0;
 
-                (void)vrprint.audit("'check dynamic interfaces for changes' %s '%s'.",
+                vrmr_audit("'check dynamic interfaces for changes' %s '%s'.",
                     STR_IS_NOW_SET_TO,
                     conf.dynamic_changes_check ? STR_YES : STR_NO);
             }
             else
             {
-                (void)vrprint.error(-1, VR_INTERR, "unknown field.");
+                vrmr_error(-1, VR_INTERR, "unknown field.");
                 retval = -1;
             }
         }
@@ -727,7 +727,7 @@ edit_intconfig(const int debuglvl)
     {
         if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
+            vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;
         }
     }
@@ -837,7 +837,7 @@ edit_modconfig_save(const int debuglvl)
                 vrmr_sanitize_path(debuglvl, conf.modprobe_location,
                         StrLen(conf.modprobe_location));
 
-                (void)vrprint.audit("'modprobe location' %s '%s'.",
+                vrmr_audit("'modprobe location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.modprobe_location);
             }
             else if(ConfigSection.fields[i] == ModConfig.loadmodulesfld)
@@ -847,7 +847,7 @@ edit_modconfig_save(const int debuglvl)
                 else
                     conf.load_modules = 0;
 
-                (void)vrprint.audit("'load modules' %s '%s'.",
+                vrmr_audit("'load modules' %s '%s'.",
                     STR_IS_NOW_SET_TO,
                     conf.load_modules ? STR_YES : STR_NO);
             }
@@ -864,13 +864,13 @@ edit_modconfig_save(const int debuglvl)
                 {
                     conf.modules_wait_time = (unsigned int)interval;
 
-                    (void)vrprint.audit("'modules wait time' %s '%u'.",
+                    vrmr_audit("'modules wait time' %s '%u'.",
                         STR_IS_NOW_SET_TO, conf.modules_wait_time);
                 }
             }
             else
             {
-                (void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
                 retval = -1;
             }
         }
@@ -1012,7 +1012,7 @@ edit_modconfig(const int debuglvl)
     {
         if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
+            vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;
         }
     }
@@ -1112,7 +1112,7 @@ edit_plugconfig_save(const int debuglvl)
                                     sizeof(conf.serv_backend_name))))
                     return(-1);
 
-                (void)vrprint.audit("'service backend name' %s '%s'.",
+                vrmr_audit("'service backend name' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.serv_backend_name);
             }
             else if(ConfigSection.fields[i] == PlugConfig.zonebackfld)
@@ -1123,7 +1123,7 @@ edit_plugconfig_save(const int debuglvl)
                                     sizeof(conf.zone_backend_name))))
                     return(-1);
 
-                (void)vrprint.audit("'zone backend name' %s '%s'.",
+                vrmr_audit("'zone backend name' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.zone_backend_name);
             }
             else if(ConfigSection.fields[i] == PlugConfig.ifacbackfld)
@@ -1134,7 +1134,7 @@ edit_plugconfig_save(const int debuglvl)
                                     sizeof(conf.ifac_backend_name))))
                     return(-1);
 
-                (void)vrprint.audit("'interface backend name' %s '%s'.",
+                vrmr_audit("'interface backend name' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.ifac_backend_name);
             }
             else if(ConfigSection.fields[i] == PlugConfig.rulebackfld)
@@ -1145,12 +1145,12 @@ edit_plugconfig_save(const int debuglvl)
                                     sizeof(conf.rule_backend_name))))
                     return(-1);
 
-                (void)vrprint.audit("'rule backend name' %s '%s'.",
+                vrmr_audit("'rule backend name' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.rule_backend_name);
             }
             else
             {
-                (void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
                 retval = -1;
             }
         }
@@ -1289,7 +1289,7 @@ edit_plugconfig(const int debuglvl)
     {
         if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
+            vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;
         }
     }
@@ -1340,12 +1340,12 @@ edit_conconfig_init(const int debuglvl, int height, int width, int starty, int s
     /* create win & pan */
     if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Connections"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ConfigSection.panel[0] = new_panel(ConfigSection.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1386,7 +1386,7 @@ edit_conconfig_init(const int debuglvl, int height, int width, int starty, int s
     /* Create the form and post it */
     if(!(ConfigSection.form = new_form(ConfigSection.fields)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     /* Calculate the area required for the form */
@@ -1439,7 +1439,7 @@ edit_conconfig_save(void)
                 else
                     conf.use_syn_limit = 0;
 
-                (void)vrprint.audit("'use syn limit' %s '%s'.",
+                vrmr_audit("'use syn limit' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.use_syn_limit ? STR_YES : STR_NO);
             }
             else if(ConfigSection.fields[i] == ConConfig.synlimitfld)
@@ -1455,7 +1455,7 @@ edit_conconfig_save(void)
                 {
                     conf.syn_limit = (unsigned int)syn;
 
-                    (void)vrprint.audit("'syn limit' %s '%u'.",
+                    vrmr_audit("'syn limit' %s '%u'.",
                         STR_IS_NOW_SET_TO, conf.syn_limit);
                 }
             }
@@ -1472,7 +1472,7 @@ edit_conconfig_save(void)
                 {
                     conf.syn_limit_burst = (unsigned int)syn;
 
-                    (void)vrprint.audit("'syn limit burst' %s '%u'.",
+                    vrmr_audit("'syn limit burst' %s '%u'.",
                         STR_IS_NOW_SET_TO, conf.syn_limit_burst);
                 }
             }
@@ -1484,7 +1484,7 @@ edit_conconfig_save(void)
                 else
                     conf.use_udp_limit = 0;
 
-                (void)vrprint.audit("'use udp limit' %s '%s'.",
+                vrmr_audit("'use udp limit' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.use_udp_limit ? STR_YES : STR_NO);
             }
             else if(ConfigSection.fields[i] == ConConfig.udplimitfld)
@@ -1500,7 +1500,7 @@ edit_conconfig_save(void)
                 {
                     conf.udp_limit = (unsigned int)udplimit;
 
-                    (void)vrprint.audit("'udp limit' %s '%u'.",
+                    vrmr_audit("'udp limit' %s '%u'.",
                         STR_IS_NOW_SET_TO, conf.udp_limit);
                 }
             }
@@ -1517,13 +1517,13 @@ edit_conconfig_save(void)
                 {
                     conf.udp_limit_burst = (unsigned int)udplimit;
 
-                    (void)vrprint.audit("'udp limit burst' %s '%u'.",
+                    vrmr_audit("'udp limit burst' %s '%u'.",
                         STR_IS_NOW_SET_TO, conf.udp_limit_burst);
                 }
             }
             else
             {
-                (void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
                 retval = -1;
             }
         }
@@ -1687,7 +1687,7 @@ edit_conconfig(const int debuglvl)
     {
         if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
+            vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
             retval=-1;
         }
     }
@@ -1740,12 +1740,12 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
     /* create win & pan */
     if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Vuurmuur_conf Settings"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ConfigSection.panel[0] = new_panel(ConfigSection.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1783,7 +1783,7 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
     /* Create the form and post it */
     if(!(ConfigSection.form = new_form(ConfigSection.fields)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     /* Calculate the area required for the form */
@@ -1905,7 +1905,7 @@ edit_vcconfig_save(const int debuglvl)
             }
             else
             {
-                (void)vrprint.error(-1, VR_INTERR, "unknown field.");
+                vrmr_error(-1, VR_INTERR, "unknown field.");
                 retval = -1;
             }
         }
@@ -2058,7 +2058,7 @@ edit_vcconfig(const int debuglvl)
     {
         if(write_vcconfigfile(debuglvl, vccnf.configfile_location, &vccnf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
+            vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
             retval=-1;
         }
     }
@@ -2125,12 +2125,12 @@ edit_logconfig_init(const int debuglvl, int height, int width, int starty, int s
 
     if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Logging"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ConfigSection.panel[0] = new_panel(ConfigSection.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2276,9 +2276,9 @@ edit_logconfig_save(const int debuglvl)
                 else
                 {
                     /* print a warning about apply changes won't work for loglevel */
-                    (void)vrprint.warning(VR_WARN, gettext("changing the logdir requires applying changes to get into effect in the logviewer."));
+                    vrmr_warning(VR_WARN, gettext("changing the logdir requires applying changes to get into effect in the logviewer."));
 
-                    (void)vrprint.audit("'logdir location' %s '%s'.",
+                    vrmr_audit("'logdir location' %s '%s'.",
                         STR_IS_NOW_SET_TO, conf.vuurmuur_logdir_location);
                 }
             }
@@ -2290,7 +2290,7 @@ edit_logconfig_save(const int debuglvl)
                                     sizeof(conf.loglevel))))
                     return(-1);
 
-                (void)vrprint.audit("'log level' %s '%s'.",
+                vrmr_audit("'log level' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.systemlog_location);
             }
             else if(ConfigSection.fields[i] == LogConfig.systemlogfld)
@@ -2304,7 +2304,7 @@ edit_logconfig_save(const int debuglvl)
                 vrmr_sanitize_path(debuglvl, conf.systemlog_location,
                         StrLen(conf.systemlog_location));
 
-                (void)vrprint.audit("'systemlog location' %s '%s'.",
+                vrmr_audit("'systemlog location' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.systemlog_location);
             }
             else if(ConfigSection.fields[i] == LogConfig.rule_nflogfld)
@@ -2315,7 +2315,7 @@ edit_logconfig_save(const int debuglvl)
                 else
                     conf.rule_nflog = 0;
 
-                (void)vrprint.audit("'rule_nflog' %s '%s'.",
+                vrmr_audit("'rule_nflog' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.rule_nflog ? STR_YES : STR_NO);
             }
             else if(ConfigSection.fields[i] == LogConfig.nfgrpfld)
@@ -2329,7 +2329,7 @@ edit_logconfig_save(const int debuglvl)
                 result = atoi(limit_string);
                 if(result < 0 || result > 999)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("NF group must be between 0-999."));
+                    vrmr_error(-1, VR_ERR, gettext("NF group must be between 0-999."));
 
                     /* restore the field */
                     if(conf.nfgrp > 0)
@@ -2343,7 +2343,7 @@ edit_logconfig_save(const int debuglvl)
                 {
                     conf.nfgrp = (unsigned int)result;
 
-                    (void)vrprint.audit("'nfgrp' %s '%u'.",
+                    vrmr_audit("'nfgrp' %s '%u'.",
                         STR_IS_NOW_SET_TO, conf.nfgrp);
                 }
             }
@@ -2355,7 +2355,7 @@ edit_logconfig_save(const int debuglvl)
                 else
                     conf.log_policy = 0;
 
-                (void)vrprint.audit("'log policy' %s '%s'.",
+                vrmr_audit("'log policy' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.log_policy ? STR_YES : STR_NO);
             }
             else if(ConfigSection.fields[i] == LogConfig.logpolicylimitfld)
@@ -2369,7 +2369,7 @@ edit_logconfig_save(const int debuglvl)
                 result = atoi(limit_string);
                 if(result < 0 || result > 999)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("limit must be between 0-999."));
+                    vrmr_error(-1, VR_ERR, gettext("limit must be between 0-999."));
 
                     /* restore the field */
                     if(conf.log_policy_limit > 0)
@@ -2383,7 +2383,7 @@ edit_logconfig_save(const int debuglvl)
                 {
                     conf.log_policy_limit = (unsigned int)result;
 
-                    (void)vrprint.audit("'log policy limit' %s '%u'.",
+                    vrmr_audit("'log policy limit' %s '%u'.",
                         STR_IS_NOW_SET_TO, conf.log_policy_limit);
                 }
             }
@@ -2395,7 +2395,7 @@ edit_logconfig_save(const int debuglvl)
                 else
                     conf.log_tcp_options = 0;
 
-                (void)vrprint.audit("'log TCP options' %s '%s'.",
+                vrmr_audit("'log TCP options' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.log_tcp_options ? STR_YES : STR_NO);
             }
             else if(ConfigSection.fields[i] == LogConfig.logblocklistfld)
@@ -2406,7 +2406,7 @@ edit_logconfig_save(const int debuglvl)
                 else
                     conf.log_blocklist = 0;
 
-                (void)vrprint.audit("'log blocklist' %s '%s'.",
+                vrmr_audit("'log blocklist' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.log_blocklist ? STR_YES : STR_NO);
             }
             else if(ConfigSection.fields[i] == LogConfig.loginvalidfld)
@@ -2417,7 +2417,7 @@ edit_logconfig_save(const int debuglvl)
                 else
                     conf.log_invalid = 0;
 
-                (void)vrprint.audit("'log invalid' %s '%s'.",
+                vrmr_audit("'log invalid' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.log_invalid ? STR_YES : STR_NO);
             }
             else if(ConfigSection.fields[i] == LogConfig.lognosynfld)
@@ -2428,7 +2428,7 @@ edit_logconfig_save(const int debuglvl)
                 else
                     conf.log_no_syn = 0;
 
-                (void)vrprint.audit("'log New TCP no SYN flag' %s '%s'.",
+                vrmr_audit("'log New TCP no SYN flag' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.log_no_syn ? STR_YES : STR_NO);
             }
             else if(ConfigSection.fields[i] == LogConfig.logprobesfld)
@@ -2439,7 +2439,7 @@ edit_logconfig_save(const int debuglvl)
                 else
                     conf.log_probes = 0;
 
-                (void)vrprint.audit("'log SCAN Probes' %s '%s'.",
+                vrmr_audit("'log SCAN Probes' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.log_probes ? STR_YES : STR_NO);
             }
             else if(ConfigSection.fields[i] == LogConfig.logfragfld)
@@ -2450,18 +2450,18 @@ edit_logconfig_save(const int debuglvl)
                 else
                     conf.log_frag = 0;
 
-                (void)vrprint.audit("'log fragments' %s '%s'.",
+                vrmr_audit("'log fragments' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.log_frag ? STR_YES : STR_NO);
             }
             else
             {
-                (void)vrprint.error(-1, VR_INTERR, "unknown field.");
+                vrmr_error(-1, VR_INTERR, "unknown field.");
                 return(-1);
             }
         }
         else
         {
-            (void)vrprint.audit("No field status change");
+            vrmr_audit("No field status change");
         }
     }
 
@@ -2616,7 +2616,7 @@ edit_logconfig(const int debuglvl)
     {
         if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
+            vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
             retval=-1;
         }
     }
@@ -2648,7 +2648,7 @@ VrEditConntrackSave(const int debuglvl, void *ctx, char *name, char *value)
     struct VrEditConntrackCnf_ *c = (struct VrEditConntrackCnf_ *)ctx;
     int retval = 0;
 
-    //(void)vrprint.debug(__FUNC__, "%s:%s", name, value);
+    //vrmr_debug(__FUNC__, "%s:%s", name, value);
 
     if(strcmp(name,"S") == 0) {
         char enabled = 0;
@@ -2660,12 +2660,12 @@ VrEditConntrackSave(const int debuglvl, void *ctx, char *name, char *value)
         if (c->invalid_drop_enabled != enabled) {
             conf.invalid_drop_enabled = enabled;
 
-            (void)vrprint.audit("'drop INVALID packet flag' %s '%s'.",
+            vrmr_audit("'drop INVALID packet flag' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.invalid_drop_enabled ? STR_YES : STR_NO);
 
             if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
             {
-                (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
+                vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
                 retval=-1;
             }
         }
@@ -2682,7 +2682,7 @@ static void VrEditConntrack(const int debuglvl) {
 
     if (VrEditConntrackSetup(debuglvl, &config) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrEditConntrackSetup failed");
+        vrmr_error(-1, VR_ERR, "VrEditConntrackSetup failed");
         return;
     }
 
@@ -2690,7 +2690,7 @@ static void VrEditConntrack(const int debuglvl) {
     win = VrNewWin(11,51,0,0,vccnf.color_win);
     if(win == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        vrmr_error(-1, VR_ERR, "VrNewWin failed");
         return;
     }
     VrWinSetTitle(win, gettext("Conntrack"));
@@ -2764,18 +2764,18 @@ view_caps_init(int height, int width, int starty, int startx, struct vrmr_iptcap
     /* safety */
     if(!iptcap)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("View Capabilities"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ConfigSection.panel[0] = new_panel(ConfigSection.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2886,12 +2886,12 @@ view_caps(const int debuglvl)
     result = vrmr_load_iptcaps(debuglvl, &conf, &iptcap, 0);
     if(result == -1)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
+        vrmr_error(-1, VR_ERR, gettext("checking capabilities failed."));
         return(-1);
     }
 
     if (debuglvl >= LOW) {
-        (void)vrprint.debug(__FUNC__, "iptcap.proc_net_names %d "
+        vrmr_debug(__FUNC__, "iptcap.proc_net_names %d "
             "iptcap.proc_net_matches %d iptcap.proc_net_targets %d "
             "iptcap.table_filter %d iptcap.conntrack %d "
             "iptcap.match_tcp %d iptcap.match_udp %d iptcap.match_icmp %d "
@@ -2935,7 +2935,7 @@ view_caps(const int debuglvl)
                     result = vrmr_load_iptcaps(debuglvl, &conf, &iptcap, 1);
                     if(result == -1)
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
+                        vrmr_error(-1, VR_ERR, gettext("checking capabilities failed."));
                         return(-1);
                     }
                 }
@@ -2975,18 +2975,18 @@ view_ip6_caps_init(int height, int width, int starty, int startx, struct vrmr_ip
     /* safety */
     if(!iptcap)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(!(ConfigSection.win = create_newwin(height, width, starty, startx, gettext("View IPv6 Capabilities"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ConfigSection.panel[0] = new_panel(ConfigSection.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -3099,12 +3099,12 @@ view_ip6_caps(const int debuglvl)
     result = vrmr_load_ip6tcaps(debuglvl, &conf, &iptcap, 0);
     if(result == -1)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
+        vrmr_error(-1, VR_ERR, gettext("checking capabilities failed."));
         return(-1);
     }
 
     if (debuglvl >= LOW) {
-        (void)vrprint.debug(__FUNC__, "iptcap.proc_net_ip6_names %d "
+        vrmr_debug(__FUNC__, "iptcap.proc_net_ip6_names %d "
             "iptcap.proc_net_ip6_matches %d iptcap.proc_net_ip6_targets %d "
             "iptcap.table_ip6_filter %d iptcap.match_tcp6 %d "
             "iptcap.match_udp6 %d iptcap.match_icmp6 %d "
@@ -3148,7 +3148,7 @@ view_ip6_caps(const int debuglvl)
                     result = vrmr_load_ip6tcaps(debuglvl, &conf, &iptcap, 1);
                     if(result == -1)
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
+                        vrmr_error(-1, VR_ERR, gettext("checking capabilities failed."));
                         return(-1);
                     }
                 }

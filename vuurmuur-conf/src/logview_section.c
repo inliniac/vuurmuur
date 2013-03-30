@@ -255,35 +255,35 @@ check_search_script(const int debuglvl, char *script)
     /* stat the damn thing */
     if(lstat(script, &stat_buf) == -1)
     {
-        (void)vrprint.error(-1, VR_ERR,  gettext("checking failed for '%s': %s."), script, strerror(errno));
+        vrmr_error(-1, VR_ERR,  gettext("checking failed for '%s': %s."), script, strerror(errno));
         return(0);
     }
 
     /* we wont open symbolic links */
     if(S_ISLNK(stat_buf.st_mode) == 1)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not allow following symbolic-links."), script);
+        vrmr_error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not allow following symbolic-links."), script);
         return(0);
     }
 
     /* only allow files and dirs */
     if(!S_ISREG(stat_buf.st_mode) && !S_ISDIR(stat_buf.st_mode))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not allow opening anything other than a file or a directory."), script);
+        vrmr_error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not allow opening anything other than a file or a directory."), script);
         return(0);
     }
 
     /* if a file is writable by someone other than root, we refuse to open it */
     if(stat_buf.st_mode & S_IWGRP || stat_buf.st_mode & S_IWOTH)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not open files that are writable by 'group' or 'other'. Check the file content & permissions."), script);
+        vrmr_error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not open files that are writable by 'group' or 'other'. Check the file content & permissions."), script);
         return(0);
     }
 
     /* we demand that all files are owned by root */
     if(stat_buf.st_uid != 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not open files that are not owned by root."), script);
+        vrmr_error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not open files that are not owned by root."), script);
         return(0);
     }
 
@@ -762,7 +762,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
     /* safety */
     if(zones == NULL || blocklist == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem "
+        vrmr_error(-1, VR_INTERR, "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -803,7 +803,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
         }
         else
         {
-            (void)vrprint.error(-1, VR_INTERR, "unknown logfile '%s'.", logname);
+            vrmr_error(-1, VR_INTERR, "unknown logfile '%s'.", logname);
             return(-1);
         }
     }
@@ -812,7 +812,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
     /* setup the buffer */
     if(vrmr_list_setup(debuglvl, &LogBufferList, free) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "setting up buffer failed (in: %s:%d).", __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "setting up buffer failed (in: %s:%d).", __FUNCTION__, __LINE__);
         return(-1);
     }
     /* point the buffer pointer to the LogBufferList */
@@ -823,7 +823,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
     traffic_fp = fopen(logfile, "r");
     if(!traffic_fp)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("opening logfile '%s' failed: %s."), conf.trafficlog_location, strerror(errno));
+        vrmr_error(-1, VR_ERR, gettext("opening logfile '%s' failed: %s."), conf.trafficlog_location, strerror(errno));
         vrmr_list_cleanup(debuglvl, buffer_ptr);
         return(-1);
     }
@@ -831,7 +831,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
     fp = traffic_fp;
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "opening '%s' successful.", conf.trafficlog_location);
+        vrmr_debug(__FUNC__, "opening '%s' successful.", conf.trafficlog_location);
 
     /* set up the logwin */
     getmaxyx(stdscr, max_height, max_width);
@@ -847,7 +847,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
     */
     if(stat(logfile, &stat_buf) == -1)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("could not examine the logfile: %s."), strerror(errno));
+        vrmr_error(-1, VR_ERR, gettext("could not examine the logfile: %s."), strerror(errno));
         return(-1);
     }
     
@@ -860,7 +860,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
     /* listen at the logfile_fseek_offset point in the file, so we start with a populated buffer */
     if(fseek(fp, logfile_fseek_offset, SEEK_END) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("fseek failed: %s."), strerror(errno));
+        vrmr_error(-1, VR_ERR, gettext("fseek failed: %s."), strerror(errno));
         return(-1);
     }
     
@@ -870,7 +870,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
     if(!(wait_win = create_newwin(5, 40, (max_height-5)/2, (max_width-40)/2,
             gettext("One moment please..."), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wait_panels[0] = new_panel(wait_win);
@@ -893,7 +893,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
         /* read line from log */
         if(!(line = malloc(READLINE_LEN)))
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
             vrmr_list_cleanup(debuglvl, buffer_ptr);
             return(-1);
         }
@@ -931,7 +931,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     /* here we can analyse the rule */
                     if(!(logrule_ptr = malloc(sizeof(struct LogRule_))))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
 
@@ -950,7 +950,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     /* now insert the rule */
                     if(vrmr_list_append(debuglvl, buffer_ptr, logrule_ptr)  == NULL)
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "unable to add line to buffer.");
+                        vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
                     }
 
@@ -959,7 +959,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     {
                         if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
+                            vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
                             return(-1);
                         }
                     }
@@ -972,7 +972,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     /* here we can analyse the rule */
                     if(!(plainlogrule_ptr = malloc(sizeof(struct PlainLogRule_))))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
 
@@ -991,7 +991,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     /* now insert the rule */
                     if(vrmr_list_append(debuglvl, buffer_ptr, plainlogrule_ptr)  == NULL)
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "unable to add line to buffer.");
+                        vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
                     }
 
@@ -1000,7 +1000,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     {
                         if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
+                            vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
                             return(-1);
                         }
                     }
@@ -1033,7 +1033,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
     /* create the info bar window, start hidden */
     if(!(filter_ib_win = newwin(1, 32, 3, 2))) /* 32 + filter: */
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(filter_ib_win, vccnf.color_win);
@@ -1043,7 +1043,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
     /* create the info bar window, start hidden */
     if(!(search_ib_win = newwin(1, 32, 3, max_width-32-2))) /* 32 + filter: */
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(search_ib_win, vccnf.color_win);
@@ -1055,7 +1055,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
     */
     if(!(log_win = newwin(max_height-8, max_width-2, 4, 1)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
 
@@ -1079,7 +1079,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
         /* read line from log */
         if(!(line = malloc(READLINE_LEN)))
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
             vrmr_list_cleanup(debuglvl, buffer_ptr);
             return(-1);
         }
@@ -1108,7 +1108,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     search_completed = 1;
 
                     line[StrMemLen(line)-2] = '\0';
-                    (void)vrprint.error(-1, VR_ERR, "%s", line);
+                    vrmr_error(-1, VR_ERR, "%s", line);
                 }
                 else
                 {
@@ -1133,7 +1133,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     /* here we can analyse the rule */
                     if(!(logrule_ptr = malloc(sizeof(struct LogRule_))))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
 
@@ -1159,7 +1159,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     /* now really insert the rule into the buffer */
                     if(vrmr_list_append(debuglvl, buffer_ptr, logrule_ptr)  == NULL)
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "unable to add line to buffer.");
+                        vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
                     }
 
@@ -1168,7 +1168,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     {
                         if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "unable to remove line from buffer (runtime).");
+                            vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (runtime).");
                             return(-1);
                         }
                     }
@@ -1181,7 +1181,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     /* here we can analyse the rule */
                     if(!(plainlogrule_ptr = malloc(sizeof(struct PlainLogRule_))))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
 
@@ -1206,7 +1206,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     /* now insert the rule */
                     if(vrmr_list_append(debuglvl, buffer_ptr, plainlogrule_ptr)  == NULL)
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "unable to add line to buffer.");
+                        vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
                     }
 
@@ -1215,7 +1215,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     {
                         if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
+                            vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
                             return(-1);
                         }
                     }
@@ -1272,7 +1272,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 /* close the pipe */
                 if(pclose(search_pipe) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("closing search pipe failed: %s."), strerror(errno));
+                    vrmr_error(-1, VR_ERR, gettext("closing search pipe failed: %s."), strerror(errno));
                 }
 
                 /* restore file pointer */
@@ -1402,7 +1402,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 */
                 if(!(wait_win = create_newwin(5, 40, (max_height-5)/2, (max_width-40)/2, gettext("One moment please..."), vccnf.color_win)))
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+                    vrmr_error(-1, VR_ERR, gettext("creating window failed."));
                     return(-1);
                 }
                 wait_panels[0] = new_panel(wait_win);
@@ -1418,7 +1418,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     {
                         if(!(logrule_ptr = d_node->data))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "NULL pointer.");
+                            vrmr_error(-1, VR_INTERR, "NULL pointer.");
                             return(-1);
                         }
 
@@ -1435,7 +1435,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     {
                         if(!(plainlogrule_ptr = d_node->data))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "NULL pointer.");
+                            vrmr_error(-1, VR_INTERR, "NULL pointer.");
                             return(-1);
                         }
 
@@ -1467,7 +1467,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
 
                 if(vrmr_list_setup(debuglvl, buffer_ptr, free) < 0)
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "re-initializing buffer failed.");
+                    vrmr_error(-1, VR_INTERR, "re-initializing buffer failed.");
                     return(-1);
                 }
 
@@ -1553,7 +1553,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 }
                 else
                 {
-                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                    vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
             
@@ -1572,7 +1572,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 }
                 else
                 {
-                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                    vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
 
@@ -1591,7 +1591,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 }
                 else
                 {
-                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                    vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
 
@@ -1610,7 +1610,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 }
                 else
                 {
-                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                    vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
 
@@ -1629,7 +1629,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 }
                 else
                 {
-                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                    vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
 
@@ -1648,7 +1648,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 }
                 else
                 {
-                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                    vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
 
@@ -1667,7 +1667,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 }
                 else
                 {
-                    (void)vrprint.warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
+                    vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
                 
@@ -1714,7 +1714,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                             /* setup the search-buffer */
                             if(vrmr_list_setup(debuglvl, &SearchBufferList, free) < 0)
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "initializing search buffer failed.");
+                                vrmr_error(-1, VR_INTERR, "initializing search buffer failed.");
                                 return(-1);
                             }
 
@@ -1726,12 +1726,12 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
 
                             /* assemble search string => ignore stderr because it messes up the screen */
                             snprintf(search_string, sizeof(search_string), "/bin/bash %s/vuurmuur-searchlog.sh %s %s/ '%s' 2>/dev/null", vccnf.scripts_location, logname, conf.vuurmuur_logdir_location, search_ptr);
-                            (void)vrprint.debug(__FUNC__, "search_string: '%s'.", search_string);
+                            vrmr_debug(__FUNC__, "search_string: '%s'.", search_string);
 
                             /* open the pipe */
                             if(!(search_pipe = popen(search_string, "r")))
                             {
-                                (void)vrprint.error(-1, VR_ERR, gettext("opening pipe failed: %s."), strerror(errno));
+                                vrmr_error(-1, VR_ERR, gettext("opening pipe failed: %s."), strerror(errno));
                                 return(-1);
                             }
 
@@ -1753,7 +1753,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     }
                     else
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("search script was not ok, search is disabled."));
+                        vrmr_error(-1, VR_ERR, gettext("search script was not ok, search is disabled."));
                     }
 
                 }
@@ -1794,7 +1794,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                         cmd_choices);
                 }
                 else
-                    (void)vrprint.warning(VR_WARN,
+                    vrmr_warning(VR_WARN,
                         STR_LOGGING_OPTS_NOT_AVAIL);
                 break;
 
@@ -1847,7 +1847,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 {
                     if(!(logrule_ptr = d_node->data))
                     {
-                        (void)vrprint.error(-1, VR_INTERR,
+                        vrmr_error(-1, VR_INTERR,
                                 "NULL pointer (in: %s:%d).",
                                 __FUNC__, __LINE__);
                         return(-1);
@@ -1868,7 +1868,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 {
                     if(!(plainlogrule_ptr = d_node->data))
                     {
-                        (void)vrprint.error(-1, VR_INTERR,
+                        vrmr_error(-1, VR_INTERR,
                                 "NULL pointer (in: %s:%d).",
                                 __FUNC__, __LINE__);
                         return(-1);
@@ -1937,7 +1937,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     {
                         if(!(logrule_ptr = d_node->data))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
+                            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
                             return(-1);
                         }
 
@@ -1952,7 +1952,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     {
                         if(!(plainlogrule_ptr = d_node->data))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
+                            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
                             return(-1);
                         }
 
@@ -2012,7 +2012,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
 
     if(fclose(fp) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("closing logfile failed: %s."), strerror(errno));
+        vrmr_error(-1, VR_ERR, gettext("closing logfile failed: %s."), strerror(errno));
         return(-1);
     }
 

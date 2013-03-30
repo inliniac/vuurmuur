@@ -42,13 +42,13 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
         if(found == TRUE)
         {
             if(vr_script->type == VRMR_TYPE_ZONE)
-                (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "zone '%s' already exists.", vr_script->name);
+                vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "zone '%s' already exists.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_NETWORK)
-                (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "network '%s' already exists.", vr_script->name);
+                vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "network '%s' already exists.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_HOST)
-                (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "host '%s' already exists.", vr_script->name);
+                vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "host '%s' already exists.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_GROUP)
-                (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "group '%s' already exists.", vr_script->name);
+                vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "group '%s' already exists.", vr_script->name);
 
             return(VRS_ERR_ALREADY_EXISTS);
         }
@@ -65,7 +65,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == TRUE)
         {
-            (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "service '%s' already exists.", vr_script->name);
+            vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "service '%s' already exists.", vr_script->name);
             return(VRS_ERR_ALREADY_EXISTS);
         }
     }
@@ -81,7 +81,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == TRUE)
         {
-            (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "interface '%s' already exists.", vr_script->name);
+            vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "interface '%s' already exists.", vr_script->name);
             return(VRS_ERR_ALREADY_EXISTS);
         }
     }
@@ -97,7 +97,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == TRUE)
         {
-            (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "ruleset '%s' already exists.", vr_script->name);
+            vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "ruleset '%s' already exists.", vr_script->name);
             return(VRS_ERR_ALREADY_EXISTS);
         }
     }
@@ -109,7 +109,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_ZONE) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "adding zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "adding zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -119,7 +119,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_NETWORK) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "adding network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "adding network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -129,7 +129,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_HOST) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "adding host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "adding host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -139,7 +139,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_GROUP) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "adding group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "adding group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -149,7 +149,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(sf->add(debuglvl, serv_backend, vr_script->name, VRMR_TYPE_SERVICE) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "adding service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "adding service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -159,7 +159,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(af->add(debuglvl, ifac_backend, vr_script->name, VRMR_TYPE_INTERFACE) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "adding interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "adding interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -169,7 +169,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(rf->add(debuglvl, rule_backend, vr_script->name, VRMR_TYPE_RULE) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "adding ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "adding ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -177,7 +177,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d.", vr_script->type);
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d.", vr_script->type);
         return(VRS_ERR_INTERNAL);
     }
 

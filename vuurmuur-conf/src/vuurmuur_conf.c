@@ -162,7 +162,7 @@ main(int argc, char *argv[])
 
                 if(strlcpy(conf.configfile, optarg, sizeof(conf.configfile)) >= sizeof(conf.configfile))
                 {
-                    (void)vrprint.error(EXIT_FAILURE, VR_ERR, gettext("commandline argument too long for option -c."));
+                    vrmr_error(EXIT_FAILURE, VR_ERR, gettext("commandline argument too long for option -c."));
                     exit(EXIT_FAILURE);
                 }
                 break;
@@ -173,7 +173,7 @@ main(int argc, char *argv[])
                 debuglvl = atoi(optarg);
                 if(debuglvl < 0 || debuglvl > HIGH)
                 {
-                    (void)vrprint.error(EXIT_FAILURE, VR_ERR, gettext("commandline debuglevel out of range."));
+                    vrmr_error(EXIT_FAILURE, VR_ERR, gettext("commandline debuglevel out of range."));
                     exit(EXIT_FAILURE);
                 }
 
@@ -198,7 +198,7 @@ main(int argc, char *argv[])
             }
             default:
 
-                (void)vrprint.error(EXIT_FAILURE, VR_ERR, gettext("unknown commandline option."));
+                vrmr_error(EXIT_FAILURE, VR_ERR, gettext("unknown commandline option."));
                 exit(EXIT_FAILURE);
         }
     }
@@ -326,7 +326,7 @@ main(int argc, char *argv[])
     /* setup regexes */
     if(vrmr_regex_setup(1, &reg) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_regex_setup() failed (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "vrmr_regex_setup() failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
         exit(EXIT_FAILURE);
     }
@@ -423,7 +423,7 @@ main(int argc, char *argv[])
     /* unload the backends */
     if(vrmr_backends_unload(debuglvl, &conf) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("unloading the backends failed (in: %s:%d)."), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("unloading the backends failed (in: %s:%d)."), __FUNCTION__, __LINE__);
         retval=-1;
     }
 
@@ -513,7 +513,7 @@ create_newwin(int height, int width, int starty, int startx, char *title, chtype
         }
         else
         {
-            (void)vrprint.warning(gettext("Warning"), gettext("title '%s' too long, window will be drawn without a title."), title);
+            vrmr_warning(gettext("Warning"), gettext("title '%s' too long, window will be drawn without a title."), title);
         }
     }
 
@@ -644,7 +644,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
         }
         else
         {
-            (void)vrprint.error(-1, VR_ERR, "unknown return code from init_vcconfig. This can't be good (in: %s:%d).", __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, "unknown return code from init_vcconfig. This can't be good (in: %s:%d).", __FUNCTION__, __LINE__);
             return(-1);
         }
 
@@ -703,7 +703,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
         }
         else
         {
-            (void)vrprint.error(-1, VR_INTERR, "unknown return code from vrmr_init_config. This can't be good (in: %s:%d).", __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "unknown return code from vrmr_init_config. This can't be good (in: %s:%d).", __FUNCTION__, __LINE__);
             return(-1);
         }
 
@@ -723,7 +723,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     vrprint.audit = vrmr_logprint_audit;
 
     /* print that we started */
-    (void)vrprint.audit("started: effective user %s (%ld), real user %s (%ld).",
+    vrmr_audit("started: effective user %s (%ld), real user %s (%ld).",
                     user_data.username, (long)user_data.user,
                     user_data.realusername, (long)user_data.realuser);
 
@@ -733,7 +733,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     result = vrmr_backends_load(debuglvl, &conf);
     if(result < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("loading the plugins failed."));
+        vrmr_error(-1, VR_ERR, gettext("loading the plugins failed."));
         return(-1);
     }
     werase(startup_print_win); wprintw(startup_print_win, "%s... %s", STR_LOAD_PLUGINS, STR_COK); update_panels(); doupdate();
@@ -746,7 +746,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     result = vrmr_init_services(debuglvl, services, reg);
     if(result < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("intializing the services failed."));
+        vrmr_error(-1, VR_ERR, gettext("intializing the services failed."));
         return(-1);
     }
     /* TRANSLATORS: max 40 characters */
@@ -759,7 +759,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     result = vrmr_init_interfaces(debuglvl, interfaces);
     if(result < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("intializing the interfaces failed."));
+        vrmr_error(-1, VR_ERR, gettext("intializing the interfaces failed."));
         return(-1);
     }
     /* TRANSLATORS: max 40 characters */
@@ -772,7 +772,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     result = vrmr_init_zonedata(debuglvl, zones, interfaces, reg);
     if(result < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("intializing the zones failed."));
+        vrmr_error(-1, VR_ERR, gettext("intializing the zones failed."));
         return(-1);
     }
     /* TRANSLATORS: max 40 characters */
@@ -823,7 +823,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
         vuurmuur_shmp = shmat(vuurmuur_shmid, 0, 0);
         if(vuurmuur_shmp == (char *)(-1))
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("attaching to shared memory failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("attaching to shared memory failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         }
         else
         {
@@ -867,7 +867,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
         vuurmuurlog_shmp = shmat(vuurmuurlog_shmid, 0, 0);
         if(vuurmuurlog_shmp == (char *)(-1))
         {
-            (void)vrprint.error(-1, VR_ERR, "attaching to shared memory failed: %s (in: %s:%d).", strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, "attaching to shared memory failed: %s (in: %s:%d).", strerror(errno), __FUNCTION__, __LINE__);
         }
         else
         {
@@ -875,7 +875,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
             vuurmuurlog_semid = vuurmuurlog_shmtable->sem_id;
 
             if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "vuurmuur_log: sem_id: %d.", vuurmuurlog_semid);
+                vrmr_debug(__FUNC__, "vuurmuur_log: sem_id: %d.", vuurmuurlog_semid);
 
             /* now try to connect to the shared memory */
             if(vrmr_lock(vuurmuurlog_semid))
@@ -978,7 +978,7 @@ copy_field2buf(char *buf, char *fieldbuf, size_t bufsize)
     /* safety */
     if(!buf || !fieldbuf)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(0);
     }

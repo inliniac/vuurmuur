@@ -345,7 +345,7 @@ validate_commentfield(const int debuglvl, char *fieldbuffer, regex_t *reg_ex)
 //    if(!fieldbuffer || !reg_ex)
     if(!fieldbuffer)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -353,7 +353,7 @@ validate_commentfield(const int debuglvl, char *fieldbuffer, regex_t *reg_ex)
 /*
     if(regexec(reg_ex, fieldbuffer, 0, NULL, 0) != 0)
     {
-        (void)vrprint.error(-1, "Error", "comment line contains illegal characters.");
+        vrmr_error(-1, "Error", "comment line contains illegal characters.");
         return(-1);
     }
 */
@@ -362,12 +362,12 @@ validate_commentfield(const int debuglvl, char *fieldbuffer, regex_t *reg_ex)
     {
         if(fieldbuffer[i] == '"')
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("the double quote sign \" is not allowed in the commentfield."));
+            vrmr_error(-1, VR_ERR, gettext("the double quote sign \" is not allowed in the commentfield."));
             return(-1);
         }
         else if(fieldbuffer[i] == '%')
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("the percent sign is not allowed in the commentfield."));
+            vrmr_error(-1, VR_ERR, gettext("the percent sign is not allowed in the commentfield."));
             return(-1);
         }
     }

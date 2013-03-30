@@ -170,7 +170,7 @@ main(int argc, char *argv[])
                     /* -V RULE */
                     if(strlcpy(vr_script.var, "RULE", sizeof(vr_script.var)) >= sizeof(vr_script.var))
                     {
-                        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+                        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
                                 "could not set variable: internal argument 'RULE' too long (max: %d).",
                                 (int)sizeof(vr_script.var)-1);
                         exit(VRS_ERR_COMMANDLINE);
@@ -179,14 +179,14 @@ main(int argc, char *argv[])
                     /* --set "block 1.2.3.4" */
                     if(snprintf(tmp_set, sizeof(tmp_set), "block %s", optarg) >= (int)sizeof(tmp_set))
                     {
-                        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+                        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
                                 "could not set ip address: argument too long (max: %d).",
                                 (int)sizeof(tmp_set)-1);
                         exit(VRS_ERR_COMMANDLINE);
                     }
                     if(strlcpy(vr_script.set, tmp_set, sizeof(vr_script.set)) >= sizeof(vr_script.set))
                     {
-                        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+                        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
                                 "could not set ip address: argument too long (max: %d).",
                                 (int)sizeof(vr_script.set)-1);
                         exit(VRS_ERR_COMMANDLINE);
@@ -197,7 +197,7 @@ main(int argc, char *argv[])
 
                     if(strlcpy(vr_script.name, "blocklist", sizeof(vr_script.name)) >= sizeof(vr_script.name))
                     {
-                        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+                        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
                                 "rule (-r/--rule): internal argument too long (max: %d).",
                                 (int)sizeof(vr_script.name)-1);
                         exit(VRS_ERR_COMMANDLINE);
@@ -215,7 +215,7 @@ main(int argc, char *argv[])
 
                     if(strlcpy(vr_script.set, optarg, sizeof(vr_script.set)) >= sizeof(vr_script.set))
                     {
-                        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+                        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
                             "could not set object to unblock: argument too long (max: %d).",
                             (int)sizeof(vr_script.set)-1);
                         exit(VRS_ERR_COMMANDLINE);
@@ -244,7 +244,7 @@ main(int argc, char *argv[])
                 }
                 else
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
                         "unknown option '%s'. See --help for valid options.",
                         long_options[longopt_index].name);
                     exit(VRS_ERR_COMMANDLINE);
@@ -259,7 +259,7 @@ main(int argc, char *argv[])
 
                 if(strlcpy(conf.configfile, optarg, sizeof(conf.configfile)) >= sizeof(conf.configfile))
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "configfile (-c): argument too long (max: %d).", (int)sizeof(conf.configfile)-1);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "configfile (-c): argument too long (max: %d).", (int)sizeof(conf.configfile)-1);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 break;
@@ -273,7 +273,7 @@ main(int argc, char *argv[])
                 debuglvl = atoi(optarg);
                 if(debuglvl < 0 || debuglvl > HIGH)
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "illegal debug level: %d (max: %d)", debuglvl, HIGH);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "illegal debug level: %d (max: %d)", debuglvl, HIGH);
                     exit(VRS_ERR_COMMANDLINE);
                 }
 
@@ -365,7 +365,7 @@ main(int argc, char *argv[])
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "host (-o/--host): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "host (-o/--host): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 break;
@@ -376,7 +376,7 @@ main(int argc, char *argv[])
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "group (-g/--group): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "group (-g/--group): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 break;
@@ -387,7 +387,7 @@ main(int argc, char *argv[])
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "network (-n/--network): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "network (-n/--network): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 break;
@@ -398,7 +398,7 @@ main(int argc, char *argv[])
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "zone (-z/--zone): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "zone (-z/--zone): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 break;
@@ -409,7 +409,7 @@ main(int argc, char *argv[])
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "service (-s/--service): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "service (-s/--service): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 break;
@@ -420,7 +420,7 @@ main(int argc, char *argv[])
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "host (-i/--interface): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "host (-i/--interface): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 break;
@@ -431,7 +431,7 @@ main(int argc, char *argv[])
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "rule (-r/--rule): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "rule (-r/--rule): argument too long (max: %d).", (int)sizeof(vr_script.name)-1);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 break;
@@ -440,7 +440,7 @@ main(int argc, char *argv[])
 
                 if(strlcpy(vr_script.set, optarg, sizeof(vr_script.set)) >= sizeof(vr_script.set))
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "set (-S/--set): argument too long (max: %d).", (int)sizeof(vr_script.set)-1);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "set (-S/--set): argument too long (max: %d).", (int)sizeof(vr_script.set)-1);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 break;
@@ -449,7 +449,7 @@ main(int argc, char *argv[])
 
                 if(strlcpy(vr_script.var, optarg, sizeof(vr_script.var)) >= sizeof(vr_script.var))
                 {
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "var (-V/--var): argument too long (max: %d).", (int)sizeof(vr_script.var)-1);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "var (-V/--var): argument too long (max: %d).", (int)sizeof(vr_script.var)-1);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 break;
@@ -466,7 +466,7 @@ main(int argc, char *argv[])
 
             default:
 
-                (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "unknown option '%c'. See --help for valid options.", opt);
+                vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "unknown option '%c'. See --help for valid options.", opt);
                 exit(VRS_ERR_COMMANDLINE);
         }
     }
@@ -481,14 +481,14 @@ main(int argc, char *argv[])
     if(conf.verbose_out == TRUE)
     {
         /* print some nice info about me being the coolest of 'm all ;-) */
-        (void)vrprint.info("Info", "This is Vuurmuur_script %s", version_string);
-        (void)vrprint.info("Info", "Copyright (C) 2002-2008 by Victor Julien");
+        vrmr_info("Info", "This is Vuurmuur_script %s", version_string);
+        vrmr_info("Info", "Copyright (C) 2002-2008 by Victor Julien");
     }
 
     /* setup regexes */
     if(vrmr_regex_setup(1, &vr_script.reg) < 0)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "setting up regular expressions failed.");
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "setting up regular expressions failed.");
         exit(VRS_ERR_INTERNAL);
     }
 
@@ -510,63 +510,63 @@ main(int argc, char *argv[])
     */
     if(vr_script.cmd == CMD_UNSET)
     {
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "missing command option, use --help to see a list of possible commands.");
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "missing command option, use --help to see a list of possible commands.");
         exit(VRS_ERR_COMMANDLINE);
     }
 
     if(vr_script.cmd == CMD_ADD)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "command 'add' selected.");
+            vrmr_info(VR_INFO, "command 'add' selected.");
     }
     else if(vr_script.cmd == CMD_DEL)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "command 'delete' selected.");
+            vrmr_info(VR_INFO, "command 'delete' selected.");
     }
     else if(vr_script.cmd == CMD_MOD)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "command 'modify' selected.");
+            vrmr_info(VR_INFO, "command 'modify' selected.");
     }
     else if(vr_script.cmd == CMD_REN)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "command 'rename' selected.");
+            vrmr_info(VR_INFO, "command 'rename' selected.");
     }
     else if(vr_script.cmd == CMD_LST)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "command 'list' selected.");
+            vrmr_info(VR_INFO, "command 'list' selected.");
     }
     else if(vr_script.cmd == CMD_PRT)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "command 'print' selected.");
+            vrmr_info(VR_INFO, "command 'print' selected.");
     }
     else if(vr_script.cmd == CMD_BLK)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "command 'block' selected.");
+            vrmr_info(VR_INFO, "command 'block' selected.");
     }
     else if(vr_script.cmd == CMD_UBL)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "command 'unblock' selected.");
+            vrmr_info(VR_INFO, "command 'unblock' selected.");
     }
     else if(vr_script.cmd == CMD_LBL)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "command 'list-blocked' selected.");
+            vrmr_info(VR_INFO, "command 'list-blocked' selected.");
     }
     else if(vr_script.cmd == CMD_RLD)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "command 'reload-config' selected.");
+            vrmr_info(VR_INFO, "command 'reload-config' selected.");
     }
     else
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "unknown command option %d.", vr_script.cmd);
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown command option %d.", vr_script.cmd);
         exit(VRS_ERR_INTERNAL);
     }
 
@@ -576,53 +576,53 @@ main(int argc, char *argv[])
     */
     if(vr_script.type == VRMR_TYPE_UNSET && vr_script.cmd != CMD_RLD)
     {
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "type option not set. Please see --help for options.");
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "type option not set. Please see --help for options.");
         exit(VRS_ERR_COMMANDLINE);
     }
 
     if(vr_script.type == VRMR_TYPE_HOST)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "type 'host' selected.");
+            vrmr_info(VR_INFO, "type 'host' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_GROUP)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "type 'group' selected.");
+            vrmr_info(VR_INFO, "type 'group' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_NETWORK)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "type 'network' selected.");
+            vrmr_info(VR_INFO, "type 'network' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_ZONE)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "type 'zone' selected.");
+            vrmr_info(VR_INFO, "type 'zone' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_SERVICE)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "type 'service' selected.");
+            vrmr_info(VR_INFO, "type 'service' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_INTERFACE)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "type 'interface' selected.");
+            vrmr_info(VR_INFO, "type 'interface' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_RULE)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "type 'rule' selected.");
+            vrmr_info(VR_INFO, "type 'rule' selected.");
     }
     else if(vr_script.cmd == CMD_RLD)
     {
         if(conf.verbose_out == TRUE)
-            (void)vrprint.info(VR_INFO, "reload has no option.");
+            vrmr_info(VR_INFO, "reload has no option.");
     }
     else
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type option %d.", vr_script.type);
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type option %d.", vr_script.type);
         exit(VRS_ERR_INTERNAL);
     }
 
@@ -646,18 +646,18 @@ main(int argc, char *argv[])
             if(vrmr_validate_zonename(debuglvl, vr_script.name, 0, vr_script.name_zone, vr_script.name_net, vr_script.name_host, vr_script.reg.zonename, VRMR_VERBOSE) != 0)
             {
                 if(vr_script.type == VRMR_TYPE_ZONE)
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid zone name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid zone name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 else if(vr_script.type == VRMR_TYPE_NETWORK)
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid network name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid network name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 else if(vr_script.type == VRMR_TYPE_HOST)
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid host name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid host name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 else if(vr_script.type == VRMR_TYPE_GROUP)
-                    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid group name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid group name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 
                 exit(VRS_ERR_COMMANDLINE);
             }
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "name: '%s': host/group '%s', net '%s', zone '%s'.",
+                vrmr_debug(__FUNC__, "name: '%s': host/group '%s', net '%s', zone '%s'.",
                                         vr_script.name, vr_script.name_host,
                                         vr_script.name_net, vr_script.name_zone);
         }
@@ -665,7 +665,7 @@ main(int argc, char *argv[])
         {
             if(vrmr_validate_servicename(debuglvl, vr_script.name, vr_script.reg.servicename, VRMR_QUIET) != 0)
             {
-                (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid service name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
+                vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid service name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 exit(VRS_ERR_COMMANDLINE);
             }
         }
@@ -673,7 +673,7 @@ main(int argc, char *argv[])
         {
             if(vrmr_validate_interfacename(debuglvl, vr_script.name, vr_script.reg.interfacename) != 0)
             {
-                (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid interface name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
+                vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid interface name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 exit(VRS_ERR_COMMANDLINE);
             }
         }
@@ -687,14 +687,14 @@ main(int argc, char *argv[])
             else
             {
                 /* error */
-                (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid ruleset name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
+                vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid ruleset name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 exit(VRS_ERR_COMMANDLINE);
             }
         }
         else
         {
             /* error */
-            (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type option %d.", vr_script.type);
+            vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type option %d.", vr_script.type);
             exit(VRS_ERR_INTERNAL);
         }
     }
@@ -709,13 +709,13 @@ main(int argc, char *argv[])
 
     /* initialize the config from the config file */
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "initializing config... calling vrmr_init_config()");
+        vrmr_debug(__FUNC__, "initializing config... calling vrmr_init_config()");
 
     result = vrmr_init_config(debuglvl, &conf);
     if(result >= VRMR_CNF_OK)
     {
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "initializing config complete and succesful.");
+            vrmr_debug(__FUNC__, "initializing config complete and succesful.");
     }
     else
     {
@@ -765,7 +765,7 @@ main(int argc, char *argv[])
     {
         if(strcasecmp(vr_script.name,"any") == 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot use command 'print' on object 'any'.");
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot use command 'print' on object 'any'.");
             retval = VRS_ERR_COMMANDLINE;
         }
         else
@@ -777,7 +777,7 @@ main(int argc, char *argv[])
     {
         if(strcasecmp(vr_script.name,"any") == 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot use command 'add' on object 'any'.");
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot use command 'add' on object 'any'.");
             retval = VRS_ERR_COMMANDLINE;
         }
         else
@@ -789,7 +789,7 @@ main(int argc, char *argv[])
     {
         if(strcasecmp(vr_script.name,"any") == 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot use command 'del' on object 'any'.");
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot use command 'del' on object 'any'.");
             retval = VRS_ERR_COMMANDLINE;
         }
         else
@@ -819,18 +819,18 @@ main(int argc, char *argv[])
 
         if(strcasecmp(vr_script.name,"any") == 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot use command 'modify' on object 'any'.");
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot use command 'modify' on object 'any'.");
             retval = VRS_ERR_COMMANDLINE;
         }
         else if(vr_script.var[0] == '\0' || strcasecmp(vr_script.var, "any") == 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "please set the variable to modify with --variable.");
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "please set the variable to modify with --variable.");
             retval = VRS_ERR_COMMANDLINE;
         }
         /* allow empty 'set' if we overwrite, since that way we can clear variables */
         else if(vr_script.set[0] == '\0' && vr_script.overwrite == FALSE)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "please set the new value with --set.");
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "please set the new value with --set.");
             retval = VRS_ERR_COMMANDLINE;
         }
         else
@@ -842,22 +842,22 @@ main(int argc, char *argv[])
     {
         if(strcasecmp(vr_script.name,"any") == 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot use command 'rename' on object 'any'.");
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot use command 'rename' on object 'any'.");
             retval = VRS_ERR_COMMANDLINE;
         }
         else if(strcasecmp(vr_script.set,"any") == 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot rename a object to 'any'.");
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot rename a object to 'any'.");
             retval = VRS_ERR_COMMANDLINE;
         }
         else if(strncasecmp(vr_script.set,"firewall", 8) == 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot rename a object to a name that starts with 'firewall'.");
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "cannot rename a object to a name that starts with 'firewall'.");
             retval = VRS_ERR_COMMANDLINE;
         }
         else if(vr_script.set[0] == '\0')
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "please set the new name with --set.");
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "please set the new name with --set.");
             retval = VRS_ERR_COMMANDLINE;
         }
         else
@@ -916,7 +916,7 @@ main(int argc, char *argv[])
     (void)vrmr_regex_setup(0, &vr_script.reg);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "** end **, return = %d", retval);
+        vrmr_debug(__FUNC__, "** end **, return = %d", retval);
 
     return(retval);
 }
@@ -935,7 +935,7 @@ logchange(char *fmt, ...)
     vsnprintf(prnt_str, sizeof(prnt_str), fmt, ap);
     va_end(ap);
 
-    (void)vrprint.audit("%s", prnt_str);
+    vrmr_audit("%s", prnt_str);
     if(conf.verbose_out == TRUE)
-        (void)vrprint.info("Info", "%s", prnt_str);
+        vrmr_info("Info", "%s", prnt_str);
 }

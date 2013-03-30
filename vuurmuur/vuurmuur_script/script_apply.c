@@ -55,7 +55,7 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
         vuurmuur_shmp = shmat(vuurmuur_shmid, 0, 0);
         if(vuurmuur_shmp == (char *)(-1))
         {
-            (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR, "attaching to shared memory failed: %s (in: %s:%d).",
+            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "attaching to shared memory failed: %s (in: %s:%d).",
                                             strerror(errno), __FUNC__, __LINE__);
         }
         else
@@ -73,14 +73,14 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
             }
             else
             {
-                (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR, "connecting to Vuurmuur failed: could not lock semid.");
+                vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "connecting to Vuurmuur failed: could not lock semid.");
                 vuurmuur_shmp = NULL;
             }
         }
     }
     else
     {
-        (void)vrprint.warning(VR_WARN, "vuurmuur not notified: connecting failed: no shmid.");
+        vrmr_warning(VR_WARN, "vuurmuur not notified: connecting failed: no shmid.");
         vuurmuur_shmp = NULL;
     }
 
@@ -93,7 +93,7 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
         vuurmuurlog_shmp = shmat(vuurmuurlog_shmid, 0, 0);
         if(vuurmuurlog_shmp == (char *)(-1))
         {
-            (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR, "attaching to shared memory failed: %s (in: %s:%d).",
+            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "attaching to shared memory failed: %s (in: %s:%d).",
                                             strerror(errno), __FUNC__, __LINE__);
         }
         else
@@ -111,14 +111,14 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
             }
             else
             {
-                (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR, "connecting to Vuurmuur_log failed: could not lock semid.");
+                vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "connecting to Vuurmuur_log failed: could not lock semid.");
                 vuurmuurlog_shmp = NULL;
             }
         }
     }
     else
     {
-        (void)vrprint.warning(VR_WARN, "vuurmuur_log not notified: connecting failed: no shmid.");
+        vrmr_warning(VR_WARN, "vuurmuur_log not notified: connecting failed: no shmid.");
         vuurmuurlog_shmp = NULL;
     }
 

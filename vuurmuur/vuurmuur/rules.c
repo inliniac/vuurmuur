@@ -34,7 +34,7 @@ create_loglevel_string(const int debuglvl, struct vrmr_config *cnf, char *result
     /* safety */
     if(resultstr == NULL || cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
     /* clear */
@@ -48,13 +48,13 @@ create_loglevel_string(const int debuglvl, struct vrmr_config *cnf, char *result
             /* create the loglevel string */
             if(snprintf(resultstr, size, "--log-level %s", cnf->loglevel) >= (int)size)
             {
-                (void)vrprint.error(-1, "Error", "buffer overrun (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "buffer overrun (in: %s:%d).", __FUNC__, __LINE__);
                 return;
             }
         }
     }
     else
-        (void)vrprint.debug(__FUNC__, "did not add --log-level because we're in nflog mode");
+        vrmr_debug(__FUNC__, "did not add --log-level because we're in nflog mode");
     return;
 }
 
@@ -65,7 +65,7 @@ create_logtcpoptions_string(const int debuglvl, struct vrmr_config *cnf, char *r
     /* safety */
     if(resultstr == NULL || cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
     /* clear */
@@ -77,7 +77,7 @@ create_logtcpoptions_string(const int debuglvl, struct vrmr_config *cnf, char *r
         /* create the loglevel string */
         if(snprintf(resultstr, size, "--log-tcp-options") >= (int)size)
         {
-            (void)vrprint.error(-1, "Error", "buffer overrun (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "buffer overrun (in: %s:%d).", __FUNC__, __LINE__);
             return;
         }
     }
@@ -97,7 +97,7 @@ create_logprefix_string(const int debuglvl, char *resultstr, size_t size,
     /* safety */
     if(resultstr == NULL || action == NULL || userprefix == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
     /* clear */
@@ -151,7 +151,7 @@ create_logprefix_string(const int debuglvl, char *resultstr, size_t size,
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "str: '%s', resultstr: '%s'.", str, resultstr);
+        vrmr_debug(__FUNC__, "str: '%s', resultstr: '%s'.", str, resultstr);
 
     return;
 }
@@ -167,7 +167,7 @@ oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, stru
     /* safety */
     if(rules == NULL || cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(-1);
     }
@@ -177,7 +177,7 @@ oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, stru
     /* get the custom chains we have to create */
     if(vrmr_rules_get_custom_chains(debuglvl, rules) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(-1);
     }
@@ -186,7 +186,7 @@ oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, stru
     {
         if(!(chainname = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -225,7 +225,7 @@ analyze_interface_rules(const int debuglvl,
     /* safety */
     if(rules == NULL || zones == NULL || services == NULL || interfaces == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(-1);
     }
@@ -236,7 +236,7 @@ analyze_interface_rules(const int debuglvl,
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     
@@ -244,21 +244,21 @@ analyze_interface_rules(const int debuglvl,
         {
             if(!(rule_ptr = if_d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
             if(vrmr_interfaces_analyze_rule(debuglvl, rule_ptr, &rule_ptr->rulecache, interfaces, &conf) == 0)
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "analizing protectrule success, active = 1.");
+                    vrmr_debug(__FUNC__, "analizing protectrule success, active = 1.");
 
                 rule_ptr->active = 1;
             }
             else
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "analizing protectrule failed, active = 0.");
+                    vrmr_debug(__FUNC__, "analizing protectrule failed, active = 0.");
 
                 rule_ptr->active = 0;
             }
@@ -280,7 +280,7 @@ analyze_network_protect_rules(const int debuglvl, struct vrmr_rules *rules, stru
     /* safety */
     if(!rules || !zones || !services || !interfaces)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -290,7 +290,7 @@ analyze_network_protect_rules(const int debuglvl, struct vrmr_rules *rules, stru
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     
@@ -300,21 +300,21 @@ analyze_network_protect_rules(const int debuglvl, struct vrmr_rules *rules, stru
             {
                 if(!(rule_ptr = net_d_node->data))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 if(vrmr_zones_network_analyze_rule(debuglvl, rule_ptr, &rule_ptr->rulecache, zones, &conf) == 0)
                 {
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "analizing protectrule success, active = 1.");
+                        vrmr_debug(__FUNC__, "analizing protectrule success, active = 1.");
 
                     rule_ptr->active = 1;
                 }
                 else
                 {
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "analizing protectrule failed, active = 0.");
+                        vrmr_debug(__FUNC__, "analizing protectrule failed, active = 0.");
 
                     rule_ptr->active = 0;
                 }
@@ -338,7 +338,7 @@ analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_z
     /* safety */
     if(!rules || !zones || !services || !interfaces)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(-1);
     }
@@ -351,7 +351,7 @@ analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_z
         */
         if(!(d_node = rules->list.top))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -364,7 +364,7 @@ analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_z
 
         if(!(rule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -373,14 +373,14 @@ analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_z
         if(vrmr_rules_analyze_rule(debuglvl, rule_ptr, &rule_ptr->rulecache, services, zones, interfaces, &conf) == 0)
         {
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "vrmr_rules_analyze_rule %3u ok.", rulescount);
+                vrmr_debug(__FUNC__, "vrmr_rules_analyze_rule %3u ok.", rulescount);
 
             /* update d_node */
             d_node = d_node->next;
         }
         else
         {
-            (void)vrprint.warning("Warning", "Analyzing rule %u failed.", rulescount);
+            vrmr_warning("Warning", "Analyzing rule %u failed.", rulescount);
             rulesfailedcount++;
 
             /* update node before removing */
@@ -389,7 +389,7 @@ analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_z
             /* remove the failed rule from the list */
             if(vrmr_list_remove_node(debuglvl, &rules->list, d_node) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
                                                 __FUNC__, __LINE__);
                 return(-1);
             }
@@ -422,7 +422,7 @@ analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_z
 int
 analyze_all_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules)
 {
-    (void)vrprint.info("Info", "Analyzing the rules... ");
+    vrmr_info("Info", "Analyzing the rules... ");
 
     /* interface rules */
     if(analyze_interface_rules(debuglvl, rules, vctx->zones, vctx->services, vctx->interfaces) < 0)
@@ -460,22 +460,22 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
     char    forward_rules = 0;
 
     /* setup shaping roots */
-    (void)vrprint.info("Info", "Clearing existing shaping settings...");
+    vrmr_info("Info", "Clearing existing shaping settings...");
     if(shaping_clear_interfaces(debuglvl, vctx->conf, vctx->interfaces, /*ruleset*/NULL) < 0)
     {
-        (void)vrprint.error(-1, "Error", "shaping clear interfaces failed.");
+        vrmr_error(-1, "Error", "shaping clear interfaces failed.");
     }
-    (void)vrprint.info("Info", "Setting up shaping roots for interfaces...");
+    vrmr_info("Info", "Setting up shaping roots for interfaces...");
     if(shaping_setup_roots(debuglvl, vctx->conf, vctx->interfaces, /*ruleset*/NULL) < 0)
     {
-        (void)vrprint.error(-1, "Error", "shaping setup roots failed.");
+        vrmr_error(-1, "Error", "shaping setup roots failed.");
     }
     if(shaping_create_default_rules(debuglvl, vctx->conf, vctx->interfaces, /*ruleset*/NULL) < 0)
     {
-        (void)vrprint.error(-1, "Error", "shaping setup default rules failed.");
+        vrmr_error(-1, "Error", "shaping setup default rules failed.");
     }
 
-    (void)vrprint.info("Info", "Creating the rules... (rules to create: %d)", vctx->rules->list.len);
+    vrmr_info("Info", "Creating the rules... (rules to create: %d)", vctx->rules->list.len);
 
     /* create the prerules if were called with it */
     if(create_prerules)
@@ -488,62 +488,62 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
     /* create the nfqueue state rules */
     if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV4) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
+        vrmr_error(-1, "Error", "create nfqueue state failed.");
     }
 #ifdef IPV6_ENABLED
     if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV6) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
+        vrmr_error(-1, "Error", "create nfqueue state failed.");
     }
 #endif
     if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV4) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
+        vrmr_error(-1, "Error", "create nfqueue state failed.");
     }
 #ifdef IPV6_ENABLED
     if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV6) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
+        vrmr_error(-1, "Error", "create nfqueue state failed.");
     }
 #endif
 
     /* create the blocklist */
     if(create_block_rules(debuglvl, NULL, vctx->blocklist) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create blocklist failed.");
+        vrmr_error(-1, "Error", "create blocklist failed.");
     }
 
     /* create the interface rules */
     if(create_interface_rules(debuglvl, NULL, vctx->iptcaps, vctx->interfaces) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create protectrules failed.");
+        vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* create the network protect rules (anti-spoofing) */
     if(create_network_protect_rules(debuglvl, NULL, vctx->zones, vctx->iptcaps) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create protectrules failed.");
+        vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* system protect rules (proc) */
     if(create_system_protectrules(debuglvl, vctx->conf) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create protectrules failed.");
+        vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* create custom chains if needed */
     if(oldrules_create_custom_chains(debuglvl, vctx->rules, vctx->conf) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create custom chains failed.");
+        vrmr_error(-1, "Error", "create custom chains failed.");
     }
     /* normal rules, ruleset == NULL */
     if(create_normal_rules(debuglvl, vctx, NULL, &forward_rules) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create normal rules failed.");
+        vrmr_error(-1, "Error", "create normal rules failed.");
     }
 
     /* post rules: enable logging */
     if(post_rules(debuglvl, NULL, vctx->iptcaps, forward_rules) < 0)
         return(-1);
 
-    (void)vrprint.info("Info", "Creating rules finished.");
+    vrmr_info("Info", "Creating rules finished.");
     return(0);
 }
 
@@ -590,7 +590,7 @@ create_rule_set_proto(struct RuleCreateData_ *rule, struct vrmr_rule_cache *crea
     /* safety */
     if(rule == NULL || create == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -639,7 +639,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
     {
         if(create_rule_input(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
-            (void)vrprint.error(-1, "Error", "creating input rule failed (in: %s).", __FUNC__);
+            vrmr_error(-1, "Error", "creating input rule failed (in: %s).", __FUNC__);
             retval = -1;
         }
     }
@@ -648,7 +648,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
     {
         if(create_rule_output(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
-            (void)vrprint.error(-1, "Error", "creating output rule failed (in: %s).", __FUNC__);
+            vrmr_error(-1, "Error", "creating output rule failed (in: %s).", __FUNC__);
             retval = -1;
         }
     }
@@ -657,7 +657,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
     {
         if(create_rule_forward(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
-            (void)vrprint.error(-1, "Error", "creating forward rule failed (in: %s).", __FUNC__);
+            vrmr_error(-1, "Error", "creating forward rule failed (in: %s).", __FUNC__);
             retval = -1;
         }
         /*  a bit of a hack: if from is any we need output as well
@@ -667,7 +667,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         {
             if(create_rule_output(debuglvl, ruleset, rule, create, iptcap) < 0)
             {
-                (void)vrprint.error(-1, "Error", "creating output rule failed (in: %s).", __FUNC__);
+                vrmr_error(-1, "Error", "creating output rule failed (in: %s).", __FUNC__);
                 retval = -1;
             }
         }
@@ -678,7 +678,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         {
             if(create_rule_input(debuglvl, ruleset, rule, create, iptcap) < 0)
             {
-                (void)vrprint.error(-1, "Error", "creating input rule failed (in: %s).", __FUNC__);
+                vrmr_error(-1, "Error", "creating input rule failed (in: %s).", __FUNC__);
                 retval = -1;
             }
         }
@@ -690,14 +690,14 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
             if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
                 snprintf(rule->random, sizeof(rule->random), "--random");
             } else {
-                (void)vrprint.debug(__FUNC__, "MASQ random option not supported: iptcap->target_nat_random %s.",
+                vrmr_debug(__FUNC__, "MASQ random option not supported: iptcap->target_nat_random %s.",
                         iptcap->target_nat_random ? "TRUE" : "FALSE");
             }
         }
 
         if(create_rule_masq(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
-            (void)vrprint.error(-1, "Error", "creating masq rule failed (in: %s).", __FUNC__);
+            vrmr_error(-1, "Error", "creating masq rule failed (in: %s).", __FUNC__);
             retval = -1;
         }
     }
@@ -709,26 +709,26 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
             /* copy the ipaddress of the to-interface to rule->serverip so snat can use it */
             if(rule->to_if_ptr == NULL)
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
             snprintf(rule->serverip, sizeof(rule->serverip), "%s", rule->to_if_ptr->ipv4.ipaddress);
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "SNAT: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->to_if_ptr->name);
+                vrmr_debug(__FUNC__, "SNAT: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->to_if_ptr->name);
         }
 
         if (create->option.random == TRUE) {
             if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
                 snprintf(rule->random, sizeof(rule->random), "--random");
             } else {
-                (void)vrprint.debug(__FUNC__, "SNAT random option not supported: iptcap->target_nat_random %s.",
+                vrmr_debug(__FUNC__, "SNAT random option not supported: iptcap->target_nat_random %s.",
                         iptcap->target_nat_random ? "TRUE" : "FALSE");
             }
         }
 
         if(create_rule_snat(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
-            (void)vrprint.error(-1, "Error", "creating snat rule failed (in: %s).", __FUNC__);
+            vrmr_error(-1, "Error", "creating snat rule failed (in: %s).", __FUNC__);
             retval = -1;
         }
     }
@@ -740,26 +740,26 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
             /* copy the ipaddress of the from-interface to rule->serverip so portfw can use it */
             if(rule->from_if_ptr == NULL)
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
             snprintf(rule->serverip, sizeof(rule->serverip), "%s", rule->from_if_ptr->ipv4.ipaddress);
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "PORTFW: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->from_if_ptr->name);
+                vrmr_debug(__FUNC__, "PORTFW: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->from_if_ptr->name);
         }
 
         if (create->option.random == TRUE) {
             if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
                 snprintf(rule->random, sizeof(rule->random), "--random");
             } else {
-                (void)vrprint.debug(__FUNC__, "PORTFW random option not supported: iptcap->target_nat_random %s.",
+                vrmr_debug(__FUNC__, "PORTFW random option not supported: iptcap->target_nat_random %s.",
                         iptcap->target_nat_random ? "TRUE" : "FALSE");
             }
         }
 
         if(create_rule_portfw(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
-            (void)vrprint.error(-1, "Error", "creating portfw rule failed (in: %s).", __FUNC__);
+            vrmr_error(-1, "Error", "creating portfw rule failed (in: %s).", __FUNC__);
             retval = -1;
         }
     }
@@ -767,7 +767,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
     {
         if(create_rule_redirect(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
-            (void)vrprint.error(-1, "Error", "creating redirect rule failed (in: %s).", __FUNC__);
+            vrmr_error(-1, "Error", "creating redirect rule failed (in: %s).", __FUNC__);
             retval = -1;
         }
     }
@@ -778,26 +778,26 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
             /* copy the ipaddress of the from-interface to rule->serverip so portfw can use it */
             if(rule->from_if_ptr == NULL)
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
             snprintf(rule->serverip, sizeof(rule->serverip), "%s", rule->from_if_ptr->ipv4.ipaddress);
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "DNAT: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->from_if_ptr->name);
+                vrmr_debug(__FUNC__, "DNAT: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->from_if_ptr->name);
         }
 
         if (create->option.random == TRUE) {
             if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
                 snprintf(rule->random, sizeof(rule->random), "--random");
             } else {
-                (void)vrprint.debug(__FUNC__, "DNAT random option not supported: iptcap->target_nat_random %s.",
+                vrmr_debug(__FUNC__, "DNAT random option not supported: iptcap->target_nat_random %s.",
                         iptcap->target_nat_random ? "TRUE" : "FALSE");
             }
         }
 
         if(create_rule_dnat(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
-            (void)vrprint.error(-1, "Error", "creating dnat rule failed (in: %s).", __FUNC__);
+            vrmr_error(-1, "Error", "creating dnat rule failed (in: %s).", __FUNC__);
             retval = -1;
         }
     }
@@ -808,32 +808,32 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
             /* copy the ipaddress of the from-interface to rule->serverip so portfw can use it */
             if(rule->from_if_ptr == NULL)
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
             snprintf(rule->serverip, sizeof(rule->serverip), "%s", rule->from_if_ptr->ipv4.ipaddress);
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "BOUNCE: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->from_if_ptr->name);
+                vrmr_debug(__FUNC__, "BOUNCE: rule->serverip = '%s' (interface: %s).", rule->serverip, rule->from_if_ptr->name);
         }
 
         if (create->option.random == TRUE) {
             if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
                 snprintf(rule->random, sizeof(rule->random), "--random");
             } else {
-                (void)vrprint.debug(__FUNC__, "BOUNCE random option not supported: iptcap->target_nat_random %s.",
+                vrmr_debug(__FUNC__, "BOUNCE random option not supported: iptcap->target_nat_random %s.",
                         iptcap->target_nat_random ? "TRUE" : "FALSE");
             }
         }
 
         if(create_rule_bounce(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
-            (void)vrprint.error(-1, "Error", "creating bounce rule failed (in: %s).", __FUNC__);
+            vrmr_error(-1, "Error", "creating bounce rule failed (in: %s).", __FUNC__);
             retval = -1;
         }
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "unknown ruletype '%d' (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "unknown ruletype '%d' (in: %s:%d).",
             create->ruletype, __FUNC__, __LINE__);
         return(-1);
     }
@@ -855,7 +855,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
     /* safety */
     if(rule == NULL || create == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -930,11 +930,11 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
         }
 
         /* create the rule */
-        (void)vrprint.debug(__FUNC__, "log the rule, create->option.rule_log == TRUE. rule->action = %s", rule->action);
+        vrmr_debug(__FUNC__, "log the rule, create->option.rule_log == TRUE. rule->action = %s", rule->action);
 
         retval = rulecreate_call_create_funcs(debuglvl, ruleset, rule, create, iptcap);
         if (retval < 0) {
-            (void)vrprint.error(retval, "Error", "creating log rule failed.");
+            vrmr_error(retval, "Error", "creating log rule failed.");
             return(retval);
         }
 
@@ -948,7 +948,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
                 create->option.rule_log == TRUE)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "create the log rule for broadcast.");
+                vrmr_debug(__FUNC__, "create the log rule for broadcast.");
 
             if(conf.vrmr_check_iptcaps == 0 || iptcap->match_limit == 1)
             {
@@ -993,7 +993,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
             /* create the rule */
             retval = rulecreate_call_create_funcs(debuglvl, ruleset, rule, create, iptcap);
             if (retval < 0) {
-                (void)vrprint.error(retval, "Error", "creating broadcast log rule failed.");
+                vrmr_error(retval, "Error", "creating broadcast log rule failed.");
                 return(retval);
             }
 
@@ -1005,7 +1005,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
                 create->service->broadcast == TRUE)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "create the broadcast rule.");
+                vrmr_debug(__FUNC__, "create the broadcast rule.");
 
             (void)strlcpy(rule->action, create->action, sizeof(rule->action));
 
@@ -1016,14 +1016,14 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
             /* create the rule */
             retval = rulecreate_call_create_funcs(debuglvl, ruleset, rule, create, iptcap);
             if (retval < 0) {
-                (void)vrprint.error(retval, "Error", "creating broadcast rule failed.");
+                vrmr_error(retval, "Error", "creating broadcast rule failed.");
                 return(retval);
             }
         }
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "finally create the normal rule.");
+        vrmr_debug(__FUNC__, "finally create the normal rule.");
 
     /* create the logprefix string */
     create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
@@ -1096,7 +1096,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
     /* create the rule */
     retval = rulecreate_call_create_funcs(debuglvl, ruleset, rule, create, iptcap);
     if (retval < 0) {
-        (void)vrprint.error(retval, "Error", "creating rule failed.");
+        vrmr_error(retval, "Error", "creating rule failed.");
         return(retval);
     }
 
@@ -1122,7 +1122,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (create->to_firewall_any == TRUE || create->from_any == TRUE) {
             /* clear */
         } else if (create->from->type == VRMR_TYPE_ZONE) {
-            (void)vrprint.debug(__FUNC__, "source firewall, dest zone");
+            vrmr_debug(__FUNC__, "source firewall, dest zone");
 
             if (rule->ipv == VRMR_IPV4) {
                 /* set addresses */
@@ -1322,7 +1322,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (create->from_any == TRUE) {
         /* clear */
 
-        (void)vrprint.debug(__FUNC__, "source 'any'");
+        vrmr_debug(__FUNC__, "source 'any'");
 
         retval = rulecreate_dst_loop(debuglvl, ruleset, rule, create, iptcap);
     }
@@ -1330,9 +1330,9 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
     else if (create->from_firewall == TRUE) {
         if (create->from_firewall_any == TRUE || create->to_any == TRUE) {
             /* clear */
-            (void)vrprint.debug(__FUNC__, "source firewall(any)");
+            vrmr_debug(__FUNC__, "source firewall(any)");
         } else if (create->to->type == VRMR_TYPE_ZONE) {
-            (void)vrprint.debug(__FUNC__, "source firewall, dest zone");
+            vrmr_debug(__FUNC__, "source firewall, dest zone");
 
             if (rule->ipv == VRMR_IPV4) {
                 if (rule->to_if_ptr == NULL)
@@ -1366,7 +1366,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
                     sizeof(rule->to_int));
             }
         } else {
-            (void)vrprint.debug(__FUNC__, "source firewall");
+            vrmr_debug(__FUNC__, "source firewall");
 
             if (rule->ipv == VRMR_IPV4) {
                 if (rule->from_if_ptr == NULL)
@@ -1458,7 +1458,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
                 snprintf(rule->from_mac, sizeof(rule->from_mac), "-m mac --mac-source %s", from_mac);
             else
             {
-                (void)vrprint.warning("Warning", "not using macaddress. Mac-match not supported by system.");
+                vrmr_warning("Warning", "not using macaddress. Mac-match not supported by system.");
                 memset(rule->from_mac, 0, sizeof(rule->from_mac));
             }
         }
@@ -1507,7 +1507,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
                         snprintf(rule->from_mac, sizeof(rule->from_mac), "-m mac --mac-source %s", from_mac);
                     else
                     {
-                        (void)vrprint.warning("Warning", "not using macaddress. Mac-match not supported by system.");
+                        vrmr_warning("Warning", "not using macaddress. Mac-match not supported by system.");
                         memset(rule->from_mac, 0, sizeof(rule->from_mac));
                     }
                 }
@@ -1587,7 +1587,7 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         /* set protocol */
         if(create_rule_set_proto(rule, create) < 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "create_rule_set_proto() failed "
+            vrmr_error(-1, "Internal Error", "create_rule_set_proto() failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
@@ -1595,7 +1595,7 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         /*XXX call src loop */
         retval = rulecreate_src_loop(debuglvl, ruleset, rule, create, iptcap);
 
-        (void)vrprint.debug(__FUNC__, "service 'any'");
+        vrmr_debug(__FUNC__, "service 'any'");
 
         return (retval);
     }
@@ -1625,7 +1625,7 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         /* get the current portrange */
         if(!(rule->portrange_ptr = port_d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                 __FUNC__, __LINE__);
             return(-1);
         }
@@ -1653,18 +1653,18 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         /* now load the ports to the rule struct */
         if(create_rule_set_ports(rule, rule->portrange_ptr) < 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "setting up the ports failed (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "setting up the ports failed (in: %s).", __FUNC__);
             return(-1);
         }
 
         /* set protocol */
         if(create_rule_set_proto(rule, create) < 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "create_rule_set_proto() failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "create_rule_set_proto() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
-        (void)vrprint.debug(__FUNC__, "service %s %s %s", rule->proto, rule->temp_src_port, rule->temp_dst_port);
+        vrmr_debug(__FUNC__, "service %s %s %s", rule->proto, rule->temp_src_port, rule->temp_dst_port);
 
         /* XXX call src loop here */
         retval = rulecreate_src_loop(debuglvl, ruleset, rule, create, iptcap);
@@ -1711,7 +1711,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             rule->to_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.in_int);
             if(rule->to_if_ptr == NULL)
             {
-                (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",
+                vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
                     create->option.out_int, __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1726,12 +1726,12 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             if(rule->to_if_ptr->dynamic == TRUE &&
                    rule->to_if_ptr->up == FALSE)
             {
-                (void)vrprint.info("Info", "not creating rule: 'to'-interface '%s' is dynamic and down.", rule->to_if_ptr->name);
+                vrmr_info("Info", "not creating rule: 'to'-interface '%s' is dynamic and down.", rule->to_if_ptr->name);
                 active = 0;
             }
         }
         if (active == 1) {
-            (void)vrprint.debug(__FUNC__, "dst interface %s", rule->to_if_ptr ? rule->to_if_ptr->name : "any");
+            vrmr_debug(__FUNC__, "dst interface %s", rule->to_if_ptr ? rule->to_if_ptr->name : "any");
 
             retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, vctx->iptcaps);
 
@@ -1777,7 +1777,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             rule->to_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.out_int);
             if(rule->to_if_ptr == NULL)
             {
-                (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",
+                vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
                     create->option.out_int, __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1792,12 +1792,12 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             if(rule->to_if_ptr->dynamic == TRUE &&
                    rule->to_if_ptr->up == FALSE)
             {
-                (void)vrprint.info("Info", "not creating rule: 'to'-interface '%s' is dynamic and down.", rule->to_if_ptr->name);
+                vrmr_info("Info", "not creating rule: 'to'-interface '%s' is dynamic and down.", rule->to_if_ptr->name);
                 active = 0;
             }
         }
         if (active == 1) {
-            (void)vrprint.debug(__FUNC__, "dst interface %s", rule->to_if_ptr ? rule->to_if_ptr->name : "any");
+            vrmr_debug(__FUNC__, "dst interface %s", rule->to_if_ptr ? rule->to_if_ptr->name : "any");
 
             retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, vctx->iptcaps);
 
@@ -1875,7 +1875,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             /* get the interface */
             if(!(rule->to_if_ptr = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1893,7 +1893,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
 
             if(rule->to_if_ptr->dynamic == TRUE && rule->to_if_ptr->up == FALSE)
             {
-                (void)vrprint.info("Info", "not creating rule: 'to'-interface '%s' is dynamic and down.", rule->to_if_ptr->name);
+                vrmr_info("Info", "not creating rule: 'to'-interface '%s' is dynamic and down.", rule->to_if_ptr->name);
                 active = 0;
             }
 
@@ -1912,7 +1912,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
                     3. to is 'any'
                  */
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__,
+                    vrmr_debug(__FUNC__,
                             "create->to_any '%s', "
                             "create->option.out_int '%s' "
                             "rule->to_if_ptr->name '%s'",
@@ -1929,7 +1929,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
                         ||
                         create->to_any == TRUE                  /* 'any' doesn't use this filter */
                   ) {
-                    (void)vrprint.debug(__FUNC__, "dst interface %s", rule->to_if_ptr->name);
+                    vrmr_debug(__FUNC__, "dst interface %s", rule->to_if_ptr->name);
 
                     /* ok, continue */
                     retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, vctx->iptcaps);
@@ -1990,12 +1990,12 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
 
         if(create->option.out_int[0] != '\0') /* interface option is set */
         {
-            (void)vrprint.debug(__FUNC__, "create->option.out_int %s", create->option.out_int);
+            vrmr_debug(__FUNC__, "create->option.out_int %s", create->option.out_int);
 
             rule->from_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.out_int);
             if(rule->from_if_ptr == NULL)
             {
-                (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",
+                vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
                     create->option.in_int, __FUNC__, __LINE__);
                 return(-1);
             }
@@ -2010,17 +2010,17 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             if(rule->from_if_ptr->dynamic == TRUE &&
                    rule->from_if_ptr->up == FALSE)
             {
-                (void)vrprint.info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
+                vrmr_info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
                 active = 0;
             }
         }
 
         if (active == 1) {
-            (void)vrprint.debug(__FUNC__, "src interface %s. Interface is active.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
+            vrmr_debug(__FUNC__, "src interface %s. Interface is active.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
 
             retval = rulecreate_dst_iface_loop(debuglvl, vctx, ruleset, rule, create);
         } else {
-            (void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
+            vrmr_debug(__FUNC__, "src interface %s. Interface is INACTIVE.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
         }
 
         return(retval);
@@ -2041,7 +2041,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             rule->from_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.in_int);
             if(rule->from_if_ptr == NULL)
             {
-                (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s:%d).",
+                vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
                     create->option.in_int, __FUNC__, __LINE__);
                 return(-1);
             }
@@ -2056,17 +2056,17 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             if(rule->from_if_ptr->dynamic == TRUE &&
                    rule->from_if_ptr->up == FALSE)
             {
-                (void)vrprint.info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
+                vrmr_info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
                 active = 0;
             }
         }
 
         if (active == 1) {
-            (void)vrprint.debug(__FUNC__, "src interface %s. Interface is active.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
+            vrmr_debug(__FUNC__, "src interface %s. Interface is active.", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
 
             retval = rulecreate_dst_iface_loop(debuglvl, vctx, ruleset, rule, create);
         } else {
-            (void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE (any loop).", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
+            vrmr_debug(__FUNC__, "src interface %s. Interface is INACTIVE (any loop).", rule->from_if_ptr ? rule->from_if_ptr->name : "any");
         }
 
         return(retval);
@@ -2117,13 +2117,13 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             /* get the interface */
             if(!(rule->from_if_ptr = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
 
             active = rule->from_if_ptr->active;
-            (void)vrprint.debug(__FUNC__, "active %d", active);
+            vrmr_debug(__FUNC__, "active %d", active);
 
             /*  set the interface
                 if the device is virtual (oldstyle) we don't want it in our
@@ -2136,15 +2136,15 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
 
             if(rule->from_if_ptr->dynamic == TRUE && rule->from_if_ptr->up == FALSE)
             {
-                (void)vrprint.info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
+                vrmr_info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
                 active = 0;
-            (void)vrprint.debug(__FUNC__, "active %d (dynamic up check)", active);
+            vrmr_debug(__FUNC__, "active %d (dynamic up check)", active);
             }
 #ifdef IPV6_ENABLED
             if (rule->ipv == VRMR_IPV6 &&
                     !vrmr_interface_ipv6_enabled(debuglvl, rule->from_if_ptr)) {
                 active = 0;
-            (void)vrprint.debug(__FUNC__, "active %d (ipv6)", active);
+            vrmr_debug(__FUNC__, "active %d (ipv6)", active);
             }
 #endif
             if (active == 1) {
@@ -2156,7 +2156,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
                     3. from is 'any'
                  */
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "create->from_any '%s', "
+                    vrmr_debug(__FUNC__, "create->from_any '%s', "
                             "create->option.in_int '%s' rule->from_if_ptr->name '%s'",
                             create->from_any ? "TRUE" : "FALSE", create->option.in_int,
                             rule->from_if_ptr ? rule->from_if_ptr->name : "(null)");
@@ -2170,7 +2170,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
                         ||
                         create->from_any == TRUE                /* 'any' doesn't use this filter */
                   ) {
-                    (void)vrprint.debug(__FUNC__, "src interface %s", rule->from_if_ptr->name);
+                    vrmr_debug(__FUNC__, "src interface %s", rule->from_if_ptr->name);
 
                     /* ok, continue */
                     retval = rulecreate_dst_iface_loop(debuglvl, vctx, ruleset, rule, create);
@@ -2178,10 +2178,10 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
                         return(retval);
                     }
                 } else {
-                    (void)vrprint.debug(__FUNC__, "src interface %s. Interface is FILTERED.", rule->from_if_ptr->name);
+                    vrmr_debug(__FUNC__, "src interface %s. Interface is FILTERED.", rule->from_if_ptr->name);
                 }
             } else {
-                (void)vrprint.debug(__FUNC__, "src interface %s. Interface is INACTIVE (final loop).", rule->from_if_ptr->name);
+                vrmr_debug(__FUNC__, "src interface %s. Interface is INACTIVE (final loop).", rule->from_if_ptr->name);
             }
         }
     }
@@ -2200,7 +2200,7 @@ rulecreate_ipv4ipv6_loop(const int debuglvl, struct vrmr_ctx *vctx,
         rule->ipv = VRMR_IPV4;
 
         if (rulecreate_src_iface_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
-            (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
+            vrmr_error(-1, "Error", "rulecreate_src_iface_loop() failed");
         }
     }
 
@@ -2214,7 +2214,7 @@ rulecreate_ipv4ipv6_loop(const int debuglvl, struct vrmr_ctx *vctx,
             strlcpy(rule->action, "REJECT", sizeof(rule->action));
 
         if (rulecreate_src_iface_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
-            (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
+            vrmr_error(-1, "Error", "rulecreate_src_iface_loop() failed");
         }
     }
 #endif
@@ -2239,7 +2239,7 @@ create_rule(const int debuglvl, struct vrmr_ctx *vctx,
     struct RuleCreateData_  *rule = NULL;
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "** start ** (create->action: %s).", create->action);
+        vrmr_debug(__FUNC__, "** start ** (create->action: %s).", create->action);
 
     /* here we print the description if we are in bashmode */
     if(conf.bash_out == TRUE && create->description != NULL)
@@ -2266,7 +2266,7 @@ create_rule(const int debuglvl, struct vrmr_ctx *vctx,
     /* alloc the temp rule data */
     if(!(rule = malloc(sizeof(struct RuleCreateData_))))
     {
-        (void)vrprint.error(-1, "Error", "malloc failed: %s "
+        vrmr_error(-1, "Error", "malloc failed: %s "
             "(in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -2288,12 +2288,12 @@ create_rule(const int debuglvl, struct vrmr_ctx *vctx,
         rule->shape_class_in = vctx->interfaces->shape_handle;
         vctx->interfaces->shape_handle++;
 
-        (void)vrprint.debug(__FUNC__, "rule->shape_class_out %u rule->shape_class_in %u",
+        vrmr_debug(__FUNC__, "rule->shape_class_out %u rule->shape_class_in %u",
             rule->shape_class_out, rule->shape_class_in);
     }
 
     if (rulecreate_ipv4ipv6_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
-        (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
+        vrmr_error(-1, "Error", "rulecreate_src_iface_loop() failed");
     }
 
     /* process the rules */
@@ -2329,8 +2329,8 @@ remove_rule(const int debuglvl, int chaintype, int first_ipt_rule, int rules)
 
     if(debuglvl >= HIGH)
     {
-        (void)vrprint.debug(__FUNC__, "** start **");
-        (void)vrprint.debug(__FUNC__, "chain: %d, ipt: %d, rules: %d", chaintype, first_ipt_rule, rules);
+        vrmr_debug(__FUNC__, "** start **");
+        vrmr_debug(__FUNC__, "chain: %d, ipt: %d, rules: %d", chaintype, first_ipt_rule, rules);
     }
 
     /* determine from which chain to delete */
@@ -2356,25 +2356,25 @@ remove_rule(const int debuglvl, int chaintype, int first_ipt_rule, int rules)
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "unknown chaintype %d (remove_rule).", chaintype);
+        vrmr_error(-1, "Error", "unknown chaintype %d (remove_rule).", chaintype);
         return(-1);
     }
 
     for(i = 0; i < rules; i++)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "cmd: %s %s %d", conf.iptables_location, chain, first_ipt_rule);
+            vrmr_debug(__FUNC__, "cmd: %s %s %d", conf.iptables_location, chain, first_ipt_rule);
 
         snprintf(cmd, sizeof(cmd), "%s %s %d", conf.iptables_location, chain, first_ipt_rule);
         if(vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE) != 0)
         {
-            (void)vrprint.error(-1, "Error", "remove_rule: pipe error. This command failed: '%s'.", cmd);
+            vrmr_error(-1, "Error", "remove_rule: pipe error. This command failed: '%s'.", cmd);
             return(-1);
         }
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "** end **, return=%d", retval);
+        vrmr_debug(__FUNC__, "** end **, return=%d", retval);
 
     return(retval);
 }
@@ -2388,35 +2388,35 @@ create_system_protectrules(const int debuglvl, struct vrmr_config *conf)
     /* safety */
     if(!conf)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "protect proc systemwide... ");
+        vrmr_debug(__FUNC__, "protect proc systemwide... ");
 
 
     /* syncookies */
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "Setting '%d' to '%s'... ", conf->protect_syncookie, "/proc/sys/net/ipv4/tcp_syncookies");
+        vrmr_debug(__FUNC__, "Setting '%d' to '%s'... ", conf->protect_syncookie, "/proc/sys/net/ipv4/tcp_syncookies");
 
     result = vrmr_set_proc_entry(debuglvl, conf, "/proc/sys/net/ipv4/tcp_syncookies", conf->protect_syncookie, NULL);
     if(result != 0)
     {
         /* if it fails, we dont really care, its not fatal */
-        (void)vrprint.error(-1, "Error", "vrmr_set_proc_entry failed (in: create_rule, prot_proc_sys).");
+        vrmr_error(-1, "Error", "vrmr_set_proc_entry failed (in: create_rule, prot_proc_sys).");
     }
 
 
     /* echo broadcasts */
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "Setting '%d' to '%s'... ", conf->protect_echobroadcast, "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts");
+        vrmr_debug(__FUNC__, "Setting '%d' to '%s'... ", conf->protect_echobroadcast, "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts");
 
     result = vrmr_set_proc_entry(debuglvl, conf, "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts", conf->protect_echobroadcast, NULL);
     if(result != 0)
     {
         /* if it fails, we dont really care, its not fatal */
-        (void)vrprint.error(-1, "Error", "vrmr_set_proc_entry failed (in: create_rule, prot_proc_sys).");
+        vrmr_error(-1, "Error", "vrmr_set_proc_entry failed (in: create_rule, prot_proc_sys).");
     }
 
     return(0);
@@ -2440,7 +2440,7 @@ create_normal_rules(const int debuglvl,
     {
         if(!(rule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer "
+            vrmr_error(-1, "Internal Error", "NULL pointer "
                 "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
@@ -2480,20 +2480,20 @@ create_normal_rules(const int debuglvl,
                 if(create_rule(debuglvl, vctx, ruleset, &rule_ptr->rulecache) == 0)
                 {
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "rule created succesfully.");
+                        vrmr_debug(__FUNC__, "rule created succesfully.");
 
                     if(rule_ptr->rulecache.iptcount.forward > 0)
                         *forward_rules = 1;
                 }
                 else
                 {
-                    (void)vrprint.warning("Warning", "Creating rule %d failed.", rulescount);
+                    vrmr_warning("Warning", "Creating rule %d failed.", rulescount);
                 }
             }
         }
         else
         {
-            (void)vrprint.info("Note", "Rule %d not created: inactive.", rulescount);
+            vrmr_info("Note", "Rule %d not created: inactive.", rulescount);
         }
 
         /* make sure the bash comment memory is cleared */
@@ -2534,7 +2534,7 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
     /* safety */
     if(cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -2553,7 +2553,7 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
         {
             if (!(chainname = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer "
+                vrmr_error(-1, "Internal Error", "NULL pointer "
                         "(in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
@@ -2562,7 +2562,7 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
                         strlen(PRE_VRMR_CHAINS_PREFIX)) != 0)
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "flushing %s chain in %s "
+                    vrmr_debug(__FUNC__, "flushing %s chain in %s "
                             "table.", chainname, tables[table]);
 
                 snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s -t %s --flush %s",
@@ -2575,7 +2575,7 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
             else
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "skipping flush of %s "
+                    vrmr_debug(__FUNC__, "skipping flush of %s "
                             "chain in %s table.", chainname, tables[table]);
             }
         }
@@ -2631,7 +2631,7 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
     /* safety */
     if(cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -2649,7 +2649,7 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
         {
             if (!(chainname = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer "
+                vrmr_error(-1, "Internal Error", "NULL pointer "
                         "(in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
@@ -2658,7 +2658,7 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
                         strlen(PRE_VRMR_CHAINS_PREFIX)) != 0)
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "flushing %s chain in %s "
+                    vrmr_debug(__FUNC__, "flushing %s chain in %s "
                             "table.", chainname, tables[table]);
 
                 snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s -t %s --flush %s",
@@ -2671,7 +2671,7 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
             else
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "skipping flush of %s "
+                    vrmr_debug(__FUNC__, "skipping flush of %s "
                             "chain in %s table.", chainname, tables[table]);
             }
         }
@@ -2716,13 +2716,13 @@ clear_vuurmuur_iptables_rules(const int debuglvl, struct vrmr_config *cnf)
     int retval = 0;
 
     if (clear_vuurmuur_iptables_rules_ipv4(debuglvl, cnf) < 0) {
-        (void)vrprint.error(-1, "Error", "clearing IPv4 rules failed.");
+        vrmr_error(-1, "Error", "clearing IPv4 rules failed.");
         retval = -1;
     }
 
 #ifdef IPV6_ENABLED
     if (clear_vuurmuur_iptables_rules_ipv6(debuglvl, cnf) < 0) {
-        (void)vrprint.error(-1, "Error", "clearing IPv6 rules failed.");
+        vrmr_error(-1, "Error", "clearing IPv6 rules failed.");
         retval = -1;
     }
 #endif
@@ -2859,13 +2859,13 @@ clear_all_iptables_rules(const int debuglvl)
     int retval = 0;
 
     if (clear_all_iptables_rules_ipv4(debuglvl) < 0) {
-        (void)vrprint.error(-1, "Error", "clearing IPv4 rules failed.");
+        vrmr_error(-1, "Error", "clearing IPv4 rules failed.");
         retval = -1;
     }
 
 #ifdef IPV6_ENABLED
     if (clear_all_iptables_rules_ipv6(debuglvl) < 0) {
-        (void)vrprint.error(-1, "Error", "clearing IPv4 rules failed.");
+        vrmr_error(-1, "Error", "clearing IPv4 rules failed.");
         retval = -1;
     }
 #endif

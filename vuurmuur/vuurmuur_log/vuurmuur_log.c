@@ -99,24 +99,24 @@ assemble_logline_sscanf_string(const int debuglvl, struct log_rule *logrule_ptr)
             (int)sizeof(logrule_ptr->hostname)-1);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "assemble_logline_sscanf_string: string: '%s'. (len: %d)", temp_buf, strlen(temp_buf));
+        vrmr_debug(__FUNC__, "assemble_logline_sscanf_string: string: '%s'. (len: %d)", temp_buf, strlen(temp_buf));
 
     str_len = strlen(temp_buf) + 1;
     if(str_len > sizeof(temp_buf))
     {
-        (void)vrprint.error(-1, "Internal Error", "string overflow (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
     if(!(string = malloc(str_len)))
     {
-        (void)vrprint.error(-1, "Error", "malloc failed: %s.", strerror(errno));
+        vrmr_error(-1, "Error", "malloc failed: %s.", strerror(errno));
         return(NULL);
     }
 
     if(strlcpy(string, temp_buf, str_len) > str_len)
     {
-        (void)vrprint.error(-1, "Internal Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
@@ -158,13 +158,13 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
     struct vrmr_service    *ser_search_ptr = NULL;
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "start");
+        vrmr_debug(__FUNC__, "start");
 
 
     /* safety */
     if(!logrule_ptr || !ZoneHash || !ServiceHash)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -172,9 +172,9 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
     /* no support in looking up hosts, services, etc yet */
     if (logrule_ptr->ipv6 == 1) {
         if(strlcpy(logrule_ptr->from_name, logrule_ptr->src_ip, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
-            (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
         if(strlcpy(logrule_ptr->to_name, logrule_ptr->dst_ip, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
-            (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
     } else {
 #endif /* IPV6_ENABLED */
 
@@ -183,13 +183,13 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
     {
         /* not found in hash */
         if(strlcpy(logrule_ptr->from_name, logrule_ptr->src_ip, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
-            (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
     }
     else
     {
         /* found in the hash */
         if(strlcpy(logrule_ptr->from_name, search_ptr->name, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
-            (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
 
         if(search_ptr->type == VRMR_TYPE_NETWORK)
             strlcpy(logrule_ptr->from_name, "firewall", sizeof(logrule_ptr->from_name));
@@ -202,13 +202,13 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
     {
         /* not found in hash */
         if(strlcpy(logrule_ptr->to_name, logrule_ptr->dst_ip, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
-            (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
     }
     else
     {
         /* found in the hash */
         if(strlcpy(logrule_ptr->to_name, search_ptr->name, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
-            (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
 
         if(search_ptr->type == VRMR_TYPE_NETWORK)
             strlcpy(logrule_ptr->to_name, "firewall", sizeof(logrule_ptr->to_name));
@@ -236,7 +236,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
             /* try to get the icmp-names */
             if(vrmr_get_icmp_name_short(logrule_ptr->icmp_type, logrule_ptr->icmp_code, logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), 0) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "vrmr_get_icmp_name_short failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "vrmr_get_icmp_name_short failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
         }
@@ -244,7 +244,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
         {
             /* found in the hash, now copy the name */
             if(strlcpy(logrule_ptr->ser_name, ser_search_ptr->name, sizeof(logrule_ptr->ser_name)) >= sizeof(logrule_ptr->ser_name))
-                (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
         }
     }
 
@@ -275,7 +275,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
                 {
                     /* found in the hash! (reverse) */
                     if(strlcpy(logrule_ptr->ser_name, ser_search_ptr->name, sizeof(logrule_ptr->ser_name)) >= sizeof(logrule_ptr->ser_name))
-                        (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
                 }
             }
             else
@@ -291,7 +291,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
         {
             /* found in the hash! */
             if(strlcpy(logrule_ptr->ser_name, ser_search_ptr->name, sizeof(logrule_ptr->ser_name)) >= sizeof(logrule_ptr->ser_name))
-                (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
         }
     }
 
@@ -395,7 +395,7 @@ BuildVMLine (struct log_rule *logrule, char *outline, int size)
                 logrule->protocol,
                 logrule->packet_len, logrule->ttl);
 
-            (void)vrprint.debug(__FUNC__, "unknown protocol");
+            vrmr_debug(__FUNC__, "unknown protocol");
             break;
     }
 
@@ -427,7 +427,7 @@ int process_logrecord(struct log_rule *logrule_ptr) {
     switch (result)
     {
         case -1:
-            (void)vrprint.debug(__FUNC__, "get_vuurmuur_names returned -1");
+            vrmr_debug(__FUNC__, "get_vuurmuur_names returned -1");
             exit(EXIT_FAILURE);
             break;
         case 0:
@@ -436,7 +436,7 @@ int process_logrecord(struct log_rule *logrule_ptr) {
         default:
             if (BuildVMLine (logrule_ptr, line_out, sizeof(line_out)) < 0)
             {
-                (void)vrprint.debug("nflog", "Could not build output line");
+                vrmr_debug("nflog", "Could not build output line");
             } else {
                 upd_action_ctrs(logrule_ptr->action, &Counters);
 
@@ -559,7 +559,7 @@ main(int argc, char *argv[])
             case 'K' :
                 if (vrmr_check_pidfile (PIDFILE, SVCNAME, &pid) == -1)
                 {
-                    (void)vrprint.debug(__FUNC__, "Terminating %u", pid);
+                    vrmr_debug(__FUNC__, "Terminating %u", pid);
                     kill (pid, 15);
                     exit (EXIT_SUCCESS);
                 }
@@ -582,7 +582,7 @@ main(int argc, char *argv[])
     /* init the config file */
     if(vrmr_init_config(debuglvl, &conf) < VRMR_CNF_OK)
     {
-        (void)vrprint.error(-1, "Error", "initializing the config failed.");
+        vrmr_error(-1, "Error", "initializing the config failed.");
         exit(EXIT_FAILURE);
     }
 
@@ -595,13 +595,13 @@ main(int argc, char *argv[])
     /* set up the sscanf parser string if we're using the legacy syslog parsing */
     if(syslog && !(sscanf_str = assemble_logline_sscanf_string(debuglvl, &logrule)))
     {
-        (void)vrprint.error(-1, "Error", "could not set up parse string for legacy syslog parsing.");
+        vrmr_error(-1, "Error", "could not set up parse string for legacy syslog parsing.");
         exit(EXIT_FAILURE);
     }
 
 
     if(verbose)
-        (void)vrprint.info("Info", "Vuurmuur_log %s", version_string);
+        vrmr_info("Info", "Vuurmuur_log %s", version_string);
 
     /* now setup the print function */
     if(verbose)
@@ -616,21 +616,21 @@ main(int argc, char *argv[])
 
     /* get the current user */
     vrmr_user_get_info(debuglvl, &user_data);
-    (void)vrprint.audit("Vuurmuur_log %s %s started by user %s.", version_string, (syslog) ? "" :"(experimental nflog mode)", user_data.realusername);
+    vrmr_audit("Vuurmuur_log %s %s started by user %s.", version_string, (syslog) ? "" :"(experimental nflog mode)", user_data.realusername);
 
 #ifdef HAVE_LIBNETFILTER_LOG
     /* Setup nflog after vrmr_init_config as and logging as we need &conf in subscribe_nflog() */
     if (!syslog)
     {
-        (void)vrprint.debug(__FUNC__, "Setting up nflog");
+        vrmr_debug(__FUNC__, "Setting up nflog");
         if (subscribe_nflog(debuglvl, &conf, &logrule) < 0) {
-            (void)vrprint.error(-1, "Error", "could not set up nflog subscription");
+            vrmr_error(-1, "Error", "could not set up nflog subscription");
             exit (EXIT_FAILURE);
         }
     }
 #else
     if (!syslog) {
-        (void)vrprint.error(-1, "Error", "syslog mode disabled but no other modes available.");
+        vrmr_error(-1, "Error", "syslog mode disabled but no other modes available.");
         exit (EXIT_FAILURE);
     }
 #endif /* HAVE_LIBNETFILTER_LOG */
@@ -638,26 +638,26 @@ main(int argc, char *argv[])
     /* setup regexes */
     if(vrmr_regex_setup(1, &reg) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "setting up regular expressions failed.");
+        vrmr_error(-1, "Internal Error", "setting up regular expressions failed.");
         exit(EXIT_FAILURE);
     }
 
     if (vrmr_backends_load(debuglvl, &conf) < 0)
     {
-        (void)vrprint.error(-1, "Error", "loading plugins failed, bailing out.");
+        vrmr_error(-1, "Error", "loading plugins failed, bailing out.");
         exit(EXIT_FAILURE);
     }
 
     /* open the logs */
     if(syslog && open_syslog(debuglvl, &conf, &system_log) < 0)
     {
-        (void)vrprint.error(-1, "Error", "opening logfiles failed.");
+        vrmr_error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
     }
 
     if (open_vuurmuurlog (debuglvl, &conf, &g_traffic_log) < 0)
     {
-        (void)vrprint.error(-1, "Error", "opening logfiles failed.");
+        vrmr_error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
     }
 
@@ -677,34 +677,34 @@ main(int argc, char *argv[])
     /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
     if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &zones.list) < 0)
     {
-        (void)vrprint.error(-1, "Error", "iface_into_zonelist failed (in: main).");
+        vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
         exit(EXIT_FAILURE);
     }
 
     /* these are removed by: vrmr_rem_iface_from_zonelist() (see below) */
     if(vrmr_add_broadcasts_zonelist(debuglvl, &zones) < 0)
     {
-        (void)vrprint.error(-1, "Error", "unable to add broadcasts to list.");
+        vrmr_error(-1, "Error", "unable to add broadcasts to list.");
         exit(EXIT_FAILURE);
     }
 
-    (void)vrprint.info("Info", "Creating hash-table for the zones...");
+    vrmr_info("Info", "Creating hash-table for the zones...");
     if(vrmr_init_zonedata_hashtable(debuglvl, zones.list.len * 3, &zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, &zone_htbl) < 0)
     {
-        (void)vrprint.error(-1, "Error", "vrmr_init_zonedata_hashtable failed.");
+        vrmr_error(-1, "Error", "vrmr_init_zonedata_hashtable failed.");
         exit(EXIT_FAILURE);
     }
 
-    (void)vrprint.info("Info", "Creating hash-table for the services...");
+    vrmr_info("Info", "Creating hash-table for the services...");
     if(vrmr_init_services_hashtable(debuglvl, services.list.len * 500, &services.list, vrmr_hash_port, vrmr_compare_ports, &service_htbl) < 0)
     {
-        (void)vrprint.error(-1, "Error", "vrmr_init_services_hashtable failed.");
+        vrmr_error(-1, "Error", "vrmr_init_services_hashtable failed.");
         exit(EXIT_FAILURE);
     }
 
     if (nodaemon == 0) {
         if (daemon(1,1) != 0) {
-            (void)vrprint.error(-1, "Error", "daemon() failed: %s",
+            vrmr_error(-1, "Error", "daemon() failed: %s",
                     strerror(errno));
             exit(EXIT_FAILURE);
         }
@@ -758,7 +758,7 @@ main(int argc, char *argv[])
                                             break;
                                         default:
                                             if (BuildVMLine (&logrule, line_out, sizeof(line_out)) < 0) {
-                                                (void)vrprint.error(-1, "Error", "could not build output line");
+                                                vrmr_error(-1, "Error", "could not build output line");
                                             } else {
                                                 fprintf(g_traffic_log, "%s", line_out);
                                                 fflush(g_traffic_log);
@@ -781,16 +781,16 @@ main(int argc, char *argv[])
                     /* see the definition of MAX_WAIT_TIME for details. */
                     if(waiting >= MAX_WAIT_TIME) {
                         if(debuglvl >= MEDIUM)
-                            (void)vrprint.debug(__FUNC__, "didn't get a logline for %d seconds, closing and reopening the logfiles.", waiting / 10);
+                            vrmr_debug(__FUNC__, "didn't get a logline for %d seconds, closing and reopening the logfiles.", waiting / 10);
 
                         /* re-open the logs */
                         if(reopen_syslog(debuglvl, &conf, &system_log) < 0) {
-                            (void)vrprint.error(-1, "Error", "re-opening syslog failed.");
+                            vrmr_error(-1, "Error", "re-opening syslog failed.");
                             exit(EXIT_FAILURE);
                         }
 
                         if(reopen_vuurmuurlog(debuglvl, &conf, &g_traffic_log) < 0) {
-                            (void)vrprint.error(-1, "Error", "re-opening vuurmuur traffic log failed.");
+                            vrmr_error(-1, "Error", "re-opening vuurmuur traffic log failed.");
                             exit(EXIT_FAILURE);
                         }
 
@@ -806,7 +806,7 @@ main(int argc, char *argv[])
             } else {
                 switch (readnflog()) {
                     case -1:
-                        (void)vrprint.error(-1, "Error", "could not read from nflog");
+                        vrmr_error(-1, "Error", "could not read from nflog");
                         exit (EXIT_FAILURE);
                         break;
                     case 0:
@@ -843,7 +843,7 @@ main(int argc, char *argv[])
             result = vrmr_backends_unload(debuglvl, &conf);
             if(result < 0)
             {
-                (void)vrprint.error(-1, "Error", "unloading backends failed.");
+                vrmr_error(-1, "Error", "unloading backends failed.");
                 exit(EXIT_FAILURE);
             }
 
@@ -855,7 +855,7 @@ main(int argc, char *argv[])
             */
             if(vrmr_reload_config(debuglvl, &conf) < VRMR_CNF_OK)
             {
-                (void)vrprint.warning("Warning", "reloading config failed, using old config.");
+                vrmr_warning("Warning", "reloading config failed, using old config.");
             }
 
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 20);
@@ -864,35 +864,35 @@ main(int argc, char *argv[])
             result = vrmr_backends_load(debuglvl, &conf);
             if(result < 0)
             {
-                (void)vrprint.error(-1, "Error", "re-opening backends failed.");
+                vrmr_error(-1, "Error", "re-opening backends failed.");
                 exit(EXIT_FAILURE);
             }
 
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 30);
 
             /* re-initialize the data */
-            (void)vrprint.info("Info", "Initializing interfaces...");
+            vrmr_info("Info", "Initializing interfaces...");
             if(vrmr_init_interfaces(debuglvl, &interfaces) < 0)
             {
-                (void)vrprint.error(-1, "Error", "initializing interfaces failed.");
+                vrmr_error(-1, "Error", "initializing interfaces failed.");
                 exit(EXIT_FAILURE);
             }
 
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 40);
 
-            (void)vrprint.info("Info", "Initializing zones...");
+            vrmr_info("Info", "Initializing zones...");
             if(vrmr_init_zonedata(debuglvl, &zones, &interfaces, &reg) < 0)
             {
-                (void)vrprint.error(-1, "Error", "initializing zones failed.");
+                vrmr_error(-1, "Error", "initializing zones failed.");
                 exit(EXIT_FAILURE);
             }
 
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 50);
 
-            (void)vrprint.info("Info", "Initializing services...");
+            vrmr_info("Info", "Initializing services...");
             if(vrmr_init_services(debuglvl, &services, &reg) < 0)
             {
-                (void)vrprint.error(-1, "Error", "initializing services failed.");
+                vrmr_error(-1, "Error", "initializing services failed.");
                 exit(EXIT_FAILURE);
             }
 
@@ -901,30 +901,30 @@ main(int argc, char *argv[])
             /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
             if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &zones.list) < 0)
             {
-                (void)vrprint.error(-1, "Error", "iface_into_zonelist failed (in: main).");
+                vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
                 exit(EXIT_FAILURE);
             }
 
             /* these are removed by: vrmr_rem_iface_from_zonelist() (see below) */
             if(vrmr_add_broadcasts_zonelist(debuglvl, &zones) < 0)
             {
-                (void)vrprint.error(-1, "Error", "unable to add broadcasts to list.");
+                vrmr_error(-1, "Error", "unable to add broadcasts to list.");
                 return(-1);
             }
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 70);
 
-            (void)vrprint.info("Info", "Creating hash-table for the zones...");
+            vrmr_info("Info", "Creating hash-table for the zones...");
             if(vrmr_init_zonedata_hashtable(debuglvl, zones.list.len * 3, &zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, &zone_htbl) < 0)
             {
-                (void)vrprint.error(result, "Error", "vrmr_init_zonedata_hashtable failed.");
+                vrmr_error(result, "Error", "vrmr_init_zonedata_hashtable failed.");
                 exit(EXIT_FAILURE);
             }
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 80);
 
-            (void)vrprint.info("Info", "Creating hash-table for the services...");
+            vrmr_info("Info", "Creating hash-table for the services...");
             if(vrmr_init_services_hashtable(debuglvl, services.list.len * 500, &services.list, vrmr_hash_port, vrmr_compare_ports, &service_htbl) < 0)
             {
-                (void)vrprint.error(result, "Error", "vrmr_init_services_hashtable failed.");
+                vrmr_error(result, "Error", "vrmr_init_services_hashtable failed.");
                 exit(EXIT_FAILURE);
             }
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 90);
@@ -932,13 +932,13 @@ main(int argc, char *argv[])
             /* re-open the logs */
             if(syslog && reopen_syslog(debuglvl, &conf, &system_log) < 0)
             {
-                (void)vrprint.error(-1, "Error", "re-opening logfiles failed.");
+                vrmr_error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
             }
 
             if(reopen_vuurmuurlog(debuglvl, &conf, &g_traffic_log) < 0)
             {
-                (void)vrprint.error(-1, "Error", "re-opening logfiles failed.");
+                vrmr_error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
             }
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 95);
@@ -963,7 +963,7 @@ main(int argc, char *argv[])
     */
     if (ClearVMIPC (debuglvl, shm_id) == -1)
     {
-        (void)vrprint.error(-1, "Error", "Detach from VM IPC failed.");
+        vrmr_error(-1, "Error", "Detach from VM IPC failed.");
         /* fall through */
     }
 
@@ -992,7 +992,7 @@ main(int argc, char *argv[])
 
     if(vrmr_backends_unload(debuglvl, &conf) < 0)
     {
-        (void)vrprint.error(-1, "Error", "unloading backends failed.");
+        vrmr_error(-1, "Error", "unloading backends failed.");
     }
 
     /* cleanup regexes */
@@ -1001,7 +1001,7 @@ main(int argc, char *argv[])
     /* remove the pidfile */
     if(vrmr_remove_pidfile(PIDFILE) < 0)
     {
-        (void)vrprint.error(-1, "Error", "unable to remove pidfile: %s.", strerror(errno));
+        vrmr_error(-1, "Error", "unable to remove pidfile: %s.", strerror(errno));
     }
 
     exit(EXIT_SUCCESS);

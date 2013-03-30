@@ -42,13 +42,13 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
         if(found == FALSE)
         {
             if(vr_script->type == VRMR_TYPE_ZONE)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "zone '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "zone '%s' doesn't exist.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_NETWORK)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "network '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "network '%s' doesn't exist.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_HOST)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "host '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "host '%s' doesn't exist.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_GROUP)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "group '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "group '%s' doesn't exist.", vr_script->name);
 
             return(VRS_ERR_NOT_FOUND);
         }
@@ -65,7 +65,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == FALSE)
         {
-            (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "service '%s' doesn't exist.", vr_script->name);
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "service '%s' doesn't exist.", vr_script->name);
             return(VRS_ERR_NOT_FOUND);
         }
     }
@@ -81,7 +81,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == FALSE)
         {
-            (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "interface '%s' doesn't exist.", vr_script->name);
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "interface '%s' doesn't exist.", vr_script->name);
             return(VRS_ERR_NOT_FOUND);
         }
     }
@@ -97,7 +97,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == FALSE)
         {
-            (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "ruleset '%s' doesn't exist.", vr_script->name);
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "ruleset '%s' doesn't exist.", vr_script->name);
             return(VRS_ERR_NOT_FOUND);
         }
     }
@@ -109,7 +109,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->del(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_ZONE, 0) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "removing zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "removing zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -119,7 +119,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->del(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_NETWORK, 0) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "removing network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "removing network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -129,7 +129,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->del(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_HOST, 0) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "removing host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "removing host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -139,7 +139,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->del(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_GROUP, 0) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "removing group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "removing group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -149,7 +149,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(sf->del(debuglvl, serv_backend, vr_script->name, VRMR_TYPE_SERVICE, 0) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "removing service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "removing service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -159,7 +159,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(af->del(debuglvl, ifac_backend, vr_script->name, VRMR_TYPE_INTERFACE, 0) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "removing interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "removing interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -169,7 +169,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(rf->del(debuglvl, rule_backend, vr_script->name, VRMR_TYPE_RULE, 0) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, "removing ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, "removing ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -177,7 +177,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
     }
     else
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d.", vr_script->type);
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d.", vr_script->type);
         return(VRS_ERR_INTERNAL);
     }
 

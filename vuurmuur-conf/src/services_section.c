@@ -84,7 +84,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
     /* safety */
     if(port_ptr == NULL || ser_ptr == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -100,7 +100,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
     /* check the protocol */
     if(port_ptr->protocol == 0 || port_ptr->protocol > 255)
     {
-        (void)vrprint.error(-1, VR_INTERR, "invalid protocol %d "
+        vrmr_error(-1, VR_INTERR, "invalid protocol %d "
             "(in: %s:%d).", port_ptr->protocol, __FUNC__, __LINE__);
         return(-1);
     }
@@ -118,7 +118,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
         )
         {
             /* this is an error because of wrong user input, so no function name */
-            (void)vrprint.error(-1, VR_ERR, gettext("one of the ports is too low or too high. Valid port values for tcp and udp are 1-65535."));
+            vrmr_error(-1, VR_ERR, gettext("one of the ports is too low or too high. Valid port values for tcp and udp are 1-65535."));
             return(-1);
         }
 
@@ -128,7 +128,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
         )
         {
             /* this is an error because of wrong user input, so no function name */
-            (void)vrprint.error(-1, VR_ERR, gettext("please make sure that the 'high'-port is actually higher than the 'low'-port."));
+            vrmr_error(-1, VR_ERR, gettext("please make sure that the 'high'-port is actually higher than the 'low'-port."));
             return(-1);
         }
     }
@@ -140,7 +140,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
         if(port_ptr->dst_low > 255 || port_ptr->dst_high > 16)
         {
             /* this is an error because of wrong user input, so no function name */
-            (void)vrprint.error(-1, VR_ERR, gettext("one of the values is too high. Valid icmp-types values are 1-255 (note that 41-255 are reserved). Valid icmp-codes are 0-16 (note that not all combinations of types and codes are valid. See http://www.iana.org/assignments/icmp-parameters for details)."));
+            vrmr_error(-1, VR_ERR, gettext("one of the values is too high. Valid icmp-types values are 1-255 (note that 41-255 are reserved). Valid icmp-codes are 0-16 (note that not all combinations of types and codes are valid. See http://www.iana.org/assignments/icmp-parameters for details)."));
             return(-1);
         }
     }
@@ -153,7 +153,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
         /* else set the initial d_node */
         if(!(d_node = ser_ptr->PortrangeList.top))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -163,7 +163,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
     {
         if(!(portlist_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -173,7 +173,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
         if (!(port_ptr->protocol == 1 || port_ptr->protocol == 6 || port_ptr->protocol == 17)) {
             if (port_ptr->protocol == portlist_ptr->protocol) {
                 /* this is an error because of wrong user input, so no function name */
-                (void)vrprint.error(-1, VR_ERR, gettext("only one protocol %d portrange is allowed."), port_ptr->protocol);
+                vrmr_error(-1, VR_ERR, gettext("only one protocol %d portrange is allowed."), port_ptr->protocol);
                 return(-1);
             }
         }
@@ -181,7 +181,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
         if(!insert_now)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "don't insert at this run.");
+                vrmr_debug(__FUNC__, "don't insert at this run.");
 
             if(vrmr_list_node_is_bot(debuglvl, d_node))
             {
@@ -207,7 +207,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
         {
             if(vrmr_list_insert_before(debuglvl, &ser_ptr->PortrangeList, d_node, port_ptr) == NULL)
             {
-                (void)vrprint.error(-1, VR_INTERR, "vrmr_list_insert_before() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "vrmr_list_insert_before() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
         }
@@ -215,7 +215,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
         {
             if(vrmr_list_append(debuglvl, &ser_ptr->PortrangeList, port_ptr) == NULL)
             {
-                (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
         }
@@ -225,7 +225,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
         /* save the portranges */
         if(vrmr_services_save_portranges(debuglvl, ser_ptr) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("saving the portranges failed (in: %s:%d)."), __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("saving the portranges failed (in: %s:%d)."), __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -272,7 +272,7 @@ edit_tcpudp(const int debuglvl, struct vrmr_portdata *port_ptr)
     /* safety */
     if(port_ptr == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -296,12 +296,12 @@ edit_tcpudp(const int debuglvl, struct vrmr_portdata *port_ptr)
         new_portrange_win = create_newwin(height, width, starty, startx, gettext("UDP Portrange"), vccnf.color_win);
     if(new_portrange_win == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(my_panels[0] = new_panel(new_portrange_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
 
         destroy_win(new_portrange_win);
         return(-1);
@@ -311,7 +311,7 @@ edit_tcpudp(const int debuglvl, struct vrmr_portdata *port_ptr)
     fields = (FIELD **)calloc(4 + 1, sizeof(FIELD *));
     if(fields == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -344,7 +344,7 @@ edit_tcpudp(const int debuglvl, struct vrmr_portdata *port_ptr)
     }
 
     if (field_num != 4) {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -546,17 +546,17 @@ icmp_choose_type(void)
     /* get memory */
     if(!(items = (ITEM **)calloc(n_items + 1, sizeof(ITEM *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
     if(!(itemnames = calloc(n_items + 1, 32)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
     if(!(itemnumbers = calloc(n_items + 1, 32)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -574,12 +574,12 @@ icmp_choose_type(void)
         /* set itemnames and itemnumbers */
         if(!(name = malloc(name_size)))
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
             return(-1);
         }
         if(vrmr_get_icmp_name_short(icmp_type, -1, name, name_size, 0) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "vrmr_get_icmp_name_short() failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "vrmr_get_icmp_name_short() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         itemnames[type_cnt] = name;
@@ -587,7 +587,7 @@ icmp_choose_type(void)
         /* now the typenumber string */
         if(!(name = malloc(type_size)))
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
             return(-1);
         }
         snprintf(name, type_size, "%d", icmp_type);
@@ -596,7 +596,7 @@ icmp_choose_type(void)
         items[type_cnt] = new_item(itemnumbers[type_cnt], itemnames[type_cnt]);
         if(items[type_cnt] == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -609,7 +609,7 @@ icmp_choose_type(void)
     menu = new_menu((ITEM **)items);
     if(menu == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -627,7 +627,7 @@ icmp_choose_type(void)
     win = newwin(height, width, starty, startx);
     if(win == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     wbkgd(win, vccnf.color_win);
@@ -639,7 +639,7 @@ icmp_choose_type(void)
     panel[0] = new_panel(win);
     if(panel[0] == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -684,7 +684,7 @@ icmp_choose_type(void)
                     select_ptr = malloc(size);
                     if(select_ptr == NULL)
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
 
@@ -773,7 +773,7 @@ icmp_choose_code(const int icmp_type)
 
     if(code_cnt == 0)
     {
-        (void)vrprint.warning(VR_WARN, gettext("no ICMP-codes with selected ICMP-type (%d)."), icmp_type);
+        vrmr_warning(VR_WARN, gettext("no ICMP-codes with selected ICMP-type (%d)."), icmp_type);
         return(0);
     }
 
@@ -784,19 +784,19 @@ icmp_choose_code(const int icmp_type)
     items = (ITEM **)calloc(n_items + 1, sizeof(ITEM *));
     if(items == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
     itemnames = calloc(n_items + 1, 32);
     if(itemnames == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
     itemnumbers = calloc(n_items + 1, 32);
     if(itemnumbers == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -811,19 +811,19 @@ icmp_choose_code(const int icmp_type)
         /* set itemnames and itemnumbers */
         if(!(name = malloc(name_size)))
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
             return(-1);
         }
         if(vrmr_get_icmp_name_short(icmp_type, icmp_code, name, name_size, 1) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "vrmr_get_icmp_name_short() failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "vrmr_get_icmp_name_short() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         itemnames[code_cnt] = name;
 
         if(!(name = malloc(code_size)))
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
             return(-1);
         }
         snprintf(name, code_size, "%d", icmp_code);
@@ -832,7 +832,7 @@ icmp_choose_code(const int icmp_type)
         items[code_cnt] = new_item(itemnumbers[code_cnt], itemnames[code_cnt]);
         if(items[code_cnt] == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -845,7 +845,7 @@ icmp_choose_code(const int icmp_type)
     menu = new_menu((ITEM **)items);
     if(menu == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -863,13 +863,13 @@ icmp_choose_code(const int icmp_type)
     win = newwin(height, width, starty, startx);
     if(win == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     panel[0] = new_panel(win);
     if(panel[0] == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     box(win, 0, 0);
@@ -916,7 +916,7 @@ icmp_choose_code(const int icmp_type)
                     select_ptr = malloc(size);
                     if(select_ptr == NULL)
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
 
@@ -998,7 +998,7 @@ edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
     /* safety */
     if(port_ptr == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1016,13 +1016,13 @@ edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
     new_portrange_win = create_newwin(height, width, starty, startx, "ICMP", vccnf.color_win);
     if(new_portrange_win == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     my_panels[0] = new_panel(new_portrange_win);
     if(my_panels[0] == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     keypad(new_portrange_win, TRUE);
@@ -1030,7 +1030,7 @@ edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
     fields = (FIELD **)calloc(2 + 1, sizeof(FIELD *));
     if(fields == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -1271,14 +1271,14 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_service *ser_ptr)
     /* safety */
     if(!ser_ptr)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* alloc a new portrange */
     if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -1360,14 +1360,14 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_service *ser_ptr)
                     portrange_ptr->dst_low  =  0;
                     portrange_ptr->dst_high =  0;
                 } else {
-                    (void)vrprint.error(-1, VR_ERR, gettext("invalid protocol. Enter a number in the range 0-255."));
+                    vrmr_error(-1, VR_ERR, gettext("invalid protocol. Enter a number in the range 0-255."));
                     retval = -1;
                 }
             }
         }
         else
         {
-            (void)vrprint.error(-1, VR_INTERR, "undefined protocol '%s' (%s:%d).", choice_ptr, __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "undefined protocol '%s' (%s:%d).", choice_ptr, __FUNC__, __LINE__);
             free(choice_ptr);
             return(-1);
         }
@@ -1387,7 +1387,7 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_service *ser_ptr)
         create_portrange_string(debuglvl, portrange_ptr, str, sizeof(str));
         
         /* example: "service 'X-5' has been changed: portrange 'TCP: 1024:65535 -> 6005' was added." */
-        (void)vrprint.audit("%s '%s' %s: %s '%s' %s.",
+        vrmr_audit("%s '%s' %s: %s '%s' %s.",
                             STR_SERVICE, ser_ptr->name, STR_HAS_BEEN_CHANGED,
                             STR_PORTRANGE, str, STR_HAS_BEEN_ADDED);
     }
@@ -1416,7 +1416,7 @@ edit_serv_portranges_edit(const int debuglvl, int place, struct vrmr_service *se
     /* safety */
     if(ser_ptr == 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     
@@ -1429,7 +1429,7 @@ edit_serv_portranges_edit(const int debuglvl, int place, struct vrmr_service *se
             port_ptr = d_node->data;
             if(port_ptr == NULL)
             {
-                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1450,12 +1450,12 @@ edit_serv_portranges_edit(const int debuglvl, int place, struct vrmr_service *se
                 port_ptr->protocol == 50 ||
                 port_ptr->protocol == 51)
             {
-                (void)vrprint.warning(VR_WARN, gettext("this protocol can only be removed or added."), port_ptr->protocol);
+                vrmr_warning(VR_WARN, gettext("this protocol can only be removed or added."), port_ptr->protocol);
                 return(0);
             }
             else
             {
-                (void)vrprint.warning(VR_WARN, gettext("edit of protocol %d not supported."), port_ptr->protocol);
+                vrmr_warning(VR_WARN, gettext("edit of protocol %d not supported."), port_ptr->protocol);
                 return(0);
             }
         }
@@ -1486,7 +1486,7 @@ edit_serv_portranges_del(const int debuglvl, int place, struct vrmr_service *ser
     /* safety */
     if(ser_ptr == 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     
@@ -1508,19 +1508,19 @@ edit_serv_portranges_del(const int debuglvl, int place, struct vrmr_service *ser
             /* remove */
             if(vrmr_list_remove_node(debuglvl, &ser_ptr->PortrangeList, d_node) < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "unable to delete portrange '%d' from service '%s' (in: %s).", place, ser_ptr->name, __FUNC__);
+                vrmr_error(-1, VR_INTERR, "unable to delete portrange '%d' from service '%s' (in: %s).", place, ser_ptr->name, __FUNC__);
                 return(-1);
             }
 
             /* save */
             if(vrmr_services_save_portranges(debuglvl, ser_ptr) < 0)
             {
-                (void)vrprint.error(-1, VR_ERR, gettext("saving the portranges failed (in: %s:%d)."), __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("saving the portranges failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
             }
 
             /* TRANSLATORS: example: "service 'http' has been changed: portrange 'TCP: 1024:65535->80' was removed." */
-            (void)vrprint.audit("%s '%s' %s: %s '%s' %s.", STR_SERVICE, ser_ptr->name, STR_HAS_BEEN_CHANGED,
+            vrmr_audit("%s '%s' %s: %s '%s' %s.", STR_SERVICE, ser_ptr->name, STR_HAS_BEEN_CHANGED,
                                     STR_PORTRANGE, str, STR_HAS_BEEN_REMOVED);
 
             /* return 1 so the caller knows we removed it! */
@@ -1559,7 +1559,7 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
     /* safety */
     if(ser_ptr == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     
@@ -1570,7 +1570,7 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
     ServicesSection.EditServicePrt.items = (ITEM **)calloc(ServicesSection.EditServicePrt.n_items + 1, sizeof(ITEM *));
     if(ServicesSection.EditServicePrt.items == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1594,14 +1594,14 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
         portrange_ptr = d_node->data;
         if(portrange_ptr == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
         /* item number */
         if(!(item_number_ptr = malloc(itemnr_size)))
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
             return(-1);
         }
         snprintf(item_number_ptr, itemnr_size, "%3d", i + 1);
@@ -1609,7 +1609,7 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
         /* range string */
         if(!(port_string_ptr = malloc(rangestr_size)))
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -1666,19 +1666,19 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
         ServicesSection.EditServicePrt.items[i] = new_item(item_number_ptr, port_string_ptr);
         if(ServicesSection.EditServicePrt.items[i] == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
         /* store in list */
         if(vrmr_list_append(debuglvl, &ServicesSection.EditServicePrt.item_list, port_string_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &ServicesSection.EditServicePrt.item_number_list, item_number_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -1688,7 +1688,7 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
     ServicesSection.EditServicePrt.win = newwin(height, width, starty, startx);
     if(ServicesSection.EditServicePrt.win == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1698,14 +1698,14 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
     ServicesSection.EditServicePrt.panel[0] = new_panel(ServicesSection.EditServicePrt.win);
     if(ServicesSection.EditServicePrt.panel[0] == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     ServicesSection.EditServicePrt.menu = new_menu((ITEM **)ServicesSection.EditServicePrt.items);
     if(ServicesSection.EditServicePrt.menu == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1794,7 +1794,7 @@ edit_serv_portranges(const int debuglvl, struct vrmr_service *ser_ptr)
     /* safety */
     if(ser_ptr == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1968,12 +1968,12 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
                 result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "ACTIVE", ser_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
                 if(result < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     retval = -1;
                 }
 
                 /* example: "service 'http' has been changed: active is now set to 'Yes' (was: 'No')." */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                                 STR_SERVICE, ser_ptr->name, STR_HAS_BEEN_CHANGED,
                                 STR_ACTIVE, STR_IS_NOW_SET_TO, ser_ptr->active ? "Yes" : "No",
                                 STR_WAS, active ? "Yes" : "No");
@@ -1997,12 +1997,12 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
                 result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
                 if(result < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     retval = -1;
                 }
 
                 /* example: service 'samba' has been changed: broadcast is now set to 'No' (was: 'Yes') */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                                 STR_SERVICE, ser_ptr->name, STR_HAS_BEEN_CHANGED,
                                 STR_BROADCAST, STR_IS_NOW_SET_TO, ser_ptr->broadcast ? "Yes" : "No",
                                 STR_WAS, broadcast ? "Yes" : "No");
@@ -2019,12 +2019,12 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
 
                 if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "HELPER", ser_ptr->helper, 1, VRMR_TYPE_SERVICE) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 /* example: service 'ftp' has been changed: protocol helper is set to 'ftp' (was: 'none'). */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                                 STR_SERVICE, ser_ptr->name, STR_HAS_BEEN_CHANGED,
                                 STR_PROTOHELP, STR_IS_NOW_SET_TO, ser_ptr->helper,
                                 STR_WAS, helper);
@@ -2035,12 +2035,12 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
                 result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "COMMENT", field_buffer(ServicesSection.EditService.fields[i], 0), 1, VRMR_TYPE_SERVICE);
                 if(result < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     retval = -1;
                 }
 
                 /* example: "service '%s' has been changed: the comment has been changed." */
-                (void)vrprint.audit("%s '%s' %s: %s.", 
+                vrmr_audit("%s '%s' %s: %s.", 
                                 STR_SERVICE, ser_ptr->name, STR_HAS_BEEN_CHANGED,
                                 STR_COMMENT_CHANGED);
             }
@@ -2066,7 +2066,7 @@ edit_service_init(const int debuglvl, struct vrmr_service *ser_ptr)
     /* safety */
     if(ser_ptr == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2089,7 +2089,7 @@ edit_service_init(const int debuglvl, struct vrmr_service *ser_ptr)
     ServicesSection.EditService.n_fields = 9;
     if(!(ServicesSection.EditService.fields = (FIELD **)calloc(ServicesSection.EditService.n_fields + 1, sizeof(FIELD *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -2126,7 +2126,7 @@ edit_service_init(const int debuglvl, struct vrmr_service *ser_ptr)
     comment_x = 48;
     /* load the comment from the backend */
     if(sf->ask(debuglvl, serv_backend, ser_ptr->name, "COMMENT", ServicesSection.comment, sizeof(ServicesSection.comment), VRMR_TYPE_SERVICE, 0) < 0)
-        (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
+        vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
     ServiceSec.commentfld = (ServicesSection.EditService.fields[field_num++] = new_field(comment_y, comment_x, 9, 1, 0, 0));
     set_field_buffer_wrap(debuglvl, ServiceSec.commentfld, 0, ServicesSection.comment);
@@ -2137,7 +2137,7 @@ edit_service_init(const int debuglvl, struct vrmr_service *ser_ptr)
     set_field_just(ServiceSec.norangewarningfld, JUSTIFY_CENTER);
 
     if (ServicesSection.EditService.n_fields != field_num) {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -2273,14 +2273,14 @@ edit_service(const int debuglvl, struct vrmr_services *services, const char *nam
     /* safety */
     if(name == NULL || services == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     
     /* search the service */
     if(!(ser_ptr = vrmr_search_service(debuglvl, services, (char *)name)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "service '%s' was not found in memory (in: %s:%d).", name, __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "service '%s' was not found in memory (in: %s:%d).", name, __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2398,14 +2398,14 @@ edit_service(const int debuglvl, struct vrmr_services *services, const char *nam
     /* save the service */
     if(edit_service_save(debuglvl, ser_ptr) < 0)
     {
-        (void)vrprint.error(-1, "Error", "saving the service failed (in: %s).", __FUNC__);
+        vrmr_error(-1, "Error", "saving the service failed (in: %s).", __FUNC__);
         retval = -1;
     }
         
     /* save the portranges */
     if(vrmr_services_save_portranges(debuglvl, ser_ptr) < 0)
     {
-        (void)vrprint.error(-1, "Error", "saving the portranges failed (in: %s).", __FUNC__);
+        vrmr_error(-1, "Error", "saving the portranges failed (in: %s).", __FUNC__);
         retval = -1;
     }
 
@@ -2448,18 +2448,18 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
     /* safety */
     if(cur_name_ptr == NULL || new_name_ptr == NULL || services == NULL || rules == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(strlcpy(old_ser_name, cur_name_ptr, sizeof(old_ser_name)) >= sizeof(old_ser_name))
     {
-        (void)vrprint.error(-1, VR_INTERR, "servicename overflow (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "servicename overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "going to rename service old_ser_name:'%s' to new_name_ptr:'%s'.", old_ser_name, new_name_ptr);
+        vrmr_debug(__FUNC__, "going to rename service old_ser_name:'%s' to new_name_ptr:'%s'.", old_ser_name, new_name_ptr);
 
     result = sf->rename(debuglvl, serv_backend, old_ser_name, new_name_ptr, VRMR_TYPE_SERVICE);
     if(result != 0)
@@ -2469,13 +2469,13 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
 
     if(!(ser_ptr = vrmr_search_service(debuglvl, services, old_ser_name)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "service not found in the list (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "service not found in the list (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(strlcpy(ser_ptr->name, new_name_ptr, sizeof(ser_ptr->name)) >= sizeof(ser_ptr->name))
     {
-        (void)vrprint.error(-1, VR_INTERR, "servicename overflow (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "servicename overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     ser_ptr = NULL;
@@ -2486,22 +2486,22 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
         rule_ptr = d_node->data;
         if(rule_ptr == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "service: '%s'.", rule_ptr->service);
+            vrmr_debug(__FUNC__, "service: '%s'.", rule_ptr->service);
 
         /* check the servicename */
         if(strcmp(rule_ptr->service, old_ser_name) == 0)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "found in a rule (was looking for old_ser_name:'%s', found rule_ptr->service:'%s').", old_ser_name, rule_ptr->service);
+                vrmr_debug(__FUNC__, "found in a rule (was looking for old_ser_name:'%s', found rule_ptr->service:'%s').", old_ser_name, rule_ptr->service);
 
             /* set the new name to the rules */
             if(strlcpy(rule_ptr->service, new_name_ptr, sizeof(rule_ptr->service)) >= sizeof(rule_ptr->service))
             {
-                (void)vrprint.error(-1, VR_INTERR, "servicename overflow (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "servicename overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
             changed = 1;
@@ -2513,13 +2513,13 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
     {
         if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("saving rules failed."));
+            vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
         }
     }
 
     /* example: "service 'htpt' has been renamed to 'http'." */
-    (void)vrprint.audit("%s '%s' %s '%s'.", STR_SERVICE, old_ser_name, STR_HAS_BEEN_RENAMED_TO, new_name_ptr);
+    vrmr_audit("%s '%s' %s '%s'.", STR_SERVICE, old_ser_name, STR_HAS_BEEN_RENAMED_TO, new_name_ptr);
     return(0);
 }
 
@@ -2539,7 +2539,7 @@ vrmr_init_services_section(const int debuglvl, struct vrmr_services *services, i
     {
         if(!(ser_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -2590,7 +2590,7 @@ vrmr_init_services_section(const int debuglvl, struct vrmr_services *services, i
     /* create the top and bottom fields */
     if(!(ServicesSection.win_top = newwin(1, 6, 6, 27)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ServicesSection.win_top, vccnf.color_win);
@@ -2601,7 +2601,7 @@ vrmr_init_services_section(const int debuglvl, struct vrmr_services *services, i
 
     if(!(ServicesSection.win_bot = newwin(1, 6, height-1, 27)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ServicesSection.win_bot, vccnf.color_win);
@@ -2672,7 +2672,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
     /* safety */
     if(reg == NULL || services == NULL || rules == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
 
@@ -2761,7 +2761,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                                 }
                                 else
                                 {
-                                    (void)vrprint.error(-1, VR_ERR, "%s", STR_RENAME_FAILED);
+                                    vrmr_error(-1, VR_ERR, "%s", STR_RENAME_FAILED);
                                 }
                             }
                             free(new_name_ptr);
@@ -2780,7 +2780,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                         {
                             if((vrmr_search_service(debuglvl, services, new_name_ptr) != NULL))
                             {
-                                (void)vrprint.error(-1, VR_ERR, gettext("service %s already exists."), new_name_ptr);
+                                vrmr_error(-1, VR_ERR, gettext("service %s already exists."), new_name_ptr);
                             }
                             else
                             {
@@ -2788,7 +2788,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                                 if(result == 0)
                                 {
                                     /* example: "service 'X-5' has been created" */
-                                    (void)vrprint.audit("%s '%s' %s.", STR_SERVICE, new_name_ptr, STR_HAS_BEEN_CREATED);
+                                    vrmr_audit("%s '%s' %s.", STR_SERVICE, new_name_ptr, STR_HAS_BEEN_CREATED);
                                     reload = 1;
 
                                     edit_service(debuglvl, services, new_name_ptr);
@@ -2797,13 +2797,13 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                                 }
                                 else
                                 {
-                                    (void)vrprint.error(-1, VR_ERR, gettext("creating new service failed."));
+                                    vrmr_error(-1, VR_ERR, gettext("creating new service failed."));
                                 }
                             }
                         }
                         else
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("service name %s is invalid."), new_name_ptr);
+                            vrmr_error(-1, VR_ERR, gettext("service name %s is invalid."), new_name_ptr);
                         }
                         free(new_name_ptr);
                     }
@@ -2824,12 +2824,12 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                             result = vrmr_delete_service(debuglvl, services, (char *)item_name(cur), VRMR_TYPE_SERVICE);
                             if(result < 0)
                             {
-                                (void)vrprint.error(-1, VR_ERR, "%s.", STR_DELETE_FAILED);
+                                vrmr_error(-1, VR_ERR, "%s.", STR_DELETE_FAILED);
                             }
                             else
                             {
                                 /* example: "service 'X-5' has been deleted." */
-                                (void)vrprint.audit("%s '%s' %s.", STR_SERVICE, save_ser_name, STR_HAS_BEEN_DELETED);
+                                vrmr_audit("%s '%s' %s.", STR_SERVICE, save_ser_name, STR_HAS_BEEN_DELETED);
                                 reload = 1;
                             }
                         }

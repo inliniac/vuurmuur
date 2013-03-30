@@ -35,14 +35,14 @@ send_hup_to_vuurmuurlog(const int debuglvl)
         result = kill(vuurmuur_pid, SIGHUP);
         if(result < 0)
         {
-            (void)vrprint.warning("Warning", "sending SIGHUP to Vuurmuur_log failed (PID: %ld): %s.",
+            vrmr_warning("Warning", "sending SIGHUP to Vuurmuur_log failed (PID: %ld): %s.",
                                 (long)vuurmuur_pid,
                                 strerror(errno));
         }
     }
     else
     {
-        (void)vrprint.warning("Warning", "sending SIGHUP to Vuurmuur_log failed: could not get pid.");
+        vrmr_warning("Warning", "sending SIGHUP to Vuurmuur_log failed: could not get pid.");
     }
 
     return;
@@ -51,26 +51,26 @@ send_hup_to_vuurmuurlog(const int debuglvl)
 void cmdline_override_config(const int debuglvl) {
     if (cmdline.vrmr_check_iptcaps_set == TRUE) {
         conf.vrmr_check_iptcaps = cmdline.vrmr_check_iptcaps;
-        (void)vrprint.debug(__FUNC__, "overriding vrmr_check_iptcaps from commandline to %s.",
+        vrmr_debug(__FUNC__, "overriding vrmr_check_iptcaps from commandline to %s.",
             conf.vrmr_check_iptcaps ? "TRUE" : "FALSE");
     }
 
     if (cmdline.verbose_out_set == TRUE) {
         conf.verbose_out = cmdline.verbose_out;
-        (void)vrprint.debug(__FUNC__, "overriding verbose_out from commandline to %s.",
+        vrmr_debug(__FUNC__, "overriding verbose_out from commandline to %s.",
             conf.verbose_out ? "TRUE" : "FALSE");
     }
 
     if (cmdline.configfile_set == TRUE) {
         strlcpy(conf.configfile, cmdline.configfile, sizeof(conf.configfile));
-        (void)vrprint.debug(__FUNC__, "overriding configfile from commandline to %s.",
+        vrmr_debug(__FUNC__, "overriding configfile from commandline to %s.",
             conf.configfile);
     }
 
     if (cmdline.loglevel_set == TRUE) {
         strlcpy(cmdline.loglevel, conf.loglevel, sizeof(cmdline.loglevel));
         conf.loglevel_cmdline = TRUE;
-        (void)vrprint.debug(__FUNC__, "overriding verbose_out from loglevel to %s.",
+        vrmr_debug(__FUNC__, "overriding verbose_out from loglevel to %s.",
             conf.loglevel);
     }
 }
@@ -87,7 +87,7 @@ int sysctl_exec(const int debuglvl, struct vrmr_config *cnf, char *key, char *va
     char *args[] = { cnf->sysctl_location, "-w", line, NULL };
     int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->sysctl_location, args, NULL);
     if (result != 0) {
-        //(void)vrprint.error(result, "Error", "sysctl %s=%s failed", key, value);
+        //vrmr_error(result, "Error", "sysctl %s=%s failed", key, value);
         return -1;
     }
     return 0;

@@ -26,7 +26,7 @@ static u_int32_t
 shaping_convert_rate(const int debuglvl, u_int32_t rate, char *unit) {
     u_int32_t kbit_rate = 0;
 
-    (void)vrprint.debug(__FUNC__, "rate %u, unit %s", rate, unit);
+    vrmr_debug(__FUNC__, "rate %u, unit %s", rate, unit);
 
     if (strcmp(unit,"kbit") == 0) {
         kbit_rate = rate;
@@ -62,7 +62,7 @@ shaping_rulecmp(const int debuglvl, ShapeRule *r1, ShapeRule *r2)
 {
     if(r1 == NULL || r2 == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -88,7 +88,7 @@ shaping_ruleinsert(const int debuglvl, struct RuleCreateData_ *rule, ShapeRule *
 
     if(shape_rule == NULL || rule == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -106,7 +106,7 @@ shaping_ruleinsert(const int debuglvl, struct RuleCreateData_ *rule, ShapeRule *
 
     if(vrmr_list_append(debuglvl, &rule->shaperulelist, shape_rule) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() "
+        vrmr_error(-1, "Internal Error", "vrmr_list_append() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -131,7 +131,7 @@ shaping_queue_rule(const int debuglvl, struct RuleCreateData_ *rule,
     /* safety */
     if(cmd == NULL || rule == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -139,7 +139,7 @@ shaping_queue_rule(const int debuglvl, struct RuleCreateData_ *rule,
     shape_rule = malloc(sizeof(ShapeRule));
     if(shape_rule == NULL)
     {
-        (void)vrprint.error(-1, "Error", "malloc failed: %s "
+        vrmr_error(-1, "Error", "malloc failed: %s "
             "(in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -161,13 +161,13 @@ shaping_process_rule (const int debuglvl, struct vrmr_config *cnf, /*@null@*/Rul
     if (ruleset != NULL) {
         buf = strdup (cmd);
         if (buf == NULL) {
-            (void)vrprint.error(-1, "Error", "strdup failed: %s (in: %s:%d).",
+            vrmr_error(-1, "Error", "strdup failed: %s (in: %s:%d).",
                 strerror(errno), __FUNC__, __LINE__);
             return(-1);
         }
 
         if (vrmr_list_append(debuglvl, &ruleset->tc_rules, buf) == NULL) {
-            (void)vrprint.error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).",
                 __FUNC__, __LINE__);
             free(buf);
             return(-1);
@@ -191,7 +191,7 @@ shaping_process_queued_rules(const int debuglvl, struct vrmr_config *cnf, /*@nul
 
     if(rule == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -235,7 +235,7 @@ shaping_clear_interfaces (const int debuglvl, struct vrmr_config *cnf, struct vr
             snprintf(cmd, sizeof(cmd), "%s qdisc del dev %s root 2> /dev/null > /dev/null",
                 cnf->tc_location, iface_ptr->device);
 
-            (void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
+            vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
 
             if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
                 return(-1);
@@ -271,7 +271,7 @@ shaping_setup_interface_classes (const int debuglvl, struct vrmr_config *cnf, st
         cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle,
         iface_ptr->shape_handle, iface_rate);
 
-    (void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
+    vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
 
     if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
         return(-1);
@@ -292,7 +292,7 @@ shaping_setup_interface_classes (const int debuglvl, struct vrmr_config *cnf, st
                 cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle,
                 iface_ptr->shape_handle, inner_iface_ptr->shape_handle, rate);
 
-            (void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
+            vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
 
             if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
                 return(-1);
@@ -316,7 +316,7 @@ shaping_setup_roots (const int debuglvl, struct vrmr_config *cnf, struct vrmr_in
     /* assign handle id's */
     for (d_node = interfaces->list.top; d_node != NULL; d_node = d_node->next) {
         iface_ptr = d_node->data;
-        (void)vrprint.debug(__FUNC__, "interface %s", iface_ptr->name);
+        vrmr_debug(__FUNC__, "interface %s", iface_ptr->name);
 
         if (vrmr_is_shape_interface(debuglvl, iface_ptr) == 1)
         {
@@ -329,14 +329,14 @@ shaping_setup_roots (const int debuglvl, struct vrmr_config *cnf, struct vrmr_in
     /* setup the roots and interface classes */
     for (d_node = interfaces->list.top; d_node != NULL; d_node = d_node->next) {
         iface_ptr = d_node->data;
-        (void)vrprint.debug(__FUNC__, "interface %s", iface_ptr->name);
+        vrmr_debug(__FUNC__, "interface %s", iface_ptr->name);
 
         if (vrmr_is_shape_interface(debuglvl, iface_ptr) == 1)
         {
             snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s root handle %u: htb default %u",
                 cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle, handle);
 
-            (void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
+            vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
 
             if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
                 return(-1);
@@ -356,11 +356,11 @@ int
 shaping_add_rate_to_iface(const int debuglvl, struct vrmr_interface *iface_ptr, u_int32_t rate, char *unit) {
     u_int32_t   kbit_rate = 0;
 
-    (void)vrprint.debug(__FUNC__, "rate %u, unit %s", rate, unit);
+    vrmr_debug(__FUNC__, "rate %u, unit %s", rate, unit);
 
     kbit_rate = shaping_convert_rate(debuglvl, rate, unit);
 
-    (void)vrprint.debug(__FUNC__, "kbit rate %u", kbit_rate);
+    vrmr_debug(__FUNC__, "kbit rate %u", kbit_rate);
 
     if (kbit_rate > 0) {
         iface_ptr->total_shape_rate += kbit_rate;
@@ -418,7 +418,7 @@ shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfac
                     for (; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
                         iface_ptr = d_node_iface->data;
 
-                        (void)vrprint.debug(__FUNC__, "FROM iface_ptr->name %s, rate %u %s", iface_ptr->name, rule_ptr->opt->bw_in_min, rule_ptr->opt->bw_in_min_unit);
+                        vrmr_debug(__FUNC__, "FROM iface_ptr->name %s, rate %u %s", iface_ptr->name, rule_ptr->opt->bw_in_min, rule_ptr->opt->bw_in_min_unit);
 
                         if (shaping_add_rate_to_iface(debuglvl, iface_ptr, rule_ptr->opt->bw_in_min, rule_ptr->opt->bw_in_min_unit) < 0)
                             return(-1);
@@ -441,7 +441,7 @@ shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfac
                     for (; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
                         iface_ptr = d_node_iface->data;
 
-                        (void)vrprint.debug(__FUNC__, "TO iface_ptr->name %s, rate %u %s", iface_ptr->name, rule_ptr->opt->bw_out_min, rule_ptr->opt->bw_out_min_unit);
+                        vrmr_debug(__FUNC__, "TO iface_ptr->name %s, rate %u %s", iface_ptr->name, rule_ptr->opt->bw_out_min, rule_ptr->opt->bw_out_min_unit);
 
                         if (shaping_add_rate_to_iface(debuglvl, iface_ptr, rule_ptr->opt->bw_out_min, rule_ptr->opt->bw_out_min_unit) < 0)
                             return(-1);
@@ -460,12 +460,12 @@ shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfac
         {
             rate = shaping_convert_rate(debuglvl, iface_ptr->bw_out, iface_ptr->bw_out_unit);
 
-            (void)vrprint.debug(__FUNC__, "total rate %u, total rules %u, rules using default rate %u",
+            vrmr_debug(__FUNC__, "total rate %u, total rules %u, rules using default rate %u",
                 iface_ptr->total_shape_rate, iface_ptr->total_shape_rules, iface_ptr->total_default_shape_rules);
 
             /* over commit */
             if (iface_ptr->total_shape_rate > rate) {
-                (void)vrprint.warning(VR_WARN, "bandwidth over committed on interface %s: %ukbit > %ukbit.", iface_ptr->name, iface_ptr->total_shape_rate, rate);
+                vrmr_warning(VR_WARN, "bandwidth over committed on interface %s: %ukbit > %ukbit.", iface_ptr->name, iface_ptr->total_shape_rate, rate);
 
                 /* the default rate will be the max interface rate / number of total rules */
                 iface_ptr->shape_default_rate = rate / iface_ptr->total_shape_rules;
@@ -479,7 +479,7 @@ shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfac
                 iface_ptr->shape_default_rate = (rate - iface_ptr->total_shape_rate) / iface_ptr->total_default_shape_rules;
             }
 
-            (void)vrprint.debug(__FUNC__, "default rate on %s is %ukbit", iface_ptr->name, iface_ptr->shape_default_rate);
+            vrmr_debug(__FUNC__, "default rate on %s is %ukbit", iface_ptr->name, iface_ptr->shape_default_rate);
         }
     }
 
@@ -512,7 +512,7 @@ shaping_create_default_rules(const int debuglvl, struct vrmr_config *cnf, struct
                 iface_ptr->shape_handle, handle, iface_ptr->shape_default_rate,
                 rate);
 
-            (void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
+            vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
 
             if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
                 return(-1);
@@ -520,7 +520,7 @@ shaping_create_default_rules(const int debuglvl, struct vrmr_config *cnf, struct
             snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s parent %u:%u handle %u: sfq perturb 10",
                 cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle, handle, handle);
 
-            (void)vrprint.debug(__FUNC__, "cmd \"%s\"", cmd);
+            vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
 
             if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
                 return(-1);
@@ -550,20 +550,20 @@ shaping_shape_create_rule(const int debuglvl, struct vrmr_config *cnf,
     if (vrmr_is_shape_interface(debuglvl, shape_iface_ptr) == 0)
         return(0);
 
-    (void)vrprint.debug(__FUNC__, "shape on interface %s (handle %u)",
+    vrmr_debug(__FUNC__, "shape on interface %s (handle %u)",
         shape_iface_ptr->name, shape_iface_ptr->shape_handle);
 
     if (vrmr_is_shape_interface(debuglvl, class_iface_ptr) == 1) {
         class_handle = class_iface_ptr->shape_handle;
 
-        (void)vrprint.debug(__FUNC__, "class of interface %s (handle %u)",
+        vrmr_debug(__FUNC__, "class of interface %s (handle %u)",
             class_iface_ptr->name, class_iface_ptr->shape_handle);
     }
 
     /* convert rates to kbit */
     rate = shaping_convert_rate(debuglvl, rate, rate_unit);
     ceil = shaping_convert_rate(debuglvl, ceil, ceil_unit);
-    (void)vrprint.debug(__FUNC__, "rate %u, ceil %u", rate, ceil);
+    vrmr_debug(__FUNC__, "rate %u, ceil %u", rate, ceil);
 
     /* use defaults for unused settings */
     if (prio == 0) prio = 3;
@@ -583,7 +583,7 @@ shaping_shape_create_rule(const int debuglvl, struct vrmr_config *cnf,
         class_handle, shape_iface_ptr->shape_handle,
         class, rate, ceil, prio);
 
-    (void)vrprint.debug(__FUNC__, "cmd %s", cmd);
+    vrmr_debug(__FUNC__, "cmd %s", cmd);
 
     if (shaping_queue_rule(debuglvl, rule, ruleset, shape_iface_ptr->shape_handle,
             class, shape_iface_ptr->device, cmd) < 0)
@@ -593,7 +593,7 @@ shaping_shape_create_rule(const int debuglvl, struct vrmr_config *cnf,
         cnf->tc_location, shape_iface_ptr->device, shape_iface_ptr->shape_handle,
         class, class);
 
-    (void)vrprint.debug(__FUNC__, "cmd %s", cmd);
+    vrmr_debug(__FUNC__, "cmd %s", cmd);
 
     if (shaping_queue_rule(debuglvl, rule, ruleset, class, 0,
             shape_iface_ptr->device, cmd) < 0)

@@ -47,7 +47,7 @@ create_network_ip(const int debuglvl, char *ipaddress, char *netmask, char *netw
 
     if(inet_aton(netmask, &mask) == 0)
     {
-        (void)vrprint.error(-1, "Error", "invalid netmask: '%s' "
+        vrmr_error(-1, "Error", "invalid netmask: '%s' "
             "(in: %s:%d).", netmask, __FUNC__, __LINE__);
         return(-1);
     }
@@ -55,27 +55,27 @@ create_network_ip(const int debuglvl, char *ipaddress, char *netmask, char *netw
     netmaskvalue = ntohl(mask.s_addr);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "netmask = %s", inet_ntoa(mask));
+        vrmr_debug(__FUNC__, "netmask = %s", inet_ntoa(mask));
 
     if(inet_aton(ipaddress, &ip) == 0)
     {
-        (void)vrprint.error(-1, "Error", "invalid ipaddress: '%s' "
+        vrmr_error(-1, "Error", "invalid ipaddress: '%s' "
             "(in: %s:%d).", netmask, __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "ipaddress = %s", inet_ntoa(ip));
+        vrmr_debug(__FUNC__, "ipaddress = %s", inet_ntoa(ip));
 
     net = ip;
     net.s_addr &= ntohl(netmaskvalue);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "network = %s", inet_ntoa(net));
+        vrmr_debug(__FUNC__, "network = %s", inet_ntoa(net));
 
     if(strlcpy(network_ip, inet_ntoa(net), size) >= size)
     {
-        (void)vrprint.error(-1, "Internal Error", "string overflow "
+        vrmr_error(-1, "Internal Error", "string overflow "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -114,7 +114,7 @@ script_list_devices(const int debuglvl)
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if(sockfd == -1)
     {
-        (void)vrprint.error(-1, "Error", "couldn't open socket: %s "
+        vrmr_error(-1, "Error", "couldn't open socket: %s "
             "(in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -127,7 +127,7 @@ script_list_devices(const int debuglvl)
         /* get some mem */
         if(!(ifc.ifc_buf = realloc(ifc.ifc_buf, (size_t)ifc.ifc_len)))
         {
-            (void)vrprint.error(-1, "Error", "realloc failed: %s "
+            vrmr_error(-1, "Error", "realloc failed: %s "
                 "(in: %s:%d).", strerror(errno),
                 __FUNC__, __LINE__);
             (void)close(sockfd);
@@ -138,7 +138,7 @@ script_list_devices(const int debuglvl)
         /* get the interfaces from the system */
         if(ioctl(sockfd, SIOCGIFCONF, &ifc) < 0)
         {
-            (void)vrprint.error(-1, "Error", "ioctl(SIOCGIFCONF) "
+            vrmr_error(-1, "Error", "ioctl(SIOCGIFCONF) "
                 "failed: %s (in: %s:%d).", strerror(errno),
                 __FUNC__, __LINE__);
             free(ifc.ifc_buf);
@@ -159,11 +159,11 @@ script_list_devices(const int debuglvl)
     for(n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq))
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
+            vrmr_debug(__FUNC__, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
 
         if(strlcpy(ifr_struct.ifr_name, ifr_ptr->ifr_name, sizeof(ifr_struct.ifr_name)) >= sizeof(ifr_struct.ifr_name))
         {
-            (void)vrprint.error(-1, "Error", "buffer overflow "
+            vrmr_error(-1, "Error", "buffer overflow "
                 "(in: %s:%d).", __FUNC__, __LINE__);
             (void)close(sockfd);
             free(ifc.ifc_buf);
@@ -186,7 +186,7 @@ script_list_devices(const int debuglvl)
             /* get the ipaddress into a string */
             if(inet_ntop(AF_INET, &sin->sin_addr, ipaddress, (socklen_t)sizeof(ipaddress)) == NULL)
             {
-                (void)vrprint.error(-1, "Error", "getting "
+                vrmr_error(-1, "Error", "getting "
                     "ipaddress for device '%s' failed: %s "
                     "(in: %s:%d).", ifr_ptr->ifr_name,
                     strerror(errno), __FUNC__, __LINE__);
@@ -214,7 +214,7 @@ script_list_devices(const int debuglvl)
             /* get the ipaddress into a string */
             if(inet_ntop(AF_INET, &sin->sin_addr, netmask, (socklen_t)sizeof(ipaddress)) == NULL)
             {
-                (void)vrprint.error(-1, "Error", "getting "
+                vrmr_error(-1, "Error", "getting "
                     "ipaddress for device '%s' failed: %s "
                     "(in: %s:%d).", ifr_ptr->ifr_name,
                     strerror(errno), __FUNC__, __LINE__);
@@ -254,7 +254,7 @@ script_list_devices(const int debuglvl)
             /* get the ipaddress into a string */
             if(inet_ntop(AF_INET, &sin->sin_addr, broadcast, (socklen_t)sizeof(ipaddress)) == NULL)
             {
-                (void)vrprint.error(-1, "Error", "getting "
+                vrmr_error(-1, "Error", "getting "
                     "broadcast for device '%s' failed: %s "
                     "(in: %s:%d).", ifr_ptr->ifr_name,
                     strerror(errno), __FUNC__, __LINE__);

@@ -31,12 +31,12 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
     /* safety */
     if(name == NULL || answer_ptr == NULL || reg == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "determining info for '%s'.", name);
+        vrmr_debug(__FUNC__, "determining info for '%s'.", name);
 
     switch(answer_ptr->type)
     {
@@ -46,7 +46,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             result = zf->ask(debuglvl, zone_backend, name, "IPADDRESS", answer_ptr->ipv4.ipaddress, sizeof(answer_ptr->ipv4.ipaddress), VRMR_TYPE_HOST, 0);
             if(result < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -54,7 +54,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             /* get the mac-address */
             answer_ptr->has_mac = vrmr_get_mac_address(debuglvl, name, answer_ptr->mac, sizeof(answer_ptr->mac), reg->macaddr);
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "has_mac: %d", answer_ptr->has_mac);
+                vrmr_debug(__FUNC__, "has_mac: %d", answer_ptr->has_mac);
 
             /*  for iptables, the netmask of a single host is always 255.255.255.255,
                 we do this after check_ip because otherwise check_ip would not work */
@@ -65,7 +65,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             result = zf->ask(debuglvl, zone_backend, name, "IPV6ADDRESS", answer_ptr->ipv6.ip6, sizeof(answer_ptr->ipv6.ip6), VRMR_TYPE_HOST, 0);
             if(result < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -84,12 +84,12 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
                 get the network address
             */
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "get network_ip for '%s', max_size: %d.", name, sizeof(answer_ptr->ipv4.network));
+                vrmr_debug(__FUNC__, "get network_ip for '%s', max_size: %d.", name, sizeof(answer_ptr->ipv4.network));
 
             result = zf->ask(debuglvl, zone_backend, name, "NETWORK", answer_ptr->ipv4.network, sizeof(answer_ptr->ipv4.network), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -100,7 +100,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             result = zf->ask(debuglvl, zone_backend, name, "NETMASK", answer_ptr->ipv4.netmask, sizeof(answer_ptr->ipv4.netmask), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -111,7 +111,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
                 result = vrmr_create_broadcast_ip(debuglvl, answer_ptr->ipv4.network, answer_ptr->ipv4.netmask, answer_ptr->ipv4.broadcast, sizeof(answer_ptr->ipv4.broadcast));
                 if(result != 0)
                 {
-                    (void)vrprint.error(-1, "Error", "creating broadcast ip for zone '%s' failed.", answer_ptr->name);
+                    vrmr_error(-1, "Error", "creating broadcast ip for zone '%s' failed.", answer_ptr->name);
                     answer_ptr->active = 0;
                 }
             }
@@ -120,7 +120,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             result = zf->ask(debuglvl, zone_backend, name, "IPV6NETWORK", answer_ptr->ipv6.net6, sizeof(answer_ptr->ipv6.net6), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -129,7 +129,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             result = zf->ask(debuglvl, zone_backend, name, "IPV6CIDR", cidrstr, sizeof(cidrstr), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -138,7 +138,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             if (cidr >= 0 && cidr <= 128) {
                 answer_ptr->ipv6.cidr6 = cidr;
             } else {
-                (void)vrprint.error(-1, "Error", "invalid IPV6 CIDR for zone "
+                vrmr_error(-1, "Error", "invalid IPV6 CIDR for zone "
                         "'%s', must be in range 0-128.", answer_ptr->name);
                 answer_ptr->active = 0;
             }
@@ -146,7 +146,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             break;
 
         default:
-            (void)vrprint.error(-1, "Internal Error", "expected a host or a network, got a %d (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "expected a host or a network, got a %d (in: %s:%d).",
                     answer_ptr->type, __FUNC__, __LINE__);
             retval = -1;
             break;
@@ -178,11 +178,11 @@ vrmr_create_broadcast_ip(const int debuglvl, char *network, char *netmask, char 
     //unsigned long int networkvalue=0;
 
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "network: %s, netmask: %s", network, netmask);
+        vrmr_debug(__FUNC__, "network: %s, netmask: %s", network, netmask);
 
     if(inet_aton(netmask, &mask) == 0)
     {
-        (void)vrprint.error(-1, "Error", "Invalid netmask: '%s' (in: vrmr_create_broadcast_ip).", netmask);
+        vrmr_error(-1, "Error", "Invalid netmask: '%s' (in: vrmr_create_broadcast_ip).", netmask);
         return(-1);
     }
     else
@@ -190,12 +190,12 @@ vrmr_create_broadcast_ip(const int debuglvl, char *network, char *netmask, char 
         netmaskvalue=ntohl(mask.s_addr);
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "netmask = %s", inet_ntoa(mask));
+            vrmr_debug(__FUNC__, "netmask = %s", inet_ntoa(mask));
     }
 
     if(inet_aton(network, &net) == 0)
     {
-        (void)vrprint.error(-1, "Error", "Invalid network: '%s' (in: vrmr_create_broadcast_ip).", network);
+        vrmr_error(-1, "Error", "Invalid network: '%s' (in: vrmr_create_broadcast_ip).", network);
         return(-1);
     }
     else
@@ -203,7 +203,7 @@ vrmr_create_broadcast_ip(const int debuglvl, char *network, char *netmask, char 
         //networkvalue=ntohl(net.s_addr);
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "network = %s", inet_ntoa(net));
+            vrmr_debug(__FUNC__, "network = %s", inet_ntoa(net));
     }
 
     broad=net;
@@ -211,13 +211,13 @@ vrmr_create_broadcast_ip(const int debuglvl, char *network, char *netmask, char 
 
     if(strlcpy(broadcast_ip, inet_ntoa(broad), size) >= size)
     {
-        (void)vrprint.error(-1, "Internal Error", "string overflow "
+        vrmr_error(-1, "Internal Error", "string overflow "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "broadcast-address for network %s with netmask %s is %s.", network, netmask, broadcast_ip);
+        vrmr_debug(__FUNC__, "broadcast-address for network %s with netmask %s is %s.", network, netmask, broadcast_ip);
 
     return(retval);
 }
@@ -242,13 +242,13 @@ vrmr_get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupnam
     /* safety */
     if(groupname == NULL || answer_ptr == NULL || zones == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
     if(answer_ptr->type != VRMR_TYPE_GROUP)
     {
-        (void)vrprint.error(-1, "Internal Error", "expected a group, but got a %d (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "expected a group, but got a %d (in: %s:%d).",
                 answer_ptr->type, __FUNC__, __LINE__);
         return(-1);
     }
@@ -267,7 +267,7 @@ vrmr_get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupnam
         zone_ptr = vrmr_search_zonedata(debuglvl, zones, total_zone);
         if(zone_ptr == NULL)
         {
-            (void)vrprint.debug(__FUNC__, "the member '%s' of group '%s' was not found in memory.",
+            vrmr_debug(__FUNC__, "the member '%s' of group '%s' was not found in memory.",
                     total_zone, groupname);
             answer_ptr->group_member_count--;
         }
@@ -275,7 +275,7 @@ vrmr_get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupnam
         {
             if(zone_ptr->type == VRMR_TYPE_GROUP)
             {
-                (void)vrprint.debug(__FUNC__, "only hosts can be groupmembers. Member '%s' of '%s' is a group.",
+                vrmr_debug(__FUNC__, "only hosts can be groupmembers. Member '%s' of '%s' is a group.",
                         zone_ptr->name, groupname);
                 answer_ptr->group_member_count--;
             }
@@ -287,24 +287,24 @@ vrmr_get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupnam
                 if(zone_ptr->active == 0)
                 {
                     if(debuglvl >= LOW)
-                        (void)vrprint.debug(__FUNC__, "member %s is not active", zone_ptr->name);
+                        vrmr_debug(__FUNC__, "member %s is not active", zone_ptr->name);
                 }
 
                 if(vrmr_list_append(debuglvl, &answer_ptr->GroupList, zone_ptr) == NULL)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "refcnt_group of host '%s' is now '%u'.", zone_ptr->name, zone_ptr->refcnt_group);
+                    vrmr_debug(__FUNC__, "refcnt_group of host '%s' is now '%u'.", zone_ptr->name, zone_ptr->refcnt_group);
             }
         }
     }
     if(result == -1)
     {
-        (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -348,7 +348,7 @@ vrmr_list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/cha
 
             if(strlcat(options, oneport, sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error",
+                vrmr_error(-1, "Internal Error",
                         "string overflow (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(NULL);
@@ -362,7 +362,7 @@ vrmr_list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/cha
 
             if(strlcat(options, oneport, sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error",
+                vrmr_error(-1, "Internal Error",
                         "string overflow (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(NULL);
@@ -377,7 +377,7 @@ vrmr_list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/cha
         /* the trailing trema */
         if(strlcat(options, "\"", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
                     "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(NULL);
@@ -388,20 +388,20 @@ vrmr_list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/cha
 
     if(!(return_ptr = malloc(size)))
     {
-        (void)vrprint.error(-1, "Error", "malloc failed: %s "
+        vrmr_error(-1, "Error", "malloc failed: %s "
             "(in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
         return(NULL);
     }
 
     if(strlcpy(return_ptr, options, size) >= size)
     {
-        (void)vrprint.error(-1, "Internal Error", "string overflow "
+        vrmr_error(-1, "Internal Error", "string overflow "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "options: '%s'.", return_ptr);
+        vrmr_debug(__FUNC__, "options: '%s'.", return_ptr);
 
     return(return_ptr);
 }
@@ -417,13 +417,13 @@ vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dli
     struct vrmr_portdata *portrange_ptr = NULL;
 
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "opt: '%s'", opt);
+        vrmr_debug(__FUNC__, "opt: '%s'", opt);
 
     /* if the first char is a whitespace, bail out */
     if(opt[0] == ' ')
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "first char of 'opt' is a whitespace, so we bail out quietly (and without error).");
+            vrmr_debug(__FUNC__, "first char of 'opt' is a whitespace, so we bail out quietly (and without error).");
 
         return(0);
     }
@@ -455,11 +455,11 @@ vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dli
             if(done == 1)
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "now trying to insert: %s", option_string);
+                    vrmr_debug(__FUNC__, "now trying to insert: %s", option_string);
 
                 if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
                 {
-                    (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
                 portrange_ptr->protocol = -1;
@@ -473,7 +473,7 @@ vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dli
                     portrange_ptr->dst_low = atoi(option_string);
                     if(portrange_ptr->dst_low <= 0 || portrange_ptr->dst_low > 65535)
                     {
-                        (void)vrprint.error(-1, "Error", "listenport must be 1-65535.");
+                        vrmr_error(-1, "Error", "listenport must be 1-65535.");
 
                         free(portrange_ptr);
                         return(-1);
@@ -493,13 +493,13 @@ vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dli
                         portrange_ptr->dst_high = -1;
 
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "listen: %d, %d", portrange_ptr->dst_low, portrange_ptr->dst_high);
+                        vrmr_debug(__FUNC__, "listen: %d, %d", portrange_ptr->dst_low, portrange_ptr->dst_high);
                 }
 
                 /* append to the list */
                 if(vrmr_list_append(debuglvl, dlist, portrange_ptr) == NULL)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "appending to list failed (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "appending to list failed (in: %s:%d).", __FUNC__, __LINE__);
 
                     free(portrange_ptr);
                     return(-1);
@@ -532,17 +532,17 @@ vrmr_check_active(const int debuglvl, char *name, int type)
     /* safety */
     if(name == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "type: %d, name = '%s'.", type, name);
+        vrmr_debug(__FUNC__, "type: %d, name = '%s'.", type, name);
 
     if(type >= VRMR_TYPE_TOO_BIG)
     {
-        (void)vrprint.error(-1, "Internal Error", "type is out of range (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "type is out of range (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -551,7 +551,7 @@ vrmr_check_active(const int debuglvl, char *name, int type)
     if(strcasecmp(name, "firewall") == 0 || strncasecmp(name, "firewall", 8) == 0)
     {
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "'firewall' is always active.");
+            vrmr_debug(__FUNC__, "'firewall' is always active.");
 
         return(1);
     }
@@ -573,13 +573,13 @@ vrmr_check_active(const int debuglvl, char *name, int type)
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "type '%d' is unsupported (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "type '%d' is unsupported (in: %s:%d).",
                 type, __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "'%s' (result: %d).", active, result);
+        vrmr_debug(__FUNC__, "'%s' (result: %d).", active, result);
 
     /* if we have an anwser, check it out */
     if(result == 1)
@@ -587,14 +587,14 @@ vrmr_check_active(const int debuglvl, char *name, int type)
         if(strncasecmp(active, "yes", 3) == 0)
         {
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "'%s' is active.", name);
+                vrmr_debug(__FUNC__, "'%s' is active.", name);
 
             return(1);
         }
         else
         {
             if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "'%s' is not active.", name);
+                vrmr_debug(__FUNC__, "'%s' is not active.", name);
 
             return(0);
         }
@@ -602,13 +602,13 @@ vrmr_check_active(const int debuglvl, char *name, int type)
     else if(result == 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "keyword ACTIVE not found in '%s', assuming inactive.", name);
+            vrmr_debug(__FUNC__, "keyword ACTIVE not found in '%s', assuming inactive.", name);
 
         return(0);
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "ask_backend returned error (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "ask_backend returned error (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 }
@@ -641,7 +641,7 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
     /* safety */
     if(!device || !answer_ptr || size == 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -649,7 +649,7 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if(sockfd == -1)
     {
-        (void)vrprint.error(-1, "Error", "couldn't open socket: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "couldn't open socket: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -661,7 +661,7 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
         /* get some mem */
         if(!(ifc.ifc_buf = realloc(ifc.ifc_buf, (size_t)ifc.ifc_len)))
         {
-            (void)vrprint.error(-1, "Error", "realloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "realloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
             (void)close(sockfd);
 
             return(-1);
@@ -670,7 +670,7 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
         /* get the interfaces from the system */
         if(ioctl(sockfd, SIOCGIFCONF, &ifc) < 0)
         {
-            (void)vrprint.error(-1, "Error", "ioctl(SIOCGIFCONF) failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "ioctl(SIOCGIFCONF) failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
             free(ifc.ifc_buf);
             (void)close(sockfd);
 
@@ -689,13 +689,13 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
     for(n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq))
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
+            vrmr_debug(__FUNC__, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
 
         if(strcmp(device, ifr_ptr->ifr_name) == 0)
         {
             if(strlcpy(ifr_struct.ifr_name, ifr_ptr->ifr_name, sizeof(ifr_struct.ifr_name)) >= sizeof(ifr_struct.ifr_name))
             {
-                (void)vrprint.error(-1, "Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                 (void)close(sockfd);
                 free(ifc.ifc_buf);
                 return(-1);
@@ -713,7 +713,7 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
                 /* get the ipaddress into a string */
                 if(inet_ntop(AF_INET, &sin->sin_addr, ipaddress, (socklen_t)sizeof(ipaddress)) == NULL)
                 {
-                    (void)vrprint.error(-1, "Error", "getting ipaddress for device '%s' failed: %s (in: %s:%d).", device, strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(-1, "Error", "getting ipaddress for device '%s' failed: %s (in: %s:%d).", device, strerror(errno), __FUNC__, __LINE__);
                     (void)close(sockfd);
                     free(ifc.ifc_buf);
 
@@ -721,12 +721,12 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
                 }
 
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, ", device: '%s', ipaddress: '%s'.", device, ipaddress);
+                    vrmr_debug(__FUNC__, ", device: '%s', ipaddress: '%s'.", device, ipaddress);
 
                 /* copy back to the caller */
                 if(strlcpy(answer_ptr, ipaddress, size) >= size)
                 {
-                    (void)vrprint.error(-1, "Error", "copying ipaddress for device '%s' failed: destination buffer too small (in: %s:%d).", device, __FUNC__, __LINE__);
+                    vrmr_error(-1, "Error", "copying ipaddress for device '%s' failed: destination buffer too small (in: %s:%d).", device, __FUNC__, __LINE__);
                     (void)close(sockfd);
                     free(ifc.ifc_buf);
 
@@ -744,7 +744,7 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
 
     /* not found */
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "device '%s' not found.", device);
+        vrmr_debug(__FUNC__, "device '%s' not found.", device);
 
     close(sockfd);
     free(ifc.ifc_buf);
@@ -790,7 +790,7 @@ vrmr_check_ipv4address(const int debuglvl, char *network, char *netmask, char *i
     /* safety */
     if(!ipaddress)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -799,7 +799,7 @@ vrmr_check_ipv4address(const int debuglvl, char *network, char *netmask, char *i
     {
         if(!quiet)
         {
-            (void)vrprint.error(-1, "Error", "invalid ipaddress: '%s' (in: %s).", ipaddress, __FUNC__);
+            vrmr_error(-1, "Error", "invalid ipaddress: '%s' (in: %s).", ipaddress, __FUNC__);
         }
 
         return(-1);
@@ -809,7 +809,7 @@ vrmr_check_ipv4address(const int debuglvl, char *network, char *netmask, char *i
         //ipaddressvalue = ntohl(ip.s_addr);
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "ipaddress = %s", inet_ntoa(ip));
+            vrmr_debug(__FUNC__, "ipaddress = %s", inet_ntoa(ip));
 
         /* if were only checking ipaddress we are happy now. */
         if(!network && !netmask)
@@ -819,7 +819,7 @@ vrmr_check_ipv4address(const int debuglvl, char *network, char *netmask, char *i
     /* check if the networkadress is valid */
     if(inet_aton(network, &net) == 0)
     {
-        (void)vrprint.error(-1, "Error", "invalid network: '%s' (in: %s).", network, __FUNC__);
+        vrmr_error(-1, "Error", "invalid network: '%s' (in: %s).", network, __FUNC__);
         return(-1);
     }
     else
@@ -827,20 +827,20 @@ vrmr_check_ipv4address(const int debuglvl, char *network, char *netmask, char *i
         //networkvalue = ntohl(net.s_addr);
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "network = %s", inet_ntoa(net));
+            vrmr_debug(__FUNC__, "network = %s", inet_ntoa(net));
     }
 
     /* check if the netmask is valid */
     if(inet_aton(netmask, &mask) == 0)
     {
-        (void)vrprint.error(-1, "Error", "invalid netmask: '%s' (in: %s).", netmask, __FUNC__);
+        vrmr_error(-1, "Error", "invalid netmask: '%s' (in: %s).", netmask, __FUNC__);
         return(-1);
     }
     else
     {
         netmaskvalue = ntohl(mask.s_addr);
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "netmask = %s", inet_ntoa(mask));
+            vrmr_debug(__FUNC__, "netmask = %s", inet_ntoa(mask));
     }
 
 
@@ -848,7 +848,7 @@ vrmr_check_ipv4address(const int debuglvl, char *network, char *netmask, char *i
     broad.s_addr|=~ntohl(netmaskvalue);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "broad = %s", inet_ntoa(broad));
+        vrmr_debug(__FUNC__, "broad = %s", inet_ntoa(broad));
 
     /* get the lowest possible ip in this network/netmask combi */
     low = ntohl(net.s_addr);
@@ -861,7 +861,7 @@ vrmr_check_ipv4address(const int debuglvl, char *network, char *netmask, char *i
     if(current > low && current < high)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "ipaddress %s belongs to network %s with netmask %s", ipaddress, network, netmask);
+            vrmr_debug(__FUNC__, "ipaddress %s belongs to network %s with netmask %s", ipaddress, network, netmask);
 
         retval = 1;
     }
@@ -887,7 +887,7 @@ vrmr_get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_
     /* safety */
     if(hostname == NULL || mac_rgx == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -896,7 +896,7 @@ vrmr_get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_
     if(result == 1)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "found!");
+            vrmr_debug(__FUNC__, "found!");
 
         retval = 1;
 
@@ -909,7 +909,7 @@ vrmr_get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_
             /* test against the regex */
             if(regexec(mac_rgx, answer_ptr, 0, NULL, 0) != 0)
             {
-                (void)vrprint.error(-1, "Error", "MAC '%s' for host '%s' is invalid.", answer_ptr, hostname);
+                vrmr_error(-1, "Error", "MAC '%s' for host '%s' is invalid.", answer_ptr, hostname);
                 retval=-1;
             }
         }
@@ -917,11 +917,11 @@ vrmr_get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_
     else if(result == 0)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "not found");
+            vrmr_debug(__FUNC__, "not found");
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "getting macaddress for %s failed (in: vrmr_get_mac_address).", hostname);
+        vrmr_error(-1, "Error", "getting macaddress for %s failed (in: vrmr_get_mac_address).", hostname);
         retval=-1;
     }
 
@@ -941,7 +941,7 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
     /* safety */
     if(danger == NULL || source == NULL || danger_struct == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -951,14 +951,14 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
     {
         if(strlcpy(danger_struct->type, "spoof", sizeof(danger_struct->type)) >= sizeof(danger_struct->type))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
         if(strlcpy(danger_struct->source, source, sizeof(danger_struct->source)) >= sizeof(danger_struct->source))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
@@ -1031,7 +1031,7 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
         }
         else
         {
-            (void)vrprint.error(-1, "Internal Error", "unknown "
+            vrmr_error(-1, "Internal Error", "unknown "
                     "source: '%s' (in: %s:%d).",
                     source, __FUNC__, __LINE__);
             return(-1);
@@ -1104,7 +1104,7 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
     /* default case */
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "unknown danger: "
+        vrmr_error(-1, "Internal Error", "unknown danger: "
             "'%s' (in: %s:%d).", source, __FUNC__, __LINE__);
         return(-1);
     }
@@ -1154,7 +1154,7 @@ char
     */
     if(!ipaddress || !zonelist)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
@@ -1179,7 +1179,7 @@ char
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
 
@@ -1223,13 +1223,13 @@ char
     {
         if(!(result_ptr = (char *)malloc(sizeof(best_so_far_ptr->name))))
         {
-            (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
             return(NULL);
         }
 
         if(strlcpy(result_ptr, best_so_far_ptr->name, sizeof(best_so_far_ptr->name)) > sizeof(best_so_far_ptr->name))
         {
-            (void)vrprint.error(-1, "Internal Error", "string overflow (in: %s:d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:d).", __FUNC__, __LINE__);
             free(result_ptr);
 
             return(NULL);
@@ -1260,7 +1260,7 @@ vrmr_user_get_info(const int debuglvl, struct vrmr_user *user)
     /* safety */
     if(user == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }

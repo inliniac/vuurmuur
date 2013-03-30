@@ -32,7 +32,7 @@ backend_vrmr_check_active(const int debuglvl, char *value, struct vrmr_regex *re
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -41,7 +41,7 @@ backend_vrmr_check_active(const int debuglvl, char *value, struct vrmr_regex *re
     if(strcasecmp(value,"yes") == 0 || strcasecmp(value,"no") == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'ACTIVE' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'ACTIVE' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -55,7 +55,7 @@ backend_check_comment(const int debuglvl, char *value, struct vrmr_regex *reg)
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -64,7 +64,7 @@ backend_check_comment(const int debuglvl, char *value, struct vrmr_regex *reg)
     if(1)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'COMMENT' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'COMMENT' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -78,7 +78,7 @@ backend_check_host_ipaddress(const int debuglvl, char *value, struct vrmr_regex 
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -87,7 +87,7 @@ backend_check_host_ipaddress(const int debuglvl, char *value, struct vrmr_regex 
     if(vrmr_check_ipv4address(debuglvl, NULL, NULL, value, 0) == 1)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'IPADDRESS' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'IPADDRESS' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -101,7 +101,7 @@ backend_check_host_macaddress(const int debuglvl, char *value, struct vrmr_regex
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -114,7 +114,7 @@ backend_check_host_macaddress(const int debuglvl, char *value, struct vrmr_regex
     if(regexec(reg->macaddr, value, 0, NULL, 0) == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'MAC' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'MAC' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -128,7 +128,7 @@ backend_check_group_member(const int debuglvl, char *value, struct vrmr_regex *r
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -141,7 +141,7 @@ backend_check_group_member(const int debuglvl, char *value, struct vrmr_regex *r
     if(regexec(reg->host_part, value, 0, NULL, 0) == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'MEMBER' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'MEMBER' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -155,7 +155,7 @@ backend_check_network_network(const int debuglvl, char *value, struct vrmr_regex
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -164,7 +164,7 @@ backend_check_network_network(const int debuglvl, char *value, struct vrmr_regex
     if(vrmr_check_ipv4address(debuglvl, NULL, NULL, value, 0) == 1)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'NETWORK' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'NETWORK' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -178,7 +178,7 @@ backend_check_network_netmask(const int debuglvl, char *value, struct vrmr_regex
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -187,7 +187,7 @@ backend_check_network_netmask(const int debuglvl, char *value, struct vrmr_regex
     if(vrmr_check_ipv4address(debuglvl, NULL, NULL, value, 0) == 1)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'NETMASK' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'NETMASK' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -201,7 +201,7 @@ backend_check_network_interface(const int debuglvl, char *value, struct vrmr_reg
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -214,7 +214,7 @@ backend_check_network_interface(const int debuglvl, char *value, struct vrmr_reg
     if(regexec(reg->interfacename, value, 0, NULL, 0) == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'INTERFACE' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'INTERFACE' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -231,7 +231,7 @@ backend_check_network_rule(const int debuglvl, char *value, struct vrmr_regex *r
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -243,21 +243,21 @@ backend_check_network_rule(const int debuglvl, char *value, struct vrmr_regex *r
     /* check */
     if(strlcpy(line, value, sizeof(line)) >= sizeof(line))
     {
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "value for variable 'RULE' to long (in: %s:%d).",
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "value for variable 'RULE' to long (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_COMMANDLINE);
     }
 
     if(vrmr_rules_decode_rule(debuglvl, line, sizeof(line)) < 0)
     {
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed (in: %s:%d).",
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_COMMANDLINE);
     }
 
     if(vrmr_zones_network_rule_parse_line(debuglvl, line, &rule) < 0)
     {
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed (in: %s:%d).",
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_COMMANDLINE);
     }
@@ -275,7 +275,7 @@ backend_check_interface_ipaddress(const int debuglvl, char *value, struct vrmr_r
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -286,7 +286,7 @@ backend_check_interface_ipaddress(const int debuglvl, char *value, struct vrmr_r
     else if(vrmr_check_ipv4address(debuglvl, NULL, NULL, value, 0) == 1)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'IPADDRESS' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'IPADDRESS' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -302,7 +302,7 @@ backend_check_interface_device(const int debuglvl, char *value, struct vrmr_rege
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -315,7 +315,7 @@ backend_check_interface_device(const int debuglvl, char *value, struct vrmr_rege
     if(1)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'DEVICE' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'DEVICE' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -329,7 +329,7 @@ backend_check_interface_virtual(const int debuglvl, char *value, struct vrmr_reg
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -338,7 +338,7 @@ backend_check_interface_virtual(const int debuglvl, char *value, struct vrmr_reg
     if(strcasecmp(value,"yes") == 0 || strcasecmp(value,"no") == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'VIRTUAL' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'VIRTUAL' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -355,7 +355,7 @@ backend_check_interface_rule(const int debuglvl, char *value, struct vrmr_regex 
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -367,21 +367,21 @@ backend_check_interface_rule(const int debuglvl, char *value, struct vrmr_regex 
     /* check */
     if(strlcpy(line, value, sizeof(line)) >= sizeof(line))
     {
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "value for variable 'RULE' to long (in: %s:%d).",
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "value for variable 'RULE' to long (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_COMMANDLINE);
     }
 
     if(vrmr_rules_decode_rule(debuglvl, line, sizeof(line)) < 0)
     {
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed (in: %s:%d).",
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_COMMANDLINE);
     }
 
     if(vrmr_interfaces_rule_parse_line(debuglvl, line, &rule) < 0)
     {
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed (in: %s:%d).",
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_COMMANDLINE);
     }
@@ -398,7 +398,7 @@ backend_check_interface_shape(const int debuglvl, char *value, struct vrmr_regex
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -411,7 +411,7 @@ backend_check_interface_shape(const int debuglvl, char *value, struct vrmr_regex
     if(strcasecmp(value,"yes") == 0 || strcasecmp(value,"no") == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'SHAPE' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'SHAPE' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -428,7 +428,7 @@ backend_check_interface_bw(const int debuglvl, char *value, struct vrmr_regex *r
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -440,7 +440,7 @@ backend_check_interface_bw(const int debuglvl, char *value, struct vrmr_regex *r
     /* check */
     for (i = 0; i < strlen(value); i++) {
         if (!isdigit(value[i])) {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
                 "'%s' is not a valid value for variable 'BW_IN' or 'BW_OUT' "
                 " (in: %s:%d).", value, __FUNC__, __LINE__);
             return(VRS_ERR_COMMANDLINE);
@@ -449,7 +449,7 @@ backend_check_interface_bw(const int debuglvl, char *value, struct vrmr_regex *r
 
     /* check */
     if(strlen(value) >= 11) { /* max len of 32 bit int */
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
             "'%s' is not a valid value for variable 'BW_IN' or 'BW_OUT' "
             " (in: %s:%d).", value, __FUNC__, __LINE__);
         return(VRS_ERR_COMMANDLINE);
@@ -467,7 +467,7 @@ backend_check_interface_bw_unit(const int debuglvl, char *value, struct vrmr_reg
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -480,7 +480,7 @@ backend_check_interface_bw_unit(const int debuglvl, char *value, struct vrmr_reg
     if (strcasecmp(value, "kbit") == 0 || strcasecmp(value, "mbit") == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
         "'%s' is not a valid value for variable 'BW_IN_OUT' or 'BW_OUT_OUT' "
         " (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
@@ -495,7 +495,7 @@ backend_check_interface_tcpmss(const int debuglvl, char *value, struct vrmr_rege
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -508,7 +508,7 @@ backend_check_interface_tcpmss(const int debuglvl, char *value, struct vrmr_rege
     if(strcasecmp(value,"yes") == 0 || strcasecmp(value,"no") == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'TCPMSS' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'TCPMSS' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -522,7 +522,7 @@ backend_check_service_broadcast(const int debuglvl, char *value, struct vrmr_reg
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -531,7 +531,7 @@ backend_check_service_broadcast(const int debuglvl, char *value, struct vrmr_reg
     if(strcasecmp(value,"yes") == 0 || strcasecmp(value,"no") == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'BROADCAST' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'BROADCAST' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -547,7 +547,7 @@ backend_check_service_helper(const int debuglvl, char *value, struct vrmr_regex 
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -560,7 +560,7 @@ backend_check_service_helper(const int debuglvl, char *value, struct vrmr_regex 
     if(strlen(value) < sizeof(service.helper))
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'HELPER' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'HELPER' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -576,7 +576,7 @@ backend_check_service_tcp(const int debuglvl, char *value, struct vrmr_regex *re
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -589,7 +589,7 @@ backend_check_service_tcp(const int debuglvl, char *value, struct vrmr_regex *re
     if(vrmr_process_portrange(debuglvl, "TCP", value, &service) == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'TCP' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'TCP' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -605,7 +605,7 @@ backend_check_service_udp(const int debuglvl, char *value, struct vrmr_regex *re
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -618,7 +618,7 @@ backend_check_service_udp(const int debuglvl, char *value, struct vrmr_regex *re
     if(vrmr_process_portrange(debuglvl, "UDP", value, &service) == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'UDP' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'UDP' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -634,7 +634,7 @@ backend_check_service_icmp(const int debuglvl, char *value, struct vrmr_regex *r
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -647,7 +647,7 @@ backend_check_service_icmp(const int debuglvl, char *value, struct vrmr_regex *r
     if(vrmr_process_portrange(debuglvl, "ICMP", value, &service) == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'ICMP' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'ICMP' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -663,7 +663,7 @@ backend_check_service_gre(const int debuglvl, char *value, struct vrmr_regex *re
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -676,7 +676,7 @@ backend_check_service_gre(const int debuglvl, char *value, struct vrmr_regex *re
     if(vrmr_process_portrange(debuglvl, "GRE", value, &service) == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'GRE' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'GRE' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -692,7 +692,7 @@ backend_check_service_ah(const int debuglvl, char *value, struct vrmr_regex *reg
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -705,7 +705,7 @@ backend_check_service_ah(const int debuglvl, char *value, struct vrmr_regex *reg
     if(vrmr_process_portrange(debuglvl, "AH", value, &service) == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'AH' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'AH' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -721,7 +721,7 @@ backend_check_service_esp(const int debuglvl, char *value, struct vrmr_regex *re
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -734,7 +734,7 @@ backend_check_service_esp(const int debuglvl, char *value, struct vrmr_regex *re
     if(vrmr_process_portrange(debuglvl, "ESP", value, &service) == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'ESP' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'ESP' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -750,7 +750,7 @@ backend_check_service_proto41(const int debuglvl, char *value, struct vrmr_regex
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -763,7 +763,7 @@ backend_check_service_proto41(const int debuglvl, char *value, struct vrmr_regex
     if(vrmr_process_portrange(debuglvl, "PROTO_41", value, &service) == 0)
         return(0);
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'PROTO_41' (in: %s:%d).", value, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'PROTO_41' (in: %s:%d).", value, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }
 
@@ -778,7 +778,7 @@ backend_check_blocklist_rule(const int debuglvl, char *value, struct vrmr_regex 
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -805,7 +805,7 @@ backend_check_rule_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
     /* safety */
     if(value == NULL || reg == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
@@ -817,14 +817,14 @@ backend_check_rule_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
     /* check */
     if(strlcpy(line, value, sizeof(line)) >= sizeof(line))
     {
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "value for variable 'RULE' to long (in: %s:%d).",
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "value for variable 'RULE' to long (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_COMMANDLINE);
     }
 
     if(vrmr_rules_decode_rule(debuglvl, line, sizeof(line)) < 0)
     {
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed (in: %s:%d).",
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_COMMANDLINE);
     }
@@ -838,7 +838,7 @@ backend_check_rule_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
     {
         if(vrmr_rules_parse_line(debuglvl, line, &rule, reg) < 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed (in: %s:%d).",
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
             return(VRS_ERR_COMMANDLINE);
         }
@@ -863,13 +863,13 @@ backend_check(const int debuglvl, int type, char *var, char *val, char overwrite
         {
             if(overwrite == 0 && backend_vars[i].multi == 0)
             {
-                (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "%s does not support appending (in: %s:%d).", var, __FUNC__, __LINE__);
+                vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "%s does not support appending (in: %s:%d).", var, __FUNC__, __LINE__);
                 return(VRS_ERR_COMMANDLINE);
             }
 
             if(backend_vars[i].chk == NULL)
             {
-                (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "could not check: no check function defined (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "could not check: no check function defined (in: %s:%d).", __FUNC__, __LINE__);
                 return(VRS_ERR_INTERNAL);
             }
 
@@ -877,6 +877,6 @@ backend_check(const int debuglvl, int type, char *var, char *val, char overwrite
         }
     }
 
-    (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "%s is not a valid variable name (in: %s:%d).", var, __FUNC__, __LINE__);
+    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "%s is not a valid variable name (in: %s:%d).", var, __FUNC__, __LINE__);
     return(VRS_ERR_COMMANDLINE);
 }

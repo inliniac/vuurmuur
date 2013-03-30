@@ -97,7 +97,7 @@ draw_top_menu(const int debuglvl, WINDOW *local_win, char *title, int key_n, cha
 
     if(key_n != cmd_n)
     {
-        (void)vrprint.error(-1, VR_INTERR, "key_n != cmd_n (in: %s:%d)",
+        vrmr_error(-1, VR_INTERR, "key_n != cmd_n (in: %s:%d)",
                             __FUNC__, __LINE__);
         return;
     }

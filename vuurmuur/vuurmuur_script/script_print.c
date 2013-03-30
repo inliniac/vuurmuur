@@ -43,13 +43,13 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         if(found == FALSE)
         {
             if(vr_script->type == VRMR_TYPE_ZONE)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "zone '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "zone '%s' doesn't exist.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_NETWORK)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "network '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "network '%s' doesn't exist.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_HOST)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "host '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "host '%s' doesn't exist.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_GROUP)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "group '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "group '%s' doesn't exist.", vr_script->name);
 
             return(VRS_ERR_NOT_FOUND);
         }
@@ -66,7 +66,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == FALSE)
         {
-            (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "service '%s' doesn't exist.", vr_script->name);
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "service '%s' doesn't exist.", vr_script->name);
             return(VRS_ERR_NOT_FOUND);
         }
     }
@@ -82,7 +82,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == FALSE)
         {
-            (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "interface '%s' doesn't exist.", vr_script->name);
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "interface '%s' doesn't exist.", vr_script->name);
             return(VRS_ERR_NOT_FOUND);
         }
     }
@@ -98,7 +98,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == FALSE)
         {
-            (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "ruleset '%s' doesn't exist.", vr_script->name);
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "ruleset '%s' doesn't exist.", vr_script->name);
             return(VRS_ERR_NOT_FOUND);
         }
     }
@@ -530,7 +530,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
     }
     else
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d.", vr_script->type);
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d.", vr_script->type);
         return(VRS_ERR_INTERNAL);
     }
 

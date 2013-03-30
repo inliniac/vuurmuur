@@ -28,7 +28,7 @@ vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf)
     
     if(cnf == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem "
+        vrmr_error(-1, VR_INTERR, "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -45,7 +45,7 @@ vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf)
         sizeof(cnf->iptrafvol_location));
     if(size >= sizeof(cnf->iptrafvol_location))
     {
-        (void)vrprint.error(-1, "Error", "buffer overflow (in: %s:%d).",
+        vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -75,7 +75,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     /* now, based on this, the helpdir location */
     if(snprintf(cnf->helpfile_location, sizeof(cnf->helpfile_location), "%s/help", conf.datadir) >= (int)sizeof(cnf->helpfile_location))
     {
-        (void)vrprint.error(-1, "Error", "buffer too small for helpdir supplied at compile-time (in: %s:%d).",
+        vrmr_error(-1, "Error", "buffer too small for helpdir supplied at compile-time (in: %s:%d).",
                             __FUNC__, __LINE__);
         return(-1);
     }
@@ -85,7 +85,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     /* now, based on this, the scriptsdir location */
     if(snprintf(cnf->scripts_location, sizeof(cnf->scripts_location), "%s/scripts", conf.datadir) >= (int)sizeof(cnf->scripts_location))
     {
-        (void)vrprint.error(-1, "Error", "buffer too small for scriptsdir supplied at compile-time (in: %s:%d).",
+        vrmr_error(-1, "Error", "buffer too small for scriptsdir supplied at compile-time (in: %s:%d).",
                             __FUNC__, __LINE__);
         return(-1);
     }
@@ -98,7 +98,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         /* don't print error if the file is missing, we use the defaults in
             that case */
         if(errno != ENOENT)
-            (void)vrprint.error(-1, VR_ERR, "%s: %s %s (%s:%d).",
+            vrmr_error(-1, VR_ERR, "%s: %s %s (%s:%d).",
                     STR_OPENING_FILE_FAILED,
                     configfile_location,
                     strerror(errno),
@@ -134,7 +134,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         }
         else
         {
-            (void)vrprint.debug(__FUNC__, "Not sure what to make of ADVANCED_MODE '%s', using default (%s).",
+            vrmr_debug(__FUNC__, "Not sure what to make of ADVANCED_MODE '%s', using default (%s).",
                             answer,
                             VRMR_DEFAULT_ADVANCED_MODE ? "Yes": "No");
 
@@ -143,7 +143,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     }
     else if(result == 0)
     {
-        (void)vrprint.debug(__FUNC__, "Variable ADVANCED_MODE not found in '%s'. Using default (%s).",
+        vrmr_debug(__FUNC__, "Variable ADVANCED_MODE not found in '%s'. Using default (%s).",
                         configfile_location,
                         VRMR_DEFAULT_ADVANCED_MODE ? "Yes" : "No");
 
@@ -168,7 +168,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         }
         else
         {
-            (void)vrprint.debug(__FUNC__, "Not sure what to make of MAINMENU_STATUS '%s', using default (%s).",
+            vrmr_debug(__FUNC__, "Not sure what to make of MAINMENU_STATUS '%s', using default (%s).",
                             answer,
                             VRMR_DEFAULT_MAINMENU_STATUS ? "Yes": "No");
 
@@ -177,7 +177,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     }
     else if(result == 0)
     {
-        (void)vrprint.debug(__FUNC__, "Variable MAINMENU_STATUS not found in '%s'. Using default (%s).",
+        vrmr_debug(__FUNC__, "Variable MAINMENU_STATUS not found in '%s'. Using default (%s).",
                         configfile_location,
                         VRMR_DEFAULT_MAINMENU_STATUS ? "Yes" : "No");
 
@@ -195,7 +195,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     }
     else if(result == 0)
     {
-        (void)vrprint.debug(__FUNC__, "Variable IPTRAFVOL not found in '%s', using default value: %s",
+        vrmr_debug(__FUNC__, "Variable IPTRAFVOL not found in '%s', using default value: %s",
                         configfile_location,
                         VRMR_DEFAULT_IPTRAFVOL_LOCATION);
 
@@ -203,7 +203,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
             sizeof(cnf->iptrafvol_location));
         if(size >= sizeof(cnf->iptrafvol_location))
         {
-            (void)vrprint.error(-1, "Error", "buffer overflow "
+            vrmr_error(-1, "Error", "buffer overflow "
                     "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
@@ -230,7 +230,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         }
         else
         {
-            (void)vrprint.debug(__FUNC__, "Not sure what to make of NEWRULE_LOG '%s', using default (%s).",
+            vrmr_debug(__FUNC__, "Not sure what to make of NEWRULE_LOG '%s', using default (%s).",
                             answer,
                             VRMR_DEFAULT_NEWRULE_LOG ? "Yes": "No");
 
@@ -239,7 +239,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     }
     else if(result == 0)
     {
-        (void)vrprint.debug(__FUNC__, "Variable NEWRULE_LOG not found in '%s'. Using default (%s).",
+        vrmr_debug(__FUNC__, "Variable NEWRULE_LOG not found in '%s'. Using default (%s).",
                         configfile_location,
                         VRMR_DEFAULT_NEWRULE_LOG ? "Yes" : "No");
 
@@ -257,7 +257,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         result = atoi(answer);
         if(result < 0)
         {
-            (void)vrprint.debug(__FUNC__, "A negative LOG-limit (%d) can not be used, using default (%d).",
+            vrmr_debug(__FUNC__, "A negative LOG-limit (%d) can not be used, using default (%d).",
                                 result,
                                 VRMR_DEFAULT_NEWRULE_LOGLIMIT);
 
@@ -272,7 +272,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     }
     else if(result == 0)
     {
-        (void)vrprint.debug(__FUNC__, "Variable NEWRULE_LOGLIMIT not found in '%s'. Using default (%d).",
+        vrmr_debug(__FUNC__, "Variable NEWRULE_LOGLIMIT not found in '%s'. Using default (%d).",
                             configfile_location,
                             VRMR_DEFAULT_NEWRULE_LOGLIMIT);
 
@@ -291,7 +291,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         result = atoi(answer);
         if(result < 0)
         {
-            (void)vrprint.debug(__FUNC__, "A negative buffersize (%d) can not be used, using default (%d).",
+            vrmr_debug(__FUNC__, "A negative buffersize (%d) can not be used, using default (%d).",
                                 result,
                                 VRMR_DEFAULT_LOGVIEW_BUFFERSIZE);
 
@@ -304,7 +304,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     }
     else if(result == 0)
     {
-        (void)vrprint.debug(__FUNC__, "Variable LOGVIEW_BUFSIZE not found in '%s'. Using default (%d).",
+        vrmr_debug(__FUNC__, "Variable LOGVIEW_BUFSIZE not found in '%s'. Using default (%d).",
                             configfile_location,
                             VRMR_DEFAULT_LOGVIEW_BUFFERSIZE);
 
@@ -341,7 +341,7 @@ write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf)
     /* safety */
     if(file_location == NULL || cnf == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem "
+        vrmr_error(-1, VR_INTERR, "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -349,7 +349,7 @@ write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf)
     /* open for over-writing */
     if(!(fp = fopen(file_location, "w+")))
     {
-        (void)vrprint.error(-1, VR_ERR, "%s: %s (%s:%d).",
+        vrmr_error(-1, VR_ERR, "%s: %s (%s:%d).",
                 STR_OPENING_FILE_FAILED, strerror(errno),
                 __FUNC__, __LINE__);
         return(-1);
@@ -388,6 +388,6 @@ write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf)
     /* close file */
     fclose(fp);
 
-    (void)vrprint.info(VR_INFO, gettext("rewritten Vuurmuur_conf config file."));
+    vrmr_info(VR_INFO, gettext("rewritten Vuurmuur_conf config file."));
     return(0);
 }

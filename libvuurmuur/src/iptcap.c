@@ -37,7 +37,7 @@ iptcap_get_one_cap_from_proc(const int debuglvl, char *procpath, char *request)
     /* safety */
     if(procpath == NULL || request == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -45,7 +45,7 @@ iptcap_get_one_cap_from_proc(const int debuglvl, char *procpath, char *request)
     /* open the matches */
     if(!(fp = fopen(procpath, "r")))
     {
-        (void)vrprint.error(-1, "Error", "could not open '%s': %s (in: %s:%d).",
+        vrmr_error(-1, "Error", "could not open '%s': %s (in: %s:%d).",
             procpath, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -58,13 +58,13 @@ iptcap_get_one_cap_from_proc(const int debuglvl, char *procpath, char *request)
             line[strlen(line)-1] = '\0';
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "%s: '%s'.", procpath, line);
+            vrmr_debug(__FUNC__, "%s: '%s'.", procpath, line);
 
         /* compare the line with the request */
         if(strcmp(line, request) == 0)
         {
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "%s: '%s' match!.", procpath, line);
+                vrmr_debug(__FUNC__, "%s: '%s' match!.", procpath, line);
 
             retval = 1;
             break;
@@ -74,13 +74,13 @@ iptcap_get_one_cap_from_proc(const int debuglvl, char *procpath, char *request)
     /* close the file */
     if(fclose(fp) == -1)
     {
-        (void)vrprint.error(-1, "Error", "could not close '%s': %s (in: %s:%d).",
+        vrmr_error(-1, "Error", "could not close '%s': %s (in: %s:%d).",
             procpath, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
     if (debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "procpath: %s request: %s retval: %u", procpath, request, retval);
+        vrmr_debug(__FUNC__, "procpath: %s request: %s retval: %u", procpath, request, retval);
 
     /* return retval, 1 if found, 0 if not found */
     return(retval);
@@ -97,7 +97,7 @@ iptcap_load_module(const int debuglvl, struct vrmr_config *cnf, char *modulename
     /* safety */
     if(modulename == NULL || cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -108,13 +108,13 @@ iptcap_load_module(const int debuglvl, struct vrmr_config *cnf, char *modulename
     if (r != 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "loading module '%s' failed: modprobe returned %d.", modulename, r);
+            vrmr_debug(__FUNC__, "loading module '%s' failed: modprobe returned %d.", modulename, r);
 
         return(-1);
     }
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "loading module '%s' success, modprobe returned %d.", modulename, r);
+        vrmr_debug(__FUNC__, "loading module '%s' success, modprobe returned %d.", modulename, r);
 
     return(0);
 }
@@ -128,7 +128,7 @@ iptcap_check_cap(const int debuglvl, struct vrmr_config *cnf, char *procpath, ch
     /* safety */
     if(procpath == NULL || request == NULL || modulename == NULL || cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -137,19 +137,19 @@ iptcap_check_cap(const int debuglvl, struct vrmr_config *cnf, char *procpath, ch
     result = iptcap_get_one_cap_from_proc(debuglvl, procpath, request);
     if(result < 0)
     {
-        (void)vrprint.error(-1, "Error", "getting iptcap for '%s' failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "getting iptcap for '%s' failed (in: %s:%d).",
             request, __FUNC__, __LINE__);
         return(-1);
     }
     else if(result == 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "'%s' not loaded or not supported.", request);
+            vrmr_debug(__FUNC__, "'%s' not loaded or not supported.", request);
     }
     else
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "'%s' supported and loaded.", request);
+            vrmr_debug(__FUNC__, "'%s' supported and loaded.", request);
 
         /* and done :-) */
         return(1);
@@ -166,7 +166,7 @@ iptcap_check_cap(const int debuglvl, struct vrmr_config *cnf, char *procpath, ch
     if(cnf->modules_wait_time > 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "after loading the module, usleep for %lu.",
+            vrmr_debug(__FUNC__, "after loading the module, usleep for %lu.",
                     (unsigned long)(cnf->modules_wait_time * 10000));
 
         usleep(cnf->modules_wait_time * 10000);
@@ -176,19 +176,19 @@ iptcap_check_cap(const int debuglvl, struct vrmr_config *cnf, char *procpath, ch
     result = iptcap_get_one_cap_from_proc(debuglvl, procpath, request);
     if(result < 0)
     {
-        (void)vrprint.error(-1, "Error", "getting iptcap for '%s' failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "getting iptcap for '%s' failed (in: %s:%d).",
             request, __FUNC__, __LINE__);
         return(-1);
     }
     else if(result == 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "'%s' not supported.", request);
+            vrmr_debug(__FUNC__, "'%s' not supported.", request);
     }
     else
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "'%s' supported and loaded.", request);
+            vrmr_debug(__FUNC__, "'%s' supported and loaded.", request);
 
         /* and done :-) */
         return(1);
@@ -209,7 +209,7 @@ iptcap_check_file(const int debuglvl, char *path)
     /* safety */
     if(path == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -236,7 +236,7 @@ iptcap_get_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
     /* safety */
     if(iptcap == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -244,7 +244,7 @@ iptcap_get_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
     /* open the file */
     if(!(fp = fopen(proc_net_ipqueue, "r")))
     {
-        (void)vrprint.error(-1, "Error", "opening file '%s' failed: %s (in: %s:%d).",
+        vrmr_error(-1, "Error", "opening file '%s' failed: %s (in: %s:%d).",
             proc_net_ipqueue, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -252,7 +252,7 @@ iptcap_get_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
     /* get the first line */
     if(fgets(line, (int)sizeof(line), fp) == NULL)
     {
-        (void)vrprint.error(-1, "Error", "reading line from ip_queue failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "reading line from ip_queue failed (in: %s:%d).",
             __FUNC__, __LINE__);
 
         fclose(fp);
@@ -263,7 +263,7 @@ iptcap_get_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
         line[strlen(line)-1] = '\0';
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "line '%s'.", line);
+        vrmr_debug(__FUNC__, "line '%s'.", line);
 
     /* interpret the line */
     for(i = 0, k = 0; i < (int)strlen(line); i++)
@@ -282,13 +282,13 @@ iptcap_get_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
     pid_number[k] = '\0';
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "pid_number '%s'.", pid_number);
+        vrmr_debug(__FUNC__, "pid_number '%s'.", pid_number);
 
     /* convert */
     iptcap->queue_peer_pid = atoi(pid_number);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "pid '%u'.", iptcap->queue_peer_pid);
+        vrmr_debug(__FUNC__, "pid '%u'.", iptcap->queue_peer_pid);
 
     fclose(fp);
 
@@ -310,7 +310,7 @@ iptcap_get_ip6_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
     /* safety */
     if(iptcap == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -318,7 +318,7 @@ iptcap_get_ip6_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
     /* open the file */
     if(!(fp = fopen(proc_net_ip6queue, "r")))
     {
-        (void)vrprint.error(-1, "Error", "opening file '%s' failed: %s (in: %s:%d).",
+        vrmr_error(-1, "Error", "opening file '%s' failed: %s (in: %s:%d).",
             proc_net_ip6queue, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -326,7 +326,7 @@ iptcap_get_ip6_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
     /* get the first line */
     if(fgets(line, (int)sizeof(line), fp) == NULL)
     {
-        (void)vrprint.error(-1, "Error", "reading line from ip6_queue failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "reading line from ip6_queue failed (in: %s:%d).",
             __FUNC__, __LINE__);
 
         fclose(fp);
@@ -337,7 +337,7 @@ iptcap_get_ip6_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
         line[strlen(line)-1] = '\0';
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "line '%s'.", line);
+        vrmr_debug(__FUNC__, "line '%s'.", line);
 
     /* interpret the line */
     for(i = 0, k = 0; i < (int)strlen(line); i++)
@@ -356,13 +356,13 @@ iptcap_get_ip6_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
     pid_number[k] = '\0';
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "pid_number '%s'.", pid_number);
+        vrmr_debug(__FUNC__, "pid_number '%s'.", pid_number);
 
     /* convert */
     iptcap->ip6_queue_peer_pid = atoi(pid_number);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "pid '%u'.", iptcap->ip6_queue_peer_pid);
+        vrmr_debug(__FUNC__, "pid '%u'.", iptcap->ip6_queue_peer_pid);
 
     fclose(fp);
 
@@ -388,14 +388,14 @@ iptcap_delete_test_mangle_chain(const int debuglvl, struct vrmr_config *cnf, cha
     char *argsF[] = { ipt_loc, "-t", "mangle", "-F", "VRMRIPTCAP", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, argsF, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "flush failed (ok if chain didn't exist)");
+        vrmr_debug(__FUNC__, "flush failed (ok if chain didn't exist)");
         return -1;
     }
 
     char *argsX[] = { ipt_loc, "-t", "mangle", "-X", "VRMRIPTCAP", NULL };
     r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, argsX, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "delete failed");
+        vrmr_debug(__FUNC__, "delete failed");
         return -1;
     }
 
@@ -422,7 +422,7 @@ iptcap_delete_test_filter_chain(const int debuglvl, struct vrmr_config *cnf, cha
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, argsF, NULL);
     if (r != 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "flush failed (ok if chain didn't exist)");
+            vrmr_debug(__FUNC__, "flush failed (ok if chain didn't exist)");
         return -1;
     }
 
@@ -431,7 +431,7 @@ iptcap_delete_test_filter_chain(const int debuglvl, struct vrmr_config *cnf, cha
     r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, argsX, NULL);
     if (r != 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "delete failed");
+            vrmr_debug(__FUNC__, "delete failed");
         return -1;
     }
 
@@ -445,12 +445,12 @@ iptcap_test_filter_connmark_match(const int debuglvl, struct vrmr_config *cnf, c
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+            vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+            vrmr_debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
@@ -458,13 +458,13 @@ iptcap_test_filter_connmark_match(const int debuglvl, struct vrmr_config *cnf, c
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "r = %d", r);
+            vrmr_debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+            vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -477,12 +477,12 @@ iptcap_test_filter_conntrack_match(const int debuglvl, struct vrmr_config *cnf, 
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+            vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+            vrmr_debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
@@ -490,13 +490,13 @@ iptcap_test_filter_conntrack_match(const int debuglvl, struct vrmr_config *cnf, 
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "r = %d", r);
+            vrmr_debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+            vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -512,12 +512,12 @@ iptcap_test_filter_rpfilter_match(const int debuglvl, struct vrmr_config *cnf, c
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+            vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+            vrmr_debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
@@ -525,13 +525,13 @@ iptcap_test_filter_rpfilter_match(const int debuglvl, struct vrmr_config *cnf, c
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "r = %d", r);
+            vrmr_debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+            vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -543,23 +543,23 @@ iptcap_test_filter_connmark_target(const int debuglvl, struct vrmr_config *cnf, 
     int retval = 1;
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+        vrmr_debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
     char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-j", "CONNMARK", "--set-mark", "1", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        vrmr_debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -571,23 +571,23 @@ iptcap_test_filter_helper_match(const int debuglvl, struct vrmr_config *cnf, cha
     int retval = 1;
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+        vrmr_debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
     char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "helper", "--helper", "ftp", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        vrmr_debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -599,23 +599,23 @@ iptcap_test_filter_mark_match(const int debuglvl, struct vrmr_config *cnf, char 
     int retval = 1;
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+        vrmr_debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
     char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "mark", "--mark", "1", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        vrmr_debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -627,23 +627,23 @@ iptcap_test_mangle_mark_target(const int debuglvl, struct vrmr_config *cnf, char
     int retval = 1;
 
     if (iptcap_delete_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_mangle_chain failed");
+        vrmr_debug(__FUNC__, "iptcap_create_test_mangle_chain failed");
         return -1;
     }
 
     char *args[] = { ipt_loc, "-t", "mangle", "-A", "VRMRIPTCAP", "-j", "MARK", "--set-mark", "1", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        vrmr_debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -655,23 +655,23 @@ iptcap_test_mangle_classify_target(const int debuglvl, struct vrmr_config *cnf, 
     int retval = 1;
 
     if (iptcap_delete_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_mangle_chain failed");
+        vrmr_debug(__FUNC__, "iptcap_create_test_mangle_chain failed");
         return -1;
     }
 
     char *args[] = { ipt_loc, "-t", "mangle", "-A", "VRMRIPTCAP", "-j", "CLASSIFY", "--set-class", "0:0", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        vrmr_debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_mangle_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_mangle_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -683,23 +683,23 @@ iptcap_test_filter_mac_match(const int debuglvl, struct vrmr_config *cnf, char *
     int retval = 1;
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+        vrmr_debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
     char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "mac", "--mac-source", "12:34:56:78:90:ab", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        vrmr_debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -718,29 +718,29 @@ iptcap_test_filter_limit_match(const int debuglvl, struct vrmr_config *cnf, char
 
     if ( ipt_loc == NULL )
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_filter_chain failed");
+        vrmr_debug(__FUNC__, "iptcap_create_test_filter_chain failed");
         return -1;
     }
 
     char *args[] = { ipt_loc, "-t", "filter", "-A", "VRMRIPTCAP", "-m", "limit", "--limit", "1/s", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        vrmr_debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_filter_chain(debuglvl, cnf, ipt_loc) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_filter_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -762,14 +762,14 @@ iptcap_delete_test_nat_chain(const int debuglvl, struct vrmr_config *cnf) {
     char *argsF[] = { cnf->iptables_location, "-t", "nat", "-F", "VRMRIPTCAP", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsF, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "flush failed (ok if chain didn't exist)");
+        vrmr_debug(__FUNC__, "flush failed (ok if chain didn't exist)");
         return -1;
     }
 
     char *argsX[] = { cnf->iptables_location, "-t", "nat", "-X", "VRMRIPTCAP", NULL };
     r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsX, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "delete failed");
+        vrmr_debug(__FUNC__, "delete failed");
         return -1;
     }
 
@@ -781,23 +781,23 @@ iptcap_test_nat_random(const int debuglvl, struct vrmr_config *cnf) {
     int retval = 1;
 
     if (iptcap_delete_test_nat_chain(debuglvl,cnf) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_nat_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_nat_chain failed, but error will be ignored");
     }
 
     if (iptcap_create_test_nat_chain(debuglvl,cnf) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_create_test_nat_chain failed");
+        vrmr_debug(__FUNC__, "iptcap_create_test_nat_chain failed");
         return -1;
     }
 
     char *args[] = { cnf->iptables_location, "-t", "nat", "-A", "VRMRIPTCAP", "-j", "SNAT", "--to-source", "127.0.0.1", "--random", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
     if (r != 0) {
-        (void)vrprint.debug(__FUNC__, "r = %d", r);
+        vrmr_debug(__FUNC__, "r = %d", r);
         retval = -1;
     }
 
     if (iptcap_delete_test_nat_chain(debuglvl,cnf) < 0) {
-        (void)vrprint.debug(__FUNC__, "iptcap_delete_test_nat_chain failed, but error will be ignored");
+        vrmr_debug(__FUNC__, "iptcap_delete_test_nat_chain failed, but error will be ignored");
     }
 
     return retval;
@@ -811,7 +811,7 @@ vrmr_check_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
     /* safety */
     if(iptcap == NULL || cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -820,40 +820,40 @@ vrmr_check_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
     result = vrmr_load_iptcaps(debuglvl, cnf, iptcap, load_modules);
     if(result == -1)
     {
-        (void)vrprint.error(-1, "Error", "loading iptables capabilities failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "loading iptables capabilities failed (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
 
     if(iptcap->proc_net_names == FALSE)
     {
-        (void)vrprint.warning("Warning", "'/proc/net/ip_tables_names' missing: no iptables-support in the kernel?");
+        vrmr_warning("Warning", "'/proc/net/ip_tables_names' missing: no iptables-support in the kernel?");
     }
     if(iptcap->proc_net_targets == FALSE)
     {
-        (void)vrprint.warning("Warning", "'/proc/net/ip_tables_targets' missing: no iptables-support in the kernel?");
+        vrmr_warning("Warning", "'/proc/net/ip_tables_targets' missing: no iptables-support in the kernel?");
     }
     if(iptcap->proc_net_matches == FALSE)
     {
-        (void)vrprint.warning("Warning", "'/proc/net/ip_tables_matches' missing: no iptables-support in the kernel?");
+        vrmr_warning("Warning", "'/proc/net/ip_tables_matches' missing: no iptables-support in the kernel?");
     }
 
     /* require the filter table */
     if(iptcap->proc_net_names == TRUE && iptcap->table_filter == FALSE)
     {
-        (void)vrprint.error(-1, "Error", "no iptables-support in the kernel: filter table missing (in: %s:%d).",
+        vrmr_error(-1, "Error", "no iptables-support in the kernel: filter table missing (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
     if(iptcap->proc_net_names == TRUE && iptcap->table_nat == FALSE)
-        (void)vrprint.warning("Warning", "nat table missing from kernel: nat targets are unavailable.");
+        vrmr_warning("Warning", "nat table missing from kernel: nat targets are unavailable.");
     if(iptcap->proc_net_names == TRUE && iptcap->table_mangle == FALSE)
-        (void)vrprint.warning("Warning", "mangle table missing from kernel: mangle targets are unavailable.");
+        vrmr_warning("Warning", "mangle table missing from kernel: mangle targets are unavailable.");
 
     /* require conntrack */
     if(iptcap->conntrack == FALSE)
     {
-        (void)vrprint.error(-1, "Error", "no connection tracking support in the kernel (in: %s:%d).",
+        vrmr_error(-1, "Error", "no connection tracking support in the kernel (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -861,7 +861,7 @@ vrmr_check_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
     /* require tcp, udp, icmp */
     if(iptcap->proc_net_matches == TRUE && (iptcap->match_tcp == FALSE || iptcap->match_udp == FALSE || iptcap->match_icmp == FALSE))
     {
-        (void)vrprint.error(-1, "Error", "incomplete iptables-support in the kernel: tcp, udp or icmp support missing (in: %s:%d).",
+        vrmr_error(-1, "Error", "incomplete iptables-support in the kernel: tcp, udp or icmp support missing (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -869,14 +869,14 @@ vrmr_check_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
     /* require state match */
     if(iptcap->proc_net_matches == TRUE && iptcap->match_state == FALSE)
     {
-        (void)vrprint.error(-1, "Error", "incomplete iptables-support in the kernel: state support missing (in: %s:%d).",
+        vrmr_error(-1, "Error", "incomplete iptables-support in the kernel: state support missing (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
 
     if(iptcap->target_queue == TRUE && iptcap->queue_peer_pid == 0)
     {
-        (void)vrprint.warning("Warning", "no application is currently listening to the queue. Queue rules may be uneffective.");
+        vrmr_warning("Warning", "no application is currently listening to the queue. Queue rules may be uneffective.");
     }
 
     return(0);
@@ -895,7 +895,7 @@ static int check_conntrack(const int debuglvl, struct vrmr_config *cnf, int ipv)
 
     int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->conntrack_location, args, NULL);
     if (result == -1) {
-        (void)vrprint.error(-1, "Error", "unable to execute "
+        vrmr_error(-1, "Error", "unable to execute "
                 "conntrack: %s (in: %s:%d).", strerror(errno),
                 __FUNC__, __LINE__);
         return 0;
@@ -919,7 +919,7 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
     /* safety */
     if(iptcap == NULL || cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -934,7 +934,7 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
     if(!(iptcap_check_file(debuglvl, proc_net_match)))
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "%s not found: load_modules: %s.",
+            vrmr_debug(__FUNC__, "%s not found: load_modules: %s.",
                     proc_net_match, load_modules ? "Yes" : "No");
 
         if(load_modules == TRUE)
@@ -946,12 +946,12 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
             if(!(iptcap_check_file(debuglvl, proc_net_match)))
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s not still not found", proc_net_match);
+                    vrmr_debug(__FUNC__, "%s not still not found", proc_net_match);
             }
             else
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s found!", proc_net_match);
+                    vrmr_debug(__FUNC__, "%s found!", proc_net_match);
 
                 iptcap->proc_net_matches = TRUE;
             }
@@ -966,7 +966,7 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
     if(!(iptcap_check_file(debuglvl, proc_net_target)))
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "%s not found: load_modules: %s.", 
+            vrmr_debug(__FUNC__, "%s not found: load_modules: %s.", 
                 proc_net_target, load_modules ? "Yes" : "No");
 
         if(load_modules == TRUE)
@@ -978,12 +978,12 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
             if(!(iptcap_check_file(debuglvl, proc_net_target)))
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s not still not found", proc_net_target);
+                    vrmr_debug(__FUNC__, "%s not still not found", proc_net_target);
             }
             else
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s found!", proc_net_target);
+                    vrmr_debug(__FUNC__, "%s found!", proc_net_target);
 
                 iptcap->proc_net_targets = TRUE;
             }
@@ -1006,12 +1006,12 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
             if(!(iptcap_check_file(debuglvl, proc_net_names)))
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s not still not found", proc_net_names);
+                    vrmr_debug(__FUNC__, "%s not still not found", proc_net_names);
             }
             else
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s found!", proc_net_names);
+                    vrmr_debug(__FUNC__, "%s found!", proc_net_names);
 
                 iptcap->proc_net_names = TRUE;
             }
@@ -1094,7 +1094,7 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
 
                 if(iptcap_get_queue_peer_pid(debuglvl, iptcap) < 0)
                 {
-                    (void)vrprint.error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
             }
@@ -1107,7 +1107,7 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
 
         if(iptcap_get_queue_peer_pid(debuglvl, iptcap) < 0)
         {
-            (void)vrprint.error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -1504,7 +1504,7 @@ vrmr_check_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_ipt
     /* safety */
     if(iptcap == NULL || cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -1513,39 +1513,39 @@ vrmr_check_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_ipt
     result = vrmr_load_ip6tcaps(debuglvl, cnf, iptcap, load_modules);
     if(result == -1)
     {
-        (void)vrprint.error(-1, "Error", "loading ip6tables capabilities failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "loading ip6tables capabilities failed (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
 
     if(iptcap->proc_net_ip6_names == FALSE)
     {
-        (void)vrprint.warning("Warning", "'/proc/net/ip6_tables_names' missing: no ip6tables-support in the kernel?");
+        vrmr_warning("Warning", "'/proc/net/ip6_tables_names' missing: no ip6tables-support in the kernel?");
     }
     if(iptcap->proc_net_ip6_targets == FALSE)
     {
-        (void)vrprint.warning("Warning", "'/proc/net/ip6_tables_targets' missing: no ip6tables-support in the kernel?");
+        vrmr_warning("Warning", "'/proc/net/ip6_tables_targets' missing: no ip6tables-support in the kernel?");
     }
     if(iptcap->proc_net_ip6_matches == FALSE)
     {
-        (void)vrprint.warning("Warning", "'/proc/net/ip6_tables_matches' missing: no ip6tables-support in the kernel?");
+        vrmr_warning("Warning", "'/proc/net/ip6_tables_matches' missing: no ip6tables-support in the kernel?");
     }
 
     /* require the filter table */
     if(iptcap->proc_net_ip6_names == TRUE && iptcap->table_ip6_filter == FALSE)
     {
-        (void)vrprint.error(-1, "Error", "no ip6tables-support in the kernel: filter table missing (in: %s:%d).",
+        vrmr_error(-1, "Error", "no ip6tables-support in the kernel: filter table missing (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
     if(iptcap->proc_net_ip6_names == TRUE && iptcap->table_ip6_mangle == FALSE)
-        (void)vrprint.warning("Warning", "mangle table missing from kernel: mangle targets are unavailable.");
+        vrmr_warning("Warning", "mangle table missing from kernel: mangle targets are unavailable.");
 
 #if 0
     /* require conntrack */
     if(iptcap->conntrack == FALSE)
     {
-        (void)vrprint.error(-1, "Error", "no connection tracking support in the kernel (in: %s:%d).",
+        vrmr_error(-1, "Error", "no connection tracking support in the kernel (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -1554,7 +1554,7 @@ vrmr_check_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_ipt
     /* require tcp, udp, icmp */
     if(iptcap->proc_net_ip6_matches == TRUE && (iptcap->match_ip6_tcp == FALSE || iptcap->match_ip6_udp == FALSE || iptcap->match_icmp6 == FALSE))
     {
-        (void)vrprint.error(-1, "Error", "incomplete ip6tables-support in the kernel: tcp, udp or icmp6 support missing (in: %s:%d).",
+        vrmr_error(-1, "Error", "incomplete ip6tables-support in the kernel: tcp, udp or icmp6 support missing (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
@@ -1562,14 +1562,14 @@ vrmr_check_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_ipt
     /* require state match */
     if(iptcap->proc_net_ip6_matches == TRUE && iptcap->match_ip6_state == FALSE)
     {
-        (void)vrprint.error(-1, "Error", "incomplete ip6tables-support in the kernel: state support missing (in: %s:%d).",
+        vrmr_error(-1, "Error", "incomplete ip6tables-support in the kernel: state support missing (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
 
     if(iptcap->target_ip6_queue == TRUE && iptcap->ip6_queue_peer_pid == 0)
     {
-        (void)vrprint.warning("Warning", "no application is currently listening to the queue. Queue rules may be uneffective.");
+        vrmr_warning("Warning", "no application is currently listening to the queue. Queue rules may be uneffective.");
     }
 
     return(0);
@@ -1593,12 +1593,12 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
     /* safety */
     if(iptcap == NULL || cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
             __FUNC__, __LINE__);
         return(-1);
     }
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "Starting the loading of IPv6 capabilities" );
+        vrmr_debug(__FUNC__, "Starting the loading of IPv6 capabilities" );
 #if 0
     /* init */
     memset(iptcap, 0, sizeof(struct vrmr_iptcaps));
@@ -1612,7 +1612,7 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
     if(!(iptcap_check_file(debuglvl, proc_net_ip6_match)))
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "%s not found: load_modules: %s.",
+            vrmr_debug(__FUNC__, "%s not found: load_modules: %s.",
                     proc_net_ip6_match, load_modules ? "Yes" : "No");
 
         if(load_modules == TRUE)
@@ -1624,12 +1624,12 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
             if(!(iptcap_check_file(debuglvl, proc_net_ip6_match)))
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s not still not found", proc_net_ip6_match);
+                    vrmr_debug(__FUNC__, "%s not still not found", proc_net_ip6_match);
             }
             else
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s found!", proc_net_ip6_match);
+                    vrmr_debug(__FUNC__, "%s found!", proc_net_ip6_match);
 
                 iptcap->proc_net_ip6_matches = TRUE;
             }
@@ -1644,7 +1644,7 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
     if(!(iptcap_check_file(debuglvl, proc_net_ip6_target)))
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "%s not found: load_modules: %s.", 
+            vrmr_debug(__FUNC__, "%s not found: load_modules: %s.", 
                 proc_net_ip6_target, load_modules ? "Yes" : "No");
 
         if(load_modules == TRUE)
@@ -1656,12 +1656,12 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
             if(!(iptcap_check_file(debuglvl, proc_net_ip6_target)))
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s not still not found", proc_net_ip6_target);
+                    vrmr_debug(__FUNC__, "%s not still not found", proc_net_ip6_target);
             }
             else
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s found!", proc_net_ip6_target);
+                    vrmr_debug(__FUNC__, "%s found!", proc_net_ip6_target);
 
                 iptcap->proc_net_ip6_targets = TRUE;
             }
@@ -1684,12 +1684,12 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
             if(!(iptcap_check_file(debuglvl, proc_net_ip6_names)))
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s not still not found", proc_net_ip6_names);
+                    vrmr_debug(__FUNC__, "%s not still not found", proc_net_ip6_names);
             }
             else
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "%s found!", proc_net_ip6_names);
+                    vrmr_debug(__FUNC__, "%s found!", proc_net_ip6_names);
 
                 iptcap->proc_net_ip6_names = TRUE;
             }
@@ -1767,7 +1767,7 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
 
                 if(iptcap_get_ip6_queue_peer_pid(debuglvl, iptcap) < 0)
                 {
-                    (void)vrprint.error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
             }
@@ -1780,7 +1780,7 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
 
         if(iptcap_get_ip6_queue_peer_pid(debuglvl, iptcap) < 0)
         {
-            (void)vrprint.error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }

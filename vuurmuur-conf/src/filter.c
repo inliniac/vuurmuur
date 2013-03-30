@@ -43,7 +43,7 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
     /* safety */
     if(filter == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -59,7 +59,7 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
                 filter->neg = FALSE;
 
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "filter->neg is now %s.",
+                vrmr_debug(__FUNC__, "filter->neg is now %s.",
                                 filter->neg ? "TRUE" : "FALSE");
         }
 
@@ -72,7 +72,7 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
                 return(-1);
 
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "filter field changed: %s.",
+                vrmr_debug(__FUNC__, "filter field changed: %s.",
                                 filter->str);
 
             /* new str */
@@ -91,7 +91,7 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
                 /* create the new regex */
                 if(regcomp(&filter->reg, filter_str, REG_EXTENDED) != 0)
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "setting up the regular expression with regcomp failed. Disabling filter.");
+                    vrmr_error(-1, VR_INTERR, "setting up the regular expression with regcomp failed. Disabling filter.");
                     return(-1);
                 }
 
@@ -111,7 +111,7 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
         }
         else
         {
-            (void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).",
+            vrmr_error(-1, VR_INTERR, "unknown field (in: %s:%d).",
                                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -158,14 +158,14 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
     ib_win = create_newwin(height, width, starty, startx, gettext("Filter"), vccnf.color_win);
     if(ib_win == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
 
     my_panels[0] = new_panel(ib_win);
     if(my_panels[0] == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating panel failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating panel failed."));
         return(-1);
     }
 
@@ -174,7 +174,7 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
     FiFi.fields = (FIELD **)calloc(FiFi.n_fields + 1, sizeof(FIELD *));
     if(FiFi.fields == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
                                 strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -213,7 +213,7 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
 
     if(!(cur = current_field(my_form)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -288,7 +288,7 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
         prev = cur;
         if(!(cur = current_field(my_form)))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
             return(-1);
         }
 
@@ -300,7 +300,7 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
     /* save here */
     if(filter_save(debuglvl, filter) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("setting filter failed."));
+        vrmr_error(-1, VR_ERR, gettext("setting filter failed."));
     }
 
     unpost_form(my_form);

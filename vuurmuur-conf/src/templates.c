@@ -66,7 +66,7 @@ confirm(char *title, char *text, chtype forecolor, chtype backcolor, int def)
     /* safety */
     if(!title || !text)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -227,7 +227,7 @@ input_box(size_t length, char *title, char *description)
     /* create a buffer with the size of 'length' */
     if(!(temp_ptr = malloc(length)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(NULL);
     }
 
@@ -324,7 +324,7 @@ input_box(size_t length, char *title, char *description)
 
     if(!(result_ptr = malloc((size_t)(i+1))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(NULL);
     }
 
@@ -411,7 +411,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
                     max_name_len = name_len;
 
                 if(debuglvl >= LOW)
-                        (void)vrprint.debug(__FUNC__, "name "
+                        vrmr_debug(__FUNC__, "name "
                     "%s, len %u", items[i]->name.str,
                     name_len);
             }
@@ -424,7 +424,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
                     max_desc_len = desc_len;
 
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "desc %s"
+                    vrmr_debug(__FUNC__, "desc %s"
                     ", len %u", items[i]->description.str,
                     desc_len);
             }
@@ -438,7 +438,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
     if(menu->namelen > max_name_len)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "adjusting menu->namelen "
+            vrmr_debug(__FUNC__, "adjusting menu->namelen "
                 "to %u, was %u.", max_name_len, menu->namelen);
 
         menu->namelen = max_name_len;
@@ -446,7 +446,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
     if(menu->desclen > max_desc_len)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "adjusting menu->desclen "
+            vrmr_debug(__FUNC__, "adjusting menu->desclen "
                 "to %u, was %u.", max_desc_len, menu->desclen);
 
         menu->desclen = max_desc_len;
@@ -458,7 +458,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
         if(menu->width > max_mwidth + 2)
         {
             if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "adjusting "
+                vrmr_debug(__FUNC__, "adjusting "
                     "menu->width to %u, was %u.",
                     max_mwidth, menu->width);
 
@@ -469,7 +469,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
     else if(menu->cols == 2)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "width %u, cols %u, "
+            vrmr_debug(__FUNC__, "width %u, cols %u, "
                 "fcols %u, itemlen %u, spc_desc %u, "
                 "spc_cols %u",
                 menu->width, menu->cols, menu->fcols,
@@ -484,7 +484,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
                 menu->itemlen = max_name_len + menu->spc_cols;
 
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__,
+                    vrmr_debug(__FUNC__,
                         "adjusting itemlen to %u",
                         menu->itemlen);
             }
@@ -692,7 +692,7 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
 
     if(n_choices == 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "n_choices == 0 (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "n_choices == 0 (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
@@ -863,7 +863,7 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
     /* create the top and bottom fields */
     if(!(win_top = newwin(1, 6, starty + 3, startx + width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(NULL);
     }
     wbkgd(win_top, vccnf.color_win);
@@ -874,7 +874,7 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
 
     if(!(win_bot = newwin(1, 6, starty + height - 1, startx + width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(NULL);
     }
     wbkgd(win_bot, vccnf.color_win);
@@ -963,7 +963,7 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
                 size = StrMemLen((char *)item_name(cur))+1;
                 if(size == 0)
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "could not determine the size of the selection (in: %s).", __FUNC__);
+                    vrmr_error(-1, VR_INTERR, "could not determine the size of the selection (in: %s).", __FUNC__);
                     return(NULL);
                 }
 
@@ -1061,20 +1061,20 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
         return;
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "value: '%s'.", value);
+        vrmr_debug(__FUNC__, "value: '%s'.", value);
 
     /* get info about the field */
     result = field_info(field, &field_rows, &field_cols, &i, &i, &i, &i);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_INTERR, "field_info failed, see debug.log.");
+        vrmr_error(-1, VR_INTERR, "field_info failed, see debug.log.");
 
         if(result == E_SYSTEM_ERROR)
-            (void)vrprint.debug(__FUNC__, "field_info: E_SYSTEM_ERROR: %s.", strerror(errno));
+            vrmr_debug(__FUNC__, "field_info: E_SYSTEM_ERROR: %s.", strerror(errno));
         else if(result == E_BAD_ARGUMENT)
-            (void)vrprint.debug(__FUNC__, "field_info: E_BAD_ARGUMENT");
+            vrmr_debug(__FUNC__, "field_info: E_BAD_ARGUMENT");
         else
-            (void)vrprint.debug(__FUNC__, "field_info: unknown returncode %d", result);
+            vrmr_debug(__FUNC__, "field_info: unknown returncode %d", result);
 
         return;
     }
@@ -1085,7 +1085,7 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
         field_size = (int)sizeof(buffer) - 1;
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "field_size: '%d', field_rows: '%d', field_cols: '%d'.", field_size, field_rows, field_cols);
+        vrmr_debug(__FUNC__, "field_size: '%d', field_rows: '%d', field_cols: '%d'.", field_size, field_rows, field_cols);
 
 #ifdef USE_WIDEC
     mbstowcs(wbuffer, value, wsizeof(wbuffer));
@@ -1102,14 +1102,14 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
     value_size = StrLen(value);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "value_size: '%d'.", value_size);
+        vrmr_debug(__FUNC__, "value_size: '%d'.", value_size);
 
     /* copy the string into the new buffer */
     //strlcpy(buffer, value, field_size+1);
     (void)strlcpy(buffer, value, sizeof(buffer));
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "buffer: '%s'.", buffer);
+        vrmr_debug(__FUNC__, "buffer: '%s'.", buffer);
 
     /* clear the remaining buffer with whitespaces */
     for(i = (int)value_size; i < field_size; i++)
@@ -1122,21 +1122,21 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
     /* now see if we were successful. */
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_INTERR, "set_field_buffer failed, see debug.log.");
+        vrmr_error(-1, VR_INTERR, "set_field_buffer failed, see debug.log.");
 
         if(result == E_SYSTEM_ERROR)
-            (void)vrprint.debug(__FUNC__, "set_field_buffer: E_SYSTEM_ERROR: %s.", strerror(errno));
+            vrmr_debug(__FUNC__, "set_field_buffer: E_SYSTEM_ERROR: %s.", strerror(errno));
         else if(result == E_BAD_ARGUMENT)
         {
-            (void)vrprint.debug(__FUNC__, "set_field_buffer: E_BAD_ARGUMENT");
+            vrmr_debug(__FUNC__, "set_field_buffer: E_BAD_ARGUMENT");
 
             for(x = 0; x < (int)sizeof(buffer) && buffer[x] != '\0' && buffer[x] != '\n'; x++)
             {
-                (void)vrprint.debug(__FUNC__, "set_field_buffer: '%c' is %s", buffer[x], isprint(buffer[x]) ? "printable" : "NOT printable");
+                vrmr_debug(__FUNC__, "set_field_buffer: '%c' is %s", buffer[x], isprint(buffer[x]) ? "printable" : "NOT printable");
             }
         }
         else
-            (void)vrprint.debug(__FUNC__, "set_field_buffer: unknown returncode %d", result);
+            vrmr_debug(__FUNC__, "set_field_buffer: unknown returncode %d", result);
 
         return;
     }
@@ -1162,7 +1162,7 @@ new_field_wrap(int rows, int cols, int frow, int fcol, int nrow, int nbuf)
         /* realloc the memory so it will be enough */
         f->expanded = realloc(f->expanded, len);
         if (f->expanded == NULL) {
-            (void)vrprint.error(-1, VR_INTERR, "realloc failed: %s (in: %s:%d)",
+            vrmr_error(-1, VR_INTERR, "realloc failed: %s (in: %s:%d)",
                 strerror(errno), __FUNC__, __LINE__);
             return(NULL);
         }

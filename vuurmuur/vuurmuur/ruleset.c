@@ -49,7 +49,7 @@ ruleset_setup(const int debuglvl, RuleSet *ruleset)
     /* safety */
     if(ruleset == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(-1);
     }
@@ -145,7 +145,7 @@ ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
     /* safety */
     if(ruleset == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
@@ -213,7 +213,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
     /* safety */
     if(!chain)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -223,7 +223,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
         /* strip chain from -A */
         sscanf(chain, "%3s %32s", commandline_switch, stripped_chain);
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "chain: '%s', commandline_switch: '%s', stripped_chain '%s'.",
+            vrmr_debug(__FUNC__, "chain: '%s', commandline_switch: '%s', stripped_chain '%s'.",
                                 chain,
                                 commandline_switch,
                                 stripped_chain);
@@ -235,14 +235,14 @@ ruleset_check_accounting(const int debuglvl, char *chain)
         {
             if(!(chainref_ptr = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
             if(strcmp(chainref_ptr->chain, stripped_chain) == 0)
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "chain '%s' already in the list.", chainref_ptr->chain);
+                    vrmr_debug(__FUNC__, "chain '%s' already in the list.", chainref_ptr->chain);
 
                 chain_found = 1;
                 break;
@@ -252,7 +252,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
         if(!chain_found)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "going to add chain '%s' to the list.", stripped_chain);
+                vrmr_debug(__FUNC__, "going to add chain '%s' to the list.", stripped_chain);
 
             /* okay, lets add the chain name to the list */
             //size = strlen(stripped_chain) + 1;
@@ -260,7 +260,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
             /* alloc since the chain name will not be a pointer to a static buffer */
             if(!(chainref_ptr = malloc(sizeof(struct ChainRef))))
             {
-                (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -269,12 +269,12 @@ ruleset_check_accounting(const int debuglvl, char *chain)
             chainref_ptr->refcnt = 1;
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "appending chain '%s' to the list.", chainref_ptr->chain);
+                vrmr_debug(__FUNC__, "appending chain '%s' to the list.", chainref_ptr->chain);
 
             /* append to the list */
             if(vrmr_list_append(debuglvl, &accounting_chain_names, chainref_ptr) == NULL)
             {
-                (void)vrprint.error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
         }
@@ -283,7 +283,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
             if(chainref_ptr->refcnt > 1)
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "already 2 rules created in '%s'.", chainref_ptr->chain);
+                    vrmr_debug(__FUNC__, "already 2 rules created in '%s'.", chainref_ptr->chain);
 
                 return(0);
             }
@@ -321,7 +321,7 @@ ruleset_add_rule_to_set(const int debuglvl, struct vrmr_list *list, char *chain,
     /* safety */
     if(!list || !chain || !rule)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -343,14 +343,14 @@ ruleset_add_rule_to_set(const int debuglvl, struct vrmr_list *list, char *chain,
     size = numbers_size + strlen(chain) + 1 + strlen(rule) + 1;
     if(size == 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "cannot append an empty string (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "cannot append an empty string (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* alloc the size for line */
     if(!(line = malloc(size)))
     {
-        (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -358,14 +358,14 @@ ruleset_add_rule_to_set(const int debuglvl, struct vrmr_list *list, char *chain,
     result = snprintf(line, size, "%s%s %s", numbers, chain, rule);
     if(result >= (int)size)
     {
-        (void)vrprint.error(-1, "Error", "ruleset string overflow (%d >= %d, %s) (in: %s:%d).", result, size, rule, __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "ruleset string overflow (%d >= %d, %s) (in: %s:%d).", result, size, rule, __FUNC__, __LINE__);
         return(-1);
     }
 
     /* append to the list */
     if(vrmr_list_append(debuglvl, list, line) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -424,7 +424,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
     /* safety */
     if (ruleset == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(-1);
     }
@@ -454,7 +454,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -571,7 +571,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -583,7 +583,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -595,7 +595,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -607,7 +607,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -619,7 +619,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -633,7 +633,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
             {
                 if(!(rule = d_node->data))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
 
@@ -646,7 +646,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
             {
                 if(!(rule = d_node->data))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
 
@@ -659,7 +659,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
             {
                 if(!(rule = d_node->data))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
 
@@ -724,7 +724,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -736,7 +736,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -748,7 +748,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -813,7 +813,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(cname = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -933,7 +933,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(cname = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -953,7 +953,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -965,7 +965,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -977,7 +977,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -990,7 +990,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1002,7 +1002,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1014,7 +1014,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1026,7 +1026,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1038,7 +1038,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1050,7 +1050,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1062,7 +1062,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1074,7 +1074,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1086,7 +1086,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1099,7 +1099,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1112,7 +1112,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         {
             if(!(rule = d_node->data))
             {
-                (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                                             __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1154,7 +1154,7 @@ ruleset_exists(const int debuglvl, char *path_to_ruleset)
     /* safety */
     if(!path_to_ruleset)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1183,7 +1183,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
     /* safety */
     if(!path_to_ruleset || !cnf)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1194,7 +1194,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
     /* vrmr_stat_ok */
     if(!(vrmr_stat_ok(debuglvl, cnf, path_to_ruleset, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
     {
-        (void)vrprint.error(-1, "Error", "serious file problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "serious file problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1206,7 +1206,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
                     cnf->iptablesrestore_location, path_to_ruleset,
                     path_to_resultfile) >= (int)sizeof(cmd))
         {
-            (void)vrprint.error(-1, "Error", "command string overflow (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "command string overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -1216,7 +1216,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
                     cnf->ip6tablesrestore_location, path_to_ruleset,
                     path_to_resultfile) >= (int)sizeof(cmd))
         {
-            (void)vrprint.error(-1, "Error", "command string overflow (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Error", "command string overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 #endif
@@ -1225,7 +1225,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
     /* all good so far, lets load the ruleset */
     if(vrmr_pipe_command(debuglvl, cnf, cmd, VRMR_PIPE_VERBOSE) < 0)
     {
-        (void)vrprint.error(-1, "Error", "loading the ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "loading the ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1248,7 +1248,7 @@ ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path
     /* safety */
     if(!path_to_ruleset || !cnf)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1259,7 +1259,7 @@ ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path
     /* vrmr_stat_ok */
     if(!(vrmr_stat_ok(debuglvl, cnf, path_to_ruleset, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
     {
-        (void)vrprint.error(-1, "Error", "serious file problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "serious file problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1271,14 +1271,14 @@ ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path
     if(snprintf(cmd, sizeof(cmd), "/bin/bash %s 2>> %s", path_to_ruleset,
         path_to_resultfile) >= (int)sizeof(cmd))
     {
-        (void)vrprint.error(-1, "Error", "command string overflow (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "command string overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* all good so far, lets load the ruleset */
     if(vrmr_pipe_command(debuglvl, cnf, cmd, VRMR_PIPE_VERBOSE) < 0)
     {
-        (void)vrprint.error(-1, "Error", "loading the shape ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "loading the shape ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1303,74 +1303,74 @@ ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *rule
     /* create shaping setup */
     if(shaping_clear_interfaces(debuglvl, vctx->conf, vctx->interfaces, ruleset) < 0)
     {
-        (void)vrprint.error(-1, "Error", "setting up interface shaping clearing failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "setting up interface shaping clearing failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(shaping_setup_roots(debuglvl, vctx->conf, vctx->interfaces, ruleset) < 0)
     {
-        (void)vrprint.error(-1, "Error", "setting up interface shaping roots failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "setting up interface shaping roots failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(shaping_create_default_rules(debuglvl, vctx->conf, vctx->interfaces, ruleset) < 0)
     {
-        (void)vrprint.error(-1, "Error", "setting up interface default rules failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "setting up interface default rules failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
 
-    (void)vrprint.info("Info", "Creating the rules... (rules to create: %d)", vctx->rules->list.len);
+    vrmr_info("Info", "Creating the rules... (rules to create: %d)", vctx->rules->list.len);
 
     /* create the prerules if were called with it */
     result = pre_rules(debuglvl, ruleset, vctx->interfaces, vctx->iptcaps);
     if(result < 0)
     {
-        (void)vrprint.error(-1, "Error", "create pre-rules failed.");
+        vrmr_error(-1, "Error", "create pre-rules failed.");
         return(-1);
     }
 
     /* create NEWNFQUEUE target */
     if(create_newnfqueue_rules(debuglvl, ruleset, vctx->rules, vctx->iptcaps, ruleset->ipv) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create newnfqueue failed.");
+        vrmr_error(-1, "Error", "create newnfqueue failed.");
     }
     /* NFQUEUE related established */
     if(create_estrelnfqueue_rules(debuglvl, ruleset, vctx->rules, vctx->iptcaps, ruleset->ipv) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create estrelnfqueue failed.");
+        vrmr_error(-1, "Error", "create estrelnfqueue failed.");
     }
 
     /* create the blocklist */
     if(create_block_rules(debuglvl, ruleset, vctx->blocklist) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create blocklist failed.");
+        vrmr_error(-1, "Error", "create blocklist failed.");
     }
 
     /* create the interface rules */
     if(create_interface_rules(debuglvl, ruleset, vctx->iptcaps, vctx->interfaces) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create protectrules failed.");
+        vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* create the network protect rules (anti-spoofing) */
     if(create_network_protect_rules(debuglvl, ruleset, vctx->zones, vctx->iptcaps) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create protectrules failed.");
+        vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* system protect rules (proc) */
     if(create_system_protectrules(debuglvl, vctx->conf) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create protectrules failed.");
+        vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* normal rules, ruleset == NULL */
     if(create_normal_rules(debuglvl, vctx, ruleset, &forward_rules) < 0)
     {
-        (void)vrprint.error(-1, "Error", "create normal rules failed.");
+        vrmr_error(-1, "Error", "create normal rules failed.");
     }
 
     /* post rules: enable logging */
     if(post_rules(debuglvl, ruleset, vctx->iptcaps, forward_rules) < 0)
         return(-1);
 
-    (void)vrprint.info("Info", "Creating rules finished.");
+    vrmr_info("Info", "Creating rules finished.");
     return(0);
 }
 
@@ -1386,7 +1386,7 @@ ruleset_save_interface_counters(const int debuglvl, struct vrmr_config *cfg, str
     /* safety */
     if(!interfaces)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1395,7 +1395,7 @@ ruleset_save_interface_counters(const int debuglvl, struct vrmr_config *cfg, str
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -1407,7 +1407,7 @@ ruleset_save_interface_counters(const int debuglvl, struct vrmr_config *cfg, str
                 /* alloc the counters */
                 if(!(iface_ptr->cnt = malloc(sizeof(struct vrmr_interface_counters))))
                 {
-                    (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
             }
@@ -1430,10 +1430,10 @@ ruleset_save_interface_counters(const int debuglvl, struct vrmr_config *cfg, str
 
             if(debuglvl >= HIGH)
             {
-                (void)vrprint.debug(__FUNC__, "iface_ptr->cnt->input_packets: %llu, iface_ptr->cnt->input_bytes: %llu.",
+                vrmr_debug(__FUNC__, "iface_ptr->cnt->input_packets: %llu, iface_ptr->cnt->input_bytes: %llu.",
                                     iface_ptr->cnt->input_packets,
                                     iface_ptr->cnt->input_bytes);
-                (void)vrprint.debug(__FUNC__, "iface_ptr->cnt->output_packets: %llu, iface_ptr->cnt->output_bytes: %llu.",
+                vrmr_debug(__FUNC__, "iface_ptr->cnt->output_packets: %llu, iface_ptr->cnt->output_bytes: %llu.",
                                     iface_ptr->cnt->output_packets,
                                     iface_ptr->cnt->output_bytes);
             }
@@ -1442,7 +1442,7 @@ ruleset_save_interface_counters(const int debuglvl, struct vrmr_config *cfg, str
             snprintf(acc_chain, sizeof(acc_chain), "ACC-%s", iface_ptr->device);
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "acc_chain '%s'.", acc_chain);
+                vrmr_debug(__FUNC__, "acc_chain '%s'.", acc_chain);
 
             /* get the accounting chains numbers */
             vrmr_get_iface_stats_from_ipt(debuglvl, cfg, iface_ptr->device, acc_chain,
@@ -1453,7 +1453,7 @@ ruleset_save_interface_counters(const int debuglvl, struct vrmr_config *cfg, str
 
             if(debuglvl >= HIGH)
             {
-                (void)vrprint.debug(__FUNC__, "iface_ptr->cnt->acc_in_bytes: %llu, iface_ptr->cnt->acc_out_bytes: %llu.",
+                vrmr_debug(__FUNC__, "iface_ptr->cnt->acc_in_bytes: %llu, iface_ptr->cnt->acc_out_bytes: %llu.",
                                     iface_ptr->cnt->acc_in_bytes,
                                     iface_ptr->cnt->acc_out_bytes);
             }
@@ -1473,7 +1473,7 @@ ruleset_clear_interface_counters(const int debuglvl, struct vrmr_interfaces *int
     /* safety */
     if(!interfaces)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1482,7 +1482,7 @@ ruleset_clear_interface_counters(const int debuglvl, struct vrmr_interfaces *int
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -1506,7 +1506,7 @@ ruleset_store_failed_set(const int debuglvl, const char *file)
     
     if(file == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -1514,14 +1514,14 @@ ruleset_store_failed_set(const int debuglvl, const char *file)
     size = strlcpy(failed_ruleset_path, file, sizeof(failed_ruleset_path));
     if(size >= sizeof(failed_ruleset_path))
     {
-        (void)vrprint.error(-1, "Internal Error", "could not create "
+        vrmr_error(-1, "Internal Error", "could not create "
             "failed rulset path (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     size = strlcat(failed_ruleset_path, ".failed", sizeof(failed_ruleset_path));
     if(size >= sizeof(failed_ruleset_path))
     {
-        (void)vrprint.error(-1, "Internal Error", "could not create "
+        vrmr_error(-1, "Internal Error", "could not create "
             "failed rulset path (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -1529,7 +1529,7 @@ ruleset_store_failed_set(const int debuglvl, const char *file)
     result = rename(file, failed_ruleset_path);
     if(result == -1)
     {
-        (void)vrprint.error(-1, "Error", "renaming '%s' to '%s' "
+        vrmr_error(-1, "Error", "renaming '%s' to '%s' "
             "failed: %s (in: %s:%d).", file, failed_ruleset_path,
             strerror(errno), __FUNC__, __LINE__);
         return(-1);
@@ -1548,7 +1548,7 @@ ruleset_log_resultfile(const int debuglvl, char *path)
     /* safety */
     if(path == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1556,7 +1556,7 @@ ruleset_log_resultfile(const int debuglvl, char *path)
     fp = fopen(path, "r");
     if(fp == NULL)
     {
-        (void)vrprint.error(-1, "Error", "opening resultfile '%s' failed: %s (in: %s:%d).",path, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "opening resultfile '%s' failed: %s (in: %s:%d).",path, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1565,12 +1565,12 @@ ruleset_log_resultfile(const int debuglvl, char *path)
         if(line[strlen(line)-1] == '\n')
             line[strlen(line)-1] = '\0';
 
-        (void)vrprint.error(-1, "Error", "loading ruleset result: '%s'.", line);
+        vrmr_error(-1, "Error", "loading ruleset result: '%s'.", line);
     }
 
     if(fclose(fp) == -1)
     {
-        (void)vrprint.error(-1, "Error", "closing resultfile '%s' failed: %s (in: %s:%d).",path, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "closing resultfile '%s' failed: %s (in: %s:%d).",path, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1601,7 +1601,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     /* setup the ruleset */
     if(ruleset_setup(debuglvl, &ruleset) != 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "setting up ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "setting up ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1610,14 +1610,14 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     /* store counters */
     if(ruleset_save_interface_counters(debuglvl, vctx->conf, vctx->interfaces) < 0)
     {
-        (void)vrprint.error(-1, "Error", "saving interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "saving interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* create the ruleset */
     if(ruleset_create_ruleset(debuglvl, vctx, &ruleset) < 0)
     {
-        (void)vrprint.error(-1, "Error", "creating ruleset failed "
+        vrmr_error(-1, "Error", "creating ruleset failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -1625,7 +1625,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     /* clear the counters again */
     if(ruleset_clear_interface_counters(debuglvl, vctx->interfaces) < 0)
     {
-        (void)vrprint.error(-1, "Error", "clearing interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "clearing interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1633,7 +1633,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     ruleset_fd = vrmr_create_tempfile(debuglvl, cur_ruleset_path);
     if(ruleset_fd == -1)
     {
-        (void)vrprint.error(-1, "Error", "creating rulesetfile failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "creating rulesetfile failed (in: %s:%d).", __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
         return(-1);
@@ -1643,7 +1643,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     result_fd = vrmr_create_tempfile(debuglvl, cur_result_path);
     if(result_fd == -1)
     {
-        (void)vrprint.error(-1, "Error", "creating resultfile failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "creating resultfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
@@ -1654,7 +1654,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     shape_fd = vrmr_create_tempfile(debuglvl, cur_shape_path);
     if(shape_fd == -1)
     {
-        (void)vrprint.error(-1, "Error", "creating shape script file failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "creating shape script file failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
@@ -1664,14 +1664,14 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     /* get the custom chains we have to create */
     if(vrmr_rules_get_custom_chains(debuglvl, vctx->rules) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(-1);
     }
     /* now create the currentrulesetfile */
     if(ruleset_fill_file(debuglvl, vctx, &ruleset, ruleset_fd, VRMR_IPV4) < 0)
     {
-        (void)vrprint.error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
@@ -1684,7 +1684,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     /* now create the shape file */
     if(ruleset_fill_shaping_file(debuglvl, &ruleset, shape_fd) < 0)
     {
-        (void)vrprint.error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
@@ -1694,7 +1694,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
 
     if(debuglvl >= HIGH)
     {
-        (void)vrprint.debug(__FUNC__, "sleeping so you can look into the tmpfile.");
+        vrmr_debug(__FUNC__, "sleeping so you can look into the tmpfile.");
         sleep(15);
     }
 
@@ -1702,7 +1702,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     if(ruleset_load_shape_ruleset(debuglvl, cur_shape_path, cur_result_path, vctx->conf) != 0)
     {
         /* oops, something went wrong */
-        (void)vrprint.error(-1, "Error", "shape rulesetfile will be stored as '%s.failed' (in: %s:%d).",
+        vrmr_error(-1, "Error", "shape rulesetfile will be stored as '%s.failed' (in: %s:%d).",
                                     cur_shape_path, __FUNC__, __LINE__);
         (void)ruleset_store_failed_set(debuglvl, cur_shape_path);
         (void)ruleset_log_resultfile(debuglvl, cur_result_path);
@@ -1713,7 +1713,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     if(ruleset_load_ruleset(debuglvl, cur_ruleset_path, cur_result_path, vctx->conf, VRMR_IPV4) != 0)
     {
         /* oops, something went wrong */
-        (void)vrprint.error(-1, "Error", "rulesetfile will be stored as '%s.failed' (in: %s:%d).",
+        vrmr_error(-1, "Error", "rulesetfile will be stored as '%s.failed' (in: %s:%d).",
                                     cur_ruleset_path, __FUNC__, __LINE__);
         (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
         (void)ruleset_log_resultfile(debuglvl, cur_result_path);
@@ -1726,7 +1726,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
         /* remove the rules tempfile */
         if(unlink(cur_ruleset_path) == -1)
         {
-            (void)vrprint.error(-1, "Error", "removing tempfile "
+            vrmr_error(-1, "Error", "removing tempfile "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
 
@@ -1737,7 +1737,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
         /* remove the result tempfile */
         if(unlink(cur_result_path) == -1)
         {
-            (void)vrprint.error(-1, "Error", "removing tempfile "
+            vrmr_error(-1, "Error", "removing tempfile "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
 
@@ -1748,7 +1748,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
         /* remove the shape tempfile */
         if(unlink(cur_shape_path) == -1)
         {
-            (void)vrprint.error(-1, "Error", "removing tempfile "
+            vrmr_error(-1, "Error", "removing tempfile "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
 
@@ -1760,7 +1760,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     /* finaly clean up the mess */
     ruleset_cleanup(debuglvl, &ruleset);
 
-    (void)vrprint.info("Info", "ruleset loading completed successfully.");
+    vrmr_info("Info", "ruleset loading completed successfully.");
     return(0);
 }
 
@@ -1787,7 +1787,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     /* setup the ruleset */
     if(ruleset_setup(debuglvl, &ruleset) != 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "setting up ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "setting up ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1796,14 +1796,14 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     /* store counters */
     if(ruleset_save_interface_counters(debuglvl, vctx->conf, vctx->interfaces) < 0)
     {
-        (void)vrprint.error(-1, "Error", "saving interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "saving interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* create the ruleset */
     if(ruleset_create_ruleset(debuglvl, vctx, &ruleset) < 0)
     {
-        (void)vrprint.error(-1, "Error", "creating ruleset failed "
+        vrmr_error(-1, "Error", "creating ruleset failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -1811,7 +1811,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     /* clear the counters again */
     if(ruleset_clear_interface_counters(debuglvl, vctx->interfaces) < 0)
     {
-        (void)vrprint.error(-1, "Error", "clearing interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "clearing interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1819,7 +1819,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     ruleset_fd = vrmr_create_tempfile(debuglvl, cur_ruleset_path);
     if(ruleset_fd == -1)
     {
-        (void)vrprint.error(-1, "Error", "creating rulesetfile failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "creating rulesetfile failed (in: %s:%d).", __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
         return(-1);
@@ -1829,7 +1829,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     result_fd = vrmr_create_tempfile(debuglvl, cur_result_path);
     if(result_fd == -1)
     {
-        (void)vrprint.error(-1, "Error", "creating resultfile failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "creating resultfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
@@ -1839,14 +1839,14 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     /* get the custom chains we have to create */
     if(vrmr_rules_get_custom_chains(debuglvl, vctx->rules) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(-1);
     }
     /* now create the currentrulesetfile */
     if(ruleset_fill_file(debuglvl, vctx, &ruleset, ruleset_fd, VRMR_IPV6) < 0)
     {
-        (void)vrprint.error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
+        vrmr_error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
@@ -1858,7 +1858,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
 
     if(debuglvl >= HIGH)
     {
-        (void)vrprint.debug(__FUNC__, "sleeping so you can look into the tmpfile.");
+        vrmr_debug(__FUNC__, "sleeping so you can look into the tmpfile.");
         sleep(15);
     }
 
@@ -1866,7 +1866,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     if(ruleset_load_ruleset(debuglvl, cur_ruleset_path, cur_result_path, vctx->conf, VRMR_IPV6) != 0)
     {
         /* oops, something went wrong */
-        (void)vrprint.error(-1, "Error", "rulesetfile will be stored as '%s.failed' (in: %s:%d).",
+        vrmr_error(-1, "Error", "rulesetfile will be stored as '%s.failed' (in: %s:%d).",
                                     cur_ruleset_path, __FUNC__, __LINE__);
         (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
         (void)ruleset_log_resultfile(debuglvl, cur_result_path);
@@ -1879,7 +1879,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
         /* remove the rules tempfile */
         if(unlink(cur_ruleset_path) == -1)
         {
-            (void)vrprint.error(-1, "Error", "removing tempfile "
+            vrmr_error(-1, "Error", "removing tempfile "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
 
@@ -1890,7 +1890,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
         /* remove the result tempfile */
         if(unlink(cur_result_path) == -1)
         {
-            (void)vrprint.error(-1, "Error", "removing tempfile "
+            vrmr_error(-1, "Error", "removing tempfile "
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
 
@@ -1902,7 +1902,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     /* finaly clean up the mess */
     ruleset_cleanup(debuglvl, &ruleset);
 
-    (void)vrprint.info("Info", "ruleset loading completed successfully.");
+    vrmr_info("Info", "ruleset loading completed successfully.");
     return(0);
 }
 #endif
@@ -1916,7 +1916,7 @@ load_ruleset(const int debuglvl, struct vrmr_ctx *vctx)
     }
 
 #ifdef IPV6_ENABLED
-    (void)vrprint.info("Info", "loading ipv6 ruleset");
+    vrmr_info("Info", "loading ipv6 ruleset");
     r = load_ruleset_ipv6(debuglvl, vctx);
     if (r == -1) {
         return(-1);

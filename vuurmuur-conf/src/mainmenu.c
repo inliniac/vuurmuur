@@ -49,7 +49,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
     while(rf->list(debuglvl, rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
     {
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "loading rules: '%s', type: %d", rule_name, type);
+            vrmr_debug(__FUNC__, "loading rules: '%s', type: %d", rule_name, type);
             
         if(strcmp(rule_name, "rules") == 0)
             rules_found = TRUE;
@@ -59,7 +59,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
     {
         if(rf->add(debuglvl, rule_backend, "rules", VRMR_TYPE_RULE) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).",
+            vrmr_error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -68,29 +68,29 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
     /* call vrmr_rules_save_list */
     if(vrmr_rules_save_list(debuglvl, rules, cnf) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("saving rules failed"));
+        vrmr_error(-1, VR_ERR, gettext("saving rules failed"));
         return(-1);
     }
 
     /* safety check */
     if(cnf->rules_location[0] == '\0' || StrLen(cnf->rules_location) == 0 || cnf->rules_location[0] == ' ')
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("cannot rename rulesfile because its location is not set"));
+        vrmr_error(-1, VR_ERR, gettext("cannot rename rulesfile because its location is not set"));
         return(-1);
     }
 
-    (void)vrprint.debug(__FUNC__, "cnf->rules_location = '%s'", cnf->rules_location);
+    vrmr_debug(__FUNC__, "cnf->rules_location = '%s'", cnf->rules_location);
 
     /* now that we filled the backend, we can rename the old rulesfile to rules.conf.bak */
     snprintf(path, sizeof(path), "%s.convert-bak", cnf->rules_location);
 
-    (void)vrprint.debug(__FUNC__, "path = '%s'", path);
+    vrmr_debug(__FUNC__, "path = '%s'", path);
 
     /* rename the file now */
     result = rename(cnf->rules_location, path);
     if(result != 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("renaming '%s' to '%s' failed: %s."),
+        vrmr_error(-1, VR_ERR, gettext("renaming '%s' to '%s' failed: %s."),
                             cnf->rules_location, path, strerror(errno));
         return(-1);
     }
@@ -117,7 +117,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
     while(rf->list(debuglvl, rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
     {
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "loading rules: '%s', type: %d", rule_name, type);
+            vrmr_debug(__FUNC__, "loading rules: '%s', type: %d", rule_name, type);
             
         if(strcmp(rule_name, "blocklist") == 0)
             blocklist_found = TRUE;
@@ -127,7 +127,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
     {
         if(rf->add(debuglvl, rule_backend, "blocklist", VRMR_TYPE_RULE) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).",
+            vrmr_error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -136,29 +136,29 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
     /* call vrmr_rules_save_list */
     if(vrmr_blocklist_save_list(debuglvl, cnf, blocklist) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("saving blocklist failed"));
+        vrmr_error(-1, VR_ERR, gettext("saving blocklist failed"));
         return(-1);
     }
 
     /* safety check */
     if(cnf->blocklist_location[0] == '\0' || StrLen(cnf->blocklist_location) == 0 || cnf->blocklist_location[0] == ' ')
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("cannot rename blocklistfile because its location is not set"));
+        vrmr_error(-1, VR_ERR, gettext("cannot rename blocklistfile because its location is not set"));
         return(-1);
     }
 
-    (void)vrprint.debug(__FUNC__, "cnf->blocklist_location = '%s'", cnf->blocklist_location);
+    vrmr_debug(__FUNC__, "cnf->blocklist_location = '%s'", cnf->blocklist_location);
 
     /* now that we filled the backend, we can rename the old rulesfile to rules.conf.bak */
     snprintf(path, sizeof(path), "%s.convert-bak", cnf->blocklist_location);
 
-    (void)vrprint.debug(__FUNC__, "path = '%s'", path);
+    vrmr_debug(__FUNC__, "path = '%s'", path);
 
     /* rename the file now */
     result = rename(cnf->blocklist_location, path);
     if(result != 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("renaming '%s' to '%s' failed: %s."),
+        vrmr_error(-1, VR_ERR, gettext("renaming '%s' to '%s' failed: %s."),
                             cnf->blocklist_location, path, strerror(errno));
         return(-1);
     }
@@ -379,7 +379,7 @@ mm_shm_connect_vuurmuur(const int debuglvl)
         vuurmuur_shmp = shmat(vuurmuur_shmid, 0, 0);
         if(vuurmuur_shmp == (char *)(-1))
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("attaching to shared memory failed: %s."), strerror(errno));
+            vrmr_error(-1, VR_ERR, gettext("attaching to shared memory failed: %s."), strerror(errno));
             vuurmuur_shmp = NULL;
         }
         else
@@ -424,7 +424,7 @@ mm_shm_connect_vuurmuurlog(const int debuglvl)
         vuurmuurlog_shmp = shmat(vuurmuurlog_shmid, 0, 0);
         if(vuurmuurlog_shmp == (char *)(-1))
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("attaching to shared memory failed: %s."), strerror(errno));
+            vrmr_error(-1, VR_ERR, gettext("attaching to shared memory failed: %s."), strerror(errno));
             vuurmuurlog_shmp = NULL;
         }
         else
@@ -499,7 +499,7 @@ mm_check_status_settings(const int debuglvl, /*@null@*/ struct vrmr_list *status
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.settings, gettext("- Opening the helpfile failed. Please check the file\n"));
 
             if(debuglvl > LOW)
-                (void)vrprint.debug(__FUNC__, "open failed for "
+                vrmr_debug(__FUNC__, "open failed for "
                         "%s", vccnf.helpfile_location);
         }
         else
@@ -662,7 +662,7 @@ mm_check_status_services(const int debuglvl, /*@null@*/ struct vrmr_list *status
 
     if(services == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         VuurmuurStatus.services = -1;
 
@@ -676,7 +676,7 @@ mm_check_status_services(const int debuglvl, /*@null@*/ struct vrmr_list *status
     {
         if(!(ser_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
                                 __FUNC__, __LINE__);
             VuurmuurStatus.services = -1;
 
@@ -707,7 +707,7 @@ mm_check_status_rules(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
 
     if(rules == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         VuurmuurStatus.rules = -1;
 
@@ -725,7 +725,7 @@ mm_check_status_rules(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
     {
         if(!(rule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             VuurmuurStatus.rules = -1;
             return;
         }
@@ -759,7 +759,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
     /* safety */
     if(interfaces == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         VuurmuurStatus.backend = -1;
 
         return;
@@ -780,7 +780,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             VuurmuurStatus.interfaces = -1;
 
             return;
@@ -812,7 +812,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
             }
             else if(ipresult < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "vrmr_get_dynamic_ip() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "vrmr_get_dynamic_ip() failed (in: %s:%d).",
                                                 __FUNC__, __LINE__);
                 return;
             }
@@ -839,7 +839,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
             ipresult = vrmr_get_dynamic_ip(debuglvl, iface_ptr->device, ipaddress, sizeof(ipaddress));
             if(ipresult < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "vrmr_get_dynamic_ip() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "vrmr_get_dynamic_ip() failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
                 return;
             }
@@ -849,7 +849,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
                 iface_ptr->up = FALSE;
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "interface '%s' is down after all.", iface_ptr->name);
+                    vrmr_debug(__FUNC__, "interface '%s' is down after all.", iface_ptr->name);
             }
             else
             {
@@ -870,9 +870,9 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
     }
 
     if (debuglvl >= LOW) {
-        (void)vrprint.debug(__FUNC__, "VuurmuurStatus.have_shape_ifaces: %s.",
+        vrmr_debug(__FUNC__, "VuurmuurStatus.have_shape_ifaces: %s.",
                 VuurmuurStatus.have_shape_ifaces ? "Yes" : "No");
-        (void)vrprint.debug(__FUNC__, "VuurmuurStatus.have_shape_rules: %s.",
+        vrmr_debug(__FUNC__, "VuurmuurStatus.have_shape_rules: %s.",
                 VuurmuurStatus.have_shape_rules ? "Yes" : "No");
     }
 
@@ -890,7 +890,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
     }
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "at_least_one_active: %s.", at_least_one_active ? "Yes" : "No");
+        vrmr_debug(__FUNC__, "at_least_one_active: %s.", at_least_one_active ? "Yes" : "No");
 
     return;
 }
@@ -909,7 +909,7 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
 
     if(!zones)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         VuurmuurStatus.zones = -1;
 
         return;
@@ -930,7 +930,7 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             VuurmuurStatus.zones = -1;
 
             return;
@@ -1115,7 +1115,7 @@ mm_update_overall_status(const int debuglvl)
     }
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "VuurmuurStatus.all: %d.", VuurmuurStatus.overall);
+        vrmr_debug(__FUNC__, "VuurmuurStatus.all: %d.", VuurmuurStatus.overall);
 }
 
 
@@ -1161,7 +1161,7 @@ mm_reload_shm(const int debuglvl)
     /* create a little wait dialog */
     if(!(wait_win = create_newwin(7, 45, (max_height-7)/4, (max_width-45)/2, gettext("One moment please..."), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     panel[0] = new_panel(wait_win);
@@ -1195,7 +1195,7 @@ mm_reload_shm(const int debuglvl)
     update_panels();
     doupdate();
 
-    (void)vrprint.audit(gettext("Applying changes ..."));
+    vrmr_audit(gettext("Applying changes ..."));
 
     /* notify both vuurmuur and vuurmuurlog */
     if(vuurmuur_semid != -1)
@@ -1395,7 +1395,7 @@ mm_reload_shm(const int debuglvl)
 
     if(failed == 1)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("applying changes failed. Please check error.log."));
+        vrmr_error(-1, VR_ERR, gettext("applying changes failed. Please check error.log."));
     }
     else
         sleep(1);
@@ -1448,7 +1448,7 @@ static void
 mm_set_status_field(const int debuglvl, int status, FIELD *fld)
 {
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "status: %d.", status);
+        vrmr_debug(__FUNC__, "status: %d.", status);
 
     if(status == 1) /* OK */
     {
@@ -1520,7 +1520,7 @@ vc_apply_changes(const int debuglvl)
     }
     else if(VuurmuurStatus.vuurmuur != 1)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("Vuurmuur daemon not running. Can't notify it of any changes. Please start it first."));
+        vrmr_error(-1, VR_ERR, gettext("Vuurmuur daemon not running. Can't notify it of any changes. Please start it first."));
         reload_result = 0;
     }
     else if(VuurmuurStatus.overall == 0)
@@ -1539,7 +1539,7 @@ vc_apply_changes(const int debuglvl)
     }
     else
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("will not apply changes if the overall status is 'fail'."));
+        vrmr_error(-1, VR_ERR, gettext("will not apply changes if the overall status is 'fail'."));
         reload_result = 0;
     }
 
@@ -1668,7 +1668,7 @@ main_menu(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
     /* alloc the items */
     if(!(menu_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s."), strerror(errno));
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s."), strerror(errno));
         return(-1);
     }
     /* set the items */
@@ -1796,7 +1796,7 @@ main_menu(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
             {
                 if(convert_rulesfile_to_backend(debuglvl, rules, &conf) < 0)
                 {
-                    (void)vrprint.warning(VR_WARN, gettext("converting rules failed."));
+                    vrmr_warning(VR_WARN, gettext("converting rules failed."));
                 }
                 else
                 {
@@ -1821,7 +1821,7 @@ main_menu(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
             {
                 if(convert_blocklistfile_to_backend(debuglvl, blocklist, &conf) < 0)
                 {
-                    (void)vrprint.warning(VR_WARN, gettext("converting BlockList failed."));
+                    vrmr_warning(VR_WARN, gettext("converting BlockList failed."));
                 }
                 else
                 {

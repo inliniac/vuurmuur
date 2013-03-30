@@ -42,13 +42,13 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
         if(found == FALSE)
         {
             if(vr_script->type == VRMR_TYPE_ZONE)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "zone '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "zone '%s' doesn't exist.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_NETWORK)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "network '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "network '%s' doesn't exist.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_HOST)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "host '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "host '%s' doesn't exist.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_GROUP)
-                (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "group '%s' doesn't exist.", vr_script->name);
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "group '%s' doesn't exist.", vr_script->name);
 
             return(VRS_ERR_NOT_FOUND);
         }
@@ -65,7 +65,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == FALSE)
         {
-            (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "service '%s' doesn't exist.", vr_script->name);
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "service '%s' doesn't exist.", vr_script->name);
             return(VRS_ERR_NOT_FOUND);
         }
     }
@@ -81,7 +81,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == FALSE)
         {
-            (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "interface '%s' doesn't exist.", vr_script->name);
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "interface '%s' doesn't exist.", vr_script->name);
             return(VRS_ERR_NOT_FOUND);
         }
     }
@@ -97,7 +97,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == FALSE)
         {
-            (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "ruleset '%s' doesn't exist.", vr_script->name);
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "ruleset '%s' doesn't exist.", vr_script->name);
             return(VRS_ERR_NOT_FOUND);
         }
     }
@@ -113,13 +113,13 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
         if(vrmr_validate_zonename(debuglvl, vr_script->set, 1, NULL, NULL, NULL, vr_script->reg.zonename, VRMR_VERBOSE) != 0)
         {
             if(vr_script->type == VRMR_TYPE_ZONE)
-                (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid zone name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
+                vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid zone name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
             else if(vr_script->type == VRMR_TYPE_NETWORK)
-                (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid network name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
+                vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid network name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
             else if(vr_script->type == VRMR_TYPE_HOST)
-                (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid host name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
+                vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid host name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
             else if(vr_script->type == VRMR_TYPE_GROUP)
-                (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid group name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
+                vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid group name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
                 
             return(VRS_ERR_COMMANDLINE);
         }
@@ -128,7 +128,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(vrmr_validate_servicename(debuglvl, vr_script->set, vr_script->reg.servicename, VRMR_QUIET) != 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid service name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid service name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
             return(VRS_ERR_COMMANDLINE);
         }
     }
@@ -136,7 +136,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(vrmr_validate_interfacename(debuglvl, vr_script->set, vr_script->reg.interfacename) != 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid interface name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid interface name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
             return(VRS_ERR_COMMANDLINE);
         }
     }
@@ -150,7 +150,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
         else
         {
             /* error */
-            (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid ruleset name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid ruleset name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
             return(VRS_ERR_COMMANDLINE);
         }
     }
@@ -173,13 +173,13 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
         if(found == TRUE)
         {
             if(vr_script->type == VRMR_TYPE_ZONE)
-                (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "zone '%s' already exists.", vr_script->name);
+                vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "zone '%s' already exists.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_NETWORK)
-                (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "network '%s' already exists.", vr_script->name);
+                vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "network '%s' already exists.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_HOST)
-                (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "host '%s' already exists.", vr_script->name);
+                vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "host '%s' already exists.", vr_script->name);
             else if(vr_script->type == VRMR_TYPE_GROUP)
-                (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "group '%s' already exists.", vr_script->name);
+                vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "group '%s' already exists.", vr_script->name);
 
             return(VRS_ERR_ALREADY_EXISTS);
         }
@@ -196,7 +196,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == TRUE)
         {
-            (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "service '%s' already exists.", vr_script->set);
+            vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "service '%s' already exists.", vr_script->set);
             return(VRS_ERR_ALREADY_EXISTS);
         }
     }
@@ -212,7 +212,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == TRUE)
         {
-            (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "interface '%s' already exists.", vr_script->set);
+            vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "interface '%s' already exists.", vr_script->set);
             return(VRS_ERR_ALREADY_EXISTS);
         }
     }
@@ -228,7 +228,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == TRUE)
         {
-            (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "ruleset '%s' already exists.", vr_script->set);
+            vrmr_error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "ruleset '%s' already exists.", vr_script->set);
             return(VRS_ERR_ALREADY_EXISTS);
         }
     }
@@ -239,7 +239,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->rename(debuglvl, zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_ZONE) < 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -249,7 +249,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->rename(debuglvl, zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_NETWORK) < 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -259,7 +259,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->rename(debuglvl, zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_HOST) < 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -269,7 +269,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(zf->rename(debuglvl, zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_GROUP) < 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -279,7 +279,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(sf->rename(debuglvl, serv_backend, vr_script->name, vr_script->set, VRMR_TYPE_SERVICE) < 0)
         {
-            (void)vrprint.error(-VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(-VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -289,7 +289,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(af->rename(debuglvl, ifac_backend, vr_script->name, vr_script->set, VRMR_TYPE_INTERFACE) < 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -299,7 +299,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(rf->rename(debuglvl, rule_backend, vr_script->name, vr_script->set, VRMR_TYPE_RULE) < 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
+            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
 
@@ -307,7 +307,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d (in: %s:%d).", vr_script->type, __FUNC__, __LINE__);
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d (in: %s:%d).", vr_script->type, __FUNC__, __LINE__);
         return(VRS_ERR_INTERNAL);
     }
 

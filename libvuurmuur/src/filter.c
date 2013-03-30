@@ -27,7 +27,7 @@ vrmr_filter_setup(const int debuglvl, struct vrmr_filter *filter)
     /* safety */
     if(filter == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
@@ -42,7 +42,7 @@ vrmr_filter_cleanup(const int debuglvl, struct vrmr_filter *filter)
     /* safety */
     if(filter == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return;
     }

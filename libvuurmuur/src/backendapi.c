@@ -31,12 +31,12 @@ vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
     struct vrmr_list_node         *d_node = NULL;
 
     if (!plugin_data) {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: load_plugin).");
+        vrmr_error(-1, "Internal Error", "parameter problem (in: load_plugin).");
         return;
     }
 
     if (!(plugin = malloc(sizeof(struct vrmr_plugin)))) {
-        (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).",
+        vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
                 strerror(errno), __FUNC__, __LINE__);
         return;
     }
@@ -48,7 +48,7 @@ vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
     /* store the name of the plugin */
     if (strlcpy(plugin->name, plugin_data->name, sizeof(plugin->name)) >= sizeof(plugin->name))
     {
-        (void)vrprint.error(-1, "Internal Error", "pluginname "
+        vrmr_error(-1, "Internal Error", "pluginname "
                 "overflow (in: %s:%d).", __FUNC__, __LINE__);
         free(plugin);
         return;
@@ -57,7 +57,7 @@ vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
     /* insert into the list */
     if (vrmr_list_append(/* no dbg */0, &vrmr_plugin_list, plugin) == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() "
+        vrmr_error(-1, "Internal Error", "vrmr_list_append() "
                 "failed (in: %s:%d).", __FUNC__, __LINE__);
         free(plugin);
         return;
@@ -79,18 +79,18 @@ open_plugin(const int debuglvl, char *plugin)
 
     if(!plugin)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "this is the plugin: '%s'.", plugin);
+        vrmr_debug(__FUNC__, "this is the plugin: '%s'.", plugin);
 
     ptr = dlopen(plugin, RTLD_NOW);
     if(ptr == NULL)
     {
-        (void)vrprint.error(-1, "Error", "opening plugin '%s' failed:"
+        vrmr_error(-1, "Error", "opening plugin '%s' failed:"
                 " %s (in: %s:%d).", plugin, dlerror(),
                 __FUNC__, __LINE__);
         return(NULL);
@@ -129,17 +129,17 @@ load_plugin(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *plugi
 
     if(!plugin_list || !plugin_name || !func_ptr)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: load_plugin).");
+        vrmr_error(-1, "Internal Error", "parameter problem (in: load_plugin).");
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "** start **, plugin_nane: '%s', pluginlist size: '%d'.", plugin_name, plugin_list->len);
+        vrmr_debug(__FUNC__, "** start **, plugin_nane: '%s', pluginlist size: '%d'.", plugin_name, plugin_list->len);
 
     /* safety check */
     if(plugin_name[0] == '\0')
     {
-        (void)vrprint.error(-1, "Internal Error", "plugin name not set "
+        vrmr_error(-1, "Internal Error", "plugin name not set "
                 " (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -159,11 +159,11 @@ load_plugin(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *plugi
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "opening plugin.");
+        vrmr_debug(__FUNC__, "opening plugin.");
 
     if(snprintf(plugin_location, sizeof(plugin_location), "%s/lib%s.so", cfg->plugdir, plugin_name) >= (int)sizeof(plugin_location))
     {
-        (void)vrprint.error(-1, "Internal Error", "pluginpath "
+        vrmr_error(-1, "Internal Error", "pluginpath "
                 "overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -171,7 +171,7 @@ load_plugin(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *plugi
     void *handle = open_plugin(debuglvl, plugin_location);
     if(!handle)
     {
-        (void)vrprint.error(-1, "Internal Error", "pluginpath "
+        vrmr_error(-1, "Internal Error", "pluginpath "
                 "overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -186,7 +186,7 @@ load_plugin(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *plugi
         }
     }
     if (!plugin) {
-        (void)vrprint.error(-1, "Internal Error", "plugin not registered "
+        vrmr_error(-1, "Internal Error", "plugin not registered "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         dlclose(handle);
         return(-1);
@@ -198,7 +198,7 @@ load_plugin(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *plugi
 
     if(cfg->verbose_out == TRUE && debuglvl >= LOW)
     {
-        (void)vrprint.info("Info", "Successfully loaded plugin '%s' version %s.",
+        vrmr_info("Info", "Successfully loaded plugin '%s' version %s.",
                 plugin_name, plugin->version);
     }
 
@@ -237,7 +237,7 @@ unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_na
     /* safety first */
     if(!plugin_list || !plugin_name || !func_ptr)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -246,7 +246,7 @@ unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_na
     {
         if(!(plugin = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
             return(-1);
         }
 
@@ -261,7 +261,7 @@ unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_na
     /* if plugin == NULL its already gone - this should not happen */
     if(!plugin)
     {
-        (void)vrprint.warning("Warning", "it seems that the plugin '%s' is already unloaded, or was never loaded.", plugin_name);
+        vrmr_warning("Warning", "it seems that the plugin '%s' is already unloaded, or was never loaded.", plugin_name);
     }
     /* else decrement ref_cnt, and unload if the cnt is 0. */
     else
@@ -277,7 +277,7 @@ unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_na
         {
             if(dlclose(plugin->handle) < 0)
             {
-                (void)vrprint.error(-1, "Error", "unloading plugin failed: %s (in: %s).", dlerror(), __FUNC__);
+                vrmr_error(-1, "Error", "unloading plugin failed: %s (in: %s).", dlerror(), __FUNC__);
                 return(-1);
             }
 
@@ -287,7 +287,7 @@ unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_na
             /* remove the plugindata from the list */
             if(vrmr_list_remove_node(debuglvl, plugin_list, d_node) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "removing plugin form list (in: %s).", __FUNC__);
+                vrmr_error(-1, "Internal Error", "removing plugin form list (in: %s).", __FUNC__);
                 return(-1);
             }
 

@@ -158,7 +158,7 @@ statevent_print2str_log(const int debuglvl, StatEventGen *evt, size_t len)
     char *str = NULL;
 
     if(evt->type != STATEVENTTYPE_LOG) {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
             __FUNC__,__LINE__);
         return(NULL);
     }
@@ -179,7 +179,7 @@ statevent_print2str_conn(const int debuglvl, StatEventGen *evt, size_t len)
     char            *str = NULL;
 
     if(evt->type != STATEVENTTYPE_CONN) {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
             __FUNC__,__LINE__);
         return(NULL);
     }
@@ -245,7 +245,7 @@ parse_log_srcdst(const int debuglvl, char *str, char *ret_ip, size_t ip_size,
             char *ret_mac, size_t mac_size, int *ret_port)
 {
     if (debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "str     '%s'", str);
+        vrmr_debug(__FUNC__, "str     '%s'", str);
 
     int s = 0; /* string */
     int i = 0; /* ip */
@@ -298,9 +298,9 @@ parse_log_srcdst(const int debuglvl, char *str, char *ret_ip, size_t ip_size,
     port[p] = '\0';
 
     if (debuglvl >= MEDIUM) {
-        (void)vrprint.debug(__FUNC__, "src ip   '%s'", ip);
-        (void)vrprint.debug(__FUNC__, "src mac  '%s'", mac);
-        (void)vrprint.debug(__FUNC__, "src port '%s'", port);
+        vrmr_debug(__FUNC__, "src ip   '%s'", ip);
+        vrmr_debug(__FUNC__, "src mac  '%s'", mac);
+        vrmr_debug(__FUNC__, "src port '%s'", port);
     }
 
     strlcpy(ret_ip, ip, ip_size);
@@ -449,7 +449,7 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
         //vrprint.debug(__FUNC__, "x = %d, y = %d, z = %d", x,y,z);
 
         if(vrmr_list_append(debuglvl, &ctl->list, log) == NULL) {
-            (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append failed "
+            vrmr_error(-1, VR_INTERR, "vrmr_list_append failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
             return(FALSE);
         }
@@ -521,7 +521,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_config *cnf,
     win = VrNewWin(menu_items + 2,width,0,0,vccnf.color_win);
     if(win == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        vrmr_error(-1, VR_ERR, "VrNewWin failed");
         return;
     }
     VrWinSetTitle(win, title);
@@ -529,7 +529,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_config *cnf,
     menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win_rev);
     if(menu == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrNewMenu failed");
+        vrmr_error(-1, VR_ERR, "VrNewMenu failed");
         return;
     }
 
@@ -606,7 +606,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_config *cnf,
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
                             {
-                                (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(con->cnt == 1)
                             {
@@ -637,7 +637,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_config *cnf,
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
                             {
-                                (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
@@ -650,7 +650,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_config *cnf,
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
                             {
-                                (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
@@ -663,7 +663,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_config *cnf,
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
                             {
-                                (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
@@ -677,7 +677,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_config *cnf,
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
                             {
-                                (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
@@ -811,7 +811,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_config *cnf,
     win = VrNewWin(menu_items + 2,width,0,0,vccnf.color_win);
     if(win == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        vrmr_error(-1, VR_ERR, "VrNewWin failed");
         return;
     }
     VrWinSetTitle(win, title);
@@ -819,7 +819,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_config *cnf,
     menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win);
     if(menu == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrNewMenu failed");
+        vrmr_error(-1, VR_ERR, "VrNewMenu failed");
         return;
     }
 
@@ -900,7 +900,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_config *cnf,
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
                             {
-                                (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else
                             {
@@ -918,7 +918,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_config *cnf,
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
                             {
-                                (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
@@ -931,7 +931,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_config *cnf,
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
                             {
-                                (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
@@ -944,7 +944,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_config *cnf,
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
                             {
-                                (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
@@ -958,7 +958,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_config *cnf,
                             /* check if the conntrack tool is set */
                             if(conf.conntrack_location[0] == '\0')
                             {
-                                (void)vrprint.error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
@@ -1102,14 +1102,14 @@ statevent_menu(const int debuglvl, struct vrmr_config *cnf, int type,
     /* print a warning if we have no data */
     if(ctl->list.len == 0)
     {
-        (void)vrprint.warning(VR_WARN, ctl->warn_no_data_str);
+        vrmr_warning(VR_WARN, ctl->warn_no_data_str);
         return(0);
     }
 
     win = VrNewWin(LINES - 6,COLS - 2,3,1,vccnf.color_win);
     if(win == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        vrmr_error(-1, VR_ERR, "VrNewWin failed");
         return(-1);
     }
 
@@ -1121,7 +1121,7 @@ statevent_menu(const int debuglvl, struct vrmr_config *cnf, int type,
             vccnf.color_win,vccnf.color_win_rev);
     if(menu == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrNewMenu failed");
+        vrmr_error(-1, VR_ERR, "VrNewMenu failed");
         return(-1);
     }
     
@@ -1137,7 +1137,7 @@ statevent_menu(const int debuglvl, struct vrmr_config *cnf, int type,
         gen_ptr = d_node->data;
 
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "gen_ptr->filtered %d",
+            vrmr_debug(__FUNC__, "gen_ptr->filtered %d",
                     gen_ptr->filtered);
 
         if(gen_ptr->filtered == 0)
@@ -1180,7 +1180,7 @@ statevent_menu(const int debuglvl, struct vrmr_config *cnf, int type,
     /* check if we didn't add any item (if all was filtered) */
     if(num == 1)
     {
-        (void)vrprint.warning(VR_WARN, ctl->warn_no_data_str);
+        vrmr_warning(VR_WARN, ctl->warn_no_data_str);
         VrDelMenu(debuglvl, menu);
         VrDelWin(win);
         update_panels();
@@ -1304,7 +1304,7 @@ statevent(const int debuglvl, struct vrmr_config *cnf, int type,
     /* convert datatypes list to our own type */
     if(ctl->convert(debuglvl, ctl, list) == FALSE)
     {
-        (void)vrprint.error(-1, VR_ERR, "loading data failed.");
+        vrmr_error(-1, VR_ERR, "loading data failed.");
     }
     //vrprint.warning(VR_WARN,"list %u", ctl->list.len);
 

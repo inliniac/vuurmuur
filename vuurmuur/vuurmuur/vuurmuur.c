@@ -167,7 +167,7 @@ main(int argc, char *argv[])
                 break;
 
             case 'K' :
-                (void)vrprint.debug(__FUNC__, "%s asked to stop", SVCNAME);
+                vrmr_debug(__FUNC__, "%s asked to stop", SVCNAME);
                 if (vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
                 {
                     printf ("%s is running. Killing process %u because of -k\n", SVCNAME, pid);
@@ -314,13 +314,13 @@ main(int argc, char *argv[])
 
     /* init the config */
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "initializing config... calling vrmr_init_config()");
+        vrmr_debug(__FUNC__, "initializing config... calling vrmr_init_config()");
 
     result = vrmr_init_config(debuglvl, &conf);
     if(result >= VRMR_CNF_OK)
     {
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "initializing config complete and succesful.");
+            vrmr_debug(__FUNC__, "initializing config complete and succesful.");
     }
     else
     {
@@ -434,7 +434,7 @@ main(int argc, char *argv[])
     /* setup regexes */
     if (vrmr_regex_setup(1, &reg) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "setting up regular expressions failed.");
+        vrmr_error(-1, "Internal Error", "setting up regular expressions failed.");
         exit(EXIT_FAILURE);
     }
 
@@ -447,9 +447,9 @@ main(int argc, char *argv[])
     }
 
     /* print some nice info about me being the coolest of 'm all ;-) */
-    (void)vrprint.info("Info", "This is Vuurmuur %s", version_string);
-    (void)vrprint.info("Info", "Copyright (C) 2002-2008 by Victor Julien");
-    (void)vrprint.audit("Vuurmuur %s started by user %s.", version_string, user_data.realusername);
+    vrmr_info("Info", "This is Vuurmuur %s", version_string);
+    vrmr_info("Info", "Copyright (C) 2002-2008 by Victor Julien");
+    vrmr_audit("Vuurmuur %s started by user %s.", version_string, user_data.realusername);
 
     /* set chain couters to zero */
     ipt_rulecount = 0;
@@ -478,27 +478,27 @@ main(int argc, char *argv[])
     if (vrmr_blocklist_init_list(debuglvl, &conf, &zones,
                 &blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0)
     {
-        (void)vrprint.error(-1, "Error", "blocklist_read_file failed.");
+        vrmr_error(-1, "Error", "blocklist_read_file failed.");
     }
 
 
     /* load the rulesfile into memory */
-    (void)vrprint.info("Info", "Loading rulesfile...");
+    vrmr_info("Info", "Loading rulesfile...");
     result = vrmr_rules_init_list(debuglvl, &conf, &rules, &reg);
     if(result == 0)
     {
-        (void)vrprint.info("Info", "Loading rulesfile succesfull.");
+        vrmr_info("Info", "Loading rulesfile succesfull.");
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "initializing the rules failed.");
+        vrmr_error(-1, "Error", "initializing the rules failed.");
         exit(EXIT_FAILURE);
     }
 
     /* Check if we have rules. If not we won't start unless we are forced to. */
     if (rules.list.len == 0 && cmdline.force_start == FALSE)
     {
-        (void)vrprint.error(-1, "Error", "no rules defined, Vuurmuur will not start "
+        vrmr_error(-1, "Error", "no rules defined, Vuurmuur will not start "
               "to prevent you from locking yourself out. Override by supplying "
               "--force-start on the commandline.");
         exit(EXIT_FAILURE);
@@ -507,7 +507,7 @@ main(int argc, char *argv[])
     /* analyzing the rules */
     if(analyze_all_rules(debuglvl, &vctx, vctx.rules) != 0)
     {
-        (void)vrprint.error(-1, "Error", "analizing the rules failed.");
+        vrmr_error(-1, "Error", "analizing the rules failed.");
         exit(EXIT_FAILURE);
     }
 
@@ -520,7 +520,7 @@ main(int argc, char *argv[])
         /* call with create_prerules == 1 */
         if(create_all_rules(debuglvl, &vctx, 1) != 0)
         {
-            (void)vrprint.error(-1, "Error", "creating rules failed.");
+            vrmr_error(-1, "Error", "creating rules failed.");
             exit(EXIT_FAILURE);
         }
     }
@@ -528,7 +528,7 @@ main(int argc, char *argv[])
     {
         if(load_ruleset(debuglvl, &vctx) < 0)
         {
-            (void)vrprint.error(-1, "Error", "creating rules failed.");
+            vrmr_error(-1, "Error", "creating rules failed.");
             exit(EXIT_FAILURE);
         }
     }
@@ -546,17 +546,17 @@ main(int argc, char *argv[])
             {
                 if(daemon(1,1) < 0)
                 {
-                    (void)vrprint.error(-1, "Error", "failed to daemonize: %s.", strerror(errno));
+                    vrmr_error(-1, "Error", "failed to daemonize: %s.", strerror(errno));
                     exit(EXIT_FAILURE);
                 }
                 else
-                    (void)vrprint.info("Info", "Entered daemon mode: obtained a new PID (%ld).", getpid());
+                    vrmr_info("Info", "Entered daemon mode: obtained a new PID (%ld).", getpid());
             }
 
             shm_id = shmget(IPC_PRIVATE, sizeof(*shm_table), 0600);
             if(shm_id < 0)
             {
-                (void)vrprint.error(-1, "Error", "unable to create shared memory: %s.", strerror(errno));
+                vrmr_error(-1, "Error", "unable to create shared memory: %s.", strerror(errno));
                 exit(EXIT_FAILURE);
             }
             /* for some reason on my machine the shm_id is zero when vuurmuur is started at boot
@@ -569,21 +569,21 @@ main(int argc, char *argv[])
                 shm_id = shmget(IPC_PRIVATE, sizeof(*shm_table), 0600);
                 if(shm_id < 0)
                 {
-                    (void)vrprint.error(-1, "Error", "Unable to create shared memory: %s (retry).", strerror(errno));
+                    vrmr_error(-1, "Error", "Unable to create shared memory: %s (retry).", strerror(errno));
                     exit(EXIT_FAILURE);
                 }
                 else if(shm_id == 0)
                 {
-                    (void)vrprint.info("Info", "Still no valid shm_id. Giving up.");
+                    vrmr_info("Info", "Still no valid shm_id. Giving up.");
                 }
                 else
                 {
-                    (void)vrprint.info("Info", "Creating shared memory successfull: shm_id: %d (retry).", shm_id);
+                    vrmr_info("Info", "Creating shared memory successfull: shm_id: %d (retry).", shm_id);
                 }
             }
             else
             {
-                (void)vrprint.info("Info", "Creating shared memory successfull: shm_id: %d.", shm_id);
+                vrmr_info("Info", "Creating shared memory successfull: shm_id: %d.", shm_id);
             }
 
             /* now attach to the shared mem */
@@ -592,13 +592,13 @@ main(int argc, char *argv[])
                 shmp = shmat(shm_id, 0, 0);
                 if(shmp == (char *)(-1))
                 {
-                    (void)vrprint.error(-1, "Error", "unable to attach to shared memory: %s.", strerror(errno));
+                    vrmr_error(-1, "Error", "unable to attach to shared memory: %s.", strerror(errno));
                     exit(EXIT_FAILURE);
                 }
                 else
                 {
                     shm_table = (struct vrmr_shm_table *)shmp;
-                    (void)vrprint.info("Info", "Attaching to shared memory successfull.");
+                    vrmr_info("Info", "Attaching to shared memory successfull.");
                 }
 
                 /* if all went well we create a semaphore */
@@ -607,23 +607,23 @@ main(int argc, char *argv[])
                     sem_id = semget(IPC_PRIVATE, 2, 0600);
                     if(sem_id == -1)
                     {
-                        (void)vrprint.error(-1, "Error", "Unable to create semaphore: %s.", strerror(errno));
+                        vrmr_error(-1, "Error", "Unable to create semaphore: %s.", strerror(errno));
                         exit(EXIT_FAILURE);
                     }
                     else
                     {
-                        (void)vrprint.info("Info", "Creating a semaphore success: %d", sem_id);
+                        vrmr_info("Info", "Creating a semaphore success: %d", sem_id);
                     }
 
                     semarg.array = seminit;
                     if(semctl(sem_id, 0, SETALL, semarg) == -1)
                     {
-                        (void)vrprint.error(-1, "Error", "Unable to initialize semaphore: %s.", strerror(errno));
+                        vrmr_error(-1, "Error", "Unable to initialize semaphore: %s.", strerror(errno));
                         exit(EXIT_FAILURE);
                     }
                     else
                     {
-                        (void)vrprint.info("Info", "Initializeing the semaphore successfull.");
+                        vrmr_info("Info", "Initializeing the semaphore successfull.");
                     }
 
                     /* now initialize the shared mem */
@@ -642,12 +642,12 @@ main(int argc, char *argv[])
             result = vrmr_create_pidfile(PIDFILE, shm_id);
             if(result < 0)
             {
-                (void)vrprint.error(-1, "Error", "Unable to create pidfile.");
+                vrmr_error(-1, "Error", "Unable to create pidfile.");
 /* TODO: is this really that serious? */
                 exit(EXIT_FAILURE);
             }
 
-            (void)vrprint.info("Info", "Entering the loop... (interval %d seconds)", LOOP_INT);
+            vrmr_info("Info", "Entering the loop... (interval %d seconds)", LOOP_INT);
 
             while(retval == 0 &&
                 sigint_count == 0 &&
@@ -657,18 +657,18 @@ main(int argc, char *argv[])
                 {
                     if(shm_table->configtool.connected == 1)
                     {
-                        (void)vrprint.info("Info", "Configtool connected: %s.", shm_table->configtool.name);
+                        vrmr_info("Info", "Configtool connected: %s.", shm_table->configtool.name);
                         shm_table->configtool.connected=2;
                     }
                     else if(shm_table->configtool.connected == 3)
                     {
-                        (void)vrprint.info("Info", "Configtool disconnected: %s.", shm_table->configtool.name);
+                        vrmr_info("Info", "Configtool disconnected: %s.", shm_table->configtool.name);
                         shm_table->configtool.connected=0;
                     }
 
                     if(shm_table->backend_changed == TRUE)
                     {
-                        (void)vrprint.audit("IPC-SHM: backend changed: reload (user: %s).", shm_table->configtool.username);
+                        vrmr_audit("IPC-SHM: backend changed: reload (user: %s).", shm_table->configtool.username);
                         reload_shm = TRUE;
                         shm_table->backend_changed = FALSE;
 
@@ -689,7 +689,7 @@ main(int argc, char *argv[])
                     if(dynamic_wait_time >= conf.dynamic_changes_interval)
                     {
                         if(debuglvl >= LOW)
-                            (void)vrprint.debug(__FUNC__, "check the dynamic ipaddresses.");
+                            vrmr_debug(__FUNC__, "check the dynamic ipaddresses.");
 
                         if(check_for_changed_dynamic_ips(debuglvl, &interfaces))
                         {
@@ -709,7 +709,7 @@ main(int argc, char *argv[])
                     result = apply_changes(debuglvl, &vctx, &reg);
                     if(result < 0)
                     {
-                        (void)vrprint.error(-1, "Error", "applying changes failed.");
+                        vrmr_error(-1, "Error", "applying changes failed.");
                     }
 
                     /* if we are reloading because of an IPC command, we need to communicate with the caller */
@@ -736,7 +736,7 @@ main(int argc, char *argv[])
                             vrmr_unlock(sem_id);
                         }
 
-                        (void)vrprint.info("Info", "Waiting for an VRMR_RR_RESULT_ACK");
+                        vrmr_info("Info", "Waiting for an VRMR_RR_RESULT_ACK");
 
                         result = 0;
                         wait_time = 0;
@@ -753,7 +753,7 @@ main(int argc, char *argv[])
                                     shm_table->reload_progress = 0;
                                     result = 1;
 
-                                    (void)vrprint.info("Info", "We got an VRMR_RR_RESULT_ACK!");
+                                    vrmr_info("Info", "We got an VRMR_RR_RESULT_ACK!");
                                 }
                                 vrmr_unlock(sem_id);
                             }
@@ -765,7 +765,7 @@ main(int argc, char *argv[])
                         /* damn, we didn't get one */
                         if(result == 0)
                         {
-                            (void)vrprint.info("Info", "We've waited for %d seconds for an VRMR_RR_RESULT_ACK, but got none. Setting to VRMR_RR_READY", wait_time);
+                            vrmr_info("Info", "We've waited for %d seconds for an VRMR_RR_RESULT_ACK, but got none. Setting to VRMR_RR_READY", wait_time);
                             if(vrmr_lock(sem_id))
                             {
                                 shm_table->reload_result = VRMR_RR_READY;
@@ -774,7 +774,7 @@ main(int argc, char *argv[])
                             }
                             else
                             {
-                                (void)vrprint.info("Info", "Hmmmm, failed to set to ready. Did the client crash?");
+                                vrmr_info("Info", "Hmmmm, failed to set to ready. Did the client crash?");
                             }
                         }
                     }
@@ -795,35 +795,35 @@ main(int argc, char *argv[])
             }
 
             if (sigint_count || sigterm_count)
-                (void)vrprint.debug(__FUNC__, "killed by INT or TERM");
+                vrmr_debug(__FUNC__, "killed by INT or TERM");
 
-            (void)vrprint.info("Info", "Destroying shared memory...");
+            vrmr_info("Info", "Destroying shared memory...");
             if(shmctl(shm_id, IPC_RMID, NULL) < 0)
             {
-                (void)vrprint.error(-1, "Error", "destroying shared memory failed: %s.", strerror(errno));
+                vrmr_error(-1, "Error", "destroying shared memory failed: %s.", strerror(errno));
                 retval = -1;
             }
             else
             {
                 if(debuglvl >= LOW)
-                    (void)vrprint.debug(__FUNC__, "shared memory destroyed.");
+                    vrmr_debug(__FUNC__, "shared memory destroyed.");
             }
 
             /* destroy semaphore */
             if(semctl(sem_id, 0, IPC_RMID, semarg) == -1)
             {
-                (void)vrprint.error(-1, "Error", "failed to remove semaphore.");
+                vrmr_error(-1, "Error", "failed to remove semaphore.");
                 retval = -1;
             }
 
             /* remove the pidfile */
             if(vrmr_remove_pidfile(PIDFILE) < 0)
             {
-                (void)vrprint.error(-1, "Error", "unable to remove pidfile: %s.", strerror(errno));
+                vrmr_error(-1, "Error", "unable to remove pidfile: %s.", strerror(errno));
                 retval = -1;
             }
 
-            (void)vrprint.info("Info", "Loop shutting down...");
+            vrmr_info("Info", "Loop shutting down...");
         }
         else
         {
@@ -863,7 +863,7 @@ main(int argc, char *argv[])
     (void)vrmr_regex_setup(0, &reg);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "** end **, return = %d", retval);
+        vrmr_debug(__FUNC__, "** end **, return = %d", retval);
 
     return(retval);
 }

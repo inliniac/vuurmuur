@@ -209,7 +209,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     /* safety */
     if(!zone_ptr)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -218,7 +218,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     ZonesSection.EditZone.n_fields = 11;
     if(!(ZonesSection.EditZone.fields = (FIELD **)calloc(ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
                                 strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -274,7 +274,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
 
     /* load the comment from the backend */
     if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_HOST, 0) < 0)
-        (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
+        vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
     set_field_buffer_wrap(debuglvl, HostSec.commentfld, 0, ZonesSection.comment);
 
@@ -284,7 +284,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     set_field_just(HostSec.warningfld, JUSTIFY_CENTER);
 
     if (field_num != ZonesSection.EditZone.n_fields) {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -294,12 +294,12 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     /* create the window & panel */
     if(!(ZonesSection.EditZone.win = create_newwin(height, width, starty, startx, gettext("Edit Zone: Host"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     if(!(ZonesSection.EditZone.panel[0] = new_panel(ZonesSection.EditZone.win)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating panel failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating panel failed."));
         return(-1);
     }
     keypad(ZonesSection.EditZone.win, TRUE);
@@ -333,7 +333,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     /* Create the form and post it */
     if(!(ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating form failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating form failed."));
         return(-1);
     }
     scale_form(ZonesSection.EditZone.form, &rows, &cols);
@@ -394,7 +394,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
     /* safety */
     if(zone_ptr == NULL || reg == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s).", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -418,12 +418,12 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                 /* save to the backend */
                 if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_HOST) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 /* for the log */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                     STR_HOST, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_ACTIVE,
                     STR_IS_NOW_SET_TO, zone_ptr->active ? STR_YES : STR_NO,
                     STR_WAS, active ? STR_YES : STR_NO);
@@ -437,7 +437,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                 /* for the log and incase something goes wrong */
                 if(strlcpy(ipaddress, zone_ptr->ipv4.ipaddress, sizeof(ipaddress)) >= sizeof(ipaddress))
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "copying ipaddress failed (in: %s).", __FUNC__);
+                    vrmr_error(-1, VR_INTERR, "copying ipaddress failed (in: %s).", __FUNC__);
                     return(-1);
                 }
 
@@ -461,12 +461,12 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                 {
                     if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPADDRESS", zone_ptr->ipv4.ipaddress, 1, VRMR_TYPE_HOST) < 0)
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                         return(-1);
                     }
 
                     /* audit log */
-                    (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                    vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                         STR_HOST, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_IPADDRESS,
                         STR_IS_NOW_SET_TO, zone_ptr->ipv4.ipaddress,
                         STR_WAS, ipaddress);
@@ -475,12 +475,12 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                 }
                 else
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("ipaddress '%s' doesn't belong in the network %s/%s."), zone_ptr->ipv4.ipaddress, zone_ptr->network_parent->ipv4.network, zone_ptr->network_parent->ipv4.netmask);
+                    vrmr_error(-1, VR_ERR, gettext("ipaddress '%s' doesn't belong in the network %s/%s."), zone_ptr->ipv4.ipaddress, zone_ptr->network_parent->ipv4.network, zone_ptr->network_parent->ipv4.netmask);
 
                     /* copy the old ipaddress back */
                     if(strlcpy(zone_ptr->ipv4.ipaddress, ipaddress, sizeof(zone_ptr->ipv4.ipaddress)) >= sizeof(zone_ptr->ipv4.ipaddress))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "copying ipaddress failed (in: %s).", __FUNC__);
+                        vrmr_error(-1, VR_INTERR, "copying ipaddress failed (in: %s).", __FUNC__);
                         return(-1);
                     }
 
@@ -496,7 +496,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                 /* for the log and incase something goes wrong */
                 if(strlcpy(ip6address, zone_ptr->ipv6.ip6, sizeof(ip6address)) >= sizeof(ip6address))
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "copying ipaddress failed (in: %s).", __FUNC__);
+                    vrmr_error(-1, VR_INTERR, "copying ipaddress failed (in: %s).", __FUNC__);
                     return(-1);
                 }
 
@@ -522,12 +522,12 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
 #endif
                     if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6ADDRESS", zone_ptr->ipv6.ip6, 1, VRMR_TYPE_HOST) < 0)
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                         return(-1);
                     }
 
                     /* audit log */
-                    (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                    vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                         STR_HOST, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_IP6ADDRESS,
                         STR_IS_NOW_SET_TO, zone_ptr->ipv6.ip6,
                         STR_WAS, ip6address);
@@ -537,12 +537,12 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
 #if 0
                 else
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("ipaddress '%s' doesn't belong in the network %s/%s."), zone_ptr->ipv4.ipaddress, zone_ptr->network_parent->ipv4.network, zone_ptr->network_parent->ipv4.netmask);
+                    vrmr_error(-1, VR_ERR, gettext("ipaddress '%s' doesn't belong in the network %s/%s."), zone_ptr->ipv4.ipaddress, zone_ptr->network_parent->ipv4.network, zone_ptr->network_parent->ipv4.netmask);
 
                     /* copy the old ipaddress back */
                     if(strlcpy(zone_ptr->ipv4.ipaddress, ipaddress, sizeof(zone_ptr->ipv4.ipaddress)) >= sizeof(zone_ptr->ipv4.ipaddress))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "copying ipaddress failed (in: %s).", __FUNC__);
+                        vrmr_error(-1, VR_INTERR, "copying ipaddress failed (in: %s).", __FUNC__);
                         return(-1);
                     }
 
@@ -558,7 +558,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                 /* for the log and incase something goes wrong */
                 if(strlcpy(mac, zone_ptr->mac, sizeof(mac)) >= sizeof(mac))
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "copying macaddress failed (in: %s).", __FUNC__);
+                    vrmr_error(-1, VR_INTERR, "copying macaddress failed (in: %s).", __FUNC__);
                     return(-1);
                 }
 
@@ -572,12 +572,12 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                     /* test against the regex */
                     if(regexec(reg->macaddr, zone_ptr->mac, 0, NULL, 0) != 0)
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("MAC Address '%s' is invalid."), zone_ptr->mac);
+                        vrmr_error(-1, VR_ERR, gettext("MAC Address '%s' is invalid."), zone_ptr->mac);
 
                         /* for the log and incase something goes wrong */
                         if(strlcpy(zone_ptr->mac, mac, sizeof(zone_ptr->mac)) >= sizeof(zone_ptr->mac))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "copying macaddress failed (in: %s).", __FUNC__);
+                            vrmr_error(-1, VR_INTERR, "copying macaddress failed (in: %s).", __FUNC__);
                             return(-1);
                         }
 
@@ -589,12 +589,12 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                 /* save to backend */
                 if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "MAC", zone_ptr->mac, 1, VRMR_TYPE_HOST) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 /* audit log */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                     STR_HOST, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_MACADDRESS,
                     STR_IS_NOW_SET_TO, zone_ptr->mac, STR_WAS, mac);
 
@@ -606,18 +606,18 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
             {
                 if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_HOST) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 /* example: "host 'pc1.local.lan' has been changed: the comment was changed." */
-                (void)vrprint.audit("%s '%s' %s: %s.",
+                vrmr_audit("%s '%s' %s: %s.",
                     STR_HOST, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_COMMENT_CHANGED);
 
             }
             else
             {
-                (void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
         }
@@ -625,7 +625,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
 
     if(zone_ptr->ipv4.ipaddress[0] == '\0')
     {
-        (void)vrprint.warning(VR_WARN, gettext("empty IP address. No rules will be created for this host."));
+        vrmr_warning(VR_WARN, gettext("empty IP address. No rules will be created for this host."));
     }
 
     return(0);
@@ -665,7 +665,7 @@ edit_zone_host(const int debuglvl, struct vrmr_zones *zones, char *name, struct 
     /* safety */
     if(name == NULL || zones == NULL || reg == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -678,7 +678,7 @@ edit_zone_host(const int debuglvl, struct vrmr_zones *zones, char *name, struct 
     /* search the host in memory */
     if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, name)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "host not found (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "host not found (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -686,14 +686,14 @@ edit_zone_host(const int debuglvl, struct vrmr_zones *zones, char *name, struct 
     /* init */
     if(edit_zone_host_init(debuglvl, name, height, width, starty, startx, zone_ptr) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "setting up the host window failed (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "setting up the host window failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(!(cur = current_field(ZonesSection.EditZone.form)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -795,7 +795,7 @@ edit_zone_host(const int debuglvl, struct vrmr_zones *zones, char *name, struct 
         prev = cur;
         if(!(cur = current_field(ZonesSection.EditZone.form)))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
             return(-1);
         }
 
@@ -857,7 +857,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
     /* safety */
     if(zonename == NULL || zones == NULL || networkname == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s).", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -869,7 +869,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
             return(-1);
         }
 
@@ -889,7 +889,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
     /* allow the menu items */
     if(!(ZonesSection.hostitems = (ITEM **)calloc(ZonesSection.host_n + 1, sizeof(ITEM *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -898,7 +898,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
             return(-1);
         }
 
@@ -910,7 +910,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
             {
                 if(!(ZonesSection.hostitems[i] = new_item(zone_ptr->host_name, zone_ptr->ipv4.ipaddress)))
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "adding new item to host menu failed (in: %s).", __FUNC__);
+                    vrmr_error(-1, VR_INTERR, "adding new item to host menu failed (in: %s).", __FUNC__);
                     return(-1);
                 }
 
@@ -935,7 +935,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
     /* now create the menu */
     if(!(ZonesSection.h_menu = new_menu((ITEM **)ZonesSection.hostitems)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "creating the host menu failed (in: %s).", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "creating the host menu failed (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -949,7 +949,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
 
     if(!(ZonesSection.h_win = newwin(height, width, starty, startx)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "creating the host win failed (in: %s).", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "creating the host win failed (in: %s).", __FUNC__);
         return(-1);
     }
     wbkgd(ZonesSection.h_win, vccnf.color_win);
@@ -960,7 +960,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
 
     if(!(ZonesSection.h_panel[0] = new_panel(ZonesSection.h_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "creating the host panel failed (in: %s).", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "creating the host panel failed (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -979,7 +979,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
     result = post_menu(ZonesSection.h_menu);
     if(result != E_OK && result != E_NOT_CONNECTED)
     {
-        (void)vrprint.error(-1, VR_INTERR, "creating the host menu failed (in: %s).", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "creating the host menu failed (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -994,7 +994,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
     /* create the top and bottom fields */
     if(!(ZonesSection.h_win_top = newwin(1, 6, starty + 2, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.h_win_top, vccnf.color_win);
@@ -1005,7 +1005,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
 
     if(!(ZonesSection.h_win_bot = newwin(1, 6, starty + height - 5, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.h_win_bot, vccnf.color_win);
@@ -1072,33 +1072,33 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
     if( cur_name_ptr == NULL || new_name_ptr == NULL || zones == NULL ||
         rules == NULL || reg == NULL || blocklist == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(type != VRMR_TYPE_HOST && type != VRMR_TYPE_GROUP)
     {
-        (void)vrprint.error(-1, VR_INTERR, "this function can only be used to rename a group or a host (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "this function can only be used to rename a group or a host (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* validate and split the new name */
     if(vrmr_validate_zonename(debuglvl, new_name_ptr, 0, vrmr_new_zone, new_net, new_host, reg->zonename, VRMR_VERBOSE) != 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", new_name_ptr, __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", new_name_ptr, __FUNC__, __LINE__);
         return(-1);
     }
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "new_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", new_name_ptr, new_host, new_net, vrmr_new_zone);
+        vrmr_debug(__FUNC__, "new_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", new_name_ptr, new_host, new_net, vrmr_new_zone);
 
     /* store the old name */
     if(strlcpy(old_host_name, cur_name_ptr, sizeof(old_host_name)) >= sizeof(old_host_name))
     {
-        (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "going to rename host/group old_host_name:'%s' to new_name_ptr:'%s'.", old_host_name, new_name_ptr);
+        vrmr_debug(__FUNC__, "going to rename host/group old_host_name:'%s' to new_name_ptr:'%s'.", old_host_name, new_name_ptr);
 
     /* rename in the backend */
     result = zf->rename(debuglvl, zone_backend, old_host_name, new_name_ptr, type);
@@ -1110,18 +1110,18 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
     /* search the zone in the list */
     if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, old_host_name)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "host/group not found in the list (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "host/group not found in the list (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(strlcpy(zone_ptr->name, new_name_ptr, sizeof(zone_ptr->name)) >= sizeof(zone_ptr->name))
     {
-        (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(strlcpy(zone_ptr->host_name, new_host, sizeof(zone_ptr->host_name)) >= sizeof(zone_ptr->host_name))
     {
-        (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     zone_ptr = NULL;
@@ -1132,17 +1132,17 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
         rule_ptr = d_node->data;
         if(rule_ptr == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "from: '%s', to: '%s'.", rule_ptr->from, rule_ptr->to);
+            vrmr_debug(__FUNC__, "from: '%s', to: '%s'.", rule_ptr->from, rule_ptr->to);
 
         /* check the fromname */
         if(strcmp(rule_ptr->from, old_host_name) == 0)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "found in a rule (was looking for old_host_name:'%s', found rule_ptr->from:'%s').", old_host_name, rule_ptr->from);
+                vrmr_debug(__FUNC__, "found in a rule (was looking for old_host_name:'%s', found rule_ptr->from:'%s').", old_host_name, rule_ptr->from);
 
             /* set the new name to the rules */
             (void)strlcpy(rule_ptr->from, new_name_ptr,
@@ -1153,7 +1153,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
         if(strcmp(rule_ptr->to, old_host_name) == 0)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "found in a rule (was looking for old_host_name:'%s', found rule_ptr->to:'%s').", old_host_name, rule_ptr->to);
+                vrmr_debug(__FUNC__, "found in a rule (was looking for old_host_name:'%s', found rule_ptr->to:'%s').", old_host_name, rule_ptr->to);
 
             /* set the new name to the rules */
             (void)strlcpy(rule_ptr->to, new_name_ptr,
@@ -1166,7 +1166,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
     {
         if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("saving rules failed."));
+            vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
         }
     }
@@ -1177,7 +1177,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
         blocklist_item = d_node->data;
         if(blocklist_item == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -1189,12 +1189,12 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
                 new_blocklist_item = malloc(size);
                 if(new_blocklist_item == NULL)
                 {
-                    (void)vrprint.error(-1, "Error", "malloc failed: %s.", strerror(errno));
+                    vrmr_error(-1, "Error", "malloc failed: %s.", strerror(errno));
                     return(-1);
                 }
                 if(strlcpy(new_blocklist_item, new_name_ptr, size) >= size)
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
 
@@ -1216,7 +1216,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
     /* group is done now */
     if(type == VRMR_TYPE_GROUP)
     {
-        (void)vrprint.audit("%s '%s' %s '%s'.",
+        vrmr_audit("%s '%s' %s '%s'.",
             STR_GROUP, old_host_name,
             STR_HAS_BEEN_RENAMED_TO, new_name_ptr);
         return(0);
@@ -1229,7 +1229,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
         zone_ptr = d_node->data;
         if(zone_ptr == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -1240,7 +1240,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
                 member_ptr = grp_d_node->data;
                 if(member_ptr == NULL)
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
 
@@ -1256,7 +1256,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
             {
                 if(vrmr_zones_group_save_members(debuglvl, zone_ptr) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving changed group to backend failed."));
+                    vrmr_error(-1, VR_ERR, gettext("saving changed group to backend failed."));
                     return(-1);
                 }
                 group_changed = 0;
@@ -1264,7 +1264,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
         }
     }
 
-    (void)vrprint.audit("%s '%s' %s '%s'.",
+    vrmr_audit("%s '%s' %s '%s'.",
         STR_HOST, old_host_name, STR_HAS_BEEN_RENAMED_TO, new_name_ptr);
 
     return(0);
@@ -1306,14 +1306,14 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
     /* safety */
     if(zones == NULL || zonename == NULL || networkname == NULL || reg == NULL || blocklist == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s).", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s).", __FUNC__);
         return(-1);
     }
 
     /* setup */
     if(zones_section_menu_hosts_init(debuglvl, zones, zonename, networkname) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "setting up hosts menu failed (in: %s).", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "setting up hosts menu failed (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -1326,27 +1326,27 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
         if(reload == 1)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "reload == 1, reloading menu.");
+                vrmr_debug(__FUNC__, "reload == 1, reloading menu.");
         
             /* first destroy */
             if(zones_section_menu_hosts_destroy() < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "reinitializing menu failed (in: %s).", __FUNC__);
+                vrmr_error(-1, VR_INTERR, "reinitializing menu failed (in: %s).", __FUNC__);
                 return(-1);
             }
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "reload == 1, old menu destroyed.");
+                vrmr_debug(__FUNC__, "reload == 1, old menu destroyed.");
 
             /* and setup again */
             if(zones_section_menu_hosts_init(debuglvl, zones, zonename, networkname) < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "reinitializing menu failed (in: %s).", __FUNC__);
+                vrmr_error(-1, VR_INTERR, "reinitializing menu failed (in: %s).", __FUNC__);
                 return(-1);
             }
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "reload == 1, new menu created.");
+                vrmr_debug(__FUNC__, "reload == 1, new menu created.");
 
             /* we are done with reloading */
             reload = 0;
@@ -1392,7 +1392,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                         /* get the current item */
                         if(!(cur = current_item(ZonesSection.h_menu)))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "current_item failed: cur == NULL.");
+                            vrmr_error(-1, VR_INTERR, "current_item failed: cur == NULL.");
                             return(-1);
                         }
 
@@ -1402,7 +1402,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                         // alloc the memory
                         if(!(cur_zonename_ptr = malloc(size)))
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
                         }
 
@@ -1419,7 +1419,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                         {
                             if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                             {
-                                (void)vrprint.warning(VR_WARN, gettext("invalid hostname '%s'."), vrmr_new_zone_ptr);
+                                vrmr_warning(VR_WARN, gettext("invalid hostname '%s'."), vrmr_new_zone_ptr);
                             }
                             else
                             {
@@ -1429,7 +1429,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                                 /* alloc the memory */
                                 if(!(temp_ptr = malloc(size)))
                                 {
-                                    (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                                     return(-1);
                                 }
 
@@ -1442,7 +1442,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
 
                                 if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
                                 {
-                                    (void)vrprint.warning(VR_WARN, gettext("invalid hostname '%s'."), temp_ptr);
+                                    vrmr_warning(VR_WARN, gettext("invalid hostname '%s'."), temp_ptr);
                                 }
                                 else
                                 {
@@ -1472,7 +1472,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                     {
                         if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                         {
-                            (void)vrprint.warning(VR_WARN, gettext("invalid hostname '%s'."), vrmr_new_zone_ptr);
+                            vrmr_warning(VR_WARN, gettext("invalid hostname '%s'."), vrmr_new_zone_ptr);
                         }
                         else
                         {
@@ -1482,7 +1482,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                             /* alloc the memory */
                             if(!(temp_ptr = malloc(size)))
                             {
-                                (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                                 return(-1);
                             }
 
@@ -1495,13 +1495,13 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
 
                             if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
                             {
-                                (void)vrprint.warning(VR_WARN, gettext("invalid hostname '%s'."), temp_ptr);
+                                vrmr_warning(VR_WARN, gettext("invalid hostname '%s'."), temp_ptr);
                             }
                             else
                             {
                                 if(vrmr_new_zone(debuglvl, zones, temp_ptr, VRMR_TYPE_HOST) >= 0)
                                 {
-                                    (void)vrprint.audit("%s '%s' %s.", STR_HOST, temp_ptr, STR_HAS_BEEN_CREATED);
+                                    vrmr_audit("%s '%s' %s.", STR_HOST, temp_ptr, STR_HAS_BEEN_CREATED);
 
                                     (void)edit_zone_host(debuglvl, zones, temp_ptr, reg);
                                     draw_top_menu(debuglvl, top_win, gettext("Hosts"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
@@ -1532,7 +1532,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                             /* get the current item */
                             if(!(cur = current_item(ZonesSection.h_menu)))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "current_item failed: cur == NULL.");
+                                vrmr_error(-1, VR_INTERR, "current_item failed: cur == NULL.");
                                 return(-1);
                             }
 
@@ -1542,7 +1542,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                             /* alloc the memory */
                             if(!(temp_ptr = malloc(size)))
                             {
-                                (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                                 return(-1);
                             }
 
@@ -1556,28 +1556,28 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                             zone_ptr = vrmr_search_zonedata(debuglvl, zones, temp_ptr);
                             if(zone_ptr == NULL)
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "couldn't find %s in memory.", temp_ptr);
+                                vrmr_error(-1, VR_INTERR, "couldn't find %s in memory.", temp_ptr);
                             } else {
                                 /* check the refernce counters */
                                 if(zone_ptr->refcnt_group > 0)
                                 {
-                                    (void)vrprint.error(-1, VR_ERR, gettext("host '%s' is still a member of %u group(s)."),
+                                    vrmr_error(-1, VR_ERR, gettext("host '%s' is still a member of %u group(s)."),
                                             zone_ptr->name, zone_ptr->refcnt_group);
                                 }
                                 else if(zone_ptr->refcnt_blocklist > 0)
                                 {
-                                    (void)vrprint.error(-1, VR_ERR, gettext("host '%s' is still in the blocklist (%u times)."),
+                                    vrmr_error(-1, VR_ERR, gettext("host '%s' is still in the blocklist (%u times)."),
                                             zone_ptr->name, zone_ptr->refcnt_blocklist);
                                 }
                                 else
                                 {
                                     if(vrmr_delete_zone(debuglvl, zones, temp_ptr, zone_ptr->type) < 0)
                                     {
-                                        (void)vrprint.error(result, VR_ERR, gettext("deleting zone failed."));
+                                        vrmr_error(result, VR_ERR, gettext("deleting zone failed."));
                                     }
                                     else
                                     {
-                                        (void)vrprint.audit("%s '%s' %s.", STR_HOST, temp_ptr, STR_HAS_BEEN_DELETED);
+                                        vrmr_audit("%s '%s' %s.", STR_HOST, temp_ptr, STR_HAS_BEEN_DELETED);
                                         reload = 1;
                                     }
                                 }
@@ -1624,7 +1624,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                         // get the current item
                         if(!(cur = current_item(ZonesSection.h_menu)))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "current_item failed: cur == NULL.");
+                            vrmr_error(-1, VR_INTERR, "current_item failed: cur == NULL.");
                             return(-1);
                         }
 
@@ -1634,7 +1634,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                         // alloc the memory
                         if(!(temp_ptr = malloc(size)))
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
                         }
 
@@ -1655,13 +1655,13 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                             }
                             else
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "expected a host but got %d.", zone_ptr->type);
+                                vrmr_error(-1, VR_INTERR, "expected a host but got %d.", zone_ptr->type);
                                 return(-1);
                             }
                         }
                         else
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "%s not found in memory.", temp_ptr);
+                            vrmr_error(-1, VR_INTERR, "%s not found in memory.", temp_ptr);
                             return(-1);
                         }
 
@@ -1710,12 +1710,12 @@ edit_zone_group_members_init(const int debuglvl, struct vrmr_zones *zones, struc
     /* safety */
     if(!group_ptr || !zones)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s)", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s)", __FUNC__);
         return(-1);
     }
     if(group_ptr->type != VRMR_TYPE_GROUP)
     {
-        (void)vrprint.error(-1, VR_INTERR, "expected a GROUP (%d), but got a %d (in: %s)", VRMR_TYPE_GROUP, group_ptr->type, __FUNC__);
+        vrmr_error(-1, VR_INTERR, "expected a GROUP (%d), but got a %d (in: %s)", VRMR_TYPE_GROUP, group_ptr->type, __FUNC__);
         return(-1);
     }
 
@@ -1723,7 +1723,7 @@ edit_zone_group_members_init(const int debuglvl, struct vrmr_zones *zones, struc
 
     if(!(ZonesSection.EditZoneGrp.items = (ITEM **)calloc(ZonesSection.EditZoneGrp.n_items + 1, sizeof(ITEM *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -1741,14 +1741,14 @@ edit_zone_group_members_init(const int debuglvl, struct vrmr_zones *zones, struc
     {
         if(!(member_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d)", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d)", __FUNC__, __LINE__);
             return(-1);
         }
 
         /* load all interfaces into memory */
         if(!(ZonesSection.EditZoneGrp.items[i] = new_item(member_ptr->host_name, member_ptr->ipv4.ipaddress)))
         {
-            (void)vrprint.error(-1, VR_INTERR, "new_item() failed (in: %s:%d)", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d)", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -1768,12 +1768,12 @@ edit_zone_group_members_init(const int debuglvl, struct vrmr_zones *zones, struc
     /* create win and panel */
     if(!(ZonesSection.EditZoneGrp.win = newwin(height, width, starty, startx)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "newwin() failed (in: %s:%d)", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "newwin() failed (in: %s:%d)", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ZonesSection.EditZoneGrp.panel[0] = new_panel(ZonesSection.EditZoneGrp.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d)", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d)", __FUNC__, __LINE__);
         return(-1);
     }
     wbkgd(ZonesSection.EditZoneGrp.win, vccnf.color_win);
@@ -1781,7 +1781,7 @@ edit_zone_group_members_init(const int debuglvl, struct vrmr_zones *zones, struc
 
     if(!(ZonesSection.EditZoneGrp.menu = new_menu((ITEM **)ZonesSection.EditZoneGrp.items)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_menu() failed (in: %s:%d)", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_menu() failed (in: %s:%d)", __FUNC__, __LINE__);
         return(-1);
     }
     set_menu_win(ZonesSection.EditZoneGrp.menu, ZonesSection.EditZoneGrp.win);
@@ -1810,7 +1810,7 @@ edit_zone_group_members_init(const int debuglvl, struct vrmr_zones *zones, struc
     /* create the top and bottom fields */
     if(!(ZonesSection.EditZoneGrp.win_top = newwin(1, 6, starty + 2, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.EditZoneGrp.win_top, vccnf.color_win);
@@ -1821,7 +1821,7 @@ edit_zone_group_members_init(const int debuglvl, struct vrmr_zones *zones, struc
 
     if(!(ZonesSection.EditZoneGrp.win_bot = newwin(1, 6, starty + height - 4, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.EditZoneGrp.win_bot, vccnf.color_win);
@@ -1888,7 +1888,7 @@ edit_zone_group_members_delmem(const int debuglvl, struct vrmr_zone *group_ptr, 
     result = vrmr_zones_group_rem_member(debuglvl, group_ptr, member_name);
     if(result == 0)
     {
-        (void)vrprint.audit("%s '%s' %s: %s: '%s'.",
+        vrmr_audit("%s '%s' %s: %s: '%s'.",
             STR_GROUP, group_ptr->name, STR_HAS_BEEN_CHANGED,
             logname, STR_A_MEMBER_HAS_BEEN_REMOVED);
     }
@@ -1921,13 +1921,13 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
     /* safety */
     if(!group_ptr || !zones)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     /* this should not happen, but it cant hurt checking right? */
     if(group_ptr->type != VRMR_TYPE_GROUP)
     {
-        (void)vrprint.error(-1, VR_INTERR, "expected a GROUP (%d), but got a %d (in: %s:%d)", VRMR_TYPE_GROUP, group_ptr->type, __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "expected a GROUP (%d), but got a %d (in: %s:%d)", VRMR_TYPE_GROUP, group_ptr->type, __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1936,7 +1936,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
     {
         if(!(zonelist_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -1956,14 +1956,14 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
 
     if(n_choices == 0)
     {
-        (void)vrprint.warning(VR_WARN, gettext("please add some hosts to the network first."));
+        vrmr_warning(VR_WARN, gettext("please add some hosts to the network first."));
         return(0);
     }
 
     /* alloc the mem */
     if(!(choices = calloc(n_choices + 1, VRMR_MAX_HOST)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -1972,7 +1972,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
     {
         if(!(zonelist_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -2003,7 +2003,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
     /* assemble the full zonename... */
     if(snprintf(search_name, sizeof(search_name), "%s.%s.%s", choice_ptr, group_ptr->network_name, group_ptr->zone_name) >= (int)sizeof(search_name))
     {
-        (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
 
         free(choice_ptr);
         return(-1);
@@ -2016,7 +2016,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
     result = vrmr_zones_group_add_member(debuglvl, zones, group_ptr, search_name);
     if(result == 0)
     {
-        (void)vrprint.audit("%s '%s' %s: %s: %s.",
+        vrmr_audit("%s '%s' %s: %s: %s.",
             STR_GROUP, group_ptr->name, STR_HAS_BEEN_CHANGED,
             STR_A_MEMBER_HAS_BEEN_ADDED, search_name);
     }
@@ -2045,7 +2045,7 @@ edit_zone_group_members(const int debuglvl, struct vrmr_zones *zones, struct vrm
     /* safety */
     if(!zone_ptr || !zones)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d)", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d)", __FUNC__);
         return(-1);
     }
 
@@ -2123,7 +2123,7 @@ edit_zone_group_members(const int debuglvl, struct vrmr_zones *zones, struct vrm
                         if(edit_zone_group_members_delmem(debuglvl, zone_ptr, n) < 0)
                         {
                             /* if this failes, print error, quit the members screen and set retval */
-                            (void)vrprint.error(-1, VR_ERR, gettext("removing groupmember failed."));
+                            vrmr_error(-1, VR_ERR, gettext("removing groupmember failed."));
 
                             quit = 1;
                             retval = -1;
@@ -2205,7 +2205,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct 
     /* safety */
     if(name == NULL || zone_ptr == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2221,7 +2221,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct 
 
     if(!(ZonesSection.EditZone.fields = (FIELD **)calloc(ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -2246,7 +2246,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct 
 
     /* load the comment from the backend */
     if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_GROUP, 0) < 0)
-        (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
+        vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
     set_field_buffer_wrap(debuglvl, GroupSec.commentfld, 0, ZonesSection.comment);
 
@@ -2256,7 +2256,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct 
     set_field_just(GroupSec.warningfld, JUSTIFY_CENTER);
 
     if (field_num != ZonesSection.EditZone.n_fields) {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -2266,12 +2266,12 @@ edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct 
 
     if(!(ZonesSection.EditZone.win = create_newwin(height, width, starty, startx, gettext("Edit Zone: Group"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ZonesSection.EditZone.panel[0] = new_panel(ZonesSection.EditZone.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2291,7 +2291,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct 
     /* Create the form and post it */
     if(!(ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     /* Calculate the area required for the form */
@@ -2353,7 +2353,7 @@ edit_zone_group_save(const int debuglvl, struct vrmr_zone *group_ptr)
     /* safety */
     if(!group_ptr)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2384,12 +2384,12 @@ edit_zone_group_save(const int debuglvl, struct vrmr_zone *group_ptr)
 
                 if(zf->tell(debuglvl, zone_backend, group_ptr->name, "ACTIVE", group_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_GROUP) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     retval = -1;
                 }
 
                 /* for the log */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                     STR_GROUP, group_ptr->name, STR_HAS_BEEN_CHANGED, STR_ACTIVE,
                     STR_IS_NOW_SET_TO, group_ptr->active ? STR_YES : STR_NO,
                     STR_WAS, active ? STR_YES : STR_NO);
@@ -2398,12 +2398,12 @@ edit_zone_group_save(const int debuglvl, struct vrmr_zone *group_ptr)
             {
                 if(zf->tell(debuglvl, zone_backend, group_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_GROUP) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     retval = -1;
                 }
 
                 /* example: "group 'it-dept.local.lan' has been changed: the comment was changed." */
-                (void)vrprint.audit("%s '%s' %s: %s.",
+                vrmr_audit("%s '%s' %s: %s.",
                     STR_GROUP, group_ptr->name, STR_HAS_BEEN_CHANGED, STR_COMMENT_CHANGED);
             }
             else if(ZonesSection.EditZone.fields[i] == GroupSec.warningfld)
@@ -2412,7 +2412,7 @@ edit_zone_group_save(const int debuglvl, struct vrmr_zone *group_ptr)
             }
             else
             {
-                (void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
         }
@@ -2478,14 +2478,14 @@ edit_zone_group(const int debuglvl, struct vrmr_zones *zones, char *name)
     /* safety */
     if(name == NULL || zones == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     
     /* search the group in mem */
     if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, name)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "group not found (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "group not found (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2663,7 +2663,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
     /* safety */
     if(zones == NULL || zonename == NULL || networkname == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2677,7 +2677,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -2693,7 +2693,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
 
     if(vrmr_list_setup(debuglvl, &ZonesSection.group_desc_list, free) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "vrmr_list_setup() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2702,7 +2702,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
     ZonesSection.hostitems = (ITEM **)calloc(ZonesSection.host_n + 1, sizeof(ITEM *));
     if(ZonesSection.hostitems == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2710,7 +2710,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -2724,7 +2724,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
 
                 if(!(desc_ptr = malloc(size)))
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
 
@@ -2732,7 +2732,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
 
                 if(vrmr_list_append(debuglvl, &ZonesSection.group_desc_list, desc_ptr)  == NULL)
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
 
@@ -2804,7 +2804,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
     /* create the top and bottom fields */
     if(!(ZonesSection.h_win_top = newwin(1, 6, starty + 2, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.h_win_top, vccnf.color_win);
@@ -2815,7 +2815,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
 
     if(!(ZonesSection.h_win_bot = newwin(1, 6, starty + height - 5, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.h_win_bot, vccnf.color_win);
@@ -2890,14 +2890,14 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
     /* safety */
     if(zonename == NULL || networkname == NULL || reg == NULL || zones == NULL || rules == NULL || blocklist == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* setup */
     if(zones_section_menu_groups_init(debuglvl, zones, zonename, networkname) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "setting up groups menu failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "setting up groups menu failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -2910,14 +2910,14 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
             /* first destroy */
             if(zones_section_menu_groups_destroy(debuglvl) < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "reinitializing menu failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "reinitializing menu failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
             /* and setup again */
             if(zones_section_menu_groups_init(debuglvl, zones, zonename, networkname) < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "reinitializing menu failed (in: %s).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "reinitializing menu failed (in: %s).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -2962,7 +2962,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                         /* get the current item */
                         if(!(cur = current_item(ZonesSection.h_menu)))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
                         }
 
@@ -2972,7 +2972,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                         // alloc the memory
                         if(!(cur_zonename_ptr = malloc(size)))
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                             return(-1);
                         }
 
@@ -2989,7 +2989,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                         {
                             if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                             {
-                                (void)vrprint.warning(VR_WARN, gettext("invalid groupname '%s'."), vrmr_new_zone_ptr);
+                                vrmr_warning(VR_WARN, gettext("invalid groupname '%s'."), vrmr_new_zone_ptr);
                             }
                             else
                             {
@@ -2999,7 +2999,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                                 /* alloc the memory */
                                 if(!(temp_ptr = malloc(size)))
                                 {
-                                    (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                                     return(-1);
                                 }
 
@@ -3012,7 +3012,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
 
                                 if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
                                 {
-                                    (void)vrprint.warning(VR_WARN, gettext("invalid groupname '%s'."), temp_ptr);
+                                    vrmr_warning(VR_WARN, gettext("invalid groupname '%s'."), temp_ptr);
                                 }
                                 else
                                 {
@@ -3040,7 +3040,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                     {
                         if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                         {
-                            (void)vrprint.warning(VR_WARN, gettext("invalid groupname '%s'."), vrmr_new_zone_ptr);
+                            vrmr_warning(VR_WARN, gettext("invalid groupname '%s'."), vrmr_new_zone_ptr);
                         }
                         else
                         {
@@ -3059,26 +3059,26 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                                 {
                                     if(vrmr_new_zone(debuglvl, zones, temp_ptr, VRMR_TYPE_GROUP) >= 0)
                                     {
-                                        (void)vrprint.audit("%s '%s' %s.", STR_GROUP, temp_ptr, STR_HAS_BEEN_CREATED);
+                                        vrmr_audit("%s '%s' %s.", STR_GROUP, temp_ptr, STR_HAS_BEEN_CREATED);
 
                                         (void)edit_zone_group(debuglvl, zones, temp_ptr);
                                         draw_top_menu(debuglvl, top_win, gettext("Groups"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                                     }
                                     else
                                     {
-                                        (void)vrprint.error(-1, VR_ERR, gettext("failed to create new group."));
+                                        vrmr_error(-1, VR_ERR, gettext("failed to create new group."));
                                     }
 
                                     reload = 1;
                                 }
                                 else
                                 {
-                                    (void)vrprint.warning(VR_WARN, gettext("groupname '%s' is invalid."), temp_ptr);
+                                    vrmr_warning(VR_WARN, gettext("groupname '%s' is invalid."), temp_ptr);
                                 }
                             }
                             else
                             {
-                                (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                             }
                             free(temp_ptr);
                         }
@@ -3101,7 +3101,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                     
                             if(!(temp_ptr = malloc(size)))
                             {
-                                (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                                 return(-1);
                             }
                             
@@ -3114,13 +3114,13 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                             /* search the zone */
                             if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, temp_ptr)))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "couldn't find the group '%s' in memory.", temp_ptr);
+                                vrmr_error(-1, VR_INTERR, "couldn't find the group '%s' in memory.", temp_ptr);
                                 return(-1);
                             }
 
                             if(zone_ptr->refcnt_blocklist > 0)
                             {
-                                (void)vrprint.error(-1, VR_ERR, gettext("group '%s' is still in the blocklist (%u times)."),
+                                vrmr_error(-1, VR_ERR, gettext("group '%s' is still in the blocklist (%u times)."),
                                                         zone_ptr->name, zone_ptr->refcnt_blocklist);
                             }
                             else
@@ -3128,11 +3128,11 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                                 /* delete, the memory is freed by vrmr_delete_zone(). */
                                 if(vrmr_delete_zone(debuglvl, zones, temp_ptr, zone_ptr->type) < 0)
                                 {
-                                    (void)vrprint.error(-1, VR_ERR, gettext("deleting group failed."));
+                                    vrmr_error(-1, VR_ERR, gettext("deleting group failed."));
                                 }
                                 else
                                 {
-                                    (void)vrprint.audit("%s '%s' %s.", STR_GROUP, temp_ptr, STR_HAS_BEEN_DELETED);
+                                    vrmr_audit("%s '%s' %s.", STR_GROUP, temp_ptr, STR_HAS_BEEN_DELETED);
                                     reload = 1;
                                 }
                             }
@@ -3181,7 +3181,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
 
                         if(!(temp_ptr = malloc(size)))
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                             return(-1);
                         }
 
@@ -3201,7 +3201,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                         }
                         else
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "group '%s' not found in memory.", temp_ptr);
+                            vrmr_error(-1, VR_INTERR, "group '%s' not found in memory.", temp_ptr);
                         }
 
                         free(temp_ptr);
@@ -3257,42 +3257,42 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
     /* safety */
     if(cur_name_ptr == NULL || new_name_ptr == NULL || zones == NULL || rules == NULL || reg == NULL || blocklist == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(type != VRMR_TYPE_NETWORK && type != VRMR_TYPE_ZONE)
     {
-        (void)vrprint.error(-1, VR_INTERR, "this function can only be used to rename a network or a zone (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "this function can only be used to rename a network or a zone (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* validate and split the new name */
     if(vrmr_validate_zonename(debuglvl, new_name_ptr, 0, vrmr_new_zone, new_net, new_host, reg->zonename, VRMR_VERBOSE) != 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", new_name_ptr, __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", new_name_ptr, __FUNC__, __LINE__);
         return(-1);
     }
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "new_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", new_name_ptr, new_host, new_net, vrmr_new_zone);
+        vrmr_debug(__FUNC__, "new_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", new_name_ptr, new_host, new_net, vrmr_new_zone);
 
     /* validate and split the old name */
     if(vrmr_validate_zonename(debuglvl, cur_name_ptr, 0, old_zone, old_net, old_host, reg->zonename, VRMR_VERBOSE) != 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", cur_name_ptr, __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", cur_name_ptr, __FUNC__, __LINE__);
         return(-1);
     }
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "cur_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", cur_name_ptr, old_host, old_net, old_zone);
+        vrmr_debug(__FUNC__, "cur_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", cur_name_ptr, old_host, old_net, old_zone);
 
     /* store the old name */
     if(strlcpy(old_name, cur_name_ptr, sizeof(old_name)) >= sizeof(old_name))
     {
-        (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "going to rename network/zone old_name:'%s' to new_name_ptr:'%s'.", old_name, new_name_ptr);
+        vrmr_debug(__FUNC__, "going to rename network/zone old_name:'%s' to new_name_ptr:'%s'.", old_name, new_name_ptr);
 
     /* rename in the backend */
     result = zf->rename(debuglvl, zone_backend, old_name, new_name_ptr, type);
@@ -3304,20 +3304,20 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
     /* search the zone in the list */
     if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, old_name)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "network/zone not found in the list (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "network/zone not found in the list (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(strlcpy(zone_ptr->name, new_name_ptr, sizeof(zone_ptr->name)) >= sizeof(zone_ptr->name))
     {
-        (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(type == VRMR_TYPE_ZONE)
     {
         if(strlcpy(zone_ptr->zone_name, vrmr_new_zone, sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
         {
-            (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -3325,7 +3325,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
     {
         if(strlcpy(zone_ptr->network_name, new_net, sizeof(zone_ptr->network_name)) >= sizeof(zone_ptr->network_name))
         {
-            (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -3338,7 +3338,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
         blocklist_item = d_node->data;
         if(blocklist_item == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -3359,7 +3359,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                     new_blocklist_item = malloc(size);
                     if(new_blocklist_item == NULL)
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                         return(-1);
                     }
                     
@@ -3367,7 +3367,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                     {
                         if(snprintf(new_blocklist_item, size, "%s.%s.%s", zone_ptr->host_name, new_net, zone_ptr->zone_name) >= (int)size)
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
 
                             free(new_blocklist_item);
                             return(-1);
@@ -3377,7 +3377,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                     {
                         if(snprintf(new_blocklist_item, size, "%s.%s.%s", zone_ptr->host_name, zone_ptr->network_name, vrmr_new_zone) >= (int)size)
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
 
                             free(new_blocklist_item);
                             return(-1);
@@ -3407,7 +3407,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
         zone_ptr = d_node->data;
         if(zone_ptr == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -3420,13 +3420,13 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                 {
                     if(strlcpy(zone_ptr->zone_name, vrmr_new_zone, sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
                         return(-1);
                     }
 
                     if(snprintf(zone_ptr->name, sizeof(zone_ptr->name), "%s.%s.%s", zone_ptr->host_name, zone_ptr->network_name, zone_ptr->zone_name) >= (int)sizeof(zone_ptr->name))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3434,13 +3434,13 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                 {
                     if(strlcpy(zone_ptr->zone_name, vrmr_new_zone, sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
                         return(-1);
                     }
 
                     if(snprintf(zone_ptr->name, sizeof(zone_ptr->name), "%s.%s", zone_ptr->network_name, zone_ptr->zone_name) >= (int)sizeof(zone_ptr->name))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3454,13 +3454,13 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                 {
                     if(strlcpy(zone_ptr->network_name, new_net, sizeof(zone_ptr->network_name)) >= sizeof(zone_ptr->network_name))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
                         return(-1);
                     }
 
                     if(snprintf(zone_ptr->name, sizeof(zone_ptr->name), "%s.%s.%s", zone_ptr->host_name, zone_ptr->network_name, zone_ptr->zone_name) >= (int)sizeof(zone_ptr->name))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3475,11 +3475,11 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
         rule_ptr = d_node->data;
         if(rule_ptr == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "from: '%s', to: '%s'.", rule_ptr->from, rule_ptr->to);
+            vrmr_debug(__FUNC__, "from: '%s', to: '%s'.", rule_ptr->from, rule_ptr->to);
 
         /* check for firewall and empty field */
         if(strncasecmp(rule_ptr->from, "firewall", 8) != 0 && strcmp(rule_ptr->from, "") != 0)
@@ -3487,11 +3487,11 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
             /* check the fromname */
             if(vrmr_validate_zonename(debuglvl, rule_ptr->from, 0, rule_zone, rule_net, rule_host, reg->zonename, VRMR_VERBOSE) != 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", rule_ptr->from, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", rule_ptr->from, __FUNC__, __LINE__);
                 return(-1);
             }
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "rule_ptr->from: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->from, rule_host, rule_net, rule_zone);
+                vrmr_debug(__FUNC__, "rule_ptr->from: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->from, rule_host, rule_net, rule_zone);
 
             if( (type == VRMR_TYPE_NETWORK && strcmp(rule_net, old_net) == 0) ||
                 (type == VRMR_TYPE_ZONE && strcmp(rule_zone, old_zone) == 0))
@@ -3502,7 +3502,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                     {
                         if(snprintf(rule_ptr->from, sizeof(rule_ptr->to), "%s.%s", new_net, rule_zone) >= (int)sizeof(rule_ptr->to))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
                         }
                     }
@@ -3510,7 +3510,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                     {
                         if(snprintf(rule_ptr->from, sizeof(rule_ptr->from), "%s.%s.%s", rule_host, new_net, rule_zone) >= (int)sizeof(rule_ptr->from))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
                         }
                     }
@@ -3521,7 +3521,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                     {
                         if(snprintf(rule_ptr->from, sizeof(rule_ptr->to), "%s.%s", rule_net, vrmr_new_zone) >= (int)sizeof(rule_ptr->to))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
                         }
                     }
@@ -3529,7 +3529,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                     {
                         if(snprintf(rule_ptr->from, sizeof(rule_ptr->from), "%s.%s.%s", rule_host, rule_net, vrmr_new_zone) >= (int)sizeof(rule_ptr->from))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
                         }
                     }
@@ -3545,11 +3545,11 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
             /* check the toname */
             if(vrmr_validate_zonename(debuglvl, rule_ptr->to, 0, rule_zone, rule_net, rule_host, reg->zonename, VRMR_VERBOSE) != 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", rule_ptr->to, __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", rule_ptr->to, __FUNC__, __LINE__);
                 return(-1);
             }
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "rule_ptr->to: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->to, rule_host, rule_net, rule_zone);
+                vrmr_debug(__FUNC__, "rule_ptr->to: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->to, rule_host, rule_net, rule_zone);
 
             if( (type == VRMR_TYPE_NETWORK && strcmp(rule_net, old_net) == 0) ||
                 (type == VRMR_TYPE_ZONE && strcmp(rule_zone, old_zone) == 0))
@@ -3560,7 +3560,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                     {
                         if(snprintf(rule_ptr->to, sizeof(rule_ptr->to), "%s.%s", new_net, rule_zone) >= (int)sizeof(rule_ptr->to))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
                         }
                     }
@@ -3568,7 +3568,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                     {
                         if(snprintf(rule_ptr->to, sizeof(rule_ptr->to), "%s.%s.%s", rule_host, new_net, rule_zone) >= (int)sizeof(rule_ptr->to))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
                         }
                     }
@@ -3579,7 +3579,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                     {
                         if(snprintf(rule_ptr->to, sizeof(rule_ptr->to), "%s.%s", rule_net, vrmr_new_zone) >= (int)sizeof(rule_ptr->to))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
                         }
                     }
@@ -3587,7 +3587,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                     {
                         if(snprintf(rule_ptr->to, sizeof(rule_ptr->to), "%s.%s.%s", rule_host, rule_net, vrmr_new_zone) >= (int)sizeof(rule_ptr->to))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
                         }
                     }
@@ -3602,15 +3602,15 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
     {
         if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("saving rules failed."));
+            vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
         }
     }
 
     if(type == VRMR_TYPE_ZONE)
-        (void)vrprint.audit("%s '%s' %s '%s'.", STR_ZONE, old_name, STR_HAS_BEEN_RENAMED_TO, new_name_ptr);
+        vrmr_audit("%s '%s' %s '%s'.", STR_ZONE, old_name, STR_HAS_BEEN_RENAMED_TO, new_name_ptr);
     else
-        (void)vrprint.audit("%s '%s' %s '%s'.", STR_NETWORK, old_name, STR_HAS_BEEN_RENAMED_TO, new_name_ptr);
+        vrmr_audit("%s '%s' %s '%s'.", STR_NETWORK, old_name, STR_HAS_BEEN_RENAMED_TO, new_name_ptr);
 
     return(0);
 }
@@ -3630,21 +3630,21 @@ edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_interfaces
     /* safety */
     if(!zone_ptr || !interfaces)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* check if there are interfaces defined to choose from */
     if((n_choices = interfaces->list.len) == 0)
     {
-        (void)vrprint.warning(VR_WARN, gettext("no interfaces found. Please define an interface first."));
+        vrmr_warning(VR_WARN, gettext("no interfaces found. Please define an interface first."));
         return(0);
     }
 
     /* get some mem */
     if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -3653,7 +3653,7 @@ edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_interfaces
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
 
             free(choices);
             return(-1);
@@ -3685,11 +3685,11 @@ edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_interfaces
     /* save the new interface list */
     if(vrmr_zones_network_save_interfaces(debuglvl, zone_ptr) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("saving the interfaces failed."));
+        vrmr_error(-1, VR_ERR, gettext("saving the interfaces failed."));
         return(-1);
     }
 
-    (void)vrprint.audit("%s '%s' %s: %s: '%s'.",
+    vrmr_audit("%s '%s' %s: %s: '%s'.",
         STR_INTERFACE, zone_ptr->name, STR_HAS_BEEN_CHANGED,
         STR_AN_IFACE_HAS_BEEN_ADDED, choice_ptr);
 
@@ -3714,7 +3714,7 @@ edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr
     /* safety */
     if(!zone_ptr)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(zone_ptr->type != VRMR_TYPE_NETWORK)
@@ -3727,7 +3727,7 @@ edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr
 
     if(!(ZonesSection.EditZoneInt.items = (ITEM **)calloc(ZonesSection.EditZoneInt.n_items + 1, sizeof(ITEM *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -3744,14 +3744,14 @@ edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr
     {
         if(!(iface_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
         /* load all interfaces into memory */
         if(!(ZonesSection.EditZoneInt.items[i] = new_item(iface_ptr->name, NULL)))
         {
-            (void)vrprint.error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -3771,12 +3771,12 @@ edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr
     /* create the window */
     if(!(ZonesSection.EditZoneInt.win = newwin(height, width, starty, startx)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ZonesSection.EditZoneInt.panel[0] = new_panel(ZonesSection.EditZoneInt.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     wbkgd(ZonesSection.EditZoneInt.win, vccnf.color_win);
@@ -3785,7 +3785,7 @@ edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr
 
     if(!(ZonesSection.EditZoneInt.menu = new_menu((ITEM **)ZonesSection.EditZoneInt.items)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     set_menu_win(ZonesSection.EditZoneInt.menu, ZonesSection.EditZoneInt.win);
@@ -3811,7 +3811,7 @@ edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr
     /* create the top and bottom fields */
     if(!(ZonesSection.EditZoneInt.win_top = newwin(1, 6, starty + 2, width - 6)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.EditZoneInt.win_top, vccnf.color_win);
@@ -3822,7 +3822,7 @@ edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr
 
     if(!(ZonesSection.EditZoneInt.win_bot = newwin(1, 6, starty + height - 4, width - 6)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.EditZoneInt.win_bot, vccnf.color_win);
@@ -3874,13 +3874,13 @@ edit_zone_network_interfaces(const int debuglvl, struct vrmr_interfaces *interfa
     /* safety */
     if(zone_ptr == NULL || interfaces == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     
     if(edit_zone_network_interfaces_init(debuglvl, zone_ptr) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "edit_zone_network_interfaces_init() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "edit_zone_network_interfaces_init() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -3961,7 +3961,7 @@ edit_zone_network_interfaces(const int debuglvl, struct vrmr_interfaces *interfa
                         }
                         else
                         {
-                            (void)vrprint.audit("%s '%s' %s: %s '%s'.",
+                            vrmr_audit("%s '%s' %s: %s '%s'.",
                                 STR_NETWORK, zone_ptr->name,
                                 STR_HAS_BEEN_CHANGED, STR_AN_IFACE_HAS_BEEN_REMOVED,
                                 save_iface);
@@ -4002,7 +4002,7 @@ edit_zone_network_interfaces(const int debuglvl, struct vrmr_interfaces *interfa
     result = edit_zone_network_interfaces_destroy();
     if(result < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "edit_zone_network_interfaces_destroy() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "edit_zone_network_interfaces_destroy() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -4107,7 +4107,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_pt
     /* safety */
     if(network_ptr == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -4117,7 +4117,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_pt
         /* clear */
         if(zf->tell(debuglvl, zone_backend, network_ptr->name, "RULE", "", 1, VRMR_TYPE_NETWORK) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4128,7 +4128,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_pt
         {
             if(!(rule_ptr = d_node->data))
             {
-                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -4143,7 +4143,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_pt
                 /* save to backend */
                 if(zf->tell(debuglvl, zone_backend, network_ptr->name, "RULE", rule_str, 1, VRMR_TYPE_NETWORK) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
             }
@@ -4152,7 +4152,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_pt
                 /* save to backend */
                 if(zf->tell(debuglvl, zone_backend, network_ptr->name, "RULE", rule_str, 0, VRMR_TYPE_NETWORK) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
             }
@@ -4176,7 +4176,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     /* safety */
     if(network_ptr == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -4188,12 +4188,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "accept", NULL, "dhcp-server", NULL)))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating network rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating network rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending network rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending network rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4202,12 +4202,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "accept", NULL, "dhcp-client", NULL)))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4216,12 +4216,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "loopback")))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4230,12 +4230,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "class-a")))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4244,12 +4244,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "class-b")))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4258,12 +4258,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "class-c")))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4272,12 +4272,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "class-d")))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4286,12 +4286,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "class-e")))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4300,12 +4300,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "test-net")))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4314,12 +4314,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "lnk-loc-net")))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4328,12 +4328,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "iana-0/8")))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4342,12 +4342,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "brdcst-src")))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4356,12 +4356,12 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     {
         if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "brdcst-dst")))
         {
-            (void)vrprint.error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "creating protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr)  == NULL)
         {
-            (void)vrprint.error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "appending protect rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -4369,7 +4369,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *networ
     /* now let try to write this to the backend */
     if(zones_network_save_protectrules(debuglvl, network_ptr) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -4390,14 +4390,14 @@ edit_zone_network_init(const int debuglvl, struct vrmr_zones *zones, char *name,
     /* safety */
     if(!name || !zone_ptr || !zones)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     ZonesSection.EditZone.n_fields = 52;
     if(!(ZonesSection.EditZone.fields = (FIELD **)calloc(ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -4679,23 +4679,23 @@ edit_zone_network_init(const int debuglvl, struct vrmr_zones *zones, char *name,
     ZonesSection.EditZone.fields[field_num] = NULL;
 
     if(ZonesSection.EditZone.n_fields != field_num)
-        (void)vrprint.error(-1, VR_INTERR, "ZonesSection.EditZone.n_fields != field_num.");
+        vrmr_error(-1, VR_INTERR, "ZonesSection.EditZone.n_fields != field_num.");
 
     /* read the comment from backend */
     if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_NETWORK, 0) < 0)
-        (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
+        vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
     set_field_buffer_wrap(debuglvl, NetworkSec.commentfld, 0, ZonesSection.comment);
 
     /* create window and panel */
     if(!(ZonesSection.EditZone.win = create_newwin(height, width, starty, startx, gettext("Edit Zone: Network"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ZonesSection.EditZone.panel[0] = new_panel(ZonesSection.EditZone.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     keypad(ZonesSection.EditZone.win, TRUE);
@@ -4739,7 +4739,7 @@ edit_zone_network_init(const int debuglvl, struct vrmr_zones *zones, char *name,
     /* Create the form and post it */
     if(!(ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     scale_form(ZonesSection.EditZone.form, &rows, &cols);
@@ -4809,12 +4809,12 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
 
                 if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_NETWORK) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 /* for the log */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                     STR_NETWORK, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_ACTIVE,
                     STR_IS_NOW_SET_TO, zone_ptr->active ? STR_YES : STR_NO,
                     STR_WAS, active ? STR_YES : STR_NO);
@@ -4833,12 +4833,12 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
 
                 if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "NETWORK", zone_ptr->ipv4.network, 1, VRMR_TYPE_NETWORK) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 /* for the log */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                     STR_NETWORK, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETADDR,
                     STR_IS_NOW_SET_TO, zone_ptr->ipv4.network,
                     STR_WAS, network);
@@ -4857,12 +4857,12 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
 
                 if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "NETMASK", zone_ptr->ipv4.netmask, 1, VRMR_TYPE_NETWORK) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 /* for the log */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                     STR_NETWORK, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETMASK,
                     STR_IS_NOW_SET_TO, zone_ptr->ipv4.netmask,
                     STR_WAS, netmask);
@@ -4884,12 +4884,12 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
 
                 if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6NETWORK", zone_ptr->ipv6.net6, 1, VRMR_TYPE_NETWORK) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 /* for the log */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                     STR_IP6NETWORK, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETADDR,
                     STR_IS_NOW_SET_TO, zone_ptr->ipv6.net6,
                     STR_WAS, network6);
@@ -4911,12 +4911,12 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
 
                 if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6CIDR", cidrstr, 1, VRMR_TYPE_NETWORK) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 /* for the log */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%d' (%s: '%d').",
+                vrmr_audit("%s '%s' %s: %s %s '%d' (%s: '%d').",
                     STR_IP6CIDR, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_NETMASK,
                     STR_IS_NOW_SET_TO, zone_ptr->ipv6.cidr6,
                     STR_WAS, cidr);
@@ -4927,12 +4927,12 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
             {
                 if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_NETWORK) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 /* example: "network 'local.lan' has been changed: the comment was changed." */
-                (void)vrprint.audit("%s '%s' %s: %s.",
+                vrmr_audit("%s '%s' %s: %s.",
                     STR_NETWORK, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_COMMENT_CHANGED);
             }
             else if(ZonesSection.EditZone.fields[i] == NetworkSec.loopbackfld||
@@ -4965,7 +4965,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
     if(rules_changed == TRUE)
     {
         /* example: "network 'local.lan' has been changed: rules are changed: number of rules: 5 (listed below)." */
-        (void)vrprint.audit("%s '%s' %s: %s: %s: %d (%s).",
+        vrmr_audit("%s '%s' %s: %s: %s: %d (%s).",
                     STR_NETWORK, zone_ptr->name, STR_HAS_BEEN_CHANGED,
                     STR_RULES_ARE_CHANGED, STR_NUMBER_OF_RULES,
                     zone_ptr->ProtectList.len, STR_LISTED_BELOW);
@@ -4977,17 +4977,17 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
             if(rule_ptr->action == VRMR_AT_PROTECT)
             {
                 if(rule_ptr->source[0] != '\0')
-                    (void)vrprint.audit("%2d: %s against %s from %s",
+                    vrmr_audit("%2d: %s against %s from %s",
                                     i, vrmr_rules_itoaction(rule_ptr->action),
                                     rule_ptr->danger, rule_ptr->source);
                 else
-                    (void)vrprint.audit("%2d: %s against %s",
+                    vrmr_audit("%2d: %s against %s",
                                     i, vrmr_rules_itoaction(rule_ptr->action),
                                     rule_ptr->danger);
             }
             else
             {
-                (void)vrprint.audit("%2d: %s %s",i, vrmr_rules_itoaction(rule_ptr->action),
+                vrmr_audit("%2d: %s %s",i, vrmr_rules_itoaction(rule_ptr->action),
                                     rule_ptr->service);
             }
         }
@@ -5058,7 +5058,7 @@ edit_zone_network(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inte
     /* safety */
     if(!name || !interfaces || !zones)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -5068,7 +5068,7 @@ edit_zone_network(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inte
 
     if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, name)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "network '%s' not found in memory (in: %s:%d).", name, __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "network '%s' not found in memory (in: %s:%d).", name, __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -5229,7 +5229,7 @@ edit_zone_network(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inte
     /* save */
     if (edit_zone_network_save(debuglvl, zone_ptr) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
         retval = -1;
     }
 
@@ -5269,7 +5269,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
     /* safety */
     if(zonename == NULL || zones == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -5284,7 +5284,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -5294,7 +5294,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
 
     if(vrmr_list_setup(debuglvl, &ZonesSection.network_desc_list, free) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "vrmr_list_setup() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -5302,7 +5302,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
 
     if(!(ZonesSection.networkitems = (ITEM **)calloc(ZonesSection.network_n + 1, sizeof(ITEM *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
                                     strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -5312,7 +5312,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -5327,7 +5327,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
 
             if(!(desc_ptr = malloc(size)))
             {
-                (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -5335,13 +5335,13 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
 
             if(vrmr_list_append(debuglvl, &ZonesSection.group_desc_list, desc_ptr)  == NULL)
             {
-                (void)vrprint.error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
             if(!(ZonesSection.networkitems[i] = new_item(zone_ptr->network_name, desc_ptr)))
             {
-                (void)vrprint.error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -5363,7 +5363,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
 
     if(!(ZonesSection.n_menu = new_menu((ITEM **)ZonesSection.networkitems)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -5376,12 +5376,12 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
 
     if(!(ZonesSection.n_win = newwin(height, width, starty, startx)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ZonesSection.n_panel[0] = new_panel(ZonesSection.n_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     wbkgd(ZonesSection.n_win, vccnf.color_win);
@@ -5413,7 +5413,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
     /* create the top and bottom fields */
     if(!(ZonesSection.n_win_top = newwin(1, 6, starty + 2, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.n_win_top, vccnf.color_win);
@@ -5424,7 +5424,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
 
     if(!(ZonesSection.n_win_bot = newwin(1, 6, starty + height - 6, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.n_win_bot, vccnf.color_win);
@@ -5496,14 +5496,14 @@ zones_section_menu_networks(const int debuglvl,
     if( zonename == NULL || reg == NULL || interfaces == NULL ||
         zones == NULL || rules == NULL || blocklist == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(zones_section_menu_networks_init(debuglvl, zones, zonename) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "zones_section_menu_networks_init() failed (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "zones_section_menu_networks_init() failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -5514,14 +5514,14 @@ zones_section_menu_networks(const int debuglvl,
         {
             if(zones_section_menu_networks_destroy(debuglvl) < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "zones_section_menu_networks_destroy() failed (in: %s:%d).",
+                vrmr_error(-1, VR_INTERR, "zones_section_menu_networks_destroy() failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
                 return(-1);
             }
             
             if(zones_section_menu_networks_init(debuglvl, zones, zonename) < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "zones_section_menu_networks_init() failed (in: %s:%d).",
+                vrmr_error(-1, VR_INTERR, "zones_section_menu_networks_init() failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
                 return(-1);
             }
@@ -5567,7 +5567,7 @@ zones_section_menu_networks(const int debuglvl,
                         /* get the current item */
                         if(!(cur = current_item(ZonesSection.n_menu)))
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
+                            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
                                                 __FUNC__, __LINE__);
                             return(-1);
                         }
@@ -5576,7 +5576,7 @@ zones_section_menu_networks(const int debuglvl,
 
                         if(!(cur_zonename_ptr = malloc(size)))
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
                         }
 
@@ -5591,7 +5591,7 @@ zones_section_menu_networks(const int debuglvl,
                         {
                             if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VRMR_VERBOSE) == -1)
                             {
-                                (void)vrprint.warning(VR_WARN, gettext("invalid networkname '%s'."), vrmr_new_zone_ptr);
+                                vrmr_warning(VR_WARN, gettext("invalid networkname '%s'."), vrmr_new_zone_ptr);
                             }
                             else
                             {
@@ -5601,7 +5601,7 @@ zones_section_menu_networks(const int debuglvl,
                                 /* alloc the memory */
                                 if(!(temp_ptr = malloc(size)))
                                 {
-                                    (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                                     free(vrmr_new_zone_ptr);
                                     return(-1);
                                 }
@@ -5615,7 +5615,7 @@ zones_section_menu_networks(const int debuglvl,
                                 {
                                     if(zones_rename_network_zone(debuglvl, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_NETWORK, reg) < 0)
                                     {
-                                        (void)vrprint.error(-1, VR_ERR, gettext("renaming network failed."));
+                                        vrmr_error(-1, VR_ERR, gettext("renaming network failed."));
                                     }
                                     else
                                     {
@@ -5625,7 +5625,7 @@ zones_section_menu_networks(const int debuglvl,
                                 }
                                 else
                                 {
-                                    (void)vrprint.warning(VR_WARN, gettext("'%s' is an invalid name for a network."), vrmr_new_zone_ptr);
+                                    vrmr_warning(VR_WARN, gettext("'%s' is an invalid name for a network."), vrmr_new_zone_ptr);
                                 }
                                 free(temp_ptr);
                             }
@@ -5645,7 +5645,7 @@ zones_section_menu_networks(const int debuglvl,
                     {
                         if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VRMR_VERBOSE) == -1)
                         {
-                            (void)vrprint.warning(VR_WARN, gettext("invalid networkname '%s'."), vrmr_new_zone_ptr);
+                            vrmr_warning(VR_WARN, gettext("invalid networkname '%s'."), vrmr_new_zone_ptr);
                         }
                         else
                         {
@@ -5662,11 +5662,11 @@ zones_section_menu_networks(const int debuglvl,
                                 {
                                     if(vrmr_new_zone(debuglvl, zones, temp_ptr, VRMR_TYPE_NETWORK) < 0)
                                     {
-                                        (void)vrprint.error(-1, VR_ERR, gettext("adding network failed."));
+                                        vrmr_error(-1, VR_ERR, gettext("adding network failed."));
                                     }
                                     else
                                     {
-                                        (void)vrprint.audit("%s '%s' %s.",
+                                        vrmr_audit("%s '%s' %s.",
                                             STR_NETWORK, temp_ptr,
                                             STR_HAS_BEEN_CREATED);
 
@@ -5676,7 +5676,7 @@ zones_section_menu_networks(const int debuglvl,
                                 }
                                 else
                                 {
-                                    (void)vrprint.warning(VR_WARN, gettext("'%s' is an invalid name for a network."), vrmr_new_zone_ptr);
+                                    vrmr_warning(VR_WARN, gettext("'%s' is an invalid name for a network."), vrmr_new_zone_ptr);
                                 }
                             }
                             free(temp_ptr);
@@ -5709,11 +5709,11 @@ zones_section_menu_networks(const int debuglvl,
 
                                         result = vrmr_delete_zone(debuglvl, zones, zonename_ptr, VRMR_TYPE_NETWORK);
                                         if(result < 0)
-                                            (void)vrprint.error(result, VR_ERR, gettext("deleting network failed."));
+                                            vrmr_error(result, VR_ERR, gettext("deleting network failed."));
                                         else
                                             reload = 1;
 
-                                        (void)vrprint.audit("%s '%s' %s.",
+                                        vrmr_audit("%s '%s' %s.",
                                             STR_NETWORK, zonename_ptr,
                                             STR_HAS_BEEN_DELETED);
 
@@ -5724,7 +5724,7 @@ zones_section_menu_networks(const int debuglvl,
                         }
                         else
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("unable to delete: network not empty."));
+                            vrmr_error(-1, VR_ERR, gettext("unable to delete: network not empty."));
                         }
                     }
                     break;
@@ -5780,7 +5780,7 @@ zones_section_menu_networks(const int debuglvl,
                                 {
                                     if(!(zonename_ptr = malloc(size)))
                                     {
-                                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                                         retval = -1;
                                     }
                                     else
@@ -5836,7 +5836,7 @@ zones_section_menu_networks(const int debuglvl,
                         {
                             if(!(zonename_ptr = malloc(size)))
                             {
-                                (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                                 retval = -1;
                             }
                             else
@@ -5869,7 +5869,7 @@ zones_section_menu_networks(const int debuglvl,
 
     if(zones_section_menu_networks_destroy(debuglvl) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "zones_section_menu_networks_destroy() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "zones_section_menu_networks_destroy() failed (in: %s:%d).", __FUNC__, __LINE__);
         retval = -1;
     }
 
@@ -5905,7 +5905,7 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_zones *zones, char *name, in
     /* safety */
     if(name == NULL || zone_ptr == NULL || zones == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -5914,7 +5914,7 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_zones *zones, char *name, in
 
     if(!(ZonesSection.EditZone.fields = (FIELD **)calloc(ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -5936,12 +5936,12 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_zones *zones, char *name, in
     ZoneSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 6, 1, 0, 0));
     /* load the comment from the backend */
     if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_ZONE, 0) < 0)
-        (void)vrprint.error(-1, "Error", "error while loading the comment.");
+        vrmr_error(-1, "Error", "error while loading the comment.");
 
     set_field_buffer_wrap(debuglvl, ZoneSec.commentfld, 0, ZonesSection.comment);
 
     if (field_num != ZonesSection.EditZone.n_fields) {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -5951,12 +5951,12 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_zones *zones, char *name, in
     /* create the window and panel */
     if(!(ZonesSection.EditZone.win = create_newwin(height, width, starty, startx, gettext("Edit Zone: Zone"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ZonesSection.EditZone.panel[0] = new_panel(ZonesSection.EditZone.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     keypad(ZonesSection.EditZone.win, TRUE);
@@ -5974,7 +5974,7 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_zones *zones, char *name, in
     /* Create the form and post it */
     if(!(ZonesSection.EditZone.form = new_form(ZonesSection.EditZone.fields)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     scale_form(ZonesSection.EditZone.form, &rows, &cols);
@@ -6013,7 +6013,7 @@ edit_zone_zone_save(const int debuglvl, struct vrmr_zone *zone_ptr)
     /* safety */
     if(!zone_ptr)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -6042,12 +6042,12 @@ edit_zone_zone_save(const int debuglvl, struct vrmr_zone *zone_ptr)
                 /* save to backend */
                 if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_ZONE) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     retval = -1;
                 }
 
                 /* for the log */
-                (void)vrprint.audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
                     STR_ZONE, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_ACTIVE,
                     STR_IS_NOW_SET_TO, zone_ptr->active ? STR_YES : STR_NO,
                     STR_WAS, active ? STR_YES : STR_NO);
@@ -6058,17 +6058,17 @@ edit_zone_zone_save(const int debuglvl, struct vrmr_zone *zone_ptr)
                 /* save the comment field to the backend */
                 if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_ZONE) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     retval = -1;
                 }
 
                 /* example: "network 'ext' has been changed: the comment was changed." */
-                (void)vrprint.audit("%s '%s' %s: %s.",
+                vrmr_audit("%s '%s' %s: %s.",
                     STR_ZONE, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_COMMENT_CHANGED);
             }
             else
             {
-                (void)vrprint.error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "unknown field (in: %s:%d).", __FUNC__, __LINE__);
                 retval = -1;
             }
         }
@@ -6135,7 +6135,7 @@ edit_zone_zone(const int debuglvl, struct vrmr_zones *zones, char *name)
     /* safety */
     if(!name || !zones)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -6147,7 +6147,7 @@ edit_zone_zone(const int debuglvl, struct vrmr_zones *zones, char *name)
     /* look for the zone in the list */
     if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, name)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "zone not found in memory (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "zone not found in memory (in: %s:%d).", __FUNC__, __LINE__);
         return(0);
     }
 
@@ -6276,7 +6276,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -6288,7 +6288,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
 
     if(!(ZonesSection.zoneitems = (ITEM **)calloc(ZonesSection.zone_n + 1, sizeof(ITEM *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -6296,7 +6296,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -6304,7 +6304,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
         {
             if(!(ZonesSection.zoneitems[i] = new_item(zone_ptr->name, NULL)))
             {
-                (void)vrprint.error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -6326,7 +6326,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
 
     if(!(ZonesSection.menu = new_menu((ITEM **)ZonesSection.zoneitems)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -6346,12 +6346,12 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
 
     if(!(ZonesSection.win = newwin(height, width, starty, startx)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(ZonesSection.panel[0] = new_panel(ZonesSection.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     wbkgd(ZonesSection.win, vccnf.color_win);
@@ -6384,7 +6384,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
     /* create the top and bottom fields */
     if(!(ZonesSection.z_win_top = newwin(1, 6, starty + 2, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.z_win_top, vccnf.color_win);
@@ -6395,7 +6395,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
 
     if(!(ZonesSection.z_win_bot = newwin(1, 6, starty + height - 6, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.z_win_bot, vccnf.color_win);
@@ -6469,7 +6469,7 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
     /* safety */
     if(reg == NULL || interfaces == NULL || zones == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -6554,11 +6554,11 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
                         {
                             if(vrmr_new_zone(debuglvl, zones, vrmr_new_zone_ptr, VRMR_TYPE_ZONE) < 0)
                             {
-                                (void)vrprint.error(result, VR_ERR, "adding zone failed (in: %s:%d).", __FUNC__);
+                                vrmr_error(result, VR_ERR, "adding zone failed (in: %s:%d).", __FUNC__);
                             }
                             else
                             {
-                                (void)vrprint.audit("%s '%s' %s.",
+                                vrmr_audit("%s '%s' %s.",
                                     STR_ZONE, vrmr_new_zone_ptr,
                                     STR_HAS_BEEN_CREATED);
 
@@ -6599,11 +6599,11 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
                                 result = vrmr_delete_zone(debuglvl, zones, (char *)item_name(cur), VRMR_TYPE_ZONE);
                                 if(result < 0)
                                 {
-                                    (void)vrprint.error(result, VR_ERR, gettext("deleting zone failed (in: %s:%d)."), __FUNC__, __LINE__);
+                                    vrmr_error(result, VR_ERR, gettext("deleting zone failed (in: %s:%d)."), __FUNC__, __LINE__);
                                 }
                                 else
                                 {
-                                    (void)vrprint.audit("%s '%s' %s.",
+                                    vrmr_audit("%s '%s' %s.",
                                         STR_ZONE, save_zone_name,
                                         STR_HAS_BEEN_DELETED);
 
@@ -6613,7 +6613,7 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
                         }
                         else
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("unable to delete: zone not empty."));
+                            vrmr_error(-1, VR_ERR, gettext("unable to delete: zone not empty."));
                         }
                     }
                     break;
@@ -6726,7 +6726,7 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
     /* allow the menu items */
     if(!(ZonesSection.hostitems = (ITEM **)calloc(ZonesSection.host_n + 1, sizeof(ITEM *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -6735,15 +6735,15 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
     {
         if(!(string = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
-        //(void)vrprint.debug(__FUNC__, "string '%s'", string);
+        //vrmr_debug(__FUNC__, "string '%s'", string);
 
         if(!(ZonesSection.hostitems[i] = new_item(string, NULL)))
         {
-            (void)vrprint.error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -6765,7 +6765,7 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
     /* now create the menu */
     if(!(ZonesSection.h_menu = new_menu((ITEM **)ZonesSection.hostitems)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -6789,7 +6789,7 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
 
     if(!(ZonesSection.h_win = newwin(height, width, starty, startx)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     wbkgd(ZonesSection.h_win, vccnf.color_win);
@@ -6800,7 +6800,7 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
 
     if(!(ZonesSection.h_panel[0] = new_panel(ZonesSection.h_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -6819,7 +6819,7 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
     result = post_menu(ZonesSection.h_menu);
     if(result != E_OK && result != E_NOT_CONNECTED)
     {
-        (void)vrprint.error(-1, VR_INTERR, "post_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "post_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -6833,7 +6833,7 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
     /* create the top and bottom fields */
     if(!(ZonesSection.h_win_top = newwin(1, 6, starty + 2, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.h_win_top, vccnf.color_win);
@@ -6844,7 +6844,7 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
 
     if(!(ZonesSection.h_win_bot = newwin(1, 6, starty + height - 4, width - 8)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(ZonesSection.h_win_bot, vccnf.color_win);
@@ -6905,7 +6905,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
     /* safety */
     if(blocklist == NULL || zones == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -6920,7 +6920,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
                 /* validate ip */
                 if(vrmr_check_ipv4address(debuglvl, NULL, NULL, new_ipaddress, 1) != 1)
                 {
-                    (void)vrprint.warning(VR_WARN, gettext("'%s' is not a valid ipaddress."), new_ipaddress);
+                    vrmr_warning(VR_WARN, gettext("'%s' is not a valid ipaddress."), new_ipaddress);
 
                     free(new_ipaddress);
                     new_ipaddress = NULL;
@@ -6930,11 +6930,11 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
                     /* add to list */
                     if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, new_ipaddress) < 0)
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "blocklist_add_one() failed (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "blocklist_add_one() failed (in: %s:%d).", __FUNC__, __LINE__);
                         return(-1);
                     }
 
-                    (void)vrprint.audit("%s '%s' %s.",
+                    vrmr_audit("%s '%s' %s.",
                         STR_IPADDRESS, new_ipaddress,
                         STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
 
@@ -6957,7 +6957,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
             {
                 if(!(zone_ptr = d_node->data))
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
 
@@ -6969,13 +6969,13 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
 
             if(i == 0)
             {
-                (void)vrprint.warning(VR_WARN, gettext("please create one or more hosts/groups first."));
+                vrmr_warning(VR_WARN, gettext("please create one or more hosts/groups first."));
                 return(0);
             }
 
             if(!(zone_choices = calloc(i + 1, VRMR_VRMR_MAX_HOST_NET_ZONE)))
             {
-                (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                 return(-1);
             }
 
@@ -6983,7 +6983,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
             {
                 if(!(zone_ptr = d_node->data))
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
 
@@ -7001,16 +7001,16 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
                 /* add to list */
                 if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, choice_ptr) < 0)
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("adding host/group to list failed (in: %s:%d)."), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("adding host/group to list failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 if(choice_type == VRMR_TYPE_HOST)
-                    (void)vrprint.audit("%s '%s' %s.",
+                    vrmr_audit("%s '%s' %s.",
                         STR_HOST, choice_ptr,
                         STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
                 else
-                    (void)vrprint.audit("%s '%s' %s.",
+                    vrmr_audit("%s '%s' %s.",
                         STR_GROUP, choice_ptr,
                         STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
 
@@ -7054,14 +7054,14 @@ zones_blocklist(const int debuglvl, struct vrmr_blocklist *blocklist, struct vrm
     /* safety */
     if(!blocklist || !zones || !reg)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* setup */
     if(zones_blocklist_init(debuglvl, blocklist) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "setting up blocklist menu failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "setting up blocklist menu failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -7074,27 +7074,27 @@ zones_blocklist(const int debuglvl, struct vrmr_blocklist *blocklist, struct vrm
         if(reload == 1)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "reload == 1, reloading menu.");
+                vrmr_debug(__FUNC__, "reload == 1, reloading menu.");
 
             /* first destroy */
             if(zones_blocklist_destroy() < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "reinitializing menu failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "reinitializing menu failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "reload == 1, old menu destroyed.");
+                vrmr_debug(__FUNC__, "reload == 1, old menu destroyed.");
 
             /* and setup again */
             if(zones_blocklist_init(debuglvl, blocklist) < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "reinitializing menu failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "reinitializing menu failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "reload == 1, new menu created.");
+                vrmr_debug(__FUNC__, "reload == 1, new menu created.");
 
             /* we are done with reloading */
             reload = 0;
@@ -7159,27 +7159,27 @@ zones_blocklist(const int debuglvl, struct vrmr_blocklist *blocklist, struct vrm
                             /* get the current item */
                             if(!(cur = current_item(ZonesSection.h_menu)))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
+                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
                                                     __FUNC__, __LINE__);
                                 return(-1);
                             }
 
                             if(!(itemname = (char *)item_name(cur)))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
+                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
                                                     __FUNC__, __LINE__);
                                 return(-1);
                             }
 
                             if(debuglvl >= HIGH)
-                                (void)vrprint.debug(__FUNC__, "itemname to remove: '%s'.", itemname);
+                                vrmr_debug(__FUNC__, "itemname to remove: '%s'.", itemname);
 
                             /* save the name */
                             (void)strlcpy(saveitemname, itemname, sizeof(saveitemname));
 
                             if(vrmr_blocklist_rem_one(debuglvl, zones, blocklist, itemname) == 0)
                             {
-                                (void)vrprint.audit("'%s' %s.",
+                                vrmr_audit("'%s' %s.",
                                     saveitemname,
                                     STR_HAS_BEEN_REMOVED_FROM_THE_BLOCKLIST);
 
@@ -7230,7 +7230,7 @@ zones_blocklist(const int debuglvl, struct vrmr_blocklist *blocklist, struct vrm
     if(changes && retval == 0)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "changes and retval == 0 so save the list to disk.");
+            vrmr_debug(__FUNC__, "changes and retval == 0 so save the list to disk.");
 
         if(vrmr_blocklist_save_list(debuglvl, &conf, blocklist) < 0)
             retval = -1;

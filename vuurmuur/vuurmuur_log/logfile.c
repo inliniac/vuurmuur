@@ -143,14 +143,14 @@ parse_ipt_logline(  const int debuglvl,
     char    port[6] = "";
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "parse_ipt_logline: start");
+        vrmr_debug(__FUNC__, "parse_ipt_logline: start");
 
 
     /* safety first */
     if( logline == NULL || logrule_ptr == NULL ||
         sscanf_str == NULL || counter_ptr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -159,7 +159,7 @@ parse_ipt_logline(  const int debuglvl,
     memset(logrule_ptr, 0, sizeof(struct log_rule));
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "sscanf_str: %s", sscanf_str);
+        vrmr_debug(__FUNC__, "sscanf_str: %s", sscanf_str);
 
     /* get date, time, hostname */
     result = sscanf(logline, sscanf_str, logrule_ptr->month,
@@ -171,7 +171,7 @@ parse_ipt_logline(  const int debuglvl,
     if(result < 6)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "logline is invalid because sscanf reported an error.");
+            vrmr_debug(__FUNC__, "logline is invalid because sscanf reported an error.");
 
         return(0);
     }
@@ -196,7 +196,7 @@ parse_ipt_logline(  const int debuglvl,
         }
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "action '%s', "
+            vrmr_debug(__FUNC__, "action '%s', "
                 "str_begin %u, str_end %u",
                 logrule_ptr->action, str_begin, str_end);
 
@@ -205,7 +205,7 @@ parse_ipt_logline(  const int debuglvl,
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "Searching 'vrmr:' in iptables logline failed.");
+        vrmr_error(-1, "Error", "Searching 'vrmr:' in iptables logline failed.");
         return(0);
     }
 
@@ -226,7 +226,7 @@ parse_ipt_logline(  const int debuglvl,
         }
         else if(str_begin == str_end)
         {
-            //(void)vrprint.error(-1, "Error", "Not a valid iptables line: No IN= keyword: %s", line);
+            //vrmr_error(-1, "Error", "Not a valid iptables line: No IN= keyword: %s", line);
             return(0);
         }
         else
@@ -239,7 +239,7 @@ parse_ipt_logline(  const int debuglvl,
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "Searching IN= in iptables logline failed.");
+        vrmr_error(-1, "Error", "Searching IN= in iptables logline failed.");
         return(0);
     }
 
@@ -270,7 +270,7 @@ parse_ipt_logline(  const int debuglvl,
         }
         else if(str_begin == str_end)
         {
-            //(void)vrprint.error(-1, "Error", "Not a valid iptables line: No OUT= keyword: %s", line);
+            //vrmr_error(-1, "Error", "Not a valid iptables line: No OUT= keyword: %s", line);
             return(0);
         }
         else
@@ -283,7 +283,7 @@ parse_ipt_logline(  const int debuglvl,
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "Searching OUT= in iptables logline failed.");
+        vrmr_error(-1, "Error", "Searching OUT= in iptables logline failed.");
         return(0);
     }
 
@@ -297,7 +297,7 @@ parse_ipt_logline(  const int debuglvl,
         }
         else if(str_begin == str_end)
         {
-            //(void)vrprint.error(-1, "Error", "Not a valid iptables line: No SRC= keyword: %s", line);
+            //vrmr_error(-1, "Error", "Not a valid iptables line: No SRC= keyword: %s", line);
             return(0);
         }
         else
@@ -308,7 +308,7 @@ parse_ipt_logline(  const int debuglvl,
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "Searching SRC= in iptables logline failed.");
+        vrmr_error(-1, "Error", "Searching SRC= in iptables logline failed.");
         return(0);
     }
 
@@ -322,7 +322,7 @@ parse_ipt_logline(  const int debuglvl,
         }
         else if(str_begin == str_end)
         {
-            //(void)vrprint.error(-1, "Error", "Not a valid iptables line: No DST= keyword: %s", line);
+            //vrmr_error(-1, "Error", "Not a valid iptables line: No DST= keyword: %s", line);
             return(0);
         }
         else
@@ -333,7 +333,7 @@ parse_ipt_logline(  const int debuglvl,
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "Searching SRC= in iptables logline failed.");
+        vrmr_error(-1, "Error", "Searching SRC= in iptables logline failed.");
         return(0);
     }
 
@@ -366,20 +366,20 @@ parse_ipt_logline(  const int debuglvl,
 
             if(snprintf(logrule_ptr->src_mac, sizeof(logrule_ptr->src_mac), "(%s)", from_mac) >= (int)sizeof(logrule_ptr->src_mac))
             {
-                (void)vrprint.error(-1, "Error", "overflow in src_mac string (in: %s).", __FUNC__);
+                vrmr_error(-1, "Error", "overflow in src_mac string (in: %s).", __FUNC__);
                 return(0);
             }
 
             if(snprintf(logrule_ptr->dst_mac, sizeof(logrule_ptr->dst_mac), "(%s)", to_mac) >= (int)sizeof(logrule_ptr->dst_mac))
             {
-                (void)vrprint.error(-1, "Error", "overflow in dst_mac string (in: %s).", __FUNC__);
+                vrmr_error(-1, "Error", "overflow in dst_mac string (in: %s).", __FUNC__);
                 return(0);
             }
         }
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "Searching MAC= in iptables logline failed.");
+        vrmr_error(-1, "Error", "Searching MAC= in iptables logline failed.");
         return(0);
     }
 
@@ -398,7 +398,7 @@ parse_ipt_logline(  const int debuglvl,
         else if(str_begin == str_end)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "No LEN keyword: no valid logline.");
+                vrmr_debug(__FUNC__, "No LEN keyword: no valid logline.");
 
             return(0);
         }
@@ -406,7 +406,7 @@ parse_ipt_logline(  const int debuglvl,
         else if(str_end > str_begin + (4 + 5))
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "LEN too long: no valid logline.");
+                vrmr_debug(__FUNC__, "LEN too long: no valid logline.");
 
             return(0);
         }
@@ -415,7 +415,7 @@ parse_ipt_logline(  const int debuglvl,
             if(range_strcpy(packet_len, logline, str_begin + strlen("LEN="), str_end, sizeof(packet_len)) < 0)
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "LEN: lenght copy failed: no valid logline.");
+                    vrmr_debug(__FUNC__, "LEN: lenght copy failed: no valid logline.");
 
                 return(0);
             }
@@ -427,7 +427,7 @@ parse_ipt_logline(  const int debuglvl,
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "Searching LEN= in iptables logline failed.");
+        vrmr_error(-1, "Error", "Searching LEN= in iptables logline failed.");
         return(0);
     }
 
@@ -447,7 +447,7 @@ parse_ipt_logline(  const int debuglvl,
         else if(str_begin == str_end)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "No TTL keyword: no valid logline.");
+                vrmr_debug(__FUNC__, "No TTL keyword: no valid logline.");
 
             return(0);
         }
@@ -455,7 +455,7 @@ parse_ipt_logline(  const int debuglvl,
         else if(str_end > str_begin + (4 + 5))
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "TTL too long: no valid logline.");
+                vrmr_debug(__FUNC__, "TTL too long: no valid logline.");
 
             return(0);
         }
@@ -464,7 +464,7 @@ parse_ipt_logline(  const int debuglvl,
             if(range_strcpy(packet_len, logline, str_begin + strlen("TTL="), str_end, sizeof(packet_len)) < 0)
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "TTL: lenght copy failed: no valid logline.");
+                    vrmr_debug(__FUNC__, "TTL: lenght copy failed: no valid logline.");
 
                 return(0);
             }
@@ -476,7 +476,7 @@ parse_ipt_logline(  const int debuglvl,
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "Searching TTL= in iptables logline failed.");
+        vrmr_error(-1, "Error", "Searching TTL= in iptables logline failed.");
         return(0);
     }
 
@@ -495,13 +495,13 @@ parse_ipt_logline(  const int debuglvl,
         /* no proto keyword */
         else if(str_begin == str_end)
         {
-            //(void)vrprint.error(-1, "Error", "Not a valid iptables line: No PROTO= keyword: %s", line);
+            //vrmr_error(-1, "Error", "Not a valid iptables line: No PROTO= keyword: %s", line);
             return(0);
         }
         /* if proto is too long (6: PROTO=, 4: ICMP max) */
         else if(str_end > str_begin + 6 + 4)
         {
-            //(void)vrprint.error(-1, "Error", "Not a valid iptables line: PROTO= value is too long: %s", line);
+            //vrmr_error(-1, "Error", "Not a valid iptables line: PROTO= value is too long: %s", line);
             return(0);
         }
         else
@@ -556,7 +556,7 @@ parse_ipt_logline(  const int debuglvl,
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "Searching PROTO= in iptables logline failed.");
+        vrmr_error(-1, "Error", "Searching PROTO= in iptables logline failed.");
         return(0);
     }
 
@@ -606,7 +606,7 @@ parse_ipt_logline(  const int debuglvl,
         }
         else
         {
-            (void)vrprint.error(-1, "Error", "Searching SPT= in iptables logline failed.");
+            vrmr_error(-1, "Error", "Searching SPT= in iptables logline failed.");
             return(0);
         }
 
@@ -647,7 +647,7 @@ parse_ipt_logline(  const int debuglvl,
         }
         else
         {
-            (void)vrprint.error(-1, "Error", "Searching DPT= in iptables logline failed.");
+            vrmr_error(-1, "Error", "Searching DPT= in iptables logline failed.");
             return(0);
         }
 
@@ -677,7 +677,7 @@ parse_ipt_logline(  const int debuglvl,
             }
             else
             {
-                (void)vrprint.error(-1, "Error", "Searching SYN in iptables logline failed.");
+                vrmr_error(-1, "Error", "Searching SYN in iptables logline failed.");
                 return(0);
             }
             /*
@@ -703,7 +703,7 @@ parse_ipt_logline(  const int debuglvl,
             }
             else
             {
-                (void)vrprint.error(-1, "Error", "Searching FIN in iptables logline failed.");
+                vrmr_error(-1, "Error", "Searching FIN in iptables logline failed.");
                 return(0);
             }
             /*
@@ -729,7 +729,7 @@ parse_ipt_logline(  const int debuglvl,
             }
             else
             {
-                (void)vrprint.error(-1, "Error", "Searching RST in iptables logline failed.");
+                vrmr_error(-1, "Error", "Searching RST in iptables logline failed.");
                 return(0);
             }
             /*
@@ -755,7 +755,7 @@ parse_ipt_logline(  const int debuglvl,
             }
             else
             {
-                (void)vrprint.error(-1, "Error", "Searching ACK in iptables logline failed.");
+                vrmr_error(-1, "Error", "Searching ACK in iptables logline failed.");
                 return(0);
             }
             /*
@@ -781,7 +781,7 @@ parse_ipt_logline(  const int debuglvl,
             }
             else
             {
-                (void)vrprint.error(-1, "Error", "Searching PSH in iptables logline failed.");
+                vrmr_error(-1, "Error", "Searching PSH in iptables logline failed.");
                 return(0);
             }
             /*
@@ -810,7 +810,7 @@ parse_ipt_logline(  const int debuglvl,
             }
             else
             {
-                (void)vrprint.error(-1, "Error", "Searching URG in iptables logline failed.");
+                vrmr_error(-1, "Error", "Searching URG in iptables logline failed.");
                 return(0);
             }
 
@@ -853,7 +853,7 @@ parse_ipt_logline(  const int debuglvl,
         }
         else
         {
-            (void)vrprint.error(-1, "Error", "Searching TYPE= in iptables logline failed.");
+            vrmr_error(-1, "Error", "Searching TYPE= in iptables logline failed.");
             return(0);
         }
 
@@ -885,7 +885,7 @@ parse_ipt_logline(  const int debuglvl,
         }
         else
         {
-            (void)vrprint.error(-1, "Error", "Searching CODE= in iptables logline failed.");
+            vrmr_error(-1, "Error", "Searching CODE= in iptables logline failed.");
             return(0);
         }
     }
@@ -901,21 +901,21 @@ parse_ipt_logline(  const int debuglvl,
 static int
 stat_logfile(const int debuglvl, const char *path, struct stat *logstat)
 {
-    (void)vrprint.debug (__FUNC__, "In stat_logfile (%s:%d)", __FUNC__, __LINE__);
+    vrmr_debug (__FUNC__, "In stat_logfile (%s:%d)", __FUNC__, __LINE__);
 
     if(path == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(lstat(path, logstat) == -1)
     {
-        (void)vrprint.error(-1, VR_ERR, "lstat() on %s failed: %s (in: %s:%d).", path, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, "lstat() on %s failed: %s (in: %s:%d).", path, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
-    (void)vrprint.debug(__FUNC__, "file '%s' statted.", path);
+    vrmr_debug(__FUNC__, "file '%s' statted.", path);
 
     return(0);
 }
@@ -926,7 +926,7 @@ compare_logfile_stats(const int debuglvl, struct file_mon *filemon)
 {
     if(filemon == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -935,24 +935,24 @@ compare_logfile_stats(const int debuglvl, struct file_mon *filemon)
         if(filemon->new_file.st_size == 0)
         {
             if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "after reopening the systemlog the file is empty. Probably rotated.");
+                vrmr_debug(__FUNC__, "after reopening the systemlog the file is empty. Probably rotated.");
         }
         else if(filemon->old_file.st_size < filemon->new_file.st_size)
         {
             filemon->windback = filemon->new_file.st_size - filemon->old_file.st_size;
 
             if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "while reopening the logfile %u bytes were added to it.", filemon->windback);
+                vrmr_debug(__FUNC__, "while reopening the logfile %u bytes were added to it.", filemon->windback);
         }
         else if(filemon->old_file.st_size > filemon->new_file.st_size)
         {
-            (void)vrprint.warning(VR_WARN, "possible logfile tampering detected! Please inspect the logfile.");
+            vrmr_warning(VR_WARN, "possible logfile tampering detected! Please inspect the logfile.");
         }
     }
     else
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "after reopening the systemlog the files are of equal size.");
+            vrmr_debug(__FUNC__, "after reopening the systemlog the files are of equal size.");
     }
 
     return(0);
@@ -966,20 +966,20 @@ close_syslog(const int debuglvl, FILE **system_log, /*@null@*/struct file_mon *f
 
     if(filemon != NULL)
     {
-        (void)vrprint.debug (__FUNC__, "Calling stat_logfile (%s:%d)", __FUNC__, __LINE__);
+        vrmr_debug (__FUNC__, "Calling stat_logfile (%s:%d)", __FUNC__, __LINE__);
         (void)stat_logfile(debuglvl, conf.systemlog_location, &filemon->old_file);
-        (void)vrprint.debug (__FUNC__, "Done stat_logfile", __FUNC__, __LINE__);
+        vrmr_debug (__FUNC__, "Done stat_logfile", __FUNC__, __LINE__);
     }
     
     if(fclose(*system_log) < 0)
     {
-        (void)vrprint.error(-1, "Error", "closing the iptableslog '%s' failed: %s.", conf.systemlog_location, strerror(errno));
+        vrmr_error(-1, "Error", "closing the iptableslog '%s' failed: %s.", conf.systemlog_location, strerror(errno));
         retval = -1;
     }
 
     *system_log   = NULL;
 
-    (void)vrprint.debug (__FUNC__, "Closed syslog (%s:%d)", __FUNC__, __LINE__);
+    vrmr_debug (__FUNC__, "Closed syslog (%s:%d)", __FUNC__, __LINE__);
 
     return(retval);
 }
@@ -992,7 +992,7 @@ close_vuurmuurlog(const int debuglvl, FILE **vuurmuur_log, /*@null@*/struct file
     /* close the logfiles */
     if(fclose(*vuurmuur_log) < 0)
     {
-        (void)vrprint.error(-1, "Error", "closing the vuurmuur-log '%s' failed: %s.", conf.trafficlog_location, strerror(errno));
+        vrmr_error(-1, "Error", "closing the vuurmuur-log '%s' failed: %s.", conf.trafficlog_location, strerror(errno));
         retval = -1;
     }
 
@@ -1009,21 +1009,21 @@ open_logfile(const int debuglvl, const struct vrmr_config *cnf, const char *path
     /* safety */
     if(path == NULL || mode == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
     /* open the logfile */
     if(!(fp = vuurmuur_fopen(debuglvl, cnf, path, mode)))
     {
-        (void)vrprint.error(-1, "Error", "the logfile '%s' could not be opened: %s (in: %s:%d).", path, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "the logfile '%s' could not be opened: %s (in: %s:%d).", path, strerror(errno), __FUNC__, __LINE__);
         return(NULL);
     }
 
     /* listen at the end of the file */
     if(fseek(fp, (off_t) 0, SEEK_END) == -1)
     {
-        (void)vrprint.error(-1, "Error", "attaching to the end of the logfile failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "attaching to the end of the logfile failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
         return(NULL);
     }
 
@@ -1037,14 +1037,14 @@ open_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_log
     /* open the system log */
     if(!(*system_log = fopen(cnf->systemlog_location, "r")))
     {
-        (void)vrprint.error(-1, "Error", "the systemlog '%s' could not be opened: %s (in: %s:%d).", conf.systemlog_location, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "the systemlog '%s' could not be opened: %s (in: %s:%d).", conf.systemlog_location, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
     /* listen at the end of the file */
     if(fseek(*system_log, (off_t) 0, SEEK_END) == -1)
     {
-        (void)vrprint.error(-1, "Error", "attaching to the end of the logfile failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "attaching to the end of the logfile failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
 
         /* close the systemlog again */
         (void)fclose(*system_log);
@@ -1061,7 +1061,7 @@ open_vuurmuurlog (const int debuglvl, const struct vrmr_config *cnf, FILE **vuur
     /* open the vuurmuur logfile */
     if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, conf.trafficlog_location, "a")))
     {
-        (void)vrprint.error(-1, "Error", "opening traffic log file '%s' failed: %s (in: %s:%d).", conf.trafficlog_location, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "opening traffic log file '%s' failed: %s (in: %s:%d).", conf.trafficlog_location, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
     return (0);
@@ -1078,7 +1078,7 @@ reopen_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_l
     /* clear */
     memset(&filemon, 0, sizeof(filemon));
 
-    (void)vrprint.debug (__FUNC__, "Reopening syslog files (%s:%d)", __FUNC__, __LINE__);
+    vrmr_debug (__FUNC__, "Reopening syslog files (%s:%d)", __FUNC__, __LINE__);
 
     /* close the logfiles */
     (void)close_syslog(debuglvl, system_log, &filemon);
@@ -1094,7 +1094,7 @@ reopen_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_l
         if(!(*system_log = fopen(cnf->systemlog_location, "r")))
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "Re-opening iptableslog '%s' failed: %s.", cnf->systemlog_location, strerror(errno));
+                vrmr_debug(__FUNC__, "Re-opening iptableslog '%s' failed: %s.", cnf->systemlog_location, strerror(errno));
 
             /* sleep and increase waitcounter */
             sleep(3);
@@ -1111,7 +1111,7 @@ reopen_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_l
     /* check if have successfully reopened the file */
     if(*system_log == NULL)
     {
-        (void)vrprint.error(-1, "Error", "after 5 minutes of trying the iptableslog could still not be opened.");
+        vrmr_error(-1, "Error", "after 5 minutes of trying the iptableslog could still not be opened.");
         *system_log = NULL;
         return(-1);
     }
@@ -1120,18 +1120,18 @@ reopen_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_l
     result = fseek(*system_log, (off_t) filemon.windback * -1, SEEK_END);
     if(result == -1)
     {
-        (void)vrprint.error(-1, "Error", "attaching to the end of the logfile failed: %s (in: %s).", strerror(errno), __FUNC__);
+        vrmr_error(-1, "Error", "attaching to the end of the logfile failed: %s (in: %s).", strerror(errno), __FUNC__);
 
         /* close the log */
         if(fclose(*system_log) < 0)
-            (void)vrprint.error(-1, "Error", "closing the iptableslog '%s' failed: %s.", cnf->systemlog_location, strerror(errno));
+            vrmr_error(-1, "Error", "closing the iptableslog '%s' failed: %s.", cnf->systemlog_location, strerror(errno));
 
         *system_log = NULL;
 
         return(-1);
     }
 
-    (void)vrprint.debug (__FUNC__, "Reopened syslog files (%s:%d)", __FUNC__, __LINE__);
+    vrmr_debug (__FUNC__, "Reopened syslog files (%s:%d)", __FUNC__, __LINE__);
 
     return(0);
 }
@@ -1144,7 +1144,7 @@ reopen_vuurmuurlog(const int debuglvl, const struct vrmr_config *cnf, FILE **vuu
     /* clear */
     memset(&filemon, 0, sizeof(filemon));
 
-    (void)vrprint.debug (__FUNC__, "Reopening vuurmuur log (%s:%d)", __FUNC__, __LINE__);
+    vrmr_debug (__FUNC__, "Reopening vuurmuur log (%s:%d)", __FUNC__, __LINE__);
 
     /* close the logfiles */
     (void)close_vuurmuurlog(debuglvl, vuurmuur_log, &filemon);
@@ -1152,11 +1152,11 @@ reopen_vuurmuurlog(const int debuglvl, const struct vrmr_config *cnf, FILE **vuu
     /* re-open the vuurmuur logfile */
     if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, cnf->trafficlog_location, "a")))
     {
-        (void)vrprint.error(-1, "Error", "Re-opening traffic log file '%s'"
+        vrmr_error(-1, "Error", "Re-opening traffic log file '%s'"
                 "failed: %s.", cnf->trafficlog_location, strerror(errno));
         return(-1);
     }
 
-    (void)vrprint.debug (__FUNC__, "Done reopening");
+    vrmr_debug (__FUNC__, "Done reopening");
     return(0);
 }

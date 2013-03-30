@@ -170,13 +170,13 @@ conn_line_to_data(  const int debuglvl,
     if( connline_ptr == NULL || conndata_ptr == NULL ||
         serhash == NULL || zonehash == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(req->unknown_ip_as_net && zonelist == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -211,7 +211,7 @@ conn_line_to_data(  const int debuglvl,
 
             if(!(conndata_ptr->sername = malloc(size)))
             {
-                (void)vrprint.error(-1, "Error", "malloc() failed: %s "
+                vrmr_error(-1, "Error", "malloc() failed: %s "
                         "(in: %s:%d).", strerror(errno),
                         __FUNC__, __LINE__);
                 return(-1);
@@ -219,7 +219,7 @@ conn_line_to_data(  const int debuglvl,
 
             if(strlcpy(conndata_ptr->sername, service_name, size) >= size)
             {
-                (void)vrprint.error(-1, "Internal Error",
+                vrmr_error(-1, "Internal Error",
                         "string overflow (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
@@ -248,7 +248,7 @@ conn_line_to_data(  const int debuglvl,
     if(strlcpy(conndata_ptr->src_ip, connline_ptr->src_ip,
             sizeof(conndata_ptr->src_ip)) >= sizeof(conndata_ptr->src_ip))
     {
-        (void)vrprint.error(-1, "Internal Error", "string overflow "
+        vrmr_error(-1, "Internal Error", "string overflow "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -260,7 +260,7 @@ conn_line_to_data(  const int debuglvl,
     if(conndata_ptr->from == NULL)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "unknown ip: '%s'.",
+            vrmr_debug(__FUNC__, "unknown ip: '%s'.",
                     connline_ptr->src_ip);
 
         if(req->unknown_ip_as_net == FALSE)
@@ -272,7 +272,7 @@ conn_line_to_data(  const int debuglvl,
 
             if(!(conndata_ptr->fromname = malloc(size)))
             {
-                (void)vrprint.error(-1, "Error", "malloc() "
+                vrmr_error(-1, "Error", "malloc() "
                         "failed: %s (in: %s:%d).",
                         strerror(errno), __FUNC__, __LINE__);
                 return(-1);
@@ -281,7 +281,7 @@ conn_line_to_data(  const int debuglvl,
             {
                 if(strlcpy(conndata_ptr->fromname, zone_name, size) >= size)
                 {
-                    (void)vrprint.error(-1, "Internal Error",
+                    vrmr_error(-1, "Internal Error",
                             "string overflow (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
@@ -296,14 +296,14 @@ conn_line_to_data(  const int debuglvl,
 
                 if(!(conndata_ptr->fromname = malloc(size)))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
+                    vrmr_error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
                     return(-1);
                 }
                 else
                 {
                     if(strlcpy(conndata_ptr->fromname, connline_ptr->src_ip, size) >= size)
                     {
-                        (void)vrprint.error(-1, "Internal Error",
+                        vrmr_error(-1, "Internal Error",
                                 "string overflow (in: %s:%d).",
                                 __FUNC__, __LINE__);
                         return(-1);
@@ -316,14 +316,14 @@ conn_line_to_data(  const int debuglvl,
 
                 if(!(conndata_ptr->fromname = malloc(size)))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
+                    vrmr_error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
                     return(-1);
                 }
                 else
                 {
                     if(strlcpy(conndata_ptr->fromname, zone_name_ptr, size) >= size)
                     {
-                        (void)vrprint.error(-1, "Internal Error",
+                        vrmr_error(-1, "Internal Error",
                                 "string overflow (in: %s:%d).",
                                 __FUNC__, __LINE__);
                         free(zone_name_ptr);
@@ -345,7 +345,7 @@ conn_line_to_data(  const int debuglvl,
             sizeof(conndata_ptr->dst_ip))
                 >= sizeof(conndata_ptr->dst_ip))
     {
-        (void)vrprint.error(-1, "Internal Error", "string overflow "
+        vrmr_error(-1, "Internal Error", "string overflow "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -354,7 +354,7 @@ conn_line_to_data(  const int debuglvl,
        sizeof(conndata_ptr->orig_dst_ip))
           >= sizeof(conndata_ptr->orig_dst_ip))
     {
-        (void)vrprint.error(-1, "Internal Error", "string overflow "
+        vrmr_error(-1, "Internal Error", "string overflow "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -371,14 +371,14 @@ conn_line_to_data(  const int debuglvl,
 
             if(!(conndata_ptr->toname = malloc(size)))
             {
-                (void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
+                vrmr_error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
                 return(-1);
             }
             else
             {
                 if(strlcpy(conndata_ptr->toname, zone_name, size) >= size)
                 {
-                    (void)vrprint.error(-1, "Internal Error",
+                    vrmr_error(-1, "Internal Error",
                             "string overflow (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
@@ -393,14 +393,14 @@ conn_line_to_data(  const int debuglvl,
 
                 if(!(conndata_ptr->toname = malloc(size)))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
+                    vrmr_error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
                     return(-1);
                 }
                 else
                 {
                     if(strlcpy(conndata_ptr->toname, connline_ptr->dst_ip, size) >= size)
                     {
-                        (void)vrprint.error(-1, "Internal Error",
+                        vrmr_error(-1, "Internal Error",
                                 "string overflow (in: %s:%d).",
                                 __FUNC__, __LINE__);
                         return(-1);
@@ -413,14 +413,14 @@ conn_line_to_data(  const int debuglvl,
 
                 if(!(conndata_ptr->toname = malloc(size)))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
+                    vrmr_error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
                     return(-1);
                 }
                 else
                 {
                     if(strlcpy(conndata_ptr->toname, zone_name_ptr, size) >= size)
                     {
-                        (void)vrprint.error(-1, "Internal Error",
+                        vrmr_error(-1, "Internal Error",
                                 "string overflow (in: %s:%d).",
                                 __FUNC__, __LINE__);
                         return(-1);
@@ -526,13 +526,13 @@ parse_tcp_line(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 17)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
+            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
                     connline_ptr->to_dst_packets_str,
                     connline_ptr->to_dst_bytes_str,
                     connline_ptr->to_src_packets_str,
@@ -575,7 +575,7 @@ parse_tcp_line(const int debuglvl, const char *line,
                             alt_dest_port);
             if(result != 13)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -662,13 +662,13 @@ parse_tcp_line_ipv6(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 17)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
+            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
                     connline_ptr->to_dst_packets_str,
                     connline_ptr->to_dst_bytes_str,
                     connline_ptr->to_src_packets_str,
@@ -711,7 +711,7 @@ parse_tcp_line_ipv6(const int debuglvl, const char *line,
                             alt_dest_port);
             if(result != 13)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -799,7 +799,7 @@ parse_udp_line(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 16)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s', result %d", line, result);
+                vrmr_debug(__FUNC__, "parse error: '%s', result %d", line, result);
                 return(-1);
             }
         }
@@ -808,7 +808,7 @@ parse_udp_line(const int debuglvl, const char *line,
                 sizeof(connline_ptr->status));
 
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
+            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
                     connline_ptr->to_dst_packets_str,
                     connline_ptr->to_dst_bytes_str,
                     connline_ptr->to_src_packets_str,
@@ -850,7 +850,7 @@ parse_udp_line(const int debuglvl, const char *line,
                             alt_dest_port);
             if(result != 12)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -937,7 +937,7 @@ parse_udp_line_ipv6(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 16)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s', result %d", line, result);
+                vrmr_debug(__FUNC__, "parse error: '%s', result %d", line, result);
                 return(-1);
             }
         }
@@ -946,7 +946,7 @@ parse_udp_line_ipv6(const int debuglvl, const char *line,
                 sizeof(connline_ptr->status));
 
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
+            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
                     connline_ptr->to_dst_packets_str,
                     connline_ptr->to_dst_bytes_str,
                     connline_ptr->to_src_packets_str,
@@ -988,7 +988,7 @@ parse_udp_line_ipv6(const int debuglvl, const char *line,
                             alt_dest_port);
             if(result != 12)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -1079,13 +1079,13 @@ parse_icmp_line(const int debuglvl, const char *line,
                     connline_ptr->to_src_bytes_str);
             if(result != 17)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
+            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
                     connline_ptr->to_dst_packets_str,
                     connline_ptr->to_dst_bytes_str,
                     connline_ptr->to_src_packets_str,
@@ -1109,7 +1109,7 @@ parse_icmp_line(const int debuglvl, const char *line,
                         connline_ptr->alt_dst_ip);
         if(result != 11)
         {
-            (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+            vrmr_debug(__FUNC__, "parse error: '%s'", line);
             return(-1);
         }
     }
@@ -1185,13 +1185,13 @@ parse_icmp_line_ipv6(const int debuglvl, const char *line,
                     connline_ptr->to_src_bytes_str);
             if(result != 17)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
+            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
                     connline_ptr->to_dst_packets_str,
                     connline_ptr->to_dst_bytes_str,
                     connline_ptr->to_src_packets_str,
@@ -1229,7 +1229,7 @@ parse_icmp_line_ipv6(const int debuglvl, const char *line,
                     connline_ptr->alt_dst_ip);
             if(result != 10)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -1294,13 +1294,13 @@ parse_unknown_line(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 12)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
+            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
                     connline_ptr->to_dst_packets_str,
                     connline_ptr->to_dst_bytes_str,
                     connline_ptr->to_src_packets_str,
@@ -1331,7 +1331,7 @@ parse_unknown_line(const int debuglvl, const char *line,
                             connline_ptr->alt_dst_ip);
             if (result != 8)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -1386,13 +1386,13 @@ parse_unknown_line_ipv6(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 12)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
+            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
                     connline_ptr->to_dst_packets_str,
                     connline_ptr->to_dst_bytes_str,
                     connline_ptr->to_src_packets_str,
@@ -1423,7 +1423,7 @@ parse_unknown_line_ipv6(const int debuglvl, const char *line,
                             connline_ptr->alt_dst_ip);
             if (result != 8)
             {
-                (void)vrprint.debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(__FUNC__, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -1455,7 +1455,7 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
     /* first determine protocol */
     sscanf(line, "%s", protocol);
     if (debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "protocol %s", protocol);
+        vrmr_debug(__FUNC__, "protocol %s", protocol);
 
     if(strcmp(protocol, "tcp") == 0)
     {
@@ -1500,7 +1500,7 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
                 sizeof(connline_ptr->orig_dst_ip))
                     >= sizeof(connline_ptr->orig_dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
             "string overflow (in: %s:%d).",
             __FUNC__, __LINE__);
             return(-1);
@@ -1510,7 +1510,7 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
                 sizeof(connline_ptr->dst_ip))
                     >= sizeof(connline_ptr->dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
                     "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -1524,7 +1524,7 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
                 sizeof(connline_ptr->orig_dst_ip))
                     >= sizeof(connline_ptr->orig_dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
             "string overflow (in: %s:%d).",
             __FUNC__, __LINE__);
             return(-1);
@@ -1534,7 +1534,7 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
                 sizeof(connline_ptr->dst_ip))
                     >= sizeof(connline_ptr->dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
                     "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -1564,7 +1564,7 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
            sizeof(connline_ptr->orig_dst_ip))
                 >= sizeof(connline_ptr->orig_dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
             "string overflow (in: %s:%d).",
             __FUNC__, __LINE__);
             return(-1);
@@ -1574,7 +1574,7 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
                 sizeof(connline_ptr->dst_ip))
                     >= sizeof(connline_ptr->dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
                     "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -1634,7 +1634,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
     /* first determine protocol */
     sscanf(line, "%s", protocol);
     if (debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "protocol %s", protocol);
+        vrmr_debug(__FUNC__, "protocol %s", protocol);
 
     if(strcmp(protocol, "tcp") == 0)
     {
@@ -1717,7 +1717,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
                 sizeof(connline_ptr->orig_dst_ip))
                     >= sizeof(connline_ptr->orig_dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
             "string overflow (in: %s:%d).",
             __FUNC__, __LINE__);
             return(-1);
@@ -1727,7 +1727,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
                 sizeof(connline_ptr->dst_ip))
                     >= sizeof(connline_ptr->dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
                     "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -1741,7 +1741,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
                 sizeof(connline_ptr->orig_dst_ip))
                     >= sizeof(connline_ptr->orig_dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
             "string overflow (in: %s:%d).",
             __FUNC__, __LINE__);
             return(-1);
@@ -1751,7 +1751,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
                 sizeof(connline_ptr->dst_ip))
                     >= sizeof(connline_ptr->dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
                     "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -1781,7 +1781,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
            sizeof(connline_ptr->orig_dst_ip))
                 >= sizeof(connline_ptr->orig_dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
             "string overflow (in: %s:%d).",
             __FUNC__, __LINE__);
             return(-1);
@@ -1791,7 +1791,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
                 sizeof(connline_ptr->dst_ip))
                     >= sizeof(connline_ptr->dst_ip))
         {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
                     "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
@@ -1970,7 +1970,7 @@ conn_match_conntrackdata(const void *check, const void *hash)
     hash_cd  = (struct vrmr_conntrack_entry *)hash;
     if(!check_cd || !hash_cd)
     {
-        (void)vrprint.error(0, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(0, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
         return(0);
     }
 
@@ -2077,7 +2077,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
     if(serv_hash == NULL || zone_hash == NULL ||
         cnf == NULL || prev_conn_cnt < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -2091,7 +2091,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
     if(vrmr_hash_setup(debuglvl, &conn_hash, hashtbl_size,
             conn_hash_conntrackdata, conn_match_conntrackdata) != 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_hash_setup() failed "
+        vrmr_error(-1, "Internal Error", "vrmr_hash_setup() failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -2112,7 +2112,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
                 "-L", "-f", "ipv4", NULL };
             int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->conntrack_location, args, outputs);
             if (result == -1) {
-                (void)vrprint.error(-1, "Error", "unable to execute "
+                vrmr_error(-1, "Error", "unable to execute "
                         "conntrack: %s (in: %s:%d).", strerror(errno),
                         __FUNC__, __LINE__);
                 return(-1);
@@ -2122,7 +2122,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
                 "-L", "-f", "ipv6", NULL };
             int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->conntrack_location, args, outputs);
             if (result == -1) {
-                (void)vrprint.error(-1, "Error", "unable to execute "
+                vrmr_error(-1, "Error", "unable to execute "
                         "conntrack: %s (in: %s:%d).", strerror(errno),
                         __FUNC__, __LINE__);
                 return(-1);
@@ -2131,7 +2131,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
 
         fp = fopen(tmpfile, "r");
         if (fp == NULL) {
-            (void)vrprint.error(-1, "Error", "unable to open proc "
+            vrmr_error(-1, "Error", "unable to open proc "
                     "conntrack: %s (in: %s:%d).", strerror(errno),
                     __FUNC__, __LINE__);
             return(-1);
@@ -2146,7 +2146,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         }
         else
         {
-            (void)vrprint.error(-1, "Error", "unable to open proc "
+            vrmr_error(-1, "Error", "unable to open proc "
                     "conntrack: %s (in: %s:%d).", strerror(errno),
                     __FUNC__, __LINE__);
             return(-1);
@@ -2182,7 +2182,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         else
             r = conn_process_one_conntrack_line_ipv6(debuglvl, line, &cl);
         if (r < 0) {
-            (void)vrprint.error(-1, "Internal Error",
+            vrmr_error(-1, "Internal Error",
                     "conn_process_one_conntrack_line() failed "
                     "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -2194,7 +2194,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         /* allocate memory for the data */
         if(!(cd_ptr = (struct vrmr_conntrack_entry *)malloc(sizeof(struct vrmr_conntrack_entry))))
         {
-            (void)vrprint.error(-1, "Error", "malloc() failed: %s "
+            vrmr_error(-1, "Error", "malloc() failed: %s "
                     "(in: %s:%d).", strerror(errno),
                     __FUNC__, __LINE__);
             return(-1);
@@ -2206,7 +2206,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         if(conn_line_to_data(debuglvl, &cl, cd_ptr, serv_hash,
                 zone_hash, zone_list, req) < 0)
         {
-            (void)vrprint.error(-1, "Error", "conn_line_to_data() "
+            vrmr_error(-1, "Error", "conn_line_to_data() "
                     "failed: (in: %s:%d).",
                     __FUNC__, __LINE__);
             free(cd_ptr);
@@ -2305,14 +2305,14 @@ vrmr_conn_get_connections_do(const int debuglvl,
                         /* yes, so now we move one up */
                         if(vrmr_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
                         {
-                            (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
+                            vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
 
                         /* now reinsert */
                         if(!(cd_ptr->d_node = vrmr_list_insert_before(debuglvl, conn_dlist, d_node, cd_ptr)))
                         {
-                            (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
+                            vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
                     }
@@ -2328,14 +2328,14 @@ vrmr_conn_get_connections_do(const int debuglvl,
                             /* yes, so now we move one down */
                             if(vrmr_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
                             {
-                                (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
+                                vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
                                 return(-1);
                             }
 
                             /* now reinsert */
                             if(!(cd_ptr->d_node = vrmr_list_insert_after(debuglvl, conn_dlist, d_node, cd_ptr)))
                             {
-                                (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
+                                vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
                                 return(-1);
                             }
                         }
@@ -2358,14 +2358,14 @@ vrmr_conn_get_connections_do(const int debuglvl,
                         /* yes, so now we first remove */
                         if(vrmr_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
                         {
-                            (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
+                            vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
 
                         /* and then re-insert */
                         if(!(prev_cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, prev_cd_ptr)))
                         {
-                            (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
+                            vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
                     }
@@ -2383,14 +2383,14 @@ vrmr_conn_get_connections_do(const int debuglvl,
                         /* yes, so now remove */
                         if(vrmr_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
                         {
-                            (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
+                            vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
 
                         /* now reinsert */
                         if(!(next_cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, next_cd_ptr)))
                         {
-                            (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
+                            vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
                     }
@@ -2408,14 +2408,14 @@ vrmr_conn_get_connections_do(const int debuglvl,
                 cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, cd_ptr);
                 if(!cd_ptr->d_node)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "unable to append into list (in: vrmr_conn_get_connections).");
+                    vrmr_error(-1, "Internal Error", "unable to append into list (in: vrmr_conn_get_connections).");
                     return(-1);
                 }
 
                 /* and insert it into the hash */
                 if(vrmr_hash_insert(debuglvl, &conn_hash, cd_ptr) != 0)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "unable to insert into hash (in: vrmr_conn_get_connections).");
+                    vrmr_error(-1, "Internal Error", "unable to insert into hash (in: vrmr_conn_get_connections).");
                     return(-1);
                 }
 
@@ -2433,7 +2433,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         /* remove the file */
         if(unlink(tmpfile) == -1)
         {
-            (void)vrprint.error(-1, "Error",
+            vrmr_error(-1, "Error",
                     "removing '%s' failed (unlink): %s (in: %s:%d).",
                     tmpfile, strerror(errno), __FUNC__, __LINE__);
             retval = -1;
@@ -2535,7 +2535,7 @@ vrmr_connreq_setup(const int debuglvl, struct vrmr_conntrack_request *connreq)
     /* safety */
     if(connreq == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
@@ -2552,7 +2552,7 @@ vrmr_connreq_cleanup(const int debuglvl, struct vrmr_conntrack_request *connreq)
     /* safety */
     if(connreq == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return;
     }

@@ -83,7 +83,7 @@ read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
                 /* get some mem for the word struct */
                 if(!(hw = malloc(sizeof(helpword))))
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
                 hw->word = NULL;
@@ -92,7 +92,7 @@ read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
 
                 if(!(hw->word = malloc(StrMemLen(oneword) + 1)))
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
                 (void)strlcpy(hw->word, oneword,
@@ -100,7 +100,7 @@ read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
 
                 if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "append to list failed (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "append to list failed (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
             }
@@ -120,7 +120,7 @@ read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
                 /* get some mem for the word struct */
                 if(!(hw = malloc(sizeof(helpword))))
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
                 hw->word = NULL;
@@ -129,7 +129,7 @@ read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
 
                 if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "append to list (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "append to list (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
             }
@@ -168,7 +168,7 @@ read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *lin
                 /* get some mem for the word struct */
                 if(!(hw = malloc(sizeof(helpword))))
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
                 hw->word = NULL;
@@ -177,14 +177,14 @@ read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *lin
 
                 if(!(hw->word = calloc(wcslen(oneword) + 1, sizeof(wchar_t))))
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
                 wcsncpy(hw->word, oneword, wcslen(oneword) + 1);
 
                 if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "append to list failed (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "append to list failed (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
             }
@@ -204,7 +204,7 @@ read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *lin
                 /* get some mem for the word struct */
                 if(!(hw = malloc(sizeof(helpword))))
                 {
-                    (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
                 hw->word = NULL;
@@ -213,7 +213,7 @@ read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *lin
 
                 if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "append to list (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "append to list (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
                 }
             }
@@ -242,7 +242,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
     /* safety */
     if(!help_list || !part)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem "
+        vrmr_error(-1, VR_INTERR, "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -250,7 +250,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
     /* setup the list */
     if(vrmr_list_setup(debuglvl, help_list, free_helpword) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup failed "
+        vrmr_error(-1, VR_INTERR, "vrmr_list_setup failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -263,7 +263,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
             vccnf.helpfile_location,
             gettext("vuurmuur.hlp")) >= (int)sizeof(helpfile))
     {
-        (void)vrprint.error(-1, "Error", "buffer too small for "
+        vrmr_error(-1, "Error", "buffer too small for "
                     "helpfile supplied at compile-time "
                     "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -274,7 +274,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
     fp = fopen(helpfile, "r");
     if(fp == NULL)
     {
-        (void)vrprint.debug(__FUNC__, "opening '%s' failed: %s, "
+        vrmr_debug(__FUNC__, "opening '%s' failed: %s, "
                 "falling back to default.",
                 helpfile, strerror(errno));
 
@@ -282,7 +282,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
         if(snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
                 vccnf.helpfile_location) >= (int)sizeof(helpfile))
         {
-            (void)vrprint.error(-1, "Error", "buffer too small for "
+            vrmr_error(-1, "Error", "buffer too small for "
                     "helpfile supplied at compile-time "
                     "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -291,7 +291,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
 
         if(!(fp = fopen(helpfile, "r")))
         {
-            (void)vrprint.error(-1, VR_ERR, "%s %s: %s",
+            vrmr_error(-1, VR_ERR, "%s %s: %s",
                     STR_OPENING_FILE_FAILED,
                     helpfile, strerror(errno));
             return(-1);
@@ -338,7 +338,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
     /* safety */
     if(!help_list || !part)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem "
+        vrmr_error(-1, VR_INTERR, "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -346,7 +346,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
     /* setup the list */
     if(vrmr_list_setup(debuglvl, help_list, free_helpword) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup failed "
+        vrmr_error(-1, VR_INTERR, "vrmr_list_setup failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -362,7 +362,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
                 gettext("vuurmuur.UTF-8.hlp")
                 ) >= (int)sizeof(helpfile))
         {
-            (void)vrprint.error(-1, VR_INTERR, "buffer too small "
+            vrmr_error(-1, VR_INTERR, "buffer too small "
                 "for helpfile supplied at compile-time "
                 "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -376,7 +376,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
     if(fp == NULL)
     {
         if(utf8_mode == 1)
-            (void)vrprint.debug(__FUNC__, "opening '%s' failed: "
+            vrmr_debug(__FUNC__, "opening '%s' failed: "
                 "%s, falling back to non UTF-8 language file.",
                 helpfile, strerror(errno));
 
@@ -391,7 +391,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
                 vccnf.helpfile_location,
                 gettext("vuurmuur.hlp")) >= (int)sizeof(helpfile))
         {
-            (void)vrprint.error(-1, "Error", "buffer too small for "
+            vrmr_error(-1, "Error", "buffer too small for "
                     "helpfile supplied at compile-time "
                     "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -403,7 +403,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
     fp = fopen(helpfile, "r");
     if(fp == NULL)
     {
-        (void)vrprint.debug(__FUNC__, "opening '%s' failed: %s, "
+        vrmr_debug(__FUNC__, "opening '%s' failed: %s, "
                 "falling back to default.",
                 helpfile, strerror(errno));
 
@@ -411,7 +411,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
         if(snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
                 vccnf.helpfile_location) >= (int)sizeof(helpfile))
         {
-            (void)vrprint.error(-1, "Error", "buffer too small for "
+            vrmr_error(-1, "Error", "buffer too small for "
                     "helpfile supplied at compile-time "
                     "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -420,7 +420,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
 
         if(!(fp = fopen(helpfile, "r")))
         {
-            (void)vrprint.error(-1, VR_ERR, "%s %s: %s",
+            vrmr_error(-1, VR_ERR, "%s %s: %s",
                     STR_OPENING_FILE_FAILED,
                     helpfile, strerror(errno));
             return(-1);
@@ -471,7 +471,7 @@ set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
     /* safety */
     if(help_list == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem "
+        vrmr_error(-1, VR_INTERR, "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
@@ -480,7 +480,7 @@ set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
     {
         if(!(hw = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return;
         }
 
@@ -491,7 +491,7 @@ set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
             {
                 if(!(next_hw = next_d_node->data))
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                     return;
                 }
 
@@ -540,7 +540,7 @@ set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
                 else
                 {
                     /* undefined state */
-                    (void)vrprint.error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
                     return;
                 }
             }
@@ -576,7 +576,7 @@ set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
         else
         {
             /* undefined state */
-            (void)vrprint.error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
             return;
         }
     }
@@ -601,7 +601,7 @@ set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
     /* safety */
     if(!help_list)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
 
@@ -609,7 +609,7 @@ set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
     {
         if(!(hw = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return;
         }
 
@@ -620,7 +620,7 @@ set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
             {
                 if(!(next_hw = next_d_node->data))
                 {
-                    (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                     return;
                 }
 
@@ -669,7 +669,7 @@ set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
                 else
                 {
                     /* undefined state */
-                    (void)vrprint.error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
                     return;
                 }
             }
@@ -705,7 +705,7 @@ set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
         else
         {
             /* undefined state */
-            (void)vrprint.error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
             return;
         }
     }
@@ -729,7 +729,7 @@ do_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
     {
         if(!(hw = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer "
+            vrmr_error(-1, VR_INTERR, "NULL pointer "
                     "(in: %s:%d).", __FUNC__, __LINE__);
             return;
         }
@@ -742,7 +742,7 @@ do_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
                 {
                     if(!(next_hw = next_d_node->data))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                         return;
                     }
                     
@@ -799,7 +799,7 @@ do_wide_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
     {
         if(!(hw = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer "
+            vrmr_error(-1, VR_INTERR, "NULL pointer "
                     "(in: %s:%d).", __FUNC__, __LINE__);
             return;
         }
@@ -812,7 +812,7 @@ do_wide_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
                 {
                     if(!(next_hw = next_d_node->data))
                     {
-                        (void)vrprint.error(-1, VR_INTERR,
+                        vrmr_error(-1, VR_INTERR,
                                 "NULL pointer "
                                 "(in: %s:%d).",
                                 __FUNC__, __LINE__);
@@ -878,23 +878,23 @@ print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
 
     if(!(boxwin = create_newwin(height, width, starty, startx, title, vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_ERR, "could not create window (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, "could not create window (in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
     if(!(panel[0] = new_panel(boxwin)))
     {
-        (void)vrprint.error(-1, VR_ERR, "could not create panel (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, "could not create panel (in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
     if(!(printwin = newwin(height-2, width-4, starty+1, startx+2)))
     {
-        (void)vrprint.error(-1, VR_ERR, "could not create window (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, "could not create window (in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
     (void)wbkgd(printwin, vccnf.color_win);
     if(!(panel[1] = new_panel(printwin)))
     {
-        (void)vrprint.error(-1, VR_ERR, "could not create panel (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, "could not create panel (in: %s:%d).", __FUNC__, __LINE__);
         return;
     }
     keypad(printwin, TRUE);
@@ -936,7 +936,7 @@ print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
                 {
                     if(!(hw = list->bot->data))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                         return;
                     }
 
@@ -983,7 +983,7 @@ print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
 
                     if(!(hw = list->bot->data))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                         return;
                     }
 
@@ -1056,7 +1056,7 @@ print_help(const int debuglvl, char *part)
         /* convert the part name to a wchar_t string */
         mbstowcs(wpart, part, wsizeof(wpart));
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "part: %s, wpart %ls, %u",
+            vrmr_debug(__FUNC__, "part: %s, wpart %ls, %u",
                         part, wpart, wsizeof(wpart));
 
         /* read the helpfile */
@@ -1128,7 +1128,7 @@ setup_statuslist(const int debuglvl)
     /* setup the status list */
     if(vrmr_list_setup(debuglvl, &VuurmuurStatus.StatusList, free_helpword) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "setup the statuslist failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "setup the statuslist failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 

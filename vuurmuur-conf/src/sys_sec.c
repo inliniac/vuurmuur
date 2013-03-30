@@ -112,7 +112,7 @@ edit_sysopt_save(const int debuglvl)
         if(field_status(SystemSection.fields[i]) == TRUE)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "field[%d] was changed.", i);
+                vrmr_debug(__FUNC__, "field[%d] was changed.", i);
 
             /*
                 handle only 's' (syn-flood) and 'e' (echo-broadcast) fields
@@ -124,7 +124,7 @@ edit_sysopt_save(const int debuglvl)
                 else
                     conf.protect_syncookie = 0;
 
-                (void)vrprint.audit("'protect against synflood' %s '%s'.",
+                vrmr_audit("'protect against synflood' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.protect_syncookie ? STR_YES : STR_NO);
 
                 retval = 1;
@@ -136,7 +136,7 @@ edit_sysopt_save(const int debuglvl)
                 else
                     conf.protect_echobroadcast = 0;
 
-                (void)vrprint.audit("'protect against echo broadcast' %s '%s'.",
+                vrmr_audit("'protect against echo broadcast' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf.protect_echobroadcast ? STR_YES : STR_NO);
 
                 retval = 1;
@@ -285,7 +285,7 @@ edit_sysopt(const int debuglvl)
     {
         if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("writing configfile failed."));
+            vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;
         }
     }

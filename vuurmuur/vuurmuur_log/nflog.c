@@ -159,13 +159,13 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
     /* Copy hostname in log_rule struct, seems kind of silly to do this every time */
     if (gethostname (logrule_ptr->hostname, HOST_NAME_MAX) == -1) {
-        (void)vrprint.debug(__FUNC__, "Error getting hostname");
+        vrmr_debug(__FUNC__, "Error getting hostname");
         return -1;
     }
 
     /* Alright, get the nflog packet header and determine what hw_protocol we're dealing with */
     if (!(ph = nflog_get_msg_packet_hdr (nfa))) {
-        (void)vrprint.error (-1, "Error", "Can't get packet header");
+        vrmr_error (-1, "Error", "Can't get packet header");
         return -1;
     }
 
@@ -183,7 +183,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
     /* Find indev idx for pkg and translate to interface name */
     if ((indev = nflog_get_indev (nfa)) == -1) {
-        (void)vrprint.error (-1, "Error", "Can't get indev idx");
+        vrmr_error (-1, "Error", "Can't get indev idx");
         return -1;
     } else {
         if (indev) {
@@ -197,7 +197,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
     /* Find outdev idx for pkg and translate to interface name */
     if ((outdev = nflog_get_outdev (nfa)) == -1) {
-        (void)vrprint.error (-1, "Error", "Can't get outdev idx");
+        vrmr_error (-1, "Error", "Can't get outdev idx");
         return -1;
     } else {
         if (outdev) {
@@ -219,13 +219,13 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     strftime (s, 256, "%b %d %T", tm);
     if (sscanf (s, "%3s %2d %2d:%2d:%2d", logrule_ptr->month, &logrule_ptr->day,
         &logrule_ptr->hour, &logrule_ptr->minute, &logrule_ptr->second) != 5) {
-        (void)vrprint.debug(__FUNC__, "did not find properly formatted timestamp");
+        vrmr_debug(__FUNC__, "did not find properly formatted timestamp");
         return -1;
     }
 
     /* Now we still need to look into the packet itself for source/dest ports */
     if ((payload_len = nflog_get_payload (nfa, &payload)) == -1) {
-        (void)vrprint.error (-1, "Error", "Can't get payload");
+        vrmr_error (-1, "Error", "Can't get payload");
         return -1;
     } else {
         uint16_t hw_protocol = ntohs(ph->hw_protocol);
@@ -235,16 +235,16 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
             struct ip6_hdr *ip6h = (struct ip6_hdr *)payload;
 #endif
             if (payload_len >= sizeof(struct iphdr) && iph->version == 4) {
-                (void)vrprint.debug(__FUNC__, "IPv4");
+                vrmr_debug(__FUNC__, "IPv4");
                 hw_protocol = ETH_P_IP;
 #ifdef IPV6_ENABLED
             } else if (payload_len >= sizeof(struct ip6_hdr) && ((ip6h->ip6_vfc & 0xf0) >> 4) == 6) {
-                (void)vrprint.debug(__FUNC__, "IPv6");
+                vrmr_debug(__FUNC__, "IPv6");
                 hw_protocol = ETH_P_IPV6;
 #endif
             }
 
-            (void)vrprint.debug(__FUNC__, "hw_protocol 0x%04X", hw_protocol);
+            vrmr_debug(__FUNC__, "hw_protocol 0x%04X", hw_protocol);
         }
 
         switch (hw_protocol) {
@@ -294,7 +294,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
             case ETH_P_IPV6:
             {
 #ifdef IPV6_ENABLED
-                (void)vrprint.debug(__FUNC__, "hw proto said IPv6, lets try to decode.");
+                vrmr_debug(__FUNC__, "hw proto said IPv6, lets try to decode.");
 
                 if (payload_len < sizeof(struct ip6_hdr))
                     break;
@@ -319,7 +319,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                             struct icmp6_hdr *icmp6h = (struct icmp6_hdr *)payload;
                             logrule_ptr->icmp_type = icmp6h->icmp6_type;
                             logrule_ptr->icmp_code = icmp6h->icmp6_code;
-                            (void)vrprint.debug(__FILE__, "ICMPv6: type %u code %u",
+                            vrmr_debug(__FILE__, "ICMPv6: type %u code %u",
                                     logrule_ptr->icmp_type, logrule_ptr->icmp_code);
                         }
                         break;
@@ -347,12 +347,12 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
                 logrule_ptr->ipv6 = 1;
 
-                (void)vrprint.debug(__FILE__, "IPV6 %s -> %s (%u)", logrule_ptr->src_ip, logrule_ptr->dst_ip, logrule_ptr->protocol);
+                vrmr_debug(__FILE__, "IPV6 %s -> %s (%u)", logrule_ptr->src_ip, logrule_ptr->dst_ip, logrule_ptr->protocol);
 #endif /* IPV6_ENABLED */
                 break;
             }
             default:
-                (void)vrprint.debug (__FUNC__, "unknown HW Protocol: 0x%04x", hw_protocol);
+                vrmr_debug (__FUNC__, "unknown HW Protocol: 0x%04x", hw_protocol);
                 break;
         }
     }
@@ -384,25 +384,25 @@ subscribe_nflog (const int debuglvl, const struct vrmr_config *conf, struct log_
     h = nflog_open ();
     if (!h)
     {
-        (void)vrprint.error(-1, "Internal Error", "nflog_open error (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "nflog_open error (in: %s:%d).", __FUNC__, __LINE__);
         return (-1);
     }
 
     if (nflog_bind_pf (h, AF_INET) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "nflog_bind_pf error (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "nflog_bind_pf error (in: %s:%d).", __FUNC__, __LINE__);
         return (-1);
     }
 
     qh = nflog_bind_group (h, conf->nfgrp);
     if (!qh) {
-        (void)vrprint.error(-1, "Internal Error", "nflog_bind_group error, other process attached? (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "nflog_bind_group error, other process attached? (in: %s:%d).", __FUNC__, __LINE__);
         return (-1);
     }
 
     if (nflog_set_mode (qh, NFULNL_COPY_PACKET, 0xffff) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "nflog_set_mode error %s (in; %s:%d).", strerror (errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "nflog_set_mode error %s (in; %s:%d).", strerror (errno), __FUNC__, __LINE__);
         return (-1);
     }
 
@@ -410,7 +410,7 @@ subscribe_nflog (const int debuglvl, const struct vrmr_config *conf, struct log_
 
     fd = nflog_fd (h);
 
-    (void)vrprint.info("Info", "subscribed to nflog group %u", conf->nfgrp);
+    vrmr_info("Info", "subscribed to nflog group %u", conf->nfgrp);
     return 0;
 }
 
@@ -424,12 +424,12 @@ readnflog (void)
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             return 0;
         } else if (errno == ENOBUFS) {
-            (void)vrprint.error (-1, "Error", "ENOBUFS on recv, may need to "
+            vrmr_error (-1, "Error", "ENOBUFS on recv, may need to "
                     "increase netlink_socket_buffer_size (in; %s:%d)",
                     __FUNC__, __LINE__);
             return -1;
         } else {
-            (void)vrprint.error (-1, "Internal Error", "cannot recv: "
+            vrmr_error (-1, "Internal Error", "cannot recv: "
                     "%s (in; %s:%d)", strerror (errno), __FUNC__, __LINE__);
             return -1;
         }
@@ -437,7 +437,7 @@ readnflog (void)
 
     rv = nflog_handle_packet (h, buf, rv);
     if (rv != 0) {
-        (void)vrprint.debug ("nflog", "nflog_handle_packet() "
+        vrmr_debug ("nflog", "nflog_handle_packet() "
                 "returned %d", rv);
         return (2); /* invalid record */
     }

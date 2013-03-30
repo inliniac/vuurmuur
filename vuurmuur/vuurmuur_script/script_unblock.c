@@ -41,7 +41,7 @@ remove_leading_part(char *input)
 
     if(input == NULL)
     {
-        (void)vrprint.error(VRS_ERR_INTERNAL, VR_ERR,
+        vrmr_error(VRS_ERR_INTERNAL, VR_ERR,
             "parameter problem (in: %s:%d)", __FUNC__, __LINE__);
         exit(VRS_ERR_INTERNAL);
     }
@@ -49,7 +49,7 @@ remove_leading_part(char *input)
     len = strlen(input);
     if(len == 0)
     {
-        (void)vrprint.error(VRS_ERR_DATA_INCONSISTENCY, VR_ERR,
+        vrmr_error(VRS_ERR_DATA_INCONSISTENCY, VR_ERR,
             "empty string returned from backend (in: %s:%d)",
             __FUNC__, __LINE__);
         exit(VRS_ERR_DATA_INCONSISTENCY);
@@ -61,7 +61,7 @@ remove_leading_part(char *input)
     output = malloc(len); /* for output we need to cut of "block " */
     if(output == NULL)
     {
-        (void)vrprint.error(VRS_ERR_MALLOC, VR_ERR,
+        vrmr_error(VRS_ERR_MALLOC, VR_ERR,
             "malloc failed: %s (in: %s:%d)",
             strerror(errno), __FUNC__, __LINE__);
         exit(VRS_ERR_MALLOC);
@@ -70,7 +70,7 @@ remove_leading_part(char *input)
 
     if(sscanf(input, "block %s", output) == 0)
     {
-        (void)vrprint.error(VRS_ERR_DATA_INCONSISTENCY, VR_ERR,
+        vrmr_error(VRS_ERR_DATA_INCONSISTENCY, VR_ERR,
             "malformed rule '%s' returned from backend (in: %s:%d)",
              input, __FUNC__, __LINE__);
         exit(VRS_ERR_DATA_INCONSISTENCY);
@@ -118,7 +118,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
             if(vrmr_list_append(debuglvl, &blocklist.list,
                     remove_leading_part(vr_script->bdat)) == NULL)
             {
-                (void)vrprint.error(VRS_ERR_INTERNAL, VR_ERR,
+                vrmr_error(VRS_ERR_INTERNAL, VR_ERR,
                     "parameter problem (in: %s:%d)",
                     __FUNC__, __LINE__);
                 return(VRS_ERR_INTERNAL);
@@ -138,7 +138,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
     {
         if(vrmr_blocklist_save_list(debuglvl, &conf, &blocklist) != 0)
         {
-            (void)vrprint.error(VRS_ERR_COMMAND_FAILED, VR_ERR,
+            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
                 "could not save updated blocklist (in: %s:%d).",
                 __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -147,7 +147,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
     }
     else
     {
-        (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR,
+        vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
             "item '%s' not found in the blocklist (in: %s:%d).",
             vr_script->set, __FUNC__, __LINE__);
         retval = VRS_ERR_COMMANDLINE;

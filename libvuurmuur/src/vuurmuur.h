@@ -387,6 +387,11 @@ struct vrprint_
     char *auditlog;
 };
 struct vrprint_ vrprint;
+#define vrmr_error (void)vrprint.error
+#define vrmr_warning (void)vrprint.warning
+#define vrmr_info (void)vrprint.info
+#define vrmr_debug (void)vrprint.debug
+#define vrmr_audit (void)vrprint.audit
 
 /* configuration */
 struct vrmr_config

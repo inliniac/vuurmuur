@@ -227,7 +227,7 @@ int get_meminfo(int *mem_total, int *mem_free, int *mem_cached, int *mem_buffers
     // open the proc entry
     if(!(fp = fopen(proc_meminfo, "r")))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("opening '%s' failed: %s (in: %s:%d)."),
+        vrmr_error(-1, VR_ERR, gettext("opening '%s' failed: %s (in: %s:%d)."),
                                 proc_meminfo,
                                 strerror(errno),
                                 __FUNC__, __LINE__);
@@ -324,7 +324,7 @@ status_section_init(const int debuglvl, int height, int width, int starty, int s
     /* alloc the needed memory */
     if(!(StatusSection.fields = (FIELD **)calloc(StatusSection.n_fields + 1, sizeof(FIELD *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -401,12 +401,12 @@ status_section_init(const int debuglvl, int height, int width, int starty, int s
     /* create the window and the panel */
     if(!(StatusSection.win = create_newwin(height, width, starty, startx, gettext("Status Section"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     if(!(StatusSection.panel[0] = new_panel(StatusSection.win)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -426,7 +426,7 @@ status_section_init(const int debuglvl, int height, int width, int starty, int s
     /* Create the form and post it */
     if(!(StatusSection.form = new_form(StatusSection.fields)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     /* Calculate the area required for the form */
@@ -438,7 +438,7 @@ status_section_init(const int debuglvl, int height, int width, int starty, int s
 
     if(post_form(StatusSection.form) != E_OK)
     {
-        (void)vrprint.error(-1, VR_INTERR, "post_form() failed (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "post_form() failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -836,7 +836,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
         uname - get some system information
     */
     if(uname(&uts_name) < 0)
-        (void)vrprint.error(-1, VR_ERR, "uname() failed.");
+        vrmr_error(-1, VR_ERR, "uname() failed.");
 
     mvwprintw(StatusSection.win, 2, 15, "%s %s", uts_name.sysname, uts_name.release);
 
@@ -857,33 +857,33 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
     while(quit == 0 && retval == 0)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "slept_so_far: %d, update_interval: %d.", slept_so_far, update_interval);
+            vrmr_debug(__FUNC__, "slept_so_far: %d, update_interval: %d.", slept_so_far, update_interval);
 
         /* check if we have slept long enough */
         if(slept_so_far >= update_interval)
         {
             
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "slept_so_far: %d -> now print.", slept_so_far);
+                vrmr_debug(__FUNC__, "slept_so_far: %d -> now print.", slept_so_far);
 
             slept_so_far = 0;
 
             /*  update the information */
             if(get_sys_load(&load_s, &load_m, &load_l) < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "get_sys_load() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "get_sys_load() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
             if(get_meminfo(&mem_total, &mem_free, &mem_cached, &mem_bufferd) < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "get_meminfo() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "get_meminfo() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
             if(get_system_uptime(upt_day, upt_hour, upt_minute, upt_second) < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "get_system_uptime() failed (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "get_system_uptime() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1027,7 +1027,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
                     {
                         snprintf(recv_host, sizeof(recv_host), "%7.3f GB", (float)shadow_ptr->recv_host/(1024*1024*1024));
                         if(debuglvl >= HIGH)
-                            (void)vrprint.debug(__FUNC__, "recv_host: '%s'.", recv_host);
+                            vrmr_debug(__FUNC__, "recv_host: '%s'.", recv_host);
                     }
                     else if((shadow_ptr->recv_host/(1024*1024)) < 1)
                         snprintf(recv_host, sizeof(recv_host), "%7d kb", (int)shadow_ptr->recv_host/(1024));
@@ -1077,7 +1077,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
                     speed_bytes = (delta_bytes/correction);
 
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "bytes: %d, corrections: %f", (int)speed_bytes, correction);
+                        vrmr_debug(__FUNC__, "bytes: %d, corrections: %f", (int)speed_bytes, correction);
 
                     /* calculating the current connection speed */
                     if(iface_ptr->up == TRUE)
@@ -1201,7 +1201,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
             slept_so_far = slept_so_far + 10000;
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "just slept: slept_so_far '%d'.", slept_so_far);
+                vrmr_debug(__FUNC__, "just slept: slept_so_far '%d'.", slept_so_far);
         }
     }
 

@@ -522,7 +522,7 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
         as 'firewall', so this appears in to the connections */
     if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces->list, &zones->list) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_ins_iface_into_zonelist() "
+        vrmr_error(-1, VR_INTERR, "vrmr_ins_iface_into_zonelist() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -531,7 +531,7 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
         vrmr_rem_iface_from_zonelist() (see below) */
     if(vrmr_add_broadcasts_zonelist(debuglvl, zones) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_add_broadcasts_zonelist() "
+        vrmr_error(-1, VR_INTERR, "vrmr_add_broadcasts_zonelist() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -540,7 +540,7 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
     if(vrmr_init_zonedata_hashtable(debuglvl, zones->list.len * 3, &zones->list,
         vrmr_hash_ipaddress, vrmr_compare_ipaddress, &ct->zone_hash) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_init_zonedata_hashtable() "
+        vrmr_error(-1, VR_INTERR, "vrmr_init_zonedata_hashtable() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -549,7 +549,7 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
     if(vrmr_init_services_hashtable(debuglvl, services->list.len * 500,
         &services->list, vrmr_hash_port, vrmr_compare_ports, &ct->service_hash) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_init_services_hashtable() "
+        vrmr_error(-1, VR_INTERR, "vrmr_init_services_hashtable() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -558,13 +558,13 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
         points to zonedatalist nodes */
     if(vrmr_list_setup(debuglvl, &ct->network_list, NULL) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup() failed "
+        vrmr_error(-1, VR_INTERR, "vrmr_list_setup() failed "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
     if(vrmr_zonelist_to_networklist(debuglvl, zones, &ct->network_list) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_zonelist_to_networklist() "
+        vrmr_error(-1, VR_INTERR, "vrmr_zonelist_to_networklist() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -585,7 +585,7 @@ conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones)
         */
         if(vrmr_rem_iface_from_zonelist(debuglvl, &zones->list) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "vrmr_rem_iface_from_zonelist() "
+            vrmr_error(-1, VR_INTERR, "vrmr_rem_iface_from_zonelist() "
                 "failed (in: %s:%d).", __FUNC__, __LINE__);
         }
     }
@@ -610,7 +610,7 @@ conn_ct_get_connections(const int debuglvl, struct vrmr_config *cnf, Conntrack *
 
     if(vrmr_list_setup(debuglvl, &ct->conn_list, NULL) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "vrmr_list_setup() "
+        vrmr_error(-1, VR_INTERR, "vrmr_list_setup() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -621,7 +621,7 @@ conn_ct_get_connections(const int debuglvl, struct vrmr_config *cnf, Conntrack *
             &ct->conn_list, &ct->network_list,
             req, &ct->conn_stats) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR,
+        vrmr_error(-1, VR_ERR,
             gettext("getting the connections failed."));
         return(-1);
     }
@@ -766,7 +766,7 @@ connections_section(const int debuglvl, struct vrmr_config *cnf,
         if(slept_so_far >= update_interval && !control.pause)
         {
             if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "now update: slept_so_far '%d'.", slept_so_far);
+                vrmr_debug(__FUNC__, "now update: slept_so_far '%d'.", slept_so_far);
 
             /* reset the wait counter */
             slept_so_far = 0;
@@ -817,7 +817,7 @@ connections_section(const int debuglvl, struct vrmr_config *cnf,
                 {
                     if(!(cd_ptr = d_node->data))
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                         return(-1);
                     }
 
@@ -1174,14 +1174,14 @@ connections_section(const int debuglvl, struct vrmr_config *cnf,
             usleep(10000);
             slept_so_far = slept_so_far + 10000;
 
-            //(void)vrprint.debug(__FUNC__, "just slept: slept_so_far '%d'.", slept_so_far);
+            //vrmr_debug(__FUNC__, "just slept: slept_so_far '%d'.", slept_so_far);
         }
         else
         {
             slept_so_far = update_interval;
 
             if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "control.sleep = 0: set slept_so_far to update_interval.");
+                vrmr_debug(__FUNC__, "control.sleep = 0: set slept_so_far to update_interval.");
         }
     }
 
@@ -1252,12 +1252,12 @@ kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int pro
     }
     else
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("killing connections is only supported for TCP and UDP."));
+        vrmr_error(-1, VR_ERR, gettext("killing connections is only supported for TCP and UDP."));
         return(-1);
     }
 
     /* TRANSLATORS: example "killed connection: 1.2.3.4:5678 -> 8.7.6.5:4321 (6)" */
-    (void)vrprint.audit("%s: %s:%d -> %s:%d (%d)", result ? gettext("failed to kill connection") : gettext("killed connection"), srcip, sp, dstip, dp, proto);
+    vrmr_audit("%s: %s:%d -> %s:%d (%d)", result ? gettext("failed to kill connection") : gettext("killed connection"), srcip, sp, dstip, dp, proto);
     return(result);
 }
 
@@ -1276,7 +1276,7 @@ kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf,
     /* check if the conntrack tool is set */
     if(cnf->conntrack_location[0] == '\0')
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("'conntrack' location "
+        vrmr_error(-1, VR_ERR, gettext("'conntrack' location "
             "not set. To be able to kill connections, set the "
             "location of the 'conntrack' tool in 'Vuurmuur Options "
             "-> General'. Note that the tool requires kernel "
@@ -1288,7 +1288,7 @@ kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf,
     {
         cd_ptr = d_node->data;
         if (debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "ct: s:%s d:%s s:%s (%d)",
+            vrmr_debug(__FUNC__, "ct: s:%s d:%s s:%s (%d)",
                 cd_ptr->fromname, cd_ptr->toname,
                 cd_ptr->sername, cd_ptr->cnt);
 
@@ -1320,16 +1320,16 @@ kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf,
     }
 
     if(cnt == 0)
-        (void)vrprint.warning(VR_WARN,
+        vrmr_warning(VR_WARN,
             gettext("all connections already gone, none killed."));
     else if(failed > 0 && failed != cnt)
-        (void)vrprint.warning(VR_WARN,
+        vrmr_warning(VR_WARN,
             gettext("killing of %d out of %d connections failed."), failed, cnt);
     else if(failed > 0)
-        (void)vrprint.warning(VR_WARN,
+        vrmr_warning(VR_WARN,
             gettext("killing of all %d connections failed."), failed);
     else
-        (void)vrprint.info(VR_INFO, "%d connection(s) killed.", cnt);
+        vrmr_info(VR_INFO, "%d connection(s) killed.", cnt);
 
     return(0);
 }
@@ -1349,7 +1349,7 @@ kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf,
     /* check if the conntrack tool is set */
     if(cnf->conntrack_location[0] == '\0')
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("'conntrack' location "
+        vrmr_error(-1, VR_ERR, gettext("'conntrack' location "
             "not set. To be able to kill connections, set the "
             "location of the 'conntrack' tool in 'Vuurmuur Options "
             "-> General'. Note that the tool requires kernel "
@@ -1390,16 +1390,16 @@ kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf,
     }
 
     if(cnt == 0)
-        (void)vrprint.warning(VR_WARN,
+        vrmr_warning(VR_WARN,
             gettext("all connections already gone, none killed."));
     else if(failed > 0 && failed != cnt)
-        (void)vrprint.warning(VR_WARN,
+        vrmr_warning(VR_WARN,
             gettext("killing of %d out of %d connections failed."), failed, cnt);
     else if(failed > 0)
-        (void)vrprint.warning(VR_WARN,
+        vrmr_warning(VR_WARN,
             gettext("killing of all %d connections failed."), failed);
     else
-        (void)vrprint.info(VR_INFO, "%d connection(s) killed.", cnt);
+        vrmr_info(VR_INFO, "%d connection(s) killed.", cnt);
 
     return(0);
 }
@@ -1426,7 +1426,7 @@ block_and_kill(const int debuglvl, Conntrack *ct, struct vrmr_zones *zones,
     iface_ptr = vrmr_search_interface_by_ip(debuglvl, interfaces, ip);
     if(iface_ptr != NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("ipaddress belongs to "
+        vrmr_error(-1, VR_ERR, gettext("ipaddress belongs to "
             "interface '%s'. It will not be added to the blocklist."),
             iface_ptr->name);
         VrBusyWinHide();
@@ -1437,7 +1437,7 @@ block_and_kill(const int debuglvl, Conntrack *ct, struct vrmr_zones *zones,
     if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE,
         /*no_refcnt*/FALSE, ip) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "blocklist_add_one() "
+        vrmr_error(-1, VR_INTERR, "blocklist_add_one() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         VrBusyWinHide();
         return(-1);
@@ -1446,14 +1446,14 @@ block_and_kill(const int debuglvl, Conntrack *ct, struct vrmr_zones *zones,
     /* save the list */
     if(vrmr_blocklist_save_list(debuglvl, &conf, blocklist) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "blocklist_save_list() "
+        vrmr_error(-1, VR_INTERR, "blocklist_save_list() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         VrBusyWinHide();
         return(-1);
     }
 
     /* audit logging */
-    (void)vrprint.audit("%s '%s' %s.",
+    vrmr_audit("%s '%s' %s.",
         STR_IPADDRESS, ip, STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
 
     /* apply the changes */

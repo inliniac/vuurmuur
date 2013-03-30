@@ -44,7 +44,7 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char 
     /* safety */
     if(query == NULL || action == NULL || option == NULL || cfg == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -52,7 +52,7 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char 
     action_type = vrmr_rules_actiontoi(query);
     if(action_type <= VRMR_AT_ERROR || action_type >= VRMR_AT_TOO_BIG)
     {
-        (void)vrprint.error(-1, "Error", "unknown action '%s' "
+        vrmr_error(-1, "Error", "unknown action '%s' "
             "(in: %s:%d).", query, __FUNC__, __LINE__);
         return(-1);
     }
@@ -71,7 +71,7 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char 
         if(option->reject_option == 1)
         {
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "reject option: "
+                vrmr_debug(__FUNC__, "reject option: "
                         "'%s'.", option->reject_type);
 
             if(strcmp(option->reject_type, "tcp-reset") == 0)
@@ -95,7 +95,7 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char 
         if(option->redirectport > 0)
         {
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "redirect "
+                vrmr_debug(__FUNC__, "redirect "
                         "option: '%d'.", option->redirectport);
 
             snprintf(action, size, "REDIRECT --to-ports "
@@ -103,7 +103,7 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char 
         }
         else
         {
-            (void)vrprint.error(-1, "Error", "target REDIRECT "
+            vrmr_error(-1, "Error", "target REDIRECT "
                     "requires option 'redirectport'.");
             return(-1);
         }
@@ -120,7 +120,7 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char 
         option->rule_log = FALSE;
 
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "set option->rule_log "
+            vrmr_debug(__FUNC__, "set option->rule_log "
                     "to FALSE because action is LOG.");
     }
     else if(action_type == VRMR_AT_MASQ)
@@ -147,7 +147,7 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char 
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "unknown action '%s' "
+        vrmr_error(-1, "Error", "unknown action '%s' "
             "(in: %s:%d).", query, __FUNC__, __LINE__);
         return(-1);
     }
@@ -181,7 +181,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
     if( rule_ptr == NULL || create == NULL || services == NULL ||
         zones == NULL || interfaces == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -190,7 +190,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
     if(rule_ptr->action == VRMR_AT_PROTECT)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "action: %s, who: %s, danger: %s, source: %s",
+            vrmr_debug(__FUNC__, "action: %s, who: %s, danger: %s, source: %s",
                     vrmr_rules_itoaction(rule_ptr->action), rule_ptr->who,
                     rule_ptr->danger, rule_ptr->source);
 
@@ -203,7 +203,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
 
                 if(!(create->who = vrmr_search_zonedata(debuglvl, zones, rule_ptr->who)))
                 {
-                    (void)vrprint.error(-1, "Error", "zone '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
+                    vrmr_error(-1, "Error", "zone '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
                     return(-1);
                 }
             }
@@ -214,30 +214,30 @@ vrmr_rules_analyze_rule( const int debuglvl,
 
                 if(!(create->who_int = vrmr_search_interface(debuglvl, interfaces, rule_ptr->who)))
                 {
-                    (void)vrprint.error(-1, "Error", "interface '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
+                    vrmr_error(-1, "Error", "interface '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
                     return(-1);
                 }
             }
             else
             {
                 create->who = NULL;
-                (void)vrprint.error(-1, "Error", "don't know what to do with '%s' for rule type '%d' (in: %s).", rule_ptr->who, rule_ptr->type, __FUNC__);
+                vrmr_error(-1, "Error", "don't know what to do with '%s' for rule type '%d' (in: %s).", rule_ptr->who, rule_ptr->type, __FUNC__);
                 return(-1);
             }
         }
 
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "calling vrmr_get_danger_info() for danger...");
+            vrmr_debug(__FUNC__, "calling vrmr_get_danger_info() for danger...");
 
         result = vrmr_get_danger_info(debuglvl, rule_ptr->danger, rule_ptr->source, &create->danger);
         if(result == 0)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "vrmr_get_danger_info successfull.");
+                vrmr_debug(__FUNC__, "vrmr_get_danger_info successfull.");
         }
         else
         {
-            (void)vrprint.error(-1, "Error", "getting danger '%s' failed (in: %s).",
+            vrmr_error(-1, "Error", "getting danger '%s' failed (in: %s).",
                     rule_ptr->danger, __FUNC__);
             return(-1);
         }
@@ -245,7 +245,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         /* set the action */
         if(strlcpy(create->action, "protect", sizeof(create->action)) > sizeof(create->action))
         {
-            (void)vrprint.error(-1, "Error", "buffer overflow (in: %s:%d).",
+            vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -265,7 +265,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
 
                 if(!(create->who = vrmr_search_zonedata(debuglvl, zones, rule_ptr->who)))
                 {
-                    (void)vrprint.error(-1, "Error", "zone '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
+                    vrmr_error(-1, "Error", "zone '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
                     return(-1);
                 }
             }
@@ -276,11 +276,11 @@ vrmr_rules_analyze_rule( const int debuglvl,
         {
             /* not much here */
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "network rule service '%s'", rule_ptr->service);
+                vrmr_debug(__FUNC__, "network rule service '%s'", rule_ptr->service);
         }
         else
         {
-            (void)vrprint.error(-1, "Error", "unknown service '%s' in network rule (in: %s:%d).",
+            vrmr_error(-1, "Error", "unknown service '%s' in network rule (in: %s:%d).",
                     rule_ptr->service, __FUNC__, __LINE__);
             return(-1);
         }
@@ -290,14 +290,14 @@ vrmr_rules_analyze_rule( const int debuglvl,
     {
         /* not much here */
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "rule is a separator");
+            vrmr_debug(__FUNC__, "rule is a separator");
     }
     /* normal rule */
     else
     {
         /* this is the rule */
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "action: %s, service: %s, from: %s, to: %s",
+            vrmr_debug(__FUNC__, "action: %s, service: %s, from: %s, to: %s",
                     vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service,
                     rule_ptr->from, rule_ptr->to);
 
@@ -330,7 +330,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
             /* get the pointer to the zonedata in the ZonedataList */
             if(!(create->from = vrmr_search_zonedata(debuglvl, zones, rule_ptr->from)))
             {
-                (void)vrprint.error(-1, "Error", "'from' zone '%s' not found (in: %s).",
+                vrmr_error(-1, "Error", "'from' zone '%s' not found (in: %s).",
                         rule_ptr->from, __FUNC__);
                 return(-1);
             }
@@ -342,7 +342,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
             /* first check if we don't have two firewalls */
             if(create->from_firewall == TRUE)
             {
-                (void)vrprint.error(-1, "Error", "'from' and 'to' are both set to firewall (%s service %s from %s to %s).",
+                vrmr_error(-1, "Error", "'from' and 'to' are both set to firewall (%s service %s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service,
                         rule_ptr->from, rule_ptr->to);
                 return(-1);
@@ -356,7 +356,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
 
                 if(!(create->to = vrmr_search_zonedata(debuglvl, zones, network)))
                 {
-                    (void)vrprint.error(-1, "Error", "'to' zone '%s' not found (in: %s).",
+                    vrmr_error(-1, "Error", "'to' zone '%s' not found (in: %s).",
                             network, __FUNC__);
                     return(-1);
                 }
@@ -377,7 +377,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
             /* get the pointer to the zonedata in the ZonedataList */
             if(!(create->to = vrmr_search_zonedata(debuglvl, zones, rule_ptr->to)))
             {
-                (void)vrprint.error(-1, "Error", "'to' zone '%s' not found (in: %s).", rule_ptr->to, __FUNC__);
+                vrmr_error(-1, "Error", "'to' zone '%s' not found (in: %s).", rule_ptr->to, __FUNC__);
                 return(-1);
             }
         }
@@ -388,7 +388,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
             /* first check if we don't have two firewalls */
             if(create->to_firewall == TRUE)
             {
-                (void)vrprint.error(-1, "Error", "'from' and 'to' are both set to firewall (%s service %s from %s to %s).", vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service, rule_ptr->from, rule_ptr->to);
+                vrmr_error(-1, "Error", "'from' and 'to' are both set to firewall (%s service %s from %s to %s).", vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service, rule_ptr->from, rule_ptr->to);
                 return(-1);
             }
 
@@ -400,7 +400,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
 
                 if(!(create->from = vrmr_search_zonedata(debuglvl, zones, network)))
                 {
-                    (void)vrprint.error(-1, "Error", "'from' zone '%s' not found (in: %s).", network, __FUNC__);
+                    vrmr_error(-1, "Error", "'from' zone '%s' not found (in: %s).", network, __FUNC__);
                     return(-1);
                 }
             }
@@ -415,7 +415,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         {
             if(!(create->service = vrmr_search_service(debuglvl, services, rule_ptr->service)))
             {
-                (void)vrprint.error(-1, "Error", "service '%s' not found (in: %s).", rule_ptr->service, __FUNC__);
+                vrmr_error(-1, "Error", "service '%s' not found (in: %s).", rule_ptr->service, __FUNC__);
                 return(-1);
             }
         }
@@ -428,23 +428,23 @@ vrmr_rules_analyze_rule( const int debuglvl,
         if(determine_action(debuglvl, cnf, vrmr_rules_itoaction(rule_ptr->action), create->action, sizeof(create->action), &create->option) == 0)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "determine_action succes, create->action = %s",
+                vrmr_debug(__FUNC__, "determine_action succes, create->action = %s",
                         create->action);
         }
         else
         {
-            (void)vrprint.error(-1, "Error", "could not determine action (in: %s).", __FUNC__);
+            vrmr_error(-1, "Error", "could not determine action (in: %s).", __FUNC__);
             return(-1);
         }
 
         /* determine which ruletype to use. */
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "calling vrmr_rules_determine_ruletype()...");
+            vrmr_debug(__FUNC__, "calling vrmr_rules_determine_ruletype()...");
 
         create->ruletype = vrmr_rules_determine_ruletype(debuglvl, rule_ptr);
         if(create->ruletype == VRMR_RT_ERROR)
         {
-            (void)vrprint.error(-1, "Error", "could not determine "
+            vrmr_error(-1, "Error", "could not determine "
                     "ruletype (in: %s:d).", __FUNC__, __LINE__);
             return(-1);
         }
@@ -453,14 +453,14 @@ vrmr_rules_analyze_rule( const int debuglvl,
         if( rule_ptr->action == VRMR_AT_QUEUE &&
             (create->ruletype != VRMR_RT_INPUT && create->ruletype != VRMR_RT_OUTPUT && create->ruletype != VRMR_RT_FORWARD))
         {
-            (void)vrprint.error(-1, "Error", "the QUEUE target can only be used in the input, output and forward chains (in: %s).", __FUNC__);
+            vrmr_error(-1, "Error", "the QUEUE target can only be used in the input, output and forward chains (in: %s).", __FUNC__);
             return(-1);
         }
 
         if( rule_ptr->action == VRMR_AT_CHAIN &&
             (rule_ptr->opt == NULL || rule_ptr->opt->chain[0] == '\0'))
         {
-            (void)vrprint.error(-1, "Error", "the CHAIN target needs option 'chain' to be set (in: %s:%d).",
+            vrmr_error(-1, "Error", "the CHAIN target needs option 'chain' to be set (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -470,7 +470,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         {
             if(create->from_firewall == TRUE)
             {
-                (void)vrprint.error(-1, "Error", "portforwarding is not allowed from the firewall (%s service %s from %s to %s).",
+                vrmr_error(-1, "Error", "portforwarding is not allowed from the firewall (%s service %s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service,
                         rule_ptr->from, rule_ptr->to);
                 return(-1);
@@ -478,7 +478,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
 
             if(create->to == NULL || create->to->type != VRMR_TYPE_HOST)
             {
-                (void)vrprint.error(-1, "Error", "portforwarding is only allowed to a host (%s service %s from %s to %s).",
+                vrmr_error(-1, "Error", "portforwarding is only allowed to a host (%s service %s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service,
                         rule_ptr->from, rule_ptr->to);
                 return(-1);
@@ -490,7 +490,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         {
             if(create->from_firewall == TRUE)
             {
-                (void)vrprint.error(-1, "Error", "redirecting is not allowed from the firewall (%s service %s from %s to %s).",
+                vrmr_error(-1, "Error", "redirecting is not allowed from the firewall (%s service %s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service,
                         rule_ptr->from, rule_ptr->to);
                 return(-1);
@@ -502,7 +502,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         {
             if(create->to_any == TRUE)
             {
-                (void)vrprint.error(-1, "Error", "snat is not possible to 'Any' (%s service %s from %s to %s).",
+                vrmr_error(-1, "Error", "snat is not possible to 'Any' (%s service %s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service,
                         rule_ptr->from, rule_ptr->to);
                 return(-1);
@@ -514,7 +514,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         {
             if(create->to_any == TRUE)
             {
-                (void)vrprint.error(-1, "Error", "masq is not possible to 'Any' (%s service %s from %s to %s).",
+                vrmr_error(-1, "Error", "masq is not possible to 'Any' (%s service %s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service,
                         rule_ptr->from, rule_ptr->to);
                 return(-1);
@@ -526,7 +526,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         {
             if(create->from_firewall == TRUE)
             {
-                (void)vrprint.error(-1, "Error", "dnat is not "
+                vrmr_error(-1, "Error", "dnat is not "
                         "allowed from the firewall (%s service "
                         "%s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action),
@@ -537,7 +537,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
 
             if(create->to == NULL || create->to->type != VRMR_TYPE_HOST)
             {
-                (void)vrprint.error(-1, "Error", "dnat "
+                vrmr_error(-1, "Error", "dnat "
                         "is only allowed to a host (%s service "
                         "%s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action),
@@ -552,7 +552,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         {
             if(rule_ptr->opt == NULL || rule_ptr->opt->via_int[0] == '\0')
             {
-                (void)vrprint.error(-1, "Error", "bounce "
+                vrmr_error(-1, "Error", "bounce "
                         "requires the 'via' option to be set "
                         "(%s service %s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action),
@@ -565,7 +565,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
                 rule_ptr->opt->via_int);
             if(create->via_int == NULL)
             {
-                (void)vrprint.error(-1, "Error", "bounce "
+                vrmr_error(-1, "Error", "bounce "
                         "'via' interface '%s' not found "
                         "(%s service %s from %s to %s).",
                         rule_ptr->opt->via_int,
@@ -577,7 +577,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
 
             if(create->via_int->ipv4.ipaddress[0] == '\0')
             {
-                (void)vrprint.error(-1, "Error", "bounce "
+                vrmr_error(-1, "Error", "bounce "
                         "'via' interface '%s' does not have "
                         "an ipaddress set "
                         "(%s service %s from %s to %s).",
@@ -590,7 +590,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
 
             if(create->from_firewall == TRUE)
             {
-                (void)vrprint.error(-1, "Error", "bounce is not "
+                vrmr_error(-1, "Error", "bounce is not "
                         "allowed from the firewall (%s service "
                         "%s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action),
@@ -601,7 +601,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
 
             if(create->to == NULL || create->to->type != VRMR_TYPE_HOST)
             {
-                (void)vrprint.error(-1, "Error", "bounce "
+                vrmr_error(-1, "Error", "bounce "
                         "is only allowed to a host (%s service "
                         "%s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action),
@@ -618,7 +618,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
     {
         if(!(create->description = malloc(VRMR_MAX_BASH_DESC)))
         {
-            (void)vrprint.error(-1, "Error", "malloc failed: %s "
+            vrmr_error(-1, "Error", "malloc failed: %s "
                     "(in: %s:%d).", strerror(errno),
                     __FUNC__, __LINE__);
             return(-1);
@@ -721,7 +721,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
     /* safety */
     if(rules == NULL || reg == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -733,13 +733,13 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
         so it's the users responsibility to free memory. */
     if(vrmr_list_setup(debuglvl, &rules->list, NULL) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "rules_location: '%s'", cfg->rules_location);
+        vrmr_debug(__FUNC__, "rules_location: '%s'", cfg->rules_location);
 
     /* open the rulesfile */
     if((fp = fopen(cfg->rules_location, "r")))
@@ -747,20 +747,20 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
         rules->old_rulesfile_used = TRUE;
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "opening rulesfile succeded.");
+            vrmr_debug(__FUNC__, "opening rulesfile succeded.");
 
         /* run trough the file */
         while(fgets(line, (int)sizeof(line), fp) != NULL)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "strlen(line) = %d", strlen(line));
+                vrmr_debug(__FUNC__, "strlen(line) = %d", strlen(line));
 
             /* check if the line is a comment */
         //TODO what? what? what?
             if((strlen(line) <= 1) || (line[0] == '#'))
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "skipping line because its a comment or its empty.");
+                    vrmr_debug(__FUNC__, "skipping line because its a comment or its empty.");
             }
             /* no comment */
             else
@@ -768,7 +768,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
                 /* alloc memory for the rule */
                 if(!(rule_ptr = vrmr_rule_malloc()))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "vrmr_rule_malloc() failed: %s (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "vrmr_rule_malloc() failed: %s (in: %s:%d).",
                             strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -776,7 +776,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
                 /* parse the line. We don't really care if it fails, we just ignore it. */
                 if(vrmr_rules_parse_line(debuglvl, line, rule_ptr, reg) < 0)
                 {
-                    (void)vrprint.debug(__FUNC__, "parsing rule failed: %s", line);
+                    vrmr_debug(__FUNC__, "parsing rule failed: %s", line);
                 }
                 else
                 {
@@ -785,7 +785,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
                     {
                         if(protect_warning_shown == FALSE)
                         {
-                            (void)vrprint.warning("Warning", "please note that the protect rules (e.g. anti-spoof) have been changed. Please recheck your networks and interfaces.");
+                            vrmr_warning("Warning", "please note that the protect rules (e.g. anti-spoof) have been changed. Please recheck your networks and interfaces.");
                             protect_warning_shown = TRUE;
                         }
 
@@ -797,7 +797,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
                         /* append to the rules list */
                         if(!(vrmr_list_append(debuglvl, &rules->list, rule_ptr)))
                         {
-                            (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
+                            vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
                             return(-1);
                         }
@@ -810,11 +810,11 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
             }
         }
 
-        (void)vrprint.info("Info", "%d rules loaded.", count-1);
+        vrmr_info("Info", "%d rules loaded.", count-1);
 
         if(fclose(fp) < 0)
         {
-            (void)vrprint.error(-1, "Error", "closing rules file failed: %s (in: %s).", strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "closing rules file failed: %s (in: %s).", strerror(errno), __FUNC__);
             retval = -1;
         }
     }
@@ -827,7 +827,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
         while(rf->list(debuglvl, rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
         {
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "loading rules: '%s', type: %d",
+                vrmr_debug(__FUNC__, "loading rules: '%s', type: %d",
                         rule_name, type);
 
             if(strcmp(rule_name, "rules") == 0)
@@ -838,7 +838,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
         {
             if(rf->add(debuglvl, rule_backend, "rules", VRMR_TYPE_RULE) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "rf->add() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "rf->add() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -851,7 +851,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
             if((strlen(line) <= 1) || (line[0] == '#'))
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "skipping line because its a comment or its empty.");
+                    vrmr_debug(__FUNC__, "skipping line because its a comment or its empty.");
             }
             /* no comment */
             else
@@ -859,7 +859,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
                 /* alloc memory for the rule */
                 if(!(rule_ptr = vrmr_rule_malloc()))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "vrmr_rule_malloc() failed: %s (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "vrmr_rule_malloc() failed: %s (in: %s:%d).",
                             strerror(errno), __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -867,7 +867,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
                 /* parse the line. We don't really care if it fails, we just ignore it. */
                 if(vrmr_rules_parse_line(debuglvl, line, rule_ptr, reg) < 0)
                 {
-                    (void)vrprint.debug(__FUNC__, "parsing rule failed: %s", line);
+                    vrmr_debug(__FUNC__, "parsing rule failed: %s", line);
                 }
                 else
                 {
@@ -876,7 +876,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
                     {
                         if(protect_warning_shown == FALSE)
                         {
-                            (void)vrprint.warning("Warning", "please note that the protect rules (e.g. anti-spoof) have been changed. Please recheck your networks and interfaces.");
+                            vrmr_warning("Warning", "please note that the protect rules (e.g. anti-spoof) have been changed. Please recheck your networks and interfaces.");
                             protect_warning_shown = TRUE;
                         }
 
@@ -888,7 +888,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
                         /* append to the rules list */
                         if(!(vrmr_list_append(debuglvl, &rules->list, rule_ptr)))
                         {
-                            (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
+                            vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
                             return(-1);
                         }
@@ -901,7 +901,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
             }
         }
 
-        (void)vrprint.info("Info", "%d rules loaded.", count-1);
+        vrmr_info("Info", "%d rules loaded.", count-1);
     }
 
     return(retval);
@@ -926,7 +926,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
     /* safety first */
     if(line == NULL || rule_ptr == NULL || reg == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -934,7 +934,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
     /* decode the line */
     if(vrmr_rules_decode_rule(debuglvl, line, VRMR_MAX_RULE_LENGTH) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "decode rule failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "decode rule failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -942,7 +942,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
     /* this should not happen, but it can't hurt to check, right? */
     if(strlen(line) > VRMR_MAX_RULE_LENGTH)
     {
-        (void)vrprint.error(-1, "Internal Error", "rule is too long (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "rule is too long (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -953,13 +953,13 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
     memset(options, 0, sizeof(options));
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "rule: '%s'.", line);
+        vrmr_debug(__FUNC__, "rule: '%s'.", line);
 
     /* see if the rule is active */
     if(line[0] == ';')
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "rule is in-active.");
+            vrmr_debug(__FUNC__, "rule is in-active.");
 
         rule_ptr->active = FALSE;
 
@@ -968,7 +968,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
     else
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "rule is active.");
+            vrmr_debug(__FUNC__, "rule is active.");
 
         rule_ptr->active = TRUE;
     }
@@ -999,7 +999,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
         rule_ptr->who[var_pos] = '\0';
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "protect: who: '%s'", rule_ptr->who);
+            vrmr_debug(__FUNC__, "protect: who: '%s'", rule_ptr->who);
 
         /*
             now check what kind of rule we have
@@ -1012,7 +1012,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             strcpy(rule_ptr->who, "");
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "rule is a VRMR_PROT_PROC_SYS");
+                vrmr_debug(__FUNC__, "rule is a VRMR_PROT_PROC_SYS");
 
             /*
                 okay, now lets see what kind of danger we are talking about
@@ -1024,19 +1024,19 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             rule_ptr->danger[var_pos] = '\0';
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "protect: danger: '%s'", rule_ptr->danger);
+                vrmr_debug(__FUNC__, "protect: danger: '%s'", rule_ptr->danger);
         }
         else
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "now we know who (%s), let get the danger (but first check who).", rule_ptr->who);
+                vrmr_debug(__FUNC__, "now we know who (%s), let get the danger (but first check who).", rule_ptr->who);
 
             /*
                 validate the who-zone
             */
             if(vrmr_validate_zonename(debuglvl, rule_ptr->who, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) != 0)
             {
-                (void)vrprint.error(-1, "Error", "invalid zonename: '%s' (in: %s).", rule_ptr->who, __FUNC__);
+                vrmr_error(-1, "Error", "invalid zonename: '%s' (in: %s).", rule_ptr->who, __FUNC__);
                 return(-1);
             }
 
@@ -1050,14 +1050,14 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             rule_ptr->danger[var_pos] = '\0';
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "protect: keyword against: '%s'", rule_ptr->danger);
+                vrmr_debug(__FUNC__, "protect: keyword against: '%s'", rule_ptr->danger);
 
             /*
                 if 'against' is missing, the rule is malformed, so we bail out screaming & kicking
             */
             if(strcasecmp(rule_ptr->danger, "against") != 0)
             {
-                (void)vrprint.error(-1, "Error", "bad rule syntax, keyword 'against' is missing: %s (in: %s).", line, __FUNC__);
+                vrmr_error(-1, "Error", "bad rule syntax, keyword 'against' is missing: %s (in: %s).", line, __FUNC__);
                 return(-1);
             }
 
@@ -1071,7 +1071,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             rule_ptr->danger[var_pos] = '\0';
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "protect: danger: '%s'", rule_ptr->danger);
+                vrmr_debug(__FUNC__, "protect: danger: '%s'", rule_ptr->danger);
 
             /*
                 now determine if the danger is 'spoofing'
@@ -1088,14 +1088,14 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
                 rule_ptr->source[var_pos] = '\0';
 
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "%s: protect: keyword from: '%s'", __FUNC__, rule_ptr->source);
+                    vrmr_debug(__FUNC__, "%s: protect: keyword from: '%s'", __FUNC__, rule_ptr->source);
 
                 /*
                     if 'from' is missing, the rule is malformed, so we bail out screaming & kicking
                 */
                 if(strcasecmp(rule_ptr->source, "from") != 0)
                 {
-                    (void)vrprint.error(-1, "Error", "bad rule syntax, keyword 'from' is missing: %s (in: %s).", line, __FUNC__);
+                    vrmr_error(-1, "Error", "bad rule syntax, keyword 'from' is missing: %s (in: %s).", line, __FUNC__);
                     return(-1);
                 }
 
@@ -1109,7 +1109,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
                 rule_ptr->source[var_pos] = '\0';
 
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "protect: source: '%s'", rule_ptr->source);
+                    vrmr_debug(__FUNC__, "protect: source: '%s'", rule_ptr->source);
             }
 
             /*
@@ -1141,11 +1141,11 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             rule_ptr->service[var_pos] = '\0';
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "keyword service: '%s'.", rule_ptr->service);
+                vrmr_debug(__FUNC__, "keyword service: '%s'.", rule_ptr->service);
 
             if(strcasecmp(rule_ptr->service, "service") != 0)
             {
-                (void)vrprint.error(-1, "Error", "bad rule syntax, keyword 'service' is missing: %s (in: %s).", line, __FUNC__);
+                vrmr_error(-1, "Error", "bad rule syntax, keyword 'service' is missing: %s (in: %s).", line, __FUNC__);
                 return(-1);
             }
 
@@ -1165,11 +1165,11 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             rule_ptr->service[var_pos] = '\0';
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "service: '%s'.", rule_ptr->service);
+                vrmr_debug(__FUNC__, "service: '%s'.", rule_ptr->service);
 
             if(strcmp(rule_ptr->service, "from") == 0)
             {
-                (void)vrprint.error(-1, "Error", "bad rule syntax, keyword 'service' found, but has no value: %s (in: %s).", line, __FUNC__);
+                vrmr_error(-1, "Error", "bad rule syntax, keyword 'service' found, but has no value: %s (in: %s).", line, __FUNC__);
                 return(-1);
             }
 
@@ -1178,7 +1178,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             */
             if(vrmr_validate_servicename(debuglvl, rule_ptr->service, reg->servicename, VRMR_QUIET) != 0)
             {
-                (void)vrprint.error(-1, "Error", "invalid servicename: '%s' (in: %s:%d).", rule_ptr->service, __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "invalid servicename: '%s' (in: %s:%d).", rule_ptr->service, __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1198,11 +1198,11 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             rule_ptr->from[var_pos] = '\0';
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "keyword from: '%s'.", rule_ptr->from);
+                vrmr_debug(__FUNC__, "keyword from: '%s'.", rule_ptr->from);
 
             if(strcasecmp(rule_ptr->from, "from") != 0)
             {
-                (void)vrprint.error(-1, "Error", "bad rule syntax, keyword 'from' is missing: %s (in: %s).", line, __FUNC__);
+                vrmr_error(-1, "Error", "bad rule syntax, keyword 'from' is missing: %s (in: %s).", line, __FUNC__);
                 return(-1);
             }
 
@@ -1222,14 +1222,14 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             rule_ptr->from[var_pos] = '\0';
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "from: '%s'.", rule_ptr->from);
+                vrmr_debug(__FUNC__, "from: '%s'.", rule_ptr->from);
 
             /*
                 see if the from is actually the to keyword
             */
             if(strcmp(rule_ptr->from, "to") == 0)
             {
-                (void)vrprint.error(-1, "Error", "bad rule syntax, keyword 'from' found, but has no value: %s (in: %s).", line, __FUNC__);
+                vrmr_error(-1, "Error", "bad rule syntax, keyword 'from' found, but has no value: %s (in: %s).", line, __FUNC__);
                 return(-1);
             }
 
@@ -1240,7 +1240,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
                 */
                 if(vrmr_validate_zonename(debuglvl, rule_ptr->from, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) != 0)
                 {
-                    (void)vrprint.error(-1, "Error", "invalid from-zonename: '%s' (in: %s).", rule_ptr->from, __FUNC__);
+                    vrmr_error(-1, "Error", "invalid from-zonename: '%s' (in: %s).", rule_ptr->from, __FUNC__);
                     return(-1);
                 }
             }
@@ -1261,11 +1261,11 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             rule_ptr->to[var_pos] = '\0';
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "keyword to: '%s'.", rule_ptr->to);
+                vrmr_debug(__FUNC__, "keyword to: '%s'.", rule_ptr->to);
 
             if(strcasecmp(rule_ptr->to, "to") != 0)
             {
-                (void)vrprint.error(-1, "Error", "bad rule syntax, keyword 'to' is missing: %s (in: %s).", line, __FUNC__);
+                vrmr_error(-1, "Error", "bad rule syntax, keyword 'to' is missing: %s (in: %s).", line, __FUNC__);
                 return(-1);
             }
 
@@ -1285,14 +1285,14 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             rule_ptr->to[var_pos] = '\0';
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "to: '%s'.", rule_ptr->to);
+                vrmr_debug(__FUNC__, "to: '%s'.", rule_ptr->to);
 
             /*
                 see that to is not the keyword options
             */
             if(strcmp(rule_ptr->to, "options") == 0)
             {
-                (void)vrprint.error(-1, "Error", "bad rule syntax, keyword 'to' found, but has no value: %s (in: %s).", line, __FUNC__);
+                vrmr_error(-1, "Error", "bad rule syntax, keyword 'to' found, but has no value: %s (in: %s).", line, __FUNC__);
                 return(-1);
             }
 
@@ -1303,7 +1303,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
                 */
                 if(vrmr_validate_zonename(debuglvl, rule_ptr->to, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) != 0)
                 {
-                    (void)vrprint.error(-1, "Error", "invalid zonename: '%s' (in: %s).", rule_ptr->to, __FUNC__);
+                    vrmr_error(-1, "Error", "invalid zonename: '%s' (in: %s).", rule_ptr->to, __FUNC__);
                     return(-1);
                 }
             }
@@ -1325,7 +1325,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
         options[var_pos] = '\0';
 
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "keyword options: '%s'.", options);
+            vrmr_debug(__FUNC__, "keyword options: '%s'.", options);
 
         /*
             if this keyword exists we have options
@@ -1348,12 +1348,12 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             options[var_pos] = '\0';
 
             if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "options: '%s'.", options);
+                vrmr_debug(__FUNC__, "options: '%s'.", options);
 
             /* alloc options struct */
             if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
             {
-                (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).",
+                vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
                         strerror(errno), __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1363,7 +1363,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             */
             if(vrmr_rules_read_options(debuglvl, options, rule_ptr->opt) < 0)
             {
-                (void)vrprint.error(-1, "Error", "parsing rule options failed for: '%s'.", line);
+                vrmr_error(-1, "Error", "parsing rule options failed for: '%s'.", line);
 
                 free(rule_ptr->opt);
                 rule_ptr->opt = NULL;
@@ -1377,7 +1377,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
         else
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "rule has no options.");
+                vrmr_debug(__FUNC__, "rule has no options.");
 
             strcpy(options, "");
 
@@ -1403,7 +1403,7 @@ vrmr_rules_assemble_rule(const int debuglvl, struct vrmr_rule *rule_ptr)
     /* safety */
     if(!rule_ptr)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -1436,14 +1436,14 @@ vrmr_rules_assemble_rule(const int debuglvl, struct vrmr_rule *rule_ptr)
     {
         if(strlcat(buf, " ", sizeof(buf)) >= sizeof(buf))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             free(option_ptr);
             return(NULL);
         }
         if(strlcat(buf, option_ptr, sizeof(buf)) >= sizeof(buf))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             free(option_ptr);
             return(NULL);
@@ -1453,7 +1453,7 @@ vrmr_rules_assemble_rule(const int debuglvl, struct vrmr_rule *rule_ptr)
 
     if(strlcat(buf, "\n", sizeof(buf)) >=  sizeof(buf))
     {
-        (void)vrprint.error(-1, "Internal Error", "string "
+        vrmr_error(-1, "Internal Error", "string "
             "overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -1463,14 +1463,14 @@ vrmr_rules_assemble_rule(const int debuglvl, struct vrmr_rule *rule_ptr)
 
     if(!(line = malloc(bufsize)))
     {
-        (void)vrprint.error(-1, "Error", "malloc failed: %s "
+        vrmr_error(-1, "Error", "malloc failed: %s "
             "(in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
         return(NULL);
     }
 
     if(strlcpy(line, buf, bufsize) >= bufsize)
     {
-        (void)vrprint.error(-1, "Internal Error", "string "
+        vrmr_error(-1, "Internal Error", "string "
             "overflow (in: %s:%d).", __FUNC__, __LINE__);
         free(line);
         return(NULL);
@@ -1495,7 +1495,7 @@ rules_write_file(const int debuglvl, const struct vrmr_config *cnf, struct vrmr_
     /* safety */
     if(rulesfile_location == NULL || rules == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1503,13 +1503,13 @@ rules_write_file(const int debuglvl, const struct vrmr_config *cnf, struct vrmr_
     /* open the rulesfile */
     if(!(fp = vrmr_rules_file_open(debuglvl, cnf, rulesfile_location, "w+", 0)))
     {
-        (void)vrprint.error(-1, "Error", "opening rulesfile '%s' failed: %s (in: %s).",
+        vrmr_error(-1, "Error", "opening rulesfile '%s' failed: %s (in: %s).",
                 rulesfile_location, strerror(errno), __FUNC__);
         return(-1);
     }
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "number of rules %d.", rules->list.len);
+        vrmr_debug(__FUNC__, "number of rules %d.", rules->list.len);
 
     /* starting banner */
     fprintf(fp, "# Vuurmuur configfile, do not place comments in it, for they will be overwritten\n");
@@ -1519,7 +1519,7 @@ rules_write_file(const int debuglvl, const struct vrmr_config *cnf, struct vrmr_
     {
         if(!(rule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__);
 
             (void)vrmr_rules_file_close(fp, rulesfile_location);
             return(-1);
@@ -1527,7 +1527,7 @@ rules_write_file(const int debuglvl, const struct vrmr_config *cnf, struct vrmr_
 
         if(!(line = vrmr_rules_assemble_rule(debuglvl, rule_ptr)))
         {
-            (void)vrprint.error(-1, "Internal Error", "assembling rule failed (in: %s:%d).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "assembling rule failed (in: %s:%d).", __FUNC__);
 
             (void)vrmr_rules_file_close(fp, rulesfile_location);
             return(-1);
@@ -1564,7 +1564,7 @@ vrmr_rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vrmr_c
     /* safety */
     if(cnf == NULL || rules == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -1582,7 +1582,7 @@ vrmr_rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vrmr_c
         {
             if(rf->tell(debuglvl, rule_backend, "rules", "RULE", "", 1, VRMR_TYPE_RULE) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
+                vrmr_error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1596,14 +1596,14 @@ vrmr_rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vrmr_c
             {
                 if(!(rule_ptr = d_node->data))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 if(!(line = vrmr_rules_assemble_rule(debuglvl, rule_ptr)))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "vrmr_rules_assemble_rule() failed (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "vrmr_rules_assemble_rule() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
 
                     return(-1);
@@ -1614,7 +1614,7 @@ vrmr_rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vrmr_c
 
                 if(strlcpy(eline, line, sizeof(eline)) >= sizeof(eline))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "copy rule failed: buffer to small (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "copy rule failed: buffer to small (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -1626,7 +1626,7 @@ vrmr_rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vrmr_c
                 /* encode */
                 if(vrmr_rules_encode_rule(debuglvl, eline, sizeof(eline)) < 0)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "encode rule failed (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "encode rule failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -1634,7 +1634,7 @@ vrmr_rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vrmr_c
                 /* write to the backend */
                 if(rf->tell(debuglvl, rule_backend, "rules", "RULE", eline, overwrite, VRMR_TYPE_RULE) < 0)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -1666,7 +1666,7 @@ vrmr_rules_cleanup_list(const int debuglvl, struct vrmr_rules *rules)
     /* safety */
     if(!rules)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -1677,7 +1677,7 @@ vrmr_rules_cleanup_list(const int debuglvl, struct vrmr_rules *rules)
     {
         if(!(rule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s).", __FUNC__);
             return(-1);
         }
 
@@ -1721,13 +1721,13 @@ vrmr_rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned in
     /* safety */
     if(!rules || !rule_ptr)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "insert at: %d. (list len is %d), number: %d, action: %s, service: %s, from: %s, to: %s, danger: %s, who: %s, source: %s.",
+        vrmr_debug(__FUNC__, "insert at: %d. (list len is %d), number: %d, action: %s, service: %s, from: %s, to: %s, danger: %s, who: %s, source: %s.",
                 place, 
                 rules->list.len,
                 rule_ptr->number,
@@ -1744,7 +1744,7 @@ vrmr_rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned in
     if(rules->list.len == 0)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "inserting into an empty list. Setting place to 1 (place was: %d).", place);
+            vrmr_debug(__FUNC__, "inserting into an empty list. Setting place to 1 (place was: %d).", place);
 
         place = 1;
     }
@@ -1753,7 +1753,7 @@ vrmr_rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned in
     if(place > rules->list.len)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "place > rules_list->len (%d, %d). Setting place to %d.", place, rules->list.len, rules->list.len + 1);
+            vrmr_debug(__FUNC__, "place > rules_list->len (%d, %d). Setting place to %d.", place, rules->list.len, rules->list.len + 1);
 
         place = rules->list.len + 1;
     }
@@ -1763,16 +1763,16 @@ vrmr_rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned in
     if(place == 1)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "place to insert: top");
+            vrmr_debug(__FUNC__, "place to insert: top");
 
         if(!(vrmr_list_prepend(debuglvl, &rules->list, rule_ptr)))
         {
-            (void)vrprint.error(-1, "Internal Error", "inserting the data to the top of list failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "inserting the data to the top of list failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "vrmr_list_prepend succes, now update numbers (place: %d)", place);
+            vrmr_debug(__FUNC__, "vrmr_list_prepend succes, now update numbers (place: %d)", place);
 
         vrmr_rules_update_numbers(debuglvl, rules, place, 1);
 
@@ -1792,32 +1792,32 @@ vrmr_rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned in
     {
         if(!(listrule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "entry: %s %s %s %s %s", vrmr_rules_itoaction(listrule_ptr->action), listrule_ptr->service, listrule_ptr->danger, listrule_ptr->who, listrule_ptr->source);
+            vrmr_debug(__FUNC__, "entry: %s %s %s %s %s", vrmr_rules_itoaction(listrule_ptr->action), listrule_ptr->service, listrule_ptr->danger, listrule_ptr->who, listrule_ptr->source);
 
         if(listrule_ptr->number == place - 1)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "place to insert: place: %d, %s %s %s %s %s", place, vrmr_rules_itoaction(listrule_ptr->action), listrule_ptr->service, listrule_ptr->danger, listrule_ptr->who, listrule_ptr->source);
+                vrmr_debug(__FUNC__, "place to insert: place: %d, %s %s %s %s %s", place, vrmr_rules_itoaction(listrule_ptr->action), listrule_ptr->service, listrule_ptr->danger, listrule_ptr->who, listrule_ptr->source);
 
             if(!(vrmr_list_insert_after(debuglvl, &rules->list, d_node, rule_ptr)))
             {
-                (void)vrprint.error(-1, "Internal Error", "inserting the data into the list failed.");
+                vrmr_error(-1, "Internal Error", "inserting the data into the list failed.");
                 return(-1);
             }
 
             /* update numbers after count */
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "vrmr_list_insert_after succes, now update numbers (place: %d)", place);
+                vrmr_debug(__FUNC__, "vrmr_list_insert_after succes, now update numbers (place: %d)", place);
 
             vrmr_rules_update_numbers(debuglvl, rules, place - 1, 1);
 
             /* set the number */
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "vrmr_list_insert_after succes, now set rule_ptr->number to place: %d.", place);
+                vrmr_debug(__FUNC__, "vrmr_list_insert_after succes, now set rule_ptr->number to place: %d.", place);
 
             rule_ptr->number = place;
 
@@ -1828,7 +1828,7 @@ vrmr_rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned in
         else
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "not the right place: %d, %s %s %s %s %s", place, vrmr_rules_itoaction(listrule_ptr->action), listrule_ptr->service, listrule_ptr->danger, listrule_ptr->who, listrule_ptr->source);
+                vrmr_debug(__FUNC__, "not the right place: %d, %s %s %s %s %s", place, vrmr_rules_itoaction(listrule_ptr->action), listrule_ptr->service, listrule_ptr->danger, listrule_ptr->who, listrule_ptr->source);
         }
     }
 
@@ -1860,12 +1860,12 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
         return(NULL);
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "action: '%s'.", action);
+        vrmr_debug(__FUNC__, "action: '%s'.", action);
 
     action_type = vrmr_rules_actiontoi(action);
     if(action_type <= VRMR_AT_ERROR || action_type >= VRMR_AT_TOO_BIG)
     {
-        (void)vrprint.error(-1, "Error", "unknown action '%s' "
+        vrmr_error(-1, "Error", "unknown action '%s' "
                 "(in: %s:%d).", action, __FUNC__, __LINE__);
         return(NULL);
     }
@@ -1873,7 +1873,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
     /* init */
     if(strlcpy(options, "options ", sizeof(options)) >= sizeof(options))
     {
-        (void)vrprint.error(-1, "Internal Error", "string "
+        vrmr_error(-1, "Internal Error", "string "
             "overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -1886,7 +1886,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, interfacestr, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -1899,7 +1899,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, interfacestr, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -1912,7 +1912,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, interfacestr, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -1925,7 +1925,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, nfqueue_string, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -1938,7 +1938,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, chainstr, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -1953,7 +1953,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
         {
             if(strlcat(options, "log,", sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
@@ -1966,19 +1966,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
             if(strlcat(options, "loglimit=\"", sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
             if(strlcat(options, limit_string, sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
             if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
@@ -1989,19 +1989,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
         {
             if(strlcat(options, "logprefix=\"", sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
             if(strlcat(options, opt->logprefix, sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
             if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
@@ -2013,7 +2013,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
     {
         if(strlcat(options, "queue,", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -2029,7 +2029,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
             {
                 if(strlcat(options, ports_ptr, sizeof(options)) >= sizeof(options))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "string "
+                    vrmr_error(-1, "Internal Error", "string "
                             "overflow (in: %s:%d).", __FUNC__, __LINE__);
                     free(ports_ptr);
                     return(NULL);
@@ -2038,7 +2038,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
                 if(strlcat(options, ",", sizeof(options)) >= sizeof(options))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "string "
+                    vrmr_error(-1, "Internal Error", "string "
                             "overflow (in: %s:%d).", __FUNC__, __LINE__);
                     return(NULL);
                 }
@@ -2051,7 +2051,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
             {
                 if(strlcat(options, ports_ptr, sizeof(options)) >= sizeof(options))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "string "
+                    vrmr_error(-1, "Internal Error", "string "
                             "overflow (in: %s:%d).", __FUNC__, __LINE__);
                     free(ports_ptr);
                     return(NULL);
@@ -2060,7 +2060,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
                 if(strlcat(options, ",", sizeof(options)) >= sizeof(options))
                 {
-                    (void)vrprint.error(-1, "Internal Error", "string "
+                    vrmr_error(-1, "Internal Error", "string "
                             "overflow (in: %s:%d).", __FUNC__, __LINE__);
                     return(NULL);
                 }
@@ -2074,19 +2074,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
         {
             if(strlcat(options, "rejecttype=\"", sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
             if(strlcat(options, opt->reject_type, sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
             if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
@@ -2101,19 +2101,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
             if(strlcat(options, "redirectport=\"", sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
             if(strlcat(options, redirect_port, sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
             if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
@@ -2126,19 +2126,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, "nfmark=\"", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, nfmark_string, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -2151,19 +2151,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, "limit=\"", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, limit_string, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -2174,19 +2174,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
             if(strlcat(options, "burst=\"", sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
             if(strlcat(options, limit_string, sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
             if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
@@ -2199,19 +2199,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, "in_max=\"", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, bw_string, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -2222,19 +2222,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, "out_max=\"", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, bw_string, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -2245,19 +2245,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, "in_min=\"", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, bw_string, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -2268,19 +2268,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, "out_min=\"", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, bw_string, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -2291,19 +2291,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
 
         if(strlcat(options, "prio=\"", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, bw_string, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -2313,7 +2313,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
     {
         if (strlcat(options, "random,", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -2324,19 +2324,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
     {
         if(strlcat(options, "comment=\"", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, opt->comment, sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
         if(strlcat(options, "\",", sizeof(options)) >= sizeof(options))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
@@ -2350,25 +2350,25 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
     {
         if(!(option_ptr = malloc(strlen(options)+1)))
         {
-            (void)vrprint.error(-1, "Error", "malloc failed: %s.", strerror(errno));
+            vrmr_error(-1, "Error", "malloc failed: %s.", strerror(errno));
             return(NULL);
         }
         else
         {
             if(strlcpy(option_ptr, options, strlen(options)+1) >= strlen(options)+1)
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 return(NULL);
             }
 
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "'%s'.", option_ptr);
+                vrmr_debug(__FUNC__, "'%s'.", option_ptr);
         }
     }
 
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "option_ptr: '%s'.", option_ptr);
+        vrmr_debug(__FUNC__, "option_ptr: '%s'.", option_ptr);
 
     return(option_ptr);
 }
@@ -2391,7 +2391,7 @@ vrmr_rules_compare_options(const int debuglvl, struct vrmr_rule_options *old_opt
     if(!old_opt && !new_opt)
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "options not changed (both NULL)");
+            vrmr_debug(__FUNC__, "options not changed (both NULL)");
 
         return(0);
     }
@@ -2400,7 +2400,7 @@ vrmr_rules_compare_options(const int debuglvl, struct vrmr_rule_options *old_opt
     if((!old_opt && new_opt) || (old_opt && !new_opt))
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "options changed! (one NULL, other not)");
+            vrmr_debug(__FUNC__, "options changed! (one NULL, other not)");
 
         return(1);
     }
@@ -2420,7 +2420,7 @@ vrmr_rules_compare_options(const int debuglvl, struct vrmr_rule_options *old_opt
     else
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "options changed! (str compare)");
+            vrmr_debug(__FUNC__, "options changed! (str compare)");
 
         retval = 1;
     }
@@ -2445,7 +2445,7 @@ vrmr_search_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_rule 
     /* safety */
     if(!rules || !searchrule_ptr)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
@@ -2453,7 +2453,7 @@ vrmr_search_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_rule 
     {
         if(!(listrule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
 
@@ -2527,18 +2527,18 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
     /* safety */
     if(optstr == NULL || op == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "options: '%s', strlen(optstr): %d", optstr, strlen(optstr));
+        vrmr_debug(__FUNC__, "options: '%s', strlen(optstr): %d", optstr, strlen(optstr));
 
     /* check if we even got a string to disassemble */
     if(strlen(optstr) == 0)
     {
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "no options.");
+            vrmr_debug(__FUNC__, "no options.");
 
         return(0);
     }
@@ -2574,12 +2574,12 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
         if(cur_pos == 0)
         {
             if(debuglvl >= LOW)
-                (void)vrprint.debug(__FUNC__, "curopt: '%s'.", curopt);
+                vrmr_debug(__FUNC__, "curopt: '%s'.", curopt);
 
             /* error message for a missing trema */
             if(trema == 1)
             {
-                (void)vrprint.error(-1, "Error", "unbalanced \" in rule (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, "Error", "unbalanced \" in rule (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -2592,7 +2592,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
             if(strcmp(curopt, "log") == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "logging enabled.");
+                    vrmr_debug(__FUNC__, "logging enabled.");
 
                 op->rule_log = 1;
             }
@@ -2600,7 +2600,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
             else if(strcmp(curopt, "random") == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "random enabled.");
+                    vrmr_debug(__FUNC__, "random enabled.");
 
                 op->random = 1;
             }
@@ -2623,7 +2623,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 op->logburst = op->loglimit * 2;
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "loglimit: %d, logburst %d.", op->loglimit, op->logburst);
+                    vrmr_debug(__FUNC__, "loglimit: %d, logburst %d.", op->loglimit, op->logburst);
             }
             /* limit */
             else if(strncmp(curopt, "limit", strlen("limit")) == 0)
@@ -2652,7 +2652,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                         strcasecmp(op->limit_unit,"hour") != 0 &&
                         strcasecmp(op->limit_unit,"day") != 0)
                     {
-                        (void)vrprint.error(-1, "Error", "parsing limit option timeunit failed. Please check the syntax of the rule.");
+                        vrmr_error(-1, "Error", "parsing limit option timeunit failed. Please check the syntax of the rule.");
                         op->limit_unit[0] = '\0';
                         return(-1);
                     }
@@ -2673,7 +2673,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 op->limit = (unsigned int)atoi(portstring);
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "limit: %d / %s.", op->limit, op->limit_unit);
+                    vrmr_debug(__FUNC__, "limit: %d / %s.", op->limit, op->limit_unit);
             }
             /* burst */
             else if(strncmp(curopt, "burst", strlen("burst")) == 0)
@@ -2693,13 +2693,13 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 op->burst = (unsigned int)atoi(portstring);
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "burst: %d.", op->burst);
+                    vrmr_debug(__FUNC__, "burst: %d.", op->burst);
             }
             /* obsolete: mark the iptablesstate? */
             else if(strcmp(curopt, "markiptstate") == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "obsolete option 'markiptstate'.");
+                    vrmr_debug(__FUNC__, "obsolete option 'markiptstate'.");
             }
             /* queue instead of accept (portfw and redirect)
                          *
@@ -2709,7 +2709,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
             else if(strcmp(curopt, "queue") == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "queue'ing enabled.");
+                    vrmr_debug(__FUNC__, "queue'ing enabled.");
 
                 op->queue = 1;
             }
@@ -2717,7 +2717,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
             else if(strncmp(curopt, "int", 3) == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "int (old for in_int) option.");
+                    vrmr_debug(__FUNC__, "int (old for in_int) option.");
 
                 for(p = 0, o = strlen("int") + 2;
                         p < sizeof(op->in_int) && o < strlen(curopt) - 1;
@@ -2728,13 +2728,13 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 op->in_int[p] = '\0';
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "in_int: '%s'.", op->in_int);
+                    vrmr_debug(__FUNC__, "in_int: '%s'.", op->in_int);
             }
             /* in_int */
             else if(strncmp(curopt, "in_int", 6) == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "in_int option.");
+                    vrmr_debug(__FUNC__, "in_int option.");
 
                 for(p = 0, o = strlen("in_int") + 2;
                         p < sizeof(op->in_int) && o < strlen(curopt) - 1;
@@ -2745,13 +2745,13 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 op->in_int[p] = '\0';
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "in_int: '%s'.", op->in_int);
+                    vrmr_debug(__FUNC__, "in_int: '%s'.", op->in_int);
             }
             /* out_int */
             else if(strncmp(curopt, "out_int", 7) == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "out_int option.");
+                    vrmr_debug(__FUNC__, "out_int option.");
 
                 for(p = 0, o = strlen("out_int") + 2;
                         p < sizeof(op->out_int) && o < strlen(curopt) - 1;
@@ -2762,13 +2762,13 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 op->out_int[p] = '\0';
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "out_int: '%s'.", op->out_int);
+                    vrmr_debug(__FUNC__, "out_int: '%s'.", op->out_int);
             }
             /* via_int */
             else if(strncmp(curopt, "via_int", 7) == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "via_int option.");
+                    vrmr_debug(__FUNC__, "via_int option.");
 
                 for(p = 0, o = strlen("via_int") + 2;
                         p < sizeof(op->via_int) && o < strlen(curopt) - 1;
@@ -2779,13 +2779,13 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 op->via_int[p] = '\0';
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "via_int: '%s'.", op->via_int);
+                    vrmr_debug(__FUNC__, "via_int: '%s'.", op->via_int);
             }
             /* remoteport - for portforwarding */
             else if(strncmp(curopt, "remoteport", strlen("remoteport")) == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "remoteport specified.");
+                    vrmr_debug(__FUNC__, "remoteport specified.");
 
                 /* copy the string containing the ports */
                 for(p = 0, o = strlen("remoteport") + 1;
@@ -2797,11 +2797,11 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
 //TODO: no NULL?
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "remoteport string: '%s'.", portstring);
+                    vrmr_debug(__FUNC__, "remoteport string: '%s'.", portstring);
 
                 if(vrmr_portopts_to_list(debuglvl, portstring, &op->RemoteportList) < 0)
                 {
-                    (void)vrprint.error(-1, "Error", "parsing remoteport option failed. Please check the syntax of the rule.");
+                    vrmr_error(-1, "Error", "parsing remoteport option failed. Please check the syntax of the rule.");
                     return(-1);
                 }
 
@@ -2811,7 +2811,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
             else if(strncmp(curopt, "listenport", strlen("listenport")) == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "listenport specified.");
+                    vrmr_debug(__FUNC__, "listenport specified.");
 
                 /* copy the string containing the ports */
                 for(p = 0, o = strlen("listenport") + 1;
@@ -2822,11 +2822,11 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 }
 //TODO: no NULL?
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "listenport string: '%s'.", portstring);
+                    vrmr_debug(__FUNC__, "listenport string: '%s'.", portstring);
 
                 if(vrmr_portopts_to_list(debuglvl, portstring, &op->ListenportList) < 0)
                 {
-                    (void)vrprint.error(-1, "Error", "parsing listenport option failed. Please check the syntax of the rule.");
+                    vrmr_error(-1, "Error", "parsing listenport option failed. Please check the syntax of the rule.");
                     return(-1);
                 }
 
@@ -2836,7 +2836,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
             else if(strncmp(curopt, "comment", strlen("comment")) == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "comment.");
+                    vrmr_debug(__FUNC__, "comment.");
 
                 for(p = 0, o = strlen("comment") + 2;
                         o < strlen(curopt) - 1 && p < sizeof(op->comment);
@@ -2851,7 +2851,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
             else if(strncmp(curopt, "logprefix", strlen("logprefix")) == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "logprefix.");
+                    vrmr_debug(__FUNC__, "logprefix.");
 
                 for(p = 0, o = strlen("logprefix") + 2;
                         p < 12 && o < strlen(curopt) - 1 && p < sizeof(op->logprefix);
@@ -2864,7 +2864,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 if(strlen(op->logprefix) > 14)
                 {
 //TODO: not disable, but truncate */
-                    (void)vrprint.warning("Warning", "logprefix is too long. Maximum length is 14 characters.");
+                    vrmr_warning("Warning", "logprefix is too long. Maximum length is 14 characters.");
                     op->rule_logprefix = 0;
                     op->logprefix[0] = '\0';
                 }
@@ -2891,13 +2891,13 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 op->redirectport = atoi(portstring);
                 if(op->redirectport <= 0 || op->redirectport > 65535)
                 {
-                    (void)vrprint.error(-1, "Error", "redirectport must be 1-65535.");
+                    vrmr_error(-1, "Error", "redirectport must be 1-65535.");
                     op->redirectport = 0;
                     return(-1);
                 }
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "redirectport: %d, %s", op->redirectport, portstring);
+                    vrmr_debug(__FUNC__, "redirectport: %d, %s", op->redirectport, portstring);
             }
             /* nfmark */
             else if(strncmp(curopt, "nfmark", strlen("nfmark")) == 0)
@@ -2917,13 +2917,13 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 op->nfmark = strtoul(portstring, (char **)NULL, 10);
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "nfmark: %lu, %s", op->nfmark, portstring);
+                    vrmr_debug(__FUNC__, "nfmark: %lu, %s", op->nfmark, portstring);
             }
             /* reject type */
             else if(strncmp(curopt, "rejecttype", strlen("rejecttype")) == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "rejecttype.");
+                    vrmr_debug(__FUNC__, "rejecttype.");
 
                 for(p = 0, o = strlen("rejecttype") + 1;
                         o < strlen(curopt) && o < 23 + strlen("rejecttype") + 1 && p < sizeof(op->reject_type);
@@ -2949,11 +2949,11 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                     strcmp(op->reject_type, "tcp-reset") == 0)
                 {
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "valid reject type %s", op->reject_type);
+                        vrmr_debug(__FUNC__, "valid reject type %s", op->reject_type);
                 }
                 else
                 {
-                    (void)vrprint.error(-1, "Error", "%s is not a valid reject-type.", op->reject_type);
+                    vrmr_error(-1, "Error", "%s is not a valid reject-type.", op->reject_type);
 
                     op->reject_option = 0;
                     return(-1);
@@ -2963,7 +2963,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
             else if(strncmp(curopt, "chain", strlen("chain")) == 0)
             {
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "chain.");
+                    vrmr_debug(__FUNC__, "chain.");
 
                 for(p = 0, o = strlen("chain") + 2;
                         o < strlen(curopt) - 1 && p < sizeof(op->chain);
@@ -2991,7 +2991,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 op->nfqueue_num = atoi(portstring);
 
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "nfqueuenum: %d, %s", op->nfqueue_num, portstring);
+                    vrmr_debug(__FUNC__, "nfqueuenum: %d, %s", op->nfqueue_num, portstring);
             }
             /* prio */
             else if(strncmp(curopt, "prio", strlen("prio")) == 0)
@@ -3011,7 +3011,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 op->prio = atoi(portstring);
 
                 //if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "prio: %d, %s", op->prio, portstring);
+                    vrmr_debug(__FUNC__, "prio: %d, %s", op->prio, portstring);
             }
             /* in_max */
             else if(strncmp(curopt, "in_max", strlen("in_max")) == 0)
@@ -3054,9 +3054,9 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                     op->bw_in_max = atoi(value_string);
                     strlcpy(op->bw_in_max_unit, unit_string, sizeof(op->bw_in_max_unit));
 
-                    (void)vrprint.debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+                    vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
                 } else {
-                    (void)vrprint.error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+                    vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
                     return(-1);
                 }
             }
@@ -3101,9 +3101,9 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                     op->bw_in_min = atoi(value_string);
                     strlcpy(op->bw_in_min_unit, unit_string, sizeof(op->bw_in_min_unit));
 
-                    (void)vrprint.debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+                    vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
                 } else {
-                    (void)vrprint.error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+                    vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
                     return(-1);
                 }
             }
@@ -3148,9 +3148,9 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                     op->bw_out_max = atoi(value_string);
                     strlcpy(op->bw_out_max_unit, unit_string, sizeof(op->bw_out_max_unit));
 
-                    (void)vrprint.debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+                    vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
                 } else {
-                    (void)vrprint.error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+                    vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
                     return(-1);
                 }
             }
@@ -3195,23 +3195,23 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                     op->bw_out_min = atoi(value_string);
                     strlcpy(op->bw_out_min_unit, unit_string, sizeof(op->bw_out_min_unit));
 
-                    (void)vrprint.debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+                    vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
                 } else {
-                    (void)vrprint.error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+                    vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
                     return(-1);
                 }
             }
             /* unknown option */
             else
             {
-                (void)vrprint.warning("Warning", "unknown rule option '%s'.", curopt);
+                vrmr_warning("Warning", "unknown rule option '%s'.", curopt);
                 //return(-1);
             }
         }
     }
 
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "** end **, return = %d", retval);
+        vrmr_debug(__FUNC__, "** end **, return = %d", retval);
 
     return(retval);
 }
@@ -3306,7 +3306,7 @@ vrmr_rules_actiontoi(const char *action)
 {
     if(action == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(VRMR_AT_ERROR);
     }
@@ -3344,7 +3344,7 @@ vrmr_rules_actiontoi(const char *action)
         return(VRMR_AT_PROTECT);
     else
     {
-        (void)vrprint.error(-1, "Error", "unknown action '%s' (in: %s:%d).",
+        vrmr_error(-1, "Error", "unknown action '%s' (in: %s:%d).",
                 action, __FUNC__, __LINE__);
         return(VRMR_AT_ERROR);
     }
@@ -3359,7 +3359,7 @@ rules_create_protect_rule(const int debuglvl, char *action, /*@null@*/ char *who
     /* safety */
     if(!danger || !action)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -3380,7 +3380,7 @@ rules_create_protect_rule(const int debuglvl, char *action, /*@null@*/ char *who
         /* who do we protect */
         if(strlcpy(rule_ptr->service, danger, sizeof(rule_ptr->service)) >= sizeof(rule_ptr->service))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             free(rule_ptr);
             return(NULL);
@@ -3391,7 +3391,7 @@ rules_create_protect_rule(const int debuglvl, char *action, /*@null@*/ char *who
         /* who do we protect */
         if(strlcpy(rule_ptr->who, who, sizeof(rule_ptr->who)) >= sizeof(rule_ptr->who))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             free(rule_ptr);
             return(NULL);
@@ -3400,7 +3400,7 @@ rules_create_protect_rule(const int debuglvl, char *action, /*@null@*/ char *who
         /* and against what? */
         if(strlcpy(rule_ptr->danger, danger, sizeof(rule_ptr->danger)) >= sizeof(rule_ptr->danger))
         {
-            (void)vrprint.error(-1, "Internal Error", "string "
+            vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
             free(rule_ptr);
             return(NULL);
@@ -3411,7 +3411,7 @@ rules_create_protect_rule(const int debuglvl, char *action, /*@null@*/ char *who
             /* from which source */
             if(strlcpy(rule_ptr->source, source, sizeof(rule_ptr->source)) >= sizeof(rule_ptr->source))
             {
-                (void)vrprint.error(-1, "Internal Error", "string "
+                vrmr_error(-1, "Internal Error", "string "
                         "overflow (in: %s:%d).", __FUNC__, __LINE__);
                 free(rule_ptr);
                 return(NULL);
@@ -3439,7 +3439,7 @@ vrmr_rules_chain_in_list(const int debuglvl, struct vrmr_list *list, char *chain
     /* safety */
     if(list == NULL || chainname == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -3448,7 +3448,7 @@ vrmr_rules_chain_in_list(const int debuglvl, struct vrmr_list *list, char *chain
     {
         if(!(str = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -3483,14 +3483,14 @@ vrmr_rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
     /* safety */
     if(rules == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(vrmr_list_setup(debuglvl, &rules->custom_chain_list, free) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() "
+        vrmr_error(-1, "Internal Error", "vrmr_list_setup() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -3499,7 +3499,7 @@ vrmr_rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
     {
         if(!(rule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL "
+            vrmr_error(-1, "Internal Error", "NULL "
                     "pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
@@ -3516,14 +3516,14 @@ vrmr_rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
                     str = malloc(size);
                     if(str == NULL)
                     {
-                        (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).",
+                        vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
                                 strerror(errno), __FUNC__, __LINE__);
                         return(-1);
                     }
 
                     if(strlcpy(str, rule_ptr->opt->chain, size) >= size)
                     {
-                        (void)vrprint.error(-1, "Internal Error", "string "
+                        vrmr_error(-1, "Internal Error", "string "
                                 "overflow (in: %s:%d).", __FUNC__, __LINE__);
                         free(str);
                         return(-1);
@@ -3531,7 +3531,7 @@ vrmr_rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
 
                     if(vrmr_list_append(debuglvl, &rules->custom_chain_list, str) == NULL)
                     {
-                        (void)vrprint.error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
+                        vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
                         free(str);
                         return(-1);
@@ -3559,7 +3559,7 @@ vrmr_rules_get_system_chains_per_table(const int debuglvl, char *tablename,
     /* safety */
     if(list == NULL || tablename == NULL || cnf == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -3590,7 +3590,7 @@ vrmr_rules_get_system_chains_per_table(const int debuglvl, char *tablename,
                 name = malloc(size);
                 if(name == NULL)
                 {
-                    (void)vrprint.error(-1, "Error", "malloc "
+                    vrmr_error(-1, "Error", "malloc "
                             "failed: %s (in: %s:%d).",
                             strerror(errno), __FUNC__, __LINE__);
                     pclose(p);
@@ -3599,7 +3599,7 @@ vrmr_rules_get_system_chains_per_table(const int debuglvl, char *tablename,
 
                 if(strlcpy(name, chainname, size) >= size)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "string "
+                    vrmr_error(-1, "Internal Error", "string "
                             "overflow (in: %s:%d).", __FUNC__, __LINE__);
                     free(name);
                     pclose(p);
@@ -3608,7 +3608,7 @@ vrmr_rules_get_system_chains_per_table(const int debuglvl, char *tablename,
 
                 if(vrmr_list_append(debuglvl, list, name) == NULL)
                 {
-                    (void)vrprint.error(-1, "Internal Error",
+                    vrmr_error(-1, "Internal Error",
                             "vrmr_list_append() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     free(name);
@@ -3624,7 +3624,7 @@ vrmr_rules_get_system_chains_per_table(const int debuglvl, char *tablename,
     else
     {
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "popen() failed");
+            vrmr_debug(__FUNC__, "popen() failed");
     }
 
     return(0);
@@ -3645,38 +3645,38 @@ vrmr_rules_get_system_chains(const int debuglvl, struct vrmr_rules *rules, struc
     /* safety */
     if(cnf == NULL || rules == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     /* initialize the lists */
     if(vrmr_list_setup(debuglvl, &rules->system_chain_filter, free) < 0) {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
     if(vrmr_list_setup(debuglvl, &rules->system_chain_mangle, free) < 0) {
-        (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
     if (ipv == VRMR_IPV4) {
         if(vrmr_list_setup(debuglvl, &rules->system_chain_nat, free) < 0) {
-            (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
     }
     //if(vrmr_list_setup(debuglvl, &rules->system_chain_raw, free) < 0) {
-    //    (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
+    //    vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
     //            __FUNC__, __LINE__);
     //    return(-1);
     //}
 
     if(cnf->iptables_location[0] == '\0')
     {
-        (void)vrprint.error(-1, "Internal Error", "cnf->iptables_location is empty (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "cnf->iptables_location is empty (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -3719,7 +3719,7 @@ vrmr_rules_encode_rule(const int debuglvl, char *rulestr, size_t size)
     /* safety */
     if(rulestr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -3739,7 +3739,7 @@ vrmr_rules_encode_rule(const int debuglvl, char *rulestr, size_t size)
 
     if(strlcpy(rulestr, line, size) >= size)
     {
-        (void)vrprint.error(-1, "Internal Error", "encoding rule failed: buffer to small (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "encoding rule failed: buffer to small (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -3758,7 +3758,7 @@ vrmr_rules_decode_rule(const int debuglvl, char *rulestr, size_t size)
     /* safety */
     if(rulestr == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -3781,7 +3781,7 @@ vrmr_rules_decode_rule(const int debuglvl, char *rulestr, size_t size)
     len = strlcpy(rulestr, line, size);
     if(len >= size)
     {
-        (void)vrprint.error(-1, "Internal Error", "decoding rule failed: buffer to small: %u>=%u (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "decoding rule failed: buffer to small: %u>=%u (in: %s:%d).",
                 len, size, __FUNC__, __LINE__);
         return(-1);
     }
@@ -3804,7 +3804,7 @@ vrmr_rules_determine_ruletype(const int debuglvl, struct vrmr_rule *rule_ptr)
     /* safety */
     if(rule_ptr == NULL)
     {
-        (void)vrprint.error(VRMR_RT_ERROR, "Internal Error", "parameter "
+        vrmr_error(VRMR_RT_ERROR, "Internal Error", "parameter "
             "problem (in: %s:%d).", __FUNC__, __LINE__);
         return(VRMR_RT_ERROR);
     }
@@ -3827,7 +3827,7 @@ vrmr_rules_determine_ruletype(const int debuglvl, struct vrmr_rule *rule_ptr)
     }
     else
     {
-        (void)vrprint.error(VRMR_RT_ERROR, "Internal Error", "could not "
+        vrmr_error(VRMR_RT_ERROR, "Internal Error", "could not "
             "determine chain (in: %s:%d).", __FUNC__, __LINE__);
         return(VRMR_RT_ERROR);
     }
@@ -3877,25 +3877,25 @@ vrmr_rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, u
     /* safety */
     if(rules == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "start: place: %d, updatenumbers: %d, listsize: %d", place, updatenumbers, rules->list.len);
+        vrmr_debug(__FUNC__, "start: place: %d, updatenumbers: %d, listsize: %d", place, updatenumbers, rules->list.len);
 
     for(d_node = rules->list.top; d_node ; d_node = d_node->next)
     {
         if(!(rule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
+            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "rule_ptr->number: %d, place: %d", rule_ptr->number, place);
+            vrmr_debug(__FUNC__, "rule_ptr->number: %d, place: %d", rule_ptr->number, place);
 
         if(rule_ptr->number != place)
         {
@@ -3904,16 +3904,16 @@ vrmr_rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, u
         else
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "now we have to remove (query_ptr->number: %d, place: %d)", rule_ptr->number, place);
+                vrmr_debug(__FUNC__, "now we have to remove (query_ptr->number: %d, place: %d)", rule_ptr->number, place);
 
             if(vrmr_list_node_is_bot(debuglvl, d_node))
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "removing last entry");
+                    vrmr_debug(__FUNC__, "removing last entry");
 
                 if(vrmr_list_remove_bot(debuglvl, &rules->list) < 0)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "vrmr_list_remove_bot() failed (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "vrmr_list_remove_bot() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -3922,11 +3922,11 @@ vrmr_rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, u
             else
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "removing normal entry");
+                    vrmr_debug(__FUNC__, "removing normal entry");
 
                 if(vrmr_list_remove_node(debuglvl, &rules->list, d_node) < 0)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
+                    vrmr_error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
@@ -3934,7 +3934,7 @@ vrmr_rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, u
                 if(updatenumbers == 1)
                 {
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "updatenumbers: %d, %d", place, 0);
+                        vrmr_debug(__FUNC__, "updatenumbers: %d, %d", place, 0);
 
                     vrmr_rules_update_numbers(debuglvl, rules, place, 0);
                 }
@@ -3965,13 +3965,13 @@ vrmr_rules_update_numbers(const int debuglvl, struct vrmr_rules *rules, unsigned
     /* safety */
     if(rules == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return;
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "Update higher (or equal) than: %d, action = %d. (list len is %d)", place, action, rules->list.len);
+        vrmr_debug(__FUNC__, "Update higher (or equal) than: %d, action = %d. (list len is %d)", place, action, rules->list.len);
 
     for(d_node = rules->list.top, i = 1; d_node ; d_node = d_node->next, i++)
     {
@@ -4005,7 +4005,7 @@ vrmr_rules_print_list(const struct vrmr_rules *rules)
     {
         rule_ptr = d_node->data;
 
-        (void)vrprint.debug(__FUNC__, "%3d, %-8s, %s, %s, %s, %s, %s, %s, status: %d",
+        vrmr_debug(__FUNC__, "%3d, %-8s, %s, %s, %s, %s, %s, %s, status: %d",
                 rule_ptr->number, vrmr_rules_itoaction(rule_ptr->action),
                 rule_ptr->service, rule_ptr->from,
                 rule_ptr->to, rule_ptr->who,

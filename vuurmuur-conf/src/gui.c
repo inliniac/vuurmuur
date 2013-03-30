@@ -237,7 +237,7 @@ VrNewMenu(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
     if ( menu == NULL )
     {
         // error
-        (void)vrprint.error(-1, VR_ERR, "malloc failed");
+        vrmr_error(-1, VR_ERR, "malloc failed");
         return(NULL);
     }
     memset(menu, 0, sizeof(VrMenu));
@@ -251,7 +251,7 @@ VrNewMenu(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
     if ( menu->i == NULL )
     {
         // error
-        (void)vrprint.error(-1, VR_ERR, "calloc failed");
+        vrmr_error(-1, VR_ERR, "calloc failed");
         return(NULL);
     }
     memset(menu->i, 0, (sizeof(ITEM) * n));
@@ -335,7 +335,7 @@ VrMenuAddItem(const int debuglvl, VrMenu *menu, char *name, char *desc)
 {
     if(menu->cur_item >= menu->nitems)
     {
-        (void)vrprint.error(-1, VR_ERR, "menu full: all %u items already added", menu->nitems);
+        vrmr_error(-1, VR_ERR, "menu full: all %u items already added", menu->nitems);
         return(-1);
     }
 
@@ -343,7 +343,7 @@ VrMenuAddItem(const int debuglvl, VrMenu *menu, char *name, char *desc)
     {
         if(vrmr_list_append(debuglvl, &menu->name, name) == NULL)
         {
-            (void)vrprint.error(-1, VR_ERR, "vrmr_list_append failed");
+            vrmr_error(-1, VR_ERR, "vrmr_list_append failed");
             return(-1);
         }
     }
@@ -351,7 +351,7 @@ VrMenuAddItem(const int debuglvl, VrMenu *menu, char *name, char *desc)
     {
         if(vrmr_list_append(debuglvl, &menu->desc, desc) == NULL)
         {
-            (void)vrprint.error(-1, VR_ERR, "vrmr_list_append failed");
+            vrmr_error(-1, VR_ERR, "vrmr_list_append failed");
             return(-1);
         }
     }
@@ -359,7 +359,7 @@ VrMenuAddItem(const int debuglvl, VrMenu *menu, char *name, char *desc)
     menu->i[menu->cur_item] = new_item(name, desc);
     if(menu->i[menu->cur_item] == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "new_item failed");
+        vrmr_error(-1, VR_ERR, "new_item failed");
         return(-1);
     }
     menu->cur_item++;
@@ -372,7 +372,7 @@ VrMenuAddSepItem(const int debuglvl, VrMenu *menu, char *desc)
 {
     if(menu->cur_item >= menu->nitems)
     {
-        (void)vrprint.error(-1, VR_ERR, "menu full: all %u items already added", menu->nitems);
+        vrmr_error(-1, VR_ERR, "menu full: all %u items already added", menu->nitems);
         return(-1);
     }
 
@@ -380,7 +380,7 @@ VrMenuAddSepItem(const int debuglvl, VrMenu *menu, char *desc)
     {
         if(vrmr_list_append(debuglvl, &menu->desc, desc) == NULL)
         {
-            (void)vrprint.error(-1, VR_ERR, "vrmr_list_append failed");
+            vrmr_error(-1, VR_ERR, "vrmr_list_append failed");
             return(-1);
         }
     }
@@ -388,7 +388,7 @@ VrMenuAddSepItem(const int debuglvl, VrMenu *menu, char *desc)
     menu->i[menu->cur_item] = new_item(" ", desc);
     if(menu->i[menu->cur_item] == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "new_item failed");
+        vrmr_error(-1, VR_ERR, "new_item failed");
         return(-1);
     }
     item_opts_off(menu->i[menu->cur_item], O_SELECTABLE);
@@ -408,27 +408,27 @@ VrMenuConnectToWin(const int debuglvl, VrMenu *menu, VrWin *win)
     if ( menu->m == NULL )
     {
         // error
-        (void)vrprint.error(-1, VR_ERR, "new_menu failed");
+        vrmr_error(-1, VR_ERR, "new_menu failed");
         return(-1);
     }
     result = set_menu_win(menu->m, win->w);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, "set_menu_win failed");
+        vrmr_error(-1, VR_ERR, "set_menu_win failed");
         return(-1);
     }
 
     menu->dw = derwin(win->w, menu->h, menu->w, menu->y, menu->x);
     if(menu->dw == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "derwin failed");
+        vrmr_error(-1, VR_ERR, "derwin failed");
         return(-1);
     }
 
     result = set_menu_sub(menu->m, menu->dw);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, "set_menu_sub failed");
+        vrmr_error(-1, VR_ERR, "set_menu_sub failed");
         return(-1);
     }
     result = set_menu_format(menu->m, win->height - 2, 1);
@@ -436,19 +436,19 @@ VrMenuConnectToWin(const int debuglvl, VrMenu *menu, VrWin *win)
     {
         if(result == E_BAD_ARGUMENT)
         {
-            (void)vrprint.error(-1, VR_ERR, "set_menu_format failed: E_BAD_ARGUMENT");
+            vrmr_error(-1, VR_ERR, "set_menu_format failed: E_BAD_ARGUMENT");
         }
         else if(result == E_SYSTEM_ERROR)
         {
-            (void)vrprint.error(-1, VR_ERR, "set_menu_format failed: E_SYSTEM_ERROR");
+            vrmr_error(-1, VR_ERR, "set_menu_format failed: E_SYSTEM_ERROR");
         }
         else if(result == E_POSTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "set_menu_format failed: E_POSTED");
+            vrmr_error(-1, VR_ERR, "set_menu_format failed: E_POSTED");
         }
         else
         {
-            (void)vrprint.error(-1, VR_ERR, "set_menu_format failed: unknown error");
+            vrmr_error(-1, VR_ERR, "set_menu_format failed: unknown error");
         }
 
         return(-1);
@@ -529,35 +529,35 @@ VrMenuPost(const int debuglvl, VrMenu *menu)
     {
         if(result == E_BAD_ARGUMENT)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_menu failed: E_BAD_ARGUMENT");
+            vrmr_error(-1, VR_ERR, "post_menu failed: E_BAD_ARGUMENT");
         }
         else if(result == E_SYSTEM_ERROR)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_menu failed: E_SYSTEM_ERROR");
+            vrmr_error(-1, VR_ERR, "post_menu failed: E_SYSTEM_ERROR");
         }
         else if(result == E_POSTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_menu failed: E_POSTED");
+            vrmr_error(-1, VR_ERR, "post_menu failed: E_POSTED");
         }
         else if(result == E_BAD_STATE)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_menu failed: E_BAD_STATE");
+            vrmr_error(-1, VR_ERR, "post_menu failed: E_BAD_STATE");
         }
         else if(result == E_NO_ROOM)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_menu failed: E_NO_ROOM");
+            vrmr_error(-1, VR_ERR, "post_menu failed: E_NO_ROOM");
         }
         else if(result == E_NOT_POSTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_menu failed: E_NOT_POSTED");
+            vrmr_error(-1, VR_ERR, "post_menu failed: E_NOT_POSTED");
         }
         else if(result == E_NOT_CONNECTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_menu failed: E_NOT_CONNECTED");
+            vrmr_error(-1, VR_ERR, "post_menu failed: E_NOT_CONNECTED");
         }
         else
         {
-            (void)vrprint.error(-1, VR_ERR, "post_menu failed: unknown error %d", result);
+            vrmr_error(-1, VR_ERR, "post_menu failed: unknown error %d", result);
         }
 
         return(-1);
@@ -576,35 +576,35 @@ VrMenuUnPost(const int debuglvl, VrMenu *menu)
     {
         if(result == E_BAD_ARGUMENT)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_menu failed: E_BAD_ARGUMENT");
+            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_BAD_ARGUMENT");
         }
         else if(result == E_SYSTEM_ERROR)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_menu failed: E_SYSTEM_ERROR");
+            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_SYSTEM_ERROR");
         }
         else if(result == E_POSTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_menu failed: E_POSTED");
+            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_POSTED");
         }
         else if(result == E_BAD_STATE)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_menu failed: E_BAD_STATE");
+            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_BAD_STATE");
         }
         else if(result == E_NO_ROOM)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_menu failed: E_NO_ROOM");
+            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_NO_ROOM");
         }
         else if(result == E_NOT_POSTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_menu failed: E_NOT_POSTED");
+            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_NOT_POSTED");
         }
         else if(result == E_NOT_CONNECTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_menu failed: E_NOT_CONNECTED");
+            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_NOT_CONNECTED");
         }
         else
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_menu failed: unknown error %d", result);
+            vrmr_error(-1, VR_ERR, "unpost_menu failed: unknown error %d", result);
         }
 
         return(-1);
@@ -622,7 +622,7 @@ VrNewForm(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
     if ( form == NULL )
     {
         // error
-        (void)vrprint.error(-1, VR_ERR, "malloc failed");
+        vrmr_error(-1, VR_ERR, "malloc failed");
         return(NULL);
     }
     memset(form, 0, sizeof(VrForm));
@@ -637,7 +637,7 @@ VrNewForm(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
     if ( form->fields == NULL )
     {
         // error
-        (void)vrprint.error(-1, VR_ERR, "calloc failed");
+        vrmr_error(-1, VR_ERR, "calloc failed");
         return(NULL);
     }
     memset(form->fields, 0, (sizeof(FIELD) * form->nfields + 1));
@@ -685,35 +685,35 @@ VrFormPost(const int debuglvl, VrForm *form)
     {
         if(result == E_BAD_ARGUMENT)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_form failed: E_BAD_ARGUMENT");
+            vrmr_error(-1, VR_ERR, "post_form failed: E_BAD_ARGUMENT");
         }
         else if(result == E_SYSTEM_ERROR)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_form failed: E_SYSTEM_ERROR");
+            vrmr_error(-1, VR_ERR, "post_form failed: E_SYSTEM_ERROR");
         }
         else if(result == E_POSTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_form failed: E_POSTED");
+            vrmr_error(-1, VR_ERR, "post_form failed: E_POSTED");
         }
         else if(result == E_BAD_STATE)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_form failed: E_BAD_STATE");
+            vrmr_error(-1, VR_ERR, "post_form failed: E_BAD_STATE");
         }
         else if(result == E_NO_ROOM)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_form failed: E_NO_ROOM");
+            vrmr_error(-1, VR_ERR, "post_form failed: E_NO_ROOM");
         }
         else if(result == E_NOT_POSTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_form failed: E_NOT_POSTED");
+            vrmr_error(-1, VR_ERR, "post_form failed: E_NOT_POSTED");
         }
         else if(result == E_NOT_CONNECTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "post_form failed: E_NOT_CONNECTED");
+            vrmr_error(-1, VR_ERR, "post_form failed: E_NOT_CONNECTED");
         }
         else
         {
-            (void)vrprint.error(-1, VR_ERR, "post_form failed: unknown error %d", result);
+            vrmr_error(-1, VR_ERR, "post_form failed: unknown error %d", result);
         }
 
         return(-1);
@@ -732,35 +732,35 @@ VrFormUnPost(const int debuglvl, VrForm *form)
     {
         if(result == E_BAD_ARGUMENT)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_form failed: E_BAD_ARGUMENT");
+            vrmr_error(-1, VR_ERR, "unpost_form failed: E_BAD_ARGUMENT");
         }
         else if(result == E_SYSTEM_ERROR)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_form failed: E_SYSTEM_ERROR");
+            vrmr_error(-1, VR_ERR, "unpost_form failed: E_SYSTEM_ERROR");
         }
         else if(result == E_POSTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_form failed: E_POSTED");
+            vrmr_error(-1, VR_ERR, "unpost_form failed: E_POSTED");
         }
         else if(result == E_BAD_STATE)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_form failed: E_BAD_STATE");
+            vrmr_error(-1, VR_ERR, "unpost_form failed: E_BAD_STATE");
         }
         else if(result == E_NO_ROOM)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_form failed: E_NO_ROOM");
+            vrmr_error(-1, VR_ERR, "unpost_form failed: E_NO_ROOM");
         }
         else if(result == E_NOT_POSTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_form failed: E_NOT_POSTED");
+            vrmr_error(-1, VR_ERR, "unpost_form failed: E_NOT_POSTED");
         }
         else if(result == E_NOT_CONNECTED)
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_form failed: E_NOT_CONNECTED");
+            vrmr_error(-1, VR_ERR, "unpost_form failed: E_NOT_CONNECTED");
         }
         else
         {
-            (void)vrprint.error(-1, VR_ERR, "unpost_form failed: unknown error %d", result);
+            vrmr_error(-1, VR_ERR, "unpost_form failed: unknown error %d", result);
         }
 
         return(-1);
@@ -775,20 +775,20 @@ VrFormAddTextField(const int debuglvl, VrForm *form, int height, int width, int 
     int result;
 
     if (StrLen(name) > width) {
-        (void)vrprint.error(-1, VR_ERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
+        vrmr_error(-1, VR_ERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
         return(-1);
     }
 
     if(form->cur_field >= form->nfields)
     {
-        (void)vrprint.error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
+        vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
         return(-1);
     }
 
     form->fields[form->cur_field] = new_field_wrap(height, width, toprow, leftcol, 0, 2);
     if(form->fields[form->cur_field] == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "new_field failed");
+        vrmr_error(-1, VR_ERR, "new_field failed");
         return(-1);
     }
 
@@ -799,7 +799,7 @@ VrFormAddTextField(const int debuglvl, VrForm *form, int height, int width, int 
     result = set_field_back(form->fields[form->cur_field], cp);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, "set_field_back failed");
+        vrmr_error(-1, VR_ERR, "set_field_back failed");
         return(-1);
     }
 
@@ -815,14 +815,14 @@ VrFormAddLabelField(const int debuglvl, VrForm *form, int height, int width, int
 
     if(form->cur_field >= form->nfields)
     {
-        (void)vrprint.error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
+        vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
         return(-1);
     }
 
     form->fields[form->cur_field] = new_field_wrap(height, width, toprow, leftcol, 0, 2);
     if(form->fields[form->cur_field] == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "new_field failed");
+        vrmr_error(-1, VR_ERR, "new_field failed");
         return(-1);
     }
 
@@ -835,7 +835,7 @@ VrFormAddLabelField(const int debuglvl, VrForm *form, int height, int width, int
     result = set_field_back(form->fields[form->cur_field], cp);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, "set_field_back failed");
+        vrmr_error(-1, VR_ERR, "set_field_back failed");
         return(-1);
     }
 
@@ -853,14 +853,14 @@ VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol
     char *value = enabled ? "X" : " ";
 
     if (StrLen(name) > width) {
-        (void)vrprint.error(-1, VR_INTERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
+        vrmr_error(-1, VR_INTERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
         return(-1);
     }
 
     /* +1 because we create two fields */
     if(form->cur_field+1 >= form->nfields)
     {
-        (void)vrprint.error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
+        vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
         return(-1);
     }
 
@@ -868,7 +868,7 @@ VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol
     form->fields[form->cur_field] = new_field_wrap(height, width, toprow, leftcol+1, 0, 2);
     if(form->fields[form->cur_field] == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "new_field failed");
+        vrmr_error(-1, VR_ERR, "new_field failed");
         return(-1);
     }
 
@@ -879,7 +879,7 @@ VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol
     result = set_field_back(form->fields[form->cur_field], cp);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, "set_field_back failed");
+        vrmr_error(-1, VR_ERR, "set_field_back failed");
         return(-1);
     }
 
@@ -889,7 +889,7 @@ VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol
     form->fields[form->cur_field] = new_field_wrap(height, 3, toprow, leftcol, 0, 2);
     if(form->fields[form->cur_field] == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "new_field failed");
+        vrmr_error(-1, VR_ERR, "new_field failed");
         return(-1);
     }
 
@@ -903,7 +903,7 @@ VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol
     result = set_field_back(form->fields[form->cur_field], cp);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, "set_field_back failed");
+        vrmr_error(-1, VR_ERR, "set_field_back failed");
         return(-1);
     }
 
@@ -919,7 +919,7 @@ VrFormAddOKCancel(const int debuglvl, VrForm *form) {
     form->fields[form->cur_field] = new_field_wrap(1, 10, form->h - 2, 2, 0, 2);
     if(form->fields[form->cur_field] == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "new_field failed");
+        vrmr_error(-1, VR_ERR, "new_field failed");
         return(-1);
     }
 
@@ -930,7 +930,7 @@ VrFormAddOKCancel(const int debuglvl, VrForm *form) {
     result = set_field_back(form->fields[form->cur_field], vccnf.color_win_green_rev | A_BOLD);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, "set_field_back failed");
+        vrmr_error(-1, VR_ERR, "set_field_back failed");
         return(-1);
     }
     field_opts_off(form->fields[form->cur_field], O_EDIT);
@@ -940,7 +940,7 @@ VrFormAddOKCancel(const int debuglvl, VrForm *form) {
     form->fields[form->cur_field] = new_field_wrap(1, 10, form->h - 2, 16, 0, 2);
     if(form->fields[form->cur_field] == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "new_field failed");
+        vrmr_error(-1, VR_ERR, "new_field failed");
         return(-1);
     }
 
@@ -951,7 +951,7 @@ VrFormAddOKCancel(const int debuglvl, VrForm *form) {
     result = set_field_back(form->fields[form->cur_field], vccnf.color_win_red_rev | A_BOLD);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, "set_field_back failed");
+        vrmr_error(-1, VR_ERR, "set_field_back failed");
         return(-1);
     }
     field_opts_off(form->fields[form->cur_field], O_EDIT);
@@ -977,36 +977,36 @@ VrFormConnectToWin(const int debuglvl, VrForm *form, VrWin *win)
     if ( form->f == NULL )
     {
         // error
-        (void)vrprint.error(-1, VR_ERR, "new_form failed");
+        vrmr_error(-1, VR_ERR, "new_form failed");
         return(-1);
     }
 
     result = scale_form(form->f, &rows, &cols);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, "scale_form failed");
+        vrmr_error(-1, VR_ERR, "scale_form failed");
         return(-1);
     }
-    //(void)vrprint.debug(__FUNC__, "rows %d, cols %d", rows, cols);
+    //vrmr_debug(__FUNC__, "rows %d, cols %d", rows, cols);
 
     result = set_form_win(form->f, win->w);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, "set_form_win failed");
+        vrmr_error(-1, VR_ERR, "set_form_win failed");
         return(-1);
     }
 
     form->dw = derwin(win->w, rows, cols, form->y, form->x);
     if(form->dw == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "derwin failed");
+        vrmr_error(-1, VR_ERR, "derwin failed");
         return(-1);
     }
 
     result = set_form_sub(form->f, form->dw);
     if(result != E_OK)
     {
-        (void)vrprint.error(-1, VR_ERR, "set_form_sub failed");
+        vrmr_error(-1, VR_ERR, "set_form_sub failed");
         return(-1);
     }
 
@@ -1018,7 +1018,7 @@ VrFormTextNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
 {
     char    match = FALSE;
 
-    //(void)vrprint.info(VR_INFO, "key %d", key);
+    //vrmr_info(VR_INFO, "key %d", key);
 
     switch(key)
     {
@@ -1077,9 +1077,9 @@ VrFormTextNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
             match = TRUE;
             break;
         default:
-            //(void)vrprint.info(VR_INFO, "default");
+            //vrmr_info(VR_INFO, "default");
             if (isprint(key)) {
-                //(void)vrprint.info(VR_INFO, "default %d", key);
+                //vrmr_info(VR_INFO, "default %d", key);
                 form_driver(form->f, key);
                 match = TRUE;
             }
@@ -1094,7 +1094,7 @@ VrFormCheckboxNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
 {
     char    match = FALSE;
 
-    //(void)vrprint.info(VR_INFO, "key %d", key);
+    //vrmr_info(VR_INFO, "key %d", key);
 
     switch(key)
     {
@@ -1158,7 +1158,7 @@ VrFormDefaultNavigation(const int debuglvl, VrForm *form, int key)
     FIELD   *fld = NULL;
     char    *buf = NULL;
 
-    //(void)vrprint.debug(__FUNC__, "key %d", key);
+    //vrmr_debug(__FUNC__, "key %d", key);
 
     fld = current_field(form->f);
     if (fld == NULL)
@@ -1241,9 +1241,9 @@ VrFormGetFields(const int debuglvl, VrForm *form, char *name, size_t nlen, char 
         char *buf = field_buffer(form->fields[form->cur_field], 2);
 
         if (buf != NULL && (strncmp(buf, "btn", 3) == 0)) {
-            //(void)vrprint.info(VR_INFO, "button field");
+            //vrmr_info(VR_INFO, "button field");
         } else if(!(opts & O_ACTIVE)) {
-            //(void)vrprint.info(VR_INFO, "inactive field");
+            //vrmr_info(VR_INFO, "inactive field");
         } else {
             break;
         }
@@ -1261,7 +1261,7 @@ VrFormGetFields(const int debuglvl, VrForm *form, char *name, size_t nlen, char 
     v = field_buffer(field, 0);
     copy_field2buf(value, v, vlen);
 
-    //(void)vrprint.info(VR_INFO, "name %s value %s", name, value);
+    //vrmr_info(VR_INFO, "name %s value %s", name, value);
     return(1);
 }
 
@@ -1271,7 +1271,7 @@ VrFormCheckOKCancel(const int debuglvl, VrForm *form, int key)
     FIELD *fld = NULL;
     char *buf = NULL;
 
-    //(void)vrprint.debug(__FUNC__, "key %d", key);
+    //vrmr_debug(__FUNC__, "key %d", key);
 
     fld = current_field(form->f);
     if (fld == NULL)
@@ -1357,12 +1357,12 @@ form_test_save(const int debuglvl, void *ctx, char *name, char *value)
 {
     struct cnf_ *c = (struct cnf_ *)ctx;
 
-    (void)vrprint.info(VR_INFO, "c %p", c);
+    vrmr_info(VR_INFO, "c %p", c);
 
     if (strcmp(name,"test1") == 0) {
-        (void)vrprint.info(VR_INFO, "%s:%s", name, value);
+        vrmr_info(VR_INFO, "%s:%s", name, value);
     } else if (strcmp(name,"test2") == 0) {
-        (void)vrprint.info(VR_INFO, "%s:%s", name, value);
+        vrmr_info(VR_INFO, "%s:%s", name, value);
     }
 
     return(0);
@@ -1380,7 +1380,7 @@ void form_test (const int debuglvl) {
     win = VrNewWin(30,80,0,0,vccnf.color_win);
     if(win == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        vrmr_error(-1, VR_ERR, "VrNewWin failed");
         return;
     }
     VrWinSetTitle(win, "title");

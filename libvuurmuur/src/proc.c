@@ -32,12 +32,12 @@ vrmr_read_proc_entry(const int debuglvl, char *proc_entry, int *value)
             j = 0;
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "** start **");
+        vrmr_debug(__FUNC__, "** start **");
 
     entry_length = strlen(proc_entry);
     if(entry_length >= VRMR_MAX_PROC_ENTRY_LENGHT)
     {
-        (void)vrprint.error(-1, "Error", "proc_entry is too long (%d, max: %d) (in: %s).", entry_length, VRMR_MAX_PROC_ENTRY_LENGHT, __FUNC__);
+        vrmr_error(-1, "Error", "proc_entry is too long (%d, max: %d) (in: %s).", entry_length, VRMR_MAX_PROC_ENTRY_LENGHT, __FUNC__);
         return(-1);
     }
 
@@ -50,7 +50,7 @@ vrmr_read_proc_entry(const int debuglvl, char *proc_entry, int *value)
         }
         else
         {
-            (void)vrprint.error(-1, "Error", "Opening '%s' failed: %s (in: %s).", proc_entry, strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "Opening '%s' failed: %s (in: %s).", proc_entry, strerror(errno), __FUNC__);
             return(-1);
         }
     }
@@ -61,7 +61,7 @@ vrmr_read_proc_entry(const int debuglvl, char *proc_entry, int *value)
         fp = fopen(proc_entry, "r");
         if(!fp)
         {
-            (void)vrprint.error(-1, "Error", "Opening '%s' failed: %s (in: %s).", proc_entry, strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "Opening '%s' failed: %s (in: %s).", proc_entry, strerror(errno), __FUNC__);
             return(-1);
         }
         else
@@ -93,12 +93,12 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
     int     proc_int = 0;
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "** start **");
+        vrmr_debug(__FUNC__, "** start **");
 
     /* safety */
     if(!cnf)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -106,7 +106,7 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
     entry_length = strlen(proc_entry);
     if(entry_length >= VRMR_MAX_PROC_ENTRY_LENGHT)
     {
-        (void)vrprint.error(-1, "Error", "proc_entry is too long (%d, max: %d) (in: vrmr_set_proc_entry).", entry_length, VRMR_MAX_PROC_ENTRY_LENGHT);
+        vrmr_error(-1, "Error", "proc_entry is too long (%d, max: %d) (in: vrmr_set_proc_entry).", entry_length, VRMR_MAX_PROC_ENTRY_LENGHT);
         return(-1);
     }
 
@@ -134,7 +134,7 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
     {
         if(who == NULL)
         {
-            (void)vrprint.error(-1, "Error", "No 'who' supplied (vrmr_set_proc_entry).");
+            vrmr_error(-1, "Error", "No 'who' supplied (vrmr_set_proc_entry).");
             return(-1);
         }
 
@@ -144,7 +144,7 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
             fp = fopen(total_entry, "w");
             if(!fp)
             {
-                (void)vrprint.error(-1, "Error", "opening proc entry '%s' failed: %s (in: vrmr_set_proc_entry).", total_entry, strerror(errno));
+                vrmr_error(-1, "Error", "opening proc entry '%s' failed: %s (in: vrmr_set_proc_entry).", total_entry, strerror(errno));
                 retval = -1;
             }
             else
@@ -152,7 +152,7 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
 /* TODO: returncode */
                 fputc(proc_set+48, fp);
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.debug(__FUNC__, "setting '%d' to proc entry '%s' succesfull.", proc_set, total_entry);
+                    vrmr_debug(__FUNC__, "setting '%d' to proc entry '%s' succesfull.", proc_set, total_entry);
 
                 fclose(fp);
             }
@@ -170,7 +170,7 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
         {
             if(!(fp = fopen(proc_entry, "w")))
             {
-                (void)vrprint.error(-1, "Error", "Opening proc entry '%s' failed: %s (in: vrmr_set_proc_entry).", proc_entry, strerror(errno));
+                vrmr_error(-1, "Error", "Opening proc entry '%s' failed: %s (in: vrmr_set_proc_entry).", proc_entry, strerror(errno));
                 retval=-1;
             }
             else
@@ -178,7 +178,7 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
 /* TODO: returncode */
                 fputc(proc_set+48, fp);
                 if(debuglvl >= MEDIUM)
-                    (void)vrprint.info("Info", "Setting '%d' to proc entry '%s' succesfull.", proc_set, proc_entry);
+                    vrmr_info("Info", "Setting '%d' to proc entry '%s' succesfull.", proc_set, proc_entry);
 
                 fclose(fp);
             }

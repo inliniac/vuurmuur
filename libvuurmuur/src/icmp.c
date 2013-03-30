@@ -31,7 +31,7 @@ vrmr_get_icmp_name_short(int type, int code, char *name, size_t size, int only_c
     /* safety */
     if(name == NULL)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }

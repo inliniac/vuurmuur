@@ -35,14 +35,14 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
     win = VrNewWin(menu_items + 2,width,y,x,vccnf.color_win);
     if(win == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        vrmr_error(-1, VR_ERR, "VrNewWin failed");
         return NULL;
     }
 
     menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win_rev);
     if(menu == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrNewMenu failed");
+        vrmr_error(-1, VR_ERR, "VrNewMenu failed");
         return NULL;
     }
 
@@ -85,7 +85,7 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
                 if(cur != NULL)
                 {
                     r = strdup((char *)item_name(cur));
-                    //(void)vrprint.debug(__FUNC__, "r %s", r);
+                    //vrmr_debug(__FUNC__, "r %s", r);
                     quit = TRUE;
                 }
 
@@ -110,7 +110,7 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
     update_panels();
     doupdate();
 
-    //(void)vrprint.debug(__FUNC__, "@exit r %s", r);
+    //vrmr_debug(__FUNC__, "@exit r %s", r);
     return r;
 }
 
@@ -163,7 +163,7 @@ VrShapeRuleSave(const int debuglvl, void *ctx, char *name, char *value)
 {
     struct ShapeRuleCnf_ *c = (struct ShapeRuleCnf_ *)ctx;
 
-    (void)vrprint.debug(__FUNC__, "%s:%s", name, value);
+    vrmr_debug(__FUNC__, "%s:%s", name, value);
 
     if (strcmp(name,"in_min") == 0) {
         c->opt->bw_in_min = atoi(value);
@@ -196,7 +196,7 @@ void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
 
     if (VrShapeRuleSetup(debuglvl, &config, opt) < 0)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrShapeRuleSetup failed");
+        vrmr_error(-1, VR_ERR, "VrShapeRuleSetup failed");
         return;
     }
 
@@ -204,7 +204,7 @@ void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
     win = VrNewWin(16,51,0,0,vccnf.color_win);
     if (win == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, "VrNewWin failed");
+        vrmr_error(-1, VR_ERR, "VrNewWin failed");
         return;
     }
     VrWinSetTitle(win, gettext("Shaping"));
@@ -258,7 +258,7 @@ void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
             field_info(form->cur, &i,&i,&h,&w,&i,&i);
 
             char *u = VrShapeUnitMenu(debuglvl, field_buffer(form->cur, 0), h+2+win->y, w-1+win->x, /* draw bps */1);
-            (void)vrprint.debug(__FUNC__, "u %s", u);
+            vrmr_debug(__FUNC__, "u %s", u);
             if (u) {
                 set_field_buffer_wrap(debuglvl, form->cur, 0, u);
                 free(u);
@@ -392,7 +392,7 @@ SetupRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, unsigned int m
     /* safety checks */
     if(!rbform || !rules || max_bars_on_screen <= 0 || screen_width <= 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -426,7 +426,7 @@ SetupRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, unsigned int m
         rbform->service_size +rbform->from_size + rbform->to_size + rbform->options_size;
     if((int)sum > screen_width)
     {
-        (void)vrprint.error(-1, VR_INTERR, "screen too small: sum: %d, width: %d (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "screen too small: sum: %d, width: %d (in: %s:%d).",
                             sum,
                             screen_width,
                             __FUNC__, __LINE__);
@@ -454,7 +454,7 @@ SetupRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, unsigned int m
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "success.");
+        vrmr_debug(__FUNC__, "success.");
 
     return(0);
 }
@@ -481,7 +481,7 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     /* safety */
     if(!rules)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -491,7 +491,7 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     if(new_place > rules->list.len)
     {
         if(debuglvl >= LOW)
-            (void)vrprint.debug(__FUNC__, "new_place (%d) > rules_list->len (%d) so new_place = %d", new_place, rules->list.len, rules->list.len);
+            vrmr_debug(__FUNC__, "new_place (%d) > rules_list->len (%d) so new_place = %d", new_place, rules->list.len, rules->list.len);
 
         new_place = rules->list.len;
     }
@@ -503,7 +503,7 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     {
         if(!(rule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -514,7 +514,7 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
         return(-1);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "rule_ptr found: i: %d (rule_ptr: %s %s %s %s)", i, vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service, rule_ptr->from, rule_ptr->to);
+        vrmr_debug(__FUNC__, "rule_ptr found: i: %d (rule_ptr: %s %s %s %s)", i, vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service, rule_ptr->from, rule_ptr->to);
 
 //TODO
     vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1);
@@ -522,7 +522,7 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     rule_ptr->number = new_place;
     
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "new_place: %d, rule_ptr->number: %d", new_place, rule_ptr->number);
+        vrmr_debug(__FUNC__, "new_place: %d, rule_ptr->number: %d", new_place, rule_ptr->number);
 
 //TODO
     vrmr_rules_insert_list(debuglvl, rules, new_place, rule_ptr);
@@ -559,7 +559,7 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, struct vrmr_rul
     // create window, panel, fields, form and post it
     if(!(move_win = create_newwin(6, 40, (LINES-6)/2, (COLS-40)/2, gettext("Move Rule"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     keypad(move_win, TRUE);
@@ -587,7 +587,7 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, struct vrmr_rul
     mvwprintw(move_win, 4, 2, gettext("Cur: %d, Min: 1, Max: %d"), cur_rule, rules->list.len);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "cur_rule: %d, rules->list.len: %d.", cur_rule, rules->list.len);
+        vrmr_debug(__FUNC__, "cur_rule: %d, rules->list.len: %d.", cur_rule, rules->list.len);
 
     update_panels();
     doupdate();
@@ -662,7 +662,7 @@ CurrentBar(struct RuleBarForm_ *rbform, FORM *form)
     /* safety */
     if(!rbform || !form)
     {
-        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
@@ -673,7 +673,7 @@ CurrentBar(struct RuleBarForm_ *rbform, FORM *form)
     {
         if(!(cur_bar = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(NULL);
         }
 
@@ -683,7 +683,7 @@ CurrentBar(struct RuleBarForm_ *rbform, FORM *form)
 //            return(cur_bar);
     }
 
-    (void)vrprint.error(-1, VR_INTERR, "bar not found (in: %s:%d).", __FUNC__, __LINE__);
+    vrmr_error(-1, VR_INTERR, "bar not found (in: %s:%d).", __FUNC__, __LINE__);
     return(NULL);
 }
 
@@ -785,7 +785,7 @@ HighlightRuleBar(rulebar *bar)
         rulebar_setcolor( bar->active, bar->num_field, bar->action, bar->service,
                     bar->from, bar->to, bar->options, bar->separator, /* hilight */1);
     else
-        (void)vrprint.debug(__FUNC__, "warning: no bar (bar == NULL).");
+        vrmr_debug(__FUNC__, "warning: no bar (bar == NULL).");
 }
 
 
@@ -808,12 +808,12 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules, struct
     /* safety */
     if(!bar || !rules || !reg)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "field_buffer = '%s'.", field_buffer(bar->num_field, 0));
+        vrmr_debug(__FUNC__, "field_buffer = '%s'.", field_buffer(bar->num_field, 0));
 
     rule_num = (unsigned int)atoi(field_buffer(bar->num_field, 0));
     if(rule_num <= 0)
@@ -826,7 +826,7 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules, struct
         {
             if(!(rule_ptr = d_node->data))
             {
-                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -837,7 +837,7 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules, struct
             /* editting failed so remove the rule again */
             if(vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1) < 0)
             {
-                (void)vrprint.error(-1, VR_INTERR, "removing rule failed "
+                vrmr_error(-1, VR_INTERR, "removing rule failed "
                         "(in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
@@ -872,14 +872,14 @@ rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_r
     /* safety */
     if(!rules || !org_rule_ptr | !reg)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* get the rulestring */
     if(!(rule_str = vrmr_rules_assemble_rule(debuglvl, org_rule_ptr)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "failed to assemble rule to be copied (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "failed to assemble rule to be copied (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -897,7 +897,7 @@ rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_r
         free(rule_str);
         free(new_rule_ptr);
 
-        (void)vrprint.error(-1, VR_INTERR, "failed to parse rule to be copied (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "failed to parse rule to be copied (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -910,7 +910,7 @@ rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_r
     /* insert the new rule into the list */
     if(vrmr_rules_insert_list(debuglvl, rules, new_rule_ptr->number, new_rule_ptr) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "failed to insert in list (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "failed to insert in list (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -931,7 +931,7 @@ rulebar_copy_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int ori
     /* safety */
     if(!rules || !reg)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s).", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -939,7 +939,7 @@ rulebar_copy_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int ori
     {
         if(!(rule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -949,7 +949,7 @@ rulebar_copy_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int ori
 
     if(!rule_ptr)
     {
-        (void)vrprint.error(-1, VR_INTERR, "rule to be copied not found (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "rule to be copied not found (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -969,12 +969,12 @@ Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules)
     struct vrmr_rule    *rule_ptr = NULL;
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "'%s'.", field_buffer(bar->num_field, 0));
+        vrmr_debug(__FUNC__, "'%s'.", field_buffer(bar->num_field, 0));
 
     rule_num = atoi(field_buffer(bar->num_field, 0));
     if(rule_num <= 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "invalid rule_num: %d (in: %s:%d).", rule_num, __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "invalid rule_num: %d (in: %s:%d).", rule_num, __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -986,7 +986,7 @@ Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules)
     /* go to rulenum in the rules list to get the rule_ptr */
     if(!(d_node = rules->list.top))
     {
-        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -995,7 +995,7 @@ Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules)
     {
         if(!(rule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -1003,7 +1003,7 @@ Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules)
     }
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "active: %s (%s %s %s %s)",
+            vrmr_debug(__FUNC__, "active: %s (%s %s %s %s)",
                     rule_ptr->active ? "Yes" : "No", vrmr_rules_itoaction(rule_ptr->action),
                     rule_ptr->service, rule_ptr->from, rule_ptr->to);
 
@@ -1037,20 +1037,20 @@ Set_RuleBar(const int debuglvl, struct RuleBarForm_ *rbform, FORM *form,
         if(i == pos)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "field found");
+                vrmr_debug(__FUNC__, "field found");
 
             result = set_current_field(form, cur_bar->active);
 
             if(debuglvl >= HIGH)
             {
                 if(result == E_OK)
-                    (void)vrprint.debug(__FUNC__, "field found: E_OK");
+                    vrmr_debug(__FUNC__, "field found: E_OK");
                 else if(result == E_SYSTEM_ERROR)
-                    (void)vrprint.debug(__FUNC__, "field found: E_SYSTEM_ERROR: %s", strerror(errno));
+                    vrmr_debug(__FUNC__, "field found: E_SYSTEM_ERROR: %s", strerror(errno));
                 else if(result == E_BAD_ARGUMENT)
-                    (void)vrprint.debug(__FUNC__, "field found: E_BAD_ARGUMENT");
+                    vrmr_debug(__FUNC__, "field found: E_BAD_ARGUMENT");
                 else
-                    (void)vrprint.debug(__FUNC__, "field found: unknown result %d", result);
+                    vrmr_debug(__FUNC__, "field found: unknown result %d", result);
             }
         }
     }
@@ -1074,7 +1074,7 @@ Insert_RuleBar( const int debuglvl,
     /* alloc mem */
     if(!(bar = malloc(sizeof(rulebar))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1090,7 +1090,7 @@ Insert_RuleBar( const int debuglvl,
     /* insert the bar into the list */
     if(!(vrmr_list_append(debuglvl, &rbform->RuleBar_list, bar)))
     {
-        (void)vrprint.error(-1, VR_INTERR, "insert into list failed (in: Insert_RuleBar).");
+        vrmr_error(-1, VR_INTERR, "insert into list failed (in: Insert_RuleBar).");
         return(-1);
     }
 
@@ -1098,7 +1098,7 @@ Insert_RuleBar( const int debuglvl,
     bar->bar_num = rbform->bars;
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "success at %p (bars: %d, bar->num: %d).", bar, rbform->bars, bar->bar_num);
+        vrmr_debug(__FUNC__, "success at %p (bars: %d, bar->num: %d).", bar, rbform->bars, bar->bar_num);
 
     return(0);
 }
@@ -1192,14 +1192,14 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
     {
         if(!(rule_ptr = dl_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer "
+            vrmr_error(-1, VR_INTERR, "NULL pointer "
                 "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         /* get the bar */
         if(!(cur_bar = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer "
+            vrmr_error(-1, VR_INTERR, "NULL pointer "
                 "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
@@ -1378,7 +1378,7 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
     {
         if(!(cur_bar = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -1425,7 +1425,7 @@ rules_update_filter(const int debuglvl, struct vrmr_rules *rules, struct RuleBar
         {
             if(!(rule_ptr = d_node->data))
             {
-                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -1466,7 +1466,7 @@ rules_update_filter(const int debuglvl, struct vrmr_rules *rules, struct RuleBar
         {
             if(!(rule_ptr = d_node->data))
             {
-                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
             rule_ptr->filtered = 0;
@@ -1549,7 +1549,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
     /* safety */
     if(rules == NULL || reg == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem "
+        vrmr_error(-1, VR_INTERR, "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -1569,7 +1569,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
     /* Create the window to be associated with the menu */
     if(!(rules_win = create_newwin(height, width, starty, startx, gettext("Rules Section"), vccnf.color_win_rev)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     panels[0] = new_panel(rules_win);
@@ -1578,7 +1578,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
     /* malloc the rbform struct */
     if(!(rbform = malloc(sizeof(struct RuleBarForm_))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
     /* now set it up */
@@ -1588,7 +1588,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
     /* create the (more) win+pan */
     if(!(rbform->more_win = newwin(1, 6, starty + height - 1, 2)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
     wbkgd(rbform->more_win, vccnf.color_win_rev);
@@ -1603,7 +1603,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
     fields = (FIELD **)calloc(n_fields + 1, sizeof(FIELD *));
     if(fields == NULL)
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1677,7 +1677,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                             fields[field_bar_num-x+7+1] /* separator */
                 ) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "Insert_RuleBar() failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "Insert_RuleBar() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
     }
@@ -1735,7 +1735,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
             (void)rules_update_filter(debuglvl, rules, rbform);
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "filtered_rules: %d", rbform->filtered_rules);
+                vrmr_debug(__FUNC__, "filtered_rules: %d", rbform->filtered_rules);
 
             update_filter = 0;
         }
@@ -1743,14 +1743,14 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
         /* calculate the number of printable rules */
         rbform->printable_rules = rules->list.len - rbform->filtered_rules;
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "printable_rules: %d (current_bar_num: %d)", rbform->printable_rules, current_bar_num);
+            vrmr_debug(__FUNC__, "printable_rules: %d (current_bar_num: %d)", rbform->printable_rules, current_bar_num);
 
         /* get current bar num */
         cur_bar = CurrentBar(rbform, form);
         current_bar_num = cur_bar->bar_num;
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "current_bar_num: %d", current_bar_num);
+            vrmr_debug(__FUNC__, "current_bar_num: %d", current_bar_num);
 
         /* if we filter, position the bar at the top of the list if needed */
         if( rbform->use_filter ||
@@ -1759,12 +1759,12 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
             rbform->show_only_output)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "see if the bar fits the number of rules");
+                vrmr_debug(__FUNC__, "see if the bar fits the number of rules");
 
             if(current_bar_num > rbform->printable_rules)
             {
                 if(debuglvl >= HIGH)
-                    (void)vrprint.debug(__FUNC__, "no, adjusting");
+                    vrmr_debug(__FUNC__, "no, adjusting");
 
                 Set_RuleBar(debuglvl, rbform, form, rbform->printable_rules);
                 rbform->scroll_offset = 0;
@@ -1788,7 +1788,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
         /* get user input */
         ch = wgetch(rules_win);
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "user pressed (ch): %d", ch);
+            vrmr_debug(__FUNC__, "user pressed (ch): %d", ch);
 
         /* now handle it */
         switch(ch)
@@ -1798,7 +1798,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                 if(rbform->printable_rules > rbform->max_bars_on_screen)
                 {
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "360 (end): rbform->printable_rules > rbform->max_bars_on_screen (%d > %d).", rbform->printable_rules, rbform->max_bars_on_screen);
+                        vrmr_debug(__FUNC__, "360 (end): rbform->printable_rules > rbform->max_bars_on_screen (%d > %d).", rbform->printable_rules, rbform->max_bars_on_screen);
 
                     rbform->scroll_offset = rbform->printable_rules - rbform->max_bars_on_screen;
                     Set_RuleBar(debuglvl, rbform, form, rbform->max_bars_on_screen);
@@ -1806,7 +1806,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                 else
                 {
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "360 (end): rbform->printable_rules <= rbform->max_bars_on_screen (%d <= %d).", rbform->printable_rules, rbform->max_bars_on_screen);
+                        vrmr_debug(__FUNC__, "360 (end): rbform->printable_rules <= rbform->max_bars_on_screen (%d <= %d).", rbform->printable_rules, rbform->max_bars_on_screen);
 
                     rbform->scroll_offset = 0;
                     Set_RuleBar(debuglvl, rbform, form, rbform->printable_rules);
@@ -1845,7 +1845,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                 for(i=0; i < (rbform->max_bars_on_screen); i++)
                 {
                     if(debuglvl >= HIGH)
-                        (void)vrprint.debug(__FUNC__, "338 (pgdn): current_bar_num : %d, rbform->max_bars_on_screen: %d, rbform->printable_rules: %d, rbform->scroll_offset: %d, atoi(field_buffer(cur_bar->num_field,0)): %d, pgdn_offset: %d.", current_bar_num, rbform->max_bars_on_screen, rbform->printable_rules, rbform->scroll_offset, atoi(field_buffer(cur_bar->num_field,0)), pgdn_offset);
+                        vrmr_debug(__FUNC__, "338 (pgdn): current_bar_num : %d, rbform->max_bars_on_screen: %d, rbform->printable_rules: %d, rbform->scroll_offset: %d, atoi(field_buffer(cur_bar->num_field,0)): %d, pgdn_offset: %d.", current_bar_num, rbform->max_bars_on_screen, rbform->printable_rules, rbform->scroll_offset, atoi(field_buffer(cur_bar->num_field,0)), pgdn_offset);
 
                     /* make sure we dont move to the next field if we:
                         1. scroll
@@ -1856,8 +1856,8 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                     {
                         if(debuglvl >= HIGH)
                         {
-                            (void)vrprint.debug(__FUNC__, "338 (pgdn): current_bar_num < rbform->max_bars_on_screen (%d < %d).", current_bar_num, rbform->max_bars_on_screen);
-                            (void)vrprint.debug(__FUNC__, "338 (pgdn): current_bar_num < printable_rules (%d < %d).", current_bar_num, rbform->printable_rules);
+                            vrmr_debug(__FUNC__, "338 (pgdn): current_bar_num < rbform->max_bars_on_screen (%d < %d).", current_bar_num, rbform->max_bars_on_screen);
+                            vrmr_debug(__FUNC__, "338 (pgdn): current_bar_num < printable_rules (%d < %d).", current_bar_num, rbform->printable_rules);
                         }
 
                         form_driver(form, REQ_NEXT_FIELD);
@@ -1870,14 +1870,14 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                         // just do'in nothin'
                         if(debuglvl >= HIGH)
                         {
-                            (void)vrprint.debug(__FUNC__, "338 (pgdn): current_bar_num == rbform->printable_rules (%d == %d), OR", current_bar_num, rbform->printable_rules);
-                            (void)vrprint.debug(__FUNC__, "338 (pgdn): atoi(field_buffer(cur_bar->num_field,0)) + pgdn_offset == rbform->printable_rules (%d + %d == %d).", atoi(field_buffer(cur_bar->num_field,0)), pgdn_offset, rbform->printable_rules);
+                            vrmr_debug(__FUNC__, "338 (pgdn): current_bar_num == rbform->printable_rules (%d == %d), OR", current_bar_num, rbform->printable_rules);
+                            vrmr_debug(__FUNC__, "338 (pgdn): atoi(field_buffer(cur_bar->num_field,0)) + pgdn_offset == rbform->printable_rules (%d + %d == %d).", atoi(field_buffer(cur_bar->num_field,0)), pgdn_offset, rbform->printable_rules);
                         }
                     }
                     else
                     {
                         if(debuglvl >= HIGH)
-                            (void)vrprint.debug(__FUNC__, "338 (pgdn): rbform->scroll_offset: %d.", rbform->scroll_offset);
+                            vrmr_debug(__FUNC__, "338 (pgdn): rbform->scroll_offset: %d.", rbform->scroll_offset);
 
                         rbform->scroll_offset++;
                     }
@@ -1908,8 +1908,8 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                 {
                     if(debuglvl >= HIGH)
                     {
-                        (void)vrprint.debug(__FUNC__, "KEY_DOWN: current_bar_num < rbform->max_bars_on_screen (%d < %d).", current_bar_num, rbform->max_bars_on_screen);
-                        (void)vrprint.debug(__FUNC__, "KEY_DOWN: current_bar_num < printable_rules (%d < %d).", current_bar_num, rbform->printable_rules);
+                        vrmr_debug(__FUNC__, "KEY_DOWN: current_bar_num < rbform->max_bars_on_screen (%d < %d).", current_bar_num, rbform->max_bars_on_screen);
+                        vrmr_debug(__FUNC__, "KEY_DOWN: current_bar_num < printable_rules (%d < %d).", current_bar_num, rbform->printable_rules);
                     }
 
                     form_driver(form, REQ_NEXT_FIELD);
@@ -1920,16 +1920,16 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                     /* do nothing, just sit here */
                     if(debuglvl >= HIGH)
                     {
-                        (void)vrprint.debug(__FUNC__, "KEY_DOWN: current_bar_num == printable_rules (%d == %d), OR", current_bar_num, rbform->printable_rules);
-                        (void)vrprint.debug(__FUNC__, "KEY_DOWN: atoi(field_buffer(cur_bar->num_field,0)) == rbform->printable_rules (%d == %d)", atoi(field_buffer(cur_bar->num_field,0)), rbform->printable_rules);
+                        vrmr_debug(__FUNC__, "KEY_DOWN: current_bar_num == printable_rules (%d == %d), OR", current_bar_num, rbform->printable_rules);
+                        vrmr_debug(__FUNC__, "KEY_DOWN: atoi(field_buffer(cur_bar->num_field,0)) == rbform->printable_rules (%d == %d)", atoi(field_buffer(cur_bar->num_field,0)), rbform->printable_rules);
                     }
                 }
                 else
                 {
                     if(debuglvl >= HIGH)
                     {
-                        (void)vrprint.debug(__FUNC__, "KEY_DOWN: current_bar_num >= rbform->max_bars_on_screen (%d >= %d).", current_bar_num, rbform->max_bars_on_screen);
-                        (void)vrprint.debug(__FUNC__, "KEY_DOWN: current_bar_num >= printable_rules (%d >= %d).", current_bar_num, rbform->printable_rules);
+                        vrmr_debug(__FUNC__, "KEY_DOWN: current_bar_num >= rbform->max_bars_on_screen (%d >= %d).", current_bar_num, rbform->max_bars_on_screen);
+                        vrmr_debug(__FUNC__, "KEY_DOWN: current_bar_num >= printable_rules (%d >= %d).", current_bar_num, rbform->printable_rules);
                     }
 
                     rbform->scroll_offset++;
@@ -1973,14 +1973,14 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                     if(current_bar_num > rbform->printable_rules - 1)
                     {
                         if(debuglvl >= HIGH)
-                            (void)vrprint.debug(__FUNC__, "edit: current_bar_num > printable_rules - 1 (%d > %d).", current_bar_num, rbform->printable_rules - 1);
+                            vrmr_debug(__FUNC__, "edit: current_bar_num > printable_rules - 1 (%d > %d).", current_bar_num, rbform->printable_rules - 1);
                         
                         form_driver(form, REQ_PREV_FIELD);
                     }
                     else
                     {
                         if(debuglvl >= HIGH)
-                            (void)vrprint.debug(__FUNC__, "edit: current_bar_num <= printable_rules - 1 (%d <= %d).", current_bar_num, rbform->printable_rules - 1);
+                            vrmr_debug(__FUNC__, "edit: current_bar_num <= printable_rules - 1 (%d <= %d).", current_bar_num, rbform->printable_rules - 1);
                     }
                 }
 
@@ -2000,7 +2000,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                         status_print(status_win, gettext("Delete rule cancelled."));
                     else if(result == 1)
                     {
-                        (void)vrprint.info(VR_INFO, gettext("rule %d removed."), atoi(field_buffer(cur_bar->num_field, 0)));
+                        vrmr_info(VR_INFO, gettext("rule %d removed."), atoi(field_buffer(cur_bar->num_field, 0)));
 
                         rules_changed = 1;
                         update_filter = 1;
@@ -2010,7 +2010,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                         {
                             if(debuglvl >= HIGH)
                             {
-                                (void)vrprint.debug(__FUNC__, "KEY_DC: scroll_offset > 0 (%d) decreasing.", rbform->scroll_offset);
+                                vrmr_debug(__FUNC__, "KEY_DC: scroll_offset > 0 (%d) decreasing.", rbform->scroll_offset);
                             }
                             rbform->scroll_offset--;
                         }
@@ -2018,7 +2018,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                         {
                             if(debuglvl >= HIGH)
                             {
-                                (void)vrprint.debug(__FUNC__, "KEY_DC: scroll_offset <= 0 (%d) doing nothing.", rbform->scroll_offset);
+                                vrmr_debug(__FUNC__, "KEY_DC: scroll_offset <= 0 (%d) doing nothing.", rbform->scroll_offset);
                             }
                         }
 
@@ -2028,14 +2028,14 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                         {
                             if(debuglvl >= HIGH)
                             {
-                                (void)vrprint.debug(__FUNC__, "KEY_DC: current_bar_num > printable_rules - 1 (%d > %d).", current_bar_num, rbform->printable_rules - 1);
+                                vrmr_debug(__FUNC__, "KEY_DC: current_bar_num > printable_rules - 1 (%d > %d).", current_bar_num, rbform->printable_rules - 1);
                             }
                             form_driver(form, REQ_PREV_FIELD);
                         }
                         else
                         {
                             if(debuglvl >= HIGH)
-                                (void)vrprint.debug(__FUNC__, "KEY_DC: current_bar_num <= printable_rules - 1 (%d <= %d).", current_bar_num, rbform->printable_rules - 1);
+                                vrmr_debug(__FUNC__, "KEY_DC: current_bar_num <= printable_rules - 1 (%d <= %d).", current_bar_num, rbform->printable_rules - 1);
                         }
                     }
                     /* oops... error */
@@ -2082,7 +2082,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                         /* editting failed so remove the rule again */
                         if(vrmr_rules_remove_rule_from_list(debuglvl, rules, insert_rule_num, 1) < 0)
                         {
-                            (void)vrprint.error(-1, VR_INTERR, "removing rule failed (in: %s:%d).", __FUNC__, __LINE__);
+                            vrmr_error(-1, VR_INTERR, "removing rule failed (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
                         }
                     }
@@ -2141,7 +2141,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                     result = move_rule(debuglvl, rules, cur_rule_num, cur_rule_num - 1);
                     if(result == 0)
                     {
-//                        (void)vrprint.debug(__FUNC__, "rule moved. Now set bar to new position (%d).", cur_rule_num - 1);
+//                        vrmr_debug(__FUNC__, "rule moved. Now set bar to new position (%d).", cur_rule_num - 1);
 
                         /* moving succeeded, now focus on the moved rule */
 //                        Set_RuleBar(rbform, form, cur_rule_num - 1);
@@ -2223,7 +2223,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                     /* compiling the regex */
                     if(regcomp(&rbform->filter_reg, filter_string_regex, REG_EXTENDED) != 0)
                     {
-                        (void)vrprint.error(-1, VR_INTERR, "Setting up the regular expression with regcomp failed. Disabling filter.");
+                        vrmr_error(-1, VR_INTERR, "Setting up the regular expression with regcomp failed. Disabling filter.");
                         rbform->use_filter = 0;
                     }
 
@@ -2328,14 +2328,14 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
     {
         if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
         {
-            (void)vrprint.error(-1, VR_ERR, gettext("saving rules failed."));
+            vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             retval = -1;
         }
 
         if(retval == 0)
         {
             /* audit log */
-            (void)vrprint.audit("%s: %s: %d (%s).",
+            vrmr_audit("%s: %s: %d (%s).",
                     STR_RULES_ARE_CHANGED, STR_NUMBER_OF_RULES,
                     rules->list.len, STR_LISTED_BELOW);
 
@@ -2346,17 +2346,17 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                 if(rule_ptr->action == VRMR_AT_SEPARATOR)
                 {
                     if(rule_ptr->opt != NULL && rule_ptr->opt->comment[0] != '\0')
-                        (void)vrprint.audit("%2d: === %s ===",
+                        vrmr_audit("%2d: === %s ===",
                                     i, rule_ptr->opt->comment);
                     else
-                        (void)vrprint.audit("%2d: ===", i);
+                        vrmr_audit("%2d: ===", i);
                 }
                 else
                 {
                     str = vrmr_rules_assemble_rule(debuglvl, rule_ptr);
                     if(str[StrMemLen(str)-1] == '\n')
                         str[StrMemLen(str)-1] = '\0';
-                    (void)vrprint.audit("%2d: %s", i, str);
+                    vrmr_audit("%2d: %s", i, str);
                     free(str);
                 }
         }
@@ -2419,7 +2419,7 @@ delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
         {
             if(!(rule_ptr = d_node->data))
             {
-                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
@@ -2433,7 +2433,7 @@ delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
         /* editting failed so remove the rule again */
         if(vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "removing rule failed (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "removing rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -2463,13 +2463,13 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
     /* safety */
     if(rules == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "rule_num: %d", rule_num);
+        vrmr_debug(__FUNC__, "rule_num: %d", rule_num);
 
     /* inserting into an empty rules list */
     if(rule_num == 0)
@@ -2511,11 +2511,11 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
         rule_ptr->number = 1;
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "rule_num: %d, rule_ptr->number: %d", rule_num, rule_ptr->number);
+            vrmr_debug(__FUNC__, "rule_num: %d, rule_ptr->number: %d", rule_num, rule_ptr->number);
 
         if(vrmr_rules_insert_list(debuglvl, rules, rule_ptr->number, rule_ptr) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "failed to insert in list (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "failed to insert in list (in: %s:%d).", __FUNC__, __LINE__);
             retval = -1;
         }
     }
@@ -2524,7 +2524,7 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
     {
         if(vrmr_rules_insert_list(debuglvl, rules, rule_num, rule_ptr) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "failed to insert in list (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "failed to insert in list (in: %s:%d).", __FUNC__, __LINE__);
             retval=-1;
         }
     }
@@ -2535,7 +2535,7 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
 
 
     if(retval == 0)
-        (void)vrprint.info(VR_INFO, gettext("new rule inserted."));
+        vrmr_info(VR_INFO, gettext("new rule inserted."));
 
     return(retval);
 }
@@ -2554,26 +2554,26 @@ edit_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
     /* safety */
     if(!reg || !interfaces)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
     
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "called with rule_num = %d", rule_num);
+        vrmr_debug(__FUNC__, "called with rule_num = %d", rule_num);
 
     if(rule_num == 0)
         rule_num = 1;
 
     if(rules->list.len == 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "list is empty (in: %s)", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "list is empty (in: %s)", __FUNC__);
         return(-1);
     }
     
     /* go to rulenum in the rules list to get the rule_ptr */
     if(!(d_node = rules->list.top))
     {
-        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s)", __FUNC__);
+        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s)", __FUNC__);
         return(-1);
     }
 
@@ -2582,7 +2582,7 @@ edit_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
     {
         if(!(rule_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d)", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d)", __FUNC__, __LINE__);
             return(-1);
         }
 
@@ -2594,7 +2594,7 @@ edit_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
     {
         if(rule_ptr->action == VRMR_AT_PROTECT)
         {
-            (void)vrprint.error(-1, VR_INTERR, "edit_rule can no longer be used for editting protect rules (in: %s:%d).", __FUNC__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "edit_rule can no longer be used for editting protect rules (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         else if(rule_ptr->action == VRMR_AT_SEPARATOR)
@@ -2608,12 +2608,12 @@ edit_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
     }
     else
     {
-        (void)vrprint.error(-1, VR_INTERR, "rule not found (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "rule not found (in: %s:%d).", __FUNC__, __LINE__);
         retval = -1;
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "returning retval = %d.", retval);
+        vrmr_debug(__FUNC__, "returning retval = %d.", retval);
 
     return(retval);
 }
@@ -2714,7 +2714,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
     if(!fields || !rule_ptr || !reg)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -2773,7 +2773,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -2797,7 +2797,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -2811,7 +2811,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 if(rule_ptr->opt->redirectport <= 0 || rule_ptr->opt->redirectport > 65535)
                 {
                     /* TRANSLATORS: don't translate 'redirectport'. */
-                    (void)vrprint.warning(VR_WARN, gettext("redirectport must be 1-65535."));
+                    vrmr_warning(VR_WARN, gettext("redirectport must be 1-65535."));
                     rule_ptr->opt->redirectport = 0;
                 }
 
@@ -2824,7 +2824,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -2844,7 +2844,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -2880,7 +2880,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -2915,7 +2915,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 if( StrLen(field_buffer(fields[i], 0)) !=
                     StrMemLen(field_buffer(fields[i], 0)))
                 {
-                    (void)vrprint.warning(VR_WARN, "%s",
+                    vrmr_warning(VR_WARN, "%s",
                         STR_ONLY_ASCII_ALLOWED_IN_PREFIX);
                 }
                 else
@@ -2925,7 +2925,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     {
                         if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
                         }
                     }
@@ -2958,7 +2958,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     {
                         if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
                         }
                     }
@@ -2993,7 +2993,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3007,7 +3007,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 if(rule_ptr->opt->loglimit > 999)
                 {
                     /* TRANSLATORS: don't translate 'loglimit'. */
-                    (void)vrprint.warning(VR_WARN, gettext("loglimit must be 0-999."));
+                    vrmr_warning(VR_WARN, gettext("loglimit must be 0-999."));
                     rule_ptr->opt->loglimit = 0;
                 }
 
@@ -3020,7 +3020,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3041,7 +3041,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3064,7 +3064,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3085,7 +3085,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3104,7 +3104,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."),
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."),
                                             strerror(errno), __FUNC__, __LINE__);
                         return(-1);
                     }
@@ -3124,7 +3124,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."),
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."),
                                             strerror(errno), __FUNC__, __LINE__);
                         return(-1);
                     }
@@ -3144,7 +3144,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."),
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."),
                                             strerror(errno), __FUNC__, __LINE__);
                         return(-1);
                     }
@@ -3164,7 +3164,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3182,7 +3182,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3195,7 +3195,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 rule_ptr->opt->limit = (unsigned int)atoi(limit_str);
                 if(rule_ptr->opt->limit > 9999)
                 {
-                    (void)vrprint.warning(VR_WARN, gettext("new connection limit must be 0-9999."));
+                    vrmr_warning(VR_WARN, gettext("new connection limit must be 0-9999."));
                     rule_ptr->opt->limit = 0;
                 }
 
@@ -3207,7 +3207,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3225,7 +3225,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3238,7 +3238,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 rule_ptr->opt->burst = (unsigned int)atoi(limit_str);
                 if(rule_ptr->opt->burst > 9999 || rule_ptr->opt->burst == 0)
                 {
-                    (void)vrprint.warning(VR_WARN, gettext("new connection limit burst must be 1-9999."));
+                    vrmr_warning(VR_WARN, gettext("new connection limit burst must be 1-9999."));
                     rule_ptr->opt->burst = 0;
                 }
 
@@ -3248,7 +3248,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
     }
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "returning retval = %d.", retval);
+        vrmr_debug(__FUNC__, "returning retval = %d.", retval);
 
     return(retval);
 }
@@ -3275,7 +3275,7 @@ edit_rule_check_action_opts(const int debuglvl, struct vrmr_rule *rule_ptr)
     {
         if(rule_ptr->opt == NULL || rule_ptr->opt->via_int[0] == '\0')
         {
-            (void)vrprint.warning(VR_WARN, STR_BOUNCE_REQUIRES_VIA_OPT);
+            vrmr_warning(VR_WARN, STR_BOUNCE_REQUIRES_VIA_OPT);
             return(0);
         }
     }
@@ -3283,7 +3283,7 @@ edit_rule_check_action_opts(const int debuglvl, struct vrmr_rule *rule_ptr)
     {
         if(rule_ptr->opt == NULL || rule_ptr->opt->redirectport == 0)
         {
-            (void)vrprint.warning(VR_WARN, STR_REDIRECT_REQUIRES_OPT);
+            vrmr_warning(VR_WARN, STR_REDIRECT_REQUIRES_OPT);
             return(0);
         }
     }
@@ -3395,7 +3395,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
     /* safety */
     if(rule_ptr == NULL || reg == NULL)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -3423,7 +3423,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
     n_fields = 49;
     if(!(fields = (FIELD **)calloc(n_fields + 1, sizeof(FIELD *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
     }
 
@@ -3960,26 +3960,26 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
     fields[n_fields] = NULL;
     
     if(n_fields != field_num)
-        (void)vrprint.error(-1, VR_INTERR, "oops! n_fields: %d, field_num: %d.", n_fields, field_num);
+        vrmr_error(-1, VR_INTERR, "oops! n_fields: %d, field_num: %d.", n_fields, field_num);
 
     /* create the window, panel, form */
     snprintf(window_title, sizeof(window_title), gettext("Edit Rule: %d"), rule_ptr->number);
     if(!(edit_win = create_newwin(height, width, starty, startx, window_title, vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
 
     if(!(my_panels[0] = new_panel(edit_win)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating panel failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating panel failed."));
         return(-1);
     }
     keypad(edit_win, TRUE);
 
     if(!(form = new_form(fields)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating form failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating form failed."));
         return(-1);
     }
     scale_form(form, &rows, &cols);
@@ -4329,7 +4329,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                     {
                         if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
                         }
                     }
@@ -4383,7 +4383,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                         {
                             if(!(zone_ptr = d_node->data))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                                 return(-1);
                             }
 
@@ -4396,7 +4396,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
 
                         if(!(zone_choices = calloc(zone_choices_n + 1, VRMR_VRMR_MAX_HOST_NET_ZONE)))
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
                         }
 
@@ -4404,14 +4404,14 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                         {
                             if(!(zone_ptr = d_node->data))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
                                 return(-1);
                             }
 
                             if(zone_ptr->type != VRMR_TYPE_FIREWALL)
                             {
                                 zone_choices[i] = zone_ptr->name;
-                                //(void)vrprint.debug(__FUNC__, "zone_choices[%d]: %s.", i, zone_choices[i]);
+                                //vrmr_debug(__FUNC__, "zone_choices[%d]: %s.", i, zone_choices[i]);
 
                                 i--;
                             }
@@ -4443,7 +4443,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
 
                         if(!(service_choices = calloc(service_choices_n + 1, sizeof(char *))))
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
                         }
 
@@ -4451,7 +4451,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                         {
                             if(!(service_ptr = d_node->data))
                             {
-                                (void)vrprint.error(-1, VR_INTERR, "service_ptr == NULL! (in: edit_rule_normal).");
+                                vrmr_error(-1, VR_INTERR, "service_ptr == NULL! (in: edit_rule_normal).");
                                 return(-1);
                             }
 
@@ -4494,7 +4494,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                         if( field_buffer(RuleFlds.fromzone_fld_ptr, 0)[0] == '\0' ||
                             field_buffer(RuleFlds.fromzone_fld_ptr, 0)[0] == ' ')
                         {
-                            (void)vrprint.warning(VR_WARN, gettext("no from zone, please select one first."));
+                            vrmr_warning(VR_WARN, gettext("no from zone, please select one first."));
                         }
                         else
                         {
@@ -4517,12 +4517,12 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                 /* get the zone */
                                 if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, zonename)))
                                 {
-                                    (void)vrprint.error(-1, VR_INTERR, "zone '%s' not found (in: %s:%d).", zonename, __FUNC__, __LINE__);
+                                    vrmr_error(-1, VR_INTERR, "zone '%s' not found (in: %s:%d).", zonename, __FUNC__, __LINE__);
                                 }
                                 else
                                 {
                                     if (zone_ptr->type == VRMR_TYPE_ZONE) {
-                                        (void)vrprint.warning(VR_WARN, gettext("\"zone\" not yet supported."));
+                                        vrmr_warning(VR_WARN, gettext("\"zone\" not yet supported."));
                                     } else {
                                         /* the interfaces are attached to the network, so get the network */
                                         if(zone_ptr->type == VRMR_TYPE_NETWORK)
@@ -4535,7 +4535,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                         }
                                         else
                                         {
-                                            (void)vrprint.error(-1, VR_INTERR, "wrong zone type '%d'  (in: %s:%d).", zone_ptr->type, __FUNC__, __LINE__);
+                                            vrmr_error(-1, VR_INTERR, "wrong zone type '%d'  (in: %s:%d).", zone_ptr->type, __FUNC__, __LINE__);
                                             return(-1);
                                         }
 
@@ -4552,7 +4552,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                 /* get some mem */
                                 if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
                                 {
-                                    (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                    vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                                     return(-1);
                                 }
 
@@ -4561,7 +4561,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                 {
                                     if(!(iface_ptr = d_node->data))
                                     {
-                                        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
+                                        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
                                         free(choices);
                                         return(-1);
                                     }
@@ -4602,7 +4602,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                         if( field_buffer(RuleFlds.tozone_fld_ptr, 0)[0] == '\0' ||
                             field_buffer(RuleFlds.tozone_fld_ptr, 0)[0] == ' ')
                         {
-                            (void)vrprint.warning(VR_WARN, gettext("no 'to' zone, please select one first."));
+                            vrmr_warning(VR_WARN, gettext("no 'to' zone, please select one first."));
                         }
                         else
                         {
@@ -4624,11 +4624,11 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                 /* get the zone */
                                 if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, zonename)))
                                 {
-                                    (void)vrprint.error(-1, VR_INTERR, "zone '%s' not found (in: %s:%d).",
+                                    vrmr_error(-1, VR_INTERR, "zone '%s' not found (in: %s:%d).",
                                         zonename, __FUNC__, __LINE__);
                                 } else {
                                     if (zone_ptr->type == VRMR_TYPE_ZONE) {
-                                        (void)vrprint.warning(VR_WARN, gettext("\"zone\" not yet supported."));
+                                        vrmr_warning(VR_WARN, gettext("\"zone\" not yet supported."));
                                     } else {
                                         /* the interfaces are attached to the network, so get the network */
                                         if(zone_ptr->type == VRMR_TYPE_NETWORK)
@@ -4641,7 +4641,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                         }
                                         else
                                         {
-                                            (void)vrprint.error(-1, VR_INTERR, "wrong zone type '%d'  (in: %s:%d).",
+                                            vrmr_error(-1, VR_INTERR, "wrong zone type '%d'  (in: %s:%d).",
                                                     zone_ptr->type, __FUNC__, __LINE__);
                                             return(-1);
                                         }
@@ -4659,7 +4659,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                 /* get some mem */
                                 if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
                                 {
-                                    (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
+                                    vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
                                         strerror(errno), __FUNCTION__, __LINE__);
                                     return(-1);
                                 }
@@ -4669,7 +4669,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                 {
                                     if(!(iface_ptr = d_node->data))
                                     {
-                                        (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
+                                        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
                                                     __FUNC__, __LINE__);
                                         free(choices);
                                         return(-1);
@@ -4718,7 +4718,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                             /* get some mem */
                             if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
                             {
-                                (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                                 return(-1);
                             }
 
@@ -4727,7 +4727,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                             {
                                 if(!(iface_ptr = d_node->data))
                                 {
-                                    (void)vrprint.error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
+                                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
                                     free(choices);
                                     return(-1);
                                 }
@@ -4888,7 +4888,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
     status_print(status_win, gettext("Ready."));
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "returning retval = %d.", retval);
+        vrmr_debug(__FUNC__, "returning retval = %d.", retval);
 
     return(retval);
 }
@@ -4918,7 +4918,7 @@ edit_seprule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields,
 
     if(!fields || !rule_ptr || !reg)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -4939,7 +4939,7 @@ edit_seprule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields,
                     {
                         if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
-                            (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
                         }
                     }
@@ -4966,7 +4966,7 @@ edit_seprule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields,
     }
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "returning retval = %d.", retval);
+        vrmr_debug(__FUNC__, "returning retval = %d.", retval);
 
     return(retval);
 }
@@ -5017,7 +5017,7 @@ edit_rule_separator(const int debuglvl,
     /* safety */
     if(!rule_ptr || !reg)
     {
-        (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -5041,7 +5041,7 @@ edit_rule_separator(const int debuglvl,
     /* init the action_type */
     if(rule_ptr->action != VRMR_AT_SEPARATOR)
     {
-        (void)vrprint.error(-1, VR_INTERR, "wrong action_type (in: %s:%d).",
+        vrmr_error(-1, VR_INTERR, "wrong action_type (in: %s:%d).",
                                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -5050,7 +5050,7 @@ edit_rule_separator(const int debuglvl,
     n_fields = 1;
     if(!(fields = (FIELD **)calloc(n_fields + 1, sizeof(FIELD *))))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
                                 strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -5073,25 +5073,25 @@ edit_rule_separator(const int debuglvl,
     fields[n_fields] = NULL;
     
     if(n_fields != field_num)
-        (void)vrprint.error(-1, VR_INTERR, "oops! n_fields: %d, field_num: %d.", n_fields, field_num);
+        vrmr_error(-1, VR_INTERR, "oops! n_fields: %d, field_num: %d.", n_fields, field_num);
 
     /* create the window, panel, form */
     if(!(edit_win = create_newwin(height, width, starty, startx, gettext("Enter comment (optional)"), vccnf.color_win)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating window failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
     }
 
     if(!(my_panels[0] = new_panel(edit_win)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating panel failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating panel failed."));
         return(-1);
     }
     keypad(edit_win, TRUE);
 
     if(!(form = new_form(fields)))
     {
-        (void)vrprint.error(-1, VR_ERR, gettext("creating form failed."));
+        vrmr_error(-1, VR_ERR, gettext("creating form failed."));
         return(-1);
     }
     scale_form(form, &rows, &cols);
@@ -5174,7 +5174,7 @@ edit_rule_separator(const int debuglvl,
     status_print(status_win, gettext("Ready."));
 
     if(debuglvl >= LOW)
-        (void)vrprint.debug(__FUNC__, "returning retval = %d.", retval);
+        vrmr_debug(__FUNC__, "returning retval = %d.", retval);
 
     return(retval);
 }
