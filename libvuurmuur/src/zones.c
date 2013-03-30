@@ -1063,7 +1063,7 @@ count_zones(const int debuglvl, struct vrmr_zones *zones, int type, char *filter
 
 */
 int
-zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, d_list *network_list)
+zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, struct vrmr_list *network_list)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;

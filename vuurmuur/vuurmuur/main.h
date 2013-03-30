@@ -143,10 +143,10 @@ struct RuleCreateData_
 
     /*  list for adding the iptables rules of one singe vuurmuur rule
         to, so we can check for double rules. */
-    d_list                  iptrulelist;
+    struct vrmr_list                  iptrulelist;
     /*  list for adding the shaping rules of one singe vuurmuur rule
         to, so we can check for double rules. */
-    d_list                  shaperulelist;
+    struct vrmr_list                  shaperulelist;
 
     u_int16_t               shape_class_out;
     u_int16_t               shape_class_in;
@@ -154,8 +154,8 @@ struct RuleCreateData_
     char                    random[9]; /* --random */
 
     /** in case of ZONE, this is the list of networks */
-    d_list                  from_network_list;
-    d_list                  to_network_list;
+    struct vrmr_list                  from_network_list;
+    struct vrmr_list                  to_network_list;
 
     /** in case of ZONE, this is the current network ptr */
     struct vrmr_zone                *from_network;
@@ -174,65 +174,65 @@ typedef struct
     /*
         raw
     */
-    d_list  raw_preroute;               /* list with rules */
+    struct vrmr_list  raw_preroute;               /* list with rules */
     char    raw_preroute_policy;
 
     /*
         mangle
     */
-    d_list  mangle_preroute;            /* list with rules */
+    struct vrmr_list  mangle_preroute;            /* list with rules */
     char    mangle_preroute_policy;     /* policy for this chain: 0: accept, 1: drop */
-    d_list  mangle_input;               /* list with rules */
+    struct vrmr_list  mangle_input;               /* list with rules */
     char    mangle_input_policy;        /* policy for this chain: 0: accept, 1: drop */
-    d_list  mangle_forward;             /* list with rules */
+    struct vrmr_list  mangle_forward;             /* list with rules */
     char    mangle_forward_policy;      /* policy for this chain: 0: accept, 1: drop */
-    d_list  mangle_output;              /* list with rules */
+    struct vrmr_list  mangle_output;              /* list with rules */
     char    mangle_output_policy;       /* policy for this chain: 0: accept, 1: drop */
-    d_list  mangle_postroute;           /* list with rules */
+    struct vrmr_list  mangle_postroute;           /* list with rules */
     char    mangle_postroute_policy;    /* policy for this chain: 0: accept, 1: drop */
 
     /*
         extra mangle (no policies)
     */
-    d_list  mangle_shape_in;            /* list with rules */
-    d_list  mangle_shape_out;           /* list with rules */
-    d_list  mangle_shape_fw;            /* list with rules */
+    struct vrmr_list  mangle_shape_in;            /* list with rules */
+    struct vrmr_list  mangle_shape_out;           /* list with rules */
+    struct vrmr_list  mangle_shape_fw;            /* list with rules */
 
     /*
         nat
     */
-    d_list  nat_preroute;               /* list with rules */
+    struct vrmr_list  nat_preroute;               /* list with rules */
     char    nat_preroute_policy;        /* policy for this chain: 0: accept, 1: drop */
-    d_list  nat_postroute;              /* list with rules */
+    struct vrmr_list  nat_postroute;              /* list with rules */
     char    nat_postroute_policy;       /* policy for this chain: 0: accept, 1: drop */
-    d_list  nat_output;                 /* list with rules */
+    struct vrmr_list  nat_output;                 /* list with rules */
     char    nat_output_policy;          /* policy for this chain: 0: accept, 1: drop */
 
     /*
         filter
     */
-    d_list  filter_input;               /* list with rules */
+    struct vrmr_list  filter_input;               /* list with rules */
     char    filter_input_policy;        /* policy for this chain: 0: accept, 1: drop */
-    d_list  filter_forward;             /* list with rules */
+    struct vrmr_list  filter_forward;             /* list with rules */
     char    filter_forward_policy;      /* policy for this chain: 0: accept, 1: drop */
-    d_list  filter_output;              /* list with rules */
+    struct vrmr_list  filter_output;              /* list with rules */
     char    filter_output_policy;       /* policy for this chain: 0: accept, 1: drop */
 
     /*
         extra filter (no policies)
     */
-    d_list  filter_antispoof;           /* list with rules */
-    d_list  filter_blocklist;           /* list with rules */
-    d_list  filter_blocktarget;         /* list with rules */
-    d_list  filter_badtcp;              /* list with rules */
-    d_list  filter_synlimittarget;      /* list with rules */
-    d_list  filter_udplimittarget;      /* list with rules */
-    d_list  filter_tcpresettarget;      /* list with rules */
-    d_list  filter_newaccepttarget;     /* list with rules */
-    d_list  filter_newqueuetarget;      /* list with rules */
-    d_list  filter_newnfqueuetarget;    /* list with rules */
-    d_list  filter_estrelnfqueuetarget; /* list with rules */
-    d_list  filter_accounting;          /* list with rules */
+    struct vrmr_list  filter_antispoof;           /* list with rules */
+    struct vrmr_list  filter_blocklist;           /* list with rules */
+    struct vrmr_list  filter_blocktarget;         /* list with rules */
+    struct vrmr_list  filter_badtcp;              /* list with rules */
+    struct vrmr_list  filter_synlimittarget;      /* list with rules */
+    struct vrmr_list  filter_udplimittarget;      /* list with rules */
+    struct vrmr_list  filter_tcpresettarget;      /* list with rules */
+    struct vrmr_list  filter_newaccepttarget;     /* list with rules */
+    struct vrmr_list  filter_newqueuetarget;      /* list with rules */
+    struct vrmr_list  filter_newnfqueuetarget;    /* list with rules */
+    struct vrmr_list  filter_estrelnfqueuetarget; /* list with rules */
+    struct vrmr_list  filter_accounting;          /* list with rules */
 
     /*
         special chains
@@ -243,7 +243,7 @@ typedef struct
     /*
         shaping
     */
-    d_list  tc_rules;                   /* list with tc rules */
+    struct vrmr_list  tc_rules;                   /* list with tc rules */
 
 } RuleSet;
 
@@ -360,7 +360,7 @@ int reload_interfaces_check(const int, struct vrmr_interface *iface_ptr);
 int check_for_changed_dynamic_ips(const int debuglvl, struct vrmr_interfaces *interfaces);
 
 /* ruleset */
-int ruleset_add_rule_to_set(const int, d_list *, char *, char *, unsigned long long, unsigned long long);
+int ruleset_add_rule_to_set(const int, struct vrmr_list *, char *, char *, unsigned long long, unsigned long long);
 int load_ruleset(const int, VuurmuurCtx *);
 
 /* shape */

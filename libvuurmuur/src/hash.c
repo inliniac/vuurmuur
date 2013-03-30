@@ -46,7 +46,7 @@ hash_setup( const int debuglvl,                         /* debug level */
     }
 
     /* Allocate space for the hash table. */
-    if(!(hash_table->table = (d_list *)malloc(rows * sizeof(d_list))))
+    if(!(hash_table->table = (struct vrmr_list *)malloc(rows * sizeof(struct vrmr_list))))
     {
         (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
         return(-1);
@@ -492,7 +492,7 @@ void print_table_service(const int debuglvl, const struct vrmr_hash_table *hash_
 int
 init_services_hashtable(    const int debuglvl,
                             unsigned int n_rows,
-                            d_list *services_list,
+                            struct vrmr_list *services_list,
                             unsigned int (*hash_func)(const void *data),
                             int (*compare_func)(const void *table_data, const void *search_data),
                             struct vrmr_hash_table *hash_table)
@@ -604,7 +604,7 @@ init_services_hashtable(    const int debuglvl,
 int
 init_zonedata_hashtable(    const int debuglvl,
                             unsigned int n_rows,
-                            d_list *zones_list,
+                            struct vrmr_list *zones_list,
                             unsigned int (*hash_func)(const void *data),
                             int (*compare_func)(const void *table_data, const void *search_data),
                             struct vrmr_hash_table *hash_table)

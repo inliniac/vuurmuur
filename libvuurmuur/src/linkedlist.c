@@ -24,7 +24,7 @@
 
 /*  vrmr_list_setup
 
-    Sets up a d_list.
+    Sets up a struct vrmr_list.
 
     Returncodes:
          0: ok
@@ -33,7 +33,7 @@
     This function can only fail due to a programming error.
 */
 int
-vrmr_list_setup(const int debuglvl, d_list *list, void (*remove)(void *data))
+vrmr_list_setup(const int debuglvl, struct vrmr_list *list, void (*remove)(void *data))
 {
     /* safety first */
     if(!list)
@@ -57,27 +57,27 @@ vrmr_list_setup(const int debuglvl, d_list *list, void (*remove)(void *data))
     d_node is the node to remove
 */
 int
-vrmr_list_remove_node(const int debuglvl, d_list *d_list, struct vrmr_list_node *d_node)
+vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_list_node *d_node)
 {
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "start.");
 
     /* safety first */
-    if(!d_list || !d_node)
+    if(!list || !d_node)
     {
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
         return(-1);
     }
 
     /* we cannot remove from an empty list */
-    if(d_list->len == 0)
+    if(list->len == 0)
     {
         (void)vrprint.error(-1, "Internal Error", "cannot remove from an empty list (in: %s).", __FUNC__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "list len %d.", d_list->len);
+        (void)vrprint.debug(__FUNC__, "list len %d.", list->len);
 
     /* we remove the top */
     if(d_node->prev)
@@ -95,7 +95,7 @@ vrmr_list_remove_node(const int debuglvl, d_list *d_list, struct vrmr_list_node 
             (void)vrprint.debug(__FUNC__, "top setting top to next.");
         }
 
-        d_list->top = d_node->next;
+        list->top = d_node->next;
     }
 
     /* we remove the bottom */
@@ -114,26 +114,26 @@ vrmr_list_remove_node(const int debuglvl, d_list *d_list, struct vrmr_list_node 
             (void)vrprint.debug(__FUNC__, "top setting bot to prev.");
         }
 
-        d_list->bot = d_node->prev;
+        list->bot = d_node->prev;
     }
 
     /* debug */
     if(debuglvl >= HIGH)
     {
-        if(d_list->top == NULL)
+        if(list->top == NULL)
             (void)vrprint.debug(__FUNC__, "top is now NULL.");
 
-        if(d_list->bot == NULL)
+        if(list->bot == NULL)
             (void)vrprint.debug(__FUNC__, "bot is now NULL.");
     }
 
     /* call the user remove function */
-    if(d_list->remove != NULL)
+    if(list->remove != NULL)
     {
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "calling the user defined data remove function.");
 
-        d_list->remove(d_node->data);
+        list->remove(d_node->data);
     }
     else
     {
@@ -146,11 +146,11 @@ vrmr_list_remove_node(const int debuglvl, d_list *d_list, struct vrmr_list_node 
     d_node = NULL;
 
     /* adjust the length */
-    d_list->len--;
+    list->len--;
 
     if(debuglvl >= HIGH)
     {
-        (void)vrprint.debug(__FUNC__, "at exit list len %d.", d_list->len);
+        (void)vrprint.debug(__FUNC__, "at exit list len %d.", list->len);
         (void)vrprint.debug(__FUNC__, "stop.");
     }
 
@@ -159,14 +159,14 @@ vrmr_list_remove_node(const int debuglvl, d_list *d_list, struct vrmr_list_node 
 
 
 int
-vrmr_list_remove_top(const int debuglvl, d_list *list)
+vrmr_list_remove_top(const int debuglvl, struct vrmr_list *list)
 {
     return(vrmr_list_remove_node(debuglvl, list, list->top));
 }
 
 
 int
-vrmr_list_remove_bot(const int debuglvl, d_list *list)
+vrmr_list_remove_bot(const int debuglvl, struct vrmr_list *list)
 {
     return(vrmr_list_remove_node(debuglvl, list, list->bot));
 }
@@ -179,7 +179,7 @@ vrmr_list_remove_bot(const int debuglvl, d_list *list)
         -1: error
 */
 struct vrmr_list_node *
-vrmr_list_append(const int debuglvl, d_list *d_list, const void *data)
+vrmr_list_append(const int debuglvl, struct vrmr_list *list, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
     struct vrmr_list_node *prev_node = NULL;
@@ -190,7 +190,7 @@ vrmr_list_append(const int debuglvl, d_list *d_list, const void *data)
     /*
         safety first
     */
-    if(!d_list)
+    if(!list)
     {
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -215,7 +215,7 @@ vrmr_list_append(const int debuglvl, d_list *d_list, const void *data)
     /*
         update the prev_node
     */
-    prev_node = d_list->bot;
+    prev_node = list->bot;
     if(prev_node)
     {
         prev_node->next = new_node;
@@ -223,7 +223,7 @@ vrmr_list_append(const int debuglvl, d_list *d_list, const void *data)
     else
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "appended in an empty list (%d).", d_list->len);
+            (void)vrprint.debug(__FUNC__, "appended in an empty list (%d).", list->len);
     }
 
     /*
@@ -237,28 +237,28 @@ vrmr_list_append(const int debuglvl, d_list *d_list, const void *data)
     new_node->next = NULL;
 
     /*
-        and that also why we have to set d_list->bot
+        and that also why we have to set list->bot
     */
-    d_list->bot = new_node;
+    list->bot = new_node;
 
     /*
         if the top is NULL, we inserted into an empty list
         so we also have set the top to the new_node
     */
-    if(!d_list->top)
-        d_list->top = new_node;
+    if(!list->top)
+        list->top = new_node;
 
     /*
         update the list size
     */
-    d_list->len++;
+    list->len++;
 
     return(new_node);
 }
 
 
 struct vrmr_list_node *
-vrmr_list_prepend(const int debuglvl, d_list *d_list, const void *data)
+vrmr_list_prepend(const int debuglvl, struct vrmr_list *list, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
     struct vrmr_list_node *next_node = NULL;
@@ -266,7 +266,7 @@ vrmr_list_prepend(const int debuglvl, d_list *d_list, const void *data)
     /*
         safety first
     */
-    if(!d_list)
+    if(!list)
     {
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -291,7 +291,7 @@ vrmr_list_prepend(const int debuglvl, d_list *d_list, const void *data)
     /*
         update the next_node
     */
-    next_node = d_list->top;
+    next_node = list->top;
     if(next_node)
     {
         next_node->prev = new_node;
@@ -299,7 +299,7 @@ vrmr_list_prepend(const int debuglvl, d_list *d_list, const void *data)
     else
     {
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "prepended in an empty list (%d).", d_list->len);
+            (void)vrprint.debug(__FUNC__, "prepended in an empty list (%d).", list->len);
     }
 
     /*
@@ -310,28 +310,28 @@ vrmr_list_prepend(const int debuglvl, d_list *d_list, const void *data)
     new_node->next = next_node;
 
     /*
-        and that also why we have to set d_list->top
+        and that also why we have to set list->top
     */
-    d_list->top = new_node;
+    list->top = new_node;
 
     /*
         if the bot is NULL, we inserted into an empty list
         so we also have set the bot to the new_node
     */
-    if(!d_list->bot)
-        d_list->bot = new_node;
+    if(!list->bot)
+        list->bot = new_node;
 
     /*
         update the list size
     */
-    d_list->len++;
+    list->len++;
 
     return(new_node);
 }
 
 
 struct vrmr_list_node *
-vrmr_list_insert_after(const int debuglvl, d_list *d_list, struct vrmr_list_node *d_node, const void *data)
+vrmr_list_insert_after(const int debuglvl, struct vrmr_list *list, struct vrmr_list_node *d_node, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
 
@@ -341,7 +341,7 @@ vrmr_list_insert_after(const int debuglvl, d_list *d_list, struct vrmr_list_node
     /*
         safety first
     */
-    if(!d_list)
+    if(!list)
     {
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -356,7 +356,7 @@ vrmr_list_insert_after(const int debuglvl, d_list *d_list, struct vrmr_list_node
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "d_node == NULL, calling vrmr_list_append.");
 
-        return(vrmr_list_append(debuglvl, d_list, data));
+        return(vrmr_list_append(debuglvl, list, data));
     }
 
 
@@ -388,7 +388,7 @@ vrmr_list_insert_after(const int debuglvl, d_list *d_list, struct vrmr_list_node
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "new node is the list bot.");
 
-        d_list->bot = new_node;
+        list->bot = new_node;
     }
     else
     {
@@ -407,20 +407,20 @@ vrmr_list_insert_after(const int debuglvl, d_list *d_list, struct vrmr_list_node
     /*
         update the list size
     */
-    d_list->len++;
+    list->len++;
 
     return(new_node);
 }
 
 
 struct vrmr_list_node *
-vrmr_list_insert_before(const int debuglvl, d_list *d_list, struct vrmr_list_node *d_node, const void *data)
+vrmr_list_insert_before(const int debuglvl, struct vrmr_list *list, struct vrmr_list_node *d_node, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
 
 
     /* safety first */
-    if(!d_list)
+    if(!list)
     {
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -433,7 +433,7 @@ vrmr_list_insert_before(const int debuglvl, d_list *d_list, struct vrmr_list_nod
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "d_node == NULL, calling vrmr_list_prepend.");
 
-        return(vrmr_list_prepend(debuglvl, d_list, data));
+        return(vrmr_list_prepend(debuglvl, list, data));
     }
 
 
@@ -457,7 +457,7 @@ vrmr_list_insert_before(const int debuglvl, d_list *d_list, struct vrmr_list_nod
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "new node is the list top.");
 
-        d_list->top = new_node;
+        list->top = new_node;
     }
     else
     {
@@ -472,7 +472,7 @@ vrmr_list_insert_before(const int debuglvl, d_list *d_list, struct vrmr_list_nod
     d_node->prev = new_node;
 
     /* update the list length */
-    d_list->len++;
+    list->len++;
 
     /* return the new node */
     return(new_node);
@@ -518,10 +518,10 @@ vrmr_list_node_is_bot(const int debuglvl, struct vrmr_list_node *d_node)
 
 
 int
-vrmr_list_cleanup(const int debuglvl, d_list *d_list)
+vrmr_list_cleanup(const int debuglvl, struct vrmr_list *list)
 {
     /* safety */
-    if(!d_list)
+    if(!list)
     {
         (void)vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -529,9 +529,9 @@ vrmr_list_cleanup(const int debuglvl, d_list *d_list)
     }
 
     /* remove the top while list len > 0 */
-    for(;d_list->len;)
+    for(;list->len;)
     {
-        if(vrmr_list_remove_top(debuglvl, d_list) < 0)
+        if(vrmr_list_remove_top(debuglvl, list) < 0)
         {
             (void)vrprint.error(-1, "Error", "could not remove node (in: %s:%d).",
                     __FUNC__, __LINE__);

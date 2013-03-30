@@ -231,17 +231,14 @@ struct vrmr_list_node {
 
 
 /* the list, containing the metadata */
-typedef struct d_list_
-{
+struct vrmr_list {
     unsigned int    len;
 
     struct vrmr_list_node     *top;
     struct vrmr_list_node     *bot;
 
     void(*remove)(void *data);
-}
-d_list;
-
+};
 
 /*
     hash function
@@ -266,9 +263,9 @@ struct vrmr_hash_table {
     unsigned int    cells;
 
     /*
-        the table itself. its an array of d_lists
+        the table itself. its an array of struct vrmr_lists
     */
-    d_list          *table;
+    struct vrmr_list          *table;
 };
 
 
@@ -509,7 +506,7 @@ struct vuurmuur_config
 /* DATA STRUCTURES */
 struct vrmr_interfaces {
     /* the list with interfaces */
-    d_list      list;
+    struct vrmr_list      list;
 
     /* is at least one of the interfaces active? */
     char        active_interfaces;
@@ -524,36 +521,36 @@ struct vrmr_interfaces {
 
 struct vrmr_services {
     /* the list with services */
-    d_list  list;
+    struct vrmr_list  list;
 };
 
 
 struct vrmr_zones {
     /* the list with zones */
-    d_list  list;
+    struct vrmr_list  list;
 };
 
 
 struct vrmr_rules {
     /* the list with rules */
-    d_list  list;
+    struct vrmr_list  list;
 
     char    old_rulesfile_used;
 
     /* list of chain names that are defined by the rules */
-    d_list  custom_chain_list;
+    struct vrmr_list  custom_chain_list;
     /* list of chains currently in the system */
-    d_list  system_chain_filter;
-    d_list  system_chain_mangle;
-    d_list  system_chain_nat;
-    d_list  system_chain_raw;
+    struct vrmr_list  system_chain_filter;
+    struct vrmr_list  system_chain_mangle;
+    struct vrmr_list  system_chain_nat;
+    struct vrmr_list  system_chain_raw;
 };
 
 
 struct vrmr_blocklist
 {
     /* the list with blocked ips/hosts/groups */
-    d_list  list;
+    struct vrmr_list  list;
 
     char    old_blocklistfile_used;
 
@@ -592,10 +589,10 @@ struct vrmr_rule_options
 
     /* Port forwarding */
     char            remoteport;     /* 0 = don't use remoteport, 1 = use remote port */
-    d_list          RemoteportList;
+    struct vrmr_list          RemoteportList;
 
     char            listenport;
-    d_list          ListenportList;
+    struct vrmr_list          ListenportList;
 
     /* redirect */
     int             redirectport;
@@ -712,7 +709,7 @@ struct vrmr_interface
     char            dynamic;
 
     /* protect rules for the interface */
-    d_list          ProtectList;
+    struct vrmr_list          ProtectList;
 
     /* counters for iptables-restore */
     struct vrmr_interface_counters *cnt;
@@ -755,7 +752,7 @@ struct vrmr_zone {
 
     /* group stuff */
     unsigned int        group_member_count;
-    d_list              GroupList;
+    struct vrmr_list              GroupList;
 
     /* for names */
     char                host_name[MAX_HOST];
@@ -777,10 +774,10 @@ struct vrmr_zone {
 
     /* the list with interfaces: for networks */
     int                 active_interfaces;
-    d_list              InterfaceList;
+    struct vrmr_list              InterfaceList;
 
     /* protect rules for the network */
-    d_list              ProtectList;
+    struct vrmr_list              ProtectList;
 
     /* reference counters */
     unsigned int        refcnt_group;
@@ -804,7 +801,7 @@ struct vrmr_service {
 
     int     hash_port;
 
-    d_list  PortrangeList;
+    struct vrmr_list  PortrangeList;
 
     char    broadcast;          /* 1: broadcasting service, 0: not */
 };
@@ -1339,8 +1336,8 @@ unsigned int hash_ipaddress(const void *key);
 unsigned int hash_string(const void *key);
 
 void print_table_service(const int debuglvl, const struct vrmr_hash_table *hash_table);
-int init_zonedata_hashtable(const int debuglvl, unsigned int n_rows, d_list *d_list, unsigned int (*hash)(const void *key), int (*match)(const void *string1, const void *string2), struct vrmr_hash_table *hash_table);
-int init_services_hashtable(const int debuglvl, unsigned int n_rows, d_list *d_list, unsigned int (*hash)(const void *key), int (*match)(const void *string1, const void *string2), struct vrmr_hash_table *hash_table);
+int init_zonedata_hashtable(const int debuglvl, unsigned int n_rows, struct vrmr_list *, unsigned int (*hash)(const void *key), int (*match)(const void *string1, const void *string2), struct vrmr_hash_table *hash_table);
+int init_services_hashtable(const int debuglvl, unsigned int n_rows, struct vrmr_list *, unsigned int (*hash)(const void *key), int (*match)(const void *string1, const void *string2), struct vrmr_hash_table *hash_table);
 void *search_service_in_hash(const int debuglvl, const int src, const int dst, const int protocol, const struct vrmr_hash_table *serhash);
 void *search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, const struct vrmr_hash_table *zonehash);
 
@@ -1368,7 +1365,7 @@ void destroy_zonedatalist(const int, struct vrmr_zones *);
 int count_zones(const int, struct vrmr_zones *, int, char *, char *);
 int new_zone(const int, struct vrmr_zones *, char *, int);
 int delete_zone(const int, struct vrmr_zones *, char *, int);
-int zonelist_to_networklist(const int, struct vrmr_zones *, d_list *);
+int zonelist_to_networklist(const int, struct vrmr_zones *, struct vrmr_list *);
 int add_broadcasts_zonelist(const int, struct vrmr_zones *);
 int validate_zonename(const int, const char *, int, char *, char *, char *, regex_t *, char);
 int zones_group_save_members(const int, struct vrmr_zone *);
@@ -1399,7 +1396,7 @@ int read_service(const int, char *, struct vrmr_service *);
 void services_print_list(const struct vrmr_services *);
 int split_portrange(char *, int *, int *);
 int process_portrange(const int, const char *, const char *, struct vrmr_service *);
-void portrange_print_dlist(const d_list *);
+void portrange_print_dlist(const struct vrmr_list *);
 void destroy_serviceslist(const int, struct vrmr_services *);
 int new_service(const int, struct vrmr_services *, char *, int);
 int delete_service(const int, struct vrmr_services *, char *, int);
@@ -1416,14 +1413,14 @@ int vrmr_services_load(const int, struct vrmr_services *, struct vrmr_regex *);
 int vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, struct vrmr_regex *reg);
 int create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broadcast_ip, size_t size);
 int get_group_info(const int, struct vrmr_zones *, char *, struct vrmr_zone *);
-char *list_to_portopts(const int, d_list *, /*@null@*/char *);
-int portopts_to_list(const int debuglvl, const char *opt, d_list *dlist);
+char *list_to_portopts(const int, struct vrmr_list *, /*@null@*/char *);
+int portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *);
 int check_active(const int debuglvl, char *data, int type);
 int get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t size);
 int check_ipv4address(const int debuglvl, char *network, char *netmask, char *ipaddress, char quiet);
 int get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_t size, regex_t *mac_rgx);
 int get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr_danger_info *danger_struct);
-char *get_network_for_ipv4(const int debuglvl, const char *ipaddress, d_list *zonelist);
+char *get_network_for_ipv4(const int debuglvl, const char *ipaddress, struct vrmr_list *zonelist);
 int vrmr_user_get_info(const int, struct vrmr_user *);
 
 
@@ -1450,7 +1447,7 @@ struct vrmr_rule *rules_create_protect_rule(const int, char *, /*@null@*/ char *
 char *rules_assemble_rule(const int, struct vrmr_rule *);
 int rules_save_list(const int, struct vrmr_rules *, struct vuurmuur_config *);
 int rules_get_custom_chains(const int, struct vrmr_rules *);
-int rules_chain_in_list(const int, d_list *, char *);
+int rules_chain_in_list(const int, struct vrmr_list *, char *);
 int rules_get_system_chains(const int, struct vrmr_rules *, struct vuurmuur_config *, int);
 int rules_encode_rule(const int, char *, size_t);
 int rules_decode_rule(const int, char *, size_t);
@@ -1552,8 +1549,8 @@ int vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces
 int vrmr_init_interfaces(const int debuglvl, /*@out@*/ struct vrmr_interfaces *interfaces);
 int new_interface(const int, struct vrmr_interfaces *, char *);
 int delete_interface(const int, struct vrmr_interfaces *, char *);
-int ins_iface_into_zonelist(const int debuglvl, d_list *ifacelist, d_list *zonelist);
-int rem_iface_from_zonelist(const int debuglvl, d_list *zonelist);
+int ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, struct vrmr_list *zonelist);
+int rem_iface_from_zonelist(const int debuglvl, struct vrmr_list *zonelist);
 int get_iface_stats(const int, const char *, unsigned long *, unsigned long *, unsigned long *, unsigned long *);
 int vrmr_get_iface_stats_from_ipt(const int debuglvl, struct vuurmuur_config *cfg, const char *iface_name, const char *chain, unsigned long long *recv_packets, unsigned long long *recv_bytes, unsigned long long *trans_packets, unsigned long long *trans_bytes);
 int validate_interfacename(const int, const char *, regex_t *);
@@ -1581,31 +1578,31 @@ int list_icmp_codes(int type, int *code, int *number);
 /*
     conntrack.c
 */
-//int conn_line_to_data(const int debuglvl, struct ConntrackLine *connline_ptr, struct vrmr_conntrack_entry *conndata_ptr, struct vrmr_hash_table *serhash, struct vrmr_hash_table *zonehash, d_list *zonelist, int unknown_host_as_network, int sort_by_connect_status, int sort_by_in_out_fw);
+//int conn_line_to_data(const int debuglvl, struct ConntrackLine *connline_ptr, struct vrmr_conntrack_entry *conndata_ptr, struct vrmr_hash_table *serhash, struct vrmr_hash_table *zonehash, struct vrmr_list *zonelist, int unknown_host_as_network, int sort_by_connect_status, int sort_by_in_out_fw);
 //int conn_process_one_conntrack_line(const int debuglvl, const char *line, struct ConntrackLine *connline_ptr);
 unsigned int conn_hash_name(const void *key);
 int conn_match_name(const void *ser1, const void *ser2);
-void conn_list_print(const d_list *conn_list);
-int conn_get_connections(const int, struct vuurmuur_config *, unsigned int, struct vrmr_hash_table *, struct vrmr_hash_table *, d_list *, d_list *, struct vrmr_conntrack_request *, struct vrmr_conntrack_stats *);
-void conn_print_dlist(const d_list *dlist);
-void conn_list_cleanup(const int debuglvl, d_list *conn_dlist);
+void conn_list_print(const struct vrmr_list *conn_list);
+int conn_get_connections(const int, struct vuurmuur_config *, unsigned int, struct vrmr_hash_table *, struct vrmr_hash_table *, struct vrmr_list *, struct vrmr_list *, struct vrmr_conntrack_request *, struct vrmr_conntrack_stats *);
+void conn_print_dlist(const struct vrmr_list *);
+void conn_list_cleanup(const int debuglvl, struct vrmr_list *conn_dlist);
 void VR_connreq_setup(const int debuglvl, struct vrmr_conntrack_request *connreq);
 void VR_connreq_cleanup(const int debuglvl, struct vrmr_conntrack_request *connreq);
 
 /*
     linked list
 */
-int vrmr_list_setup(int debuglvl, /*@out@*/ d_list *d_list, /*@null@*/ void (*remove)(void *data));
-int vrmr_list_remove_node(int debuglvl, d_list *d_list, struct vrmr_list_node *d_node);
-int vrmr_list_remove_top(int debuglvl, d_list *d_list);
-int vrmr_list_remove_bot(int debuglvl, d_list *d_list);
-struct vrmr_list_node *vrmr_list_append(int debuglvl, d_list *d_list, const void *data);
-struct vrmr_list_node *vrmr_list_prepend(int debuglvl, d_list *d_list, const void *data);
-struct vrmr_list_node *vrmr_list_insert_after(int debuglvl, d_list *d_list, struct vrmr_list_node *d_node, const void *data);
-struct vrmr_list_node *vrmr_list_insert_before(int debuglvl, d_list *d_list, struct vrmr_list_node *d_node, const void *data);
+int vrmr_list_setup(int debuglvl, /*@out@*/ struct vrmr_list *, /*@null@*/ void (*remove)(void *data));
+int vrmr_list_remove_node(int debuglvl, struct vrmr_list *, struct vrmr_list_node *d_node);
+int vrmr_list_remove_top(int debuglvl, struct vrmr_list *);
+int vrmr_list_remove_bot(int debuglvl, struct vrmr_list *);
+struct vrmr_list_node *vrmr_list_append(int debuglvl, struct vrmr_list *, const void *data);
+struct vrmr_list_node *vrmr_list_prepend(int debuglvl, struct vrmr_list *, const void *data);
+struct vrmr_list_node *vrmr_list_insert_after(int debuglvl, struct vrmr_list *, struct vrmr_list_node *d_node, const void *data);
+struct vrmr_list_node *vrmr_list_insert_before(int debuglvl, struct vrmr_list *, struct vrmr_list_node *d_node, const void *data);
 int vrmr_list_node_is_top(int debuglvl, struct vrmr_list_node *d_node);
 int vrmr_list_node_is_bot(int debuglvl, struct vrmr_list_node *d_node);
-int vrmr_list_cleanup(int debuglvl, d_list *d_list);
+int vrmr_list_cleanup(int debuglvl, struct vrmr_list *);
 
 
 /*
@@ -1702,7 +1699,7 @@ struct vrmr_plugin {
     char                        *version;
 };
 
-d_list vrmr_plugin_list;
+struct vrmr_list vrmr_plugin_list;
 void vrmr_plugin_register(struct vrmr_plugin_data *plugin_data);
 
 /* services */

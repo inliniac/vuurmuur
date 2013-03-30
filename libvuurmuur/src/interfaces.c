@@ -1174,7 +1174,7 @@ vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
         -1: error
 */
 int
-ins_iface_into_zonelist(const int debuglvl, d_list *ifacelist, d_list *zonelist)
+ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, struct vrmr_list *zonelist)
 {
     struct vrmr_interface   *iface_ptr = NULL;
     struct vrmr_zone        *zone_ptr = NULL;
@@ -1292,7 +1292,7 @@ ins_iface_into_zonelist(const int debuglvl, d_list *ifacelist, d_list *zonelist)
         -1: error
 */
 int
-rem_iface_from_zonelist(const int debuglvl, d_list *zonelist)
+rem_iface_from_zonelist(const int debuglvl, struct vrmr_list *zonelist)
 {
     struct vrmr_zone    *zone_ptr = NULL;
     struct vrmr_list_node         *d_node = NULL,

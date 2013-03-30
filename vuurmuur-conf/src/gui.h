@@ -29,11 +29,11 @@ typedef struct
     unsigned int    nitems;
 
     char            use_namelist;
-    d_list          name;
+    struct vrmr_list          name;
     void            (*free_name)(void *ptr);
 
     char            use_desclist;
-    d_list          desc;
+    struct vrmr_list          desc;
     void            (*free_desc)(void *ptr);
 
     unsigned int    cur_item;

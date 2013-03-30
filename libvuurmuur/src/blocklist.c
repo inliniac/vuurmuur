@@ -559,7 +559,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vuurmuur_config *cfg,
 
 
 static int
-blocklist_write_file(const int debuglvl, struct vuurmuur_config *cfg, d_list *block_list)
+blocklist_write_file(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_list *block_list)
 {
     struct vrmr_list_node *d_node   = NULL;
     char        *itemname = NULL;

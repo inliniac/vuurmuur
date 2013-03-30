@@ -73,7 +73,7 @@ strip_buf(char *src, char *dst, size_t dstsize)
 
 */
 static int
-bandwidth_store(const int debuglvl, d_list *list, int year, int month, int day,
+bandwidth_store(const int debuglvl, struct vrmr_list *list, int year, int month, int day,
             char total, unsigned int recv, unsigned int send)
 {
     struct TrafVol_ *bw_ptr = NULL;
@@ -127,7 +127,7 @@ bandwidth_store(const int debuglvl, d_list *list, int year, int month, int day,
 */
 int
 bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
-            int start_day, int days, char only_total, d_list *list)
+            int start_day, int days, char only_total, struct vrmr_list *list)
 {
     char            bw_buf[512] = "",
                     sect_buf[32] = "",
@@ -705,7 +705,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     struct vrmr_list_node             *d_node = NULL,
                             *bw_d_node = NULL;
     struct TrafVol_         *bw_ptr = NULL;
-    d_list                  bw_list;
+    struct vrmr_list                  bw_list;
 
     int                     year = 0,
                             month = 0;

@@ -764,7 +764,7 @@ status_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zone
     struct vrmr_list_node             *shadow_node = NULL;
 
     // list which will hold the structs analog to the interfaces list
-    d_list                  shadow_list;
+    struct vrmr_list                  shadow_list;
 
     // we correct the speed with the time it takes to get all stats
     double                  elapse = 0;

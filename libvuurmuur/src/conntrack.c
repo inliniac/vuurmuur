@@ -100,7 +100,7 @@ filtered_connection(const int debuglvl, struct vrmr_conntrack_entry *cd_ptr, str
 
 //- print_dlist
 void
-conn_print_dlist(const d_list *dlist)
+conn_print_dlist(const struct vrmr_list *dlist)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
@@ -157,7 +157,7 @@ conn_line_to_data(  const int debuglvl,
                     struct vrmr_conntrack_entry *conndata_ptr,
                     struct vrmr_hash_table *serhash,
                     struct vrmr_hash_table *zonehash,
-                    d_list *zonelist,
+                    struct vrmr_list *zonelist,
                     struct vrmr_conntrack_request *req
                 )
 {
@@ -1879,7 +1879,7 @@ conn_match_name(const void *ser1, const void *ser2)
 
 //- print_list -
 void
-conn_list_print(const d_list *conn_list)
+conn_list_print(const struct vrmr_list *conn_list)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *item_ptr = NULL;
@@ -2001,7 +2001,7 @@ conn_match_conntrackdata(const void *check, const void *hash)
     Destroys the list.
 */
 void
-conn_list_cleanup(int debuglvl, d_list *conn_dlist)
+conn_list_cleanup(int debuglvl, struct vrmr_list *conn_dlist)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
@@ -2049,8 +2049,8 @@ conn_get_connections_do(const int debuglvl,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
                         struct vrmr_hash_table *zone_hash,
-                        d_list *conn_dlist,
-                        d_list *zone_list,
+                        struct vrmr_list *conn_dlist,
+                        struct vrmr_list *zone_list,
                         struct vrmr_conntrack_request *req,
                         struct vrmr_conntrack_stats *connstat_ptr,
                         int ipver
@@ -2453,8 +2453,8 @@ conn_get_connections_cmd (const int debuglvl,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
                         struct vrmr_hash_table *zone_hash,
-                        d_list *conn_dlist,
-                        d_list *zone_list,
+                        struct vrmr_list *conn_dlist,
+                        struct vrmr_list *zone_list,
                         struct vrmr_conntrack_request *req,
                         struct vrmr_conntrack_stats *connstat_ptr,
                         int ipver
@@ -2471,8 +2471,8 @@ conn_get_connections_proc (const int debuglvl,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
                         struct vrmr_hash_table *zone_hash,
-                        d_list *conn_dlist,
-                        d_list *zone_list,
+                        struct vrmr_list *conn_dlist,
+                        struct vrmr_list *zone_list,
                         struct vrmr_conntrack_request *req,
                         struct vrmr_conntrack_stats *connstat_ptr
                     )
@@ -2488,8 +2488,8 @@ conn_get_connections(   const int debuglvl,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
                         struct vrmr_hash_table *zone_hash,
-                        d_list *conn_dlist,
-                        d_list *zone_list,
+                        struct vrmr_list *conn_dlist,
+                        struct vrmr_list *zone_list,
                         struct vrmr_conntrack_request *req,
                         struct vrmr_conntrack_stats *connstat_ptr
                     )

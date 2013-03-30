@@ -320,7 +320,7 @@ get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, st
     returns NULL on error
 */
 char *
-list_to_portopts(const int debuglvl, d_list *dlist, /*@null@*/char *option_name)
+list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/char *option_name)
 {
     struct vrmr_list_node     *d_node = NULL;
     char            options[MAX_OPTIONS_LENGTH] = "",
@@ -407,7 +407,7 @@ list_to_portopts(const int debuglvl, d_list *dlist, /*@null@*/char *option_name)
 }
 
 int
-portopts_to_list(const int debuglvl, const char *opt, d_list *dlist)
+portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dlist)
 {
     int             done=0,
                     range=0,
@@ -1126,7 +1126,7 @@ get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr_dang
     A solution is providing a list of only networks...
 */
 char
-*get_network_for_ipv4(const int debuglvl, const char *ipaddress, d_list *zonelist)
+*get_network_for_ipv4(const int debuglvl, const char *ipaddress, struct vrmr_list *zonelist)
 {
     struct in_addr      ip;      /* the ipaddress we want to check */
     struct in_addr      net;     /* the network address against we want to check */

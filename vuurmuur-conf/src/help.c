@@ -63,7 +63,7 @@ free_helpword(void *ptr)
 
 /* parse a line from the helpfile */
 int
-read_helpline(const int debuglvl, d_list *help_list, char *line)
+read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
 {
     char        oneword[512] = "";
     size_t      i = 0;
@@ -148,7 +148,7 @@ read_helpline(const int debuglvl, d_list *help_list, char *line)
 #ifdef USE_WIDEC
 /* parse a line from the UTF-8 helpfile */
 int
-read_wide_helpline(const int debuglvl, d_list *help_list, wchar_t *line)
+read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *line)
 {
     wchar_t     oneword[512] = L"";
     int         i = 0;
@@ -232,7 +232,7 @@ read_wide_helpline(const int debuglvl, d_list *help_list, wchar_t *line)
 
 
 int
-read_helpfile(const int debuglvl, d_list *help_list, char *part)
+read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
 {
     char    line[128] = "";
     FILE    *fp = NULL;
@@ -328,7 +328,7 @@ read_helpfile(const int debuglvl, d_list *help_list, char *part)
 
 #ifdef USE_WIDEC
 int
-read_wide_helpfile(const int debuglvl, d_list *help_list, wchar_t *part)
+read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *part)
 {
     wchar_t line[128] = L"";
     FILE    *fp = NULL;
@@ -457,7 +457,7 @@ read_wide_helpfile(const int debuglvl, d_list *help_list, wchar_t *part)
 
 
 static void
-set_lines(const int debuglvl, d_list *help_list, size_t width)
+set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
 {
     size_t      line_width = 0,
                 line_num = 1,
@@ -587,7 +587,7 @@ set_lines(const int debuglvl, d_list *help_list, size_t width)
 
 #ifdef USE_WIDEC
 static void
-set_wide_lines(const int debuglvl, d_list *help_list, int width)
+set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
 {
     int         line_width = 0,
                 line_num = 1,
@@ -716,7 +716,7 @@ set_wide_lines(const int debuglvl, d_list *help_list, int width)
 
 
 static void
-do_print(const int debuglvl, WINDOW *printwin, d_list *list,
+do_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
         size_t start_print, size_t end_print)
 {
     helpword    *hw = NULL,
@@ -786,7 +786,7 @@ do_print(const int debuglvl, WINDOW *printwin, d_list *list,
 
 #ifdef USE_WIDEC
 static void
-do_wide_print(const int debuglvl, WINDOW *printwin, d_list *list,
+do_wide_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
         int start_print, int end_print)
 {
     whelpword   *hw = NULL,
@@ -858,7 +858,7 @@ do_wide_print(const int debuglvl, WINDOW *printwin, d_list *list,
 
 
 void
-print_list(const int debuglvl, d_list *list, char *title, int height,
+print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
         int width, int starty, int startx, char utf8)
 {
     WINDOW      *boxwin = NULL,
@@ -1017,7 +1017,7 @@ print_list(const int debuglvl, d_list *list, char *title, int height,
 void
 print_help(const int debuglvl, char *part)
 {
-    d_list  HelpList;
+    struct vrmr_list  HelpList;
     int     max_height = 0,
             max_width = 0,
             height = 0,
@@ -1145,7 +1145,7 @@ print_about(const int debuglvl)
             width = 0,
             startx = 0,
             starty = 0;
-    d_list  about_list;
+    struct vrmr_list  about_list;
 
     /* top menu */
     char    *key_choices[] =    { "F10" };

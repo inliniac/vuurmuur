@@ -27,8 +27,8 @@ char    last_vuurmuur_log_result = 1;
 char    rules_convert_question_asked = FALSE,
         blocklist_convert_question_asked = FALSE;
 
-static void mm_check_status_zones(const int, /*@null@*/ d_list *, struct vrmr_zones *);
-static void mm_check_status_services(const int, /*@null@*/ d_list *, struct vrmr_services *);
+static void mm_check_status_zones(const int, /*@null@*/ struct vrmr_list *, struct vrmr_zones *);
+static void mm_check_status_services(const int, /*@null@*/ struct vrmr_list *, struct vrmr_services *);
 
 
 int
@@ -448,7 +448,7 @@ mm_shm_connect_vuurmuurlog(const int debuglvl)
 }
 
 static void
-queue_status_msg(const int debuglvl, /*@null@*/ d_list *status_list, int status, char *fmt, ...)
+queue_status_msg(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, int status, char *fmt, ...)
 {
     char    line[512] = "";
     va_list ap;
@@ -479,7 +479,7 @@ TODO: check search script
 
 */
 static void
-mm_check_status_settings(const int debuglvl, /*@null@*/ d_list *status_list)
+mm_check_status_settings(const int debuglvl, /*@null@*/ struct vrmr_list *status_list)
 {
     FILE    *fp = NULL;
 
@@ -509,7 +509,7 @@ mm_check_status_settings(const int debuglvl, /*@null@*/ d_list *status_list)
 
 
 static void
-mm_check_status_shm(const int debuglvl, /*@null@*/ d_list *status_list)
+mm_check_status_shm(const int debuglvl, /*@null@*/ struct vrmr_list *status_list)
 {
     /* asume ok */
     VuurmuurStatus.vuurmuur = 1;
@@ -570,7 +570,7 @@ mm_check_status_shm(const int debuglvl, /*@null@*/ d_list *status_list)
         check if scripts dir exists
 */
 static void
-mm_check_status_config(const int debuglvl, /*@null@*/ d_list *status_list)
+mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_list)
 {
     /* asume ok when we start */
     VuurmuurStatus.config = 1;
@@ -655,7 +655,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ d_list *status_list)
 /*
 */
 static void
-mm_check_status_services(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_services *services)
+mm_check_status_services(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, struct vrmr_services *services)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_service    *ser_ptr = NULL;
@@ -699,7 +699,7 @@ mm_check_status_services(const int debuglvl, /*@null@*/ d_list *status_list, str
 /*
 */
 static void
-mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_rules *rules)
+mm_check_status_rules(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, struct vrmr_rules *rules)
 {
     struct vrmr_list_node      *d_node = NULL;
     struct vrmr_rule *rule_ptr = NULL;
@@ -748,7 +748,7 @@ mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, struct
 
 */
 static void
-mm_check_status_interfaces(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_interfaces *interfaces)
+mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, struct vrmr_interfaces *interfaces)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -899,7 +899,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ d_list *status_list, s
 /*
 */
 static void
-mm_check_status_zones(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_zones *zones)
+mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, struct vrmr_zones *zones)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
@@ -2173,7 +2173,7 @@ main_menu(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
     check all the statusses
 */
 void
-mm_status_checkall(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+mm_status_checkall(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
 {
     unsigned int    list_len = 0;
 

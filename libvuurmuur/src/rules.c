@@ -3431,7 +3431,7 @@ rules_create_protect_rule(const int debuglvl, char *action, /*@null@*/ char *who
         -1: error
 */
 int
-rules_chain_in_list(const int debuglvl, d_list *list, char *chainname)
+rules_chain_in_list(const int debuglvl, struct vrmr_list *list, char *chainname)
 {
     char        *str = NULL;
     struct vrmr_list_node *d_node = NULL;
@@ -3547,7 +3547,7 @@ rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
 /* get the actual chains for the table */
 static int
 rules_get_system_chains_per_table(const int debuglvl, char *tablename,
-        d_list *list, struct vuurmuur_config *cnf, int ipv)
+        struct vrmr_list *list, struct vuurmuur_config *cnf, int ipv)
 {
     char    line[128] = "",
             cmd[128] = "";

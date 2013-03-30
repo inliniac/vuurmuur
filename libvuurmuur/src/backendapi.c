@@ -119,7 +119,7 @@ open_plugin(const int debuglvl, char *plugin)
         -1: error
 */
 static int
-load_plugin(const int debuglvl, struct vuurmuur_config *cfg, d_list *plugin_list,
+load_plugin(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_list *plugin_list,
         char *plugin_name, struct vrmr_plugin_data **func_ptr)
 {
     int                 retval=0;
@@ -229,7 +229,7 @@ load_plugin(const int debuglvl, struct vuurmuur_config *cfg, d_list *plugin_list
         -1: error
 */
 static int
-unload_plugin(const int debuglvl, d_list *plugin_list, char *plugin_name, struct vrmr_plugin_data **func_ptr)
+unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_name, struct vrmr_plugin_data **func_ptr)
 {
     struct vrmr_plugin  *plugin = NULL;
     struct vrmr_list_node         *d_node = NULL;

@@ -202,7 +202,7 @@ vc_cnf vccnf;
 
 struct VuurmuurStatus_
 {
-    d_list  StatusList;
+    struct vrmr_list  StatusList;
 
     int     vuurmuur;
     int     vuurmuur_log;
@@ -281,7 +281,7 @@ void destroy_win(WINDOW *local_win);
 int startup_screen(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *, struct vrmr_blocklist *, struct vrmr_regex *);
 void draw_field_active_mark(const FIELD *cur, const FIELD *prev, WINDOW *formwin, FORM *form, chtype ch);
 int copy_field2buf(char *buf, char *fieldbuf, size_t bufsize);
-int protectrule_loaded(const int, d_list *, char *, char *, char *);
+int protectrule_loaded(const int, struct vrmr_list *, char *, char *, char *);
 
 
 /*
@@ -389,7 +389,7 @@ int connections_section(const int, struct vuurmuur_config *, struct vrmr_zones *
 */
 void print_help(const int debuglvl, char *part);
 void print_status(const int debuglvl);
-int read_helpline(const int debuglvl, d_list *help_list, char *line);
+int read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line);
 int setup_statuslist(const int debuglvl);
 
 
@@ -406,7 +406,7 @@ int vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf);
     main menu
 */
 int main_menu(const int, struct vrmr_rules *,  struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_blocklist *, struct vrmr_regex *);
-void mm_status_checkall(int, d_list *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
+void mm_status_checkall(int, struct vrmr_list *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
 int vc_apply_changes(const int debuglvl);
 
 /*
@@ -449,9 +449,9 @@ typedef struct ct_
     struct vrmr_hash_table  zone_hash,
                             service_hash;
 
-    d_list                  network_list;
+    struct vrmr_list                  network_list;
 
-    d_list                  conn_list;
+    struct vrmr_list                  conn_list;
 
     struct vrmr_conntrack_stats  conn_stats;
 
@@ -468,7 +468,7 @@ void conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones);
 int conn_ct_get_connections(const int, struct vuurmuur_config *, Conntrack *, struct vrmr_conntrack_request *);
 void conn_ct_clear_connections(const int debuglvl, Conntrack *ct);
 
-void statevent(const int, struct vuurmuur_config *, int, d_list *, Conntrack *, struct vrmr_conntrack_request *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *);
+void statevent(const int, struct vuurmuur_config *, int, struct vrmr_list *, Conntrack *, struct vrmr_conntrack_request *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *);
 
 
 /* length in chars (be it wide chars or normal chars) */

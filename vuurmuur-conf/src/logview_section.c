@@ -627,7 +627,7 @@ logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zon
                     *wait_panels[1],
                     *info_bar_panels[2];
 
-    d_list          LogBufferList,
+    struct vrmr_list          LogBufferList,
                     SearchBufferList,
                     *buffer_ptr = NULL;
     unsigned int    max_buffer_size = vccnf.logview_bufsize; // default

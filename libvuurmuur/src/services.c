@@ -458,7 +458,7 @@ services_print_list(const struct vrmr_services *services)
 
 /* debug function */
 void
-portrange_print_dlist(const d_list *dlist)
+portrange_print_dlist(const struct vrmr_list *dlist)
 {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_portdata *port_ptr = NULL;

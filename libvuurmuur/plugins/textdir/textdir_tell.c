@@ -37,7 +37,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     int                     delta = 'a' - 'A';
     FILE                    *fp = NULL;
     struct TextdirBackend_  *tb = NULL;
-    d_list                  storelist;
+    struct vrmr_list                  storelist;
     struct vrmr_list_node             *d_node = NULL;
 
     /*

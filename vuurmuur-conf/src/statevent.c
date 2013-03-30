@@ -95,7 +95,7 @@ typedef struct StatEventCtl_
     char * (*print2str )(const int, StatEventGen *, size_t);
     void   (*remove    )(void *data);
 
-    char   (*convert   )(const int debuglvl, struct StatEventCtl_ *, d_list *);
+    char   (*convert   )(const int debuglvl, struct StatEventCtl_ *, struct vrmr_list *);
     /* ptr to interactive menu function */
     void   (*menu      )(const int debuglvl, struct vuurmuur_config *, struct StatEventCtl_ *, Conntrack *, struct vrmr_conntrack_request *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *, StatEventGen *);
     //build menu func?
@@ -110,7 +110,7 @@ typedef struct StatEventCtl_
     char    *help_actions;  /* actions menu */
 
     /* data storage */
-    d_list  list;
+    struct vrmr_list  list;
 
 } StatEventCtl;
 
@@ -208,7 +208,7 @@ statevent_print2str_conn(const int debuglvl, StatEventGen *evt, size_t len)
 
 /* convert struct vrmr_conntrack_entry to StatEventConn */
 static char
-statevent_convert_conn(const int debuglvl, StatEventCtl *ctl, d_list *list)
+statevent_convert_conn(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *list)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
@@ -313,7 +313,7 @@ parse_log_srcdst(const int debuglvl, char *str, char *ret_ip, size_t ip_size,
 /* convert struct LogRule to StatEventLog
 */
 static char
-statevent_convert_log(const int debuglvl, StatEventCtl *ctl, d_list *list)
+statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *list)
 {
     struct vrmr_list_node     *d_node = NULL;
     LogRule         *logrule_ptr = NULL;
@@ -1286,7 +1286,7 @@ statevent_menu(const int debuglvl, struct vuurmuur_config *cnf, int type,
 
 void
 statevent(const int debuglvl, struct vuurmuur_config *cnf, int type,
-        d_list *list, Conntrack *ct,
+        struct vrmr_list *list, Conntrack *ct,
         struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services)

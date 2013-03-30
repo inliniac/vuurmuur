@@ -51,7 +51,7 @@ struct InterfacesSection_
     } EditInterface;
 
     char    comment[512];
-    d_list  desc_list;
+    struct vrmr_list  desc_list;
 
 } InterfacesSection;
 
@@ -487,7 +487,7 @@ struct
 
 
 int
-protectrule_loaded(const int debuglvl, d_list *rules_list, char *action, char *danger, char *source)
+protectrule_loaded(const int debuglvl, struct vrmr_list *rules_list, char *action, char *danger, char *source)
 {
     struct vrmr_rule    *rule_ptr = NULL;
     struct vrmr_list_node         *d_node = NULL;

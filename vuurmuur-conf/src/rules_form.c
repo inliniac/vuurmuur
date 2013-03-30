@@ -339,7 +339,7 @@ typedef struct
 
 struct RuleBarForm_
 {
-    d_list          RuleBar_list;
+    struct vrmr_list          RuleBar_list;
 
     unsigned int    bars;
 
@@ -3390,7 +3390,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
     char        advanced_mode = vccnf.advanced_mode;
     char        zonename[MAX_HOST_NET_ZONE] = "";
 
-    d_list      *interfaces_list = NULL;
+    struct vrmr_list      *interfaces_list = NULL;
 
     /* safety */
     if(rule_ptr == NULL || reg == NULL)

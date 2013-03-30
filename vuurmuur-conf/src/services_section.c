@@ -52,8 +52,8 @@ struct ServicesSection_
         ITEM    **items;
         size_t  n_items;
 
-        d_list  item_list;
-        d_list  item_number_list;
+        struct vrmr_list  item_list;
+        struct vrmr_list  item_number_list;
 
         int se_xre; /**< x right edge */
         int se_yle; /**< y lower edge */

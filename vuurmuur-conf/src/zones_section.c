@@ -53,7 +53,7 @@ struct ZonesSection_
     MENU    *n_menu;
     ITEM    **networkitems;
     size_t  network_n;
-    d_list  network_desc_list;
+    struct vrmr_list  network_desc_list;
 
     ITEM    *n_top,
             *n_bot;
@@ -71,7 +71,7 @@ struct ZonesSection_
     MENU    *h_menu;
     ITEM    **hostitems;
     size_t  host_n;
-    d_list  group_desc_list;
+    struct vrmr_list  group_desc_list;
 
     ITEM    *h_top,
             *h_bot;

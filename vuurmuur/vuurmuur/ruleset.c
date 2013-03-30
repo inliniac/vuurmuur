@@ -25,7 +25,7 @@
 #include "main.h"
 
 /* hack: in 0.8 we have to do this right! */
-d_list  accounting_chain_names; /* list with the chainnames */
+struct vrmr_list  accounting_chain_names; /* list with the chainnames */
 
 
 struct ChainRef
@@ -310,7 +310,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
         -1: error
 */
 int
-ruleset_add_rule_to_set(const int debuglvl, d_list *list, char *chain, char *rule, unsigned long long packets, unsigned long long bytes)
+ruleset_add_rule_to_set(const int debuglvl, struct vrmr_list *list, char *chain, char *rule, unsigned long long packets, unsigned long long bytes)
 {
     size_t  size = 0,
             numbers_size = 0;
