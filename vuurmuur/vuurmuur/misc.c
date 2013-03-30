@@ -97,8 +97,8 @@ int
 logprint_error_bash(int errorlevel, char *head, char *fmt, ...)
 {
     va_list ap;
-    char    long_str[MAX_LOGRULE_SIZE] = "",
-            prnt_str[MAX_LOGRULE_SIZE] = "";
+    char    long_str[VRMR_MAX_LOGRULE_SIZE] = "",
+            prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
@@ -120,8 +120,8 @@ int
 logprint_warning_bash(char *head, char *fmt, ...)
 {
     va_list ap;
-    char    long_str[MAX_LOGRULE_SIZE] = "",
-            prnt_str[MAX_LOGRULE_SIZE] = "";
+    char    long_str[VRMR_MAX_LOGRULE_SIZE] = "",
+            prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);
@@ -141,8 +141,8 @@ int
 logprint_info_bash(char *head, char *fmt, ...)
 {
     va_list ap;
-    char    long_str[MAX_LOGRULE_SIZE] = "",
-            prnt_str[MAX_LOGRULE_SIZE] = "";
+    char    long_str[VRMR_MAX_LOGRULE_SIZE] = "",
+            prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
 
     va_start(ap, fmt);
     vsnprintf(long_str, sizeof(long_str), fmt, ap);

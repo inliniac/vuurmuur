@@ -44,7 +44,7 @@ vuurmuur_fopen(const int debuglvl, const struct vrmr_config *cnf, const char *pa
     FILE        *fp=NULL;
 
     /* Stat the file */
-    if (!vrmr_stat_ok(debuglvl, cnf, path, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_ALLOW_NOTFOUND))
+    if (!vrmr_stat_ok(debuglvl, cnf, path, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_ALLOW_NOTFOUND))
         /* File not OK? Don't open it. vrmr_stat_ok will have printed an error message already. */
         return NULL;
 
@@ -65,7 +65,7 @@ vuurmuur_opendir(const int debuglvl, const struct vrmr_config *cnf, const char *
 {
     DIR *dir_p = NULL;
 
-    if(!(vrmr_stat_ok(debuglvl, cnf, name, STATOK_WANT_DIR, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, cnf, name, VRMR_STATOK_WANT_DIR, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
         return(NULL);
 
     /* finally try to open */
@@ -84,17 +84,17 @@ vuurmuur_opendir(const int debuglvl, const struct vrmr_config *cnf, const char *
     A function to see if we want to open a file or directory.
 
     parameters for 'type' are:
-        STATOK_WANT_BOTH
-        STATOK_WANT_FILE
-        STATOK_WANT_DIR
+        VRMR_STATOK_WANT_BOTH
+        VRMR_STATOK_WANT_FILE
+        VRMR_STATOK_WANT_DIR
 
     parameters for 'output' are:
-        STATOK_VERBOSE
-        STATOK_QUIET
+        VRMR_STATOK_VERBOSE
+        VRMR_STATOK_QUIET
 
     parameters for 'must_exist' are:
-        STATOK_MUST_EXIST
-        STATOK_ALLOW_NOTFOUND
+        VRMR_STATOK_MUST_EXIST
+        VRMR_STATOK_ALLOW_NOTFOUND
 
     Returncodes:
         1: file ok
@@ -117,7 +117,7 @@ vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file
     if(lstat(file_loc, &stat_buf) == -1)
     {
         if (errno == ENOENT) {
-            if (must_exist == STATOK_ALLOW_NOTFOUND) {
+            if (must_exist == VRMR_STATOK_ALLOW_NOTFOUND) {
                 /* Allow the file to be non-existing. */
                 return(1);
             } else {
@@ -133,28 +133,28 @@ vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file
     /* we wont open symbolic links */
     if(S_ISLNK(stat_buf.st_mode) == 1)
     {
-        if(output == STATOK_VERBOSE)
+        if(output == VRMR_STATOK_VERBOSE)
             (void)vrprint.error(-1, "Error", "opening '%s': For security reasons Vuurmuur will not allow following symbolic-links.", file_loc);
 
         return(0);
     }
-    else if(type == STATOK_WANT_FILE && S_ISREG(stat_buf.st_mode) != 1)
+    else if(type == VRMR_STATOK_WANT_FILE && S_ISREG(stat_buf.st_mode) != 1)
     {
-        if(output == STATOK_VERBOSE)
+        if(output == VRMR_STATOK_VERBOSE)
             (void)vrprint.error(-1, "Error", "opening '%s' failed: not a file.", file_loc);
 
         return(0);
     }
-    else if(type == STATOK_WANT_DIR && S_ISDIR(stat_buf.st_mode) != 1)
+    else if(type == VRMR_STATOK_WANT_DIR && S_ISDIR(stat_buf.st_mode) != 1)
     {
-        if(output == STATOK_VERBOSE)
+        if(output == VRMR_STATOK_VERBOSE)
             (void)vrprint.error(-1, "Error", "opening '%s' failed: not a directory.", file_loc);
 
         return(0);
     }
-    else if(type == STATOK_WANT_BOTH && S_ISREG(stat_buf.st_mode) != 1 && S_ISDIR(stat_buf.st_mode) != 1)
+    else if(type == VRMR_STATOK_WANT_BOTH && S_ISREG(stat_buf.st_mode) != 1 && S_ISDIR(stat_buf.st_mode) != 1)
     {
-        if(output == STATOK_VERBOSE)
+        if(output == VRMR_STATOK_VERBOSE)
             (void)vrprint.error(-1, "Error", "opening '%s' failed: not a file or a directory.", file_loc);
 
         return(0);
@@ -163,13 +163,13 @@ vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file
     /* we demand that all files are owned by root */
     if(stat_buf.st_uid != 0 || stat_buf.st_gid != 0)
     {
-        if(output == STATOK_VERBOSE)
+        if(output == VRMR_STATOK_VERBOSE)
             (void)vrprint.error(-1, "Error", "opening '%s': For security reasons Vuurmuur will not open files or directories that are not owned by root.", file_loc);
 
         return(0);
     }
 
-    if (cnf->max_permission != ANY_PERMISSION)
+    if (cnf->max_permission != VRMR_ANY_PERMISSION)
     {
         /* Extract the permission bits from the mode */
         perm = stat_buf.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
@@ -506,14 +506,14 @@ vrmr_pipe_command(const int debuglvl, struct vrmr_config *cnf, char *command,
     {
         (void)vrprint.debug(__FUNC__, "command: %s", command);
         (void)vrprint.debug(__FUNC__, "strlen(command) = %d, max = %d",
-                strlen(command), MAX_PIPE_COMMAND);
+                strlen(command), VRMR_MAX_PIPE_COMMAND);
     }
 
-    if(strlen(command) > MAX_PIPE_COMMAND)
+    if(strlen(command) > VRMR_MAX_PIPE_COMMAND)
     {
         (void)vrprint.error(-1, "Internal Error", "Command to pipe too "
                 "long! (%d, while max is: %d).",
-                strlen(command), MAX_PIPE_COMMAND);
+                strlen(command), VRMR_MAX_PIPE_COMMAND);
         return(-1);
     }
 

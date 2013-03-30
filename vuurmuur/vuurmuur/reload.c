@@ -245,7 +245,7 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
     int                     retval=0,
                             result;
     struct vrmr_service    *ser_ptr = NULL;
-    char                    name[MAX_SERVICE];
+    char                    name[VRMR_MAX_SERVICE];
     int                     zonetype;
     struct vrmr_list_node             *d_node = NULL;
 
@@ -562,7 +562,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     int                 check_result = 0;
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
-    char                name[MAX_HOST_NET_ZONE];
+    char                name[VRMR_VRMR_MAX_HOST_NET_ZONE];
     int                 zonetype;
 
 
@@ -1233,7 +1233,7 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
                             result = 0;
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
-    char                    name[MAX_INTERFACE] = "";
+    char                    name[VRMR_MAX_INTERFACE] = "";
     int                     zonetype = 0;
 
 

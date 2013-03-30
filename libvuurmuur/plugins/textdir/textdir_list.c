@@ -38,7 +38,7 @@ char
                             hostdir_location[512] = "",
                             groupdir_location[512] = "",
                             *file_location = NULL;
-    char                    cur_zonename[MAX_HOST_NET_ZONE] = "";
+    char                    cur_zonename[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
     struct dirent           *dir_entry_p = NULL;
     int                     done = 0;
 
@@ -91,7 +91,7 @@ char
                 if(debuglvl >= HIGH)
                     (void)tb->cfg->vrprint.debug(__FUNC__, "name: '%s'.", dir_entry_p->d_name);
 
-                (void)strlcpy(name, dir_entry_p->d_name, MAX_SERVICE);
+                (void)strlcpy(name, dir_entry_p->d_name, VRMR_MAX_SERVICE);
 
                 /* only return names which do not start with a dot (hidden files) and don't open . and .. */
                 if( strncmp(name, ".", 1) != 0 &&
@@ -108,7 +108,7 @@ char
                             (void)tb->cfg->vrprint.debug(__FUNC__, "service '%s', file: '%s'.", name, file_location);
 
                         /* now stat it */
-                        if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                        if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
                         {
                             free(file_location);
 
@@ -167,7 +167,7 @@ char
                     )
                     {
                         /* make sure we dont allow too long filenames */
-                        if((strlen(dir_entry_p->d_name) < MAX_INTERFACE+5))
+                        if((strlen(dir_entry_p->d_name) < VRMR_MAX_INTERFACE+5))
                         {
                             (void)strlcpy(tb->interface, dir_entry_p->d_name, (strlen(dir_entry_p->d_name)-5)+1);
                             tb->interface[strlen(dir_entry_p->d_name)-5]='\0';
@@ -175,7 +175,7 @@ char
                             if(vrmr_validate_interfacename(debuglvl, tb->interface, tb->interfacename_reg) == 0)
                             {
                                 *zonetype = TYPE_INTERFACE;
-                                (void)strlcpy(name, tb->interface, MAX_INTERFACE);
+                                (void)strlcpy(name, tb->interface, VRMR_MAX_INTERFACE);
 
                                 // determine the location of the file
                                 if(!(file_location = get_filelocation(debuglvl, backend, name, TYPE_INTERFACE)))
@@ -185,7 +185,7 @@ char
                                     (void)tb->cfg->vrprint.debug(__FUNC__, "interface '%s', file: '%s'.", name, file_location);
 
                                 /* now stat it */
-                                if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                                if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
@@ -269,7 +269,7 @@ char
                                 (void)tb->cfg->vrprint.debug(__FUNC__, "rule '%s', file: '%s'.", name, file_location);
 
                             /* now stat it */
-                            if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                            if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 
@@ -318,7 +318,7 @@ char
                             (void)tb->cfg->vrprint.debug(__FUNC__, "item: %s, %d.", dir_entry_p->d_name, strlen(dir_entry_p->d_name));
 
                         // max sure the name is not too long
-                        if(strlen(dir_entry_p->d_name) < MAX_HOST + 5)
+                        if(strlen(dir_entry_p->d_name) < VRMR_MAX_HOST + 5)
                         {
                             (void)strlcpy(tb->cur_host, dir_entry_p->d_name, (strlen(dir_entry_p->d_name)-5)+1);
                             tb->cur_host[strlen(dir_entry_p->d_name)-5]='\0';
@@ -336,13 +336,13 @@ char
                                     (void)tb->cfg->vrprint.debug(__FUNC__, "host '%s', file: '%s'.", cur_zonename, file_location);
 
                                 // now stat it
-                                if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                                if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
                                     *zonetype = TYPE_HOST;
 
-                                    (void)strlcpy(name, cur_zonename, MAX_HOST_NET_ZONE);
+                                    (void)strlcpy(name, cur_zonename, VRMR_VRMR_MAX_HOST_NET_ZONE);
                                     return(name);
                                 }
 
@@ -374,7 +374,7 @@ char
                             (void)tb->cfg->vrprint.debug(__FUNC__, "group name: %s.", dir_entry_p->d_name);
 
                         // max sure the name is not too long
-                        if(strlen(dir_entry_p->d_name) < MAX_HOST + 5)
+                        if(strlen(dir_entry_p->d_name) < VRMR_MAX_HOST + 5)
                         {
                             (void)strlcpy(tb->cur_host, dir_entry_p->d_name, (strlen(dir_entry_p->d_name)-6)+1);
                             tb->cur_host[strlen(dir_entry_p->d_name)-6]='\0';
@@ -392,13 +392,13 @@ char
                                     (void)tb->cfg->vrprint.debug(__FUNC__, "group '%s', file: '%s'.", cur_zonename, file_location);
 
                                 // now stat it
-                                if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                                if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
                                     *zonetype = TYPE_GROUP;
 
-                                    (void)strlcpy(name, cur_zonename, MAX_HOST_NET_ZONE);
+                                    (void)strlcpy(name, cur_zonename, VRMR_VRMR_MAX_HOST_NET_ZONE);
                                     return(name);
                                 }
 
@@ -430,7 +430,7 @@ char
 
                     if((strncmp(dir_entry_p->d_name, ".", 1) != 0) && (strcmp(dir_entry_p->d_name, "..") != 0))
                     {
-                        (void)strlcpy(tb->cur_network, dir_entry_p->d_name, MAX_NETWORK);
+                        (void)strlcpy(tb->cur_network, dir_entry_p->d_name, VRMR_MAX_NETWORK);
                         if(debuglvl >= HIGH)
                             (void)tb->cfg->vrprint.debug(__FUNC__, "network name: %s.", dir_entry_p->d_name);
 
@@ -463,7 +463,7 @@ char
                                 (void)tb->cfg->vrprint.debug(__FUNC__, "list_textdir: network '%s', file: '%s'.", cur_zonename, file_location);
 
                             // now stat it
-                            if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                            if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 
@@ -472,7 +472,7 @@ char
 
                                 *zonetype = TYPE_NETWORK;
 
-                                (void)strlcpy(name, cur_zonename, MAX_NET_ZONE);
+                                (void)strlcpy(name, cur_zonename, VRMR_MAX_NET_ZONE);
                                 return(name);
                             }
 
@@ -501,7 +501,7 @@ char
 
                     if((strncmp(dir_entry_p->d_name, ".", 1) != 0) && (strcmp(dir_entry_p->d_name, "..") != 0))
                     {
-                        (void)strlcpy(tb->cur_zone, dir_entry_p->d_name, MAX_ZONE);
+                        (void)strlcpy(tb->cur_zone, dir_entry_p->d_name, VRMR_MAX_ZONE);
 
                         if(debuglvl >= HIGH)
                             (void)tb->cfg->vrprint.debug(__FUNC__, "zone name: %s.", dir_entry_p->d_name);
@@ -525,7 +525,7 @@ char
                                 (void)tb->cfg->vrprint.debug(__FUNC__, "zone '%s', file: '%s'.", tb->cur_zone, file_location);
 
                             // now stat it
-                            if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                            if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 
@@ -534,7 +534,7 @@ char
 
                                 *zonetype = TYPE_ZONE;
 
-                                (void)strlcpy(name, dir_entry_p->d_name, MAX_ZONE);
+                                (void)strlcpy(name, dir_entry_p->d_name, VRMR_MAX_ZONE);
                                 return(name);
                             }
 

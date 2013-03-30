@@ -389,7 +389,7 @@ static int
 ruleset_fill_shaping_file(const int debuglvl, RuleSet *ruleset, int fd) {
     struct vrmr_list_node *d_node = NULL;
     char        *ptr = NULL;
-    char        cmd[MAX_PIPE_COMMAND] = "";
+    char        cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
     ruleset_writeprint(fd, "#!/bin/bash\n");
 
@@ -1192,7 +1192,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
     */
 
     /* vrmr_stat_ok */
-    if(!(vrmr_stat_ok(debuglvl, cnf, path_to_ruleset, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, cnf, path_to_ruleset, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
     {
         (void)vrprint.error(-1, "Error", "serious file problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1223,7 +1223,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
     }
 
     /* all good so far, lets load the ruleset */
-    if(vrmr_pipe_command(debuglvl, cnf, cmd, PIPE_VERBOSE) < 0)
+    if(vrmr_pipe_command(debuglvl, cnf, cmd, VRMR_PIPE_VERBOSE) < 0)
     {
         (void)vrprint.error(-1, "Error", "loading the ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1257,7 +1257,7 @@ ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path
     */
 
     /* vrmr_stat_ok */
-    if(!(vrmr_stat_ok(debuglvl, cnf, path_to_ruleset, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, cnf, path_to_ruleset, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
     {
         (void)vrprint.error(-1, "Error", "serious file problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1276,7 +1276,7 @@ ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path
     }
 
     /* all good so far, lets load the ruleset */
-    if(vrmr_pipe_command(debuglvl, cnf, cmd, PIPE_VERBOSE) < 0)
+    if(vrmr_pipe_command(debuglvl, cnf, cmd, VRMR_PIPE_VERBOSE) < 0)
     {
         (void)vrprint.error(-1, "Error", "loading the shape ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);

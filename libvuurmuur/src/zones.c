@@ -42,10 +42,10 @@ zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
             struct vrmr_zone *zone_ptr, regex_t *reg_ex)
 {
     int     arg_count = 0;
-    char    check_str[MAX_HOST_NET_ZONE] = "";
-    char    zonename[MAX_ZONE] = "",
-            netname[MAX_NETWORK] = "",
-            hostname[MAX_HOST] = "";
+    char    check_str[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
+    char    zonename[VRMR_MAX_ZONE] = "",
+            netname[VRMR_MAX_NETWORK] = "",
+            hostname[VRMR_MAX_HOST] = "";
 
     /* safety */
     if(zone_ptr == NULL || zones == NULL || reg_ex == NULL)
@@ -615,7 +615,7 @@ vrmr_init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
     int     retval = 0,
             result = 0,
             zonetype = 0;
-    char    zonename[MAX_HOST_NET_ZONE] = "";
+    char    zonename[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
 
     /* safety */
     if(zones == NULL || interfaces == NULL || reg == NULL)
@@ -697,7 +697,7 @@ vrmr_delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, i
     struct vrmr_zone        *zone_ptr = NULL,
                             *zone_list_ptr = NULL;
     struct vrmr_list_node             *d_node = NULL;
-    char                    name[MAX_HOST_NET_ZONE] = "";
+    char                    name[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
     struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety */
@@ -849,7 +849,7 @@ vrmr_new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int 
     size_t              dotcount=0,
                         i=0,
                         x=0;
-    char                parent_str[MAX_NET_ZONE] = "";
+    char                parent_str[VRMR_MAX_NET_ZONE] = "";
 
 
     /* safety */
@@ -1148,7 +1148,7 @@ vrmr_add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
                         ipaddress
                         type
                 */
-                snprintf(broadcast_ptr->name, MAX_HOST_NET_ZONE, "%s(broadcast)", zone_ptr->name);
+                snprintf(broadcast_ptr->name, VRMR_VRMR_MAX_HOST_NET_ZONE, "%s(broadcast)", zone_ptr->name);
 
                 if(strlcpy(broadcast_ptr->ipv4.ipaddress, zone_ptr->ipv4.broadcast, sizeof(broadcast_ptr->ipv4.ipaddress)) >= sizeof(broadcast_ptr->ipv4.ipaddress))
                 {
@@ -1178,7 +1178,7 @@ vrmr_add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
 }
 
 /*
-    NOTE: THIS FUCNTION REQUIRES THE ZONE, NETWORK AND HOST VARIABLES TO BE OF THE SIZES: MAX_ZONE, MAX_NETWORK, MAX_HOST!!!
+    NOTE: THIS FUCNTION REQUIRES THE ZONE, NETWORK AND HOST VARIABLES TO BE OF THE SIZES: VRMR_MAX_ZONE, VRMR_MAX_NETWORK, VRMR_MAX_HOST!!!
     This is for bufferoverflow prevention.
 
     'int what' can be VAL_ZONE_TOTAL, VAL_ZONE_ZONE, VAL_ZONE_NETWORK, VAL_ZONE_HOST
@@ -1236,24 +1236,24 @@ vrmr_validate_zonename(const int debuglvl, const char *zonename, int onlyvalidat
                 }
                 else
                 {
-                    (void)range_strcpy(zone, zonename, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, MAX_ZONE);
+                    (void)range_strcpy(zone, zonename, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, VRMR_MAX_ZONE);
                     if(debuglvl >= HIGH)
                         (void)vrprint.debug(__FUNC__, "zone: %s.", zone);
                 }
             }
             else
             {
-                (void)range_strcpy(network, zonename, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, MAX_NETWORK);
-                (void)range_strcpy(zone, zonename, (size_t)reg_match[4].rm_so, (size_t)reg_match[4].rm_eo, MAX_ZONE);
+                (void)range_strcpy(network, zonename, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, VRMR_MAX_NETWORK);
+                (void)range_strcpy(zone, zonename, (size_t)reg_match[4].rm_so, (size_t)reg_match[4].rm_eo, VRMR_MAX_ZONE);
                 if(debuglvl >= HIGH)
                     (void)vrprint.debug(__FUNC__, "zone: %s, network: %s.", zone, network);
             }
         }
         else
         {
-            (void)range_strcpy(host, zonename, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, MAX_HOST);
-            (void)range_strcpy(network, zonename, (size_t)reg_match[4].rm_so, (size_t)reg_match[4].rm_eo, MAX_NETWORK);
-            (void)range_strcpy(zone, zonename, (size_t)reg_match[7].rm_so, (size_t)reg_match[7].rm_eo, MAX_ZONE);
+            (void)range_strcpy(host, zonename, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, VRMR_MAX_HOST);
+            (void)range_strcpy(network, zonename, (size_t)reg_match[4].rm_so, (size_t)reg_match[4].rm_eo, VRMR_MAX_NETWORK);
+            (void)range_strcpy(zone, zonename, (size_t)reg_match[7].rm_so, (size_t)reg_match[7].rm_eo, VRMR_MAX_ZONE);
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "zone: %s, network: %s, host: %s.", zone, network, host);
         }
@@ -1593,7 +1593,7 @@ vrmr_zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, 
 int
 vrmr_zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_interfaces *interfaces)
 {
-    char    cur_ifac[MAX_INTERFACE] = "";
+    char    cur_ifac[VRMR_MAX_INTERFACE] = "";
 
     /* safety */
     if(zone_ptr == NULL || interfaces == NULL)
@@ -1877,7 +1877,7 @@ vrmr_zones_network_rule_parse_line(const int debuglvl, const char *line, struct 
     }
 
     /* this should not happen, but it can't hurt to check, right? */
-    if(strlen(line) > MAX_RULE_LENGTH)
+    if(strlen(line) > VRMR_MAX_RULE_LENGTH)
     {
         (void)vrprint.error(-1, "Internal Error", "rule is too long (in: %s).", __FUNC__);
         return(-1);
@@ -1985,7 +1985,7 @@ vrmr_zones_network_rule_parse_line(const int debuglvl, const char *line, struct 
 int
 vrmr_zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr)
 {
-    char                currule[MAX_RULE_LENGTH] = "";
+    char                currule[VRMR_MAX_RULE_LENGTH] = "";
     struct vrmr_rule    *rule_ptr = NULL;
     struct vrmr_list_node         *d_node = NULL;
 

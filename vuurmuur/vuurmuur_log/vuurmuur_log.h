@@ -111,11 +111,11 @@ struct log_rule
 
     unsigned int    ttl;
 
-    char            from_name[MAX_HOST_NET_ZONE];
-    char            to_name[MAX_HOST_NET_ZONE];
-    char            ser_name[MAX_SERVICE];
-    char            from_int[MAX_INTERFACE+5];  /* 'in: ' */
-    char            to_int[MAX_INTERFACE+6];    /* 'out: ' */
+    char            from_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char            to_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char            ser_name[VRMR_MAX_SERVICE];
+    char            from_int[VRMR_MAX_INTERFACE+5];  /* 'in: ' */
+    char            to_int[VRMR_MAX_INTERFACE+6];    /* 'out: ' */
 
     char            tcpflags[7];
 };

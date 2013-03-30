@@ -67,133 +67,133 @@
 
 
 /*
-    Max length of a host, network or zone. WARNING: if you change this, you also need to change it in the ZONE_REGEX!!!
+    Max length of a host, network or zone. WARNING: if you change this, you also need to change it in the VRMR_ZONE_REGEX!!!
 */
-#define MAX_OPTIONS_LENGTH      256
-#define MAX_RULE_LENGTH         512
+#define VRMR_MAX_OPTIONS_LENGTH      256
+#define VRMR_MAX_RULE_LENGTH         512
 
-#define MAX_INTERFACE           32
+#define VRMR_MAX_INTERFACE           32
 
-#define MAX_SERVICE             32
+#define VRMR_MAX_SERVICE             32
 
-#define MAX_HOST                32
-#define MAX_NETWORK             32
-#define MAX_ZONE                32
+#define VRMR_MAX_HOST                32
+#define VRMR_MAX_NETWORK             32
+#define VRMR_MAX_ZONE                32
 
-#define MAX_NET_ZONE            MAX_NETWORK+MAX_ZONE
-#define MAX_HOST_NET_ZONE       MAX_HOST+MAX_NETWORK+MAX_ZONE
+#define VRMR_MAX_NET_ZONE            VRMR_MAX_NETWORK+VRMR_MAX_ZONE
+#define VRMR_VRMR_MAX_HOST_NET_ZONE       VRMR_MAX_HOST+VRMR_MAX_NETWORK+VRMR_MAX_ZONE
 
-#define MAX_PROC_ENTRY_LENGHT   64
+#define VRMR_MAX_PROC_ENTRY_LENGHT   64
 
-#define PIPE_VERBOSE            (char)0
-#define PIPE_QUIET              (char)1
+#define VRMR_PIPE_VERBOSE            (char)0
+#define VRMR_PIPE_QUIET              (char)1
 
 
-#define STATOK_WANT_BOTH        (char)0
-#define STATOK_WANT_FILE        (char)1
-#define STATOK_WANT_DIR         (char)2
+#define VRMR_STATOK_WANT_BOTH        (char)0
+#define VRMR_STATOK_WANT_FILE        (char)1
+#define VRMR_STATOK_WANT_DIR         (char)2
 
-#define STATOK_VERBOSE          (char)0
-#define STATOK_QUIET            (char)1
+#define VRMR_STATOK_VERBOSE          (char)0
+#define VRMR_STATOK_QUIET            (char)1
 
-#define STATOK_ALLOW_NOTFOUND   (char)0
-#define STATOK_MUST_EXIST       (char)1
+#define VRMR_STATOK_ALLOW_NOTFOUND   (char)0
+#define VRMR_STATOK_MUST_EXIST       (char)1
 
-#define IPTCHK_VERBOSE          (char)0
-#define IPTCHK_QUIET            (char)1
+#define VRMR_IPTCHK_VERBOSE          (char)0
+#define VRMR_IPTCHK_QUIET            (char)1
 
 
 /*
     default locations of files
 */
-#define DEFAULT_SYSCTL_LOCATION         "/sbin/sysctl"
-#define DEFAULT_IPTABLES_LOCATION       "/sbin/iptables"
-#define DEFAULT_IPTABLES_REST_LOCATION  "/sbin/iptables-restore"
+#define VRMR_DEFAULT_SYSCTL_LOCATION         "/sbin/sysctl"
+#define VRMR_DEFAULT_IPTABLES_LOCATION       "/sbin/iptables"
+#define VRMR_DEFAULT_IPTABLES_REST_LOCATION  "/sbin/iptables-restore"
 #ifdef IPV6_ENABLED
-#define DEFAULT_IP6TABLES_LOCATION      "/sbin/ip6tables"
-#define DEFAULT_IP6TABLES_REST_LOCATION "/sbin/ip6tables-restore"
+#define VRMR_DEFAULT_IP6TABLES_LOCATION      "/sbin/ip6tables"
+#define VRMR_DEFAULT_IP6TABLES_REST_LOCATION "/sbin/ip6tables-restore"
 #endif
-#define DEFAULT_RULES_LOCATION          "rules.conf"
-#define DEFAULT_LOGDIR_LOCATION         "/var/log/vuurmuur"
-#define DEFAULT_SYSTEMLOG_LOCATION      "/var/log/messages"
-#define DEFAULT_MODPROBE_LOCATION       "/sbin/modprobe"
-#define DEFAULT_CONNTRACK_LOCATION      "/usr/sbin/conntrack"
-#define DEFAULT_TC_LOCATION             "/sbin/tc"
+#define VRMR_DEFAULT_RULES_LOCATION          "rules.conf"
+#define VRMR_DEFAULT_LOGDIR_LOCATION         "/var/log/vuurmuur"
+#define VRMR_DEFAULT_SYSTEMLOG_LOCATION      "/var/log/messages"
+#define VRMR_DEFAULT_MODPROBE_LOCATION       "/sbin/modprobe"
+#define VRMR_DEFAULT_CONNTRACK_LOCATION      "/usr/sbin/conntrack"
+#define VRMR_DEFAULT_TC_LOCATION             "/sbin/tc"
 
-#define DEFAULT_BACKEND                 "textdir"
+#define VRMR_DEFAULT_BACKEND                 "textdir"
 
-#define DEFAULT_DYN_INT_CHECK           FALSE
-#define DEFAULT_DYN_INT_INTERVAL        (unsigned int)30
+#define VRMR_DEFAULT_DYN_INT_CHECK           FALSE
+#define VRMR_DEFAULT_DYN_INT_INTERVAL        (unsigned int)30
 
-#define DEFAULT_USE_SYN_LIMIT           TRUE
-#define DEFAULT_SYN_LIMIT               (unsigned int)10
-#define DEFAULT_SYN_LIMIT_BURST         (unsigned int)20
+#define VRMR_DEFAULT_USE_SYN_LIMIT           TRUE
+#define VRMR_DEFAULT_SYN_LIMIT               (unsigned int)10
+#define VRMR_DEFAULT_SYN_LIMIT_BURST         (unsigned int)20
 
-#define DEFAULT_USE_UDP_LIMIT           TRUE
-#define DEFAULT_UDP_LIMIT               (unsigned int)15
-#define DEFAULT_UDP_LIMIT_BURST         (unsigned int)45
+#define VRMR_DEFAULT_USE_UDP_LIMIT           TRUE
+#define VRMR_DEFAULT_UDP_LIMIT               (unsigned int)15
+#define VRMR_DEFAULT_UDP_LIMIT_BURST         (unsigned int)45
 
-#define DEFAULT_RULE_NFLOG              TRUE
-#define DEFAULT_NFGRP                   8
+#define VRMR_DEFAULT_RULE_NFLOG              TRUE
+#define VRMR_DEFAULT_NFGRP                   8
 
-#define DEFAULT_LOG_POLICY              TRUE                /* default we log the default policy */
-#define DEFAULT_LOG_POLICY_LIMIT        (unsigned int)30    /* default limit for logging the default policy */
-#define DEFAULT_LOG_TCP_OPTIONS         FALSE               /* default we don't log TCP options */
-#define DEFAULT_LOG_BLOCKLIST           TRUE                /* default we log blocklist violations */
-#define DEFAULT_LOG_INVALID             TRUE                /* default we log INVALID traffic */
-#define DEFAULT_LOG_NO_SYN              TRUE                /* default we log new TCP but no SYN */
-#define DEFAULT_LOG_PROBES              TRUE                /* default we log probes like XMAS */
-#define DEFAULT_LOG_FRAG                TRUE                /* default we log FRAGMENTED traffic */
+#define VRMR_DEFAULT_LOG_POLICY              TRUE                /* default we log the default policy */
+#define VRMR_DEFAULT_LOG_POLICY_LIMIT        (unsigned int)30    /* default limit for logging the default policy */
+#define VRMR_DEFAULT_LOG_TCP_OPTIONS         FALSE               /* default we don't log TCP options */
+#define VRMR_DEFAULT_LOG_BLOCKLIST           TRUE                /* default we log blocklist violations */
+#define VRMR_DEFAULT_LOG_INVALID             TRUE                /* default we log INVALID traffic */
+#define VRMR_DEFAULT_LOG_NO_SYN              TRUE                /* default we log new TCP but no SYN */
+#define VRMR_DEFAULT_LOG_PROBES              TRUE                /* default we log probes like XMAS */
+#define VRMR_DEFAULT_LOG_FRAG                TRUE                /* default we log FRAGMENTED traffic */
 
-#define DEFAULT_DROP_INVALID            TRUE                /* default we drop INVALID traffic */
+#define VRMR_DEFAULT_DROP_INVALID            TRUE                /* default we drop INVALID traffic */
 
-#define DEFAULT_PROTECT_SYNCOOKIE       TRUE                /* default we protect against syn-flooding */
-#define DEFAULT_PROTECT_ECHOBROADCAST   TRUE                /* default we protect against echo-broadcasting */
+#define VRMR_DEFAULT_PROTECT_SYNCOOKIE       TRUE                /* default we protect against syn-flooding */
+#define VRMR_DEFAULT_PROTECT_ECHOBROADCAST   TRUE                /* default we protect against echo-broadcasting */
 
-#define DEFAULT_OLD_CREATE_METHOD       FALSE               /* default we use new method */
+#define VRMR_DEFAULT_OLD_CREATE_METHOD       FALSE               /* default we use new method */
 
-#define DEFAULT_LOAD_MODULES            TRUE                /* default we load modules */
-#define DEFAULT_MODULES_WAITTIME        0                   /* default we don't wait */
+#define VRMR_DEFAULT_LOAD_MODULES            TRUE                /* default we load modules */
+#define VRMR_DEFAULT_MODULES_WAITTIME        0                   /* default we don't wait */
 
-#define DEFAULT_MAX_PERMISSION          0700                /* default only allow user rwx */
+#define VRMR_DEFAULT_MAX_PERMISSION          0700                /* default only allow user rwx */
 
-#define MAX_LOGRULE_SIZE                512
-#define MAX_PIPE_COMMAND                512                 /* maximum lenght of the pipe command */
-#define MAX_RULECOMMENT_LEN             64                  /* length in characters (for widec) */
+#define VRMR_MAX_LOGRULE_SIZE                512
+#define VRMR_MAX_PIPE_COMMAND                512                 /* maximum lenght of the pipe command */
+#define VRMR_MAX_RULECOMMENT_LEN             64                  /* length in characters (for widec) */
 
-#define PROC_IPCONNTRACK                "/proc/net/ip_conntrack"
-#define PROC_NFCONNTRACK                "/proc/net/nf_conntrack"
+#define VRMR_PROC_IPCONNTRACK                "/proc/net/ip_conntrack"
+#define VRMR_PROC_NFCONNTRACK                "/proc/net/nf_conntrack"
 
 #define VRMR_MAX_BASH_DESC              512
 
 /* Special permission value, meaning don't check permissions. The value
  * is simply all ones. */
-#define ANY_PERMISSION                  (~((mode_t)0))
+#define VRMR_ANY_PERMISSION                  (~((mode_t)0))
 /*
     regexes
 */
 
 /* zone name */
-#define ZONE_REGEX              "^([a-zA-Z0-9_-]{1,32})(([.])([a-zA-Z0-9_-]{1,32})(([.])([a-zA-Z0-9_-]{1,32}))?)?$"
+#define VRMR_ZONE_REGEX              "^([a-zA-Z0-9_-]{1,32})(([.])([a-zA-Z0-9_-]{1,32})(([.])([a-zA-Z0-9_-]{1,32}))?)?$"
 
-#define ZONE_REGEX_ZONEPART     "^([a-zA-Z0-9_-]{1,32})$"
-#define ZONE_REGEX_NETWORKPART  "^([a-zA-Z0-9_-]{1,32})$"
-#define ZONE_REGEX_HOSTPART     "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_VRMR_ZONE_REGEX_ZONEPART     "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_VRMR_ZONE_REGEX_NETWORKPART  "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_VRMR_ZONE_REGEX_HOSTPART     "^([a-zA-Z0-9_-]{1,32})$"
 
 /* service */
-#define SERV_REGEX              "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_SERV_REGEX              "^([a-zA-Z0-9_-]{1,32})$"
 
 /* interface name */
-#define IFAC_REGEX              "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_IFAC_REGEX              "^([a-zA-Z0-9_-]{1,32})$"
 
 /* mac address */
-#define MAC_REGEX               "^[a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}$"
+#define VRMR_MAC_REGEX               "^[a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}$"
 
 /* config line */
-#define CONFIG_REGEX            "^[A-Z]+[=]\".*\"$"
+#define VRMR_CONFIG_REGEX            "^[A-Z]+[=]\".*\"$"
 
 /* Some defines for character buffers we define in this file */
-#define MAX_IPV6_ADDR_LEN       40 /* 39 + null */
+#define VRMR_MAX_IPV6_ADDR_LEN       40 /* 39 + null */
 
 #define VR_IPV4                 4
 #define VR_IPV6                 6
@@ -569,8 +569,8 @@ struct vrmr_ipv4_data
 #ifdef IPV6_ENABLED
 struct vrmr_ipv6_data
 {
-    char ip6[MAX_IPV6_ADDR_LEN];    /* host ip-address */
-    char net6[MAX_IPV6_ADDR_LEN];   /* network address string */
+    char ip6[VRMR_MAX_IPV6_ADDR_LEN];    /* host ip-address */
+    char net6[VRMR_MAX_IPV6_ADDR_LEN];   /* network address string */
     int cidr6;                      /* CIDR: -1 unitialized, 0-128 are valid masks */
 };
 #endif
@@ -602,11 +602,11 @@ struct vrmr_rule_options
     /* portfw and redirect: queue instead of accept: 1: queue, 0: accept */
     char            queue;
     /* portfw and redirect: create only a firewall rule for this interface. */
-    char            in_int[MAX_INTERFACE];
+    char            in_int[VRMR_MAX_INTERFACE];
     /* snat: select an outgoing interface */
-    char            out_int[MAX_INTERFACE];
+    char            out_int[VRMR_MAX_INTERFACE];
     /* bounce: via interface */
-    char            via_int[MAX_INTERFACE];
+    char            via_int[VRMR_MAX_INTERFACE];
 
     /* reject */
     char            reject_option;      /* 0 = don't use reject_type, 1 = use reject_type */
@@ -642,7 +642,7 @@ struct vrmr_rule_options
 struct vrmr_danger_info {
     int             solution;                 // 1 = iptables, 2 = change proc
 
-    char            proc_entry[MAX_PROC_ENTRY_LENGHT];          // line with the proc dir
+    char            proc_entry[VRMR_MAX_PROC_ENTRY_LENGHT];          // line with the proc dir
     int             proc_set_on;
     int             proc_set_off;
 
@@ -679,7 +679,7 @@ struct vrmr_interface
     /* this should always be on top */
     int             type;
 
-    char            name[MAX_INTERFACE];
+    char            name[VRMR_MAX_INTERFACE];
 
     char            active;
     int             status;
@@ -747,7 +747,7 @@ struct vrmr_zone {
     int                 type;   /* this should always be on top */
 
     /* basic vars */
-    char                name[MAX_HOST_NET_ZONE];
+    char                name[VRMR_VRMR_MAX_HOST_NET_ZONE];
 
     char                active; // 0 no, 1 yes
     int                 status;
@@ -757,9 +757,9 @@ struct vrmr_zone {
     struct vrmr_list              GroupList;
 
     /* for names */
-    char                host_name[MAX_HOST];
-    char                network_name[MAX_NETWORK];
-    char                zone_name[MAX_ZONE];
+    char                host_name[VRMR_MAX_HOST];
+    char                network_name[VRMR_MAX_NETWORK];
+    char                zone_name[VRMR_MAX_ZONE];
 
     /* pointers to parent zone and network (NULL if zone/network) */
     struct vrmr_zone    *zone_parent;
@@ -794,7 +794,7 @@ struct vrmr_zone {
 struct vrmr_service {
     int     type;               /* this should always be on top */
 
-    char    name[MAX_SERVICE];
+    char    name[VRMR_MAX_SERVICE];
 
     char    active;                    // 0 no, 1 yes
     int     status;                    // 0 = not touched, -1 = remove, 1 = keep unchanged, 2 = changed, 3 = new
@@ -881,12 +881,12 @@ struct vrmr_rule {
     int                 status;
 
     /* normal rules */
-    char                service[MAX_SERVICE];
-    char                from[MAX_HOST_NET_ZONE];
-    char                to[MAX_HOST_NET_ZONE];
+    char                service[VRMR_MAX_SERVICE];
+    char                from[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char                to[VRMR_VRMR_MAX_HOST_NET_ZONE];
 
     /* protect rules */
-    char                who[MAX_HOST_NET_ZONE];
+    char                who[VRMR_VRMR_MAX_HOST_NET_ZONE];
     char                danger[64];
 //TODO size right?
     char                source[32];

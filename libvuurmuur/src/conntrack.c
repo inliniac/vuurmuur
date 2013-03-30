@@ -161,8 +161,8 @@ conn_line_to_data(  const int debuglvl,
                     struct vrmr_conntrack_request *req
                 )
 {
-    char    service_name[MAX_SERVICE] = "",
-            zone_name[MAX_HOST_NET_ZONE] = "",
+    char    service_name[VRMR_MAX_SERVICE] = "",
+            zone_name[VRMR_VRMR_MAX_HOST_NET_ZONE] = "",
             *zone_name_ptr = NULL;
     size_t  size = 0;
 
@@ -1974,13 +1974,13 @@ conn_match_conntrackdata(const void *check, const void *hash)
         return(0);
     }
 
-    if(strncmp(check_cd->sername, hash_cd->sername, MAX_SERVICE) == 0)
+    if(strncmp(check_cd->sername, hash_cd->sername, VRMR_MAX_SERVICE) == 0)
     {
         // service matches
-        if(strncmp(check_cd->fromname, hash_cd->fromname, MAX_HOST_NET_ZONE) == 0)
+        if(strncmp(check_cd->fromname, hash_cd->fromname, VRMR_VRMR_MAX_HOST_NET_ZONE) == 0)
         {
             // from host also matches
-            if(strncmp(check_cd->toname, hash_cd->toname, MAX_HOST_NET_ZONE) == 0)
+            if(strncmp(check_cd->toname, hash_cd->toname, VRMR_VRMR_MAX_HOST_NET_ZONE) == 0)
             {
                 if(check_cd->connect_status == hash_cd->connect_status)
                 {
@@ -2138,9 +2138,9 @@ vrmr_conn_get_connections_do(const int debuglvl,
         }
 
     /* open conntrack file (fopen)... default to nf_conntrack */
-    } else if (cnf->use_ipconntrack == TRUE || (!(fp = fopen(PROC_NFCONNTRACK, "r"))))
+    } else if (cnf->use_ipconntrack == TRUE || (!(fp = fopen(VRMR_PROC_NFCONNTRACK, "r"))))
     {
-        if((fp = fopen(PROC_IPCONNTRACK, "r")))
+        if((fp = fopen(VRMR_PROC_IPCONNTRACK, "r")))
         {
             cnf->use_ipconntrack = TRUE;
         }

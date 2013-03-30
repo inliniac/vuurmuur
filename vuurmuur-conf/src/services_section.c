@@ -2443,7 +2443,7 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
     struct vrmr_rule        *rule_ptr = NULL;
     struct vrmr_list_node             *d_node = NULL;
     char                    changed = 0;
-    char                    old_ser_name[MAX_SERVICE] = "";
+    char                    old_ser_name[VRMR_MAX_SERVICE] = "";
 
     /* safety */
     if(cur_name_ptr == NULL || new_name_ptr == NULL || services == NULL || rules == NULL)
@@ -2651,7 +2651,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
             startx = 0,
             starty = 0;
     char    *new_name_ptr = NULL,
-            save_ser_name[MAX_SERVICE] = "";
+            save_ser_name[VRMR_MAX_SERVICE] = "";
     ITEM    *cur = NULL;
     /* top menu */
     char    *key_choices[] =    {   "F12",

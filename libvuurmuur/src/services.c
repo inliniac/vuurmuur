@@ -1152,7 +1152,7 @@ vrmr_init_services(const int debuglvl, struct vrmr_services *services, struct vr
 {
     int     retval=0,
             result=0;
-    char    name[MAX_SERVICE]="";
+    char    name[VRMR_MAX_SERVICE]="";
     int     zonetype=0;
 
     /* safety */

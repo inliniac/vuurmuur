@@ -51,7 +51,7 @@ typedef struct
 {
     u_int16_t   handle;
     u_int16_t   class;
-    char        cmd[MAX_PIPE_COMMAND];
+    char        cmd[VRMR_MAX_PIPE_COMMAND];
     char        device[16];
 
 } ShapeRule;
@@ -173,7 +173,7 @@ shaping_process_rule (const int debuglvl, struct vrmr_config *cnf, /*@null@*/Rul
             return(-1);
         }
     } else {
-        if(vrmr_pipe_command(debuglvl, cnf, cmd, PIPE_VERBOSE) < 0)
+        if(vrmr_pipe_command(debuglvl, cnf, cmd, VRMR_PIPE_VERBOSE) < 0)
             return (-1);
     }
 
@@ -218,7 +218,7 @@ int
 shaping_clear_interfaces (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
-    char            cmd[MAX_PIPE_COMMAND] = "";
+    char            cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
     /* if have no tc, no shaping is possible */
     if (strcmp(cnf->tc_location, "") == 0)
@@ -258,7 +258,7 @@ static int
 shaping_setup_interface_classes (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, struct vrmr_interface *iface_ptr, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *inner_iface_ptr = NULL;
-    char            cmd[MAX_PIPE_COMMAND] = "";
+    char            cmd[VRMR_MAX_PIPE_COMMAND] = "";
     u_int32_t       rate = 0;
     u_int32_t       iface_rate = 0;
 
@@ -306,7 +306,7 @@ int
 shaping_setup_roots (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
-    char            cmd[MAX_PIPE_COMMAND] = "";
+    char            cmd[VRMR_MAX_PIPE_COMMAND] = "";
     u_int16_t       handle = 2; /* start at 2 so the parents can be parent:current */
 
     /* if have no tc, no shaping is possible */
@@ -492,7 +492,7 @@ int
 shaping_create_default_rules(const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
-    char            cmd[MAX_PIPE_COMMAND] = "";
+    char            cmd[VRMR_MAX_PIPE_COMMAND] = "";
     u_int16_t       handle = 0;
     u_int32_t       rate = 0;
 
@@ -541,7 +541,7 @@ shaping_shape_create_rule(const int debuglvl, struct vrmr_config *cnf,
     u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil,
     char *ceil_unit, u_int8_t prio)
 {
-    char        cmd[MAX_PIPE_COMMAND] = "";
+    char        cmd[VRMR_MAX_PIPE_COMMAND] = "";
     u_int16_t   class_handle = 1;
 
     if (strcmp(cnf->tc_location,"") == 0)

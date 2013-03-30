@@ -309,7 +309,7 @@ void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
 #define MAX_ACTIVE      4
 #define MAX_NUMFIELD    4
 #define MAX_ACTION      10
-#define MAX_SERVICE     32
+#define VRMR_MAX_SERVICE     32
 #define MAX_FROM        96  // TODO
 #define MAX_TO          96  // TODO
 #define MAX_OPTIONS     256 // TODO
@@ -439,7 +439,7 @@ SetupRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, unsigned int m
         {
             if(i == 0 && rbform->action_size < MAX_ACTION)
                 rbform->action_size++;
-            else if(i == 1 && rbform->service_size < MAX_SERVICE)
+            else if(i == 1 && rbform->service_size < VRMR_MAX_SERVICE)
                 rbform->service_size++;
             else if(i == 2 && rbform->from_size < MAX_FROM)
                 rbform->from_size++;
@@ -1170,7 +1170,7 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
     char                number[MAX_NUMFIELD] = "",
                         active[MAX_ACTIVE] = "",
                         action[MAX_ACTION] = "",
-                        service[MAX_SERVICE] = "",
+                        service[VRMR_MAX_SERVICE] = "",
                         from[MAX_FROM] = "",
                         to[MAX_TO] = "",
                         *option_str = NULL,
@@ -3355,7 +3355,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                     "icmp-host-prohibited",
                                     "tcp-reset" },
                 *reject_ptr=NULL;
-    char        select_choice[MAX_HOST_NET_ZONE] = "";
+    char        select_choice[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
     size_t      action_choices_n = 13,
                 reject_types_n = 7;
     char        **zone_choices,
@@ -3388,7 +3388,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
 
     /* is this screen in advanced mode or not? */
     char        advanced_mode = vccnf.advanced_mode;
-    char        zonename[MAX_HOST_NET_ZONE] = "";
+    char        zonename[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
 
     struct vrmr_list      *interfaces_list = NULL;
 
@@ -3602,7 +3602,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
     field_num++;
 
     /* in_int interface */
-    RuleFlds.in_int_fld_ptr = (fields[field_num] = new_field(1, MAX_INTERFACE, 12, 36, 0, 0));
+    RuleFlds.in_int_fld_ptr = (fields[field_num] = new_field(1, VRMR_MAX_INTERFACE, 12, 36, 0, 0));
     if(rule_ptr->opt != NULL)
         set_field_buffer_wrap(debuglvl, RuleFlds.in_int_fld_ptr, 0, rule_ptr->opt->in_int);
 
@@ -3640,7 +3640,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
     field_num++;
 
     /* out_int interface */
-    RuleFlds.out_int_fld_ptr = (fields[field_num] = new_field(1, MAX_INTERFACE, 15, 36, 0, 0));
+    RuleFlds.out_int_fld_ptr = (fields[field_num] = new_field(1, VRMR_MAX_INTERFACE, 15, 36, 0, 0));
     if(rule_ptr->opt != NULL)
         set_field_buffer_wrap(debuglvl, RuleFlds.out_int_fld_ptr, 0, rule_ptr->opt->out_int);
 
@@ -4394,7 +4394,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                         }
                         zone_choices_n += 3; /* for firewall, firewall(any) and any */
 
-                        if(!(zone_choices = calloc(zone_choices_n + 1, MAX_HOST_NET_ZONE)))
+                        if(!(zone_choices = calloc(zone_choices_n + 1, VRMR_VRMR_MAX_HOST_NET_ZONE)))
                         {
                             (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
@@ -4550,7 +4550,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                 n_choices = interfaces_list->len + 1;
 
                                 /* get some mem */
-                                if(!(choices = calloc(n_choices + 1, MAX_INTERFACE)))
+                                if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
                                 {
                                     (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                                     return(-1);
@@ -4657,7 +4657,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                 n_choices = interfaces_list->len + 1;
 
                                 /* get some mem */
-                                if(!(choices = calloc(n_choices + 1, MAX_INTERFACE)))
+                                if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
                                 {
                                     (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
                                         strerror(errno), __FUNCTION__, __LINE__);
@@ -4716,7 +4716,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                             n_choices = interfaces_list->len;
 
                             /* get some mem */
-                            if(!(choices = calloc(n_choices + 1, MAX_INTERFACE)))
+                            if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
                             {
                                 (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                                 return(-1);

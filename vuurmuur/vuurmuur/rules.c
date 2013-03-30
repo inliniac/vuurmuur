@@ -194,7 +194,7 @@ oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, stru
         if(vrmr_rules_chain_in_list(debuglvl, &rules->system_chain_filter, chainname) == 0)
         {
             snprintf(cmd, sizeof(cmd), "%s -N %s", cnf->iptables_location, chainname);
-            (void)vrmr_pipe_command(debuglvl, cnf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, cnf, cmd, VRMR_PIPE_QUIET);
         }
     }
 
@@ -2324,7 +2324,7 @@ remove_rule(const int debuglvl, int chaintype, int first_ipt_rule, int rules)
 {
     int     retval=0,
             i;
-    char    cmd[MAX_PIPE_COMMAND];
+    char    cmd[VRMR_MAX_PIPE_COMMAND];
     char    chain[64];
 
     if(debuglvl >= HIGH)
@@ -2366,7 +2366,7 @@ remove_rule(const int debuglvl, int chaintype, int first_ipt_rule, int rules)
             (void)vrprint.debug(__FUNC__, "cmd: %s %s %d", conf.iptables_location, chain, first_ipt_rule);
 
         snprintf(cmd, sizeof(cmd), "%s %s %d", conf.iptables_location, chain, first_ipt_rule);
-        if(vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE) != 0)
+        if(vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE) != 0)
         {
             (void)vrprint.error(-1, "Error", "remove_rule: pipe error. This command failed: '%s'.", cmd);
             return(-1);
@@ -2529,7 +2529,7 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
     char        *tables[] = {"mangle", "filter", "nat"};
     int         table;
     char        PRE_VRMR_CHAINS_PREFIX[] = "PRE-VRMR-";
-    char        cmd[MAX_PIPE_COMMAND] = "";
+    char        cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
     /* safety */
     if(cnf == NULL)
@@ -2565,10 +2565,10 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
                     (void)vrprint.debug(__FUNC__, "flushing %s chain in %s "
                             "table.", chainname, tables[table]);
 
-                snprintf(cmd, MAX_PIPE_COMMAND, "%s -t %s --flush %s",
+                snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s -t %s --flush %s",
                         conf.iptables_location, tables[table], chainname);
 
-                result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+                result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
                 if (result < 0)
                     retval = -1;
             }
@@ -2583,21 +2583,21 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* set default polices to ACCEPT */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
             conf.iptables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
             conf.iptables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
             conf.iptables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
@@ -2626,7 +2626,7 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
     char        *tables[] = {"mangle", "filter" };
     int         table;
     char        PRE_VRMR_CHAINS_PREFIX[] = "PRE-VRMR-";
-    char        cmd[MAX_PIPE_COMMAND] = "";
+    char        cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
     /* safety */
     if(cnf == NULL)
@@ -2661,10 +2661,10 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
                     (void)vrprint.debug(__FUNC__, "flushing %s chain in %s "
                             "table.", chainname, tables[table]);
 
-                snprintf(cmd, MAX_PIPE_COMMAND, "%s -t %s --flush %s",
+                snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s -t %s --flush %s",
                         conf.ip6tables_location, tables[table], chainname);
 
-                result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+                result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
                 if (result < 0)
                     retval = -1;
             }
@@ -2679,21 +2679,21 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* set default polices to ACCEPT */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
             conf.ip6tables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
             conf.ip6tables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
             conf.ip6tables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
@@ -2735,56 +2735,56 @@ clear_all_iptables_rules_ipv4(const int debuglvl)
 {
     int     retval = 0,
             result = 0;
-    char    cmd[MAX_PIPE_COMMAND] = "";
+    char    cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
     /* flush everything */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t filter --flush",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s -t filter --flush",
             conf.iptables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t nat --flush",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s -t nat --flush",
             conf.iptables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s -t mangle --flush",
             conf.iptables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     /* this will remove the all chains in {filter,nat,mangle} tables */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
             conf.iptables_location, TB_FILTER);
-    (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
             conf.iptables_location, TB_NAT);
-    (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
             conf.iptables_location, TB_MANGLE);
-    (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
 
     /* set default polices to ACCEPT */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
             conf.iptables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
             conf.iptables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
             conf.iptables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
@@ -2797,46 +2797,46 @@ clear_all_iptables_rules_ipv6(const int debuglvl)
 {
     int     retval = 0,
             result = 0;
-    char    cmd[MAX_PIPE_COMMAND] = "";
+    char    cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
     /* flush everything */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t filter --flush",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s -t filter --flush",
             conf.ip6tables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s -t mangle --flush",
             conf.ip6tables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     /* this will remove the all chains in {filter,nat,mangle} tables */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
             conf.ip6tables_location, TB_FILTER);
-    (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
             conf.ip6tables_location, TB_MANGLE);
-    (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
 
     /* set default polices to ACCEPT */
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
             conf.ip6tables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
             conf.ip6tables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
-    snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
+    snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
             conf.ip6tables_location);
-    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 

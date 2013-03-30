@@ -33,9 +33,9 @@ typedef struct StatEventLog_
     int type;
     int filtered;
 
-    char ser[MAX_SERVICE];
-    char src[MAX_HOST_NET_ZONE];
-    char dst[MAX_HOST_NET_ZONE];
+    char ser[VRMR_MAX_SERVICE];
+    char src[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char dst[VRMR_VRMR_MAX_HOST_NET_ZONE];
 
     char src_ip[16];
     char dst_ip[16];
@@ -58,9 +58,9 @@ typedef struct StatEventConn_
     int type;
     int filtered;
 
-    char ser[MAX_SERVICE];
-    char src[MAX_HOST_NET_ZONE];
-    char dst[MAX_HOST_NET_ZONE];
+    char ser[VRMR_MAX_SERVICE];
+    char src[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char dst[VRMR_VRMR_MAX_HOST_NET_ZONE];
 
     char src_ip[16];
     char dst_ip[16];

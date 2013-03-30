@@ -137,7 +137,7 @@ struct RuleCreateData_
     char                    limit[42]; /*  -m limit --limit 999/s --limit-burst 9999 */
 
     /* portfw stuff - needs to go-> later we can put it in the function for creating portfw rules! */
-    char                    serverip[MAX_NET_ZONE];
+    char                    serverip[VRMR_MAX_NET_ZONE];
     char                    remoteip[32]; // max 15 (for ip) + 1 (for :) + 5 (for port) = 21? + 1 = 22
     char                    temp_port_store[6];
 

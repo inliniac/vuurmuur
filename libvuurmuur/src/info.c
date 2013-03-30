@@ -234,8 +234,8 @@ int
 vrmr_get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, struct vrmr_zone *answer_ptr)
 {
     int                 result = 0;
-    char                total_zone[MAX_HOST_NET_ZONE] = "",
-                        cur_mem[MAX_HOST] = "";
+    char                total_zone[VRMR_VRMR_MAX_HOST_NET_ZONE] = "",
+                        cur_mem[VRMR_MAX_HOST] = "";
     struct vrmr_zone    *zone_ptr = NULL;
 
 
@@ -323,7 +323,7 @@ char *
 vrmr_list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/char *option_name)
 {
     struct vrmr_list_node     *d_node = NULL;
-    char            options[MAX_OPTIONS_LENGTH] = "",
+    char            options[VRMR_MAX_OPTIONS_LENGTH] = "",
                     oneport[32] = "",
                     *return_ptr = NULL;
     struct vrmr_portdata *portrange_ptr = NULL;
@@ -413,7 +413,7 @@ vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dli
                     range=0,
                     o=0,
                     p=0;
-    char            option_string[MAX_OPTIONS_LENGTH] = "";
+    char            option_string[VRMR_MAX_OPTIONS_LENGTH] = "";
     struct vrmr_portdata *portrange_ptr = NULL;
 
     if(debuglvl >= MEDIUM)

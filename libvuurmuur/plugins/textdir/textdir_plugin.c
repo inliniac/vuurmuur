@@ -31,9 +31,9 @@
 char
 *get_filelocation(const int debuglvl, void *backend, char *name, const int type)
 {
-    char                    hostname[MAX_HOST] = "",
-                            networkname[MAX_NETWORK] = "",
-                            zonename[MAX_ZONE] = "";
+    char                    hostname[VRMR_MAX_HOST] = "",
+                            networkname[VRMR_MAX_NETWORK] = "",
+                            zonename[VRMR_MAX_ZONE] = "";
     char                    file_location[512] = "",
                             *fileloc_ptr = NULL;
     struct TextdirBackend_  *tb = NULL;
@@ -283,7 +283,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
     }
 
     /* see if we like the permissions of the textdirroot */
-    if(!(vrmr_stat_ok(debuglvl, tb->cfg, tb->textdirlocation, STATOK_WANT_DIR, STATOK_QUIET, STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, tb->cfg, tb->textdirlocation, VRMR_STATOK_WANT_DIR, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST)))
         return(-1);
 
     if (tb->backend_open == 1)
@@ -316,7 +316,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
         }
 
         /* this regex is defined in libvuurmuur -> vuurmuur.h */
-        if(regcomp(tb->zonename_reg, ZONE_REGEX, REG_EXTENDED) != 0)
+        if(regcomp(tb->zonename_reg, VRMR_ZONE_REGEX, REG_EXTENDED) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -349,7 +349,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
         }
 
         /* this regex is defined in libvuurmuur -> vuurmuur.h */
-        if(regcomp(tb->servicename_reg, SERV_REGEX, REG_EXTENDED) != 0)
+        if(regcomp(tb->servicename_reg, VRMR_SERV_REGEX, REG_EXTENDED) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -382,7 +382,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
         }
 
         /* this regex is defined in libvuurmuur -> vuurmuur.h */
-        if(regcomp(tb->interfacename_reg, IFAC_REGEX, REG_EXTENDED) != 0)
+        if(regcomp(tb->interfacename_reg, VRMR_IFAC_REGEX, REG_EXTENDED) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -438,7 +438,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
     }
 
     /* now stat it */
-    if(vrmr_stat_ok(debuglvl, tb->cfg, dir_location, STATOK_WANT_DIR, STATOK_VERBOSE, STATOK_MUST_EXIST) != 1)
+    if(vrmr_stat_ok(debuglvl, tb->cfg, dir_location, VRMR_STATOK_WANT_DIR, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST) != 1)
     {
         (void)tb->cfg->vrprint.error(-1, "Error", "checking '%s' failed. Please check if the directory exists and that the permissions are ok.",
                                 dir_location);
@@ -538,9 +538,9 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
     struct TextdirBackend_  *tb = NULL;
     char                    *file_location = NULL,
                             dir_location[512] = "",
-                            hostname[MAX_HOST] = "",
-                            networkname[MAX_NETWORK] = "",
-                            zonename[MAX_ZONE] = "";
+                            hostname[VRMR_MAX_HOST] = "",
+                            networkname[VRMR_MAX_NETWORK] = "",
+                            zonename[VRMR_MAX_ZONE] = "";
     int                     fd = 0;
 
 
@@ -834,9 +834,9 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
 {
     char                    *file_location = NULL,
                             dir_location[512] = "",
-                            hostname[MAX_HOST] = "",
-                            networkname[MAX_NETWORK] = "",
-                            zonename[MAX_ZONE] = "";
+                            hostname[VRMR_MAX_HOST] = "",
+                            networkname[VRMR_MAX_NETWORK] = "",
+                            zonename[VRMR_MAX_ZONE] = "";
     struct TextdirBackend_  *tb = NULL;
 
     /* safety */
@@ -863,7 +863,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
         return(-1);
 
     /* see if we like the file permissions */
-    if(!(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
         return(-1);
 
     /* name splitting only needed for network and zone, as host and group just use the file_location
@@ -1083,12 +1083,12 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
     int                     result = 0;
     char                    *oldpath = NULL,
                             *newpath = NULL;
-    char                    vrmr_new_zone_name[MAX_ZONE] = "",
-                            new_net_name[MAX_NETWORK] = "",
-                            new_host_name[MAX_HOST] = "";
-    char                    old_zone_name[MAX_ZONE] = "",
-                            old_net_name[MAX_NETWORK] = "",
-                            old_host_name[MAX_HOST] = "";
+    char                    vrmr_new_zone_name[VRMR_MAX_ZONE] = "",
+                            new_net_name[VRMR_MAX_NETWORK] = "",
+                            new_host_name[VRMR_MAX_HOST] = "";
+    char                    old_zone_name[VRMR_MAX_ZONE] = "",
+                            old_net_name[VRMR_MAX_NETWORK] = "",
+                            old_host_name[VRMR_MAX_HOST] = "";
     struct TextdirBackend_  *tb = NULL;
     char                    new_file_location[256] = "",
                             old_file_location[256] = "";

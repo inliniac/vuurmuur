@@ -174,7 +174,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
                     struct vrmr_config *cnf)
 {
     int     result = 0;
-    char    network[MAX_NET_ZONE] = "";
+    char    network[VRMR_MAX_NET_ZONE] = "";
 
 
     /* safety */
@@ -709,7 +709,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
 {
     FILE                *fp = NULL;
     int                 retval = 0;
-    char                line[MAX_RULE_LENGTH] = "";
+    char                line[VRMR_MAX_RULE_LENGTH] = "";
     struct vrmr_rule    *rule_ptr = NULL;
     char                protect_warning_shown = FALSE;
     char                rule_name[32] = "";
@@ -919,7 +919,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
 {
     size_t  line_pos = 0,   // position in line
             var_pos = 0;    // position in varible
-    char    options[MAX_OPTIONS_LENGTH] = "";
+    char    options[VRMR_MAX_OPTIONS_LENGTH] = "";
     char    action_str[32] = "";
 
 
@@ -932,7 +932,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
     }
 
     /* decode the line */
-    if(vrmr_rules_decode_rule(debuglvl, line, MAX_RULE_LENGTH) < 0)
+    if(vrmr_rules_decode_rule(debuglvl, line, VRMR_MAX_RULE_LENGTH) < 0)
     {
         (void)vrprint.error(-1, "Internal Error", "decode rule failed (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -940,7 +940,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
     }
 
     /* this should not happen, but it can't hurt to check, right? */
-    if(strlen(line) > MAX_RULE_LENGTH)
+    if(strlen(line) > VRMR_MAX_RULE_LENGTH)
     {
         (void)vrprint.error(-1, "Internal Error", "rule is too long (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -1339,7 +1339,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
                     var_pos < sizeof(options) &&
                     line[line_pos] != '\0' &&
                     line[line_pos] != '\n' &&
-                    line_pos < MAX_RULE_LENGTH &&
+                    line_pos < VRMR_MAX_RULE_LENGTH &&
                     line_pos < strlen(line);
                 line_pos++, var_pos++)
             {
@@ -1841,13 +1841,13 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
                                 const char *action)
 {
     char    *option_ptr = NULL,
-            options[MAX_OPTIONS_LENGTH] = "",
+            options[VRMR_MAX_OPTIONS_LENGTH] = "",
             *ports_ptr = NULL;
     char    redirect_port[6] = "",
             limit_string[11] = "", /* 6 for the number, 1 for / 4 for hour = 11 */
             nfmark_string[9] = "";
     /* out_int="rtl8193", : out_int (7) = (1) " (1) " (1) , (1) \0 (1) = 12 */
-    char    interfacestr[MAX_INTERFACE+12] = "";
+    char    interfacestr[VRMR_MAX_INTERFACE+12] = "";
     char    chainstr[48] = "";
     int     action_type = 0;
     /* nfqueuenum="50000", : nfqueue (10) = (1) " (1) 65535 (5) " (1) , (1) \0 (1) = 20 */

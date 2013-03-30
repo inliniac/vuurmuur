@@ -352,12 +352,12 @@ main(int argc, char *argv[])
     if(conf.bash_out == FALSE)
     {
         /* check the iptables command */
-        if(!vrmr_check_iptables_command(debuglvl, &conf, conf.iptables_location, IPTCHK_VERBOSE))
+        if(!vrmr_check_iptables_command(debuglvl, &conf, conf.iptables_location, VRMR_IPTCHK_VERBOSE))
         {
             exit(EXIT_FAILURE);
         }
 #ifdef IPV6_ENABLED
-        if (!vrmr_check_ip6tables_command(debuglvl, &conf, conf.ip6tables_location, IPTCHK_VERBOSE))
+        if (!vrmr_check_ip6tables_command(debuglvl, &conf, conf.ip6tables_location, VRMR_IPTCHK_VERBOSE))
         {
             exit(EXIT_FAILURE);
         }
@@ -365,12 +365,12 @@ main(int argc, char *argv[])
         /* if we are going to use the iptables-restore command, check it */
         if(conf.old_rulecreation_method == FALSE)
         {
-            if(!vrmr_check_iptablesrestore_command(debuglvl, &conf, conf.iptablesrestore_location, IPTCHK_VERBOSE))
+            if(!vrmr_check_iptablesrestore_command(debuglvl, &conf, conf.iptablesrestore_location, VRMR_IPTCHK_VERBOSE))
             {
                 exit(EXIT_FAILURE);
             }
 #ifdef IPV6_ENABLED
-            if(!vrmr_check_ip6tablesrestore_command(debuglvl, &conf, conf.ip6tablesrestore_location, IPTCHK_VERBOSE))
+            if(!vrmr_check_ip6tablesrestore_command(debuglvl, &conf, conf.ip6tablesrestore_location, VRMR_IPTCHK_VERBOSE))
             {
                 exit(EXIT_FAILURE);
             }

@@ -52,11 +52,11 @@ struct TextdirBackend_
 
     FILE    *file;
 
-    char    cur_zone[MAX_ZONE],
-            cur_network[MAX_NETWORK],
-            cur_host[MAX_HOST];
+    char    cur_zone[VRMR_MAX_ZONE],
+            cur_network[VRMR_MAX_NETWORK],
+            cur_host[VRMR_MAX_HOST];
 
-    char    interface[MAX_INTERFACE];
+    char    interface[VRMR_MAX_INTERFACE];
 
     char    rule[MAX_RULE_NAME];
 

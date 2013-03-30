@@ -120,11 +120,11 @@ typedef struct VuurmuurScript_
     int         cmd,
                 type;
 
-    char        name[MAX_HOST_NET_ZONE],
+    char        name[VRMR_VRMR_MAX_HOST_NET_ZONE],
 
-                name_zone[MAX_ZONE],
-                name_net[MAX_NETWORK],
-                name_host[MAX_HOST];
+                name_zone[VRMR_MAX_ZONE],
+                name_net[VRMR_MAX_NETWORK],
+                name_host[VRMR_MAX_HOST];
 
     char        var[32];
     char        set[1024];

@@ -156,9 +156,9 @@ int count_conntrack_conn(struct vrmr_config *cnf, int *conntrack_count,
             udp=0,
             other=0;
 
-    if(cnf->use_ipconntrack == TRUE || (!(fp = fopen(PROC_NFCONNTRACK, "r"))))
+    if(cnf->use_ipconntrack == TRUE || (!(fp = fopen(VRMR_PROC_NFCONNTRACK, "r"))))
     {
-        if (!(fp = fopen(PROC_IPCONNTRACK, "r")))
+        if (!(fp = fopen(VRMR_PROC_IPCONNTRACK, "r")))
             return(-1);
     }
 

@@ -246,7 +246,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
 #endif
     field_opts_off(HostSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    HostSec.ip6addressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, MAX_IPV6_ADDR_LEN, 5, 9, 0, 0));
+    HostSec.ip6addressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, VRMR_MAX_IPV6_ADDR_LEN, 5, 9, 0, 0));
     //set_field_type(HostSec.ipaddressfld, TYPE_IPV4);
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(debuglvl, HostSec.ip6addressfld, 0, zone_ptr->ipv6.ip6);
@@ -387,7 +387,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
     char    ipaddress[16] = "",
             mac[19] = "";
 #ifdef IPV6_ENABLED
-    char    ip6address[MAX_IPV6_ADDR_LEN] = "";
+    char    ip6address[VRMR_MAX_IPV6_ADDR_LEN] = "";
 #endif
     size_t  i = 0;
 
@@ -941,7 +941,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
 
     /* now set the size of the window */
     height = (int)(ZonesSection.host_n + 9);
-    width  = MAX_HOST + 18 + 2;
+    width  = VRMR_MAX_HOST + 18 + 2;
     /* place on the same y as zones list */
     VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.n_xre + 1, &starty, &startx);
     ZonesSection.h_yle = starty + height;
@@ -1060,10 +1060,10 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
     char                rules_changed = 0,
                         blocklist_changed = 0,
                         group_changed = 0;
-    char                old_host_name[MAX_HOST_NET_ZONE] = "",
-                        new_host[MAX_HOST] = "",
-                        new_net[MAX_NETWORK] = "",
-                        vrmr_new_zone[MAX_ZONE] = "";
+    char                old_host_name[VRMR_VRMR_MAX_HOST_NET_ZONE] = "",
+                        new_host[VRMR_MAX_HOST] = "",
+                        new_net[VRMR_MAX_NETWORK] = "",
+                        vrmr_new_zone[VRMR_MAX_ZONE] = "";
     char                *blocklist_item = NULL,
                         *new_blocklist_item = NULL;
     size_t              size = 0;
@@ -1414,7 +1414,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                         (void)strlcat(cur_zonename_ptr, zonename, size);
 
 
-                        vrmr_new_zone_ptr = input_box(MAX_HOST, gettext("Rename Host"), gettext("Enter the new name of the host"));
+                        vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Host"), gettext("Enter the new name of the host"));
                         if(vrmr_new_zone_ptr != NULL)
                         {
                             if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VALNAME_VERBOSE) == -1)
@@ -1467,7 +1467,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                 case 'i':
                 case 'I':
 
-                    vrmr_new_zone_ptr = input_box(MAX_HOST, gettext("New Host"), gettext("Enter the name of the new host"));
+                    vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("New Host"), gettext("Enter the name of the new host"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
                         if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VALNAME_VERBOSE) == -1)
@@ -1881,7 +1881,7 @@ static int
 edit_zone_group_members_delmem(const int debuglvl, struct vrmr_zone *group_ptr, char *member_name)
 {
     int     result = 0;
-    char    logname[MAX_HOST_NET_ZONE] = "";
+    char    logname[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
 
     snprintf(logname, sizeof(logname), "%s.%s.%s", member_name, group_ptr->network_name, group_ptr->zone_name);
 
@@ -1912,7 +1912,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
     struct vrmr_list_node         *d_node = NULL;
     char                **choices,
                         *choice_ptr=NULL,
-                        search_name[MAX_HOST_NET_ZONE]="";
+                        search_name[VRMR_VRMR_MAX_HOST_NET_ZONE]="";
     size_t              n_choices=0,
                         i=0;
     struct vrmr_zone    *zonelist_ptr=NULL;
@@ -1961,7 +1961,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
     }
 
     /* alloc the mem */
-    if(!(choices = calloc(n_choices + 1, MAX_HOST)))
+    if(!(choices = calloc(n_choices + 1, VRMR_MAX_HOST)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
         return(-1);
@@ -2984,7 +2984,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                         (void)strlcat(cur_zonename_ptr, zonename, size);
 
 
-                        vrmr_new_zone_ptr = input_box(MAX_HOST, gettext("Rename Group"), gettext("Enter the new name of the group"));
+                        vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Group"), gettext("Enter the new name of the group"));
                         if(vrmr_new_zone_ptr != NULL)
                         {
                             if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VALNAME_VERBOSE) == -1)
@@ -3035,7 +3035,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                 case 'i':
                 case 'I':
 
-                    vrmr_new_zone_ptr = input_box(MAX_HOST, gettext("New Group"), gettext("Enter the name of the new group"));
+                    vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("New Group"), gettext("Enter the name of the new group"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
                         if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VALNAME_VERBOSE) == -1)
@@ -3240,16 +3240,16 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
     struct vrmr_list_node         *d_node = NULL;
     char                rules_changed = 0,
                         blocklist_changed = 0;
-    char                old_name[MAX_NET_ZONE] = "",
-                        new_host[MAX_HOST] = "",
-                        new_net[MAX_NETWORK] = "",
-                        vrmr_new_zone[MAX_ZONE] = "",
-                        rule_host[MAX_HOST] = "",
-                        rule_net[MAX_NETWORK] = "",
-                        rule_zone[MAX_ZONE] = "",
-                        old_host[MAX_HOST] = "",
-                        old_net[MAX_NETWORK] = "",
-                        old_zone[MAX_ZONE] = "";
+    char                old_name[VRMR_MAX_NET_ZONE] = "",
+                        new_host[VRMR_MAX_HOST] = "",
+                        new_net[VRMR_MAX_NETWORK] = "",
+                        vrmr_new_zone[VRMR_MAX_ZONE] = "",
+                        rule_host[VRMR_MAX_HOST] = "",
+                        rule_net[VRMR_MAX_NETWORK] = "",
+                        rule_zone[VRMR_MAX_ZONE] = "",
+                        old_host[VRMR_MAX_HOST] = "",
+                        old_net[VRMR_MAX_NETWORK] = "",
+                        old_zone[VRMR_MAX_ZONE] = "";
     char                *blocklist_item = NULL,
                         *new_blocklist_item = NULL;
     size_t              size = 0;
@@ -3642,7 +3642,7 @@ edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_interfaces
     }
 
     /* get some mem */
-    if(!(choices = calloc(n_choices + 1, MAX_INTERFACE)))
+    if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
     {
         (void)vrprint.error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
         return(-1);
@@ -3869,7 +3869,7 @@ edit_zone_network_interfaces(const int debuglvl, struct vrmr_interfaces *interfa
             ch,
             retval = 0;
     ITEM    *cur = NULL;
-    char    save_iface[MAX_INTERFACE] = "";
+    char    save_iface[VRMR_MAX_INTERFACE] = "";
 
     /* safety */
     if(zone_ptr == NULL || interfaces == NULL)
@@ -4102,7 +4102,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_pt
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
-    char                rule_str[MAX_RULE_LENGTH] = "";
+    char                rule_str[VRMR_MAX_RULE_LENGTH] = "";
     
     /* safety */
     if(network_ptr == NULL)
@@ -4441,7 +4441,7 @@ edit_zone_network_init(const int debuglvl, struct vrmr_zones *zones, char *name,
 #endif
     field_opts_off(NetworkSec.network6labelfld, O_AUTOSKIP | O_ACTIVE);
 
-    NetworkSec.network6fld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
+    NetworkSec.network6fld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, VRMR_MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
     //set_field_type(NetworkSec.networkfld, TYPE_IPV4);
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(debuglvl, NetworkSec.network6fld, 0, zone_ptr->ipv6.net6);
@@ -4870,7 +4870,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
             else if(ZonesSection.EditZone.fields[i] == NetworkSec.network6fld)
             {
 #ifdef IPV6_ENABLED
-                char network6[MAX_IPV6_ADDR_LEN] = "";
+                char network6[VRMR_MAX_IPV6_ADDR_LEN] = "";
 
                 /* network */
                 zone_ptr->status = ST_CHANGED;
@@ -5368,7 +5368,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
     }
 
     height = (int)(ZonesSection.network_n + 10);
-    width  = MAX_NETWORK + 32 + 4;
+    width  = VRMR_MAX_NETWORK + 32 + 4;
     /* place on the same y as zones list */
     VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.z_xre + 1, &starty, &startx);
     ZonesSection.n_yle = starty + height;
@@ -5586,7 +5586,7 @@ zones_section_menu_networks(const int debuglvl,
                         (void)strlcat(cur_zonename_ptr, zonename, size);
 
                         /* rename */
-                        vrmr_new_zone_ptr = input_box(MAX_HOST, gettext("Rename Network"), gettext("Enter the new name of the network"));
+                        vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Network"), gettext("Enter the new name of the network"));
                         if(vrmr_new_zone_ptr != NULL)
                         {
                             if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VALNAME_VERBOSE) == -1)
@@ -5640,7 +5640,7 @@ zones_section_menu_networks(const int debuglvl,
                 case 'i':
                 case 'I':
 
-                    vrmr_new_zone_ptr = input_box(MAX_NETWORK, gettext("New Network"), gettext("Enter the name of the new network"));
+                    vrmr_new_zone_ptr = input_box(VRMR_MAX_NETWORK, gettext("New Network"), gettext("Enter the name of the new network"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
                         if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VALNAME_VERBOSE) == -1)
@@ -6445,7 +6445,7 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
             result = 0,
             retval = 0;
     char    *vrmr_new_zone_ptr = NULL,
-            save_zone_name[MAX_ZONE] = "";
+            save_zone_name[VRMR_MAX_ZONE] = "";
     ITEM    *cur = NULL;
 
     /* top menu */
@@ -6526,7 +6526,7 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
                     cur = current_item(ZonesSection.menu);
                     if(cur)
                     {
-                        vrmr_new_zone_ptr = input_box(MAX_HOST, gettext("Rename Zone"), gettext("Enter the new name of the zone"));
+                        vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Zone"), gettext("Enter the new name of the zone"));
                         if(vrmr_new_zone_ptr != NULL)
                         {
                             if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VALNAME_VERBOSE) == 0)
@@ -6547,7 +6547,7 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
                 case 'i':
                 case 'I':
 
-                    vrmr_new_zone_ptr = input_box(MAX_ZONE, gettext("New Zone"), gettext("Enter the name of the new zone"));
+                    vrmr_new_zone_ptr = input_box(VRMR_MAX_ZONE, gettext("New Zone"), gettext("Enter the name of the new zone"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
                         if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VALNAME_VERBOSE) == 0)
@@ -6771,7 +6771,7 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
 
     /* now set the size of the window */
     height = (int)(ZonesSection.host_n + 9);
-    width  = MAX_HOST_NET_ZONE + 2;
+    width  = VRMR_VRMR_MAX_HOST_NET_ZONE + 2;
     startx = 1;
     starty = 4;
 
@@ -6973,7 +6973,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
                 return(0);
             }
 
-            if(!(zone_choices = calloc(i + 1, MAX_HOST_NET_ZONE)))
+            if(!(zone_choices = calloc(i + 1, VRMR_VRMR_MAX_HOST_NET_ZONE)))
             {
                 (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                 return(-1);
@@ -7036,7 +7036,7 @@ zones_blocklist(const int debuglvl, struct vrmr_blocklist *blocklist, struct vrm
             retval = 0;
     char    changes = 0;
     char    *itemname = NULL,
-            saveitemname[MAX_HOST_NET_ZONE] = "";
+            saveitemname[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
     ITEM    *cur = NULL;
     /* top menu */
     char    *key_choices[] =    {   "F12",

@@ -23,9 +23,9 @@
 int
 script_list(const int debuglvl, VuurmuurScript *vr_script)
 {
-    char    back_zone[MAX_ZONE] = "",
-            back_net[MAX_NETWORK] = "",
-            back_host[MAX_HOST] = "";
+    char    back_zone[VRMR_MAX_ZONE] = "",
+            back_net[VRMR_MAX_NETWORK] = "",
+            back_host[VRMR_MAX_HOST] = "";
 
     if(vr_script->type == TYPE_ZONE)
     {

@@ -206,7 +206,7 @@ vrmr_check_iptables_command(const int debuglvl, struct vrmr_config *cnf, char *i
     /* first check if there even is a value */
     if(strcmp(iptables_location, "") == 0)
     {
-        if(quiet == IPTCHK_VERBOSE)
+        if(quiet == VRMR_IPTCHK_VERBOSE)
             (void)vrprint.error(0, "Error", "The path to the 'iptables'-command was not set.", iptables_location);
 
         return(0);
@@ -218,7 +218,7 @@ vrmr_check_iptables_command(const int debuglvl, struct vrmr_config *cnf, char *i
         int r = libvuurmuur_exec_command(debuglvl, cnf, iptables_location, args, NULL);
         if (r != 0)
         {
-            if(quiet == IPTCHK_VERBOSE)
+            if(quiet == VRMR_IPTCHK_VERBOSE)
                 (void)vrprint.error(0, "Error", "The path '%s' to the 'iptables'-command seems to be wrong.", iptables_location);
 
             return(0);
@@ -244,7 +244,7 @@ vrmr_check_iptablesrestore_command(const int debuglvl, struct vrmr_config *cnf, 
     /* first check if there even is a value */
     if(strcmp(iptablesrestore_location, "") == 0)
     {
-        if(quiet == IPTCHK_VERBOSE)
+        if(quiet == VRMR_IPTCHK_VERBOSE)
             (void)vrprint.error(0, "Error", "The path to the 'iptables-restore'-command was not set.", iptablesrestore_location);
 
         return(0);
@@ -256,7 +256,7 @@ vrmr_check_iptablesrestore_command(const int debuglvl, struct vrmr_config *cnf, 
         int r = libvuurmuur_exec_command(debuglvl, cnf, iptablesrestore_location, args, NULL);
         if (r != 1)
         {
-            if(quiet == IPTCHK_VERBOSE)
+            if(quiet == VRMR_IPTCHK_VERBOSE)
                 (void)vrprint.error(0, "Error", "The path '%s' to the 'iptables-restore'-command seems to be wrong.", iptablesrestore_location);
 
             return(0);
@@ -363,7 +363,7 @@ vrmr_check_tc_command(const int debuglvl, struct vrmr_config *cnf, char *tc_loca
     /* first check if there even is a value */
     if(strcmp(tc_location, "") == 0)
     {
-        if(quiet == IPTCHK_VERBOSE)
+        if(quiet == VRMR_IPTCHK_VERBOSE)
             (void)vrprint.error(0, "Error", "The path to the 'tc'-command was not set.", tc_location);
 
         return(0);
@@ -374,7 +374,7 @@ vrmr_check_tc_command(const int debuglvl, struct vrmr_config *cnf, char *tc_loca
         int r = libvuurmuur_exec_command(debuglvl, cnf, tc_location, args, NULL);
         if (r != 0)
         {
-            if(quiet == IPTCHK_VERBOSE)
+            if(quiet == VRMR_IPTCHK_VERBOSE)
                 (void)vrprint.error(0, "Error", "The path '%s' to the 'tc'-command seems to be wrong.", tc_location);
 
             return(0);
@@ -486,7 +486,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     /* MAX_PERMISSION
      * First (even before calling vrmr_stat_ok to check the config file),
      * load the MAX_PERMISSION value. init_pre_config sets max_permission to
-     * ANY_PERMISSION, so no permission checks occur before here.
+     * VRMR_ANY_PERMISSION, so no permission checks occur before here.
      */
     result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "MAX_PERMISSION", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
@@ -499,8 +499,8 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
          * there was no trailing garbage at the end of the string. */
         if (endptr == answer || *endptr != '\0')
         {
-            (void)vrprint.warning("Warning", "Invalid MAX_PERMISSION setting: %s. It should be an octal permission number. Using default (%o).", answer, DEFAULT_MAX_PERMISSION);
-            cnf->max_permission = DEFAULT_MAX_PERMISSION;
+            (void)vrprint.warning("Warning", "Invalid MAX_PERMISSION setting: %s. It should be an octal permission number. Using default (%o).", answer, VRMR_DEFAULT_MAX_PERMISSION);
+            cnf->max_permission = VRMR_DEFAULT_MAX_PERMISSION;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -508,14 +508,14 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         /* ignore missing, use default */
-        cnf->max_permission = DEFAULT_MAX_PERMISSION;
+        cnf->max_permission = VRMR_DEFAULT_MAX_PERMISSION;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
     /* Now that we know the maximum permission a config file can have,
      * check if we like the configfile */
-    if(!(vrmr_stat_ok(debuglvl, cnf, cnf->configfile, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, cnf, cnf->configfile, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
         return(VRMR_CNF_E_FILE_PERMISSION);
 
 
@@ -530,7 +530,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     }
     else if(result == 0)
     {
-        if(strlcpy(cnf->serv_backend_name, DEFAULT_BACKEND, sizeof(cnf->serv_backend_name)) >= sizeof(cnf->serv_backend_name))
+        if(strlcpy(cnf->serv_backend_name, VRMR_DEFAULT_BACKEND, sizeof(cnf->serv_backend_name)) >= sizeof(cnf->serv_backend_name))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -538,7 +538,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         }
 
         (void)vrprint.warning("Warning", "Variable SERVICES_BACKEND not found in '%s'. Using default (%s).",
-                cnf->configfile, DEFAULT_BACKEND);
+                cnf->configfile, VRMR_DEFAULT_BACKEND);
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -555,7 +555,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     }
     else if(result == 0)
     {
-        if(strlcpy(cnf->zone_backend_name, DEFAULT_BACKEND, sizeof(cnf->zone_backend_name)) >= sizeof(cnf->zone_backend_name))
+        if(strlcpy(cnf->zone_backend_name, VRMR_DEFAULT_BACKEND, sizeof(cnf->zone_backend_name)) >= sizeof(cnf->zone_backend_name))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -563,7 +563,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         }
 
         (void)vrprint.warning("Warning", "Variable ZONES_BACKEND not found in '%s'. Using default (%s).",
-                cnf->configfile, DEFAULT_BACKEND);
+                cnf->configfile, VRMR_DEFAULT_BACKEND);
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -580,7 +580,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     }
     else if(result == 0)
     {
-        if(strlcpy(cnf->ifac_backend_name, DEFAULT_BACKEND, sizeof(cnf->ifac_backend_name)) >= sizeof(cnf->ifac_backend_name))
+        if(strlcpy(cnf->ifac_backend_name, VRMR_DEFAULT_BACKEND, sizeof(cnf->ifac_backend_name)) >= sizeof(cnf->ifac_backend_name))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -588,7 +588,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         }
 
         (void)vrprint.warning("Warning", "Variable INTERFACES_BACKEND not found in '%s'. Using default (%s).",
-                cnf->configfile, DEFAULT_BACKEND);
+                cnf->configfile, VRMR_DEFAULT_BACKEND);
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -605,7 +605,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     }
     else if(result == 0)
     {
-        if(strlcpy(cnf->rule_backend_name, DEFAULT_BACKEND, sizeof(cnf->rule_backend_name)) >= sizeof(cnf->rule_backend_name))
+        if(strlcpy(cnf->rule_backend_name, VRMR_DEFAULT_BACKEND, sizeof(cnf->rule_backend_name)) >= sizeof(cnf->rule_backend_name))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -613,7 +613,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         }
 
 //      (void)vrprint.warning("Warning", "Variable RULES_BACKEND not found in '%s'. Using default (%s).",
-//              cnf->configfile, DEFAULT_BACKEND);
+//              cnf->configfile, VRMR_DEFAULT_BACKEND);
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -735,14 +735,14 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option DYN_INT_CHECK.", answer);
-            cnf->dynamic_changes_check = DEFAULT_DYN_INT_CHECK;
+            cnf->dynamic_changes_check = VRMR_DEFAULT_DYN_INT_CHECK;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
     }
     else if(result == 0)
     {
-        cnf->dynamic_changes_check = DEFAULT_DYN_INT_CHECK;
+        cnf->dynamic_changes_check = VRMR_DEFAULT_DYN_INT_CHECK;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -756,8 +756,8 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         result = atoi(answer);
         if(result < 0)
         {
-            (void)vrprint.warning("Warning", "A negative DYN_INT_INTERVAL-limit (%d) can not be used, using default (%u).", result, DEFAULT_DYN_INT_INTERVAL);
-            cnf->dynamic_changes_interval = DEFAULT_DYN_INT_INTERVAL;
+            (void)vrprint.warning("Warning", "A negative DYN_INT_INTERVAL-limit (%d) can not be used, using default (%u).", result, VRMR_DEFAULT_DYN_INT_INTERVAL);
+            cnf->dynamic_changes_interval = VRMR_DEFAULT_DYN_INT_INTERVAL;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -768,7 +768,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     }
     else if(result == 0)
     {
-        cnf->dynamic_changes_interval = DEFAULT_DYN_INT_INTERVAL;
+        cnf->dynamic_changes_interval = VRMR_DEFAULT_DYN_INT_INTERVAL;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -789,7 +789,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option DROP_INVALID.", answer);
-            cnf->invalid_drop_enabled = DEFAULT_DROP_INVALID;
+            cnf->invalid_drop_enabled = VRMR_DEFAULT_DROP_INVALID;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -797,7 +797,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         /* if this is missing, we use the default */
-        cnf->invalid_drop_enabled = DEFAULT_DROP_INVALID;
+        cnf->invalid_drop_enabled = VRMR_DEFAULT_DROP_INVALID;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -819,7 +819,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option LOG_BLOCKLIST.", answer);
-            cnf->log_blocklist = DEFAULT_LOG_BLOCKLIST;
+            cnf->log_blocklist = VRMR_DEFAULT_LOG_BLOCKLIST;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -827,7 +827,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         /* if this is missing, we use the default */
-        cnf->log_blocklist = DEFAULT_LOG_BLOCKLIST;
+        cnf->log_blocklist = VRMR_DEFAULT_LOG_BLOCKLIST;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -849,7 +849,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option LOG_INVALID.", answer);
-            cnf->log_invalid = DEFAULT_LOG_INVALID;
+            cnf->log_invalid = VRMR_DEFAULT_LOG_INVALID;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -857,7 +857,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         /* if this is missing, we use the default */
-        cnf->log_invalid = DEFAULT_LOG_INVALID;
+        cnf->log_invalid = VRMR_DEFAULT_LOG_INVALID;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -879,7 +879,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option LOG_NO_SYN.", answer);
-            cnf->log_no_syn = DEFAULT_LOG_NO_SYN;
+            cnf->log_no_syn = VRMR_DEFAULT_LOG_NO_SYN;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -887,7 +887,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         /* if this is missing, we use the default */
-        cnf->log_no_syn = DEFAULT_LOG_NO_SYN;
+        cnf->log_no_syn = VRMR_DEFAULT_LOG_NO_SYN;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -909,7 +909,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option LOG_PROBES.", answer);
-            cnf->log_probes = DEFAULT_LOG_PROBES;
+            cnf->log_probes = VRMR_DEFAULT_LOG_PROBES;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -917,7 +917,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         /* if this is missing, we use the default */
-        cnf->log_probes = DEFAULT_LOG_PROBES;
+        cnf->log_probes = VRMR_DEFAULT_LOG_PROBES;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -939,7 +939,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option LOG_FRAG.", answer);
-            cnf->log_frag = DEFAULT_LOG_FRAG;
+            cnf->log_frag = VRMR_DEFAULT_LOG_FRAG;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -947,7 +947,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         /* if this is missing, we use the default */
-        cnf->log_frag = DEFAULT_LOG_FRAG;
+        cnf->log_frag = VRMR_DEFAULT_LOG_FRAG;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -969,7 +969,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option USE_SYN_LIMIT.", answer);
-            cnf->use_syn_limit = DEFAULT_USE_SYN_LIMIT;
+            cnf->use_syn_limit = VRMR_DEFAULT_USE_SYN_LIMIT;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -977,7 +977,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         /* if this is missing, we use the default */
-        cnf->use_syn_limit = DEFAULT_USE_SYN_LIMIT;
+        cnf->use_syn_limit = VRMR_DEFAULT_USE_SYN_LIMIT;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -990,15 +990,15 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         result = atoi(answer);
         if(result < 0)
         {
-            (void)vrprint.warning("Warning", "A negative SYN-limit (%d) can not be used, using default (%u).", result, DEFAULT_SYN_LIMIT);
-            cnf->syn_limit = DEFAULT_SYN_LIMIT;
+            (void)vrprint.warning("Warning", "A negative SYN-limit (%d) can not be used, using default (%u).", result, VRMR_DEFAULT_SYN_LIMIT);
+            cnf->syn_limit = VRMR_DEFAULT_SYN_LIMIT;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
         else if(result == 0)
         {
-            (void)vrprint.warning("Warning", "A SYN-limit of 0 can not be used, using default (%u).", DEFAULT_SYN_LIMIT);
-            cnf->syn_limit = DEFAULT_SYN_LIMIT;
+            (void)vrprint.warning("Warning", "A SYN-limit of 0 can not be used, using default (%u).", VRMR_DEFAULT_SYN_LIMIT);
+            cnf->syn_limit = VRMR_DEFAULT_SYN_LIMIT;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1010,7 +1010,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable SYN_LIMIT not found in '%s'. Using default.", cnf->configfile);
-        cnf->syn_limit = DEFAULT_SYN_LIMIT;
+        cnf->syn_limit = VRMR_DEFAULT_SYN_LIMIT;
 
         retval = VRMR_CNF_W_MISSING_VAR;
     }
@@ -1026,15 +1026,15 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         result = atoi(answer);
         if(result < 0)
         {
-            (void)vrprint.warning("Warning", "A negative SYN-limit-burst (%d) can not be used, using default (%u).", result, DEFAULT_SYN_LIMIT_BURST);
-            cnf->syn_limit_burst = DEFAULT_SYN_LIMIT_BURST;
+            (void)vrprint.warning("Warning", "A negative SYN-limit-burst (%d) can not be used, using default (%u).", result, VRMR_DEFAULT_SYN_LIMIT_BURST);
+            cnf->syn_limit_burst = VRMR_DEFAULT_SYN_LIMIT_BURST;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
         else if(result == 0)
         {
-            (void)vrprint.warning("Warning", "A SYN-limit-burst of 0 can not be used, using default (%u).", DEFAULT_SYN_LIMIT_BURST);
-            cnf->syn_limit_burst = DEFAULT_SYN_LIMIT_BURST;
+            (void)vrprint.warning("Warning", "A SYN-limit-burst of 0 can not be used, using default (%u).", VRMR_DEFAULT_SYN_LIMIT_BURST);
+            cnf->syn_limit_burst = VRMR_DEFAULT_SYN_LIMIT_BURST;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1046,7 +1046,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable SYN_LIMIT_BURST not found in '%s'. Using default.", cnf->configfile);
-        cnf->syn_limit_burst = DEFAULT_SYN_LIMIT_BURST;
+        cnf->syn_limit_burst = VRMR_DEFAULT_SYN_LIMIT_BURST;
 
         retval = VRMR_CNF_W_MISSING_VAR;
     }
@@ -1070,7 +1070,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option USE_UDP_LIMIT.", answer);
-            cnf->use_udp_limit = DEFAULT_USE_UDP_LIMIT;
+            cnf->use_udp_limit = VRMR_DEFAULT_USE_UDP_LIMIT;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1078,7 +1078,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         /* if this is missing, we use the default */
-        cnf->use_udp_limit = DEFAULT_USE_UDP_LIMIT;
+        cnf->use_udp_limit = VRMR_DEFAULT_USE_UDP_LIMIT;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -1091,15 +1091,15 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         result = atoi(answer);
         if(result < 0)
         {
-            (void)vrprint.warning("Warning", "A negative UDP-limit (%d) can not be used, using default (%u).", result, DEFAULT_UDP_LIMIT);
-            cnf->udp_limit = DEFAULT_UDP_LIMIT;
+            (void)vrprint.warning("Warning", "A negative UDP-limit (%d) can not be used, using default (%u).", result, VRMR_DEFAULT_UDP_LIMIT);
+            cnf->udp_limit = VRMR_DEFAULT_UDP_LIMIT;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
         else if(result == 0)
         {
-            (void)vrprint.warning("Warning", "A UDP-limit of 0 can not be used, using default (%u).", DEFAULT_UDP_LIMIT);
-            cnf->udp_limit = DEFAULT_UDP_LIMIT;
+            (void)vrprint.warning("Warning", "A UDP-limit of 0 can not be used, using default (%u).", VRMR_DEFAULT_UDP_LIMIT);
+            cnf->udp_limit = VRMR_DEFAULT_UDP_LIMIT;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1111,7 +1111,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable UDP_LIMIT not found in '%s'. Using default.", cnf->configfile);
-        cnf->udp_limit = DEFAULT_UDP_LIMIT;
+        cnf->udp_limit = VRMR_DEFAULT_UDP_LIMIT;
 
         retval = VRMR_CNF_W_MISSING_VAR;
     }
@@ -1127,15 +1127,15 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         result = atoi(answer);
         if(result < 0)
         {
-            (void)vrprint.warning("Warning", "A negative UDP-limit-burst (%d) can not be used, using default (%u).", result, DEFAULT_UDP_LIMIT_BURST);
-            cnf->udp_limit_burst = DEFAULT_UDP_LIMIT_BURST;
+            (void)vrprint.warning("Warning", "A negative UDP-limit-burst (%d) can not be used, using default (%u).", result, VRMR_DEFAULT_UDP_LIMIT_BURST);
+            cnf->udp_limit_burst = VRMR_DEFAULT_UDP_LIMIT_BURST;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
         else if(result == 0)
         {
-            (void)vrprint.warning("Warning", "A UDP-limit-burst of 0 can not be used, using default (%u).", DEFAULT_UDP_LIMIT_BURST);
-            cnf->udp_limit_burst = DEFAULT_UDP_LIMIT_BURST;
+            (void)vrprint.warning("Warning", "A UDP-limit-burst of 0 can not be used, using default (%u).", VRMR_DEFAULT_UDP_LIMIT_BURST);
+            cnf->udp_limit_burst = VRMR_DEFAULT_UDP_LIMIT_BURST;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1147,7 +1147,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable UDP_LIMIT_BURST not found in '%s'. Using default.", cnf->configfile);
-        cnf->udp_limit_burst = DEFAULT_UDP_LIMIT_BURST;
+        cnf->udp_limit_burst = VRMR_DEFAULT_UDP_LIMIT_BURST;
 
         retval = VRMR_CNF_W_MISSING_VAR;
     }
@@ -1171,7 +1171,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option LOG_POLICY.", answer);
-            cnf->log_policy = DEFAULT_LOG_POLICY;
+            cnf->log_policy = VRMR_DEFAULT_LOG_POLICY;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1179,7 +1179,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable LOG_POLICY not found in '%s'. Using default.", cnf->configfile);
-        cnf->log_policy = DEFAULT_LOG_POLICY;
+        cnf->log_policy = VRMR_DEFAULT_LOG_POLICY;
 
         retval = VRMR_CNF_W_MISSING_VAR;
     }
@@ -1203,7 +1203,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option RULE_NFLOG.", answer);
-            cnf->rule_nflog = DEFAULT_RULE_NFLOG;
+            cnf->rule_nflog = VRMR_DEFAULT_RULE_NFLOG;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1211,7 +1211,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable RULE_NFLOG not found in '%s'. Using default.", cnf->configfile);
-        cnf->rule_nflog = DEFAULT_RULE_NFLOG;
+        cnf->rule_nflog = VRMR_DEFAULT_RULE_NFLOG;
 
         retval = VRMR_CNF_W_MISSING_VAR;
     }
@@ -1227,8 +1227,8 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         result = atoi(answer);
         if(result < 0)
         {
-            (void)vrprint.warning("Warning", "A negative NF Group (%d) can not be used, using default (%u).", result, DEFAULT_NFGRP);
-            cnf->nfgrp = DEFAULT_NFGRP;
+            (void)vrprint.warning("Warning", "A negative NF Group (%d) can not be used, using default (%u).", result, VRMR_DEFAULT_NFGRP);
+            cnf->nfgrp = VRMR_DEFAULT_NFGRP;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1241,7 +1241,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     {
         (void)vrprint.warning("Warning", "Variable NFGRP not found in '%s'. Using default.", cnf->configfile);
 
-        cnf->nfgrp = DEFAULT_NFGRP;
+        cnf->nfgrp = VRMR_DEFAULT_NFGRP;
 
         retval = VRMR_CNF_W_MISSING_VAR;
     }
@@ -1257,8 +1257,8 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         result = atoi(answer);
         if(result < 0)
         {
-            (void)vrprint.warning("Warning", "A negative LOG-limit (%d) can not be used, using default (%u).", result, DEFAULT_LOG_POLICY_LIMIT);
-            cnf->log_policy_limit = DEFAULT_LOG_POLICY_LIMIT;
+            (void)vrprint.warning("Warning", "A negative LOG-limit (%d) can not be used, using default (%u).", result, VRMR_DEFAULT_LOG_POLICY_LIMIT);
+            cnf->log_policy_limit = VRMR_DEFAULT_LOG_POLICY_LIMIT;
             cnf->log_policy_burst = cnf->log_policy_limit * 2;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
@@ -1273,7 +1273,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     {
         (void)vrprint.warning("Warning", "Variable LOG_POLICY_LIMIT not found in '%s'. Using default.", cnf->configfile);
 
-        cnf->log_policy_limit = DEFAULT_LOG_POLICY_LIMIT;
+        cnf->log_policy_limit = VRMR_DEFAULT_LOG_POLICY_LIMIT;
         cnf->log_policy_burst = cnf->log_policy_limit * 2;
 
         retval = VRMR_CNF_W_MISSING_VAR;
@@ -1298,7 +1298,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option LOG_TCP_OPTIONS.", answer);
-            cnf->log_tcp_options = DEFAULT_LOG_TCP_OPTIONS;
+            cnf->log_tcp_options = VRMR_DEFAULT_LOG_TCP_OPTIONS;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1306,7 +1306,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         /* no warning or whatever */
-        cnf->log_tcp_options = DEFAULT_LOG_TCP_OPTIONS;
+        cnf->log_tcp_options = VRMR_DEFAULT_LOG_TCP_OPTIONS;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -1328,7 +1328,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option PROTECT_SYNCOOKIE.", answer);
-            cnf->protect_syncookie = DEFAULT_PROTECT_SYNCOOKIE;
+            cnf->protect_syncookie = VRMR_DEFAULT_PROTECT_SYNCOOKIE;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1336,7 +1336,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable PROTECT_SYNCOOKIE not found in '%s'. Using default.", cnf->configfile);
-        cnf->protect_syncookie = DEFAULT_PROTECT_SYNCOOKIE;
+        cnf->protect_syncookie = VRMR_DEFAULT_PROTECT_SYNCOOKIE;
 
         retval = VRMR_CNF_W_MISSING_VAR;
     }
@@ -1360,7 +1360,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         else
         {
             (void)vrprint.warning("Warning", "'%s' is not a valid value for option PROTECT_ECHOBROADCAST.", answer);
-            cnf->protect_echobroadcast = DEFAULT_PROTECT_ECHOBROADCAST;
+            cnf->protect_echobroadcast = VRMR_DEFAULT_PROTECT_ECHOBROADCAST;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1368,7 +1368,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable PROTECT_ECHOBROADCAST not found in '%s'. Using default.", cnf->configfile);
-        cnf->protect_echobroadcast = DEFAULT_PROTECT_ECHOBROADCAST;
+        cnf->protect_echobroadcast = VRMR_DEFAULT_PROTECT_ECHOBROADCAST;
 
         retval = VRMR_CNF_W_MISSING_VAR;
     }
@@ -1383,7 +1383,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable SYSCTL not found in '%s', using default value.", cnf->configfile);
-        if(strlcpy(cnf->sysctl_location, DEFAULT_SYSCTL_LOCATION, sizeof(cnf->sysctl_location)) >= sizeof(cnf->sysctl_location))
+        if(strlcpy(cnf->sysctl_location, VRMR_DEFAULT_SYSCTL_LOCATION, sizeof(cnf->sysctl_location)) >= sizeof(cnf->sysctl_location))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
                     "string overflow (in: %s:%d).",
@@ -1407,7 +1407,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable IPTABLES not found in '%s', using default value.", cnf->configfile);
-        if(strlcpy(cnf->iptables_location, DEFAULT_IPTABLES_LOCATION, sizeof(cnf->iptables_location)) >= sizeof(cnf->iptables_location))
+        if(strlcpy(cnf->iptables_location, VRMR_DEFAULT_IPTABLES_LOCATION, sizeof(cnf->iptables_location)) >= sizeof(cnf->iptables_location))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
                     "string overflow (in: %s:%d).",
@@ -1430,7 +1430,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable IPTABLES_RESTORE not found in '%s', using default value.", cnf->configfile);
-        if(strlcpy(cnf->iptablesrestore_location, DEFAULT_IPTABLES_REST_LOCATION, sizeof(cnf->iptablesrestore_location)) >= sizeof(cnf->iptablesrestore_location))
+        if(strlcpy(cnf->iptablesrestore_location, VRMR_DEFAULT_IPTABLES_REST_LOCATION, sizeof(cnf->iptablesrestore_location)) >= sizeof(cnf->iptablesrestore_location))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
                     "string overflow (in: %s:%d).",
@@ -1454,7 +1454,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable IP6TABLES not found in '%s', using default value.", cnf->configfile);
-        if(strlcpy(cnf->ip6tables_location, DEFAULT_IP6TABLES_LOCATION, sizeof(cnf->ip6tables_location)) >= sizeof(cnf->ip6tables_location))
+        if(strlcpy(cnf->ip6tables_location, VRMR_DEFAULT_IP6TABLES_LOCATION, sizeof(cnf->ip6tables_location)) >= sizeof(cnf->ip6tables_location))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
                     "string overflow (in: %s:%d).",
@@ -1478,7 +1478,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable IP6TABLES_RESTORE not found in '%s', using default value.", cnf->configfile);
-        if(strlcpy(cnf->ip6tablesrestore_location, DEFAULT_IP6TABLES_REST_LOCATION, sizeof(cnf->ip6tablesrestore_location)) >= sizeof(cnf->ip6tablesrestore_location))
+        if(strlcpy(cnf->ip6tablesrestore_location, VRMR_DEFAULT_IP6TABLES_REST_LOCATION, sizeof(cnf->ip6tablesrestore_location)) >= sizeof(cnf->ip6tablesrestore_location))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
                     "string overflow (in: %s:%d).",
@@ -1505,7 +1505,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
             won't have this tool. Keeping it empty allows us to
             check for it not beeing set and present a warning */
 
-        //if(strlcpy(cnf->conntrack_location, DEFAULT_CONNTRACK_LOCATION, sizeof(cnf->conntrack_location)) >= sizeof(cnf->conntrack_location))
+        //if(strlcpy(cnf->conntrack_location, VRMR_DEFAULT_CONNTRACK_LOCATION, sizeof(cnf->conntrack_location)) >= sizeof(cnf->conntrack_location))
         //{
         //    (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
         //            "string overflow (in: %s:%d).",
@@ -1530,7 +1530,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
             won't have this tool. Keeping it empty allows us to
             check for it not beeing set and present a warning */
 
-        //if(strlcpy(cnf->conntrack_location, DEFAULT_TC_LOCATION, sizeof(cnf->tc_location)) >= sizeof(cnf->tc_location))
+        //if(strlcpy(cnf->conntrack_location, VRMR_DEFAULT_TC_LOCATION, sizeof(cnf->tc_location)) >= sizeof(cnf->tc_location))
         //{
         //    (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
         //            "string overflow (in: %s:%d).",
@@ -1551,7 +1551,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     }
     else if(result == 0)
     {
-        if(strlcpy(cnf->modprobe_location, DEFAULT_MODPROBE_LOCATION, sizeof(cnf->modprobe_location)) >= sizeof(cnf->modprobe_location))
+        if(strlcpy(cnf->modprobe_location, VRMR_DEFAULT_MODPROBE_LOCATION, sizeof(cnf->modprobe_location)) >= sizeof(cnf->modprobe_location))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
                     "string overflow (in: %s:%d).",
@@ -1580,14 +1580,14 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         }
         else
         {
-            cnf->load_modules = DEFAULT_LOAD_MODULES;
+            cnf->load_modules = VRMR_DEFAULT_LOAD_MODULES;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
     }
     else if(result == 0)
     {
-        cnf->load_modules = DEFAULT_LOAD_MODULES;
+        cnf->load_modules = VRMR_DEFAULT_LOAD_MODULES;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -1601,8 +1601,8 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         result = atoi(answer);
         if(result < 0)
         {
-            (void)vrprint.warning("Warning", "A negative MODULES_WAIT_TIME (%d) can not be used, using default (%u).", result, DEFAULT_MODULES_WAITTIME);
-            cnf->modules_wait_time = DEFAULT_MODULES_WAITTIME;
+            (void)vrprint.warning("Warning", "A negative MODULES_WAIT_TIME (%d) can not be used, using default (%u).", result, VRMR_DEFAULT_MODULES_WAITTIME);
+            cnf->modules_wait_time = VRMR_DEFAULT_MODULES_WAITTIME;
 
             retval = VRMR_CNF_W_ILLEGAL_VAR;
         }
@@ -1615,7 +1615,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         /* ignore missing, use default */
-        cnf->modules_wait_time = DEFAULT_MODULES_WAITTIME;
+        cnf->modules_wait_time = VRMR_DEFAULT_MODULES_WAITTIME;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -1652,8 +1652,8 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     }
     else if(result == 0)
     {
-        (void)vrprint.warning("Warning", "Variable SYSTEMLOG not found in '%s', using default value (%s).", cnf->configfile, DEFAULT_SYSTEMLOG_LOCATION);
-        if(strlcpy(cnf->systemlog_location, DEFAULT_SYSTEMLOG_LOCATION, sizeof(cnf->systemlog_location)) >= sizeof(cnf->systemlog_location))
+        (void)vrprint.warning("Warning", "Variable SYSTEMLOG not found in '%s', using default value (%s).", cnf->configfile, VRMR_DEFAULT_SYSTEMLOG_LOCATION);
+        if(strlcpy(cnf->systemlog_location, VRMR_DEFAULT_SYSTEMLOG_LOCATION, sizeof(cnf->systemlog_location)) >= sizeof(cnf->systemlog_location))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
                     "string overflow (in: %s:%d).",
@@ -1680,7 +1680,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else if(result == 0)
     {
         (void)vrprint.warning("Warning", "Variable LOGDIR not found in '%s', using default value.", cnf->configfile);
-        if(strlcpy(cnf->vuurmuur_logdir_location, DEFAULT_LOGDIR_LOCATION, sizeof(cnf->vuurmuur_logdir_location)) >= sizeof(cnf->vuurmuur_logdir_location))
+        if(strlcpy(cnf->vuurmuur_logdir_location, VRMR_DEFAULT_LOGDIR_LOCATION, sizeof(cnf->vuurmuur_logdir_location)) >= sizeof(cnf->vuurmuur_logdir_location))
         {
             (void)vrprint.error(VRMR_CNF_E_UNKNOWN_ERR, "Internal Error",
                     "string overflow (in: %s:%d).",
@@ -2216,7 +2216,7 @@ pre_vrmr_init_config(struct vrmr_config *cnf)
     cnf->vrmr_check_iptcaps = TRUE;
 
     /* Don't do any permissin checks until we loaded MAX_PERMISSION from the config file */
-    cnf->max_permission = ANY_PERMISSION;
+    cnf->max_permission = VRMR_ANY_PERMISSION;
     return(0);
 }
 

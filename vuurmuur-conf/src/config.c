@@ -33,15 +33,15 @@ vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf)
         return(-1);
     }
 
-    cnf->advanced_mode = DEFAULT_ADVANCED_MODE;
-    cnf->draw_status = DEFAULT_MAINMENU_STATUS;
-    cnf->newrule_log = DEFAULT_NEWRULE_LOG;
-    cnf->newrule_loglimit = DEFAULT_NEWRULE_LOGLIMIT;
+    cnf->advanced_mode = VRMR_DEFAULT_ADVANCED_MODE;
+    cnf->draw_status = VRMR_DEFAULT_MAINMENU_STATUS;
+    cnf->newrule_log = VRMR_DEFAULT_NEWRULE_LOG;
+    cnf->newrule_loglimit = VRMR_DEFAULT_NEWRULE_LOGLIMIT;
     cnf->newrule_logburst = cnf->newrule_loglimit * 2;
-    cnf->logview_bufsize = DEFAULT_LOGVIEW_BUFFERSIZE;
+    cnf->logview_bufsize = VRMR_DEFAULT_LOGVIEW_BUFFERSIZE;
     cnf->background = 0; /* blue */
 
-    size = strlcpy(cnf->iptrafvol_location, DEFAULT_IPTRAFVOL_LOCATION,
+    size = strlcpy(cnf->iptrafvol_location, VRMR_DEFAULT_IPTRAFVOL_LOCATION,
         sizeof(cnf->iptrafvol_location));
     if(size >= sizeof(cnf->iptrafvol_location))
     {
@@ -115,7 +115,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* check if we like the configfile */
-    if(!(vrmr_stat_ok(debuglvl, &conf, configfile_location, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, &conf, configfile_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
         return(VRMR_CNF_E_FILE_PERMISSION);
 
 
@@ -136,18 +136,18 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         {
             (void)vrprint.debug(__FUNC__, "Not sure what to make of ADVANCED_MODE '%s', using default (%s).",
                             answer,
-                            DEFAULT_ADVANCED_MODE ? "Yes": "No");
+                            VRMR_DEFAULT_ADVANCED_MODE ? "Yes": "No");
 
-            cnf->advanced_mode = DEFAULT_ADVANCED_MODE;
+            cnf->advanced_mode = VRMR_DEFAULT_ADVANCED_MODE;
         }
     }
     else if(result == 0)
     {
         (void)vrprint.debug(__FUNC__, "Variable ADVANCED_MODE not found in '%s'. Using default (%s).",
                         configfile_location,
-                        DEFAULT_ADVANCED_MODE ? "Yes" : "No");
+                        VRMR_DEFAULT_ADVANCED_MODE ? "Yes" : "No");
 
-        cnf->advanced_mode = DEFAULT_ADVANCED_MODE;
+        cnf->advanced_mode = VRMR_DEFAULT_ADVANCED_MODE;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -170,18 +170,18 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         {
             (void)vrprint.debug(__FUNC__, "Not sure what to make of MAINMENU_STATUS '%s', using default (%s).",
                             answer,
-                            DEFAULT_MAINMENU_STATUS ? "Yes": "No");
+                            VRMR_DEFAULT_MAINMENU_STATUS ? "Yes": "No");
 
-            cnf->draw_status = DEFAULT_MAINMENU_STATUS;
+            cnf->draw_status = VRMR_DEFAULT_MAINMENU_STATUS;
         }
     }
     else if(result == 0)
     {
         (void)vrprint.debug(__FUNC__, "Variable MAINMENU_STATUS not found in '%s'. Using default (%s).",
                         configfile_location,
-                        DEFAULT_MAINMENU_STATUS ? "Yes" : "No");
+                        VRMR_DEFAULT_MAINMENU_STATUS ? "Yes" : "No");
 
-        cnf->draw_status = DEFAULT_MAINMENU_STATUS;
+        cnf->draw_status = VRMR_DEFAULT_MAINMENU_STATUS;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -197,9 +197,9 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     {
         (void)vrprint.debug(__FUNC__, "Variable IPTRAFVOL not found in '%s', using default value: %s",
                         configfile_location,
-                        DEFAULT_IPTRAFVOL_LOCATION);
+                        VRMR_DEFAULT_IPTRAFVOL_LOCATION);
 
-        size = strlcpy(cnf->iptrafvol_location, DEFAULT_IPTRAFVOL_LOCATION,
+        size = strlcpy(cnf->iptrafvol_location, VRMR_DEFAULT_IPTRAFVOL_LOCATION,
             sizeof(cnf->iptrafvol_location));
         if(size >= sizeof(cnf->iptrafvol_location))
         {
@@ -232,18 +232,18 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         {
             (void)vrprint.debug(__FUNC__, "Not sure what to make of NEWRULE_LOG '%s', using default (%s).",
                             answer,
-                            DEFAULT_NEWRULE_LOG ? "Yes": "No");
+                            VRMR_DEFAULT_NEWRULE_LOG ? "Yes": "No");
 
-            cnf->newrule_log = DEFAULT_NEWRULE_LOG;
+            cnf->newrule_log = VRMR_DEFAULT_NEWRULE_LOG;
         }
     }
     else if(result == 0)
     {
         (void)vrprint.debug(__FUNC__, "Variable NEWRULE_LOG not found in '%s'. Using default (%s).",
                         configfile_location,
-                        DEFAULT_NEWRULE_LOG ? "Yes" : "No");
+                        VRMR_DEFAULT_NEWRULE_LOG ? "Yes" : "No");
 
-        cnf->newrule_log = DEFAULT_NEWRULE_LOG;
+        cnf->newrule_log = VRMR_DEFAULT_NEWRULE_LOG;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -259,9 +259,9 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         {
             (void)vrprint.debug(__FUNC__, "A negative LOG-limit (%d) can not be used, using default (%d).",
                                 result,
-                                DEFAULT_NEWRULE_LOGLIMIT);
+                                VRMR_DEFAULT_NEWRULE_LOGLIMIT);
 
-            cnf->newrule_loglimit = (unsigned int)DEFAULT_NEWRULE_LOGLIMIT;
+            cnf->newrule_loglimit = (unsigned int)VRMR_DEFAULT_NEWRULE_LOGLIMIT;
             cnf->newrule_logburst = (unsigned int)(cnf->newrule_loglimit * 2);
         }
         else
@@ -274,9 +274,9 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     {
         (void)vrprint.debug(__FUNC__, "Variable NEWRULE_LOGLIMIT not found in '%s'. Using default (%d).",
                             configfile_location,
-                            DEFAULT_NEWRULE_LOGLIMIT);
+                            VRMR_DEFAULT_NEWRULE_LOGLIMIT);
 
-        cnf->newrule_loglimit = (unsigned int)DEFAULT_NEWRULE_LOGLIMIT;
+        cnf->newrule_loglimit = (unsigned int)VRMR_DEFAULT_NEWRULE_LOGLIMIT;
         cnf->newrule_logburst = (unsigned int)(cnf->newrule_loglimit * 2);
     }
     else
@@ -293,9 +293,9 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         {
             (void)vrprint.debug(__FUNC__, "A negative buffersize (%d) can not be used, using default (%d).",
                                 result,
-                                DEFAULT_LOGVIEW_BUFFERSIZE);
+                                VRMR_DEFAULT_LOGVIEW_BUFFERSIZE);
 
-            cnf->logview_bufsize = (unsigned int)DEFAULT_LOGVIEW_BUFFERSIZE;
+            cnf->logview_bufsize = (unsigned int)VRMR_DEFAULT_LOGVIEW_BUFFERSIZE;
         }
         else
         {
@@ -306,9 +306,9 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     {
         (void)vrprint.debug(__FUNC__, "Variable LOGVIEW_BUFSIZE not found in '%s'. Using default (%d).",
                             configfile_location,
-                            DEFAULT_LOGVIEW_BUFFERSIZE);
+                            VRMR_DEFAULT_LOGVIEW_BUFFERSIZE);
 
-        cnf->logview_bufsize = (unsigned int)DEFAULT_LOGVIEW_BUFFERSIZE;
+        cnf->logview_bufsize = (unsigned int)VRMR_DEFAULT_LOGVIEW_BUFFERSIZE;
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);

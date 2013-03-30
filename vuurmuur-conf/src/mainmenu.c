@@ -582,7 +582,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
     }
     else
     {
-        if(!vrmr_check_iptables_command(debuglvl, &conf, conf.iptables_location, IPTCHK_QUIET))
+        if(!vrmr_check_iptables_command(debuglvl, &conf, conf.iptables_location, VRMR_IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -598,7 +598,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
         }
         else
         {
-            if(!vrmr_check_iptablesrestore_command(debuglvl, &conf, conf.iptablesrestore_location, IPTCHK_QUIET))
+            if(!vrmr_check_iptablesrestore_command(debuglvl, &conf, conf.iptablesrestore_location, VRMR_IPTCHK_QUIET))
             {
                 VuurmuurStatus.config = -1;
                 queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -614,7 +614,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
     }
     else
     {
-        if(!vrmr_check_ip6tables_command(debuglvl, &conf, conf.ip6tables_location, IPTCHK_QUIET))
+        if(!vrmr_check_ip6tables_command(debuglvl, &conf, conf.ip6tables_location, VRMR_IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -630,7 +630,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
         }
         else
         {
-            if(!vrmr_check_ip6tablesrestore_command(debuglvl, &conf, conf.ip6tablesrestore_location, IPTCHK_QUIET))
+            if(!vrmr_check_ip6tablesrestore_command(debuglvl, &conf, conf.ip6tablesrestore_location, VRMR_IPTCHK_QUIET))
             {
                 VuurmuurStatus.config = -1;
                 queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -641,7 +641,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
 
     if(strcmp(conf.tc_location, "") != 0)
     {
-        if(!vrmr_check_tc_command(debuglvl, &conf, conf.tc_location, IPTCHK_QUIET))
+        if(!vrmr_check_tc_command(debuglvl, &conf, conf.tc_location, VRMR_IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'tc'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));

@@ -602,7 +602,7 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
 #endif
     field_opts_off(IfSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
-    IfSec.ip6addressfld = (InterfacesSection.EditInterface.fields[field_num++] = new_field(1, MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
+    IfSec.ip6addressfld = (InterfacesSection.EditInterface.fields[field_num++] = new_field(1, VRMR_MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
     //set_field_type(IfSec.ip6addressfld, TYPE_IPV6);
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(debuglvl, IfSec.ip6addressfld, 0, iface_ptr->ipv6.ip6);
@@ -1577,7 +1577,7 @@ init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
                             *desc_ptr = NULL;
     size_t                  size = 0;
 
-    width = MAX_INTERFACE + 32 + 4;
+    width = VRMR_MAX_INTERFACE + 32 + 4;
     startx = 1;
     starty = 4;
 
@@ -1758,7 +1758,7 @@ rename_interface(const int debuglvl, struct vrmr_interfaces *interfaces, struct 
     struct vrmr_zone        *zone_ptr = NULL;
     struct vrmr_list_node             *zone_d_node = NULL,
                             *iface_d_node = NULL;
-    char                    save_name[MAX_INTERFACE] = "";
+    char                    save_name[VRMR_MAX_INTERFACE] = "";
     struct vrmr_rule        *rule_ptr = NULL;
     struct vrmr_list_node             *d_node = NULL;
     char                    rules_changed = 0;
@@ -1907,7 +1907,7 @@ interfaces_section_vrmr_delete_interface(const int debuglvl, struct vrmr_interfa
 {
     int                     result = 0;
     struct vrmr_interface   *iface_ptr = NULL;
-    char                    save_name[MAX_INTERFACE] = "";
+    char                    save_name[VRMR_MAX_INTERFACE] = "";
 
     /* safety */
     if(!cur_name_ptr || !interfaces)

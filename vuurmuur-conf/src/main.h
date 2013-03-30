@@ -187,18 +187,18 @@ typedef struct
 vc_cnf vccnf;
 
 /* setting defaults */
-#define DEFAULT_NEWRULE_LOG         1
-#define DEFAULT_NEWRULE_LOGLIMIT    20
+#define VRMR_DEFAULT_NEWRULE_LOG         1
+#define VRMR_DEFAULT_NEWRULE_LOGLIMIT    20
 
-#define DEFAULT_LOGVIEW_BUFFERSIZE  500
+#define VRMR_DEFAULT_LOGVIEW_BUFFERSIZE  500
 
 /* default not in advanced mode */
-#define DEFAULT_ADVANCED_MODE       0
+#define VRMR_DEFAULT_ADVANCED_MODE       0
 
 /* default print mainmenu_status */
-#define DEFAULT_MAINMENU_STATUS     1
+#define VRMR_DEFAULT_MAINMENU_STATUS     1
 
-#define DEFAULT_IPTRAFVOL_LOCATION  "/usr/bin/iptrafvol.pl"
+#define VRMR_DEFAULT_IPTRAFVOL_LOCATION  "/usr/bin/iptrafvol.pl"
 
 struct VuurmuurStatus_
 {
@@ -433,10 +433,10 @@ typedef struct LogRule_
 
     char action[16];
 
-    char service[MAX_SERVICE];
+    char service[VRMR_MAX_SERVICE];
 
-    char from[MAX_HOST_NET_ZONE];
-    char to[MAX_HOST_NET_ZONE];
+    char from[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char to[VRMR_VRMR_MAX_HOST_NET_ZONE];
 
     char prefix[32];
 

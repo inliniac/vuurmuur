@@ -35,9 +35,9 @@ vrmr_read_proc_entry(const int debuglvl, char *proc_entry, int *value)
         (void)vrprint.debug(__FUNC__, "** start **");
 
     entry_length = strlen(proc_entry);
-    if(entry_length >= MAX_PROC_ENTRY_LENGHT)
+    if(entry_length >= VRMR_MAX_PROC_ENTRY_LENGHT)
     {
-        (void)vrprint.error(-1, "Error", "proc_entry is too long (%d, max: %d) (in: %s).", entry_length, MAX_PROC_ENTRY_LENGHT, __FUNC__);
+        (void)vrprint.error(-1, "Error", "proc_entry is too long (%d, max: %d) (in: %s).", entry_length, VRMR_MAX_PROC_ENTRY_LENGHT, __FUNC__);
         return(-1);
     }
 
@@ -87,9 +87,9 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
     int     retval = 0;
     FILE    *fp = NULL;
 
-    char    entry[MAX_PROC_ENTRY_LENGHT],
-            entry_last[MAX_PROC_ENTRY_LENGHT],
-            total_entry[MAX_PROC_ENTRY_LENGHT*2];
+    char    entry[VRMR_MAX_PROC_ENTRY_LENGHT],
+            entry_last[VRMR_MAX_PROC_ENTRY_LENGHT],
+            total_entry[VRMR_MAX_PROC_ENTRY_LENGHT*2];
     int     proc_int = 0;
 
     if(debuglvl >= HIGH)
@@ -104,9 +104,9 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
 
     /* first check if we have an '*' in the proc_entry */
     entry_length = strlen(proc_entry);
-    if(entry_length >= MAX_PROC_ENTRY_LENGHT)
+    if(entry_length >= VRMR_MAX_PROC_ENTRY_LENGHT)
     {
-        (void)vrprint.error(-1, "Error", "proc_entry is too long (%d, max: %d) (in: vrmr_set_proc_entry).", entry_length, MAX_PROC_ENTRY_LENGHT);
+        (void)vrprint.error(-1, "Error", "proc_entry is too long (%d, max: %d) (in: vrmr_set_proc_entry).", entry_length, VRMR_MAX_PROC_ENTRY_LENGHT);
         return(-1);
     }
 

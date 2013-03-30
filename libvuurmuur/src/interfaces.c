@@ -804,7 +804,7 @@ vrmr_init_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
     int     result = 0,
             counter = 0,
             zonetype = 0;
-    char    ifacname[MAX_INTERFACE] = "";
+    char    ifacname[VRMR_MAX_INTERFACE] = "";
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "start");
@@ -868,7 +868,7 @@ vrmr_interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
-    char                rule_str[MAX_RULE_LENGTH] = "";
+    char                rule_str[VRMR_MAX_RULE_LENGTH] = "";
 
     /* safety */
     if(iface_ptr == NULL)
@@ -1179,7 +1179,7 @@ vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, st
     struct vrmr_interface   *iface_ptr = NULL;
     struct vrmr_zone        *zone_ptr = NULL;
     struct vrmr_list_node             *iface_node = NULL;
-    char                    name[MAX_INTERFACE + 8 + 2 + 1]; // 32 max iface length, 8 firewall, 2 () and 1 \0
+    char                    name[VRMR_MAX_INTERFACE + 8 + 2 + 1]; // 32 max iface length, 8 firewall, 2 () and 1 \0
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "start.");
@@ -1842,7 +1842,7 @@ vrmr_interfaces_rule_parse_line(const int debuglvl, const char *line, struct vrm
     }
 
     /* this should not happen, but it can't hurt to check, right? */
-    if(strlen(line) > MAX_RULE_LENGTH)
+    if(strlen(line) > VRMR_MAX_RULE_LENGTH)
     {
         (void)vrprint.error(-1, "Internal Error", "rule is too long (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -1912,7 +1912,7 @@ vrmr_interfaces_rule_parse_line(const int debuglvl, const char *line, struct vrm
 int
 vrmr_interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
-    char                currule[MAX_RULE_LENGTH] = "";
+    char                currule[VRMR_MAX_RULE_LENGTH] = "";
     struct vrmr_rule    *rule_ptr = NULL;
     struct vrmr_list_node         *d_node = NULL;
 
