@@ -1717,7 +1717,7 @@ zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network_ptr)
 int
 zones_network_analyze_rule( const int debuglvl,
                             struct vrmr_rule *rule_ptr,
-                            struct RuleCache_ *create,
+                            struct vrmr_rule_cache *create,
                             struct vrmr_zones *zones,
                             struct vuurmuur_config *cnf)
 {

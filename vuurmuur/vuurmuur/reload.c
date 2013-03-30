@@ -1720,7 +1720,7 @@ reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
                             *org_rule_ptr = NULL;
     struct vrmr_zone        *new_zone_ptr = NULL;
     struct vrmr_service    *new_serv_ptr = NULL;
-    struct RuleCache_       *rulecache = NULL;
+    struct vrmr_rule_cache       *rulecache = NULL;
 
 
     if(!(new_rules = malloc(sizeof(*new_rules))))

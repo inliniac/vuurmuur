@@ -85,7 +85,7 @@ struct RuleCreateData_
 {
     int                     ipv; /* ip version */
 
-    char                    action[sizeof(RuleCache.action)];
+    char                    action[122]; /* keep in sync with struct vrmr_rule_cache */
     char                    chain[48]; /* why 48? */
 
 #ifdef IPV6_ENABLED
@@ -314,18 +314,18 @@ int create_interface_rules(const int, /*@null@*/RuleSet *, struct vrmr_iptcaps *
 int create_system_protectrules(const int, struct vuurmuur_config *);
 int create_normal_rules(const int, VuurmuurCtx *, /*@null@*/RuleSet *, char *);
 
-int create_rule(const int, VuurmuurCtx*, /*@null@*/RuleSet *, struct RuleCache_ *);
+int create_rule(const int, VuurmuurCtx*, /*@null@*/RuleSet *, struct vrmr_rule_cache *);
 int remove_rule(const int debuglvl, int chaintype, int first_ipt_rule, int rules);
 
-int create_rule_input(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
-int create_rule_output(const int,  /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
-int create_rule_forward(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
-int create_rule_masq(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
-int create_rule_snat(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
-int create_rule_portfw(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
-int create_rule_redirect(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
-int create_rule_dnat(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
-int create_rule_bounce(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct RuleCache_ *, struct vrmr_iptcaps *);
+int create_rule_input(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_output(const int,  /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_forward(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_masq(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_snat(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_portfw(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_redirect(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_dnat(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_bounce(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
 
 int clear_vuurmuur_iptables_rules(const int debuglvl, struct vuurmuur_config *cnf);
 int clear_all_iptables_rules(const int debuglvl);

@@ -585,7 +585,7 @@ create_rule_set_ports(struct RuleCreateData_ *rule, struct vrmr_portdata *portra
 
 
 static int
-create_rule_set_proto(struct RuleCreateData_ *rule, struct RuleCache_ *create)
+create_rule_set_proto(struct RuleCreateData_ *rule, struct vrmr_rule_cache *create)
 {
     /* safety */
     if(rule == NULL || create == NULL)
@@ -630,7 +630,7 @@ create_rule_set_proto(struct RuleCreateData_ *rule, struct RuleCache_ *create)
 
 static int
 rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_  *rule,
-                struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+                struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
 
@@ -843,7 +843,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
 
 static int
 rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char            action[64] = ""; /* if changes to size: see sscanf below as well */
     char            logprefix[64] = "";
@@ -1105,7 +1105,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
 
 static int
 rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     d_list_node         *d_node = NULL;
     int                 retval = 0;
@@ -1310,7 +1310,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 static int
 rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char                from_has_mac = FALSE;
     char                from_mac[19] = "";
@@ -1573,7 +1573,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 static int
 rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int         retval = 0;
     d_list_node *port_d_node = NULL;
@@ -1691,7 +1691,7 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 static int
 rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/RuleSet *ruleset,
-    struct RuleCreateData_ *rule, struct RuleCache_ *create)
+    struct RuleCreateData_ *rule, struct vrmr_rule_cache *create)
 {
     int         retval = 0;
     d_list_node *d_node = NULL;
@@ -1973,7 +1973,7 @@ rulecreate_dst_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
  */
 static int
 rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/RuleSet *ruleset,
-        struct RuleCreateData_ *rule, struct RuleCache_ *create)
+        struct RuleCreateData_ *rule, struct vrmr_rule_cache *create)
 {
     int         retval = 0;
     d_list_node *d_node = NULL;
@@ -2194,7 +2194,7 @@ rulecreate_src_iface_loop (const int debuglvl, VuurmuurCtx *vctx, /*@null@*/Rule
  *  \retval 0 ok */
 static int
 rulecreate_ipv4ipv6_loop(const int debuglvl, VuurmuurCtx *vctx,
-        /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct RuleCache_ *create)
+        /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct vrmr_rule_cache *create)
 {
     if (ruleset == NULL || ruleset->ipv == VR_IPV4) {
         rule->ipv = VR_IPV4;
@@ -2233,7 +2233,7 @@ rulecreate_ipv4ipv6_loop(const int debuglvl, VuurmuurCtx *vctx,
 */
 int
 create_rule(const int debuglvl, VuurmuurCtx *vctx,
-    /*@null@*/RuleSet *ruleset, struct RuleCache_ *create)
+    /*@null@*/RuleSet *ruleset, struct vrmr_rule_cache *create)
 {
     int                     retval = 0;
     struct RuleCreateData_  *rule = NULL;

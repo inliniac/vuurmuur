@@ -167,7 +167,7 @@ determine_action(const int debuglvl, struct vuurmuur_config *cfg, char *query, c
 int
 rules_analyze_rule( const int debuglvl,
                     struct vrmr_rule *rule_ptr,
-                    struct RuleCache_ *create,
+                    struct vrmr_rule_cache *create,
                     struct vrmr_services *services,
                     struct vrmr_zones *zones,
                     struct vrmr_interfaces *interfaces,

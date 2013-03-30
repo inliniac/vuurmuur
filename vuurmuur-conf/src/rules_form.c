@@ -3372,7 +3372,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
     struct vrmr_interface   *iface_ptr = NULL;
     
     int                     result = 0;
-    struct RuleCache_       tmp_ruledata;
+    struct vrmr_rule_cache       tmp_ruledata;
     char                    window_title[32] = "";
 
     char        *key_choices[] =    {   "F12",
@@ -5011,7 +5011,7 @@ edit_rule_separator(const int debuglvl,
                         max_height,
                         max_width;
     int                 result = 0;
-    struct RuleCache_   tmp_ruledata;
+    struct vrmr_rule_cache   tmp_ruledata;
 
 
     /* safety */

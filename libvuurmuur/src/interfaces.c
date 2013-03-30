@@ -1721,7 +1721,7 @@ vrmr_destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfac
 int
 vrmr_interfaces_analyze_rule(const int debuglvl,
             struct vrmr_rule *rule_ptr,
-            struct RuleCache_ *create,
+            struct vrmr_rule_cache *create,
             struct vrmr_interfaces *interfaces,
             struct vuurmuur_config *cnf)
 {

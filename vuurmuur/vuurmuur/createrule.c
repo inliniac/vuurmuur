@@ -461,7 +461,7 @@ process_queued_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct Rule
 int
 create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             struct RuleCreateData_ *rule,
-            struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+            struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int             retval = 0;
     char            cmd[MAX_PIPE_COMMAND] = "",
@@ -897,7 +897,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
 int
 create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             struct RuleCreateData_ *rule,
-            struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+            struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int             retval = 0;
     char            cmd[MAX_PIPE_COMMAND] = "",
@@ -1328,7 +1328,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
 
 int
-create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int             retval = 0;
     char            cmd[MAX_PIPE_COMMAND] = "",
@@ -1808,7 +1808,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
 
 
 int
-create_rule_masq(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+create_rule_masq(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char    cmd[MAX_PIPE_COMMAND] = "";
     char    output_device[sizeof(rule->to_int) + 3] = "";
@@ -1863,7 +1863,7 @@ create_rule_masq(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
     TODO: maybe we want an option to use only one interface.
 */
 int
-create_rule_snat(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+create_rule_snat(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char    cmd[MAX_PIPE_COMMAND];
     char    output_device[sizeof(rule->to_int) + 3] = "";
@@ -1928,7 +1928,7 @@ create_rule_snat(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
     For PORTFW we handle both listenport and remoteport options.
 */
 int
-create_rule_portfw(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+create_rule_portfw(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int     retval = 0;
     char    cmd[MAX_PIPE_COMMAND] = "";
@@ -2074,7 +2074,7 @@ create_rule_portfw(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCr
     see pp 278 linux firewall 2nd edition 274-275 for redirect
 */
 int
-create_rule_redirect(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+create_rule_redirect(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char    cmd[MAX_PIPE_COMMAND] = "";
     char    tmp_port[sizeof(rule->temp_dst_port)] = "",
@@ -2200,7 +2200,7 @@ create_rule_redirect(const int debuglvl, /*@null@*/RuleSet *ruleset, struct Rule
 int
 create_rule_dnat(   const int debuglvl, /*@null@*/RuleSet *ruleset,
                     struct RuleCreateData_ *rule,
-                    struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+                    struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int     retval = 0;
     char    cmd[MAX_PIPE_COMMAND] = "";
@@ -2302,7 +2302,7 @@ create_rule_dnat(   const int debuglvl, /*@null@*/RuleSet *ruleset,
 int
 create_rule_bounce( const int debuglvl, /*@null@*/RuleSet *ruleset,
                     struct RuleCreateData_ *rule,
-                    struct RuleCache_ *create, struct vrmr_iptcaps *iptcap)
+                    struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int     retval = 0;
     char    cmd[MAX_PIPE_COMMAND] = "";
@@ -4565,7 +4565,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *
 }
 
 static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
-                                struct vrmr_iptcaps *iptcap, struct RuleCache_ *create,
+                                struct vrmr_iptcaps *iptcap, struct vrmr_rule_cache *create,
                                 struct vrmr_interface *if_ptr)
 {
     char input_device[16 + 3] = "";  /* 16 + '-i ' */
@@ -4666,7 +4666,7 @@ static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet
 int
 create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *iptcap, struct vrmr_interfaces *interfaces)
 {
-    struct RuleCache_       *create = NULL;
+    struct vrmr_rule_cache       *create = NULL;
     d_list_node             *d_node = NULL,
                             *if_d_node = NULL;
     struct vrmr_rule        *rule_ptr = NULL;
@@ -4788,7 +4788,7 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vr
 
 static int
 create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
-                struct vrmr_iptcaps *iptcap, struct RuleCache_ *create,
+                struct vrmr_iptcaps *iptcap, struct vrmr_rule_cache *create,
                 struct vrmr_interface *from_if_ptr)
 {
     char input_device[16 + 3] = "";  /* 16 + '-i ' */
@@ -4994,7 +4994,7 @@ int
 create_network_protect_rules_dhcp_server(   const int debuglvl,
                                             /*@null@*/RuleSet *ruleset,
                                             struct vrmr_zones *zones, struct vrmr_iptcaps *iptcap,
-                                            struct RuleCache_ *create,
+                                            struct vrmr_rule_cache *create,
                                             struct vrmr_interface *if_ptr)
 {
     int     retval = 0;
@@ -5082,7 +5082,7 @@ int
 create_network_protect_rules_dhcp_client(   const int debuglvl,
                                             /*@null@*/RuleSet *ruleset,
                                             struct vrmr_zones *zones, struct vrmr_iptcaps *iptcap,
-                                            struct RuleCache_ *create,
+                                            struct vrmr_rule_cache *create,
                                             struct vrmr_interface *if_ptr)
 {
     int     retval = 0;
@@ -5155,7 +5155,7 @@ create_network_protect_rules_dhcp_client(   const int debuglvl,
 int
 create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_zones *zones, struct vrmr_iptcaps *iptcap)
 {
-    struct RuleCache_ *create = NULL;
+    struct vrmr_rule_cache *create = NULL;
     d_list_node *d_node = NULL, *net_d_node = NULL, *from_if_node = NULL;
     struct vrmr_zone *zone_ptr = NULL;
     struct vrmr_rule *rule_ptr = NULL;
