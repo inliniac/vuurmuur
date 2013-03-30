@@ -158,7 +158,7 @@ conn_line_to_data(  const int debuglvl,
                     Hash *serhash,
                     Hash *zonehash,
                     d_list *zonelist,
-                    VR_ConntrackRequest *req
+                    struct vrmr_conntrack_request *req
                 )
 {
     char    service_name[MAX_SERVICE] = "",
@@ -2051,7 +2051,7 @@ conn_get_connections_do(const int debuglvl,
                         Hash *zone_hash,
                         d_list *conn_dlist,
                         d_list *zone_list,
-                        VR_ConntrackRequest *req,
+                        struct vrmr_conntrack_request *req,
                         struct vrmr_conntrack_stats *connstat_ptr,
                         int ipver
                     )
@@ -2455,7 +2455,7 @@ conn_get_connections_cmd (const int debuglvl,
                         Hash *zone_hash,
                         d_list *conn_dlist,
                         d_list *zone_list,
-                        VR_ConntrackRequest *req,
+                        struct vrmr_conntrack_request *req,
                         struct vrmr_conntrack_stats *connstat_ptr,
                         int ipver
                     )
@@ -2473,7 +2473,7 @@ conn_get_connections_proc (const int debuglvl,
                         Hash *zone_hash,
                         d_list *conn_dlist,
                         d_list *zone_list,
-                        VR_ConntrackRequest *req,
+                        struct vrmr_conntrack_request *req,
                         struct vrmr_conntrack_stats *connstat_ptr
                     )
 {
@@ -2490,7 +2490,7 @@ conn_get_connections(   const int debuglvl,
                         Hash *zone_hash,
                         d_list *conn_dlist,
                         d_list *zone_list,
-                        VR_ConntrackRequest *req,
+                        struct vrmr_conntrack_request *req,
                         struct vrmr_conntrack_stats *connstat_ptr
                     )
 {
@@ -2530,7 +2530,7 @@ conn_get_connections(   const int debuglvl,
 }
 
 void
-VR_connreq_setup(const int debuglvl, VR_ConntrackRequest *connreq)
+VR_connreq_setup(const int debuglvl, struct vrmr_conntrack_request *connreq)
 {
     /* safety */
     if(connreq == NULL)
@@ -2542,12 +2542,12 @@ VR_connreq_setup(const int debuglvl, VR_ConntrackRequest *connreq)
 
     vrmr_filter_setup(debuglvl, &connreq->filter);
 
-    memset(connreq, 0, sizeof(VR_ConntrackRequest));
+    memset(connreq, 0, sizeof(struct vrmr_conntrack_request));
 }
 
 
 void
-VR_connreq_cleanup(const int debuglvl, VR_ConntrackRequest *connreq)
+VR_connreq_cleanup(const int debuglvl, struct vrmr_conntrack_request *connreq)
 {
     /* safety */
     if(connreq == NULL)
@@ -2559,5 +2559,5 @@ VR_connreq_cleanup(const int debuglvl, VR_ConntrackRequest *connreq)
 
     vrmr_filter_cleanup(debuglvl, &connreq->filter);
 
-    memset(connreq, 0, sizeof(VR_ConntrackRequest));
+    memset(connreq, 0, sizeof(struct vrmr_conntrack_request));
 }

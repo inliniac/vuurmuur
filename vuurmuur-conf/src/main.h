@@ -465,10 +465,10 @@ int kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf, Co
 
 Conntrack *conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_blocklist *blocklist );
 void conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones);
-int conn_ct_get_connections(const int, struct vuurmuur_config *, Conntrack *, VR_ConntrackRequest *);
+int conn_ct_get_connections(const int, struct vuurmuur_config *, Conntrack *, struct vrmr_conntrack_request *);
 void conn_ct_clear_connections(const int debuglvl, Conntrack *ct);
 
-void statevent(const int, struct vuurmuur_config *, int, d_list *, Conntrack *, VR_ConntrackRequest *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *);
+void statevent(const int, struct vuurmuur_config *, int, d_list *, Conntrack *, struct vrmr_conntrack_request *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *);
 
 
 /* length in chars (be it wide chars or normal chars) */

@@ -55,7 +55,7 @@ copy_name(char *dst, char *src, size_t size)
 static int
 print_connection(const int debuglvl, WINDOW *local_win,
             struct vrmr_conntrack_entry *cd_ptr,
-            VR_ConntrackRequest *connreq,
+            struct vrmr_conntrack_request *connreq,
             int max_onscreen, int cnt,
             int screen_width, int acct)
 {
@@ -479,7 +479,7 @@ update_draw_size_do(int *s, int sr, int sm, char *str, size_t strsize) {
 }
 
 static void
-update_draw_size(const int debuglvl, VR_ConntrackRequest *connreq, int width, int ser, int from, int to)
+update_draw_size(const int debuglvl, struct vrmr_conntrack_request *connreq, int width, int ser, int from, int to)
 {
     /* max: cnt sp ser sp from sp arrow sp to sp stat sp dir
      *        5  1   15 1   46  1     2  1 46  1    5  1   4 = 129 */
@@ -604,7 +604,7 @@ conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones)
 }
 
 int
-conn_ct_get_connections(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, VR_ConntrackRequest *req)
+conn_ct_get_connections(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, struct vrmr_conntrack_request *req)
 {
     ct->conn_stats.fromname_max = ct->conn_stats.toname_max = ct->conn_stats.sername_max = 0;
 
@@ -716,7 +716,7 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
     int                 cmd_choices_n = 10;
 
     Conntrack           *ct = NULL;
-    VR_ConntrackRequest connreq;
+    struct vrmr_conntrack_request connreq;
     int                 printed = 0;
     int                 print_accounting = 0;
 
