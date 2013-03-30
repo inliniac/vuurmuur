@@ -23,7 +23,7 @@
 #include "icmp.h"
 
 int
-get_icmp_name_short(int type, int code, char *name, size_t size, int only_code)
+vrmr_get_icmp_name_short(int type, int code, char *name, size_t size, int only_code)
 {
     int i=0,
         k=0;
@@ -106,7 +106,7 @@ get_icmp_name_short(int type, int code, char *name, size_t size, int only_code)
 
 // return 1 if found
 //        0 if done
-int list_icmp_types(int *type, int *has_code, int *number)
+int vrmr_list_icmp_types(int *type, int *has_code, int *number)
 {
     if(vrmr_icmp_types[*number].type != -1)
     {
@@ -125,7 +125,7 @@ int list_icmp_types(int *type, int *has_code, int *number)
 
 // return 1 if found
 //        0 if done
-int list_icmp_codes(int type, int *code, int *number)
+int vrmr_list_icmp_codes(int type, int *code, int *number)
 {
     // find the first of our type
     if(vrmr_icmp_codes[*number].type < type)

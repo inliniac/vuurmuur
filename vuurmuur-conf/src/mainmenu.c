@@ -40,7 +40,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
     int     type = 0;
     char    rules_found = FALSE;
 
-    /* first, lets save the list to the backend. For this we call rules_save_list, 
+    /* first, lets save the list to the backend. For this we call vrmr_rules_save_list, 
        but before this, we need to set rules->old_rulesfile_used to FALSE. */
     rules->old_rulesfile_used = FALSE;
 
@@ -65,8 +65,8 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
         }
     }
 
-    /* call rules_save_list */
-    if(rules_save_list(debuglvl, rules, cnf) < 0)
+    /* call vrmr_rules_save_list */
+    if(vrmr_rules_save_list(debuglvl, rules, cnf) < 0)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("saving rules failed"));
         return(-1);
@@ -133,7 +133,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
         }
     }
 
-    /* call rules_save_list */
+    /* call vrmr_rules_save_list */
     if(vrmr_blocklist_save_list(debuglvl, cnf, blocklist) < 0)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("saving blocklist failed"));
@@ -582,7 +582,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
     }
     else
     {
-        if(!check_iptables_command(debuglvl, &conf, conf.iptables_location, IPTCHK_QUIET))
+        if(!vrmr_check_iptables_command(debuglvl, &conf, conf.iptables_location, IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -598,7 +598,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
         }
         else
         {
-            if(!check_iptablesrestore_command(debuglvl, &conf, conf.iptablesrestore_location, IPTCHK_QUIET))
+            if(!vrmr_check_iptablesrestore_command(debuglvl, &conf, conf.iptablesrestore_location, IPTCHK_QUIET))
             {
                 VuurmuurStatus.config = -1;
                 queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -614,7 +614,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
     }
     else
     {
-        if(!check_ip6tables_command(debuglvl, &conf, conf.ip6tables_location, IPTCHK_QUIET))
+        if(!vrmr_check_ip6tables_command(debuglvl, &conf, conf.ip6tables_location, IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -630,7 +630,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
         }
         else
         {
-            if(!check_ip6tablesrestore_command(debuglvl, &conf, conf.ip6tablesrestore_location, IPTCHK_QUIET))
+            if(!vrmr_check_ip6tablesrestore_command(debuglvl, &conf, conf.ip6tablesrestore_location, IPTCHK_QUIET))
             {
                 VuurmuurStatus.config = -1;
                 queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -641,7 +641,7 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
 
     if(strcmp(conf.tc_location, "") != 0)
     {
-        if(!check_tc_command(debuglvl, &conf, conf.tc_location, IPTCHK_QUIET))
+        if(!vrmr_check_tc_command(debuglvl, &conf, conf.tc_location, IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'tc'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -801,7 +801,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
         if(iface_ptr->dynamic == TRUE)
         {
             /* now try to get the dynamic ipaddress */
-            ipresult = get_dynamic_ip(debuglvl, iface_ptr->device, iface_ptr->ipv4.ipaddress, sizeof(iface_ptr->ipv4.ipaddress));
+            ipresult = vrmr_get_dynamic_ip(debuglvl, iface_ptr->device, iface_ptr->ipv4.ipaddress, sizeof(iface_ptr->ipv4.ipaddress));
             if(ipresult == 0)
             {
                 /* set iface to down */
@@ -812,7 +812,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
             }
             else if(ipresult < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "get_dynamic_ip() failed (in: %s:%d).",
+                (void)vrprint.error(-1, "Internal Error", "vrmr_get_dynamic_ip() failed (in: %s:%d).",
                                                 __FUNC__, __LINE__);
                 return;
             }
@@ -821,7 +821,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
         /* check the ip if we have one */
         if(iface_ptr->ipv4.ipaddress[0] != '\0')
         {
-            if(check_ipv4address(debuglvl, NULL, NULL, iface_ptr->ipv4.ipaddress, 1) != 1)
+            if(vrmr_check_ipv4address(debuglvl, NULL, NULL, iface_ptr->ipv4.ipaddress, 1) != 1)
             {
                 VuurmuurStatus.interfaces = 0;
 
@@ -836,10 +836,10 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
             iface_ptr->active == TRUE   &&
             iface_ptr->device_virtual == FALSE)
         {
-            ipresult = get_dynamic_ip(debuglvl, iface_ptr->device, ipaddress, sizeof(ipaddress));
+            ipresult = vrmr_get_dynamic_ip(debuglvl, iface_ptr->device, ipaddress, sizeof(ipaddress));
             if(ipresult < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "get_dynamic_ip() failed (in: %s:%d).",
+                (void)vrprint.error(-1, "Internal Error", "vrmr_get_dynamic_ip() failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
                 return;
             }
@@ -958,7 +958,7 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
                 if( zone_ptr->network_parent->ipv4.network[0] != '\0' &&
                     zone_ptr->network_parent->ipv4.netmask[0] != '\0')
                 {
-                    result = check_ipv4address(debuglvl, zone_ptr->network_parent->ipv4.network,
+                    result = vrmr_check_ipv4address(debuglvl, zone_ptr->network_parent->ipv4.network,
                                         zone_ptr->network_parent->ipv4.netmask,
                                         zone_ptr->ipv4.ipaddress, 1);
                     if(result < 0)
@@ -1004,7 +1004,7 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
             else
             {
                 /* check the ip */
-                result = check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.network, 1);
+                result = vrmr_check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.network, 1);
                 if(result < 0)
                 {
                     VuurmuurStatus.zones = 0;
@@ -1026,7 +1026,7 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
             else
             {
                 /* check the ip */
-                result = check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.netmask, 1);
+                result = vrmr_check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.netmask, 1);
                 if(result < 0)
                 {
                     VuurmuurStatus.zones = 0;

@@ -432,9 +432,9 @@ main(int argc, char *argv[])
 
     /* cleanup the datastructures */
     (void)vrmr_list_cleanup(debuglvl, &blocklist.list);
-    (void)destroy_serviceslist(debuglvl, &services);
-    (void)destroy_zonedatalist(debuglvl, &zones);
-    (void)rules_cleanup_list(debuglvl, &rules);
+    (void)vrmr_destroy_serviceslist(debuglvl, &services);
+    (void)vrmr_destroy_zonedatalist(debuglvl, &zones);
+    (void)vrmr_rules_cleanup_list(debuglvl, &rules);
     (void)vrmr_destroy_interfaceslist(debuglvl, &interfaces);
     return(retval);
 }
@@ -660,7 +660,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     if(debuglvl > LOW) sleep(1);
     while(!config_done)
     {
-        result = init_config(debuglvl, &conf);
+        result = vrmr_init_config(debuglvl, &conf);
         if(result == VRMR_CNF_E_UNKNOWN_ERR || result == VRMR_CNF_E_PARAMETER)
             return(-1);
         else if(result == VRMR_CNF_E_FILE_PERMISSION)
@@ -703,7 +703,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
         }
         else
         {
-            (void)vrprint.error(-1, VR_INTERR, "unknown return code from init_config. This can't be good (in: %s:%d).", __FUNCTION__, __LINE__);
+            (void)vrprint.error(-1, VR_INTERR, "unknown return code from vrmr_init_config. This can't be good (in: %s:%d).", __FUNCTION__, __LINE__);
             return(-1);
         }
 
@@ -743,7 +743,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_SERVICES); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = init_services(debuglvl, services, reg);
+    result = vrmr_init_services(debuglvl, services, reg);
     if(result < 0)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("intializing the services failed."));
@@ -769,7 +769,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_ZONES); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = init_zonedata(debuglvl, zones, interfaces, reg);
+    result = vrmr_init_zonedata(debuglvl, zones, interfaces, reg);
     if(result < 0)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("intializing the zones failed."));

@@ -23,7 +23,7 @@
 #include <sys/ioctl.h>  /* used for getting interface info from the system */
 
 
-/* create_broadcast_ip
+/* vrmr_create_broadcast_ip
 
     For broadcasting protocols we need an ipaddress to broadcast to.
     This function creates this ipaddress.
@@ -84,7 +84,7 @@ create_network_ip(const int debuglvl, char *ipaddress, char *netmask, char *netw
 }
 
 
-/*  get_dynamic_ip
+/*  vrmr_get_dynamic_ip
 
     partly ripped from Net-tools 1.60 (c) Phil Blundell philb@gnu.org and
     Bernd Eckenfels net-tools@lina.inka.de

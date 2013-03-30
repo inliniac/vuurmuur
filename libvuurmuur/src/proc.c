@@ -22,7 +22,7 @@
 #include "vuurmuur.h"
 
 int
-read_proc_entry(const int debuglvl, char *proc_entry, int *value)
+vrmr_read_proc_entry(const int debuglvl, char *proc_entry, int *value)
 {
     int     retval = 0,
             result = 0;
@@ -79,7 +79,7 @@ read_proc_entry(const int debuglvl, char *proc_entry, int *value)
 }
 
 int
-set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entry, int proc_set, char *who)
+vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entry, int proc_set, char *who)
 {
     size_t  i = 0,
             j = 0,
@@ -106,7 +106,7 @@ set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entry, in
     entry_length = strlen(proc_entry);
     if(entry_length >= MAX_PROC_ENTRY_LENGHT)
     {
-        (void)vrprint.error(-1, "Error", "proc_entry is too long (%d, max: %d) (in: set_proc_entry).", entry_length, MAX_PROC_ENTRY_LENGHT);
+        (void)vrprint.error(-1, "Error", "proc_entry is too long (%d, max: %d) (in: vrmr_set_proc_entry).", entry_length, MAX_PROC_ENTRY_LENGHT);
         return(-1);
     }
 
@@ -134,7 +134,7 @@ set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entry, in
     {
         if(who == NULL)
         {
-            (void)vrprint.error(-1, "Error", "No 'who' supplied (set_proc_entry).");
+            (void)vrprint.error(-1, "Error", "No 'who' supplied (vrmr_set_proc_entry).");
             return(-1);
         }
 
@@ -144,7 +144,7 @@ set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entry, in
             fp = fopen(total_entry, "w");
             if(!fp)
             {
-                (void)vrprint.error(-1, "Error", "opening proc entry '%s' failed: %s (in: set_proc_entry).", total_entry, strerror(errno));
+                (void)vrprint.error(-1, "Error", "opening proc entry '%s' failed: %s (in: vrmr_set_proc_entry).", total_entry, strerror(errno));
                 retval = -1;
             }
             else
@@ -170,7 +170,7 @@ set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entry, in
         {
             if(!(fp = fopen(proc_entry, "w")))
             {
-                (void)vrprint.error(-1, "Error", "Opening proc entry '%s' failed: %s (in: set_proc_entry).", proc_entry, strerror(errno));
+                (void)vrprint.error(-1, "Error", "Opening proc entry '%s' failed: %s (in: vrmr_set_proc_entry).", proc_entry, strerror(errno));
                 retval=-1;
             }
             else

@@ -52,7 +52,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             }
 
             /* get the mac-address */
-            answer_ptr->has_mac = get_mac_address(debuglvl, name, answer_ptr->mac, sizeof(answer_ptr->mac), reg->macaddr);
+            answer_ptr->has_mac = vrmr_get_mac_address(debuglvl, name, answer_ptr->mac, sizeof(answer_ptr->mac), reg->macaddr);
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "has_mac: %d", answer_ptr->has_mac);
 
@@ -108,7 +108,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             /* get the broadcast address for this network/netmask combination */
             if(strcmp(answer_ptr->ipv4.network, "") != 0 && strcmp(answer_ptr->ipv4.netmask, "") != 0)
             {
-                result = create_broadcast_ip(debuglvl, answer_ptr->ipv4.network, answer_ptr->ipv4.netmask, answer_ptr->ipv4.broadcast, sizeof(answer_ptr->ipv4.broadcast));
+                result = vrmr_create_broadcast_ip(debuglvl, answer_ptr->ipv4.network, answer_ptr->ipv4.netmask, answer_ptr->ipv4.broadcast, sizeof(answer_ptr->ipv4.broadcast));
                 if(result != 0)
                 {
                     (void)vrprint.error(-1, "Error", "creating broadcast ip for zone '%s' failed.", answer_ptr->name);
@@ -156,7 +156,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
 }
 
 
-/* create_broadcast_ip
+/* vrmr_create_broadcast_ip
 
     For broadcasting protocols we need an ipaddress to broadcast to.
     This function creates this ipaddress.
@@ -166,7 +166,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
     -1: error
 */
 int
-create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broadcast_ip, size_t size)
+vrmr_create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broadcast_ip, size_t size)
 {
     int retval=0;
 
@@ -182,7 +182,7 @@ create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broa
 
     if(inet_aton(netmask, &mask) == 0)
     {
-        (void)vrprint.error(-1, "Error", "Invalid netmask: '%s' (in: create_broadcast_ip).", netmask);
+        (void)vrprint.error(-1, "Error", "Invalid netmask: '%s' (in: vrmr_create_broadcast_ip).", netmask);
         return(-1);
     }
     else
@@ -195,7 +195,7 @@ create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broa
 
     if(inet_aton(network, &net) == 0)
     {
-        (void)vrprint.error(-1, "Error", "Invalid network: '%s' (in: create_broadcast_ip).", network);
+        (void)vrprint.error(-1, "Error", "Invalid network: '%s' (in: vrmr_create_broadcast_ip).", network);
         return(-1);
     }
     else
@@ -222,7 +222,7 @@ create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broa
     return(retval);
 }
 
-/*  get_group_info
+/*  vrmr_get_group_info
 
     This function reads the groupfile.
 
@@ -231,7 +231,7 @@ create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broa
         -1: error
  */
 int
-get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, struct vrmr_zone *answer_ptr)
+vrmr_get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, struct vrmr_zone *answer_ptr)
 {
     int                 result = 0;
     char                total_zone[MAX_HOST_NET_ZONE] = "",
@@ -253,7 +253,7 @@ get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, st
         return(-1);
     }
 
-    /* setup the list (allready done in zone_malloc?) */
+    /* setup the list (allready done in vrmr_zone_malloc?) */
     vrmr_list_setup(debuglvl, &answer_ptr->GroupList, NULL);
     answer_ptr->group_member_count = 0;
 
@@ -264,7 +264,7 @@ get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, st
 
         snprintf(total_zone, sizeof(total_zone), "%s.%s.%s", cur_mem, answer_ptr->network_name, answer_ptr->zone_name);
 
-        zone_ptr = search_zonedata(debuglvl, zones, total_zone);
+        zone_ptr = vrmr_search_zonedata(debuglvl, zones, total_zone);
         if(zone_ptr == NULL)
         {
             (void)vrprint.debug(__FUNC__, "the member '%s' of group '%s' was not found in memory.",
@@ -320,7 +320,7 @@ get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupname, st
     returns NULL on error
 */
 char *
-list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/char *option_name)
+vrmr_list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/char *option_name)
 {
     struct vrmr_list_node     *d_node = NULL;
     char            options[MAX_OPTIONS_LENGTH] = "",
@@ -407,7 +407,7 @@ list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/char *op
 }
 
 int
-portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dlist)
+vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dlist)
 {
     int             done=0,
                     range=0,
@@ -482,7 +482,7 @@ portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dlist)
                 else
                 {
                     /* split it! */
-                    if(split_portrange(option_string, &portrange_ptr->dst_low, &portrange_ptr->dst_high) < 0)
+                    if(vrmr_split_portrange(option_string, &portrange_ptr->dst_low, &portrange_ptr->dst_high) < 0)
                     {
                         free(portrange_ptr);
                         return(-1);
@@ -513,7 +513,7 @@ portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dlist)
 }
 
 
-/*  check_active
+/*  vrmr_check_active
 
     Checks if the supplied zoneinfo is active. It does this by calling ask_backend with
     the question 'ACTIVE'.
@@ -524,7 +524,7 @@ portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dlist)
      1: active
  */
 int
-check_active(const int debuglvl, char *name, int type)
+vrmr_check_active(const int debuglvl, char *name, int type)
 {
     int     result = 0;
     char    active[4] = "";
@@ -614,7 +614,7 @@ check_active(const int debuglvl, char *name, int type)
 }
 
 
-/*  get_dynamic_ip
+/*  vrmr_get_dynamic_ip
 
     partly ripped from Net-tools 1.60 (c) Phil Blundell philb@gnu.org and
     Bernd Eckenfels net-tools@lina.inka.de
@@ -625,7 +625,7 @@ check_active(const int debuglvl, char *name, int type)
         -1: error
  */
 int
-get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t size)
+vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t size)
 {
     int                 numreqs = 30;
     struct ifconf       ifc;
@@ -752,7 +752,7 @@ get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t size)
 }
 
 
-/*  check_ipv4address
+/*  vrmr_check_ipv4address
 
     Checks if a ipaddress is valid, in two steps
         1: check if the ipaddress itself is valid
@@ -769,7 +769,7 @@ get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t size)
         -1: error: no valid ip/net/mask
 */
 int
-check_ipv4address(const int debuglvl, char *network, char *netmask, char *ipaddress, char quiet)
+vrmr_check_ipv4address(const int debuglvl, char *network, char *netmask, char *ipaddress, char quiet)
 {
     int                 retval = 0;
 
@@ -870,7 +870,7 @@ check_ipv4address(const int debuglvl, char *network, char *netmask, char *ipaddr
 }
 
 
-/*  get_mac_address
+/*  vrmr_get_mac_address
 
     Gets the mac address of a host from the backend and checks it.
 
@@ -879,7 +879,7 @@ check_ipv4address(const int debuglvl, char *network, char *netmask, char *ipaddr
         -1: error
 */
 int
-get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_t size, regex_t *mac_rgx)
+vrmr_get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_t size, regex_t *mac_rgx)
 {
     int retval = 0,
         result = 0;
@@ -921,7 +921,7 @@ get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_t siz
     }
     else
     {
-        (void)vrprint.error(-1, "Error", "getting macaddress for %s failed (in: get_mac_address).", hostname);
+        (void)vrprint.error(-1, "Error", "getting macaddress for %s failed (in: vrmr_get_mac_address).", hostname);
         retval=-1;
     }
 
@@ -936,7 +936,7 @@ get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_t siz
         -1: error
 */
 int
-get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr_danger_info *danger_struct)
+vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr_danger_info *danger_struct)
 {
     /* safety */
     if(danger == NULL || source == NULL || danger_struct == NULL)
@@ -1113,7 +1113,7 @@ get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr_dang
 }
 
 
-/*  get_network_for_ipv4
+/*  vrmr_get_network_for_ipv4
 
     This functions checks to which network a ipv4 address belongs. It does
     this by looping trough the zoneslist and checking if the ipaddress
@@ -1126,7 +1126,7 @@ get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr_dang
     A solution is providing a list of only networks...
 */
 char
-*get_network_for_ipv4(const int debuglvl, const char *ipaddress, struct vrmr_list *zonelist)
+*vrmr_get_network_for_ipv4(const int debuglvl, const char *ipaddress, struct vrmr_list *zonelist)
 {
     struct in_addr      ip;      /* the ipaddress we want to check */
     struct in_addr      net;     /* the network address against we want to check */

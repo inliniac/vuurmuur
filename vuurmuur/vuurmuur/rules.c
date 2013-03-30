@@ -173,9 +173,9 @@ oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, stru
     }
 
     /* get the current chains */
-    (void)rules_get_system_chains(debuglvl, rules, cnf, VR_IPV4);
+    (void)vrmr_rules_get_system_chains(debuglvl, rules, cnf, VR_IPV4);
     /* get the custom chains we have to create */
-    if(rules_get_custom_chains(debuglvl, rules) < 0)
+    if(vrmr_rules_get_custom_chains(debuglvl, rules) < 0)
     {
         (void)vrprint.error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -191,10 +191,10 @@ oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, stru
             return(-1);
         }
 
-        if(rules_chain_in_list(debuglvl, &rules->system_chain_filter, chainname) == 0)
+        if(vrmr_rules_chain_in_list(debuglvl, &rules->system_chain_filter, chainname) == 0)
         {
             snprintf(cmd, sizeof(cmd), "%s -N %s", cnf->iptables_location, chainname);
-            (void)pipe_command(debuglvl, cnf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, cnf, cmd, PIPE_QUIET);
         }
     }
 
@@ -304,7 +304,7 @@ analyze_network_protect_rules(const int debuglvl, struct vrmr_rules *rules, stru
                     return(-1);
                 }
 
-                if(zones_network_analyze_rule(debuglvl, rule_ptr, &rule_ptr->rulecache, zones, &conf) == 0)
+                if(vrmr_zones_network_analyze_rule(debuglvl, rule_ptr, &rule_ptr->rulecache, zones, &conf) == 0)
                 {
                     if(debuglvl >= HIGH)
                         (void)vrprint.debug(__FUNC__, "analizing protectrule success, active = 1.");
@@ -370,10 +370,10 @@ analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_z
         }
 
         /* analyze! */
-        if(rules_analyze_rule(debuglvl, rule_ptr, &rule_ptr->rulecache, services, zones, interfaces, &conf) == 0)
+        if(vrmr_rules_analyze_rule(debuglvl, rule_ptr, &rule_ptr->rulecache, services, zones, interfaces, &conf) == 0)
         {
             if(debuglvl >= MEDIUM)
-                (void)vrprint.debug(__FUNC__, "rules_analyze_rule %3u ok.", rulescount);
+                (void)vrprint.debug(__FUNC__, "vrmr_rules_analyze_rule %3u ok.", rulescount);
 
             /* update d_node */
             d_node = d_node->next;
@@ -395,9 +395,9 @@ analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_z
             }
 
             /* now update the number in the list */
-            //rules_update_numbers(debuglvl, rules, rulescount - rulesfailedcount + 1, 0);
+            //vrmr_rules_update_numbers(debuglvl, rules, rulescount - rulesfailedcount + 1, 0);
 
-            rules_free_options(debuglvl, rule_ptr->opt);
+            vrmr_rules_free_options(debuglvl, rule_ptr->opt);
             free(rule_ptr);
             rule_ptr = NULL;
 
@@ -687,7 +687,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
     else if(create->ruletype == RT_MASQ)
     {
         if (create->option.random == TRUE) {
-            if (conf.check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
+            if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
                 snprintf(rule->random, sizeof(rule->random), "--random");
             } else {
                 (void)vrprint.debug(__FUNC__, "MASQ random option not supported: iptcap->target_nat_random %s.",
@@ -718,7 +718,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
 
         if (create->option.random == TRUE) {
-            if (conf.check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
+            if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
                 snprintf(rule->random, sizeof(rule->random), "--random");
             } else {
                 (void)vrprint.debug(__FUNC__, "SNAT random option not supported: iptcap->target_nat_random %s.",
@@ -749,7 +749,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
 
         if (create->option.random == TRUE) {
-            if (conf.check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
+            if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
                 snprintf(rule->random, sizeof(rule->random), "--random");
             } else {
                 (void)vrprint.debug(__FUNC__, "PORTFW random option not supported: iptcap->target_nat_random %s.",
@@ -787,7 +787,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
 
         if (create->option.random == TRUE) {
-            if (conf.check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
+            if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
                 snprintf(rule->random, sizeof(rule->random), "--random");
             } else {
                 (void)vrprint.debug(__FUNC__, "DNAT random option not supported: iptcap->target_nat_random %s.",
@@ -817,7 +817,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
 
         if (create->option.random == TRUE) {
-            if (conf.check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
+            if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
                 snprintf(rule->random, sizeof(rule->random), "--random");
             } else {
                 (void)vrprint.debug(__FUNC__, "BOUNCE random option not supported: iptcap->target_nat_random %s.",
@@ -882,7 +882,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
     if(create->option.rule_log == TRUE)
     {
         /* create the limitstring */
-        if(conf.check_iptcaps == FALSE || iptcap->match_limit == TRUE)
+        if(conf.vrmr_check_iptcaps == FALSE || iptcap->match_limit == TRUE)
         {
             if(create->option.loglimit > 0) {
                 limit = create->option.loglimit;
@@ -950,7 +950,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "create the log rule for broadcast.");
 
-            if(conf.check_iptcaps == 0 || iptcap->match_limit == 1)
+            if(conf.vrmr_check_iptcaps == 0 || iptcap->match_limit == 1)
             {
                 if(create->option.loglimit > 0) {
                     limit = create->option.loglimit;
@@ -1032,7 +1032,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
     /* action LOG requires some extra attention */
     if(strncasecmp(create->action, "LOG", 3) == 0 || strncasecmp(create->action, "NFLOG", 5) == 0)
     {
-        if(conf.check_iptcaps == 0 || iptcap->match_limit == 1)
+        if(conf.vrmr_check_iptcaps == 0 || iptcap->match_limit == 1)
         {
             limit = create->option.limit;
             burst = create->option.burst;
@@ -1056,7 +1056,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
     }
     else
     {
-        if(conf.check_iptcaps == 0 || iptcap->match_limit == 1)
+        if(conf.vrmr_check_iptcaps == 0 || iptcap->match_limit == 1)
         {
             limit = create->option.limit;
             burst = create->option.burst;
@@ -1454,7 +1454,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         /* add mac-address if we happen to know it, only 'from' is supported by iptables */
         if(from_has_mac == TRUE)
         {
-            if(conf.check_iptcaps == FALSE || iptcap->match_mac == TRUE)
+            if(conf.vrmr_check_iptcaps == FALSE || iptcap->match_mac == TRUE)
                 snprintf(rule->from_mac, sizeof(rule->from_mac), "-m mac --mac-source %s", from_mac);
             else
             {
@@ -1503,7 +1503,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
                 /* add mac-address if we happen to know it, only 'from' is supported by iptables */
                 if(from_has_mac == TRUE)
                 {
-                    if(conf.check_iptcaps == FALSE || iptcap->match_mac == TRUE)
+                    if(conf.vrmr_check_iptcaps == FALSE || iptcap->match_mac == TRUE)
                         snprintf(rule->from_mac, sizeof(rule->from_mac), "-m mac --mac-source %s", from_mac);
                     else
                     {
@@ -1899,7 +1899,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
 
 #ifdef IPV6_ENABLED
             if (rule->ipv == VR_IPV6 &&
-                    !interface_ipv6_enabled(debuglvl, rule->to_if_ptr)) {
+                    !vrmr_interface_ipv6_enabled(debuglvl, rule->to_if_ptr)) {
                 active = 0;
             }
 #endif
@@ -2142,7 +2142,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             }
 #ifdef IPV6_ENABLED
             if (rule->ipv == VR_IPV6 &&
-                    !interface_ipv6_enabled(debuglvl, rule->from_if_ptr)) {
+                    !vrmr_interface_ipv6_enabled(debuglvl, rule->from_if_ptr)) {
                 active = 0;
             (void)vrprint.debug(__FUNC__, "active %d (ipv6)", active);
             }
@@ -2366,7 +2366,7 @@ remove_rule(const int debuglvl, int chaintype, int first_ipt_rule, int rules)
             (void)vrprint.debug(__FUNC__, "cmd: %s %s %d", conf.iptables_location, chain, first_ipt_rule);
 
         snprintf(cmd, sizeof(cmd), "%s %s %d", conf.iptables_location, chain, first_ipt_rule);
-        if(pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE) != 0)
+        if(vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE) != 0)
         {
             (void)vrprint.error(-1, "Error", "remove_rule: pipe error. This command failed: '%s'.", cmd);
             return(-1);
@@ -2400,11 +2400,11 @@ create_system_protectrules(const int debuglvl, struct vrmr_config *conf)
     if(debuglvl >= MEDIUM)
         (void)vrprint.debug(__FUNC__, "Setting '%d' to '%s'... ", conf->protect_syncookie, "/proc/sys/net/ipv4/tcp_syncookies");
 
-    result = set_proc_entry(debuglvl, conf, "/proc/sys/net/ipv4/tcp_syncookies", conf->protect_syncookie, NULL);
+    result = vrmr_set_proc_entry(debuglvl, conf, "/proc/sys/net/ipv4/tcp_syncookies", conf->protect_syncookie, NULL);
     if(result != 0)
     {
         /* if it fails, we dont really care, its not fatal */
-        (void)vrprint.error(-1, "Error", "set_proc_entry failed (in: create_rule, prot_proc_sys).");
+        (void)vrprint.error(-1, "Error", "vrmr_set_proc_entry failed (in: create_rule, prot_proc_sys).");
     }
 
 
@@ -2412,11 +2412,11 @@ create_system_protectrules(const int debuglvl, struct vrmr_config *conf)
     if(debuglvl >= MEDIUM)
         (void)vrprint.debug(__FUNC__, "Setting '%d' to '%s'... ", conf->protect_echobroadcast, "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts");
 
-    result = set_proc_entry(debuglvl, conf, "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts", conf->protect_echobroadcast, NULL);
+    result = vrmr_set_proc_entry(debuglvl, conf, "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts", conf->protect_echobroadcast, NULL);
     if(result != 0)
     {
         /* if it fails, we dont really care, its not fatal */
-        (void)vrprint.error(-1, "Error", "set_proc_entry failed (in: create_rule, prot_proc_sys).");
+        (void)vrprint.error(-1, "Error", "vrmr_set_proc_entry failed (in: create_rule, prot_proc_sys).");
     }
 
     return(0);
@@ -2540,7 +2540,7 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
     }
 
     /* get the current chains */
-    (void)rules_get_system_chains(debuglvl, &rules, cnf, VR_IPV4);
+    (void)vrmr_rules_get_system_chains(debuglvl, &rules, cnf, VR_IPV4);
 
     /* prepare chains tab with nodes for loop */
     chains[0] = rules.system_chain_mangle.top;
@@ -2568,7 +2568,7 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
                 snprintf(cmd, MAX_PIPE_COMMAND, "%s -t %s --flush %s",
                         conf.iptables_location, tables[table], chainname);
 
-                result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+                result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
                 if (result < 0)
                     retval = -1;
             }
@@ -2585,19 +2585,19 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
     /* set default polices to ACCEPT */
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
             conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
             conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
             conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
@@ -2637,7 +2637,7 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
     }
 
     /* get the current chains */
-    (void)rules_get_system_chains(debuglvl, &rules, cnf, VR_IPV6);
+    (void)vrmr_rules_get_system_chains(debuglvl, &rules, cnf, VR_IPV6);
 
     /* prepare chains tab with nodes for loop */
     chains[0] = rules.system_chain_mangle.top;
@@ -2664,7 +2664,7 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
                 snprintf(cmd, MAX_PIPE_COMMAND, "%s -t %s --flush %s",
                         conf.ip6tables_location, tables[table], chainname);
 
-                result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+                result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
                 if (result < 0)
                     retval = -1;
             }
@@ -2681,19 +2681,19 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
     /* set default polices to ACCEPT */
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
             conf.ip6tables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
             conf.ip6tables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
             conf.ip6tables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
@@ -2740,51 +2740,51 @@ clear_all_iptables_rules_ipv4(const int debuglvl)
     /* flush everything */
     snprintf(cmd, MAX_PIPE_COMMAND, "%s -t filter --flush",
             conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s -t nat --flush",
             conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush",
             conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     /* this will remove the all chains in {filter,nat,mangle} tables */
     snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
             conf.iptables_location, TB_FILTER);
-    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
             conf.iptables_location, TB_NAT);
-    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
             conf.iptables_location, TB_MANGLE);
-    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 
     /* set default polices to ACCEPT */
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
             conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
             conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
             conf.iptables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
@@ -2802,41 +2802,41 @@ clear_all_iptables_rules_ipv6(const int debuglvl)
     /* flush everything */
     snprintf(cmd, MAX_PIPE_COMMAND, "%s -t filter --flush",
             conf.ip6tables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush",
             conf.ip6tables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     /* this will remove the all chains in {filter,nat,mangle} tables */
     snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
             conf.ip6tables_location, TB_FILTER);
-    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s %s -X 2>/dev/null",
             conf.ip6tables_location, TB_MANGLE);
-    (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+    (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 
     /* set default polices to ACCEPT */
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT ACCEPT",
             conf.ip6tables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT ACCEPT",
             conf.ip6tables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 
     snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD ACCEPT",
             conf.ip6tables_location);
-    result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+    result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
     if (result < 0)
         retval = -1;
 

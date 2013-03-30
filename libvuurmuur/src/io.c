@@ -44,8 +44,8 @@ vuurmuur_fopen(const int debuglvl, const struct vrmr_config *cnf, const char *pa
     FILE        *fp=NULL;
 
     /* Stat the file */
-    if (!stat_ok(debuglvl, cnf, path, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_ALLOW_NOTFOUND))
-        /* File not OK? Don't open it. stat_ok will have printed an error message already. */
+    if (!vrmr_stat_ok(debuglvl, cnf, path, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_ALLOW_NOTFOUND))
+        /* File not OK? Don't open it. vrmr_stat_ok will have printed an error message already. */
         return NULL;
 
     /* now open the file, this should not fail because if we get here it exists and is readable,
@@ -65,7 +65,7 @@ vuurmuur_opendir(const int debuglvl, const struct vrmr_config *cnf, const char *
 {
     DIR *dir_p = NULL;
 
-    if(!(stat_ok(debuglvl, cnf, name, STATOK_WANT_DIR, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, cnf, name, STATOK_WANT_DIR, STATOK_VERBOSE, STATOK_MUST_EXIST)))
         return(NULL);
 
     /* finally try to open */
@@ -79,7 +79,7 @@ vuurmuur_opendir(const int debuglvl, const struct vrmr_config *cnf, const char *
 }
 
 
-/*  stat_ok
+/*  vrmr_stat_ok
 
     A function to see if we want to open a file or directory.
 
@@ -101,7 +101,7 @@ vuurmuur_opendir(const int debuglvl, const struct vrmr_config *cnf, const char *
         0: file not ok
 */
 int
-stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file_loc, char type, char output, char must_exist)
+vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file_loc, char type, char output, char must_exist)
 {
     struct stat stat_buf;
     mode_t max, perm;
@@ -203,7 +203,7 @@ stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file_loc,
  *
  */
 int
-check_pidfile(char *pidfile_location, char *service, pid_t *thepid)
+vrmr_check_pidfile(char *pidfile_location, char *service, pid_t *thepid)
 {
     FILE    *fp;
     pid_t   pid;
@@ -249,7 +249,7 @@ check_pidfile(char *pidfile_location, char *service, pid_t *thepid)
 
 
 int
-create_pidfile(char *pidfile_location, int shm_id)
+vrmr_create_pidfile(char *pidfile_location, int shm_id)
 {
     FILE    *fp;
     pid_t   pid;
@@ -260,7 +260,7 @@ create_pidfile(char *pidfile_location, int shm_id)
     /*
         first check if the pidfile already exists
     */
-    if(check_pidfile(pidfile_location, "createsvc", &pid) == -1)
+    if(vrmr_check_pidfile(pidfile_location, "createsvc", &pid) == -1)
         return(-1);
 
     pid = getpid();
@@ -287,7 +287,7 @@ create_pidfile(char *pidfile_location, int shm_id)
 
 
 int
-remove_pidfile(char *pidfile_location)
+vrmr_remove_pidfile(char *pidfile_location)
 {
     if(!pidfile_location)
         return(-1);
@@ -308,7 +308,7 @@ remove_pidfile(char *pidfile_location)
     Returns the pointer to the file, or NULL if failed.
 */
 FILE *
-rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const char *path, const char *mode, int caller)
+vrmr_rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const char *path, const char *mode, int caller)
 {
     FILE    *lock_fp = NULL,
             *fp = NULL;
@@ -404,10 +404,10 @@ rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const char *p
 }
 
 
-/*  rules_file_close
+/*  vrmr_rules_file_close
 */
 int
-rules_file_close(FILE *file, const char *path)
+vrmr_rules_file_close(FILE *file, const char *path)
 {
     FILE    *lock_fp = NULL;
     int     retval = 0;
@@ -479,7 +479,7 @@ rules_file_close(FILE *file, const char *path)
 }
 
 
-/*  pipe_command
+/*  vrmr_pipe_command
 
     This function takes the 'command' and pipes it to the shell.
 
@@ -488,7 +488,7 @@ rules_file_close(FILE *file, const char *path)
         -1: error
  */
 int
-pipe_command(const int debuglvl, struct vrmr_config *cnf, char *command,
+vrmr_pipe_command(const int debuglvl, struct vrmr_config *cnf, char *command,
         char ignore_error)
 {
     int     retval=0;
@@ -642,7 +642,7 @@ libvuurmuur_exec_command(const int debuglvl, struct vrmr_config *cnf, char *path
 }
 
 void
-shm_update_progress(const int debuglvl, int semid, int *shm_progress, int set_percent)
+vrmr_shm_update_progress(const int debuglvl, int semid, int *shm_progress, int set_percent)
 {
     if(vrmr_lock(semid))
     {
@@ -708,7 +708,7 @@ get_vuurmuur_pid(char *vuurmuur_pidfile_location, int *shmid)
     vuurmuur-XXXXXX becomes something like: vuurmuur-uTXhQZ
 */
 int
-create_tempfile(const int debuglvl, char *pathname)
+vrmr_create_tempfile(const int debuglvl, char *pathname)
 {
     int fd = -1;
 
@@ -737,7 +737,7 @@ create_tempfile(const int debuglvl, char *pathname)
 
 
 void
-sanitize_path(const int debuglvl, char *path, size_t size)
+vrmr_sanitize_path(const int debuglvl, char *path, size_t size)
 {
     size_t  i = 0;
 

@@ -804,7 +804,7 @@ iptcap_test_nat_random(const int debuglvl, struct vrmr_config *cnf) {
 }
 
 int
-check_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+vrmr_check_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     int result = 0;
 
@@ -817,7 +817,7 @@ check_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *
     }
 
     /* load the caps */
-    result = load_iptcaps(debuglvl, cnf, iptcap, load_modules);
+    result = vrmr_load_iptcaps(debuglvl, cnf, iptcap, load_modules);
     if(result == -1)
     {
         (void)vrprint.error(-1, "Error", "loading iptables capabilities failed (in: %s:%d).",
@@ -904,7 +904,7 @@ static int check_conntrack(const int debuglvl, struct vrmr_config *cnf, int ipv)
 }
 
 int
-load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     char    proc_net_match[]    = "/proc/net/ip_tables_matches",
             proc_net_target[]   = "/proc/net/ip_tables_targets",
@@ -1497,7 +1497,7 @@ load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *i
 
 #ifdef IPV6_ENABLED
 int
-check_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+vrmr_check_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     int result = 0;
 
@@ -1510,7 +1510,7 @@ check_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps 
     }
 
     /* load the caps */
-    result = load_ip6tcaps(debuglvl, cnf, iptcap, load_modules);
+    result = vrmr_load_ip6tcaps(debuglvl, cnf, iptcap, load_modules);
     if(result == -1)
     {
         (void)vrprint.error(-1, "Error", "loading ip6tables capabilities failed (in: %s:%d).",
@@ -1576,7 +1576,7 @@ check_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps 
 }
 
 int
-load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     char    proc_net_ip6_match[] = "/proc/net/ip6_tables_matches",
             proc_net_ip6_target[] = "/proc/net/ip6_tables_targets",

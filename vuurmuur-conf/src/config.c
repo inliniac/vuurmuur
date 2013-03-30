@@ -79,7 +79,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
                             __FUNC__, __LINE__);
         return(-1);
     }
-    sanitize_path(debuglvl, cnf->helpfile_location,
+    vrmr_sanitize_path(debuglvl, cnf->helpfile_location,
             sizeof(cnf->helpfile_location));
 
     /* now, based on this, the scriptsdir location */
@@ -89,7 +89,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
                             __FUNC__, __LINE__);
         return(-1);
     }
-    sanitize_path(debuglvl, cnf->scripts_location,
+    vrmr_sanitize_path(debuglvl, cnf->scripts_location,
             sizeof(cnf->scripts_location));
 
 
@@ -115,12 +115,12 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* check if we like the configfile */
-    if(!(stat_ok(debuglvl, &conf, configfile_location, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, &conf, configfile_location, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
         return(VRMR_CNF_E_FILE_PERMISSION);
 
 
     /* ADVANCED_MODE */
-    result = ask_configfile(debuglvl, &conf, "ADVANCED_MODE", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, &conf, "ADVANCED_MODE", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -154,7 +154,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* MAINMENU_STATUS */
-    result = ask_configfile(debuglvl, &conf, "MAINMENU_STATUS", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, &conf, "MAINMENU_STATUS", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -188,7 +188,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* IPTRAFVOL */
-    result = ask_configfile(debuglvl, &conf, "IPTRAFVOL", cnf->iptrafvol_location, configfile_location, sizeof(cnf->iptrafvol_location));
+    result = vrmr_ask_configfile(debuglvl, &conf, "IPTRAFVOL", cnf->iptrafvol_location, configfile_location, sizeof(cnf->iptrafvol_location));
     if(result == 1)
     {
         /* ok */
@@ -211,12 +211,12 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    sanitize_path(debuglvl, cnf->iptrafvol_location,
+    vrmr_sanitize_path(debuglvl, cnf->iptrafvol_location,
             sizeof(cnf->iptrafvol_location));
 
 
     /* NEWRULE_LOG */
-    result = ask_configfile(debuglvl, &conf, "NEWRULE_LOG", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, &conf, "NEWRULE_LOG", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -250,7 +250,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* NEWRULE_LOGLIMIT */
-    result = ask_configfile(debuglvl, &conf, "NEWRULE_LOGLIMIT", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, &conf, "NEWRULE_LOGLIMIT", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -284,7 +284,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* LOGVIEW_BUFSIZE */
-    result = ask_configfile(debuglvl, &conf, "LOGVIEW_BUFSIZE", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, &conf, "LOGVIEW_BUFSIZE", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -314,7 +314,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
     /* BACKGROUND */
-    result = ask_configfile(debuglvl, &conf, "BACKGROUND", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, &conf, "BACKGROUND", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */

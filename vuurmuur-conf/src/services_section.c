@@ -223,7 +223,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
         ser_ptr->status = ST_CHANGED;
 
         /* save the portranges */
-        if(services_save_portranges(debuglvl, ser_ptr) < 0)
+        if(vrmr_services_save_portranges(debuglvl, ser_ptr) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("saving the portranges failed (in: %s:%d)."), __FUNC__, __LINE__);
             return(-1);
@@ -537,7 +537,7 @@ icmp_choose_type(void)
     getmaxyx(stdscr, max_height, max_width);
 
     /* count the number of icmp types (maybe this could be a fixed number?) */
-    while(list_icmp_types(&icmp_type, &icmp_type_has_code, &icmp_type_num) == 1)
+    while(vrmr_list_icmp_types(&icmp_type, &icmp_type_has_code, &icmp_type_num) == 1)
         type_cnt++;
 
     /* set number of menu items */
@@ -567,7 +567,7 @@ icmp_choose_type(void)
     type_cnt = 0;
 
     /* init */
-    while(list_icmp_types(&icmp_type, &icmp_type_has_code, &icmp_type_num) == 1)
+    while(vrmr_list_icmp_types(&icmp_type, &icmp_type_has_code, &icmp_type_num) == 1)
     {
         //status_print(status_win, "%d", type_cnt);
 
@@ -577,9 +577,9 @@ icmp_choose_type(void)
             (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
             return(-1);
         }
-        if(get_icmp_name_short(icmp_type, -1, name, name_size, 0) < 0)
+        if(vrmr_get_icmp_name_short(icmp_type, -1, name, name_size, 0) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "get_icmp_name_short() failed (in: %s:%d).", __FUNC__, __LINE__);
+            (void)vrprint.error(-1, VR_INTERR, "vrmr_get_icmp_name_short() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         itemnames[type_cnt] = name;
@@ -768,7 +768,7 @@ icmp_choose_code(const int icmp_type)
     getmaxyx(stdscr, max_height, max_width);
     
     /* count the number of icmp types (maybe this could be a fixed number?) */
-    while(list_icmp_codes(icmp_type, &icmp_code, &icmp_code_num) == 1)
+    while(vrmr_list_icmp_codes(icmp_type, &icmp_code, &icmp_code_num) == 1)
         code_cnt++;
 
     if(code_cnt == 0)
@@ -806,7 +806,7 @@ icmp_choose_code(const int icmp_type)
     icmp_code = 0;
 
     /* init */
-    while(list_icmp_codes(icmp_type, &icmp_code, &icmp_code_num) == 1)
+    while(vrmr_list_icmp_codes(icmp_type, &icmp_code, &icmp_code_num) == 1)
     {
         /* set itemnames and itemnumbers */
         if(!(name = malloc(name_size)))
@@ -814,9 +814,9 @@ icmp_choose_code(const int icmp_type)
             (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
             return(-1);
         }
-        if(get_icmp_name_short(icmp_type, icmp_code, name, name_size, 1) < 0)
+        if(vrmr_get_icmp_name_short(icmp_type, icmp_code, name, name_size, 1) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "get_icmp_name_short() failed (in: %s:%d).", __FUNC__, __LINE__);
+            (void)vrprint.error(-1, VR_INTERR, "vrmr_get_icmp_name_short() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
         itemnames[code_cnt] = name;
@@ -1208,7 +1208,7 @@ create_portrange_string(const int debuglvl, struct vrmr_portdata *portrange_ptr,
         snprintf(src, sizeof(src), "TYPE=%2d", portrange_ptr->dst_low);
         snprintf(dst, sizeof(dst), "CODE=%2d", portrange_ptr->dst_high);
 
-        get_icmp_name_short(portrange_ptr->dst_low, portrange_ptr->dst_high, icmp_name, sizeof(icmp_name), 0);
+        vrmr_get_icmp_name_short(portrange_ptr->dst_low, portrange_ptr->dst_high, icmp_name, sizeof(icmp_name), 0);
         snprintf(buf, size, "ICMP: T:%d, C:%d (%s)", portrange_ptr->dst_low, portrange_ptr->dst_high, icmp_name);
     }
     else if(portrange_ptr->protocol == 6)
@@ -1513,7 +1513,7 @@ edit_serv_portranges_del(const int debuglvl, int place, struct vrmr_service *ser
             }
 
             /* save */
-            if(services_save_portranges(debuglvl, ser_ptr) < 0)
+            if(vrmr_services_save_portranges(debuglvl, ser_ptr) < 0)
             {
                 (void)vrprint.error(-1, VR_ERR, gettext("saving the portranges failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -1619,7 +1619,7 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
             snprintf(src, sizeof(src), "TYPE=%2d", portrange_ptr->dst_low);
             snprintf(dst, sizeof(dst), "CODE=%2d", portrange_ptr->dst_high);
 
-            get_icmp_name_short(portrange_ptr->dst_low, portrange_ptr->dst_high, icmp_name, sizeof(icmp_name), 0);
+            vrmr_get_icmp_name_short(portrange_ptr->dst_low, portrange_ptr->dst_high, icmp_name, sizeof(icmp_name), 0);
             snprintf(port_string_ptr, rangestr_size, "ICMP: T:%2d, C:%2d (%s)", portrange_ptr->dst_low, portrange_ptr->dst_high, icmp_name);
         }
         else if(portrange_ptr->protocol == 6)
@@ -2278,7 +2278,7 @@ edit_service(const int debuglvl, struct vrmr_services *services, const char *nam
     }
     
     /* search the service */
-    if(!(ser_ptr = search_service(debuglvl, services, (char *)name)))
+    if(!(ser_ptr = vrmr_search_service(debuglvl, services, (char *)name)))
     {
         (void)vrprint.error(-1, VR_INTERR, "service '%s' was not found in memory (in: %s:%d).", name, __FUNC__, __LINE__);
         return(-1);
@@ -2403,7 +2403,7 @@ edit_service(const int debuglvl, struct vrmr_services *services, const char *nam
     }
         
     /* save the portranges */
-    if(services_save_portranges(debuglvl, ser_ptr) < 0)
+    if(vrmr_services_save_portranges(debuglvl, ser_ptr) < 0)
     {
         (void)vrprint.error(-1, "Error", "saving the portranges failed (in: %s).", __FUNC__);
         retval = -1;
@@ -2467,7 +2467,7 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
         return(-1);
     }
 
-    if(!(ser_ptr = search_service(debuglvl, services, old_ser_name)))
+    if(!(ser_ptr = vrmr_search_service(debuglvl, services, old_ser_name)))
     {
         (void)vrprint.error(-1, VR_INTERR, "service not found in the list (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -2511,7 +2511,7 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
     /* if we have made changes we write the rulesfile */
     if(changed == 1)
     {
-        if(rules_save_list(debuglvl, rules, &conf) < 0)
+        if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
@@ -2525,7 +2525,7 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
 
 
 static int
-init_services_section(const int debuglvl, struct vrmr_services *services, int height, int width, int starty, int startx)
+vrmr_init_services_section(const int debuglvl, struct vrmr_services *services, int height, int width, int starty, int startx)
 {
     int                     retval=0,
                             i=0;
@@ -2685,7 +2685,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
     ServicesSection.sl_xre = startx + width;
     ServicesSection.sl_yle = starty + height;
 
-    result = init_services_section(debuglvl, services, height, width, starty, startx);
+    result = vrmr_init_services_section(debuglvl, services, height, width, starty, startx);
     if(result < 0)
         return;
 
@@ -2702,7 +2702,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
             if(result < 0)
                 return;
 
-            result = init_services_section(debuglvl, services, height, width, starty, startx);
+            result = vrmr_init_services_section(debuglvl, services, height, width, starty, startx);
             if(result < 0)
                 return;
 
@@ -2750,7 +2750,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                         new_name_ptr = input_box(32, gettext("Rename Service"), STR_PLEASE_ENTER_THE_NAME);
                         if(new_name_ptr != NULL)
                         {
-                            if(validate_servicename(debuglvl, new_name_ptr, reg->servicename, VALNAME_VERBOSE) == 0)
+                            if(vrmr_validate_servicename(debuglvl, new_name_ptr, reg->servicename, VALNAME_VERBOSE) == 0)
                             {
                                 char *n = (char *)item_name(cur);
 
@@ -2776,15 +2776,15 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                     new_name_ptr = input_box(32, gettext("New Service"), gettext("Please enter the name of the new service"));
                     if(new_name_ptr != NULL)
                     {
-                        if(validate_servicename(debuglvl, new_name_ptr, reg->servicename, VALNAME_QUIET) == 0)
+                        if(vrmr_validate_servicename(debuglvl, new_name_ptr, reg->servicename, VALNAME_QUIET) == 0)
                         {
-                            if((search_service(debuglvl, services, new_name_ptr) != NULL))
+                            if((vrmr_search_service(debuglvl, services, new_name_ptr) != NULL))
                             {
                                 (void)vrprint.error(-1, VR_ERR, gettext("service %s already exists."), new_name_ptr);
                             }
                             else
                             {
-                                result = new_service(debuglvl, services, new_name_ptr, TYPE_SERVICE);
+                                result = vrmr_new_service(debuglvl, services, new_name_ptr, TYPE_SERVICE);
                                 if(result == 0)
                                 {
                                     /* example: "service 'X-5' has been created" */
@@ -2821,7 +2821,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                         {
                             (void)strlcpy(save_ser_name, (char *)item_name(cur), sizeof(save_ser_name));
 
-                            result = delete_service(debuglvl, services, (char *)item_name(cur), TYPE_SERVICE);
+                            result = vrmr_delete_service(debuglvl, services, (char *)item_name(cur), TYPE_SERVICE);
                             if(result < 0)
                             {
                                 (void)vrprint.error(-1, VR_ERR, "%s.", STR_DELETE_FAILED);

@@ -268,7 +268,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
                     "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+    vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
 
     /* open the file */
     fp = fopen(helpfile, "r");
@@ -287,7 +287,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
                     "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+        vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
 
         if(!(fp = fopen(helpfile, "r")))
         {
@@ -367,7 +367,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
                 "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+        vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
 
         /* open the file */
         fp = fopen(helpfile, "r");
@@ -396,7 +396,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
                     "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+        vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
     }
 
     /* open the file */
@@ -416,7 +416,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
                     "(in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
-        sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+        vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
 
         if(!(fp = fopen(helpfile, "r")))
         {

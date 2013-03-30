@@ -514,10 +514,10 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
         return(-1);
 
     if(debuglvl >= HIGH)
-        (void)vrprint.debug(__FUNC__, "rule_ptr found: i: %d (rule_ptr: %s %s %s %s)", i, rules_itoaction(rule_ptr->action), rule_ptr->service, rule_ptr->from, rule_ptr->to);
+        (void)vrprint.debug(__FUNC__, "rule_ptr found: i: %d (rule_ptr: %s %s %s %s)", i, vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service, rule_ptr->from, rule_ptr->to);
 
 //TODO
-    rules_remove_rule_from_list(debuglvl, rules, rule_num, 1);
+    vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1);
 
     rule_ptr->number = new_place;
     
@@ -525,11 +525,11 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
         (void)vrprint.debug(__FUNC__, "new_place: %d, rule_ptr->number: %d", new_place, rule_ptr->number);
 
 //TODO
-    rules_insert_list(debuglvl, rules, new_place, rule_ptr);
+    vrmr_rules_insert_list(debuglvl, rules, new_place, rule_ptr);
 
 
     if(debuglvl >= LOW)
-        rules_print_list(rules);
+        vrmr_rules_print_list(rules);
 
     return(retval);
 }
@@ -835,14 +835,14 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules, struct
         }
         if (rule_ptr != NULL) {
             /* editting failed so remove the rule again */
-            if(rules_remove_rule_from_list(debuglvl, rules, rule_num, 1) < 0)
+            if(vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1) < 0)
             {
                 (void)vrprint.error(-1, VR_INTERR, "removing rule failed "
                         "(in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
-            rules_free_options(debuglvl, rule_ptr->opt);
+            vrmr_rules_free_options(debuglvl, rule_ptr->opt);
             rule_ptr->opt = NULL;
             free(rule_ptr);
             rule_ptr = NULL;
@@ -877,14 +877,14 @@ rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_r
     }
 
     /* get the rulestring */
-    if(!(rule_str = rules_assemble_rule(debuglvl, org_rule_ptr)))
+    if(!(rule_str = vrmr_rules_assemble_rule(debuglvl, org_rule_ptr)))
     {
         (void)vrprint.error(-1, VR_INTERR, "failed to assemble rule to be copied (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* claim memory for the new rule*/
-    if(!(new_rule_ptr = rule_malloc()))
+    if(!(new_rule_ptr = vrmr_rule_malloc()))
     {
         free(rule_str);
 
@@ -908,7 +908,7 @@ rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_r
     new_rule_ptr->number = org_rule_ptr->number + 1;
 
     /* insert the new rule into the list */
-    if(rules_insert_list(debuglvl, rules, new_rule_ptr->number, new_rule_ptr) < 0)
+    if(vrmr_rules_insert_list(debuglvl, rules, new_rule_ptr->number, new_rule_ptr) < 0)
     {
         (void)vrprint.error(-1, VR_INTERR, "failed to insert in list (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1004,7 +1004,7 @@ Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules)
 
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "active: %s (%s %s %s %s)",
-                    rule_ptr->active ? "Yes" : "No", rules_itoaction(rule_ptr->action),
+                    rule_ptr->active ? "Yes" : "No", vrmr_rules_itoaction(rule_ptr->action),
                     rule_ptr->service, rule_ptr->from, rule_ptr->to);
 
     /* set the active */
@@ -1133,7 +1133,7 @@ MatchFilter_RuleBar(struct vrmr_rule *rule_ptr, /*@null@*/regex_t *reg, char onl
     if(!reg)
         return(1);
 
-    (void)strlcpy(rule_str, rules_itoaction(rule_ptr->action), sizeof(rule_str));
+    (void)strlcpy(rule_str, vrmr_rules_itoaction(rule_ptr->action), sizeof(rule_str));
     (void)strlcat(rule_str, " ", sizeof(rule_str));
     (void)strlcat(rule_str, rule_ptr->service, sizeof(rule_str));
     (void)strlcat(rule_str, " ", sizeof(rule_str));
@@ -1243,12 +1243,12 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
                 {
                     /* note if you change the [x] into something else, also change it in rulebar_setcolor */
                     snprintf(active, rbform->active_size,    "%s",  rule_ptr->active ? "[x]" : "[ ]");
-                    snprintf(action, rbform->action_size,    "%s",  rules_itoaction(rule_ptr->action));
+                    snprintf(action, rbform->action_size,    "%s",  vrmr_rules_itoaction(rule_ptr->action));
                     snprintf(service, rbform->service_size,  "%s",  rule_ptr->service);
                     snprintf(from, rbform->from_size,        "%s",  rule_ptr->from);
                     snprintf(to, rbform->to_size,            "%s",  rule_ptr->to);
 
-                    if(!(option_str = rules_assemble_options_string(debuglvl, rule_ptr->opt, rules_itoaction(rule_ptr->action))))
+                    if(!(option_str = vrmr_rules_assemble_options_string(debuglvl, rule_ptr->opt, vrmr_rules_itoaction(rule_ptr->action))))
                         strcpy(options, "-");
                     else
                     {
@@ -2080,7 +2080,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                     if(edit_rule(debuglvl, rules, zones, interfaces, services, insert_rule_num, reg) < 0)
                     {
                         /* editting failed so remove the rule again */
-                        if(rules_remove_rule_from_list(debuglvl, rules, insert_rule_num, 1) < 0)
+                        if(vrmr_rules_remove_rule_from_list(debuglvl, rules, insert_rule_num, 1) < 0)
                         {
                             (void)vrprint.error(-1, VR_INTERR, "removing rule failed (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
@@ -2326,7 +2326,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
     /* if the rules are changed, save the changes. But only if retval != -1. */
     if(rules_changed && retval != -1)
     {
-        if(rules_save_list(debuglvl, rules, &conf) < 0)
+        if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("saving rules failed."));
             retval = -1;
@@ -2353,7 +2353,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                 }
                 else
                 {
-                    str = rules_assemble_rule(debuglvl, rule_ptr);
+                    str = vrmr_rules_assemble_rule(debuglvl, rule_ptr);
                     if(str[StrMemLen(str)-1] == '\n')
                         str[StrMemLen(str)-1] = '\0';
                     (void)vrprint.audit("%2d: %s", i, str);
@@ -2431,13 +2431,13 @@ delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
         }
 
         /* editting failed so remove the rule again */
-        if(rules_remove_rule_from_list(debuglvl, rules, rule_num, 1) < 0)
+        if(vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1) < 0)
         {
             (void)vrprint.error(-1, VR_INTERR, "removing rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
 
-        rules_free_options(debuglvl, rule_ptr->opt);
+        vrmr_rules_free_options(debuglvl, rule_ptr->opt);
         rule_ptr->opt = NULL;
         free(rule_ptr);
         rule_ptr = NULL;
@@ -2446,7 +2446,7 @@ delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     }
 
     if(debuglvl >= LOW)
-        rules_print_list(rules);
+        vrmr_rules_print_list(rules);
 
     return(retval);
 }
@@ -2476,11 +2476,11 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
         rule_num = 1;
 
     /* claim memory */
-    if(!(rule_ptr = rule_malloc()))
+    if(!(rule_ptr = vrmr_rule_malloc()))
         return(-1);
 
     /* set rule to standard */
-    rule_ptr->action = rules_actiontoi(action);
+    rule_ptr->action = vrmr_rules_actiontoi(action);
     strcpy(rule_ptr->service, "");
     strcpy(rule_ptr->from, "");
     strcpy(rule_ptr->to, "");
@@ -2489,7 +2489,7 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
     /* only setup the options if we are going to change one or more */
     if(vccnf.newrule_log || vccnf.newrule_loglimit)
     {
-        if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+        if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
         {
             free(rule_ptr);
             return(-1);
@@ -2513,7 +2513,7 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "rule_num: %d, rule_ptr->number: %d", rule_num, rule_ptr->number);
 
-        if(rules_insert_list(debuglvl, rules, rule_ptr->number, rule_ptr) < 0)
+        if(vrmr_rules_insert_list(debuglvl, rules, rule_ptr->number, rule_ptr) < 0)
         {
             (void)vrprint.error(-1, VR_INTERR, "failed to insert in list (in: %s:%d).", __FUNC__, __LINE__);
             retval = -1;
@@ -2522,7 +2522,7 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
     /* handle in a non-empty list */
     else
     {
-        if(rules_insert_list(debuglvl, rules, rule_num, rule_ptr) < 0)
+        if(vrmr_rules_insert_list(debuglvl, rules, rule_num, rule_ptr) < 0)
         {
             (void)vrprint.error(-1, VR_INTERR, "failed to insert in list (in: %s:%d).", __FUNC__, __LINE__);
             retval=-1;
@@ -2531,7 +2531,7 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
 
 
     if(debuglvl >= LOW)
-        rules_print_list(rules);
+        vrmr_rules_print_list(rules);
 
 
     if(retval == 0)
@@ -2732,7 +2732,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                                     sizeof(action_str))))
                     return(-1);
 
-                rule_ptr->action = rules_actiontoi(action_str);
+                rule_ptr->action = vrmr_rules_actiontoi(action_str);
 
                 retval = 1;
             }
@@ -2771,7 +2771,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* option rejecttype */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -2795,7 +2795,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* option redirect port */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -2822,7 +2822,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* option redirect port */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -2842,7 +2842,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -2861,7 +2861,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 else
                 {
                     /* add the ports to the list */
-                    if(portopts_to_list(debuglvl, field_buffer(fields[i], 0), &rule_ptr->opt->ListenportList) < 0)
+                    if(vrmr_portopts_to_list(debuglvl, field_buffer(fields[i], 0), &rule_ptr->opt->ListenportList) < 0)
                         rule_ptr->opt->listenport = 0;
                     else
                     {
@@ -2878,7 +2878,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -2897,7 +2897,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 else
                 {
                     /* add the ports to the list */
-                    if(portopts_to_list(debuglvl, field_buffer(fields[i], 0), &rule_ptr->opt->RemoteportList) < 0)
+                    if(vrmr_portopts_to_list(debuglvl, field_buffer(fields[i], 0), &rule_ptr->opt->RemoteportList) < 0)
                         rule_ptr->opt->remoteport = 0;
                     else
                     {
@@ -2923,7 +2923,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     /* options */
                     if(rule_ptr->opt == NULL)
                     {
-                        if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                        if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
                             (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
@@ -2956,7 +2956,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     /* options */
                     if(rule_ptr->opt == NULL)
                     {
-                        if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                        if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
                             (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
@@ -2991,7 +2991,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* option redirect port */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -3018,7 +3018,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* log */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -3039,7 +3039,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* if needed alloc the opt struct */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -3062,7 +3062,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* if needed alloc the opt struct */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -3083,7 +3083,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* if needed alloc the opt struct */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -3102,7 +3102,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* option interface */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."),
                                             strerror(errno), __FUNC__, __LINE__);
@@ -3122,7 +3122,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* option interface */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."),
                                             strerror(errno), __FUNC__, __LINE__);
@@ -3142,7 +3142,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* option interface */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."),
                                             strerror(errno), __FUNC__, __LINE__);
@@ -3162,7 +3162,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 /* option interface */
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -3180,7 +3180,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -3205,7 +3205,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -3223,7 +3223,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 if(rule_ptr->opt == NULL)
                 {
-                    if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
@@ -3441,7 +3441,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
 
     /* action */
     RuleFlds.action_fld_ptr = (fields[field_num] = new_field(1, 16, 1, 10, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.action_fld_ptr, 0, rules_itoaction(rule_ptr->action));
+    set_field_buffer_wrap(debuglvl, RuleFlds.action_fld_ptr, 0, vrmr_rules_itoaction(rule_ptr->action));
     set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.action_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
@@ -3930,7 +3930,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
 
     /* this is needed after declaring the field dynamic */
     if(rule_ptr->opt != NULL && rule_ptr->opt->listenport == 1)
-        set_field_buffer_wrap(debuglvl, RuleFlds.listen_fld_ptr, 0, list_to_portopts(debuglvl, &rule_ptr->opt->ListenportList, NULL));
+        set_field_buffer_wrap(debuglvl, RuleFlds.listen_fld_ptr, 0, vrmr_list_to_portopts(debuglvl, &rule_ptr->opt->ListenportList, NULL));
 
 
     /* remoteport (portfw) label */
@@ -3954,7 +3954,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
 
     /* this is needed after declaring the field dynamic */
     if(rule_ptr->opt != NULL && rule_ptr->opt->remoteport == 1)
-        set_field_buffer_wrap(debuglvl, RuleFlds.remote_fld_ptr, 0, list_to_portopts(debuglvl, &rule_ptr->opt->RemoteportList, NULL));
+        set_field_buffer_wrap(debuglvl, RuleFlds.remote_fld_ptr, 0, vrmr_list_to_portopts(debuglvl, &rule_ptr->opt->RemoteportList, NULL));
 
     /* terminate the fields-array */
     fields[n_fields] = NULL;
@@ -4327,7 +4327,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                 case 's':
                     if(rule_ptr->opt == NULL)
                     {
-                        if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                        if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
                             (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);
@@ -4367,7 +4367,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                                     select_choice)))
                         {
                             set_field_buffer_wrap(debuglvl, cur, 0, action_ptr);
-                            rule_ptr->action = rules_actiontoi(action_ptr);
+                            rule_ptr->action = vrmr_rules_actiontoi(action_ptr);
                             free(action_ptr);
 
                             /* if action is LOG, disable the log option. */
@@ -4515,7 +4515,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                     return(-1);
 
                                 /* get the zone */
-                                if(!(zone_ptr = search_zonedata(debuglvl, zones, zonename)))
+                                if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, zonename)))
                                 {
                                     (void)vrprint.error(-1, VR_INTERR, "zone '%s' not found (in: %s:%d).", zonename, __FUNC__, __LINE__);
                                 }
@@ -4622,7 +4622,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                                     sizeof(zonename))))
                                     return(-1);
                                 /* get the zone */
-                                if(!(zone_ptr = search_zonedata(debuglvl, zones, zonename)))
+                                if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, zonename)))
                                 {
                                     (void)vrprint.error(-1, VR_INTERR, "zone '%s' not found (in: %s:%d).",
                                         zonename, __FUNC__, __LINE__);
@@ -4808,7 +4808,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                         else
                         {
                             /* check */
-                            if(rules_analyze_rule(debuglvl, rule_ptr, &tmp_ruledata, services, zones, interfaces, &conf) < 0)
+                            if(vrmr_rules_analyze_rule(debuglvl, rule_ptr, &tmp_ruledata, services, zones, interfaces, &conf) < 0)
                             {
                                 /* clear tmp_ruledata for the next use */
                                 bzero(&tmp_ruledata, sizeof(tmp_ruledata));
@@ -4937,7 +4937,7 @@ edit_seprule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields,
                     /* options */
                     if(rule_ptr->opt == NULL)
                     {
-                        if(!(rule_ptr->opt = ruleoption_malloc(debuglvl)))
+                        if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
                             (void)vrprint.error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                             return(-1);

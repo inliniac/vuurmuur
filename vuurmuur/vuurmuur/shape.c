@@ -173,7 +173,7 @@ shaping_process_rule (const int debuglvl, struct vrmr_config *cnf, /*@null@*/Rul
             return(-1);
         }
     } else {
-        if(pipe_command(debuglvl, cnf, cmd, PIPE_VERBOSE) < 0)
+        if(vrmr_pipe_command(debuglvl, cnf, cmd, PIPE_VERBOSE) < 0)
             return (-1);
     }
 

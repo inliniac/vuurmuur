@@ -98,7 +98,7 @@ char
                     strcmp(name, "..") != 0)
                 {
                     /* now validate the name */
-                    if(validate_servicename(debuglvl, name, tb->servicename_reg, VALNAME_QUIET) == 0)
+                    if(vrmr_validate_servicename(debuglvl, name, tb->servicename_reg, VALNAME_QUIET) == 0)
                     {
                         /* determine the location of the file */
                         if(!(file_location = get_filelocation(debuglvl, backend, name, TYPE_SERVICE)))
@@ -108,7 +108,7 @@ char
                             (void)tb->cfg->vrprint.debug(__FUNC__, "service '%s', file: '%s'.", name, file_location);
 
                         /* now stat it */
-                        if(stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                        if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                         {
                             free(file_location);
 
@@ -172,7 +172,7 @@ char
                             (void)strlcpy(tb->interface, dir_entry_p->d_name, (strlen(dir_entry_p->d_name)-5)+1);
                             tb->interface[strlen(dir_entry_p->d_name)-5]='\0';
 
-                            if(validate_interfacename(debuglvl, tb->interface, tb->interfacename_reg) == 0)
+                            if(vrmr_validate_interfacename(debuglvl, tb->interface, tb->interfacename_reg) == 0)
                             {
                                 *zonetype = TYPE_INTERFACE;
                                 (void)strlcpy(name, tb->interface, MAX_INTERFACE);
@@ -185,7 +185,7 @@ char
                                     (void)tb->cfg->vrprint.debug(__FUNC__, "interface '%s', file: '%s'.", name, file_location);
 
                                 /* now stat it */
-                                if(stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                                if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
@@ -269,7 +269,7 @@ char
                                 (void)tb->cfg->vrprint.debug(__FUNC__, "rule '%s', file: '%s'.", name, file_location);
 
                             /* now stat it */
-                            if(stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                            if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 
@@ -326,7 +326,7 @@ char
                             snprintf(cur_zonename, sizeof(cur_zonename), "%s.%s.%s", tb->cur_host, tb->cur_network, tb->cur_zone);
 
                             // lets check against regex
-                            if(validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
+                            if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
                             {
                                 // determine the location of the file
                                 if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, TYPE_HOST)))
@@ -336,7 +336,7 @@ char
                                     (void)tb->cfg->vrprint.debug(__FUNC__, "host '%s', file: '%s'.", cur_zonename, file_location);
 
                                 // now stat it
-                                if(stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                                if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
@@ -382,7 +382,7 @@ char
                             snprintf(cur_zonename, sizeof(cur_zonename), "%s.%s.%s", tb->cur_host, tb->cur_network, tb->cur_zone);
 
                             // lets check against regex
-                            if(validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
+                            if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
                             {
                                 // determine the location of the file
                                 if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, TYPE_GROUP)))
@@ -392,7 +392,7 @@ char
                                     (void)tb->cfg->vrprint.debug(__FUNC__, "group '%s', file: '%s'.", cur_zonename, file_location);
 
                                 // now stat it
-                                if(stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                                if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                                 {
                                     free(file_location);
 
@@ -453,7 +453,7 @@ char
                         snprintf(cur_zonename, sizeof(cur_zonename), "%s.%s", tb->cur_network, tb->cur_zone);
 
                         /* lets check against regex */
-                        if(validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
+                        if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
                         {
                             // determine the location of the file
                             if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, TYPE_NETWORK)))
@@ -463,7 +463,7 @@ char
                                 (void)tb->cfg->vrprint.debug(__FUNC__, "list_textdir: network '%s', file: '%s'.", cur_zonename, file_location);
 
                             // now stat it
-                            if(stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                            if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 
@@ -515,7 +515,7 @@ char
                         tb->network_p = vuurmuur_opendir(debuglvl, tb->cfg, netdir_location);
 
                         // lets check against regex
-                        if(validate_zonename(debuglvl, dir_entry_p->d_name, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
+                        if(vrmr_validate_zonename(debuglvl, dir_entry_p->d_name, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
                         {
                             // determine the location of the file
                             if(!(file_location = get_filelocation(debuglvl, backend, dir_entry_p->d_name, TYPE_ZONE)))
@@ -525,7 +525,7 @@ char
                                 (void)tb->cfg->vrprint.debug(__FUNC__, "zone '%s', file: '%s'.", tb->cur_zone, file_location);
 
                             // now stat it
-                            if(stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
+                            if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_QUIET, STATOK_MUST_EXIST))
                             {
                                 free(file_location);
 

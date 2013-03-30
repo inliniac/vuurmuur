@@ -789,7 +789,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_config *cnf,
     VrBusyWinShow();
 
     /* init filter */
-    VR_connreq_setup(debuglvl, &connreq);
+    vrmr_connreq_setup(debuglvl, &connreq);
     connreq.group_conns = TRUE;
     connreq.unknown_ip_as_net = TRUE;
     /* sorting, relevant for grouping */
@@ -803,7 +803,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_config *cnf,
     ctr = conn_init_ct(debuglvl, zones, interfaces, services, blocklist);
     conn_ct_get_connections(debuglvl, cnf, ctr, &connreq);
 
-    action = rules_actiontoi(log->action);
+    action = vrmr_rules_actiontoi(log->action);
     if(action == VRMR_AT_DROP || action == VRMR_AT_REJECT)
         menu_items--;
 

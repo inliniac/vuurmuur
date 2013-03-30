@@ -197,7 +197,7 @@ edit_genconfig_save(const int debuglvl)
                                     sizeof(conf.iptables_location))))
                     return(-1);
 
-                sanitize_path(debuglvl, conf.iptables_location,
+                vrmr_sanitize_path(debuglvl, conf.iptables_location,
                         StrLen(conf.iptables_location));
 
                 (void)vrprint.audit("'iptables location' %s '%s'.",
@@ -211,7 +211,7 @@ edit_genconfig_save(const int debuglvl)
                                     sizeof(conf.iptablesrestore_location))))
                     return(-1);
 
-                sanitize_path(debuglvl, conf.iptablesrestore_location,
+                vrmr_sanitize_path(debuglvl, conf.iptablesrestore_location,
                         StrLen(conf.iptablesrestore_location));
 
                 (void)vrprint.audit("'iptables-restore location' %s '%s'.",
@@ -226,7 +226,7 @@ edit_genconfig_save(const int debuglvl)
                                     sizeof(conf.ip6tables_location))))
                     return(-1);
 
-                sanitize_path(debuglvl, conf.ip6tables_location,
+                vrmr_sanitize_path(debuglvl, conf.ip6tables_location,
                         StrLen(conf.ip6tables_location));
 
                 (void)vrprint.audit("'ip6tables location' %s '%s'.",
@@ -240,7 +240,7 @@ edit_genconfig_save(const int debuglvl)
                                     sizeof(conf.ip6tablesrestore_location))))
                     return(-1);
 
-                sanitize_path(debuglvl, conf.ip6tablesrestore_location,
+                vrmr_sanitize_path(debuglvl, conf.ip6tablesrestore_location,
                         StrLen(conf.ip6tablesrestore_location));
 
                 (void)vrprint.audit("'ip6tables-restore location' %s '%s'.",
@@ -255,7 +255,7 @@ edit_genconfig_save(const int debuglvl)
                                     sizeof(conf.conntrack_location))))
                     return(-1);
 
-                sanitize_path(debuglvl, conf.conntrack_location,
+                vrmr_sanitize_path(debuglvl, conf.conntrack_location,
                         StrLen(conf.conntrack_location));
 
                 (void)vrprint.audit("'conntrack location' %s '%s'.",
@@ -269,7 +269,7 @@ edit_genconfig_save(const int debuglvl)
                                     sizeof(conf.tc_location))))
                     return(-1);
 
-                sanitize_path(debuglvl, conf.tc_location,
+                vrmr_sanitize_path(debuglvl, conf.tc_location,
                         StrLen(conf.tc_location));
 
                 (void)vrprint.audit("'tc location' %s '%s'.",
@@ -308,7 +308,7 @@ edit_genconfig_save(const int debuglvl)
                                     sizeof(conf.sysctl_location))))
                     return(-1);
 
-                sanitize_path(debuglvl, conf.sysctl_location,
+                vrmr_sanitize_path(debuglvl, conf.sysctl_location,
                         StrLen(conf.sysctl_location));
 
                 (void)vrprint.audit("'sysctl location' %s '%s'.",
@@ -834,7 +834,7 @@ edit_modconfig_save(const int debuglvl)
                                     sizeof(conf.modprobe_location))))
                     return(-1);
 
-                sanitize_path(debuglvl, conf.modprobe_location,
+                vrmr_sanitize_path(debuglvl, conf.modprobe_location,
                         StrLen(conf.modprobe_location));
 
                 (void)vrprint.audit("'modprobe location' %s '%s'.",
@@ -1900,7 +1900,7 @@ edit_vcconfig_save(const int debuglvl)
                                     sizeof(vccnf.iptrafvol_location))))
                     return(-1);
 
-                sanitize_path(debuglvl, vccnf.iptrafvol_location,
+                vrmr_sanitize_path(debuglvl, vccnf.iptrafvol_location,
                         StrLen(vccnf.iptrafvol_location));
             }
             else
@@ -2266,10 +2266,10 @@ edit_logconfig_save(const int debuglvl)
                         conf.vuurmuur_logdir_location[StrMemLen(conf.vuurmuur_logdir_location)-1] = '\0';
                 }
 
-                sanitize_path(debuglvl, conf.vuurmuur_logdir_location,
+                vrmr_sanitize_path(debuglvl, conf.vuurmuur_logdir_location,
                         StrLen(conf.vuurmuur_logdir_location));
 
-                if(config_check_logdir(debuglvl, conf.vuurmuur_logdir_location) < 0)
+                if(vrmr_config_check_logdir(debuglvl, conf.vuurmuur_logdir_location) < 0)
                 {
                     retval = -1;
                 }
@@ -2301,7 +2301,7 @@ edit_logconfig_save(const int debuglvl)
                                     sizeof(conf.systemlog_location))))
                     return(-1);
 
-                sanitize_path(debuglvl, conf.systemlog_location,
+                vrmr_sanitize_path(debuglvl, conf.systemlog_location,
                         StrLen(conf.systemlog_location));
 
                 (void)vrprint.audit("'systemlog location' %s '%s'.",
@@ -2883,7 +2883,7 @@ view_caps(const int debuglvl)
     draw_top_menu(debuglvl, top_win, gettext("Capabilities"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     /* load iptcaps */
-    result = load_iptcaps(debuglvl, &conf, &iptcap, 0);
+    result = vrmr_load_iptcaps(debuglvl, &conf, &iptcap, 0);
     if(result == -1)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
@@ -2932,7 +2932,7 @@ view_caps(const int debuglvl)
                             gettext("Try to determine capabities? Warning: this may load iptables modules!"),
                             vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0))
                 {
-                    result = load_iptcaps(debuglvl, &conf, &iptcap, 1);
+                    result = vrmr_load_iptcaps(debuglvl, &conf, &iptcap, 1);
                     if(result == -1)
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
@@ -3096,7 +3096,7 @@ view_ip6_caps(const int debuglvl)
     draw_top_menu(debuglvl, top_win, gettext("IPv6 Capabilities"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     /* load iptcaps */
-    result = load_ip6tcaps(debuglvl, &conf, &iptcap, 0);
+    result = vrmr_load_ip6tcaps(debuglvl, &conf, &iptcap, 0);
     if(result == -1)
     {
         (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));
@@ -3145,7 +3145,7 @@ view_ip6_caps(const int debuglvl)
                             gettext("Try to determine capabities? Warning: this may load iptables modules!"),
                             vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0))
                 {
-                    result = load_ip6tcaps(debuglvl, &conf, &iptcap, 1);
+                    result = vrmr_load_ip6tcaps(debuglvl, &conf, &iptcap, 1);
                     if(result == -1)
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("checking capabilities failed."));

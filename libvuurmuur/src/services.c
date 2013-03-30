@@ -23,7 +23,7 @@
 
 
 static int
-insert_service_list(const int debuglvl, struct vrmr_services *services, const struct vrmr_service *ser_ptr)
+vrmr_insert_service_list(const int debuglvl, struct vrmr_services *services, const struct vrmr_service *ser_ptr)
 {
     struct vrmr_service    *check_ser_ptr = NULL;
     int                     result = 0;
@@ -113,7 +113,7 @@ insert_service_list(const int debuglvl, struct vrmr_services *services, const st
 }
 
 
-/*  insert_service
+/*  vrmr_insert_service
 
     Inserts the service 'name' into the linked-list.
 
@@ -126,7 +126,7 @@ insert_service_list(const int debuglvl, struct vrmr_services *services, const st
     and by error an internal program error.
 */
 int
-insert_service(const int debuglvl, struct vrmr_services *services, char *name)
+vrmr_insert_service(const int debuglvl, struct vrmr_services *services, char *name)
 {
     int                     retval = 0,
                             result = 0;
@@ -142,24 +142,24 @@ insert_service(const int debuglvl, struct vrmr_services *services, char *name)
     }
 
     /* claiming the memory we need */
-    if(!(ser_ptr = service_malloc()))
+    if(!(ser_ptr = vrmr_service_malloc()))
     {
-        (void)vrprint.error(-1, "Internal Error", "service_malloc() failed: %s (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_service_malloc() failed: %s (in: %s:%d).",
                 strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
     /* reading the service information */
-    result = read_service(debuglvl, name, ser_ptr);
+    result = vrmr_read_service(debuglvl, name, ser_ptr);
     if(result == -1)
     {
-        (void)vrprint.error(-1, "Internal Error", "read_service() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_read_service() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
 
     /* insert into the list (sorted) */
-    if(insert_service_list(debuglvl, services, ser_ptr) < 0)
+    if(vrmr_insert_service_list(debuglvl, services, ser_ptr) < 0)
         return(-1);
 
     /* set the status */
@@ -172,14 +172,14 @@ insert_service(const int debuglvl, struct vrmr_services *services, char *name)
 }
 
 
-/*  search_service
+/*  vrmr_search_service
 
     Function to search the ServicesList.
 
     It returns the pointer or a NULL-pointer if not found.
 */
 void *
-search_service(const int debuglvl, const struct vrmr_services *services, char *servicename)
+vrmr_search_service(const int debuglvl, const struct vrmr_services *services, char *servicename)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_service    *service_ptr = NULL;
@@ -226,7 +226,7 @@ search_service(const int debuglvl, const struct vrmr_services *services, char *s
 }
 
 
-/*  read_service
+/*  vrmr_read_service
 
     This function takes the service 'sername', and reads the info from the service.
     It ask the data from 'ask_backend', and then analyses it, splits it and puts them into the
@@ -237,7 +237,7 @@ search_service(const int debuglvl, const struct vrmr_services *services, char *s
         -1: error
 */
 int
-read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr)
+vrmr_read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr)
 {
     int     retval = 0,
             result = 0;
@@ -262,7 +262,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
     }
 
     /* first the active check */
-    result = check_active(debuglvl, sername, TYPE_SERVICE);
+    result = vrmr_check_active(debuglvl, sername, TYPE_SERVICE);
     if(result == 1)
     {
         /* active */
@@ -274,7 +274,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
     }
     else
     {
-        (void)vrprint.error(-1, "Internal Error", "check_active() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_check_active() failed (in: %s:%d).",
                 __FILE__, __LINE__);
         return(-1);
     }
@@ -286,7 +286,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
     while((result = sf->ask(debuglvl, serv_backend, sername, "RANGE", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
     {
         /* process */
-        if(process_portrange(debuglvl, "RANGE", portrange, service_ptr) < 0)
+        if(vrmr_process_portrange(debuglvl, "RANGE", portrange, service_ptr) < 0)
             retval = -1;
     }
     if(result < 0)
@@ -301,7 +301,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
         while((result = sf->ask(debuglvl, serv_backend, sername, "TCP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(process_portrange(debuglvl, "TCP", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange(debuglvl, "TCP", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -315,7 +315,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
         while((result = sf->ask(debuglvl, serv_backend, sername, "UDP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(process_portrange(debuglvl, "UDP", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange(debuglvl, "UDP", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -329,7 +329,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
         while((result = sf->ask(debuglvl, serv_backend, sername, "ICMP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(process_portrange(debuglvl, "ICMP", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange(debuglvl, "ICMP", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -343,7 +343,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
         while((result = sf->ask(debuglvl, serv_backend, sername, "GRE", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(process_portrange(debuglvl, "GRE", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange(debuglvl, "GRE", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -357,7 +357,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
         while((result = sf->ask(debuglvl, serv_backend, sername, "AH", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(process_portrange(debuglvl, "AH", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange(debuglvl, "AH", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -371,7 +371,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
         while((result = sf->ask(debuglvl, serv_backend, sername, "ESP", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(process_portrange(debuglvl, "ESP", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange(debuglvl, "ESP", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -385,7 +385,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
         while((result = sf->ask(debuglvl, serv_backend, sername, "PROTO_41", portrange, sizeof(portrange), TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(process_portrange(debuglvl, "PROTO_41", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange(debuglvl, "PROTO_41", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -438,7 +438,7 @@ read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr
 
 /* debug function */
 void
-services_print_list(const struct vrmr_services *services)
+vrmr_services_print_list(const struct vrmr_services *services)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_service    *ser_ptr = NULL;
@@ -458,7 +458,7 @@ services_print_list(const struct vrmr_services *services)
 
 /* debug function */
 void
-portrange_print_dlist(const struct vrmr_list *dlist)
+vrmr_portrange_print_dlist(const struct vrmr_list *dlist)
 {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_portdata *port_ptr = NULL;
@@ -477,7 +477,7 @@ portrange_print_dlist(const struct vrmr_list *dlist)
 }
 
 
-/*  split_portrange
+/*  vrmr_split_portrange
 
     Splits a portrange like 135:139 into two integers.
 
@@ -486,7 +486,7 @@ portrange_print_dlist(const struct vrmr_list *dlist)
         -1: error
 */
 int
-split_portrange(char *portrange, int *lowport, int *highport)
+vrmr_split_portrange(char *portrange, int *lowport, int *highport)
 {
     int     retval=0;
     char    range = FALSE;
@@ -563,7 +563,7 @@ split_portrange(char *portrange, int *lowport, int *highport)
 }
 
 
-/*  process_portrange
+/*  vrmr_process_portrange
 
     Splits up a portranges string and inserts the portranges into the portranges list
     of the service.
@@ -577,7 +577,7 @@ split_portrange(char *portrange, int *lowport, int *highport)
         -1: error
 */
 int
-process_portrange(const int debuglvl, const char *proto, const char *portrange, struct vrmr_service *ser_ptr)
+vrmr_process_portrange(const int debuglvl, const char *proto, const char *portrange, struct vrmr_service *ser_ptr)
 {
     int                 port=0,
                         range=0;
@@ -698,7 +698,7 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
             }
             dst_portrange[port]='\0';
 
-            if(split_portrange(dst_portrange, &portrange_ptr->dst_low, &portrange_ptr->dst_high) < 0)
+            if(vrmr_split_portrange(dst_portrange, &portrange_ptr->dst_low, &portrange_ptr->dst_high) < 0)
             {
                 free(portrange_ptr);
                 return(-1);
@@ -715,7 +715,7 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
             }
             src_portrange[port]='\0';
 
-            if(split_portrange(src_portrange, &portrange_ptr->src_low, &portrange_ptr->src_high) < 0)
+            if(vrmr_split_portrange(src_portrange, &portrange_ptr->src_low, &portrange_ptr->src_high) < 0)
             {
                 free(portrange_ptr);
                 return(-1);
@@ -749,11 +749,11 @@ process_portrange(const int debuglvl, const char *proto, const char *portrange, 
 }
 
 
-/*  destroy_serviceslist
+/*  vrmr_destroy_serviceslist
 
 */
 void
-destroy_serviceslist(const int debuglvl, struct vrmr_services *services)
+vrmr_destroy_serviceslist(const int debuglvl, struct vrmr_services *services)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_service    *ser_ptr = NULL;
@@ -784,7 +784,7 @@ destroy_serviceslist(const int debuglvl, struct vrmr_services *services)
 }
 
 
-/*  new_service
+/*  vrmr_new_service
 
     Creates a new service.
 
@@ -793,7 +793,7 @@ destroy_serviceslist(const int debuglvl, struct vrmr_services *services)
         -1: error
 */
 int
-new_service(const int debuglvl, struct vrmr_services *services, char *sername, int sertype)
+vrmr_new_service(const int debuglvl, struct vrmr_services *services, char *sername, int sertype)
 {
     int                     retval = 0,
                             result = 0;
@@ -807,14 +807,14 @@ new_service(const int debuglvl, struct vrmr_services *services, char *sername, i
         return(-1);
     }
 
-    if((search_service(debuglvl, services, sername) != NULL))
+    if((vrmr_search_service(debuglvl, services, sername) != NULL))
     {
         (void)vrprint.error(-1, "Internal Error", "service %s already exists (in: %s:%d).",
                 sername, __FUNC__, __LINE__);
         return(-1);
     }
 
-    if(!(ser_ptr = service_malloc()))
+    if(!(ser_ptr = vrmr_service_malloc()))
         return(-1);
 
     /* set the bare minimum */
@@ -828,9 +828,9 @@ new_service(const int debuglvl, struct vrmr_services *services, char *sername, i
         return(-1);
 
     /* insert into the list */
-    if(insert_service_list(debuglvl, services, ser_ptr) < 0)
+    if(vrmr_insert_service_list(debuglvl, services, ser_ptr) < 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "insert_service_list() failed (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_insert_service_list() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -870,7 +870,7 @@ new_service(const int debuglvl, struct vrmr_services *services, char *sername, i
 }
 
 
-/*  delete_service
+/*  vrmr_delete_service
 
     Deletes a service from the backend and from memory.
 
@@ -881,7 +881,7 @@ new_service(const int debuglvl, struct vrmr_services *services, char *sername, i
     TODO: memory is not freed?
 */
 int
-delete_service(const int debuglvl, struct vrmr_services *services, char *sername, int sertype)
+vrmr_delete_service(const int debuglvl, struct vrmr_services *services, char *sername, int sertype)
 {
     struct vrmr_service *ser_list_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
@@ -895,7 +895,7 @@ delete_service(const int debuglvl, struct vrmr_services *services, char *sername
     }
 
     /* this is a bit overkill right now, but when we start using hash-searching, it wont be */
-    if((search_service(debuglvl, services, sername) == NULL))
+    if((vrmr_search_service(debuglvl, services, sername) == NULL))
     {
         (void)vrprint.error(-1, "Internal Error", "service %s not found in memory (in: %s:%d).",
                 sername, __FUNC__, __LINE__);
@@ -938,7 +938,7 @@ delete_service(const int debuglvl, struct vrmr_services *services, char *sername
 
 
 int
-validate_servicename(const int debuglvl, const char *servicename, regex_t *reg_ex, char quiet)
+vrmr_validate_servicename(const int debuglvl, const char *servicename, regex_t *reg_ex, char quiet)
 {
     /* safety */
     if(servicename == NULL || reg_ex == NULL)
@@ -975,7 +975,7 @@ validate_servicename(const int debuglvl, const char *servicename, regex_t *reg_e
 
 
 int
-services_save_portranges(const int debuglvl, struct vrmr_service *ser_ptr)
+vrmr_services_save_portranges(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     struct vrmr_portdata *port_ptr = NULL;
     char            prot_format[32] = "",
@@ -1130,7 +1130,7 @@ services_save_portranges(const int debuglvl, struct vrmr_service *ser_ptr)
         1 if valid
 */
 int
-valid_tcpudp_port(const int debuglvl, int port)
+vrmr_valid_tcpudp_port(const int debuglvl, int port)
 {
     if(port < 0 || port > 65535)
         return(0);
@@ -1139,7 +1139,7 @@ valid_tcpudp_port(const int debuglvl, int port)
 }
 
 
-/*  init_services
+/*  vrmr_init_services
 
     Loads all services in memory.
 
@@ -1148,7 +1148,7 @@ valid_tcpudp_port(const int debuglvl, int port)
         -1: error
 */
 int
-init_services(const int debuglvl, struct vrmr_services *services, struct vrmr_regex *reg)
+vrmr_init_services(const int debuglvl, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     int     retval=0,
             result=0;
@@ -1182,10 +1182,10 @@ init_services(const int debuglvl, struct vrmr_services *services, struct vrmr_re
             (void)vrprint.debug(__FUNC__, "loading service '%s' ...", name);
 
         /* but first validate the name */
-        if(validate_servicename(debuglvl, name, reg->servicename, VALNAME_VERBOSE) == 0)
+        if(vrmr_validate_servicename(debuglvl, name, reg->servicename, VALNAME_VERBOSE) == 0)
         {
-            /* now call insert_service, which will gather the info and insert it into the list */
-            result = insert_service(debuglvl, services, name);
+            /* now call vrmr_insert_service, which will gather the info and insert it into the list */
+            result = vrmr_insert_service(debuglvl, services, name);
             if(result == 0)
             {
                 if(debuglvl >= LOW)
@@ -1200,7 +1200,7 @@ init_services(const int debuglvl, struct vrmr_services *services, struct vrmr_re
             else
             {
                 /* failed with fatal error */
-                (void)vrprint.error(-1, "Internal Error", "insert_service() failed (in: %s:%d).",
+                (void)vrprint.error(-1, "Internal Error", "vrmr_insert_service() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -1218,7 +1218,7 @@ init_services(const int debuglvl, struct vrmr_services *services, struct vrmr_re
         -1: error
 */
 int
-services_check(const int debuglvl, struct vrmr_service *ser_ptr)
+vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     int retval = 1;
 
@@ -1243,7 +1243,7 @@ services_check(const int debuglvl, struct vrmr_service *ser_ptr)
 
 /*  load_services
 
-    calls init_services and does some checking
+    calls vrmr_init_services and does some checking
 
     returncodes:
          0: ok
@@ -1259,7 +1259,7 @@ vrmr_services_load(const int debuglvl, struct vrmr_services *services, struct vr
 
     (void)vrprint.info("Info", "Loading services...");
 
-    result = init_services(debuglvl, services, reg);
+    result = vrmr_init_services(debuglvl, services, reg);
     if(result == -1)
     {
         (void)vrprint.error(-1, "Error", "Loading services failed.");
@@ -1276,7 +1276,7 @@ vrmr_services_load(const int debuglvl, struct vrmr_services *services, struct vr
             return(-1);
         }
 
-        result = services_check(debuglvl, ser_ptr);
+        result = vrmr_services_check(debuglvl, ser_ptr);
         if(result == -1)
             return(-1);
         else if(result == 0)

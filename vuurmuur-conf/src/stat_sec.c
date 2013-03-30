@@ -1015,7 +1015,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
                 if(iface_ptr->device_virtual == FALSE)
                 {
                     /* get the counters for determining speed */
-                    get_iface_stats(debuglvl, iface_ptr->device, &recv_bytes, NULL, &trans_bytes, NULL);
+                    vrmr_get_iface_stats(debuglvl, iface_ptr->device, &recv_bytes, NULL, &trans_bytes, NULL);
 
                     /* get the real counters from iptables */
                     vrmr_get_iface_stats_from_ipt(debuglvl, cnf, iface_ptr->device, "INPUT", &shadow_ptr->recv_host_packets, &shadow_ptr->recv_host, &tmp_ull, &tmp_ull);

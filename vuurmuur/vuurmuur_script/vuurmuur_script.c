@@ -643,7 +643,7 @@ main(int argc, char *argv[])
             vr_script.type == TYPE_HOST || vr_script.type == TYPE_GROUP)
         {
             /* validate and split the new name */
-            if(validate_zonename(debuglvl, vr_script.name, 0, vr_script.name_zone, vr_script.name_net, vr_script.name_host, vr_script.reg.zonename, VALNAME_VERBOSE) != 0)
+            if(vrmr_validate_zonename(debuglvl, vr_script.name, 0, vr_script.name_zone, vr_script.name_net, vr_script.name_host, vr_script.reg.zonename, VALNAME_VERBOSE) != 0)
             {
                 if(vr_script.type == TYPE_ZONE)
                     (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid zone name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
@@ -663,7 +663,7 @@ main(int argc, char *argv[])
         }
         else if(vr_script.type == TYPE_SERVICE)
         {
-            if(validate_servicename(debuglvl, vr_script.name, vr_script.reg.servicename, VALNAME_QUIET) != 0)
+            if(vrmr_validate_servicename(debuglvl, vr_script.name, vr_script.reg.servicename, VALNAME_QUIET) != 0)
             {
                 (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid service name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 exit(VRS_ERR_COMMANDLINE);
@@ -671,7 +671,7 @@ main(int argc, char *argv[])
         }
         else if(vr_script.type == TYPE_INTERFACE)
         {
-            if(validate_interfacename(debuglvl, vr_script.name, vr_script.reg.interfacename) != 0)
+            if(vrmr_validate_interfacename(debuglvl, vr_script.name, vr_script.reg.interfacename) != 0)
             {
                 (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid interface name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 exit(VRS_ERR_COMMANDLINE);
@@ -709,9 +709,9 @@ main(int argc, char *argv[])
 
     /* initialize the config from the config file */
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "initializing config... calling init_config()");
+        (void)vrprint.debug(__FUNC__, "initializing config... calling vrmr_init_config()");
 
-    result = init_config(debuglvl, &conf);
+    result = vrmr_init_config(debuglvl, &conf);
     if(result >= VRMR_CNF_OK)
     {
         if(debuglvl >= MEDIUM)
@@ -873,7 +873,7 @@ main(int argc, char *argv[])
     {
         while((result = rf->ask(debuglvl, rule_backend, "blocklist", "RULE", vr_script.bdat, sizeof(vr_script.bdat), TYPE_RULE, 1) == 1))
         {
-            rules_encode_rule(debuglvl, vr_script.bdat, sizeof(vr_script.bdat));
+            vrmr_rules_encode_rule(debuglvl, vr_script.bdat, sizeof(vr_script.bdat));
             str = remove_leading_part(vr_script.bdat);
             printf("%s\n", str);
             free(str);

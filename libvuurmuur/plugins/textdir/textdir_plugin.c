@@ -67,7 +67,7 @@ char
             (void)tb->cfg->vrprint.debug(__FUNC__, "looking up data from zones.");
 
         /* validate the name */
-        if(validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VALNAME_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "zonename '%s' is not valid.", name);
             return(NULL);
@@ -170,7 +170,7 @@ char
     else if(type == TYPE_SERVICE || type == TYPE_SERVICEGRP)
     {
         /* validate the name */
-        if(validate_servicename(debuglvl, name, tb->servicename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_servicename(debuglvl, name, tb->servicename_reg, VALNAME_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "servicename '%s' is not valid.", name);
             return(NULL);
@@ -196,7 +196,7 @@ char
     else if(type == TYPE_INTERFACE)
     {
         /* validate the name */
-        if(validate_interfacename(debuglvl, name, tb->interfacename_reg) != 0)
+        if(vrmr_validate_interfacename(debuglvl, name, tb->interfacename_reg) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "interfacename '%s' is not valid.", name);
             return(NULL);
@@ -283,7 +283,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
     }
 
     /* see if we like the permissions of the textdirroot */
-    if(!(stat_ok(debuglvl, tb->cfg, tb->textdirlocation, STATOK_WANT_DIR, STATOK_QUIET, STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, tb->cfg, tb->textdirlocation, STATOK_WANT_DIR, STATOK_QUIET, STATOK_MUST_EXIST)))
         return(-1);
 
     if (tb->backend_open == 1)
@@ -438,7 +438,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
     }
 
     /* now stat it */
-    if(stat_ok(debuglvl, tb->cfg, dir_location, STATOK_WANT_DIR, STATOK_VERBOSE, STATOK_MUST_EXIST) != 1)
+    if(vrmr_stat_ok(debuglvl, tb->cfg, dir_location, STATOK_WANT_DIR, STATOK_VERBOSE, STATOK_MUST_EXIST) != 1)
     {
         (void)tb->cfg->vrprint.error(-1, "Error", "checking '%s' failed. Please check if the directory exists and that the permissions are ok.",
                                 dir_location);
@@ -581,7 +581,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
     if(type == TYPE_ZONE || type == TYPE_NETWORK)
     {
         /* split up the name */
-        if(validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VALNAME_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "Zonename '%s' is not valid.", name);
 
@@ -863,7 +863,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
         return(-1);
 
     /* see if we like the file permissions */
-    if(!(stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, tb->cfg, file_location, STATOK_WANT_FILE, STATOK_VERBOSE, STATOK_MUST_EXIST)))
         return(-1);
 
     /* name splitting only needed for network and zone, as host and group just use the file_location
@@ -872,7 +872,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
     if(type == TYPE_ZONE || type == TYPE_NETWORK)
     {
         // split up the name
-        if(validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VALNAME_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "Zonename '%s' is not valid.", name);
             return(-1);
@@ -1083,7 +1083,7 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
     int                     result = 0;
     char                    *oldpath = NULL,
                             *newpath = NULL;
-    char                    new_zone_name[MAX_ZONE] = "",
+    char                    vrmr_new_zone_name[MAX_ZONE] = "",
                             new_net_name[MAX_NETWORK] = "",
                             new_host_name[MAX_HOST] = "";
     char                    old_zone_name[MAX_ZONE] = "",
@@ -1121,14 +1121,14 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
     if(type == TYPE_ZONE || type == TYPE_NETWORK)
     {
         /* validate the name */
-        if(validate_zonename(debuglvl, name, 0, old_zone_name, old_net_name, old_host_name, tb->zonename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_zonename(debuglvl, name, 0, old_zone_name, old_net_name, old_host_name, tb->zonename_reg, VALNAME_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "zonename '%s' is not valid.", newname);
             return(-1);
         }
 
         /* validate the name */
-        if(validate_zonename(debuglvl, newname, 0, new_zone_name, new_net_name, new_host_name, tb->zonename_reg, VALNAME_VERBOSE) != 0)
+        if(vrmr_validate_zonename(debuglvl, newname, 0, vrmr_new_zone_name, new_net_name, new_host_name, tb->zonename_reg, VALNAME_VERBOSE) != 0)
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "zonename '%s' is not valid.", newname);
             return(-1);
@@ -1149,7 +1149,7 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
         /* get the new path */
 
         /* assemble the dirstring, and make sure we dont overflow */
-        if(snprintf(new_file_location, sizeof(new_file_location), "%s/zones/%s", tb->textdirlocation, new_zone_name) >= (int)sizeof(new_file_location))
+        if(snprintf(new_file_location, sizeof(new_file_location), "%s/zones/%s", tb->textdirlocation, vrmr_new_zone_name) >= (int)sizeof(new_file_location))
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -1176,7 +1176,7 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
         /* get the new path */
 
         /* assemble the dirstring, and make sure we dont overflow */
-        if(snprintf(new_file_location, sizeof(new_file_location), "%s/zones/%s/networks/%s", tb->textdirlocation, new_zone_name, new_net_name) >= (int)sizeof(new_file_location))
+        if(snprintf(new_file_location, sizeof(new_file_location), "%s/zones/%s/networks/%s", tb->textdirlocation, vrmr_new_zone_name, new_net_name) >= (int)sizeof(new_file_location))
         {
             (void)tb->cfg->vrprint.error(-1, "Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -1296,7 +1296,7 @@ conf_textdir(const int debuglvl, void *backend)
     }
 
     /* now get the backend location from the configfile */
-    result = ask_configfile(debuglvl, tb->cfg, "LOCATION", tb->textdirlocation, configfile_location, sizeof(tb->textdirlocation));
+    result = vrmr_ask_configfile(debuglvl, tb->cfg, "LOCATION", tb->textdirlocation, configfile_location, sizeof(tb->textdirlocation));
     if(result < 0)
     {
         (void)tb->cfg->vrprint.error(-1, "Error", "failed to get the textdir-root from: %s. Please make sure LOCATION is set (in: %s).", configfile_location, __FUNC__);

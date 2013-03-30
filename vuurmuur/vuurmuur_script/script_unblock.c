@@ -108,7 +108,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
     while(rf->ask(debuglvl, rule_backend, "blocklist", "RULE",
                 vr_script->bdat, sizeof(vr_script->bdat), TYPE_RULE, 1) == 1)
     {
-        rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
+        vrmr_rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
 
         str = remove_leading_part(vr_script->bdat);
 

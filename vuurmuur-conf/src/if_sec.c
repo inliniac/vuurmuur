@@ -501,7 +501,7 @@ protectrule_loaded(const int debuglvl, struct vrmr_list *rules_list, char *actio
     if(rules_list->len == 0)
         return(0);
 
-    act = rules_actiontoi(action);
+    act = vrmr_rules_actiontoi(action);
 
     for(d_node = rules_list->top; d_node; d_node = d_node->next)
     {
@@ -740,7 +740,7 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
     set_field_buffer_wrap(debuglvl, IfSec.commentfld, 0, InterfacesSection.comment);
 
     /* now check if the interface is currently up */
-    if(interfaces_iface_up(debuglvl, iface_ptr) == 1)
+    if(vrmr_interfaces_iface_up(debuglvl, iface_ptr) == 1)
         iface_ptr->up = TRUE;
     else
         iface_ptr->up = FALSE;
@@ -970,7 +970,7 @@ edit_interface_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
     }
 
     /* now let try to write this to the backend */
-    if(interfaces_save_rules(debuglvl, iface_ptr) < 0)
+    if(vrmr_interfaces_save_rules(debuglvl, iface_ptr) < 0)
     {
         (void)vrprint.error(-1, VR_ERR, "%s (in: %s:%d).",
                 STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
@@ -1007,7 +1007,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
     }
 
     /* get a temp interface */
-    tempiface_ptr = interface_malloc(debuglvl);
+    tempiface_ptr = vrmr_interface_malloc(debuglvl);
     if(!tempiface_ptr)
         return(-1);
 
@@ -1175,7 +1175,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
 
                 /*  if the devicename indicates a virtual
                     interface, set virtual to TRUE. */
-                if( interface_check_devicename(debuglvl, tempiface_ptr->device) == 0 &&
+                if( vrmr_interface_check_devicename(debuglvl, tempiface_ptr->device) == 0 &&
                     strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), "X", 1) != 0)
                 {
                     tempiface_ptr->device_virtual = 1;
@@ -1286,7 +1286,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
             if(rule_ptr->action == VRMR_AT_PROTECT)
             {
                 (void)vrprint.audit("%2d: %s against %s",
-                            i, rules_itoaction(rule_ptr->action),
+                            i, vrmr_rules_itoaction(rule_ptr->action),
                             rule_ptr->danger);
             }
         }
@@ -1820,7 +1820,7 @@ rename_interface(const int debuglvl, struct vrmr_interfaces *interfaces, struct 
                 if(strcmp(iface_ptr->name, new_name_ptr) == 0)
                 {
                     /* save the interface list so the backend knows about the changed name in the list */
-                    if(zones_network_save_interfaces(debuglvl, zone_ptr) < 0)
+                    if(vrmr_zones_network_save_interfaces(debuglvl, zone_ptr) < 0)
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                         return(-1);
@@ -1889,7 +1889,7 @@ rename_interface(const int debuglvl, struct vrmr_interfaces *interfaces, struct 
         if(debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "rules changed");
 
-        if(rules_save_list(debuglvl, rules, &conf) < 0)
+        if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
@@ -1903,7 +1903,7 @@ rename_interface(const int debuglvl, struct vrmr_interfaces *interfaces, struct 
 
 
 static int
-interfaces_section_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *cur_name_ptr)
+interfaces_section_vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *cur_name_ptr)
 {
     int                     result = 0;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -2044,7 +2044,7 @@ interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces, struc
                             new_name_ptr = input_box(32, gettext("Rename Interface"), STR_PLEASE_ENTER_THE_NAME);
                             if(new_name_ptr != NULL)
                             {
-                                if(validate_interfacename(debuglvl, new_name_ptr, reg->interfacename) == 0)
+                                if(vrmr_validate_interfacename(debuglvl, new_name_ptr, reg->interfacename) == 0)
                                 {
                                     result = rename_interface(debuglvl, interfaces, zones, rules, cur_name_ptr, new_name_ptr);
                                     if(result == 0)
@@ -2073,7 +2073,7 @@ interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces, struc
                     new_name_ptr = input_box(32, gettext("New Interface"), STR_PLEASE_ENTER_THE_NAME);
                     if(new_name_ptr != NULL)
                     {
-                        if(validate_interfacename(debuglvl, new_name_ptr, reg->interfacename) == 0)
+                        if(vrmr_validate_interfacename(debuglvl, new_name_ptr, reg->interfacename) == 0)
                         {
                             result = vrmr_new_interface(debuglvl, interfaces, new_name_ptr);
                             if(result == 0)
@@ -2111,7 +2111,7 @@ interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces, struc
                         {
                             char *n = (char *)item_name(cur);
 
-                            result = interfaces_section_delete_interface(debuglvl, interfaces, n);
+                            result = interfaces_section_vrmr_delete_interface(debuglvl, interfaces, n);
                             if(result < 0)
                             {
                                 (void)vrprint.error(-1, VR_ERR, gettext("deleting interface %s failed."), (char *)item_name(cur));

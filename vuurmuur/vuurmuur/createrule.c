@@ -67,12 +67,12 @@ typedef struct
 
 static char *create_state_string(int ipv, struct vrmr_iptcaps *iptcap) {
     if (ipv == VR_IPV4) {
-        if (conf.check_iptcaps == FALSE || iptcap->match_conntrack == TRUE)
+        if (conf.vrmr_check_iptcaps == FALSE || iptcap->match_conntrack == TRUE)
             return "-m conntrack --ctstate";
         else
             return "-m state --state";
     } else {
-        if (conf.check_iptcaps == FALSE
+        if (conf.vrmr_check_iptcaps == FALSE
 #ifdef IPV6_ENABLED
             || iptcap->match_ip6_conntrack == TRUE
 #endif
@@ -142,7 +142,7 @@ pipe_iptables_command(const int debuglvl, char *table, char *chain, char *cmd)
     /*
         finally try to create the rule
     */
-    if(pipe_command(debuglvl, &conf, str, PIPE_VERBOSE) < 0)
+    if(vrmr_pipe_command(debuglvl, &conf, str, PIPE_VERBOSE) < 0)
     {
         (void)vrprint.error(-1, "Error", "creating rule failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -176,7 +176,7 @@ pipe_ip6tables_command(const int debuglvl, char *table, char *chain, char *cmd)
     /*
         finally try to create the rule
     */
-    if(pipe_command(debuglvl, &conf, str, PIPE_VERBOSE) < 0)
+    if(vrmr_pipe_command(debuglvl, &conf, str, PIPE_VERBOSE) < 0)
     {
         (void)vrprint.error(-1, "Error", "creating rule failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -482,7 +482,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 
     /* check caps */
-    if(conf.check_iptcaps == TRUE)
+    if(conf.vrmr_check_iptcaps == TRUE)
     {
         if( iptcap->target_queue == FALSE &&
             strcmp(rule->action, "NEWQUEUE") == 0)
@@ -558,7 +558,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             connmark = 1;
 
         /* check cap */
-        if(conf.check_iptcaps == TRUE)
+        if(conf.vrmr_check_iptcaps == TRUE)
         {
             if(iptcap->target_connmark == FALSE)
             {
@@ -605,7 +605,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if(strcmp(rule->helper, "") != 0)
         {
             /* check cap */
-            if(conf.check_iptcaps == TRUE)
+            if(conf.vrmr_check_iptcaps == TRUE)
             {
                 if(iptcap->match_helper == FALSE)
                 {
@@ -653,7 +653,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
             (void)vrprint.debug(__FUNC__, "nfmark '%lu'.", nfmark);
 
         /* check cap */
-        if(conf.check_iptcaps == TRUE)
+        if(conf.vrmr_check_iptcaps == TRUE)
         {
             if(iptcap->target_mark == FALSE)
             {
@@ -723,7 +723,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if(strcmp(rule->helper, "") != 0)
         {
             /* check cap */
-            if(conf.check_iptcaps == TRUE)
+            if(conf.vrmr_check_iptcaps == TRUE)
             {
                 if(iptcap->match_helper == FALSE)
                 {
@@ -765,7 +765,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (vrmr_is_shape_rule(debuglvl, &create->option) == 1)
     {
         /* check cap */
-        if(conf.check_iptcaps == TRUE)
+        if(conf.vrmr_check_iptcaps == TRUE)
         {
             if(iptcap->target_classify == FALSE)
             {
@@ -842,7 +842,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if(strcmp(rule->helper, "") != 0)
         {
             /* check cap */
-            if(conf.check_iptcaps == TRUE)
+            if(conf.vrmr_check_iptcaps == TRUE)
             {
                 if(iptcap->match_helper == FALSE)
                 {
@@ -917,7 +917,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 
     /* check caps */
-    if(conf.check_iptcaps == TRUE)
+    if(conf.vrmr_check_iptcaps == TRUE)
     {
         if( iptcap->target_queue == FALSE && 
             strcmp(rule->action, "NEWQUEUE") == 0)
@@ -991,7 +991,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             connmark = 1;
 
         /* check cap */
-        if(conf.check_iptcaps == TRUE)
+        if(conf.vrmr_check_iptcaps == TRUE)
         {
             if(iptcap->target_connmark == FALSE)
             {
@@ -1039,7 +1039,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if(strcmp(rule->helper, "") != 0)
         {
             /* check cap */
-            if(conf.check_iptcaps == TRUE)
+            if(conf.vrmr_check_iptcaps == TRUE)
             {
                 if(iptcap->match_helper == FALSE)
                 {
@@ -1086,7 +1086,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
             (void)vrprint.debug(__FUNC__, "nfmark '%lu'.", nfmark);
 
         /* check cap */
-        if(conf.check_iptcaps == TRUE)
+        if(conf.vrmr_check_iptcaps == TRUE)
         {
             if(iptcap->target_mark == FALSE)
             {
@@ -1158,7 +1158,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if(strcmp(rule->helper, "") != 0)
         {
             /* check cap */
-            if(conf.check_iptcaps == TRUE)
+            if(conf.vrmr_check_iptcaps == TRUE)
             {
                 if(iptcap->match_helper == FALSE)
                 {
@@ -1201,7 +1201,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (vrmr_is_shape_rule(debuglvl, &create->option) == 1)
     {
         /* check cap */
-        if(conf.check_iptcaps == TRUE)
+        if(conf.vrmr_check_iptcaps == TRUE)
         {
             if(iptcap->target_classify == FALSE)
             {
@@ -1279,7 +1279,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if(strcmp(rule->helper, "") != 0)
         {
             /* check cap */
-            if(conf.check_iptcaps == TRUE)
+            if(conf.vrmr_check_iptcaps == TRUE)
             {
                 if(iptcap->match_helper == FALSE)
                 {
@@ -1350,7 +1350,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
     }
 
     /* check caps */
-    if(conf.check_iptcaps == TRUE)
+    if(conf.vrmr_check_iptcaps == TRUE)
     {
         if( iptcap->target_queue == FALSE &&
             strcmp(rule->action, "NEWQUEUE") == 0)
@@ -1427,7 +1427,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             connmark = 1;
 
         /* check cap */
-        if(conf.check_iptcaps == TRUE)
+        if(conf.vrmr_check_iptcaps == TRUE)
         {
             if(iptcap->target_connmark == FALSE)
             {
@@ -1506,7 +1506,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
         if(strcmp(rule->helper, "") != 0)
         {
             /* check cap */
-            if(conf.check_iptcaps == TRUE)
+            if(conf.vrmr_check_iptcaps == TRUE)
             {
                 if(iptcap->match_helper == FALSE)
                 {
@@ -1556,7 +1556,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
             (void)vrprint.debug(__FUNC__, "nfmark '%lu'.", nfmark);
 
         /* check cap */
-        if(conf.check_iptcaps == TRUE)
+        if(conf.vrmr_check_iptcaps == TRUE)
         {
             if(iptcap->target_mark == FALSE)
             {
@@ -1634,7 +1634,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
         if(strcmp(rule->helper, "") != 0)
         {
             /* check cap */
-            if(conf.check_iptcaps == TRUE)
+            if(conf.vrmr_check_iptcaps == TRUE)
             {
                 if(iptcap->match_helper == FALSE)
                 {
@@ -1678,7 +1678,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
     if (vrmr_is_shape_rule(debuglvl, &create->option) == 1)
     {
         /* check cap */
-        if(conf.check_iptcaps == TRUE)
+        if(conf.vrmr_check_iptcaps == TRUE)
         {
             if(iptcap->target_classify == FALSE)
             {
@@ -1762,7 +1762,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
         if(strcmp(rule->helper, "") != 0)
         {
             /* check cap */
-            if(conf.check_iptcaps == TRUE)
+            if(conf.vrmr_check_iptcaps == TRUE)
             {
                 if(iptcap->match_helper == FALSE)
                 {
@@ -1827,7 +1827,7 @@ create_rule_masq(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
 #endif
 
     /* check cap */
-    if(conf.check_iptcaps == TRUE)
+    if(conf.vrmr_check_iptcaps == TRUE)
     {
         if(iptcap->target_masquerade == FALSE)
         {
@@ -1882,7 +1882,7 @@ create_rule_snat(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
 #endif
 
     /* check cap */
-    if(conf.check_iptcaps == TRUE)
+    if(conf.vrmr_check_iptcaps == TRUE)
     {
         if(iptcap->target_snat == FALSE)
         {
@@ -1949,7 +1949,7 @@ create_rule_portfw(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCr
 #endif
 
     /* check cap */
-    if(conf.check_iptcaps == TRUE)
+    if(conf.vrmr_check_iptcaps == TRUE)
     {
         if(iptcap->target_dnat == FALSE)
         {
@@ -2097,7 +2097,7 @@ create_rule_redirect(const int debuglvl, /*@null@*/RuleSet *ruleset, struct Rule
 #endif
 
     /* check cap */
-    if(conf.check_iptcaps == TRUE)
+    if(conf.vrmr_check_iptcaps == TRUE)
     {
         if(iptcap->target_redirect == FALSE)
         {
@@ -2222,7 +2222,7 @@ create_rule_dnat(   const int debuglvl, /*@null@*/RuleSet *ruleset,
 #endif
 
     /* check cap */
-    if(conf.check_iptcaps == TRUE)
+    if(conf.vrmr_check_iptcaps == TRUE)
     {
         if(iptcap->target_dnat == FALSE)
         {
@@ -2324,7 +2324,7 @@ create_rule_bounce( const int debuglvl, /*@null@*/RuleSet *ruleset,
 #endif
 
     /* check cap */
-    if(conf.check_iptcaps == TRUE)
+    if(conf.vrmr_check_iptcaps == TRUE)
     {
         if(iptcap->target_dnat == FALSE)
         {
@@ -2470,7 +2470,7 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 
     if (ipv == VR_IPV4) {
-        if (conf.check_iptcaps == TRUE && iptcap->target_tcpmss == FALSE) {
+        if (conf.vrmr_check_iptcaps == TRUE && iptcap->target_tcpmss == FALSE) {
             if (conf.bash_out)
                 fprintf(stdout, "# No support for IPv4 TCPMSS target.\n");
             return(0);
@@ -2478,7 +2478,7 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 #ifdef IPV6_ENABLED
     else {
-        if (conf.check_iptcaps == TRUE && iptcap->target_ip6_tcpmss == FALSE) {
+        if (conf.vrmr_check_iptcaps == TRUE && iptcap->target_ip6_tcpmss == FALSE) {
             if (conf.bash_out)
                 fprintf(stdout, "# No support for IPv6 TCPMSS target.\n");
             return(0);
@@ -2502,7 +2502,7 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (iface_ptr->tcpmss_clamp == TRUE && iface_ptr->device_virtual == FALSE)
         {
 #ifdef IPV6_ENABLED
-            if (ipv == VR_IPV6 && !interface_ipv6_enabled(debuglvl, iface_ptr))
+            if (ipv == VR_IPV6 && !vrmr_interface_ipv6_enabled(debuglvl, iface_ptr))
                 continue;
 #endif
 
@@ -2542,41 +2542,41 @@ static int pre_rules_flush_chains(const int debuglvl, /*@null@*/RuleSet *ruleset
         if(debuglvl >= LOW)         (void)vrprint.debug(__FUNC__, "Flushing chains...");
 
         snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush", conf.iptables_location);
-        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+        result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
         if (result < 0)
             return(-1);
 
         snprintf(cmd, MAX_PIPE_COMMAND, "%s -t nat --flush", conf.iptables_location);
-        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+        result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
         if (result < 0)
             return(-1);
 
         snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush", conf.iptables_location);
-        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+        result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
         if (result < 0)
             return(-1);
 
-        if (conf.check_iptcaps == FALSE || iptcap->table_raw) {
+        if (conf.vrmr_check_iptcaps == FALSE || iptcap->table_raw) {
             snprintf(cmd, MAX_PIPE_COMMAND, "%s -t raw --flush", conf.iptables_location);
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if (result < 0)
                 return(-1);
         }
 
 #ifdef IPV6_ENABLED
         snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush", conf.ip6tables_location);
-        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+        result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
         if (result < 0)
             return(-1);
 
         snprintf(cmd, MAX_PIPE_COMMAND, "%s -t mangle --flush", conf.ip6tables_location);
-        result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+        result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
         if (result < 0)
             return(-1);
 
-        if (conf.check_iptcaps == FALSE || iptcap->table_ip6_raw) {
+        if (conf.vrmr_check_iptcaps == FALSE || iptcap->table_ip6_raw) {
             snprintf(cmd, MAX_PIPE_COMMAND, "%s -t raw --flush", conf.ip6tables_location);
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if (result < 0)
                 return(-1);
         }
@@ -2599,7 +2599,7 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
          end mark:      16777216
     */
 
-    if (conf.check_iptcaps == FALSE ||
+    if (conf.vrmr_check_iptcaps == FALSE ||
             (iptcap->match_connmark == TRUE && ipv == VR_IPV4)
 #ifdef IPV6_ENABLED
         ||  (iptcap->match_ip6_connmark == TRUE && ipv == VR_IPV6)
@@ -2662,7 +2662,7 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
          start mark:    16777216
          end mark:      33554432
     */
-    if (conf.check_iptcaps == FALSE ||
+    if (conf.vrmr_check_iptcaps == FALSE ||
             (iptcap->target_queue == TRUE && iptcap->match_connmark == TRUE && ipv == VR_IPV4)
 #ifdef IPV6_ENABLED
          || (iptcap->target_ip6_queue == TRUE && iptcap->match_ip6_connmark == TRUE && ipv == VR_IPV6)
@@ -2723,19 +2723,19 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (void)vrprint.debug(__FUNC__, "Making special PRE-VRMR-{PREROUTING,"
                 "INPUT,FORWARD,POSTROUTING,OUTPUT} CHAINS in mangle table...");
 
-    if(conf.check_iptcaps == FALSE || iptcap->table_mangle == TRUE)
+    if(conf.vrmr_check_iptcaps == FALSE || iptcap->table_mangle == TRUE)
     {
         if(ruleset == NULL)
         {
             if (ipv == VR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null",
                         conf.iptables_location, TB_MANGLE);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             } else {
 #ifdef IPV6_ENABLED
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null",
                         conf.ip6tables_location, TB_MANGLE);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif /* IPV6_ENABLED */
             }
         }
@@ -2749,12 +2749,12 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
             if (ipv == VR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-INPUT 2>/dev/null",
                         conf.iptables_location, TB_MANGLE);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             } else {
 #ifdef IPV6_ENABLED
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-INPUT 2>/dev/null",
                         conf.ip6tables_location, TB_MANGLE);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif /* IPV6_ENABLED */
             }
         }
@@ -2768,12 +2768,12 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
             if (ipv == VR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-FORWARD 2>/dev/null",
                         conf.iptables_location, TB_MANGLE);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             } else {
 #ifdef IPV6_ENABLED
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-FORWARD 2>/dev/null",
                         conf.ip6tables_location, TB_MANGLE);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif /* IPV6_ENABLED */
             }
         }
@@ -2787,12 +2787,12 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
             if (ipv == VR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-POSTROUTING 2>/dev/null",
                         conf.iptables_location, TB_MANGLE);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             } else {
 #ifdef IPV6_ENABLED
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-POSTROUTING 2>/dev/null",
                         conf.ip6tables_location, TB_MANGLE);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif /* IPV6_ENABLED */
             }
         }
@@ -2806,12 +2806,12 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
             if (ipv == VR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null",
                         conf.iptables_location, TB_MANGLE);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             } else {
 #ifdef IPV6_ENABLED
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null",
                         conf.ip6tables_location, TB_MANGLE);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif /* IPV6_ENABLED */
             }
         }
@@ -2835,12 +2835,12 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (ipv == VR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-INPUT 2>/dev/null",
                     conf.iptables_location, TB_FILTER);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
         } else {
 #ifdef IPV6_ENABLED
             snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-INPUT 2>/dev/null",
                     conf.ip6tables_location, TB_FILTER);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif /* IPV6_ENABLED */
         }
     }
@@ -2854,12 +2854,12 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (ipv == VR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-FORWARD 2>/dev/null",
                     conf.iptables_location, TB_FILTER);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
         } else {
 #ifdef IPV6_ENABLED
             snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-FORWARD 2>/dev/null",
                     conf.ip6tables_location, TB_FILTER);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif /* IPV6_ENABLED */
         }
     }
@@ -2873,12 +2873,12 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (ipv == VR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null",
                     conf.iptables_location, TB_FILTER);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
         } else {
 #ifdef IPV6_ENABLED
             snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null",
                     conf.ip6tables_location, TB_FILTER);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif /* IPV6_ENABLED */
         }
     }
@@ -2898,13 +2898,13 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
             (void)vrprint.debug(__FUNC__, "Making special PRE-VRMR-{PREROUTING,"
                     "POSTROUTING,OUTPUT} CHAINS in nat table...");
 
-        if(conf.check_iptcaps == FALSE || iptcap->table_nat == TRUE)
+        if(conf.vrmr_check_iptcaps == FALSE || iptcap->table_nat == TRUE)
         {
             if(ruleset == NULL)
             {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null",
                         conf.iptables_location, TB_NAT);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             }
 
             snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-PREROUTING");
@@ -2915,7 +2915,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
             {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-POSTROUTING 2>/dev/null",
                         conf.iptables_location, TB_NAT);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             }
 
             snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-POSTROUTING");
@@ -2926,7 +2926,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
             {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null",
                         conf.iptables_location, TB_NAT);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             }
 
             snprintf(cmd, sizeof(cmd), "-j PRE-VRMR-OUTPUT");
@@ -2953,12 +2953,12 @@ static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__, "Creating shaping chains in the mangle table...");
 
-    if(conf.check_iptcaps == FALSE || iptcap->table_mangle == TRUE)
+    if(conf.vrmr_check_iptcaps == FALSE || iptcap->table_mangle == TRUE)
     {
         if(ruleset == NULL)
         {
             snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEIN 2>/dev/null", conf.iptables_location, TB_MANGLE);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
         }
 
         snprintf(cmd, sizeof(cmd), "-j SHAPEIN");
@@ -2968,7 +2968,7 @@ static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if(ruleset == NULL)
         {
             snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEOUT 2>/dev/null", conf.iptables_location, TB_MANGLE);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
         }
 
         snprintf(cmd, sizeof(cmd), "-j SHAPEOUT");
@@ -2978,7 +2978,7 @@ static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if(ruleset == NULL)
         {
             snprintf(cmd, sizeof(cmd), "%s %s -N SHAPEFW 2>/dev/null", conf.iptables_location, TB_MANGLE);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
         }
 
         snprintf(cmd, sizeof(cmd), "-j SHAPEFW");
@@ -3063,7 +3063,7 @@ static int pre_rules_interface_counters_ipv4(const int debuglvl,
                 snprintf(cmd, sizeof(cmd), "%s -N %s 2>/dev/null",
                         conf.iptables_location,
                         acc_chain_name);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             }
 
             /* create a chain name for use with IP Traffic Volume Logger
@@ -3153,38 +3153,38 @@ static int pre_rules_set_policy(const int debuglvl, /*@null@*/RuleSet *ruleset,
             snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT DROP",
                     conf.iptables_location);
 
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if (result < 0)
                 retval = -1;
 
             snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT DROP",
                     conf.iptables_location);
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if (result < 0)
                 retval = -1;
 
             snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD DROP",
                     conf.iptables_location);
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if (result < 0)
                 retval = -1;
         } else {
 #ifdef IPV6_ENABLED
             snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy INPUT DROP",
                     conf.ip6tables_location);
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if (result < 0)
                 retval = -1;
 
             snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy OUTPUT DROP",
                     conf.ip6tables_location);
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if (result < 0)
                 retval = -1;
 
             snprintf(cmd, MAX_PIPE_COMMAND, "%s --policy FORWARD DROP",
                     conf.ip6tables_location);
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if (result < 0)
                 retval = -1;
 #endif
@@ -3225,7 +3225,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* ALL NONE */
     if (conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                 RT_NOTSET, "DROP", "probe ALL");
@@ -3256,7 +3256,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* SYN - FIN */
     if (conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                 RT_NOTSET, "DROP", "probe SYN-FIN");
@@ -3287,7 +3287,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* SYN - RST */
     if (conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                 RT_NOTSET, "DROP", "probe SYN-RST");
@@ -3318,7 +3318,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* FIN - RST */
     if (conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                 RT_NOTSET, "DROP", "probe FIN-RST");
@@ -3349,7 +3349,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* ACK - FIN */
     if (conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                 RT_NOTSET, "DROP", "probe FIN");
@@ -3380,7 +3380,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* ACK - PSH */
     if (conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
             RT_NOTSET, "DROP", "probe PSH");
@@ -3411,7 +3411,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* ACK - URG */
     if (conf.log_probes == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                 RT_NOTSET, "DROP", "probe URG");
@@ -3442,7 +3442,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* New tcp but no SYN */
     if (conf.log_no_syn == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                 RT_NOTSET, "DROP", "no SYN");
@@ -3476,7 +3476,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
     */
     if (ipv == VR_IPV4) {
         if (conf.log_frag == TRUE &&
-                (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+                (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
         {
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                     RT_NOTSET, "DROP", "FRAG");
@@ -3528,7 +3528,7 @@ static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ru
            invalid input
          */
         if (conf.log_invalid == TRUE &&
-                (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+                (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
         {
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                     RT_INPUT, "DROP", "in INVALID");
@@ -3553,7 +3553,7 @@ static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ru
            invalid output
          */
         if (conf.log_invalid == TRUE &&
-                (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+                (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
         {
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                     RT_OUTPUT, "DROP", "out INVALID");
@@ -3578,7 +3578,7 @@ static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ru
            invalid forward
          */
         if (conf.log_invalid == TRUE &&
-                (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+                (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
         {
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                     RT_FORWARD, "DROP", "fw INVALID");
@@ -3630,7 +3630,7 @@ static int pre_rules_blocklist_ipv4(const int debuglvl, /*@null@*/RuleSet *rules
         */
         snprintf(cmd, sizeof(cmd), "%s -N BLOCKLIST 2>/dev/null",
                 conf.iptables_location);
-        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+        (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
     }
 
     snprintf(cmd, sizeof(cmd), "-j BLOCKLIST");
@@ -3653,11 +3653,11 @@ static int pre_rules_blocklist_ipv4(const int debuglvl, /*@null@*/RuleSet *rules
            NOTE: see BLOCKLIST creation. */
         snprintf(cmd, sizeof(cmd), "%s -N BLOCK 2>/dev/null",
                 conf.iptables_location);
-        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+        (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
     }
 
     if (conf.log_blocklist == TRUE &&
-        (conf.check_iptcaps == FALSE || iptcap->target_log == TRUE))
+        (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                 RT_INPUT, "DROP", "BLOCKED");
@@ -3700,12 +3700,12 @@ static int pre_rules_synlimit(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (ipv == VR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s -N SYNLIMIT 2>/dev/null",
                     conf.iptables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
         } else {
 #ifdef IPV6_ENABLED
             snprintf(cmd, sizeof(cmd), "%s -N SYNLIMIT 2>/dev/null",
                     conf.ip6tables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif
         }
     }
@@ -3736,12 +3736,12 @@ static int pre_rules_udplimit(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (ipv == VR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s -N UDPLIMIT 2>/dev/null",
                     conf.iptables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
         } else {
 #ifdef IPV6_ENABLED
             snprintf(cmd, sizeof(cmd), "%s -N UDPLIMIT 2>/dev/null",
                     conf.ip6tables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif
         }
     }
@@ -3771,21 +3771,21 @@ static int pre_rules_newaccept(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (ipv == VR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s -N NEWACCEPT 2>/dev/null",
                 conf.iptables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
         } else {
 #ifdef IPV6_ENABLED
             snprintf(cmd, sizeof(cmd), "%s -N NEWACCEPT 2>/dev/null",
                 conf.ip6tables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif
         }
     }
     char connmark[] = "-m connmark --mark 1";
 
-    if (conf.check_iptcaps == TRUE && ipv == VR_IPV4 && iptcap->match_connmark == FALSE)
+    if (conf.vrmr_check_iptcaps == TRUE && ipv == VR_IPV4 && iptcap->match_connmark == FALSE)
         memset(connmark, 0, sizeof(connmark));
 #ifdef IPV6_ENABLED
-    if (conf.check_iptcaps == TRUE && ipv == VR_IPV6 && iptcap->match_ip6_connmark == FALSE)
+    if (conf.vrmr_check_iptcaps == TRUE && ipv == VR_IPV6 && iptcap->match_ip6_connmark == FALSE)
         memset(connmark, 0, sizeof(connmark));
 #endif
 
@@ -3819,17 +3819,17 @@ static int pre_rules_newqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__, "Setting up NEWQUEUE target...");
 
-    if (conf.check_iptcaps == FALSE || (iptcap->target_queue == TRUE && iptcap->match_connmark)) {
+    if (conf.vrmr_check_iptcaps == FALSE || (iptcap->target_queue == TRUE && iptcap->match_connmark)) {
         if(ruleset == NULL) {
             if (ipv == VR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null",
                         conf.iptables_location);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             } else {
 #ifdef IPV6_ENABLED
                 snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null",
                         conf.ip6tables_location);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif
             }
         }
@@ -3869,17 +3869,17 @@ static int pre_rules_nfqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__, "Setting up NEWNFQUEUE target...");
 
-    if (conf.check_iptcaps == FALSE || iptcap->target_nfqueue == TRUE) {
+    if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nfqueue == TRUE) {
         if (ruleset == NULL) {
             if (ipv == VR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null",
                         conf.iptables_location);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             } else {
 #ifdef IPV6_ENABLED
                 snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null",
                         conf.ip6tables_location);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif
             }
         }
@@ -3900,7 +3900,7 @@ static int pre_rules_nfqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if (debuglvl >= LOW)
         (void)vrprint.debug(__FUNC__, "Setting up connection-tracking for NFQUEUE targets...");
 
-    if (conf.check_iptcaps == FALSE || (iptcap->target_nfqueue == TRUE && iptcap->match_connmark == TRUE))
+    if (conf.vrmr_check_iptcaps == FALSE || (iptcap->target_nfqueue == TRUE && iptcap->match_connmark == TRUE))
     {
         if(ruleset == NULL) {
             /* create the chain and insert it into input, output and forward.
@@ -3912,12 +3912,12 @@ static int pre_rules_nfqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
             if (ipv == VR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null",
                         conf.iptables_location);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
             } else {
 #ifdef IPV6_ENABLED
                 snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null",
                         conf.ip6tables_location);
-                (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+                (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif
             }
         }
@@ -3956,12 +3956,12 @@ static int pre_rules_tcpreset(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (ipv == VR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s -N TCPRESET 2>/dev/null",
                     conf.iptables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
         } else {
 #ifdef IPV6_ENABLED
             snprintf(cmd, sizeof(cmd), "%s -N TCPRESET 2>/dev/null",
                     conf.ip6tables_location);
-            (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+            (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
 #endif
         }
     }
@@ -4003,7 +4003,7 @@ static int pre_rules_antispoof_ipv4(const int debuglvl, /*@null@*/RuleSet *rules
             complain. */
         snprintf(cmd, sizeof(cmd), "%s -N ANTISPOOF 2>/dev/null",
             conf.iptables_location);
-        (void)pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
+        (void)vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_QUIET);
     }
 
     snprintf(cmd, sizeof(cmd), "-j ANTISPOOF");
@@ -4067,7 +4067,7 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_interfaces
     }
 
     /* check cap */
-    if(conf.check_iptcaps == TRUE) {
+    if(conf.vrmr_check_iptcaps == TRUE) {
         if(iptcap->target_log == FALSE) {
             (void)vrprint.warning("Warning", "not creating logrules. "
                     "LOG-target not supported by system.");
@@ -4219,7 +4219,7 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
     char    logprefix[64] = "";
 
     /* caps */
-    if (conf.check_iptcaps == TRUE && iptcap->match_limit == FALSE)
+    if (conf.vrmr_check_iptcaps == TRUE && iptcap->match_limit == FALSE)
     {
         (void)vrprint.warning("Warning", "synlimit rules not setup. "
                 "Limit-match not supported by system.");
@@ -4240,14 +4240,14 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
             /* first flush the chain */
             snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush SYNLIMIT",
                     conf.iptables_location);
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if(result < 0)
                 retval = -1;
         } else {
 #ifdef IPV6_ENABLED
             snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush SYNLIMIT",
                     conf.ip6tables_location);
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if(result < 0)
                 retval = -1;
 #endif
@@ -4266,7 +4266,7 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
         retval = -1;
 
     /* the log rule */
-    if(conf.check_iptcaps == FALSE || iptcap->target_log == TRUE)
+    if(conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                 RT_INPUT, "DROP", "SYNLIMIT reach.");
@@ -4306,7 +4306,7 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
     char    logprefix[64] = "";
 
     /* caps */
-    if (conf.check_iptcaps == TRUE && iptcap->match_limit == FALSE)
+    if (conf.vrmr_check_iptcaps == TRUE && iptcap->match_limit == FALSE)
     {
         (void)vrprint.warning("Warning", "udplimit rules not setup. "
                 "Limit-match not supported by system.");
@@ -4325,14 +4325,14 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
             /* first flush the chain */
             snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush UDPLIMIT",
                     conf.iptables_location);
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if (result < 0)
                 retval = -1;
         } else {
 #ifdef IPV6_ENABLED
             snprintf(cmd, MAX_PIPE_COMMAND, "%s --flush UDPLIMIT",
                     conf.ip6tables_location);
-            result = pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
+            result = vrmr_pipe_command(debuglvl, &conf, cmd, PIPE_VERBOSE);
             if (result < 0)
                 retval = -1;
 #endif
@@ -4350,7 +4350,7 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
         retval = -1;
 
     /* the log rule */
-    if(conf.check_iptcaps == FALSE || iptcap->target_log == TRUE)
+    if(conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
                 RT_INPUT, "DROP", "UDPLIMIT reach.");
@@ -4412,7 +4412,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *
     if (conf.log_policy == TRUE)
     {
         /* cap */
-        if (conf.check_iptcaps == TRUE && iptcap->target_log == FALSE)
+        if (conf.vrmr_check_iptcaps == TRUE && iptcap->target_log == FALSE)
         {
             (void)vrprint.warning("Warning", "not creating policy logging "
                     "rules. LOG-target not supported by system.");
@@ -4423,7 +4423,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *
             if (conf.log_policy_limit > 0)
             {
                 /* cap */
-                if (conf.check_iptcaps == FALSE || iptcap->match_limit == TRUE)
+                if (conf.vrmr_check_iptcaps == FALSE || iptcap->match_limit == TRUE)
                 {
                     snprintf(limit, sizeof(limit), "-m limit --limit %u/s "
                             "--limit-burst %u", conf.log_policy_limit,
@@ -4621,7 +4621,7 @@ static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet
                 input_device, limit, logprefix, loglevel, log_tcp_options);
     }
 
-    if (conf.check_iptcaps == FALSE ||
+    if (conf.vrmr_check_iptcaps == FALSE ||
             (iptcap->table_raw && iptcap->match_rpfilter &&
              ((conf.rule_nflog == 0 && iptcap->target_log == TRUE) ||
               (conf.rule_nflog == 1 && iptcap->target_nflog == TRUE)))) {
@@ -4630,8 +4630,8 @@ static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet
             return(-1);
     }
 #ifdef IPV6_ENABLED
-    if (interface_ipv6_enabled(debuglvl, if_ptr)) {
-        if (conf.check_iptcaps == FALSE ||
+    if (vrmr_interface_ipv6_enabled(debuglvl, if_ptr)) {
+        if (conf.vrmr_check_iptcaps == FALSE ||
                 (iptcap->table_ip6_raw && iptcap->match_ip6_rpfilter)) {
             //             ((conf.rule_nflog == 0 && iptcap->target_ip6_log == TRUE) ||
             //              (conf.rule_nflog == 1 && iptcap->target_ip6_nflog == TRUE)))) {
@@ -4646,14 +4646,14 @@ static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet
     /* and the DROP rule */
     snprintf(cmd, sizeof(cmd), "%s -m rpfilter --invert -j DROP", input_device);
 
-    if (conf.check_iptcaps == FALSE ||
+    if (conf.vrmr_check_iptcaps == FALSE ||
             (iptcap->table_raw && iptcap->match_rpfilter)) {
         if(process_rule(debuglvl, ruleset, VR_IPV4, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
             return(-1);
     }
 #ifdef IPV6_ENABLED
-    if (interface_ipv6_enabled(debuglvl, if_ptr)) {
-        if (conf.check_iptcaps == FALSE ||
+    if (vrmr_interface_ipv6_enabled(debuglvl, if_ptr)) {
+        if (conf.vrmr_check_iptcaps == FALSE ||
                 (iptcap->table_ip6_raw && iptcap->match_ip6_rpfilter)) {
             if(process_rule(debuglvl, ruleset, VR_IPV6, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
                 return(-1);
@@ -4744,7 +4744,7 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vr
                     if(debuglvl >= MEDIUM)
                         (void)vrprint.debug(__FUNC__, "Setting '%d' to '%s' (where * is %s)... ", create->danger.proc_set_on, create->danger.proc_entry, create->who_int->device);
 
-                    if(set_proc_entry(debuglvl, &conf, create->danger.proc_entry, create->danger.proc_set_on, create->who_int->device) != 0)
+                    if(vrmr_set_proc_entry(debuglvl, &conf, create->danger.proc_entry, create->danger.proc_set_on, create->who_int->device) != 0)
                     {
                         /* if it fails, we dont really care, its not fatal */
                         (void)vrprint.error(-1, "Error", "setting proc entry failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -4833,7 +4833,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if(from_if_ptr->device_virtual_oldstyle == TRUE)
     {
         /* create the log rule */
-        if(conf.check_iptcaps == FALSE || iptcap->target_log == TRUE)
+        if(conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)
         {
             /* create the logprefix string */
             create_logprefix_string(debuglvl, logprefix,
@@ -4871,7 +4871,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             return(-1);
 
         /* create the log rule */
-        if(conf.check_iptcaps == FALSE || iptcap->target_log == TRUE)
+        if(conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)
         {
             /* create the logprefix string */
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
@@ -4913,7 +4913,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
     else
     {
         /* create the log rule */
-        if(conf.check_iptcaps == FALSE || iptcap->target_log == TRUE)
+        if(conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)
         {
             /* create the logprefix string */
             create_logprefix_string(debuglvl, logprefix,
@@ -4948,7 +4948,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             return(-1);
 
         /* create the log rule */
-        if(conf.check_iptcaps == FALSE || iptcap->target_log == TRUE)
+        if(conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)
         {
             /* create the logprefix string */
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
@@ -5170,7 +5170,7 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, str
     }
 
     /* check capability */
-    if(conf.check_iptcaps == TRUE && iptcap->match_limit == FALSE)
+    if(conf.vrmr_check_iptcaps == TRUE && iptcap->match_limit == FALSE)
     {
         (void)vrprint.warning("Warning", "not setting limits on "
             "logrules. Limit-match not supported by system.");

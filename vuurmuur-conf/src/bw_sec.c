@@ -188,7 +188,7 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
         (void)vrprint.debug(__FUNC__, "looking for data for '%s'.", device);
 
     /* create the tempfile */
-    fd = create_tempfile(debuglvl, tmpfile);
+    fd = vrmr_create_tempfile(debuglvl, tmpfile);
     if(fd == -1)
         return(-1);
     else

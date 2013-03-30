@@ -249,8 +249,8 @@ typedef struct
 
 typedef struct VrCmdline_ {
     /* commandline overrides */
-    char check_iptcaps_set;
-    char check_iptcaps;
+    char vrmr_check_iptcaps_set;
+    char vrmr_check_iptcaps;
     char verbose_out_set;
     char verbose_out;
     char configfile_set;
@@ -349,13 +349,13 @@ int logprint_info_bash(char *head, char *fmt, ...);
 int apply_changes(const int, struct vrmr_ctx *vctx, struct vrmr_regex *);
 
 int reload_services(const int, struct vrmr_services *, regex_t *);
-int reload_services_check(const int, struct vrmr_service *);
+int reload_vrmr_services_check(const int, struct vrmr_service *);
 
 int reload_zonedata(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
 int reload_zonedata_check(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_zone *, struct vrmr_regex *);
 
 int reload_interfaces(const int, struct vrmr_interfaces *);
-int reload_interfaces_check(const int, struct vrmr_interface *iface_ptr);
+int reload_vrmr_interfaces_check(const int, struct vrmr_interface *iface_ptr);
 
 int check_for_changed_dynamic_ips(const int debuglvl, struct vrmr_interfaces *interfaces);
 

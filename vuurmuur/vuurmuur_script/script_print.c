@@ -173,7 +173,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
 
             while(zf->ask(debuglvl, zone_backend, vr_script->name, "RULE", vr_script->bdat, sizeof(vr_script->bdat), TYPE_NETWORK, 1) == 1)
             {
-                rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
+                vrmr_rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
 
                 printf("RULE=\"%s\"\n", vr_script->bdat);
                 result = 1;
@@ -485,7 +485,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
 
             while(af->ask(debuglvl, ifac_backend, vr_script->name, "RULE", vr_script->bdat, sizeof(vr_script->bdat), TYPE_INTERFACE, 1) == 1)
             {
-                rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
+                vrmr_rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
 
                 printf("RULE=\"%s\"\n", vr_script->bdat);
                 result = 1;
@@ -511,7 +511,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
 
             while(rf->ask(debuglvl, rule_backend, vr_script->name, "RULE", vr_script->bdat, sizeof(vr_script->bdat), TYPE_RULE, 1) == 1)
             {
-                rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
+                vrmr_rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
 
                 if(vr_script->print_rule_numbers == TRUE)
                 {

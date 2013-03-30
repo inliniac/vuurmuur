@@ -179,7 +179,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
 #endif /* IPV6_ENABLED */
 
     /* search in the hash with the ipaddress */
-    if(!(search_ptr = search_zone_in_hash_with_ipv4(debuglvl, logrule_ptr->src_ip, ZoneHash)))
+    if(!(search_ptr = vrmr_search_zone_in_hash_with_ipv4(debuglvl, logrule_ptr->src_ip, ZoneHash)))
     {
         /* not found in hash */
         if(strlcpy(logrule_ptr->from_name, logrule_ptr->src_ip, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
@@ -198,7 +198,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
 
 
     /*  do it all again for TO */
-    if(!(search_ptr = search_zone_in_hash_with_ipv4(debuglvl, logrule_ptr->dst_ip, ZoneHash)))
+    if(!(search_ptr = vrmr_search_zone_in_hash_with_ipv4(debuglvl, logrule_ptr->dst_ip, ZoneHash)))
     {
         /* not found in hash */
         if(strlcpy(logrule_ptr->to_name, logrule_ptr->dst_ip, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
@@ -224,19 +224,19 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
     */
 
     /*  icmp is treated different because of the type and code
-        and we can call get_icmp_name_short.
+        and we can call vrmr_get_icmp_name_short.
     */
     if(logrule_ptr->protocol == 1 || logrule_ptr->protocol == 58)
     {
-        if(!(ser_search_ptr = search_service_in_hash(debuglvl, logrule_ptr->icmp_type, logrule_ptr->icmp_code, logrule_ptr->protocol, ServiceHash)))
+        if(!(ser_search_ptr = vrmr_search_service_in_hash(debuglvl, logrule_ptr->icmp_type, logrule_ptr->icmp_code, logrule_ptr->protocol, ServiceHash)))
         {
             /* not found in hash */
             snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "%d.%d(icmp)", logrule_ptr->icmp_type, logrule_ptr->icmp_code);
 
             /* try to get the icmp-names */
-            if(get_icmp_name_short(logrule_ptr->icmp_type, logrule_ptr->icmp_code, logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), 0) < 0)
+            if(vrmr_get_icmp_name_short(logrule_ptr->icmp_type, logrule_ptr->icmp_code, logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), 0) < 0)
             {
-                (void)vrprint.error(-1, "Internal Error", "get_icmp_name_short failed (in: %s:%d).", __FUNC__, __LINE__);
+                (void)vrprint.error(-1, "Internal Error", "vrmr_get_icmp_name_short failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
         }
@@ -253,13 +253,13 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
     else
     {
         /* first a normal search */
-        if(!(ser_search_ptr = search_service_in_hash(debuglvl, logrule_ptr->src_port, logrule_ptr->dst_port, logrule_ptr->protocol, ServiceHash)))
+        if(!(ser_search_ptr = vrmr_search_service_in_hash(debuglvl, logrule_ptr->src_port, logrule_ptr->dst_port, logrule_ptr->protocol, ServiceHash)))
         {
             /* only do the reverse check for tcp and udp */
             if(logrule_ptr->protocol == 6 || logrule_ptr->protocol == 17)
             {
                 /* not found, do a reverse search */
-                if(!(ser_search_ptr = search_service_in_hash(debuglvl, logrule_ptr->dst_port, logrule_ptr->src_port, logrule_ptr->protocol, ServiceHash)))
+                if(!(ser_search_ptr = vrmr_search_service_in_hash(debuglvl, logrule_ptr->dst_port, logrule_ptr->src_port, logrule_ptr->protocol, ServiceHash)))
                 {
                     /* not found in the hash */
                     if(logrule_ptr->protocol == 6) /* tcp */
@@ -557,7 +557,7 @@ main(int argc, char *argv[])
                 break;
 
             case 'K' :
-                if (check_pidfile (PIDFILE, SVCNAME, &pid) == -1)
+                if (vrmr_check_pidfile (PIDFILE, SVCNAME, &pid) == -1)
                 {
                     (void)vrprint.debug(__FUNC__, "Terminating %u", pid);
                     kill (pid, 15);
@@ -576,11 +576,11 @@ main(int argc, char *argv[])
     }
 
     /* check if the pidfile already exists */
-    if(check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
+    if(vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
         exit(EXIT_FAILURE);
 
     /* init the config file */
-    if(init_config(debuglvl, &conf) < VRMR_CNF_OK)
+    if(vrmr_init_config(debuglvl, &conf) < VRMR_CNF_OK)
     {
         (void)vrprint.error(-1, "Error", "initializing the config failed.");
         exit(EXIT_FAILURE);
@@ -619,7 +619,7 @@ main(int argc, char *argv[])
     (void)vrprint.audit("Vuurmuur_log %s %s started by user %s.", version_string, (syslog) ? "" :"(experimental nflog mode)", user_data.realusername);
 
 #ifdef HAVE_LIBNETFILTER_LOG
-    /* Setup nflog after init_config as and logging as we need &conf in subscribe_nflog() */
+    /* Setup nflog after vrmr_init_config as and logging as we need &conf in subscribe_nflog() */
     if (!syslog)
     {
         (void)vrprint.debug(__FUNC__, "Setting up nflog");
@@ -675,30 +675,30 @@ main(int argc, char *argv[])
 
 
     /* insert the interfaces as TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
-    if(ins_iface_into_zonelist(debuglvl, &interfaces.list, &zones.list) < 0)
+    if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &zones.list) < 0)
     {
         (void)vrprint.error(-1, "Error", "iface_into_zonelist failed (in: main).");
         exit(EXIT_FAILURE);
     }
 
-    /* these are removed by: rem_iface_from_zonelist() (see below) */
-    if(add_broadcasts_zonelist(debuglvl, &zones) < 0)
+    /* these are removed by: vrmr_rem_iface_from_zonelist() (see below) */
+    if(vrmr_add_broadcasts_zonelist(debuglvl, &zones) < 0)
     {
         (void)vrprint.error(-1, "Error", "unable to add broadcasts to list.");
         exit(EXIT_FAILURE);
     }
 
     (void)vrprint.info("Info", "Creating hash-table for the zones...");
-    if(init_zonedata_hashtable(debuglvl, zones.list.len * 3, &zones.list, hash_ipaddress, compare_ipaddress, &zone_htbl) < 0)
+    if(vrmr_init_zonedata_hashtable(debuglvl, zones.list.len * 3, &zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, &zone_htbl) < 0)
     {
-        (void)vrprint.error(-1, "Error", "init_zonedata_hashtable failed.");
+        (void)vrprint.error(-1, "Error", "vrmr_init_zonedata_hashtable failed.");
         exit(EXIT_FAILURE);
     }
 
     (void)vrprint.info("Info", "Creating hash-table for the services...");
-    if(init_services_hashtable(debuglvl, services.list.len * 500, &services.list, hash_port, compare_ports, &service_htbl) < 0)
+    if(vrmr_init_services_hashtable(debuglvl, services.list.len * 500, &services.list, vrmr_hash_port, vrmr_compare_ports, &service_htbl) < 0)
     {
-        (void)vrprint.error(-1, "Error", "init_services_hashtable failed.");
+        (void)vrprint.error(-1, "Error", "vrmr_init_services_hashtable failed.");
         exit(EXIT_FAILURE);
     }
 
@@ -713,7 +713,7 @@ main(int argc, char *argv[])
     if (SetupVMIPC(&shm_id, &shm_table) == -1)
         exit (EXIT_FAILURE);
 
-    if(create_pidfile(PIDFILE, shm_id) < 0)
+    if(vrmr_create_pidfile(PIDFILE, shm_id) < 0)
         exit(EXIT_FAILURE);
 
     if(sigint_count || sigterm_count)
@@ -829,13 +829,13 @@ main(int argc, char *argv[])
             */
 
             /* destroy hashtables */
-            hash_cleanup(debuglvl, &zone_htbl);
-            hash_cleanup(debuglvl, &service_htbl);
+            vrmr_hash_cleanup(debuglvl, &zone_htbl);
+            vrmr_hash_cleanup(debuglvl, &service_htbl);
 
             /* destroy the ServicesList */
-            destroy_serviceslist(debuglvl, &services);
+            vrmr_destroy_serviceslist(debuglvl, &services);
             /* destroy the ZonedataList */
-            destroy_zonedatalist(debuglvl, &zones);
+            vrmr_destroy_zonedatalist(debuglvl, &zones);
             /* destroy the InterfacesList */
             vrmr_destroy_interfaceslist(debuglvl, &interfaces);
 
@@ -847,18 +847,18 @@ main(int argc, char *argv[])
                 exit(EXIT_FAILURE);
             }
 
-            shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 10);
+            vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 10);
 
             /* reload the config
 
                if it fails it's no big deal, we just keep using the old config.
             */
-            if(reload_config(debuglvl, &conf) < VRMR_CNF_OK)
+            if(vrmr_reload_config(debuglvl, &conf) < VRMR_CNF_OK)
             {
                 (void)vrprint.warning("Warning", "reloading config failed, using old config.");
             }
 
-            shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 20);
+            vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 20);
 
             /* open backends */
             result = vrmr_backends_load(debuglvl, &conf);
@@ -868,7 +868,7 @@ main(int argc, char *argv[])
                 exit(EXIT_FAILURE);
             }
 
-            shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 30);
+            vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 30);
 
             /* re-initialize the data */
             (void)vrprint.info("Info", "Initializing interfaces...");
@@ -878,56 +878,56 @@ main(int argc, char *argv[])
                 exit(EXIT_FAILURE);
             }
 
-            shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 40);
+            vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 40);
 
             (void)vrprint.info("Info", "Initializing zones...");
-            if(init_zonedata(debuglvl, &zones, &interfaces, &reg) < 0)
+            if(vrmr_init_zonedata(debuglvl, &zones, &interfaces, &reg) < 0)
             {
                 (void)vrprint.error(-1, "Error", "initializing zones failed.");
                 exit(EXIT_FAILURE);
             }
 
-            shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 50);
+            vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 50);
 
             (void)vrprint.info("Info", "Initializing services...");
-            if(init_services(debuglvl, &services, &reg) < 0)
+            if(vrmr_init_services(debuglvl, &services, &reg) < 0)
             {
                 (void)vrprint.error(-1, "Error", "initializing services failed.");
                 exit(EXIT_FAILURE);
             }
 
-            shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 60);
+            vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 60);
 
             /* insert the interfaces as TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
-            if(ins_iface_into_zonelist(debuglvl, &interfaces.list, &zones.list) < 0)
+            if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &zones.list) < 0)
             {
                 (void)vrprint.error(-1, "Error", "iface_into_zonelist failed (in: main).");
                 exit(EXIT_FAILURE);
             }
 
-            /* these are removed by: rem_iface_from_zonelist() (see below) */
-            if(add_broadcasts_zonelist(debuglvl, &zones) < 0)
+            /* these are removed by: vrmr_rem_iface_from_zonelist() (see below) */
+            if(vrmr_add_broadcasts_zonelist(debuglvl, &zones) < 0)
             {
                 (void)vrprint.error(-1, "Error", "unable to add broadcasts to list.");
                 return(-1);
             }
-            shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 70);
+            vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 70);
 
             (void)vrprint.info("Info", "Creating hash-table for the zones...");
-            if(init_zonedata_hashtable(debuglvl, zones.list.len * 3, &zones.list, hash_ipaddress, compare_ipaddress, &zone_htbl) < 0)
+            if(vrmr_init_zonedata_hashtable(debuglvl, zones.list.len * 3, &zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, &zone_htbl) < 0)
             {
-                (void)vrprint.error(result, "Error", "init_zonedata_hashtable failed.");
+                (void)vrprint.error(result, "Error", "vrmr_init_zonedata_hashtable failed.");
                 exit(EXIT_FAILURE);
             }
-            shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 80);
+            vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 80);
 
             (void)vrprint.info("Info", "Creating hash-table for the services...");
-            if(init_services_hashtable(debuglvl, services.list.len * 500, &services.list, hash_port, compare_ports, &service_htbl) < 0)
+            if(vrmr_init_services_hashtable(debuglvl, services.list.len * 500, &services.list, vrmr_hash_port, vrmr_compare_ports, &service_htbl) < 0)
             {
-                (void)vrprint.error(result, "Error", "init_services_hashtable failed.");
+                (void)vrprint.error(result, "Error", "vrmr_init_services_hashtable failed.");
                 exit(EXIT_FAILURE);
             }
-            shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 90);
+            vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 90);
 
             /* re-open the logs */
             if(syslog && reopen_syslog(debuglvl, &conf, &system_log) < 0)
@@ -941,7 +941,7 @@ main(int argc, char *argv[])
                 (void)vrprint.error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
             }
-            shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 95);
+            vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 95);
 
             /* only ok now */
             result = 0;
@@ -977,13 +977,13 @@ main(int argc, char *argv[])
         fclose(system_log);
 
     /* destroy hashtables */
-    hash_cleanup(debuglvl, &zone_htbl);
-    hash_cleanup(debuglvl, &service_htbl);
+    vrmr_hash_cleanup(debuglvl, &zone_htbl);
+    vrmr_hash_cleanup(debuglvl, &service_htbl);
 
     /* destroy the ServicesList */
-    destroy_serviceslist(debuglvl, &services);
+    vrmr_destroy_serviceslist(debuglvl, &services);
     /* destroy the ZonedataList */
-    destroy_zonedatalist(debuglvl, &zones);
+    vrmr_destroy_zonedatalist(debuglvl, &zones);
     /* destroy the InterfacesList */
     vrmr_destroy_interfaceslist(debuglvl, &interfaces);
 
@@ -999,7 +999,7 @@ main(int argc, char *argv[])
     (void)vrmr_regex_setup(0, &reg);
 
     /* remove the pidfile */
-    if(remove_pidfile(PIDFILE) < 0)
+    if(vrmr_remove_pidfile(PIDFILE) < 0)
     {
         (void)vrprint.error(-1, "Error", "unable to remove pidfile: %s.", strerror(errno));
     }

@@ -49,10 +49,10 @@ send_hup_to_vuurmuurlog(const int debuglvl)
 }
 
 void cmdline_override_config(const int debuglvl) {
-    if (cmdline.check_iptcaps_set == TRUE) {
-        conf.check_iptcaps = cmdline.check_iptcaps;
-        (void)vrprint.debug(__FUNC__, "overriding check_iptcaps from commandline to %s.",
-            conf.check_iptcaps ? "TRUE" : "FALSE");
+    if (cmdline.vrmr_check_iptcaps_set == TRUE) {
+        conf.vrmr_check_iptcaps = cmdline.vrmr_check_iptcaps;
+        (void)vrprint.debug(__FUNC__, "overriding vrmr_check_iptcaps from commandline to %s.",
+            conf.vrmr_check_iptcaps ? "TRUE" : "FALSE");
     }
 
     if (cmdline.verbose_out_set == TRUE) {

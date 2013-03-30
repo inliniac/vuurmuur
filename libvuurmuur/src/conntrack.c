@@ -100,7 +100,7 @@ filtered_connection(const int debuglvl, struct vrmr_conntrack_entry *cd_ptr, str
 
 //- print_dlist
 void
-conn_print_dlist(const struct vrmr_list *dlist)
+vrmr_conn_print_dlist(const struct vrmr_list *dlist)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
@@ -184,7 +184,7 @@ conn_line_to_data(  const int debuglvl,
     conndata_ptr->ipv6 = connline_ptr->ipv6;
 
     /* first the service name */
-    conndata_ptr->service = search_service_in_hash(debuglvl,
+    conndata_ptr->service = vrmr_search_service_in_hash(debuglvl,
                                     connline_ptr->src_port,
                                     connline_ptr->dst_port,
                                     connline_ptr->protocol, serhash);
@@ -193,7 +193,7 @@ conn_line_to_data(  const int debuglvl,
         /* do a reverse lookup. This will prevent connections that
          * have been picked up by conntrack midstream to look
          * unrecognized  */
-        if((conndata_ptr->service = search_service_in_hash(debuglvl,
+        if((conndata_ptr->service = vrmr_search_service_in_hash(debuglvl,
             connline_ptr->dst_port, connline_ptr->src_port,
             connline_ptr->protocol, serhash)) == NULL)
         {
@@ -255,7 +255,7 @@ conn_line_to_data(  const int debuglvl,
 
     /* then the from name */
     if (!(conndata_ptr->ipv6))
-        conndata_ptr->from = search_zone_in_hash_with_ipv4(debuglvl,
+        conndata_ptr->from = vrmr_search_zone_in_hash_with_ipv4(debuglvl,
                 connline_ptr->src_ip, zonehash);
     if(conndata_ptr->from == NULL)
     {
@@ -290,7 +290,7 @@ conn_line_to_data(  const int debuglvl,
         }
         else
         {
-            if(!(zone_name_ptr = get_network_for_ipv4(debuglvl, connline_ptr->src_ip, zonelist)))
+            if(!(zone_name_ptr = vrmr_get_network_for_ipv4(debuglvl, connline_ptr->src_ip, zonelist)))
             {
                 size = strlen(connline_ptr->src_ip) + 1;
 
@@ -360,7 +360,7 @@ conn_line_to_data(  const int debuglvl,
     }
     /* then the to name */
     if (!(conndata_ptr->ipv6))
-        conndata_ptr->to = search_zone_in_hash_with_ipv4(debuglvl, connline_ptr->dst_ip, zonehash);
+        conndata_ptr->to = vrmr_search_zone_in_hash_with_ipv4(debuglvl, connline_ptr->dst_ip, zonehash);
     if(conndata_ptr->to == NULL)
     {
         if(req->unknown_ip_as_net == FALSE)
@@ -387,7 +387,7 @@ conn_line_to_data(  const int debuglvl,
         }
         else
         {
-            if(!(zone_name_ptr = get_network_for_ipv4(debuglvl, connline_ptr->dst_ip, zonelist)))
+            if(!(zone_name_ptr = vrmr_get_network_for_ipv4(debuglvl, connline_ptr->dst_ip, zonelist)))
             {
                 size = strlen(connline_ptr->dst_ip) + 1;
 
@@ -1836,13 +1836,13 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
 }
 
 
-/*  conn_hash_name
+/*  vrmr_conn_hash_name
 
     Very simple string hashing function. It just adds up
     all chars.
 */
 unsigned int
-conn_hash_name(const void *key)
+vrmr_conn_hash_name(const void *key)
 {
     size_t          len = 0;
     unsigned int    hash = 0;
@@ -1866,7 +1866,7 @@ conn_hash_name(const void *key)
 
 //TODO silly names
 int
-conn_match_name(const void *ser1, const void *ser2)
+vrmr_conn_match_name(const void *ser1, const void *ser2)
 {
     if(!ser1 || !ser2)
         return(0);
@@ -1879,7 +1879,7 @@ conn_match_name(const void *ser1, const void *ser2)
 
 //- print_list -
 void
-conn_list_print(const struct vrmr_list *conn_list)
+vrmr_conn_list_print(const struct vrmr_list *conn_list)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *item_ptr = NULL;
@@ -1899,7 +1899,7 @@ conn_list_print(const struct vrmr_list *conn_list)
 
 
 unsigned int
-conn_hash_string(const void *key)
+conn_vrmr_hash_string(const void *key)
 {
     const char      *ptr = NULL;
     unsigned int    val = 0;
@@ -1945,9 +1945,9 @@ conn_hash_conntrackdata(const void *key)
     /*  from and to have different weight, so firewall -> internet
         is not the same as internet -> firewall
     */
-    retval = retval + conn_hash_name(cd_ptr->sername);
-    retval = retval + conn_hash_name(cd_ptr->fromname) / 2;
-    retval = retval + conn_hash_name(cd_ptr->toname) / 3;
+    retval = retval + vrmr_conn_hash_name(cd_ptr->sername);
+    retval = retval + vrmr_conn_hash_name(cd_ptr->fromname) / 2;
+    retval = retval + vrmr_conn_hash_name(cd_ptr->toname) / 3;
 
     return(retval);
 }
@@ -2001,7 +2001,7 @@ conn_match_conntrackdata(const void *check, const void *hash)
     Destroys the list.
 */
 void
-conn_list_cleanup(int debuglvl, struct vrmr_list *conn_dlist)
+vrmr_conn_list_cleanup(int debuglvl, struct vrmr_list *conn_dlist)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
@@ -2024,7 +2024,7 @@ conn_list_cleanup(int debuglvl, struct vrmr_list *conn_dlist)
 }
 
 
-/*  conn_get_connections
+/*  vrmr_conn_get_connections
 
     Assembles all conntrack connections in one list, and counts all items.
 
@@ -2044,7 +2044,7 @@ conn_list_cleanup(int debuglvl, struct vrmr_list *conn_dlist)
     cd struct
 */
 static int
-conn_get_connections_do(const int debuglvl,
+vrmr_conn_get_connections_do(const int debuglvl,
                         struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
@@ -2088,10 +2088,10 @@ conn_get_connections_do(const int debuglvl,
         hashtbl_size = prev_conn_cnt;
 
     /* initialize the hash */
-    if(hash_setup(debuglvl, &conn_hash, hashtbl_size,
+    if(vrmr_hash_setup(debuglvl, &conn_hash, hashtbl_size,
             conn_hash_conntrackdata, conn_match_conntrackdata) != 0)
     {
-        (void)vrprint.error(-1, "Internal Error", "hash_setup() failed "
+        (void)vrprint.error(-1, "Internal Error", "vrmr_hash_setup() failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -2100,7 +2100,7 @@ conn_get_connections_do(const int debuglvl,
         conntrack_cmd = 1;
 
         /* create the tempfile */
-        int fd = create_tempfile(debuglvl, tmpfile);
+        int fd = vrmr_create_tempfile(debuglvl, tmpfile);
         if(fd == -1)
             return(-1);
         else
@@ -2270,7 +2270,7 @@ conn_get_connections_do(const int debuglvl,
 
             /* now check if the cd is already in the list */
             if(req->group_conns == TRUE &&
-                (cd_ptr = hash_search(debuglvl, &conn_hash, (void *)cd_ptr)) != NULL)
+                (cd_ptr = vrmr_hash_search(debuglvl, &conn_hash, (void *)cd_ptr)) != NULL)
             {
                 /*  FOUND in the hash
 
@@ -2305,14 +2305,14 @@ conn_get_connections_do(const int debuglvl,
                         /* yes, so now we move one up */
                         if(vrmr_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
                         {
-                            (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: conn_get_connections).");
+                            (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
 
                         /* now reinsert */
                         if(!(cd_ptr->d_node = vrmr_list_insert_before(debuglvl, conn_dlist, d_node, cd_ptr)))
                         {
-                            (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: conn_get_connections).");
+                            (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
                     }
@@ -2328,14 +2328,14 @@ conn_get_connections_do(const int debuglvl,
                             /* yes, so now we move one down */
                             if(vrmr_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
                             {
-                                (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: conn_get_connections).");
+                                (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
                                 return(-1);
                             }
 
                             /* now reinsert */
                             if(!(cd_ptr->d_node = vrmr_list_insert_after(debuglvl, conn_dlist, d_node, cd_ptr)))
                             {
-                                (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: conn_get_connections).");
+                                (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
                                 return(-1);
                             }
                         }
@@ -2358,14 +2358,14 @@ conn_get_connections_do(const int debuglvl,
                         /* yes, so now we first remove */
                         if(vrmr_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
                         {
-                            (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: conn_get_connections).");
+                            (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
 
                         /* and then re-insert */
                         if(!(prev_cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, prev_cd_ptr)))
                         {
-                            (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: conn_get_connections).");
+                            (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
                     }
@@ -2383,14 +2383,14 @@ conn_get_connections_do(const int debuglvl,
                         /* yes, so now remove */
                         if(vrmr_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
                         {
-                            (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: conn_get_connections).");
+                            (void)vrprint.error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
 
                         /* now reinsert */
                         if(!(next_cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, next_cd_ptr)))
                         {
-                            (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: conn_get_connections).");
+                            (void)vrprint.error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
                             return(-1);
                         }
                     }
@@ -2408,14 +2408,14 @@ conn_get_connections_do(const int debuglvl,
                 cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, cd_ptr);
                 if(!cd_ptr->d_node)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "unable to append into list (in: conn_get_connections).");
+                    (void)vrprint.error(-1, "Internal Error", "unable to append into list (in: vrmr_conn_get_connections).");
                     return(-1);
                 }
 
                 /* and insert it into the hash */
-                if(hash_insert(debuglvl, &conn_hash, cd_ptr) != 0)
+                if(vrmr_hash_insert(debuglvl, &conn_hash, cd_ptr) != 0)
                 {
-                    (void)vrprint.error(-1, "Internal Error", "unable to insert into hash (in: conn_get_connections).");
+                    (void)vrprint.error(-1, "Internal Error", "unable to insert into hash (in: vrmr_conn_get_connections).");
                     return(-1);
                 }
 
@@ -2442,13 +2442,13 @@ conn_get_connections_do(const int debuglvl,
     }
 
     /* cleanup */
-    hash_cleanup(debuglvl, &conn_hash);
+    vrmr_hash_cleanup(debuglvl, &conn_hash);
 
     return(retval);
 }
 
 static int
-conn_get_connections_cmd (const int debuglvl,
+vrmr_conn_get_connections_cmd (const int debuglvl,
                         struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
@@ -2460,13 +2460,13 @@ conn_get_connections_cmd (const int debuglvl,
                         int ipver
                     )
 {
-    return conn_get_connections_do(debuglvl, cnf, prev_conn_cnt,
+    return vrmr_conn_get_connections_do(debuglvl, cnf, prev_conn_cnt,
             serv_hash, zone_hash, conn_dlist, zone_list,
             req, connstat_ptr, ipver);
 }
 
 static int
-conn_get_connections_proc (const int debuglvl,
+vrmr_conn_get_connections_proc (const int debuglvl,
                         struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
@@ -2477,13 +2477,13 @@ conn_get_connections_proc (const int debuglvl,
                         struct vrmr_conntrack_stats *connstat_ptr
                     )
 {
-    return conn_get_connections_do(debuglvl, cnf, prev_conn_cnt,
+    return vrmr_conn_get_connections_do(debuglvl, cnf, prev_conn_cnt,
             serv_hash, zone_hash, conn_dlist, zone_list,
             req, connstat_ptr, 0);
 }
 
 int
-conn_get_connections(   const int debuglvl,
+vrmr_conn_get_connections(   const int debuglvl,
                         struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
@@ -2510,18 +2510,18 @@ conn_get_connections(   const int debuglvl,
     connstat_ptr->accounting = 0;
 
     if (strlen(cnf->conntrack_location) > 0) {
-        retval = conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
+        retval = vrmr_conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
                 serv_hash, zone_hash, conn_dlist, zone_list,
                 req, connstat_ptr, VR_IPV4);
 #ifdef IPV6_ENABLED
         if (retval == 0) {
-            retval = conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
+            retval = vrmr_conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
                     serv_hash, zone_hash, conn_dlist, zone_list,
                     req, connstat_ptr, VR_IPV6);
         }
 #endif
     } else {
-        retval = conn_get_connections_proc(debuglvl, cnf, prev_conn_cnt,
+        retval = vrmr_conn_get_connections_proc(debuglvl, cnf, prev_conn_cnt,
                 serv_hash, zone_hash, conn_dlist, zone_list,
                 req, connstat_ptr);
     }
@@ -2530,7 +2530,7 @@ conn_get_connections(   const int debuglvl,
 }
 
 void
-VR_connreq_setup(const int debuglvl, struct vrmr_conntrack_request *connreq)
+vrmr_connreq_setup(const int debuglvl, struct vrmr_conntrack_request *connreq)
 {
     /* safety */
     if(connreq == NULL)
@@ -2547,7 +2547,7 @@ VR_connreq_setup(const int debuglvl, struct vrmr_conntrack_request *connreq)
 
 
 void
-VR_connreq_cleanup(const int debuglvl, struct vrmr_conntrack_request *connreq)
+vrmr_connreq_cleanup(const int debuglvl, struct vrmr_conntrack_request *connreq)
 {
     /* safety */
     if(connreq == NULL)

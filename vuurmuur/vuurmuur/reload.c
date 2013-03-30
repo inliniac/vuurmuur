@@ -51,14 +51,14 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
         (void)vrprint.error(-1, "Error", "unloading backends failed.");
         return(-1);
     }
-    shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 5);
+    vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 5);
 
 
     /* reload the config
 
        if it fails it's no big deal, we just keep using the old config.
     */
-    if(reload_config(debuglvl, vctx->conf) < VRMR_CNF_OK)
+    if(vrmr_reload_config(debuglvl, vctx->conf) < VRMR_CNF_OK)
     {
         (void)vrprint.warning("Warning", "reloading config failed, using old config.");
     }
@@ -74,7 +74,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
     /* tcp options */
     create_logtcpoptions_string(debuglvl, vctx->conf, log_tcp_options, sizeof(log_tcp_options));
 
-    shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 10);
+    vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 10);
 
 
     /* reopen the backends */
@@ -84,7 +84,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
         (void)vrprint.error(-1, "Error", "re-opening backends failed.");
         return(-1);
     }
-    shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 15);
+    vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 15);
 
 
     /* reload the services, interfaces, zones and rules. */
@@ -105,7 +105,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
         (void)vrprint.error(-1, "Error", "Reloading services failed.");
         return(-1);
     }
-    shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 20);
+    vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 20);
 
     (void)vrprint.info("Info", "Reloading interfaces...");
     result = reload_interfaces(debuglvl, vctx->interfaces);
@@ -124,7 +124,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
         (void)vrprint.error(-1, "Error", "Reloading interfaces failed.");
         return(-1);
     }
-    shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 25);
+    vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 25);
 
     (void)vrprint.info("Info", "Reloading zones...");
     result = reload_zonedata(debuglvl, vctx->zones, vctx->interfaces, reg);
@@ -143,7 +143,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
         (void)vrprint.error(-1, "Error", "Reloading zones failed.");
         return(-1);
     }
-    shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 30);
+    vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 30);
 
     /* changed networks (for antispoofing) */
     result = check_for_changed_networks(debuglvl, vctx->zones);
@@ -196,7 +196,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
         (void)vrprint.error(-1, "Error", "reloading rules failed.");
         retval=-1;
     }
-    shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 40);
+    vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 40);
 
 
     /* analyzing the rules */
@@ -205,7 +205,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
         (void)vrprint.error(-1, "Error", "analizing the rules failed.");
         retval=-1;
     }
-    shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 80);
+    vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 80);
 
 
     /* create the new ruleset */
@@ -214,7 +214,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
         (void)vrprint.error(-1, "Error", "creating rules failed.");
         retval=-1;
     }
-    shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 90);
+    vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 90);
 
     if(retval == 0)
         (void)vrprint.info("Info", "Reloading Vuurmuur completed successfully.");
@@ -285,9 +285,9 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
     /* loop trough the services in the backend */
     while(sf->list(debuglvl, serv_backend, name, &zonetype, CAT_SERVICES) != NULL)
     {
-        if(validate_servicename(debuglvl, name, servicename_regex, VALNAME_VERBOSE) == 0)
+        if(vrmr_validate_servicename(debuglvl, name, servicename_regex, VALNAME_VERBOSE) == 0)
         {
-            ser_ptr = search_service(debuglvl, services, name);
+            ser_ptr = vrmr_search_service(debuglvl, services, name);
             if(ser_ptr == NULL) /* not found */
             {
                 (void)vrprint.info("Info", "Service '%s' is added.", name);
@@ -295,14 +295,14 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
                 retval = 1;
     
                 /* new service */
-                result = insert_service(debuglvl, services, name);
+                result = vrmr_insert_service(debuglvl, services, name);
                 if(result != 0)
                 {
                     (void)vrprint.error(-1, "Internal Error", "inserting data for '%s' into the list failed (in: reload_services).", name);
                     return(-1);
                 }
             
-                ser_ptr = search_service(debuglvl, services, name);
+                ser_ptr = vrmr_search_service(debuglvl, services, name);
                 if(ser_ptr == NULL) /* not found */
                 {
                     (void)vrprint.error(-1, "Internal Error", "service not found (in: %s:%d).",
@@ -310,7 +310,7 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
                     return(-1);
                 }
 
-                result = services_check(debuglvl, ser_ptr);
+                result = vrmr_services_check(debuglvl, ser_ptr);
                 if(result != 1)
                 {
                     (void)vrprint.info("Info", "Service '%s' has been deactivated because of errors while checking it.",
@@ -321,7 +321,7 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
             else
             {
                 /* check the content of the service for changes */
-                result = reload_services_check(debuglvl, ser_ptr);
+                result = reload_vrmr_services_check(debuglvl, ser_ptr);
                 if(result == 1)
                     retval = 1;
                 else if(result < 0)
@@ -357,7 +357,7 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
 }
 
 
-/*  reload_services_check
+/*  reload_vrmr_services_check
 
     checks a service for changes
 
@@ -367,7 +367,7 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
         -1: error
 */
 int
-reload_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
+reload_vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
 {
     int                     retval = 0,
                             result = 0,
@@ -389,9 +389,9 @@ reload_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
     }
 
     /* alloc the temp mem */
-    if(!(new_ser_ptr = service_malloc()))
+    if(!(new_ser_ptr = vrmr_service_malloc()))
     {
-        (void)vrprint.error(-1, "Internal Error", "service_malloc() failed: %s (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_service_malloc() failed: %s (in: %s:%d).",
                                     strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -404,11 +404,11 @@ reload_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
 
 
     /* read the service from the backend again */
-    result = read_service(debuglvl, ser_ptr->name, new_ser_ptr);
+    result = vrmr_read_service(debuglvl, ser_ptr->name, new_ser_ptr);
     if(result != 0)
     {
         /* error! memory is freed at the end of this function */
-        (void)vrprint.error(-1, "Error", "getting info for service '%s' failed (in: reload_services_check).", ser_ptr->name);
+        (void)vrprint.error(-1, "Error", "getting info for service '%s' failed (in: reload_vrmr_services_check).", ser_ptr->name);
         status = ST_REMOVED;
     }
     else
@@ -417,7 +417,7 @@ reload_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
             (void)vrprint.debug(__FUNC__, "service: %12s.", ser_ptr->name);
 
         /* check the interface */
-        check_result = services_check(debuglvl, new_ser_ptr);
+        check_result = vrmr_services_check(debuglvl, new_ser_ptr);
 
         /* we asume that the service did not change, if so we change it below */
         status = ST_KEEP;
@@ -457,13 +457,13 @@ reload_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
                         {
                             if(!(list_port = list_node->data))
                             {
-                                (void)vrprint.error(-1, "Internal Error", "reload_services_check: list_port == NULL!");
+                                (void)vrprint.error(-1, "Internal Error", "reload_vrmr_services_check: list_port == NULL!");
                                 return(-1);
                             }
 
                             if(!(temp_port = temp_node->data))
                             {
-                                (void)vrprint.error(-1, "Internal Error", "reload_services_check: temp_port == NULL!");
+                                (void)vrprint.error(-1, "Internal Error", "reload_vrmr_services_check: temp_port == NULL!");
                                 return(-1);
                             }
 
@@ -507,7 +507,7 @@ reload_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
             }
         }
     
-        /* now check the result of interfaces_check() */
+        /* now check the result of vrmr_interfaces_check() */
         if( (status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED) &&
             check_result != 1)
         {
@@ -596,11 +596,11 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     /* loop trough backend and check */
     while(zf->list(debuglvl, zone_backend, name, &zonetype, CAT_ZONES) != NULL)
     {
-        zone_ptr = search_zonedata(debuglvl, zones, name);
+        zone_ptr = vrmr_search_zonedata(debuglvl, zones, name);
         if(zone_ptr == NULL)
         {
             /* new zone */
-            result = insert_zonedata(debuglvl, zones, interfaces, name, zonetype, reg);
+            result = vrmr_insert_zonedata(debuglvl, zones, interfaces, name, zonetype, reg);
             if(result != 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "inserting data for '%s' into the list failed (reload_zonedata).", name);
@@ -618,7 +618,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                 (void)vrprint.info("Info", "Group '%s' was added.", name);
 
 
-            zone_ptr = search_zonedata(debuglvl, zones, name);
+            zone_ptr = vrmr_search_zonedata(debuglvl, zones, name);
             if(zone_ptr == NULL)
             {
                 (void)vrprint.error(-1, "Internal Error", "zone not found (in: %s:%d).",
@@ -630,7 +630,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
             if(zone_ptr->type == TYPE_HOST)
             {
                 /* check */
-                check_result = zones_check_host(debuglvl, zone_ptr);
+                check_result = vrmr_zones_check_host(debuglvl, zone_ptr);
                 if(check_result != 1)
                 {
                     (void)vrprint.info("Info", "Host '%s' has been deactivated because of errors while checking it.",
@@ -641,7 +641,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
             else if(zone_ptr->type == TYPE_NETWORK)
             {
                 /* check */
-                check_result = zones_check_network(debuglvl, zone_ptr);
+                check_result = vrmr_zones_check_network(debuglvl, zone_ptr);
                 if(check_result != 1)
                 {
                     (void)vrprint.info("Info", "Network '%s' has been deactivated because of errors while checking it.",
@@ -693,7 +693,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
         }
     }
 
-    //zonedata_print_list(&ZonedataList);
+    //vrmr_zonedata_print_list(&ZonedataList);
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "** end **, retval=%d", retval);
@@ -719,7 +719,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
     int                     check_result = 0;
     struct vrmr_zone        *host_ptr_new  =NULL,
                             *host_ptr_orig,
-                            *new_zone_ptr=NULL;
+                            *vrmr_new_zone_ptr=NULL;
     struct vrmr_interface   *iface_ptr_new,
                             *iface_ptr_orig;
     struct vrmr_list_node             *d_node_orig = NULL,
@@ -744,7 +744,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
 
 
     /* alloc mem for new zone */
-    if(!(new_zone_ptr = zone_malloc(debuglvl)))
+    if(!(vrmr_new_zone_ptr = vrmr_zone_malloc(debuglvl)))
     {
         (void)vrprint.error(-1, "Error", "allocating memory failed: %s.", strerror(errno));
         return(-1);
@@ -756,7 +756,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
         case TYPE_ZONE:
 
             /* set the zone up */
-            result = read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_ZONE, new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_ZONE, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -768,13 +768,13 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
             else
             {
                 /* active */
-                if(zone_ptr->active == new_zone_ptr->active)
+                if(zone_ptr->active == vrmr_new_zone_ptr->active)
                 {
                     status = ST_KEEP;
                 }
                 else
                 {
-                    if(new_zone_ptr->active == 1)
+                    if(vrmr_new_zone_ptr->active == 1)
                     {
                         status = ST_ACTIVATED;
                         (void)vrprint.info("Info", "Zone '%s' has been activated.", zone_ptr->name);
@@ -790,7 +790,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
 
         case TYPE_NETWORK:
 
-            result = read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_NETWORK, new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_NETWORK, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -800,30 +800,30 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
             else
             {
                 /* check */
-                check_result = zones_check_network(debuglvl, new_zone_ptr);
+                check_result = vrmr_zones_check_network(debuglvl, vrmr_new_zone_ptr);
 
                 /* we start at keep */
                 status = ST_KEEP;
 
                 /* active If check_result is not 1 we are going to set the active to false, so we dont
                     care about this check. */
-                if(check_result != 1 || zone_ptr->active == new_zone_ptr->active)
+                if(check_result != 1 || zone_ptr->active == vrmr_new_zone_ptr->active)
                 {
                     /* network */
-                    if(strcmp(zone_ptr->ipv4.network, new_zone_ptr->ipv4.network) == 0)
+                    if(strcmp(zone_ptr->ipv4.network, vrmr_new_zone_ptr->ipv4.network) == 0)
                     {
                         /* netmask */
-                        if(strcmp(zone_ptr->ipv4.netmask, new_zone_ptr->ipv4.netmask) == 0)
+                        if(strcmp(zone_ptr->ipv4.netmask, vrmr_new_zone_ptr->ipv4.netmask) == 0)
                         {
                             /* interfaces */
-                            if(zone_ptr->InterfaceList.len != new_zone_ptr->InterfaceList.len)
+                            if(zone_ptr->InterfaceList.len != vrmr_new_zone_ptr->InterfaceList.len)
                             {
                                 (void)vrprint.info("Info", "Network '%s': the number of interfaces has been changed.", zone_ptr->name);
                                 status = ST_CHANGED;
                             }
 
                             /* now loop through the member to see if they have changes */
-                            d_node_new  = new_zone_ptr->InterfaceList.top;
+                            d_node_new  = vrmr_new_zone_ptr->InterfaceList.top;
                             d_node_orig = zone_ptr->InterfaceList.top;
 
                             if(!d_node_new && !d_node_orig)
@@ -871,14 +871,14 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
 
 
                             /* protect rules */
-                            if(zone_ptr->ProtectList.len != new_zone_ptr->ProtectList.len)
+                            if(zone_ptr->ProtectList.len != vrmr_new_zone_ptr->ProtectList.len)
                             {
                                 (void)vrprint.info("Info", "Network '%s': the number of protectrules has been changed.", zone_ptr->name);
                                 status = ST_CHANGED;
                             }
 
                             /* now loop through the member to see if they have changes */
-                            protect_d_node_new  = new_zone_ptr->ProtectList.top;
+                            protect_d_node_new  = vrmr_new_zone_ptr->ProtectList.top;
                             protect_d_node_orig = zone_ptr->ProtectList.top;
 
                             if(!protect_d_node_new && !protect_d_node_orig)
@@ -922,30 +922,30 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                         }
                         else
                         {
-                            (void)vrprint.info("Info", "Network '%s': netmask changed to: '%s'.", zone_ptr->name, new_zone_ptr->ipv4.netmask);
+                            (void)vrprint.info("Info", "Network '%s': netmask changed to: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->ipv4.netmask);
                             status = ST_CHANGED;
                         }
                     }
                     else
                     {
-                        (void)vrprint.info("Info", "Network '%s': network address changed to: '%s'.", zone_ptr->name, new_zone_ptr->ipv4.network);
+                        (void)vrprint.info("Info", "Network '%s': network address changed to: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->ipv4.network);
                         status = ST_CHANGED;
                     }
 #ifdef IPV6_ENABLED
                     /* network address */
-                    if (strcmp(zone_ptr->ipv6.net6, new_zone_ptr->ipv6.net6) != 0) {
-                        (void)vrprint.info("Info", "Network '%s' has a new ipv6 network address: '%s'.", zone_ptr->name, new_zone_ptr->ipv6.net6);
+                    if (strcmp(zone_ptr->ipv6.net6, vrmr_new_zone_ptr->ipv6.net6) != 0) {
+                        (void)vrprint.info("Info", "Network '%s' has a new ipv6 network address: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->ipv6.net6);
                         status = ST_CHANGED;
                     }
-                    if (zone_ptr->ipv6.cidr6 != new_zone_ptr->ipv6.cidr6) {
-                        (void)vrprint.info("Info", "Network '%s' has a new ipv6 CIDR: '%d'.", zone_ptr->name, new_zone_ptr->ipv6.cidr6);
+                    if (zone_ptr->ipv6.cidr6 != vrmr_new_zone_ptr->ipv6.cidr6) {
+                        (void)vrprint.info("Info", "Network '%s' has a new ipv6 CIDR: '%d'.", zone_ptr->name, vrmr_new_zone_ptr->ipv6.cidr6);
                         status = ST_CHANGED;
                     }
 #endif
                 }
                 else
                 {
-                    if(new_zone_ptr->active == 1)
+                    if(vrmr_new_zone_ptr->active == 1)
                     {
                         (void)vrprint.info("Info", "Network '%s' has been activated.", zone_ptr->name);
                         status = ST_ACTIVATED;
@@ -957,20 +957,20 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                     }
                 }
 
-                /* now check the result of interfaces_check() */
+                /* now check the result of vrmr_interfaces_check() */
                 if( (status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED) &&
                     check_result != 1)
                 {
                     (void)vrprint.info("Info", "Network '%s' has been deactivated because of errors while checking it.",
                                                     zone_ptr->name);
-                    new_zone_ptr->active = FALSE;
+                    vrmr_new_zone_ptr->active = FALSE;
                 }
             }
             break;
 
         case TYPE_HOST:
 
-            result = read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_HOST, new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_HOST, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -980,28 +980,28 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
             else
             {
                 /* check */
-                check_result = zones_check_host(debuglvl, new_zone_ptr);
+                check_result = vrmr_zones_check_host(debuglvl, vrmr_new_zone_ptr);
 
                 /* active If check_result is not 1 we are going to set the active to false, so we dont
                     care about this check. */
-                if(check_result != 1 || zone_ptr->active == new_zone_ptr->active)
+                if(check_result != 1 || zone_ptr->active == vrmr_new_zone_ptr->active)
                 {
                     /* ipaddress */
-                    if(strcmp(zone_ptr->ipv4.ipaddress, new_zone_ptr->ipv4.ipaddress) == 0)
+                    if(strcmp(zone_ptr->ipv4.ipaddress, vrmr_new_zone_ptr->ipv4.ipaddress) == 0)
                     {
                         /* have mac */
-                        if(zone_ptr->has_mac == new_zone_ptr->has_mac)
+                        if(zone_ptr->has_mac == vrmr_new_zone_ptr->has_mac)
                         {
                             /* mac */
                             if(zone_ptr->has_mac == TRUE)
                             {
-                                if(strcmp(zone_ptr->mac, new_zone_ptr->mac) == 0)
+                                if(strcmp(zone_ptr->mac, vrmr_new_zone_ptr->mac) == 0)
                                 {
                                     status = ST_KEEP;
                                 }
                                 else
                                 {
-                                    (void)vrprint.info("Info", "Host '%s' has a new mac-address: '%s'.", zone_ptr->name, new_zone_ptr->mac);
+                                    (void)vrprint.info("Info", "Host '%s' has a new mac-address: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->mac);
                                     status = ST_CHANGED;
                                 }
                             }
@@ -1014,7 +1014,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                         {
                             if(zone_ptr->has_mac == FALSE)
                             {
-                                (void)vrprint.info("Info", "Host '%s' now has a mac-address (%s).", zone_ptr->name, new_zone_ptr->mac);
+                                (void)vrprint.info("Info", "Host '%s' now has a mac-address (%s).", zone_ptr->name, vrmr_new_zone_ptr->mac);
                             }
                             else
                             {
@@ -1025,21 +1025,21 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                     }
                     else
                     {
-                        (void)vrprint.info("Info", "Host '%s' has a new ipaddress: '%s'.", zone_ptr->name, new_zone_ptr->ipv4.ipaddress);
+                        (void)vrprint.info("Info", "Host '%s' has a new ipaddress: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->ipv4.ipaddress);
                         status = ST_CHANGED;
                     }
 
 #ifdef IPV6_ENABLED
                     /* ipaddress */
-                    if (strcmp(zone_ptr->ipv6.ip6, new_zone_ptr->ipv6.ip6) != 0) {
-                        (void)vrprint.info("Info", "Host '%s' has a new ipv6 address: '%s'.", zone_ptr->name, new_zone_ptr->ipv6.ip6);
+                    if (strcmp(zone_ptr->ipv6.ip6, vrmr_new_zone_ptr->ipv6.ip6) != 0) {
+                        (void)vrprint.info("Info", "Host '%s' has a new ipv6 address: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->ipv6.ip6);
                         status = ST_CHANGED;
                     }
 #endif
                 }
                 else
                 {
-                    if(new_zone_ptr->active == TRUE)
+                    if(vrmr_new_zone_ptr->active == TRUE)
                     {
                         (void)vrprint.info("Info", "Host '%s' has been activated.", zone_ptr->name);
                         status = ST_ACTIVATED;
@@ -1051,20 +1051,20 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                     }
                 }
 
-                /* now check the result of zones_check_host() */
+                /* now check the result of vrmr_zones_check_host() */
                 if( (status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED) &&
                     check_result != 1)
                 {
                     (void)vrprint.info("Info", "Host '%s' has been deactivated because of errors while checking it.",
                                                     zone_ptr->name);
-                    new_zone_ptr->active = FALSE;
+                    vrmr_new_zone_ptr->active = FALSE;
                 }
             }
             break;
 
         case TYPE_GROUP:
 
-            result = read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_GROUP, new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_GROUP, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -1077,20 +1077,20 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                 status = ST_KEEP;
 
                 /* check */
-                check_result = zones_check_group(debuglvl, new_zone_ptr);
+                check_result = vrmr_zones_check_group(debuglvl, vrmr_new_zone_ptr);
 
                 /* active */
-                if(check_result != 1 || zone_ptr->active == new_zone_ptr->active)
+                if(check_result != 1 || zone_ptr->active == vrmr_new_zone_ptr->active)
                 {
                     /* member count */
-                    if(zone_ptr->group_member_count != new_zone_ptr->group_member_count)
+                    if(zone_ptr->group_member_count != vrmr_new_zone_ptr->group_member_count)
                     {
                         (void)vrprint.info("Info", "Group '%s': the number of members changed.", zone_ptr->name);
                         status = ST_CHANGED;
                     }
 
                     /* now loop through the member to see if they have changes */
-                    d_node_new  = new_zone_ptr->GroupList.top;
+                    d_node_new  = vrmr_new_zone_ptr->GroupList.top;
                     d_node_orig = zone_ptr->GroupList.top;
 
                     if(!d_node_new && !d_node_orig)
@@ -1142,7 +1142,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                 }
                 else
                 {
-                    if(new_zone_ptr->active == 1)
+                    if(vrmr_new_zone_ptr->active == 1)
                     {
                         (void)vrprint.info("Info", "Group '%s' has been activated.", zone_ptr->name);
                         status = ST_ACTIVATED;
@@ -1154,13 +1154,13 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                     }
                 }
 
-                /* now check the result of zones_check_group() */
+                /* now check the result of vrmr_zones_check_group() */
                 if( (status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED) &&
                     check_result != 1)
                 {
                     (void)vrprint.info("Info", "Group '%s' has been deactivated because of errors while checking it.",
                                                     zone_ptr->name);
-                    new_zone_ptr->active = FALSE;
+                    vrmr_new_zone_ptr->active = FALSE;
                 }
             }
             break;
@@ -1189,7 +1189,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
         }
 
         /* copy the zone */
-        *zone_ptr = *new_zone_ptr;
+        *zone_ptr = *vrmr_new_zone_ptr;
 
         /* transfer the status */
         zone_ptr->status = status;
@@ -1200,21 +1200,21 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
     else if(status == ST_KEEP || status == ST_REMOVED)
     {
         /* first destroy the new lists, the struct will be free'd later */
-        if(new_zone_ptr->type == TYPE_GROUP)
-            vrmr_list_cleanup(debuglvl, &new_zone_ptr->GroupList);
-        if(new_zone_ptr->type == TYPE_NETWORK)
+        if(vrmr_new_zone_ptr->type == TYPE_GROUP)
+            vrmr_list_cleanup(debuglvl, &vrmr_new_zone_ptr->GroupList);
+        if(vrmr_new_zone_ptr->type == TYPE_NETWORK)
         {
-            vrmr_list_cleanup(debuglvl, &new_zone_ptr->InterfaceList);
-            vrmr_list_cleanup(debuglvl, &new_zone_ptr->ProtectList);
+            vrmr_list_cleanup(debuglvl, &vrmr_new_zone_ptr->InterfaceList);
+            vrmr_list_cleanup(debuglvl, &vrmr_new_zone_ptr->ProtectList);
         }
                         
         /* status to keep */
         zone_ptr->status = status;
     }
 
-    /* now free new_zone_ptr */
-    free(new_zone_ptr);
-    new_zone_ptr = NULL;
+    /* now free vrmr_new_zone_ptr */
+    free(vrmr_new_zone_ptr);
+    vrmr_new_zone_ptr = NULL;
 
     return(retval);
 }
@@ -1296,7 +1296,7 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
                 return(-1);
             }
 
-            result = interfaces_check(debuglvl, iface_ptr);
+            result = vrmr_interfaces_check(debuglvl, iface_ptr);
             if(result != 1)
             {
                 (void)vrprint.info("Info", "Interface '%s' has been deactivated because of errors while checking it.",
@@ -1309,7 +1309,7 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
         else
         {
             /* existing interface, so check it for changes */
-            result = reload_interfaces_check(debuglvl, iface_ptr);
+            result = reload_vrmr_interfaces_check(debuglvl, iface_ptr);
             if(result == 1)
                 retval = 1;
             else if(retval < 0)
@@ -1354,7 +1354,7 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
 }
 
 
-/*  reload_interfaces_check
+/*  reload_vrmr_interfaces_check
 
     Checks an individual interface for changes.
 
@@ -1364,7 +1364,7 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
         -1: error
 */
 int
-reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
+reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     int                     retval = 0;
     int                     check_result = 0;
@@ -1386,9 +1386,9 @@ reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
 
 
     /* alloc mem for a temporary interface */
-    if(!(new_iface_ptr = interface_malloc(debuglvl)))
+    if(!(new_iface_ptr = vrmr_interface_malloc(debuglvl)))
     {
-        (void)vrprint.error(-1, "Internal Error", "interface_malloc() failed: %s (in: %s:%d).",
+        (void)vrprint.error(-1, "Internal Error", "vrmr_interface_malloc() failed: %s (in: %s:%d).",
                                     strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
@@ -1408,7 +1408,7 @@ reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
 
 
     /* get the info from the backend */
-    if(read_interface_info(debuglvl, new_iface_ptr) != 0)
+    if(vrmr_read_interface_info(debuglvl, new_iface_ptr) != 0)
     {
         (void)vrprint.error(-1, "Error", "getting interface information for '%s' failed (in: %s).", iface_ptr->name, __FUNC__);
         status = ST_REMOVED;
@@ -1416,7 +1416,7 @@ reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
     else
     {
         /* check the interface */
-        check_result = interfaces_check(debuglvl, new_iface_ptr);
+        check_result = vrmr_interfaces_check(debuglvl, new_iface_ptr);
 
         /*
             NOW CHECK for changes
@@ -1549,7 +1549,7 @@ reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
             }
         }
 
-        /* now check the result of interfaces_check() */
+        /* now check the result of vrmr_interfaces_check() */
         if( (status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED) &&
             check_result != 1)
         {
@@ -1718,7 +1718,7 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
                             *old_node = NULL;
     struct vrmr_rule        *new_rule_ptr = NULL,
                             *org_rule_ptr = NULL;
-    struct vrmr_zone        *new_zone_ptr = NULL;
+    struct vrmr_zone        *vrmr_new_zone_ptr = NULL;
     struct vrmr_service    *new_serv_ptr = NULL;
     struct vrmr_rule_cache       *rulecache = NULL;
 
@@ -1746,7 +1746,7 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
         (void)vrprint.error(-1, "Error", "analizing the new rules failed.");
 
         /* cleanups */
-        rules_cleanup_list(debuglvl, new_rules);
+        vrmr_rules_cleanup_list(debuglvl, new_rules);
         free(new_rules);
 
         return(-1);
@@ -1839,7 +1839,7 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
             }
 
             /* comparing the rule options */
-            if(rules_compare_options(debuglvl, org_rule_ptr->opt, new_rule_ptr->opt, rules_itoaction(new_rule_ptr->action)) != 0)
+            if(vrmr_rules_compare_options(debuglvl, org_rule_ptr->opt, new_rule_ptr->opt, vrmr_rules_itoaction(new_rule_ptr->action)) != 0)
             {
                 if(debuglvl >= LOW)
                     (void)vrprint.debug(__FUNC__, "%d: options changed.", org_rule_ptr->number);
@@ -1852,8 +1852,8 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
             {
                 if(debuglvl >= LOW)
                     (void)vrprint.debug(__FUNC__, "%d: %s(%s) %s(%s) %s(%s) -> %s(%s).",    org_rule_ptr->number,
-                                                        rules_itoaction(org_rule_ptr->action),
-                                                        rules_itoaction(new_rule_ptr->action),
+                                                        vrmr_rules_itoaction(org_rule_ptr->action),
+                                                        vrmr_rules_itoaction(new_rule_ptr->action),
                                                         org_rule_ptr->service,
                                                         new_rule_ptr->service,
                                                         org_rule_ptr->from,
@@ -1870,7 +1870,7 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     {
         (void)vrprint.info("Info", "the rules themselves did change.");
 
-        rules_cleanup_list(debuglvl, vctx->rules);
+        vrmr_rules_cleanup_list(debuglvl, vctx->rules);
 
         /* copy the new list to the old */
         *vctx->rules = *new_rules;
@@ -1909,15 +1909,15 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
             }
 
             /* from zone */
-            if((new_zone_ptr = rulecache->from))
+            if((vrmr_new_zone_ptr = rulecache->from))
             {
-                if(new_zone_ptr->status != ST_KEEP)
+                if(vrmr_new_zone_ptr->status != ST_KEEP)
                     status = 1;
             }
             /* to zone */
-            if((new_zone_ptr = rulecache->to))
+            if((vrmr_new_zone_ptr = rulecache->to))
             {
-                if(new_zone_ptr->status != ST_KEEP)
+                if(vrmr_new_zone_ptr->status != ST_KEEP)
                     status = 1;
             }
             /* service */
@@ -1937,7 +1937,7 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     {
         (void)vrprint.info("Info", "the rules zones and/or services did change.");
 
-        rules_cleanup_list(debuglvl, vctx->rules);
+        vrmr_rules_cleanup_list(debuglvl, vctx->rules);
 
         /* copy the new list to the old */
         *vctx->rules = *new_rules;
@@ -1946,7 +1946,7 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     {
         (void)vrprint.info("Info", "the rules zones and services didn't change.");
 
-        rules_cleanup_list(debuglvl, new_rules);
+        vrmr_rules_cleanup_list(debuglvl, new_rules);
     }
     free(new_rules);
 
@@ -2035,7 +2035,7 @@ check_for_changed_dynamic_ips(const int debuglvl, struct vrmr_interfaces *interf
 
         if(iface_ptr->dynamic == 1 && strcmp(iface_ptr->device, "") != 0)
         {
-            result = get_dynamic_ip(debuglvl, iface_ptr->device, ipaddress, sizeof(ipaddress));
+            result = vrmr_get_dynamic_ip(debuglvl, iface_ptr->device, ipaddress, sizeof(ipaddress));
             if(result == -1)
             {
                 (void)vrprint.error(-1, "Error", "getting the ipaddress failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -2078,7 +2078,7 @@ check_for_changed_dynamic_ips(const int debuglvl, struct vrmr_interfaces *interf
             }
             else
             {
-                (void)vrprint.error(-1, "Internal Error", "unknown errorcode '%d' for get_dynamic_ip() (in: %s:%d).", result, __FUNC__, __LINE__);
+                (void)vrprint.error(-1, "Internal Error", "unknown errorcode '%d' for vrmr_get_dynamic_ip() (in: %s:%d).", result, __FUNC__, __LINE__);
                 return(-1);
             }
         }

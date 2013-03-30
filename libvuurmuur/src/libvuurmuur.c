@@ -21,14 +21,14 @@
 #include "config.h"
 #include "vuurmuur.h"
 
-/*  rule_malloc
+/*  vrmr_rule_malloc
 
     Allocates memory for a rule, and inits all variables.
 
     Returns the address of the memory on succes and NULL on failure.
 */
 void *
-rule_malloc(void)
+vrmr_rule_malloc(void)
 {
     struct vrmr_rule *rule_ptr = NULL;
 
@@ -47,7 +47,7 @@ rule_malloc(void)
 
 
 void *
-ruleoption_malloc(const int debuglvl)
+vrmr_rule_option_malloc(const int debuglvl)
 {
     struct vrmr_rule_options  *opt_ptr = NULL;
 
@@ -69,7 +69,7 @@ ruleoption_malloc(const int debuglvl)
 
 
 void *
-zone_malloc(const int debuglvl)
+vrmr_zone_malloc(const int debuglvl)
 {
     struct vrmr_zone *zone_ptr = NULL;
 
@@ -106,7 +106,7 @@ zone_malloc(const int debuglvl)
 
 
 void
-zone_free(const int debuglvl, struct vrmr_zone *zone_ptr)
+vrmr_zone_free(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     if(!zone_ptr)
         return;
@@ -125,7 +125,7 @@ zone_free(const int debuglvl, struct vrmr_zone *zone_ptr)
 
 
 void *
-service_malloc(void)
+vrmr_service_malloc(void)
 {
     struct vrmr_service *ser_ptr = NULL;
 
@@ -147,7 +147,7 @@ service_malloc(void)
 
 /* returns a initialized interface memory area */
 void *
-interface_malloc(const int debuglvl)
+vrmr_interface_malloc(const int debuglvl)
 {
     struct vrmr_interface *iface_ptr = NULL;
 

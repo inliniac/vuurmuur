@@ -60,7 +60,7 @@ zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
                 zone_ptr->name);
 
     /* validate and split up */
-    if(validate_zonename(debuglvl, zone_ptr->name, 0, zonename, netname,
+    if(vrmr_validate_zonename(debuglvl, zone_ptr->name, 0, zonename, netname,
         hostname, reg_ex, VALNAME_VERBOSE) != 0)
     {
         (void)vrprint.error(-1, "Internal Error", "name '%s' not "
@@ -108,7 +108,7 @@ zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
             return(-1);
         }
 
-        zone_ptr->zone_parent = search_zonedata(debuglvl, zones, zone_ptr->zone_name);
+        zone_ptr->zone_parent = vrmr_search_zonedata(debuglvl, zones, zone_ptr->zone_name);
         if(zone_ptr->zone_parent == NULL)
         {
             (void)vrprint.error(-1, "Error", "unable to find the "
@@ -142,7 +142,7 @@ zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
             return(-1);
         }
 
-        zone_ptr->zone_parent = search_zonedata(debuglvl, zones, zone_ptr->zone_name);
+        zone_ptr->zone_parent = vrmr_search_zonedata(debuglvl, zones, zone_ptr->zone_name);
         if(zone_ptr->zone_parent == NULL)
         {
             (void)vrprint.error(-1, "Error", "unable to find the "
@@ -153,7 +153,7 @@ zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
         snprintf(check_str, sizeof(check_str), "%s.%s",
              zone_ptr->network_name, zone_ptr->zone_name);
 
-        zone_ptr->network_parent = search_zonedata(debuglvl, zones, check_str);
+        zone_ptr->network_parent = vrmr_search_zonedata(debuglvl, zones, check_str);
         if(zone_ptr->network_parent == NULL)
         {
             (void)vrprint.error(-1, "Error", "Unable to find the "
@@ -166,7 +166,7 @@ zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
 }
 
 
-/*  insert_zonedata_list
+/*  vrmr_vrmr_insert_zonedata_list
 
     Inserts a zone into the list. It sorts by name. It makes sure the datastructure is
     preserved:
@@ -186,7 +186,7 @@ zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
         -1: (serious) error
 */
 int
-insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
+vrmr_vrmr_insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
              const struct vrmr_zone *zone_ptr)
 {
     struct vrmr_zone    *check_zone_ptr = NULL,
@@ -347,7 +347,7 @@ insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
 }
 
 
-/*  insert_zonedata
+/*  vrmr_insert_zonedata
 
     Inserts the zonedata 'name' into the linked-list.
 
@@ -356,7 +356,7 @@ insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
          0: succes
 */
 int
-insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+vrmr_insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
         char *name, int type, struct vrmr_regex *reg)
 {
     struct vrmr_zone    *zone_ptr = NULL;
@@ -369,15 +369,15 @@ insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     }
 
     /* claiming the memory we need, in case of error
-       zone_malloc will tell the user
+       vrmr_zone_malloc will tell the user
     */
-    if(!(zone_ptr = zone_malloc(debuglvl)))
+    if(!(zone_ptr = vrmr_zone_malloc(debuglvl)))
         return(-1);
 
     /*
         read the data for this zone
     */
-    if(read_zonedata(debuglvl, zones, interfaces, name, type, zone_ptr, reg) < 0)
+    if(vrmr_read_zonedata(debuglvl, zones, interfaces, name, type, zone_ptr, reg) < 0)
     {
         free(zone_ptr);
         return(-1);
@@ -386,10 +386,10 @@ insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     /*
         now insert into the list
     */
-    if(insert_zonedata_list(debuglvl, zones, zone_ptr) < 0)
+    if(vrmr_vrmr_insert_zonedata_list(debuglvl, zones, zone_ptr) < 0)
     {
         (void)vrprint.error(-1, "Internal Error",
-                "insert_zonedata_list() failed (in: %s:%d).",
+                "vrmr_vrmr_insert_zonedata_list() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -400,7 +400,7 @@ insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
 }
 
 
-/*  read_zonedata
+/*  vrmr_read_zonedata
 
     Reads all the info for a zone.
 
@@ -409,7 +409,7 @@ insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
         -1: error
 */
 int
-read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+vrmr_read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
           char *name, int type, struct vrmr_zone *zone_ptr, struct vrmr_regex *reg)
 {
     int     result = 0;
@@ -430,7 +430,7 @@ read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
         return(-1);
     }
 
-    if(validate_zonename(debuglvl, name, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) != 0)
+    if(vrmr_validate_zonename(debuglvl, name, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) != 0)
     {
         (void)vrprint.error(-1, "Internal Error", "invalid zonename "
                 "'%s' (in: %s:%d).", name, __FUNC__, __LINE__);
@@ -459,14 +459,14 @@ read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
     }
 
     /* get the active */
-    result = check_active(debuglvl, zone_ptr->name, zone_ptr->type);
+    result = vrmr_check_active(debuglvl, zone_ptr->name, zone_ptr->type);
     if(result == -1)
     {
         /* set false to be sure */
         zone_ptr->active = FALSE;
 
         /* error */
-        (void)vrprint.error(-1, "Internal Error", "check_active() "
+        (void)vrprint.error(-1, "Internal Error", "vrmr_check_active() "
                 "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
@@ -480,20 +480,20 @@ read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
     {
         if(zone_ptr->type == TYPE_NETWORK)
         {
-            result = zones_network_get_interfaces(debuglvl, zone_ptr, interfaces);
+            result = vrmr_zones_network_get_interfaces(debuglvl, zone_ptr, interfaces);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Internal Error",
-                        "zones_network_get_interfaces() "
+                        "vrmr_zones_network_get_interfaces() "
                         "failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
-            result = zones_network_get_protectrules(debuglvl, zone_ptr);
+            result = vrmr_zones_network_get_protectrules(debuglvl, zone_ptr);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Internal Error",
-                        "zones_network_get_protectrules() "
+                        "vrmr_zones_network_get_protectrules() "
                         "failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
@@ -513,10 +513,10 @@ read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
     else if(zone_ptr->type == TYPE_GROUP)
     {
         /* get group info */
-        result = get_group_info(debuglvl, zones, name, zone_ptr);
+        result = vrmr_get_group_info(debuglvl, zones, name, zone_ptr);
         if(result != 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "get_group_info() "
+            (void)vrprint.error(-1, "Internal Error", "vrmr_get_group_info() "
                     "failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
@@ -526,14 +526,14 @@ read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
 }
 
 
-/*  search_zonedata
+/*  vrmr_search_zonedata
 
     Function to search the ServicesList.
 
     It returns the pointer or a NULL-pointer if not found.
 */
 void *
-search_zonedata(const int debuglvl, const struct vrmr_zones *zones, char *name)
+vrmr_search_zonedata(const int debuglvl, const struct vrmr_zones *zones, char *name)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zonedata_ptr = NULL;
@@ -580,7 +580,7 @@ search_zonedata(const int debuglvl, const struct vrmr_zones *zones, char *name)
 
 /*- print_list - */
 void
-zonedata_print_list(const struct vrmr_zones *zones)
+vrmr_zonedata_print_list(const struct vrmr_zones *zones)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
@@ -600,7 +600,7 @@ zonedata_print_list(const struct vrmr_zones *zones)
 }
 
 
-/*  init_zonedata
+/*  vrmr_init_zonedata
 
     Loads all zonedata in memory.
 
@@ -610,7 +610,7 @@ zonedata_print_list(const struct vrmr_zones *zones)
         -1: error
 */
 int
-init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
+vrmr_init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     int     retval = 0,
             result = 0,
@@ -639,13 +639,13 @@ init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
             (void)vrprint.debug(__FUNC__, "loading zone: '%s', "
                     "type: %d", zonename, zonetype);
 
-        if(validate_zonename(debuglvl, zonename, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == 0)
+        if(vrmr_validate_zonename(debuglvl, zonename, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == 0)
         {
-            result = insert_zonedata(debuglvl, zones, interfaces, zonename, zonetype, reg);
+            result = vrmr_insert_zonedata(debuglvl, zones, interfaces, zonename, zonetype, reg);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Internal Error",
-                        "insert_zonedata() failed (in: %s:%d).",
+                        "vrmr_insert_zonedata() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -667,7 +667,7 @@ init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
 
 
 void
-destroy_zonedatalist(const int debuglvl, struct vrmr_zones *zones)
+vrmr_destroy_zonedatalist(const int debuglvl, struct vrmr_zones *zones)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
@@ -684,7 +684,7 @@ destroy_zonedatalist(const int debuglvl, struct vrmr_zones *zones)
             return;
         }
 
-        zone_free(debuglvl, zone_ptr);
+        vrmr_zone_free(debuglvl, zone_ptr);
     }
 
     vrmr_list_cleanup(debuglvl, &zones->list);
@@ -692,7 +692,7 @@ destroy_zonedatalist(const int debuglvl, struct vrmr_zones *zones)
 
 
 int
-delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonetype)
+vrmr_delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonetype)
 {
     struct vrmr_zone        *zone_ptr = NULL,
                             *zone_list_ptr = NULL;
@@ -728,7 +728,7 @@ delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zo
     }
 
     /* search the zone */
-    if(!(zone_ptr = search_zonedata(debuglvl, zones, zonename)))
+    if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, zonename)))
     {
         (void)vrprint.error(-1, "Internal Error", "zone '%s' not found "
                 "in memory (in: %s:%d).", zonename,
@@ -825,7 +825,7 @@ delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zo
             }
 
             /* remove from memory */
-            zone_free(debuglvl, zone_list_ptr);
+            vrmr_zone_free(debuglvl, zone_list_ptr);
             /* we're done */
             return(0);
         }
@@ -838,12 +838,12 @@ delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zo
 }
 
 
-/*  new_zone
+/*  vrmr_new_zone
 
     TODO: the spliting of name is totally wacked
 */
 int
-new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonetype)
+vrmr_new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonetype)
 {
     struct vrmr_zone    *zone_ptr=NULL;
     size_t              dotcount=0,
@@ -861,9 +861,9 @@ new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonet
 
 
     /* allocated memory for the new zone */
-    if(!(zone_ptr = zone_malloc(debuglvl)))
+    if(!(zone_ptr = vrmr_zone_malloc(debuglvl)))
     {
-        (void)vrprint.error(-1, "Error", "malloc failed (in: new_zone).");
+        (void)vrprint.error(-1, "Error", "malloc failed (in: vrmr_new_zone).");
         return(-1);
     }
 
@@ -875,7 +875,7 @@ new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonet
 
     if(dotcount > 2)
     {
-        (void)vrprint.error(-1, "Error", "Invalid name '%s' (in: new_zone).", zonename);
+        (void)vrprint.error(-1, "Error", "Invalid name '%s' (in: vrmr_new_zone).", zonename);
         return(-1);
     }
 
@@ -933,11 +933,11 @@ new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonet
 
 
     /* check if the zone already exists */
-    if(search_zonedata(debuglvl, zones, zonename) != NULL)
+    if(vrmr_search_zonedata(debuglvl, zones, zonename) != NULL)
     {
-        (void)vrprint.error(-1, "Error", "zonename '%s' already exists (in: new_zone).", zonename);
+        (void)vrprint.error(-1, "Error", "zonename '%s' already exists (in: vrmr_new_zone).", zonename);
 
-        zone_free(debuglvl, zone_ptr);
+        vrmr_zone_free(debuglvl, zone_ptr);
         return(-1);
     }
 
@@ -947,7 +947,7 @@ new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonet
     {
         (void)vrprint.error(-1, "Internal Error", "string "
             "overflow (in: %s:%d).", __FUNC__, __LINE__);
-        zone_free(debuglvl, zone_ptr);
+        vrmr_zone_free(debuglvl, zone_ptr);
         return(-1);
     }
 
@@ -958,24 +958,24 @@ new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonet
     snprintf(parent_str, sizeof(parent_str), "%s.%s", zone_ptr->network_name, zone_ptr->zone_name);
     if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP)
     {
-        if(!(zone_ptr->network_parent = search_zonedata(debuglvl, zones, parent_str)))
+        if(!(zone_ptr->network_parent = vrmr_search_zonedata(debuglvl, zones, parent_str)))
         {
-            (void)vrprint.error(-1, "Internal Error", "can't find the network-parent in the list (in: new_zone).");
+            (void)vrprint.error(-1, "Internal Error", "can't find the network-parent in the list (in: vrmr_new_zone).");
             return(-1);
         }
     }
     if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP || zone_ptr->type == TYPE_NETWORK)
     {
-        if(!(zone_ptr->zone_parent = search_zonedata(debuglvl, zones, zone_ptr->zone_name)))
+        if(!(zone_ptr->zone_parent = vrmr_search_zonedata(debuglvl, zones, zone_ptr->zone_name)))
         {
-            (void)vrprint.error(-1, "Internal Error", "can't find the zone-parent in the list (in: new_zone).");
+            (void)vrprint.error(-1, "Internal Error", "can't find the zone-parent in the list (in: vrmr_new_zone).");
             return(-1);
         }
     }
 
 
     /* insert into the list */
-    if(insert_zonedata_list(debuglvl, zones, zone_ptr) < 0)
+    if(vrmr_vrmr_insert_zonedata_list(debuglvl, zones, zone_ptr) < 0)
     {
         (void)vrprint.error(-1, "Internal Error", "unable to insert new zone into the list (in: %s).", __FUNC__);
         return(-1);
@@ -985,7 +985,7 @@ new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonet
     /* add the zone to the backend */
     if(zf->add(debuglvl, zone_backend, zonename, zonetype) < 0)
     {
-        (void)vrprint.error(-1, "Error", "Add to backend failed (in: new_zone).");
+        (void)vrprint.error(-1, "Error", "Add to backend failed (in: vrmr_new_zone).");
         return(-1);
     }
 
@@ -993,7 +993,7 @@ new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonet
     /* set active */
     if(zf->tell(debuglvl, zone_backend, zonename, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, zonetype) < 0)
     {
-        (void)vrprint.error(-1, "Error", "Tell backend failed (in: new_zone).");
+        (void)vrprint.error(-1, "Error", "Tell backend failed (in: vrmr_new_zone).");
         return(-1);
     }
 
@@ -1006,7 +1006,7 @@ new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonet
     TODO: input check
 */
 int
-count_zones(const int debuglvl, struct vrmr_zones *zones, int type, char *filter_network,
+vrmr_count_zones(const int debuglvl, struct vrmr_zones *zones, int type, char *filter_network,
         char *filter_zone)
 {
     struct vrmr_zone    *zone_ptr = NULL;
@@ -1052,7 +1052,7 @@ count_zones(const int debuglvl, struct vrmr_zones *zones, int type, char *filter
 }
 
 
-/*  zonelist_to_networklist
+/*  vrmr_zonelist_to_networklist
 
     Function to load the networks of a list into a new networklist. The
     networks in the original list will be untouched.
@@ -1063,7 +1063,7 @@ count_zones(const int debuglvl, struct vrmr_zones *zones, int type, char *filter
 
 */
 int
-zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, struct vrmr_list *network_list)
+vrmr_zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, struct vrmr_list *network_list)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
@@ -1073,7 +1073,7 @@ zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, struct vrm
     */
     if(!zones || !network_list)
     {
-        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: zonelist_to_networklist).");
+        (void)vrprint.error(-1, "Internal Error", "parameter problem (in: vrmr_zonelist_to_networklist).");
         return(-1);
     }
 
@@ -1081,7 +1081,7 @@ zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, struct vrm
     {
         if(!(zone_ptr = d_node->data))
         {
-            (void)vrprint.error(-1, "Internal Error", "zone_ptr == NULL! (in: zonelist_to_networklist).");
+            (void)vrprint.error(-1, "Internal Error", "zone_ptr == NULL! (in: vrmr_zonelist_to_networklist).");
             return(-1);
         }
 
@@ -1089,7 +1089,7 @@ zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, struct vrm
         {
             if(vrmr_list_append(debuglvl, network_list, zone_ptr) == NULL)
             {
-                (void)vrprint.error(-1, "Internal Error", "appending to the list failed (in: zonelist_to_networklist).");
+                (void)vrprint.error(-1, "Internal Error", "appending to the list failed (in: vrmr_zonelist_to_networklist).");
                 return(-1);
             }
         }
@@ -1099,7 +1099,7 @@ zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, struct vrm
 }
 
 
-/*  add_broadcasts_zonelist
+/*  vrmr_add_broadcasts_zonelist
 
     Adds the broadcast address of networks as TYPE_FIREWALL's to the zone_list
 
@@ -1111,7 +1111,7 @@ zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, struct vrm
         -1: error
 */
 int
-add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
+vrmr_add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
 {
     struct vrmr_zone    *zone_ptr = NULL,
                         *broadcast_ptr = NULL;
@@ -1140,7 +1140,7 @@ add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
             if(strcmp(zone_ptr->ipv4.broadcast, "255.255.255.255") != 0)
             {
                 /* allocate memory */
-                if(!(broadcast_ptr = zone_malloc(debuglvl)))
+                if(!(broadcast_ptr = vrmr_zone_malloc(debuglvl)))
                     return(-1);
 
                 /*  store the bare minimum:
@@ -1154,7 +1154,7 @@ add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
                 {
                     (void)vrprint.error(-1, "Internal Error", "string "
                             "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                    zone_free(debuglvl, broadcast_ptr);
+                    vrmr_zone_free(debuglvl, broadcast_ptr);
                     return(-1);
                 }
 
@@ -1167,7 +1167,7 @@ add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
                 if(vrmr_list_append(debuglvl, &zones->list, broadcast_ptr) == NULL)
                 {
                     (void)vrprint.error(-1, "Internal Error", "appending to the list failed (in: %s:%d).", __FUNC__, __LINE__);
-                    zone_free(debuglvl, broadcast_ptr);
+                    vrmr_zone_free(debuglvl, broadcast_ptr);
                     return(-1);
                 }
             }
@@ -1185,7 +1185,7 @@ add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
 
 */
 int
-validate_zonename(const int debuglvl, const char *zonename, int onlyvalidate, char *zone, char *network, char *host, regex_t *reg_ex, char quiet)
+vrmr_validate_zonename(const int debuglvl, const char *zonename, int onlyvalidate, char *zone, char *network, char *host, regex_t *reg_ex, char quiet)
 {
     int         retval=0;
     /* this initalization pleases splint */
@@ -1268,7 +1268,7 @@ validate_zonename(const int debuglvl, const char *zonename, int onlyvalidate, ch
 }
 
 
-/*  zones_group_save_members
+/*  vrmr_zones_group_save_members
 
     Save the group members to the backend.
 
@@ -1277,7 +1277,7 @@ validate_zonename(const int debuglvl, const char *zonename, int onlyvalidate, ch
         -1: error
 */
 int
-zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
+vrmr_zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *member_ptr = NULL;
@@ -1343,7 +1343,7 @@ zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
 
 
 int
-zones_group_rem_member(const int debuglvl, struct vrmr_zone *group_ptr, char *hostname)
+vrmr_zones_group_rem_member(const int debuglvl, struct vrmr_zone *group_ptr, char *hostname)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *member_ptr = NULL;
@@ -1388,7 +1388,7 @@ zones_group_rem_member(const int debuglvl, struct vrmr_zone *group_ptr, char *ho
     }
 
     /* save the new group list */
-    if(zones_group_save_members(debuglvl, group_ptr) < 0)
+    if(vrmr_zones_group_save_members(debuglvl, group_ptr) < 0)
     {
         (void)vrprint.error(-1, "Error", "saveing the new grouplist to the backend failed (in: %s).", __FUNC__);
         return(-1);
@@ -1401,7 +1401,7 @@ zones_group_rem_member(const int debuglvl, struct vrmr_zone *group_ptr, char *ho
 
 
 int
-zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct vrmr_zone *group_ptr, char *hostname)
+vrmr_zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct vrmr_zone *group_ptr, char *hostname)
 {
     struct vrmr_zone    *new_member_ptr = NULL,
                         *list_member_ptr = NULL;
@@ -1415,7 +1415,7 @@ zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct vrmr
     }
 
     /* now search the host in memory */
-    new_member_ptr = search_zonedata(debuglvl, zones, hostname);
+    new_member_ptr = vrmr_search_zonedata(debuglvl, zones, hostname);
     if(!new_member_ptr)
     {
         (void)vrprint.error(-1, "Internal Error", "member '%s' is invalid, it was not found in memory.", hostname);
@@ -1456,7 +1456,7 @@ zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct vrmr
     }
 
     /* save the new group list */
-    if(zones_group_save_members(debuglvl, group_ptr) < 0)
+    if(vrmr_zones_group_save_members(debuglvl, group_ptr) < 0)
     {
         (void)vrprint.error(-1, "Error", "saveing the new grouplist to the backend failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1474,7 +1474,7 @@ zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct vrmr
          0: ok
 */
 int
-zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_zone *network_ptr, char *interfacename)
+vrmr_zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_zone *network_ptr, char *interfacename)
 {
     struct vrmr_interface   *iface_ptr = NULL,
                             *list_iface_ptr = NULL;
@@ -1531,7 +1531,7 @@ zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfaces, 
 
 
 int
-zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, char *interfacename)
+vrmr_zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, char *interfacename)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -1574,7 +1574,7 @@ zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, char 
     }
 
     /* save the new interface list */
-    if(zones_network_save_interfaces(debuglvl, network_ptr) < 0)
+    if(vrmr_zones_network_save_interfaces(debuglvl, network_ptr) < 0)
     {
         (void)vrprint.error(-1, "Error", "saving the new interfaceslist to the backend failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1584,14 +1584,14 @@ zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, char 
 }
 
 
-/*  zones_network_get_interfaces
+/*  vrmr_zones_network_get_interfaces
 
     Returncodes:
          0: ok
         -1: error
  */
 int
-zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_interfaces *interfaces)
+vrmr_zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_interfaces *interfaces)
 {
     char    cur_ifac[MAX_INTERFACE] = "";
 
@@ -1617,9 +1617,9 @@ zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr, str
     /* get all interfaces from the backend */
     while((zf->ask(debuglvl, zone_backend, zone_ptr->name, "INTERFACE", cur_ifac, sizeof(cur_ifac), TYPE_NETWORK, 1)) == 1)
     {
-        if(zones_network_add_iface(debuglvl, interfaces, zone_ptr, cur_ifac) < 0)
+        if(vrmr_zones_network_add_iface(debuglvl, interfaces, zone_ptr, cur_ifac) < 0)
         {
-            (void)vrprint.error(-1, "Internal Error", "zones_network_add_iface() failed (in: %s:%d).",
+            (void)vrprint.error(-1, "Internal Error", "vrmr_zones_network_add_iface() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
             return(-1);
         }
@@ -1633,7 +1633,7 @@ zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr, str
 
 
 int
-zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network_ptr)
+vrmr_zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network_ptr)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -1715,7 +1715,7 @@ zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network_ptr)
         -1: error
  */
 int
-zones_network_analyze_rule( const int debuglvl,
+vrmr_zones_network_analyze_rule( const int debuglvl,
                             struct vrmr_rule *rule_ptr,
                             struct vrmr_rule_cache *create,
                             struct vrmr_zones *zones,
@@ -1735,7 +1735,7 @@ zones_network_analyze_rule( const int debuglvl,
     /* if were on bash mode, alloc mem for the description */
     if(cnf->bash_out == TRUE)
     {
-        if(!(create->description = malloc(sizeof(bash_description))))
+        if(!(create->description = malloc(VRMR_MAX_BASH_DESC)))
         {
             (void)vrprint.error(-1, "Error", "malloc failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
@@ -1752,14 +1752,14 @@ zones_network_analyze_rule( const int debuglvl,
     {
         if(debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "action: %s, who: %s, danger: %s, source: %s",
-                    rules_itoaction(rule_ptr->action), rule_ptr->who,
+                    vrmr_rules_itoaction(rule_ptr->action), rule_ptr->who,
                     rule_ptr->danger, rule_ptr->source);
 
         /* description */
         if(cnf->bash_out && create->description != NULL)
         {
-            snprintf(create->description, sizeof(bash_description), "rule: action: %s, who: %s, danger: %s, source: %s",
-                    rules_itoaction(rule_ptr->action), rule_ptr->who,
+            snprintf(create->description, VRMR_MAX_BASH_DESC, "rule: action: %s, who: %s, danger: %s, source: %s",
+                    vrmr_rules_itoaction(rule_ptr->action), rule_ptr->who,
                     rule_ptr->danger, rule_ptr->source);
         }
 
@@ -1770,7 +1770,7 @@ zones_network_analyze_rule( const int debuglvl,
             {
                 create->who_int = NULL;
 
-                if(!(create->who = search_zonedata(debuglvl, zones, rule_ptr->who)))
+                if(!(create->who = vrmr_search_zonedata(debuglvl, zones, rule_ptr->who)))
                 {
                     (void)vrprint.error(-1, "Error", "zone '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
                     return(-1);
@@ -1785,13 +1785,13 @@ zones_network_analyze_rule( const int debuglvl,
         }
 
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "calling get_danger_info() for danger...");
+            (void)vrprint.debug(__FUNC__, "calling vrmr_get_danger_info() for danger...");
 
-        result = get_danger_info(debuglvl, rule_ptr->danger, rule_ptr->source, &create->danger);
+        result = vrmr_get_danger_info(debuglvl, rule_ptr->danger, rule_ptr->source, &create->danger);
         if(result == 0)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "get_danger_info successfull.");
+                (void)vrprint.debug(__FUNC__, "vrmr_get_danger_info successfull.");
         }
         else
         {
@@ -1818,8 +1818,8 @@ zones_network_analyze_rule( const int debuglvl,
         /* description */
         if(cnf->bash_out && create->description != NULL)
         {
-            snprintf(create->description, sizeof(bash_description), "rule: action: %s, service: %s",
-                    rules_itoaction(rule_ptr->action), rule_ptr->service);
+            snprintf(create->description, VRMR_MAX_BASH_DESC, "rule: action: %s, service: %s",
+                    vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service);
         }
 
         /* get who */
@@ -1827,7 +1827,7 @@ zones_network_analyze_rule( const int debuglvl,
         {
             create->who_int = NULL;
 
-            if(!(create->who = search_zonedata(debuglvl, zones, rule_ptr->who)))
+            if(!(create->who = vrmr_search_zonedata(debuglvl, zones, rule_ptr->who)))
             {
                 (void)vrprint.error(-1, "Error", "zone '%s' not found (in: %s).", rule_ptr->who, __FUNC__);
                 return(-1);
@@ -1853,14 +1853,14 @@ zones_network_analyze_rule( const int debuglvl,
 }
 
 
-/*  rules_parse_line
+/*  vrmr_rules_parse_line
 
     Returncodes:
         0: ok
         -1: error
 */
 int
-zones_network_rule_parse_line(const int debuglvl, const char *line, struct vrmr_rule *rule_ptr)
+vrmr_zones_network_rule_parse_line(const int debuglvl, const char *line, struct vrmr_rule *rule_ptr)
 {
     size_t  line_pos = 0, // position in line
             var_pos=0; // position in varible
@@ -1890,7 +1890,7 @@ zones_network_rule_parse_line(const int debuglvl, const char *line, struct vrmr_
     }
     action_str[var_pos] = '\0';
 
-    rule_ptr->action = rules_actiontoi(action_str);
+    rule_ptr->action = vrmr_rules_actiontoi(action_str);
     if(rule_ptr->action <= VRMR_AT_ERROR || rule_ptr->action >= VRMR_AT_TOO_BIG)
         return(-1);
 
@@ -1962,7 +1962,7 @@ zones_network_rule_parse_line(const int debuglvl, const char *line, struct vrmr_
     else if(rule_ptr->action == VRMR_AT_ACCEPT)
     {
         if(debuglvl >= MEDIUM)
-            (void)vrprint.debug(__FUNC__, "action: '%s'", rules_itoaction(rule_ptr->action));
+            (void)vrprint.debug(__FUNC__, "action: '%s'", vrmr_rules_itoaction(rule_ptr->action));
 
         for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->service) && line[line_pos] != ' ' && line[line_pos] != ',' &&line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
         {
@@ -1983,7 +1983,7 @@ zones_network_rule_parse_line(const int debuglvl, const char *line, struct vrmr_
 
 
 int
-zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr)
+vrmr_zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr)
 {
     char                currule[MAX_RULE_LENGTH] = "";
     struct vrmr_rule    *rule_ptr = NULL;
@@ -2007,7 +2007,7 @@ zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr
     while((zf->ask(debuglvl, zone_backend, network_ptr->name, "RULE", currule, sizeof(currule), TYPE_NETWORK, 1)) == 1)
     {
         /* get mem */
-        if(!(rule_ptr = rule_malloc()))
+        if(!(rule_ptr = vrmr_rule_malloc()))
             return(-1);
 
         /* copy name */
@@ -2021,7 +2021,7 @@ zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "currule: '%s'.", currule);
 
-        if(zones_network_rule_parse_line(debuglvl, currule, rule_ptr) < 0)
+        if(vrmr_zones_network_rule_parse_line(debuglvl, currule, rule_ptr) < 0)
         {
             (void)vrprint.error(-1, "Internal Error", "parsing network rule failed (in: %s:%d).", __FUNC__, __LINE__);
             free(rule_ptr);
@@ -2045,7 +2045,7 @@ zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr
         }
 
         if(debuglvl >= HIGH)
-            (void)vrprint.debug(__FUNC__, "a: %s, w: %s, d: %s, s: %s.", rules_itoaction(rule_ptr->action), rule_ptr->who, rule_ptr->danger, rule_ptr->source);
+            (void)vrprint.debug(__FUNC__, "a: %s, w: %s, d: %s, s: %s.", vrmr_rules_itoaction(rule_ptr->action), rule_ptr->who, rule_ptr->danger, rule_ptr->source);
     }
 
     return(0);
@@ -2059,7 +2059,7 @@ zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr
         -1: error
 */
 int
-zones_active(const int debuglvl, struct vrmr_zone *zone_ptr)
+vrmr_zones_active(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     /* safety first */
     if(zone_ptr == NULL)
@@ -2105,7 +2105,7 @@ zones_active(const int debuglvl, struct vrmr_zone *zone_ptr)
         -1: error
 */
 int
-zones_check_network(const int debuglvl, struct vrmr_zone *zone_ptr)
+vrmr_zones_check_network(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     int retval = 1,
         result = 0;
@@ -2134,7 +2134,7 @@ zones_check_network(const int debuglvl, struct vrmr_zone *zone_ptr)
     else
     {
         /* check the ip */
-        result = check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.network, 1);
+        result = vrmr_check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.network, 1);
         if(result < 0)
         {
             (void)vrprint.warning("Warning", "network address '%s' of network '%s' is invalid.",
@@ -2153,7 +2153,7 @@ zones_check_network(const int debuglvl, struct vrmr_zone *zone_ptr)
     else
     {
         /* check the ip */
-        result = check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.netmask, 1);
+        result = vrmr_check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.netmask, 1);
         if(result < 0)
         {
             (void)vrprint.warning("Warning", "netmask '%s' of network '%s' is invalid.",
@@ -2167,7 +2167,7 @@ zones_check_network(const int debuglvl, struct vrmr_zone *zone_ptr)
     if(retval == 1)
     {
         /* check the ip */
-        result = check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.broadcast, 1);
+        result = vrmr_check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.broadcast, 1);
         if(result < 0)
         {
             (void)vrprint.warning("Warning", "broadcast address '%s' of network '%s' is invalid.",
@@ -2177,7 +2177,7 @@ zones_check_network(const int debuglvl, struct vrmr_zone *zone_ptr)
         }
     }
 
-    result = zones_active(debuglvl, zone_ptr);
+    result = vrmr_zones_active(debuglvl, zone_ptr);
     if(result != 1)
     {
         /* a parent is active */
@@ -2197,7 +2197,7 @@ zones_check_network(const int debuglvl, struct vrmr_zone *zone_ptr)
         -1: error
 */
 int
-zones_check_host(const int debuglvl, struct vrmr_zone *zone_ptr)
+vrmr_zones_check_host(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     int retval = 1,
         result = 0;
@@ -2218,7 +2218,7 @@ zones_check_host(const int debuglvl, struct vrmr_zone *zone_ptr)
     }
     else
     {
-        result = check_ipv4address(debuglvl,    zone_ptr->network_parent->ipv4.network,
+        result = vrmr_check_ipv4address(debuglvl,    zone_ptr->network_parent->ipv4.network,
                                                 zone_ptr->network_parent->ipv4.netmask,
                                                 zone_ptr->ipv4.ipaddress, 1);
         if(result < 0)
@@ -2240,7 +2240,7 @@ zones_check_host(const int debuglvl, struct vrmr_zone *zone_ptr)
         }
     }
 
-    result = zones_active(debuglvl, zone_ptr);
+    result = vrmr_zones_active(debuglvl, zone_ptr);
     if(result != 1)
     {
         /* a parent is active */
@@ -2260,7 +2260,7 @@ zones_check_host(const int debuglvl, struct vrmr_zone *zone_ptr)
         -1: error
 */
 int
-zones_check_group(const int debuglvl, struct vrmr_zone *zone_ptr)
+vrmr_zones_check_group(const int debuglvl, struct vrmr_zone *zone_ptr)
 {
     int retval = 1,
         result = 0;
@@ -2281,7 +2281,7 @@ zones_check_group(const int debuglvl, struct vrmr_zone *zone_ptr)
         retval = 0;
     }
 
-    result = zones_active(debuglvl, zone_ptr);
+    result = vrmr_zones_active(debuglvl, zone_ptr);
     if(result != 1)
     {
         /* a parent is active */
@@ -2296,7 +2296,7 @@ zones_check_group(const int debuglvl, struct vrmr_zone *zone_ptr)
 
 /*  load_zones
 
-    calls init_zonedata and does some checking
+    calls vrmr_init_zonedata and does some checking
 
     returncodes:
          0: ok
@@ -2312,7 +2312,7 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     (void)vrprint.info("Info", "Loading zones...");
 
     /* load the interfaces into memory */
-    result = init_zonedata(debuglvl, zones, interfaces, reg);
+    result = vrmr_init_zonedata(debuglvl, zones, interfaces, reg);
     if(result == -1)
     {
         (void)vrprint.error(-1, "Error", "Loading zones failed.");
@@ -2332,7 +2332,7 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
 
         if(zone_ptr->type == TYPE_HOST)
         {
-            result = zones_check_host(debuglvl, zone_ptr);
+            result = vrmr_zones_check_host(debuglvl, zone_ptr);
             if(result == -1)
                 return(-1);
             else if(result == 0)
@@ -2344,7 +2344,7 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
         }
         else if(zone_ptr->type == TYPE_GROUP)
         {
-            result = zones_check_group(debuglvl, zone_ptr);
+            result = vrmr_zones_check_group(debuglvl, zone_ptr);
             if(result == -1)
                 return(-1);
             else if(result == 0)
@@ -2356,7 +2356,7 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
         }
         else if(zone_ptr->type == TYPE_NETWORK)
         {
-            result = zones_check_network(debuglvl, zone_ptr);
+            result = vrmr_zones_check_network(debuglvl, zone_ptr);
             if(result == -1)
                 return(-1);
             else if(result == 0)
@@ -2380,7 +2380,7 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
  *  \retval 0 no
  */
 int
-zones_host_ipv6_enabled(const int debuglvl, struct vrmr_zone *host_ptr) {
+vrmr_zones_host_ipv6_enabled(const int debuglvl, struct vrmr_zone *host_ptr) {
     if (host_ptr != NULL && host_ptr->type == TYPE_HOST &&
             host_ptr->ipv6.cidr6 != -1)
     {
@@ -2394,7 +2394,7 @@ zones_host_ipv6_enabled(const int debuglvl, struct vrmr_zone *host_ptr) {
  *  \retval 0 no
  */
 int
-zones_network_ipv6_enabled(const int debuglvl, struct vrmr_zone *network_ptr) {
+vrmr_zones_network_ipv6_enabled(const int debuglvl, struct vrmr_zone *network_ptr) {
     if (network_ptr != NULL && network_ptr->type == TYPE_NETWORK &&
             network_ptr->ipv6.cidr6 != -1)
     {

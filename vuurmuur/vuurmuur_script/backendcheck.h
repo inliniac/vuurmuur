@@ -21,7 +21,7 @@
 #ifndef __BACKENDCHECK_H__
 #define __BACKENDCHECK_H__
 
-int backend_check_active(const int, char *, struct vrmr_regex *);
+int backend_vrmr_check_active(const int, char *, struct vrmr_regex *);
 int backend_check_comment(const int, char *, struct vrmr_regex *);
 
 int backend_check_host_ipaddress(const int, char *, struct vrmr_regex *);
@@ -66,18 +66,18 @@ struct backend_vars_
 backend_vars[] =
 {
     /* host specific */
-    {TYPE_HOST,     "ACTIVE",       0, backend_check_active},
+    {TYPE_HOST,     "ACTIVE",       0, backend_vrmr_check_active},
     {TYPE_HOST,     "IPADDRESS",    0, backend_check_host_ipaddress},
     {TYPE_HOST,     "MAC",          0, backend_check_host_macaddress},
     {TYPE_HOST,     "COMMENT",      0, backend_check_comment},
 
     /* group specific */
-    {TYPE_GROUP,    "ACTIVE",       0, backend_check_active},
+    {TYPE_GROUP,    "ACTIVE",       0, backend_vrmr_check_active},
     {TYPE_GROUP,    "MEMBER",       1, backend_check_group_member},
     {TYPE_GROUP,    "COMMENT",      0, backend_check_comment},
 
     /* network specific */
-    {TYPE_NETWORK,  "ACTIVE",       0, backend_check_active},
+    {TYPE_NETWORK,  "ACTIVE",       0, backend_vrmr_check_active},
     {TYPE_NETWORK,  "NETWORK",      0, backend_check_network_network},
     {TYPE_NETWORK,  "NETMASK",      0, backend_check_network_netmask},
     {TYPE_NETWORK,  "INTERFACE",    1, backend_check_network_interface},
@@ -85,11 +85,11 @@ backend_vars[] =
     {TYPE_NETWORK,  "COMMENT",      0, backend_check_comment},
 
     /* zone specific */
-    {TYPE_ZONE,     "ACTIVE",       0, backend_check_active},
+    {TYPE_ZONE,     "ACTIVE",       0, backend_vrmr_check_active},
     {TYPE_ZONE,     "COMMENT",      0, backend_check_comment},
 
     /* interface specific */
-    {TYPE_INTERFACE,"ACTIVE",       0, backend_check_active},
+    {TYPE_INTERFACE,"ACTIVE",       0, backend_vrmr_check_active},
     {TYPE_INTERFACE,"IPADDRESS",    0, backend_check_interface_ipaddress},
     {TYPE_INTERFACE,"DEVICE",       0, backend_check_interface_device},
     {TYPE_INTERFACE,"VIRTUAL",      0, backend_check_interface_virtual},
@@ -103,7 +103,7 @@ backend_vars[] =
     {TYPE_INTERFACE,"BW_OUT_UNIT",  0, backend_check_interface_bw_unit},
 
     /* service specific */
-    {TYPE_SERVICE,  "ACTIVE",       0, backend_check_active},
+    {TYPE_SERVICE,  "ACTIVE",       0, backend_vrmr_check_active},
     {TYPE_SERVICE,  "BROADCAST",    0, backend_check_service_broadcast},
     {TYPE_SERVICE,  "HELPER",       0, backend_check_service_helper},
     {TYPE_SERVICE,  "TCP",          1, backend_check_service_tcp},

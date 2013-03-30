@@ -106,7 +106,7 @@ main(int argc, char *argv[])
         { "daemon", no_argument, NULL, 'D' },
         { "no-check", no_argument, NULL, 't' },
         /* Or maybe use this version *
-        { "no-check", no_argument, (int)&conf.check_iptcaps, 0 },
+        { "no-check", no_argument, (int)&conf.vrmr_check_iptcaps, 0 },
          */
         { "keep", no_argument, NULL, 'k' },
         { "force-start", no_argument, NULL, 'f' },
@@ -168,7 +168,7 @@ main(int argc, char *argv[])
 
             case 'K' :
                 (void)vrprint.debug(__FUNC__, "%s asked to stop", SVCNAME);
-                if (check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
+                if (vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
                 {
                     printf ("%s is running. Killing process %u because of -k\n", SVCNAME, pid);
                     kill (pid, 15);
@@ -215,15 +215,15 @@ main(int argc, char *argv[])
                         "Copyright (C) 2002-2008 by Victor Julien\n",
                         version_string);
 
-                cmdline.check_iptcaps_set = TRUE;
-                cmdline.check_iptcaps = FALSE;
+                cmdline.vrmr_check_iptcaps_set = TRUE;
+                cmdline.vrmr_check_iptcaps = FALSE;
                 break;
 
             case 't' :
 
                 /* no testing of capabilities */
-                cmdline.check_iptcaps_set = TRUE;
-                cmdline.check_iptcaps = FALSE;
+                cmdline.vrmr_check_iptcaps_set = TRUE;
+                cmdline.vrmr_check_iptcaps = FALSE;
                 break;
 
             case 'h' :
@@ -300,7 +300,7 @@ main(int argc, char *argv[])
     /* check if were already running, but not if we want bash output */
     if(conf.bash_out == FALSE)
     {
-        if(check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
+        if(vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
             exit(EXIT_FAILURE);
     }
 
@@ -314,9 +314,9 @@ main(int argc, char *argv[])
 
     /* init the config */
     if(debuglvl >= MEDIUM)
-        (void)vrprint.debug(__FUNC__, "initializing config... calling init_config()");
+        (void)vrprint.debug(__FUNC__, "initializing config... calling vrmr_init_config()");
 
-    result = init_config(debuglvl, &conf);
+    result = vrmr_init_config(debuglvl, &conf);
     if(result >= VRMR_CNF_OK)
     {
         if(debuglvl >= MEDIUM)
@@ -352,12 +352,12 @@ main(int argc, char *argv[])
     if(conf.bash_out == FALSE)
     {
         /* check the iptables command */
-        if(!check_iptables_command(debuglvl, &conf, conf.iptables_location, IPTCHK_VERBOSE))
+        if(!vrmr_check_iptables_command(debuglvl, &conf, conf.iptables_location, IPTCHK_VERBOSE))
         {
             exit(EXIT_FAILURE);
         }
 #ifdef IPV6_ENABLED
-        if (!check_ip6tables_command(debuglvl, &conf, conf.ip6tables_location, IPTCHK_VERBOSE))
+        if (!vrmr_check_ip6tables_command(debuglvl, &conf, conf.ip6tables_location, IPTCHK_VERBOSE))
         {
             exit(EXIT_FAILURE);
         }
@@ -365,12 +365,12 @@ main(int argc, char *argv[])
         /* if we are going to use the iptables-restore command, check it */
         if(conf.old_rulecreation_method == FALSE)
         {
-            if(!check_iptablesrestore_command(debuglvl, &conf, conf.iptablesrestore_location, IPTCHK_VERBOSE))
+            if(!vrmr_check_iptablesrestore_command(debuglvl, &conf, conf.iptablesrestore_location, IPTCHK_VERBOSE))
             {
                 exit(EXIT_FAILURE);
             }
 #ifdef IPV6_ENABLED
-            if(!check_ip6tablesrestore_command(debuglvl, &conf, conf.ip6tablesrestore_location, IPTCHK_VERBOSE))
+            if(!vrmr_check_ip6tablesrestore_command(debuglvl, &conf, conf.ip6tablesrestore_location, IPTCHK_VERBOSE))
             {
                 exit(EXIT_FAILURE);
             }
@@ -407,15 +407,15 @@ main(int argc, char *argv[])
     }
 
     /* check capabilities */
-    if(conf.check_iptcaps == TRUE)
+    if(conf.vrmr_check_iptcaps == TRUE)
     {
-        if(check_iptcaps(debuglvl, &conf, &iptcap, conf.load_modules) < 0)
+        if(vrmr_check_iptcaps(debuglvl, &conf, &iptcap, conf.load_modules) < 0)
         {
             fprintf(stdout, "Error: checking for iptables-capabilities failed. Please see error.log.\n");
             exit(EXIT_FAILURE);
         }
 #ifdef IPV6_ENABLED
-        if(check_ip6tcaps(debuglvl, &conf, &iptcap, conf.load_modules) < 0)
+        if(vrmr_check_ip6tcaps(debuglvl, &conf, &iptcap, conf.load_modules) < 0)
         {
             if (conf.check_ipv6 == TRUE)
             {
@@ -512,7 +512,7 @@ main(int argc, char *argv[])
     }
 
     if(debuglvl >= LOW)
-        rules_print_list(&rules);
+        vrmr_rules_print_list(&rules);
 
     /* now create the rules */
     if(conf.old_rulecreation_method == TRUE || conf.bash_out == TRUE)
@@ -639,7 +639,7 @@ main(int argc, char *argv[])
             }
 
             /* create a pidfile */
-            result = create_pidfile(PIDFILE, shm_id);
+            result = vrmr_create_pidfile(PIDFILE, shm_id);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Error", "Unable to create pidfile.");
@@ -817,7 +817,7 @@ main(int argc, char *argv[])
             }
 
             /* remove the pidfile */
-            if(remove_pidfile(PIDFILE) < 0)
+            if(vrmr_remove_pidfile(PIDFILE) < 0)
             {
                 (void)vrprint.error(-1, "Error", "unable to remove pidfile: %s.", strerror(errno));
                 retval = -1;
@@ -845,16 +845,16 @@ main(int argc, char *argv[])
     */
 
     /* destroy the ServicesList */
-    destroy_serviceslist(debuglvl, &services);
+    vrmr_destroy_serviceslist(debuglvl, &services);
 
     /* destroy the ZonedataList */
-    destroy_zonedatalist(debuglvl, &zones);
+    vrmr_destroy_zonedatalist(debuglvl, &zones);
 
     /* destroy the InterfacesList */
     vrmr_destroy_interfaceslist(debuglvl, &interfaces);
 
     /* destroy the QuerydataList */
-    if(rules_cleanup_list(debuglvl, &rules) < 0)
+    if(vrmr_rules_cleanup_list(debuglvl, &rules) < 0)
         retval = -1;
 
     vrmr_list_cleanup(debuglvl, &blocklist.list);

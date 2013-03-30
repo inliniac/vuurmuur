@@ -149,11 +149,11 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
         return(-1);
     }
 
-    /* call check_ipv4address with the quiet flag */
-    if(check_ipv4address(debuglvl, NULL, NULL, line, 1) != 1)
+    /* call vrmr_check_ipv4address with the quiet flag */
+    if(vrmr_check_ipv4address(debuglvl, NULL, NULL, line, 1) != 1)
     {
         /* search for the name in the zones list */
-        if((zone_ptr = search_zonedata(debuglvl, zones, line)))
+        if((zone_ptr = vrmr_search_zonedata(debuglvl, zones, line)))
         {
             if(zone_ptr->type != TYPE_HOST && zone_ptr->type != TYPE_GROUP)
             {
@@ -331,11 +331,11 @@ vrmr_blocklist_rem_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
 
         if(strcmp(listitemname, itemname) == 0)
         {
-            /* call check_ipv4address with the quiet flag */
-            if(check_ipv4address(debuglvl, NULL, NULL, itemname, 1) != 1)
+            /* call vrmr_check_ipv4address with the quiet flag */
+            if(vrmr_check_ipv4address(debuglvl, NULL, NULL, itemname, 1) != 1)
             {
                 /* search for the name in the zones list */
-                if((zone_ptr = search_zonedata(debuglvl, zones, itemname)))
+                if((zone_ptr = vrmr_search_zonedata(debuglvl, zones, itemname)))
                 {
                     /* decrease refcnt */
                     if(zone_ptr->refcnt_blocklist > 0)

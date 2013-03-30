@@ -520,36 +520,36 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
 
     /*  insert the interfaces as TYPE_FIREWALL's into the zonelist
         as 'firewall', so this appears in to the connections */
-    if(ins_iface_into_zonelist(debuglvl, &interfaces->list, &zones->list) < 0)
+    if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces->list, &zones->list) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "ins_iface_into_zonelist() "
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_ins_iface_into_zonelist() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
     /*  do the same for broadcasts. These are removed by:
-        rem_iface_from_zonelist() (see below) */
-    if(add_broadcasts_zonelist(debuglvl, zones) < 0)
+        vrmr_rem_iface_from_zonelist() (see below) */
+    if(vrmr_add_broadcasts_zonelist(debuglvl, zones) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "add_broadcasts_zonelist() "
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_add_broadcasts_zonelist() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
     /* create hashtables */
-    if(init_zonedata_hashtable(debuglvl, zones->list.len * 3, &zones->list,
-        hash_ipaddress, compare_ipaddress, &ct->zone_hash) < 0)
+    if(vrmr_init_zonedata_hashtable(debuglvl, zones->list.len * 3, &zones->list,
+        vrmr_hash_ipaddress, vrmr_compare_ipaddress, &ct->zone_hash) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "init_zonedata_hashtable() "
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_init_zonedata_hashtable() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
     /*  the hashtable size may seem very big, but some services have
         really a lot items. e.g. 137->1024:65535 */
-    if(init_services_hashtable(debuglvl, services->list.len * 500,
-        &services->list, hash_port, compare_ports, &ct->service_hash) < 0)
+    if(vrmr_init_services_hashtable(debuglvl, services->list.len * 500,
+        &services->list, vrmr_hash_port, vrmr_compare_ports, &ct->service_hash) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "init_services_hashtable() "
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_init_services_hashtable() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -562,9 +562,9 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
-    if(zonelist_to_networklist(debuglvl, zones, &ct->network_list) < 0)
+    if(vrmr_zonelist_to_networklist(debuglvl, zones, &ct->network_list) < 0)
     {
-        (void)vrprint.error(-1, VR_INTERR, "zonelist_to_networklist() "
+        (void)vrprint.error(-1, VR_INTERR, "vrmr_zonelist_to_networklist() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
@@ -581,11 +581,11 @@ conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones)
     /* zones may be NULL if we have multiple ct's */
     if (zones != NULL) {
         /*  remove the interfaces inserted as TYPE_FIREWALL's into the zonelist
-            this also removes zones added by add_broadcasts_zonelist()
+            this also removes zones added by vrmr_add_broadcasts_zonelist()
         */
-        if(rem_iface_from_zonelist(debuglvl, &zones->list) < 0)
+        if(vrmr_rem_iface_from_zonelist(debuglvl, &zones->list) < 0)
         {
-            (void)vrprint.error(-1, VR_INTERR, "rem_iface_from_zonelist() "
+            (void)vrprint.error(-1, VR_INTERR, "vrmr_rem_iface_from_zonelist() "
                 "failed (in: %s:%d).", __FUNC__, __LINE__);
         }
     }
@@ -597,8 +597,8 @@ conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones)
     /*
         destroy hashtables
     */
-    hash_cleanup(debuglvl, &(*ct)->zone_hash);
-    hash_cleanup(debuglvl, &(*ct)->service_hash);
+    vrmr_hash_cleanup(debuglvl, &(*ct)->zone_hash);
+    vrmr_hash_cleanup(debuglvl, &(*ct)->service_hash);
 
     free(*ct);
 }
@@ -616,7 +616,7 @@ conn_ct_get_connections(const int debuglvl, struct vrmr_config *cnf, Conntrack *
     }
 
     /* get the connections from the proc */
-    if(conn_get_connections(debuglvl, cnf, ct->prev_list_size,
+    if(vrmr_conn_get_connections(debuglvl, cnf, ct->prev_list_size,
             &ct->service_hash, &ct->zone_hash,
             &ct->conn_list, &ct->network_list,
             req, &ct->conn_stats) < 0)
@@ -635,7 +635,7 @@ conn_ct_clear_connections(const int debuglvl, Conntrack *ct)
     /* store prev list size */
     ct->prev_list_size = ct->conn_list.len;
     /* clean up the list */
-    conn_list_cleanup(debuglvl, &ct->conn_list);
+    vrmr_conn_list_cleanup(debuglvl, &ct->conn_list);
 }
 
 
@@ -721,7 +721,7 @@ connections_section(const int debuglvl, struct vrmr_config *cnf,
     int                 print_accounting = 0;
 
     /* init filter */
-    VR_connreq_setup(debuglvl, &connreq);
+    vrmr_connreq_setup(debuglvl, &connreq);
     connreq.group_conns = TRUE;
     connreq.unknown_ip_as_net = TRUE;
     /* sorting, relevant for grouping */
@@ -1188,7 +1188,7 @@ connections_section(const int debuglvl, struct vrmr_config *cnf,
     conn_free_ct(debuglvl, &ct, zones);
 
     /* filter clean up */
-    VR_connreq_cleanup(debuglvl, &connreq);
+    vrmr_connreq_cleanup(debuglvl, &connreq);
 
 
     nodelay(conn_win, FALSE);

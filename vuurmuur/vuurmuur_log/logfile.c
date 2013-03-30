@@ -597,7 +597,7 @@ parse_ipt_logline(  const int debuglvl,
                 {
                     logrule_ptr->src_port = atoi(port);
 
-                    if(!valid_tcpudp_port(debuglvl, logrule_ptr->src_port))
+                    if(!vrmr_valid_tcpudp_port(debuglvl, logrule_ptr->src_port))
                     {
                         return(0);
                     }
@@ -638,7 +638,7 @@ parse_ipt_logline(  const int debuglvl,
                 {
                     logrule_ptr->dst_port = atoi(port);
 
-                    if(!valid_tcpudp_port(debuglvl, logrule_ptr->dst_port))
+                    if(!vrmr_valid_tcpudp_port(debuglvl, logrule_ptr->dst_port))
                     {
                         return(0);
                     }
