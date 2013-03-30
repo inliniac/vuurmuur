@@ -87,7 +87,7 @@ setup_signal_handler(int sig, void (*handler)())
 }
 
 static char *
-assemble_logline_sscanf_string(const int debuglvl, struct log_rule *logrule_ptr)
+assemble_logline_sscanf_string(const int debuglvl, struct vrmr_log_record *log_record)
 {
     char    *string,
             temp_buf[256] = "";
@@ -95,8 +95,8 @@ assemble_logline_sscanf_string(const int debuglvl, struct log_rule *logrule_ptr)
 
     //"%s %2d %2d:%2d:%2d %s";
     snprintf(temp_buf, sizeof(temp_buf), "%%%ds %%2d %%2d:%%2d:%%2d %%%ds",
-            (int)sizeof(logrule_ptr->month)-1,
-            (int)sizeof(logrule_ptr->hostname)-1);
+            (int)sizeof(log_record->month)-1,
+            (int)sizeof(log_record->hostname)-1);
 
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "assemble_logline_sscanf_string: string: '%s'. (len: %d)", temp_buf, strlen(temp_buf));
@@ -129,15 +129,15 @@ assemble_logline_sscanf_string(const int debuglvl, struct log_rule *logrule_ptr)
  * Shamelessly ripped from snort_inline 2.2.0 (c) Martin Roesch
  */
 static void
-CreateTCPFlagString(struct log_rule *logrule_ptr, char *flagBuffer)
+vrmr_log_record_create_tcp_flags(struct vrmr_log_record *log_record, char *flagBuffer)
 {
     /* parse TCP flags */
-    *flagBuffer++ = (char) (logrule_ptr->urg ? 'U' : '*');
-    *flagBuffer++ = (char) (logrule_ptr->ack ? 'A' : '*');
-    *flagBuffer++ = (char) (logrule_ptr->psh ? 'P' : '*');
-    *flagBuffer++ = (char) (logrule_ptr->rst ? 'R' : '*');
-    *flagBuffer++ = (char) (logrule_ptr->syn ? 'S' : '*');
-    *flagBuffer++ = (char) (logrule_ptr->fin ? 'F' : '*');
+    *flagBuffer++ = (char) (log_record->urg ? 'U' : '*');
+    *flagBuffer++ = (char) (log_record->ack ? 'A' : '*');
+    *flagBuffer++ = (char) (log_record->psh ? 'P' : '*');
+    *flagBuffer++ = (char) (log_record->rst ? 'R' : '*');
+    *flagBuffer++ = (char) (log_record->syn ? 'S' : '*');
+    *flagBuffer++ = (char) (log_record->fin ? 'F' : '*');
     *flagBuffer = '\0';
 }
 
@@ -152,17 +152,17 @@ CreateTCPFlagString(struct log_rule *logrule_ptr, char *flagBuffer)
     NOTE: if the function returns -1 the memory is not cleaned up: the program is supposed to exit
 */
 static int
-get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr_hash_table *ZoneHash, struct vrmr_hash_table *ServiceHash)
+vrmr_log_record_get_names(const int debuglvl, struct vrmr_log_record *log_record,
+        struct vrmr_hash_table *zone_hash, struct vrmr_hash_table *service_hash)
 {
-    struct vrmr_zone        *search_ptr = NULL;
-    struct vrmr_service    *ser_search_ptr = NULL;
+    struct vrmr_zone *zone = NULL;
+    struct vrmr_service *service = NULL;
 
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "start");
 
-
     /* safety */
-    if(!logrule_ptr || !ZoneHash || !ServiceHash)
+    if(!log_record || !zone_hash || !service_hash)
     {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -170,54 +170,45 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
 
 #ifdef IPV6_ENABLED
     /* no support in looking up hosts, services, etc yet */
-    if (logrule_ptr->ipv6 == 1) {
-        if(strlcpy(logrule_ptr->from_name, logrule_ptr->src_ip, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
+    if (log_record->ipv6 == 1) {
+        if(strlcpy(log_record->from_name, log_record->src_ip, sizeof(log_record->from_name)) >= sizeof(log_record->from_name))
             vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
-        if(strlcpy(logrule_ptr->to_name, logrule_ptr->dst_ip, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
+        if(strlcpy(log_record->to_name, log_record->dst_ip, sizeof(log_record->to_name)) >= sizeof(log_record->to_name))
             vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
     } else {
 #endif /* IPV6_ENABLED */
+        /* search in the hash with the ipaddress */
+        if(!(zone = vrmr_search_zone_in_hash_with_ipv4(debuglvl, log_record->src_ip, zone_hash))) {
+            /* not found in hash */
+            if(strlcpy(log_record->from_name, log_record->src_ip, sizeof(log_record->from_name)) >= sizeof(log_record->from_name))
+                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+        } else {
+            /* found in the hash */
+            if(strlcpy(log_record->from_name, zone->name, sizeof(log_record->from_name)) >= sizeof(log_record->from_name))
+                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
 
-    /* search in the hash with the ipaddress */
-    if(!(search_ptr = vrmr_search_zone_in_hash_with_ipv4(debuglvl, logrule_ptr->src_ip, ZoneHash)))
-    {
-        /* not found in hash */
-        if(strlcpy(logrule_ptr->from_name, logrule_ptr->src_ip, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
-            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
-    }
-    else
-    {
-        /* found in the hash */
-        if(strlcpy(logrule_ptr->from_name, search_ptr->name, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
-            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+            if(zone->type == VRMR_TYPE_NETWORK)
+                strlcpy(log_record->from_name, "firewall", sizeof(log_record->from_name));
+        }
+        zone = NULL;
 
-        if(search_ptr->type == VRMR_TYPE_NETWORK)
-            strlcpy(logrule_ptr->from_name, "firewall", sizeof(logrule_ptr->from_name));
-    }
-    search_ptr = NULL;
+        /*  do it all again for TO */
+        if(!(zone = vrmr_search_zone_in_hash_with_ipv4(debuglvl, log_record->dst_ip, zone_hash))) {
+            /* not found in hash */
+            if(strlcpy(log_record->to_name, log_record->dst_ip, sizeof(log_record->to_name)) >= sizeof(log_record->to_name))
+                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
+        } else {
+            /* found in the hash */
+            if(strlcpy(log_record->to_name, zone->name, sizeof(log_record->to_name)) >= sizeof(log_record->to_name))
+                vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
 
-
-    /*  do it all again for TO */
-    if(!(search_ptr = vrmr_search_zone_in_hash_with_ipv4(debuglvl, logrule_ptr->dst_ip, ZoneHash)))
-    {
-        /* not found in hash */
-        if(strlcpy(logrule_ptr->to_name, logrule_ptr->dst_ip, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
-            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
-    }
-    else
-    {
-        /* found in the hash */
-        if(strlcpy(logrule_ptr->to_name, search_ptr->name, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
-            vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
-
-        if(search_ptr->type == VRMR_TYPE_NETWORK)
-            strlcpy(logrule_ptr->to_name, "firewall", sizeof(logrule_ptr->to_name));
-    }
-    search_ptr = NULL;
+            if(zone->type == VRMR_TYPE_NETWORK)
+                strlcpy(log_record->to_name, "firewall", sizeof(log_record->to_name));
+        }
+        zone = NULL;
 #ifdef IPV6_ENABLED
     }
 #endif /* IPV6_ENABLED */
-
 
     /*
         THE SERVICE
@@ -226,71 +217,58 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
     /*  icmp is treated different because of the type and code
         and we can call vrmr_get_icmp_name_short.
     */
-    if(logrule_ptr->protocol == 1 || logrule_ptr->protocol == 58)
-    {
-        if(!(ser_search_ptr = vrmr_search_service_in_hash(debuglvl, logrule_ptr->icmp_type, logrule_ptr->icmp_code, logrule_ptr->protocol, ServiceHash)))
-        {
+    if(log_record->protocol == 1 || log_record->protocol == 58) {
+        if(!(service = vrmr_search_service_in_hash(debuglvl, log_record->icmp_type, log_record->icmp_code, log_record->protocol, service_hash))) {
             /* not found in hash */
-            snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "%d.%d(icmp)", logrule_ptr->icmp_type, logrule_ptr->icmp_code);
+            snprintf(log_record->ser_name, sizeof(log_record->ser_name), "%d.%d(icmp)", log_record->icmp_type, log_record->icmp_code);
 
             /* try to get the icmp-names */
-            if(vrmr_get_icmp_name_short(logrule_ptr->icmp_type, logrule_ptr->icmp_code, logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), 0) < 0)
+            if(vrmr_get_icmp_name_short(log_record->icmp_type, log_record->icmp_code, log_record->ser_name, sizeof(log_record->ser_name), 0) < 0)
             {
                 vrmr_error(-1, "Internal Error", "vrmr_get_icmp_name_short failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
-        }
-        else
-        {
+        } else {
             /* found in the hash, now copy the name */
-            if(strlcpy(logrule_ptr->ser_name, ser_search_ptr->name, sizeof(logrule_ptr->ser_name)) >= sizeof(logrule_ptr->ser_name))
+            if(strlcpy(log_record->ser_name, service->name, sizeof(log_record->ser_name)) >= sizeof(log_record->ser_name))
                 vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
         }
-    }
+    } else {
+        /*  here we handle the rest */
 
-    /*  here we handle the rest
-    */
-    else
-    {
         /* first a normal search */
-        if(!(ser_search_ptr = vrmr_search_service_in_hash(debuglvl, logrule_ptr->src_port, logrule_ptr->dst_port, logrule_ptr->protocol, ServiceHash)))
+        if(!(service = vrmr_search_service_in_hash(debuglvl, log_record->src_port, log_record->dst_port, log_record->protocol, service_hash)))
         {
             /* only do the reverse check for tcp and udp */
-            if(logrule_ptr->protocol == 6 || logrule_ptr->protocol == 17)
+            if(log_record->protocol == 6 || log_record->protocol == 17)
             {
                 /* not found, do a reverse search */
-                if(!(ser_search_ptr = vrmr_search_service_in_hash(debuglvl, logrule_ptr->dst_port, logrule_ptr->src_port, logrule_ptr->protocol, ServiceHash)))
+                if(!(service = vrmr_search_service_in_hash(debuglvl, log_record->dst_port, log_record->src_port, log_record->protocol, service_hash)))
                 {
                     /* not found in the hash */
-                    if(logrule_ptr->protocol == 6) /* tcp */
+                    if(log_record->protocol == 6) /* tcp */
                     {
-                        snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "%d->%d(tcp)", logrule_ptr->src_port, logrule_ptr->dst_port);
+                        snprintf(log_record->ser_name, sizeof(log_record->ser_name), "%d->%d(tcp)", log_record->src_port, log_record->dst_port);
                     }
-                    else if(logrule_ptr->protocol == 17) /* udp */
+                    else if(log_record->protocol == 17) /* udp */
                     {
-                        snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "%d->%d(udp)", logrule_ptr->src_port, logrule_ptr->dst_port);
+                        snprintf(log_record->ser_name, sizeof(log_record->ser_name), "%d->%d(udp)", log_record->src_port, log_record->dst_port);
                     }
-                }
-                else
-                {
+                } else {
                     /* found in the hash! (reverse) */
-                    if(strlcpy(logrule_ptr->ser_name, ser_search_ptr->name, sizeof(logrule_ptr->ser_name)) >= sizeof(logrule_ptr->ser_name))
+                    if(strlcpy(log_record->ser_name, service->name, sizeof(log_record->ser_name)) >= sizeof(log_record->ser_name))
                         vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
                 }
-            }
-            else
-            {
-                if(logrule_ptr->dst_port == 0 && logrule_ptr->src_port == 0)
-                    snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "proto-%d", logrule_ptr->protocol);
+            } else {
+                if(log_record->dst_port == 0 && log_record->src_port == 0)
+                    snprintf(log_record->ser_name, sizeof(log_record->ser_name), "proto-%d", log_record->protocol);
                 else
-                    snprintf(logrule_ptr->ser_name, sizeof(logrule_ptr->ser_name), "%d*%d(%d)", logrule_ptr->src_port, logrule_ptr->dst_port, logrule_ptr->protocol);
+                    snprintf(log_record->ser_name, sizeof(log_record->ser_name), "%d*%d(%d)", log_record->src_port, log_record->dst_port, log_record->protocol);
 
             }
-        }
-        else
-        {
+        } else {
             /* found in the hash! */
-            if(strlcpy(logrule_ptr->ser_name, ser_search_ptr->name, sizeof(logrule_ptr->ser_name)) >= sizeof(logrule_ptr->ser_name))
+            if(strlcpy(log_record->ser_name, service->name, sizeof(log_record->ser_name)) >= sizeof(log_record->ser_name))
                 vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
         }
     }
@@ -300,102 +278,103 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
 
 
 int
-BuildVMLine (struct log_rule *logrule, char *outline, int size)
+vrmr_log_record_build_line(struct vrmr_log_record *log_record, char *outline, size_t size)
 {
     /* TCP */
-    switch (logrule->protocol)
+    switch (log_record->protocol)
     {
         case 6:                     /* TCP */
-            CreateTCPFlagString(logrule, logrule->tcpflags);
+            vrmr_log_record_create_tcp_flags(log_record, log_record->tcpflags);
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s:%d -> %s%s:%d TCP flags: %s len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second, logrule->action, logrule->ser_name, logrule->from_name, logrule->to_name, logrule->logprefix,
-                logrule->from_int, logrule->to_int, logrule->src_ip, logrule->src_mac, logrule->src_port, logrule->dst_ip, logrule->dst_mac, logrule->dst_port, logrule->tcpflags,
-                logrule->packet_len, logrule->ttl);
+                log_record->month, log_record->day, log_record->hour, log_record->minute, log_record->second, log_record->action, log_record->ser_name, log_record->from_name, log_record->to_name, log_record->logprefix,
+                log_record->from_int, log_record->to_int, log_record->src_ip, log_record->src_mac, log_record->src_port, log_record->dst_ip, log_record->dst_mac, log_record->dst_port, log_record->tcpflags,
+                log_record->packet_len, log_record->ttl);
             break;
         case 17:                    /* UDP */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s:%d -> %s%s:%d UDP len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
-                logrule->action, logrule->ser_name,
-                logrule->from_name, logrule->to_name,
-                logrule->logprefix,
-                logrule->from_int, logrule->to_int,
-                logrule->src_ip, logrule->src_mac, logrule->src_port,
-                logrule->dst_ip, logrule->dst_mac, logrule->dst_port,
-                logrule->packet_len, logrule->ttl);
+                log_record->month, log_record->day, log_record->hour, log_record->minute, log_record->second,
+                log_record->action, log_record->ser_name,
+                log_record->from_name, log_record->to_name,
+                log_record->logprefix,
+                log_record->from_int, log_record->to_int,
+                log_record->src_ip, log_record->src_mac, log_record->src_port,
+                log_record->dst_ip, log_record->dst_mac, log_record->dst_port,
+                log_record->packet_len, log_record->ttl);
             break;
         case 1:                     /* ICMP */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s ICMP type %d code %d len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
-                logrule->action, logrule->ser_name,
-                logrule->from_name, logrule->to_name,
-                logrule->logprefix,
-                logrule->from_int, logrule->to_int,
-                logrule->src_ip, logrule->src_mac,
-                logrule->dst_ip, logrule->dst_mac,
-                logrule->icmp_type, logrule->icmp_code,
-                logrule->packet_len, logrule->ttl);
-                //logrule->tcpflags, logrule->packet_len, logrule->ttl);
+                log_record->month, log_record->day, log_record->hour, log_record->minute, log_record->second,
+                log_record->action, log_record->ser_name,
+                log_record->from_name, log_record->to_name,
+                log_record->logprefix,
+                log_record->from_int, log_record->to_int,
+                log_record->src_ip, log_record->src_mac,
+                log_record->dst_ip, log_record->dst_mac,
+                log_record->icmp_type, log_record->icmp_code,
+                log_record->packet_len, log_record->ttl);
+                //log_record->tcpflags, log_record->packet_len, log_record->ttl);
             break;
         case 47:                    /* GRE */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s GRE len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
-                logrule->action, logrule->ser_name,
-                logrule->from_name, logrule->to_name,
-                logrule->logprefix,
-                logrule->from_int, logrule->to_int,
-                logrule->src_ip, logrule->src_mac,
-                logrule->dst_ip, logrule->dst_mac,
-                logrule->packet_len, logrule->ttl);
+                log_record->month, log_record->day, log_record->hour, log_record->minute, log_record->second,
+                log_record->action, log_record->ser_name,
+                log_record->from_name, log_record->to_name,
+                log_record->logprefix,
+                log_record->from_int, log_record->to_int,
+                log_record->src_ip, log_record->src_mac,
+                log_record->dst_ip, log_record->dst_mac,
+                log_record->packet_len, log_record->ttl);
             break;
         case 50:                    /* ESP */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s ESP len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
-                logrule->action, logrule->ser_name,
-                logrule->from_name, logrule->to_name,
-                logrule->logprefix,
-                logrule->from_int, logrule->to_int,
-                logrule->src_ip, logrule->src_mac,
-                logrule->dst_ip, logrule->dst_mac,
-                logrule->packet_len, logrule->ttl);
+                log_record->month, log_record->day, log_record->hour, log_record->minute, log_record->second,
+                log_record->action, log_record->ser_name,
+                log_record->from_name, log_record->to_name,
+                log_record->logprefix,
+                log_record->from_int, log_record->to_int,
+                log_record->src_ip, log_record->src_mac,
+                log_record->dst_ip, log_record->dst_mac,
+                log_record->packet_len, log_record->ttl);
             break;
         case 51:                    /* AH */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s AH len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
-                logrule->action, logrule->ser_name,
-                logrule->from_name, logrule->to_name,
-                logrule->logprefix,
-                logrule->from_int, logrule->to_int,
-                logrule->src_ip, logrule->src_mac,
-                logrule->dst_ip, logrule->dst_mac,
-                logrule->packet_len, logrule->ttl);
+                log_record->month, log_record->day, log_record->hour, log_record->minute, log_record->second,
+                log_record->action, log_record->ser_name,
+                log_record->from_name, log_record->to_name,
+                log_record->logprefix,
+                log_record->from_int, log_record->to_int,
+                log_record->src_ip, log_record->src_mac,
+                log_record->dst_ip, log_record->dst_mac,
+                log_record->packet_len, log_record->ttl);
             break;
 #ifdef IPV6_ENABLED
         case 58:                    /* ICMPv6 */
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s ICMPv6 type %d code %d len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
-                logrule->action, logrule->ser_name,
-                logrule->from_name, logrule->to_name,
-                logrule->logprefix,
-                logrule->from_int, logrule->to_int,
-                logrule->src_ip, logrule->src_mac,
-                logrule->dst_ip, logrule->dst_mac,
-                logrule->icmp_type, logrule->icmp_code,
-                logrule->packet_len, logrule->ttl);
+                log_record->month, log_record->day, log_record->hour, log_record->minute, log_record->second,
+                log_record->action, log_record->ser_name,
+                log_record->from_name, log_record->to_name,
+                log_record->logprefix,
+                log_record->from_int, log_record->to_int,
+                log_record->src_ip, log_record->src_mac,
+                log_record->dst_ip, log_record->dst_mac,
+                log_record->icmp_type, log_record->icmp_code,
+                log_record->packet_len, log_record->ttl);
             break;
 #endif /* IPV6_ENABLED */
         default:
             snprintf (outline, size, "%s %2d %02d:%02d:%02d: %s service %s from %s to %s, prefix: \"%s\" (%s%s%s%s -> %s%s PROTO %d len:%u ttl:%u)\n",
-                logrule->month, logrule->day, logrule->hour, logrule->minute, logrule->second,
-                logrule->action, logrule->ser_name,
-                logrule->from_name, logrule->to_name,
-                logrule->logprefix,
-                logrule->from_int, logrule->to_int,
-                logrule->src_ip, logrule->src_mac,
-                logrule->dst_ip, logrule->dst_mac,
-                logrule->protocol,
-                logrule->packet_len, logrule->ttl);
+                log_record->month, log_record->day, log_record->hour, log_record->minute, log_record->second,
+                log_record->action, log_record->ser_name,
+                log_record->from_name, log_record->to_name,
+                log_record->logprefix,
+                log_record->from_int, log_record->to_int,
+                log_record->src_ip, log_record->src_mac,
+                log_record->dst_ip, log_record->dst_mac,
+                log_record->protocol,
+                log_record->packet_len, log_record->ttl);
 
-            vrmr_debug(__FUNC__, "unknown protocol");
+            if (g_debuglvl >= LOW)
+                vrmr_debug(__FUNC__, "unknown protocol");
             break;
     }
 
@@ -420,25 +399,25 @@ print_help(void)
 }
 
 /* process one line/record */
-int process_logrecord(struct log_rule *logrule_ptr) {
+int process_logrecord(struct vrmr_log_record *log_record) {
     char line_out[1024] = "";
 
-    int result = get_vuurmuur_names(g_debuglvl, logrule_ptr, &zone_htbl, &service_htbl);
+    int result = vrmr_log_record_get_names(g_debuglvl, log_record, &zone_htbl, &service_htbl);
     switch (result)
     {
         case -1:
-            vrmr_debug(__FUNC__, "get_vuurmuur_names returned -1");
+            vrmr_debug(__FUNC__, "vrmr_log_record_get_names returned -1");
             exit(EXIT_FAILURE);
             break;
         case 0:
             Counters.invalid_loglines++;
             break;
         default:
-            if (BuildVMLine (logrule_ptr, line_out, sizeof(line_out)) < 0)
+            if (vrmr_log_record_build_line (log_record, line_out, sizeof(line_out)) < 0)
             {
                 vrmr_debug("nflog", "Could not build output line");
             } else {
-                upd_action_ctrs(logrule_ptr->action, &Counters);
+                upd_action_ctrs(log_record->action, &Counters);
 
                 fprintf (g_traffic_log, "%s", line_out);
                 fflush(g_traffic_log);
@@ -452,8 +431,8 @@ int process_logrecord(struct log_rule *logrule_ptr) {
 int
 main(int argc, char *argv[])
 {
-    struct vrmr_interfaces  interfaces;
-    struct vrmr_services    services;
+    struct vrmr_interfaces interfaces;
+    struct vrmr_services services;
     struct vrmr_zones zones;
     struct vrmr_user user_data;
     FILE        *system_log = NULL;
@@ -487,7 +466,7 @@ main(int argc, char *argv[])
     int                         option_index = 0;
     char                        *sscanf_str = NULL;
 
-    struct log_rule             logrule;
+    struct vrmr_log_record             logrule;
     int                         debuglvl = 0;
 
     /* shm, sem stuff */
@@ -580,8 +559,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* init the config file */
-    if(vrmr_init_config(debuglvl, &conf) < VRMR_CNF_OK)
-    {
+    if(vrmr_init_config(debuglvl, &conf) < VRMR_CNF_OK) {
         vrmr_error(-1, "Error", "initializing the config failed.");
         exit(EXIT_FAILURE);
     }
@@ -593,12 +571,10 @@ main(int argc, char *argv[])
     }
 
     /* set up the sscanf parser string if we're using the legacy syslog parsing */
-    if(syslog && !(sscanf_str = assemble_logline_sscanf_string(debuglvl, &logrule)))
-    {
+    if(syslog && !(sscanf_str = assemble_logline_sscanf_string(debuglvl, &logrule))) {
         vrmr_error(-1, "Error", "could not set up parse string for legacy syslog parsing.");
         exit(EXIT_FAILURE);
     }
-
 
     if(verbose)
         vrmr_info("Info", "Vuurmuur_log %s", version_string);
@@ -620,8 +596,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_LIBNETFILTER_LOG
     /* Setup nflog after vrmr_init_config as and logging as we need &conf in subscribe_nflog() */
-    if (!syslog)
-    {
+    if (!syslog) {
         vrmr_debug(__FUNC__, "Setting up nflog");
         if (subscribe_nflog(debuglvl, &conf, &logrule) < 0) {
             vrmr_error(-1, "Error", "could not set up nflog subscription");
@@ -636,27 +611,23 @@ main(int argc, char *argv[])
 #endif /* HAVE_LIBNETFILTER_LOG */
 
     /* setup regexes */
-    if(vrmr_regex_setup(1, &reg) < 0)
-    {
+    if(vrmr_regex_setup(1, &reg) < 0) {
         vrmr_error(-1, "Internal Error", "setting up regular expressions failed.");
         exit(EXIT_FAILURE);
     }
 
-    if (vrmr_backends_load(debuglvl, &conf) < 0)
-    {
+    if (vrmr_backends_load(debuglvl, &conf) < 0) {
         vrmr_error(-1, "Error", "loading plugins failed, bailing out.");
         exit(EXIT_FAILURE);
     }
 
     /* open the logs */
-    if(syslog && open_syslog(debuglvl, &conf, &system_log) < 0)
-    {
+    if(syslog && open_syslog(debuglvl, &conf, &system_log) < 0) {
         vrmr_error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
     }
 
-    if (open_vuurmuurlog (debuglvl, &conf, &g_traffic_log) < 0)
-    {
+    if (open_vuurmuurlog (debuglvl, &conf, &g_traffic_log) < 0) {
         vrmr_error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
     }
@@ -747,7 +718,7 @@ main(int argc, char *argv[])
                                     Counters.invalid_loglines++;
                                     break;
                                 default:
-                                    result = get_vuurmuur_names(debuglvl, &logrule, &zone_htbl, &service_htbl);
+                                    result = vrmr_log_record_get_names(debuglvl, &logrule, &zone_htbl, &service_htbl);
                                     switch (result)
                                     {
                                         case -1:
@@ -757,7 +728,7 @@ main(int argc, char *argv[])
                                             Counters.invalid_loglines++;
                                             break;
                                         default:
-                                            if (BuildVMLine (&logrule, line_out, sizeof(line_out)) < 0) {
+                                            if (vrmr_log_record_build_line (&logrule, line_out, sizeof(line_out)) < 0) {
                                                 vrmr_error(-1, "Error", "could not build output line");
                                             } else {
                                                 fprintf(g_traffic_log, "%s", line_out);

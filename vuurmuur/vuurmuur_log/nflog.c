@@ -93,13 +93,13 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     char *payload;
     int payload_len;
     struct timeval tv;
-    struct log_rule *logrule_ptr = data;
+    struct vrmr_log_record *log_record = data;
     time_t when;
     char    s[256];
     int     i;
     union ipv4_adress ip;
 
-    memset(logrule_ptr, 0, sizeof(struct log_rule));
+    memset(log_record, 0, sizeof(struct vrmr_log_record));
 
     /* Check first if this pkt comes from a vuurmuur logrule */
     prefix = nflog_get_prefix (nfa);
@@ -110,16 +110,16 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
             i = 0;
             while (*needle != '\0' && *needle != ' ') {
-                if (i < (sizeof(logrule_ptr->action) - 1))
-                    logrule_ptr->action[i++] = *needle;
+                if (i < (sizeof(log_record->action) - 1))
+                    log_record->action[i++] = *needle;
 
                 needle++;
             }
-            logrule_ptr->action[i] = '\0';
+            log_record->action[i] = '\0';
 
-            if (strlen(logrule_ptr->action) == 0) {
-                strlcpy(logrule_ptr->action, "<unknown>",
-                        sizeof(logrule_ptr->action));
+            if (strlen(log_record->action) == 0) {
+                strlcpy(log_record->action, "<unknown>",
+                        sizeof(log_record->action));
             }
 
             if (*needle != '\0') {
@@ -132,33 +132,33 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
                 i = 0;
                 while (*needle != '\0') {
-                    if (i < (sizeof(logrule_ptr->logprefix) - 1))
-                        logrule_ptr->logprefix[i++] = *needle;
+                    if (i < (sizeof(log_record->logprefix) - 1))
+                        log_record->logprefix[i++] = *needle;
 
                     needle++;
                 }
-                logrule_ptr->logprefix[i] = '\0';
+                log_record->logprefix[i] = '\0';
             } else {
-                strlcpy(logrule_ptr->logprefix, "none",
-                        sizeof(logrule_ptr->logprefix));
+                strlcpy(log_record->logprefix, "none",
+                        sizeof(log_record->logprefix));
 
             }
         } else {
-            strlcpy(logrule_ptr->action, "<unknown>",
-                    sizeof(logrule_ptr->action));
-            strlcpy(logrule_ptr->logprefix, "none",
-                    sizeof(logrule_ptr->logprefix));
+            strlcpy(log_record->action, "<unknown>",
+                    sizeof(log_record->action));
+            strlcpy(log_record->logprefix, "none",
+                    sizeof(log_record->logprefix));
 
         }
     } else {
-        strlcpy(logrule_ptr->action, "<exteral>",
-                sizeof(logrule_ptr->action));
-        strlcpy(logrule_ptr->logprefix, "none",
-                sizeof(logrule_ptr->logprefix));
+        strlcpy(log_record->action, "<exteral>",
+                sizeof(log_record->action));
+        strlcpy(log_record->logprefix, "none",
+                sizeof(log_record->logprefix));
     }
 
     /* Copy hostname in log_rule struct, seems kind of silly to do this every time */
-    if (gethostname (logrule_ptr->hostname, HOST_NAME_MAX) == -1) {
+    if (gethostname (log_record->hostname, HOST_NAME_MAX) == -1) {
         vrmr_debug(__FUNC__, "Error getting hostname");
         return -1;
     }
@@ -170,14 +170,14 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     }
 
 
-    /* Convert MAC src and dst to strings and copy into logrule_ptr */
+    /* Convert MAC src and dst to strings and copy into log_record */
     if (nflog_get_msg_packet_hwhdrlen (nfa)) {
         hwhdr = nflog_get_msg_packet_hwhdr (nfa);
         if (hwhdr != NULL) {
             mac2str (hwhdr, macstr, sizeof(macstr));
-            snprintf (logrule_ptr->dst_mac, sizeof (logrule_ptr->dst_mac), "(%s)", macstr);
+            snprintf (log_record->dst_mac, sizeof (log_record->dst_mac), "(%s)", macstr);
             mac2str (hwhdr + 6, macstr, sizeof(macstr));
-            snprintf (logrule_ptr->src_mac, sizeof (logrule_ptr->src_mac), "(%s)", macstr);
+            snprintf (log_record->src_mac, sizeof (log_record->src_mac), "(%s)", macstr);
         }
     }
 
@@ -187,11 +187,11 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         return -1;
     } else {
         if (indev) {
-            if_indextoname (indev, logrule_ptr->interface_in);
-            snprintf(logrule_ptr->from_int, sizeof(logrule_ptr->from_int), "in: %s ", logrule_ptr->interface_in);
+            if_indextoname (indev, log_record->interface_in);
+            snprintf(log_record->from_int, sizeof(log_record->from_int), "in: %s ", log_record->interface_in);
         } else {
-            *logrule_ptr->interface_in = 0;
-            *logrule_ptr->from_int = 0;
+            *log_record->interface_in = 0;
+            *log_record->from_int = 0;
         }
     }
 
@@ -201,11 +201,11 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
         return -1;
     } else {
         if (outdev) {
-            if_indextoname (outdev, logrule_ptr->interface_out);
-            snprintf(logrule_ptr->to_int, sizeof(logrule_ptr->to_int), "out: %s ", logrule_ptr->interface_out);
+            if_indextoname (outdev, log_record->interface_out);
+            snprintf(log_record->to_int, sizeof(log_record->to_int), "out: %s ", log_record->interface_out);
         } else {
-            *logrule_ptr->interface_out = 0;
-            *logrule_ptr->to_int = 0;
+            *log_record->interface_out = 0;
+            *log_record->to_int = 0;
         }
     }
 
@@ -217,8 +217,8 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     when = tv.tv_sec;
     struct tm *tm = localtime(&when);
     strftime (s, 256, "%b %d %T", tm);
-    if (sscanf (s, "%3s %2d %2d:%2d:%2d", logrule_ptr->month, &logrule_ptr->day,
-        &logrule_ptr->hour, &logrule_ptr->minute, &logrule_ptr->second) != 5) {
+    if (sscanf (s, "%3s %2d %2d:%2d:%2d", log_record->month, &log_record->day,
+        &log_record->hour, &log_record->minute, &log_record->second) != 5) {
         vrmr_debug(__FUNC__, "did not find properly formatted timestamp");
         return -1;
     }
@@ -258,38 +258,38 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
                 iph = (struct iphdr *)payload;
                 protoh = (uint32_t *)iph + iph->ihl;
-                logrule_ptr->protocol = iph->protocol;
-                logrule_ptr->packet_len = ntohs(iph->tot_len) - iph->ihl * 4;
-                switch (logrule_ptr->protocol) {
+                log_record->protocol = iph->protocol;
+                log_record->packet_len = ntohs(iph->tot_len) - iph->ihl * 4;
+                switch (log_record->protocol) {
                     case IPPROTO_TCP:
                         tcph = (struct tcphdr *)protoh;
-                        logrule_ptr->src_port = ntohs(tcph->source);
-                        logrule_ptr->dst_port = ntohs(tcph->dest);
-                        logrule_ptr->syn = tcph->syn;
-                        logrule_ptr->fin = tcph->fin;
-                        logrule_ptr->rst = tcph->rst;
-                        logrule_ptr->ack = tcph->ack;
-                        logrule_ptr->psh = tcph->psh;
-                        logrule_ptr->urg = tcph->urg;
+                        log_record->src_port = ntohs(tcph->source);
+                        log_record->dst_port = ntohs(tcph->dest);
+                        log_record->syn = tcph->syn;
+                        log_record->fin = tcph->fin;
+                        log_record->rst = tcph->rst;
+                        log_record->ack = tcph->ack;
+                        log_record->psh = tcph->psh;
+                        log_record->urg = tcph->urg;
                         break;
                     case IPPROTO_ICMP:
                         icmph = (struct icmphdr *)protoh;
-                        logrule_ptr->icmp_type = icmph->type;
-                        logrule_ptr->icmp_code = icmph->code;
+                        log_record->icmp_type = icmph->type;
+                        log_record->icmp_code = icmph->code;
                         break;
                     case IPPROTO_UDP:
                         udph = (struct udphdr *)protoh;
-                        logrule_ptr->src_port = ntohs(udph->source);
-                        logrule_ptr->dst_port = ntohs(udph->dest);
+                        log_record->src_port = ntohs(udph->source);
+                        log_record->dst_port = ntohs(udph->dest);
                         break;
                 }
                 ip.saddr = iph->saddr;
-                snprintf (logrule_ptr->src_ip, sizeof(logrule_ptr->src_ip),
+                snprintf (log_record->src_ip, sizeof(log_record->src_ip),
                         "%u.%u.%u.%u", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
                 ip.saddr = iph->daddr;
-                snprintf (logrule_ptr->dst_ip, sizeof(logrule_ptr->dst_ip),
+                snprintf (log_record->dst_ip, sizeof(log_record->dst_ip),
                         "%u.%u.%u.%u", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
-                logrule_ptr->ttl = iph->ttl;
+                log_record->ttl = iph->ttl;
                 break;
             case ETH_P_IPV6:
             {
@@ -304,50 +304,50 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                 payload_len -= sizeof(struct ip6_hdr);
 
                 inet_ntop(AF_INET6, (const void *)&ip6h->ip6_src,
-                        logrule_ptr->src_ip, sizeof(logrule_ptr->src_ip));
+                        log_record->src_ip, sizeof(log_record->src_ip));
                 inet_ntop(AF_INET6, (const void *)&ip6h->ip6_dst,
-                        logrule_ptr->dst_ip, sizeof(logrule_ptr->dst_ip));
+                        log_record->dst_ip, sizeof(log_record->dst_ip));
 
-                logrule_ptr->ttl = ip6h->ip6_hlim;
-                logrule_ptr->packet_len = 40 + ntohs(ip6h->ip6_plen);
+                log_record->ttl = ip6h->ip6_hlim;
+                log_record->packet_len = 40 + ntohs(ip6h->ip6_plen);
 
                 /* just the next header, might not be the protocol we care about */
-                logrule_ptr->protocol = ip6h->ip6_nxt;
-                switch (logrule_ptr->protocol) {
+                log_record->protocol = ip6h->ip6_nxt;
+                switch (log_record->protocol) {
                     case IPPROTO_ICMPV6:
                         if (payload_len >= sizeof(struct icmp6_hdr)) {
                             struct icmp6_hdr *icmp6h = (struct icmp6_hdr *)payload;
-                            logrule_ptr->icmp_type = icmp6h->icmp6_type;
-                            logrule_ptr->icmp_code = icmp6h->icmp6_code;
+                            log_record->icmp_type = icmp6h->icmp6_type;
+                            log_record->icmp_code = icmp6h->icmp6_code;
                             vrmr_debug(__FILE__, "ICMPv6: type %u code %u",
-                                    logrule_ptr->icmp_type, logrule_ptr->icmp_code);
+                                    log_record->icmp_type, log_record->icmp_code);
                         }
                         break;
                     case IPPROTO_TCP:
                         if (payload_len >= sizeof(struct tcphdr)) {
                             tcph = (struct tcphdr *)payload;
-                            logrule_ptr->src_port = ntohs(tcph->source);
-                            logrule_ptr->dst_port = ntohs(tcph->dest);
-                            logrule_ptr->syn = tcph->syn;
-                            logrule_ptr->fin = tcph->fin;
-                            logrule_ptr->rst = tcph->rst;
-                            logrule_ptr->ack = tcph->ack;
-                            logrule_ptr->psh = tcph->psh;
-                            logrule_ptr->urg = tcph->urg;
+                            log_record->src_port = ntohs(tcph->source);
+                            log_record->dst_port = ntohs(tcph->dest);
+                            log_record->syn = tcph->syn;
+                            log_record->fin = tcph->fin;
+                            log_record->rst = tcph->rst;
+                            log_record->ack = tcph->ack;
+                            log_record->psh = tcph->psh;
+                            log_record->urg = tcph->urg;
                         }
                         break;
                     case IPPROTO_UDP:
                         if (payload_len >= sizeof(struct tcphdr)) {
                             udph = (struct udphdr *)payload;
-                            logrule_ptr->src_port = ntohs(udph->source);
-                            logrule_ptr->dst_port = ntohs(udph->dest);
+                            log_record->src_port = ntohs(udph->source);
+                            log_record->dst_port = ntohs(udph->dest);
                         }
                         break;
                 }
 
-                logrule_ptr->ipv6 = 1;
+                log_record->ipv6 = 1;
 
-                vrmr_debug(__FILE__, "IPV6 %s -> %s (%u)", logrule_ptr->src_ip, logrule_ptr->dst_ip, logrule_ptr->protocol);
+                vrmr_debug(__FILE__, "IPV6 %s -> %s (%u)", log_record->src_ip, log_record->dst_ip, log_record->protocol);
 #endif /* IPV6_ENABLED */
                 break;
             }
@@ -358,7 +358,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     }
 
     /* process the record */
-    process_logrecord(logrule_ptr);
+    process_logrecord(log_record);
     return 0;       /* success */
 }
 
@@ -377,7 +377,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
  * \note A note that applies to the function
  */
 int
-subscribe_nflog (const int debuglvl, const struct vrmr_config *conf, struct log_rule *logrule_ptr)
+subscribe_nflog (const int debuglvl, const struct vrmr_config *conf, struct vrmr_log_record *log_record)
 {
     struct nflog_g_handle *qh;
 
@@ -406,7 +406,7 @@ subscribe_nflog (const int debuglvl, const struct vrmr_config *conf, struct log_
         return (-1);
     }
 
-    nflog_callback_register (qh, &createlogrule_callback, logrule_ptr);
+    nflog_callback_register (qh, &createlogrule_callback, log_record);
 
     fd = nflog_fd (h);
 

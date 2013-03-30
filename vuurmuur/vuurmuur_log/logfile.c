@@ -115,7 +115,7 @@ search_in_ipt_line(char *line, size_t search_start, char *keyword, size_t *start
     return(0);
 }
 
-/*  parse the logline to the logrule_ptr
+/*  parse the logline to the log_record
 
     Returncodes:
          1: ok
@@ -127,7 +127,7 @@ parse_ipt_logline(  const int debuglvl,
                     char *logline,
                     size_t logline_len,
                     char *sscanf_str,
-                    struct log_rule *logrule_ptr,
+                    struct vrmr_log_record *log_record,
                     struct Counters_ *counter_ptr)
 {
     int     result = 0;
@@ -147,7 +147,7 @@ parse_ipt_logline(  const int debuglvl,
 
 
     /* safety first */
-    if( logline == NULL || logrule_ptr == NULL ||
+    if( logline == NULL || log_record == NULL ||
         sscanf_str == NULL || counter_ptr == NULL)
     {
         vrmr_error(-1, "Internal Error", "parameter problem "
@@ -156,18 +156,18 @@ parse_ipt_logline(  const int debuglvl,
     }
 
 
-    memset(logrule_ptr, 0, sizeof(struct log_rule));
+    memset(log_record, 0, sizeof(struct vrmr_log_record));
 
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "sscanf_str: %s", sscanf_str);
 
     /* get date, time, hostname */
-    result = sscanf(logline, sscanf_str, logrule_ptr->month,
-                        &logrule_ptr->day,
-                        &logrule_ptr->hour,
-                        &logrule_ptr->minute,
-                        &logrule_ptr->second,
-                        logrule_ptr->hostname);
+    result = sscanf(logline, sscanf_str, log_record->month,
+                        &log_record->day,
+                        &log_record->hour,
+                        &log_record->minute,
+                        &log_record->second,
+                        log_record->hostname);
     if(result < 6)
     {
         if(debuglvl >= HIGH)
@@ -190,15 +190,15 @@ parse_ipt_logline(  const int debuglvl,
             str_end++;
         }
 
-        if (range_strcpy(logrule_ptr->action, logline, str_begin,
-            str_end, sizeof(logrule_ptr->action)) < 0) {
+        if (range_strcpy(log_record->action, logline, str_begin,
+            str_end, sizeof(log_record->action)) < 0) {
             return(0);
         }
 
         if(debuglvl >= HIGH)
             vrmr_debug(__FUNC__, "action '%s', "
                 "str_begin %u, str_end %u",
-                logrule_ptr->action, str_begin, str_end);
+                log_record->action, str_begin, str_end);
 
         /* the start of the prefix is the end of the action + 1 */
         pre_prefix_len = str_end + 1;
@@ -209,7 +209,7 @@ parse_ipt_logline(  const int debuglvl,
         return(0);
     }
 
-    hostname_len = strlen(logrule_ptr->hostname);
+    hostname_len = strlen(log_record->hostname);
     if(hostname_len <= 0)
         return(-1);
 
@@ -222,7 +222,7 @@ parse_ipt_logline(  const int debuglvl,
     {
         if(str_begin == str_end - strlen("IN="))
         {
-            memset(logrule_ptr->interface_in, 0, sizeof(logrule_ptr->interface_in));
+            memset(log_record->interface_in, 0, sizeof(log_record->interface_in));
         }
         else if(str_begin == str_end)
         {
@@ -231,10 +231,10 @@ parse_ipt_logline(  const int debuglvl,
         }
         else
         {
-            if(range_strcpy(logrule_ptr->interface_in, logline, str_begin + strlen("IN="), str_end, sizeof(logrule_ptr->interface_in)) < 0)
+            if(range_strcpy(log_record->interface_in, logline, str_begin + strlen("IN="), str_end, sizeof(log_record->interface_in)) < 0)
                 return(0);
 
-            snprintf(logrule_ptr->from_int, sizeof(logrule_ptr->from_int), "in: %s ", logrule_ptr->interface_in);
+            snprintf(log_record->from_int, sizeof(log_record->from_int), "in: %s ", log_record->interface_in);
         }
     }
     else
@@ -247,12 +247,12 @@ parse_ipt_logline(  const int debuglvl,
     /* here we handle the user prefix */
     if(str_begin > pre_prefix_len + 1)
     {
-        if(range_strcpy(logrule_ptr->logprefix, logline, pre_prefix_len, str_begin - 1, sizeof(logrule_ptr->logprefix)) < 0)
+        if(range_strcpy(log_record->logprefix, logline, pre_prefix_len, str_begin - 1, sizeof(log_record->logprefix)) < 0)
             return(0);
     }
     else
     {
-        strlcpy(logrule_ptr->logprefix, "none", sizeof(logrule_ptr->logprefix));
+        strlcpy(log_record->logprefix, "none", sizeof(log_record->logprefix));
     }
 
 
@@ -266,7 +266,7 @@ parse_ipt_logline(  const int debuglvl,
     {
         if(str_begin == str_end - strlen("OUT="))
         {
-            memset(logrule_ptr->interface_out, 0, sizeof(logrule_ptr->interface_out));
+            memset(log_record->interface_out, 0, sizeof(log_record->interface_out));
         }
         else if(str_begin == str_end)
         {
@@ -275,10 +275,10 @@ parse_ipt_logline(  const int debuglvl,
         }
         else
         {
-            if(range_strcpy(logrule_ptr->interface_out, logline, str_begin + strlen("OUT="), str_end, sizeof(logrule_ptr->interface_out)) < 0)
+            if(range_strcpy(log_record->interface_out, logline, str_begin + strlen("OUT="), str_end, sizeof(log_record->interface_out)) < 0)
                 return(0);
 
-            snprintf(logrule_ptr->to_int, sizeof(logrule_ptr->to_int), "out: %s ", logrule_ptr->interface_out);
+            snprintf(log_record->to_int, sizeof(log_record->to_int), "out: %s ", log_record->interface_out);
         }
     }
     else
@@ -293,7 +293,7 @@ parse_ipt_logline(  const int debuglvl,
     {
         if(str_begin == str_end - strlen("SRC="))
         {
-            memset(logrule_ptr->interface_in, 0, sizeof(logrule_ptr->interface_in));
+            memset(log_record->interface_in, 0, sizeof(log_record->interface_in));
         }
         else if(str_begin == str_end)
         {
@@ -302,7 +302,7 @@ parse_ipt_logline(  const int debuglvl,
         }
         else
         {
-            if(range_strcpy(logrule_ptr->src_ip, logline, str_begin + strlen("SRC="), str_end, sizeof(logrule_ptr->src_ip)) < 0)
+            if(range_strcpy(log_record->src_ip, logline, str_begin + strlen("SRC="), str_end, sizeof(log_record->src_ip)) < 0)
                 return(0);
         }
     }
@@ -318,7 +318,7 @@ parse_ipt_logline(  const int debuglvl,
     {
         if(str_begin == str_end - strlen("DST="))
         {
-            memset(logrule_ptr->interface_out, 0, sizeof(logrule_ptr->interface_out));
+            memset(log_record->interface_out, 0, sizeof(log_record->interface_out));
         }
         else if(str_begin == str_end)
         {
@@ -327,7 +327,7 @@ parse_ipt_logline(  const int debuglvl,
         }
         else
         {
-            if(range_strcpy(logrule_ptr->dst_ip, logline, str_begin + strlen("DST="), str_end, sizeof(logrule_ptr->dst_ip)) < 0)
+            if(range_strcpy(log_record->dst_ip, logline, str_begin + strlen("DST="), str_end, sizeof(log_record->dst_ip)) < 0)
                 return(0);
         }
     }
@@ -345,14 +345,14 @@ parse_ipt_logline(  const int debuglvl,
         if(str_begin == str_end - strlen("MAC="))
         {
             /* keyword exists, but no data */
-            memset(logrule_ptr->src_mac, 0, sizeof(logrule_ptr->src_mac));
-            memset(logrule_ptr->dst_mac, 0, sizeof(logrule_ptr->dst_mac));
+            memset(log_record->src_mac, 0, sizeof(log_record->src_mac));
+            memset(log_record->dst_mac, 0, sizeof(log_record->dst_mac));
         }
         else if(str_begin == str_end)
         {
             /* keyword not found - not an error for MAC */
-            memset(logrule_ptr->src_mac, 0, sizeof(logrule_ptr->src_mac));
-            memset(logrule_ptr->dst_mac, 0, sizeof(logrule_ptr->dst_mac));
+            memset(log_record->src_mac, 0, sizeof(log_record->src_mac));
+            memset(log_record->dst_mac, 0, sizeof(log_record->dst_mac));
         }
         else
         {
@@ -364,13 +364,13 @@ parse_ipt_logline(  const int debuglvl,
                     return(0);
             }
 
-            if(snprintf(logrule_ptr->src_mac, sizeof(logrule_ptr->src_mac), "(%s)", from_mac) >= (int)sizeof(logrule_ptr->src_mac))
+            if(snprintf(log_record->src_mac, sizeof(log_record->src_mac), "(%s)", from_mac) >= (int)sizeof(log_record->src_mac))
             {
                 vrmr_error(-1, "Error", "overflow in src_mac string (in: %s).", __FUNC__);
                 return(0);
             }
 
-            if(snprintf(logrule_ptr->dst_mac, sizeof(logrule_ptr->dst_mac), "(%s)", to_mac) >= (int)sizeof(logrule_ptr->dst_mac))
+            if(snprintf(log_record->dst_mac, sizeof(log_record->dst_mac), "(%s)", to_mac) >= (int)sizeof(log_record->dst_mac))
             {
                 vrmr_error(-1, "Error", "overflow in dst_mac string (in: %s).", __FUNC__);
                 return(0);
@@ -392,7 +392,7 @@ parse_ipt_logline(  const int debuglvl,
         if(str_begin == str_end-strlen("LEN="))
         {
             /* no length */
-            logrule_ptr->packet_len = 0;
+            log_record->packet_len = 0;
         }
         /* no len keyword */
         else if(str_begin == str_end)
@@ -421,7 +421,7 @@ parse_ipt_logline(  const int debuglvl,
             }
             else
             {
-                logrule_ptr->packet_len = (unsigned int)atoi(packet_len);
+                log_record->packet_len = (unsigned int)atoi(packet_len);
             }
         }
     }
@@ -441,7 +441,7 @@ parse_ipt_logline(  const int debuglvl,
         if(str_begin == str_end-strlen("TTL="))
         {
             /* no length */
-            logrule_ptr->ttl = 0;
+            log_record->ttl = 0;
         }
         /* no ttl keyword */
         else if(str_begin == str_end)
@@ -470,7 +470,7 @@ parse_ipt_logline(  const int debuglvl,
             }
             else
             {
-                logrule_ptr->ttl = (unsigned int)atoi(packet_len);
+                log_record->ttl = (unsigned int)atoi(packet_len);
             }
         }
     }
@@ -490,7 +490,7 @@ parse_ipt_logline(  const int debuglvl,
         if(str_begin == str_end-strlen("PROTO="))
         {
             /* no proto */
-            logrule_ptr->protocol = -1;
+            log_record->protocol = -1;
         }
         /* no proto keyword */
         else if(str_begin == str_end)
@@ -517,38 +517,38 @@ parse_ipt_logline(  const int debuglvl,
             {
                 if(strcasecmp(protocol, "tcp") == 0)
                 {
-                    logrule_ptr->protocol = 6;
+                    log_record->protocol = 6;
                     counter_ptr->tcp++;
                 }
                 else if(strcasecmp(protocol, "udp") == 0)
                 {
-                    logrule_ptr->protocol = 17;
+                    log_record->protocol = 17;
                     counter_ptr->udp++;
                 }
                 else if(strcasecmp(protocol, "icmp") == 0)
                 {
-                    logrule_ptr->protocol = 1;
+                    log_record->protocol = 1;
                     counter_ptr->icmp++;
                 }
                 else if(strcasecmp(protocol, "ah") == 0)
                 {
-                    logrule_ptr->protocol = 51;
+                    log_record->protocol = 51;
                     counter_ptr->other_proto++;
                 }
                 else if(strcasecmp(protocol, "esp") == 0)
                 {
-                    logrule_ptr->protocol = 50;
+                    log_record->protocol = 50;
                     counter_ptr->other_proto++;
                 }
                 else
                 {
-                    logrule_ptr->protocol = atoi(protocol);
+                    log_record->protocol = atoi(protocol);
                     counter_ptr->other_proto++;
                 }
             }
 
             /* protocol numbers bigger than 255 are not allowed */
-            if(logrule_ptr->protocol < 1 || logrule_ptr->protocol > 255)
+            if(log_record->protocol < 1 || log_record->protocol > 255)
             {
                 return(0);
             }
@@ -565,11 +565,11 @@ parse_ipt_logline(  const int debuglvl,
     */
 
     /* tcp & udp */
-    if(logrule_ptr->protocol == 6 || logrule_ptr->protocol == 17)
+    if(log_record->protocol == 6 || log_record->protocol == 17)
     {
         // set icmp to unused
-        logrule_ptr->icmp_type = -1;
-        logrule_ptr->icmp_code = -1;
+        log_record->icmp_type = -1;
+        log_record->icmp_code = -1;
 
         /*
             get the source port
@@ -595,9 +595,9 @@ parse_ipt_logline(  const int debuglvl,
                 }
                 else
                 {
-                    logrule_ptr->src_port = atoi(port);
+                    log_record->src_port = atoi(port);
 
-                    if(!vrmr_valid_tcpudp_port(debuglvl, logrule_ptr->src_port))
+                    if(!vrmr_valid_tcpudp_port(debuglvl, log_record->src_port))
                     {
                         return(0);
                     }
@@ -636,9 +636,9 @@ parse_ipt_logline(  const int debuglvl,
                 }
                 else
                 {
-                    logrule_ptr->dst_port = atoi(port);
+                    log_record->dst_port = atoi(port);
 
-                    if(!vrmr_valid_tcpudp_port(debuglvl, logrule_ptr->dst_port))
+                    if(!vrmr_valid_tcpudp_port(debuglvl, log_record->dst_port))
                     {
                         return(0);
                     }
@@ -652,7 +652,7 @@ parse_ipt_logline(  const int debuglvl,
         }
 
         /* now look for tcp-options */
-        if(logrule_ptr->protocol == 6)
+        if(log_record->protocol == 6)
         {
             /*
                 get the SYN flag
@@ -663,7 +663,7 @@ parse_ipt_logline(  const int debuglvl,
                 /* if the SYN part is the only part we are cool */
                 if(str_begin == str_end - strlen("SYN"))
                 {
-                    logrule_ptr->syn = 1;
+                    log_record->syn = 1;
                 }
                 /* if the length of SYN is longer than expected */
                 else if(str_end > str_begin + strlen("SYN"))
@@ -672,7 +672,7 @@ parse_ipt_logline(  const int debuglvl,
                 }
                 else
                 {
-                    logrule_ptr->syn = 0;
+                    log_record->syn = 0;
                 }
             }
             else
@@ -689,7 +689,7 @@ parse_ipt_logline(  const int debuglvl,
                 /* if the FIN part is the only part we are cool */
                 if(str_begin == str_end - strlen("FIN"))
                 {
-                    logrule_ptr->fin = 1;
+                    log_record->fin = 1;
                 }
                 /* if the length of FIN is longer than expected */
                 else if(str_end > str_begin + strlen("FIN"))
@@ -698,7 +698,7 @@ parse_ipt_logline(  const int debuglvl,
                 }
                 else
                 {
-                    logrule_ptr->fin = 0;
+                    log_record->fin = 0;
                 }
             }
             else
@@ -715,7 +715,7 @@ parse_ipt_logline(  const int debuglvl,
                 /* if the RST part is the only part we are cool */
                 if(str_begin == str_end - strlen("RST"))
                 {
-                    logrule_ptr->rst = 1;
+                    log_record->rst = 1;
                 }
                 /* if the length of RST is longer than expected */
                 else if(str_end > str_begin + strlen("RST"))
@@ -724,7 +724,7 @@ parse_ipt_logline(  const int debuglvl,
                 }
                 else
                 {
-                    logrule_ptr->rst = 0;
+                    log_record->rst = 0;
                 }
             }
             else
@@ -741,7 +741,7 @@ parse_ipt_logline(  const int debuglvl,
                 /* if the ACK part is the only part we are cool */
                 if(str_begin == str_end - strlen("ACK"))
                 {
-                    logrule_ptr->ack = 1;
+                    log_record->ack = 1;
                 }
                 /* if the length of ACK is longer than expected */
                 else if(str_end > str_begin + strlen("ACK"))
@@ -750,7 +750,7 @@ parse_ipt_logline(  const int debuglvl,
                 }
                 else
                 {
-                    logrule_ptr->ack = 0;
+                    log_record->ack = 0;
                 }
             }
             else
@@ -767,7 +767,7 @@ parse_ipt_logline(  const int debuglvl,
                 /* if the PSH part is the only part we are cool */
                 if(str_begin == str_end - strlen("PSH"))
                 {
-                    logrule_ptr->psh = 1;
+                    log_record->psh = 1;
                 }
                 /* if the length of PSH is longer than expected */
                 else if(str_end > str_begin + strlen("PSH"))
@@ -776,7 +776,7 @@ parse_ipt_logline(  const int debuglvl,
                 }
                 else
                 {
-                    logrule_ptr->psh = 0;
+                    log_record->psh = 0;
                 }
             }
             else
@@ -796,7 +796,7 @@ parse_ipt_logline(  const int debuglvl,
                 /* if the URG part is the only part we are cool */
                 if(str_begin == str_end - strlen("URG "))
                 {
-                    logrule_ptr->urg = 1;
+                    log_record->urg = 1;
                 }
                 /* if the length of URG is longer than expected */
                 else if(str_end > str_begin + strlen("URG "))
@@ -805,7 +805,7 @@ parse_ipt_logline(  const int debuglvl,
                 }
                 else
                 {
-                    logrule_ptr->urg = 0;
+                    log_record->urg = 0;
                 }
             }
             else
@@ -818,11 +818,11 @@ parse_ipt_logline(  const int debuglvl,
     }
 
     /* icmp */
-    else if(logrule_ptr->protocol == 1)
+    else if(log_record->protocol == 1)
     {
         /* no 'normal' ports, set to unused */
-        logrule_ptr->src_port = -1;
-        logrule_ptr->dst_port = -1;
+        log_record->src_port = -1;
+        log_record->dst_port = -1;
 
         /*
             get the ICMP TYPE
@@ -846,8 +846,8 @@ parse_ipt_logline(  const int debuglvl,
                 else
                 {
 // TODO: check number
-                    logrule_ptr->icmp_type = atoi(port);
-                    logrule_ptr->src_port = logrule_ptr->icmp_type;
+                    log_record->icmp_type = atoi(port);
+                    log_record->src_port = log_record->icmp_type;
                 }
             }
         }
@@ -878,8 +878,8 @@ parse_ipt_logline(  const int debuglvl,
                 else
                 {
 //TODO: check code
-                    logrule_ptr->icmp_code = atoi(port);
-                    logrule_ptr->dst_port = logrule_ptr->icmp_code;
+                    log_record->icmp_code = atoi(port);
+                    log_record->dst_port = log_record->icmp_code;
                 }
             }
         }
@@ -889,7 +889,7 @@ parse_ipt_logline(  const int debuglvl,
             return(0);
         }
     }
-    else if(logrule_ptr->protocol == 0)
+    else if(log_record->protocol == 0)
     {
         return(0);
     } /* end ports */

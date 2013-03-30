@@ -131,24 +131,24 @@ logline2plainlogrule(char *logline, struct PlainLogRule_ *logrule)
         In case of error we return 0.
 */
 static int
-logrule_filtered(const int debuglvl, struct LogRule_ *logrule_ptr, struct vrmr_filter *filter)
+logrule_filtered(const int debuglvl, struct LogRule_ *log_record, struct vrmr_filter *filter)
 {
     char    line[512];
 
-    if(logrule_ptr == NULL || filter == NULL)
+    if(log_record == NULL || filter == NULL)
         return(0);
         
     /*                            mo da ti  ac se fr to   pr  de */
     snprintf(line, sizeof(line), "%s %s %s: %s %s %s %s, '%s' %s",
-                    logrule_ptr->month,
-                    logrule_ptr->date,
-                    logrule_ptr->time,
-                    logrule_ptr->action,
-                    logrule_ptr->service,
-                    logrule_ptr->from,
-                    logrule_ptr->to,
-                    logrule_ptr->prefix,
-                    logrule_ptr->details);
+                    log_record->month,
+                    log_record->date,
+                    log_record->time,
+                    log_record->action,
+                    log_record->service,
+                    log_record->from,
+                    log_record->to,
+                    log_record->prefix,
+                    log_record->details);
 
     /*  check the regex
         
@@ -292,7 +292,7 @@ check_search_script(const int debuglvl, char *script)
 
 
 static void
-print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
+print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
         size_t max_logrule_length, size_t cur_logrule_length,
         char hide_date, char hide_action, char hide_service,
         char hide_from, char hide_to, char hide_prefix,
@@ -304,13 +304,13 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
     if(!hide_date)
     {
         /* DATE/TIME */
-        tmpstr_i = StrLen(logrule_ptr->month)+1+2+1+StrLen(logrule_ptr->time)+1+1; // month, space, day, space, time, semicolon, space, nul
+        tmpstr_i = StrLen(log_record->month)+1+2+1+StrLen(log_record->time)+1+1; // month, space, day, space, time, semicolon, space, nul
         if(cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
         if(tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
 
-        snprintf(print_str, tmpstr_i, "%s %2s %s:", logrule_ptr->month, logrule_ptr->date, logrule_ptr->time);
+        snprintf(print_str, tmpstr_i, "%s %2s %s:", log_record->month, log_record->date, log_record->time);
         wprintw(log_win, "%s", print_str);
 
         cur_logrule_length = cur_logrule_length + tmpstr_i-1;
@@ -326,32 +326,32 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
     if(!hide_action)
     {
         /* ACTION */
-        if(strcmp(logrule_ptr->action, "DROP") == 0)
+        if(strcmp(log_record->action, "DROP") == 0)
             wattron(log_win, vccnf.color_bgd_red | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "REJECT") == 0)
+        else if(strcmp(log_record->action, "REJECT") == 0)
             wattron(log_win, vccnf.color_bgd_red | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "ACCEPT") == 0)
+        else if(strcmp(log_record->action, "ACCEPT") == 0)
             wattron(log_win, vccnf.color_bgd_green | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "LOG") == 0)
+        else if(strcmp(log_record->action, "LOG") == 0)
             wattron(log_win, vccnf.color_bgd | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "SNAT") == 0)
+        else if(strcmp(log_record->action, "SNAT") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "MASQ") == 0)
+        else if(strcmp(log_record->action, "MASQ") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "DNAT") == 0)
+        else if(strcmp(log_record->action, "DNAT") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "BOUNCE") == 0)
+        else if(strcmp(log_record->action, "BOUNCE") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "PORTFW") == 0)
+        else if(strcmp(log_record->action, "PORTFW") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "REDIRECT") == 0)
+        else if(strcmp(log_record->action, "REDIRECT") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "QUEUE") == 0)
+        else if(strcmp(log_record->action, "QUEUE") == 0)
             wattron(log_win, vccnf.color_bgd | A_BOLD);
         else
             wattron(log_win, vccnf.color_bgd | A_BOLD);
 
-        tmpstr_i = StrLen(logrule_ptr->action)+1;//1 nul, action
+        tmpstr_i = StrLen(log_record->action)+1;//1 nul, action
         if(tmpstr_i < 8)
             tmpstr_i = 8; /* min 8 because of the %-6s below */
         if(cur_logrule_length + tmpstr_i >= max_logrule_length)
@@ -359,32 +359,32 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
         if(tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
 
-        snprintf(print_str, tmpstr_i, "%s", logrule_ptr->action);
+        snprintf(print_str, tmpstr_i, "%s", log_record->action);
         wprintw(log_win, "%-6s", print_str);
 
         cur_logrule_length = cur_logrule_length + tmpstr_i-1;
 
-        if(strcmp(logrule_ptr->action, "DROP") == 0)
+        if(strcmp(log_record->action, "DROP") == 0)
             wattroff(log_win, vccnf.color_bgd_red | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "REJECT") == 0)
+        else if(strcmp(log_record->action, "REJECT") == 0)
             wattroff(log_win, vccnf.color_bgd_red | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "ACCEPT") == 0)
+        else if(strcmp(log_record->action, "ACCEPT") == 0)
             wattroff(log_win, vccnf.color_bgd_green | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "LOG") == 0)
+        else if(strcmp(log_record->action, "LOG") == 0)
             wattroff(log_win, vccnf.color_bgd | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "SNAT") == 0)
+        else if(strcmp(log_record->action, "SNAT") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "MASQ") == 0)
+        else if(strcmp(log_record->action, "MASQ") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "DNAT") == 0)
+        else if(strcmp(log_record->action, "DNAT") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "BOUNCE") == 0)
+        else if(strcmp(log_record->action, "BOUNCE") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "PORTFW") == 0)
+        else if(strcmp(log_record->action, "PORTFW") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "REDIRECT") == 0)
+        else if(strcmp(log_record->action, "REDIRECT") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(logrule_ptr->action, "QUEUE") == 0)
+        else if(strcmp(log_record->action, "QUEUE") == 0)
             wattroff(log_win, vccnf.color_bgd | A_BOLD);
         else
             wattroff(log_win, vccnf.color_bgd | A_BOLD);
@@ -402,13 +402,13 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
         /* SERVICE */
         wattron(log_win, vccnf.color_bgd_cyan|A_BOLD);
 
-        tmpstr_i = StrLen(logrule_ptr->service)+1;//1 nul, service
+        tmpstr_i = StrLen(log_record->service)+1;//1 nul, service
         if(cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
         if(tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
 
-        snprintf(print_str, tmpstr_i, "%s", logrule_ptr->service);
+        snprintf(print_str, tmpstr_i, "%s", log_record->service);
         wprintw(log_win, "%s", print_str);
 
         cur_logrule_length = cur_logrule_length + tmpstr_i-1;
@@ -426,23 +426,23 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
     if(!hide_from)
     {
         /* FROM */
-        if(strncmp(logrule_ptr->from, "firewall", 8) == 0)
+        if(strncmp(log_record->from, "firewall", 8) == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
             wattron(log_win, vccnf.color_bgd | A_BOLD);
 
-        tmpstr_i = StrLen(logrule_ptr->from)+1;//1 nul, from
+        tmpstr_i = StrLen(log_record->from)+1;//1 nul, from
         if(cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
         if(tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
     
-        snprintf(print_str, tmpstr_i, "%s", logrule_ptr->from);
+        snprintf(print_str, tmpstr_i, "%s", log_record->from);
         wprintw(log_win, "%s", print_str);
 
         cur_logrule_length = cur_logrule_length + tmpstr_i-1;
 
-        if(strncmp(logrule_ptr->from, "firewall", 8) == 0)
+        if(strncmp(log_record->from, "firewall", 8) == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
             wattroff(log_win, vccnf.color_bgd | A_BOLD);
@@ -461,23 +461,23 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
     if(!hide_to)
     {
         /* TO */
-        if(strncmp(logrule_ptr->to, "firewall", 8) == 0)
+        if(strncmp(log_record->to, "firewall", 8) == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
             wattron(log_win, vccnf.color_bgd | A_BOLD);
     
-        tmpstr_i = StrLen(logrule_ptr->to)+1;//1 nul, from
+        tmpstr_i = StrLen(log_record->to)+1;//1 nul, from
         if(cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
         if(tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
 
-        snprintf(print_str, tmpstr_i, "%s", logrule_ptr->to);
+        snprintf(print_str, tmpstr_i, "%s", log_record->to);
         wprintw(log_win, "%s", print_str);
 
         cur_logrule_length = cur_logrule_length + tmpstr_i-1;
     
-        if(strncmp(logrule_ptr->to, "firewall", 8) == 0)
+        if(strncmp(log_record->to, "firewall", 8) == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
             wattroff(log_win, vccnf.color_bgd | A_BOLD);
@@ -496,17 +496,17 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
     if(!hide_prefix)
     {
         /* PREFIX */
-        if(strcmp(logrule_ptr->prefix, "none") != 0 && strlen(logrule_ptr->prefix) > 0)
+        if(strcmp(log_record->prefix, "none") != 0 && strlen(log_record->prefix) > 0)
         {
             wattron(log_win, vccnf.color_bgd_green);
 
-            tmpstr_i = StrLen(logrule_ptr->prefix) + 2 + 1;//1 nul, prefix, 2 quotes
+            tmpstr_i = StrLen(log_record->prefix) + 2 + 1;//1 nul, prefix, 2 quotes
             if(cur_logrule_length + tmpstr_i >= max_logrule_length)
                 tmpstr_i = max_logrule_length - cur_logrule_length;
             if(tmpstr_i > sizeof(print_str))
                 tmpstr_i = sizeof(print_str);
 
-            snprintf(print_str, tmpstr_i, "'%s'", logrule_ptr->prefix);
+            snprintf(print_str, tmpstr_i, "'%s'", log_record->prefix);
             wprintw(log_win, "%s", print_str);
 
             cur_logrule_length = cur_logrule_length + tmpstr_i - 1;
@@ -525,13 +525,13 @@ print_logrule(WINDOW *log_win, struct LogRule_ *logrule_ptr,
     if(!hide_details)
     {
         /* DETAILS */
-        tmpstr_i = StrLen(logrule_ptr->details)+1+1; //1 nul, details, newline
+        tmpstr_i = StrLen(log_record->details)+1+1; //1 nul, details, newline
         if(cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
         if(tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
 
-        snprintf(print_str, tmpstr_i, "%s", logrule_ptr->details);
+        snprintf(print_str, tmpstr_i, "%s", log_record->details);
         wprintw(log_win, "%s", print_str);
 
         //cur_logrule_length = cur_logrule_length + tmpstr_i-1;
@@ -682,8 +682,8 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
         0,
     };
 
-    struct LogRule_         *logrule_ptr = NULL;
-    struct PlainLogRule_    *plainlogrule_ptr = NULL;
+    struct LogRule_         *log_record = NULL;
+    struct PlainLogRule_    *plainlog_record = NULL;
 
     size_t                  max_logrule_length=0,
                             cur_logrule_length=0;
@@ -929,26 +929,26 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 if(traffic_log)
                 {
                     /* here we can analyse the rule */
-                    if(!(logrule_ptr = malloc(sizeof(struct LogRule_))))
+                    if(!(log_record = malloc(sizeof(struct LogRule_))))
                     {
                         vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
 
                     /* start not filtered (was filtered) */
-                    logrule_ptr->filtered = 0;
+                    log_record->filtered = 0;
 
-                    result = logline2logrule(line, logrule_ptr);
+                    result = logline2logrule(line, log_record);
                     if(result < 0)
                     {
-                        free(logrule_ptr);
+                        free(log_record);
                         free(line);
     
                         return(-1);
                     }
 
                     /* now insert the rule */
-                    if(vrmr_list_append(debuglvl, buffer_ptr, logrule_ptr)  == NULL)
+                    if(vrmr_list_append(debuglvl, buffer_ptr, log_record)  == NULL)
                     {
                         vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
@@ -964,32 +964,32 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                         }
                     }
 
-                    logrule_ptr = NULL;
+                    log_record = NULL;
                     control.queue++;
                 }
                 else
                 {
                     /* here we can analyse the rule */
-                    if(!(plainlogrule_ptr = malloc(sizeof(struct PlainLogRule_))))
+                    if(!(plainlog_record = malloc(sizeof(struct PlainLogRule_))))
                     {
                         vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
 
                     /* start not filtered (was filtered) */
-                    plainlogrule_ptr->filtered = 0;
+                    plainlog_record->filtered = 0;
 
-                    result = logline2plainlogrule(line, plainlogrule_ptr);
+                    result = logline2plainlogrule(line, plainlog_record);
                     if(result < 0)
                     {
-                        free(plainlogrule_ptr);
+                        free(plainlog_record);
                         free(line);
     
                         return(-1);
                     }
 
                     /* now insert the rule */
-                    if(vrmr_list_append(debuglvl, buffer_ptr, plainlogrule_ptr)  == NULL)
+                    if(vrmr_list_append(debuglvl, buffer_ptr, plainlog_record)  == NULL)
                     {
                         vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
@@ -1005,7 +1005,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                         }
                     }
 
-                    plainlogrule_ptr = NULL;
+                    plainlog_record = NULL;
                     control.queue++;
                 }
 
@@ -1131,20 +1131,20 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 if(traffic_log)
                 {
                     /* here we can analyse the rule */
-                    if(!(logrule_ptr = malloc(sizeof(struct LogRule_))))
+                    if(!(log_record = malloc(sizeof(struct LogRule_))))
                     {
                         vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
 
                     /* we asume unfiltered (was filtered) */
-                    logrule_ptr->filtered = 0;
+                    log_record->filtered = 0;
 
                     /* convert the raw line to our data structure */
-                    result = logline2logrule(line, logrule_ptr);
+                    result = logline2logrule(line, log_record);
                     if(result < 0)
                     {
-                        free(logrule_ptr);
+                        free(log_record);
                         free(line);
 
                         return(-1);
@@ -1153,11 +1153,11 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     /* if we have a filter check it now */
                     if(use_filter)
                     {
-                        logrule_ptr->filtered = logrule_filtered(debuglvl, logrule_ptr, &vfilter);
+                        log_record->filtered = logrule_filtered(debuglvl, log_record, &vfilter);
                     }
                     
                     /* now really insert the rule into the buffer */
-                    if(vrmr_list_append(debuglvl, buffer_ptr, logrule_ptr)  == NULL)
+                    if(vrmr_list_append(debuglvl, buffer_ptr, log_record)  == NULL)
                     {
                         vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
@@ -1174,24 +1174,24 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     }
 
                     control.queue++;
-                    logrule_ptr = NULL;
+                    log_record = NULL;
                 }
                 else
                 {
                     /* here we can analyse the rule */
-                    if(!(plainlogrule_ptr = malloc(sizeof(struct PlainLogRule_))))
+                    if(!(plainlog_record = malloc(sizeof(struct PlainLogRule_))))
                     {
                         vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
                         return(-1);
                     }
 
                     /* we asume unfiltered (was filtered) */
-                    plainlogrule_ptr->filtered = 0;
+                    plainlog_record->filtered = 0;
 
-                    result = logline2plainlogrule(line, plainlogrule_ptr);
+                    result = logline2plainlogrule(line, plainlog_record);
                     if(result < 0)
                     {
-                        free(plainlogrule_ptr);
+                        free(plainlog_record);
                         free(line);
     
                         return(-1);
@@ -1200,11 +1200,11 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                     /* if we have a filter check it now */
                     if(use_filter)
                     {
-                        plainlogrule_ptr->filtered = plainlogrule_filtered(debuglvl, plainlogrule_ptr->line, &vfilter);
+                        plainlog_record->filtered = plainlogrule_filtered(debuglvl, plainlog_record->line, &vfilter);
                     }
 
                     /* now insert the rule */
-                    if(vrmr_list_append(debuglvl, buffer_ptr, plainlogrule_ptr)  == NULL)
+                    if(vrmr_list_append(debuglvl, buffer_ptr, plainlog_record)  == NULL)
                     {
                         vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
                         return(-1);
@@ -1220,7 +1220,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                         }
                     }
 
-                    plainlogrule_ptr = NULL;
+                    plainlog_record = NULL;
                     control.queue++;
                 }
 
@@ -1416,7 +1416,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 {
                     if(traffic_log)
                     {
-                        if(!(logrule_ptr = d_node->data))
+                        if(!(log_record = d_node->data))
                         {
                             vrmr_error(-1, VR_INTERR, "NULL pointer.");
                             return(-1);
@@ -1424,16 +1424,16 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
 
                         if(use_filter)
                         {
-                            logrule_ptr->filtered = logrule_filtered(debuglvl, logrule_ptr, &vfilter);
+                            log_record->filtered = logrule_filtered(debuglvl, log_record, &vfilter);
                         }
                         else
                         {
-                            logrule_ptr->filtered = 0;
+                            log_record->filtered = 0;
                         }
                     }
                     else
                     {
-                        if(!(plainlogrule_ptr = d_node->data))
+                        if(!(plainlog_record = d_node->data))
                         {
                             vrmr_error(-1, VR_INTERR, "NULL pointer.");
                             return(-1);
@@ -1441,11 +1441,11 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
 
                         if(use_filter)
                         {
-                            plainlogrule_ptr->filtered = plainlogrule_filtered(debuglvl, plainlogrule_ptr->line, &vfilter);
+                            plainlog_record->filtered = plainlogrule_filtered(debuglvl, plainlog_record->line, &vfilter);
                         }
                         else
                         {
-                            plainlogrule_ptr->filtered = 0;
+                            plainlog_record->filtered = 0;
                         }
                     }
                 }
@@ -1845,7 +1845,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
             {
                 if(traffic_log)
                 {
-                    if(!(logrule_ptr = d_node->data))
+                    if(!(log_record = d_node->data))
                     {
                         vrmr_error(-1, VR_INTERR,
                                 "NULL pointer (in: %s:%d).",
@@ -1853,7 +1853,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                         return(-1);
                     }
         
-                    if(logrule_ptr->filtered == 0)
+                    if(log_record->filtered == 0)
                     {
                         delta++;
                         
@@ -1866,7 +1866,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                 }
                 else
                 {
-                    if(!(plainlogrule_ptr = d_node->data))
+                    if(!(plainlog_record = d_node->data))
                     {
                         vrmr_error(-1, VR_INTERR,
                                 "NULL pointer (in: %s:%d).",
@@ -1874,7 +1874,7 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
                         return(-1);
                     }
         
-                    if(plainlogrule_ptr->filtered == 0)
+                    if(plainlog_record->filtered == 0)
                     {
                         delta++;
 
@@ -1935,32 +1935,32 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
 
                     if(traffic_log)
                     {
-                        if(!(logrule_ptr = d_node->data))
+                        if(!(log_record = d_node->data))
                         {
                             vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
                             return(-1);
                         }
 
-                        if(!use_filter || (use_filter && !logrule_ptr->filtered))
+                        if(!use_filter || (use_filter && !log_record->filtered))
                         {
                             drawn_lines++;
                     
-                            print_logrule(log_win, logrule_ptr, max_logrule_length, cur_logrule_length, hide_date, hide_action, hide_service, hide_from, hide_to, hide_prefix, hide_details);
+                            print_logrule(log_win, log_record, max_logrule_length, cur_logrule_length, hide_date, hide_action, hide_service, hide_from, hide_to, hide_prefix, hide_details);
                         }
                     }
                     else
                     {
-                        if(!(plainlogrule_ptr = d_node->data))
+                        if(!(plainlog_record = d_node->data))
                         {
                             vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
                             return(-1);
                         }
 
-                        if(!use_filter || (use_filter && !plainlogrule_ptr->filtered))
+                        if(!use_filter || (use_filter && !plainlog_record->filtered))
                         {
                             drawn_lines++;
 
-                            print_plainlogrule(log_win, plainlogrule_ptr->line, max_logrule_length, cur_logrule_length);
+                            print_plainlogrule(log_win, plainlog_record->line, max_logrule_length, cur_logrule_length);
                         }
                     }
                 }

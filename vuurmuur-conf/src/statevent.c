@@ -316,7 +316,7 @@ static char
 statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *list)
 {
     struct vrmr_list_node     *d_node = NULL;
-    LogRule         *logrule_ptr = NULL;
+    LogRule         *log_record = NULL;
     StatEventLog    *log = NULL;
 
     char *s = NULL;
@@ -328,27 +328,27 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
 
     for(d_node = list->top; d_node; d_node = d_node->next)
     {
-        logrule_ptr = d_node->data;
+        log_record = d_node->data;
 
         log = statevent_init_log(debuglvl);
         if(log == NULL)
             return(FALSE);
 
-        strlcpy(log->ser, logrule_ptr->service, sizeof(log->ser));
-        strlcpy(log->src, logrule_ptr->from, sizeof(log->src));
-        strlcpy(log->dst, logrule_ptr->to, sizeof(log->dst));
+        strlcpy(log->ser, log_record->service, sizeof(log->ser));
+        strlcpy(log->src, log_record->from, sizeof(log->src));
+        strlcpy(log->dst, log_record->to, sizeof(log->dst));
 
-        strlcpy(log->details, logrule_ptr->details, sizeof(log->details));
-        strlcpy(log->action, logrule_ptr->action, sizeof(log->action));
-        strlcpy(log->prefix, logrule_ptr->prefix, sizeof(log->prefix));
+        strlcpy(log->details, log_record->details, sizeof(log->details));
+        strlcpy(log->action, log_record->action, sizeof(log->action));
+        strlcpy(log->prefix, log_record->prefix, sizeof(log->prefix));
 
         snprintf(log->timedate_str, sizeof(log->timedate_str), "%s %s %s",
-            logrule_ptr->month, logrule_ptr->date, logrule_ptr->time);
+            log_record->month, log_record->date, log_record->time);
 
-        log->filtered = logrule_ptr->filtered;
+        log->filtered = log_record->filtered;
 
         /* parse the details :-S */
-        //vrprint.error(-1, "Details", "%s", logrule_ptr->details);
+        //vrprint.error(-1, "Details", "%s", log_record->details);
 
         /*  TCP, UDP, ICMP, GRE examples
 
@@ -357,7 +357,7 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
             (in: eth0 out: ppp0 192.168.1.2 -> 194.109.21.51 ICMP type 8 code 0 len:84 ttl:63)
             (in: ppp0 out: eth0 194.109.5.241 -> 192.168.1.64 (41) len:76 ttl:26)
         */
-        s = logrule_ptr->details;
+        s = log_record->details;
 
         /* split the tokens */
         for(x = 0, y = 0, z = 0; x < strlen(s); x++)

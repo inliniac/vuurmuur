@@ -63,7 +63,7 @@
 #define VR_INFO         "Info"
 #define VR_WARN         "Warning"
 
-struct log_rule
+struct vrmr_log_record
 {
     char            month[4];
     int             day;
@@ -124,7 +124,7 @@ struct log_rule
 int reopen_logfiles(const int, FILE **, FILE **);
 int open_logfiles(const int, const struct vrmr_config *cnf, FILE **, FILE **);
 
-int process_logrecord(struct log_rule *logrule_ptr);
+int process_logrecord(struct vrmr_log_record *log_record);
 
 /* semaphore id */
 int         sem_id;
