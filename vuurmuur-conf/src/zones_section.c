@@ -428,7 +428,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                     STR_IS_NOW_SET_TO, zone_ptr->active ? STR_YES : STR_NO,
                     STR_WAS, active ? STR_YES : STR_NO);
 
-                zone_ptr->status = ST_CHANGED;
+                zone_ptr->status = VRMR_ST_CHANGED;
             }
 
             /* ipaddress field */
@@ -471,7 +471,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                         STR_IS_NOW_SET_TO, zone_ptr->ipv4.ipaddress,
                         STR_WAS, ipaddress);
 
-                    zone_ptr->status = ST_CHANGED;
+                    zone_ptr->status = VRMR_ST_CHANGED;
                 }
                 else
                 {
@@ -532,7 +532,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                         STR_IS_NOW_SET_TO, zone_ptr->ipv6.ip6,
                         STR_WAS, ip6address);
 
-                    zone_ptr->status = ST_CHANGED;
+                    zone_ptr->status = VRMR_ST_CHANGED;
 //                }
 #if 0
                 else
@@ -598,7 +598,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                     STR_HOST, zone_ptr->name, STR_HAS_BEEN_CHANGED, STR_MACADDRESS,
                     STR_IS_NOW_SET_TO, zone_ptr->mac, STR_WAS, mac);
 
-                zone_ptr->status = ST_CHANGED;
+                zone_ptr->status = VRMR_ST_CHANGED;
             }
 
             /* comment field */
@@ -2365,7 +2365,7 @@ edit_zone_group_save(const int debuglvl, struct vrmr_zone *group_ptr)
             /* active field */
             if(ZonesSection.EditZone.fields[i] == GroupSec.activefld)
             {
-                group_ptr->status = ST_CHANGED;
+                group_ptr->status = VRMR_ST_CHANGED;
 
                 active = group_ptr->active; 
 
@@ -4794,7 +4794,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
             if(ZonesSection.EditZone.fields[i] == NetworkSec.activefld)
             {
                 /* active */
-                zone_ptr->status = ST_CHANGED;
+                zone_ptr->status = VRMR_ST_CHANGED;
 
                 active = zone_ptr->active;
 
@@ -4822,7 +4822,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
             else if(ZonesSection.EditZone.fields[i] == NetworkSec.networkfld)
             {
                 /* network */
-                zone_ptr->status = ST_CHANGED;
+                zone_ptr->status = VRMR_ST_CHANGED;
 
                 (void)strlcpy(network, zone_ptr->ipv4.network, sizeof(network));
 
@@ -4846,7 +4846,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
             else if(ZonesSection.EditZone.fields[i] == NetworkSec.netmaskfld)
             {
                 /* netmask */
-                zone_ptr->status = ST_CHANGED;
+                zone_ptr->status = VRMR_ST_CHANGED;
 
                 (void)strlcpy(network, zone_ptr->ipv4.network, sizeof(network));
 
@@ -4873,7 +4873,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
                 char network6[VRMR_MAX_IPV6_ADDR_LEN] = "";
 
                 /* network */
-                zone_ptr->status = ST_CHANGED;
+                zone_ptr->status = VRMR_ST_CHANGED;
 
                 (void)strlcpy(network6, zone_ptr->ipv6.net6, sizeof(network6));
 
@@ -4899,7 +4899,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
             {
 #ifdef IPV6_ENABLED
                 /* netmask */
-                zone_ptr->status = ST_CHANGED;
+                zone_ptr->status = VRMR_ST_CHANGED;
 
                 int cidr = zone_ptr->ipv6.cidr6;
                 char cidrstr[3] = "";
@@ -6026,7 +6026,7 @@ edit_zone_zone_save(const int debuglvl, struct vrmr_zone *zone_ptr)
             /* active */
             if(ZonesSection.EditZone.fields[i] == ZoneSec.activefld)
             {
-                zone_ptr->status = ST_CHANGED;
+                zone_ptr->status = VRMR_ST_CHANGED;
 
                 active = zone_ptr->active;
 

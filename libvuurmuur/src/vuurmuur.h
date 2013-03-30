@@ -1155,15 +1155,15 @@ struct vrmr_ctx {
     struct vrmr_iptcaps *iptcaps;
 };
 
-enum objectstatus
+enum vrmr_objectstatus
 {
-    ST_REMOVED = -1,
-    ST_UNTOUCHED,
-    ST_KEEP,
-    ST_CHANGED,
-    ST_ADDED,
-    ST_ACTIVATED,
-    ST_DEACTIVATED
+    VRMR_ST_REMOVED = -1,
+    VRMR_ST_UNTOUCHED,
+    VRMR_ST_KEEP,
+    VRMR_ST_CHANGED,
+    VRMR_ST_ADDED,
+    VRMR_ST_ACTIVATED,
+    VRMR_ST_DEACTIVATED
 };
 
 

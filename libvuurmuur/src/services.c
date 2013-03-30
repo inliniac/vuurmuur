@@ -163,7 +163,7 @@ vrmr_insert_service(const int debuglvl, struct vrmr_services *services, char *na
         return(-1);
 
     /* set the status */
-    ser_ptr->status = ST_KEEP;
+    ser_ptr->status = VRMR_ST_KEEP;
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "** end **, retval=%d", retval);

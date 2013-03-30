@@ -3405,7 +3405,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
     memset(&RuleFlds, 0, sizeof(struct RuleFlds_));
 
     /* set to keep first */
-    rule_ptr->status = ST_CHANGED;
+    rule_ptr->status = VRMR_ST_CHANGED;
 
     /* get the dimentions of the screen */
     getmaxyx(stdscr, max_height, max_width);
@@ -5027,7 +5027,7 @@ edit_rule_separator(const int debuglvl,
     memset(&SepRuleFlds, 0, sizeof(struct SepRuleFlds_));
 
     /* set to keep first */
-    rule_ptr->status = ST_CHANGED;
+    rule_ptr->status = VRMR_ST_CHANGED;
 
     /* get the dimentions of the screen */
     getmaxyx(stdscr, max_height, max_width);

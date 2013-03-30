@@ -1025,7 +1025,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
             /* active */
             if(InterfacesSection.EditInterface.fields[i] == IfSec.activefld)
             {
-                status = ST_CHANGED;
+                status = VRMR_ST_CHANGED;
 
                 if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), STR_YES, StrLen(STR_YES)) == 0)
                 {
@@ -1058,7 +1058,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
             else if(InterfacesSection.EditInterface.fields[i] == IfSec.ipaddressfld)
             {
                 // ipaddress
-                status = ST_CHANGED;
+                status = VRMR_ST_CHANGED;
 
                 if(!(copy_field2buf(tempiface_ptr->ipv4.ipaddress,
                                     field_buffer(InterfacesSection.EditInterface.fields[i], 0),
@@ -1084,7 +1084,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
             {
 #ifdef IPV6_ENABLED
                 // ipaddress
-                status = ST_CHANGED;
+                status = VRMR_ST_CHANGED;
 
                 if(!(copy_field2buf(tempiface_ptr->ipv6.ip6,
                                     field_buffer(InterfacesSection.EditInterface.fields[i], 0),
@@ -1110,7 +1110,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
             else if(InterfacesSection.EditInterface.fields[i] == IfSec.dynamicfld)
             {
                 // active
-                status = ST_CHANGED;
+                status = VRMR_ST_CHANGED;
 
                 if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), "X", 1) == 0)
                 {
@@ -1151,7 +1151,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
             }
             else if(InterfacesSection.EditInterface.fields[i] == IfSec.devicefld)
             {
-                status = ST_CHANGED;
+                status = VRMR_ST_CHANGED;
 
                 if(!(copy_field2buf(tempiface_ptr->device,
                                     field_buffer(InterfacesSection.EditInterface.fields[i], 0),
@@ -1214,7 +1214,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
             }
             else if(InterfacesSection.EditInterface.fields[i] == IfSec.devicevirtualfld)
             {
-                status = ST_CHANGED;
+                status = VRMR_ST_CHANGED;
 
                 if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), "X", 1) == 0)
                 {
@@ -1249,7 +1249,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
                     InterfacesSection.EditInterface.fields[i] == IfSec.rpfilterfld      ||
                     InterfacesSection.EditInterface.fields[i] == IfSec.logmartiansfld)
             {
-                status = ST_CHANGED;
+                status = VRMR_ST_CHANGED;
 
                 if(edit_interface_save_rules(debuglvl, tempiface_ptr) < 0)
                 {
@@ -1264,7 +1264,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
         }
     }
 
-    if(status == ST_CHANGED)
+    if(status == VRMR_ST_CHANGED)
     {
         *iface_ptr = *tempiface_ptr;
     }

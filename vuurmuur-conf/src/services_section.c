@@ -220,7 +220,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
             }
         }
 
-        ser_ptr->status = ST_CHANGED;
+        ser_ptr->status = VRMR_ST_CHANGED;
 
         /* save the portranges */
         if(vrmr_services_save_portranges(debuglvl, ser_ptr) < 0)
@@ -1955,7 +1955,7 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
             {
                 active = ser_ptr->active;
 
-                ser_ptr->status = ST_CHANGED;
+                ser_ptr->status = VRMR_ST_CHANGED;
                 if(strncasecmp(field_buffer(ServicesSection.EditService.fields[i], 0), STR_YES, StrLen(STR_YES)) == 0)
                 {
                     ser_ptr->active = 1;
@@ -1983,7 +1983,7 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
             {
                 broadcast = ser_ptr->broadcast;
 
-                ser_ptr->status = ST_CHANGED;
+                ser_ptr->status = VRMR_ST_CHANGED;
 
                 if(strncasecmp(field_buffer(ServicesSection.EditService.fields[i], 0), STR_YES, StrLen(STR_YES)) == 0)
                 {

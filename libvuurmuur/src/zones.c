@@ -394,7 +394,7 @@ vrmr_insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_i
         return(-1);
     }
 
-    zone_ptr->status = ST_ADDED;
+    zone_ptr->status = VRMR_ST_ADDED;
 
     return(0);
 }

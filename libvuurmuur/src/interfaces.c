@@ -773,7 +773,7 @@ vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
 
 
     /* update status */
-    iface_ptr->status = ST_ADDED;
+    iface_ptr->status = VRMR_ST_ADDED;
 
 
     /* update the interfaces */

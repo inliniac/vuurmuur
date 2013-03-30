@@ -278,7 +278,7 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
             return(-1);
         }
 
-        ser_ptr->status = ST_UNTOUCHED;
+        ser_ptr->status = VRMR_ST_UNTOUCHED;
     }
 
 
@@ -342,9 +342,9 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
         }
 
         /* if status is UNTOUCHED, mark REMOVED */
-        if(ser_ptr->status == ST_UNTOUCHED)
+        if(ser_ptr->status == VRMR_ST_UNTOUCHED)
         {
-            ser_ptr->status = ST_REMOVED;
+            ser_ptr->status = VRMR_ST_REMOVED;
 
             (void)vrprint.info("Info", "Service '%s' is removed.", ser_ptr->name);
         }
@@ -409,7 +409,7 @@ reload_vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
     {
         /* error! memory is freed at the end of this function */
         (void)vrprint.error(-1, "Error", "getting info for service '%s' failed (in: reload_vrmr_services_check).", ser_ptr->name);
-        status = ST_REMOVED;
+        status = VRMR_ST_REMOVED;
     }
     else
     {
@@ -420,7 +420,7 @@ reload_vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
         check_result = vrmr_services_check(debuglvl, new_ser_ptr);
 
         /* we asume that the service did not change, if so we change it below */
-        status = ST_KEEP;
+        status = VRMR_ST_KEEP;
 
         /* active  If check_result is not 1 we are going to set the active to false, so we dont
            care about this check. */
@@ -449,7 +449,7 @@ reload_vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
                         if(!temp_node)
                             (void)vrprint.info("Info", "Service '%s': the service no longer has portranges.", ser_ptr->name);
 
-                        status = ST_CHANGED;
+                        status = VRMR_ST_CHANGED;
                     }
                     else
                     {
@@ -474,7 +474,7 @@ reload_vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
                             else
                             {
                                 (void)vrprint.info("Info", "Service '%s': one of the portranges has been changed.", ser_ptr->name);
-                                status = ST_CHANGED;
+                                status = VRMR_ST_CHANGED;
 
                                 break;
                             }
@@ -484,31 +484,31 @@ reload_vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
                 else
                 {
                     (void)vrprint.info("Info", "Service '%s': the number of portranges has been changed.", ser_ptr->name);
-                    status = ST_CHANGED;
+                    status = VRMR_ST_CHANGED;
                 }
             }
             else
             {
                 (void)vrprint.info("Info", "Service '%s': helper has been set to: '%s'.", ser_ptr->name, new_ser_ptr->helper);
-                status = ST_CHANGED;
+                status = VRMR_ST_CHANGED;
             }
         }
         else
         {
             if(new_ser_ptr->active == 1)
             {
-                status = ST_ACTIVATED;
+                status = VRMR_ST_ACTIVATED;
                 (void)vrprint.info("Info", "Service '%s' has been activated.", ser_ptr->name);
             }
             else
             {
-                status = ST_DEACTIVATED;
+                status = VRMR_ST_DEACTIVATED;
                 (void)vrprint.info("Info", "Service '%s' has been deactivated.", ser_ptr->name);
             }
         }
     
         /* now check the result of vrmr_interfaces_check() */
-        if( (status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED) &&
+        if( (status == VRMR_ST_CHANGED || status == VRMR_ST_ACTIVATED || status == VRMR_ST_DEACTIVATED) &&
             check_result != 1)
         {
             (void)vrprint.info("Info", "Service '%s' has been deactivated because of errors while checking it.",
@@ -520,7 +520,7 @@ reload_vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
 
 
     /* */
-    if(status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED)
+    if(status == VRMR_ST_CHANGED || status == VRMR_ST_ACTIVATED || status == VRMR_ST_DEACTIVATED)
     {
         (void)vrprint.info("Info", "Service '%s' has been changed.", ser_ptr->name);
 
@@ -536,7 +536,7 @@ reload_vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
         /* set retval to changes */
         retval = 1;
     }
-    else if(status == ST_REMOVED || status == ST_KEEP)
+    else if(status == VRMR_ST_REMOVED || status == VRMR_ST_KEEP)
     {
         /* destroy the portrangelist of the temp service */
         vrmr_list_cleanup(debuglvl, &new_ser_ptr->PortrangeList);
@@ -590,7 +590,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
             return(-1);
         }
 
-        zone_ptr->status = ST_UNTOUCHED;
+        zone_ptr->status = VRMR_ST_UNTOUCHED;
     }
 
     /* loop trough backend and check */
@@ -676,7 +676,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
             return(-1);
         }
 
-        if(zone_ptr->status == ST_UNTOUCHED)
+        if(zone_ptr->status == VRMR_ST_UNTOUCHED)
         {
             /* print that we have a zone to remove */
             if(zone_ptr->type == VRMR_TYPE_ZONE)
@@ -688,7 +688,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
             else if(zone_ptr->type == VRMR_TYPE_GROUP)
                 (void)vrprint.info("Info", "Group '%s' was removed.", zone_ptr->name);
             
-            zone_ptr->status = ST_REMOVED;
+            zone_ptr->status = VRMR_ST_REMOVED;
             retval = 1;
         }
     }
@@ -761,7 +761,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
             {
                 /* error! memory is freed at the end of this function */
                 (void)vrprint.error(-1, "Error", "getting info for zone '%s' failed (in: reload_zonedata_check).", zone_ptr->name);
-                status = ST_REMOVED;
+                status = VRMR_ST_REMOVED;
             }
 
             /* now go check for differences */
@@ -770,18 +770,18 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                 /* active */
                 if(zone_ptr->active == vrmr_new_zone_ptr->active)
                 {
-                    status = ST_KEEP;
+                    status = VRMR_ST_KEEP;
                 }
                 else
                 {
                     if(vrmr_new_zone_ptr->active == 1)
                     {
-                        status = ST_ACTIVATED;
+                        status = VRMR_ST_ACTIVATED;
                         (void)vrprint.info("Info", "Zone '%s' has been activated.", zone_ptr->name);
                     }
                     else
                     {
-                        status = ST_DEACTIVATED;
+                        status = VRMR_ST_DEACTIVATED;
                         (void)vrprint.info("Info", "Zone '%s' has been deactivated.", zone_ptr->name);
                     }
                 }
@@ -795,7 +795,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
             {
                 /* error! memory is freed at the end of this function */
                 (void)vrprint.error(-1, "Error", "getting info for network '%s' failed (in: reload_zonedata_check).", zone_ptr->name);
-                status = ST_REMOVED;
+                status = VRMR_ST_REMOVED;
             }
             else
             {
@@ -803,7 +803,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                 check_result = vrmr_zones_check_network(debuglvl, vrmr_new_zone_ptr);
 
                 /* we start at keep */
-                status = ST_KEEP;
+                status = VRMR_ST_KEEP;
 
                 /* active If check_result is not 1 we are going to set the active to false, so we dont
                     care about this check. */
@@ -819,7 +819,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                             if(zone_ptr->InterfaceList.len != vrmr_new_zone_ptr->InterfaceList.len)
                             {
                                 (void)vrprint.info("Info", "Network '%s': the number of interfaces has been changed.", zone_ptr->name);
-                                status = ST_CHANGED;
+                                status = VRMR_ST_CHANGED;
                             }
 
                             /* now loop through the member to see if they have changes */
@@ -838,7 +838,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                                     (void)vrprint.info("Info", "Network '%s': network now has (an) interface(s).", zone_ptr->name);
                                 if(!d_node_new)
                                     (void)vrprint.info("Info", "Network '%s': network now has (an) interface(s).", zone_ptr->name);
-                                status = ST_CHANGED;
+                                status = VRMR_ST_CHANGED;
                             }
                             else
                             {
@@ -858,13 +858,13 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                                     if(strcmp(iface_ptr_orig->name, iface_ptr_new->name) != 0)
                                     {
                                         (void)vrprint.info("Info", "Network '%s': interfaces not in the same order.", zone_ptr->name);
-                                        status = ST_CHANGED;
+                                        status = VRMR_ST_CHANGED;
                                     }
 
-                                    if(iface_ptr_new->status != ST_KEEP)
+                                    if(iface_ptr_new->status != VRMR_ST_KEEP)
                                     {
                                         (void)vrprint.info("Info", "Network '%s': interface '%s' has been changed.", zone_ptr->name, iface_ptr_new->name);
-                                        status = ST_CHANGED;
+                                        status = VRMR_ST_CHANGED;
                                     }
                                 }
                             }
@@ -874,7 +874,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                             if(zone_ptr->ProtectList.len != vrmr_new_zone_ptr->ProtectList.len)
                             {
                                 (void)vrprint.info("Info", "Network '%s': the number of protectrules has been changed.", zone_ptr->name);
-                                status = ST_CHANGED;
+                                status = VRMR_ST_CHANGED;
                             }
 
                             /* now loop through the member to see if they have changes */
@@ -893,7 +893,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                                     (void)vrprint.info("Info", "Network '%s': network now has (an) protectrule(s).", zone_ptr->name);
                                 if(!protect_d_node_new)
                                     (void)vrprint.info("Info", "Network '%s': network now has (an) protectrule(s).", zone_ptr->name);
-                                status = ST_CHANGED;
+                                status = VRMR_ST_CHANGED;
                             }
                             else
                             {
@@ -914,7 +914,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                                         strcmp(org_rule_ptr->source, new_rule_ptr->source) != 0)
                                     {
                                         (void)vrprint.info("Info", "Network '%s': protectrules not in the same order.", zone_ptr->name);
-                                        status = ST_CHANGED;
+                                        status = VRMR_ST_CHANGED;
                                     }
                                 }
                             }
@@ -923,23 +923,23 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                         else
                         {
                             (void)vrprint.info("Info", "Network '%s': netmask changed to: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->ipv4.netmask);
-                            status = ST_CHANGED;
+                            status = VRMR_ST_CHANGED;
                         }
                     }
                     else
                     {
                         (void)vrprint.info("Info", "Network '%s': network address changed to: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->ipv4.network);
-                        status = ST_CHANGED;
+                        status = VRMR_ST_CHANGED;
                     }
 #ifdef IPV6_ENABLED
                     /* network address */
                     if (strcmp(zone_ptr->ipv6.net6, vrmr_new_zone_ptr->ipv6.net6) != 0) {
                         (void)vrprint.info("Info", "Network '%s' has a new ipv6 network address: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->ipv6.net6);
-                        status = ST_CHANGED;
+                        status = VRMR_ST_CHANGED;
                     }
                     if (zone_ptr->ipv6.cidr6 != vrmr_new_zone_ptr->ipv6.cidr6) {
                         (void)vrprint.info("Info", "Network '%s' has a new ipv6 CIDR: '%d'.", zone_ptr->name, vrmr_new_zone_ptr->ipv6.cidr6);
-                        status = ST_CHANGED;
+                        status = VRMR_ST_CHANGED;
                     }
 #endif
                 }
@@ -948,17 +948,17 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                     if(vrmr_new_zone_ptr->active == 1)
                     {
                         (void)vrprint.info("Info", "Network '%s' has been activated.", zone_ptr->name);
-                        status = ST_ACTIVATED;
+                        status = VRMR_ST_ACTIVATED;
                     }
                     else
                     {
                         (void)vrprint.info("Info", "Network '%s' has been deactivated.", zone_ptr->name);
-                        status = ST_DEACTIVATED;
+                        status = VRMR_ST_DEACTIVATED;
                     }
                 }
 
                 /* now check the result of vrmr_interfaces_check() */
-                if( (status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED) &&
+                if( (status == VRMR_ST_CHANGED || status == VRMR_ST_ACTIVATED || status == VRMR_ST_DEACTIVATED) &&
                     check_result != 1)
                 {
                     (void)vrprint.info("Info", "Network '%s' has been deactivated because of errors while checking it.",
@@ -975,7 +975,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
             {
                 /* error! memory is freed at the end of this function */
                 (void)vrprint.error(-1, "Error", "getting info for host '%s' failed (in: reload_zonedata_check).", zone_ptr->name);
-                status = ST_REMOVED;
+                status = VRMR_ST_REMOVED;
             }
             else
             {
@@ -997,17 +997,17 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                             {
                                 if(strcmp(zone_ptr->mac, vrmr_new_zone_ptr->mac) == 0)
                                 {
-                                    status = ST_KEEP;
+                                    status = VRMR_ST_KEEP;
                                 }
                                 else
                                 {
                                     (void)vrprint.info("Info", "Host '%s' has a new mac-address: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->mac);
-                                    status = ST_CHANGED;
+                                    status = VRMR_ST_CHANGED;
                                 }
                             }
                             else
                             {
-                                status = ST_KEEP;
+                                status = VRMR_ST_KEEP;
                             }
                         }
                         else
@@ -1020,20 +1020,20 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                             {
                                 (void)vrprint.info("Info", "Host '%s' no longer has a mac-address.", zone_ptr->name);
                             }
-                            status = ST_CHANGED;
+                            status = VRMR_ST_CHANGED;
                         }
                     }
                     else
                     {
                         (void)vrprint.info("Info", "Host '%s' has a new ipaddress: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->ipv4.ipaddress);
-                        status = ST_CHANGED;
+                        status = VRMR_ST_CHANGED;
                     }
 
 #ifdef IPV6_ENABLED
                     /* ipaddress */
                     if (strcmp(zone_ptr->ipv6.ip6, vrmr_new_zone_ptr->ipv6.ip6) != 0) {
                         (void)vrprint.info("Info", "Host '%s' has a new ipv6 address: '%s'.", zone_ptr->name, vrmr_new_zone_ptr->ipv6.ip6);
-                        status = ST_CHANGED;
+                        status = VRMR_ST_CHANGED;
                     }
 #endif
                 }
@@ -1042,17 +1042,17 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                     if(vrmr_new_zone_ptr->active == TRUE)
                     {
                         (void)vrprint.info("Info", "Host '%s' has been activated.", zone_ptr->name);
-                        status = ST_ACTIVATED;
+                        status = VRMR_ST_ACTIVATED;
                     }
                     else
                     {
                         (void)vrprint.info("Info", "Host '%s' has been deactivated.", zone_ptr->name);
-                        status = ST_DEACTIVATED;
+                        status = VRMR_ST_DEACTIVATED;
                     }
                 }
 
                 /* now check the result of vrmr_zones_check_host() */
-                if( (status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED) &&
+                if( (status == VRMR_ST_CHANGED || status == VRMR_ST_ACTIVATED || status == VRMR_ST_DEACTIVATED) &&
                     check_result != 1)
                 {
                     (void)vrprint.info("Info", "Host '%s' has been deactivated because of errors while checking it.",
@@ -1070,11 +1070,11 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                 /* error! memory is freed at the end of this function */
                 (void)vrprint.error(-1, "Error", "getting info for group '%s' failed (in: reload_zonedata_check).", zone_ptr->name);
 
-                status = ST_REMOVED;
+                status = VRMR_ST_REMOVED;
             }
             else
             {
-                status = ST_KEEP;
+                status = VRMR_ST_KEEP;
 
                 /* check */
                 check_result = vrmr_zones_check_group(debuglvl, vrmr_new_zone_ptr);
@@ -1086,7 +1086,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                     if(zone_ptr->group_member_count != vrmr_new_zone_ptr->group_member_count)
                     {
                         (void)vrprint.info("Info", "Group '%s': the number of members changed.", zone_ptr->name);
-                        status = ST_CHANGED;
+                        status = VRMR_ST_CHANGED;
                     }
 
                     /* now loop through the member to see if they have changes */
@@ -1101,7 +1101,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                     else if((!d_node_new && d_node_orig) || (d_node_new && !d_node_orig))
                     {
                         /* change */
-                        status = ST_CHANGED;
+                        status = VRMR_ST_CHANGED;
 
                         /* change */
                         if(!d_node_orig)
@@ -1129,13 +1129,13 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                             if(strcmp(host_ptr_orig->name, host_ptr_new->name) != 0)
                             {
                                 (void)vrprint.info("Info", "Group '%s': members not in the same order.", zone_ptr->name);
-                                status = ST_CHANGED;
+                                status = VRMR_ST_CHANGED;
                             }
 
-                            if(host_ptr_new->status != ST_KEEP)
+                            if(host_ptr_new->status != VRMR_ST_KEEP)
                             {
                                 (void)vrprint.info("Info", "Group '%s': member '%s' has been changed.", zone_ptr->name, host_ptr_new->name);
-                                status = ST_CHANGED;
+                                status = VRMR_ST_CHANGED;
                             }
                         }
                     }
@@ -1145,17 +1145,17 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                     if(vrmr_new_zone_ptr->active == 1)
                     {
                         (void)vrprint.info("Info", "Group '%s' has been activated.", zone_ptr->name);
-                        status = ST_ACTIVATED;
+                        status = VRMR_ST_ACTIVATED;
                     }
                     else
                     {
                         (void)vrprint.info("Info", "Group '%s' has been deactivated.", zone_ptr->name);
-                        status = ST_DEACTIVATED;
+                        status = VRMR_ST_DEACTIVATED;
                     }
                 }
 
                 /* now check the result of vrmr_zones_check_group() */
-                if( (status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED) &&
+                if( (status == VRMR_ST_CHANGED || status == VRMR_ST_ACTIVATED || status == VRMR_ST_DEACTIVATED) &&
                     check_result != 1)
                 {
                     (void)vrprint.info("Info", "Group '%s' has been deactivated because of errors while checking it.",
@@ -1175,7 +1175,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
 
 
     /* update the data in memory */
-    if(status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED)
+    if(status == VRMR_ST_CHANGED || status == VRMR_ST_ACTIVATED || status == VRMR_ST_DEACTIVATED)
     {
         /* update the data */
 
@@ -1197,7 +1197,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
         /* tell the caller we have changes */
         retval = 1;
     }
-    else if(status == ST_KEEP || status == ST_REMOVED)
+    else if(status == VRMR_ST_KEEP || status == VRMR_ST_REMOVED)
     {
         /* first destroy the new lists, the struct will be free'd later */
         if(vrmr_new_zone_ptr->type == VRMR_TYPE_GROUP)
@@ -1262,7 +1262,7 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
             return(-1);
         }
 
-        iface_ptr->status = ST_UNTOUCHED;
+        iface_ptr->status = VRMR_ST_UNTOUCHED;
     }
 
 
@@ -1337,10 +1337,10 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
             return(-1);
         }
 
-        if(iface_ptr->status == ST_UNTOUCHED)
+        if(iface_ptr->status == VRMR_ST_UNTOUCHED)
         {
             (void)vrprint.info("Info", "Interface '%s' is removed.", iface_ptr->name);
-            iface_ptr->status = ST_REMOVED;
+            iface_ptr->status = VRMR_ST_REMOVED;
 
             retval = 1;
         }
@@ -1404,14 +1404,14 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_pt
 
 
     /* first we asume that the interface did not change, if so we change it below */
-    status = ST_KEEP;
+    status = VRMR_ST_KEEP;
 
 
     /* get the info from the backend */
     if(vrmr_read_interface_info(debuglvl, new_iface_ptr) != 0)
     {
         (void)vrprint.error(-1, "Error", "getting interface information for '%s' failed (in: %s).", iface_ptr->name, __FUNC__);
-        status = ST_REMOVED;
+        status = VRMR_ST_REMOVED;
     }
     else
     {
@@ -1443,7 +1443,7 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_pt
                                 if(iface_ptr->ProtectList.len != new_iface_ptr->ProtectList.len)
                                 {
                                     (void)vrprint.info("Info", "Interface '%s': the number of protectrules has been changed.", iface_ptr->name);
-                                    status = ST_CHANGED;
+                                    status = VRMR_ST_CHANGED;
                                 }
 
                                 /* now loop through the member to see if they have changes */
@@ -1462,7 +1462,7 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_pt
                                         (void)vrprint.info("Info", "Interface '%s': interface now has (an) protectrule(s).", iface_ptr->name);
                                     if(!protect_d_node_new)
                                         (void)vrprint.info("Info", "Interface '%s': interface no longer has (an) protectrule(s).", iface_ptr->name);
-                                    status = ST_CHANGED;
+                                    status = VRMR_ST_CHANGED;
                                 }
                                 else
                                 {
@@ -1483,7 +1483,7 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_pt
                                             strcmp(org_rule_ptr->source, new_rule_ptr->source) != 0)
                                         {
                                             (void)vrprint.info("Info", "Interface '%s': protectrules not in the same order.", iface_ptr->name);
-                                            status = ST_CHANGED;
+                                            status = VRMR_ST_CHANGED;
                                             break;
                                         }
                                     }
@@ -1493,19 +1493,19 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_pt
                             else
                             {
                                 (void)vrprint.info("Info", "Interface '%s' is now: %s.", iface_ptr->name, new_iface_ptr->up ? "up" : "down");
-                                status = ST_CHANGED;
+                                status = VRMR_ST_CHANGED;
                             }
                         }
                         else
                         {
                             (void)vrprint.info("Info", "Interface '%s' has a new ipaddress: '%s'.", iface_ptr->name, new_iface_ptr->ipv4.ipaddress);
-                            status = ST_CHANGED;
+                            status = VRMR_ST_CHANGED;
                         }
 
 #ifdef IPV6_ENABLED
                         if (strcmp(iface_ptr->ipv6.ip6, new_iface_ptr->ipv6.ip6) != 0) {
                             (void)vrprint.info("Info", "Interface '%s' has a new ipv6 ipaddress: '%s'.", iface_ptr->name, new_iface_ptr->ipv6.ip6);
-                            status = ST_CHANGED;
+                            status = VRMR_ST_CHANGED;
                         }
 #endif
                     }
@@ -1516,7 +1516,7 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_pt
                         else
                             (void)vrprint.info("Info", "Interface '%s' no longer has a dynamic ipaddress.", iface_ptr->name);
 
-                        status = ST_CHANGED;
+                        status = VRMR_ST_CHANGED;
                     }
                 }
                 else
@@ -1526,13 +1526,13 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_pt
                     else
                         (void)vrprint.info("Info", "Interface '%s' is no longer 'virtual'.", iface_ptr->name);
 
-                    status = ST_CHANGED;
+                    status = VRMR_ST_CHANGED;
                 }
             }
             else
             {
                 (void)vrprint.info("Info", "Interface '%s' has a new system device: '%s'.", iface_ptr->name, new_iface_ptr->device);
-                status = ST_CHANGED;
+                status = VRMR_ST_CHANGED;
             }
         }
         else
@@ -1540,17 +1540,17 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_pt
             if(new_iface_ptr->active == TRUE)
             {
                 (void)vrprint.info("Info", "Interface '%s' has been activated.", iface_ptr->name);
-                status = ST_ACTIVATED;
+                status = VRMR_ST_ACTIVATED;
             }
             else
             {
                 (void)vrprint.info("Info", "Interface '%s' has been deactivated.", iface_ptr->name);
-                status = ST_DEACTIVATED;
+                status = VRMR_ST_DEACTIVATED;
             }
         }
 
         /* now check the result of vrmr_interfaces_check() */
-        if( (status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED) &&
+        if( (status == VRMR_ST_CHANGED || status == VRMR_ST_ACTIVATED || status == VRMR_ST_DEACTIVATED) &&
             check_result != 1)
         {
             (void)vrprint.info("Info", "Interface '%s' has been deactivated because of errors while checking it.",
@@ -1559,7 +1559,7 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_pt
         }
     }
 
-    if(status == ST_CHANGED || status == ST_ACTIVATED || status == ST_DEACTIVATED)
+    if(status == VRMR_ST_CHANGED || status == VRMR_ST_ACTIVATED || status == VRMR_ST_DEACTIVATED)
     {
         vrmr_list_cleanup(debuglvl, &iface_ptr->ProtectList);
 
@@ -1569,7 +1569,7 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_pt
         /* inform the caller that there were changes */
         retval = 1;
     }
-    else if(status == ST_KEEP || status == ST_REMOVED)
+    else if(status == VRMR_ST_KEEP || status == VRMR_ST_REMOVED)
     {
         vrmr_list_cleanup(debuglvl, &new_iface_ptr->ProtectList);
     }
@@ -1911,19 +1911,19 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
             /* from zone */
             if((vrmr_new_zone_ptr = rulecache->from))
             {
-                if(vrmr_new_zone_ptr->status != ST_KEEP)
+                if(vrmr_new_zone_ptr->status != VRMR_ST_KEEP)
                     status = 1;
             }
             /* to zone */
             if((vrmr_new_zone_ptr = rulecache->to))
             {
-                if(vrmr_new_zone_ptr->status != ST_KEEP)
+                if(vrmr_new_zone_ptr->status != VRMR_ST_KEEP)
                     status = 1;
             }
             /* service */
             if((new_serv_ptr = rulecache->service))
             {
-                if(new_serv_ptr->status != ST_KEEP)
+                if(new_serv_ptr->status != VRMR_ST_KEEP)
                     status = 1;
             }
 
@@ -1989,7 +1989,7 @@ check_for_changed_networks(const int debuglvl, struct vrmr_zones *zones)
 
         if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
-            if(zone_ptr->status != ST_KEEP)
+            if(zone_ptr->status != VRMR_ST_KEEP)
                 status = 1;
         }
 
