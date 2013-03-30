@@ -1766,7 +1766,7 @@ vrmr_zones_network_analyze_rule( const int debuglvl,
         /* get who */
         if(strcmp(rule_ptr->who, "") != 0)
         {
-            if(rule_ptr->type == PROT_IPTABLES)
+            if(rule_ptr->type == VRMR_PROT_IPTABLES)
             {
                 create->who_int = NULL;
 
@@ -1809,11 +1809,11 @@ vrmr_zones_network_analyze_rule( const int debuglvl,
         }
     }
     /* network accept rule */
-    else if(rule_ptr->type == PROT_IPTABLES &&
+    else if(rule_ptr->type == VRMR_PROT_IPTABLES &&
         (rule_ptr->action == VRMR_AT_ACCEPT ||
         rule_ptr->action == VRMR_AT_QUEUE))
     {
-        create->danger.solution = PROT_IPTABLES;
+        create->danger.solution = VRMR_PROT_IPTABLES;
 
         /* description */
         if(cnf->bash_out && create->description != NULL)
@@ -1956,7 +1956,7 @@ vrmr_zones_network_rule_parse_line(const int debuglvl, const char *line, struct 
             (void)vrprint.debug(__FUNC__, "protect: source: '%s'", rule_ptr->source);
 
         /* set the ruletype */
-        rule_ptr->type = PROT_IPTABLES;
+        rule_ptr->type = VRMR_PROT_IPTABLES;
     }
     /* accept target */
     else if(rule_ptr->action == VRMR_AT_ACCEPT)
@@ -1975,7 +1975,7 @@ vrmr_zones_network_rule_parse_line(const int debuglvl, const char *line, struct 
 
 //TODO options
 
-        rule_ptr->type = PROT_IPTABLES;
+        rule_ptr->type = VRMR_PROT_IPTABLES;
     }
 
     return(0);

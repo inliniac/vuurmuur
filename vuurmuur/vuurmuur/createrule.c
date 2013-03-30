@@ -4716,7 +4716,7 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vr
             /*
                 prot rule, proc only for interface
             */
-            if (create->danger.solution == PROT_PROC_INT)
+            if (create->danger.solution == VRMR_PROT_PROC_INT)
             {
                 if(debuglvl >= HIGH)
                     (void)vrprint.debug(__FUNC__, "protect proc (int)... ");
@@ -5223,7 +5223,7 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, str
                 }
 
                 /* iptables protect */
-                if(create->danger.solution == PROT_IPTABLES)
+                if(create->danger.solution == VRMR_PROT_IPTABLES)
                 {
                     if(debuglvl >= HIGH)
                         (void)vrprint.debug(__FUNC__, "protect iptables.");

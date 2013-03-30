@@ -965,67 +965,67 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
 
         if(strcasecmp(source, "loopback") == 0)
         {
-            danger_struct->solution = PROT_IPTABLES;
+            danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "127.0.0.0");
             strcpy(danger_struct->source_ip.netmask, "255.0.0.0");
         }
         else if(strcasecmp(source, "class-a") == 0)
         {
-            danger_struct->solution = PROT_IPTABLES;
+            danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "10.0.0.0");
             strcpy(danger_struct->source_ip.netmask, "255.0.0.0");
         }
         else if(strcasecmp(source, "class-b") == 0)
         {
-            danger_struct->solution = PROT_IPTABLES;
+            danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "172.16.0.0");
             strcpy(danger_struct->source_ip.netmask, "255.240.0.0");
         }
         else if(strcasecmp(source, "class-c") == 0)
         {
-            danger_struct->solution = PROT_IPTABLES;
+            danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "192.168.0.0");
             strcpy(danger_struct->source_ip.netmask, "255.255.0.0");
         }
         else if(strcasecmp(source, "class-d") == 0)
         {
-            danger_struct->solution = PROT_IPTABLES;
+            danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "224.0.0.0");
             strcpy(danger_struct->source_ip.netmask, "240.0.0.0");
         }
         else if(strcasecmp(source, "class-e") == 0)
         {
-            danger_struct->solution = PROT_IPTABLES;
+            danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "240.0.0.0");
             strcpy(danger_struct->source_ip.netmask, "248.0.0.0");
         }
         else if(strcasecmp(source, "test-net") == 0)
         {
-            danger_struct->solution = PROT_IPTABLES;
+            danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "192.0.2.0");
             strcpy(danger_struct->source_ip.netmask, "255.255.255.0");
         }
         else if(strcasecmp(source, "lnk-loc-net") == 0)
         {
-            danger_struct->solution = PROT_IPTABLES;
+            danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "169.254.0.0");
             strcpy(danger_struct->source_ip.netmask, "255.255.0.0");
         }
         else if(strcasecmp(source, "iana-0/8") == 0)
         {
-            danger_struct->solution = PROT_IPTABLES;
+            danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "0.0.0.0");
             strcpy(danger_struct->source_ip.netmask, "255.0.0.0");
         }
         else if(strcasecmp(source, "brdcst-src") == 0)
         {
-            danger_struct->solution = PROT_IPTABLES;
+            danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "0.0.0.0");
             strcpy(danger_struct->source_ip.netmask, "255.255.255.255");
         }
         else if(strcasecmp(source, "brdcst-dst") == 0)
         {
-            danger_struct->solution = PROT_IPTABLES;
+            danger_struct->solution = VRMR_PROT_IPTABLES;
             strcpy(danger_struct->source_ip.ipaddress, "255.255.255.255");
             strcpy(danger_struct->source_ip.netmask, "255.255.255.255");
         }
@@ -1042,7 +1042,7 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
     /* system dangers */
     else if(strcasecmp(danger, "syn-flood") == 0)
     {
-        danger_struct->solution = PROT_PROC_SYS;
+        danger_struct->solution = VRMR_PROT_PROC_SYS;
         (void)strlcpy(danger_struct->proc_entry,
             "/proc/sys/net/ipv4/tcp_syncookies",
             sizeof(danger_struct->proc_entry));
@@ -1051,7 +1051,7 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
     }
     else if(strcasecmp(danger, "echo-broadcast") == 0)
     {
-        danger_struct->solution = PROT_PROC_SYS;
+        danger_struct->solution = VRMR_PROT_PROC_SYS;
         (void)strlcpy(danger_struct->proc_entry,
             "/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts",
             sizeof(danger_struct->proc_entry));
@@ -1062,7 +1062,7 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
     /* interface dangers */
     else if(strcasecmp(danger, "source-routed-packets") == 0)
     {
-        danger_struct->solution = PROT_PROC_INT;
+        danger_struct->solution = VRMR_PROT_PROC_INT;
         (void)strlcpy(danger_struct->proc_entry, "/proc/sys/net/ipv4/conf/*/accept_source_route",
             sizeof(danger_struct->proc_entry));
         danger_struct->proc_set_on = 0;
@@ -1070,7 +1070,7 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
     }
     else if(strcasecmp(danger, "icmp-redirect") == 0)
     {
-        danger_struct->solution = PROT_PROC_INT;
+        danger_struct->solution = VRMR_PROT_PROC_INT;
         (void)strlcpy(danger_struct->proc_entry, "/proc/sys/net/ipv4/conf/*/accept_redirects",
             sizeof(danger_struct->proc_entry));
         danger_struct->proc_set_on = 0;
@@ -1078,7 +1078,7 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
     }
     else if(strcasecmp(danger, "send-redirect") == 0)
     {
-        danger_struct->solution = PROT_PROC_INT;
+        danger_struct->solution = VRMR_PROT_PROC_INT;
         (void)strlcpy(danger_struct->proc_entry, "/proc/sys/net/ipv4/conf/*/send_redirects",
             sizeof(danger_struct->proc_entry));
         danger_struct->proc_set_on = 0;
@@ -1086,7 +1086,7 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
     }
     else if(strcasecmp(danger, "rp-filter") == 0)
     {
-        danger_struct->solution = PROT_PROC_INT;
+        danger_struct->solution = VRMR_PROT_PROC_INT;
         (void)strlcpy(danger_struct->proc_entry, "/proc/sys/net/ipv4/conf/*/rp_filter",
             sizeof(danger_struct->proc_entry));
         danger_struct->proc_set_on = 1;
@@ -1094,7 +1094,7 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
     }
     else if(strcasecmp(danger, "log-martians") == 0)
     {
-        danger_struct->solution = PROT_PROC_INT;
+        danger_struct->solution = VRMR_PROT_PROC_INT;
         (void)strlcpy(danger_struct->proc_entry, "/proc/sys/net/ipv4/conf/*/log_martians",
             sizeof(danger_struct->proc_entry));
         danger_struct->proc_set_on = 1;

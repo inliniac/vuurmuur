@@ -1188,12 +1188,12 @@ enum targettypes
 
 
 /* protect rule types */
-enum protecttypes
+enum vrmr_protecttypes
 {
-    PROT_NO_PROT = 0,
-    PROT_IPTABLES,
-    PROT_PROC_SYS,
-    PROT_PROC_INT
+    VRMR_PROT_NO_PROT = 0,
+    VRMR_PROT_IPTABLES,
+    VRMR_PROT_PROC_SYS,
+    VRMR_PROT_PROC_INT
 };
 
 

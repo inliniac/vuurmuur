@@ -197,7 +197,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         /* get who */
         if(strcmp(rule_ptr->who, "") != 0)
         {
-            if(rule_ptr->type == PROT_IPTABLES)
+            if(rule_ptr->type == VRMR_PROT_IPTABLES)
             {
                 create->who_int = NULL;
 
@@ -207,7 +207,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
                     return(-1);
                 }
             }
-            else if(rule_ptr->type == PROT_PROC_INT)
+            else if(rule_ptr->type == VRMR_PROT_PROC_INT)
             {
                 create->who = NULL;
                 create->who_int = NULL;
@@ -251,15 +251,15 @@ vrmr_rules_analyze_rule( const int debuglvl,
         }
     }
     /* network accept rule */
-    else if(rule_ptr->type == PROT_IPTABLES &&
+    else if(rule_ptr->type == VRMR_PROT_IPTABLES &&
         (rule_ptr->action == VRMR_AT_ACCEPT || rule_ptr->action == VRMR_AT_QUEUE))
     {
-        create->danger.solution = PROT_IPTABLES;
+        create->danger.solution = VRMR_PROT_IPTABLES;
 
         /* get who */
         if(strcmp(rule_ptr->who, "") != 0)
         {
-            if(rule_ptr->type == PROT_IPTABLES)
+            if(rule_ptr->type == VRMR_PROT_IPTABLES)
             {
                 create->who_int = NULL;
 
@@ -640,7 +640,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
                     rule_ptr->danger, rule_ptr->source);
         }
     }
-    else if(rule_ptr->type == PROT_IPTABLES &&
+    else if(rule_ptr->type == VRMR_PROT_IPTABLES &&
         (rule_ptr->action == VRMR_AT_ACCEPT || rule_ptr->action == VRMR_AT_QUEUE))
     {
         /* description */
@@ -1012,7 +1012,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr
             strcpy(rule_ptr->who, "");
 
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "rule is a PROT_PROC_SYS");
+                (void)vrprint.debug(__FUNC__, "rule is a VRMR_PROT_PROC_SYS");
 
             /*
                 okay, now lets see what kind of danger we are talking about

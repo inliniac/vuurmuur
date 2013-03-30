@@ -1770,7 +1770,7 @@ vrmr_interfaces_analyze_rule(const int debuglvl,
         /* get who */
         if(strcmp(rule_ptr->who, "") != 0)
         {
-            if(rule_ptr->type == PROT_PROC_INT)
+            if(rule_ptr->type == VRMR_PROT_PROC_INT)
             {
                 create->who = NULL;
                 create->who_int = NULL;
@@ -1896,7 +1896,7 @@ vrmr_interfaces_rule_parse_line(const int debuglvl, const char *line, struct vrm
         if(debuglvl >= HIGH)
             (void)vrprint.debug(__FUNC__, "protect: danger: '%s'", rule_ptr->danger);
 
-        rule_ptr->type = PROT_PROC_INT;
+        rule_ptr->type = VRMR_PROT_PROC_INT;
     }
     else
     {
