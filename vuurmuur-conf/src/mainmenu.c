@@ -46,7 +46,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
 
     /* before we can save, we might need to add the rulesfile to the backend, before
        this we check if the rulesfile exists in the backend */
-    while(rf->list(debuglvl, rule_backend, rule_name, &type, CAT_RULES) != NULL)
+    while(rf->list(debuglvl, rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
     {
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "loading rules: '%s', type: %d", rule_name, type);
@@ -114,7 +114,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
 
     /* before we can save, we might need to add the rulesfile to the backend, before
        this we check if the rulesfile exists in the backend */
-    while(rf->list(debuglvl, rule_backend, rule_name, &type, CAT_RULES) != NULL)
+    while(rf->list(debuglvl, rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
     {
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "loading rules: '%s', type: %d", rule_name, type);

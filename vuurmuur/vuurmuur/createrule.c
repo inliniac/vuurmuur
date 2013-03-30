@@ -3228,7 +3228,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_NOTSET, "DROP", "probe ALL");
+                VRMR_RT_NOTSET, "DROP", "probe ALL");
 
         if (conf.rule_nflog == 1) {
             snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ALL NONE %s -j NFLOG %s %s --nflog-group %u",
@@ -3259,7 +3259,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_NOTSET, "DROP", "probe SYN-FIN");
+                VRMR_RT_NOTSET, "DROP", "probe SYN-FIN");
 
         if (conf.rule_nflog == 1) {
             snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,FIN SYN,FIN %s -j NFLOG %s %s --nflog-group %u",
@@ -3290,7 +3290,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_NOTSET, "DROP", "probe SYN-RST");
+                VRMR_RT_NOTSET, "DROP", "probe SYN-RST");
 
         if (conf.rule_nflog == 1) {
             snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags SYN,RST SYN,RST %s -j NFLOG %s %s --nflog-group %u",
@@ -3321,7 +3321,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_NOTSET, "DROP", "probe FIN-RST");
+                VRMR_RT_NOTSET, "DROP", "probe FIN-RST");
 
         if (conf.rule_nflog == 1) {
             snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags FIN,RST FIN,RST %s -j NFLOG %s %s --nflog-group %u",
@@ -3352,7 +3352,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_NOTSET, "DROP", "probe FIN");
+                VRMR_RT_NOTSET, "DROP", "probe FIN");
 
         if (conf.rule_nflog == 1) {
             snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,FIN FIN %s -j NFLOG %s %s --nflog-group %u",
@@ -3383,7 +3383,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-            RT_NOTSET, "DROP", "probe PSH");
+            VRMR_RT_NOTSET, "DROP", "probe PSH");
 
         if (conf.rule_nflog == 1) {
             snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,PSH PSH %s -j NFLOG %s %s --nflog-group %u",
@@ -3414,7 +3414,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_NOTSET, "DROP", "probe URG");
+                VRMR_RT_NOTSET, "DROP", "probe URG");
 
         if (conf.rule_nflog == 1) {
             snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --tcp-flags ACK,URG URG %s -j NFLOG %s %s --nflog-group %u",
@@ -3445,7 +3445,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_NOTSET, "DROP", "no SYN");
+                VRMR_RT_NOTSET, "DROP", "no SYN");
 
         if (conf.rule_nflog == 1) {
             snprintf(cmd, sizeof(cmd), "-p tcp -m tcp ! --syn %s NEW %s -j NFLOG %s %s --nflog-group %u",
@@ -3479,7 +3479,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
                 (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
         {
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                    RT_NOTSET, "DROP", "FRAG");
+                    VRMR_RT_NOTSET, "DROP", "FRAG");
 
             if (conf.rule_nflog == 1) {
                 snprintf(cmd, sizeof(cmd), "-f %s -j NFLOG %s %s --nflog-group %u",
@@ -3531,7 +3531,7 @@ static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ru
                 (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
         {
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                    RT_INPUT, "DROP", "in INVALID");
+                    VRMR_RT_INPUT, "DROP", "in INVALID");
 
             if (conf.rule_nflog == 1) {
                 snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s %s --nflog-group %u",
@@ -3556,7 +3556,7 @@ static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ru
                 (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
         {
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                    RT_OUTPUT, "DROP", "out INVALID");
+                    VRMR_RT_OUTPUT, "DROP", "out INVALID");
 
             if (conf.rule_nflog == 1) {
                 snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s %s --nflog-group %u",
@@ -3581,7 +3581,7 @@ static int pre_rules_conntrack_invalid(const int debuglvl, /*@null@*/RuleSet *ru
                 (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
         {
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                    RT_FORWARD, "DROP", "fw INVALID");
+                    VRMR_RT_FORWARD, "DROP", "fw INVALID");
 
             if (conf.rule_nflog == 1) {
                 snprintf(cmd, sizeof(cmd), "%s INVALID %s -j NFLOG %s %s --nflog-group %u",
@@ -3660,7 +3660,7 @@ static int pre_rules_blocklist_ipv4(const int debuglvl, /*@null@*/RuleSet *rules
         (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_INPUT, "DROP", "BLOCKED");
+                VRMR_RT_INPUT, "DROP", "BLOCKED");
 
         if (conf.rule_nflog == 1) {
             snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
@@ -4269,7 +4269,7 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if(conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_INPUT, "DROP", "SYNLIMIT reach.");
+                VRMR_RT_INPUT, "DROP", "SYNLIMIT reach.");
 
         if (conf.rule_nflog == 1) {
             snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 "
@@ -4353,7 +4353,7 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
     if(conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE)
     {
         create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_INPUT, "DROP", "UDPLIMIT reach.");
+                VRMR_RT_INPUT, "DROP", "UDPLIMIT reach.");
 
         if (conf.rule_nflog == 1) {
             snprintf(cmd, sizeof(cmd), "-m limit --limit 1/s --limit-burst 2 "
@@ -4445,7 +4445,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *
 
             /* input */
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                    RT_INPUT, "DROP", "in policy");
+                    VRMR_RT_INPUT, "DROP", "in policy");
 
             if (conf.rule_nflog == 1)
             {
@@ -4467,7 +4467,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *
 
             /* output */
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                    RT_OUTPUT, "DROP", "out policy");
+                    VRMR_RT_OUTPUT, "DROP", "out policy");
 
             if (conf.rule_nflog == 1)
             {
@@ -4489,7 +4489,7 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *
 
             /* forward */
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                    RT_FORWARD, "DROP", "fw policy");
+                    VRMR_RT_FORWARD, "DROP", "fw policy");
 
             if (conf.rule_nflog == 1)
             {
@@ -4606,7 +4606,7 @@ static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet
 
     /* create the logprefix string */
     create_logprefix_string(debuglvl, logprefix,
-            sizeof(logprefix), RT_NOTSET, "DROP", "%s",
+            sizeof(logprefix), VRMR_RT_NOTSET, "DROP", "%s",
             "rpfilter");
 
     /* log rule string */
@@ -4837,7 +4837,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
         {
             /* create the logprefix string */
             create_logprefix_string(debuglvl, logprefix,
-                sizeof(logprefix), RT_NOTSET, "DROP", "%s %s",
+                sizeof(logprefix), VRMR_RT_NOTSET, "DROP", "%s %s",
                 create->danger.type, create->danger.source);
 
             /* log rule string */
@@ -4875,7 +4875,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
         {
             /* create the logprefix string */
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_INPUT, "DROP", "%s %s",
+                VRMR_RT_INPUT, "DROP", "%s %s",
                 create->danger.type, create->danger.source);
 
             /* log rule string */
@@ -4917,7 +4917,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
         {
             /* create the logprefix string */
             create_logprefix_string(debuglvl, logprefix,
-                sizeof(logprefix), RT_NOTSET, "DROP", "%s %s",
+                sizeof(logprefix), VRMR_RT_NOTSET, "DROP", "%s %s",
                 create->danger.type, create->danger.source);
 
             /* log rule string */
@@ -4952,7 +4952,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
         {
             /* create the logprefix string */
             create_logprefix_string(debuglvl, logprefix, sizeof(logprefix),
-                RT_INPUT, "DROP", "%s %s",
+                VRMR_RT_INPUT, "DROP", "%s %s",
                 create->danger.type, create->danger.source);
 
             /* log rule string */

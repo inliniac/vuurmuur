@@ -301,8 +301,8 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
         tb->backend_open = 1;
     }
 
-    /* now if were opening for type CAT_ZONES, setup the regex */
-    if(type == CAT_ZONES)
+    /* now if were opening for type VRMR_BT_ZONES, setup the regex */
+    if(type == VRMR_BT_ZONES)
     {
         /* regex setup */
         if(!(tb->zonename_reg = malloc(sizeof(regex_t))))
@@ -335,7 +335,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
         /* set the dirlocation */
         snprintf(dir_location, sizeof(dir_location), "%s/zones", tb->textdirlocation);
     }
-    else if(type == CAT_SERVICES)
+    else if(type == VRMR_BT_SERVICES)
     {
         /* regex setup */
         if(!(tb->servicename_reg = malloc(sizeof(regex_t))))
@@ -368,7 +368,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
         /* set the dirlocation */
         snprintf(dir_location, sizeof(dir_location), "%s/services", tb->textdirlocation);
     }
-    else if(type == CAT_INTERFACES)
+    else if(type == VRMR_BT_INTERFACES)
     {
         /* regex setup */
         if(!(tb->interfacename_reg = malloc(sizeof(regex_t))))
@@ -401,7 +401,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
         /* set the dirlocation */
         snprintf(dir_location, sizeof(dir_location), "%s/interfaces", tb->textdirlocation);
     }
-    else if(type == CAT_RULES)
+    else if(type == VRMR_BT_RULES)
     {
         /* set the dirlocation */
         snprintf(dir_location, sizeof(dir_location), "%s/rules", tb->textdirlocation);
@@ -477,7 +477,7 @@ close_textdir(int debuglvl, void *backend, int type)
     }
 
     /* cleanup regex */
-    if(type == CAT_ZONES && tb->zonename_reg != NULL)
+    if(type == VRMR_BT_ZONES && tb->zonename_reg != NULL)
     {
         if(debuglvl >= HIGH)
             (void)tb->cfg->vrprint.debug(__FUNC__, "cleaning up regex.");
@@ -486,7 +486,7 @@ close_textdir(int debuglvl, void *backend, int type)
         free(tb->zonename_reg);
         tb->zonename_reg = NULL;
     }
-    else if(type == CAT_SERVICES && tb->servicename_reg != NULL)
+    else if(type == VRMR_BT_SERVICES && tb->servicename_reg != NULL)
     {
         if(debuglvl >= HIGH)
             (void)tb->cfg->vrprint.debug(__FUNC__, "cleaning up regex.");
@@ -495,7 +495,7 @@ close_textdir(int debuglvl, void *backend, int type)
         free(tb->servicename_reg);
         tb->servicename_reg = NULL;
     }
-    else if(type == CAT_INTERFACES && tb->interfacename_reg != NULL)
+    else if(type == VRMR_BT_INTERFACES && tb->interfacename_reg != NULL)
     {
         if(debuglvl >= HIGH)
             (void)tb->cfg->vrprint.debug(__FUNC__, "cleaning up regex.");
@@ -504,7 +504,7 @@ close_textdir(int debuglvl, void *backend, int type)
         free(tb->interfacename_reg);
         tb->interfacename_reg = NULL;
     }
-    else if(type == CAT_RULES)
+    else if(type == VRMR_BT_RULES)
     {
         /* nothing yet */
     }

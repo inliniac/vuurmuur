@@ -327,7 +327,7 @@ vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg)
         return(-1);
     if (sf->conf(debuglvl, serv_backend) < 0)
         return(-1);
-    if (sf->open(debuglvl, serv_backend, 0, CAT_SERVICES) < 0)
+    if (sf->open(debuglvl, serv_backend, 0, VRMR_BT_SERVICES) < 0)
         return(-1);
 
     /*
@@ -339,7 +339,7 @@ vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg)
         return(-1);
     if (zf->conf(debuglvl, zone_backend) < 0)
         return(-1);
-    if (zf->open(debuglvl, zone_backend, 0, CAT_ZONES) < 0)
+    if (zf->open(debuglvl, zone_backend, 0, VRMR_BT_ZONES) < 0)
         return(-1);
 
     /*
@@ -351,7 +351,7 @@ vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg)
         return(-1);
     if (af->conf(debuglvl, ifac_backend) < 0)
         return(-1);
-    if (af->open(debuglvl, ifac_backend, 0, CAT_INTERFACES) < 0)
+    if (af->open(debuglvl, ifac_backend, 0, VRMR_BT_INTERFACES) < 0)
         return(-1);
 
     /*
@@ -363,7 +363,7 @@ vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg)
         return(-1);
     if (rf->conf(debuglvl, rule_backend) < 0)
         return(-1);
-    if (rf->open(debuglvl, rule_backend, 0, CAT_RULES) < 0)
+    if (rf->open(debuglvl, rule_backend, 0, VRMR_BT_RULES) < 0)
         return(-1);
 
     return(0);
@@ -392,7 +392,7 @@ vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg)
     /*
         SERVICES
     */
-    if (sf->close(debuglvl, serv_backend, CAT_SERVICES) < 0)
+    if (sf->close(debuglvl, serv_backend, VRMR_BT_SERVICES) < 0)
         return(-1);
 
     free(serv_backend);
@@ -404,7 +404,7 @@ vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg)
     /*
         ZONES
     */
-    if (zf->close(debuglvl, zone_backend, CAT_ZONES) < 0)
+    if (zf->close(debuglvl, zone_backend, VRMR_BT_ZONES) < 0)
         return(-1);
 
     free(zone_backend);
@@ -416,7 +416,7 @@ vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg)
     /*
         INTERFACES
     */
-    if (af->close(debuglvl, ifac_backend, CAT_INTERFACES) < 0)
+    if (af->close(debuglvl, ifac_backend, VRMR_BT_INTERFACES) < 0)
         return(-1);
 
     free(ifac_backend);
@@ -428,7 +428,7 @@ vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg)
     /*
         RULES
     */
-    if (rf->close(debuglvl, rule_backend, CAT_RULES) < 0)
+    if (rf->close(debuglvl, rule_backend, VRMR_BT_RULES) < 0)
         return(-1);
 
     free(rule_backend);

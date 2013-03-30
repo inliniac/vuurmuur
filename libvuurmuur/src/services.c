@@ -1176,7 +1176,7 @@ vrmr_init_services(const int debuglvl, struct vrmr_services *services, struct vr
     /*
         now loop trough the list and insert
     */
-    while(sf->list(debuglvl, serv_backend, name, &zonetype, CAT_SERVICES) != NULL)
+    while(sf->list(debuglvl, serv_backend, name, &zonetype, VRMR_BT_SERVICES) != NULL)
     {
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "loading service '%s' ...", name);

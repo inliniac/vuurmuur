@@ -1198,29 +1198,29 @@ enum vrmr_protecttypes
 
 
 /* normal rule types */
-enum ruletype
+enum vrmr_ruletype
 {
-    RT_ERROR = -1,
-    RT_NOTSET = 0,
-    RT_INPUT,
-    RT_OUTPUT,
-    RT_FORWARD,
-    RT_MASQ,
-    RT_PORTFW,
-    RT_SNAT,
-    RT_REDIRECT,
-    RT_DNAT,
-    RT_BOUNCE,
+    VRMR_RT_ERROR = -1,
+    VRMR_RT_NOTSET = 0,
+    VRMR_RT_INPUT,
+    VRMR_RT_OUTPUT,
+    VRMR_RT_FORWARD,
+    VRMR_RT_MASQ,
+    VRMR_RT_PORTFW,
+    VRMR_RT_SNAT,
+    VRMR_RT_REDIRECT,
+    VRMR_RT_DNAT,
+    VRMR_RT_BOUNCE,
 };
 
 
 /* general datatypes */
-enum questiontypes
+enum vrmr_backend_types
 {
-    CAT_ZONES,
-    CAT_SERVICES,
-    CAT_INTERFACES,
-    CAT_RULES
+    VRMR_BT_ZONES,
+    VRMR_BT_SERVICES,
+    VRMR_BT_INTERFACES,
+    VRMR_BT_RULES
 };
 
 

@@ -120,11 +120,11 @@ create_logprefix_string(const int debuglvl, char *resultstr, size_t size,
         (void)strlcat(str, "NFQUEUE", LOGPREFIX_LOG_MAXLEN);
     else if(strncmp(action, "DNAT", 4) == 0)
     {
-        if(ruletype == RT_PORTFW)
+        if(ruletype == VRMR_RT_PORTFW)
             (void)strlcat(str, "PORTFW", LOGPREFIX_LOG_MAXLEN);
-        else if(ruletype == RT_DNAT)
+        else if(ruletype == VRMR_RT_DNAT)
             (void)strlcat(str, "DNAT", LOGPREFIX_LOG_MAXLEN);
-        else if(ruletype == RT_BOUNCE)
+        else if(ruletype == VRMR_RT_BOUNCE)
             (void)strlcat(str, "BOUNCE", LOGPREFIX_LOG_MAXLEN);
         else
             (void)strlcat(str, "DNAT", LOGPREFIX_LOG_MAXLEN);
@@ -635,7 +635,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
     int retval = 0;
 
     /* normal input rules */
-    if(create->ruletype == RT_INPUT)
+    if(create->ruletype == VRMR_RT_INPUT)
     {
         if(create_rule_input(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
@@ -644,7 +644,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
     }
     /* normal output rules */
-    else if(create->ruletype == RT_OUTPUT)
+    else if(create->ruletype == VRMR_RT_OUTPUT)
     {
         if(create_rule_output(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
@@ -653,7 +653,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
     }
     /* normal forward rules */
-    else if(create->ruletype == RT_FORWARD)
+    else if(create->ruletype == VRMR_RT_FORWARD)
     {
         if(create_rule_forward(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
@@ -684,7 +684,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
     }
     /* masq rules */
-    else if(create->ruletype == RT_MASQ)
+    else if(create->ruletype == VRMR_RT_MASQ)
     {
         if (create->option.random == TRUE) {
             if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nat_random == TRUE) {
@@ -702,7 +702,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
     }
     /* snat rules */
-    else if(create->ruletype == RT_SNAT)
+    else if(create->ruletype == VRMR_RT_SNAT)
     {
         if (create->to_any == FALSE || create->option.out_int[0] != '\0')
         {
@@ -733,7 +733,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
         }
     }
     /* portforward rules */
-    else if(create->ruletype == RT_PORTFW)
+    else if(create->ruletype == VRMR_RT_PORTFW)
     {
         if (create->from_any == FALSE || create->option.in_int[0] != '\0')
         {
@@ -763,7 +763,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
             retval = -1;
         }
     }
-    else if(create->ruletype == RT_REDIRECT)
+    else if(create->ruletype == VRMR_RT_REDIRECT)
     {
         if(create_rule_redirect(debuglvl, ruleset, rule, create, iptcap) < 0)
         {
@@ -771,7 +771,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
             retval = -1;
         }
     }
-    else if(create->ruletype == RT_DNAT)
+    else if(create->ruletype == VRMR_RT_DNAT)
     {
         if (create->from_any == FALSE || create->option.in_int[0] != '\0')
         {
@@ -801,7 +801,7 @@ rulecreate_call_create_funcs(const int debuglvl, /*@null@*/RuleSet *ruleset, str
             retval = -1;
         }
     }
-    else if(create->ruletype == RT_BOUNCE)
+    else if(create->ruletype == VRMR_RT_BOUNCE)
     {
         if (create->from_any == FALSE || create->option.in_int[0] != '\0')
         {
@@ -2334,23 +2334,23 @@ remove_rule(const int debuglvl, int chaintype, int first_ipt_rule, int rules)
     }
 
     /* determine from which chain to delete */
-    if(chaintype == RT_INPUT)
+    if(chaintype == VRMR_RT_INPUT)
     {
         (void)strlcpy(chain, "-D INPUT", sizeof(chain));
     }
-    else if(chaintype == RT_OUTPUT)
+    else if(chaintype == VRMR_RT_OUTPUT)
     {
         (void)strlcpy(chain, "-D OUTPUT", sizeof(chain));
     }
-    else if(chaintype == RT_FORWARD)
+    else if(chaintype == VRMR_RT_FORWARD)
     {
         (void)strlcpy(chain, "-D FORWARD", sizeof(chain));
     }
-    else if(chaintype == RT_PORTFW || chaintype == RT_REDIRECT)
+    else if(chaintype == VRMR_RT_PORTFW || chaintype == VRMR_RT_REDIRECT)
     {
         (void)strlcpy(chain, "-t nat -D PREROUTING", sizeof(chain));
     }
-    else if(chaintype == RT_MASQ || chaintype == RT_SNAT)
+    else if(chaintype == VRMR_RT_MASQ || chaintype == VRMR_RT_SNAT)
     {
         (void)strlcpy(chain, "-t nat -D POSTROUTING", sizeof(chain));
     }

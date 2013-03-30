@@ -501,7 +501,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_config *cfg,
         blocklist->old_blocklistfile_used = FALSE;
 
         /* see if the blocklist already exists in the backend */
-        while(rf->list(debuglvl, rule_backend, rule_name, &type, CAT_RULES) != NULL)
+        while(rf->list(debuglvl, rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
         {
             if(debuglvl >= MEDIUM)
                 (void)vrprint.debug(__FUNC__, "loading rules: '%s', type: %d",

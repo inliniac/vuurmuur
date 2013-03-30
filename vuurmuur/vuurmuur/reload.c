@@ -283,7 +283,7 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
 
 
     /* loop trough the services in the backend */
-    while(sf->list(debuglvl, serv_backend, name, &zonetype, CAT_SERVICES) != NULL)
+    while(sf->list(debuglvl, serv_backend, name, &zonetype, VRMR_BT_SERVICES) != NULL)
     {
         if(vrmr_validate_servicename(debuglvl, name, servicename_regex, VALNAME_VERBOSE) == 0)
         {
@@ -594,7 +594,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     }
 
     /* loop trough backend and check */
-    while(zf->list(debuglvl, zone_backend, name, &zonetype, CAT_ZONES) != NULL)
+    while(zf->list(debuglvl, zone_backend, name, &zonetype, VRMR_BT_ZONES) != NULL)
     {
         zone_ptr = vrmr_search_zonedata(debuglvl, zones, name);
         if(zone_ptr == NULL)
@@ -1272,7 +1272,7 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
 
 
     /* now loop trough the interfaces and check them */
-    while(af->list(debuglvl, ifac_backend, name, &zonetype, CAT_INTERFACES) != NULL)
+    while(af->list(debuglvl, ifac_backend, name, &zonetype, VRMR_BT_INTERFACES) != NULL)
     {
         iface_ptr = vrmr_search_interface(debuglvl, interfaces, name);
         if(iface_ptr == NULL)

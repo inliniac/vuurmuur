@@ -66,7 +66,7 @@ char
 
 
     /* services */
-    if(type == CAT_SERVICES)
+    if(type == VRMR_BT_SERVICES)
     {
         /* set the dir location */
         snprintf(dir_location, sizeof(dir_location), "%s/services", tb->textdirlocation);
@@ -131,7 +131,7 @@ char
         }
     }
     /* interfaces */
-    else if(type == CAT_INTERFACES)
+    else if(type == VRMR_BT_INTERFACES)
     {
         // set the dirlocation
         snprintf(dir_location, sizeof(dir_location), "%s/interfaces", tb->textdirlocation);
@@ -216,7 +216,7 @@ char
         }
     }
     /* rules */
-    else if(type == CAT_RULES)
+    else if(type == VRMR_BT_RULES)
     {
         /* set the dirlocation */
         snprintf(dir_location, sizeof(dir_location), "%s/rules", tb->textdirlocation);
@@ -293,7 +293,7 @@ char
             }
         }
     }
-    else if(type == CAT_ZONES)
+    else if(type == VRMR_BT_ZONES)
     {
         while(!done)
         {

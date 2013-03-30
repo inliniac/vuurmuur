@@ -31,7 +31,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     if( vr_script->type == TYPE_ZONE || vr_script->type == TYPE_NETWORK ||
         vr_script->type == TYPE_HOST || vr_script->type == TYPE_GROUP)
     {
-        while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, CAT_ZONES) != NULL)
+        while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type && strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -55,7 +55,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == TYPE_SERVICE)
     {
-        while(sf->list(debuglvl, serv_backend, vr_script->bdat, &vr_script->zonetype, CAT_SERVICES) != NULL)
+        while(sf->list(debuglvl, serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -71,7 +71,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == TYPE_INTERFACE)
     {
-        while(af->list(debuglvl, ifac_backend, vr_script->bdat, &vr_script->zonetype, CAT_INTERFACES) != NULL)
+        while(af->list(debuglvl, ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -87,7 +87,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == TYPE_RULE)
     {
-        while(rf->list(debuglvl, rule_backend, vr_script->bdat, &vr_script->zonetype, CAT_RULES) != NULL)
+        while(rf->list(debuglvl, rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {

@@ -633,7 +633,7 @@ vrmr_init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
         return(-1);
 
     /* get the info from the backend */
-    while(zf->list(debuglvl, zone_backend, zonename, &zonetype, CAT_ZONES) != NULL)
+    while(zf->list(debuglvl, zone_backend, zonename, &zonetype, VRMR_BT_ZONES) != NULL)
     {
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "loading zone: '%s', "

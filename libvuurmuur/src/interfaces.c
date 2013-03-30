@@ -827,7 +827,7 @@ vrmr_init_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
 
 
     /* get the list from the backend */
-    while(af->list(debuglvl, ifac_backend, ifacname, &zonetype, CAT_INTERFACES) != NULL)
+    while(af->list(debuglvl, ifac_backend, ifacname, &zonetype, VRMR_BT_INTERFACES) != NULL)
     {
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "loading interface %s", ifacname);

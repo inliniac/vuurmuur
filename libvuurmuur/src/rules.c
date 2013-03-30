@@ -442,7 +442,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
             (void)vrprint.debug(__FUNC__, "calling vrmr_rules_determine_ruletype()...");
 
         create->ruletype = vrmr_rules_determine_ruletype(debuglvl, rule_ptr);
-        if(create->ruletype == RT_ERROR)
+        if(create->ruletype == VRMR_RT_ERROR)
         {
             (void)vrprint.error(-1, "Error", "could not determine "
                     "ruletype (in: %s:d).", __FUNC__, __LINE__);
@@ -451,7 +451,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
 
         /* QUEUE-ing can only be in input, output and forward rules */
         if( rule_ptr->action == VRMR_AT_QUEUE &&
-            (create->ruletype != RT_INPUT && create->ruletype != RT_OUTPUT && create->ruletype != RT_FORWARD))
+            (create->ruletype != VRMR_RT_INPUT && create->ruletype != VRMR_RT_OUTPUT && create->ruletype != VRMR_RT_FORWARD))
         {
             (void)vrprint.error(-1, "Error", "the QUEUE target can only be used in the input, output and forward chains (in: %s).", __FUNC__);
             return(-1);
@@ -466,7 +466,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         }
 
         /* make sure we only porfw to a host */
-        if(create->ruletype == RT_PORTFW)
+        if(create->ruletype == VRMR_RT_PORTFW)
         {
             if(create->from_firewall == TRUE)
             {
@@ -486,7 +486,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         }
 
         /* make sure we dont redirect from the firewall */
-        if(create->ruletype == RT_REDIRECT)
+        if(create->ruletype == VRMR_RT_REDIRECT)
         {
             if(create->from_firewall == TRUE)
             {
@@ -498,7 +498,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         }
 
         /* don't snat to 'Any' */
-        if(create->ruletype == RT_SNAT)
+        if(create->ruletype == VRMR_RT_SNAT)
         {
             if(create->to_any == TRUE)
             {
@@ -510,7 +510,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         }
 
         /* don't masq to 'Any' */
-        if(create->ruletype == RT_MASQ)
+        if(create->ruletype == VRMR_RT_MASQ)
         {
             if(create->to_any == TRUE)
             {
@@ -522,7 +522,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         }
 
         /* make sure we only dnat to a host */
-        if(create->ruletype == RT_DNAT)
+        if(create->ruletype == VRMR_RT_DNAT)
         {
             if(create->from_firewall == TRUE)
             {
@@ -548,7 +548,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         }
 
         /* make sure we only bounce to a host */
-        if(create->ruletype == RT_BOUNCE)
+        if(create->ruletype == VRMR_RT_BOUNCE)
         {
             if(rule_ptr->opt == NULL || rule_ptr->opt->via_int[0] == '\0')
             {
@@ -824,7 +824,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
         rules->old_rulesfile_used = FALSE;
 
         /* see if the rulesfile already exists in the backend */
-        while(rf->list(debuglvl, rule_backend, rule_name, &type, CAT_RULES) != NULL)
+        while(rf->list(debuglvl, rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
         {
             if(debuglvl >= MEDIUM)
                 (void)vrprint.debug(__FUNC__, "loading rules: '%s', type: %d",
@@ -3804,60 +3804,60 @@ vrmr_rules_determine_ruletype(const int debuglvl, struct vrmr_rule *rule_ptr)
     /* safety */
     if(rule_ptr == NULL)
     {
-        (void)vrprint.error(RT_ERROR, "Internal Error", "parameter "
+        (void)vrprint.error(VRMR_RT_ERROR, "Internal Error", "parameter "
             "problem (in: %s:%d).", __FUNC__, __LINE__);
-        return(RT_ERROR);
+        return(VRMR_RT_ERROR);
     }
 
     /* output */
     if(strncasecmp(rule_ptr->from, "firewall", 8) == 0)
     {
-        ruletype = RT_OUTPUT;
+        ruletype = VRMR_RT_OUTPUT;
     }
     /* input */
     else if(strncasecmp(rule_ptr->to, "firewall", 8) == 0)
     {
-        ruletype = RT_INPUT;
+        ruletype = VRMR_RT_INPUT;
     }
     /* forward */
     else if((strncasecmp(rule_ptr->to, "firewall", 8) != 0) &&
         (strncasecmp(rule_ptr->from, "firewall", 8) != 0))
     {
-        ruletype = RT_FORWARD;
+        ruletype = VRMR_RT_FORWARD;
     }
     else
     {
-        (void)vrprint.error(RT_ERROR, "Internal Error", "could not "
+        (void)vrprint.error(VRMR_RT_ERROR, "Internal Error", "could not "
             "determine chain (in: %s:%d).", __FUNC__, __LINE__);
-        return(RT_ERROR);
+        return(VRMR_RT_ERROR);
     }
 
     /* for some actions, we have special chains */
     if(rule_ptr->action == VRMR_AT_MASQ)
     {
-        ruletype = RT_MASQ;
+        ruletype = VRMR_RT_MASQ;
     }
     else if(rule_ptr->action == VRMR_AT_SNAT)
     {
-        ruletype = RT_SNAT;
+        ruletype = VRMR_RT_SNAT;
     }
     /* prerouting chain for portfw/dnat */
     else if(rule_ptr->action == VRMR_AT_PORTFW)
     {
-        ruletype = RT_PORTFW;
+        ruletype = VRMR_RT_PORTFW;
     }
     /* prerouting for redirect */
     else if(rule_ptr->action == VRMR_AT_REDIRECT)
     {
-        ruletype = RT_REDIRECT;
+        ruletype = VRMR_RT_REDIRECT;
     }
     else if(rule_ptr->action == VRMR_AT_DNAT)
     {
-        ruletype = RT_DNAT;
+        ruletype = VRMR_RT_DNAT;
     }
     else if(rule_ptr->action == VRMR_AT_BOUNCE)
     {
-        ruletype = RT_BOUNCE;
+        ruletype = VRMR_RT_BOUNCE;
     }
 
     return(ruletype);
