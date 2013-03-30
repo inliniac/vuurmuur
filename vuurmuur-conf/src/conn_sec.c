@@ -54,7 +54,7 @@ copy_name(char *dst, char *src, size_t size)
  */
 static int
 print_connection(const int debuglvl, WINDOW *local_win,
-            struct ConntrackData *cd_ptr,
+            struct vrmr_conntrack_entry *cd_ptr,
             VR_ConntrackRequest *connreq,
             int max_onscreen, int cnt,
             int screen_width, int acct)
@@ -667,7 +667,7 @@ connections_section(const int debuglvl, struct vuurmuur_config *cnf,
                             max_outgoing=0;
 
     d_list_node             *d_node = NULL;
-    struct ConntrackData    *cd_ptr = NULL;
+    struct vrmr_conntrack_entry    *cd_ptr = NULL;
 //    unsigned int            prev_list_size = 0;
 
     struct
@@ -1268,7 +1268,7 @@ kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf,
                 char *sername, char connect_status)
 {
     d_list_node             *d_node = NULL;
-    struct ConntrackData    *cd_ptr = NULL;
+    struct vrmr_conntrack_entry    *cd_ptr = NULL;
     int                     cnt = 0,
                             failed = 0;
     char                    *dip = NULL;
@@ -1341,7 +1341,7 @@ kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
             char connect_status)
 {
     d_list_node             *d_node = NULL;
-    struct ConntrackData    *cd_ptr = NULL;
+    struct vrmr_conntrack_entry    *cd_ptr = NULL;
     int                     cnt = 0,
                             failed = 0;
     char                    *dip = NULL;

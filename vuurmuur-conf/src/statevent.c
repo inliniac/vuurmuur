@@ -206,12 +206,12 @@ statevent_print2str_conn(const int debuglvl, StatEventGen *evt, size_t len)
     return(str);
 }
 
-/* convert struct ConntrackData to StatEventConn */
+/* convert struct vrmr_conntrack_entry to StatEventConn */
 static char
 statevent_convert_conn(const int debuglvl, StatEventCtl *ctl, d_list *list)
 {
     d_list_node             *d_node = NULL;
-    struct ConntrackData    *cd_ptr = NULL;
+    struct vrmr_conntrack_entry    *cd_ptr = NULL;
     StatEventConn           *conn = NULL;
 
     for(d_node = list->top; d_node; d_node = d_node->next)

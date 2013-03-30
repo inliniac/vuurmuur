@@ -59,7 +59,7 @@ struct ConntrackLine
         In case of error we return 0.
 */
 static int
-filtered_connection(const int debuglvl, struct ConntrackData *cd_ptr, struct vrmr_filter *filter)
+filtered_connection(const int debuglvl, struct vrmr_conntrack_entry *cd_ptr, struct vrmr_filter *filter)
 {
     char    line[512] = "";
 
@@ -103,7 +103,7 @@ void
 conn_print_dlist(const d_list *dlist)
 {
     d_list_node             *d_node = NULL;
-    struct ConntrackData    *cd_ptr = NULL;
+    struct vrmr_conntrack_entry    *cd_ptr = NULL;
     char                    status[16] = "";
     char                    direction[16] = "";
 
@@ -154,7 +154,7 @@ conn_print_dlist(const d_list *dlist)
 int
 conn_line_to_data(  const int debuglvl,
                     struct ConntrackLine *connline_ptr,
-                    struct ConntrackData *conndata_ptr,
+                    struct vrmr_conntrack_entry *conndata_ptr,
                     Hash *serhash,
                     Hash *zonehash,
                     d_list *zonelist,
@@ -1882,7 +1882,7 @@ void
 conn_list_print(const d_list *conn_list)
 {
     d_list_node             *d_node = NULL;
-    struct ConntrackData    *item_ptr = NULL;
+    struct vrmr_conntrack_entry    *item_ptr = NULL;
 
     // Display the linked list.
     fprintf(stdout, "List len is %u\n", conn_list->len);
@@ -1935,12 +1935,12 @@ unsigned int
 conn_hash_conntrackdata(const void *key)
 {
     unsigned int            retval = 0;
-    struct ConntrackData    *cd_ptr = NULL;
+    struct vrmr_conntrack_entry    *cd_ptr = NULL;
 
     if(!key)
         return(1);
 
-    cd_ptr = (struct ConntrackData *)key;
+    cd_ptr = (struct vrmr_conntrack_entry *)key;
 
     /*  from and to have different weight, so firewall -> internet
         is not the same as internet -> firewall
@@ -1959,15 +1959,15 @@ conn_hash_conntrackdata(const void *key)
 int
 conn_match_conntrackdata(const void *check, const void *hash)
 {
-    struct ConntrackData    *check_cd = NULL,
+    struct vrmr_conntrack_entry    *check_cd = NULL,
                             *hash_cd = NULL;
 
     /* safety */
     if(!check || !hash)
         return(0);
 
-    check_cd = (struct ConntrackData *)check;
-    hash_cd  = (struct ConntrackData *)hash;
+    check_cd = (struct vrmr_conntrack_entry *)check;
+    hash_cd  = (struct vrmr_conntrack_entry *)hash;
     if(!check_cd || !hash_cd)
     {
         (void)vrprint.error(0, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
@@ -2004,7 +2004,7 @@ void
 conn_list_cleanup(int debuglvl, d_list *conn_dlist)
 {
     d_list_node             *d_node = NULL;
-    struct ConntrackData    *cd_ptr = NULL;
+    struct vrmr_conntrack_entry    *cd_ptr = NULL;
 
     for(d_node = conn_dlist->top; d_node; d_node = d_node->next)
     {
@@ -2061,7 +2061,7 @@ conn_get_connections_do(const int debuglvl,
     char                    line[1024] = "";
     FILE                    *fp = NULL;
     struct ConntrackLine    cl;
-    struct ConntrackData    *cd_ptr = NULL,
+    struct vrmr_conntrack_entry    *cd_ptr = NULL,
                             *old_cd_ptr = NULL,
                             *prev_cd_ptr = NULL,
                             *next_cd_ptr = NULL;
@@ -2192,7 +2192,7 @@ conn_get_connections_do(const int debuglvl,
         }
 
         /* allocate memory for the data */
-        if(!(cd_ptr = (struct ConntrackData *)malloc(sizeof(struct ConntrackData))))
+        if(!(cd_ptr = (struct vrmr_conntrack_entry *)malloc(sizeof(struct vrmr_conntrack_entry))))
         {
             (void)vrprint.error(-1, "Error", "malloc() failed: %s "
                     "(in: %s:%d).", strerror(errno),
@@ -2200,7 +2200,7 @@ conn_get_connections_do(const int debuglvl,
             return(-1);
         }
         /* init to 0 */
-        memset(cd_ptr, 0, sizeof(struct ConntrackData));
+        memset(cd_ptr, 0, sizeof(struct vrmr_conntrack_entry));
 
         /* analyse it */
         if(conn_line_to_data(debuglvl, &cl, cd_ptr, serv_hash,

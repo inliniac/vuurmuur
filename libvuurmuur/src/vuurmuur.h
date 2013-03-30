@@ -933,7 +933,7 @@ enum
 };
 
 
-struct ConntrackData
+struct vrmr_conntrack_entry
 {
     int                     protocol;
     int                     ipv6;
@@ -1584,7 +1584,7 @@ int list_icmp_codes(int type, int *code, int *number);
 /*
     conntrack.c
 */
-//int conn_line_to_data(const int debuglvl, struct ConntrackLine *connline_ptr, struct ConntrackData *conndata_ptr, Hash *serhash, Hash *zonehash, d_list *zonelist, int unknown_host_as_network, int sort_by_connect_status, int sort_by_in_out_fw);
+//int conn_line_to_data(const int debuglvl, struct ConntrackLine *connline_ptr, struct vrmr_conntrack_entry *conndata_ptr, Hash *serhash, Hash *zonehash, d_list *zonelist, int unknown_host_as_network, int sort_by_connect_status, int sort_by_in_out_fw);
 //int conn_process_one_conntrack_line(const int debuglvl, const char *line, struct ConntrackLine *connline_ptr);
 unsigned int conn_hash_name(const void *key);
 int conn_match_name(const void *ser1, const void *ser2);
