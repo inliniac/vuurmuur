@@ -446,7 +446,7 @@ typedef struct LogRule_
 typedef struct ct_
 {
     /* hashes for the vuurmuur names */
-    Hash                    zone_hash,
+    struct vrmr_hash_table  zone_hash,
                             service_hash;
 
     d_list                  network_list;

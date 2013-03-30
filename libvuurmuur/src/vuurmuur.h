@@ -247,8 +247,7 @@ d_list;
 /*
     hash function
 */
-typedef struct Hash_
-{
+struct vrmr_hash_table {
     /*
         the number of rows in the hash table
 
@@ -271,8 +270,7 @@ typedef struct Hash_
         the table itself. its an array of d_lists
     */
     d_list          *table;
-
-} Hash;
+};
 
 
 /*
@@ -1328,11 +1326,11 @@ int vrmr_regex_setup(int action, struct vrmr_regex *reg);
 /*
     hash table
 */
-int hash_setup(const int debuglvl, Hash *hash_table, unsigned int rows, unsigned int (*hash_func)(const void *data), int (*compare_func)(const void *table_data, const void *search_data));
-int hash_cleanup(const int debuglvl, Hash *hash_table);
-int hash_insert(const int debuglvl, Hash *hash_table, const void *data);
-int hash_remove(const int debuglvl, Hash *hash_table, void *data);
-void *hash_search(const int debuglvl, const Hash *hash_table, void *data);
+int hash_setup(const int debuglvl, struct vrmr_hash_table *hash_table, unsigned int rows, unsigned int (*hash_func)(const void *data), int (*compare_func)(const void *table_data, const void *search_data));
+int hash_cleanup(const int debuglvl, struct vrmr_hash_table *hash_table);
+int hash_insert(const int debuglvl, struct vrmr_hash_table *hash_table, const void *data);
+int hash_remove(const int debuglvl, struct vrmr_hash_table *hash_table, void *data);
+void *hash_search(const int debuglvl, const struct vrmr_hash_table *hash_table, void *data);
 
 int compare_ports(const void *string1, const void *string2);
 int compare_ipaddress(const void *string1, const void *string2);
@@ -1341,11 +1339,11 @@ unsigned int hash_port(const void *key);
 unsigned int hash_ipaddress(const void *key);
 unsigned int hash_string(const void *key);
 
-void print_table_service(const int debuglvl, const Hash *hash_table);
-int init_zonedata_hashtable(const int debuglvl, unsigned int n_rows, d_list *d_list, unsigned int (*hash)(const void *key), int (*match)(const void *string1, const void *string2), Hash *hash_table);
-int init_services_hashtable(const int debuglvl, unsigned int n_rows, d_list *d_list, unsigned int (*hash)(const void *key), int (*match)(const void *string1, const void *string2), Hash *hash_table);
-void *search_service_in_hash(const int debuglvl, const int src, const int dst, const int protocol, const Hash *serhash);
-void *search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, const Hash *zonehash);
+void print_table_service(const int debuglvl, const struct vrmr_hash_table *hash_table);
+int init_zonedata_hashtable(const int debuglvl, unsigned int n_rows, d_list *d_list, unsigned int (*hash)(const void *key), int (*match)(const void *string1, const void *string2), struct vrmr_hash_table *hash_table);
+int init_services_hashtable(const int debuglvl, unsigned int n_rows, d_list *d_list, unsigned int (*hash)(const void *key), int (*match)(const void *string1, const void *string2), struct vrmr_hash_table *hash_table);
+void *search_service_in_hash(const int debuglvl, const int src, const int dst, const int protocol, const struct vrmr_hash_table *serhash);
+void *search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, const struct vrmr_hash_table *zonehash);
 
 
 /*
@@ -1584,12 +1582,12 @@ int list_icmp_codes(int type, int *code, int *number);
 /*
     conntrack.c
 */
-//int conn_line_to_data(const int debuglvl, struct ConntrackLine *connline_ptr, struct vrmr_conntrack_entry *conndata_ptr, Hash *serhash, Hash *zonehash, d_list *zonelist, int unknown_host_as_network, int sort_by_connect_status, int sort_by_in_out_fw);
+//int conn_line_to_data(const int debuglvl, struct ConntrackLine *connline_ptr, struct vrmr_conntrack_entry *conndata_ptr, struct vrmr_hash_table *serhash, struct vrmr_hash_table *zonehash, d_list *zonelist, int unknown_host_as_network, int sort_by_connect_status, int sort_by_in_out_fw);
 //int conn_process_one_conntrack_line(const int debuglvl, const char *line, struct ConntrackLine *connline_ptr);
 unsigned int conn_hash_name(const void *key);
 int conn_match_name(const void *ser1, const void *ser2);
 void conn_list_print(const d_list *conn_list);
-int conn_get_connections(const int, struct vuurmuur_config *, unsigned int, Hash *, Hash *, d_list *, d_list *, struct vrmr_conntrack_request *, struct vrmr_conntrack_stats *);
+int conn_get_connections(const int, struct vuurmuur_config *, unsigned int, struct vrmr_hash_table *, struct vrmr_hash_table *, d_list *, d_list *, struct vrmr_conntrack_request *, struct vrmr_conntrack_stats *);
 void conn_print_dlist(const d_list *dlist);
 void conn_list_cleanup(const int debuglvl, d_list *conn_dlist);
 void VR_connreq_setup(const int debuglvl, struct vrmr_conntrack_request *connreq);

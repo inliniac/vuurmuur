@@ -23,7 +23,7 @@
 
 int
 hash_setup( const int debuglvl,                         /* debug level */
-            Hash *hash_table,                           /* the hash table ;-) */
+            struct vrmr_hash_table *hash_table,                           /* the hash table ;-) */
             unsigned int rows,                          /* the number of rows in the table */
             unsigned int (*hash_func)(const void *data),/* the hash function */
             int (*compare_func)(const void *table_data, const void *search_data)    /* the compare function */
@@ -92,7 +92,7 @@ hash_setup( const int debuglvl,                         /* debug level */
         -1: error
 */
 int
-hash_cleanup(const int debuglvl, Hash *hash_table)
+hash_cleanup(const int debuglvl, struct vrmr_hash_table *hash_table)
 {
     unsigned int    cur_row = 0;
 
@@ -129,7 +129,7 @@ hash_cleanup(const int debuglvl, Hash *hash_table)
     TODO: do a search first, so we can make sure data isn't inserted twice???
 */
 int
-hash_insert(const int debuglvl, Hash *hash_table, const void *data)
+hash_insert(const int debuglvl, struct vrmr_hash_table *hash_table, const void *data)
 {
     unsigned int    row = 0;
 
@@ -166,7 +166,7 @@ hash_insert(const int debuglvl, Hash *hash_table, const void *data)
         -1: error
 */
 int
-hash_remove(const int debuglvl, Hash *hash_table, void *data)
+hash_remove(const int debuglvl, struct vrmr_hash_table *hash_table, void *data)
 {
     d_list_node     *d_node = NULL;
     unsigned int    row = 0;
@@ -221,7 +221,7 @@ hash_remove(const int debuglvl, Hash *hash_table, void *data)
     Returns a pointer to the data if found, NULL if not found.
 */
 void *
-hash_search(const int debuglvl, const Hash *hash_table, void *data)
+hash_search(const int debuglvl, const struct vrmr_hash_table *hash_table, void *data)
 {
     unsigned int    row = 0;
     void            *table_data = NULL;
@@ -462,7 +462,7 @@ int compare_string(const void *string1, const void *string2)
 }
 
 // print_table
-void print_table_service(const int debuglvl, const Hash *hash_table)
+void print_table_service(const int debuglvl, const struct vrmr_hash_table *hash_table)
 {
     unsigned int    i;
     void            *list_data = NULL;
@@ -495,7 +495,7 @@ init_services_hashtable(    const int debuglvl,
                             d_list *services_list,
                             unsigned int (*hash_func)(const void *data),
                             int (*compare_func)(const void *table_data, const void *search_data),
-                            Hash *hash_table)
+                            struct vrmr_hash_table *hash_table)
 {
     d_list_node             *d_node = NULL;
     int                     port = 0;
@@ -607,7 +607,7 @@ init_zonedata_hashtable(    const int debuglvl,
                             d_list *zones_list,
                             unsigned int (*hash_func)(const void *data),
                             int (*compare_func)(const void *table_data, const void *search_data),
-                            Hash *hash_table)
+                            struct vrmr_hash_table *hash_table)
 {
     struct vrmr_zone    *zone_ptr = NULL;
     d_list_node         *d_node = NULL;
@@ -664,7 +664,7 @@ init_zonedata_hashtable(    const int debuglvl,
 
 
 void *
-search_service_in_hash(const int debuglvl, const int src, const int dst, const int protocol, const Hash *serhash)
+search_service_in_hash(const int debuglvl, const int src, const int dst, const int protocol, const struct vrmr_hash_table *serhash)
 {
     struct vrmr_service    *ser_search_ptr = NULL,
                             *return_ptr = NULL;
@@ -762,7 +762,7 @@ search_service_in_hash(const int debuglvl, const int src, const int dst, const i
 
 
 void *
-search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, const Hash *zonehash)
+search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, const struct vrmr_hash_table *zonehash)
 {
     struct vrmr_zone    *search_ptr = NULL,
                         *return_ptr = NULL;

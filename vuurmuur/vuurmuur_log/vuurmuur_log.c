@@ -34,8 +34,8 @@
 /*@null@*/
 struct vrmr_shm_table *shm_table = 0;
 static int g_debuglvl = 0;
-static Hash zone_htbl;
-static Hash service_htbl;
+static struct vrmr_hash_table zone_htbl;
+static struct vrmr_hash_table service_htbl;
 static struct Counters_ Counters =
 {
     0, 0, 0, 0, 0,
@@ -152,7 +152,7 @@ CreateTCPFlagString(struct log_rule *logrule_ptr, char *flagBuffer)
     NOTE: if the function returns -1 the memory is not cleaned up: the program is supposed to exit
 */
 static int
-get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, Hash *ZoneHash, Hash *ServiceHash)
+get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr_hash_table *ZoneHash, struct vrmr_hash_table *ServiceHash)
 {
     struct vrmr_zone        *search_ptr = NULL;
     struct vrmr_service    *ser_search_ptr = NULL;

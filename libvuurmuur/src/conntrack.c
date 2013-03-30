@@ -155,8 +155,8 @@ int
 conn_line_to_data(  const int debuglvl,
                     struct ConntrackLine *connline_ptr,
                     struct vrmr_conntrack_entry *conndata_ptr,
-                    Hash *serhash,
-                    Hash *zonehash,
+                    struct vrmr_hash_table *serhash,
+                    struct vrmr_hash_table *zonehash,
                     d_list *zonelist,
                     struct vrmr_conntrack_request *req
                 )
@@ -2047,8 +2047,8 @@ static int
 conn_get_connections_do(const int debuglvl,
                         struct vuurmuur_config *cnf,
                         const unsigned int prev_conn_cnt,
-                        Hash *serv_hash,
-                        Hash *zone_hash,
+                        struct vrmr_hash_table *serv_hash,
+                        struct vrmr_hash_table *zone_hash,
                         d_list *conn_dlist,
                         d_list *zone_list,
                         struct vrmr_conntrack_request *req,
@@ -2068,7 +2068,7 @@ conn_get_connections_do(const int debuglvl,
 
     /* default hashtable size */
     unsigned int            hashtbl_size = 256;
-    Hash                    conn_hash;
+    struct vrmr_hash_table  conn_hash;
     d_list_node             *d_node = NULL;
     char                    tmpfile[] = "/tmp/vuurmuur-conntrack-XXXXXX";
     int                     conntrack_cmd = 0;
@@ -2451,8 +2451,8 @@ static int
 conn_get_connections_cmd (const int debuglvl,
                         struct vuurmuur_config *cnf,
                         const unsigned int prev_conn_cnt,
-                        Hash *serv_hash,
-                        Hash *zone_hash,
+                        struct vrmr_hash_table *serv_hash,
+                        struct vrmr_hash_table *zone_hash,
                         d_list *conn_dlist,
                         d_list *zone_list,
                         struct vrmr_conntrack_request *req,
@@ -2469,8 +2469,8 @@ static int
 conn_get_connections_proc (const int debuglvl,
                         struct vuurmuur_config *cnf,
                         const unsigned int prev_conn_cnt,
-                        Hash *serv_hash,
-                        Hash *zone_hash,
+                        struct vrmr_hash_table *serv_hash,
+                        struct vrmr_hash_table *zone_hash,
                         d_list *conn_dlist,
                         d_list *zone_list,
                         struct vrmr_conntrack_request *req,
@@ -2486,8 +2486,8 @@ int
 conn_get_connections(   const int debuglvl,
                         struct vuurmuur_config *cnf,
                         const unsigned int prev_conn_cnt,
-                        Hash *serv_hash,
-                        Hash *zone_hash,
+                        struct vrmr_hash_table *serv_hash,
+                        struct vrmr_hash_table *zone_hash,
                         d_list *conn_dlist,
                         d_list *zone_list,
                         struct vrmr_conntrack_request *req,
