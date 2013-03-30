@@ -608,13 +608,13 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
             }
 
             /* print that we have a new zone */
-            if(zonetype == TYPE_ZONE)
+            if(zonetype == VRMR_TYPE_ZONE)
                 (void)vrprint.info("Info", "Zone '%s' was added.", name);
-            else if(zonetype == TYPE_NETWORK)
+            else if(zonetype == VRMR_TYPE_NETWORK)
                 (void)vrprint.info("Info", "Network '%s' was added.", name);
-            else if(zonetype == TYPE_HOST)
+            else if(zonetype == VRMR_TYPE_HOST)
                 (void)vrprint.info("Info", "Host '%s' was added.", name);
-            else if(zonetype == TYPE_GROUP)
+            else if(zonetype == VRMR_TYPE_GROUP)
                 (void)vrprint.info("Info", "Group '%s' was added.", name);
 
 
@@ -627,7 +627,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
             }
     
 
-            if(zone_ptr->type == TYPE_HOST)
+            if(zone_ptr->type == VRMR_TYPE_HOST)
             {
                 /* check */
                 check_result = vrmr_zones_check_host(debuglvl, zone_ptr);
@@ -638,7 +638,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                     zone_ptr->active = FALSE;
                 }
             }
-            else if(zone_ptr->type == TYPE_NETWORK)
+            else if(zone_ptr->type == VRMR_TYPE_NETWORK)
             {
                 /* check */
                 check_result = vrmr_zones_check_network(debuglvl, zone_ptr);
@@ -679,13 +679,13 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
         if(zone_ptr->status == ST_UNTOUCHED)
         {
             /* print that we have a zone to remove */
-            if(zone_ptr->type == TYPE_ZONE)
+            if(zone_ptr->type == VRMR_TYPE_ZONE)
                 (void)vrprint.info("Info", "Zone '%s' was removed.", zone_ptr->name);
-            else if(zone_ptr->type == TYPE_NETWORK)
+            else if(zone_ptr->type == VRMR_TYPE_NETWORK)
                 (void)vrprint.info("Info", "Network '%s' was removed.", zone_ptr->name);
-            else if(zone_ptr->type == TYPE_HOST)
+            else if(zone_ptr->type == VRMR_TYPE_HOST)
                 (void)vrprint.info("Info", "Host '%s' was removed.", zone_ptr->name);
-            else if(zone_ptr->type == TYPE_GROUP)
+            else if(zone_ptr->type == VRMR_TYPE_GROUP)
                 (void)vrprint.info("Info", "Group '%s' was removed.", zone_ptr->name);
             
             zone_ptr->status = ST_REMOVED;
@@ -753,10 +753,10 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
 
     switch(zone_ptr->type)
     {
-        case TYPE_ZONE:
+        case VRMR_TYPE_ZONE:
 
             /* set the zone up */
-            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_ZONE, vrmr_new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, VRMR_TYPE_ZONE, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -788,9 +788,9 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
             }
             break;
 
-        case TYPE_NETWORK:
+        case VRMR_TYPE_NETWORK:
 
-            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_NETWORK, vrmr_new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, VRMR_TYPE_NETWORK, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -968,9 +968,9 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
             }
             break;
 
-        case TYPE_HOST:
+        case VRMR_TYPE_HOST:
 
-            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_HOST, vrmr_new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, VRMR_TYPE_HOST, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -1062,9 +1062,9 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
             }
             break;
 
-        case TYPE_GROUP:
+        case VRMR_TYPE_GROUP:
 
-            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, TYPE_GROUP, vrmr_new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, VRMR_TYPE_GROUP, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -1180,9 +1180,9 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
         /* update the data */
 
         /* first destroy the old lists */
-        if(zone_ptr->type == TYPE_GROUP)
+        if(zone_ptr->type == VRMR_TYPE_GROUP)
             vrmr_list_cleanup(debuglvl, &zone_ptr->GroupList);
-        if(zone_ptr->type == TYPE_NETWORK)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
             vrmr_list_cleanup(debuglvl, &zone_ptr->InterfaceList);
             vrmr_list_cleanup(debuglvl, &zone_ptr->ProtectList);
@@ -1200,9 +1200,9 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
     else if(status == ST_KEEP || status == ST_REMOVED)
     {
         /* first destroy the new lists, the struct will be free'd later */
-        if(vrmr_new_zone_ptr->type == TYPE_GROUP)
+        if(vrmr_new_zone_ptr->type == VRMR_TYPE_GROUP)
             vrmr_list_cleanup(debuglvl, &vrmr_new_zone_ptr->GroupList);
-        if(vrmr_new_zone_ptr->type == TYPE_NETWORK)
+        if(vrmr_new_zone_ptr->type == VRMR_TYPE_NETWORK)
         {
             vrmr_list_cleanup(debuglvl, &vrmr_new_zone_ptr->InterfaceList);
             vrmr_list_cleanup(debuglvl, &vrmr_new_zone_ptr->ProtectList);
@@ -1987,7 +1987,7 @@ check_for_changed_networks(const int debuglvl, struct vrmr_zones *zones)
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_NETWORK)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
             if(zone_ptr->status != ST_KEEP)
                 status = 1;

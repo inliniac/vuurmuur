@@ -273,7 +273,7 @@ edit_zone_host_init(const int debuglvl, char *name, int height, int width, int s
     HostSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 11, 1, 0, 0));
 
     /* load the comment from the backend */
-    if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), TYPE_HOST, 0) < 0)
+    if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_HOST, 0) < 0)
         (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
 
     set_field_buffer_wrap(debuglvl, HostSec.commentfld, 0, ZonesSection.comment);
@@ -416,7 +416,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                     zone_ptr->active = 0;
 
                 /* save to the backend */
-                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, TYPE_HOST) < 0)
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_HOST) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -459,7 +459,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                     vrmr_check_ipv4address(debuglvl, zone_ptr->network_parent->ipv4.network,
                         zone_ptr->network_parent->ipv4.netmask, zone_ptr->ipv4.ipaddress, 0))
                 {
-                    if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPADDRESS", zone_ptr->ipv4.ipaddress, 1, TYPE_HOST) < 0)
+                    if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPADDRESS", zone_ptr->ipv4.ipaddress, 1, VRMR_TYPE_HOST) < 0)
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                         return(-1);
@@ -520,7 +520,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                         zone_ptr->network_parent->ipv4.netmask, zone_ptr->ipv4.ipaddress, 0))
                 {
 #endif
-                    if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6ADDRESS", zone_ptr->ipv6.ip6, 1, TYPE_HOST) < 0)
+                    if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6ADDRESS", zone_ptr->ipv6.ip6, 1, VRMR_TYPE_HOST) < 0)
                     {
                         (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                         return(-1);
@@ -587,7 +587,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
                 }
 
                 /* save to backend */
-                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "MAC", zone_ptr->mac, 1, TYPE_HOST) < 0)
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "MAC", zone_ptr->mac, 1, VRMR_TYPE_HOST) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -604,7 +604,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_
             /* comment field */
             else if(ZonesSection.EditZone.fields[i] == HostSec.commentfld)
             {
-                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, TYPE_HOST) < 0)
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_HOST) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -874,7 +874,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
         }
 
         /* only count hosts inside the network and zone */
-        if(zone_ptr->type == TYPE_HOST)
+        if(zone_ptr->type == VRMR_TYPE_HOST)
         {
             if( strcmp(zone_ptr->zone_name, zonename) == 0 &&
                 strcmp(zone_ptr->network_name, networkname) == 0)
@@ -903,7 +903,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_zones *zones, char
         }
 
         /* only add hosts inside the network and zone */
-        if(zone_ptr->type == TYPE_HOST)
+        if(zone_ptr->type == VRMR_TYPE_HOST)
         {
             if( strcmp(zone_ptr->zone_name, zonename) == 0 &&
                 strcmp(zone_ptr->network_name, networkname) == 0)
@@ -1076,7 +1076,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
         return(-1);
     }
 
-    if(type != TYPE_HOST && type != TYPE_GROUP)
+    if(type != VRMR_TYPE_HOST && type != VRMR_TYPE_GROUP)
     {
         (void)vrprint.error(-1, VR_INTERR, "this function can only be used to rename a group or a host (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1214,7 +1214,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
     }
 
     /* group is done now */
-    if(type == TYPE_GROUP)
+    if(type == VRMR_TYPE_GROUP)
     {
         (void)vrprint.audit("%s '%s' %s '%s'.",
             STR_GROUP, old_host_name,
@@ -1233,7 +1233,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_GROUP)
+        if(zone_ptr->type == VRMR_TYPE_GROUP)
         {
             for(grp_d_node = zone_ptr->GroupList.top; grp_d_node; grp_d_node = grp_d_node->next)
             {
@@ -1446,7 +1446,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                                 }
                                 else
                                 {
-                                    if(zones_rename_host_group(debuglvl, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, TYPE_HOST, reg) == 0)
+                                    if(zones_rename_host_group(debuglvl, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_HOST, reg) == 0)
                                     {
                                         /* we have a new host, so reload the menu */
                                         reload = 1;
@@ -1499,7 +1499,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                             }
                             else
                             {
-                                if(vrmr_new_zone(debuglvl, zones, temp_ptr, TYPE_HOST) >= 0)
+                                if(vrmr_new_zone(debuglvl, zones, temp_ptr, VRMR_TYPE_HOST) >= 0)
                                 {
                                     (void)vrprint.audit("%s '%s' %s.", STR_HOST, temp_ptr, STR_HAS_BEEN_CREATED);
 
@@ -1648,7 +1648,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_zones *zones, struct vr
                         zone_ptr = vrmr_search_zonedata(debuglvl, zones, temp_ptr);
                         if(zone_ptr != NULL)
                         {
-                            if(zone_ptr->type == TYPE_HOST)
+                            if(zone_ptr->type == VRMR_TYPE_HOST)
                             {
                                 (void)edit_zone_host(debuglvl, zones, zone_ptr->name, reg);
                                 draw_top_menu(debuglvl, top_win, gettext("Hosts"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
@@ -1713,9 +1713,9 @@ edit_zone_group_members_init(const int debuglvl, struct vrmr_zones *zones, struc
         (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s)", __FUNC__);
         return(-1);
     }
-    if(group_ptr->type != TYPE_GROUP)
+    if(group_ptr->type != VRMR_TYPE_GROUP)
     {
-        (void)vrprint.error(-1, VR_INTERR, "expected a GROUP (%d), but got a %d (in: %s)", TYPE_GROUP, group_ptr->type, __FUNC__);
+        (void)vrprint.error(-1, VR_INTERR, "expected a GROUP (%d), but got a %d (in: %s)", VRMR_TYPE_GROUP, group_ptr->type, __FUNC__);
         return(-1);
     }
 
@@ -1925,9 +1925,9 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
         return(-1);
     }
     /* this should not happen, but it cant hurt checking right? */
-    if(group_ptr->type != TYPE_GROUP)
+    if(group_ptr->type != VRMR_TYPE_GROUP)
     {
-        (void)vrprint.error(-1, VR_INTERR, "expected a GROUP (%d), but got a %d (in: %s:%d)", TYPE_GROUP, group_ptr->type, __FUNC__, __LINE__);
+        (void)vrprint.error(-1, VR_INTERR, "expected a GROUP (%d), but got a %d (in: %s:%d)", VRMR_TYPE_GROUP, group_ptr->type, __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1940,7 +1940,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
             return(-1);
         }
 
-        if(zonelist_ptr->type == TYPE_HOST)
+        if(zonelist_ptr->type == VRMR_TYPE_HOST)
         {
             /* check if the host belongs to our zone */
             if(strcmp(group_ptr->zone_name, zonelist_ptr->zone_name) == 0)
@@ -1976,7 +1976,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_zones *zones, str
             return(-1);
         }
 
-        if(zonelist_ptr->type == TYPE_HOST)
+        if(zonelist_ptr->type == VRMR_TYPE_HOST)
         {
             if(strcmp(group_ptr->zone_name, zonelist_ptr->zone_name) == 0)
             {
@@ -2245,7 +2245,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_zones *zones, char *name, struct 
     GroupSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 6, 1, 0, 0));
 
     /* load the comment from the backend */
-    if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), TYPE_GROUP, 0) < 0)
+    if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_GROUP, 0) < 0)
         (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
 
     set_field_buffer_wrap(debuglvl, GroupSec.commentfld, 0, ZonesSection.comment);
@@ -2382,7 +2382,7 @@ edit_zone_group_save(const int debuglvl, struct vrmr_zone *group_ptr)
                     group_ptr->active = -1;
                 }
 
-                if(zf->tell(debuglvl, zone_backend, group_ptr->name, "ACTIVE", group_ptr->active ? "Yes" : "No", 1, TYPE_GROUP) < 0)
+                if(zf->tell(debuglvl, zone_backend, group_ptr->name, "ACTIVE", group_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_GROUP) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     retval = -1;
@@ -2396,7 +2396,7 @@ edit_zone_group_save(const int debuglvl, struct vrmr_zone *group_ptr)
             }
             else if(ZonesSection.EditZone.fields[i] == GroupSec.commentfld)
             {
-                if(zf->tell(debuglvl, zone_backend, group_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, TYPE_GROUP) < 0)
+                if(zf->tell(debuglvl, zone_backend, group_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_GROUP) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     retval = -1;
@@ -2681,7 +2681,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_GROUP)
+        if(zone_ptr->type == VRMR_TYPE_GROUP)
         {
             if( strcmp(zone_ptr->zone_name, zonename) == 0 &&
                 strcmp(zone_ptr->network_name, networkname) == 0)
@@ -2714,7 +2714,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_GROUP)
+        if(zone_ptr->type == VRMR_TYPE_GROUP)
         {
             if( strcmp(zone_ptr->zone_name, zonename) == 0 &&
                 strcmp(zone_ptr->network_name, networkname) == 0)
@@ -3016,7 +3016,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
                                 }
                                 else
                                 {
-                                    if(zones_rename_host_group(debuglvl, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, TYPE_GROUP, reg) == 0)
+                                    if(zones_rename_host_group(debuglvl, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_GROUP, reg) == 0)
                                     {
                                         /* we have a new host, so reload the menu */
                                         reload = 1;
@@ -3057,7 +3057,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_zones *zones, struct v
 
                                 if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == 0)
                                 {
-                                    if(vrmr_new_zone(debuglvl, zones, temp_ptr, TYPE_GROUP) >= 0)
+                                    if(vrmr_new_zone(debuglvl, zones, temp_ptr, VRMR_TYPE_GROUP) >= 0)
                                     {
                                         (void)vrprint.audit("%s '%s' %s.", STR_GROUP, temp_ptr, STR_HAS_BEEN_CREATED);
 
@@ -3261,7 +3261,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
         return(-1);
     }
 
-    if(type != TYPE_NETWORK && type != TYPE_ZONE)
+    if(type != VRMR_TYPE_NETWORK && type != VRMR_TYPE_ZONE)
     {
         (void)vrprint.error(-1, VR_INTERR, "this function can only be used to rename a network or a zone (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -3313,7 +3313,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
         (void)vrprint.error(-1, VR_INTERR, "name overflow (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    if(type == TYPE_ZONE)
+    if(type == VRMR_TYPE_ZONE)
     {
         if(strlcpy(zone_ptr->zone_name, vrmr_new_zone, sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
         {
@@ -3348,10 +3348,10 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
             /* search for the name in the zones list */
             if((zone_ptr = vrmr_search_zonedata(debuglvl, zones, blocklist_item)))
             {
-                if( (type == TYPE_NETWORK && strcmp(zone_ptr->network_name, old_net) == 0) ||
-                    (type == TYPE_ZONE && strcmp(zone_ptr->zone_name, old_zone) == 0))
+                if( (type == VRMR_TYPE_NETWORK && strcmp(zone_ptr->network_name, old_net) == 0) ||
+                    (type == VRMR_TYPE_ZONE && strcmp(zone_ptr->zone_name, old_zone) == 0))
                 {
-                    if(type == TYPE_NETWORK)
+                    if(type == VRMR_TYPE_NETWORK)
                         size = StrMemLen(zone_ptr->host_name) + 1 + StrMemLen(new_net) + 1 + StrMemLen(zone_ptr->zone_name) + 1;
                     else
                         size = StrMemLen(zone_ptr->host_name) + 1 + StrMemLen(zone_ptr->network_name) + 1 + StrMemLen(vrmr_new_zone) + 1;
@@ -3363,7 +3363,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                         return(-1);
                     }
                     
-                    if(type == TYPE_NETWORK)
+                    if(type == VRMR_TYPE_NETWORK)
                     {
                         if(snprintf(new_blocklist_item, size, "%s.%s.%s", zone_ptr->host_name, new_net, zone_ptr->zone_name) >= (int)size)
                         {
@@ -3412,11 +3412,11 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
         }
 
         /* change full name and the network or zonename */
-        if(type == TYPE_ZONE)
+        if(type == VRMR_TYPE_ZONE)
         {
             if(strcmp(old_zone, zone_ptr->zone_name) == 0)
             {
-                if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP)
+                if(zone_ptr->type == VRMR_TYPE_HOST || zone_ptr->type == VRMR_TYPE_GROUP)
                 {
                     if(strlcpy(zone_ptr->zone_name, vrmr_new_zone, sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
                     {
@@ -3430,7 +3430,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                         return(-1);
                     }
                 }
-                else if(zone_ptr->type == TYPE_NETWORK)
+                else if(zone_ptr->type == VRMR_TYPE_NETWORK)
                 {
                     if(strlcpy(zone_ptr->zone_name, vrmr_new_zone, sizeof(zone_ptr->zone_name)) >= sizeof(zone_ptr->zone_name))
                     {
@@ -3446,11 +3446,11 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
                 }
             }
         }
-        else if(type == TYPE_NETWORK)
+        else if(type == VRMR_TYPE_NETWORK)
         {
             if(strcmp(old_net, zone_ptr->network_name) == 0)
             {
-                if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP)
+                if(zone_ptr->type == VRMR_TYPE_HOST || zone_ptr->type == VRMR_TYPE_GROUP)
                 {
                     if(strlcpy(zone_ptr->network_name, new_net, sizeof(zone_ptr->network_name)) >= sizeof(zone_ptr->network_name))
                     {
@@ -3493,10 +3493,10 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "rule_ptr->from: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->from, rule_host, rule_net, rule_zone);
 
-            if( (type == TYPE_NETWORK && strcmp(rule_net, old_net) == 0) ||
-                (type == TYPE_ZONE && strcmp(rule_zone, old_zone) == 0))
+            if( (type == VRMR_TYPE_NETWORK && strcmp(rule_net, old_net) == 0) ||
+                (type == VRMR_TYPE_ZONE && strcmp(rule_zone, old_zone) == 0))
             {
-                if(type == TYPE_NETWORK)
+                if(type == VRMR_TYPE_NETWORK)
                 {
                     if(rule_host[0] == '\0')
                     {
@@ -3551,10 +3551,10 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "rule_ptr->to: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->to, rule_host, rule_net, rule_zone);
 
-            if( (type == TYPE_NETWORK && strcmp(rule_net, old_net) == 0) ||
-                (type == TYPE_ZONE && strcmp(rule_zone, old_zone) == 0))
+            if( (type == VRMR_TYPE_NETWORK && strcmp(rule_net, old_net) == 0) ||
+                (type == VRMR_TYPE_ZONE && strcmp(rule_zone, old_zone) == 0))
             {
-                if(type == TYPE_NETWORK)
+                if(type == VRMR_TYPE_NETWORK)
                 {
                     if(rule_host[0] == '\0')
                     {
@@ -3607,7 +3607,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
         }
     }
 
-    if(type == TYPE_ZONE)
+    if(type == VRMR_TYPE_ZONE)
         (void)vrprint.audit("%s '%s' %s '%s'.", STR_ZONE, old_name, STR_HAS_BEEN_RENAMED_TO, new_name_ptr);
     else
         (void)vrprint.audit("%s '%s' %s '%s'.", STR_NETWORK, old_name, STR_HAS_BEEN_RENAMED_TO, new_name_ptr);
@@ -3717,9 +3717,9 @@ edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr
         (void)vrprint.error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    if(zone_ptr->type != TYPE_NETWORK)
+    if(zone_ptr->type != VRMR_TYPE_NETWORK)
     {
-        vrprint.error(-1, VR_INTERR, "expected a TYPE_NETWORK (%d), but got a %d (in: %s:%d).", TYPE_NETWORK, zone_ptr->type, __FUNC__, __LINE__);
+        vrprint.error(-1, VR_INTERR, "expected a VRMR_TYPE_NETWORK (%d), but got a %d (in: %s:%d).", VRMR_TYPE_NETWORK, zone_ptr->type, __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -4115,7 +4115,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_pt
     if(network_ptr->ProtectList.len == 0)
     {
         /* clear */
-        if(zf->tell(debuglvl, zone_backend, network_ptr->name, "RULE", "", 1, TYPE_NETWORK) < 0)
+        if(zf->tell(debuglvl, zone_backend, network_ptr->name, "RULE", "", 1, VRMR_TYPE_NETWORK) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
             return(-1);
@@ -4141,7 +4141,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_pt
             if(d_node == network_ptr->ProtectList.top)
             {
                 /* save to backend */
-                if(zf->tell(debuglvl, zone_backend, network_ptr->name, "RULE", rule_str, 1, TYPE_NETWORK) < 0)
+                if(zf->tell(debuglvl, zone_backend, network_ptr->name, "RULE", rule_str, 1, VRMR_TYPE_NETWORK) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -4150,7 +4150,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_pt
             else
             {
                 /* save to backend */
-                if(zf->tell(debuglvl, zone_backend, network_ptr->name, "RULE", rule_str, 0, TYPE_NETWORK) < 0)
+                if(zf->tell(debuglvl, zone_backend, network_ptr->name, "RULE", rule_str, 0, VRMR_TYPE_NETWORK) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -4682,7 +4682,7 @@ edit_zone_network_init(const int debuglvl, struct vrmr_zones *zones, char *name,
         (void)vrprint.error(-1, VR_INTERR, "ZonesSection.EditZone.n_fields != field_num.");
 
     /* read the comment from backend */
-    if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), TYPE_NETWORK, 0) < 0)
+    if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_NETWORK, 0) < 0)
         (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
 
     set_field_buffer_wrap(debuglvl, NetworkSec.commentfld, 0, ZonesSection.comment);
@@ -4756,9 +4756,9 @@ edit_zone_network_init(const int debuglvl, struct vrmr_zones *zones, char *name,
 //    mvwprintw(ZonesSection.EditZone.win, 14, 54, "this network.");
 
     mvwprintw(ZonesSection.EditZone.win, 12, 62, "%s", gettext("Hosts"));
-    mvwprintw(ZonesSection.EditZone.win, 12, 70, "%4d", vrmr_count_zones(debuglvl, zones, TYPE_HOST, zone_ptr->network_name, zone_ptr->zone_name));
+    mvwprintw(ZonesSection.EditZone.win, 12, 70, "%4d", vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, zone_ptr->network_name, zone_ptr->zone_name));
     mvwprintw(ZonesSection.EditZone.win, 13, 62, "%s", gettext("Groups"));
-    mvwprintw(ZonesSection.EditZone.win, 13, 70, "%4d", vrmr_count_zones(debuglvl, zones, TYPE_GROUP, zone_ptr->network_name, zone_ptr->zone_name));
+    mvwprintw(ZonesSection.EditZone.win, 13, 70, "%4d", vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, zone_ptr->network_name, zone_ptr->zone_name));
 
     wrefresh(ZonesSection.EditZone.win);
     return(0);
@@ -4807,7 +4807,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
                     zone_ptr->active = 0;
                 }
 
-                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, TYPE_NETWORK) < 0)
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_NETWORK) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -4831,7 +4831,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
                                     sizeof(zone_ptr->ipv4.network))))
                     return(-1);
 
-                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "NETWORK", zone_ptr->ipv4.network, 1, TYPE_NETWORK) < 0)
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "NETWORK", zone_ptr->ipv4.network, 1, VRMR_TYPE_NETWORK) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -4855,7 +4855,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
                                     sizeof(zone_ptr->ipv4.netmask))))
                     return(-1);
 
-                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "NETMASK", zone_ptr->ipv4.netmask, 1, TYPE_NETWORK) < 0)
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "NETMASK", zone_ptr->ipv4.netmask, 1, VRMR_TYPE_NETWORK) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -4882,7 +4882,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
                                     sizeof(zone_ptr->ipv6.net6))))
                     return(-1);
 
-                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6NETWORK", zone_ptr->ipv6.net6, 1, TYPE_NETWORK) < 0)
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6NETWORK", zone_ptr->ipv6.net6, 1, VRMR_TYPE_NETWORK) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -4909,7 +4909,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
                                     sizeof(cidrstr))))
                     return(-1);
 
-                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6CIDR", cidrstr, 1, TYPE_NETWORK) < 0)
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "IPV6CIDR", cidrstr, 1, VRMR_TYPE_NETWORK) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -4925,7 +4925,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
             /* save the comment to the backend */
             else if(ZonesSection.EditZone.fields[i] == NetworkSec.commentfld)
             {
-                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, TYPE_NETWORK) < 0)
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_NETWORK) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -5288,7 +5288,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_NETWORK && strcmp(zone_ptr->zone_name, zonename)== 0)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK && strcmp(zone_ptr->zone_name, zonename)== 0)
             ZonesSection.network_n++;
     }
 
@@ -5316,7 +5316,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_NETWORK  && strcmp(zone_ptr->zone_name, zonename)== 0)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK  && strcmp(zone_ptr->zone_name, zonename)== 0)
         {
             if(zone_ptr->ipv4.network[0] == '\0' || zone_ptr->ipv4.netmask[0] == '\0')
                 /* TRANSLATORS: max 32 chars */
@@ -5613,7 +5613,7 @@ zones_section_menu_networks(const int debuglvl,
 
                                 if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == 0)
                                 {
-                                    if(zones_rename_network_zone(debuglvl, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, TYPE_NETWORK, reg) < 0)
+                                    if(zones_rename_network_zone(debuglvl, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_NETWORK, reg) < 0)
                                     {
                                         (void)vrprint.error(-1, VR_ERR, gettext("renaming network failed."));
                                     }
@@ -5660,7 +5660,7 @@ zones_section_menu_networks(const int debuglvl,
 
                                 if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VALNAME_VERBOSE) == 0)
                                 {
-                                    if(vrmr_new_zone(debuglvl, zones, temp_ptr, TYPE_NETWORK) < 0)
+                                    if(vrmr_new_zone(debuglvl, zones, temp_ptr, VRMR_TYPE_NETWORK) < 0)
                                     {
                                         (void)vrprint.error(-1, VR_ERR, gettext("adding network failed."));
                                     }
@@ -5692,8 +5692,8 @@ zones_section_menu_networks(const int debuglvl,
                     cur = current_item(ZonesSection.n_menu);
                     if(cur)
                     {
-                        if( vrmr_count_zones(debuglvl, zones, TYPE_HOST, (char *)item_name(cur), zonename) <= 0   &&
-                            vrmr_count_zones(debuglvl, zones, TYPE_GROUP, (char *)item_name(cur), zonename) <= 0)
+                        if( vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, (char *)item_name(cur), zonename) <= 0   &&
+                            vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, (char *)item_name(cur), zonename) <= 0)
                         {
                             if (confirm(gettext("Delete"), gettext("This network?"),
                                         vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
@@ -5707,7 +5707,7 @@ zones_section_menu_networks(const int debuglvl,
                                         (void)strlcat(zonename_ptr, ".", size);
                                         (void)strlcat(zonename_ptr, zonename, size);
 
-                                        result = vrmr_delete_zone(debuglvl, zones, zonename_ptr, TYPE_NETWORK);
+                                        result = vrmr_delete_zone(debuglvl, zones, zonename_ptr, VRMR_TYPE_NETWORK);
                                         if(result < 0)
                                             (void)vrprint.error(result, VR_ERR, gettext("deleting network failed."));
                                         else
@@ -5935,7 +5935,7 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_zones *zones, char *name, in
     /* create and label the comment field */
     ZoneSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 6, 1, 0, 0));
     /* load the comment from the backend */
-    if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), TYPE_ZONE, 0) < 0)
+    if(zf->ask(debuglvl, zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_ZONE, 0) < 0)
         (void)vrprint.error(-1, "Error", "error while loading the comment.");
 
     set_field_buffer_wrap(debuglvl, ZoneSec.commentfld, 0, ZonesSection.comment);
@@ -5986,11 +5986,11 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_zones *zones, char *name, in
     mvwprintw(ZonesSection.EditZone.win, 1, 2, "%s: %s", gettext("Name"), zone_ptr->name);
 
     mvwprintw(ZonesSection.EditZone.win, 3, 35, "%s",  gettext("Networks"));
-    mvwprintw(ZonesSection.EditZone.win, 3, 45, "%4d", vrmr_count_zones(debuglvl, zones, TYPE_NETWORK, NULL, zone_ptr->name));
+    mvwprintw(ZonesSection.EditZone.win, 3, 45, "%4d", vrmr_count_zones(debuglvl, zones, VRMR_TYPE_NETWORK, NULL, zone_ptr->name));
     mvwprintw(ZonesSection.EditZone.win, 4, 35, "%s",  gettext("Hosts"));
-    mvwprintw(ZonesSection.EditZone.win, 4, 45, "%4d", vrmr_count_zones(debuglvl, zones, TYPE_HOST, NULL, zone_ptr->name));
+    mvwprintw(ZonesSection.EditZone.win, 4, 45, "%4d", vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, NULL, zone_ptr->name));
     mvwprintw(ZonesSection.EditZone.win, 5, 35, "%s",  gettext("Groups"));
-    mvwprintw(ZonesSection.EditZone.win, 5, 45, "%4d", vrmr_count_zones(debuglvl, zones, TYPE_GROUP, NULL, zone_ptr->name));
+    mvwprintw(ZonesSection.EditZone.win, 5, 45, "%4d", vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, NULL, zone_ptr->name));
 
     /* draw and set cursor */
     wrefresh(ZonesSection.EditZone.win);
@@ -6040,7 +6040,7 @@ edit_zone_zone_save(const int debuglvl, struct vrmr_zone *zone_ptr)
                 }
 
                 /* save to backend */
-                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, TYPE_ZONE) < 0)
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_ZONE) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     retval = -1;
@@ -6056,7 +6056,7 @@ edit_zone_zone_save(const int debuglvl, struct vrmr_zone *zone_ptr)
             else if(ZonesSection.EditZone.fields[i] == ZoneSec.commentfld)
             {
                 /* save the comment field to the backend */
-                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, TYPE_ZONE) < 0)
+                if(zf->tell(debuglvl, zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_ZONE) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     retval = -1;
@@ -6280,7 +6280,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_ZONE)
+        if(zone_ptr->type == VRMR_TYPE_ZONE)
             zones_cnt++;
     }
     ZonesSection.zone_n = zones_cnt;
@@ -6300,7 +6300,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_ZONE)
+        if(zone_ptr->type == VRMR_TYPE_ZONE)
         {
             if(!(ZonesSection.zoneitems[i] = new_item(zone_ptr->name, NULL)))
             {
@@ -6531,7 +6531,7 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
                         {
                             if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VALNAME_VERBOSE) == 0)
                             {
-                                if(zones_rename_network_zone(debuglvl, zones, rules, blocklist, (char *)item_name(cur), vrmr_new_zone_ptr, TYPE_ZONE, reg) == 0)
+                                if(zones_rename_network_zone(debuglvl, zones, rules, blocklist, (char *)item_name(cur), vrmr_new_zone_ptr, VRMR_TYPE_ZONE, reg) == 0)
                                 {
                                     /* we have a renamed network, so reload the menu */
                                     reload = 1;
@@ -6552,7 +6552,7 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
                     {
                         if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VALNAME_VERBOSE) == 0)
                         {
-                            if(vrmr_new_zone(debuglvl, zones, vrmr_new_zone_ptr, TYPE_ZONE) < 0)
+                            if(vrmr_new_zone(debuglvl, zones, vrmr_new_zone_ptr, VRMR_TYPE_ZONE) < 0)
                             {
                                 (void)vrprint.error(result, VR_ERR, "adding zone failed (in: %s:%d).", __FUNC__);
                             }
@@ -6586,9 +6586,9 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
                     cur = current_item(ZonesSection.menu);
                     if(cur)
                     {
-                        if( vrmr_count_zones(debuglvl, zones, TYPE_NETWORK, NULL, (char *)item_name(cur)) <= 0   &&
-                            vrmr_count_zones(debuglvl, zones, TYPE_HOST, NULL, (char *)item_name(cur)) <= 0   &&
-                            vrmr_count_zones(debuglvl, zones, TYPE_GROUP, NULL, (char *)item_name(cur)) <= 0)
+                        if( vrmr_count_zones(debuglvl, zones, VRMR_TYPE_NETWORK, NULL, (char *)item_name(cur)) <= 0   &&
+                            vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, NULL, (char *)item_name(cur)) <= 0   &&
+                            vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, NULL, (char *)item_name(cur)) <= 0)
                         {
                             if (confirm(gettext("Delete"), gettext("This zone?"),
                                         vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
@@ -6596,7 +6596,7 @@ zones_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfac
                                 /* for logging */
                                 (void)strlcpy(save_zone_name, (char *)item_name(cur), sizeof(save_zone_name));
 
-                                result = vrmr_delete_zone(debuglvl, zones, (char *)item_name(cur), TYPE_ZONE);
+                                result = vrmr_delete_zone(debuglvl, zones, (char *)item_name(cur), VRMR_TYPE_ZONE);
                                 if(result < 0)
                                 {
                                     (void)vrprint.error(result, VR_ERR, gettext("deleting zone failed (in: %s:%d)."), __FUNC__, __LINE__);
@@ -6949,9 +6949,9 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
 
             /* get the type */
             if(strcasecmp(choice_ptr, gettext("Host")) == 0)
-                choice_type = TYPE_HOST;
+                choice_type = VRMR_TYPE_HOST;
             else
-                choice_type = TYPE_GROUP;
+                choice_type = VRMR_TYPE_GROUP;
 
             for(d_node = zones->list.top, i = 0; d_node ; d_node = d_node->next)
             {
@@ -7005,7 +7005,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
                     return(-1);
                 }
 
-                if(choice_type == TYPE_HOST)
+                if(choice_type == VRMR_TYPE_HOST)
                     (void)vrprint.audit("%s '%s' %s.",
                         STR_HOST, choice_ptr,
                         STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);

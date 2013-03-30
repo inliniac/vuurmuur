@@ -29,8 +29,8 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
     /*
         first check if the object exists
     */
-    if( vr_script->type == TYPE_ZONE || vr_script->type == TYPE_NETWORK ||
-        vr_script->type == TYPE_HOST || vr_script->type == TYPE_GROUP)
+    if( vr_script->type == VRMR_TYPE_ZONE || vr_script->type == VRMR_TYPE_NETWORK ||
+        vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
         while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
@@ -42,19 +42,19 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == FALSE)
         {
-            if(vr_script->type == TYPE_ZONE)
+            if(vr_script->type == VRMR_TYPE_ZONE)
                 (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "zone '%s' doesn't exist.", vr_script->name);
-            else if(vr_script->type == TYPE_NETWORK)
+            else if(vr_script->type == VRMR_TYPE_NETWORK)
                 (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "network '%s' doesn't exist.", vr_script->name);
-            else if(vr_script->type == TYPE_HOST)
+            else if(vr_script->type == VRMR_TYPE_HOST)
                 (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "host '%s' doesn't exist.", vr_script->name);
-            else if(vr_script->type == TYPE_GROUP)
+            else if(vr_script->type == VRMR_TYPE_GROUP)
                 (void)vrprint.error(VRS_ERR_NOT_FOUND, VR_ERR, "group '%s' doesn't exist.", vr_script->name);
 
             return(VRS_ERR_NOT_FOUND);
         }
     }
-    else if(vr_script->type == TYPE_SERVICE)
+    else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
         while(sf->list(debuglvl, serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
         {
@@ -70,7 +70,7 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_NOT_FOUND);
         }
     }
-    else if(vr_script->type == TYPE_INTERFACE)
+    else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
         while(af->list(debuglvl, ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
         {
@@ -86,7 +86,7 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_NOT_FOUND);
         }
     }
-    else if(vr_script->type == TYPE_RULE)
+    else if(vr_script->type == VRMR_TYPE_RULE)
     {
         while(rf->list(debuglvl, rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
         {
@@ -113,9 +113,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
     /*
         now modify!
     */
-    if(vr_script->type == TYPE_ZONE)
+    if(vr_script->type == VRMR_TYPE_ZONE)
     {
-        if(zf->tell(debuglvl, zone_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, TYPE_ZONE) < 0)
+        if(zf->tell(debuglvl, zone_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, VRMR_TYPE_ZONE) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "modifying zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -126,9 +126,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         else
             logchange("for zone '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
-    else if(vr_script->type == TYPE_NETWORK)
+    else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
-        if(zf->tell(debuglvl, zone_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, TYPE_NETWORK) < 0)
+        if(zf->tell(debuglvl, zone_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, VRMR_TYPE_NETWORK) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "modifying network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -139,9 +139,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         else
             logchange("for network '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
-    else if(vr_script->type == TYPE_HOST)
+    else if(vr_script->type == VRMR_TYPE_HOST)
     {
-        if(zf->tell(debuglvl, zone_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, TYPE_HOST) < 0)
+        if(zf->tell(debuglvl, zone_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, VRMR_TYPE_HOST) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "modifying host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -152,9 +152,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         else
             logchange("for host '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
-    else if(vr_script->type == TYPE_GROUP)
+    else if(vr_script->type == VRMR_TYPE_GROUP)
     {
-        if(zf->tell(debuglvl, zone_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, TYPE_GROUP) < 0)
+        if(zf->tell(debuglvl, zone_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, VRMR_TYPE_GROUP) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "modifying group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -165,9 +165,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         else
             logchange("for group '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
-    else if(vr_script->type == TYPE_SERVICE)
+    else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        if(sf->tell(debuglvl, serv_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, TYPE_SERVICE) < 0)
+        if(sf->tell(debuglvl, serv_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, VRMR_TYPE_SERVICE) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "modifying service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -178,9 +178,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         else
             logchange("for service '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
-    else if(vr_script->type == TYPE_INTERFACE)
+    else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        if(af->tell(debuglvl, ifac_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, TYPE_INTERFACE) < 0)
+        if(af->tell(debuglvl, ifac_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, VRMR_TYPE_INTERFACE) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "modifying interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -191,9 +191,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         else
             logchange("for interface '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
-    else if(vr_script->type == TYPE_RULE)
+    else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        if(rf->tell(debuglvl, rule_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, TYPE_RULE) < 0)
+        if(rf->tell(debuglvl, rule_backend, vr_script->name, vr_script->var, vr_script->set, vr_script->overwrite, VRMR_TYPE_RULE) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "modifying ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);

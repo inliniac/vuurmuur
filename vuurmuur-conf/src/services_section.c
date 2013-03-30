@@ -1965,7 +1965,7 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
                     ser_ptr->active = 0;
                 }
 
-                result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "ACTIVE", ser_ptr->active ? "Yes" : "No", 1, TYPE_SERVICE);
+                result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "ACTIVE", ser_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
                 if(result < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
@@ -1994,7 +1994,7 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
                     ser_ptr->broadcast = 0;
                 }
 
-                result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1, TYPE_SERVICE);
+                result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
                 if(result < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
@@ -2017,7 +2017,7 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
                                     sizeof(ser_ptr->helper))))
                     return(-1);
 
-                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "HELPER", ser_ptr->helper, 1, TYPE_SERVICE) < 0)
+                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "HELPER", ser_ptr->helper, 1, VRMR_TYPE_SERVICE) < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -2032,7 +2032,7 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
             /* comment */
             else if(ServicesSection.EditService.fields[i] == ServiceSec.commentfld)
             {
-                result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "COMMENT", field_buffer(ServicesSection.EditService.fields[i], 0), 1, TYPE_SERVICE);
+                result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "COMMENT", field_buffer(ServicesSection.EditService.fields[i], 0), 1, VRMR_TYPE_SERVICE);
                 if(result < 0)
                 {
                     (void)vrprint.error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
@@ -2125,7 +2125,7 @@ edit_service_init(const int debuglvl, struct vrmr_service *ser_ptr)
     comment_y = 5;
     comment_x = 48;
     /* load the comment from the backend */
-    if(sf->ask(debuglvl, serv_backend, ser_ptr->name, "COMMENT", ServicesSection.comment, sizeof(ServicesSection.comment), TYPE_SERVICE, 0) < 0)
+    if(sf->ask(debuglvl, serv_backend, ser_ptr->name, "COMMENT", ServicesSection.comment, sizeof(ServicesSection.comment), VRMR_TYPE_SERVICE, 0) < 0)
         (void)vrprint.error(-1, VR_ERR, gettext("error while loading the comment."));
 
     ServiceSec.commentfld = (ServicesSection.EditService.fields[field_num++] = new_field(comment_y, comment_x, 9, 1, 0, 0));
@@ -2461,7 +2461,7 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "going to rename service old_ser_name:'%s' to new_name_ptr:'%s'.", old_ser_name, new_name_ptr);
 
-    result = sf->rename(debuglvl, serv_backend, old_ser_name, new_name_ptr, TYPE_SERVICE);
+    result = sf->rename(debuglvl, serv_backend, old_ser_name, new_name_ptr, VRMR_TYPE_SERVICE);
     if(result != 0)
     {
         return(-1);
@@ -2784,7 +2784,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                             }
                             else
                             {
-                                result = vrmr_new_service(debuglvl, services, new_name_ptr, TYPE_SERVICE);
+                                result = vrmr_new_service(debuglvl, services, new_name_ptr, VRMR_TYPE_SERVICE);
                                 if(result == 0)
                                 {
                                     /* example: "service 'X-5' has been created" */
@@ -2821,7 +2821,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                         {
                             (void)strlcpy(save_ser_name, (char *)item_name(cur), sizeof(save_ser_name));
 
-                            result = vrmr_delete_service(debuglvl, services, (char *)item_name(cur), TYPE_SERVICE);
+                            result = vrmr_delete_service(debuglvl, services, (char *)item_name(cur), VRMR_TYPE_SERVICE);
                             if(result < 0)
                             {
                                 (void)vrprint.error(-1, VR_ERR, "%s.", STR_DELETE_FAILED);

@@ -101,7 +101,7 @@ char
                     if(vrmr_validate_servicename(debuglvl, name, tb->servicename_reg, VALNAME_QUIET) == 0)
                     {
                         /* determine the location of the file */
-                        if(!(file_location = get_filelocation(debuglvl, backend, name, TYPE_SERVICE)))
+                        if(!(file_location = get_filelocation(debuglvl, backend, name, VRMR_TYPE_SERVICE)))
                             return(NULL);
                         
                         if(debuglvl >= HIGH)
@@ -112,7 +112,7 @@ char
                         {
                             free(file_location);
 
-                            *zonetype = TYPE_SERVICE;
+                            *zonetype = VRMR_TYPE_SERVICE;
                             return(name);
                         }
 
@@ -174,11 +174,11 @@ char
 
                             if(vrmr_validate_interfacename(debuglvl, tb->interface, tb->interfacename_reg) == 0)
                             {
-                                *zonetype = TYPE_INTERFACE;
+                                *zonetype = VRMR_TYPE_INTERFACE;
                                 (void)strlcpy(name, tb->interface, VRMR_MAX_INTERFACE);
 
                                 // determine the location of the file
-                                if(!(file_location = get_filelocation(debuglvl, backend, name, TYPE_INTERFACE)))
+                                if(!(file_location = get_filelocation(debuglvl, backend, name, VRMR_TYPE_INTERFACE)))
                                     return(NULL);
                                 
                                 if(debuglvl >= HIGH)
@@ -258,11 +258,11 @@ char
                             (void)strlcpy(tb->rule, dir_entry_p->d_name, (strlen(dir_entry_p->d_name)-5)+1);
                             tb->rule[strlen(dir_entry_p->d_name)-5]='\0';
 
-                            *zonetype = TYPE_RULE;
+                            *zonetype = VRMR_TYPE_RULE;
                             (void)strlcpy(name, tb->rule, MAX_RULE_NAME);
 
                             /* determine the location of the file */
-                            if(!(file_location = get_filelocation(debuglvl, backend, name, TYPE_RULE)))
+                            if(!(file_location = get_filelocation(debuglvl, backend, name, VRMR_TYPE_RULE)))
                                 return(NULL);
 
                             if(debuglvl >= HIGH)
@@ -329,7 +329,7 @@ char
                             if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
                             {
                                 // determine the location of the file
-                                if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, TYPE_HOST)))
+                                if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, VRMR_TYPE_HOST)))
                                     return(NULL);
                                 
                                 if(debuglvl >= HIGH)
@@ -340,7 +340,7 @@ char
                                 {
                                     free(file_location);
 
-                                    *zonetype = TYPE_HOST;
+                                    *zonetype = VRMR_TYPE_HOST;
 
                                     (void)strlcpy(name, cur_zonename, VRMR_VRMR_MAX_HOST_NET_ZONE);
                                     return(name);
@@ -385,7 +385,7 @@ char
                             if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
                             {
                                 // determine the location of the file
-                                if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, TYPE_GROUP)))
+                                if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, VRMR_TYPE_GROUP)))
                                     return(NULL);
                                 
                                 if(debuglvl >= HIGH)
@@ -396,7 +396,7 @@ char
                                 {
                                     free(file_location);
 
-                                    *zonetype = TYPE_GROUP;
+                                    *zonetype = VRMR_TYPE_GROUP;
 
                                     (void)strlcpy(name, cur_zonename, VRMR_VRMR_MAX_HOST_NET_ZONE);
                                     return(name);
@@ -456,7 +456,7 @@ char
                         if(vrmr_validate_zonename(debuglvl, cur_zonename, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
                         {
                             // determine the location of the file
-                            if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, TYPE_NETWORK)))
+                            if(!(file_location = get_filelocation(debuglvl, backend, cur_zonename, VRMR_TYPE_NETWORK)))
                                 return(NULL);
                             
                             if(debuglvl >= HIGH)
@@ -470,7 +470,7 @@ char
                                 if(debuglvl >= HIGH)
                                     (void)tb->cfg->vrprint.debug(__FUNC__, "list_textdir: '%s' ('%s', '%s').", cur_zonename, tb->cur_network, tb->cur_zone);
 
-                                *zonetype = TYPE_NETWORK;
+                                *zonetype = VRMR_TYPE_NETWORK;
 
                                 (void)strlcpy(name, cur_zonename, VRMR_MAX_NET_ZONE);
                                 return(name);
@@ -518,7 +518,7 @@ char
                         if(vrmr_validate_zonename(debuglvl, dir_entry_p->d_name, 1, NULL, NULL, NULL, tb->zonename_reg, VALNAME_QUIET) == 0)
                         {
                             // determine the location of the file
-                            if(!(file_location = get_filelocation(debuglvl, backend, dir_entry_p->d_name, TYPE_ZONE)))
+                            if(!(file_location = get_filelocation(debuglvl, backend, dir_entry_p->d_name, VRMR_TYPE_ZONE)))
                                 return(NULL);
                             
                             if(debuglvl >= HIGH)
@@ -532,7 +532,7 @@ char
                                 if(debuglvl >= HIGH)
                                     (void)tb->cfg->vrprint.debug(__FUNC__, "zone '%s'.", tb->cur_zone);
 
-                                *zonetype = TYPE_ZONE;
+                                *zonetype = VRMR_TYPE_ZONE;
 
                                 (void)strlcpy(name, dir_entry_p->d_name, VRMR_MAX_ZONE);
                                 return(name);

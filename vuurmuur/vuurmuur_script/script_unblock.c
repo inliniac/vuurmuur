@@ -106,7 +106,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
     blocklist.old_blocklistfile_used = FALSE;
 
     while(rf->ask(debuglvl, rule_backend, "blocklist", "RULE",
-                vr_script->bdat, sizeof(vr_script->bdat), TYPE_RULE, 1) == 1)
+                vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_RULE, 1) == 1)
     {
         vrmr_rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
 

@@ -858,7 +858,7 @@ backend_check(const int debuglvl, int type, char *var, char *val, char overwrite
         if(backend_vars[i].type == -1)
             break;
 
-        if((backend_vars[i].type == type || backend_vars[i].type == TYPE_UNSET) &&
+        if((backend_vars[i].type == type || backend_vars[i].type == VRMR_TYPE_UNSET) &&
             strcmp(backend_vars[i].var, var) == 0)
         {
             if(overwrite == 0 && backend_vars[i].multi == 0)

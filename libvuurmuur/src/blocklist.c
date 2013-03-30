@@ -155,13 +155,13 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
         /* search for the name in the zones list */
         if((zone_ptr = vrmr_search_zonedata(debuglvl, zones, line)))
         {
-            if(zone_ptr->type != TYPE_HOST && zone_ptr->type != TYPE_GROUP)
+            if(zone_ptr->type != VRMR_TYPE_HOST && zone_ptr->type != VRMR_TYPE_GROUP)
             {
-                if(zone_ptr->type == TYPE_NETWORK)
+                if(zone_ptr->type == VRMR_TYPE_NETWORK)
                 {
                     (void)vrprint.warning("Warning", "you can only add an ipaddress, host or group to the blocklist. '%s' is a network.", zone_ptr->name);
                 }
-                else if(zone_ptr->type == TYPE_ZONE)
+                else if(zone_ptr->type == VRMR_TYPE_ZONE)
                 {
                     (void)vrprint.warning("Warning", "you can only add an ipaddress, host or group to the blocklist. '%s' is a zone.", zone_ptr->name);
                 }
@@ -201,7 +201,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
                         zone_ptr->refcnt_blocklist++;
                     }
 
-                    if(zone_ptr->type == TYPE_HOST)
+                    if(zone_ptr->type == VRMR_TYPE_HOST)
                     {
                         if(!load_ips)
                         {
@@ -223,7 +223,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
                         }
                     }
 
-                    if(zone_ptr->type == TYPE_GROUP)
+                    if(zone_ptr->type == VRMR_TYPE_GROUP)
                     {
                         if(!load_ips)
                         {
@@ -513,7 +513,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_config *cfg,
 
         if(blocklist_found == FALSE)
         {
-            if(rf->add(debuglvl, rule_backend, "blocklist", TYPE_RULE) < 0)
+            if(rf->add(debuglvl, rule_backend, "blocklist", VRMR_TYPE_RULE) < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "rf->add() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
@@ -521,7 +521,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_config *cfg,
             }
         }
 
-        while((rf->ask(debuglvl, rule_backend, "blocklist", "RULE", line, sizeof(line), TYPE_RULE, 1)) == 1)
+        while((rf->ask(debuglvl, rule_backend, "blocklist", "RULE", line, sizeof(line), VRMR_TYPE_RULE, 1)) == 1)
         {
             len = strlen(line);
             if(len > 0 && line[0] != '#')
@@ -636,7 +636,7 @@ vrmr_blocklist_save_list(const int debuglvl, struct vrmr_config *cfg, struct vrm
         /* empty list, so clear all */
         if(blocklist->list.len == 0)
         {
-            if(rf->tell(debuglvl, rule_backend, "blocklist", "RULE", "", 1, TYPE_RULE) < 0)
+            if(rf->tell(debuglvl, rule_backend, "blocklist", "RULE", "", 1, VRMR_TYPE_RULE) < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
@@ -663,7 +663,7 @@ vrmr_blocklist_save_list(const int debuglvl, struct vrmr_config *cfg, struct vrm
                 snprintf(rule_str, sizeof(rule_str), "block %s", line);
 
                 /* write to the backend */
-                if(rf->tell(debuglvl, rule_backend, "blocklist", "RULE", rule_str, overwrite, TYPE_RULE) < 0)
+                if(rf->tell(debuglvl, rule_backend, "blocklist", "RULE", rule_str, overwrite, VRMR_TYPE_RULE) < 0)
                 {
                     (void)vrprint.error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);

@@ -445,9 +445,9 @@ conn_line_to_data(  const int debuglvl,
     else
         conndata_ptr->connect_status = CONN_UNUSED;
 
-    if(conndata_ptr->from != NULL && conndata_ptr->from->type == TYPE_FIREWALL)
+    if(conndata_ptr->from != NULL && conndata_ptr->from->type == VRMR_TYPE_FIREWALL)
         conndata_ptr->direction_status = CONN_OUT;
-    else if(conndata_ptr->to != NULL && conndata_ptr->to->type == TYPE_FIREWALL)
+    else if(conndata_ptr->to != NULL && conndata_ptr->to->type == VRMR_TYPE_FIREWALL)
         conndata_ptr->direction_status = CONN_IN;
     else
         conndata_ptr->direction_status = CONN_FW;
@@ -2242,9 +2242,9 @@ vrmr_conn_get_connections_do(const int debuglvl,
             /* update counters */
             connstat_ptr->conn_total++;
 
-            if(cd_ptr->from != NULL && cd_ptr->from->type == TYPE_FIREWALL)
+            if(cd_ptr->from != NULL && cd_ptr->from->type == VRMR_TYPE_FIREWALL)
                 connstat_ptr->conn_out++;
-            else if(cd_ptr->to != NULL && cd_ptr->to->type == TYPE_FIREWALL)
+            else if(cd_ptr->to != NULL && cd_ptr->to->type == VRMR_TYPE_FIREWALL)
                 connstat_ptr->conn_in++;
             else
                 connstat_ptr->conn_fw++;

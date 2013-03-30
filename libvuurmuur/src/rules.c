@@ -349,7 +349,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
             }
 
             /* if 'from' is 'any' we cannot get the interfaces for it */
-            if(create->from_any == FALSE && create->from->type != TYPE_ZONE)
+            if(create->from_any == FALSE && create->from->type != VRMR_TYPE_ZONE)
             {
                 /* assemble the network name */
                 snprintf(network, sizeof(network), "%s.%s", create->from->network_name, create->from->zone_name);
@@ -393,7 +393,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
             }
 
             /* if to is any we cannot get the interfaces from it */
-            if(create->to_any == FALSE && create->to->type != TYPE_ZONE)
+            if(create->to_any == FALSE && create->to->type != VRMR_TYPE_ZONE)
             {
                 /* get the pointer to the zonedata in the ZonedataList */
                 snprintf(network, sizeof(network), "%s.%s", create->to->network_name, create->to->zone_name);
@@ -476,7 +476,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
                 return(-1);
             }
 
-            if(create->to == NULL || create->to->type != TYPE_HOST)
+            if(create->to == NULL || create->to->type != VRMR_TYPE_HOST)
             {
                 (void)vrprint.error(-1, "Error", "portforwarding is only allowed to a host (%s service %s from %s to %s).",
                         vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service,
@@ -535,7 +535,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
                 return(-1);
             }
 
-            if(create->to == NULL || create->to->type != TYPE_HOST)
+            if(create->to == NULL || create->to->type != VRMR_TYPE_HOST)
             {
                 (void)vrprint.error(-1, "Error", "dnat "
                         "is only allowed to a host (%s service "
@@ -599,7 +599,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
                 return(-1);
             }
 
-            if(create->to == NULL || create->to->type != TYPE_HOST)
+            if(create->to == NULL || create->to->type != VRMR_TYPE_HOST)
             {
                 (void)vrprint.error(-1, "Error", "bounce "
                         "is only allowed to a host (%s service "
@@ -836,7 +836,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
 
         if(rules_found == FALSE)
         {
-            if(rf->add(debuglvl, rule_backend, "rules", TYPE_RULE) < 0)
+            if(rf->add(debuglvl, rule_backend, "rules", VRMR_TYPE_RULE) < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "rf->add() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
@@ -844,7 +844,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ru
             }
         }
 
-        while((rf->ask(debuglvl, rule_backend, "rules", "RULE", line, sizeof(line), TYPE_RULE, 1)) == 1)
+        while((rf->ask(debuglvl, rule_backend, "rules", "RULE", line, sizeof(line), VRMR_TYPE_RULE, 1)) == 1)
         {
             /* check if the line is a comment */
         //TODO what? what? what?
@@ -1580,7 +1580,7 @@ vrmr_rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vrmr_c
         /* empty list, so clear all */
         if(rules->list.len == 0)
         {
-            if(rf->tell(debuglvl, rule_backend, "rules", "RULE", "", 1, TYPE_RULE) < 0)
+            if(rf->tell(debuglvl, rule_backend, "rules", "RULE", "", 1, VRMR_TYPE_RULE) < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
@@ -1632,7 +1632,7 @@ vrmr_rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vrmr_c
                 }
 
                 /* write to the backend */
-                if(rf->tell(debuglvl, rule_backend, "rules", "RULE", eline, overwrite, TYPE_RULE) < 0)
+                if(rf->tell(debuglvl, rule_backend, "rules", "RULE", eline, overwrite, VRMR_TYPE_RULE) < 0)
                 {
                     (void)vrprint.error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);

@@ -227,16 +227,16 @@ vrmr_vrmr_insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
                         check_zone_ptr->type);
 
             /* store the last zone and network so we can determine the scope */
-            if(check_zone_ptr->type == TYPE_ZONE)
+            if(check_zone_ptr->type == VRMR_TYPE_ZONE)
                 cur_zone = check_zone_ptr;
-            else if(check_zone_ptr->type == TYPE_NETWORK)
+            else if(check_zone_ptr->type == VRMR_TYPE_NETWORK)
                 cur_network = check_zone_ptr;
 
             /* see if we are in the right scope: this means that a host is in its 'own' network, a network in its 'own' zone, etc. */
-            if( (zone_ptr->type == TYPE_ZONE) ||
-                (zone_ptr->type == TYPE_NETWORK && cur_zone && strcmp(cur_zone->zone_name, zone_ptr->zone_name) == 0) ||
-                (zone_ptr->type == TYPE_HOST    && cur_zone && strcmp(cur_zone->zone_name, zone_ptr->zone_name) == 0  && cur_network && strcmp(cur_network->network_name, zone_ptr->network_name) == 0) ||
-                (zone_ptr->type == TYPE_GROUP   && cur_zone && strcmp(cur_zone->zone_name, zone_ptr->zone_name) == 0  && cur_network && strcmp(cur_network->network_name, zone_ptr->network_name) == 0)
+            if( (zone_ptr->type == VRMR_TYPE_ZONE) ||
+                (zone_ptr->type == VRMR_TYPE_NETWORK && cur_zone && strcmp(cur_zone->zone_name, zone_ptr->zone_name) == 0) ||
+                (zone_ptr->type == VRMR_TYPE_HOST    && cur_zone && strcmp(cur_zone->zone_name, zone_ptr->zone_name) == 0  && cur_network && strcmp(cur_network->network_name, zone_ptr->network_name) == 0) ||
+                (zone_ptr->type == VRMR_TYPE_GROUP   && cur_zone && strcmp(cur_zone->zone_name, zone_ptr->zone_name) == 0  && cur_network && strcmp(cur_network->network_name, zone_ptr->network_name) == 0)
             )
             {
                 if(debuglvl >= HIGH)
@@ -422,8 +422,8 @@ vrmr_read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
         return(-1);
     }
 
-    if( type != TYPE_ZONE && type != TYPE_NETWORK &&
-        type != TYPE_HOST && type != TYPE_GROUP)
+    if( type != VRMR_TYPE_ZONE && type != VRMR_TYPE_NETWORK &&
+        type != VRMR_TYPE_HOST && type != VRMR_TYPE_GROUP)
     {
         (void)vrprint.error(-1, "Interal Error", "wrong zonetype %d "
                 "(in: %s:%d).", type, __FUNC__, __LINE__);
@@ -476,9 +476,9 @@ vrmr_read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
         zone_ptr->active = FALSE;
 
 
-    if(zone_ptr->type != TYPE_ZONE && zone_ptr->type != TYPE_GROUP)
+    if(zone_ptr->type != VRMR_TYPE_ZONE && zone_ptr->type != VRMR_TYPE_GROUP)
     {
-        if(zone_ptr->type == TYPE_NETWORK)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
             result = vrmr_zones_network_get_interfaces(debuglvl, zone_ptr, interfaces);
             if(result < 0)
@@ -510,7 +510,7 @@ vrmr_read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
             return(-1);
         }
     }
-    else if(zone_ptr->type == TYPE_GROUP)
+    else if(zone_ptr->type == VRMR_TYPE_GROUP)
     {
         /* get group info */
         result = vrmr_get_group_info(debuglvl, zones, name, zone_ptr);
@@ -718,8 +718,8 @@ vrmr_delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, i
     }
 
     /* check zonetype */
-    if(zonetype != TYPE_ZONE && zonetype != TYPE_NETWORK &&
-          zonetype != TYPE_HOST && zonetype != TYPE_GROUP)
+    if(zonetype != VRMR_TYPE_ZONE && zonetype != VRMR_TYPE_NETWORK &&
+          zonetype != VRMR_TYPE_HOST && zonetype != VRMR_TYPE_GROUP)
     {
         (void)vrprint.error(-1, "Internal Error", "expected a zone, "
                 "network, host or group, but got a %d (in: %s:%d).",
@@ -737,7 +737,7 @@ vrmr_delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, i
     }
 
     /* check the refernce counters */
-    if(zone_ptr->type == TYPE_HOST && zone_ptr->refcnt_group > 0)
+    if(zone_ptr->type == VRMR_TYPE_HOST && zone_ptr->refcnt_group > 0)
     {
         (void)vrprint.error(-1, "Internal Error", "host '%s' is still "
                 "a member of %u group(s) (in: %s:%d).",
@@ -745,7 +745,7 @@ vrmr_delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, i
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(zone_ptr->type == TYPE_HOST && zone_ptr->refcnt_blocklist > 0)
+    if(zone_ptr->type == VRMR_TYPE_HOST && zone_ptr->refcnt_blocklist > 0)
     {
         (void)vrprint.error(-1, "Internal Error", "host '%s' is still "
                 "in the blocklist (%u times) (in: %s:%d).",
@@ -753,7 +753,7 @@ vrmr_delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, i
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(zone_ptr->type == TYPE_GROUP && zone_ptr->refcnt_blocklist > 0)
+    if(zone_ptr->type == VRMR_TYPE_GROUP && zone_ptr->refcnt_blocklist > 0)
     {
         (void)vrprint.error(-1, "Internal Error", "group '%s' is still "
                 "in the blocklist (%u times) (in: %s:%d).",
@@ -763,7 +763,7 @@ vrmr_delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, i
     }
 
     /* if the zone to delete is a group, decrease the refcnt_group of all members */
-    if(zone_ptr->type == TYPE_GROUP)
+    if(zone_ptr->type == VRMR_TYPE_GROUP)
     {
         for(d_node = zone_ptr->GroupList.top; d_node; d_node = d_node->next)
         {
@@ -779,7 +779,7 @@ vrmr_delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, i
         }
     }
     /* or if we are a network, so the same for interfaces */
-    if(zone_ptr->type == TYPE_NETWORK)
+    if(zone_ptr->type == VRMR_TYPE_NETWORK)
     {
         for(d_node = zone_ptr->InterfaceList.top; d_node; d_node = d_node->next)
         {
@@ -956,7 +956,7 @@ vrmr_new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int 
 
     /* set the parent(s) */
     snprintf(parent_str, sizeof(parent_str), "%s.%s", zone_ptr->network_name, zone_ptr->zone_name);
-    if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP)
+    if(zone_ptr->type == VRMR_TYPE_HOST || zone_ptr->type == VRMR_TYPE_GROUP)
     {
         if(!(zone_ptr->network_parent = vrmr_search_zonedata(debuglvl, zones, parent_str)))
         {
@@ -964,7 +964,7 @@ vrmr_new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int 
             return(-1);
         }
     }
-    if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP || zone_ptr->type == TYPE_NETWORK)
+    if(zone_ptr->type == VRMR_TYPE_HOST || zone_ptr->type == VRMR_TYPE_GROUP || zone_ptr->type == VRMR_TYPE_NETWORK)
     {
         if(!(zone_ptr->zone_parent = vrmr_search_zonedata(debuglvl, zones, zone_ptr->zone_name)))
         {
@@ -1085,7 +1085,7 @@ vrmr_zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, struc
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_NETWORK)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
             if(vrmr_list_append(debuglvl, network_list, zone_ptr) == NULL)
             {
@@ -1101,7 +1101,7 @@ vrmr_zonelist_to_networklist(const int debuglvl, struct vrmr_zones *zones, struc
 
 /*  vrmr_add_broadcasts_zonelist
 
-    Adds the broadcast address of networks as TYPE_FIREWALL's to the zone_list
+    Adds the broadcast address of networks as VRMR_TYPE_FIREWALL's to the zone_list
 
     We ignore 255.255.255.255 because its a general broadcast, and i don't want
     it to show like internet.ext(broadcast).
@@ -1135,7 +1135,7 @@ vrmr_add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_NETWORK)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
             if(strcmp(zone_ptr->ipv4.broadcast, "255.255.255.255") != 0)
             {
@@ -1158,7 +1158,7 @@ vrmr_add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
                     return(-1);
                 }
 
-                broadcast_ptr->type = TYPE_FIREWALL;
+                broadcast_ptr->type = VRMR_TYPE_FIREWALL;
 
                 if(debuglvl >= MEDIUM)
                     (void)vrprint.debug(__FUNC__, "%s addr: %s", broadcast_ptr->name, broadcast_ptr->ipv4.ipaddress);
@@ -1300,7 +1300,7 @@ vrmr_zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
     if(group_ptr->GroupList.len == 0)
     {
         /* clear */
-        if(zf->tell(debuglvl, zone_backend, group_ptr->name, "MEMBER", "", 1, TYPE_GROUP) < 0)
+        if(zf->tell(debuglvl, zone_backend, group_ptr->name, "MEMBER", "", 1, VRMR_TYPE_GROUP) < 0)
         {
             (void)vrprint.error(-1, "Error", "saving to backend failed (in: %s).", __FUNC__);
             return(-1);
@@ -1320,7 +1320,7 @@ vrmr_zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
             if(d_node == group_ptr->GroupList.top)
             {
                 /* save to backend */
-                if(zf->tell(debuglvl, zone_backend, group_ptr->name, "MEMBER", member_ptr->host_name, 1, TYPE_GROUP) < 0)
+                if(zf->tell(debuglvl, zone_backend, group_ptr->name, "MEMBER", member_ptr->host_name, 1, VRMR_TYPE_GROUP) < 0)
                 {
                     (void)vrprint.error(-1, "Error", "saving to backend failed (in: %s).", __FUNC__);
                     return(-1);
@@ -1329,7 +1329,7 @@ vrmr_zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
             else
             {
                 /* save to backend */
-                if(zf->tell(debuglvl, zone_backend, group_ptr->name, "MEMBER", member_ptr->host_name, 0, TYPE_GROUP) < 0)
+                if(zf->tell(debuglvl, zone_backend, group_ptr->name, "MEMBER", member_ptr->host_name, 0, VRMR_TYPE_GROUP) < 0)
                 {
                     (void)vrprint.error(-1, "Error", "saving to backend failed (in: %s).", __FUNC__);
                     return(-1);
@@ -1355,9 +1355,9 @@ vrmr_zones_group_rem_member(const int debuglvl, struct vrmr_zone *group_ptr, cha
         return(-1);
     }
     /* this should not happen, but it cant hurt checking right? */
-    if(group_ptr->type != TYPE_GROUP)
+    if(group_ptr->type != VRMR_TYPE_GROUP)
     {
-        (void)vrprint.error(-1, "Internal Error", "Expected a GROUP (%d), but got a %d! (in: %s)", TYPE_GROUP, group_ptr->type, __FUNC__);
+        (void)vrprint.error(-1, "Internal Error", "Expected a GROUP (%d), but got a %d! (in: %s)", VRMR_TYPE_GROUP, group_ptr->type, __FUNC__);
         return(-1);
     }
 
@@ -1423,7 +1423,7 @@ vrmr_zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct
     }
 
     /* check if our member is a host */
-    if(new_member_ptr->type != TYPE_HOST)
+    if(new_member_ptr->type != VRMR_TYPE_HOST)
     {
         (void)vrprint.error(-1, "Internal Error", "member '%s' is not a host!", hostname);
         return(-1);
@@ -1544,9 +1544,9 @@ vrmr_zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, 
     }
 
     /* safety: we expect a network */
-    if(network_ptr->type != TYPE_NETWORK)
+    if(network_ptr->type != VRMR_TYPE_NETWORK)
     {
-        (void)vrprint.error(-1, "Internal Error", "expected a NETWORK (%d), but got a %d! (in: %s)", TYPE_NETWORK, network_ptr->type, __FUNC__);
+        (void)vrprint.error(-1, "Internal Error", "expected a NETWORK (%d), but got a %d! (in: %s)", VRMR_TYPE_NETWORK, network_ptr->type, __FUNC__);
         return(-1);
     }
 
@@ -1604,7 +1604,7 @@ vrmr_zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr
     }
 
     /* check if the zone is a network */
-    if(zone_ptr->type != TYPE_NETWORK)
+    if(zone_ptr->type != VRMR_TYPE_NETWORK)
     {
         (void)vrprint.error(-1, "Internal Error", "zone '%s' is not a network, but a '%d' (in: %s:%d).",
                 zone_ptr->name, zone_ptr->type, __FUNC__);
@@ -1615,7 +1615,7 @@ vrmr_zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr
     zone_ptr->active_interfaces = 0;
 
     /* get all interfaces from the backend */
-    while((zf->ask(debuglvl, zone_backend, zone_ptr->name, "INTERFACE", cur_ifac, sizeof(cur_ifac), TYPE_NETWORK, 1)) == 1)
+    while((zf->ask(debuglvl, zone_backend, zone_ptr->name, "INTERFACE", cur_ifac, sizeof(cur_ifac), VRMR_TYPE_NETWORK, 1)) == 1)
     {
         if(vrmr_zones_network_add_iface(debuglvl, interfaces, zone_ptr, cur_ifac) < 0)
         {
@@ -1650,7 +1650,7 @@ vrmr_zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network
         (void)vrprint.debug(__FUNC__, "network: %s, interfaces: %d", network_ptr->name, network_ptr->InterfaceList.len);
 
     /* check if the zone is a network */
-    if(network_ptr->type != TYPE_NETWORK)
+    if(network_ptr->type != VRMR_TYPE_NETWORK)
     {
         (void)vrprint.error(-1, "Internal Error", "zone '%s' is not a network, but a '%d' (in: %s:%d).",
                 network_ptr->name, network_ptr->type, __FUNC__);
@@ -1661,7 +1661,7 @@ vrmr_zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network
     if(network_ptr->InterfaceList.len == 0)
     {
         /* clear by writing "" in overwrite mode */
-        if(zf->tell(debuglvl, zone_backend, network_ptr->name, "INTERFACE", "", 1, TYPE_NETWORK) < 0)
+        if(zf->tell(debuglvl, zone_backend, network_ptr->name, "INTERFACE", "", 1, VRMR_TYPE_NETWORK) < 0)
         {
             (void)vrprint.error(-1, "Error", "writing to backend failed (in: %s).", __FUNC__);
             return(-1);
@@ -1683,7 +1683,7 @@ vrmr_zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network
             if(d_node == network_ptr->InterfaceList.top)
             {
                 /* the first one is in overwrite mode */
-                if(zf->tell(debuglvl, zone_backend, network_ptr->name, "INTERFACE", iface_ptr->name, 1, TYPE_NETWORK) < 0)
+                if(zf->tell(debuglvl, zone_backend, network_ptr->name, "INTERFACE", iface_ptr->name, 1, VRMR_TYPE_NETWORK) < 0)
                 {
                     (void)vrprint.error(-1, "Error", "writing to backend failed (in: %s).", __FUNC__);
                     return(-1);
@@ -1692,7 +1692,7 @@ vrmr_zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network
             else
             {
                 /* no overwriting, just appending */
-                if(zf->tell(debuglvl, zone_backend, network_ptr->name, "INTERFACE", iface_ptr->name, 0, TYPE_NETWORK) < 0)
+                if(zf->tell(debuglvl, zone_backend, network_ptr->name, "INTERFACE", iface_ptr->name, 0, VRMR_TYPE_NETWORK) < 0)
                 {
                     (void)vrprint.error(-1, "Error", "writing to backend failed (in: %s).", __FUNC__);
                     return(-1);
@@ -1997,14 +1997,14 @@ vrmr_zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *networ
     }
 
     /* check if the zone is a network */
-    if(network_ptr->type != TYPE_NETWORK)
+    if(network_ptr->type != VRMR_TYPE_NETWORK)
     {
         (void)vrprint.error(-1, "Internal Error", "zone '%s' is not a network, but a '%d' (in: %s).", network_ptr->name, network_ptr->type, __FUNC__);
         return(-1);
     }
 
     /* get all rules from the backend */
-    while((zf->ask(debuglvl, zone_backend, network_ptr->name, "RULE", currule, sizeof(currule), TYPE_NETWORK, 1)) == 1)
+    while((zf->ask(debuglvl, zone_backend, network_ptr->name, "RULE", currule, sizeof(currule), VRMR_TYPE_NETWORK, 1)) == 1)
     {
         /* get mem */
         if(!(rule_ptr = vrmr_rule_malloc()))
@@ -2069,7 +2069,7 @@ vrmr_zones_active(const int debuglvl, struct vrmr_zone *zone_ptr)
         return(-1);
     }
     /* safety checks */
-    if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP)
+    if(zone_ptr->type == VRMR_TYPE_HOST || zone_ptr->type == VRMR_TYPE_GROUP)
     {
         if(zone_ptr->zone_parent == NULL || zone_ptr->network_parent == NULL)
         {
@@ -2081,7 +2081,7 @@ vrmr_zones_active(const int debuglvl, struct vrmr_zone *zone_ptr)
         if(zone_ptr->zone_parent->active == FALSE || zone_ptr->network_parent->active == FALSE)
             return(0);
     }
-    else if (zone_ptr->type == TYPE_NETWORK)
+    else if (zone_ptr->type == VRMR_TYPE_NETWORK)
     {
         if(zone_ptr->zone_parent == NULL)
         {
@@ -2330,7 +2330,7 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_HOST)
+        if(zone_ptr->type == VRMR_TYPE_HOST)
         {
             result = vrmr_zones_check_host(debuglvl, zone_ptr);
             if(result == -1)
@@ -2342,7 +2342,7 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                 zone_ptr->active = FALSE;
             }
         }
-        else if(zone_ptr->type == TYPE_GROUP)
+        else if(zone_ptr->type == VRMR_TYPE_GROUP)
         {
             result = vrmr_zones_check_group(debuglvl, zone_ptr);
             if(result == -1)
@@ -2354,7 +2354,7 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                 zone_ptr->active = FALSE;
             }
         }
-        else if(zone_ptr->type == TYPE_NETWORK)
+        else if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
             result = vrmr_zones_check_network(debuglvl, zone_ptr);
             if(result == -1)
@@ -2381,7 +2381,7 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
  */
 int
 vrmr_zones_host_ipv6_enabled(const int debuglvl, struct vrmr_zone *host_ptr) {
-    if (host_ptr != NULL && host_ptr->type == TYPE_HOST &&
+    if (host_ptr != NULL && host_ptr->type == VRMR_TYPE_HOST &&
             host_ptr->ipv6.cidr6 != -1)
     {
         return 1;
@@ -2395,7 +2395,7 @@ vrmr_zones_host_ipv6_enabled(const int debuglvl, struct vrmr_zone *host_ptr) {
  */
 int
 vrmr_zones_network_ipv6_enabled(const int debuglvl, struct vrmr_zone *network_ptr) {
-    if (network_ptr != NULL && network_ptr->type == TYPE_NETWORK &&
+    if (network_ptr != NULL && network_ptr->type == VRMR_TYPE_NETWORK &&
             network_ptr->ipv6.cidr6 != -1)
     {
         return 1;

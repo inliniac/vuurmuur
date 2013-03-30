@@ -61,7 +61,7 @@ char
     /*
         first zones
     */
-    if(type == TYPE_ZONE || type == TYPE_NETWORK || type == TYPE_GROUP || type == TYPE_HOST)
+    if(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK || type == VRMR_TYPE_GROUP || type == VRMR_TYPE_HOST)
     {
         if (debuglvl>=HIGH)
             (void)tb->cfg->vrprint.debug(__FUNC__, "looking up data from zones.");
@@ -79,7 +79,7 @@ char
         switch(type)
         {
             /* host */
-            case TYPE_HOST:
+            case VRMR_TYPE_HOST:
 
                 if(debuglvl >= HIGH)
                 {
@@ -100,7 +100,7 @@ char
                 break;
 
             /* group */
-            case TYPE_GROUP:
+            case VRMR_TYPE_GROUP:
 
                 if(debuglvl >= HIGH)
                 {
@@ -121,7 +121,7 @@ char
                 break;
 
             /* network */
-            case TYPE_NETWORK:
+            case VRMR_TYPE_NETWORK:
 
                 if (debuglvl >= HIGH)
                 {
@@ -142,7 +142,7 @@ char
                 break;
 
             /* zone */
-            case TYPE_ZONE:
+            case VRMR_TYPE_ZONE:
 
                 if (debuglvl >= HIGH)
                 {
@@ -167,7 +167,7 @@ char
     /*
         services are next
     */
-    else if(type == TYPE_SERVICE || type == TYPE_SERVICEGRP)
+    else if(type == VRMR_TYPE_SERVICE || type == VRMR_VRMR_TYPE_SERVICEGRP)
     {
         /* validate the name */
         if(vrmr_validate_servicename(debuglvl, name, tb->servicename_reg, VALNAME_VERBOSE) != 0)
@@ -193,7 +193,7 @@ char
     /*
         interfaces are next
     */
-    else if(type == TYPE_INTERFACE)
+    else if(type == VRMR_TYPE_INTERFACE)
     {
         /* validate the name */
         if(vrmr_validate_interfacename(debuglvl, name, tb->interfacename_reg) != 0)
@@ -215,7 +215,7 @@ char
         if(debuglvl >= HIGH)
             (void)tb->cfg->vrprint.debug(__FUNC__, "file_location: %s.", file_location);
     }
-    else if(type == TYPE_RULE)
+    else if(type == VRMR_TYPE_RULE)
     {
         /* assemble the filestring, and make sure we dont overflow */
         if(snprintf(file_location, sizeof(file_location), "%s/rules/%s.conf", tb->textdirlocation, name) >= (int)sizeof(file_location))
@@ -578,7 +578,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
     }
 
     /* create the dirs for zones and networks */
-    if(type == TYPE_ZONE || type == TYPE_NETWORK)
+    if(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK)
     {
         /* split up the name */
         if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VALNAME_VERBOSE) != 0)
@@ -590,7 +590,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
             return(-1);
         }
 
-        if(type == TYPE_ZONE)
+        if(type == VRMR_TYPE_ZONE)
         {
             /* zone dir */
             snprintf(dir_location, sizeof(dir_location), "%s/zones/%s", tb->textdirlocation, zonename);
@@ -614,7 +614,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
                 return(-1);
             }
         }
-        else if(type == TYPE_NETWORK)
+        else if(type == VRMR_TYPE_NETWORK)
         {
             /* network dir */
             snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks/%s", tb->textdirlocation, zonename, networkname);
@@ -667,7 +667,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
     /*
         print the content
     */
-    if(type != TYPE_RULE)
+    if(type != VRMR_TYPE_RULE)
     {
         if(write(fd, "ACTIVE=\"\"\n", 10) == -1)
         {
@@ -676,7 +676,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
         }
     }
 
-    if(type == TYPE_HOST)
+    if(type == VRMR_TYPE_HOST)
     {
         if(write(fd, "IPADDRESS=\"\"\n", 13) == -1)
         {
@@ -689,7 +689,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
             return(-1);
         }
     }
-    else if(type == TYPE_GROUP)
+    else if(type == VRMR_TYPE_GROUP)
     {
         if(write(fd, "MEMBER=\"\"\n", 10) == -1)
         {
@@ -697,7 +697,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
             return(-1);
         }
     }
-    else if(type == TYPE_NETWORK)
+    else if(type == VRMR_TYPE_NETWORK)
     {
         if(write(fd, "NETWORK=\"\"\n", 11) == -1)
         {
@@ -720,7 +720,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
             return(-1);
         }
     }
-    else if(type == TYPE_SERVICE)
+    else if(type == VRMR_TYPE_SERVICE)
     {
         if(write(fd, "TCP=\"\"\n", 7) == -1)
         {
@@ -768,7 +768,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
             return(-1);
         }
     }
-    else if(type == TYPE_INTERFACE)
+    else if(type == VRMR_TYPE_INTERFACE)
     {
         if(write(fd, "IPADDRESS=\"\"\n", 13) == -1)
         {
@@ -791,7 +791,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
             return(-1);
         }
     }
-    else if(type == TYPE_RULE)
+    else if(type == VRMR_TYPE_RULE)
     {
         if(write(fd, "RULE=\"\"\n", 8) == -1)
         {
@@ -800,7 +800,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
         }
     }
 
-    if(type != TYPE_RULE)
+    if(type != VRMR_TYPE_RULE)
     {
         if(write(fd, "COMMENT=\"\"\n", 11) == -1)
         {
@@ -869,7 +869,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
     /* name splitting only needed for network and zone, as host and group just use the file_location
        this is because network and zone need to remove directories as well
     */
-    if(type == TYPE_ZONE || type == TYPE_NETWORK)
+    if(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK)
     {
         // split up the name
         if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VALNAME_VERBOSE) != 0)
@@ -883,7 +883,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
         HERE WE DO THE REMOVAL
     */
 
-    if(type == TYPE_HOST)
+    if(type == VRMR_TYPE_HOST)
     {
         if(remove(file_location) < 0)
         {
@@ -895,7 +895,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
 
         (void)tb->cfg->vrprint.info("Info", "host '%s' deleted from disk.", name);
     }
-    else if(type == TYPE_GROUP)
+    else if(type == VRMR_TYPE_GROUP)
     {
         if(remove(file_location) < 0)
         {
@@ -907,7 +907,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
 
         (void)tb->cfg->vrprint.info("Info", "group '%s' deleted from disk.", name);
     }
-    else if(type == TYPE_NETWORK)
+    else if(type == VRMR_TYPE_NETWORK)
     {
         /* first check the hosts dir */
         if(snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks/%s/hosts", tb->textdirlocation, zonename, networkname) >= (int)sizeof(dir_location))
@@ -990,7 +990,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
 
         (void)tb->cfg->vrprint.info("Info", "Network '%s' deleted from disk.", name);
     }
-    else if(type == TYPE_ZONE)
+    else if(type == VRMR_TYPE_ZONE)
     {
         /* first check the network */
         if(snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks", tb->textdirlocation, name) >= (int)sizeof(dir_location))
@@ -1032,7 +1032,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
             return(-1);
         }
     }
-    else if(type == TYPE_SERVICE)
+    else if(type == VRMR_TYPE_SERVICE)
     {
         if(remove(file_location) < 0)
         {
@@ -1042,7 +1042,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
             return(-1);
         }
     }
-    else if(type == TYPE_INTERFACE)
+    else if(type == VRMR_TYPE_INTERFACE)
     {
         if(remove(file_location) < 0)
         {
@@ -1118,7 +1118,7 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
 
 
     /* validate and split the new and the old names for zones and networks */
-    if(type == TYPE_ZONE || type == TYPE_NETWORK)
+    if(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK)
     {
         /* validate the name */
         if(vrmr_validate_zonename(debuglvl, name, 0, old_zone_name, old_net_name, old_host_name, tb->zonename_reg, VALNAME_VERBOSE) != 0)
@@ -1135,7 +1135,7 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
         }
     }
 
-    if(type == TYPE_ZONE)
+    if(type == VRMR_TYPE_ZONE)
     {
         /* get the old path */
 
@@ -1162,7 +1162,7 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
             return(-1);
         }
     }
-    else if(type == TYPE_NETWORK)
+    else if(type == VRMR_TYPE_NETWORK)
     {
         /* get the old path */
 
@@ -1189,7 +1189,7 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
             return(-1);
         }
     }
-    else if(type == TYPE_HOST || type == TYPE_GROUP)
+    else if(type == VRMR_TYPE_HOST || type == VRMR_TYPE_GROUP)
     {
         /* determine the location of the file */
         if(!(oldpath = get_filelocation(debuglvl, backend, name, type)))
@@ -1221,7 +1221,7 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
             return(-1);
         }
     }
-    else if(type == TYPE_SERVICE || type == TYPE_INTERFACE)
+    else if(type == VRMR_TYPE_SERVICE || type == VRMR_TYPE_INTERFACE)
     {
         /* determine the location of the file */
         if(!(oldpath = get_filelocation(debuglvl, backend, name, type)))

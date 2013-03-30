@@ -40,7 +40,7 @@ vrmr_rule_malloc(void)
     /* clear */
     memset(rule_ptr, 0, sizeof(struct vrmr_rule));
 
-    rule_ptr->type = TYPE_RULE;
+    rule_ptr->type = VRMR_TYPE_RULE;
 
     return(rule_ptr);
 }
@@ -98,7 +98,7 @@ vrmr_zone_malloc(const int debuglvl)
     if(vrmr_list_setup(debuglvl, &zone_ptr->ProtectList, free) < 0)
         return(NULL);
 
-    zone_ptr->type = TYPE_UNSET;
+    zone_ptr->type = VRMR_TYPE_UNSET;
 
     /* done, return the zone */
     return(zone_ptr);
@@ -111,10 +111,10 @@ vrmr_zone_free(const int debuglvl, struct vrmr_zone *zone_ptr)
     if(!zone_ptr)
         return;
 
-    if(zone_ptr->type == TYPE_GROUP)
+    if(zone_ptr->type == VRMR_TYPE_GROUP)
         (void)vrmr_list_cleanup(debuglvl, &zone_ptr->GroupList);
 
-    if(zone_ptr->type == TYPE_NETWORK)
+    if(zone_ptr->type == VRMR_TYPE_NETWORK)
     {
         (void)vrmr_list_cleanup(debuglvl, &zone_ptr->InterfaceList);
         (void)vrmr_list_cleanup(debuglvl, &zone_ptr->ProtectList);
@@ -139,7 +139,7 @@ vrmr_service_malloc(void)
     /* init */
     memset(ser_ptr, 0, sizeof(struct vrmr_service));
 
-    ser_ptr->type = TYPE_SERVICE;
+    ser_ptr->type = VRMR_TYPE_SERVICE;
 
     return(ser_ptr);
 }
@@ -161,7 +161,7 @@ vrmr_interface_malloc(const int debuglvl)
 #ifdef IPV6_ENABLED
     iface_ptr->ipv6.cidr6 = -1;
 #endif
-    iface_ptr->type = TYPE_INTERFACE;
+    iface_ptr->type = VRMR_TYPE_INTERFACE;
 
     iface_ptr->active = TRUE;
 

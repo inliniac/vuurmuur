@@ -191,7 +191,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
         if(strlcpy(logrule_ptr->from_name, search_ptr->name, sizeof(logrule_ptr->from_name)) >= sizeof(logrule_ptr->from_name))
             (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
 
-        if(search_ptr->type == TYPE_NETWORK)
+        if(search_ptr->type == VRMR_TYPE_NETWORK)
             strlcpy(logrule_ptr->from_name, "firewall", sizeof(logrule_ptr->from_name));
     }
     search_ptr = NULL;
@@ -210,7 +210,7 @@ get_vuurmuur_names(const int debuglvl, struct log_rule *logrule_ptr, struct vrmr
         if(strlcpy(logrule_ptr->to_name, search_ptr->name, sizeof(logrule_ptr->to_name)) >= sizeof(logrule_ptr->to_name))
             (void)vrprint.error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
 
-        if(search_ptr->type == TYPE_NETWORK)
+        if(search_ptr->type == VRMR_TYPE_NETWORK)
             strlcpy(logrule_ptr->to_name, "firewall", sizeof(logrule_ptr->to_name));
     }
     search_ptr = NULL;
@@ -674,7 +674,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
 
-    /* insert the interfaces as TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
+    /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
     if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &zones.list) < 0)
     {
         (void)vrprint.error(-1, "Error", "iface_into_zonelist failed (in: main).");
@@ -898,7 +898,7 @@ main(int argc, char *argv[])
 
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 60);
 
-            /* insert the interfaces as TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
+            /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
             if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &zones.list) < 0)
             {
                 (void)vrprint.error(-1, "Error", "iface_into_zonelist failed (in: main).");

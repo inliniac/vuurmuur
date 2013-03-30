@@ -193,7 +193,7 @@ main(int argc, char *argv[])
                     }
 
                     /* -r blocklist */
-                    vr_script.type = TYPE_RULE;
+                    vr_script.type = VRMR_TYPE_RULE;
 
                     if(strlcpy(vr_script.name, "blocklist", sizeof(vr_script.name)) >= sizeof(vr_script.name))
                     {
@@ -221,7 +221,7 @@ main(int argc, char *argv[])
                         exit(VRS_ERR_COMMANDLINE);
                     }
 
-                    vr_script.type = TYPE_RULE;
+                    vr_script.type = VRMR_TYPE_RULE;
 
                     /* --apply */
                     vr_script.apply = TRUE;
@@ -229,7 +229,7 @@ main(int argc, char *argv[])
                 }
                 else if(strcmp(long_options[longopt_index].name, "list-blocked") == 0)
                 {
-                    vr_script.type = TYPE_RULE;
+                    vr_script.type = VRMR_TYPE_RULE;
                     vr_script.cmd = CMD_LBL;
                     break;
                 }
@@ -361,7 +361,7 @@ main(int argc, char *argv[])
 
             case 'o' :  /* host */
 
-                vr_script.type = TYPE_HOST;
+                vr_script.type = VRMR_TYPE_HOST;
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
@@ -372,7 +372,7 @@ main(int argc, char *argv[])
 
             case 'g' :  /* group */
 
-                vr_script.type = TYPE_GROUP;
+                vr_script.type = VRMR_TYPE_GROUP;
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
@@ -383,7 +383,7 @@ main(int argc, char *argv[])
 
             case 'n' :  /* network */
 
-                vr_script.type = TYPE_NETWORK;
+                vr_script.type = VRMR_TYPE_NETWORK;
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
@@ -394,7 +394,7 @@ main(int argc, char *argv[])
 
             case 'z' :  /* zone */
 
-                vr_script.type = TYPE_ZONE;
+                vr_script.type = VRMR_TYPE_ZONE;
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
@@ -405,7 +405,7 @@ main(int argc, char *argv[])
 
             case 's' :  /* service */
 
-                vr_script.type = TYPE_SERVICE;
+                vr_script.type = VRMR_TYPE_SERVICE;
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
@@ -416,7 +416,7 @@ main(int argc, char *argv[])
 
             case 'i' :  /* interface */
 
-                vr_script.type = TYPE_INTERFACE;
+                vr_script.type = VRMR_TYPE_INTERFACE;
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
@@ -427,7 +427,7 @@ main(int argc, char *argv[])
 
             case 'r' :  /* rule */
 
-                vr_script.type = TYPE_RULE;
+                vr_script.type = VRMR_TYPE_RULE;
 
                 if(strlcpy(vr_script.name, optarg, sizeof(vr_script.name)) >= sizeof(vr_script.name))
                 {
@@ -574,43 +574,43 @@ main(int argc, char *argv[])
     /*
         handling the type
     */
-    if(vr_script.type == TYPE_UNSET && vr_script.cmd != CMD_RLD)
+    if(vr_script.type == VRMR_TYPE_UNSET && vr_script.cmd != CMD_RLD)
     {
         (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "type option not set. Please see --help for options.");
         exit(VRS_ERR_COMMANDLINE);
     }
 
-    if(vr_script.type == TYPE_HOST)
+    if(vr_script.type == VRMR_TYPE_HOST)
     {
         if(conf.verbose_out == TRUE)
             (void)vrprint.info(VR_INFO, "type 'host' selected.");
     }
-    else if(vr_script.type == TYPE_GROUP)
+    else if(vr_script.type == VRMR_TYPE_GROUP)
     {
         if(conf.verbose_out == TRUE)
             (void)vrprint.info(VR_INFO, "type 'group' selected.");
     }
-    else if(vr_script.type == TYPE_NETWORK)
+    else if(vr_script.type == VRMR_TYPE_NETWORK)
     {
         if(conf.verbose_out == TRUE)
             (void)vrprint.info(VR_INFO, "type 'network' selected.");
     }
-    else if(vr_script.type == TYPE_ZONE)
+    else if(vr_script.type == VRMR_TYPE_ZONE)
     {
         if(conf.verbose_out == TRUE)
             (void)vrprint.info(VR_INFO, "type 'zone' selected.");
     }
-    else if(vr_script.type == TYPE_SERVICE)
+    else if(vr_script.type == VRMR_TYPE_SERVICE)
     {
         if(conf.verbose_out == TRUE)
             (void)vrprint.info(VR_INFO, "type 'service' selected.");
     }
-    else if(vr_script.type == TYPE_INTERFACE)
+    else if(vr_script.type == VRMR_TYPE_INTERFACE)
     {
         if(conf.verbose_out == TRUE)
             (void)vrprint.info(VR_INFO, "type 'interface' selected.");
     }
-    else if(vr_script.type == TYPE_RULE)
+    else if(vr_script.type == VRMR_TYPE_RULE)
     {
         if(conf.verbose_out == TRUE)
             (void)vrprint.info(VR_INFO, "type 'rule' selected.");
@@ -639,19 +639,19 @@ main(int argc, char *argv[])
     }
     else
     {
-        if( vr_script.type == TYPE_ZONE || vr_script.type == TYPE_NETWORK ||
-            vr_script.type == TYPE_HOST || vr_script.type == TYPE_GROUP)
+        if( vr_script.type == VRMR_TYPE_ZONE || vr_script.type == VRMR_TYPE_NETWORK ||
+            vr_script.type == VRMR_TYPE_HOST || vr_script.type == VRMR_TYPE_GROUP)
         {
             /* validate and split the new name */
             if(vrmr_validate_zonename(debuglvl, vr_script.name, 0, vr_script.name_zone, vr_script.name_net, vr_script.name_host, vr_script.reg.zonename, VALNAME_VERBOSE) != 0)
             {
-                if(vr_script.type == TYPE_ZONE)
+                if(vr_script.type == VRMR_TYPE_ZONE)
                     (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid zone name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
-                else if(vr_script.type == TYPE_NETWORK)
+                else if(vr_script.type == VRMR_TYPE_NETWORK)
                     (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid network name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
-                else if(vr_script.type == TYPE_HOST)
+                else if(vr_script.type == VRMR_TYPE_HOST)
                     (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid host name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
-                else if(vr_script.type == TYPE_GROUP)
+                else if(vr_script.type == VRMR_TYPE_GROUP)
                     (void)vrprint.error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid group name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 
                 exit(VRS_ERR_COMMANDLINE);
@@ -661,7 +661,7 @@ main(int argc, char *argv[])
                                         vr_script.name, vr_script.name_host,
                                         vr_script.name_net, vr_script.name_zone);
         }
-        else if(vr_script.type == TYPE_SERVICE)
+        else if(vr_script.type == VRMR_TYPE_SERVICE)
         {
             if(vrmr_validate_servicename(debuglvl, vr_script.name, vr_script.reg.servicename, VALNAME_QUIET) != 0)
             {
@@ -669,7 +669,7 @@ main(int argc, char *argv[])
                 exit(VRS_ERR_COMMANDLINE);
             }
         }
-        else if(vr_script.type == TYPE_INTERFACE)
+        else if(vr_script.type == VRMR_TYPE_INTERFACE)
         {
             if(vrmr_validate_interfacename(debuglvl, vr_script.name, vr_script.reg.interfacename) != 0)
             {
@@ -677,7 +677,7 @@ main(int argc, char *argv[])
                 exit(VRS_ERR_COMMANDLINE);
             }
         }
-        else if(vr_script.type == TYPE_RULE)
+        else if(vr_script.type == VRMR_TYPE_RULE)
         {
             if( strcmp(vr_script.name, "blocklist") == 0 ||
                 strcmp(vr_script.name, "rules") == 0)
@@ -804,7 +804,7 @@ main(int argc, char *argv[])
         if (vr_script.cmd == CMD_BLK) {
             /* append or overwrite mode (fix ticket #49) */
             if ((rf->ask(debuglvl, rule_backend, "blocklist", "RULE",
-                            vr_script.bdat, sizeof(vr_script.bdat), TYPE_RULE, 1) == 1))
+                            vr_script.bdat, sizeof(vr_script.bdat), VRMR_TYPE_RULE, 1) == 1))
             {
                 /* we got a rule from the backend so we have to append */
                 vr_script.overwrite = FALSE;
@@ -871,7 +871,7 @@ main(int argc, char *argv[])
     }
     else if(vr_script.cmd == CMD_LBL)
     {
-        while((result = rf->ask(debuglvl, rule_backend, "blocklist", "RULE", vr_script.bdat, sizeof(vr_script.bdat), TYPE_RULE, 1) == 1))
+        while((result = rf->ask(debuglvl, rule_backend, "blocklist", "RULE", vr_script.bdat, sizeof(vr_script.bdat), VRMR_TYPE_RULE, 1) == 1))
         {
             vrmr_rules_encode_rule(debuglvl, vr_script.bdat, sizeof(vr_script.bdat));
             str = remove_leading_part(vr_script.bdat);

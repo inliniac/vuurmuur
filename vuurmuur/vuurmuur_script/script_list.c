@@ -27,7 +27,7 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
             back_net[VRMR_MAX_NETWORK] = "",
             back_host[VRMR_MAX_HOST] = "";
 
-    if(vr_script->type == TYPE_ZONE)
+    if(vr_script->type == VRMR_TYPE_ZONE)
     {
         while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
@@ -37,7 +37,7 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
             }
         }
     }
-    else if(vr_script->type == TYPE_NETWORK)
+    else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
         while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
@@ -67,7 +67,7 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
             }
         }
     }
-    else if(vr_script->type == TYPE_HOST || vr_script->type == TYPE_GROUP)
+    else if(vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
         while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
@@ -98,21 +98,21 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
             }
         }
     }
-    else if(vr_script->type == TYPE_SERVICE)
+    else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
         while(sf->list(debuglvl, serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
         {
             printf("%s\n", vr_script->bdat);
         }
     }
-    else if(vr_script->type == TYPE_INTERFACE)
+    else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
         while(af->list(debuglvl, ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
         {
             printf("%s\n", vr_script->bdat);
         }
     }
-    else if(vr_script->type == TYPE_RULE)
+    else if(vr_script->type == VRMR_TYPE_RULE)
     {
         while(rf->list(debuglvl, rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
         {

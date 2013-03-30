@@ -355,7 +355,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
         (void)vrprint.debug(__FUNC__, "start: name: %s", iface_ptr->name);
 
     /* check if the interface is active */
-    result = vrmr_check_active(debuglvl, iface_ptr->name, TYPE_INTERFACE);
+    result = vrmr_check_active(debuglvl, iface_ptr->name, VRMR_TYPE_INTERFACE);
     if(result == 1)
     {
         iface_ptr->active = TRUE;
@@ -373,7 +373,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
 
 
     /* ask the backend about the possible virtualness of the device */
-    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "VIRTUAL", yesno, sizeof(yesno), TYPE_INTERFACE, 0);
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "VIRTUAL", yesno, sizeof(yesno), VRMR_TYPE_INTERFACE, 0);
     if(result == 1)
     {
         if(strcasecmp(yesno, "yes") == 0)
@@ -399,7 +399,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
 
 
     /* ask the backend about the interface of this interface. Get it? */
-    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "DEVICE", iface_ptr->device, sizeof(iface_ptr->device), TYPE_INTERFACE, 0);
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "DEVICE", iface_ptr->device, sizeof(iface_ptr->device), VRMR_TYPE_INTERFACE, 0);
     if(result == 1)
     {
         if(debuglvl >= HIGH)
@@ -421,7 +421,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
             (void)vrprint.debug(__FUNC__, "no DEVICE defined for interface '%s', trying pre-0.5.68s INTERFACE.",
                     iface_ptr->name);
 
-        result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "INTERFACE", iface_ptr->device, sizeof(iface_ptr->device), TYPE_INTERFACE, 0);
+        result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "INTERFACE", iface_ptr->device, sizeof(iface_ptr->device), VRMR_TYPE_INTERFACE, 0);
         if(result == 1)
         {
             if(debuglvl >= HIGH)
@@ -459,7 +459,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
 
 
     /* ask the ipaddress of this interface */
-    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "IPADDRESS", iface_ptr->ipv4.ipaddress, sizeof(iface_ptr->ipv4.ipaddress), TYPE_INTERFACE, 0);
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "IPADDRESS", iface_ptr->ipv4.ipaddress, sizeof(iface_ptr->ipv4.ipaddress), VRMR_TYPE_INTERFACE, 0);
     if(result == 1)
     {
         if(debuglvl >= HIGH)
@@ -487,7 +487,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
 
 #ifdef IPV6_ENABLED
     /* ask the ipv6 address of this interface */
-    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "IPV6ADDRESS", iface_ptr->ipv6.ip6, sizeof(iface_ptr->ipv6.ip6), TYPE_INTERFACE, 0);
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "IPV6ADDRESS", iface_ptr->ipv6.ip6, sizeof(iface_ptr->ipv6.ip6), VRMR_TYPE_INTERFACE, 0);
     if(result == 1)
     {
         if(debuglvl >= HIGH)
@@ -516,7 +516,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
 #endif /* IPV6_ENABLED */
 
     /* lookup if we need shaping */
-    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "SHAPE", yesno, sizeof(yesno), TYPE_INTERFACE, 0);
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "SHAPE", yesno, sizeof(yesno), VRMR_TYPE_INTERFACE, 0);
     if(result == 1)
     {
         if(strcasecmp(yesno, "yes") == 0)
@@ -541,7 +541,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     }
 
     /* ask the BW_IN of this interface */
-    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_IN", bw_str, sizeof(bw_str), TYPE_INTERFACE, 0);
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_IN", bw_str, sizeof(bw_str), VRMR_TYPE_INTERFACE, 0);
     if(result == 1)
     {
         if(debuglvl >= HIGH)
@@ -563,7 +563,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
         return(-1);
     }
     /* ask the BW_IN_UNIT of this interface */
-    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_IN_UNIT", iface_ptr->bw_in_unit, sizeof(iface_ptr->bw_in_unit), TYPE_INTERFACE, 0);
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_IN_UNIT", iface_ptr->bw_in_unit, sizeof(iface_ptr->bw_in_unit), VRMR_TYPE_INTERFACE, 0);
     if(result == 1)
     {
         if(debuglvl >= HIGH)
@@ -593,7 +593,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
 
 
     /* ask the BW_OUT of this interface */
-    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_OUT", bw_str, sizeof(bw_str), TYPE_INTERFACE, 0);
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_OUT", bw_str, sizeof(bw_str), VRMR_TYPE_INTERFACE, 0);
     if(result == 1)
     {
         if(debuglvl >= HIGH)
@@ -615,7 +615,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
         return(-1);
     }
     /* ask the BW_OUT_UNIT of this interface */
-    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_OUT_UNIT", iface_ptr->bw_out_unit, sizeof(iface_ptr->bw_out_unit), TYPE_INTERFACE, 0);
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "BW_OUT_UNIT", iface_ptr->bw_out_unit, sizeof(iface_ptr->bw_out_unit), VRMR_TYPE_INTERFACE, 0);
     if(result == 1)
     {
         if(debuglvl >= HIGH)
@@ -654,7 +654,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
     }
 
     /* lookup if we need tcpmss */
-    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "TCPMSS", yesno, sizeof(yesno), TYPE_INTERFACE, 0);
+    result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "TCPMSS", yesno, sizeof(yesno), VRMR_TYPE_INTERFACE, 0);
     if(result == 1)
     {
         if(strcasecmp(yesno, "yes") == 0)
@@ -882,7 +882,7 @@ vrmr_interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
     if(iface_ptr->ProtectList.len == 0)
     {
         /* clear */
-        if(af->tell(debuglvl, ifac_backend, iface_ptr->name, "RULE", "", 1, TYPE_INTERFACE) < 0)
+        if(af->tell(debuglvl, ifac_backend, iface_ptr->name, "RULE", "", 1, VRMR_TYPE_INTERFACE) < 0)
         {
             (void)vrprint.error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
@@ -906,7 +906,7 @@ vrmr_interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
             if(d_node == iface_ptr->ProtectList.top)
             {
                 /* save to backend */
-                if(af->tell(debuglvl, ifac_backend, iface_ptr->name, "RULE", rule_str, 1, TYPE_INTERFACE) < 0)
+                if(af->tell(debuglvl, ifac_backend, iface_ptr->name, "RULE", rule_str, 1, VRMR_TYPE_INTERFACE) < 0)
                 {
                     (void)vrprint.error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
@@ -916,7 +916,7 @@ vrmr_interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
             else
             {
                 /* save to backend */
-                if(af->tell(debuglvl, ifac_backend, iface_ptr->name, "RULE", rule_str, 0, TYPE_INTERFACE) < 0)
+                if(af->tell(debuglvl, ifac_backend, iface_ptr->name, "RULE", rule_str, 0, VRMR_TYPE_INTERFACE) < 0)
                 {
                     (void)vrprint.error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
@@ -973,7 +973,7 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "calling af->add for '%s'.", iface_name);
 
-    result = af->add(debuglvl, ifac_backend, iface_name, TYPE_INTERFACE);
+    result = af->add(debuglvl, ifac_backend, iface_name, VRMR_TYPE_INTERFACE);
     if(result < 0)
     {
         (void)vrprint.error(-1, "Internal Error", "af->add() failed (in: %s:%d).",
@@ -985,7 +985,7 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
         (void)vrprint.debug(__FUNC__, "calling af->add for '%s' success.", iface_name);
 
     /* set active */
-    result = af->tell(debuglvl, ifac_backend, iface_ptr->name, "ACTIVE", iface_ptr->active ? "Yes" : "No", 1, TYPE_INTERFACE);
+    result = af->tell(debuglvl, ifac_backend, iface_ptr->name, "ACTIVE", iface_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
     if(result < 0)
     {
         (void)vrprint.error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
@@ -994,7 +994,7 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
     }
 
     /* set virtual */
-    result = af->tell(debuglvl, ifac_backend, iface_ptr->name, "VIRTUAL", iface_ptr->device_virtual ? "Yes" : "No", 1, TYPE_INTERFACE);
+    result = af->tell(debuglvl, ifac_backend, iface_ptr->name, "VIRTUAL", iface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
     if(result < 0)
     {
         (void)vrprint.error(-1, "Internal Error", "af->tell() failed (in: %s:%d).",
@@ -1123,7 +1123,7 @@ vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
     iface_ptr = NULL;
 
     /* remove the interface from the backend */
-    if(af->del(debuglvl, ifac_backend, iface_name, TYPE_INTERFACE, 1) < 0)
+    if(af->del(debuglvl, ifac_backend, iface_name, VRMR_TYPE_INTERFACE, 1) < 0)
     {
         (void)vrprint.error(-1, "Internal Error", "af->del() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -1257,7 +1257,7 @@ vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, st
             /*
                 set the type to firewall, so we can recognize the interface in an easy way
             */
-            zone_ptr->type = TYPE_FIREWALL;
+            zone_ptr->type = VRMR_TYPE_FIREWALL;
 
             /*
                 append to the zoneslist
@@ -1283,7 +1283,7 @@ vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, st
 
 /*  vrmr_rem_iface_from_zonelist
 
-    Removes all zones with type TYPE_FIREWALL from the zoneslist.
+    Removes all zones with type VRMR_TYPE_FIREWALL from the zoneslist.
     This normally are interfaces and network broadcast addresses
     which were included in this list by vrmr_ins_iface_into_zonelist.
 
@@ -1329,10 +1329,10 @@ vrmr_rem_iface_from_zonelist(const int debuglvl, struct vrmr_list *zonelist)
         */
         next_node = d_node->next;
 
-        if(zone_ptr->type == TYPE_FIREWALL)
+        if(zone_ptr->type == VRMR_TYPE_FIREWALL)
         {
             if(debuglvl >= HIGH)
-                (void)vrprint.debug(__FUNC__, "type: TYPE_FIREWALL '%s'.", zone_ptr->name);
+                (void)vrprint.debug(__FUNC__, "type: VRMR_TYPE_FIREWALL '%s'.", zone_ptr->name);
 
             /*
                 remove the node from the list
@@ -1926,7 +1926,7 @@ vrmr_interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
     }
 
     /* get all rules from the backend */
-    while((af->ask(debuglvl, ifac_backend, iface_ptr->name, "RULE", currule, sizeof(currule), TYPE_INTERFACE, 1)) == 1)
+    while((af->ask(debuglvl, ifac_backend, iface_ptr->name, "RULE", currule, sizeof(currule), VRMR_TYPE_INTERFACE, 1)) == 1)
     {
         /* get mem */
         if(!(rule_ptr = vrmr_rule_malloc()))

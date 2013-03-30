@@ -57,7 +57,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
 
     if(rules_found == FALSE)
     {
-        if(rf->add(debuglvl, rule_backend, "rules", TYPE_RULE) < 0)
+        if(rf->add(debuglvl, rule_backend, "rules", VRMR_TYPE_RULE) < 0)
         {
             (void)vrprint.error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -125,7 +125,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
 
     if(blocklist_found == FALSE)
     {
-        if(rf->add(debuglvl, rule_backend, "blocklist", TYPE_RULE) < 0)
+        if(rf->add(debuglvl, rule_backend, "blocklist", VRMR_TYPE_RULE) < 0)
         {
             (void)vrprint.error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -936,13 +936,13 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
             return;
         }
 
-        if(zone_ptr->type == TYPE_NETWORK)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK)
             at_least_one_network = TRUE;
 
-        if(zone_ptr->type == TYPE_NETWORK && zone_ptr->active == TRUE)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK && zone_ptr->active == TRUE)
             at_least_one_active_network = TRUE;
 
-        if(zone_ptr->type == TYPE_HOST)
+        if(zone_ptr->type == VRMR_TYPE_HOST)
         {
             if(zone_ptr->ipv4.ipaddress[0] == '\0')
             {
@@ -982,7 +982,7 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
                 }
             }
         }
-        else if(zone_ptr->type == TYPE_NETWORK)
+        else if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
             if(zone_ptr->InterfaceList.len == 0)
             {

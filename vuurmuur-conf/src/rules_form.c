@@ -4387,7 +4387,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                 return(-1);
                             }
 
-                            if(zone_ptr->type != TYPE_FIREWALL)
+                            if(zone_ptr->type != VRMR_TYPE_FIREWALL)
                             {
                                 zone_choices_n++;
                             }
@@ -4408,7 +4408,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                 return(-1);
                             }
 
-                            if(zone_ptr->type != TYPE_FIREWALL)
+                            if(zone_ptr->type != VRMR_TYPE_FIREWALL)
                             {
                                 zone_choices[i] = zone_ptr->name;
                                 //(void)vrprint.debug(__FUNC__, "zone_choices[%d]: %s.", i, zone_choices[i]);
@@ -4521,15 +4521,15 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                 }
                                 else
                                 {
-                                    if (zone_ptr->type == TYPE_ZONE) {
+                                    if (zone_ptr->type == VRMR_TYPE_ZONE) {
                                         (void)vrprint.warning(VR_WARN, gettext("\"zone\" not yet supported."));
                                     } else {
                                         /* the interfaces are attached to the network, so get the network */
-                                        if(zone_ptr->type == TYPE_NETWORK)
+                                        if(zone_ptr->type == VRMR_TYPE_NETWORK)
                                         {
                                             network_ptr = zone_ptr;
                                         }
-                                        else if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP)
+                                        else if(zone_ptr->type == VRMR_TYPE_HOST || zone_ptr->type == VRMR_TYPE_GROUP)
                                         {
                                             network_ptr = zone_ptr->network_parent;
                                         }
@@ -4627,15 +4627,15 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                                     (void)vrprint.error(-1, VR_INTERR, "zone '%s' not found (in: %s:%d).",
                                         zonename, __FUNC__, __LINE__);
                                 } else {
-                                    if (zone_ptr->type == TYPE_ZONE) {
+                                    if (zone_ptr->type == VRMR_TYPE_ZONE) {
                                         (void)vrprint.warning(VR_WARN, gettext("\"zone\" not yet supported."));
                                     } else {
                                         /* the interfaces are attached to the network, so get the network */
-                                        if(zone_ptr->type == TYPE_NETWORK)
+                                        if(zone_ptr->type == VRMR_TYPE_NETWORK)
                                         {
                                             network_ptr = zone_ptr;
                                         }
-                                        else if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_GROUP)
+                                        else if(zone_ptr->type == VRMR_TYPE_HOST || zone_ptr->type == VRMR_TYPE_GROUP)
                                         {
                                             network_ptr = zone_ptr->network_parent;
                                         }

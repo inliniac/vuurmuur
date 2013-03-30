@@ -28,8 +28,8 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     /*
         first check if the object already exists
     */
-    if( vr_script->type == TYPE_ZONE || vr_script->type == TYPE_NETWORK ||
-        vr_script->type == TYPE_HOST || vr_script->type == TYPE_GROUP)
+    if( vr_script->type == VRMR_TYPE_ZONE || vr_script->type == VRMR_TYPE_NETWORK ||
+        vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
         while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
@@ -41,19 +41,19 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
 
         if(found == TRUE)
         {
-            if(vr_script->type == TYPE_ZONE)
+            if(vr_script->type == VRMR_TYPE_ZONE)
                 (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "zone '%s' already exists.", vr_script->name);
-            else if(vr_script->type == TYPE_NETWORK)
+            else if(vr_script->type == VRMR_TYPE_NETWORK)
                 (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "network '%s' already exists.", vr_script->name);
-            else if(vr_script->type == TYPE_HOST)
+            else if(vr_script->type == VRMR_TYPE_HOST)
                 (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "host '%s' already exists.", vr_script->name);
-            else if(vr_script->type == TYPE_GROUP)
+            else if(vr_script->type == VRMR_TYPE_GROUP)
                 (void)vrprint.error(VRS_ERR_ALREADY_EXISTS, VR_ERR, "group '%s' already exists.", vr_script->name);
 
             return(VRS_ERR_ALREADY_EXISTS);
         }
     }
-    else if(vr_script->type == TYPE_SERVICE)
+    else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
         while(sf->list(debuglvl, serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
         {
@@ -69,7 +69,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_ALREADY_EXISTS);
         }
     }
-    else if(vr_script->type == TYPE_INTERFACE)
+    else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
         while(af->list(debuglvl, ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
         {
@@ -85,7 +85,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_ALREADY_EXISTS);
         }
     }
-    else if(vr_script->type == TYPE_RULE)
+    else if(vr_script->type == VRMR_TYPE_RULE)
     {
         while(rf->list(debuglvl, rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
         {
@@ -105,9 +105,9 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     /*
         now add it
     */
-    if(vr_script->type == TYPE_ZONE)
+    if(vr_script->type == VRMR_TYPE_ZONE)
     {
-        if(zf->add(debuglvl, zone_backend, vr_script->name, TYPE_ZONE) < 0)
+        if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_ZONE) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "adding zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -115,9 +115,9 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
 
         logchange("zone '%s' added.", vr_script->name);
     }
-    else if(vr_script->type == TYPE_NETWORK)
+    else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
-        if(zf->add(debuglvl, zone_backend, vr_script->name, TYPE_NETWORK) < 0)
+        if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_NETWORK) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "adding network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -125,9 +125,9 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
 
         logchange("network '%s' added.", vr_script->name);
     }
-    else if(vr_script->type == TYPE_HOST)
+    else if(vr_script->type == VRMR_TYPE_HOST)
     {
-        if(zf->add(debuglvl, zone_backend, vr_script->name, TYPE_HOST) < 0)
+        if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_HOST) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "adding host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -135,9 +135,9 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
 
         logchange("host '%s' added.", vr_script->name);
     }
-    else if(vr_script->type == TYPE_GROUP)
+    else if(vr_script->type == VRMR_TYPE_GROUP)
     {
-        if(zf->add(debuglvl, zone_backend, vr_script->name, TYPE_GROUP) < 0)
+        if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_GROUP) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "adding group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -145,9 +145,9 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
 
         logchange("group '%s' added.", vr_script->name);
     }
-    else if(vr_script->type == TYPE_SERVICE)
+    else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        if(sf->add(debuglvl, serv_backend, vr_script->name, TYPE_SERVICE) < 0)
+        if(sf->add(debuglvl, serv_backend, vr_script->name, VRMR_TYPE_SERVICE) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "adding service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -155,9 +155,9 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
 
         logchange("service '%s' added.", vr_script->name);
     }
-    else if(vr_script->type == TYPE_INTERFACE)
+    else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        if(af->add(debuglvl, ifac_backend, vr_script->name, TYPE_INTERFACE) < 0)
+        if(af->add(debuglvl, ifac_backend, vr_script->name, VRMR_TYPE_INTERFACE) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "adding interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -165,9 +165,9 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
 
         logchange("interface '%s' added.", vr_script->name);
     }
-    else if(vr_script->type == TYPE_RULE)
+    else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        if(rf->add(debuglvl, rule_backend, vr_script->name, TYPE_RULE) < 0)
+        if(rf->add(debuglvl, rule_backend, vr_script->name, VRMR_TYPE_RULE) < 0)
         {
             (void)vrprint.error(-1, VR_ERR, "adding ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);

@@ -40,10 +40,10 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
 
     switch(answer_ptr->type)
     {
-        case TYPE_HOST:
+        case VRMR_TYPE_HOST:
 
             /* ask the ipaddress for this host */
-            result = zf->ask(debuglvl, zone_backend, name, "IPADDRESS", answer_ptr->ipv4.ipaddress, sizeof(answer_ptr->ipv4.ipaddress), TYPE_HOST, 0);
+            result = zf->ask(debuglvl, zone_backend, name, "IPADDRESS", answer_ptr->ipv4.ipaddress, sizeof(answer_ptr->ipv4.ipaddress), VRMR_TYPE_HOST, 0);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -62,7 +62,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
 
 #ifdef IPV6_ENABLED
             /* ask the ipaddress for this host */
-            result = zf->ask(debuglvl, zone_backend, name, "IPV6ADDRESS", answer_ptr->ipv6.ip6, sizeof(answer_ptr->ipv6.ip6), TYPE_HOST, 0);
+            result = zf->ask(debuglvl, zone_backend, name, "IPV6ADDRESS", answer_ptr->ipv6.ip6, sizeof(answer_ptr->ipv6.ip6), VRMR_TYPE_HOST, 0);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -78,7 +78,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
 #endif
             break;
 
-        case TYPE_NETWORK:
+        case VRMR_TYPE_NETWORK:
 
             /*
                 get the network address
@@ -86,7 +86,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             if(debuglvl >= HIGH)
                 (void)vrprint.debug(__FUNC__, "get network_ip for '%s', max_size: %d.", name, sizeof(answer_ptr->ipv4.network));
 
-            result = zf->ask(debuglvl, zone_backend, name, "NETWORK", answer_ptr->ipv4.network, sizeof(answer_ptr->ipv4.network), TYPE_NETWORK, 0);
+            result = zf->ask(debuglvl, zone_backend, name, "NETWORK", answer_ptr->ipv4.network, sizeof(answer_ptr->ipv4.network), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -97,7 +97,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             /*
                 netmask
             */
-            result = zf->ask(debuglvl, zone_backend, name, "NETMASK", answer_ptr->ipv4.netmask, sizeof(answer_ptr->ipv4.netmask), TYPE_NETWORK, 0);
+            result = zf->ask(debuglvl, zone_backend, name, "NETMASK", answer_ptr->ipv4.netmask, sizeof(answer_ptr->ipv4.netmask), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -117,7 +117,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             }
 
 #ifdef IPV6_ENABLED
-            result = zf->ask(debuglvl, zone_backend, name, "IPV6NETWORK", answer_ptr->ipv6.net6, sizeof(answer_ptr->ipv6.net6), TYPE_NETWORK, 0);
+            result = zf->ask(debuglvl, zone_backend, name, "IPV6NETWORK", answer_ptr->ipv6.net6, sizeof(answer_ptr->ipv6.net6), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -126,7 +126,7 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
             }
 
             char cidrstr[4] = "";
-            result = zf->ask(debuglvl, zone_backend, name, "IPV6CIDR", cidrstr, sizeof(cidrstr), TYPE_NETWORK, 0);
+            result = zf->ask(debuglvl, zone_backend, name, "IPV6CIDR", cidrstr, sizeof(cidrstr), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
                 (void)vrprint.error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -246,7 +246,7 @@ vrmr_get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupnam
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(answer_ptr->type != TYPE_GROUP)
+    if(answer_ptr->type != VRMR_TYPE_GROUP)
     {
         (void)vrprint.error(-1, "Internal Error", "expected a group, but got a %d (in: %s:%d).",
                 answer_ptr->type, __FUNC__, __LINE__);
@@ -258,7 +258,7 @@ vrmr_get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupnam
     answer_ptr->group_member_count = 0;
 
     /* get the members */
-    while((result = zf->ask(debuglvl, zone_backend, groupname, "MEMBER", cur_mem, sizeof(cur_mem), TYPE_GROUP, 1)) == 1)
+    while((result = zf->ask(debuglvl, zone_backend, groupname, "MEMBER", cur_mem, sizeof(cur_mem), VRMR_TYPE_GROUP, 1)) == 1)
     {
         answer_ptr->group_member_count++;
 
@@ -273,7 +273,7 @@ vrmr_get_group_info(const int debuglvl, struct vrmr_zones *zones, char *groupnam
         }
         else
         {
-            if(zone_ptr->type == TYPE_GROUP)
+            if(zone_ptr->type == VRMR_TYPE_GROUP)
             {
                 (void)vrprint.debug(__FUNC__, "only hosts can be groupmembers. Member '%s' of '%s' is a group.",
                         zone_ptr->name, groupname);
@@ -540,7 +540,7 @@ vrmr_check_active(const int debuglvl, char *name, int type)
     if(debuglvl >= MEDIUM)
         (void)vrprint.debug(__FUNC__, "type: %d, name = '%s'.", type, name);
 
-    if(type >= TYPE_TOO_BIG)
+    if(type >= VRMR_TYPE_TOO_BIG)
     {
         (void)vrprint.error(-1, "Internal Error", "type is out of range (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -557,17 +557,17 @@ vrmr_check_active(const int debuglvl, char *name, int type)
     }
 
     /* service */
-    if(type == TYPE_SERVICE || type == TYPE_SERVICEGRP)
+    if(type == VRMR_TYPE_SERVICE || type == VRMR_VRMR_TYPE_SERVICEGRP)
     {
         result = sf->ask(debuglvl, serv_backend, name, "ACTIVE", active, sizeof(active), type, 0);
     }
     /* interface */
-    else if(type == TYPE_INTERFACE)
+    else if(type == VRMR_TYPE_INTERFACE)
     {
         result = af->ask(debuglvl, ifac_backend, name, "ACTIVE", active, sizeof(active), type, 0);
     }
     /* zone, network, host, group */
-    else if(type == TYPE_ZONE || type == TYPE_NETWORK || type == TYPE_HOST || type == TYPE_GROUP)
+    else if(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK || type == VRMR_TYPE_HOST || type == VRMR_TYPE_GROUP)
     {
         result = zf->ask(debuglvl, zone_backend, name, "ACTIVE", active, sizeof(active), type, 0);
     }
@@ -892,7 +892,7 @@ vrmr_get_mac_address(const int debuglvl, char *hostname, char *answer_ptr, size_
     }
 
     /* ask the backend */
-    result = zf->ask(debuglvl, zone_backend, hostname, "MAC", answer_ptr, size, TYPE_HOST, 0);
+    result = zf->ask(debuglvl, zone_backend, hostname, "MAC", answer_ptr, size, VRMR_TYPE_HOST, 0);
     if(result == 1)
     {
         if(debuglvl >= HIGH)
@@ -1183,7 +1183,7 @@ char
             return(NULL);
         }
 
-        if(zone_ptr->type == TYPE_NETWORK)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
             /* check if the networkadress is valid */
             if(inet_aton(zone_ptr->ipv4.network, &net) != 0)

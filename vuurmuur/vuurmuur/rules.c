@@ -294,7 +294,7 @@ analyze_network_protect_rules(const int debuglvl, struct vrmr_rules *rules, stru
             return(-1);
         }
     
-        if(zone_ptr->type == TYPE_NETWORK)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
             for(net_d_node = zone_ptr->ProtectList.top; net_d_node; net_d_node = net_d_node->next)
             {
@@ -1121,7 +1121,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
     else if (create->to_firewall == TRUE) {
         if (create->to_firewall_any == TRUE || create->from_any == TRUE) {
             /* clear */
-        } else if (create->from->type == TYPE_ZONE) {
+        } else if (create->from->type == VRMR_TYPE_ZONE) {
             (void)vrprint.debug(__FUNC__, "source firewall, dest zone");
 
             if (rule->ipv == VRMR_IPV4) {
@@ -1209,7 +1209,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         retval = rulecreate_create_rule_and_options(debuglvl, ruleset, rule, create, iptcap);
     }
     /* host */
-    else if (create->to->type == TYPE_HOST) {
+    else if (create->to->type == VRMR_TYPE_HOST) {
         if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_to.ipaddress,
                     create->to->ipv4.ipaddress,
@@ -1231,7 +1231,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
     }
     /* group */
-    else if (create->to->type == TYPE_GROUP) {
+    else if (create->to->type == VRMR_TYPE_GROUP) {
 
         if (create->to->active == 1) {
             for (d_node = create->to->GroupList.top;
@@ -1262,7 +1262,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
     }
     /* network */
-    else if (create->to->type == TYPE_NETWORK) {
+    else if (create->to->type == VRMR_TYPE_NETWORK) {
         if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_to.ipaddress,
                     create->to->ipv4.network,
@@ -1282,7 +1282,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (create->to->active == 1) {
             retval = rulecreate_create_rule_and_options(debuglvl, ruleset, rule, create, iptcap);
         }
-    } else if (create->to->type == TYPE_ZONE) {
+    } else if (create->to->type == VRMR_TYPE_ZONE) {
         if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_to.ipaddress,
                     rule->to_network->ipv4.network,
@@ -1331,7 +1331,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (create->from_firewall_any == TRUE || create->to_any == TRUE) {
             /* clear */
             (void)vrprint.debug(__FUNC__, "source firewall(any)");
-        } else if (create->to->type == TYPE_ZONE) {
+        } else if (create->to->type == VRMR_TYPE_ZONE) {
             (void)vrprint.debug(__FUNC__, "source firewall, dest zone");
 
             if (rule->ipv == VRMR_IPV4) {
@@ -1427,7 +1427,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         retval = rulecreate_dst_loop(debuglvl, ruleset, rule, create, iptcap);
     }
     /* host */
-    else if (create->from->type == TYPE_HOST) {
+    else if (create->from->type == VRMR_TYPE_HOST) {
         if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_from.ipaddress,
                     create->from->ipv4.ipaddress,
@@ -1470,7 +1470,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
     }
     /* group */
-    else if (create->from->type == TYPE_GROUP) {
+    else if (create->from->type == VRMR_TYPE_GROUP) {
 
         for (d_node = create->from->GroupList.top;
             d_node != NULL; d_node = d_node->next)
@@ -1526,7 +1526,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
     }
     /* network */
-    else if (create->from->type == TYPE_NETWORK) {
+    else if (create->from->type == VRMR_TYPE_NETWORK) {
         if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_from.ipaddress,
                     create->from->ipv4.network,
@@ -1546,7 +1546,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (create->from->active == 1) {
             retval = rulecreate_dst_loop(debuglvl, ruleset, rule, create, iptcap);
         }
-    } else if (create->from->type == TYPE_ZONE) {
+    } else if (create->from->type == VRMR_TYPE_ZONE) {
         if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_from.ipaddress,
                     rule->from_network->ipv4.network,
@@ -1831,15 +1831,15 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
     /* any is gone now */
 
     int iterations = 0;
-    if (create->to->type == TYPE_HOST || create->to->type == TYPE_GROUP) {
+    if (create->to->type == VRMR_TYPE_HOST || create->to->type == VRMR_TYPE_GROUP) {
         iterations = 1;
-    } else if (create->to->type == TYPE_NETWORK) {
+    } else if (create->to->type == VRMR_TYPE_NETWORK) {
         iterations = 1;
-    } else if (create->to->type == TYPE_ZONE) {
+    } else if (create->to->type == VRMR_TYPE_ZONE) {
         for (d_node = vctx->zones->list.top; d_node != NULL; d_node = d_node->next) {
             struct vrmr_zone *zone_ptr = (struct vrmr_zone *)d_node->data;
             if (zone_ptr != NULL &&
-                    zone_ptr->type == TYPE_NETWORK &&
+                    zone_ptr->type == VRMR_TYPE_NETWORK &&
                     strcmp(zone_ptr->zone_name, create->to->name) == 0) {
                 vrmr_list_append(debuglvl, &rule->to_network_list, zone_ptr);
             }
@@ -1853,11 +1853,11 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
     for (iter = 0; iter < iterations; iter++) {
         d_node = NULL;
 
-        if (create->to->type == TYPE_HOST || create->to->type == TYPE_GROUP) {
+        if (create->to->type == VRMR_TYPE_HOST || create->to->type == VRMR_TYPE_GROUP) {
             d_node = create->to->network_parent->InterfaceList.top;
-        } else if (create->to->type == TYPE_NETWORK) {
+        } else if (create->to->type == VRMR_TYPE_NETWORK) {
             d_node = create->to->InterfaceList.top;
-        } else if (create->to->type == TYPE_ZONE) {
+        } else if (create->to->type == VRMR_TYPE_ZONE) {
             if (net_d_node == NULL)
                 net_d_node = rule->to_network_list.top;
             else
@@ -2074,15 +2074,15 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
 
     int iterations = 0;
     /* any is gone now */
-    if (create->from->type == TYPE_HOST || create->from->type == TYPE_GROUP) {
+    if (create->from->type == VRMR_TYPE_HOST || create->from->type == VRMR_TYPE_GROUP) {
         iterations = 1;
-    } else if (create->from->type == TYPE_NETWORK) {
+    } else if (create->from->type == VRMR_TYPE_NETWORK) {
         iterations = 1;
-    } else if (create->from->type == TYPE_ZONE) {
+    } else if (create->from->type == VRMR_TYPE_ZONE) {
         for (d_node = vctx->zones->list.top; d_node != NULL; d_node = d_node->next) {
             struct vrmr_zone *zone_ptr = (struct vrmr_zone *)d_node->data;
             if (zone_ptr != NULL &&
-                    zone_ptr->type == TYPE_NETWORK &&
+                    zone_ptr->type == VRMR_TYPE_NETWORK &&
                     strcmp(zone_ptr->zone_name, create->from->name) == 0) {
                 vrmr_list_append(debuglvl, &rule->from_network_list, zone_ptr);
             }
@@ -2096,11 +2096,11 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
     for (iter = 0; iter < iterations; iter++) {
         d_node = NULL;
 
-        if (create->from->type == TYPE_HOST || create->from->type == TYPE_GROUP) {
+        if (create->from->type == VRMR_TYPE_HOST || create->from->type == VRMR_TYPE_GROUP) {
             d_node = create->from->network_parent->InterfaceList.top;
-        } else if (create->from->type == TYPE_NETWORK) {
+        } else if (create->from->type == VRMR_TYPE_NETWORK) {
             d_node = create->from->InterfaceList.top;
-        } else if (create->from->type == TYPE_ZONE) {
+        } else if (create->from->type == VRMR_TYPE_ZONE) {
             if (net_d_node == NULL)
                 net_d_node = rule->from_network_list.top;
             else

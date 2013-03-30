@@ -1168,22 +1168,22 @@ enum objectstatus
 
 
 /* a value like: 'dnsserver.dmz.internet' can be a: */
-enum targettypes
+enum vrmr_objecttypes
 {
-    TYPE_ERROR = -1,
-    TYPE_UNSET = 0,
+    VRMR_TYPE_ERROR = -1,
+    VRMR_TYPE_UNSET = 0,
 
-    TYPE_FIREWALL,
-    TYPE_HOST,
-    TYPE_GROUP,
-    TYPE_NETWORK,
-    TYPE_ZONE,
-    TYPE_SERVICE,
-    TYPE_SERVICEGRP, /* not implemented */
-    TYPE_INTERFACE,
-    TYPE_RULE,
+    VRMR_TYPE_FIREWALL,
+    VRMR_TYPE_HOST,
+    VRMR_TYPE_GROUP,
+    VRMR_TYPE_NETWORK,
+    VRMR_TYPE_ZONE,
+    VRMR_TYPE_SERVICE,
+    VRMR_VRMR_TYPE_SERVICEGRP, /* not implemented */
+    VRMR_TYPE_INTERFACE,
+    VRMR_TYPE_RULE,
 
-    TYPE_TOO_BIG
+    VRMR_TYPE_TOO_BIG
 };
 
 

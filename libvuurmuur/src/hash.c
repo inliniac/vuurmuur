@@ -636,7 +636,7 @@ vrmr_init_zonedata_hashtable(    const int debuglvl,
         }
 
         /* we only insert hosts and firewalls, which are actually interfaces */
-        if(zone_ptr->type == TYPE_HOST || zone_ptr->type == TYPE_FIREWALL)
+        if(zone_ptr->type == VRMR_TYPE_HOST || zone_ptr->type == VRMR_TYPE_FIREWALL)
         {
             if(strcmp(zone_ptr->ipv4.ipaddress, "") != 0)
             {

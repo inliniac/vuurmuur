@@ -5190,7 +5190,7 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, str
             return(-1);
         }
 
-        if(zone_ptr->type == TYPE_NETWORK)
+        if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
             /* now loop through the ruleslist */
             for(net_d_node = zone_ptr->ProtectList.top;

@@ -518,7 +518,7 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
 
     memset(ct, 0, sizeof(ct));
 
-    /*  insert the interfaces as TYPE_FIREWALL's into the zonelist
+    /*  insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist
         as 'firewall', so this appears in to the connections */
     if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces->list, &zones->list) < 0)
     {
@@ -580,7 +580,7 @@ conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones)
 {
     /* zones may be NULL if we have multiple ct's */
     if (zones != NULL) {
-        /*  remove the interfaces inserted as TYPE_FIREWALL's into the zonelist
+        /*  remove the interfaces inserted as VRMR_TYPE_FIREWALL's into the zonelist
             this also removes zones added by vrmr_add_broadcasts_zonelist()
         */
         if(vrmr_rem_iface_from_zonelist(debuglvl, &zones->list) < 0)
