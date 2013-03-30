@@ -3565,7 +3565,7 @@ vrmr_rules_get_system_chains_per_table(const int debuglvl, char *tablename,
     }
 
     /* commandline */
-    if (ipv == VR_IPV4) {
+    if (ipv == VRMR_IPV4) {
         snprintf(cmd, sizeof(cmd), "%s -t %s -nL",
                 cnf->iptables_location, tablename);
     } else {
@@ -3661,7 +3661,7 @@ vrmr_rules_get_system_chains(const int debuglvl, struct vrmr_rules *rules, struc
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if (ipv == VR_IPV4) {
+    if (ipv == VRMR_IPV4) {
         if(vrmr_list_setup(debuglvl, &rules->system_chain_nat, free) < 0) {
             (void)vrprint.error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
@@ -3689,7 +3689,7 @@ vrmr_rules_get_system_chains(const int debuglvl, struct vrmr_rules *rules, struc
                 &rules->system_chain_mangle, cnf, ipv) < 0)
         return(-1);
 
-    if (ipv == VR_IPV4) {
+    if (ipv == VRMR_IPV4) {
         if(vrmr_rules_get_system_chains_per_table(debuglvl, "nat",
                     &rules->system_chain_nat, cnf, ipv) < 0)
             return(-1);

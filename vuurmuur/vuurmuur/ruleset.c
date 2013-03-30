@@ -438,9 +438,9 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
     ruleset_writeprint(ruleset_fd, cmd);
 
     if (vctx->conf->vrmr_check_iptcaps == FALSE ||
-            (ipver == VR_IPV4 && vctx->iptcaps->table_raw == TRUE)
+            (ipver == VRMR_IPV4 && vctx->iptcaps->table_raw == TRUE)
 #ifdef IPV6_ENABLED
-        ||  (ipver == VR_IPV6 && vctx->iptcaps->table_ip6_raw == TRUE)
+        ||  (ipver == VRMR_IPV6 && vctx->iptcaps->table_ip6_raw == TRUE)
 #endif
         )
     {
@@ -531,7 +531,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         snprintf(cmd, sizeof(cmd), "--flush POSTROUTING\n");
         ruleset_writeprint(ruleset_fd, cmd);
 
-        if (ipver == VR_IPV4) {
+        if (ipver == VRMR_IPV4) {
             /* SHAPE IN */
             if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules->system_chain_mangle, "SHAPEIN"))
             {
@@ -627,7 +627,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
             ruleset_writeprint(ruleset_fd, cmd);
         }
 
-        if (ipver == VR_IPV4) {
+        if (ipver == VRMR_IPV4) {
             /* shape in */
             for(d_node = ruleset->mangle_shape_in.top; d_node; d_node = d_node->next)
             {
@@ -672,7 +672,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         ruleset_writeprint(ruleset_fd, cmd);
     }
 
-    if(ipver == VR_IPV4 && (vctx->conf->vrmr_check_iptcaps == FALSE || vctx->iptcaps->table_nat == TRUE))
+    if(ipver == VRMR_IPV4 && (vctx->conf->vrmr_check_iptcaps == FALSE || vctx->iptcaps->table_nat == TRUE))
     {
         /* nat table */
         snprintf(cmd, sizeof(cmd), "*nat\n");
@@ -1201,7 +1201,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
     /*
         create and execute the command
     */
-    if (ipver == VR_IPV4) {
+    if (ipver == VRMR_IPV4) {
         if(snprintf(cmd, sizeof(cmd), "%s  --counters --noflush < %s 2>> %s",
                     cnf->iptablesrestore_location, path_to_ruleset,
                     path_to_resultfile) >= (int)sizeof(cmd))
@@ -1210,7 +1210,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
             return(-1);
         }
     }
-    else if (ipver == VR_IPV6) {
+    else if (ipver == VRMR_IPV6) {
 #ifdef IPV6_ENABLED
         if(snprintf(cmd, sizeof(cmd), "%s  --counters --noflush < %s 2>> %s",
                     cnf->ip6tablesrestore_location, path_to_ruleset,
@@ -1605,7 +1605,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
         return(-1);
     }
 
-    ruleset.ipv = VR_IPV4;
+    ruleset.ipv = VRMR_IPV4;
 
     /* store counters */
     if(ruleset_save_interface_counters(debuglvl, vctx->conf, vctx->interfaces) < 0)
@@ -1669,7 +1669,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
         return(-1);
     }
     /* now create the currentrulesetfile */
-    if(ruleset_fill_file(debuglvl, vctx, &ruleset, ruleset_fd, VR_IPV4) < 0)
+    if(ruleset_fill_file(debuglvl, vctx, &ruleset, ruleset_fd, VRMR_IPV4) < 0)
     {
         (void)vrprint.error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -1710,7 +1710,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
         return(-1);
     }
     /* now load the iptables ruleset */
-    if(ruleset_load_ruleset(debuglvl, cur_ruleset_path, cur_result_path, vctx->conf, VR_IPV4) != 0)
+    if(ruleset_load_ruleset(debuglvl, cur_ruleset_path, cur_result_path, vctx->conf, VRMR_IPV4) != 0)
     {
         /* oops, something went wrong */
         (void)vrprint.error(-1, "Error", "rulesetfile will be stored as '%s.failed' (in: %s:%d).",
@@ -1791,7 +1791,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
         return(-1);
     }
 
-    ruleset.ipv = VR_IPV6;
+    ruleset.ipv = VRMR_IPV6;
 
     /* store counters */
     if(ruleset_save_interface_counters(debuglvl, vctx->conf, vctx->interfaces) < 0)
@@ -1844,7 +1844,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
         return(-1);
     }
     /* now create the currentrulesetfile */
-    if(ruleset_fill_file(debuglvl, vctx, &ruleset, ruleset_fd, VR_IPV6) < 0)
+    if(ruleset_fill_file(debuglvl, vctx, &ruleset, ruleset_fd, VRMR_IPV6) < 0)
     {
         (void)vrprint.error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -1863,7 +1863,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     }
 
     /* now load the iptables ruleset */
-    if(ruleset_load_ruleset(debuglvl, cur_ruleset_path, cur_result_path, vctx->conf, VR_IPV6) != 0)
+    if(ruleset_load_ruleset(debuglvl, cur_ruleset_path, cur_result_path, vctx->conf, VRMR_IPV6) != 0)
     {
         /* oops, something went wrong */
         (void)vrprint.error(-1, "Error", "rulesetfile will be stored as '%s.failed' (in: %s:%d).",

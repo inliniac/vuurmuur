@@ -2107,7 +2107,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
             close(fd);
 
         char *outputs[] = { tmpfile, "/dev/null", NULL };
-        if (ipver == VR_IPV4) {
+        if (ipver == VRMR_IPV4) {
             char *args[] = { cnf->conntrack_location,
                 "-L", "-f", "ipv4", NULL };
             int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->conntrack_location, args, outputs);
@@ -2177,7 +2177,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
 
         /* parse the line */
         int r;
-        if (ipver == 0 || ipver == VR_IPV4)
+        if (ipver == 0 || ipver == VRMR_IPV4)
             r = conn_process_one_conntrack_line(debuglvl, line, &cl);
         else
             r = conn_process_one_conntrack_line_ipv6(debuglvl, line, &cl);
@@ -2512,12 +2512,12 @@ vrmr_conn_get_connections(   const int debuglvl,
     if (strlen(cnf->conntrack_location) > 0) {
         retval = vrmr_conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
                 serv_hash, zone_hash, conn_dlist, zone_list,
-                req, connstat_ptr, VR_IPV4);
+                req, connstat_ptr, VRMR_IPV4);
 #ifdef IPV6_ENABLED
         if (retval == 0) {
             retval = vrmr_conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
                     serv_hash, zone_hash, conn_dlist, zone_list,
-                    req, connstat_ptr, VR_IPV6);
+                    req, connstat_ptr, VRMR_IPV6);
         }
 #endif
     } else {

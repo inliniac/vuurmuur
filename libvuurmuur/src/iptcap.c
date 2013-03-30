@@ -890,7 +890,7 @@ static int check_conntrack(const int debuglvl, struct vrmr_config *cnf, int ipv)
     char *args[] = { cnf->conntrack_location,
         "-L", "-f", "ipv4", NULL };
 
-    if (ipv == VR_IPV6)
+    if (ipv == VRMR_IPV6)
         args[3] = "ipv6";
 
     int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->conntrack_location, args, NULL);
@@ -1055,7 +1055,7 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
 
 
     /* check for the CONNTRACK */
-    if ((check_conntrack(debuglvl, cnf, VR_IPV4) == 1) ||
+    if ((check_conntrack(debuglvl, cnf, VRMR_IPV4) == 1) ||
             (iptcap_check_file(debuglvl, proc_net_ipconntrack)) ||
             (iptcap_check_file(debuglvl, proc_net_nfconntrack))) {
         iptcap->conntrack = TRUE;
@@ -1064,7 +1064,7 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
             (void)iptcap_load_module(debuglvl, cnf, "ip_conntrack");
             (void)iptcap_load_module(debuglvl, cnf, "nf_conntrack_ipv4");
 
-            if ((check_conntrack(debuglvl, cnf, VR_IPV4) == 1) ||
+            if ((check_conntrack(debuglvl, cnf, VRMR_IPV4) == 1) ||
                     (iptcap_check_file(debuglvl, proc_net_ipconntrack)) ||
                     (iptcap_check_file(debuglvl, proc_net_nfconntrack))) {
                 iptcap->conntrack = TRUE;

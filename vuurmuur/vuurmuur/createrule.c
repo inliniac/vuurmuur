@@ -56,7 +56,7 @@
 /*  structure for storing an iptables rule in the queue. */
 typedef struct
 {
-    int                 ipv;    /**< VR_IPV4 or VR_IPV6 */
+    int                 ipv;    /**< VRMR_IPV4 or VRMR_IPV6 */
     char                *table;
     char                *chain;
     char                cmd[VRMR_MAX_PIPE_COMMAND];
@@ -66,7 +66,7 @@ typedef struct
 } IptRule;
 
 static char *create_state_string(int ipv, struct vrmr_iptcaps *iptcap) {
-    if (ipv == VR_IPV4) {
+    if (ipv == VRMR_IPV4) {
         if (conf.vrmr_check_iptcaps == FALSE || iptcap->match_conntrack == TRUE)
             return "-m conntrack --ctstate";
         else
@@ -304,7 +304,7 @@ queue_rule(const int debuglvl, struct RuleCreateData_ *rule,
 /**
  *  \brief pass the rule to either the ruleset or to pipe-command
  *
- *  \param ipv VR_IPV4 or VR_IPV6
+ *  \param ipv VRMR_IPV4 or VRMR_IPV6
  */
 static int
 process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, int ipv, char *table,
@@ -322,7 +322,7 @@ process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, int ipv, char *tabl
     if(ruleset == NULL)
     {
         /* not in ruleset mode */
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             return (pipe_iptables_command(debuglvl, table, chain, cmd));
 #ifdef IPV6_ENABLED
         } else {
@@ -390,7 +390,7 @@ process_rule(const int debuglvl, /*@null@*/RuleSet *ruleset, int ipv, char *tabl
             return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_output, chain, cmd, packets, bytes));
         else if(strcmp(chain, CH_POSTROUTING) == 0)
             return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_postroute, chain, cmd, packets, bytes));
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             if(strcmp(chain, CH_SHAPE_IN) == 0)
                 return(ruleset_add_rule_to_set(debuglvl, &ruleset->mangle_shape_in, chain, cmd, packets, bytes));
             else if(strcmp(chain, CH_SHAPE_OUT) == 0)
@@ -756,7 +756,7 @@ create_rule_input(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 
 #ifdef IPV6_ENABLED
-    if (rule->ipv == VR_IPV6) {
+    if (rule->ipv == VRMR_IPV6) {
         return (retval);
     }
 #endif
@@ -1192,7 +1192,7 @@ create_rule_output(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 
 #ifdef IPV6_ENABLED
-    if (rule->ipv == VR_IPV6) {
+    if (rule->ipv == VRMR_IPV6) {
         return (retval);
     }
 #endif
@@ -1669,7 +1669,7 @@ create_rule_forward(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleC
     }
 
 #ifdef IPV6_ENABLED
-    if (rule->ipv == VR_IPV6) {
+    if (rule->ipv == VRMR_IPV6) {
         return (retval);
     }
 #endif
@@ -1821,7 +1821,7 @@ create_rule_masq(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
     }
 
 #ifdef IPV6_ENABLED
-    if (rule->ipv == VR_IPV6) {
+    if (rule->ipv == VRMR_IPV6) {
         return(0);
     }
 #endif
@@ -1876,7 +1876,7 @@ create_rule_snat(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCrea
     }
 
 #ifdef IPV6_ENABLED
-    if (rule->ipv == VR_IPV6) {
+    if (rule->ipv == VRMR_IPV6) {
         return(0);
     }
 #endif
@@ -1943,7 +1943,7 @@ create_rule_portfw(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCr
     }
 
 #ifdef IPV6_ENABLED
-    if (rule->ipv == VR_IPV6) {
+    if (rule->ipv == VRMR_IPV6) {
         return(0);
     }
 #endif
@@ -2091,7 +2091,7 @@ create_rule_redirect(const int debuglvl, /*@null@*/RuleSet *ruleset, struct Rule
     }
 
 #ifdef IPV6_ENABLED
-    if (rule->ipv == VR_IPV6) {
+    if (rule->ipv == VRMR_IPV6) {
         return(0);
     }
 #endif
@@ -2216,7 +2216,7 @@ create_rule_dnat(   const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 
 #ifdef IPV6_ENABLED
-    if (rule->ipv == VR_IPV6) {
+    if (rule->ipv == VRMR_IPV6) {
         return(0);
     }
 #endif
@@ -2318,7 +2318,7 @@ create_rule_bounce( const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 
 #ifdef IPV6_ENABLED
-    if (rule->ipv == VR_IPV6) {
+    if (rule->ipv == VRMR_IPV6) {
         return(0);
     }
 #endif
@@ -2469,7 +2469,7 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
         return(-1);
     }
 
-    if (ipv == VR_IPV4) {
+    if (ipv == VRMR_IPV4) {
         if (conf.vrmr_check_iptcaps == TRUE && iptcap->target_tcpmss == FALSE) {
             if (conf.bash_out)
                 fprintf(stdout, "# No support for IPv4 TCPMSS target.\n");
@@ -2502,7 +2502,7 @@ create_interface_tcpmss_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (iface_ptr->tcpmss_clamp == TRUE && iface_ptr->device_virtual == FALSE)
         {
 #ifdef IPV6_ENABLED
-            if (ipv == VR_IPV6 && !vrmr_interface_ipv6_enabled(debuglvl, iface_ptr))
+            if (ipv == VRMR_IPV6 && !vrmr_interface_ipv6_enabled(debuglvl, iface_ptr))
                 continue;
 #endif
 
@@ -2600,9 +2600,9 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
     */
 
     if (conf.vrmr_check_iptcaps == FALSE ||
-            (iptcap->match_connmark == TRUE && ipv == VR_IPV4)
+            (iptcap->match_connmark == TRUE && ipv == VRMR_IPV4)
 #ifdef IPV6_ENABLED
-        ||  (iptcap->match_ip6_connmark == TRUE && ipv == VR_IPV6)
+        ||  (iptcap->match_ip6_connmark == TRUE && ipv == VRMR_IPV6)
 #endif
         )
     {
@@ -2663,9 +2663,9 @@ static int pre_rules_conntrack(const int debuglvl, /*@null@*/RuleSet *ruleset,
          end mark:      33554432
     */
     if (conf.vrmr_check_iptcaps == FALSE ||
-            (iptcap->target_queue == TRUE && iptcap->match_connmark == TRUE && ipv == VR_IPV4)
+            (iptcap->target_queue == TRUE && iptcap->match_connmark == TRUE && ipv == VRMR_IPV4)
 #ifdef IPV6_ENABLED
-         || (iptcap->target_ip6_queue == TRUE && iptcap->match_ip6_connmark == TRUE && ipv == VR_IPV6)
+         || (iptcap->target_ip6_queue == TRUE && iptcap->match_ip6_connmark == TRUE && ipv == VRMR_IPV6)
 #endif
         )
     {
@@ -2727,7 +2727,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
     {
         if(ruleset == NULL)
         {
-            if (ipv == VR_IPV4) {
+            if (ipv == VRMR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-PREROUTING 2>/dev/null",
                         conf.iptables_location, TB_MANGLE);
                 (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -2746,7 +2746,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
         if(ruleset == NULL)
         {
-            if (ipv == VR_IPV4) {
+            if (ipv == VRMR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-INPUT 2>/dev/null",
                         conf.iptables_location, TB_MANGLE);
                 (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -2765,7 +2765,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
         if(ruleset == NULL)
         {
-            if (ipv == VR_IPV4) {
+            if (ipv == VRMR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-FORWARD 2>/dev/null",
                         conf.iptables_location, TB_MANGLE);
                 (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -2784,7 +2784,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
         if(ruleset == NULL)
         {
-            if (ipv == VR_IPV4) {
+            if (ipv == VRMR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-POSTROUTING 2>/dev/null",
                         conf.iptables_location, TB_MANGLE);
                 (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -2803,7 +2803,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
         if(ruleset == NULL)
         {
-            if (ipv == VR_IPV4) {
+            if (ipv == VRMR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null",
                         conf.iptables_location, TB_MANGLE);
                 (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -2832,7 +2832,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     if(ruleset == NULL)
     {
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-INPUT 2>/dev/null",
                     conf.iptables_location, TB_FILTER);
             (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -2851,7 +2851,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     if(ruleset == NULL)
     {
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-FORWARD 2>/dev/null",
                     conf.iptables_location, TB_FILTER);
             (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -2870,7 +2870,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     if(ruleset == NULL)
     {
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s %s -N PRE-VRMR-OUTPUT 2>/dev/null",
                     conf.iptables_location, TB_FILTER);
             (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -2890,7 +2890,7 @@ static int pre_rules_pre_vrmr(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* nat table uses {PREROUTING,POSTROUTING,OUTPUT} hooks */
 
-    if (ipv == VR_IPV4) {
+    if (ipv == VRMR_IPV4) {
         if (conf.bash_out == TRUE)
             fprintf(stdout, "\n# Making special PRE-VRMR-{PREROUTING,POSTROUTING,"
                     "OUTPUT} CHAINS in nat table...\n");
@@ -2944,7 +2944,7 @@ static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
-    if (ipv == VR_IPV6) {
+    if (ipv == VRMR_IPV6) {
         return 0;
     }
 
@@ -2962,7 +2962,7 @@ static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
 
         snprintf(cmd, sizeof(cmd), "-j SHAPEIN");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         if(ruleset == NULL)
@@ -2972,7 +2972,7 @@ static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
 
         snprintf(cmd, sizeof(cmd), "-j SHAPEOUT");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         if(ruleset == NULL)
@@ -2982,7 +2982,7 @@ static int pre_rules_shape(const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
 
         snprintf(cmd, sizeof(cmd), "-j SHAPEFW");
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
     }
 
@@ -3072,13 +3072,13 @@ static int pre_rules_interface_counters_ipv4(const int debuglvl,
 
             /* create an outgoing rule for in the chain (IPTRAFVOL wants outgoing first) */
             snprintf(cmd, sizeof(cmd), "-o %s -j RETURN", iface_ptr->device);
-            (void)process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, acc_chain_name, cmd,
+            (void)process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, acc_chain_name, cmd,
                     iface_ptr->cnt ? iface_ptr->cnt->acc_out_packets : 0,
                     iface_ptr->cnt ? iface_ptr->cnt->acc_out_bytes : 0);
 
             /* create an incoming rule for in the chain (IPTRAFVOL wants imcoming second) */
             snprintf(cmd, sizeof(cmd), "-i %s -j RETURN", iface_ptr->device);
-            (void)process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, acc_chain_name, cmd,
+            (void)process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, acc_chain_name, cmd,
                     iface_ptr->cnt ? iface_ptr->cnt->acc_in_packets : 0,
                     iface_ptr->cnt ? iface_ptr->cnt->acc_in_bytes : 0);
 
@@ -3091,7 +3091,7 @@ static int pre_rules_interface_counters_ipv4(const int debuglvl,
              */
             snprintf(cmd, sizeof(cmd), "-i %s -j %s",
                     iface_ptr->device, acc_chain_name);
-            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd,
+            if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd,
                         iface_ptr->cnt ? iface_ptr->cnt->input_packets : 0,
                         iface_ptr->cnt ? iface_ptr->cnt->input_bytes : 0) < 0)
                 retval = -1;
@@ -3101,7 +3101,7 @@ static int pre_rules_interface_counters_ipv4(const int debuglvl,
              */
             snprintf(cmd, sizeof(cmd), "-o %s -j %s",
                     iface_ptr->device, acc_chain_name);
-            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd,
+            if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_OUTPUT, cmd,
                         iface_ptr->cnt ? iface_ptr->cnt->output_packets : 0,
                         iface_ptr->cnt ? iface_ptr->cnt->output_bytes : 0) < 0)
                 retval = -1;
@@ -3111,7 +3111,7 @@ static int pre_rules_interface_counters_ipv4(const int debuglvl,
              */
             snprintf(cmd, sizeof(cmd), "-i %s -j %s",
                     iface_ptr->device, acc_chain_name);
-            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd,
+            if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_FORWARD, cmd,
                         iface_ptr->cnt ? iface_ptr->cnt->forwardin_packets : 0,
                         iface_ptr->cnt ? iface_ptr->cnt->forwardin_bytes : 0) < 0)
                 retval = -1;
@@ -3121,7 +3121,7 @@ static int pre_rules_interface_counters_ipv4(const int debuglvl,
              */
             snprintf(cmd, sizeof(cmd), "-o %s -j %s",
                     iface_ptr->device, acc_chain_name);
-            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd,
+            if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_FORWARD, cmd,
                         iface_ptr->cnt ? iface_ptr->cnt->forwardout_packets : 0,
                         iface_ptr->cnt ? iface_ptr->cnt->forwardout_bytes : 0) < 0)
                 retval = -1;
@@ -3149,7 +3149,7 @@ static int pre_rules_set_policy(const int debuglvl, /*@null@*/RuleSet *ruleset,
         if (debuglvl >= LOW)
             (void)vrprint.debug(__FUNC__, "Setting default policies...");
 
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --policy INPUT DROP",
                     conf.iptables_location);
 
@@ -3193,7 +3193,7 @@ static int pre_rules_set_policy(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
     else
     {
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             ruleset->filter_input_policy = 1;   /* drop */
             ruleset->filter_output_policy = 1;  /* drop */
             ruleset->filter_forward_policy = 1; /* drop */
@@ -3474,7 +3474,7 @@ static int pre_rules_bad_packets(const int debuglvl, /*@null@*/RuleSet *ruleset,
     /*
         Fragmented packets
     */
-    if (ipv == VR_IPV4) {
+    if (ipv == VRMR_IPV4) {
         if (conf.log_frag == TRUE &&
                 (conf.vrmr_check_iptcaps == FALSE || iptcap->target_log == TRUE))
         {
@@ -3634,13 +3634,13 @@ static int pre_rules_blocklist_ipv4(const int debuglvl, /*@null@*/RuleSet *rules
     }
 
     snprintf(cmd, sizeof(cmd), "-j BLOCKLIST");
-    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval = -1;
 
-    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval = -1;
 
-    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval = -1;
 
     if (ruleset == NULL) {
@@ -3670,12 +3670,12 @@ static int pre_rules_blocklist_ipv4(const int debuglvl, /*@null@*/RuleSet *rules
                     limit, logprefix, loglevel, log_tcp_options);
         }
 
-        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
+        if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
             retval = -1;
     }
 
     snprintf(cmd, sizeof(cmd), "-j DROP");
-    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
+    if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_BLOCKTARGET, cmd, 0, 0) < 0)
         retval = -1;
 
     return (retval);
@@ -3697,7 +3697,7 @@ static int pre_rules_synlimit(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (void)vrprint.debug(__FUNC__, "Setting up SYN-limit...");
 
     if (ruleset == NULL) {
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s -N SYNLIMIT 2>/dev/null",
                     conf.iptables_location);
             (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -3733,7 +3733,7 @@ static int pre_rules_udplimit(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (void)vrprint.debug(__FUNC__, "Setting up UDP-limit...");
 
     if(ruleset == NULL) {
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s -N UDPLIMIT 2>/dev/null",
                     conf.iptables_location);
             (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -3768,7 +3768,7 @@ static int pre_rules_newaccept(const int debuglvl, /*@null@*/RuleSet *ruleset,
         (void)vrprint.debug(__FUNC__, "Setting up NEWACCEPT target...");
 
     if(ruleset == NULL) {
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s -N NEWACCEPT 2>/dev/null",
                 conf.iptables_location);
             (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -3782,10 +3782,10 @@ static int pre_rules_newaccept(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
     char connmark[] = "-m connmark --mark 1";
 
-    if (conf.vrmr_check_iptcaps == TRUE && ipv == VR_IPV4 && iptcap->match_connmark == FALSE)
+    if (conf.vrmr_check_iptcaps == TRUE && ipv == VRMR_IPV4 && iptcap->match_connmark == FALSE)
         memset(connmark, 0, sizeof(connmark));
 #ifdef IPV6_ENABLED
-    if (conf.vrmr_check_iptcaps == TRUE && ipv == VR_IPV6 && iptcap->match_ip6_connmark == FALSE)
+    if (conf.vrmr_check_iptcaps == TRUE && ipv == VRMR_IPV6 && iptcap->match_ip6_connmark == FALSE)
         memset(connmark, 0, sizeof(connmark));
 #endif
 
@@ -3821,7 +3821,7 @@ static int pre_rules_newqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     if (conf.vrmr_check_iptcaps == FALSE || (iptcap->target_queue == TRUE && iptcap->match_connmark)) {
         if(ruleset == NULL) {
-            if (ipv == VR_IPV4) {
+            if (ipv == VRMR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null",
                         conf.iptables_location);
                 (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -3871,7 +3871,7 @@ static int pre_rules_nfqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     if (conf.vrmr_check_iptcaps == FALSE || iptcap->target_nfqueue == TRUE) {
         if (ruleset == NULL) {
-            if (ipv == VR_IPV4) {
+            if (ipv == VRMR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s -N NEWNFQUEUE 2>/dev/null",
                         conf.iptables_location);
                 (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -3909,7 +3909,7 @@ static int pre_rules_nfqueue(const int debuglvl, /*@null@*/RuleSet *ruleset,
              * in the errorlog) because if we start vuurmuur when a ruleset is already in
              *  place, the chain will exist and iptables will complain.
              */
-            if (ipv == VR_IPV4) {
+            if (ipv == VRMR_IPV4) {
                 snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFQUEUE 2>/dev/null",
                         conf.iptables_location);
                 (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -3953,7 +3953,7 @@ static int pre_rules_tcpreset(const int debuglvl, /*@null@*/RuleSet *ruleset,
         safe TCP-RESET REJECT target
     */
     if (ruleset == NULL) {
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             snprintf(cmd, sizeof(cmd), "%s -N TCPRESET 2>/dev/null",
                     conf.iptables_location);
             (void)vrmr_pipe_command(debuglvl, &conf, cmd, VRMR_PIPE_QUIET);
@@ -4007,11 +4007,11 @@ static int pre_rules_antispoof_ipv4(const int debuglvl, /*@null@*/RuleSet *rules
     }
 
     snprintf(cmd, sizeof(cmd), "-j ANTISPOOF");
-    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval = -1;
-    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval = -1;
-    if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval = -1;
 
     return (retval);
@@ -4034,11 +4034,11 @@ static int pre_rules_icmp_ipv6(const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
 
     snprintf(cmd, sizeof(cmd), "-p icmpv6 -j ACCEPT");
-    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if (process_rule(debuglvl, ruleset, VRMR_IPV6, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval = -1;
-    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if (process_rule(debuglvl, ruleset, VRMR_IPV6, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval = -1;
-    if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if (process_rule(debuglvl, ruleset, VRMR_IPV6, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         retval = -1;
 
     return (retval);
@@ -4086,94 +4086,94 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_interfaces
     }
 
     /* pre vuurmuur rules */
-    pre_rules_pre_vrmr(debuglvl, ruleset, iptcap, VR_IPV4);
+    pre_rules_pre_vrmr(debuglvl, ruleset, iptcap, VRMR_IPV4);
 #ifdef IPV6_ENABLED
-    pre_rules_pre_vrmr(debuglvl, ruleset, iptcap, VR_IPV6);
+    pre_rules_pre_vrmr(debuglvl, ruleset, iptcap, VRMR_IPV6);
 #endif
 
     /* shape rules */
-    pre_rules_shape(debuglvl, ruleset, iptcap, VR_IPV4);
+    pre_rules_shape(debuglvl, ruleset, iptcap, VRMR_IPV4);
 
 
-    pre_rules_loopback(debuglvl, ruleset, iptcap, VR_IPV4);
+    pre_rules_loopback(debuglvl, ruleset, iptcap, VRMR_IPV4);
 #ifdef IPV6_ENABLED
-    pre_rules_loopback(debuglvl, ruleset, iptcap, VR_IPV6);
+    pre_rules_loopback(debuglvl, ruleset, iptcap, VRMR_IPV6);
 #endif
 
     /* interface counters, IPv4 only for now */
     pre_rules_interface_counters_ipv4(debuglvl, ruleset, interfaces,
-            iptcap, VR_IPV4);
+            iptcap, VRMR_IPV4);
 
     /* set the policy */
-    pre_rules_set_policy(debuglvl, ruleset, iptcap, VR_IPV4);
+    pre_rules_set_policy(debuglvl, ruleset, iptcap, VRMR_IPV4);
 #ifdef IPV6_ENABLED
-    pre_rules_set_policy(debuglvl, ruleset, iptcap, VR_IPV6);
+    pre_rules_set_policy(debuglvl, ruleset, iptcap, VRMR_IPV6);
 #endif
 
     /* rules for logging and dropping bad packets */
-    pre_rules_bad_packets(debuglvl, ruleset, iptcap, VR_IPV4);
+    pre_rules_bad_packets(debuglvl, ruleset, iptcap, VRMR_IPV4);
 #ifdef IPV6_ENABLED
-    pre_rules_bad_packets(debuglvl, ruleset, iptcap, VR_IPV6);
+    pre_rules_bad_packets(debuglvl, ruleset, iptcap, VRMR_IPV6);
 #endif
 
     /* syn-flooding protection */
-    if (pre_rules_synlimit(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+    if (pre_rules_synlimit(debuglvl, ruleset, iptcap, VRMR_IPV4) < 0)
         retval = -1;
 #ifdef IPV6_ENABLED
-    if (pre_rules_synlimit(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+    if (pre_rules_synlimit(debuglvl, ruleset, iptcap, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
     /* udp-flooding protection */
-    if (pre_rules_udplimit(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+    if (pre_rules_udplimit(debuglvl, ruleset, iptcap, VRMR_IPV4) < 0)
         retval = -1;
 #ifdef IPV6_ENABLED
-    if (pre_rules_udplimit(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+    if (pre_rules_udplimit(debuglvl, ruleset, iptcap, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
-    if (pre_rules_newaccept(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+    if (pre_rules_newaccept(debuglvl, ruleset, iptcap, VRMR_IPV4) < 0)
         retval = -1;
 #ifdef IPV6_ENABLED
-    if (pre_rules_newaccept(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+    if (pre_rules_newaccept(debuglvl, ruleset, iptcap, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
     /* Add the TCPMSS rules before the RELATED rules. */
-    if (create_interface_tcpmss_rules(debuglvl, ruleset, interfaces, iptcap, VR_IPV4) < 0)
+    if (create_interface_tcpmss_rules(debuglvl, ruleset, interfaces, iptcap, VRMR_IPV4) < 0)
         retval = -1;
 #ifdef IPV6_ENABLED
-    if (create_interface_tcpmss_rules(debuglvl, ruleset, interfaces, iptcap, VR_IPV6) < 0)
+    if (create_interface_tcpmss_rules(debuglvl, ruleset, interfaces, iptcap, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
-    if (pre_rules_newqueue(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+    if (pre_rules_newqueue(debuglvl, ruleset, iptcap, VRMR_IPV4) < 0)
         retval = -1;
 #ifdef IPV6_ENABLED
-    if (pre_rules_newqueue(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+    if (pre_rules_newqueue(debuglvl, ruleset, iptcap, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
-    if (pre_rules_nfqueue(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+    if (pre_rules_nfqueue(debuglvl, ruleset, iptcap, VRMR_IPV4) < 0)
         retval = -1;
 #ifdef IPV6_ENABLED
-    if (pre_rules_nfqueue(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+    if (pre_rules_nfqueue(debuglvl, ruleset, iptcap, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
     /* create the conntrack rules */
-    if (pre_rules_conntrack(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+    if (pre_rules_conntrack(debuglvl, ruleset, iptcap, VRMR_IPV4) < 0)
         retval = -1;
 #ifdef IPV6_ENABLED
-    if (pre_rules_conntrack(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+    if (pre_rules_conntrack(debuglvl, ruleset, iptcap, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
     /* create the conntrack invalid log & drop rules */
-    if (pre_rules_conntrack_invalid(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+    if (pre_rules_conntrack_invalid(debuglvl, ruleset, iptcap, VRMR_IPV4) < 0)
         retval = -1;
 #ifdef IPV6_ENABLED
-    if (pre_rules_conntrack_invalid(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+    if (pre_rules_conntrack_invalid(debuglvl, ruleset, iptcap, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
@@ -4187,10 +4187,10 @@ pre_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_interfaces
         retval = -1;
 
     /* create the conntrack invalid log & drop rules */
-    if (pre_rules_tcpreset(debuglvl, ruleset, iptcap, VR_IPV4) < 0)
+    if (pre_rules_tcpreset(debuglvl, ruleset, iptcap, VRMR_IPV4) < 0)
         retval = -1;
 #ifdef IPV6_ENABLED
-    if (pre_rules_tcpreset(debuglvl, ruleset, iptcap, VR_IPV6) < 0)
+    if (pre_rules_tcpreset(debuglvl, ruleset, iptcap, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
@@ -4236,7 +4236,7 @@ update_synlimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
     /* flush the chain if we are not in ruleset mode */
     if (ruleset == NULL)
     {
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             /* first flush the chain */
             snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --flush SYNLIMIT",
                     conf.iptables_location);
@@ -4321,7 +4321,7 @@ update_udplimit_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
 
     /* flush the chain if we are not in ruleset mode */
     if (ruleset == NULL) {
-        if (ipv == VR_IPV4) {
+        if (ipv == VRMR_IPV4) {
             /* first flush the chain */
             snprintf(cmd, VRMR_MAX_PIPE_COMMAND, "%s --flush UDPLIMIT",
                     conf.iptables_location);
@@ -4458,10 +4458,10 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *
                         limit, logprefix, loglevel, log_tcp_options);
             }
 
-            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
                 retval = -1;
 #ifdef IPV6_ENABLED
-            if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            if (process_rule(debuglvl, ruleset, VRMR_IPV6, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
                 retval = -1;
 #endif
 
@@ -4480,10 +4480,10 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *
                         limit, logprefix, loglevel, log_tcp_options);
             }
 
-            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
                 retval = -1;
 #ifdef IPV6_ENABLED
-            if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            if (process_rule(debuglvl, ruleset, VRMR_IPV6, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
                 retval = -1;
 #endif
 
@@ -4501,10 +4501,10 @@ post_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *
                 snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
                         limit, logprefix, loglevel, log_tcp_options);
             }
-            if (process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
                 retval=-1;
 #ifdef IPV6_ENABLED
-            if (process_rule(debuglvl, ruleset, VR_IPV6, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            if (process_rule(debuglvl, ruleset, VRMR_IPV6, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
                 retval = -1;
 #endif
         }
@@ -4626,7 +4626,7 @@ static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet
              ((conf.rule_nflog == 0 && iptcap->target_log == TRUE) ||
               (conf.rule_nflog == 1 && iptcap->target_nflog == TRUE)))) {
 
-        if (process_rule(debuglvl, ruleset, VR_IPV4, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
+        if (process_rule(debuglvl, ruleset, VRMR_IPV4, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
             return(-1);
     }
 #ifdef IPV6_ENABLED
@@ -4636,7 +4636,7 @@ static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet
             //             ((conf.rule_nflog == 0 && iptcap->target_ip6_log == TRUE) ||
             //              (conf.rule_nflog == 1 && iptcap->target_ip6_nflog == TRUE)))) {
 
-            if (process_rule(debuglvl, ruleset, VR_IPV6, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
+            if (process_rule(debuglvl, ruleset, VRMR_IPV6, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
                 return(-1);
         }
     }
@@ -4648,14 +4648,14 @@ static int create_interface_rpfilter_rules(const int debuglvl, /*@null@*/RuleSet
 
     if (conf.vrmr_check_iptcaps == FALSE ||
             (iptcap->table_raw && iptcap->match_rpfilter)) {
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
             return(-1);
     }
 #ifdef IPV6_ENABLED
     if (vrmr_interface_ipv6_enabled(debuglvl, if_ptr)) {
         if (conf.vrmr_check_iptcaps == FALSE ||
                 (iptcap->table_ip6_raw && iptcap->match_ip6_rpfilter)) {
-            if(process_rule(debuglvl, ruleset, VR_IPV6, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VRMR_IPV6, TB_RAW, CH_PREROUTING, cmd, 0, 0) < 0)
                 return(-1);
         }
     }
@@ -4858,7 +4858,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                     loglevel, log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 return(-1);
         }
 
@@ -4867,7 +4867,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->danger.source_ip.ipaddress,
             create->danger.source_ip.netmask, from_if_ptr->ipv4.ipaddress);
 
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
             return(-1);
 
         /* create the log rule */
@@ -4896,7 +4896,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                     logprefix, loglevel, log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 return(-1);
         }
 
@@ -4906,7 +4906,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->danger.source_ip.ipaddress,
             create->danger.source_ip.netmask);
 
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
             return(-1);
     }
     /* normal interface */
@@ -4935,7 +4935,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                     create->danger.source_ip.netmask, limit, logprefix,
                     loglevel, log_tcp_options);
             }
-            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 return(-1);
         }
 
@@ -4944,7 +4944,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             input_device, create->danger.source_ip.ipaddress,
             create->danger.source_ip.netmask);
 
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
             return(-1);
 
         /* create the log rule */
@@ -4971,7 +4971,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
                     logprefix, loglevel, log_tcp_options);
             }
 
-            if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+            if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
                 return(-1);
         }
 
@@ -4980,7 +4980,7 @@ create_network_antispoof_rule(const int debuglvl, /*@null@*/RuleSet *ruleset,
             output_device, create->danger.source_ip.ipaddress,
             create->danger.source_ip.netmask);
 
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
             return(-1);
     }
     return(0);
@@ -5017,7 +5017,7 @@ create_network_protect_rules_dhcp_server(   const int debuglvl,
         DHCPDISCOVER; DHCPREQUEST */
     snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s 0.0.0.0 --sport 68 -d 255.255.255.255 --dport 67 -j ACCEPT",
             if_ptr->device);
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
 
     /* the request for a host that already has an ip. */
@@ -5027,14 +5027,14 @@ create_network_protect_rules_dhcp_server(   const int debuglvl,
     {
         snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s %s/%s --sport 68 -d 255.255.255.255 --dport 67 -j ACCEPT",
                 if_ptr->device, create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
     }
 
     /* DHCPOFFER */
     snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s 0.0.0.0 --sport 67 -d 255.255.255.255 --dport 68 -j ACCEPT",
             if_ptr->device);
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
 
     /* make sure we have everything set */
@@ -5045,13 +5045,13 @@ create_network_protect_rules_dhcp_server(   const int debuglvl,
         /* DHCPOFFER and negative response to external DHCP client */
         snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s %s/255.255.255.255 --sport 67 -d %s/%s --dport 68 -j ACCEPT",
                 if_ptr->device, if_ptr->ipv4.ipaddress, create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         /* DHCPREQUEST; DHCPRELEASE */
         snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s %s/%s --sport 68 -d %s/255.255.255.255 --dport 67 -j ACCEPT",
                 if_ptr->device, create->who->ipv4.network, create->who->ipv4.netmask, if_ptr->ipv4.ipaddress);
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
     }
 
@@ -5061,13 +5061,13 @@ create_network_protect_rules_dhcp_server(   const int debuglvl,
         /* DHCPREQUEST; DHCPDECLINE */
         snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s 0.0.0.0 --sport 68 -d %s/255.255.255.255 --dport 67 -j ACCEPT",
                 if_ptr->device, if_ptr->ipv4.ipaddress);
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         /* DHCPACK; DHCPNAK */
         snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s %s/255.255.255.255 --sport 67 -d 255.255.255.255 --dport 68 -j ACCEPT",
                 if_ptr->device, if_ptr->ipv4.ipaddress);
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
     }
@@ -5109,12 +5109,12 @@ create_network_protect_rules_dhcp_client(   const int debuglvl,
 
     snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s 0.0.0.0 --sport 68 -d 255.255.255.255 --dport 67 -j ACCEPT",
             if_ptr->device);
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         retval=-1;
 
     snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s 0.0.0.0 --sport 67 -d 255.255.255.255 --dport 68 -j ACCEPT",
             if_ptr->device);
-    if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         retval=-1;
 
     if( create->who->ipv4.network[0] != '\0' &&
@@ -5122,26 +5122,26 @@ create_network_protect_rules_dhcp_client(   const int debuglvl,
     {
         snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s %s/%s --sport 67 -d 255.255.255.255 --dport 68 -j ACCEPT",
                 if_ptr->device, create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s 0.0.0.0 --sport 68 -d %s/%s --dport 67 -j ACCEPT",
                 if_ptr->device, create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-i %s -p udp -m udp -s %s/%s --sport 67 -d %s/%s --dport 68 -j ACCEPT",
                 if_ptr->device,
                 create->who->ipv4.network, create->who->ipv4.netmask,
                 create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
             retval=-1;
 
         snprintf(cmd, sizeof(cmd), "-o %s -p udp -m udp -s %s/%s --sport 68 -d %s/%s --dport 67 -j ACCEPT",
                 if_ptr->device,
                 create->who->ipv4.network, create->who->ipv4.netmask,
                 create->who->ipv4.network, create->who->ipv4.netmask);
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
             retval=-1;
     }
 
@@ -5337,12 +5337,12 @@ create_block_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct vrmr_b
 
         /* ip is source */
         snprintf(cmd, sizeof(cmd), "-s %s/255.255.255.255 -j BLOCK", ipaddress);
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKLIST, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_BLOCKLIST, cmd, 0, 0) < 0)
             retval=-1;
 
         /* ip is dst */
         snprintf(cmd, sizeof(cmd), "-d %s/255.255.255.255 -j BLOCK", ipaddress);
-        if(process_rule(debuglvl, ruleset, VR_IPV4, TB_FILTER, CH_BLOCKLIST, cmd, 0, 0) < 0)
+        if(process_rule(debuglvl, ruleset, VRMR_IPV4, TB_FILTER, CH_BLOCKLIST, cmd, 0, 0) < 0)
             retval=-1;
     }
 

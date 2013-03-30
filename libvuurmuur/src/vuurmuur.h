@@ -195,8 +195,8 @@
 /* Some defines for character buffers we define in this file */
 #define VRMR_MAX_IPV6_ADDR_LEN       40 /* 39 + null */
 
-#define VR_IPV4                 4
-#define VR_IPV6                 6
+#define VRMR_IPV4                 4
+#define VRMR_IPV6                 6
 
 /* name validation VERBOSE or QUIET */
 enum

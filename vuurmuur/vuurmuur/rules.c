@@ -173,7 +173,7 @@ oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, stru
     }
 
     /* get the current chains */
-    (void)vrmr_rules_get_system_chains(debuglvl, rules, cnf, VR_IPV4);
+    (void)vrmr_rules_get_system_chains(debuglvl, rules, cnf, VRMR_IPV4);
     /* get the custom chains we have to create */
     if(vrmr_rules_get_custom_chains(debuglvl, rules) < 0)
     {
@@ -486,22 +486,22 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
     }
 
     /* create the nfqueue state rules */
-    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VR_IPV4) < 0)
+    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV4) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
 #ifdef IPV6_ENABLED
-    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VR_IPV6) < 0)
+    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV6) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
 #endif
-    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VR_IPV4) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV4) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
 #ifdef IPV6_ENABLED
-    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VR_IPV6) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV6) < 0)
     {
         (void)vrprint.error(-1, "Error", "create nfqueue state failed.");
     }
@@ -868,7 +868,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
     /* get the first part of the action, because action can be like this: REJECT --reject-type icmp-adm.... */
     sscanf(create->action, "%64s", action);
 
-    if (rule->ipv == VR_IPV4) {
+    if (rule->ipv == VRMR_IPV4) {
         (void)strlcpy(rule->from_ip, rule->ipv4_from.ipaddress, sizeof(rule->from_ip));
         (void)strlcpy(rule->from_netmask, rule->ipv4_from.netmask, sizeof(rule->from_netmask));
 #ifdef IPV6_ENABLED
@@ -919,7 +919,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
         }
 
         /* set ip and netmask */
-        if (rule->ipv == VR_IPV4) {
+        if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->to_ip,      rule->ipv4_to.ipaddress, sizeof(rule->to_ip));
             (void)strlcpy(rule->to_netmask, rule->ipv4_to.netmask,   sizeof(rule->to_netmask));
 #ifdef IPV6_ENABLED
@@ -941,7 +941,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
         memset(rule->limit, 0, sizeof(rule->limit));
     }
 
-    if (rule->ipv == VR_IPV4) {
+    if (rule->ipv == VRMR_IPV4) {
         /* if we have a broadcasting protocol and want logging, and haven't logged yet */
         if (create->service != NULL &&
                 create->service->broadcast == TRUE &&
@@ -1073,7 +1073,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
 
         (void)strlcpy(rule->action, create->action, sizeof(rule->action));
 #ifdef IPV6_ENABLED
-        if (rule->ipv == VR_IPV6) {
+        if (rule->ipv == VRMR_IPV6) {
             /* rules can explicitly set a the reject option, which will be IPv4 only. */
             if (strncasecmp(rule->action, "REJECT --reject-with", 20) == 0 &&
                     strncasecmp(rule->action, "REJECT --reject-with tcp-reset", 30) != 0)
@@ -1083,7 +1083,7 @@ rulecreate_create_rule_and_options(const int debuglvl, /*@null@*/RuleSet *rulese
     }
 
     /* set ip and netmask */
-    if (rule->ipv == VR_IPV4) {
+    if (rule->ipv == VRMR_IPV4) {
         (void)strlcpy(rule->to_ip,      rule->ipv4_to.ipaddress, sizeof(rule->to_ip));
         (void)strlcpy(rule->to_netmask, rule->ipv4_to.netmask,   sizeof(rule->to_netmask));
 #ifdef IPV6_ENABLED
@@ -1124,7 +1124,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         } else if (create->from->type == TYPE_ZONE) {
             (void)vrprint.debug(__FUNC__, "source firewall, dest zone");
 
-            if (rule->ipv == VR_IPV4) {
+            if (rule->ipv == VRMR_IPV4) {
                 /* set addresses */
                 (void)strlcpy(rule->ipv4_to.ipaddress,
                         rule->from_if_ptr->ipv4.ipaddress,
@@ -1153,7 +1153,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
                     sizeof(rule->from_int));
             }
         } else {
-            if (rule->ipv == VR_IPV4) {
+            if (rule->ipv == VRMR_IPV4) {
                 /* set addresses */
                 (void)strlcpy(rule->ipv4_to.ipaddress,
                         rule->to_if_ptr->ipv4.ipaddress,
@@ -1190,7 +1190,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->from_any == TRUE &&
             create->option.in_int[0] != '\0')
         {
-            if (rule->ipv == VR_IPV4) {
+            if (rule->ipv == VRMR_IPV4) {
                 (void)strlcpy(rule->ipv4_to.ipaddress,
                         rule->from_if_ptr->ipv4.ipaddress,
                         sizeof(rule->ipv4_to.ipaddress));
@@ -1210,7 +1210,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
     /* host */
     else if (create->to->type == TYPE_HOST) {
-        if (rule->ipv == VR_IPV4) {
+        if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_to.ipaddress,
                     create->to->ipv4.ipaddress,
                     sizeof(rule->ipv4_to.ipaddress));
@@ -1239,7 +1239,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
             {
                 host_ptr = d_node->data;
 
-                if (rule->ipv == VR_IPV4) {
+                if (rule->ipv == VRMR_IPV4) {
                     (void)strlcpy(rule->ipv4_to.ipaddress,
                             host_ptr->ipv4.ipaddress,
                             sizeof(rule->ipv4_to.ipaddress));
@@ -1263,7 +1263,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
     /* network */
     else if (create->to->type == TYPE_NETWORK) {
-        if (rule->ipv == VR_IPV4) {
+        if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_to.ipaddress,
                     create->to->ipv4.network,
                     sizeof(rule->ipv4_to.ipaddress));
@@ -1283,7 +1283,7 @@ rulecreate_dst_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
             retval = rulecreate_create_rule_and_options(debuglvl, ruleset, rule, create, iptcap);
         }
     } else if (create->to->type == TYPE_ZONE) {
-        if (rule->ipv == VR_IPV4) {
+        if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_to.ipaddress,
                     rule->to_network->ipv4.network,
                     sizeof(rule->ipv4_to.ipaddress));
@@ -1334,7 +1334,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         } else if (create->to->type == TYPE_ZONE) {
             (void)vrprint.debug(__FUNC__, "source firewall, dest zone");
 
-            if (rule->ipv == VR_IPV4) {
+            if (rule->ipv == VRMR_IPV4) {
                 if (rule->to_if_ptr == NULL)
                     abort();
 
@@ -1368,7 +1368,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         } else {
             (void)vrprint.debug(__FUNC__, "source firewall");
 
-            if (rule->ipv == VR_IPV4) {
+            if (rule->ipv == VRMR_IPV4) {
                 if (rule->from_if_ptr == NULL)
                     abort();
 
@@ -1408,7 +1408,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
             create->to_any == TRUE &&
             create->option.out_int[0] != '\0')
         {
-            if (rule->ipv == VR_IPV4) {
+            if (rule->ipv == VRMR_IPV4) {
                 (void)strlcpy(rule->ipv4_from.ipaddress,
                         rule->from_if_ptr->ipv4.ipaddress,
                         sizeof(rule->ipv4_from.ipaddress));
@@ -1428,7 +1428,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
     /* host */
     else if (create->from->type == TYPE_HOST) {
-        if (rule->ipv == VR_IPV4) {
+        if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_from.ipaddress,
                     create->from->ipv4.ipaddress,
                     sizeof(rule->ipv4_from.ipaddress));
@@ -1477,7 +1477,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         {
             host_ptr = d_node->data;
 
-            if (rule->ipv == VR_IPV4) {
+            if (rule->ipv == VRMR_IPV4) {
                 (void)strlcpy(rule->ipv4_from.ipaddress,
                         host_ptr->ipv4.ipaddress,
                         sizeof(rule->ipv4_from.ipaddress));
@@ -1527,7 +1527,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
     }
     /* network */
     else if (create->from->type == TYPE_NETWORK) {
-        if (rule->ipv == VR_IPV4) {
+        if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_from.ipaddress,
                     create->from->ipv4.network,
                     sizeof(rule->ipv4_from.ipaddress));
@@ -1547,7 +1547,7 @@ rulecreate_src_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
             retval = rulecreate_dst_loop(debuglvl, ruleset, rule, create, iptcap);
         }
     } else if (create->from->type == TYPE_ZONE) {
-        if (rule->ipv == VR_IPV4) {
+        if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_from.ipaddress,
                     rule->from_network->ipv4.network,
                     sizeof(rule->ipv4_from.ipaddress));
@@ -1631,11 +1631,11 @@ rulecreate_service_loop (const int debuglvl, /*@null@*/RuleSet *ruleset,
         }
 
         /* skip ICMP for IPv6 */
-        if (rule->ipv == VR_IPV6 && rule->portrange_ptr->protocol == 1)
+        if (rule->ipv == VRMR_IPV6 && rule->portrange_ptr->protocol == 1)
             continue;
 
         /* skip ICMPv6 for IPv4 */
-        if (rule->ipv == VR_IPV4 && rule->portrange_ptr->protocol == 58)
+        if (rule->ipv == VRMR_IPV4 && rule->portrange_ptr->protocol == 58)
             continue;
 
         /* set rule->listenport_ptr */
@@ -1898,7 +1898,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             }
 
 #ifdef IPV6_ENABLED
-            if (rule->ipv == VR_IPV6 &&
+            if (rule->ipv == VRMR_IPV6 &&
                     !vrmr_interface_ipv6_enabled(debuglvl, rule->to_if_ptr)) {
                 active = 0;
             }
@@ -2141,7 +2141,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             (void)vrprint.debug(__FUNC__, "active %d (dynamic up check)", active);
             }
 #ifdef IPV6_ENABLED
-            if (rule->ipv == VR_IPV6 &&
+            if (rule->ipv == VRMR_IPV6 &&
                     !vrmr_interface_ipv6_enabled(debuglvl, rule->from_if_ptr)) {
                 active = 0;
             (void)vrprint.debug(__FUNC__, "active %d (ipv6)", active);
@@ -2196,8 +2196,8 @@ static int
 rulecreate_ipv4ipv6_loop(const int debuglvl, struct vrmr_ctx *vctx,
         /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule, struct vrmr_rule_cache *create)
 {
-    if (ruleset == NULL || ruleset->ipv == VR_IPV4) {
-        rule->ipv = VR_IPV4;
+    if (ruleset == NULL || ruleset->ipv == VRMR_IPV4) {
+        rule->ipv = VRMR_IPV4;
 
         if (rulecreate_src_iface_loop(debuglvl, vctx, ruleset, rule, create) < 0) {
             (void)vrprint.error(-1, "Error", "rulecreate_src_iface_loop() failed");
@@ -2205,8 +2205,8 @@ rulecreate_ipv4ipv6_loop(const int debuglvl, struct vrmr_ctx *vctx,
     }
 
 #ifdef IPV6_ENABLED
-    if (ruleset == NULL || ruleset->ipv == VR_IPV6) {
-        rule->ipv = VR_IPV6;
+    if (ruleset == NULL || ruleset->ipv == VRMR_IPV6) {
+        rule->ipv = VRMR_IPV6;
 
         /* rules can explicitly set a the reject option, which will be IPv4 only. */
         if (strncasecmp(rule->action, "REJECT --reject-with", 20) == 0 &&
@@ -2540,7 +2540,7 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
     }
 
     /* get the current chains */
-    (void)vrmr_rules_get_system_chains(debuglvl, &rules, cnf, VR_IPV4);
+    (void)vrmr_rules_get_system_chains(debuglvl, &rules, cnf, VRMR_IPV4);
 
     /* prepare chains tab with nodes for loop */
     chains[0] = rules.system_chain_mangle.top;
@@ -2637,7 +2637,7 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
     }
 
     /* get the current chains */
-    (void)vrmr_rules_get_system_chains(debuglvl, &rules, cnf, VR_IPV6);
+    (void)vrmr_rules_get_system_chains(debuglvl, &rules, cnf, VRMR_IPV6);
 
     /* prepare chains tab with nodes for loop */
     chains[0] = rules.system_chain_mangle.top;
