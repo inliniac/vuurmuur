@@ -377,7 +377,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
  * \note A note that applies to the function
  */
 int
-subscribe_nflog (const int debuglvl, const struct vuurmuur_config *conf, struct log_rule *logrule_ptr)
+subscribe_nflog (const int debuglvl, const struct vrmr_config *conf, struct log_rule *logrule_ptr)
 {
     struct nflog_g_handle *qh;
 

@@ -155,7 +155,7 @@ shaping_queue_rule(const int debuglvl, struct RuleCreateData_ *rule,
     return(0);
 }
 static int
-shaping_process_rule (const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, char *cmd) {
+shaping_process_rule (const int debuglvl, struct vrmr_config *cnf, /*@null@*/RuleSet *ruleset, char *cmd) {
     char *buf = NULL;
 
     if (ruleset != NULL) {
@@ -184,7 +184,7 @@ shaping_process_rule (const int debuglvl, struct vuurmuur_config *cnf, /*@null@*
     filled with tc rules, none of which are duplicate. This function
     passes them to process_rule */
 int
-shaping_process_queued_rules(const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule)
+shaping_process_queued_rules(const int debuglvl, struct vrmr_config *cnf, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule)
 {
     struct vrmr_list_node *d_node = NULL;
     ShapeRule   *r = NULL;
@@ -215,7 +215,7 @@ shaping_process_queued_rules(const int debuglvl, struct vuurmuur_config *cnf, /*
  * Returns 0: ok -1: error
  */
 int
-shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
+shaping_clear_interfaces (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
@@ -255,7 +255,7 @@ shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, struc
 }
 
 static int
-shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, struct vrmr_interface *iface_ptr, /*@null@*/RuleSet *ruleset) {
+shaping_setup_interface_classes (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, struct vrmr_interface *iface_ptr, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *inner_iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
@@ -303,7 +303,7 @@ shaping_setup_interface_classes (const int debuglvl, struct vuurmuur_config *cnf
 }
 
 int
-shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
+shaping_setup_roots (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
@@ -489,7 +489,7 @@ shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfac
 /* create the default rule per interface. This rule will be used when
  * no class is picked. */
 int
-shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
+shaping_create_default_rules(const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char            cmd[MAX_PIPE_COMMAND] = "";
@@ -535,7 +535,7 @@ shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, st
 }
 
 int
-shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf,
+shaping_shape_create_rule(const int debuglvl, struct vrmr_config *cnf,
     struct vrmr_interfaces *interfaces, struct RuleCreateData_ *rule, /*@null@*/RuleSet *ruleset,
     struct vrmr_interface *shape_iface_ptr, struct vrmr_interface *class_iface_ptr,
     u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil,

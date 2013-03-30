@@ -21,7 +21,7 @@
 
 
 /* prototypes */
-int reload_blocklist(const int, struct vuurmuur_config *, struct vrmr_zones *, struct vrmr_blocklist *);
+int reload_blocklist(const int, struct vrmr_config *, struct vrmr_zones *, struct vrmr_blocklist *);
 int reload_rules(const int, VuurmuurCtx *, struct vrmr_regex *);
 int check_for_changed_networks(const int, struct vrmr_zones *);
 
@@ -1595,7 +1595,7 @@ reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
         1: changes
 */
 int
-reload_blocklist(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist)
+reload_blocklist(const int debuglvl, struct vrmr_config *cfg, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist)
 {
     struct vrmr_blocklist   *new_blocklist = NULL;
     int         status = 0;

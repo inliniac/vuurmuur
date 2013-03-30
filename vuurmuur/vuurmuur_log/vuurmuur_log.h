@@ -122,13 +122,13 @@ struct log_rule
 
 
 int reopen_logfiles(const int, FILE **, FILE **);
-int open_logfiles(const int, const struct vuurmuur_config *cnf, FILE **, FILE **);
+int open_logfiles(const int, const struct vrmr_config *cnf, FILE **, FILE **);
 
 int process_logrecord(struct log_rule *logrule_ptr);
 
 /* semaphore id */
 int         sem_id;
 char        version_string[128];
-struct vuurmuur_config conf;
+struct vrmr_config conf;
 
 #endif /* __VUURMUUR_LOG_H__ */

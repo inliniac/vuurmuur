@@ -1319,7 +1319,7 @@ conf_textdir(const int debuglvl, void *backend)
 
 
 int
-setup_textdir(int debuglvl, const struct vuurmuur_config *cfg, void **backend)
+setup_textdir(int debuglvl, const struct vrmr_config *cfg, void **backend)
 {
     struct TextdirBackend_ *tb = NULL;
 

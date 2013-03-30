@@ -129,7 +129,7 @@ config_check_logdir(const int debuglvl, const char *logdir)
    this functions uses vuurmuur_opendir which repairs permissions if needed.
 */
 int
-config_check_vuurmuurdir(const int debuglvl, const struct vuurmuur_config *cnf, const char *logdir)
+config_check_vuurmuurdir(const int debuglvl, const struct vrmr_config *cnf, const char *logdir)
 {
     DIR *dir_p = NULL;
 
@@ -194,7 +194,7 @@ config_check_vuurmuurdir(const int debuglvl, const struct vuurmuur_config *cnf, 
 /*
 */
 int
-check_iptables_command(const int debuglvl, struct vuurmuur_config *cnf, char *iptables_location, char quiet)
+check_iptables_command(const int debuglvl, struct vrmr_config *cnf, char *iptables_location, char quiet)
 {
     /* safety */
     if(cnf == NULL || iptables_location == NULL)
@@ -232,7 +232,7 @@ check_iptables_command(const int debuglvl, struct vuurmuur_config *cnf, char *ip
 /*
 */
 int
-check_iptablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, char *iptablesrestore_location, char quiet)
+check_iptablesrestore_command(const int debuglvl, struct vrmr_config *cnf, char *iptablesrestore_location, char quiet)
 {
     /* safety */
     if(cnf == NULL || iptablesrestore_location == NULL)
@@ -278,7 +278,7 @@ check_iptablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, c
 */
 #ifdef IPV6_ENABLED
 int
-check_ip6tables_command(const int debuglvl, struct vuurmuur_config *cnf, char *ip6tables_location, char quiet)
+check_ip6tables_command(const int debuglvl, struct vrmr_config *cnf, char *ip6tables_location, char quiet)
 {
     /* safety */
     if(cnf == NULL || ip6tables_location == NULL)
@@ -313,7 +313,7 @@ check_ip6tables_command(const int debuglvl, struct vuurmuur_config *cnf, char *i
 }
 
 int
-check_ip6tablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, char *ip6tablesrestore_location, char quiet)
+check_ip6tablesrestore_command(const int debuglvl, struct vrmr_config *cnf, char *ip6tablesrestore_location, char quiet)
 {
     /* safety */
     if(cnf == NULL || ip6tablesrestore_location == NULL)
@@ -351,7 +351,7 @@ check_ip6tablesrestore_command(const int debuglvl, struct vuurmuur_config *cnf, 
 /*
 */
 int
-check_tc_command(const int debuglvl, struct vuurmuur_config *cnf, char *tc_location, char quiet)
+check_tc_command(const int debuglvl, struct vrmr_config *cnf, char *tc_location, char quiet)
 {
     /* safety */
     if(cnf == NULL || tc_location == NULL)
@@ -388,7 +388,7 @@ check_tc_command(const int debuglvl, struct vuurmuur_config *cnf, char *tc_locat
 /* updates the logdirlocations in the cnf struct based on cnf->vuurmuur_log_dir,
  * also updates vrprint. */
 int
-vrmr_config_set_log_names(const int debuglvl, struct vuurmuur_config *cnf)
+vrmr_config_set_log_names(const int debuglvl, struct vrmr_config *cnf)
 {
     int retval = 0;
 
@@ -447,7 +447,7 @@ vrmr_config_set_log_names(const int debuglvl, struct vuurmuur_config *cnf)
     are only known after this function! (unless cnf->verbose_out == 1)
 */
 int
-init_config(const int debuglvl, struct vuurmuur_config *cnf)
+init_config(const int debuglvl, struct vrmr_config *cnf)
 {
     int     retval = VRMR_CNF_OK,
             result = 0;
@@ -1753,9 +1753,9 @@ init_config(const int debuglvl, struct vuurmuur_config *cnf)
 
 
 int
-reload_config(const int debuglvl, struct vuurmuur_config *old_cnf)
+reload_config(const int debuglvl, struct vrmr_config *old_cnf)
 {
-    struct vuurmuur_config  new_cnf;
+    struct vrmr_config  new_cnf;
     int                     retval = VRMR_CNF_OK;
 
     /* safety */
@@ -1825,7 +1825,7 @@ reload_config(const int debuglvl, struct vuurmuur_config *old_cnf)
     -1: error
 */
 int
-ask_configfile(const int debuglvl, const struct vuurmuur_config *cnf, char *question, char *answer_ptr, char *file_location, size_t size)
+ask_configfile(const int debuglvl, const struct vrmr_config *cnf, char *question, char *answer_ptr, char *file_location, size_t size)
 {
     int     retval = 0;
     size_t  i = 0,
@@ -1936,7 +1936,7 @@ ask_configfile(const int debuglvl, const struct vuurmuur_config *cnf, char *ques
     Writes the config to disk.
 */
 int
-vrmr_write_configfile(const int debuglvl, char *file_location, struct vuurmuur_config *cfg)
+vrmr_write_configfile(const int debuglvl, char *file_location, struct vrmr_config *cfg)
 {
     FILE *fp = NULL;
 
@@ -2163,7 +2163,7 @@ br_extract_prefix (const char *path)
 }
 
 int
-pre_init_config(struct vuurmuur_config *cnf)
+pre_init_config(struct vrmr_config *cnf)
 {
     /* safety */
     if(cnf == NULL)
@@ -2174,7 +2174,7 @@ pre_init_config(struct vuurmuur_config *cnf)
     }
 
     /* init the struct */
-    memset(cnf, 0, sizeof(struct vuurmuur_config));
+    memset(cnf, 0, sizeof(struct vrmr_config));
 
     /* set the configdir location */
     if(strlcpy(cnf->etcdir, xstr(SYSCONFDIR), sizeof(cnf->etcdir)) >= sizeof(cnf->etcdir))
@@ -2220,7 +2220,7 @@ pre_init_config(struct vuurmuur_config *cnf)
     return(0);
 }
 
-int vrmr_init(struct vuurmuur_config *cnf, char *toolname) {
+int vrmr_init(struct vrmr_config *cnf, char *toolname) {
     struct vrmr_user user_data;
     int debuglvl = 0;
     vrmr_user_get_info(debuglvl, &user_data);

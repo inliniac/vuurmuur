@@ -1521,7 +1521,7 @@ get_iface_stats(    const int debuglvl,
 */
 int
 vrmr_get_iface_stats_from_ipt(const int debuglvl,
-                            struct vuurmuur_config *cfg,
+                            struct vrmr_config *cfg,
                             const char *iface_name,
                             const char *chain,
                             unsigned long long *recv_packets,
@@ -1723,7 +1723,7 @@ vrmr_interfaces_analyze_rule(const int debuglvl,
             struct vrmr_rule *rule_ptr,
             struct vrmr_rule_cache *create,
             struct vrmr_interfaces *interfaces,
-            struct vuurmuur_config *cnf)
+            struct vrmr_config *cnf)
 {
     int result = 0;
 

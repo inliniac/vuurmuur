@@ -92,7 +92,7 @@ iptcap_get_one_cap_from_proc(const int debuglvl, char *procpath, char *request)
      0: ok
 */
 static int
-iptcap_load_module(const int debuglvl, struct vuurmuur_config *cnf, char *modulename)
+iptcap_load_module(const int debuglvl, struct vrmr_config *cnf, char *modulename)
 {
     /* safety */
     if(modulename == NULL || cnf == NULL)
@@ -121,7 +121,7 @@ iptcap_load_module(const int debuglvl, struct vuurmuur_config *cnf, char *module
 
 
 static int
-iptcap_check_cap(const int debuglvl, struct vuurmuur_config *cnf, char *procpath, char *request, char *modulename, char load_module)
+iptcap_check_cap(const int debuglvl, struct vrmr_config *cnf, char *procpath, char *request, char *modulename, char load_module)
 {
     int result = 0;
 
@@ -371,7 +371,7 @@ iptcap_get_ip6_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
 #endif
 
 static int
-iptcap_create_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_create_test_mangle_chain(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     char *args[] = { ipt_loc, "-t", "mangle", "-N", "VRMRIPTCAP", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
@@ -383,7 +383,7 @@ iptcap_create_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf,
 }
 
 static int
-iptcap_delete_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_delete_test_mangle_chain(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     char *argsF[] = { ipt_loc, "-t", "mangle", "-F", "VRMRIPTCAP", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, argsF, NULL);
@@ -403,7 +403,7 @@ iptcap_delete_test_mangle_chain(const int debuglvl, struct vuurmuur_config *cnf,
 }
 
 static int
-iptcap_create_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_create_test_filter_chain(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     char *args[] = { ipt_loc, "-t", "filter", "-N", "VRMRIPTCAP", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, ipt_loc, args, NULL);
@@ -415,7 +415,7 @@ iptcap_create_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf,
 }
 
 static int
-iptcap_delete_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_delete_test_filter_chain(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     /* First, flush the chain */
     char *argsF[] = { ipt_loc, "-t", "filter", "-F", "VRMRIPTCAP", NULL };
@@ -439,7 +439,7 @@ iptcap_delete_test_filter_chain(const int debuglvl, struct vuurmuur_config *cnf,
 }
 
 int
-iptcap_test_filter_connmark_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_test_filter_connmark_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
 
@@ -471,7 +471,7 @@ iptcap_test_filter_connmark_match(const int debuglvl, struct vuurmuur_config *cn
 }
 
 int
-iptcap_test_filter_conntrack_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_test_filter_conntrack_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
 
@@ -506,7 +506,7 @@ iptcap_test_filter_conntrack_match(const int debuglvl, struct vuurmuur_config *c
  *  \brief test rpfilter module in RAW table
  */
 static int
-iptcap_test_filter_rpfilter_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_test_filter_rpfilter_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
 
@@ -538,7 +538,7 @@ iptcap_test_filter_rpfilter_match(const int debuglvl, struct vuurmuur_config *cn
 }
 
 int
-iptcap_test_filter_connmark_target(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_test_filter_connmark_target(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
 
@@ -566,7 +566,7 @@ iptcap_test_filter_connmark_target(const int debuglvl, struct vuurmuur_config *c
 }
 
 int
-iptcap_test_filter_helper_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_test_filter_helper_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
 
@@ -594,7 +594,7 @@ iptcap_test_filter_helper_match(const int debuglvl, struct vuurmuur_config *cnf,
 }
 
 int
-iptcap_test_filter_mark_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_test_filter_mark_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
 
@@ -622,7 +622,7 @@ iptcap_test_filter_mark_match(const int debuglvl, struct vuurmuur_config *cnf, c
 }
 
 int
-iptcap_test_mangle_mark_target(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_test_mangle_mark_target(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
 
@@ -650,7 +650,7 @@ iptcap_test_mangle_mark_target(const int debuglvl, struct vuurmuur_config *cnf, 
 }
 
 int
-iptcap_test_mangle_classify_target(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_test_mangle_classify_target(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
 
@@ -678,7 +678,7 @@ iptcap_test_mangle_classify_target(const int debuglvl, struct vuurmuur_config *c
 }
 
 int
-iptcap_test_filter_mac_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_test_filter_mac_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
 
@@ -712,7 +712,7 @@ iptcap_test_filter_mac_match(const int debuglvl, struct vuurmuur_config *cnf, ch
  *      cnf.iptables_location or cnf.ip6tables_location for this.
  */
 int
-iptcap_test_filter_limit_match(const int debuglvl, struct vuurmuur_config *cnf, char *ipt_loc)
+iptcap_test_filter_limit_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
 
@@ -747,7 +747,7 @@ iptcap_test_filter_limit_match(const int debuglvl, struct vuurmuur_config *cnf, 
 }
 
 static int
-iptcap_create_test_nat_chain(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_create_test_nat_chain(const int debuglvl, struct vrmr_config *cnf) {
     char *args[] = { cnf->iptables_location, "-t", "nat", "-N", "VRMRIPTCAP", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, args, NULL);
     if (r != 0) {
@@ -758,7 +758,7 @@ iptcap_create_test_nat_chain(const int debuglvl, struct vuurmuur_config *cnf) {
 }
 
 static int
-iptcap_delete_test_nat_chain(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_delete_test_nat_chain(const int debuglvl, struct vrmr_config *cnf) {
     char *argsF[] = { cnf->iptables_location, "-t", "nat", "-F", "VRMRIPTCAP", NULL };
     int r = libvuurmuur_exec_command(debuglvl, cnf, cnf->iptables_location, argsF, NULL);
     if (r != 0) {
@@ -777,7 +777,7 @@ iptcap_delete_test_nat_chain(const int debuglvl, struct vuurmuur_config *cnf) {
 }
 
 int
-iptcap_test_nat_random(const int debuglvl, struct vuurmuur_config *cnf) {
+iptcap_test_nat_random(const int debuglvl, struct vrmr_config *cnf) {
     int retval = 1;
 
     if (iptcap_delete_test_nat_chain(debuglvl,cnf) < 0) {
@@ -804,7 +804,7 @@ iptcap_test_nat_random(const int debuglvl, struct vuurmuur_config *cnf) {
 }
 
 int
-check_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+check_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     int result = 0;
 
@@ -886,7 +886,7 @@ check_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_iptca
  *  \retval 1 conntrack available
  *  \retval 0 not available
  */
-static int check_conntrack(const int debuglvl, struct vuurmuur_config *cnf, int ipv) {
+static int check_conntrack(const int debuglvl, struct vrmr_config *cnf, int ipv) {
     char *args[] = { cnf->conntrack_location,
         "-L", "-f", "ipv4", NULL };
 
@@ -904,7 +904,7 @@ static int check_conntrack(const int debuglvl, struct vuurmuur_config *cnf, int 
 }
 
 int
-load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     char    proc_net_match[]    = "/proc/net/ip_tables_matches",
             proc_net_target[]   = "/proc/net/ip_tables_targets",
@@ -1497,7 +1497,7 @@ load_iptcaps(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_iptcap
 
 #ifdef IPV6_ENABLED
 int
-check_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+check_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     int result = 0;
 
@@ -1576,7 +1576,7 @@ check_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_iptc
 }
 
 int
-load_ip6tcaps(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
+load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
     char    proc_net_ip6_match[] = "/proc/net/ip6_tables_matches",
             proc_net_ip6_target[] = "/proc/net/ip6_tables_targets",

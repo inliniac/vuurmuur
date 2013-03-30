@@ -1002,7 +1002,7 @@ close_vuurmuurlog(const int debuglvl, FILE **vuurmuur_log, /*@null@*/struct file
 }
 
 FILE *
-open_logfile(const int debuglvl, const struct vuurmuur_config *cnf, const char *path, const char *mode)
+open_logfile(const int debuglvl, const struct vrmr_config *cnf, const char *path, const char *mode)
 {
     FILE    *fp = NULL;
 
@@ -1032,7 +1032,7 @@ open_logfile(const int debuglvl, const struct vuurmuur_config *cnf, const char *
 
 
 int
-open_syslog(const int debuglvl, const struct vuurmuur_config *cnf, FILE **system_log)
+open_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_log)
 {
     /* open the system log */
     if(!(*system_log = fopen(cnf->systemlog_location, "r")))
@@ -1056,7 +1056,7 @@ open_syslog(const int debuglvl, const struct vuurmuur_config *cnf, FILE **system
 }
 
 int
-open_vuurmuurlog (const int debuglvl, const struct vuurmuur_config *cnf, FILE **vuurmuur_log)
+open_vuurmuurlog (const int debuglvl, const struct vrmr_config *cnf, FILE **vuurmuur_log)
 {
     /* open the vuurmuur logfile */
     if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, conf.trafficlog_location, "a")))
@@ -1068,7 +1068,7 @@ open_vuurmuurlog (const int debuglvl, const struct vuurmuur_config *cnf, FILE **
 }
 
 int
-reopen_syslog(const int debuglvl, const struct vuurmuur_config *cnf, FILE **system_log)
+reopen_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_log)
 {
     int             waiting = 0;
     char            done = 0;
@@ -1137,7 +1137,7 @@ reopen_syslog(const int debuglvl, const struct vuurmuur_config *cnf, FILE **syst
 }
 
 int
-reopen_vuurmuurlog(const int debuglvl, const struct vuurmuur_config *cnf, FILE **vuurmuur_log)
+reopen_vuurmuurlog(const int debuglvl, const struct vrmr_config *cnf, FILE **vuurmuur_log)
 {
     struct file_mon filemon;
 

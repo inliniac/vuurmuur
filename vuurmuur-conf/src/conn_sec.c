@@ -604,7 +604,7 @@ conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones)
 }
 
 int
-conn_ct_get_connections(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, struct vrmr_conntrack_request *req)
+conn_ct_get_connections(const int debuglvl, struct vrmr_config *cnf, Conntrack *ct, struct vrmr_conntrack_request *req)
 {
     ct->conn_stats.fromname_max = ct->conn_stats.toname_max = ct->conn_stats.sername_max = 0;
 
@@ -640,7 +640,7 @@ conn_ct_clear_connections(const int debuglvl, Conntrack *ct)
 
 
 int
-connections_section(const int debuglvl, struct vuurmuur_config *cnf,
+connections_section(const int debuglvl, struct vrmr_config *cnf,
             struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
             struct vrmr_services *services, struct vrmr_blocklist *blocklist)
 {
@@ -1263,7 +1263,7 @@ kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int pro
 
 
 int
-kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf,
+kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf,
                 Conntrack *ct, char *srcname, char *dstname,
                 char *sername, char connect_status)
 {
@@ -1336,7 +1336,7 @@ kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf,
 
 
 int
-kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf,
+kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf,
             Conntrack *ct, char *srcip, char *dstip, char *sername,
             char connect_status)
 {

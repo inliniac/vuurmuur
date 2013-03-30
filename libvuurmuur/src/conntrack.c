@@ -2045,7 +2045,7 @@ conn_list_cleanup(int debuglvl, struct vrmr_list *conn_dlist)
 */
 static int
 conn_get_connections_do(const int debuglvl,
-                        struct vuurmuur_config *cnf,
+                        struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
                         struct vrmr_hash_table *zone_hash,
@@ -2449,7 +2449,7 @@ conn_get_connections_do(const int debuglvl,
 
 static int
 conn_get_connections_cmd (const int debuglvl,
-                        struct vuurmuur_config *cnf,
+                        struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
                         struct vrmr_hash_table *zone_hash,
@@ -2467,7 +2467,7 @@ conn_get_connections_cmd (const int debuglvl,
 
 static int
 conn_get_connections_proc (const int debuglvl,
-                        struct vuurmuur_config *cnf,
+                        struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
                         struct vrmr_hash_table *zone_hash,
@@ -2484,7 +2484,7 @@ conn_get_connections_proc (const int debuglvl,
 
 int
 conn_get_connections(   const int debuglvl,
-                        struct vuurmuur_config *cnf,
+                        struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
                         struct vrmr_hash_table *zone_hash,

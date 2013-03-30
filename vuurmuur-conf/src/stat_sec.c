@@ -146,7 +146,7 @@ int count_host_udp_conn(int *udp_count, int *udp_list_count)
     return(0);
 }
 
-int count_conntrack_conn(struct vuurmuur_config *cnf, int *conntrack_count,
+int count_conntrack_conn(struct vrmr_config *cnf, int *conntrack_count,
             int *tcp_count, int *udp_count, int *other_count)
 {
     FILE    *fp=NULL;
@@ -657,7 +657,7 @@ int status_section_destroy(void)
         -1: error
 */
 int
-status_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
 {
     FIELD   *cur = NULL;
     int     retval = 0;

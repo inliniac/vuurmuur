@@ -39,7 +39,7 @@
     The path and mode parameters are identical to the fopen(3) libc function.
 */
 FILE *
-vuurmuur_fopen(const int debuglvl, const struct vuurmuur_config *cnf, const char *path, const char *mode)
+vuurmuur_fopen(const int debuglvl, const struct vrmr_config *cnf, const char *path, const char *mode)
 {
     FILE        *fp=NULL;
 
@@ -61,7 +61,7 @@ vuurmuur_fopen(const int debuglvl, const struct vuurmuur_config *cnf, const char
 
 
 DIR *
-vuurmuur_opendir(const int debuglvl, const struct vuurmuur_config *cnf, const char *name)
+vuurmuur_opendir(const int debuglvl, const struct vrmr_config *cnf, const char *name)
 {
     DIR *dir_p = NULL;
 
@@ -101,7 +101,7 @@ vuurmuur_opendir(const int debuglvl, const struct vuurmuur_config *cnf, const ch
         0: file not ok
 */
 int
-stat_ok(const int debuglvl, const struct vuurmuur_config *cnf, const char *file_loc, char type, char output, char must_exist)
+stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file_loc, char type, char output, char must_exist)
 {
     struct stat stat_buf;
     mode_t max, perm;
@@ -308,7 +308,7 @@ remove_pidfile(char *pidfile_location)
     Returns the pointer to the file, or NULL if failed.
 */
 FILE *
-rules_file_open(const int debuglvl, const struct vuurmuur_config *cnf, const char *path, const char *mode, int caller)
+rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const char *path, const char *mode, int caller)
 {
     FILE    *lock_fp = NULL,
             *fp = NULL;
@@ -488,7 +488,7 @@ rules_file_close(FILE *file, const char *path)
         -1: error
  */
 int
-pipe_command(const int debuglvl, struct vuurmuur_config *cnf, char *command,
+pipe_command(const int debuglvl, struct vrmr_config *cnf, char *command,
         char ignore_error)
 {
     int     retval=0;
@@ -564,7 +564,7 @@ pipe_command(const int debuglvl, struct vuurmuur_config *cnf, char *command,
  *              otherwise the return code of the command.
  */
 int
-libvuurmuur_exec_command(const int debuglvl, struct vuurmuur_config *cnf, char *path, char *argv[], char *output[])
+libvuurmuur_exec_command(const int debuglvl, struct vrmr_config *cnf, char *path, char *argv[], char *output[])
 {
     int retval = 0;
     FILE *fp = NULL;

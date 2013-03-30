@@ -613,7 +613,7 @@ sanitize_search_str(const int debuglvl, char *str, size_t size)
 #define READLINE_LEN    512
 
 int
-logview_section(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zones *zones,
+logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services, /*@null@*/ char *logname)
 {

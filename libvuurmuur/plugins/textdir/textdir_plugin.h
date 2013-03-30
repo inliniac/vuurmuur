@@ -71,7 +71,7 @@ struct TextdirBackend_
 
 	/* Vuurmuur configuration. Some libvuurmuur functions need this to
 	 * do their work, but we shouldn't be accessing it ourselves. */
-	const struct vuurmuur_config *cfg;
+	const struct vrmr_config *cfg;
 };
 
 
@@ -86,6 +86,6 @@ int add_textdir(const int debuglvl, void *backend, char *name, int type);
 int del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs);
 int rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int type);
 int conf_textdir(const int debuglvl, void *backend);
-int setup_textdir(int debuglvl, const struct vuurmuur_config *vuurmuur_config, void **backend);
+int setup_textdir(int debuglvl, const struct vrmr_config *vuurmuur_config, void **backend);
 
 #endif

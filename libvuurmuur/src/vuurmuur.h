@@ -390,7 +390,7 @@ struct vrprint_
 struct vrprint_ vrprint;
 
 /* configuration */
-struct vuurmuur_config
+struct vrmr_config
 {
     /* etcdir */
     char            etcdir[256];
@@ -1149,7 +1149,7 @@ typedef struct VuurmuurCtx_ {
     struct vrmr_blocklist *blocklist;
     struct vrmr_rules *rules;
     struct vrmr_services *services;
-    struct vuurmuur_config *conf;
+    struct vrmr_config *conf;
     struct vrmr_iptcaps *iptcaps;
 } VuurmuurCtx;
 
@@ -1381,7 +1381,7 @@ int zones_check_host(const int, struct vrmr_zone *);
 int zones_check_group(const int, struct vrmr_zone *);
 int zones_check_network(const int, struct vrmr_zone *);
 int vrmr_zones_load(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
-int zones_network_analyze_rule(const int, struct vrmr_rule *, struct vrmr_rule_cache *, struct vrmr_zones *, struct vuurmuur_config *);
+int zones_network_analyze_rule(const int, struct vrmr_rule *, struct vrmr_rule_cache *, struct vrmr_zones *, struct vrmr_config *);
 int zones_network_rule_parse_line(const int, const char *, struct vrmr_rule *);
 int zones_host_ipv6_enabled(const int, struct vrmr_zone *);
 int zones_network_ipv6_enabled(const int, struct vrmr_zone *);
@@ -1428,15 +1428,15 @@ int vrmr_user_get_info(const int, struct vrmr_user *);
     proc.c
 */
 int read_proc_entry(const int debuglvl, char *proc_entry, int *value);
-int set_proc_entry(const int debuglvl, struct vuurmuur_config *, char *proc_entry, int proc_set, char *who);
+int set_proc_entry(const int debuglvl, struct vrmr_config *, char *proc_entry, int proc_set, char *who);
 
 
 /*
     rules.c
 */
-int rules_analyze_rule(const int, struct vrmr_rule *, struct vrmr_rule_cache *, struct vrmr_services *, struct vrmr_zones *, struct vrmr_interfaces *, struct vuurmuur_config *);
+int rules_analyze_rule(const int, struct vrmr_rule *, struct vrmr_rule_cache *, struct vrmr_services *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_config *);
 int rules_parse_line(const int, char *, struct vrmr_rule *, struct vrmr_regex *);
-int vrmr_rules_init_list(const int, struct vuurmuur_config *cfg, /*@out@*/ struct vrmr_rules *, struct vrmr_regex *);
+int vrmr_rules_init_list(const int, struct vrmr_config *cfg, /*@out@*/ struct vrmr_rules *, struct vrmr_regex *);
 int rules_cleanup_list(const int, struct vrmr_rules *);
 int rules_insert_list(const int, struct vrmr_rules *, unsigned int, struct vrmr_rule *);
 char *rules_assemble_options_string(const int, struct vrmr_rule_options *, const char *);
@@ -1445,10 +1445,10 @@ void *search_rule(const int, struct vrmr_rules *, struct vrmr_rule *);
 int rules_read_options(const int, char *, struct vrmr_rule_options *);
 struct vrmr_rule *rules_create_protect_rule(const int, char *, /*@null@*/ char *, char *, /*@null@*/char *);
 char *rules_assemble_rule(const int, struct vrmr_rule *);
-int rules_save_list(const int, struct vrmr_rules *, struct vuurmuur_config *);
+int rules_save_list(const int, struct vrmr_rules *, struct vrmr_config *);
 int rules_get_custom_chains(const int, struct vrmr_rules *);
 int rules_chain_in_list(const int, struct vrmr_list *, char *);
-int rules_get_system_chains(const int, struct vrmr_rules *, struct vuurmuur_config *, int);
+int rules_get_system_chains(const int, struct vrmr_rules *, struct vrmr_config *, int);
 int rules_encode_rule(const int, char *, size_t);
 int rules_decode_rule(const int, char *, size_t);
 int rules_determine_ruletype(const int, struct vrmr_rule *);
@@ -1465,8 +1465,8 @@ char *rules_itoaction_cap(const int);
 */
 int vrmr_blocklist_add_one(const int, struct vrmr_zones *, struct vrmr_blocklist *, char, char, char *);
 int vrmr_blocklist_rem_one(const int, struct vrmr_zones *, struct vrmr_blocklist *, char *);
-int vrmr_blocklist_init_list(const int, struct vuurmuur_config *cfg, struct vrmr_zones *, struct vrmr_blocklist *, char, char);
-int vrmr_blocklist_save_list(const int, struct vuurmuur_config *cfg, struct vrmr_blocklist *);
+int vrmr_blocklist_init_list(const int, struct vrmr_config *cfg, struct vrmr_zones *, struct vrmr_blocklist *, char, char);
+int vrmr_blocklist_save_list(const int, struct vrmr_config *cfg, struct vrmr_blocklist *);
 
 
 /*
@@ -1495,16 +1495,16 @@ int vrmr_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...);
 /*
     io.c
 */
-FILE *vuurmuur_fopen(const int, const struct vuurmuur_config *, const char *path, const char *mode);
-DIR *vuurmuur_opendir(const int, const struct vuurmuur_config *, const char *);
-int stat_ok(const int, const struct vuurmuur_config *, const char *, char, char, char);
+FILE *vuurmuur_fopen(const int, const struct vrmr_config *, const char *path, const char *mode);
+DIR *vuurmuur_opendir(const int, const struct vrmr_config *, const char *);
+int stat_ok(const int, const struct vrmr_config *, const char *, char, char, char);
 int check_pidfile(char *pidfile_location, char *service, pid_t *thepid);
 int create_pidfile(char *pidfile_location, int shm_id);
 int remove_pidfile(char *pidfile_location);
-FILE * rules_file_open(const int, const struct vuurmuur_config *cnf, const char *path, const char *mode, int caller);
+FILE * rules_file_open(const int, const struct vrmr_config *cnf, const char *path, const char *mode, int caller);
 int rules_file_close(FILE *file, const char *path);
-int pipe_command(const int, struct vuurmuur_config *, char *, char);
-int libvuurmuur_exec_command(const int, struct vuurmuur_config *, char *, char **, char **);
+int pipe_command(const int, struct vrmr_config *, char *, char);
+int libvuurmuur_exec_command(const int, struct vrmr_config *, char *, char **, char **);
 void shm_update_progress(const int debuglvl, int semid, int *shm_progress, int set_percent);
 pid_t get_vuurmuur_pid(char *vuurmuur_pidfile_location, int *shmid);
 int create_tempfile(const int, char *);
@@ -1513,29 +1513,29 @@ void sanitize_path(const int, char *, size_t);
 /*
     config.c
 */
-int vrmr_config_set_log_names(const int debuglvl, struct vuurmuur_config *cnf);
+int vrmr_config_set_log_names(const int debuglvl, struct vrmr_config *cnf);
 int config_check_logdir(const int debuglvl, const char *logdir);
-int config_check_vuurmuurdir(const int debuglvl, const struct vuurmuur_config *, const char *logdir);
-int check_iptables_command(const int, struct vuurmuur_config *, char *, char);
-int check_iptablesrestore_command(const int, struct vuurmuur_config *, char *, char);
+int config_check_vuurmuurdir(const int debuglvl, const struct vrmr_config *, const char *logdir);
+int check_iptables_command(const int, struct vrmr_config *, char *, char);
+int check_iptablesrestore_command(const int, struct vrmr_config *, char *, char);
 #ifdef IPV6_ENABLED
-int check_ip6tables_command(const int, struct vuurmuur_config *, char *, char);
-int check_ip6tablesrestore_command(const int, struct vuurmuur_config *, char *, char);
+int check_ip6tables_command(const int, struct vrmr_config *, char *, char);
+int check_ip6tablesrestore_command(const int, struct vrmr_config *, char *, char);
 #endif
-int check_tc_command(const int, struct vuurmuur_config *, char *, char);
-int init_config(const int, struct vuurmuur_config *cnf);
-int reload_config(const int, struct vuurmuur_config *);
-int ask_configfile(const int debuglvl, const struct vuurmuur_config *, char *question, char *answer_ptr, char *file_location, size_t size);
-int vrmr_write_configfile(const int debuglvl, char *file_location, struct vuurmuur_config *cfg);
+int check_tc_command(const int, struct vrmr_config *, char *, char);
+int init_config(const int, struct vrmr_config *cnf);
+int reload_config(const int, struct vrmr_config *);
+int ask_configfile(const int debuglvl, const struct vrmr_config *, char *question, char *answer_ptr, char *file_location, size_t size);
+int vrmr_write_configfile(const int debuglvl, char *file_location, struct vrmr_config *cfg);
 
-int vrmr_init(struct vuurmuur_config *, char *toolname);
+int vrmr_init(struct vrmr_config *, char *toolname);
 
 
 /*
     backendapi.c
 */
-int vrmr_backends_load(int debuglvl, struct vuurmuur_config *cfg);
-int vrmr_backends_unload(int debuglvl, struct vuurmuur_config *cfg);
+int vrmr_backends_load(int debuglvl, struct vrmr_config *cfg);
+int vrmr_backends_unload(int debuglvl, struct vrmr_config *cfg);
 
 
 /*
@@ -1552,7 +1552,7 @@ int delete_interface(const int, struct vrmr_interfaces *, char *);
 int ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, struct vrmr_list *zonelist);
 int rem_iface_from_zonelist(const int debuglvl, struct vrmr_list *zonelist);
 int get_iface_stats(const int, const char *, unsigned long *, unsigned long *, unsigned long *, unsigned long *);
-int vrmr_get_iface_stats_from_ipt(const int debuglvl, struct vuurmuur_config *cfg, const char *iface_name, const char *chain, unsigned long long *recv_packets, unsigned long long *recv_bytes, unsigned long long *trans_packets, unsigned long long *trans_bytes);
+int vrmr_get_iface_stats_from_ipt(const int debuglvl, struct vrmr_config *cfg, const char *iface_name, const char *chain, unsigned long long *recv_packets, unsigned long long *recv_bytes, unsigned long long *trans_packets, unsigned long long *trans_bytes);
 int validate_interfacename(const int, const char *, regex_t *);
 void destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfaces);
 int interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr);
@@ -1560,7 +1560,7 @@ int interfaces_save_rules(const int, struct vrmr_interface *);
 int interfaces_check(const int, struct vrmr_interface *);
 int vrmr_interfaces_load(const int, struct vrmr_interfaces *);
 int interfaces_iface_up(const int, struct vrmr_interface *);
-int interfaces_analyze_rule(const int, struct vrmr_rule *, struct vrmr_rule_cache *, struct vrmr_interfaces *, struct vuurmuur_config *);
+int interfaces_analyze_rule(const int, struct vrmr_rule *, struct vrmr_rule_cache *, struct vrmr_interfaces *, struct vrmr_config *);
 int interfaces_rule_parse_line(const int, const char *, struct vrmr_rule *);
 int interface_check_devicename(const int, char *);
 #ifdef IPV6_ENABLED
@@ -1583,7 +1583,7 @@ int list_icmp_codes(int type, int *code, int *number);
 unsigned int conn_hash_name(const void *key);
 int conn_match_name(const void *ser1, const void *ser2);
 void conn_list_print(const struct vrmr_list *conn_list);
-int conn_get_connections(const int, struct vuurmuur_config *, unsigned int, struct vrmr_hash_table *, struct vrmr_hash_table *, struct vrmr_list *, struct vrmr_list *, struct vrmr_conntrack_request *, struct vrmr_conntrack_stats *);
+int conn_get_connections(const int, struct vrmr_config *, unsigned int, struct vrmr_hash_table *, struct vrmr_hash_table *, struct vrmr_list *, struct vrmr_list *, struct vrmr_conntrack_request *, struct vrmr_conntrack_stats *);
 void conn_print_dlist(const struct vrmr_list *);
 void conn_list_cleanup(const int debuglvl, struct vrmr_list *conn_dlist);
 void VR_connreq_setup(const int debuglvl, struct vrmr_conntrack_request *connreq);
@@ -1608,11 +1608,11 @@ int vrmr_list_cleanup(int debuglvl, struct vrmr_list *);
 /*
     iptcap.c
 */
-int load_iptcaps(const int, struct vuurmuur_config *, struct vrmr_iptcaps *, char);
-int check_iptcaps(const int, struct vuurmuur_config *, /*@out@*/ struct vrmr_iptcaps *, char);
+int load_iptcaps(const int, struct vrmr_config *, struct vrmr_iptcaps *, char);
+int check_iptcaps(const int, struct vrmr_config *, /*@out@*/ struct vrmr_iptcaps *, char);
 #ifdef IPV6_ENABLED
-int load_ip6tcaps(const int, struct vuurmuur_config *, struct vrmr_iptcaps *, char);
-int check_ip6tcaps(const int, struct vuurmuur_config *, /*@out@*/ struct vrmr_iptcaps *, char);
+int load_ip6tcaps(const int, struct vrmr_config *, struct vrmr_iptcaps *, char);
+int check_ip6tcaps(const int, struct vrmr_config *, /*@out@*/ struct vrmr_iptcaps *, char);
 #endif
 
 
@@ -1680,7 +1680,7 @@ struct vrmr_plugin_data {
     int (*conf)(int debuglvl, void *backend);
 
     /* setup: alloc memory and set defaults */
-    int (*setup)(int debuglvl, const struct vuurmuur_config *cnf, void **backend);
+    int (*setup)(int debuglvl, const struct vrmr_config *cnf, void **backend);
 
     /* version */
     char *version;

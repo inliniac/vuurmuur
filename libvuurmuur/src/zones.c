@@ -1719,7 +1719,7 @@ zones_network_analyze_rule( const int debuglvl,
                             struct vrmr_rule *rule_ptr,
                             struct vrmr_rule_cache *create,
                             struct vrmr_zones *zones,
-                            struct vuurmuur_config *cnf)
+                            struct vrmr_config *cnf)
 {
     int result = 0;
 

@@ -75,7 +75,7 @@ void cmdline_override_config(const int debuglvl) {
     }
 }
 
-int sysctl_exec(const int debuglvl, struct vuurmuur_config *cnf, char *key, char *value, int bash_out) {
+int sysctl_exec(const int debuglvl, struct vrmr_config *cnf, char *key, char *value, int bash_out) {
     if (bash_out) {
         fprintf(stdout, "%s -w %s=%s\n", cnf->sysctl_location, key, value);
         return 0;

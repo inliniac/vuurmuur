@@ -79,7 +79,7 @@ read_proc_entry(const int debuglvl, char *proc_entry, int *value)
 }
 
 int
-set_proc_entry(const int debuglvl, struct vuurmuur_config *cnf, char *proc_entry, int proc_set, char *who)
+set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entry, int proc_set, char *who)
 {
     size_t  i = 0,
             j = 0,

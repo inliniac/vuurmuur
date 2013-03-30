@@ -29,7 +29,7 @@
 
 
 void
-create_loglevel_string(const int debuglvl, struct vuurmuur_config *cnf, char *resultstr, size_t size)
+create_loglevel_string(const int debuglvl, struct vrmr_config *cnf, char *resultstr, size_t size)
 {
     /* safety */
     if(resultstr == NULL || cnf == NULL)
@@ -60,7 +60,7 @@ create_loglevel_string(const int debuglvl, struct vuurmuur_config *cnf, char *re
 
 
 void
-create_logtcpoptions_string(const int debuglvl, struct vuurmuur_config *cnf, char *resultstr, size_t size)
+create_logtcpoptions_string(const int debuglvl, struct vrmr_config *cnf, char *resultstr, size_t size)
 {
     /* safety */
     if(resultstr == NULL || cnf == NULL)
@@ -158,7 +158,7 @@ create_logprefix_string(const int debuglvl, char *resultstr, size_t size,
 
 
 int
-oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_config *cnf)
+oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, struct vrmr_config *cnf)
 {
     char        *chainname = NULL;
     struct vrmr_list_node *d_node = NULL;
@@ -2381,7 +2381,7 @@ remove_rule(const int debuglvl, int chaintype, int first_ipt_rule, int rules)
 
 
 int
-create_system_protectrules(const int debuglvl, struct vuurmuur_config *conf)
+create_system_protectrules(const int debuglvl, struct vrmr_config *conf)
 {
     int result = 0;
 
@@ -2518,7 +2518,7 @@ create_normal_rules(const int debuglvl,
          0: ok
 */
 static int
-clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vuurmuur_config *cnf)
+clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vrmr_config *cnf)
 {
     int         retval = 0,
                 result = 0;
@@ -2615,7 +2615,7 @@ clear_vuurmuur_iptables_rules_ipv4(const int debuglvl, struct vuurmuur_config *c
          0: ok
 */
 static int
-clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vuurmuur_config *cnf)
+clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vrmr_config *cnf)
 {
     int         retval = 0,
                 result = 0;
@@ -2711,7 +2711,7 @@ clear_vuurmuur_iptables_rules_ipv6(const int debuglvl, struct vuurmuur_config *c
          0: ok
 */
 int
-clear_vuurmuur_iptables_rules(const int debuglvl, struct vuurmuur_config *cnf)
+clear_vuurmuur_iptables_rules(const int debuglvl, struct vrmr_config *cnf)
 {
     int retval = 0;
 

@@ -1176,7 +1176,7 @@ ruleset_exists(const int debuglvl, char *path_to_ruleset)
          0: ok
 */
 static int
-ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_resultfile, struct vuurmuur_config *cnf, int ipver)
+ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_resultfile, struct vrmr_config *cnf, int ipver)
 {
     char cmd[256] = "";
 
@@ -1241,7 +1241,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
          0: ok
 */
 static int
-ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_resultfile, struct vuurmuur_config *cnf)
+ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_resultfile, struct vrmr_config *cnf)
 {
     char    cmd[256] = "";
 
@@ -1376,7 +1376,7 @@ ruleset_create_ruleset( const int debuglvl, VuurmuurCtx *vctx, RuleSet *ruleset)
 
 
 static int
-ruleset_save_interface_counters(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_interfaces *interfaces)
+ruleset_save_interface_counters(const int debuglvl, struct vrmr_config *cfg, struct vrmr_interfaces *interfaces)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;

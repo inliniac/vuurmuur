@@ -375,7 +375,7 @@ vrmr_blocklist_rem_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
     be loaded, otherwise just the name in the file
 */
 static int
-blocklist_read_file(const int debuglvl, struct vuurmuur_config *cfg,
+blocklist_read_file(const int debuglvl, struct vrmr_config *cfg,
         struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt)
 {
     FILE        *fp = NULL;
@@ -444,7 +444,7 @@ blocklist_read_file(const int debuglvl, struct vuurmuur_config *cfg,
 
 
 int
-vrmr_blocklist_init_list(const int debuglvl, struct vuurmuur_config *cfg,
+vrmr_blocklist_init_list(const int debuglvl, struct vrmr_config *cfg,
         struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt)
 {
     FILE        *fp = NULL;
@@ -559,7 +559,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vuurmuur_config *cfg,
 
 
 static int
-blocklist_write_file(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_list *block_list)
+blocklist_write_file(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *block_list)
 {
     struct vrmr_list_node *d_node   = NULL;
     char        *itemname = NULL;
@@ -609,7 +609,7 @@ blocklist_write_file(const int debuglvl, struct vuurmuur_config *cfg, struct vrm
 
 
 int
-vrmr_blocklist_save_list(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_blocklist *blocklist)
+vrmr_blocklist_save_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_blocklist *blocklist)
 {
     int         result = 0;
     char        *line = NULL;

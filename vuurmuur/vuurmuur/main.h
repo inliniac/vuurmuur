@@ -279,18 +279,18 @@ extern char **environ;
 
 VrCmdline cmdline;
 
-struct vuurmuur_config conf;
+struct vrmr_config conf;
 
 /*************************************************************************************************************************\
  ******************************************************* FUNCTIONS *******************************************************
 \*************************************************************************************************************************/
 
 /* rules.c */
-void create_loglevel_string(const int, struct vuurmuur_config *, char *, size_t);
+void create_loglevel_string(const int, struct vrmr_config *, char *, size_t);
 void create_logprefix_string(const int, char *, size_t, int, char *, char *, ...);
-void create_logtcpoptions_string(const int, struct vuurmuur_config *, char *, size_t);
+void create_logtcpoptions_string(const int, struct vrmr_config *, char *, size_t);
 
-int oldrules_create_custom_chains(const int, struct vrmr_rules *, struct vuurmuur_config *);
+int oldrules_create_custom_chains(const int, struct vrmr_rules *, struct vrmr_config *);
 
 int analyze_interface_rules(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
 int analyze_network_protect_rules(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *);
@@ -311,7 +311,7 @@ int create_estrelnfqueue_rules(const int, /*@null@*/RuleSet *, struct vrmr_rules
 
 int create_network_protect_rules(const int, /*@null@*/RuleSet *, struct vrmr_zones *, struct vrmr_iptcaps *);
 int create_interface_rules(const int, /*@null@*/RuleSet *, struct vrmr_iptcaps *, struct vrmr_interfaces *);
-int create_system_protectrules(const int, struct vuurmuur_config *);
+int create_system_protectrules(const int, struct vrmr_config *);
 int create_normal_rules(const int, VuurmuurCtx *, /*@null@*/RuleSet *, char *);
 
 int create_rule(const int, VuurmuurCtx*, /*@null@*/RuleSet *, struct vrmr_rule_cache *);
@@ -327,7 +327,7 @@ int create_rule_redirect(const int, /*@null@*/RuleSet *, struct RuleCreateData_ 
 int create_rule_dnat(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
 int create_rule_bounce(const int, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
 
-int clear_vuurmuur_iptables_rules(const int debuglvl, struct vuurmuur_config *cnf);
+int clear_vuurmuur_iptables_rules(const int debuglvl, struct vrmr_config *cnf);
 int clear_all_iptables_rules(const int debuglvl);
 
 int process_queued_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule);
@@ -335,7 +335,7 @@ int process_queued_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, struct 
 /* misc.c */
 void send_hup_to_vuurmuurlog(const int debuglvl);
 void cmdline_override_config(const int debuglvl);
-int sysctl_exec(const int debuglvl, struct vuurmuur_config *cnf, char *key, char *value, int bash_out);
+int sysctl_exec(const int debuglvl, struct vrmr_config *cnf, char *key, char *value, int bash_out);
 
 int logprint_error_bash(int errorlevel, char *head, char *fmt, ...);
 int logprint_warning_bash(char *head, char *fmt, ...);
@@ -364,17 +364,17 @@ int ruleset_add_rule_to_set(const int, struct vrmr_list *, char *, char *, unsig
 int load_ruleset(const int, VuurmuurCtx *);
 
 /* shape */
-int shaping_setup_roots (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *);
-int shaping_clear_interfaces (const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset);
+int shaping_setup_roots (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *);
+int shaping_clear_interfaces (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset);
 int determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_rules *rules);
-int shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset);
+int shaping_create_default_rules(const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset);
 int shaping_shape_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt);
 int shaping_shape_incoming_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt);
 int shaping_shape_outgoing_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt);
 int shaping_shape_interface(const int debuglvl, struct vrmr_interface *iface_ptr);
-int shaping_shape_create_rule(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, struct RuleCreateData_ *rule, /*@null@*/RuleSet *ruleset, struct vrmr_interface *shape_iface_ptr, struct vrmr_interface *class_iface_ptr, u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil, char *ceil_unit, u_int8_t prio);
+int shaping_shape_create_rule(const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, struct RuleCreateData_ *rule, /*@null@*/RuleSet *ruleset, struct vrmr_interface *shape_iface_ptr, struct vrmr_interface *class_iface_ptr, u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil, char *ceil_unit, u_int8_t prio);
 int shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_rules *rules);
-int shaping_create_default_rules(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset);
-int shaping_process_queued_rules(const int debuglvl, struct vuurmuur_config *cnf, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule);
+int shaping_create_default_rules(const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset);
+int shaping_process_queued_rules(const int debuglvl, struct vrmr_config *cnf, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule);
 
 #endif

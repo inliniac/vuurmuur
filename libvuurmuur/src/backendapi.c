@@ -119,7 +119,7 @@ open_plugin(const int debuglvl, char *plugin)
         -1: error
 */
 static int
-load_plugin(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_list *plugin_list,
+load_plugin(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *plugin_list,
         char *plugin_name, struct vrmr_plugin_data **func_ptr)
 {
     int                 retval=0;
@@ -318,7 +318,7 @@ unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_na
         -1: error
 */
 int
-vrmr_backends_load(const int debuglvl, struct vuurmuur_config *cfg)
+vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg)
 {
     /* first the SERVICES */
     if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->serv_backend_name, &sf) < 0)
@@ -387,7 +387,7 @@ vrmr_backends_load(const int debuglvl, struct vuurmuur_config *cfg)
         -1: error
 */
 int
-vrmr_backends_unload(const int debuglvl, struct vuurmuur_config *cfg)
+vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg)
 {
     /*
         SERVICES

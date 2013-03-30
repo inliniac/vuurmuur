@@ -113,7 +113,7 @@
 #define VUURMUURCONF_CONFIGFILE "/etc/vuurmuur/vuurmuur_conf.conf"
 #endif
 
-struct vuurmuur_config conf;
+struct vrmr_config conf;
 
 /* Vuurmuur_conf settings
 
@@ -353,7 +353,7 @@ int edit_sysopt(int debuglvl);
 /*
     logview section
 */
-int logview_section(const int, struct vuurmuur_config *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *, /*@null@*/ char *);
+int logview_section(const int, struct vrmr_config *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *, /*@null@*/ char *);
 
 
 /*
@@ -375,13 +375,13 @@ int validate_commentfield(const int, char *, regex_t *);
 /*
     status section
 */
-int status_section(const int, struct vuurmuur_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
+int status_section(const int, struct vrmr_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
 
 
 /*
     connections
 */
-int connections_section(const int, struct vuurmuur_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_blocklist *);
+int connections_section(const int, struct vrmr_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_blocklist *);
 
 
 /*
@@ -458,17 +458,17 @@ typedef struct ct_
     unsigned int            prev_list_size;
 } Conntrack;
 
-int kill_connections_by_ip(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, char *srcip, char *dstip, char *sername, char connect_status);
+int kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf, Conntrack *ct, char *srcip, char *dstip, char *sername, char connect_status);
 int block_and_kill(const int debuglvl, Conntrack *ct, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, char *ip);
 int kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int proto, int sp, int dp);
-int kill_connections_by_name(const int debuglvl, struct vuurmuur_config *cnf, Conntrack *ct, char *srcname, char *dstname, char *sername, char connect_status);
+int kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf, Conntrack *ct, char *srcname, char *dstname, char *sername, char connect_status);
 
 Conntrack *conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_blocklist *blocklist );
 void conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones);
-int conn_ct_get_connections(const int, struct vuurmuur_config *, Conntrack *, struct vrmr_conntrack_request *);
+int conn_ct_get_connections(const int, struct vrmr_config *, Conntrack *, struct vrmr_conntrack_request *);
 void conn_ct_clear_connections(const int debuglvl, Conntrack *ct);
 
-void statevent(const int, struct vuurmuur_config *, int, struct vrmr_list *, Conntrack *, struct vrmr_conntrack_request *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *);
+void statevent(const int, struct vrmr_config *, int, struct vrmr_list *, Conntrack *, struct vrmr_conntrack_request *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *);
 
 
 /* length in chars (be it wide chars or normal chars) */

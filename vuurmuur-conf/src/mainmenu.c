@@ -32,7 +32,7 @@ static void mm_check_status_services(const int, /*@null@*/ struct vrmr_list *, s
 
 
 int
-convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_config *cnf)
+convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struct vrmr_config *cnf)
 {
     char    path[96] = "";
     char    rule_name[32] = "";
@@ -100,7 +100,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
 
 
 int
-convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *blocklist, struct vuurmuur_config *cnf)
+convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *blocklist, struct vrmr_config *cnf)
 {
     char    path[96] = "";
     char    rule_name[32] = "";
@@ -168,7 +168,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
 
 
 int
-mm_select_logfile(const int debuglvl, struct vuurmuur_config *cnf, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+mm_select_logfile(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
 {
     size_t  i = 0,
             n_choices = 6;

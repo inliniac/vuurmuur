@@ -37,7 +37,7 @@
  *     -1: invalid query
  */
 static int
-determine_action(const int debuglvl, struct vuurmuur_config *cfg, char *query, char *action, size_t size, struct vrmr_rule_options *option)
+determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char *action, size_t size, struct vrmr_rule_options *option)
 {
     int action_type = 0;
 
@@ -171,7 +171,7 @@ rules_analyze_rule( const int debuglvl,
                     struct vrmr_services *services,
                     struct vrmr_zones *zones,
                     struct vrmr_interfaces *interfaces,
-                    struct vuurmuur_config *cnf)
+                    struct vrmr_config *cnf)
 {
     int     result = 0;
     char    network[MAX_NET_ZONE] = "";
@@ -705,7 +705,7 @@ rules_analyze_rule( const int debuglvl,
         -1: error
 */
 int
-vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, struct vrmr_rules *rules, struct vrmr_regex *reg)
+vrmr_rules_init_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_rules *rules, struct vrmr_regex *reg)
 {
     FILE                *fp = NULL;
     int                 retval = 0;
@@ -1484,7 +1484,7 @@ rules_assemble_rule(const int debuglvl, struct vrmr_rule *rule_ptr)
     TODO: mask! it should we only read/write for owner root, and nothing to the others
 */
 static int
-rules_write_file(const int debuglvl, const struct vuurmuur_config *cnf, struct vrmr_rules *rules, const char *rulesfile_location)
+rules_write_file(const int debuglvl, const struct vrmr_config *cnf, struct vrmr_rules *rules, const char *rulesfile_location)
 {
     FILE                *fp = NULL;
     int                 retval = 0;
@@ -1551,7 +1551,7 @@ rules_write_file(const int debuglvl, const struct vuurmuur_config *cnf, struct v
 
 
 int
-rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_config *cnf)
+rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vrmr_config *cnf)
 {
     int                 result = 0;
     char                *line = NULL,
@@ -3547,7 +3547,7 @@ rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
 /* get the actual chains for the table */
 static int
 rules_get_system_chains_per_table(const int debuglvl, char *tablename,
-        struct vrmr_list *list, struct vuurmuur_config *cnf, int ipv)
+        struct vrmr_list *list, struct vrmr_config *cnf, int ipv)
 {
     char    line[128] = "",
             cmd[128] = "";
@@ -3640,7 +3640,7 @@ rules_get_system_chains_per_table(const int debuglvl, char *tablename,
          0: ok
 */
 int
-rules_get_system_chains(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_config *cnf, int ipv)
+rules_get_system_chains(const int debuglvl, struct vrmr_rules *rules, struct vrmr_config *cnf, int ipv)
 {
     /* safety */
     if(cnf == NULL || rules == NULL)
