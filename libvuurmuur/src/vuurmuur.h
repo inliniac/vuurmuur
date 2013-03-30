@@ -856,8 +856,7 @@ struct RuleCache_
 } RuleCache;
 
 
-struct RuleData_
-{
+struct vrmr_rule {
     int                 type;       /* this should always be on top */
 
     char                error;
@@ -885,7 +884,7 @@ struct RuleData_
     struct RuleCache_   rulecache;
 
     char                filtered;       /* used by vuurmuur_conf */
-} RuleData;
+};
 
 
 struct vrmr_filter
@@ -1389,8 +1388,8 @@ int zones_check_host(const int, struct vrmr_zone *);
 int zones_check_group(const int, struct vrmr_zone *);
 int zones_check_network(const int, struct vrmr_zone *);
 int vrmr_zones_load(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
-int zones_network_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, struct vrmr_zones *, struct vuurmuur_config *);
-int zones_network_rule_parse_line(const int, const char *, struct RuleData_ *);
+int zones_network_analyze_rule(const int, struct vrmr_rule *, struct RuleCache_ *, struct vrmr_zones *, struct vuurmuur_config *);
+int zones_network_rule_parse_line(const int, const char *, struct vrmr_rule *);
 int zones_host_ipv6_enabled(const int, struct vrmr_zone *);
 int zones_network_ipv6_enabled(const int, struct vrmr_zone *);
 
@@ -1442,24 +1441,24 @@ int set_proc_entry(const int debuglvl, struct vuurmuur_config *, char *proc_entr
 /*
     rules.c
 */
-int rules_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, struct vrmr_services *, struct vrmr_zones *, struct vrmr_interfaces *, struct vuurmuur_config *);
-int rules_parse_line(const int, char *, struct RuleData_ *, struct vrmr_regex *);
+int rules_analyze_rule(const int, struct vrmr_rule *, struct RuleCache_ *, struct vrmr_services *, struct vrmr_zones *, struct vrmr_interfaces *, struct vuurmuur_config *);
+int rules_parse_line(const int, char *, struct vrmr_rule *, struct vrmr_regex *);
 int vrmr_rules_init_list(const int, struct vuurmuur_config *cfg, /*@out@*/ struct vrmr_rules *, struct vrmr_regex *);
 int rules_cleanup_list(const int, struct vrmr_rules *);
-int rules_insert_list(const int, struct vrmr_rules *, unsigned int, struct RuleData_ *);
+int rules_insert_list(const int, struct vrmr_rules *, unsigned int, struct vrmr_rule *);
 char *rules_assemble_options_string(const int, struct vrmr_rule_options *, const char *);
 int rules_compare_options(const int, struct vrmr_rule_options *, struct vrmr_rule_options *, char *);
-void *search_rule(const int, struct vrmr_rules *, struct RuleData_ *);
+void *search_rule(const int, struct vrmr_rules *, struct vrmr_rule *);
 int rules_read_options(const int, char *, struct vrmr_rule_options *);
-struct RuleData_ *rules_create_protect_rule(const int, char *, /*@null@*/ char *, char *, /*@null@*/char *);
-char *rules_assemble_rule(const int, struct RuleData_ *);
+struct vrmr_rule *rules_create_protect_rule(const int, char *, /*@null@*/ char *, char *, /*@null@*/char *);
+char *rules_assemble_rule(const int, struct vrmr_rule *);
 int rules_save_list(const int, struct vrmr_rules *, struct vuurmuur_config *);
 int rules_get_custom_chains(const int, struct vrmr_rules *);
 int rules_chain_in_list(const int, d_list *, char *);
 int rules_get_system_chains(const int, struct vrmr_rules *, struct vuurmuur_config *, int);
 int rules_encode_rule(const int, char *, size_t);
 int rules_decode_rule(const int, char *, size_t);
-int rules_determine_ruletype(const int, struct RuleData_ *);
+int rules_determine_ruletype(const int, struct vrmr_rule *);
 
 
 /* action */
@@ -1568,8 +1567,8 @@ int interfaces_save_rules(const int, struct vrmr_interface *);
 int interfaces_check(const int, struct vrmr_interface *);
 int vrmr_interfaces_load(const int, struct vrmr_interfaces *);
 int interfaces_iface_up(const int, struct vrmr_interface *);
-int interfaces_analyze_rule(const int, struct RuleData_ *, struct RuleCache_ *, struct vrmr_interfaces *, struct vuurmuur_config *);
-int interfaces_rule_parse_line(const int, const char *, struct RuleData_ *);
+int interfaces_analyze_rule(const int, struct vrmr_rule *, struct RuleCache_ *, struct vrmr_interfaces *, struct vuurmuur_config *);
+int interfaces_rule_parse_line(const int, const char *, struct vrmr_rule *);
 int interface_check_devicename(const int, char *);
 #ifdef IPV6_ENABLED
 int interface_ipv6_enabled(const int, struct vrmr_interface *);

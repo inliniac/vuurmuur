@@ -1716,7 +1716,7 @@ zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network_ptr)
  */
 int
 zones_network_analyze_rule( const int debuglvl,
-                            struct RuleData_ *rule_ptr,
+                            struct vrmr_rule *rule_ptr,
                             struct RuleCache_ *create,
                             struct vrmr_zones *zones,
                             struct vuurmuur_config *cnf)
@@ -1860,7 +1860,7 @@ zones_network_analyze_rule( const int debuglvl,
         -1: error
 */
 int
-zones_network_rule_parse_line(const int debuglvl, const char *line, struct RuleData_ *rule_ptr)
+zones_network_rule_parse_line(const int debuglvl, const char *line, struct vrmr_rule *rule_ptr)
 {
     size_t  line_pos = 0, // position in line
             var_pos=0; // position in varible
@@ -1912,7 +1912,7 @@ zones_network_rule_parse_line(const int debuglvl, const char *line, struct RuleD
         }
 
         /* okay, now lets see what kind of danger we are talking about */
-        for(line_pos++, var_pos = 0; var_pos < sizeof(RuleData.danger) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+        for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->danger) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
         {
             rule_ptr->danger[var_pos] = line[line_pos];
         }
@@ -1946,7 +1946,7 @@ zones_network_rule_parse_line(const int debuglvl, const char *line, struct RuleD
         }
 
         /* get the source */
-        for(line_pos++, var_pos = 0; var_pos < sizeof(RuleData.source) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+        for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->source) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
         {
             rule_ptr->source[var_pos] = line[line_pos];
         }
@@ -1964,7 +1964,7 @@ zones_network_rule_parse_line(const int debuglvl, const char *line, struct RuleD
         if(debuglvl >= MEDIUM)
             (void)vrprint.debug(__FUNC__, "action: '%s'", rules_itoaction(rule_ptr->action));
 
-        for(line_pos++, var_pos = 0; var_pos < sizeof(RuleData.service) && line[line_pos] != ' ' && line[line_pos] != ',' &&line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+        for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->service) && line[line_pos] != ' ' && line[line_pos] != ',' &&line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
         {
             rule_ptr->service[var_pos] = line[line_pos];
         }
@@ -1986,7 +1986,7 @@ int
 zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr)
 {
     char                currule[MAX_RULE_LENGTH] = "";
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
 
     /* safety */

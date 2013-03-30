@@ -30,15 +30,15 @@
 void *
 rule_malloc(void)
 {
-    struct RuleData_ *rule_ptr = NULL;
+    struct vrmr_rule *rule_ptr = NULL;
 
-    rule_ptr = malloc(sizeof(struct RuleData_));
+    rule_ptr = malloc(sizeof(struct vrmr_rule));
     if(rule_ptr == NULL)
     {
         return(NULL);
     }
     /* clear */
-    memset(rule_ptr, 0, sizeof(struct RuleData_));
+    memset(rule_ptr, 0, sizeof(struct vrmr_rule));
 
     rule_ptr->type = TYPE_RULE;
 

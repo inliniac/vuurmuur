@@ -376,11 +376,11 @@ struct RuleBarForm_
 
 static int SetupRuleBarForm(const int, struct RuleBarForm_ *, unsigned int, struct vrmr_rules *, int);
 static int move_rule(const int, struct vrmr_rules *, unsigned int, unsigned int);
-static int MatchFilter_RuleBar(struct RuleData_ *rule_ptr, regex_t *reg, char only_in, char only_out, char only_forward);
+static int MatchFilter_RuleBar(struct vrmr_rule *rule_ptr, regex_t *reg, char only_in, char only_out, char only_forward);
 static int Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules);
 static int draw_rules(const int, struct vrmr_rules *, struct RuleBarForm_ *);
 static int Enter_RuleBar(const int, rulebar *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
-static int edit_rule_separator(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct RuleData_ *, unsigned int, struct vrmr_regex *);
+static int edit_rule_separator(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *, unsigned int, struct vrmr_regex *);
 
 
 static int
@@ -474,7 +474,7 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
 {
     int                 retval = 0,
                         i = 0;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
 
 
@@ -802,7 +802,7 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules, struct
     unsigned int        rule_num = 0;
     int                 result = 0,
                         retval = 0;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
 
     /* safety */
@@ -864,10 +864,10 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules, struct
         -1: error
 */
 int
-rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct RuleData_ *org_rule_ptr, struct vrmr_regex *reg)
+rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_rule *org_rule_ptr, struct vrmr_regex *reg)
 {
     char                *rule_str = NULL;
-    struct RuleData_    *new_rule_ptr = NULL;
+    struct vrmr_rule    *new_rule_ptr = NULL;
 
     /* safety */
     if(!rules || !org_rule_ptr | !reg)
@@ -925,7 +925,7 @@ rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct RuleDa
 static int
 rulebar_copy_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int orig_rule_num, struct vrmr_regex *reg)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
 
     /* safety */
@@ -966,7 +966,7 @@ Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules)
                         retval = 0;
     int                 i = 0;
     d_list_node         *d_node = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
 
     if(debuglvl >= HIGH)
         (void)vrprint.debug(__FUNC__, "'%s'.", field_buffer(bar->num_field, 0));
@@ -1105,7 +1105,7 @@ Insert_RuleBar( const int debuglvl,
 
 
 static int
-MatchFilter_RuleBar(struct RuleData_ *rule_ptr, /*@null@*/regex_t *reg, char only_in, char only_out, char only_forward)
+MatchFilter_RuleBar(struct vrmr_rule *rule_ptr, /*@null@*/regex_t *reg, char only_in, char only_out, char only_forward)
 {
     char    *options_ptr = NULL,
             rule_str[512] = "";
@@ -1158,7 +1158,7 @@ MatchFilter_RuleBar(struct RuleData_ *rule_ptr, /*@null@*/regex_t *reg, char onl
 static int
 draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     rulebar             *cur_bar = NULL;
     d_list_node         *d_node = NULL;
     d_list_node         *dl_node = NULL;
@@ -1412,7 +1412,7 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
 static int
 rules_update_filter(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
     char                filter = 0;
 
@@ -1542,7 +1542,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
                                             gettext("back")};
     int                 cmd_choices_n = 7;
     d_list_node         *d_node = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     char                *str = NULL;
 
 
@@ -2393,7 +2393,7 @@ delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     int                 remove_rule=0;
     int                 result = 0;
     int                 retval = 0;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
 
     if (rule_num == 0) {
@@ -2458,7 +2458,7 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
             const char *action)
 {
     int                 retval = 0;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
 
     /* safety */
     if(rules == NULL)
@@ -2547,7 +2547,7 @@ edit_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
         struct vrmr_interfaces *interfaces, struct vrmr_services *services,
         unsigned int rule_num, struct vrmr_regex *reg)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
     int                 retval = 0;
 
@@ -2699,7 +2699,7 @@ struct RuleFlds_
         -1: error
 */
 static int
-edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, struct RuleData_ *rule_ptr, struct vrmr_regex *reg)
+edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, struct vrmr_rule *rule_ptr, struct vrmr_regex *reg)
 {
     int     z = 0,
             retval = 0;
@@ -3255,7 +3255,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
 
 static int
-edit_rule_simple_check(const int debuglvl, struct RuleData_ *rule_ptr)
+edit_rule_simple_check(const int debuglvl, struct vrmr_rule *rule_ptr)
 {
     if( rule_ptr->service[0] == '\0' ||
         rule_ptr->from[0] == '\0' ||
@@ -3269,7 +3269,7 @@ edit_rule_simple_check(const int debuglvl, struct RuleData_ *rule_ptr)
 
 
 static int
-edit_rule_check_action_opts(const int debuglvl, struct RuleData_ *rule_ptr)
+edit_rule_check_action_opts(const int debuglvl, struct vrmr_rule *rule_ptr)
 {
     if(rule_ptr->action == VRMR_AT_BOUNCE)
     {
@@ -3304,7 +3304,7 @@ edit_rule_check_action_opts(const int debuglvl, struct RuleData_ *rule_ptr)
 */
 int
 edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
-            struct vrmr_services *services, struct RuleData_ *rule_ptr,
+            struct vrmr_services *services, struct vrmr_rule *rule_ptr,
             unsigned int rule_num, struct vrmr_regex *reg)
 {
     PANEL       *my_panels[1];
@@ -4909,7 +4909,7 @@ struct SepRuleFlds_
         -1: error
 */
 static int
-edit_seprule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, struct RuleData_ *rule_ptr, struct vrmr_regex *reg)
+edit_seprule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, struct vrmr_rule *rule_ptr, struct vrmr_regex *reg)
 {
     int     z = 0,
             retval = 0;
@@ -4986,7 +4986,7 @@ edit_rule_separator(const int debuglvl,
                     struct vrmr_zones *zones,
                     struct vrmr_interfaces *interfaces,
                     struct vrmr_services *services,
-                    struct RuleData_ *rule_ptr,
+                    struct vrmr_rule *rule_ptr,
                     unsigned int rule_num,
                     struct vrmr_regex *reg)
 {

@@ -489,7 +489,7 @@ struct
 int
 protectrule_loaded(const int debuglvl, d_list *rules_list, char *action, char *danger, char *source)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
     int                 act = 0;
 
@@ -877,7 +877,7 @@ edit_interface_destroy(void)
 static int
 edit_interface_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
 
     /* safety */
     if(iface_ptr == NULL)
@@ -995,7 +995,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
     size_t                  i = 0;
     struct vrmr_interface   *tempiface_ptr = NULL;
     char                    rules_changed = FALSE;
-    struct RuleData_        *rule_ptr = NULL;
+    struct vrmr_rule        *rule_ptr = NULL;
     d_list_node             *d_node = NULL;
 
     /* safety */
@@ -1759,7 +1759,7 @@ rename_interface(const int debuglvl, struct vrmr_interfaces *interfaces, struct 
     d_list_node             *zone_d_node = NULL,
                             *iface_d_node = NULL;
     char                    save_name[MAX_INTERFACE] = "";
-    struct RuleData_        *rule_ptr = NULL;
+    struct vrmr_rule        *rule_ptr = NULL;
     d_list_node             *d_node = NULL;
     char                    rules_changed = 0;
 

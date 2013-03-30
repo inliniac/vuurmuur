@@ -2440,7 +2440,7 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
 {
     int                     result = 0;
     struct vrmr_service    *ser_ptr = NULL;
-    struct RuleData_        *rule_ptr = NULL;
+    struct vrmr_rule        *rule_ptr = NULL;
     d_list_node             *d_node = NULL;
     char                    changed = 0;
     char                    old_ser_name[MAX_SERVICE] = "";

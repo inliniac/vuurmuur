@@ -388,7 +388,7 @@ int
 shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_rules *rules) {
     d_list_node         *d_node = NULL,
                         *d_node_iface = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     struct vrmr_interface       *iface_ptr = NULL;
     u_int32_t           rate = 0;
 

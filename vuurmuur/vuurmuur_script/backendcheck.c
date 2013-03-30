@@ -226,7 +226,7 @@ int
 backend_check_network_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     char                line[1024] = "";
-    struct RuleData_    rule;
+    struct vrmr_rule    rule;
 
     /* safety */
     if(value == NULL || reg == NULL)
@@ -350,7 +350,7 @@ int
 backend_check_interface_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     char                line[1024] = "";
-    struct RuleData_    rule;
+    struct vrmr_rule    rule;
 
     /* safety */
     if(value == NULL || reg == NULL)
@@ -773,7 +773,7 @@ backend_check_blocklist_rule(const int debuglvl, char *value, struct vrmr_regex 
 {
 //    char                line[1024] = "";
 //    char                action[32] = "";
-//    struct RuleData_    rule;
+//    struct vrmr_rule    rule;
 
     /* safety */
     if(value == NULL || reg == NULL)
@@ -800,7 +800,7 @@ backend_check_rule_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
     char                line[1024] = "";
     char                action[32] = "";
-    struct RuleData_    rule;
+    struct vrmr_rule    rule;
 
     /* safety */
     if(value == NULL || reg == NULL)

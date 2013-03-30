@@ -1054,7 +1054,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_zones *zones, struct vrm
     int                 result = 0;
     struct vrmr_zone    *zone_ptr = NULL,
                         *member_ptr = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL,
                         *grp_d_node = NULL;
     char                rules_changed = 0,
@@ -3236,7 +3236,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_zones *zones, struct v
 {
     int                 result = 0;
     struct vrmr_zone    *zone_ptr = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
     char                rules_changed = 0,
                         blocklist_changed = 0;
@@ -4101,7 +4101,7 @@ int
 zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_ptr)
 {
     d_list_node         *d_node = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     char                rule_str[MAX_RULE_LENGTH] = "";
     
     /* safety */
@@ -4171,7 +4171,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_pt
 static int
 edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_zone *network_ptr)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
 
     /* safety */
     if(network_ptr == NULL)
@@ -4779,7 +4779,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_zone *zone_ptr)
     char                network[16] = "",
                         netmask[16] = "";
     char                rules_changed = FALSE;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
     int                 active = 0;
     size_t              i = 0;

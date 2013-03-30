@@ -702,7 +702,7 @@ static void
 mm_check_status_rules(const int debuglvl, /*@null@*/ d_list *status_list, struct vrmr_rules *rules)
 {
     d_list_node      *d_node = NULL;
-    struct RuleData_ *rule_ptr = NULL;
+    struct vrmr_rule *rule_ptr = NULL;
     char tc_location_not_set = FALSE;
 
     if(rules == NULL)

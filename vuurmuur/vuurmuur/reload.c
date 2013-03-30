@@ -726,7 +726,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
                             *d_node_new  = NULL;
     d_list_node             *protect_d_node_orig = NULL,
                             *protect_d_node_new  = NULL;
-    struct RuleData_        *org_rule_ptr = NULL,
+    struct vrmr_rule        *org_rule_ptr = NULL,
                             *new_rule_ptr = NULL;
     int                     status=-1;
 
@@ -1372,7 +1372,7 @@ reload_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
     int                     status = 0;
     d_list_node             *protect_d_node_orig = NULL,
                             *protect_d_node_new  = NULL;
-    struct RuleData_        *org_rule_ptr = NULL,
+    struct vrmr_rule        *org_rule_ptr = NULL,
                             *new_rule_ptr = NULL;
 
 
@@ -1716,7 +1716,7 @@ reload_rules(const int debuglvl, VuurmuurCtx *vctx, struct vrmr_regex *reg)
                             changed = 0;
     d_list_node             *new_node = NULL,
                             *old_node = NULL;
-    struct RuleData_        *new_rule_ptr = NULL,
+    struct vrmr_rule        *new_rule_ptr = NULL,
                             *org_rule_ptr = NULL;
     struct vrmr_zone        *new_zone_ptr = NULL;
     struct vrmr_service    *new_serv_ptr = NULL;

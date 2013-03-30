@@ -217,7 +217,7 @@ analyze_interface_rules(const int debuglvl,
                 struct vrmr_services *services,
                 struct vrmr_interfaces *interfaces)
 {
-    struct RuleData_        *rule_ptr = NULL;
+    struct vrmr_rule        *rule_ptr = NULL;
     d_list_node             *d_node = NULL,
                             *if_d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -272,7 +272,7 @@ analyze_interface_rules(const int debuglvl,
 int
 analyze_network_protect_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL,
                         *net_d_node = NULL;
     struct vrmr_zone    *zone_ptr = NULL;
@@ -329,7 +329,7 @@ analyze_network_protect_rules(const int debuglvl, struct vrmr_rules *rules, stru
 int
 analyze_normal_rules(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     unsigned int        rulescount = 0,
                         rulesfailedcount = 0;
     d_list_node         *d_node = NULL,
@@ -2430,7 +2430,7 @@ create_normal_rules(const int debuglvl,
                     char *forward_rules)
 {
     d_list_node         *d_node = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     char                active = 0;
     int                 rulescount = 0;
 

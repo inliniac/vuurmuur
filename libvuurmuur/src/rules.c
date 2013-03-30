@@ -166,7 +166,7 @@ determine_action(const int debuglvl, struct vuurmuur_config *cfg, char *query, c
  */
 int
 rules_analyze_rule( const int debuglvl,
-                    struct RuleData_ *rule_ptr,
+                    struct vrmr_rule *rule_ptr,
                     struct RuleCache_ *create,
                     struct vrmr_services *services,
                     struct vrmr_zones *zones,
@@ -710,7 +710,7 @@ vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, struct vrm
     FILE                *fp = NULL;
     int                 retval = 0;
     char                line[MAX_RULE_LENGTH] = "";
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     char                protect_warning_shown = FALSE;
     char                rule_name[32] = "";
     char                rules_found = FALSE;
@@ -915,7 +915,7 @@ vrmr_rules_init_list(const int debuglvl, struct vuurmuur_config *cfg, struct vrm
         -1: error
 */
 int
-vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr, struct vrmr_regex *reg)
+vrmr_rules_parse_line(const int debuglvl, char *line, struct vrmr_rule *rule_ptr, struct vrmr_regex *reg)
 {
     size_t  line_pos = 0,   // position in line
             var_pos = 0;    // position in varible
@@ -992,7 +992,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
         /*
             get the who, or 'against'
         */
-        for(line_pos++, var_pos = 0; var_pos < sizeof(RuleData.who) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+        for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->who) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
         {
             rule_ptr->who[var_pos] = line[line_pos];
         }
@@ -1017,7 +1017,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
             /*
                 okay, now lets see what kind of danger we are talking about
             */
-            for(line_pos++, var_pos = 0; var_pos < sizeof(RuleData.danger) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+            for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->danger) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
             {
                 rule_ptr->danger[var_pos] = line[line_pos];
             }
@@ -1064,7 +1064,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
             /*
                 okay, now lets see what kind of danger we are talking about
             */
-            for(line_pos++, var_pos = 0; var_pos < sizeof(RuleData.danger) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+            for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->danger) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
             {
                 rule_ptr->danger[var_pos] = line[line_pos];
             }
@@ -1102,7 +1102,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
                 /*
                     get the source
                 */
-                for(line_pos++, var_pos = 0; var_pos < sizeof(RuleData.source) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+                for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->source) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
                 {
                     rule_ptr->source[var_pos] = line[line_pos];
                 }
@@ -1129,7 +1129,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
                 first check for the keyword 'service'
             */
             for(line_pos++, var_pos = 0;
-                    var_pos < sizeof(RuleData.service) &&
+                    var_pos < sizeof(rule_ptr->service) &&
                     line[line_pos] != ' ' &&
                     line[line_pos] != '\0' &&
                     line[line_pos] != '\n' &&
@@ -1153,7 +1153,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
                 get the service itself
             */
             for(line_pos++, var_pos = 0;
-                    var_pos < sizeof(RuleData.service) &&
+                    var_pos < sizeof(rule_ptr->service) &&
                     line[line_pos] != ' ' &&
                     line[line_pos] != '\0' &&
                     line[line_pos] != '\n' &&
@@ -1186,7 +1186,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
                 first check for the keyword 'from'
             */
             for(line_pos++, var_pos = 0;
-                    var_pos < sizeof(RuleData.from) &&
+                    var_pos < sizeof(rule_ptr->from) &&
                     line[line_pos] != ' ' &&
                     line[line_pos] != '\0' &&
                     line[line_pos] != '\n' &&
@@ -1210,7 +1210,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
                 get the from itself
             */
             for(line_pos++, var_pos = 0;
-                    var_pos < sizeof(RuleData.from) &&
+                    var_pos < sizeof(rule_ptr->from) &&
                     line[line_pos] != ' ' &&
                     line[line_pos] != '\0' &&
                     line[line_pos] != '\n' &&
@@ -1249,7 +1249,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
                 first check for the keyword 'to'
             */
             for(line_pos++, var_pos = 0;
-                    var_pos < sizeof(RuleData.to) &&
+                    var_pos < sizeof(rule_ptr->to) &&
                     line[line_pos] != ' ' &&
                     line[line_pos] != '\0' &&
                     line[line_pos] != '\n' &&
@@ -1273,7 +1273,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
                 get to
             */
             for(line_pos++, var_pos = 0;
-                    var_pos < sizeof(RuleData.to) &&
+                    var_pos < sizeof(rule_ptr->to) &&
                     line[line_pos] != ' ' &&
                     line[line_pos] != '\0' &&
                     line[line_pos] != '\n' &&
@@ -1393,7 +1393,7 @@ vrmr_rules_parse_line(const int debuglvl, char *line, struct RuleData_ *rule_ptr
     returns a pointer to the assembled line
 */
 char *
-rules_assemble_rule(const int debuglvl, struct RuleData_ *rule_ptr)
+rules_assemble_rule(const int debuglvl, struct vrmr_rule *rule_ptr)
 {
     char    *line = NULL,
             buf[512] = "",
@@ -1490,7 +1490,7 @@ rules_write_file(const int debuglvl, const struct vuurmuur_config *cnf, struct v
     int                 retval = 0;
     d_list_node         *d_node = NULL;
     char                *line = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
 
     /* safety */
     if(rulesfile_location == NULL || rules == NULL)
@@ -1557,7 +1557,7 @@ rules_save_list(const int debuglvl, struct vrmr_rules *rules, struct vuurmuur_co
     char                *line = NULL,
                         eline[1024] = "";
     d_list_node         *d_node = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     char                overwrite = FALSE;
 
 
@@ -1660,7 +1660,7 @@ int
 rules_cleanup_list(const int debuglvl, struct vrmr_rules *rules)
 {
     d_list_node         *d_node = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
 
 
     /* safety */
@@ -1711,9 +1711,9 @@ rules_cleanup_list(const int debuglvl, struct vrmr_rules *rules)
         -1: error
 */
 int
-rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned int place, struct RuleData_ *rule_ptr)
+rules_insert_list(const int debuglvl, struct vrmr_rules *rules, unsigned int place, struct vrmr_rule *rule_ptr)
 {
-    struct RuleData_    *listrule_ptr = NULL;
+    struct vrmr_rule    *listrule_ptr = NULL;
     int                 retval = 0;
     d_list_node         *d_node = NULL;
 
@@ -2437,10 +2437,10 @@ rules_compare_options(const int debuglvl, struct vrmr_rule_options *old_opt, str
     TODO: compare active
 */
 void *
-search_rule(const int debuglvl, struct vrmr_rules *rules, struct RuleData_ *searchrule_ptr)
+search_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_rule *searchrule_ptr)
 {
     d_list_node         *d_node = NULL;
-    struct RuleData_    *listrule_ptr = NULL;
+    struct vrmr_rule    *listrule_ptr = NULL;
 
     /* safety */
     if(!rules || !searchrule_ptr)
@@ -3351,10 +3351,10 @@ rules_actiontoi(const char *action)
 }
 
 
-struct RuleData_ *
+struct vrmr_rule *
 rules_create_protect_rule(const int debuglvl, char *action, /*@null@*/ char *who, char *danger, /*@null@*/ char *source)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
 
     /* safety */
     if(!danger || !action)
@@ -3475,7 +3475,7 @@ rules_chain_in_list(const int debuglvl, d_list *list, char *chainname)
 int
 rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
     char                *str = NULL;
     size_t              size = 0;
@@ -3797,7 +3797,7 @@ rules_decode_rule(const int debuglvl, char *rulestr, size_t size)
          else the ruletype
 */
 int
-rules_determine_ruletype(const int debuglvl, struct RuleData_ *rule_ptr)
+rules_determine_ruletype(const int debuglvl, struct vrmr_rule *rule_ptr)
 {
     int ruletype;
 
@@ -3870,7 +3870,7 @@ rules_determine_ruletype(const int debuglvl, struct RuleData_ *rule_ptr)
 int
 rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, unsigned int place, int updatenumbers)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
 
 
@@ -3958,7 +3958,7 @@ rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, unsign
 void
 rules_update_numbers(const int debuglvl, struct vrmr_rules *rules, unsigned int place, int action)
 {
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
     unsigned int        i = 0;
 
@@ -3999,7 +3999,7 @@ void
 rules_print_list(const struct vrmr_rules *rules)
 {
     d_list_node         *d_node = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
 
     for(d_node = rules->list.top; d_node ; d_node = d_node->next)
     {

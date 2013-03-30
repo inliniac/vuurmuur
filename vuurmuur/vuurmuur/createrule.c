@@ -4669,7 +4669,7 @@ create_interface_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, IptCap *i
     struct RuleCache_       *create = NULL;
     d_list_node             *d_node = NULL,
                             *if_d_node = NULL;
-    struct RuleData_        *rule_ptr = NULL;
+    struct vrmr_rule        *rule_ptr = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
 
     /* safety */
@@ -5158,7 +5158,7 @@ create_network_protect_rules(const int debuglvl, /*@null@*/RuleSet *ruleset, str
     struct RuleCache_ *create = NULL;
     d_list_node *d_node = NULL, *net_d_node = NULL, *from_if_node = NULL;
     struct vrmr_zone *zone_ptr = NULL;
-    struct RuleData_ *rule_ptr = NULL;
+    struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_interface *from_if_ptr = NULL;
 
     /* safety */
@@ -5363,7 +5363,7 @@ create_estrelnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
     char                cmd[MAX_PIPE_COMMAND] = "";
     d_list_node         *d_node = NULL;
     int                 retval = 0;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     u_int16_t           queue_num = 0;
     char                queues[65536/8];
 
@@ -5445,7 +5445,7 @@ create_newnfqueue_rules(const int debuglvl, /*@null@*/RuleSet *ruleset,
     char cmd[MAX_PIPE_COMMAND] = "";
     d_list_node *d_node = NULL;
     int retval = 0;
-    struct RuleData_ *rule_ptr = NULL;
+    struct vrmr_rule *rule_ptr = NULL;
     u_int16_t queue_num = 0;
     char queues[65536/8];
 

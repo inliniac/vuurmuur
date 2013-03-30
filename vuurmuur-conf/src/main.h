@@ -311,7 +311,7 @@ int rules_form(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_
 int delete_rule(const int, struct vrmr_rules *, unsigned int, int);
 int insert_new_rule(const int, struct vrmr_rules *, unsigned int, const char *);
 int edit_rule(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, unsigned int, struct vrmr_regex *);
-int edit_rule_normal(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct RuleData_ *, unsigned int, struct vrmr_regex *);
+int edit_rule_normal(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *, unsigned int, struct vrmr_regex *);
 char *VrShapeUnitMenu(const int, char *, int, int, char);
 
 

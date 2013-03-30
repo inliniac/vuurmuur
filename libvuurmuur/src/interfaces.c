@@ -867,7 +867,7 @@ int
 interfaces_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     d_list_node         *d_node = NULL;
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     char                rule_str[MAX_RULE_LENGTH] = "";
 
     /* safety */
@@ -935,7 +935,7 @@ vrmr_new_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char 
 {
     int                     result = 0;
     struct vrmr_interface   *iface_ptr = NULL;
-    struct RuleData_        *rule_ptr = NULL;
+    struct vrmr_rule        *rule_ptr = NULL;
 
 
     /* safety */
@@ -1720,7 +1720,7 @@ vrmr_destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfac
  */
 int
 vrmr_interfaces_analyze_rule(const int debuglvl,
-            struct RuleData_ *rule_ptr,
+            struct vrmr_rule *rule_ptr,
             struct RuleCache_ *create,
             struct vrmr_interfaces *interfaces,
             struct vuurmuur_config *cnf)
@@ -1825,7 +1825,7 @@ vrmr_interfaces_analyze_rule(const int debuglvl,
         -1: error
 */
 int
-interfaces_rule_parse_line(const int debuglvl, const char *line, struct RuleData_ *rule_ptr)
+interfaces_rule_parse_line(const int debuglvl, const char *line, struct vrmr_rule *rule_ptr)
 {
     size_t  line_pos = 0,   /* position in line */
             var_pos = 0;    /* position in varible */
@@ -1887,7 +1887,7 @@ interfaces_rule_parse_line(const int debuglvl, const char *line, struct RuleData
         /*
             okay, now lets see what kind of danger we are talking about
         */
-        for(line_pos++, var_pos = 0; var_pos < sizeof(RuleData.danger) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+        for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->danger) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
         {
             rule_ptr->danger[var_pos] = line[line_pos];
         }
@@ -1913,7 +1913,7 @@ int
 interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
 {
     char                currule[MAX_RULE_LENGTH] = "";
-    struct RuleData_    *rule_ptr = NULL;
+    struct vrmr_rule    *rule_ptr = NULL;
     d_list_node         *d_node = NULL;
 
 
