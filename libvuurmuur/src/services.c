@@ -230,7 +230,7 @@ search_service(const int debuglvl, const struct vrmr_services *services, char *s
 
     This function takes the service 'sername', and reads the info from the service.
     It ask the data from 'ask_backend', and then analyses it, splits it and puts them into the
-    'ServicesData_' structure.
+    'struct vrmr_service_' structure.
 
     Returncodes:
          0: succes

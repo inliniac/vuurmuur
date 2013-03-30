@@ -779,8 +779,7 @@ struct vrmr_zone {
 /*
     this is our structure for the services data
 */
-typedef struct vrmr_service
-{
+struct vrmr_service {
     int     type;               /* this should always be on top */
 
     char    name[MAX_SERVICE];
@@ -795,7 +794,7 @@ typedef struct vrmr_service
     d_list  PortrangeList;
 
     char    broadcast;          /* 1: broadcasting service, 0: not */
-} ServicesData;
+};
 
 
 struct vrmr_rules_chaincount
@@ -849,7 +848,7 @@ struct RuleCache_
 
     struct vrmr_danger_info  danger;
 
-    ServicesData        *service;           /* pointer to the service in the services-linked-list */
+    struct vrmr_service        *service;           /* pointer to the service in the services-linked-list */
 
     struct vrmr_rule_options      option;
 
