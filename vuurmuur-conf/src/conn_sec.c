@@ -615,6 +615,10 @@ conn_ct_get_connections(const int debuglvl, struct vrmr_config *cnf, Conntrack *
         return(-1);
     }
 
+#ifdef IPV6_ENABLED
+    req->ipv6 = 1;
+#endif
+
     /* get the connections from the proc */
     if(vrmr_conn_get_connections(debuglvl, cnf, ct->prev_list_size,
             &ct->service_hash, &ct->zone_hash,

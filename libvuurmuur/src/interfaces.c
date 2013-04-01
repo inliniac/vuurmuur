@@ -307,7 +307,6 @@ vrmr_interface_check_devicename(const int debuglvl, char *devicename)
     return(1);
 }
 
-#ifdef IPV6_ENABLED
 /** \brief See if an interface is IPv6-enabled.
  *  \retval 1 yes
  *  \retval 0 no
@@ -319,7 +318,6 @@ vrmr_interface_ipv6_enabled(const int debuglvl, struct vrmr_interface *iface_ptr
     }
     return 0;
 }
-#endif
 
 /*  vrmr_read_interface_info
 
@@ -485,7 +483,6 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
         return(-1);
     }
 
-#ifdef IPV6_ENABLED
     /* ask the ipv6 address of this interface */
     result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "IPV6ADDRESS", iface_ptr->ipv6.ip6, sizeof(iface_ptr->ipv6.ip6), VRMR_TYPE_INTERFACE, 0);
     if(result == 1)
@@ -513,7 +510,6 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
                 __FUNC__, __LINE__);
         return(-1);
     }
-#endif /* IPV6_ENABLED */
 
     /* lookup if we need shaping */
     result = af->ask(debuglvl, ifac_backend, iface_ptr->name, "SHAPE", yesno, sizeof(yesno), VRMR_TYPE_INTERFACE, 0);

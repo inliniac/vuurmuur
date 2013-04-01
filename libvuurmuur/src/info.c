@@ -60,7 +60,6 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
                 we do this after check_ip because otherwise check_ip would not work */
             strcpy(answer_ptr->ipv4.netmask, "255.255.255.255");
 
-#ifdef IPV6_ENABLED
             /* ask the ipaddress for this host */
             result = zf->ask(debuglvl, zone_backend, name, "IPV6ADDRESS", answer_ptr->ipv6.ip6, sizeof(answer_ptr->ipv6.ip6), VRMR_TYPE_HOST, 0);
             if(result < 0)
@@ -75,7 +74,6 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
                     we do this after check_ip because otherwise check_ip would not work */
                 answer_ptr->ipv6.cidr6 = 128;
             }
-#endif
             break;
 
         case VRMR_TYPE_NETWORK:
@@ -116,7 +114,6 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
                 }
             }
 
-#ifdef IPV6_ENABLED
             result = zf->ask(debuglvl, zone_backend, name, "IPV6NETWORK", answer_ptr->ipv6.net6, sizeof(answer_ptr->ipv6.net6), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
@@ -142,7 +139,6 @@ vrmr_get_ip_info(const int debuglvl, char *name, struct vrmr_zone *answer_ptr, s
                         "'%s', must be in range 0-128.", answer_ptr->name);
                 answer_ptr->active = 0;
             }
-#endif
             break;
 
         default:

@@ -63,63 +63,6 @@
 #define VR_INFO         "Info"
 #define VR_WARN         "Warning"
 
-struct vrmr_log_record
-{
-    char            month[4];
-    int             day;
-
-    int             hour;
-    int             minute;
-    int             second;
-
-    char            hostname[HOST_NAME_MAX];
-    char            logger[32];
-
-    char            action[16];
-
-    char            logprefix[32];
-
-    char            interface_in[16];
-    char            interface_out[16];
-
-#ifndef IPV6_ENABLED
-    char            src_ip[16];
-    char            dst_ip[16];
-#else
-    char            src_ip[46];
-    char            dst_ip[46];
-    int             ipv6;
-#endif /* IPV6_ENABLED */
-
-    int             protocol;
-    int             src_port;
-    int             dst_port;
-    int             icmp_type;
-    int             icmp_code;
-
-    char            src_mac[20]; /* 17 for mac addr, 2 for brackets, 1 for \0 */
-    char            dst_mac[20];
-
-    unsigned int    packet_len; /* length of the logged packet */
-
-    char            syn;        /* is syn-bit set? 0: no, 1: yes */
-    char            fin;        /* is fin-bit set? 0: no, 1: yes */
-    char            rst;        /* is rst-bit set? 0: no, 1: yes */
-    char            ack;        /* is ack-bit set? 0: no, 1: yes */
-    char            psh;        /* is psh-bit set? 0: no, 1: yes */
-    char            urg;        /* is urg-bit set? 0: no, 1: yes */
-
-    unsigned int    ttl;
-
-    char            from_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
-    char            to_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
-    char            ser_name[VRMR_MAX_SERVICE];
-    char            from_int[VRMR_MAX_INTERFACE+5];  /* 'in: ' */
-    char            to_int[VRMR_MAX_INTERFACE+6];    /* 'out: ' */
-
-    char            tcpflags[7];
-};
-
 
 int reopen_logfiles(const int, FILE **, FILE **);
 int open_logfiles(const int, const struct vrmr_config *cnf, FILE **, FILE **);

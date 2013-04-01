@@ -2513,13 +2513,11 @@ vrmr_conn_get_connections(   const int debuglvl,
         retval = vrmr_conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
                 serv_hash, zone_hash, conn_dlist, zone_list,
                 req, connstat_ptr, VRMR_IPV4);
-#ifdef IPV6_ENABLED
-        if (retval == 0) {
+        if (retval == 0 && req->ipv6) {
             retval = vrmr_conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
                     serv_hash, zone_hash, conn_dlist, zone_list,
                     req, connstat_ptr, VRMR_IPV6);
         }
-#endif
     } else {
         retval = vrmr_conn_get_connections_proc(debuglvl, cnf, prev_conn_cnt,
                 serv_hash, zone_hash, conn_dlist, zone_list,

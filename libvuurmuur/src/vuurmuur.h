@@ -109,10 +109,8 @@
 #define VRMR_DEFAULT_SYSCTL_LOCATION         "/sbin/sysctl"
 #define VRMR_DEFAULT_IPTABLES_LOCATION       "/sbin/iptables"
 #define VRMR_DEFAULT_IPTABLES_REST_LOCATION  "/sbin/iptables-restore"
-#ifdef IPV6_ENABLED
 #define VRMR_DEFAULT_IP6TABLES_LOCATION      "/sbin/ip6tables"
 #define VRMR_DEFAULT_IP6TABLES_REST_LOCATION "/sbin/ip6tables-restore"
-#endif
 #define VRMR_DEFAULT_RULES_LOCATION          "rules.conf"
 #define VRMR_DEFAULT_LOGDIR_LOCATION         "/var/log/vuurmuur"
 #define VRMR_DEFAULT_SYSTEMLOG_LOCATION      "/var/log/messages"
@@ -386,6 +384,7 @@ struct vrprint_
     int(*audit)(char *fmt, ...);
     char *auditlog;
 };
+
 struct vrprint_ vrprint;
 #define vrmr_error (void)vrprint.error
 #define vrmr_warning (void)vrprint.warning
@@ -409,12 +408,12 @@ struct vrmr_config
     char            sysctl_location[128];
     char            iptables_location[128];
     char            iptablesrestore_location[128];
-#ifdef IPV6_ENABLED
+
     char            ip6tables_location[128];
     char            ip6tablesrestore_location[128];
     /** Fail when there is an error with IPv6 configuration, when set to TRUE */
     char            check_ipv6;
-#endif
+
     char            conntrack_location[128];
     char            tc_location[128];
 
@@ -568,14 +567,12 @@ struct vrmr_ipv4_data
     char    broadcast[16];            //16 should be enough for a netmask
 };
 
-#ifdef IPV6_ENABLED
 struct vrmr_ipv6_data
 {
     char ip6[VRMR_MAX_IPV6_ADDR_LEN];    /* host ip-address */
     char net6[VRMR_MAX_IPV6_ADDR_LEN];   /* network address string */
     int cidr6;                      /* CIDR: -1 unitialized, 0-128 are valid masks */
 };
-#endif
 
 /* rule options */
 struct vrmr_rule_options
@@ -702,9 +699,7 @@ struct vrmr_interface
 
     /* the ipaddress */
     struct vrmr_ipv4_data ipv4;
-#ifdef IPV6_ENABLED
     struct vrmr_ipv6_data ipv6;
-#endif
 
     /*  is a ipaddress dynamic?
         0: no
@@ -768,9 +763,7 @@ struct vrmr_zone {
     struct vrmr_zone    *network_parent;
 
     struct vrmr_ipv4_data ipv4;
-#ifdef IPV6_ENABLED
     struct vrmr_ipv6_data ipv6;
-#endif
 
     /* TODO: 18 is enough: 00:20:1b:10:1D:0F = 17 + '\0' = 18. */
     char                mac[19];
@@ -1041,6 +1034,7 @@ struct vrmr_conntrack_request
 
     char        draw_acc_data;
     char        draw_details;
+    char        ipv6;
 };
 
 
@@ -1099,7 +1093,6 @@ struct vrmr_iptcaps {
 
     char    target_nat_random;
 
-#ifdef IPV6_ENABLED
     /* IPv6 */
     char    proc_net_ip6_names;
     char    proc_net_ip6_matches;
@@ -1144,7 +1137,6 @@ struct vrmr_iptcaps {
     char    match_ip6_connmark;
     char    match_ip6_conntrack;
     char    match_ip6_rpfilter;
-#endif
 };
 
 struct vrmr_ctx {
@@ -1298,6 +1290,58 @@ struct vrmr_user {
 
     uid_t   realuser;
     char    realusername[32];
+};
+
+struct vrmr_log_record
+{
+    char            month[4];
+    int             day;
+
+    int             hour;
+    int             minute;
+    int             second;
+
+    char            hostname[HOST_NAME_MAX];
+    char            logger[32];
+
+    char            action[16];
+
+    char            logprefix[32];
+
+    char            interface_in[16];
+    char            interface_out[16];
+
+    char            src_ip[46];
+    char            dst_ip[46];
+    int             ipv6;
+
+    int             protocol;
+    int             src_port;
+    int             dst_port;
+    int             icmp_type;
+    int             icmp_code;
+
+    char            src_mac[20]; /* 17 for mac addr, 2 for brackets, 1 for \0 */
+    char            dst_mac[20];
+
+    unsigned int    packet_len; /* length of the logged packet */
+
+    char            syn;        /* is syn-bit set? 0: no, 1: yes */
+    char            fin;        /* is fin-bit set? 0: no, 1: yes */
+    char            rst;        /* is rst-bit set? 0: no, 1: yes */
+    char            ack;        /* is ack-bit set? 0: no, 1: yes */
+    char            psh;        /* is psh-bit set? 0: no, 1: yes */
+    char            urg;        /* is urg-bit set? 0: no, 1: yes */
+
+    unsigned int    ttl;
+
+    char            from_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char            to_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char            ser_name[VRMR_MAX_SERVICE];
+    char            from_int[VRMR_MAX_INTERFACE+5];  /* 'in: ' */
+    char            to_int[VRMR_MAX_INTERFACE+6];    /* 'out: ' */
+
+    char            tcpflags[7];
 };
 
 
@@ -1496,6 +1540,10 @@ int vrmr_logstdoutprint_audit(char *fmt, ...);
 int vrmr_logstdoutprint_warning(char *head, char *fmt, ...);
 int vrmr_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...);
 
+int vrmr_log_record_build_line(const int debuglvl, struct vrmr_log_record *log_record, char *outline, size_t size);
+int vrmr_log_record_get_names(const int debuglvl, struct vrmr_log_record *log_record,
+        struct vrmr_hash_table *zone_hash, struct vrmr_hash_table *service_hash);
+
 /*
     io.c
 */
@@ -1522,10 +1570,8 @@ int vrmr_config_check_logdir(const int debuglvl, const char *logdir);
 int vrmr_config_check_vuurmuurdir(const int debuglvl, const struct vrmr_config *, const char *logdir);
 int vrmr_check_iptables_command(const int, struct vrmr_config *, char *, char);
 int vrmr_check_iptablesrestore_command(const int, struct vrmr_config *, char *, char);
-#ifdef IPV6_ENABLED
 int vrmr_check_ip6tables_command(const int, struct vrmr_config *, char *, char);
 int vrmr_check_ip6tablesrestore_command(const int, struct vrmr_config *, char *, char);
-#endif
 int vrmr_check_tc_command(const int, struct vrmr_config *, char *, char);
 int vrmr_init_config(const int, struct vrmr_config *cnf);
 int vrmr_reload_config(const int, struct vrmr_config *);
@@ -1568,9 +1614,7 @@ int vrmr_interfaces_iface_up(const int, struct vrmr_interface *);
 int vrmr_interfaces_analyze_rule(const int, struct vrmr_rule *, struct vrmr_rule_cache *, struct vrmr_interfaces *, struct vrmr_config *);
 int vrmr_interfaces_rule_parse_line(const int, const char *, struct vrmr_rule *);
 int vrmr_interface_check_devicename(const int, char *);
-#ifdef IPV6_ENABLED
 int vrmr_interface_ipv6_enabled(const int, struct vrmr_interface *);
-#endif
 
 /*
     icmp.c
@@ -1613,10 +1657,8 @@ int vrmr_list_cleanup(int debuglvl, struct vrmr_list *);
 */
 int vrmr_load_iptcaps(const int, struct vrmr_config *, struct vrmr_iptcaps *, char);
 int vrmr_check_iptcaps(const int, struct vrmr_config *, /*@out@*/ struct vrmr_iptcaps *, char);
-#ifdef IPV6_ENABLED
 int vrmr_load_ip6tcaps(const int, struct vrmr_config *, struct vrmr_iptcaps *, char);
 int vrmr_check_ip6tcaps(const int, struct vrmr_config *, /*@out@*/ struct vrmr_iptcaps *, char);
-#endif
 
 
 /*

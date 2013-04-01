@@ -276,7 +276,6 @@ vrmr_check_iptablesrestore_command(const int debuglvl, struct vrmr_config *cnf, 
  \retval 0 The location was not valid (or not filled)
  \retval 1 The location seems to be correct
 */
-#ifdef IPV6_ENABLED
 int
 vrmr_check_ip6tables_command(const int debuglvl, struct vrmr_config *cnf, char *ip6tables_location, char quiet)
 {
@@ -346,7 +345,6 @@ vrmr_check_ip6tablesrestore_command(const int debuglvl, struct vrmr_config *cnf,
 
     return(1);
 }
-#endif
 
 /*
 */
@@ -1445,7 +1443,6 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
     vrmr_sanitize_path(debuglvl, cnf->iptablesrestore_location, sizeof(cnf->iptablesrestore_location));
 
-#ifdef IPV6_ENABLED
     result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "IP6TABLES", cnf->ip6tables_location, cnf->configfile, sizeof(cnf->ip6tables_location));
     if(result == 1)
     {
@@ -1492,7 +1489,6 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
     vrmr_sanitize_path(debuglvl, cnf->ip6tablesrestore_location, sizeof(cnf->ip6tablesrestore_location));
-#endif
 
     result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "CONNTRACK", cnf->conntrack_location, cnf->configfile, sizeof(cnf->conntrack_location));
     if(result == 1)
@@ -1767,7 +1763,7 @@ vrmr_reload_config(const int debuglvl, struct vrmr_config *old_cnf)
     }
 
     /* some initilization */
-    if(pre_vrmr_init_config(&new_cnf) < 0)
+    if(vrmr_pre_init_config(&new_cnf) < 0)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
     /* loglevel can be overrided by commandline */
@@ -1977,12 +1973,12 @@ vrmr_write_configfile(const int debuglvl, char *file_location, struct vrmr_confi
     fprintf(fp, "IPTABLES=\"%s\"\n\n", cfg->iptables_location);
     fprintf(fp, "# Location of the iptables-restore-command (full path).\n");
     fprintf(fp, "IPTABLES_RESTORE=\"%s\"\n\n", cfg->iptablesrestore_location);
-#ifdef IPV6_ENABLED
+
     fprintf(fp, "# Location of the ip6tables-command (full path).\n");
     fprintf(fp, "IP6TABLES=\"%s\"\n\n", cfg->ip6tables_location);
     fprintf(fp, "# Location of the ip6tables-restore-command (full path).\n");
     fprintf(fp, "IP6TABLES_RESTORE=\"%s\"\n\n", cfg->ip6tablesrestore_location);
-#endif
+
     fprintf(fp, "# Location of the conntrack-command (full path).\n");
     fprintf(fp, "CONNTRACK=\"%s\"\n\n", cfg->conntrack_location);
     fprintf(fp, "# Location of the tc-command (full path).\n");
@@ -2163,7 +2159,7 @@ br_extract_prefix (const char *path)
 }
 
 int
-pre_vrmr_init_config(struct vrmr_config *cnf)
+vrmr_pre_init_config(struct vrmr_config *cnf)
 {
     /* safety */
     if(cnf == NULL)
@@ -2223,18 +2219,27 @@ pre_vrmr_init_config(struct vrmr_config *cnf)
 int vrmr_init(struct vrmr_config *cnf, char *toolname) {
     struct vrmr_user user_data;
     int debuglvl = 0;
-    vrmr_user_get_info(debuglvl, &user_data);
 
-    if (pre_vrmr_init_config(cnf) < 0)
+    cnf->vrprint.logger = toolname;
+    cnf->vrprint.error = vrmr_stdoutprint_error;
+    cnf->vrprint.warning = vrmr_stdoutprint_warning;
+    cnf->vrprint.info = vrmr_stdoutprint_info;
+    cnf->vrprint.debug = vrmr_stdoutprint_debug;
+    cnf->vrprint.audit = vrmr_stdoutprint_audit;
+
+    vrprint.logger = toolname;
+    vrprint.error = vrmr_stdoutprint_error;
+    vrprint.warning = vrmr_stdoutprint_warning;
+    vrprint.info = vrmr_stdoutprint_info;
+    vrprint.debug = vrmr_stdoutprint_debug;
+    vrprint.audit = vrmr_stdoutprint_audit;
+
+    if (vrmr_pre_init_config(cnf) < 0)
         return(-1);
 
-    cnf->vrprint.logger = vrprint.logger = toolname;
-    cnf->vrprint.error = vrprint.error = vrmr_stdoutprint_error;
-    cnf->vrprint.warning = vrprint.warning = vrmr_stdoutprint_warning;
-    cnf->vrprint.info = vrprint.info = vrmr_stdoutprint_info;
-    cnf->vrprint.debug = vrprint.debug = vrmr_stdoutprint_debug;
-    cnf->vrprint.username = vrprint.username = user_data.realusername;
-    cnf->vrprint.audit = vrprint.audit = vrmr_stdoutprint_audit;
+    vrmr_user_get_info(debuglvl, &user_data);
+    cnf->vrprint.username = strdup(user_data.realusername);
+    vrprint.username = strdup(user_data.realusername);
 
     /* init plugin list */
     vrmr_list_setup(debuglvl, &vrmr_plugin_list, NULL);
@@ -2243,9 +2248,13 @@ int vrmr_init(struct vrmr_config *cnf, char *toolname) {
 
 void vrmr_enable_logprint(struct vrmr_config *cnf) {
     cnf->vrprint.error = vrprint.error = vrmr_logprint_error;
+    cnf->vrprint.errorlog = vrprint.errorlog;
     cnf->vrprint.warning = vrprint.warning = vrmr_logprint_warning;
     cnf->vrprint.info = vrprint.info = vrmr_logprint_info;
+    cnf->vrprint.infolog = vrprint.infolog;
     cnf->vrprint.debug = vrprint.debug = vrmr_logprint_debug;
+    cnf->vrprint.debuglog = vrprint.debuglog;
     cnf->vrprint.audit = vrprint.audit = vrmr_logprint_audit;
+    cnf->vrprint.auditlog = vrprint.auditlog;
 }
 

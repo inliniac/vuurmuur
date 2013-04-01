@@ -82,9 +82,7 @@ vrmr_zone_malloc(const int debuglvl)
     /* initialize */
     memset(zone_ptr, 0, sizeof(struct vrmr_zone));
 
-#ifdef IPV6_ENABLED
     zone_ptr->ipv6.cidr6 = -1;
-#endif
 
     zone_ptr->GroupList.len = 0;
     if(vrmr_list_setup(debuglvl, &zone_ptr->GroupList, NULL) < 0)
@@ -158,9 +156,7 @@ vrmr_interface_malloc(const int debuglvl)
     }
 
     memset(iface_ptr, 0, sizeof(struct vrmr_interface));
-#ifdef IPV6_ENABLED
     iface_ptr->ipv6.cidr6 = -1;
-#endif
     iface_ptr->type = VRMR_TYPE_INTERFACE;
 
     iface_ptr->active = TRUE;

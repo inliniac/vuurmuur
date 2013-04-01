@@ -3569,10 +3569,8 @@ vrmr_rules_get_system_chains_per_table(const int debuglvl, char *tablename,
         snprintf(cmd, sizeof(cmd), "%s -t %s -nL",
                 cnf->iptables_location, tablename);
     } else {
-#ifdef IPV6_ENABLED
         snprintf(cmd, sizeof(cmd), "%s -t %s -nL",
                 cnf->ip6tables_location, tablename);
-#endif
     }
 
     /* open the pipe to the command */

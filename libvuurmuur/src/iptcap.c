@@ -295,7 +295,6 @@ iptcap_get_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
     return(0);
 }
 
-#ifdef IPV6_ENABLED
 static int
 iptcap_get_ip6_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
 {
@@ -368,7 +367,6 @@ iptcap_get_ip6_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
 
     return(0);
 }
-#endif
 
 static int
 iptcap_create_test_mangle_chain(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
@@ -1495,7 +1493,6 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
     return(0);
 }
 
-#ifdef IPV6_ENABLED
 int
 vrmr_check_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptcaps *iptcap, char load_modules)
 {
@@ -2124,5 +2121,4 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
     return(0);
 
 }
-#endif
 

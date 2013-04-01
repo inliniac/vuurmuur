@@ -2374,7 +2374,6 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
 }
 
 
-#ifdef IPV6_ENABLED
 /** \brief See if a host is IPv6-enabled.
  *  \retval 1 yes
  *  \retval 0 no
@@ -2402,5 +2401,4 @@ vrmr_zones_network_ipv6_enabled(const int debuglvl, struct vrmr_zone *network_pt
     }
     return 0;
 }
-#endif
 
