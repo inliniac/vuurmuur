@@ -1300,15 +1300,16 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
             iptcap->match_rpfilter = FALSE;
 
             result = iptcap_check_cap(debuglvl, cnf, proc_net_match, "rpfilter", "xt_rpfilter", load_modules);
-            if(result == 1) iptcap->match_rpfilter = TRUE;
-            else {
+            if(result == 1)
+                iptcap->match_rpfilter = TRUE;
+            else
                 iptcap->match_rpfilter = FALSE;
-
-                result = iptcap_test_filter_rpfilter_match(debuglvl, cnf, cnf->iptables_location);
-                if (result == 1)
-                    iptcap->match_rpfilter = TRUE;
-            }
         }
+        result = iptcap_test_filter_rpfilter_match(debuglvl, cnf, cnf->iptables_location);
+        if (result == 1)
+            iptcap->match_rpfilter = TRUE;
+        else
+            iptcap->match_rpfilter = FALSE;
     }
     else
     {
@@ -1968,20 +1969,22 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
 
         /* rpfilter match */
         result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "rpfilter", "ip6t_rpfilter", load_modules);
-        if(result == 1) iptcap->match_ip6_rpfilter = TRUE;
+        if(result == 1)
+            iptcap->match_ip6_rpfilter = TRUE;
         else {
             iptcap->match_ip6_rpfilter = FALSE;
 
             result = iptcap_check_cap(debuglvl, cnf, proc_net_ip6_match, "rpfilter", "xt_rpfilter", load_modules);
-            if(result == 1) iptcap->match_ip6_rpfilter = TRUE;
-            else {
+            if(result == 1)
+                iptcap->match_ip6_rpfilter = TRUE;
+            else
                 iptcap->match_ip6_rpfilter = FALSE;
-
-                result = iptcap_test_filter_rpfilter_match(debuglvl, cnf, cnf->ip6tables_location);
-                if (result == 1)
-                    iptcap->match_ip6_rpfilter = TRUE;
-            }
         }
+        result = iptcap_test_filter_rpfilter_match(debuglvl, cnf, cnf->ip6tables_location);
+        if (result == 1)
+            iptcap->match_ip6_rpfilter = TRUE;
+        else
+            iptcap->match_ip6_rpfilter = FALSE;
     }
     else
     {
