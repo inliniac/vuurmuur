@@ -103,59 +103,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
     /* Check first if this pkt comes from a vuurmuur logrule */
     prefix = nflog_get_prefix (nfa);
-    if (prefix != NULL && strlen(prefix) > 6) {
-        char *needle = strstr(prefix, "vrmr: ");
-        if (needle != NULL) {
-            needle+=6;
-
-            i = 0;
-            while (*needle != '\0' && *needle != ' ') {
-                if (i < (sizeof(log_record->action) - 1))
-                    log_record->action[i++] = *needle;
-
-                needle++;
-            }
-            log_record->action[i] = '\0';
-
-            if (strlen(log_record->action) == 0) {
-                strlcpy(log_record->action, "<unknown>",
-                        sizeof(log_record->action));
-            }
-
-            if (*needle != '\0') {
-                needle++;
-
-                /* skip leading spaces */
-                while (*needle != '\0' && *needle == ' ') {
-                    needle++;
-                }
-
-                i = 0;
-                while (*needle != '\0') {
-                    if (i < (sizeof(log_record->logprefix) - 1))
-                        log_record->logprefix[i++] = *needle;
-
-                    needle++;
-                }
-                log_record->logprefix[i] = '\0';
-            } else {
-                strlcpy(log_record->logprefix, "none",
-                        sizeof(log_record->logprefix));
-
-            }
-        } else {
-            strlcpy(log_record->action, "<unknown>",
-                    sizeof(log_record->action));
-            strlcpy(log_record->logprefix, "none",
-                    sizeof(log_record->logprefix));
-
-        }
-    } else {
-        strlcpy(log_record->action, "<exteral>",
-                sizeof(log_record->action));
-        strlcpy(log_record->logprefix, "none",
-                sizeof(log_record->logprefix));
-    }
+    vrmr_log_record_parse_prefix(&log_record, prefix);
 
     /* Copy hostname in log_rule struct, seems kind of silly to do this every time */
     if (gethostname (log_record->hostname, HOST_NAME_MAX) == -1) {

@@ -1543,6 +1543,7 @@ int vrmr_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...);
 int vrmr_log_record_build_line(const int debuglvl, struct vrmr_log_record *log_record, char *outline, size_t size);
 int vrmr_log_record_get_names(const int debuglvl, struct vrmr_log_record *log_record,
         struct vrmr_hash_table *zone_hash, struct vrmr_hash_table *service_hash);
+void vrmr_log_record_parse_prefix(struct vrmr_log_record *log_record, char *prefix);
 
 /*
     io.c

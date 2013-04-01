@@ -616,3 +616,63 @@ vrmr_log_record_build_line(const int debuglvl, struct vrmr_log_record *log_recor
     return (0);
 }
 
+void
+vrmr_log_record_parse_prefix(struct vrmr_log_record *log_record, char *prefix) {
+    char *needle;
+    int i;
+
+    if (prefix != NULL && strlen(prefix) > 6) {
+        needle = strstr(prefix, "vrmr: ");
+        if (needle != NULL) {
+            needle+=6;
+
+            i = 0;
+            while (*needle != '\0' && *needle != ' ') {
+                if (i < (sizeof(log_record->action) - 1))
+                    log_record->action[i++] = *needle;
+
+                needle++;
+            }
+            log_record->action[i] = '\0';
+
+            if (strlen(log_record->action) == 0) {
+                strlcpy(log_record->action, "<unknown>",
+                        sizeof(log_record->action));
+            }
+
+            if (*needle != '\0') {
+                needle++;
+
+                /* skip leading spaces */
+                while (*needle != '\0' && *needle == ' ') {
+                    needle++;
+                }
+
+                i = 0;
+                while (*needle != '\0') {
+                    if (i < (sizeof(log_record->logprefix) - 1))
+                        log_record->logprefix[i++] = *needle;
+
+                    needle++;
+                }
+                log_record->logprefix[i] = '\0';
+            } else {
+                strlcpy(log_record->logprefix, "none",
+                        sizeof(log_record->logprefix));
+
+            }
+        } else {
+            strlcpy(log_record->action, "<unknown>",
+                    sizeof(log_record->action));
+            strlcpy(log_record->logprefix, "none",
+                    sizeof(log_record->logprefix));
+
+        }
+    } else {
+        strlcpy(log_record->action, "<exteral>",
+                sizeof(log_record->action));
+        strlcpy(log_record->logprefix, "none",
+                sizeof(log_record->logprefix));
+    }
+}
+
