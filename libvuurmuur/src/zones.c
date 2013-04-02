@@ -356,7 +356,8 @@ vrmr_vrmr_insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
          0: succes
 */
 int
-vrmr_insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+vrmr_insert_zonedata(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones,
+        struct vrmr_interfaces *interfaces,
         char *name, int type, struct vrmr_regex *reg)
 {
     struct vrmr_zone    *zone_ptr = NULL;
@@ -377,7 +378,7 @@ vrmr_insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_i
     /*
         read the data for this zone
     */
-    if(vrmr_read_zonedata(debuglvl, zones, interfaces, name, type, zone_ptr, reg) < 0)
+    if (vrmr_read_zonedata(debuglvl, vctx, zones, interfaces, name, type, zone_ptr, reg) < 0)
     {
         free(zone_ptr);
         return(-1);
@@ -409,8 +410,9 @@ vrmr_insert_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_i
         -1: error
 */
 int
-vrmr_read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
-          char *name, int type, struct vrmr_zone *zone_ptr, struct vrmr_regex *reg)
+vrmr_read_zonedata(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones,
+        struct vrmr_interfaces *interfaces, char *name, int type,
+        struct vrmr_zone *zone_ptr, struct vrmr_regex *reg)
 {
     int     result = 0;
 
@@ -459,7 +461,7 @@ vrmr_read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
     }
 
     /* get the active */
-    result = vrmr_check_active(debuglvl, zone_ptr->name, zone_ptr->type);
+    result = vrmr_check_active(debuglvl, vctx, zone_ptr->name, zone_ptr->type);
     if(result == -1)
     {
         /* set false to be sure */
@@ -480,7 +482,7 @@ vrmr_read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
     {
         if(zone_ptr->type == VRMR_TYPE_NETWORK)
         {
-            result = vrmr_zones_network_get_interfaces(debuglvl, zone_ptr, interfaces);
+            result = vrmr_zones_network_get_interfaces(debuglvl, vctx, zone_ptr, interfaces);
             if(result < 0)
             {
                 vrmr_error(-1, "Internal Error",
@@ -489,7 +491,7 @@ vrmr_read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
                 return(-1);
             }
 
-            result = vrmr_zones_network_get_protectrules(debuglvl, zone_ptr);
+            result = vrmr_zones_network_get_protectrules(debuglvl, vctx, zone_ptr);
             if(result < 0)
             {
                 vrmr_error(-1, "Internal Error",
@@ -502,7 +504,7 @@ vrmr_read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
         /*
             get ip and mask
         */
-        result = vrmr_get_ip_info(debuglvl, name, zone_ptr, reg);
+        result = vrmr_get_ip_info(debuglvl, vctx, name, zone_ptr, reg);
         if(result != 0)
         {
             vrmr_error(-1, "Internal Error", "get_ip_info() "
@@ -513,7 +515,7 @@ vrmr_read_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
     else if(zone_ptr->type == VRMR_TYPE_GROUP)
     {
         /* get group info */
-        result = vrmr_get_group_info(debuglvl, zones, name, zone_ptr);
+        result = vrmr_get_group_info(debuglvl, vctx, zones, name, zone_ptr);
         if(result != 0)
         {
             vrmr_error(-1, "Internal Error", "vrmr_get_group_info() "
@@ -610,7 +612,8 @@ vrmr_zonedata_print_list(const struct vrmr_zones *zones)
         -1: error
 */
 int
-vrmr_init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
+vrmr_init_zonedata(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones,
+        struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     int     retval = 0,
             result = 0,
@@ -633,7 +636,7 @@ vrmr_init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
         return(-1);
 
     /* get the info from the backend */
-    while(zf->list(debuglvl, zone_backend, zonename, &zonetype, VRMR_BT_ZONES) != NULL)
+    while (vctx->zf->list(debuglvl, vctx->zone_backend, zonename, &zonetype, VRMR_BT_ZONES) != NULL)
     {
         if(debuglvl >= MEDIUM)
             vrmr_debug(__FUNC__, "loading zone: '%s', "
@@ -641,7 +644,7 @@ vrmr_init_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_int
 
         if(vrmr_validate_zonename(debuglvl, zonename, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
         {
-            result = vrmr_insert_zonedata(debuglvl, zones, interfaces, zonename, zonetype, reg);
+            result = vrmr_insert_zonedata(debuglvl, vctx, zones, interfaces, zonename, zonetype, reg);
             if(result < 0)
             {
                 vrmr_error(-1, "Internal Error",
@@ -692,7 +695,7 @@ vrmr_destroy_zonedatalist(const int debuglvl, struct vrmr_zones *zones)
 
 
 int
-vrmr_delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonetype)
+vrmr_delete_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones, char *zonename, int zonetype)
 {
     struct vrmr_zone        *zone_ptr = NULL,
                             *zone_list_ptr = NULL;
@@ -796,7 +799,7 @@ vrmr_delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, i
     }
 
     /* delete the zone from the backend */
-    if(zf->del(debuglvl, zone_backend, zonename, zonetype, 1) < 0)
+    if (vctx->zf->del(debuglvl, vctx->zone_backend, zonename, zonetype, 1) < 0)
     {
         vrmr_error(-1, "Internal Error", "zone '%s' could not "
                 "be deleted (in: %s:%d).", zonename, __FUNC__, __LINE__);
@@ -843,7 +846,7 @@ vrmr_delete_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, i
     TODO: the spliting of name is totally wacked
 */
 int
-vrmr_new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int zonetype)
+vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones, char *zonename, int zonetype)
 {
     struct vrmr_zone    *zone_ptr=NULL;
     size_t              dotcount=0,
@@ -983,7 +986,7 @@ vrmr_new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int 
 
 
     /* add the zone to the backend */
-    if(zf->add(debuglvl, zone_backend, zonename, zonetype) < 0)
+    if (vctx->zf->add(debuglvl, vctx->zone_backend, zonename, zonetype) < 0)
     {
         vrmr_error(-1, "Error", "Add to backend failed (in: vrmr_new_zone).");
         return(-1);
@@ -991,7 +994,7 @@ vrmr_new_zone(const int debuglvl, struct vrmr_zones *zones, char *zonename, int 
 
 
     /* set active */
-    if(zf->tell(debuglvl, zone_backend, zonename, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, zonetype) < 0)
+    if (vctx->zf->tell(debuglvl, vctx->zone_backend, zonename, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, zonetype) < 0)
     {
         vrmr_error(-1, "Error", "Tell backend failed (in: vrmr_new_zone).");
         return(-1);
@@ -1277,7 +1280,7 @@ vrmr_validate_zonename(const int debuglvl, const char *zonename, int onlyvalidat
         -1: error
 */
 int
-vrmr_zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
+vrmr_zones_group_save_members(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *group_ptr)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *member_ptr = NULL;
@@ -1300,7 +1303,7 @@ vrmr_zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
     if(group_ptr->GroupList.len == 0)
     {
         /* clear */
-        if(zf->tell(debuglvl, zone_backend, group_ptr->name, "MEMBER", "", 1, VRMR_TYPE_GROUP) < 0)
+        if (vctx->zf->tell(debuglvl, vctx->zone_backend, group_ptr->name, "MEMBER", "", 1, VRMR_TYPE_GROUP) < 0)
         {
             vrmr_error(-1, "Error", "saving to backend failed (in: %s).", __FUNC__);
             return(-1);
@@ -1320,7 +1323,7 @@ vrmr_zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
             if(d_node == group_ptr->GroupList.top)
             {
                 /* save to backend */
-                if(zf->tell(debuglvl, zone_backend, group_ptr->name, "MEMBER", member_ptr->host_name, 1, VRMR_TYPE_GROUP) < 0)
+                if (vctx->zf->tell(debuglvl, vctx->zone_backend, group_ptr->name, "MEMBER", member_ptr->host_name, 1, VRMR_TYPE_GROUP) < 0)
                 {
                     vrmr_error(-1, "Error", "saving to backend failed (in: %s).", __FUNC__);
                     return(-1);
@@ -1329,7 +1332,7 @@ vrmr_zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
             else
             {
                 /* save to backend */
-                if(zf->tell(debuglvl, zone_backend, group_ptr->name, "MEMBER", member_ptr->host_name, 0, VRMR_TYPE_GROUP) < 0)
+                if (vctx->zf->tell(debuglvl, vctx->zone_backend, group_ptr->name, "MEMBER", member_ptr->host_name, 0, VRMR_TYPE_GROUP) < 0)
                 {
                     vrmr_error(-1, "Error", "saving to backend failed (in: %s).", __FUNC__);
                     return(-1);
@@ -1343,7 +1346,7 @@ vrmr_zones_group_save_members(const int debuglvl, struct vrmr_zone *group_ptr)
 
 
 int
-vrmr_zones_group_rem_member(const int debuglvl, struct vrmr_zone *group_ptr, char *hostname)
+vrmr_zones_group_rem_member(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *group_ptr, char *hostname)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *member_ptr = NULL;
@@ -1388,7 +1391,7 @@ vrmr_zones_group_rem_member(const int debuglvl, struct vrmr_zone *group_ptr, cha
     }
 
     /* save the new group list */
-    if(vrmr_zones_group_save_members(debuglvl, group_ptr) < 0)
+    if(vrmr_zones_group_save_members(debuglvl, vctx, group_ptr) < 0)
     {
         vrmr_error(-1, "Error", "saveing the new grouplist to the backend failed (in: %s).", __FUNC__);
         return(-1);
@@ -1401,7 +1404,7 @@ vrmr_zones_group_rem_member(const int debuglvl, struct vrmr_zone *group_ptr, cha
 
 
 int
-vrmr_zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct vrmr_zone *group_ptr, char *hostname)
+vrmr_zones_group_add_member(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones, struct vrmr_zone *group_ptr, char *hostname)
 {
     struct vrmr_zone    *new_member_ptr = NULL,
                         *list_member_ptr = NULL;
@@ -1456,7 +1459,7 @@ vrmr_zones_group_add_member(const int debuglvl, struct vrmr_zones *zones, struct
     }
 
     /* save the new group list */
-    if(vrmr_zones_group_save_members(debuglvl, group_ptr) < 0)
+    if(vrmr_zones_group_save_members(debuglvl, vctx, group_ptr) < 0)
     {
         vrmr_error(-1, "Error", "saveing the new grouplist to the backend failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1531,7 +1534,7 @@ vrmr_zones_network_add_iface(const int debuglvl, struct vrmr_interfaces *interfa
 
 
 int
-vrmr_zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, char *interfacename)
+vrmr_zones_network_rem_iface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *network_ptr, char *interfacename)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -1574,7 +1577,7 @@ vrmr_zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, 
     }
 
     /* save the new interface list */
-    if(vrmr_zones_network_save_interfaces(debuglvl, network_ptr) < 0)
+    if(vrmr_zones_network_save_interfaces(debuglvl, vctx, network_ptr) < 0)
     {
         vrmr_error(-1, "Error", "saving the new interfaceslist to the backend failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1591,7 +1594,7 @@ vrmr_zones_network_rem_iface(const int debuglvl, struct vrmr_zone *network_ptr, 
         -1: error
  */
 int
-vrmr_zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr, struct vrmr_interfaces *interfaces)
+vrmr_zones_network_get_interfaces(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *zone_ptr, struct vrmr_interfaces *interfaces)
 {
     char    cur_ifac[VRMR_MAX_INTERFACE] = "";
 
@@ -1615,7 +1618,7 @@ vrmr_zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr
     zone_ptr->active_interfaces = 0;
 
     /* get all interfaces from the backend */
-    while((zf->ask(debuglvl, zone_backend, zone_ptr->name, "INTERFACE", cur_ifac, sizeof(cur_ifac), VRMR_TYPE_NETWORK, 1)) == 1)
+    while ((vctx->zf->ask(debuglvl, vctx->zone_backend, zone_ptr->name, "INTERFACE", cur_ifac, sizeof(cur_ifac), VRMR_TYPE_NETWORK, 1)) == 1)
     {
         if(vrmr_zones_network_add_iface(debuglvl, interfaces, zone_ptr, cur_ifac) < 0)
         {
@@ -1633,7 +1636,7 @@ vrmr_zones_network_get_interfaces(const int debuglvl, struct vrmr_zone *zone_ptr
 
 
 int
-vrmr_zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network_ptr)
+vrmr_zones_network_save_interfaces(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *network_ptr)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -1661,7 +1664,7 @@ vrmr_zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network
     if(network_ptr->InterfaceList.len == 0)
     {
         /* clear by writing "" in overwrite mode */
-        if(zf->tell(debuglvl, zone_backend, network_ptr->name, "INTERFACE", "", 1, VRMR_TYPE_NETWORK) < 0)
+        if (vctx->zf->tell(debuglvl, vctx->zone_backend, network_ptr->name, "INTERFACE", "", 1, VRMR_TYPE_NETWORK) < 0)
         {
             vrmr_error(-1, "Error", "writing to backend failed (in: %s).", __FUNC__);
             return(-1);
@@ -1683,7 +1686,7 @@ vrmr_zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network
             if(d_node == network_ptr->InterfaceList.top)
             {
                 /* the first one is in overwrite mode */
-                if(zf->tell(debuglvl, zone_backend, network_ptr->name, "INTERFACE", iface_ptr->name, 1, VRMR_TYPE_NETWORK) < 0)
+                if (vctx->zf->tell(debuglvl, vctx->zone_backend, network_ptr->name, "INTERFACE", iface_ptr->name, 1, VRMR_TYPE_NETWORK) < 0)
                 {
                     vrmr_error(-1, "Error", "writing to backend failed (in: %s).", __FUNC__);
                     return(-1);
@@ -1692,7 +1695,7 @@ vrmr_zones_network_save_interfaces(const int debuglvl, struct vrmr_zone *network
             else
             {
                 /* no overwriting, just appending */
-                if(zf->tell(debuglvl, zone_backend, network_ptr->name, "INTERFACE", iface_ptr->name, 0, VRMR_TYPE_NETWORK) < 0)
+                if (vctx->zf->tell(debuglvl, vctx->zone_backend, network_ptr->name, "INTERFACE", iface_ptr->name, 0, VRMR_TYPE_NETWORK) < 0)
                 {
                     vrmr_error(-1, "Error", "writing to backend failed (in: %s).", __FUNC__);
                     return(-1);
@@ -1983,7 +1986,7 @@ vrmr_zones_network_rule_parse_line(const int debuglvl, const char *line, struct 
 
 
 int
-vrmr_zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *network_ptr)
+vrmr_zones_network_get_protectrules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *network_ptr)
 {
     char                currule[VRMR_MAX_RULE_LENGTH] = "";
     struct vrmr_rule    *rule_ptr = NULL;
@@ -2004,7 +2007,7 @@ vrmr_zones_network_get_protectrules(const int debuglvl, struct vrmr_zone *networ
     }
 
     /* get all rules from the backend */
-    while((zf->ask(debuglvl, zone_backend, network_ptr->name, "RULE", currule, sizeof(currule), VRMR_TYPE_NETWORK, 1)) == 1)
+    while ((vctx->zf->ask(debuglvl, vctx->zone_backend, network_ptr->name, "RULE", currule, sizeof(currule), VRMR_TYPE_NETWORK, 1)) == 1)
     {
         /* get mem */
         if(!(rule_ptr = vrmr_rule_malloc()))
@@ -2303,7 +2306,8 @@ vrmr_zones_check_group(const int debuglvl, struct vrmr_zone *zone_ptr)
         -1: error
 */
 int
-vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
+vrmr_zones_load(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones,
+        struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     struct vrmr_zone    *zone_ptr = NULL;
     struct vrmr_list_node         *d_node = NULL;
@@ -2312,7 +2316,7 @@ vrmr_zones_load(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     vrmr_info("Info", "Loading zones...");
 
     /* load the interfaces into memory */
-    result = vrmr_init_zonedata(debuglvl, zones, interfaces, reg);
+    result = vrmr_init_zonedata(debuglvl, vctx, zones, interfaces, reg);
     if(result == -1)
     {
         vrmr_error(-1, "Error", "Loading zones failed.");

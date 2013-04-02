@@ -29,7 +29,7 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
 
     if(vr_script->type == VRMR_TYPE_ZONE)
     {
-        while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type)
             {
@@ -39,7 +39,7 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
-        while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type)
             {
@@ -69,7 +69,7 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
-        while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type)
             {

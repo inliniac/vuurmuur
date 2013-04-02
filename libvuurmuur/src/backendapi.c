@@ -318,7 +318,7 @@ unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_na
         -1: error
 */
 int
-vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg)
+vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ctx *vctx)
 {
     /* first the SERVICES */
     if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->serv_backend_name, &sf) < 0)
@@ -333,13 +333,13 @@ vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg)
     /*
         second ZONES
     */
-    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->zone_backend_name, &zf) < 0)
+    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->zone_backend_name, &vctx->zf) < 0)
         return(-1);
-    if (zf->setup(debuglvl, cfg, &zone_backend) < 0)
+    if (vctx->zf->setup(debuglvl, cfg, &vctx->zone_backend) < 0)
         return(-1);
-    if (zf->conf(debuglvl, zone_backend) < 0)
+    if (vctx->zf->conf(debuglvl, vctx->zone_backend) < 0)
         return(-1);
-    if (zf->open(debuglvl, zone_backend, 0, VRMR_BT_ZONES) < 0)
+    if (vctx->zf->open(debuglvl, vctx->zone_backend, 0, VRMR_BT_ZONES) < 0)
         return(-1);
 
     /*
@@ -387,7 +387,7 @@ vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg)
         -1: error
 */
 int
-vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg)
+vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ctx *vctx)
 {
     /*
         SERVICES
@@ -404,13 +404,13 @@ vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg)
     /*
         ZONES
     */
-    if (zf->close(debuglvl, zone_backend, VRMR_BT_ZONES) < 0)
+    if (vctx->zf->close(debuglvl, vctx->zone_backend, VRMR_BT_ZONES) < 0)
         return(-1);
 
-    free(zone_backend);
-    zone_backend = NULL;
+    free(vctx->zone_backend);
+    vctx->zone_backend = NULL;
 
-    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->zone_backend_name, &zf) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->zone_backend_name, &vctx->zf) < 0)
         return(-1);
 
     /*

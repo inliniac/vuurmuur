@@ -334,7 +334,7 @@ vrmr_interface_ipv6_enabled(const int debuglvl, struct vrmr_interface *iface_ptr
     backend. It will issue an error but set the interface to inactive.
 */
 int
-vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
+vrmr_read_interface_info(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
 {
     int     result = 0;
     char    yesno[4] = "";
@@ -353,7 +353,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
         vrmr_debug(__FUNC__, "start: name: %s", iface_ptr->name);
 
     /* check if the interface is active */
-    result = vrmr_check_active(debuglvl, iface_ptr->name, VRMR_TYPE_INTERFACE);
+    result = vrmr_check_active(debuglvl, vctx, iface_ptr->name, VRMR_TYPE_INTERFACE);
     if(result == 1)
     {
         iface_ptr->active = TRUE;
@@ -718,7 +718,7 @@ vrmr_read_interface_info(const int debuglvl, struct vrmr_interface *iface_ptr)
          1: interface failed, maybe it is inactive
 */
 int
-vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *name)
+vrmr_insert_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces *interfaces, char *name)
 {
     struct vrmr_interface   *iface_ptr = NULL;
 
@@ -755,7 +755,7 @@ vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
 
 
     /* call vrmr_read_interface_info. here the info is read. */
-    if(vrmr_read_interface_info(debuglvl, iface_ptr) < 0)
+    if(vrmr_read_interface_info(debuglvl, vctx, iface_ptr) < 0)
     {
         vrmr_error(-1, "Internal Error", "vrmr_read_interface_info() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -795,7 +795,7 @@ vrmr_insert_interface(const int debuglvl, struct vrmr_interfaces *interfaces, ch
         -1: error
 */
 int
-vrmr_init_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
+vrmr_init_interfaces(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces *interfaces)
 {
     int     result = 0,
             counter = 0,
@@ -828,7 +828,7 @@ vrmr_init_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
         if(debuglvl >= MEDIUM)
             vrmr_debug(__FUNC__, "loading interface %s", ifacname);
 
-        result = vrmr_insert_interface(debuglvl, interfaces, ifacname);
+        result = vrmr_insert_interface(debuglvl, vctx, interfaces, ifacname);
         if(result < 0)
         {
             vrmr_error(-1, "Internal Error", "insert_interface() failed (in: %s:%d).",
@@ -2081,7 +2081,7 @@ vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
         -1: error
 */
 int
-vrmr_interfaces_load(const int debuglvl, struct vrmr_interfaces *interfaces)
+vrmr_interfaces_load(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces *interfaces)
 {
     struct vrmr_interface   *iface_ptr = NULL;
     struct vrmr_list_node             *d_node = NULL;
@@ -2091,7 +2091,7 @@ vrmr_interfaces_load(const int debuglvl, struct vrmr_interfaces *interfaces)
 
 
     /* load the interfaces into memory */
-    result = vrmr_init_interfaces(debuglvl, interfaces);
+    result = vrmr_init_interfaces(debuglvl, vctx, interfaces);
     if(result == -1)
     {
         vrmr_error(-1, "Error", "Loading interfaces failed.");

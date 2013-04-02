@@ -70,6 +70,7 @@ exec_wizard(const int debuglvl, char *path)
 int
 main(int argc, char *argv[])
 {
+    struct vrmr_ctx         vctx;
     struct vrmr_interfaces  interfaces;
     struct vrmr_zones       zones;
     struct vrmr_services    services;
@@ -96,6 +97,13 @@ main(int argc, char *argv[])
     int         debuglvl = 0;
     PANEL       *main_panels[5];
     char        *s = NULL;
+
+    vctx.zones = &zones;
+    vctx.rules = &rules;
+    vctx.services = &services;
+    vctx.blocklist = &blocklist;
+    vctx.interfaces = &interfaces;
+    vctx.conf = &conf;
 
     /* some defaults */
     vuurmuur_semid = -1;
@@ -338,17 +346,17 @@ main(int argc, char *argv[])
     //form_test(debuglvl);
 
     /* startup_screen inits the config, loads the zones, rules, etc */
-    if(startup_screen(debuglvl, &rules, &zones, &services, &interfaces, &blocklist, &reg) < 0)
+    if (startup_screen(debuglvl, &vctx, &rules, &zones,
+                &services, &interfaces, &blocklist, &reg) < 0)
     {
         /* failure! Lets quit. */
-        
+
         /* delete panels and windows */
         (void)del_panel(main_panels[0]);
         (void)del_panel(main_panels[1]);
         (void)del_panel(main_panels[2]);
         (void)del_panel(main_panels[3]);
         (void)del_panel(main_panels[4]);
-    
         (void)destroy_win(top_win);
         (void)destroy_win(main_win);
         (void)destroy_win(status_win);
@@ -368,7 +376,7 @@ main(int argc, char *argv[])
 
     mm_status_checkall(debuglvl, NULL, &rules, &zones, &interfaces, &services);
     /* main menu loop */
-    while(main_menu(debuglvl, &rules, &zones, &interfaces, &services, &blocklist, &reg) == 1);
+    while(main_menu(debuglvl, &vctx, &rules, &zones, &interfaces, &services, &blocklist, &reg) == 1);
     /* clean up the status list */
     vrmr_list_cleanup(debuglvl, &VuurmuurStatus.StatusList);
 
@@ -421,7 +429,7 @@ main(int argc, char *argv[])
     vrprint.audit = vrmr_stdoutprint_audit;
 
     /* unload the backends */
-    if(vrmr_backends_unload(debuglvl, &conf) < 0)
+    if(vrmr_backends_unload(debuglvl, &conf, &vctx) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("unloading the backends failed (in: %s:%d)."), __FUNCTION__, __LINE__);
         retval=-1;
@@ -544,7 +552,10 @@ destroy_win(WINDOW *local_win)
         -1: error
 */
 int
-startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_services *services, struct vrmr_interfaces *interfaces, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
+startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
+        struct vrmr_zones *zones, struct vrmr_services *services,
+        struct vrmr_interfaces *interfaces, struct vrmr_blocklist *blocklist,
+        struct vrmr_regex *reg)
 {
     WINDOW  *startup_win = NULL,
             *startup_print_win = NULL;
@@ -730,7 +741,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     /* now load the backends */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_PLUGINS); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = vrmr_backends_load(debuglvl, &conf);
+    result = vrmr_backends_load(debuglvl, &conf, vctx);
     if(result < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("loading the plugins failed."));
@@ -743,7 +754,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_SERVICES); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = vrmr_init_services(debuglvl, services, reg);
+    result = vrmr_init_services(debuglvl, vctx, services, reg);
     if(result < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("intializing the services failed."));
@@ -756,7 +767,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_INTERFACES); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = vrmr_init_interfaces(debuglvl, interfaces);
+    result = vrmr_init_interfaces(debuglvl, vctx, interfaces);
     if(result < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("intializing the interfaces failed."));
@@ -769,7 +780,7 @@ startup_screen(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_ZONES); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = vrmr_init_zonedata(debuglvl, zones, interfaces, reg);
+    result = vrmr_init_zonedata(debuglvl, vctx, zones, interfaces, reg);
     if(result < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("intializing the zones failed."));

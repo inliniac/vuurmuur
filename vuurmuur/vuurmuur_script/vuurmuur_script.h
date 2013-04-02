@@ -142,6 +142,8 @@ typedef struct VuurmuurScript_
     /* print rule numbers? */
     char        print_rule_numbers;
 
+    /* library ctx */
+    struct vrmr_ctx vctx;
 } VuurmuurScript;
 
 struct vrmr_config conf;

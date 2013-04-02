@@ -31,7 +31,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     if( vr_script->type == VRMR_TYPE_ZONE || vr_script->type == VRMR_TYPE_NETWORK ||
         vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
-        while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type && strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -120,7 +120,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid host name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
             else if(vr_script->type == VRMR_TYPE_GROUP)
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid group name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
-                
+
             return(VRS_ERR_COMMANDLINE);
         }
     }
@@ -162,7 +162,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     if( vr_script->type == VRMR_TYPE_ZONE || vr_script->type == VRMR_TYPE_NETWORK ||
         vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
-        while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type && strcmp(vr_script->bdat,vr_script->set) == 0)
             {
@@ -237,7 +237,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     /* do the actual rename */
     if(vr_script->type == VRMR_TYPE_ZONE)
     {
-        if(zf->rename(debuglvl, zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_ZONE) < 0)
+        if(vr_script->vctx.zf->rename(debuglvl, vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_ZONE) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -247,7 +247,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
-        if(zf->rename(debuglvl, zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_NETWORK) < 0)
+        if(vr_script->vctx.zf->rename(debuglvl, vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_NETWORK) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -257,7 +257,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_HOST)
     {
-        if(zf->rename(debuglvl, zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_HOST) < 0)
+        if(vr_script->vctx.zf->rename(debuglvl, vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_HOST) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -267,7 +267,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_GROUP)
     {
-        if(zf->rename(debuglvl, zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_GROUP) < 0)
+        if(vr_script->vctx.zf->rename(debuglvl, vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_GROUP) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);

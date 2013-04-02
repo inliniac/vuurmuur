@@ -173,6 +173,7 @@ int process_logrecord(struct vrmr_log_record *log_record) {
 int
 main(int argc, char *argv[])
 {
+    struct vrmr_ctx vctx;
     struct vrmr_interfaces interfaces;
     struct vrmr_services services;
     struct vrmr_zones zones;
@@ -208,7 +209,7 @@ main(int argc, char *argv[])
     int                         option_index = 0;
     char                        *sscanf_str = NULL;
 
-    struct vrmr_log_record             logrule;
+    struct vrmr_log_record      logrule;
     int                         debuglvl = 0;
 
     /* shm, sem stuff */
@@ -217,6 +218,11 @@ main(int argc, char *argv[])
 
     struct vrmr_regex reg;
     char        quit = 0;
+
+    vctx.zones = &zones;
+    vctx.services = &services;
+    vctx.interfaces = &interfaces;
+    vctx.conf = &conf;
 
     snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
             VUURMUUR_VERSION, libvuurmuur_get_version());
@@ -358,7 +364,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if (vrmr_backends_load(debuglvl, &conf) < 0) {
+    if (vrmr_backends_load(debuglvl, &conf, &vctx) < 0) {
         vrmr_error(-1, "Error", "loading plugins failed, bailing out.");
         exit(EXIT_FAILURE);
     }
@@ -375,15 +381,15 @@ main(int argc, char *argv[])
     }
 
     /* load the services into memory */
-    if(vrmr_services_load(debuglvl, &services, &reg)== -1)
+    if (vrmr_services_load(debuglvl, &vctx, &services, &reg)== -1)
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
-    if(vrmr_interfaces_load(debuglvl, &interfaces) == -1)
+    if (vrmr_interfaces_load(debuglvl, &vctx, &interfaces) == -1)
         exit(EXIT_FAILURE);
 
     /* load the zonedata into memory */
-    if(vrmr_zones_load(debuglvl, &zones, &interfaces, &reg) == -1)
+    if (vrmr_zones_load(debuglvl, &vctx, &zones, &interfaces, &reg) == -1)
         exit(EXIT_FAILURE);
 
 
@@ -553,7 +559,7 @@ main(int argc, char *argv[])
             vrmr_destroy_interfaceslist(debuglvl, &interfaces);
 
             /* close backend */
-            result = vrmr_backends_unload(debuglvl, &conf);
+            result = vrmr_backends_unload(debuglvl, &conf, &vctx);
             if(result < 0)
             {
                 vrmr_error(-1, "Error", "unloading backends failed.");
@@ -574,7 +580,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 20);
 
             /* open backends */
-            result = vrmr_backends_load(debuglvl, &conf);
+            result = vrmr_backends_load(debuglvl, &conf, &vctx);
             if(result < 0)
             {
                 vrmr_error(-1, "Error", "re-opening backends failed.");
@@ -585,7 +591,7 @@ main(int argc, char *argv[])
 
             /* re-initialize the data */
             vrmr_info("Info", "Initializing interfaces...");
-            if(vrmr_init_interfaces(debuglvl, &interfaces) < 0)
+            if (vrmr_init_interfaces(debuglvl, &vctx, &interfaces) < 0)
             {
                 vrmr_error(-1, "Error", "initializing interfaces failed.");
                 exit(EXIT_FAILURE);
@@ -594,7 +600,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 40);
 
             vrmr_info("Info", "Initializing zones...");
-            if(vrmr_init_zonedata(debuglvl, &zones, &interfaces, &reg) < 0)
+            if (vrmr_init_zonedata(debuglvl, &vctx, &zones, &interfaces, &reg) < 0)
             {
                 vrmr_error(-1, "Error", "initializing zones failed.");
                 exit(EXIT_FAILURE);
@@ -603,7 +609,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 50);
 
             vrmr_info("Info", "Initializing services...");
-            if(vrmr_init_services(debuglvl, &services, &reg) < 0)
+            if (vrmr_init_services(debuglvl, &vctx, &services, &reg) < 0)
             {
                 vrmr_error(-1, "Error", "initializing services failed.");
                 exit(EXIT_FAILURE);
@@ -703,7 +709,7 @@ main(int argc, char *argv[])
     if(nodaemon)
         show_stats (&Counters);
 
-    if(vrmr_backends_unload(debuglvl, &conf) < 0)
+    if(vrmr_backends_unload(debuglvl, &conf, &vctx) < 0)
     {
         vrmr_error(-1, "Error", "unloading backends failed.");
     }

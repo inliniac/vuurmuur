@@ -1750,7 +1750,8 @@ destroy_interfaces_section(const int debuglvl)
 
 
 static int
-rename_interface(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_zones *zones,
+rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
+            struct vrmr_interfaces *interfaces, struct vrmr_zones *zones,
             struct vrmr_rules *rules, char *cur_name_ptr, char *new_name_ptr)
 {
     int                     result = 0;
@@ -1820,7 +1821,7 @@ rename_interface(const int debuglvl, struct vrmr_interfaces *interfaces, struct 
                 if(strcmp(iface_ptr->name, new_name_ptr) == 0)
                 {
                     /* save the interface list so the backend knows about the changed name in the list */
-                    if(vrmr_zones_network_save_interfaces(debuglvl, zone_ptr) < 0)
+                    if(vrmr_zones_network_save_interfaces(debuglvl, vctx, zone_ptr) < 0)
                     {
                         vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                         return(-1);
@@ -1947,8 +1948,9 @@ interfaces_section_vrmr_delete_interface(const int debuglvl, struct vrmr_interfa
 
 
 void
-interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_zones *zones,
-            struct vrmr_rules *rules, struct vrmr_regex *reg)
+interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_interfaces *interfaces, struct vrmr_zones *zones,
+        struct vrmr_rules *rules, struct vrmr_regex *reg)
 {
     int     result = 0,
             quit = 0,
@@ -2046,7 +2048,7 @@ interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces, struc
                             {
                                 if(vrmr_validate_interfacename(debuglvl, new_name_ptr, reg->interfacename) == 0)
                                 {
-                                    result = rename_interface(debuglvl, interfaces, zones, rules, cur_name_ptr, new_name_ptr);
+                                    result = rename_interface(debuglvl, vctx, interfaces, zones, rules, cur_name_ptr, new_name_ptr);
                                     if(result == 0)
                                     {
                                         reload = 1;

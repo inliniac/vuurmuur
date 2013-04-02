@@ -45,7 +45,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
     vrmr_info("Info", "Reloading config...");
 
     /* close the current backends */
-    result = vrmr_backends_unload(debuglvl, vctx->conf);
+    result = vrmr_backends_unload(debuglvl, vctx->conf, vctx);
     if(result < 0)
     {
         vrmr_error(-1, "Error", "unloading backends failed.");
@@ -78,7 +78,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
 
 
     /* reopen the backends */
-    result = vrmr_backends_load(debuglvl, vctx->conf);
+    result = vrmr_backends_load(debuglvl, vctx->conf, vctx);
     if(result < 0)
     {
         vrmr_error(-1, "Error", "re-opening backends failed.");
@@ -89,7 +89,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
 
     /* reload the services, interfaces, zones and rules. */
     vrmr_info("Info", "Reloading services...");
-    result = reload_services(debuglvl, vctx->services, reg->servicename);
+    result = reload_services(debuglvl, vctx, vctx->services, reg->servicename);
     if(result == 0)
     {
         if(debuglvl >= LOW)
@@ -108,7 +108,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
     vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 20);
 
     vrmr_info("Info", "Reloading interfaces...");
-    result = reload_interfaces(debuglvl, vctx->interfaces);
+    result = reload_interfaces(debuglvl, vctx, vctx->interfaces);
     if(result == 0)
     {
         if(debuglvl >= LOW)
@@ -127,7 +127,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
     vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 25);
 
     vrmr_info("Info", "Reloading zones...");
-    result = reload_zonedata(debuglvl, vctx->zones, vctx->interfaces, reg);
+    result = reload_zonedata(debuglvl, vctx, vctx->zones, vctx->interfaces, reg);
     if(result == 0)
     {
         if(debuglvl >= LOW)
@@ -240,7 +240,7 @@ apply_changes(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
 /*  reload_services
 */
 int
-reload_services(const int debuglvl, struct vrmr_services *services, regex_t *servicename_regex)
+reload_services(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, regex_t *servicename_regex)
 {
     int                     retval=0,
                             result;
@@ -291,17 +291,16 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
             if(ser_ptr == NULL) /* not found */
             {
                 vrmr_info("Info", "Service '%s' is added.", name);
-                
                 retval = 1;
-    
+
                 /* new service */
-                result = vrmr_insert_service(debuglvl, services, name);
+                result = vrmr_insert_service(debuglvl, vctx, services, name);
                 if(result != 0)
                 {
                     vrmr_error(-1, "Internal Error", "inserting data for '%s' into the list failed (in: reload_services).", name);
                     return(-1);
                 }
-            
+
                 ser_ptr = vrmr_search_service(debuglvl, services, name);
                 if(ser_ptr == NULL) /* not found */
                 {
@@ -321,7 +320,7 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
             else
             {
                 /* check the content of the service for changes */
-                result = reload_vrmr_services_check(debuglvl, ser_ptr);
+                result = reload_vrmr_services_check(debuglvl, vctx, ser_ptr);
                 if(result == 1)
                     retval = 1;
                 else if(result < 0)
@@ -367,17 +366,18 @@ reload_services(const int debuglvl, struct vrmr_services *services, regex_t *ser
         -1: error
 */
 int
-reload_vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
+reload_vrmr_services_check(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_service *ser_ptr)
 {
     int                     retval = 0,
                             result = 0,
                             status = 0;
     int                     check_result = 0;
-    struct vrmr_service    *new_ser_ptr = NULL;
+    struct vrmr_service     *new_ser_ptr = NULL;
     /* these are for the comparisson between the portranges */
-    struct vrmr_list_node             *list_node = NULL,
+    struct vrmr_list_node   *list_node = NULL,
                             *temp_node = NULL;
-    struct vrmr_portdata         *list_port = NULL,
+    struct vrmr_portdata    *list_port = NULL,
                             *temp_port = NULL;
 
     /* safety */
@@ -404,7 +404,7 @@ reload_vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
 
 
     /* read the service from the backend again */
-    result = vrmr_read_service(debuglvl, ser_ptr->name, new_ser_ptr);
+    result = vrmr_read_service(debuglvl, vctx, ser_ptr->name, new_ser_ptr);
     if(result != 0)
     {
         /* error! memory is freed at the end of this function */
@@ -555,7 +555,8 @@ reload_vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
 
 // reload_zonedata
 int
-reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
+reload_zonedata(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones,
+        struct vrmr_interfaces *interfaces, struct vrmr_regex *reg)
 {
     int                 retval = 0,
                         result = 0;
@@ -575,7 +576,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     }
 
     /* check if we have a backend */
-    if(!zf)
+    if(!vctx->zf)
     {
         vrmr_error(-1, "Internal Error", "backend not open (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -594,13 +595,13 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
     }
 
     /* loop trough backend and check */
-    while(zf->list(debuglvl, zone_backend, name, &zonetype, VRMR_BT_ZONES) != NULL)
+    while (vctx->zf->list(debuglvl, vctx->zone_backend, name, &zonetype, VRMR_BT_ZONES) != NULL)
     {
         zone_ptr = vrmr_search_zonedata(debuglvl, zones, name);
         if(zone_ptr == NULL)
         {
             /* new zone */
-            result = vrmr_insert_zonedata(debuglvl, zones, interfaces, name, zonetype, reg);
+            result = vrmr_insert_zonedata(debuglvl, vctx, zones, interfaces, name, zonetype, reg);
             if(result != 0)
             {
                 vrmr_error(-1, "Internal Error", "inserting data for '%s' into the list failed (reload_zonedata).", name);
@@ -625,7 +626,6 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                                                 __FUNC__, __LINE__);
                 return(-1);
             }
-    
 
             if(zone_ptr->type == VRMR_TYPE_HOST)
             {
@@ -654,7 +654,7 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
         }
         else
         {
-            result = reload_zonedata_check(debuglvl, zones, interfaces, zone_ptr, reg);
+            result = reload_zonedata_check(debuglvl, vctx, zones, interfaces, zone_ptr, reg);
             if(result < 0)
             {
                 if(debuglvl >= HIGH)
@@ -705,14 +705,16 @@ reload_zonedata(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
 /*  reload_zonedata_check
 
     Checks the content of an host, group, network or zone for changes.
-    
+
     Returncodes:
          1: changes
          0: no changes
         -1: error
 */
 int
-reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_zone *zone_ptr, struct vrmr_regex *reg)
+reload_zonedata_check(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+        struct vrmr_zone *zone_ptr, struct vrmr_regex *reg)
 {
     int                     result = 0,
                             retval = 0;
@@ -756,7 +758,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
         case VRMR_TYPE_ZONE:
 
             /* set the zone up */
-            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, VRMR_TYPE_ZONE, vrmr_new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, vctx, zones, interfaces, zone_ptr->name, VRMR_TYPE_ZONE, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -790,7 +792,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
 
         case VRMR_TYPE_NETWORK:
 
-            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, VRMR_TYPE_NETWORK, vrmr_new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, vctx, zones, interfaces, zone_ptr->name, VRMR_TYPE_NETWORK, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -970,7 +972,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
 
         case VRMR_TYPE_HOST:
 
-            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, VRMR_TYPE_HOST, vrmr_new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, vctx, zones, interfaces, zone_ptr->name, VRMR_TYPE_HOST, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -1064,7 +1066,7 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
 
         case VRMR_TYPE_GROUP:
 
-            result = vrmr_read_zonedata(debuglvl, zones, interfaces, zone_ptr->name, VRMR_TYPE_GROUP, vrmr_new_zone_ptr, reg);
+            result = vrmr_read_zonedata(debuglvl, vctx, zones, interfaces, zone_ptr->name, VRMR_TYPE_GROUP, vrmr_new_zone_ptr, reg);
             if(result != 0)
             {
                 /* error! memory is freed at the end of this function */
@@ -1227,11 +1229,12 @@ reload_zonedata_check(const int debuglvl, struct vrmr_zones *zones, struct vrmr_
         -1: error
 */
 int
-reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
+reload_interfaces(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_interfaces *interfaces)
 {
     int                     retval = 0,
                             result = 0;
-    struct vrmr_list_node             *d_node = NULL;
+    struct vrmr_list_node   *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char                    name[VRMR_MAX_INTERFACE] = "";
     int                     zonetype = 0;
@@ -1280,7 +1283,7 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
             vrmr_info("Info", "Interface '%s' is added.", name);
 
             /* this is a new interface */
-            result = vrmr_insert_interface(debuglvl, interfaces, name);
+            result = vrmr_insert_interface(debuglvl, vctx, interfaces, name);
             if(result != 0)
             {
                 vrmr_error(-1, "Internal Error", "insert_interface() failed (in: %s:%d).",
@@ -1309,7 +1312,7 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
         else
         {
             /* existing interface, so check it for changes */
-            result = reload_vrmr_interfaces_check(debuglvl, iface_ptr);
+            result = reload_vrmr_interfaces_check(debuglvl, vctx, iface_ptr);
             if(result == 1)
                 retval = 1;
             else if(retval < 0)
@@ -1364,13 +1367,14 @@ reload_interfaces(const int debuglvl, struct vrmr_interfaces *interfaces)
         -1: error
 */
 int
-reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_ptr)
+reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_interface *iface_ptr)
 {
     int                     retval = 0;
     int                     check_result = 0;
     struct vrmr_interface   *new_iface_ptr = NULL;
     int                     status = 0;
-    struct vrmr_list_node             *protect_d_node_orig = NULL,
+    struct vrmr_list_node   *protect_d_node_orig = NULL,
                             *protect_d_node_new  = NULL;
     struct vrmr_rule        *org_rule_ptr = NULL,
                             *new_rule_ptr = NULL;
@@ -1408,7 +1412,7 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_interface *iface_pt
 
 
     /* get the info from the backend */
-    if(vrmr_read_interface_info(debuglvl, new_iface_ptr) != 0)
+    if (vrmr_read_interface_info(debuglvl, vctx, new_iface_ptr) != 0)
     {
         vrmr_error(-1, "Error", "getting interface information for '%s' failed (in: %s).", iface_ptr->name, __FUNC__);
         status = VRMR_ST_REMOVED;

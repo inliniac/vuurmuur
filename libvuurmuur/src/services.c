@@ -126,7 +126,7 @@ vrmr_insert_service_list(const int debuglvl, struct vrmr_services *services, con
     and by error an internal program error.
 */
 int
-vrmr_insert_service(const int debuglvl, struct vrmr_services *services, char *name)
+vrmr_insert_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, char *name)
 {
     int                     retval = 0,
                             result = 0;
@@ -150,7 +150,7 @@ vrmr_insert_service(const int debuglvl, struct vrmr_services *services, char *na
     }
 
     /* reading the service information */
-    result = vrmr_read_service(debuglvl, name, ser_ptr);
+    result = vrmr_read_service(debuglvl, vctx, name, ser_ptr);
     if(result == -1)
     {
         vrmr_error(-1, "Internal Error", "vrmr_read_service() failed (in: %s:%d).",
@@ -237,7 +237,7 @@ vrmr_search_service(const int debuglvl, const struct vrmr_services *services, ch
         -1: error
 */
 int
-vrmr_read_service(const int debuglvl, char *sername, struct vrmr_service *service_ptr)
+vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, struct vrmr_service *service_ptr)
 {
     int     retval = 0,
             result = 0;
@@ -262,7 +262,7 @@ vrmr_read_service(const int debuglvl, char *sername, struct vrmr_service *servic
     }
 
     /* first the active check */
-    result = vrmr_check_active(debuglvl, sername, VRMR_TYPE_SERVICE);
+    result = vrmr_check_active(debuglvl, vctx, sername, VRMR_TYPE_SERVICE);
     if(result == 1)
     {
         /* active */
@@ -1148,7 +1148,7 @@ vrmr_valid_tcpudp_port(const int debuglvl, int port)
         -1: error
 */
 int
-vrmr_init_services(const int debuglvl, struct vrmr_services *services, struct vrmr_regex *reg)
+vrmr_init_services(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     int     retval=0,
             result=0;
@@ -1185,7 +1185,7 @@ vrmr_init_services(const int debuglvl, struct vrmr_services *services, struct vr
         if(vrmr_validate_servicename(debuglvl, name, reg->servicename, VRMR_VERBOSE) == 0)
         {
             /* now call vrmr_insert_service, which will gather the info and insert it into the list */
-            result = vrmr_insert_service(debuglvl, services, name);
+            result = vrmr_insert_service(debuglvl, vctx, services, name);
             if(result == 0)
             {
                 if(debuglvl >= LOW)
@@ -1250,7 +1250,7 @@ vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
         -1: error
 */
 int
-vrmr_services_load(const int debuglvl, struct vrmr_services *services, struct vrmr_regex *reg)
+vrmr_services_load(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     int                     result = 0;
     struct vrmr_list_node             *d_node = NULL;
@@ -1259,7 +1259,7 @@ vrmr_services_load(const int debuglvl, struct vrmr_services *services, struct vr
 
     vrmr_info("Info", "Loading services...");
 
-    result = vrmr_init_services(debuglvl, services, reg);
+    result = vrmr_init_services(debuglvl, vctx, services, reg);
     if(result == -1)
     {
         vrmr_error(-1, "Error", "Loading services failed.");

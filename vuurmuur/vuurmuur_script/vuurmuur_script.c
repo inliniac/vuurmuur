@@ -95,6 +95,7 @@ main(int argc, char *argv[])
 
     /* initialize our central data structure */
     memset(&vr_script, 0, sizeof(vr_script));
+
     vr_script.overwrite = TRUE;
 
     /* get the current user */
@@ -749,7 +750,7 @@ main(int argc, char *argv[])
 
 
     /* load the backends */
-    result = vrmr_backends_load(debuglvl, &conf);
+    result = vrmr_backends_load(debuglvl, &conf, &vr_script.vctx);
     if(result < 0)
     {
         fprintf(stdout, "Error: loading backends failed\n");
@@ -901,7 +902,7 @@ main(int argc, char *argv[])
     }
 
     /* unload the backends */
-    result = vrmr_backends_unload(debuglvl, &conf);
+    result = vrmr_backends_unload(debuglvl, &conf, &vr_script.vctx);
     if(result < 0)
     {
         fprintf(stdout, "Error: unloading backends failed.\n");

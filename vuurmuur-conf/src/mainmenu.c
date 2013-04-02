@@ -50,7 +50,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
     {
         if(debuglvl >= MEDIUM)
             vrmr_debug(__FUNC__, "loading rules: '%s', type: %d", rule_name, type);
-            
+
         if(strcmp(rule_name, "rules") == 0)
             rules_found = TRUE;
     }
@@ -1557,7 +1557,9 @@ vc_apply_changes(const int debuglvl)
     the main menu, here you choose between rules, zones, config, logview, etc.
 */
 int
-main_menu(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
+main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
+        struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+        struct vrmr_services *services, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
 #define MM_ITEM_RULES           gettext("Rules")
 #define MM_ITEM_BLOCKLIST       gettext("BlockList")
@@ -1979,7 +1981,7 @@ main_menu(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
                 choice_ptr = malloc(StrMemLen("showhelp")+1);
                 strcpy(choice_ptr, "showhelp");
                 break;
-        
+
             case KEY_F(1):
 
                 choice_ptr = NULL;
@@ -2036,14 +2038,14 @@ main_menu(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
             }
             else if(strcmp(choice_ptr, MM_ITEM_ZONES) == 0)
             {
-                zones_section(debuglvl, zones, interfaces, rules, blocklist, reg);
+                zones_section(debuglvl, vctx, zones, interfaces, rules, blocklist, reg);
 
                 /* check for active interfaces */
                 mm_check_status_zones(debuglvl, NULL, zones);
             }
             else if(strcmp(choice_ptr, MM_ITEM_INTERFACES) == 0)
             {
-                interfaces_section(debuglvl, interfaces, zones, rules, reg);
+                interfaces_section(debuglvl, vctx, interfaces, zones, rules, reg);
 
                 /* check for active networks */
                 mm_check_status_interfaces(debuglvl, NULL, interfaces);

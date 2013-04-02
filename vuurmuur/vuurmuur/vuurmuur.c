@@ -439,7 +439,7 @@ main(int argc, char *argv[])
     }
 
     /* load the backends */
-    result = vrmr_backends_load(debuglvl, &conf);
+    result = vrmr_backends_load(debuglvl, &conf, &vctx);
     if(result < 0)
     {
         fprintf(stdout, "Error: loading backends failed\n");
@@ -455,12 +455,12 @@ main(int argc, char *argv[])
     ipt_rulecount = 0;
 
     /* load the services into memory */
-    result = vrmr_services_load(debuglvl, &services, &reg);
+    result = vrmr_services_load(debuglvl, &vctx, &services, &reg);
     if(result == -1)
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
-    result = vrmr_interfaces_load(debuglvl, &interfaces);
+    result = vrmr_interfaces_load(debuglvl, &vctx, &interfaces);
     if(result == -1)
         exit(EXIT_FAILURE);
     if (conf.bash_out) {
@@ -468,7 +468,7 @@ main(int argc, char *argv[])
     }
 
     /* load the zonedata into memory */
-    result = vrmr_zones_load(debuglvl, &zones, &interfaces, &reg);
+    result = vrmr_zones_load(debuglvl, &vctx, &zones, &interfaces, &reg);
     if(result == -1)
         exit(EXIT_FAILURE);
 
@@ -832,7 +832,7 @@ main(int argc, char *argv[])
     }
 
     /* unload the backends */
-    result = vrmr_backends_unload(debuglvl, &conf);
+    result = vrmr_backends_unload(debuglvl, &conf, &vctx);
     if(result < 0)
     {
         fprintf(stdout, "Error: unloading backends failed.\n");

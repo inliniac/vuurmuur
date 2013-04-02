@@ -32,7 +32,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
     if( vr_script->type == VRMR_TYPE_ZONE || vr_script->type == VRMR_TYPE_NETWORK ||
         vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
-        while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while (vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type && strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -108,7 +108,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* active */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"ACTIVE") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "ACTIVE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_ZONE, 0) == 1)
+            if (vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "ACTIVE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_ZONE, 0) == 1)
                 printf("ACTIVE=\"%s\"\n", vr_script->bdat);
             else
                 printf("ACTIVE=\"\"\n");
@@ -117,7 +117,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* Comment */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"ACTIVE") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "COMMENT", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_ZONE, 0) == 1)
+            if(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "COMMENT", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_ZONE, 0) == 1)
                 printf("COMMENT=\"%s\"\n", vr_script->bdat);
             else
                 printf("COMMENT=\"\"\n");
@@ -128,7 +128,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* active */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"ACTIVE") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "ACTIVE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 0) == 1)
+            if(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "ACTIVE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 0) == 1)
                 printf("ACTIVE=\"%s\"\n", vr_script->bdat);
             else
                 printf("ACTIVE=\"\"\n");
@@ -137,7 +137,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* Network Address */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"NETWORK") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "NETWORK", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 0) == 1)
+            if(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "NETWORK", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 0) == 1)
                 printf("NETWORK=\"%s\"\n", vr_script->bdat);
             else
                 printf("NETWORK=\"\"\n");
@@ -146,7 +146,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* Netmask Address */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"NETMASK") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "NETMASK", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 0) == 1)
+            if(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "NETMASK", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 0) == 1)
                 printf("NETMASK=\"%s\"\n", vr_script->bdat);
             else
                 printf("NETMASK=\"\"\n");
@@ -157,7 +157,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         {
             result = 0;
 
-            while(zf->ask(debuglvl, zone_backend, vr_script->name, "INTERFACE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 1) == 1)
+            while(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "INTERFACE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 1) == 1)
             {
                 printf("INTERFACE=\"%s\"\n", vr_script->bdat);
                 result = 1;
@@ -171,7 +171,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         {
             result = 0;
 
-            while(zf->ask(debuglvl, zone_backend, vr_script->name, "RULE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 1) == 1)
+            while(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "RULE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 1) == 1)
             {
                 vrmr_rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
 
@@ -185,7 +185,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* Comment */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"COMMENT") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "COMMENT", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 0) == 1)
+            if(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "COMMENT", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_NETWORK, 0) == 1)
                 printf("COMMENT=\"%s\"\n", vr_script->bdat);
             else
                 printf("COMMENT=\"\"\n");
@@ -196,7 +196,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* active */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"ACTIVE") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "ACTIVE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_HOST, 0) == 1)
+            if(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "ACTIVE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_HOST, 0) == 1)
                 printf("ACTIVE=\"%s\"\n", vr_script->bdat);
             else
                 printf("ACTIVE=\"\"\n");
@@ -205,7 +205,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* IP Address */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"IPADDRESS") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "IPADDRESS", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_HOST, 0) == 1)
+            if(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "IPADDRESS", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_HOST, 0) == 1)
                 printf("IPADDRESS=\"%s\"\n", vr_script->bdat);
             else
                 printf("IPADDRESS=\"\"\n");
@@ -214,7 +214,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* MAC Address */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"MAC") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "MAC", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_HOST, 0) == 1)
+            if(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "MAC", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_HOST, 0) == 1)
                 printf("MAC=\"%s\"\n", vr_script->bdat);
             else
                 printf("MAC=\"\"\n");
@@ -223,7 +223,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* Comment */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"COMMENT") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "COMMENT", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_HOST, 0) == 1)
+            if(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "COMMENT", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_HOST, 0) == 1)
                 printf("COMMENT=\"%s\"\n", vr_script->bdat);
             else
                 printf("COMMENT=\"\"\n");
@@ -234,7 +234,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* active */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"ACTIVE") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "ACTIVE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_GROUP, 0) == 1)
+            if(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "ACTIVE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_GROUP, 0) == 1)
                 printf("ACTIVE=\"%s\"\n", vr_script->bdat);
             else
                 printf("ACTIVE=\"\"\n");
@@ -244,7 +244,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         {
             result = 0;
             /* Members */
-            while(zf->ask(debuglvl, zone_backend, vr_script->name, "MEMBER", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_GROUP, 1) == 1)
+            while(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "MEMBER", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_GROUP, 1) == 1)
             {
                 printf("MEMBER=\"%s\"\n", vr_script->bdat);
                 result = 1;
@@ -256,7 +256,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* Comment */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"COMMENT") == 0)
         {
-            if(zf->ask(debuglvl, zone_backend, vr_script->name, "COMMENT", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_GROUP, 0) == 1)
+            if(vr_script->vctx.zf->ask(debuglvl, vr_script->vctx.zone_backend, vr_script->name, "COMMENT", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_GROUP, 0) == 1)
                 printf("COMMENT=\"%s\"\n", vr_script->bdat);
             else
                 printf("COMMENT=\"\"\n");

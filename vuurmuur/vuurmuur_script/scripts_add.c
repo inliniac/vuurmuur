@@ -31,7 +31,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     if( vr_script->type == VRMR_TYPE_ZONE || vr_script->type == VRMR_TYPE_NETWORK ||
         vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
-        while(zf->list(debuglvl, zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type && strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -107,7 +107,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     */
     if(vr_script->type == VRMR_TYPE_ZONE)
     {
-        if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_ZONE) < 0)
+        if(vr_script->vctx.zf->add(debuglvl, vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_ZONE) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -117,7 +117,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
-        if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_NETWORK) < 0)
+        if(vr_script->vctx.zf->add(debuglvl, vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_NETWORK) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -127,7 +127,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_HOST)
     {
-        if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_HOST) < 0)
+        if(vr_script->vctx.zf->add(debuglvl, vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_HOST) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -137,7 +137,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_GROUP)
     {
-        if(zf->add(debuglvl, zone_backend, vr_script->name, VRMR_TYPE_GROUP) < 0)
+        if(vr_script->vctx.zf->add(debuglvl, vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_GROUP) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);

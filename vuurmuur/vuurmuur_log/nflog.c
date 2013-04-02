@@ -103,7 +103,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
     /* Check first if this pkt comes from a vuurmuur logrule */
     prefix = nflog_get_prefix (nfa);
-    vrmr_log_record_parse_prefix(&log_record, prefix);
+    vrmr_log_record_parse_prefix(log_record, prefix);
 
     /* Copy hostname in log_rule struct, seems kind of silly to do this every time */
     if (gethostname (log_record->hostname, HOST_NAME_MAX) == -1) {
