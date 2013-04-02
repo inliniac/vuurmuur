@@ -56,7 +56,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        while(sf->list(debuglvl, serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
+        while (vr_script->vctx.sf->list(debuglvl, vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -267,7 +267,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* active */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"ACTIVE") == 0)
         {
-            if(sf->ask(debuglvl, serv_backend, vr_script->name, "ACTIVE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 0) == 1)
+            if (vr_script->vctx.sf->ask(debuglvl, vr_script->vctx.serv_backend, vr_script->name, "ACTIVE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 0) == 1)
                 printf("ACTIVE=\"%s\"\n", vr_script->bdat);
             else
                 printf("ACTIVE=\"\"\n");
@@ -276,7 +276,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* BROADCAST */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"BROADCAST") == 0)
         {
-            if(sf->ask(debuglvl, serv_backend, vr_script->name, "BROADCAST", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 0) == 1)
+            if(vr_script->vctx.sf->ask(debuglvl, vr_script->vctx.serv_backend, vr_script->name, "BROADCAST", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 0) == 1)
                 printf("BROADCAST=\"%s\"\n", vr_script->bdat);
             else
                 printf("BROADCAST=\"\"\n");
@@ -285,7 +285,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* HELPER */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"HELPER") == 0)
         {
-            if(sf->ask(debuglvl, serv_backend, vr_script->name, "HELPER", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 0) == 1)
+            if(vr_script->vctx.sf->ask(debuglvl, vr_script->vctx.serv_backend, vr_script->name, "HELPER", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 0) == 1)
                 printf("HELPER=\"%s\"\n", vr_script->bdat);
             else
                 printf("HELPER=\"\"\n");
@@ -295,7 +295,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"TCP") == 0)
         {
             result = 0;
-            while(sf->ask(debuglvl, serv_backend, vr_script->name, "TCP", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
+            while(vr_script->vctx.sf->ask(debuglvl, vr_script->vctx.serv_backend, vr_script->name, "TCP", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
             {
                 printf("TCP=\"%s\"\n", vr_script->bdat);
                 result = 1;
@@ -308,7 +308,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"UDP") == 0)
         {
             result = 0;
-            while(sf->ask(debuglvl, serv_backend, vr_script->name, "UDP", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
+            while(vr_script->vctx.sf->ask(debuglvl, vr_script->vctx.serv_backend, vr_script->name, "UDP", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
             {
                 printf("UDP=\"%s\"\n", vr_script->bdat);
                 result = 1;
@@ -321,7 +321,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"ICMP") == 0)
         {
             result = 0;
-            while(sf->ask(debuglvl, serv_backend, vr_script->name, "ICMP", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
+            while(vr_script->vctx.sf->ask(debuglvl, vr_script->vctx.serv_backend, vr_script->name, "ICMP", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
             {
                 printf("ICMP=\"%s\"\n", vr_script->bdat);
                 result = 1;
@@ -334,7 +334,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"GRE") == 0)
         {
             result = 0;
-            while(sf->ask(debuglvl, serv_backend, vr_script->name, "GRE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
+            while(vr_script->vctx.sf->ask(debuglvl, vr_script->vctx.serv_backend, vr_script->name, "GRE", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
             {
                 printf("GRE=\"%s\"\n", vr_script->bdat);
                 result = 1;
@@ -347,7 +347,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"AH") == 0)
         {
             result = 0;
-            while(sf->ask(debuglvl, serv_backend, vr_script->name, "AH", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
+            while(vr_script->vctx.sf->ask(debuglvl, vr_script->vctx.serv_backend, vr_script->name, "AH", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
             {
                 printf("AH=\"%s\"\n", vr_script->bdat);
                 result = 1;
@@ -360,7 +360,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"ESP") == 0)
         {
             result = 0;
-            while(sf->ask(debuglvl, serv_backend, vr_script->name, "ESP", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
+            while(vr_script->vctx.sf->ask(debuglvl, vr_script->vctx.serv_backend, vr_script->name, "ESP", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
             {
                 printf("ESP=\"%s\"\n", vr_script->bdat);
                 result = 1;
@@ -373,7 +373,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"PROTO_41") == 0)
         {
             result = 0;
-            while(sf->ask(debuglvl, serv_backend, vr_script->name, "PROTO_41", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
+            while(vr_script->vctx.sf->ask(debuglvl, vr_script->vctx.serv_backend, vr_script->name, "PROTO_41", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 1) == 1)
             {
                 printf("PROTO_41=\"%s\"\n", vr_script->bdat);
                 result = 1;
@@ -385,7 +385,7 @@ script_print(const int debuglvl, VuurmuurScript *vr_script)
         /* Comment */
         if(strcasecmp(vr_script->var,"any") == 0 || strcmp(vr_script->var,"COMMENT") == 0)
         {
-            if(sf->ask(debuglvl, serv_backend, vr_script->name, "COMMENT", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 0) == 1)
+            if(vr_script->vctx.sf->ask(debuglvl, vr_script->vctx.serv_backend, vr_script->name, "COMMENT", vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_SERVICE, 0) == 1)
                 printf("COMMENT=\"%s\"\n", vr_script->bdat);
             else
                 printf("COMMENT=\"\"\n");

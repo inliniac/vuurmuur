@@ -55,7 +55,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        while(sf->list(debuglvl, serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
+        while(vr_script->vctx.sf->list(debuglvl, vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -147,7 +147,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        if(sf->add(debuglvl, serv_backend, vr_script->name, VRMR_TYPE_SERVICE) < 0)
+        if(vr_script->vctx.sf->add(debuglvl, vr_script->vctx.serv_backend, vr_script->name, VRMR_TYPE_SERVICE) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);

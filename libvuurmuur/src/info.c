@@ -555,7 +555,7 @@ vrmr_check_active(const int debuglvl, struct vrmr_ctx *vctx, char *name, int typ
     /* service */
     if(type == VRMR_TYPE_SERVICE || type == VRMR_VRMR_TYPE_SERVICEGRP)
     {
-        result = sf->ask(debuglvl, serv_backend, name, "ACTIVE", active, sizeof(active), type, 0);
+        result = vctx->sf->ask(debuglvl, vctx->serv_backend, name, "ACTIVE", active, sizeof(active), type, 0);
     }
     /* interface */
     else if(type == VRMR_TYPE_INTERFACE)

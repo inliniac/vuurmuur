@@ -2052,7 +2052,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             }
             else if(strcmp(choice_ptr, MM_ITEM_SERVICES) == 0)
             {
-                services_section(debuglvl, services, rules, reg);
+                services_section(debuglvl, vctx, services, rules, reg);
 
                 mm_check_status_services(debuglvl, NULL, services);
             }

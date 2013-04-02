@@ -68,13 +68,14 @@ struct ServicesSection_
 /*  edit_serv_portranges_new_validate
 
     Validates the new portrange and inserts it into the list at the right place.
-    
+
     Returncodes:
         0: ok
         -1: error
 */
 static int
-edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_ptr, struct vrmr_portdata *port_ptr)
+edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_service *ser_ptr, struct vrmr_portdata *port_ptr)
 {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_portdata *portlist_ptr = NULL;
@@ -223,7 +224,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_service *ser_p
         ser_ptr->status = VRMR_ST_CHANGED;
 
         /* save the portranges */
-        if(vrmr_services_save_portranges(debuglvl, ser_ptr) < 0)
+        if(vrmr_services_save_portranges(debuglvl, vctx, ser_ptr) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving the portranges failed (in: %s:%d)."), __FUNC__, __LINE__);
             return(-1);
@@ -1256,7 +1257,7 @@ create_portrange_string(const int debuglvl, struct vrmr_portdata *portrange_ptr,
 
 
 static int
-edit_serv_portranges_new(const int debuglvl, struct vrmr_service *ser_ptr)
+edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
 {
     int             retval=0;
     char            str[64] = "";
@@ -1378,14 +1379,14 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_service *ser_ptr)
 
     if(retval == 0)
     {
-        if(edit_serv_portranges_new_validate(debuglvl, ser_ptr, portrange_ptr) < 0)
+        if(edit_serv_portranges_new_validate(debuglvl, vctx, ser_ptr, portrange_ptr) < 0)
             retval = -1;
     }
 
     if(retval == 0)
     {
         create_portrange_string(debuglvl, portrange_ptr, str, sizeof(str));
-        
+
         /* example: "service 'X-5' has been changed: portrange 'TCP: 1024:65535 -> 6005' was added." */
         vrmr_audit("%s '%s' %s: %s '%s' %s.",
                             STR_SERVICE, ser_ptr->name, STR_HAS_BEEN_CHANGED,
@@ -1476,7 +1477,7 @@ edit_serv_portranges_edit(const int debuglvl, int place, struct vrmr_service *se
          1: removed
 */
 static int
-edit_serv_portranges_del(const int debuglvl, int place, struct vrmr_service *ser_ptr)
+edit_serv_portranges_del(const int debuglvl, struct vrmr_ctx *vctx, int place, struct vrmr_service *ser_ptr)
 {
     int             i = 0;
     struct vrmr_list_node     *d_node = NULL;
@@ -1513,7 +1514,7 @@ edit_serv_portranges_del(const int debuglvl, int place, struct vrmr_service *ser
             }
 
             /* save */
-            if(vrmr_services_save_portranges(debuglvl, ser_ptr) < 0)
+            if (vrmr_services_save_portranges(debuglvl, vctx, ser_ptr) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving the portranges failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -1769,7 +1770,7 @@ edit_serv_portranges_destroy(const int debuglvl)
 }
 
 static int
-edit_serv_portranges(const int debuglvl, struct vrmr_service *ser_ptr)
+edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
 {
     int     quit = 0,
             reload = 0,
@@ -1838,7 +1839,7 @@ edit_serv_portranges(const int debuglvl, struct vrmr_service *ser_ptr)
                 case 'i':
                 case 'I':
 
-                    if(edit_serv_portranges_new(debuglvl, ser_ptr) < 0)
+                    if(edit_serv_portranges_new(debuglvl, vctx, ser_ptr) < 0)
                         retval= -1;
                     else
                         reload = 1;
@@ -1852,7 +1853,7 @@ edit_serv_portranges(const int debuglvl, struct vrmr_service *ser_ptr)
                 {
                     if((cur = current_item(ServicesSection.EditServicePrt.menu)))
                     {
-                        result = edit_serv_portranges_del(debuglvl, atoi((char *)item_name(cur)), ser_ptr);
+                        result = edit_serv_portranges_del(debuglvl, vctx, atoi((char *)item_name(cur)), ser_ptr);
                         if(result < 0)
                             retval=-1;
                         else if(result == 1)
@@ -1936,7 +1937,7 @@ struct
 
 
 static int
-edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
+edit_service_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
 {
     int     retval=0,
             result = 0,
@@ -1965,7 +1966,7 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
                     ser_ptr->active = 0;
                 }
 
-                result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "ACTIVE", ser_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
+                result = vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "ACTIVE", ser_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
@@ -1994,7 +1995,7 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
                     ser_ptr->broadcast = 0;
                 }
 
-                result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
+                result = vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
@@ -2017,7 +2018,7 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
                                     sizeof(ser_ptr->helper))))
                     return(-1);
 
-                if(sf->tell(debuglvl, serv_backend, ser_ptr->name, "HELPER", ser_ptr->helper, 1, VRMR_TYPE_SERVICE) < 0)
+                if (vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "HELPER", ser_ptr->helper, 1, VRMR_TYPE_SERVICE) < 0)
                 {
                     vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -2032,7 +2033,7 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
             /* comment */
             else if(ServicesSection.EditService.fields[i] == ServiceSec.commentfld)
             {
-                result = sf->tell(debuglvl, serv_backend, ser_ptr->name, "COMMENT", field_buffer(ServicesSection.EditService.fields[i], 0), 1, VRMR_TYPE_SERVICE);
+                result = vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "COMMENT", field_buffer(ServicesSection.EditService.fields[i], 0), 1, VRMR_TYPE_SERVICE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
@@ -2051,7 +2052,7 @@ edit_service_save(const int debuglvl, struct vrmr_service *ser_ptr)
 
 
 static int
-edit_service_init(const int debuglvl, struct vrmr_service *ser_ptr)
+edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
 {
     int             rows,
                     cols,
@@ -2125,7 +2126,7 @@ edit_service_init(const int debuglvl, struct vrmr_service *ser_ptr)
     comment_y = 5;
     comment_x = 48;
     /* load the comment from the backend */
-    if(sf->ask(debuglvl, serv_backend, ser_ptr->name, "COMMENT", ServicesSection.comment, sizeof(ServicesSection.comment), VRMR_TYPE_SERVICE, 0) < 0)
+    if (vctx->sf->ask(debuglvl, vctx->serv_backend, ser_ptr->name, "COMMENT", ServicesSection.comment, sizeof(ServicesSection.comment), VRMR_TYPE_SERVICE, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
     ServiceSec.commentfld = (ServicesSection.EditService.fields[field_num++] = new_field(comment_y, comment_x, 9, 1, 0, 0));
@@ -2250,7 +2251,7 @@ edit_service_init(const int debuglvl, struct vrmr_service *ser_ptr)
 
 
 static int
-edit_service(const int debuglvl, struct vrmr_services *services, const char *name)
+edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, const char *name)
 {
     int                     ch, /* for recording keystrokes */
                             quit = 0,
@@ -2285,7 +2286,7 @@ edit_service(const int debuglvl, struct vrmr_services *services, const char *nam
     }
 
     /* init */
-    if(edit_service_init(debuglvl, ser_ptr) < 0)
+    if(edit_service_init(debuglvl, vctx, ser_ptr) < 0)
         return(-1);
 
     /* show (or hide) initial warning about the group being empty. */
@@ -2342,11 +2343,11 @@ edit_service(const int debuglvl, struct vrmr_services *services, const char *nam
                 case 'E':
                     /* F6 opens the portranges section */
 //TODO
-                    edit_serv_portranges(debuglvl, ser_ptr);
+                    edit_serv_portranges(debuglvl, vctx, ser_ptr);
 
                     draw_top_menu(debuglvl, top_win, gettext("Edit Service"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     break;
-                
+
                 case 27:
                 case KEY_F(10):
                 case 'q':
@@ -2394,16 +2395,16 @@ edit_service(const int debuglvl, struct vrmr_services *services, const char *nam
 
 
     /* save */
-        
+
     /* save the service */
-    if(edit_service_save(debuglvl, ser_ptr) < 0)
+    if (edit_service_save(debuglvl, vctx, ser_ptr) < 0)
     {
         vrmr_error(-1, "Error", "saving the service failed (in: %s).", __FUNC__);
         retval = -1;
     }
-        
+
     /* save the portranges */
-    if(vrmr_services_save_portranges(debuglvl, ser_ptr) < 0)
+    if (vrmr_services_save_portranges(debuglvl, vctx, ser_ptr) < 0)
     {
         vrmr_error(-1, "Error", "saving the portranges failed (in: %s).", __FUNC__);
         retval = -1;
@@ -2436,12 +2437,13 @@ edit_service(const int debuglvl, struct vrmr_services *services, const char *nam
 
 
 static int
-rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_rules *rules, char *cur_name_ptr, char *new_name_ptr)
+rename_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services,
+        struct vrmr_rules *rules, char *cur_name_ptr, char *new_name_ptr)
 {
     int                     result = 0;
-    struct vrmr_service    *ser_ptr = NULL;
+    struct vrmr_service     *ser_ptr = NULL;
     struct vrmr_rule        *rule_ptr = NULL;
-    struct vrmr_list_node             *d_node = NULL;
+    struct vrmr_list_node   *d_node = NULL;
     char                    changed = 0;
     char                    old_ser_name[VRMR_MAX_SERVICE] = "";
 
@@ -2461,7 +2463,7 @@ rename_service(const int debuglvl, struct vrmr_services *services, struct vrmr_r
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "going to rename service old_ser_name:'%s' to new_name_ptr:'%s'.", old_ser_name, new_name_ptr);
 
-    result = sf->rename(debuglvl, serv_backend, old_ser_name, new_name_ptr, VRMR_TYPE_SERVICE);
+    result = vctx->sf->rename(debuglvl, vctx->serv_backend, old_ser_name, new_name_ptr, VRMR_TYPE_SERVICE);
     if(result != 0)
     {
         return(-1);
@@ -2640,7 +2642,8 @@ destroy_services_section(void)
 
 
 void
-services_section(const int debuglvl, struct vrmr_services *services, struct vrmr_rules *rules, struct vrmr_regex *reg)
+services_section(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_services *services, struct vrmr_rules *rules, struct vrmr_regex *reg)
 {
     int     result = 0,
             quit = 0,
@@ -2754,7 +2757,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                             {
                                 char *n = (char *)item_name(cur);
 
-                                result = rename_service(debuglvl, services, rules, n, new_name_ptr);
+                                result = rename_service(debuglvl, vctx, services, rules, n, new_name_ptr);
                                 if(result == 0)
                                 {
                                     reload = 1;
@@ -2784,14 +2787,14 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                             }
                             else
                             {
-                                result = vrmr_new_service(debuglvl, services, new_name_ptr, VRMR_TYPE_SERVICE);
+                                result = vrmr_new_service(debuglvl, vctx, services, new_name_ptr, VRMR_TYPE_SERVICE);
                                 if(result == 0)
                                 {
                                     /* example: "service 'X-5' has been created" */
                                     vrmr_audit("%s '%s' %s.", STR_SERVICE, new_name_ptr, STR_HAS_BEEN_CREATED);
                                     reload = 1;
 
-                                    edit_service(debuglvl, services, new_name_ptr);
+                                    edit_service(debuglvl, vctx, services, new_name_ptr);
 
                                     draw_top_menu(debuglvl, top_win, gettext("Services"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                                 }
@@ -2821,7 +2824,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                         {
                             (void)strlcpy(save_ser_name, (char *)item_name(cur), sizeof(save_ser_name));
 
-                            result = vrmr_delete_service(debuglvl, services, (char *)item_name(cur), VRMR_TYPE_SERVICE);
+                            result = vrmr_delete_service(debuglvl, vctx, services, (char *)item_name(cur), VRMR_TYPE_SERVICE);
                             if(result < 0)
                             {
                                 vrmr_error(-1, VR_ERR, "%s.", STR_DELETE_FAILED);
@@ -2869,7 +2872,7 @@ services_section(const int debuglvl, struct vrmr_services *services, struct vrmr
                     cur = current_item(ServicesSection.menu);
                     if(cur)
                     {
-                        (void)edit_service(debuglvl, services, (char *)item_name(cur));
+                        (void)edit_service(debuglvl, vctx, services, (char *)item_name(cur));
 
                         draw_top_menu(debuglvl, top_win, gettext("Services"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     }

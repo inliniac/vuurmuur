@@ -1185,6 +1185,8 @@ struct vrmr_ctx {
 
     struct vrmr_plugin_data *zf;
     /*@null@*/void *zone_backend;
+    struct vrmr_plugin_data *sf;
+    /*@null@*/void *serv_backend;
 };
 
 enum vrmr_objectstatus
@@ -1484,10 +1486,10 @@ int vrmr_split_portrange(char *, int *, int *);
 int vrmr_process_portrange(const int, const char *, const char *, struct vrmr_service *);
 void vrmr_portrange_print_dlist(const struct vrmr_list *);
 void vrmr_destroy_serviceslist(const int, struct vrmr_services *);
-int vrmr_new_service(const int, struct vrmr_services *, char *, int);
-int vrmr_delete_service(const int, struct vrmr_services *, char *, int);
+int vrmr_new_service(const int, struct vrmr_ctx *, struct vrmr_services *, char *, int);
+int vrmr_delete_service(const int, struct vrmr_ctx *, struct vrmr_services *, char *, int);
 int vrmr_validate_servicename(const int, const char *, regex_t *, char);
-int vrmr_services_save_portranges(const int, struct vrmr_service *);
+int vrmr_services_save_portranges(const int, struct vrmr_ctx *, struct vrmr_service *);
 int vrmr_valid_tcpudp_port(const int, int);
 int vrmr_services_check(const int, struct vrmr_service *);
 int vrmr_services_load(const int, struct vrmr_ctx *, struct vrmr_services *, struct vrmr_regex *);
@@ -1727,8 +1729,6 @@ int vrmr_is_shape_interface(const int, /*@null@*/struct vrmr_interface *);
 
 /* the backend structure pointers */
 /*@null@*/
-void *serv_backend;
-/*@null@*/
 void *ifac_backend;
 /*@null@*/
 void *rule_backend;
@@ -1747,9 +1747,6 @@ struct vrmr_plugin {
 
 struct vrmr_list vrmr_plugin_list;
 void vrmr_plugin_register(struct vrmr_plugin_data *plugin_data);
-
-/* services */
-struct vrmr_plugin_data    *sf;
 
 /* interfaces (not 'if' because is a c-keyword.) */
 struct vrmr_plugin_data    *af;

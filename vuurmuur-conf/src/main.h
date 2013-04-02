@@ -293,7 +293,7 @@ void draw_top_menu(const int, WINDOW *, char *, int, char **, int, char **);
 /*
     services section
 */
-void services_section(const int, struct vrmr_services *, struct vrmr_rules *, struct vrmr_regex *);
+void services_section(const int, struct vrmr_ctx *, struct vrmr_services *, struct vrmr_rules *, struct vrmr_regex *);
 
 
 /*

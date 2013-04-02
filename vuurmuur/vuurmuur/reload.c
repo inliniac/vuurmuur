@@ -263,7 +263,7 @@ reload_services(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services 
 
 
     /* check if we have a backend */
-    if(!sf)
+    if(!vctx->sf)
     {
         vrmr_error(-1, "Internal Error", "backend not open (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -283,7 +283,7 @@ reload_services(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services 
 
 
     /* loop trough the services in the backend */
-    while(sf->list(debuglvl, serv_backend, name, &zonetype, VRMR_BT_SERVICES) != NULL)
+    while (vctx->sf->list(debuglvl, vctx->serv_backend, name, &zonetype, VRMR_BT_SERVICES) != NULL)
     {
         if(vrmr_validate_servicename(debuglvl, name, servicename_regex, VRMR_VERBOSE) == 0)
         {

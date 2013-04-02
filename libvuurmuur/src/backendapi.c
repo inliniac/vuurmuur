@@ -321,13 +321,13 @@ int
 vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ctx *vctx)
 {
     /* first the SERVICES */
-    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->serv_backend_name, &sf) < 0)
+    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->serv_backend_name, &vctx->sf) < 0)
         return(-1);
-    if (sf->setup(debuglvl, cfg, &serv_backend) < 0)
+    if (vctx->sf->setup(debuglvl, cfg, &vctx->serv_backend) < 0)
         return(-1);
-    if (sf->conf(debuglvl, serv_backend) < 0)
+    if (vctx->sf->conf(debuglvl, vctx->serv_backend) < 0)
         return(-1);
-    if (sf->open(debuglvl, serv_backend, 0, VRMR_BT_SERVICES) < 0)
+    if (vctx->sf->open(debuglvl, vctx->serv_backend, 0, VRMR_BT_SERVICES) < 0)
         return(-1);
 
     /*
@@ -392,13 +392,13 @@ vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ct
     /*
         SERVICES
     */
-    if (sf->close(debuglvl, serv_backend, VRMR_BT_SERVICES) < 0)
+    if (vctx->sf->close(debuglvl, vctx->serv_backend, VRMR_BT_SERVICES) < 0)
         return(-1);
 
-    free(serv_backend);
-    serv_backend = NULL;
+    free(vctx->serv_backend);
+    vctx->serv_backend = NULL;
 
-    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->serv_backend_name, &sf) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->serv_backend_name, &vctx->sf) < 0)
         return(-1);
 
     /*
