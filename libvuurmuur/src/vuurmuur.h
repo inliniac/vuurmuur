@@ -1185,8 +1185,15 @@ struct vrmr_ctx {
 
     struct vrmr_plugin_data *zf;
     /*@null@*/void *zone_backend;
+
     struct vrmr_plugin_data *sf;
     /*@null@*/void *serv_backend;
+
+    struct vrmr_plugin_data *af;
+    /*@null@*/void *ifac_backend;
+
+    struct vrmr_plugin_data *rf;
+    /*@null@*/void *rule_backend;
 };
 
 enum vrmr_objectstatus
@@ -1524,7 +1531,7 @@ int vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *, char *proc_ent
 */
 int vrmr_rules_analyze_rule(const int, struct vrmr_rule *, struct vrmr_rule_cache *, struct vrmr_services *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_config *);
 int vrmr_rules_parse_line(const int, char *, struct vrmr_rule *, struct vrmr_regex *);
-int vrmr_rules_init_list(const int, struct vrmr_config *cfg, /*@out@*/ struct vrmr_rules *, struct vrmr_regex *);
+int vrmr_rules_init_list(const int, struct vrmr_ctx *, struct vrmr_config *cfg, /*@out@*/ struct vrmr_rules *, struct vrmr_regex *);
 int vrmr_rules_cleanup_list(const int, struct vrmr_rules *);
 int vrmr_rules_insert_list(const int, struct vrmr_rules *, unsigned int, struct vrmr_rule *);
 char *vrmr_rules_assemble_options_string(const int, struct vrmr_rule_options *, const char *);
@@ -1533,7 +1540,7 @@ void *vrmr_search_rule(const int, struct vrmr_rules *, struct vrmr_rule *);
 int vrmr_rules_read_options(const int, char *, struct vrmr_rule_options *);
 struct vrmr_rule *rules_create_protect_rule(const int, char *, /*@null@*/ char *, char *, /*@null@*/char *);
 char *vrmr_rules_assemble_rule(const int, struct vrmr_rule *);
-int vrmr_rules_save_list(const int, struct vrmr_rules *, struct vrmr_config *);
+int vrmr_rules_save_list(const int, struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_config *);
 int vrmr_rules_get_custom_chains(const int, struct vrmr_rules *);
 int vrmr_rules_chain_in_list(const int, struct vrmr_list *, char *);
 int vrmr_rules_get_system_chains(const int, struct vrmr_rules *, struct vrmr_config *, int);
@@ -1553,8 +1560,8 @@ char *vrmr_rules_itoaction_cap(const int);
 */
 int vrmr_blocklist_add_one(const int, struct vrmr_zones *, struct vrmr_blocklist *, char, char, char *);
 int vrmr_blocklist_rem_one(const int, struct vrmr_zones *, struct vrmr_blocklist *, char *);
-int vrmr_blocklist_init_list(const int, struct vrmr_config *cfg, struct vrmr_zones *, struct vrmr_blocklist *, char, char);
-int vrmr_blocklist_save_list(const int, struct vrmr_config *cfg, struct vrmr_blocklist *);
+int vrmr_blocklist_init_list(const int, struct vrmr_ctx *, struct vrmr_config *cfg, struct vrmr_zones *, struct vrmr_blocklist *, char, char);
+int vrmr_blocklist_save_list(const int, struct vrmr_ctx *, struct vrmr_config *cfg, struct vrmr_blocklist *);
 
 
 /*
@@ -1639,16 +1646,16 @@ void vrmr_interfaces_print_list(const struct vrmr_interfaces *interfaces);
 int vrmr_read_interface_info(const int debuglvl, struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
 int vrmr_insert_interface(const int debuglvl, struct vrmr_ctx *, struct vrmr_interfaces *interfaces, char *name);
 int vrmr_init_interfaces(const int debuglvl, struct vrmr_ctx *, /*@out@*/ struct vrmr_interfaces *interfaces);
-int vrmr_new_interface(const int, struct vrmr_interfaces *, char *);
-int vrmr_delete_interface(const int, struct vrmr_interfaces *, char *);
+int vrmr_new_interface(const int, struct vrmr_ctx *, struct vrmr_interfaces *, char *);
+int vrmr_delete_interface(const int, struct vrmr_ctx *, struct vrmr_interfaces *, char *);
 int vrmr_ins_iface_into_zonelist(const int debuglvl, struct vrmr_list *ifacelist, struct vrmr_list *zonelist);
 int vrmr_rem_iface_from_zonelist(const int debuglvl, struct vrmr_list *zonelist);
 int vrmr_get_iface_stats(const int, const char *, unsigned long *, unsigned long *, unsigned long *, unsigned long *);
 int vrmr_get_iface_stats_from_ipt(const int debuglvl, struct vrmr_config *cfg, const char *iface_name, const char *chain, unsigned long long *recv_packets, unsigned long long *recv_bytes, unsigned long long *trans_packets, unsigned long long *trans_bytes);
 int vrmr_validate_interfacename(const int, const char *, regex_t *);
 void vrmr_destroy_interfaceslist(const int debuglvl, struct vrmr_interfaces *interfaces);
-int vrmr_interfaces_get_rules(const int debuglvl, struct vrmr_interface *iface_ptr);
-int vrmr_interfaces_save_rules(const int, struct vrmr_interface *);
+int vrmr_interfaces_get_rules(const int debuglvl, struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
+int vrmr_interfaces_save_rules(const int, struct vrmr_ctx *, struct vrmr_interface *);
 int vrmr_interfaces_check(const int, struct vrmr_interface *);
 int vrmr_interfaces_load(const int, struct vrmr_ctx *, struct vrmr_interfaces *);
 int vrmr_interfaces_iface_up(const int, struct vrmr_interface *);
@@ -1727,12 +1734,6 @@ int vrmr_is_shape_interface(const int, /*@null@*/struct vrmr_interface *);
     global vars
 */
 
-/* the backend structure pointers */
-/*@null@*/
-void *ifac_backend;
-/*@null@*/
-void *rule_backend;
-
 struct vrmr_plugin {
     char                        name[32];
     int                         ref_cnt;
@@ -1747,11 +1748,5 @@ struct vrmr_plugin {
 
 struct vrmr_list vrmr_plugin_list;
 void vrmr_plugin_register(struct vrmr_plugin_data *plugin_data);
-
-/* interfaces (not 'if' because is a c-keyword.) */
-struct vrmr_plugin_data    *af;
-
-/* rules */
-struct vrmr_plugin_data    *rf;
 
 #endif

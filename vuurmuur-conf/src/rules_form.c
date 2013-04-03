@@ -1484,7 +1484,9 @@ rules_update_filter(const int debuglvl, struct vrmr_rules *rules, struct RuleBar
         -1: error
 */
 int
-rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_regex *reg)
+rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
+        struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+        struct vrmr_services *services, struct vrmr_regex *reg)
 {
     WINDOW              *rules_win;
     PANEL               *panels[1];
@@ -2326,7 +2328,7 @@ rules_form(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zone
     /* if the rules are changed, save the changes. But only if retval != -1. */
     if(rules_changed && retval != -1)
     {
-        if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
+        if(vrmr_rules_save_list(debuglvl, vctx, rules, &conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             retval = -1;

@@ -1050,7 +1050,10 @@ zones_section_menu_hosts_destroy(void)
 
 /* rename a host or a group */
 static int
-zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones, struct vrmr_rules *rules, struct vrmr_blocklist *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct vrmr_regex *reg)
+zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_zones *zones, struct vrmr_rules *rules,
+        struct vrmr_blocklist *blocklist, char *cur_name_ptr,
+        char *new_name_ptr, int type, struct vrmr_regex *reg)
 {
     int                 result = 0;
     struct vrmr_zone    *zone_ptr = NULL,
@@ -1165,7 +1168,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_z
     /* if we have made changes we write the rulesfile */
     if(rules_changed == 1)
     {
-        if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
+        if(vrmr_rules_save_list(debuglvl, vctx, rules, &conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
@@ -1210,7 +1213,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_z
     /* if we have made changes we write the blocklistfile */
     if(blocklist_changed == 1)
     {
-        if(vrmr_blocklist_save_list(debuglvl, &conf, blocklist) < 0)
+        if(vrmr_blocklist_save_list(debuglvl, vctx, &conf, blocklist) < 0)
             return(-1);
     }
 
@@ -3401,7 +3404,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
     /* if we have made changes we write the blocklistfile */
     if(blocklist_changed == 1)
     {
-        if(vrmr_blocklist_save_list(debuglvl, &conf, blocklist) < 0)
+        if(vrmr_blocklist_save_list(debuglvl, vctx, &conf, blocklist) < 0)
             return(-1);
     }
 
@@ -3605,7 +3608,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
     /* if we have made changes we write the rulesfile */
     if(rules_changed == 1)
     {
-        if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
+        if(vrmr_rules_save_list(debuglvl, vctx, rules, &conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
@@ -7038,7 +7041,8 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
 
 
 int
-zones_blocklist(const int debuglvl, struct vrmr_blocklist *blocklist, struct vrmr_zones *zones, struct vrmr_regex *reg)
+zones_blocklist(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_blocklist *blocklist, struct vrmr_zones *zones, struct vrmr_regex *reg)
 {
     int     ch = 0,
             quit = 0,
@@ -7242,7 +7246,7 @@ zones_blocklist(const int debuglvl, struct vrmr_blocklist *blocklist, struct vrm
         if(debuglvl >= HIGH)
             vrmr_debug(__FUNC__, "changes and retval == 0 so save the list to disk.");
 
-        if(vrmr_blocklist_save_list(debuglvl, &conf, blocklist) < 0)
+        if (vrmr_blocklist_save_list(debuglvl, vctx, &conf, blocklist) < 0)
             retval = -1;
     }
 

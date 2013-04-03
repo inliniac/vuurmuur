@@ -2513,7 +2513,7 @@ rename_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *
     /* if we have made changes we write the rulesfile */
     if(changed == 1)
     {
-        if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
+        if(vrmr_rules_save_list(debuglvl, vctx, rules, &conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);

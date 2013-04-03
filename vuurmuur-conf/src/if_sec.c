@@ -59,6 +59,7 @@ struct InterfacesSection_
 struct TcpmssIfaceCnf_ {
     struct vrmr_interface *iface_ptr;
     char enabled;
+    struct vrmr_ctx *vctx;
 };
 
 static int
@@ -88,7 +89,7 @@ VrTcpmssIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         }
 
         if (c->enabled != enabled) {
-            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "TCPMSS", enabled ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "TCPMSS", enabled ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -109,11 +110,12 @@ VrTcpmssIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
     return(0);
 }
 
-void VrTcpmssIface(const int debuglvl, struct vrmr_interface *iface_ptr) {
+void VrTcpmssIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr) {
     VrWin   *win = NULL;
     VrForm  *form = NULL;
     int     ch = 0, result = 0;
     struct TcpmssIfaceCnf_ config;
+    config.vctx = vctx;
 
     if (VrTcpmssIfaceSetup(debuglvl, &config, iface_ptr) < 0)
     {
@@ -194,6 +196,7 @@ struct ShapeIfaceCnf_ {
     char in[10], out[10];
     char in_unit[5], out_unit[5];
     char enabled;
+    struct vrmr_ctx *vctx;
 };
 
 static int
@@ -235,7 +238,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         c->iface_ptr->bw_in = atoi(value);
 
         if (oldrate != c->iface_ptr->bw_in) {
-            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "BW_IN", value, 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "BW_IN", value, 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -255,7 +258,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         c->iface_ptr->bw_out = atoi(value);
 
         if (oldrate != c->iface_ptr->bw_out) {
-            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "BW_OUT", value, 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "BW_OUT", value, 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -272,7 +275,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         }
     } else if(strcmp(name,"unit1") == 0) {
         if (strcmp(value, c->iface_ptr->bw_in_unit) != 0) {
-            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "BW_IN_UNIT", value, 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "BW_IN_UNIT", value, 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -290,7 +293,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         strlcpy(c->iface_ptr->bw_in_unit, value, sizeof(c->iface_ptr->bw_in_unit));
     } else if(strcmp(name,"unit2") == 0) {
         if (strcmp(value, c->iface_ptr->bw_out_unit) != 0) {
-            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "BW_OUT_UNIT", value, 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "BW_OUT_UNIT", value, 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -314,7 +317,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         }
 
         if (c->enabled != enabled) {
-            result = af->tell(debuglvl, ifac_backend, c->iface_ptr->name, "SHAPE", enabled ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "SHAPE", enabled ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -335,11 +338,12 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
     return(0);
 }
 
-void VrShapeIface(const int debuglvl, struct vrmr_interface *iface_ptr) {
+void VrShapeIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr) {
     VrWin   *win = NULL;
     VrForm  *form = NULL;
     int     ch = 0, result = 0;
     struct ShapeIfaceCnf_ config;
+    config.vctx = vctx;
 
     if (VrShapeIfaceSetup(debuglvl, &config, iface_ptr) < 0)
     {
@@ -541,7 +545,8 @@ protectrule_loaded(const int debuglvl, struct vrmr_list *rules_list, char *actio
 
 
 static int
-edit_interface_init(const int debuglvl, char *name, int height, int width, int starty, int startx, struct vrmr_interface *iface_ptr)
+edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
+        int height, int width, int starty, int startx, struct vrmr_interface *iface_ptr)
 {
     int     retval=0,   // return value
             rows,
@@ -734,7 +739,7 @@ edit_interface_init(const int debuglvl, char *name, int height, int width, int s
 
     IfSec.commentfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(comment_y, comment_x, 13, 1, 0, 0));
     field_num++;
-    if(af->ask(debuglvl, ifac_backend, iface_ptr->name, "COMMENT", InterfacesSection.comment, sizeof(InterfacesSection.comment), VRMR_TYPE_INTERFACE, 0) < 0)
+    if (vctx->af->ask(debuglvl, vctx->ifac_backend, iface_ptr->name, "COMMENT", InterfacesSection.comment, sizeof(InterfacesSection.comment), VRMR_TYPE_INTERFACE, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
     set_field_buffer_wrap(debuglvl, IfSec.commentfld, 0, InterfacesSection.comment);
@@ -875,7 +880,7 @@ edit_interface_destroy(void)
 
 
 static int
-edit_interface_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
+edit_interface_save_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
 {
     struct vrmr_rule    *rule_ptr = NULL;
 
@@ -970,7 +975,7 @@ edit_interface_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
     }
 
     /* now let try to write this to the backend */
-    if(vrmr_interfaces_save_rules(debuglvl, iface_ptr) < 0)
+    if(vrmr_interfaces_save_rules(debuglvl, vctx, iface_ptr) < 0)
     {
         vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                 STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
@@ -987,7 +992,7 @@ edit_interface_save_rules(const int debuglvl, struct vrmr_interface *iface_ptr)
     -1: error
 */
 static int
-edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
+edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
 {
     int                     retval = 0,
                             result = 0,
@@ -996,7 +1001,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
     struct vrmr_interface   *tempiface_ptr = NULL;
     char                    rules_changed = FALSE;
     struct vrmr_rule        *rule_ptr = NULL;
-    struct vrmr_list_node             *d_node = NULL;
+    struct vrmr_list_node   *d_node = NULL;
 
     /* safety */
     if(iface_ptr == NULL)
@@ -1040,7 +1045,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
                     tempiface_ptr->active = -1;
                 }
 
-                result = af->tell(debuglvl, ifac_backend, tempiface_ptr->name, "ACTIVE", tempiface_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "ACTIVE", tempiface_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1065,7 +1070,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
                                     sizeof(tempiface_ptr->ipv4.ipaddress))))
                     return(-1);
 
-                result = af->tell(debuglvl, ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
+                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1091,7 +1096,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
                                     sizeof(tempiface_ptr->ipv6.ip6))))
                     return(-1);
 
-                result = af->tell(debuglvl, ifac_backend, tempiface_ptr->name, "IPV6ADDRESS", tempiface_ptr->ipv6.ip6, 1, VRMR_TYPE_INTERFACE);
+                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPV6ADDRESS", tempiface_ptr->ipv6.ip6, 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1116,7 +1121,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
                 {
                     tempiface_ptr->dynamic = 1;
 
-                    result = af->tell(debuglvl, ifac_backend, tempiface_ptr->name, "IPADDRESS", "dynamic", 1, VRMR_TYPE_INTERFACE);
+                    result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", "dynamic", 1, VRMR_TYPE_INTERFACE);
                     if(result < 0)
                     {
                         vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1129,7 +1134,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
                 {
                     tempiface_ptr->dynamic = 0;
 
-                    result = af->tell(debuglvl, ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
+                    result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
                     if(result < 0)
                     {
                         vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1158,7 +1163,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
                                     sizeof(tempiface_ptr->device))))
                     return(-1);
 
-                result = af->tell(debuglvl, ifac_backend, tempiface_ptr->name, "DEVICE", tempiface_ptr->device, 1, VRMR_TYPE_INTERFACE);
+                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "DEVICE", tempiface_ptr->device, 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1180,7 +1185,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
                 {
                     tempiface_ptr->device_virtual = 1;
 
-                    result = af->tell(debuglvl, ifac_backend, tempiface_ptr->name, "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+                    result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
                     if(result < 0)
                     {
                         vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1198,7 +1203,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
             }
             else if(InterfacesSection.EditInterface.fields[i] == IfSec.commentfld)
             {
-                result = af->tell(debuglvl, ifac_backend, tempiface_ptr->name, "COMMENT", field_buffer(InterfacesSection.EditInterface.fields[i], 0), 1, VRMR_TYPE_INTERFACE);
+                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "COMMENT", field_buffer(InterfacesSection.EditInterface.fields[i], 0), 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1225,7 +1230,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
                     tempiface_ptr->device_virtual = 0;
                 }
 
-                result = af->tell(debuglvl, ifac_backend, tempiface_ptr->name, "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1251,7 +1256,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
             {
                 status = VRMR_ST_CHANGED;
 
-                if(edit_interface_save_rules(debuglvl, tempiface_ptr) < 0)
+                if(edit_interface_save_rules(debuglvl, vctx, tempiface_ptr) < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                                 STR_SAVING_TO_BACKEND_FAILED,
@@ -1302,7 +1307,7 @@ edit_interface_save(const int debuglvl, struct vrmr_interface *iface_ptr)
     -1: error.
 */
 static int
-edit_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *name)
+edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces *interfaces, char *name)
 {
     int                     ch; /* keystroke catcher */
     int                     height,
@@ -1349,7 +1354,7 @@ edit_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *nam
         return(-1);
     }
 
-    edit_interface_init(debuglvl, name, height, width, starty, startx, iface_ptr);
+    edit_interface_init(debuglvl, vctx, name, height, width, starty, startx, iface_ptr);
     cur = current_field(InterfacesSection.EditInterface.form);
 
     draw_top_menu(debuglvl, top_win, gettext("Edit Interface"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
@@ -1526,7 +1531,7 @@ edit_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *nam
                 case 's':
                 case 'S':
                     if(field_buffer(IfSec.devicevirtualfld, 0)[0] != 'X')
-                        VrShapeIface(debuglvl, iface_ptr);
+                        VrShapeIface(debuglvl, vctx, iface_ptr);
                     else
                         vrmr_warning(VR_WARN, gettext("shaping is not supported on a virtual interface."));
                     break;
@@ -1534,7 +1539,7 @@ edit_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *nam
                 case 't':
                 case 'T':
                     if(field_buffer(IfSec.devicevirtualfld, 0)[0] != 'X')
-                        VrTcpmssIface(debuglvl, iface_ptr);
+                        VrTcpmssIface(debuglvl, vctx, iface_ptr);
                     else
                         vrmr_warning(VR_WARN, gettext("tcpmss is not supported on a virtual interface."));
                     break;
@@ -1553,7 +1558,7 @@ edit_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *nam
     doupdate();
 
     /* save changes */
-    retval = edit_interface_save(debuglvl, iface_ptr);
+    retval = edit_interface_save(debuglvl, vctx, iface_ptr);
 
     /* destroy */
     edit_interface_destroy();
@@ -1757,11 +1762,11 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
     int                     result = 0;
     struct vrmr_interface   *iface_ptr = NULL;
     struct vrmr_zone        *zone_ptr = NULL;
-    struct vrmr_list_node             *zone_d_node = NULL,
+    struct vrmr_list_node   *zone_d_node = NULL,
                             *iface_d_node = NULL;
     char                    save_name[VRMR_MAX_INTERFACE] = "";
     struct vrmr_rule        *rule_ptr = NULL;
-    struct vrmr_list_node             *d_node = NULL;
+    struct vrmr_list_node   *d_node = NULL;
     char                    rules_changed = 0;
 
     /* safety */
@@ -1785,7 +1790,7 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
 
     /*  rename in the backend.The backend will report errors if there
         are any. */
-    result = af->rename(debuglvl, ifac_backend, cur_name_ptr, new_name_ptr, VRMR_TYPE_INTERFACE);
+    result = vctx->af->rename(debuglvl, vctx->ifac_backend, cur_name_ptr, new_name_ptr, VRMR_TYPE_INTERFACE);
     if(result != 0)
     {
         return(-1);
@@ -1890,7 +1895,7 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
         if(debuglvl >= LOW)
             vrmr_debug(__FUNC__, "rules changed");
 
-        if(vrmr_rules_save_list(debuglvl, rules, &conf) < 0)
+        if(vrmr_rules_save_list(debuglvl, vctx, rules, &conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
@@ -1904,7 +1909,8 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
 
 
 static int
-interfaces_section_vrmr_delete_interface(const int debuglvl, struct vrmr_interfaces *interfaces, char *cur_name_ptr)
+interfaces_section_vrmr_delete_interface(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_interfaces *interfaces, char *cur_name_ptr)
 {
     int                     result = 0;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -1935,7 +1941,7 @@ interfaces_section_vrmr_delete_interface(const int debuglvl, struct vrmr_interfa
         return(-1);
     }
 
-    result = vrmr_delete_interface(debuglvl, interfaces, iface_ptr->name);
+    result = vrmr_delete_interface(debuglvl, vctx, interfaces, iface_ptr->name);
     if(result < 0)
     {
         return(-1);
@@ -2077,13 +2083,13 @@ interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
                     {
                         if(vrmr_validate_interfacename(debuglvl, new_name_ptr, reg->interfacename) == 0)
                         {
-                            result = vrmr_new_interface(debuglvl, interfaces, new_name_ptr);
+                            result = vrmr_new_interface(debuglvl, vctx, interfaces, new_name_ptr);
                             if(result == 0)
                             {
                                 /* example: "interface '%s' has been created." */
                                 vrmr_audit("%s '%s' %s.", STR_INTERFACE, new_name_ptr, STR_HAS_BEEN_CREATED);
 
-                                edit_interface(debuglvl, interfaces, new_name_ptr);
+                                edit_interface(debuglvl, vctx, interfaces, new_name_ptr);
                                 draw_top_menu(debuglvl, top_win, gettext("Interfaces"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
                                 reload = 1;
@@ -2113,7 +2119,7 @@ interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
                         {
                             char *n = (char *)item_name(cur);
 
-                            result = interfaces_section_vrmr_delete_interface(debuglvl, interfaces, n);
+                            result = interfaces_section_vrmr_delete_interface(debuglvl, vctx, interfaces, n);
                             if(result < 0)
                             {
                                 vrmr_error(-1, VR_ERR, gettext("deleting interface %s failed."), (char *)item_name(cur));
@@ -2158,7 +2164,7 @@ interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
                     cur = current_item(InterfacesSection.menu);
                     if(cur)
                     {
-                        if(edit_interface(debuglvl, interfaces, (char *)item_name(cur)) == 1)
+                        if(edit_interface(debuglvl, vctx, interfaces, (char *)item_name(cur)) == 1)
                             reload = 1;
 
                         draw_top_menu(debuglvl, top_win, gettext("Interfaces"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);

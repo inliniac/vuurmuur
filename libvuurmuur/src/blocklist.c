@@ -444,7 +444,7 @@ blocklist_read_file(const int debuglvl, struct vrmr_config *cfg,
 
 
 int
-vrmr_blocklist_init_list(const int debuglvl, struct vrmr_config *cfg,
+vrmr_blocklist_init_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cfg,
         struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt)
 {
     FILE        *fp = NULL;
@@ -501,7 +501,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_config *cfg,
         blocklist->old_blocklistfile_used = FALSE;
 
         /* see if the blocklist already exists in the backend */
-        while(rf->list(debuglvl, rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
+        while (vctx->rf->list(debuglvl, vctx->rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
         {
             if(debuglvl >= MEDIUM)
                 vrmr_debug(__FUNC__, "loading rules: '%s', type: %d",
@@ -513,7 +513,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_config *cfg,
 
         if(blocklist_found == FALSE)
         {
-            if(rf->add(debuglvl, rule_backend, "blocklist", VRMR_TYPE_RULE) < 0)
+            if (vctx->rf->add(debuglvl, vctx->rule_backend, "blocklist", VRMR_TYPE_RULE) < 0)
             {
                 vrmr_error(-1, "Internal Error", "rf->add() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
@@ -521,7 +521,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_config *cfg,
             }
         }
 
-        while((rf->ask(debuglvl, rule_backend, "blocklist", "RULE", line, sizeof(line), VRMR_TYPE_RULE, 1)) == 1)
+        while ((vctx->rf->ask(debuglvl, vctx->rule_backend, "blocklist", "RULE", line, sizeof(line), VRMR_TYPE_RULE, 1)) == 1)
         {
             len = strlen(line);
             if(len > 0 && line[0] != '#')
@@ -609,7 +609,8 @@ blocklist_write_file(const int debuglvl, struct vrmr_config *cfg, struct vrmr_li
 
 
 int
-vrmr_blocklist_save_list(const int debuglvl, struct vrmr_config *cfg, struct vrmr_blocklist *blocklist)
+vrmr_blocklist_save_list(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_config *cfg, struct vrmr_blocklist *blocklist)
 {
     int         result = 0;
     char        *line = NULL;
@@ -636,7 +637,7 @@ vrmr_blocklist_save_list(const int debuglvl, struct vrmr_config *cfg, struct vrm
         /* empty list, so clear all */
         if(blocklist->list.len == 0)
         {
-            if(rf->tell(debuglvl, rule_backend, "blocklist", "RULE", "", 1, VRMR_TYPE_RULE) < 0)
+            if (vctx->rf->tell(debuglvl, vctx->rule_backend, "blocklist", "RULE", "", 1, VRMR_TYPE_RULE) < 0)
             {
                 vrmr_error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
@@ -663,7 +664,7 @@ vrmr_blocklist_save_list(const int debuglvl, struct vrmr_config *cfg, struct vrm
                 snprintf(rule_str, sizeof(rule_str), "block %s", line);
 
                 /* write to the backend */
-                if(rf->tell(debuglvl, rule_backend, "blocklist", "RULE", rule_str, overwrite, VRMR_TYPE_RULE) < 0)
+                if (vctx->rf->tell(debuglvl, vctx->rule_backend, "blocklist", "RULE", rule_str, overwrite, VRMR_TYPE_RULE) < 0)
                 {
                     vrmr_error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);

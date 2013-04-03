@@ -107,14 +107,14 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        while(af->list(debuglvl, ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
+        while(vr_script->vctx.af->list(debuglvl, vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
         {
             printf("%s\n", vr_script->bdat);
         }
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        while(rf->list(debuglvl, rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
+        while(vr_script->vctx.rf->list(debuglvl, vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
         {
             printf("%s\n", vr_script->bdat);
         }

@@ -613,7 +613,8 @@ sanitize_search_str(const int debuglvl, char *str, size_t size)
 #define READLINE_LEN    512
 
 int
-logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *zones,
+logview_section(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_config *cnf, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services, /*@null@*/ char *logname)
 {
@@ -1775,14 +1776,14 @@ logview_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *
 
                 (void)zones_blocklist_add_one(debuglvl,
                     blocklist, zones);
-                (void)vrmr_blocklist_save_list(debuglvl, &conf, blocklist);
+                (void)vrmr_blocklist_save_list(debuglvl, vctx, &conf, blocklist);
                 break;
 
             case 'm':
             case 'M':
                 if(traffic_log == 1)
                 {
-                    statevent(debuglvl, cnf, STATEVENTTYPE_LOG,
+                    statevent(debuglvl, vctx, cnf, STATEVENTTYPE_LOG,
                         &LogBufferList, /* no ct */NULL,
                         /* no connreq*/NULL,
                         zones, blocklist, interfaces,

@@ -475,7 +475,7 @@ main(int argc, char *argv[])
 
     /* load the blockfile if any */
     /* call it with load_ips == TRUE */
-    if (vrmr_blocklist_init_list(debuglvl, &conf, &zones,
+    if (vrmr_blocklist_init_list(debuglvl, &vctx, &conf, &zones,
                 &blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0)
     {
         vrmr_error(-1, "Error", "blocklist_read_file failed.");
@@ -484,7 +484,7 @@ main(int argc, char *argv[])
 
     /* load the rulesfile into memory */
     vrmr_info("Info", "Loading rulesfile...");
-    result = vrmr_rules_init_list(debuglvl, &conf, &rules, &reg);
+    result = vrmr_rules_init_list(debuglvl, &vctx, &conf, &rules, &reg);
     if(result == 0)
     {
         vrmr_info("Info", "Loading rulesfile succesfull.");

@@ -32,7 +32,8 @@ static void mm_check_status_services(const int, /*@null@*/ struct vrmr_list *, s
 
 
 int
-convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struct vrmr_config *cnf)
+convert_rulesfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_rules *rules, struct vrmr_config *cnf)
 {
     char    path[96] = "";
     char    rule_name[32] = "";
@@ -40,13 +41,13 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
     int     type = 0;
     char    rules_found = FALSE;
 
-    /* first, lets save the list to the backend. For this we call vrmr_rules_save_list, 
+    /* first, lets save the list to the backend. For this we call vrmr_rules_save_list,
        but before this, we need to set rules->old_rulesfile_used to FALSE. */
     rules->old_rulesfile_used = FALSE;
 
     /* before we can save, we might need to add the rulesfile to the backend, before
        this we check if the rulesfile exists in the backend */
-    while(rf->list(debuglvl, rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
+    while (vctx->rf->list(debuglvl, vctx->rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
     {
         if(debuglvl >= MEDIUM)
             vrmr_debug(__FUNC__, "loading rules: '%s', type: %d", rule_name, type);
@@ -57,7 +58,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
 
     if(rules_found == FALSE)
     {
-        if(rf->add(debuglvl, rule_backend, "rules", VRMR_TYPE_RULE) < 0)
+        if (vctx->rf->add(debuglvl, vctx->rule_backend, "rules", VRMR_TYPE_RULE) < 0)
         {
             vrmr_error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -66,7 +67,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
     }
 
     /* call vrmr_rules_save_list */
-    if(vrmr_rules_save_list(debuglvl, rules, cnf) < 0)
+    if(vrmr_rules_save_list(debuglvl, vctx, rules, cnf) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("saving rules failed"));
         return(-1);
@@ -100,7 +101,8 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_rules *rules, struc
 
 
 int
-convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *blocklist, struct vrmr_config *cnf)
+convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_blocklist *blocklist, struct vrmr_config *cnf)
 {
     char    path[96] = "";
     char    rule_name[32] = "";
@@ -108,24 +110,24 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
     int     type = 0;
     char    blocklist_found = FALSE;
 
-    /* first, lets save the list to the backend. For this we call blocklist_save_list, 
+    /* first, lets save the list to the backend. For this we call blocklist_save_list,
        but before this, we need to set rules->old_rulesfile_used to FALSE. */
     blocklist->old_blocklistfile_used = FALSE;
 
     /* before we can save, we might need to add the rulesfile to the backend, before
        this we check if the rulesfile exists in the backend */
-    while(rf->list(debuglvl, rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
+    while (vctx->rf->list(debuglvl, vctx->rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
     {
         if(debuglvl >= MEDIUM)
             vrmr_debug(__FUNC__, "loading rules: '%s', type: %d", rule_name, type);
-            
+
         if(strcmp(rule_name, "blocklist") == 0)
             blocklist_found = TRUE;
     }
 
     if(blocklist_found == FALSE)
     {
-        if(rf->add(debuglvl, rule_backend, "blocklist", VRMR_TYPE_RULE) < 0)
+        if (vctx->rf->add(debuglvl, vctx->rule_backend, "blocklist", VRMR_TYPE_RULE) < 0)
         {
             vrmr_error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -134,7 +136,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
     }
 
     /* call vrmr_rules_save_list */
-    if(vrmr_blocklist_save_list(debuglvl, cnf, blocklist) < 0)
+    if (vrmr_blocklist_save_list(debuglvl, vctx, cnf, blocklist) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("saving blocklist failed"));
         return(-1);
@@ -168,7 +170,10 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_blocklist *bloc
 
 
 int
-mm_select_logfile(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+mm_select_logfile(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_config *cnf, struct vrmr_zones *zones,
+        struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
+        struct vrmr_services *services)
 {
     size_t  i = 0,
             n_choices = 6;
@@ -266,7 +271,7 @@ mm_select_logfile(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones
             case KEY_F(10):
                 quit=1;
                 break;
-            
+
             case KEY_DOWN:
                 menu_driver(main_menu, REQ_DOWN_ITEM);
                 break;
@@ -287,30 +292,30 @@ mm_select_logfile(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones
                 break;
             }
         }
-    
+
         if(choice_ptr != NULL)
         {
             hide_panel(menu_panels[0]);
 
             if(strncasecmp(choice_ptr, "traffic.log", 11) == 0)
             {
-                logview_section(debuglvl, cnf, zones, blocklist, interfaces, services, "traffic.log");
+                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "traffic.log");
             }
             else if(strncasecmp(choice_ptr, "error.log", 9) == 0)
             {
-                logview_section(debuglvl, cnf, zones, blocklist, interfaces, services, "error.log");
+                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "error.log");
             }
             else if(strncasecmp(choice_ptr, "audit.log", 9) == 0)
             {
-                logview_section(debuglvl, cnf, zones, blocklist, interfaces, services, "audit.log");
+                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "audit.log");
             }
             else if(strncasecmp(choice_ptr, "vuurmuur.log", 12) == 0)
             {
-                logview_section(debuglvl, cnf, zones, blocklist, interfaces, services, "vuurmuur.log");
+                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "vuurmuur.log");
             }
             else if(strncasecmp(choice_ptr, "debug.log", 9) == 0)
             {
-                logview_section(debuglvl, cnf, zones, blocklist, interfaces, services, "debug.log");
+                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "debug.log");
             }
             else if(strncasecmp(choice_ptr, gettext("Back"), StrLen(gettext("Back"))) == 0)
             {
@@ -1796,7 +1801,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         gettext("Convert the rules to the new format (recommended)?"),
                         vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1))
             {
-                if(convert_rulesfile_to_backend(debuglvl, rules, &conf) < 0)
+                if(convert_rulesfile_to_backend(debuglvl, vctx, rules, &conf) < 0)
                 {
                     vrmr_warning(VR_WARN, gettext("converting rules failed."));
                 }
@@ -1821,7 +1826,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         gettext("Convert the BlockList to the new format (recommended)?"),
                         vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1))
             {
-                if(convert_blocklistfile_to_backend(debuglvl, blocklist, &conf) < 0)
+                if (convert_blocklistfile_to_backend(debuglvl, vctx, blocklist, &conf) < 0)
                 {
                     vrmr_warning(VR_WARN, gettext("converting BlockList failed."));
                 }
@@ -2031,7 +2036,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
             if(strcmp(choice_ptr, MM_ITEM_RULES) == 0)
             {
-                rules_form(debuglvl, rules, zones, interfaces, services, reg);
+                rules_form(debuglvl, vctx, rules, zones, interfaces, services, reg);
 
                 mm_check_status_rules(debuglvl, NULL, rules);
                 mm_check_status_interfaces(debuglvl, NULL, interfaces);
@@ -2065,11 +2070,11 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             }
             else if(strcmp(choice_ptr, "traffic") == 0)
             {
-                logview_section(debuglvl, &conf, zones, blocklist, interfaces, services, NULL);
+                logview_section(debuglvl, vctx, &conf, zones, blocklist, interfaces, services, NULL);
             }
             else if(strcmp(choice_ptr, MM_ITEM_LOGVIEW) == 0)
             {
-                mm_select_logfile(debuglvl, &conf, zones, blocklist, interfaces, services);
+                mm_select_logfile(debuglvl, vctx, &conf, zones, blocklist, interfaces, services);
             }
             else if(strcmp(choice_ptr, MM_ITEM_STATUS) == 0)
             {
@@ -2077,11 +2082,11 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             }
             else if(strcmp(choice_ptr, MM_ITEM_CONNECTIONS) == 0)
             {
-                connections_section(debuglvl, &conf, zones, interfaces, services, blocklist);
+                connections_section(debuglvl, vctx, &conf, zones, interfaces, services, blocklist);
             }
             else if(strcmp(choice_ptr, MM_ITEM_BLOCKLIST) == 0)
             {
-                zones_blocklist(debuglvl, blocklist, zones, reg);
+                zones_blocklist(debuglvl, vctx, blocklist, zones, reg);
             }
             else if(strcmp(choice_ptr, MM_ITEM_TRAFVOL) == 0)
             {

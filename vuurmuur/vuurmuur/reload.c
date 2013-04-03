@@ -21,7 +21,7 @@
 
 
 /* prototypes */
-int reload_blocklist(const int, struct vrmr_config *, struct vrmr_zones *, struct vrmr_blocklist *);
+int reload_blocklist(const int, struct vrmr_ctx *, struct vrmr_config *, struct vrmr_zones *, struct vrmr_blocklist *);
 int reload_rules(const int, struct vrmr_ctx *, struct vrmr_regex *);
 int check_for_changed_networks(const int, struct vrmr_zones *);
 
@@ -164,7 +164,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
 
 
     /* reload the blocklist */
-    result = reload_blocklist(debuglvl, vctx->conf, vctx->zones, vctx->blocklist);
+    result = reload_blocklist(debuglvl, vctx, vctx->conf, vctx->zones, vctx->blocklist);
     if(result == -1)
     {
         vrmr_error(-1, "Error", "Reloading blocklist failed.");
@@ -1239,7 +1239,6 @@ reload_interfaces(const int debuglvl, struct vrmr_ctx *vctx,
     char                    name[VRMR_MAX_INTERFACE] = "";
     int                     zonetype = 0;
 
-
     /* safety first */
     if(!interfaces)
     {
@@ -1247,15 +1246,12 @@ reload_interfaces(const int debuglvl, struct vrmr_ctx *vctx,
         return(-1);
     }
 
-
     /* check if we have a backend */
-    if(!af)
-    {
+    if (!vctx->af) {
         vrmr_error(-1, "Internal Error", "backend not open (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
-    
     /* first reset all statusses */
     for(d_node = interfaces->list.top; d_node; d_node = d_node->next)
     {
@@ -1273,9 +1269,8 @@ reload_interfaces(const int debuglvl, struct vrmr_ctx *vctx,
     interfaces->dynamic_interfaces = 0;
     interfaces->active_interfaces = 0;
 
-
     /* now loop trough the interfaces and check them */
-    while(af->list(debuglvl, ifac_backend, name, &zonetype, VRMR_BT_INTERFACES) != NULL)
+    while (vctx->af->list(debuglvl, vctx->ifac_backend, name, &zonetype, VRMR_BT_INTERFACES) != NULL)
     {
         iface_ptr = vrmr_search_interface(debuglvl, interfaces, name);
         if(iface_ptr == NULL)
@@ -1599,7 +1594,8 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_ctx *vctx,
         1: changes
 */
 int
-reload_blocklist(const int debuglvl, struct vrmr_config *cfg, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist)
+reload_blocklist(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cfg,
+        struct vrmr_zones *zones, struct vrmr_blocklist *blocklist)
 {
     struct vrmr_blocklist   *new_blocklist = NULL;
     int         status = 0;
@@ -1609,8 +1605,7 @@ reload_blocklist(const int debuglvl, struct vrmr_config *cfg, struct vrmr_zones 
                 *org_ip = NULL;
 
     /* safety */
-    if(blocklist == NULL)
-    {
+    if (blocklist == NULL) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(-1);
@@ -1625,7 +1620,7 @@ reload_blocklist(const int debuglvl, struct vrmr_config *cfg, struct vrmr_zones 
 
     /*  and reload it (with load_ips == TRUE and no_refcnt == TRUE because
         we don't care about the refcnt now */
-    if (vrmr_blocklist_init_list(debuglvl, cfg, zones, new_blocklist,
+    if (vrmr_blocklist_init_list(debuglvl, vctx, cfg, zones, new_blocklist,
                 /*load_ips*/TRUE, /*no_refcnt*/TRUE) < 0)
     {
         vrmr_error(-1, "Error","reading the blocklist failed (in: %s:%d).",
@@ -1736,7 +1731,7 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     /* stage 1 starting... */
 
     /* re-initialize the rules_list */
-    if(vrmr_rules_init_list(debuglvl, vctx->conf, new_rules, reg) < 0)
+    if(vrmr_rules_init_list(debuglvl, vctx, vctx->conf, new_rules, reg) < 0)
     {
         vrmr_error(-1, "Error", "rules_init_list() failed.");
 

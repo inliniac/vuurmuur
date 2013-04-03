@@ -300,14 +300,14 @@ void services_section(const int, struct vrmr_ctx *, struct vrmr_services *, stru
     zones section
 */
 int zones_section(const int, struct vrmr_ctx *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_rules *, struct vrmr_blocklist *, struct vrmr_regex *);
-int zones_blocklist(const int, struct vrmr_blocklist *, struct vrmr_zones *, struct vrmr_regex *);
+int zones_blocklist(const int, struct vrmr_ctx *, struct vrmr_blocklist *, struct vrmr_zones *, struct vrmr_regex *);
 int zones_blocklist_add_one(const int, struct vrmr_blocklist *, struct vrmr_zones *);
 
 
 /*
     rules_section
 */
-int rules_form(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
+int rules_form(const int, struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
 int delete_rule(const int, struct vrmr_rules *, unsigned int, int);
 int insert_new_rule(const int, struct vrmr_rules *, unsigned int, const char *);
 int edit_rule(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, unsigned int, struct vrmr_regex *);
@@ -353,7 +353,9 @@ int edit_sysopt(int debuglvl);
 /*
     logview section
 */
-int logview_section(const int, struct vrmr_config *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *, /*@null@*/ char *);
+int logview_section(const int, struct vrmr_ctx *, struct vrmr_config *,
+        struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *,
+        struct vrmr_services *, /*@null@*/ char *);
 
 
 /*
@@ -381,7 +383,7 @@ int status_section(const int, struct vrmr_config *, struct vrmr_zones *, struct 
 /*
     connections
 */
-int connections_section(const int, struct vrmr_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_blocklist *);
+int connections_section(const int, struct vrmr_ctx *, struct vrmr_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_blocklist *);
 
 
 /*
@@ -459,7 +461,7 @@ typedef struct ct_
 } Conntrack;
 
 int kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf, Conntrack *ct, char *srcip, char *dstip, char *sername, char connect_status);
-int block_and_kill(const int debuglvl, Conntrack *ct, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, char *ip);
+int block_and_kill(const int debuglvl, struct vrmr_ctx *vctx, Conntrack *ct, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, char *ip);
 int kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int proto, int sp, int dp);
 int kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf, Conntrack *ct, char *srcname, char *dstname, char *sername, char connect_status);
 
@@ -468,7 +470,7 @@ void conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones);
 int conn_ct_get_connections(const int, struct vrmr_config *, Conntrack *, struct vrmr_conntrack_request *);
 void conn_ct_clear_connections(const int debuglvl, Conntrack *ct);
 
-void statevent(const int, struct vrmr_config *, int, struct vrmr_list *, Conntrack *, struct vrmr_conntrack_request *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *);
+void statevent(const int, struct vrmr_ctx *, struct vrmr_config *, int, struct vrmr_list *, Conntrack *, struct vrmr_conntrack_request *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *);
 
 
 /* length in chars (be it wide chars or normal chars) */
@@ -490,7 +492,7 @@ void fix_wide_menu(const int, MENU *, ITEM **);
 void form_test (const int debuglvl);
 
 void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt);
-void VrShapeIface(const int debuglvl, struct vrmr_interface *iface_ptr);
+void VrShapeIface(const int debuglvl, struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
 
 #ifdef USE_WIDEC
 #define wsizeof(s)  sizeof(s)/sizeof(wchar_t)

@@ -345,25 +345,25 @@ vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ctx 
     /*
         third INTERFACES
     */
-    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->ifac_backend_name, &af) < 0)
+    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->ifac_backend_name, &vctx->af) < 0)
         return(-1);
-    if (af->setup(debuglvl, cfg, &ifac_backend) < 0)
+    if (vctx->af->setup(debuglvl, cfg, &vctx->ifac_backend) < 0)
         return(-1);
-    if (af->conf(debuglvl, ifac_backend) < 0)
+    if (vctx->af->conf(debuglvl, vctx->ifac_backend) < 0)
         return(-1);
-    if (af->open(debuglvl, ifac_backend, 0, VRMR_BT_INTERFACES) < 0)
+    if (vctx->af->open(debuglvl, vctx->ifac_backend, 0, VRMR_BT_INTERFACES) < 0)
         return(-1);
 
     /*
         last RULES
     */
-    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->rule_backend_name, &rf) < 0)
+    if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->rule_backend_name, &vctx->rf) < 0)
         return(-1);
-    if (rf->setup(debuglvl, cfg, &rule_backend) < 0)
+    if (vctx->rf->setup(debuglvl, cfg, &vctx->rule_backend) < 0)
         return(-1);
-    if (rf->conf(debuglvl, rule_backend) < 0)
+    if (vctx->rf->conf(debuglvl, vctx->rule_backend) < 0)
         return(-1);
-    if (rf->open(debuglvl, rule_backend, 0, VRMR_BT_RULES) < 0)
+    if (vctx->rf->open(debuglvl, vctx->rule_backend, 0, VRMR_BT_RULES) < 0)
         return(-1);
 
     return(0);
@@ -416,25 +416,25 @@ vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ct
     /*
         INTERFACES
     */
-    if (af->close(debuglvl, ifac_backend, VRMR_BT_INTERFACES) < 0)
+    if (vctx->af->close(debuglvl, vctx->ifac_backend, VRMR_BT_INTERFACES) < 0)
         return(-1);
 
-    free(ifac_backend);
-    ifac_backend = NULL;
+    free(vctx->ifac_backend);
+    vctx->ifac_backend = NULL;
 
-    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->ifac_backend_name, &af) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->ifac_backend_name, &vctx->af) < 0)
         return(-1);
 
     /*
         RULES
     */
-    if (rf->close(debuglvl, rule_backend, VRMR_BT_RULES) < 0)
+    if (vctx->rf->close(debuglvl, vctx->rule_backend, VRMR_BT_RULES) < 0)
         return(-1);
 
-    free(rule_backend);
-    rule_backend = NULL;
+    free(vctx->rule_backend);
+    vctx->rule_backend = NULL;
 
-    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->rule_backend_name, &rf) < 0)
+    if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->rule_backend_name, &vctx->rf) < 0)
         return(-1);
 
     return(0);

@@ -105,7 +105,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
     vrmr_list_setup(debuglvl, &blocklist.list, free);
     blocklist.old_blocklistfile_used = FALSE;
 
-    while(rf->ask(debuglvl, rule_backend, "blocklist", "RULE",
+    while(vr_script->vctx.rf->ask(debuglvl, vr_script->vctx.rule_backend, "blocklist", "RULE",
                 vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_RULE, 1) == 1)
     {
         vrmr_rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
@@ -136,7 +136,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
 
     if(removed == TRUE)
     {
-        if(vrmr_blocklist_save_list(debuglvl, &conf, &blocklist) != 0)
+        if(vrmr_blocklist_save_list(debuglvl, &vr_script->vctx, &conf, &blocklist) != 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
                 "could not save updated blocklist (in: %s:%d).",

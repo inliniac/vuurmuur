@@ -71,7 +71,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        while(af->list(debuglvl, ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
+        while(vr_script->vctx.af->list(debuglvl, vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -87,7 +87,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        while(rf->list(debuglvl, rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
+        while(vr_script->vctx.rf->list(debuglvl, vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -202,7 +202,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        while(af->list(debuglvl, ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
+        while(vr_script->vctx.af->list(debuglvl, vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->set) == 0)
             {
@@ -218,7 +218,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        while(rf->list(debuglvl, rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
+        while(vr_script->vctx.rf->list(debuglvl, vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->set) == 0)
             {
@@ -287,7 +287,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        if(af->rename(debuglvl, ifac_backend, vr_script->name, vr_script->set, VRMR_TYPE_INTERFACE) < 0)
+        if(vr_script->vctx.af->rename(debuglvl, vr_script->vctx.ifac_backend, vr_script->name, vr_script->set, VRMR_TYPE_INTERFACE) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -297,7 +297,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        if(rf->rename(debuglvl, rule_backend, vr_script->name, vr_script->set, VRMR_TYPE_RULE) < 0)
+        if(vr_script->vctx.rf->rename(debuglvl, vr_script->vctx.rule_backend, vr_script->name, vr_script->set, VRMR_TYPE_RULE) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);

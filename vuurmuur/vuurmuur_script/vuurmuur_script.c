@@ -804,7 +804,7 @@ main(int argc, char *argv[])
          * append into an empty list then using --block */
         if (vr_script.cmd == CMD_BLK) {
             /* append or overwrite mode (fix ticket #49) */
-            if ((rf->ask(debuglvl, rule_backend, "blocklist", "RULE",
+            if ((vr_script.vctx.rf->ask(debuglvl, vr_script.vctx.rule_backend, "blocklist", "RULE",
                             vr_script.bdat, sizeof(vr_script.bdat), VRMR_TYPE_RULE, 1) == 1))
             {
                 /* we got a rule from the backend so we have to append */
@@ -872,7 +872,7 @@ main(int argc, char *argv[])
     }
     else if(vr_script.cmd == CMD_LBL)
     {
-        while((result = rf->ask(debuglvl, rule_backend, "blocklist", "RULE", vr_script.bdat, sizeof(vr_script.bdat), VRMR_TYPE_RULE, 1) == 1))
+        while((result = vr_script.vctx.rf->ask(debuglvl, vr_script.vctx.rule_backend, "blocklist", "RULE", vr_script.bdat, sizeof(vr_script.bdat), VRMR_TYPE_RULE, 1) == 1))
         {
             vrmr_rules_encode_rule(debuglvl, vr_script.bdat, sizeof(vr_script.bdat));
             str = remove_leading_part(vr_script.bdat);

@@ -793,7 +793,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_RULES); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = vrmr_rules_init_list(debuglvl, &conf, rules, reg);
+    result = vrmr_rules_init_list(debuglvl, vctx, &conf, rules, reg);
     if(result < 0)
     {
         /* TRANSLATORS: max 40 characters */
@@ -809,7 +809,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_BLOCKLIST); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = vrmr_blocklist_init_list(debuglvl, &conf, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE);
+    result = vrmr_blocklist_init_list(debuglvl, vctx, &conf, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE);
     if(result < 0)
     {
         /* TRANSLATORS: max 40 characters */

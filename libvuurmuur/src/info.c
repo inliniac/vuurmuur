@@ -560,7 +560,7 @@ vrmr_check_active(const int debuglvl, struct vrmr_ctx *vctx, char *name, int typ
     /* interface */
     else if(type == VRMR_TYPE_INTERFACE)
     {
-        result = af->ask(debuglvl, ifac_backend, name, "ACTIVE", active, sizeof(active), type, 0);
+        result = vctx->af->ask(debuglvl, vctx->ifac_backend, name, "ACTIVE", active, sizeof(active), type, 0);
     }
     /* zone, network, host, group */
     else if(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK || type == VRMR_TYPE_HOST || type == VRMR_TYPE_GROUP)

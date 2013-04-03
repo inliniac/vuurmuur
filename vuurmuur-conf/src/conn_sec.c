@@ -644,7 +644,7 @@ conn_ct_clear_connections(const int debuglvl, Conntrack *ct)
 
 
 int
-connections_section(const int debuglvl, struct vrmr_config *cnf,
+connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
             struct vrmr_services *services, struct vrmr_blocklist *blocklist)
 {
@@ -1157,7 +1157,7 @@ connections_section(const int debuglvl, struct vrmr_config *cnf,
             case 'k':
 
                 conn_ct_get_connections(debuglvl, cnf, ct, &connreq);
-                statevent(debuglvl, cnf, STATEVENTTYPE_CONN, &ct->conn_list, ct, &connreq, zones, blocklist, interfaces, services);
+                statevent(debuglvl, vctx, cnf, STATEVENTTYPE_CONN, &ct->conn_list, ct, &connreq, zones, blocklist, interfaces, services);
                 conn_ct_clear_connections(debuglvl, ct);
 
                 draw_top_menu(debuglvl, top_win, gettext("Connections"), key_choices_n,
@@ -1420,7 +1420,7 @@ kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf,
     new connections to be established.
 */
 int
-block_and_kill(const int debuglvl, Conntrack *ct, struct vrmr_zones *zones,
+block_and_kill(const int debuglvl, struct vrmr_ctx *vctx, Conntrack *ct, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, char *ip)
 {
     struct vrmr_interface   *iface_ptr = NULL;
@@ -1448,7 +1448,7 @@ block_and_kill(const int debuglvl, Conntrack *ct, struct vrmr_zones *zones,
     }
 
     /* save the list */
-    if(vrmr_blocklist_save_list(debuglvl, &conf, blocklist) < 0)
+    if(vrmr_blocklist_save_list(debuglvl, vctx, &conf, blocklist) < 0)
     {
         vrmr_error(-1, VR_INTERR, "blocklist_save_list() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
