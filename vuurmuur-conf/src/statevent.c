@@ -645,7 +645,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL, CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
@@ -658,7 +658,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->dst_ip, NULL, CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
@@ -671,8 +671,8 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->src_ip, NULL, CONN_UNUSED);
-                                kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL, CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->src_ip, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
@@ -685,8 +685,8 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->dst_ip, NULL, CONN_UNUSED);
-                                kill_connections_by_ip(debuglvl, &conf, ct, con->dst_ip, NULL, NULL, CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ct, con->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
@@ -911,7 +911,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                                 {
                                     kill_connections_by_ip(debuglvl, &conf, ctr,
-                                        log->src_ip, log->dst_ip, log->ser, CONN_UNUSED);
+                                        log->src_ip, log->dst_ip, log->ser, VRMR_CONN_UNUSED);
                                 }
                             }
                             break;
@@ -926,7 +926,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL, CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
@@ -939,7 +939,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL, CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
@@ -952,8 +952,8 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->src_ip, NULL, CONN_UNUSED);
-                                kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL, CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->src_ip, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
                 
@@ -966,8 +966,8 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL, CONN_UNUSED);
-                                kill_connections_by_ip(debuglvl, &conf, ctr, log->dst_ip, NULL, NULL, CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, &conf, ctr, log->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 

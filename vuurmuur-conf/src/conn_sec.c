@@ -72,11 +72,11 @@ print_connection(const int debuglvl, WINDOW *local_win,
     /* determine the position where we are going to write */
     if(connreq->sort_conn_status)
     {
-        if(cd_ptr->connect_status == CONN_CONNECTING)
+        if(cd_ptr->connect_status == VRMR_CONN_CONNECTING)
         {
             start_print = (max_onscreen/4)*2 + 1 + cnt;
         }
-        else if(cd_ptr->connect_status == CONN_DISCONNECTING)
+        else if(cd_ptr->connect_status == VRMR_CONN_DISCONNECTING)
         {
             start_print = (max_onscreen/4)*3 + 1 + cnt;
         }
@@ -87,11 +87,11 @@ print_connection(const int debuglvl, WINDOW *local_win,
     }
     else if(connreq->sort_in_out_fwd)
     {
-        if(cd_ptr->direction_status == CONN_IN)
+        if(cd_ptr->direction_status == VRMR_CONN_IN)
         {
             start_print = (max_onscreen / 3) + 3 + 1 + cnt;
         }
-        else if(cd_ptr->direction_status == CONN_OUT)
+        else if(cd_ptr->direction_status == VRMR_CONN_OUT)
         {
             start_print = (max_onscreen / 3) * 2 + 2 + 1 + cnt;
         }
@@ -235,7 +235,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
 
         wprintw(local_win, "%s", printline);
 
-        if(cd_ptr->connect_status == CONN_CONNECTING)
+        if(cd_ptr->connect_status == VRMR_CONN_CONNECTING)
         {
             wattron(local_win, vccnf.color_bgd_green | A_BOLD);
 
@@ -251,7 +251,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
 
             wattroff(local_win, vccnf.color_bgd_green | A_BOLD);
         }
-        else if(cd_ptr->connect_status == CONN_CONNECTED)
+        else if(cd_ptr->connect_status == VRMR_CONN_CONNECTED)
         {
             wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
 
@@ -267,7 +267,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
 
             wattroff(local_win, vccnf.color_bgd_yellow | A_BOLD);
         }
-        else if(cd_ptr->connect_status == CONN_DISCONNECTING)
+        else if(cd_ptr->connect_status == VRMR_CONN_DISCONNECTING)
         {
             wattron(local_win, vccnf.color_bgd_red | A_BOLD);
 
@@ -305,7 +305,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
 
         wprintw(local_win, "%s", printline);
 
-        if(cd_ptr->direction_status == CONN_IN)
+        if(cd_ptr->direction_status == VRMR_CONN_IN)
         {
             wattron(local_win, vccnf.color_bgd_cyan|A_BOLD);
 
@@ -320,7 +320,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
             wprintw(local_win, "%s", printline);
             wattroff(local_win, vccnf.color_bgd_cyan | A_BOLD);
         }
-        else if(cd_ptr->direction_status == CONN_OUT)
+        else if(cd_ptr->direction_status == VRMR_CONN_OUT)
         {
             wattron(local_win, vccnf.color_bgd_cyan|A_BOLD);
 
@@ -335,7 +335,7 @@ print_connection(const int debuglvl, WINDOW *local_win,
             wprintw(local_win, "%s", printline);
             wattroff(local_win, vccnf.color_bgd_cyan | A_BOLD);
         }
-        else if(cd_ptr->direction_status == CONN_FW)
+        else if(cd_ptr->direction_status == VRMR_CONN_FW)
         {
             wattron(local_win, vccnf.color_bgd_yellow | A_BOLD);
 
@@ -827,7 +827,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
 
                     if(connreq.sort_conn_status)
                     {
-                        if(cd_ptr->connect_status == CONN_CONNECTING)
+                        if(cd_ptr->connect_status == VRMR_CONN_CONNECTING)
                         {
                             if(connecting < max_connecting)
                             {
@@ -840,7 +840,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                                 }
                             }
                         }
-                        else if(cd_ptr->connect_status == CONN_DISCONNECTING)
+                        else if(cd_ptr->connect_status == VRMR_CONN_DISCONNECTING)
                         {
                             if(disconnecting < max_disconnecting)
                             {
@@ -877,7 +877,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                     }
                     else if(connreq.sort_in_out_fwd)
                     {
-                        if(cd_ptr->direction_status == CONN_IN)
+                        if(cd_ptr->direction_status == VRMR_CONN_IN)
                         {
                             if(incoming < max_incoming)
                             {
@@ -890,7 +890,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                                 }
                             }
                         }
-                        else if(cd_ptr->direction_status == CONN_OUT)
+                        else if(cd_ptr->direction_status == VRMR_CONN_OUT)
                         {
                             if(outgoing < max_outgoing)
                             {
@@ -1307,7 +1307,7 @@ kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf,
 
                 if(sername == NULL || strcmp(sername, cd_ptr->sername) == 0)
                 {
-                    if(connect_status == CONN_UNUSED || connect_status == cd_ptr->connect_status) {
+                    if(connect_status == VRMR_CONN_UNUSED || connect_status == cd_ptr->connect_status) {
                             if(kill_connection(debuglvl, cnf->conntrack_location,
                             cd_ptr->src_ip,  dip,
                             cd_ptr->protocol, cd_ptr->src_port,
@@ -1378,7 +1378,7 @@ kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf,
 
                 if(sername == NULL || strcmp(sername, cd_ptr->sername) == 0)
                 {
-                    if(connect_status == CONN_UNUSED || connect_status == cd_ptr->connect_status) {
+                    if(connect_status == VRMR_CONN_UNUSED || connect_status == cd_ptr->connect_status) {
                         if(kill_connection(debuglvl, cnf->conntrack_location,
                             cd_ptr->src_ip, dip, cd_ptr->protocol,
                             cd_ptr->src_port, cd_ptr->dst_port) == -1)
@@ -1468,8 +1468,8 @@ block_and_kill(const int debuglvl, struct vrmr_ctx *vctx, Conntrack *ct, struct 
     if(conf.conntrack_location[0] != '\0')
     {
         /* kill all connections for this ip */
-        kill_connections_by_ip(debuglvl, &conf, ct, NULL, ip, NULL, CONN_UNUSED);
-        kill_connections_by_ip(debuglvl, &conf, ct, ip, NULL, NULL, CONN_UNUSED);
+        kill_connections_by_ip(debuglvl, &conf, ct, NULL, ip, NULL, VRMR_CONN_UNUSED);
+        kill_connections_by_ip(debuglvl, &conf, ct, ip, NULL, NULL, VRMR_CONN_UNUSED);
     }
 
     VrBusyWinHide();

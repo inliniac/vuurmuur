@@ -889,13 +889,13 @@ enum vrmr_tcp_states {
 /* simplified connection status in vuurmuur */
 enum
 {
-    CONN_UNUSED=0,
-    CONN_CONNECTING,
-    CONN_CONNECTED,
-    CONN_DISCONNECTING,
-    CONN_IN,
-    CONN_OUT,
-    CONN_FW,
+    VRMR_CONN_UNUSED=0,
+    VRMR_CONN_CONNECTING,
+    VRMR_CONN_CONNECTED,
+    VRMR_CONN_DISCONNECTING,
+    VRMR_CONN_IN,
+    VRMR_CONN_OUT,
+    VRMR_CONN_FW,
 };
 
 struct vrmr_conntrack_entry {

@@ -114,24 +114,24 @@ vrmr_conn_print_dlist(const struct vrmr_list *dlist)
     {
         cd_ptr = d_node->data;
 
-        if(cd_ptr->connect_status == CONN_UNUSED)
+        if(cd_ptr->connect_status == VRMR_CONN_UNUSED)
             strcpy(status, "");
-        else if(cd_ptr->connect_status == CONN_CONNECTING)
+        else if(cd_ptr->connect_status == VRMR_CONN_CONNECTING)
             strcpy(status, "CONNECTING");
-        else if(cd_ptr->connect_status == CONN_CONNECTED)
+        else if(cd_ptr->connect_status == VRMR_CONN_CONNECTED)
             strcpy(status, "CONNECTED");
-        else if(cd_ptr->connect_status == CONN_DISCONNECTING)
+        else if(cd_ptr->connect_status == VRMR_CONN_DISCONNECTING)
             strcpy(status, "DISCONNECTING");
         else
             strcpy(status, "UNKNOWN");
 
-        if(cd_ptr->direction_status == CONN_UNUSED)
+        if(cd_ptr->direction_status == VRMR_CONN_UNUSED)
             strcpy(direction, "");
-        else if(cd_ptr->direction_status == CONN_IN)
+        else if(cd_ptr->direction_status == VRMR_CONN_IN)
             strcpy(direction, "INCOMING");
-        else if(cd_ptr->direction_status == CONN_OUT)
+        else if(cd_ptr->direction_status == VRMR_CONN_OUT)
             strcpy(direction, "OUTGOING");
-        else if(cd_ptr->direction_status == CONN_FW)
+        else if(cd_ptr->direction_status == VRMR_CONN_FW)
             strcpy(direction, "FORWARDING");
 
         fprintf(stdout, "%4d: service %s from %s to %s %s %s\n", cd_ptr->cnt, cd_ptr->sername, cd_ptr->fromname, cd_ptr->toname, status, direction);
@@ -437,20 +437,20 @@ conn_line_to_data(  const int debuglvl,
     }
 
     if(connline_ptr->state == SYN_SENT || connline_ptr->state == SYN_RECV || connline_ptr->state == UNREPLIED)
-        conndata_ptr->connect_status = CONN_CONNECTING;
+        conndata_ptr->connect_status = VRMR_CONN_CONNECTING;
     else if(connline_ptr->state == TCP_ESTABLISHED || connline_ptr->state == UDP_ESTABLISHED)
-        conndata_ptr->connect_status = CONN_CONNECTED;
+        conndata_ptr->connect_status = VRMR_CONN_CONNECTED;
     else if(connline_ptr->state == FIN_WAIT || connline_ptr->state == TIME_WAIT || connline_ptr->state == CLOSE || connline_ptr->state == CLOSE_WAIT || connline_ptr->state == LAST_ACK)
-        conndata_ptr->connect_status = CONN_DISCONNECTING;
+        conndata_ptr->connect_status = VRMR_CONN_DISCONNECTING;
     else
-        conndata_ptr->connect_status = CONN_UNUSED;
+        conndata_ptr->connect_status = VRMR_CONN_UNUSED;
 
     if(conndata_ptr->from != NULL && conndata_ptr->from->type == VRMR_TYPE_FIREWALL)
-        conndata_ptr->direction_status = CONN_OUT;
+        conndata_ptr->direction_status = VRMR_CONN_OUT;
     else if(conndata_ptr->to != NULL && conndata_ptr->to->type == VRMR_TYPE_FIREWALL)
-        conndata_ptr->direction_status = CONN_IN;
+        conndata_ptr->direction_status = VRMR_CONN_IN;
     else
-        conndata_ptr->direction_status = CONN_FW;
+        conndata_ptr->direction_status = VRMR_CONN_FW;
 
     /* transfer the acc data */
     conndata_ptr->use_acc = connline_ptr->use_acc;
@@ -2249,11 +2249,11 @@ vrmr_conn_get_connections_do(const int debuglvl,
             else
                 connstat_ptr->conn_fw++;
 
-            if(cd_ptr->connect_status == CONN_CONNECTING)
+            if(cd_ptr->connect_status == VRMR_CONN_CONNECTING)
                 connstat_ptr->stat_connect++;
-            else if(cd_ptr->connect_status == CONN_DISCONNECTING)
+            else if(cd_ptr->connect_status == VRMR_CONN_DISCONNECTING)
                 connstat_ptr->stat_closing++;
-            else if(cd_ptr->connect_status == CONN_CONNECTED)
+            else if(cd_ptr->connect_status == VRMR_CONN_CONNECTED)
                 connstat_ptr->stat_estab++;
             else
                 connstat_ptr->stat_other++;
