@@ -177,7 +177,6 @@ main(int argc, char *argv[])
     struct vrmr_interfaces interfaces;
     struct vrmr_services services;
     struct vrmr_zones zones;
-    struct vrmr_user user_data;
     FILE        *system_log = NULL;
     char        line_in[1024] = "";
     char        line_out[1024] = "";
@@ -216,7 +215,6 @@ main(int argc, char *argv[])
     int             shm_id;
     int             reload = 0;
 
-    struct vrmr_regex reg;
     char        quit = 0;
 
     vctx.zones = &zones;
@@ -227,7 +225,7 @@ main(int argc, char *argv[])
     snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
             VUURMUUR_VERSION, libvuurmuur_get_version());
 
-    vrmr_init(&conf, "vuurmuur_log");
+    vrmr_init(&vctx, &conf, "vuurmuur_log");
 
     /* init signals */
     setup_signal_handler(SIGINT, handle_sigint);
@@ -339,8 +337,9 @@ main(int argc, char *argv[])
     vrprint.audit = vrmr_logprint_audit;
 
     /* get the current user */
-    vrmr_user_get_info(debuglvl, &user_data);
-    vrmr_audit("Vuurmuur_log %s %s started by user %s.", version_string, (syslog) ? "" :"(experimental nflog mode)", user_data.realusername);
+    vrmr_audit("Vuurmuur_log %s %s started by user %s.",
+            version_string, (syslog) ? "" :"(experimental nflog mode)",
+            vctx.user_data.realusername);
 
 #ifdef HAVE_LIBNETFILTER_LOG
     /* Setup nflog after vrmr_init_config as and logging as we need &conf in subscribe_nflog() */
@@ -357,12 +356,6 @@ main(int argc, char *argv[])
         exit (EXIT_FAILURE);
     }
 #endif /* HAVE_LIBNETFILTER_LOG */
-
-    /* setup regexes */
-    if(vrmr_regex_setup(1, &reg) < 0) {
-        vrmr_error(-1, "Internal Error", "setting up regular expressions failed.");
-        exit(EXIT_FAILURE);
-    }
 
     if (vrmr_backends_load(debuglvl, &conf, &vctx) < 0) {
         vrmr_error(-1, "Error", "loading plugins failed, bailing out.");
@@ -381,7 +374,7 @@ main(int argc, char *argv[])
     }
 
     /* load the services into memory */
-    if (vrmr_services_load(debuglvl, &vctx, &services, &reg)== -1)
+    if (vrmr_services_load(debuglvl, &vctx, &services, &vctx.reg)== -1)
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
@@ -389,7 +382,7 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* load the zonedata into memory */
-    if (vrmr_zones_load(debuglvl, &vctx, &zones, &interfaces, &reg) == -1)
+    if (vrmr_zones_load(debuglvl, &vctx, &zones, &interfaces, &vctx.reg) == -1)
         exit(EXIT_FAILURE);
 
 
@@ -600,7 +593,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 40);
 
             vrmr_info("Info", "Initializing zones...");
-            if (vrmr_init_zonedata(debuglvl, &vctx, &zones, &interfaces, &reg) < 0)
+            if (vrmr_init_zonedata(debuglvl, &vctx, &zones, &interfaces, &vctx.reg) < 0)
             {
                 vrmr_error(-1, "Error", "initializing zones failed.");
                 exit(EXIT_FAILURE);
@@ -609,7 +602,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 50);
 
             vrmr_info("Info", "Initializing services...");
-            if (vrmr_init_services(debuglvl, &vctx, &services, &reg) < 0)
+            if (vrmr_init_services(debuglvl, &vctx, &services, &vctx.reg) < 0)
             {
                 vrmr_error(-1, "Error", "initializing services failed.");
                 exit(EXIT_FAILURE);
@@ -713,9 +706,6 @@ main(int argc, char *argv[])
     {
         vrmr_error(-1, "Error", "unloading backends failed.");
     }
-
-    /* cleanup regexes */
-    (void)vrmr_regex_setup(0, &reg);
 
     /* remove the pidfile */
     if(vrmr_remove_pidfile(PIDFILE) < 0)

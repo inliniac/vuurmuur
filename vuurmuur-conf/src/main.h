@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2008 by Victor Julien                              *
+ *   Copyright (C) 2003-2013 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
@@ -257,8 +257,6 @@ pid_t               vuurmuurlog_pid;
 
 char                version_string[128];
 
-struct vrmr_user    user_data;
-
 int                 utf8_mode;
 
 
@@ -408,8 +406,8 @@ int vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf);
     main menu
 */
 int main_menu(const int, struct vrmr_ctx *, struct vrmr_rules *,  struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_blocklist *, struct vrmr_regex *);
-void mm_status_checkall(int, struct vrmr_list *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
-int vc_apply_changes(const int debuglvl);
+void mm_status_checkall(const int, struct vrmr_ctx *, struct vrmr_list *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
+int vc_apply_changes(const int debuglvl, struct vrmr_ctx *);
 
 /*
     bandwidth

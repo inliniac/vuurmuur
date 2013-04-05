@@ -106,7 +106,7 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
     /*
         check if the value makes sense
     */
-    result = backend_check(debuglvl, vr_script->type, vr_script->var, vr_script->set, vr_script->overwrite, &vr_script->reg);
+    result = backend_check(debuglvl, vr_script->type, vr_script->var, vr_script->set, vr_script->overwrite, &vr_script->vctx.reg);
     if(result != 0)
         return(result);
 

@@ -2216,8 +2216,7 @@ vrmr_pre_init_config(struct vrmr_config *cnf)
     return(0);
 }
 
-int vrmr_init(struct vrmr_config *cnf, char *toolname) {
-    struct vrmr_user user_data;
+int vrmr_init(struct vrmr_ctx *ctx, struct vrmr_config *cnf, char *toolname) {
     int debuglvl = 0;
 
     cnf->vrprint.logger = toolname;
@@ -2237,12 +2236,21 @@ int vrmr_init(struct vrmr_config *cnf, char *toolname) {
     if (vrmr_pre_init_config(cnf) < 0)
         return(-1);
 
-    vrmr_user_get_info(debuglvl, &user_data);
-    cnf->vrprint.username = strdup(user_data.realusername);
-    vrprint.username = strdup(user_data.realusername);
+    vrmr_user_get_info(debuglvl, &ctx->user_data);
+    cnf->vrprint.username = ctx->user_data.realusername;
+    vrprint.username = ctx->user_data.realusername;
 
     /* init plugin list */
     vrmr_list_setup(debuglvl, &vrmr_plugin_list, NULL);
+
+    /* setup regexes */
+    if (vrmr_regex_setup(1, &ctx->reg) < 0)
+    {
+        vrmr_error(-1, "Internal Error", "setting up regular expressions failed.");
+        return(-1);
+    }
+
+
     return(0);
 }
 

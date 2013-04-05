@@ -1126,7 +1126,7 @@ mm_update_overall_status(const int debuglvl)
 
 
 static int
-mm_reload_shm(const int debuglvl)
+mm_reload_shm(const int debuglvl, struct vrmr_ctx *vctx)
 {
     #define SHM_REL_NOT_CONN    gettext("Not connected")
     #define SHM_REL_SUCCESS     gettext("Success")
@@ -1149,7 +1149,7 @@ mm_reload_shm(const int debuglvl)
     int     vuurmuur_result = 0,
             vuurmuurlog_result = 0;
     int     waittime = 0;
-    
+
     int     vuurmuur_progress = 0,
             vuurmuurlog_progress = 0;
 
@@ -1170,7 +1170,7 @@ mm_reload_shm(const int debuglvl)
         return(-1);
     }
     panel[0] = new_panel(wait_win);
-    
+
     n_fields = 2;
     fields = (FIELD **)calloc(n_fields + 1, sizeof(FIELD *));
 
@@ -1209,7 +1209,7 @@ mm_reload_shm(const int debuglvl)
         {
             vuurmuur_shmtable->backend_changed = 1;
             (void)strlcpy(vuurmuur_shmtable->configtool.username,
-                    user_data.realusername,
+                    vctx->user_data.realusername,
                     sizeof(vuurmuur_shmtable->configtool.username));
             vrmr_unlock(vuurmuur_semid);
 
@@ -1231,7 +1231,7 @@ mm_reload_shm(const int debuglvl)
         {
             vuurmuurlog_shmtable->backend_changed = 1;
             (void)strlcpy(vuurmuurlog_shmtable->configtool.username,
-                    user_data.realusername,
+                    vctx->user_data.realusername,
                     sizeof(vuurmuurlog_shmtable->configtool.username));
             vrmr_unlock(vuurmuurlog_semid);
 
@@ -1492,7 +1492,7 @@ mm_update_status_fields(const int debuglvl)
 
 
 int
-vc_apply_changes(const int debuglvl)
+vc_apply_changes(const int debuglvl, struct vrmr_ctx *vctx)
 {
     int reload_result = 0;
 
@@ -1517,7 +1517,7 @@ vc_apply_changes(const int debuglvl)
     if(VuurmuurStatus.overall == 1)
     {
         /* reload the shm */
-        reload_result = mm_reload_shm(debuglvl);
+        reload_result = mm_reload_shm(debuglvl, vctx);
         /* update the vuurmuurlognames because the logs might
            have moved after applying the changes because of
            configuration changes made by the user */
@@ -1535,7 +1535,7 @@ vc_apply_changes(const int debuglvl)
             vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1))
         {
             /* reload the shm */
-            reload_result = mm_reload_shm(debuglvl);
+            reload_result = mm_reload_shm(debuglvl, vctx);
             /* update the vuurmuurlognames because the logs might
                have moved after applying the changes because of
                configuration changes made by the user */
@@ -2105,7 +2105,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             }
             else if(strcmp(choice_ptr, "printstatus") == 0)
             {
-                mm_status_checkall(debuglvl, &VuurmuurStatus.StatusList, rules, zones, interfaces, services);
+                mm_status_checkall(debuglvl, vctx, &VuurmuurStatus.StatusList, rules, zones, interfaces, services);
                 print_status(debuglvl);
             }
             else if(strncasecmp(choice_ptr, "showhelp", 8) == 0)
@@ -2114,7 +2114,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             }
             else if(strcmp(choice_ptr, MM_ITEM_APPLYCHANGES) == 0)
             {
-                vc_apply_changes(debuglvl);
+                vc_apply_changes(debuglvl, vctx);
             }
             else if(strcmp(choice_ptr, MM_ITEM_QUIT) == 0)
             {
@@ -2180,7 +2180,10 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     check all the statusses
 */
 void
-mm_status_checkall(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+mm_status_checkall(const int debuglvl, struct vrmr_ctx *vctx,
+        /*@null@*/ struct vrmr_list *status_list, struct vrmr_rules *rules,
+        struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+        struct vrmr_services *services)
 {
     unsigned int    list_len = 0;
 

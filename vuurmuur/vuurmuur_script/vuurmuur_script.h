@@ -81,8 +81,6 @@ int sem_id;
 /* pointer to the environment */
 extern char **environ;
 
-struct vrmr_user user_data;
-
 enum
 {
     CMD_UNSET = 0,
@@ -134,7 +132,6 @@ typedef struct VuurmuurScript_
     /* some data used by most function */
     int         zonetype;
     char        bdat[1024];
-    struct vrmr_regex reg;
 
     /* try to instruct vuurmuur and vuurmuur_log to reload? */
     char        apply;

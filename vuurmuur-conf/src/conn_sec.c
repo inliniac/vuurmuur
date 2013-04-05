@@ -1461,7 +1461,7 @@ block_and_kill(const int debuglvl, struct vrmr_ctx *vctx, Conntrack *ct, struct 
         STR_IPADDRESS, ip, STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
 
     /* apply the changes */
-    vc_apply_changes(debuglvl);
+    vc_apply_changes(debuglvl, vctx);
 
     /*  if we don't support killing connections we are happy with
         only blocking as well */

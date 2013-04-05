@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2003-2008 by Victor Julien                              *
+ *   Copyright (C) 2003-2013 by Victor Julien                              *
  *   victor@vuurmuur.org                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #include "main.h"
 
 void
@@ -92,8 +92,6 @@ main(int argc, char *argv[])
     };
     int     longopt_index = 0;
 
-    struct vrmr_regex reg;
-
     int         debuglvl = 0;
     PANEL       *main_panels[5];
     char        *s = NULL;
@@ -116,10 +114,8 @@ main(int argc, char *argv[])
             VUURMUURCONF_VERSION, libvuurmuur_get_version());
 
     /* some initilization */
-    if (vrmr_init(&conf, "vuurmuur_conf") < 0)
+    if (vrmr_init(&vctx, &conf, "vuurmuur_conf") < 0)
         exit(EXIT_FAILURE);
-    /* get the current user */
-    vrmr_user_get_info(debuglvl, &user_data);
 
     /* settings file */
     memset(vccnf.configfile_location, 0, sizeof(vccnf.configfile_location));
@@ -310,7 +306,7 @@ main(int argc, char *argv[])
 
     wattron(status_frame_win, vccnf.color_bgd);
     mvwprintw(status_frame_win, 0, 2, " %s ", gettext("Status"));
-    mvwprintw(status_frame_win, 2, (int)(COLS - 4 - StrLen(user_data.realusername) - 6), " user: %s ", user_data.realusername);
+    mvwprintw(status_frame_win, 2, (int)(COLS - 4 - StrLen(vctx.user_data.realusername) - 6), " user: %s ", vctx.user_data.realusername);
     wattroff(status_frame_win, vccnf.color_bgd);
 
     /* Attach a panel to each window */
@@ -331,14 +327,6 @@ main(int argc, char *argv[])
     if(status_print(status_win, gettext("This is Vuurmuur_conf %s, Copyright (c) 2003-2008 by Victor Julien"), version_string) < 0)
         exit(EXIT_FAILURE);
 
-    /* setup regexes */
-    if(vrmr_regex_setup(1, &reg) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "vrmr_regex_setup() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
-        exit(EXIT_FAILURE);
-    }
-
     /* setup the global busywin */
     VrBusyWinCreate(debuglvl);
     VrBusyWinHide();
@@ -347,7 +335,7 @@ main(int argc, char *argv[])
 
     /* startup_screen inits the config, loads the zones, rules, etc */
     if (startup_screen(debuglvl, &vctx, &rules, &zones,
-                &services, &interfaces, &blocklist, &reg) < 0)
+                &services, &interfaces, &blocklist, &vctx.reg) < 0)
     {
         /* failure! Lets quit. */
 
@@ -374,9 +362,9 @@ main(int argc, char *argv[])
 
     status_print(status_win, STR_READY);
 
-    mm_status_checkall(debuglvl, NULL, &rules, &zones, &interfaces, &services);
+    mm_status_checkall(debuglvl, &vctx, NULL, &rules, &zones, &interfaces, &services);
     /* main menu loop */
-    while(main_menu(debuglvl, &vctx, &rules, &zones, &interfaces, &services, &blocklist, &reg) == 1);
+    while(main_menu(debuglvl, &vctx, &rules, &zones, &interfaces, &services, &blocklist, &vctx.reg) == 1);
     /* clean up the status list */
     vrmr_list_cleanup(debuglvl, &VuurmuurStatus.StatusList);
 
@@ -434,9 +422,6 @@ main(int argc, char *argv[])
         vrmr_error(-1, VR_ERR, gettext("unloading the backends failed (in: %s:%d)."), __FUNCTION__, __LINE__);
         retval=-1;
     }
-
-    /* cleanup regexes */
-    (void)vrmr_regex_setup(0, &reg);
 
     /* cleanup the datastructures */
     (void)vrmr_list_cleanup(debuglvl, &blocklist.list);
@@ -735,8 +720,8 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
 
     /* print that we started */
     vrmr_audit("started: effective user %s (%ld), real user %s (%ld).",
-                    user_data.username, (long)user_data.user,
-                    user_data.realusername, (long)user_data.realuser);
+                    vctx->user_data.username, (long)vctx->user_data.user,
+                    vctx->user_data.realusername, (long)vctx->user_data.realuser);
 
     /* now load the backends */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_PLUGINS); update_panels(); doupdate();
@@ -845,8 +830,13 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
             if(vrmr_lock(vuurmuur_semid))
             {
                 vuurmuur_shmtable->configtool.connected = 1;
-                (void)snprintf(vuurmuur_shmtable->configtool.name, sizeof(vuurmuur_shmtable->configtool.name), "Vuurmuur_conf %s (user: %s)", version_string, user_data.realusername);
-                (void)strlcpy(vuurmuur_shmtable->configtool.username, user_data.realusername, sizeof(vuurmuur_shmtable->configtool.username));
+                (void)snprintf(vuurmuur_shmtable->configtool.name,
+                        sizeof(vuurmuur_shmtable->configtool.name),
+                        "Vuurmuur_conf %s (user: %s)", version_string,
+                        vctx->user_data.realusername);
+                (void)strlcpy(vuurmuur_shmtable->configtool.username,
+                        vctx->user_data.realusername,
+                        sizeof(vuurmuur_shmtable->configtool.username));
                 vrmr_unlock(vuurmuur_semid);
 
                 werase(startup_print_win); wprintw(startup_print_win, "%s Vuurmuur... %s", STR_CONNECTING_TO, STR_COK); update_panels(); doupdate();
@@ -892,8 +882,13 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
             if(vrmr_lock(vuurmuurlog_semid))
             {
                 vuurmuurlog_shmtable->configtool.connected = 1;
-                (void)snprintf(vuurmuurlog_shmtable->configtool.name, sizeof(vuurmuurlog_shmtable->configtool.name), "Vuurmuur_conf %s (user: %s)", version_string, user_data.realusername);
-                (void)strlcpy(vuurmuurlog_shmtable->configtool.username, user_data.realusername, sizeof(vuurmuurlog_shmtable->configtool.username));
+                (void)snprintf(vuurmuurlog_shmtable->configtool.name,
+                        sizeof(vuurmuurlog_shmtable->configtool.name),
+                        "Vuurmuur_conf %s (user: %s)", version_string,
+                        vctx->user_data.realusername);
+                (void)strlcpy(vuurmuurlog_shmtable->configtool.username,
+                        vctx->user_data.realusername,
+                        sizeof(vuurmuurlog_shmtable->configtool.username));
                 vrmr_unlock(vuurmuurlog_semid);
 
                 werase(startup_print_win); wprintw(startup_print_win, "%s Vuurmuur_log... %s", STR_CONNECTING_TO, STR_COK); update_panels(); doupdate();

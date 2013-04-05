@@ -70,11 +70,10 @@ main(int argc, char *argv[])
     struct vrmr_rules           rules;
     /* list of ipaddresses to be blocked */
     struct vrmr_blocklist       blocklist;
+    struct vrmr_iptcaps         iptcap;
+    struct vrmr_ctx             vctx;
 
-    struct vrmr_iptcaps          iptcap;
-    struct vrmr_ctx     vctx;
     pid_t           pid;
-    struct vrmr_user user_data;
     char            reload_shm = FALSE,
                     reload_dyn = FALSE;
 
@@ -118,8 +117,6 @@ main(int argc, char *argv[])
     union semun     semarg;
     ushort          seminit[] = { 1,0 };
 
-    struct vrmr_regex     reg;    // regexes
-
     vctx.zones = &zones;
     vctx.rules = &rules;
     vctx.services = &services;
@@ -130,7 +127,7 @@ main(int argc, char *argv[])
 
     snprintf(version_string,sizeof(version_string),"%s (using libvuurmuur %s)", VUURMUUR_VERSION, libvuurmuur_get_version());
 
-    vrmr_init(&conf, "vuurmuur");
+    vrmr_init(&vctx, &conf, "vuurmuur");
 
     /* registering signals we use */
     setup_signal_handler(SIGINT, handle_sigint);
@@ -305,8 +302,7 @@ main(int argc, char *argv[])
     }
 
     /*  exit if the user is not root. */
-    vrmr_user_get_info(debuglvl, &user_data);
-    if(user_data.user > 0 || user_data.group > 0)
+    if(vctx.user_data.user > 0 || vctx.user_data.group > 0)
     {
         fprintf(stdout, "Error: you are not root! Exitting.\n");
         exit(EXIT_FAILURE);
@@ -431,13 +427,6 @@ main(int argc, char *argv[])
         memset(&iptcap, 0, sizeof(struct vrmr_iptcaps));
     }
 
-    /* setup regexes */
-    if (vrmr_regex_setup(1, &reg) < 0)
-    {
-        vrmr_error(-1, "Internal Error", "setting up regular expressions failed.");
-        exit(EXIT_FAILURE);
-    }
-
     /* load the backends */
     result = vrmr_backends_load(debuglvl, &conf, &vctx);
     if(result < 0)
@@ -446,16 +435,15 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* print some nice info about me being the coolest of 'm all ;-) */
     vrmr_info("Info", "This is Vuurmuur %s", version_string);
-    vrmr_info("Info", "Copyright (C) 2002-2008 by Victor Julien");
-    vrmr_audit("Vuurmuur %s started by user %s.", version_string, user_data.realusername);
+    vrmr_info("Info", "Copyright (C) 2002-2013 by Victor Julien");
+    vrmr_audit("Vuurmuur %s started by user %s.", version_string, vctx.user_data.realusername);
 
     /* set chain couters to zero */
     ipt_rulecount = 0;
 
     /* load the services into memory */
-    result = vrmr_services_load(debuglvl, &vctx, &services, &reg);
+    result = vrmr_services_load(debuglvl, &vctx, &services, &vctx.reg);
     if(result == -1)
         exit(EXIT_FAILURE);
 
@@ -468,7 +456,7 @@ main(int argc, char *argv[])
     }
 
     /* load the zonedata into memory */
-    result = vrmr_zones_load(debuglvl, &vctx, &zones, &interfaces, &reg);
+    result = vrmr_zones_load(debuglvl, &vctx, &zones, &interfaces, &vctx.reg);
     if(result == -1)
         exit(EXIT_FAILURE);
 
@@ -484,7 +472,7 @@ main(int argc, char *argv[])
 
     /* load the rulesfile into memory */
     vrmr_info("Info", "Loading rulesfile...");
-    result = vrmr_rules_init_list(debuglvl, &vctx, &conf, &rules, &reg);
+    result = vrmr_rules_init_list(debuglvl, &vctx, &conf, &rules, &vctx.reg);
     if(result == 0)
     {
         vrmr_info("Info", "Loading rulesfile succesfull.");
@@ -706,7 +694,7 @@ main(int argc, char *argv[])
                 if(sighup_count > 0 || reload_shm == TRUE || reload_dyn == TRUE)
                 {
                     /* apply changes */
-                    result = apply_changes(debuglvl, &vctx, &reg);
+                    result = apply_changes(debuglvl, &vctx, &vctx.reg);
                     if(result < 0)
                     {
                         vrmr_error(-1, "Error", "applying changes failed.");
@@ -858,9 +846,6 @@ main(int argc, char *argv[])
         retval = -1;
 
     vrmr_list_cleanup(debuglvl, &blocklist.list);
-
-    /* cleanup regexes */
-    (void)vrmr_regex_setup(0, &reg);
 
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "** end **, return = %d", retval);

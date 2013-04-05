@@ -35,6 +35,7 @@ main(int argc, char *argv[])
                     result = 0,
                     debuglvl = 0;
     VuurmuurScript  vr_script;
+    struct vrmr_user user_data;
 
     static char     optstring[] = "CRDMPLB:AOo:g:n:z:s:i:r:V:S:hc:d:v";
     static int      version_flag = 0;
@@ -98,9 +99,8 @@ main(int argc, char *argv[])
 
     vr_script.overwrite = TRUE;
 
-    /* get the current user */
-    vrmr_user_get_info(debuglvl, &user_data);
     /*  exit if the user is not root. */
+    vrmr_user_get_info(debuglvl, &user_data);
     if(user_data.user > 0 || user_data.group > 0)
     {
         fprintf(stdout, "Error: you are not root! Exitting.\n");
@@ -138,7 +138,7 @@ main(int argc, char *argv[])
         exit(EXIT_SUCCESS);
     }
 
-    if (vrmr_init(&conf, "vuurmuur_scrp") < 0)
+    if (vrmr_init(&vr_script.vctx, &conf, "vuurmuur_scrp") < 0)
         exit(VRS_ERR_INTERNAL);
 
     /* prepare for later shm connection */
@@ -486,13 +486,6 @@ main(int argc, char *argv[])
         vrmr_info("Info", "Copyright (C) 2002-2008 by Victor Julien");
     }
 
-    /* setup regexes */
-    if(vrmr_regex_setup(1, &vr_script.reg) < 0)
-    {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "setting up regular expressions failed.");
-        exit(VRS_ERR_INTERNAL);
-    }
-
     /* apply and no-apply */
     if(apply_flag == 1)
         vr_script.apply = TRUE;
@@ -644,7 +637,7 @@ main(int argc, char *argv[])
             vr_script.type == VRMR_TYPE_HOST || vr_script.type == VRMR_TYPE_GROUP)
         {
             /* validate and split the new name */
-            if(vrmr_validate_zonename(debuglvl, vr_script.name, 0, vr_script.name_zone, vr_script.name_net, vr_script.name_host, vr_script.reg.zonename, VRMR_VERBOSE) != 0)
+            if(vrmr_validate_zonename(debuglvl, vr_script.name, 0, vr_script.name_zone, vr_script.name_net, vr_script.name_host, vr_script.vctx.reg.zonename, VRMR_VERBOSE) != 0)
             {
                 if(vr_script.type == VRMR_TYPE_ZONE)
                     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid zone name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
@@ -664,7 +657,7 @@ main(int argc, char *argv[])
         }
         else if(vr_script.type == VRMR_TYPE_SERVICE)
         {
-            if(vrmr_validate_servicename(debuglvl, vr_script.name, vr_script.reg.servicename, VRMR_QUIET) != 0)
+            if(vrmr_validate_servicename(debuglvl, vr_script.name, vr_script.vctx.reg.servicename, VRMR_QUIET) != 0)
             {
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid service name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 exit(VRS_ERR_COMMANDLINE);
@@ -672,7 +665,7 @@ main(int argc, char *argv[])
         }
         else if(vr_script.type == VRMR_TYPE_INTERFACE)
         {
-            if(vrmr_validate_interfacename(debuglvl, vr_script.name, vr_script.reg.interfacename) != 0)
+            if(vrmr_validate_interfacename(debuglvl, vr_script.name, vr_script.vctx.reg.interfacename) != 0)
             {
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid interface name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 exit(VRS_ERR_COMMANDLINE);
@@ -912,9 +905,6 @@ main(int argc, char *argv[])
     /*
         Destroy the data structures
     */
-
-    /* cleanup regexes */
-    (void)vrmr_regex_setup(0, &vr_script.reg);
 
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "** end **, return = %d", retval);

@@ -1137,6 +1137,17 @@ struct vrmr_plugin {
     char                        *version;
 };
 
+struct vrmr_user {
+    uid_t   user;
+    char    username[32];
+
+    gid_t   group;
+    char    groupname[32];
+
+    uid_t   realuser;
+    char    realusername[32];
+};
+
 struct vrmr_ctx {
     struct vrmr_zones *zones;
     struct vrmr_interfaces *interfaces;
@@ -1145,6 +1156,8 @@ struct vrmr_ctx {
     struct vrmr_services *services;
     struct vrmr_config *conf;
     struct vrmr_iptcaps *iptcaps;
+    struct vrmr_regex reg;
+    struct vrmr_user user_data;
 
     struct vrmr_plugin_data *zf;
     /*@null@*/void *zone_backend;
@@ -1281,17 +1294,6 @@ enum vrmr_actiontypes {
 
     /* this is of course not an action */
     VRMR_AT_TOO_BIG,
-};
-
-struct vrmr_user {
-    uid_t   user;
-    char    username[32];
-
-    gid_t   group;
-    char    groupname[32];
-
-    uid_t   realuser;
-    char    realusername[32];
 };
 
 struct vrmr_log_record
@@ -1568,7 +1570,7 @@ int vrmr_reload_config(const int, struct vrmr_config *);
 int vrmr_ask_configfile(const int debuglvl, const struct vrmr_config *, char *question, char *answer_ptr, char *file_location, size_t size);
 int vrmr_write_configfile(const int debuglvl, char *file_location, struct vrmr_config *cfg);
 
-int vrmr_init(struct vrmr_config *, char *toolname);
+int vrmr_init(struct vrmr_ctx *, struct vrmr_config *, char *toolname);
 void vrmr_enable_logprint(struct vrmr_config *cnf);
 
 /*

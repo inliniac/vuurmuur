@@ -67,8 +67,13 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
             if(vrmr_lock(vuurmuur_semid))
             {
                 vuurmuur_shmtable->configtool.connected = 1;
-                (void)strlcpy(vuurmuur_shmtable->configtool.username, user_data.realusername, sizeof(vuurmuur_shmtable->configtool.username));
-                snprintf(vuurmuur_shmtable->configtool.name, sizeof(vuurmuur_shmtable->configtool.name), "Vuurmuur_script %s (user: %s)", version_string, user_data.realusername);
+                (void)strlcpy(vuurmuur_shmtable->configtool.username,
+                        vr_script->vctx.user_data.realusername,
+                        sizeof(vuurmuur_shmtable->configtool.username));
+                snprintf(vuurmuur_shmtable->configtool.name,
+                        sizeof(vuurmuur_shmtable->configtool.name),
+                        "Vuurmuur_script %s (user: %s)",
+                        version_string, vr_script->vctx.user_data.realusername);
                 vrmr_unlock(vuurmuur_semid);
             }
             else
@@ -105,8 +110,13 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
             if(vrmr_lock(vuurmuurlog_semid))
             {
                 vuurmuurlog_shmtable->configtool.connected = 1;
-                (void)strlcpy(vuurmuurlog_shmtable->configtool.username, user_data.realusername, sizeof(vuurmuurlog_shmtable->configtool.username));
-                snprintf(vuurmuurlog_shmtable->configtool.name, sizeof(vuurmuurlog_shmtable->configtool.name), "Vuurmuur_script %s (user: %s)", version_string, user_data.realusername);
+                (void)strlcpy(vuurmuurlog_shmtable->configtool.username,
+                        vr_script->vctx.user_data.realusername,
+                        sizeof(vuurmuurlog_shmtable->configtool.username));
+                snprintf(vuurmuurlog_shmtable->configtool.name,
+                        sizeof(vuurmuurlog_shmtable->configtool.name),
+                        "Vuurmuur_script %s (user: %s)",
+                        version_string, vr_script->vctx.user_data.realusername);
                 vrmr_unlock(vuurmuurlog_semid);
             }
             else
