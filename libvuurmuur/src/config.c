@@ -2266,3 +2266,63 @@ void vrmr_enable_logprint(struct vrmr_config *cnf) {
     cnf->vrprint.auditlog = vrprint.auditlog;
 }
 
+int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx) {
+    int result;
+
+    if (vctx->conf == NULL) {
+        vrmr_error(-1, "Internal Error", "vctx not set up properly");
+        return -1;
+    }
+
+    result = vrmr_init_config(debuglvl, vctx->conf);
+    if (result < VRMR_CNF_OK) {
+        vrmr_error(-1, "Error", "initializing config failed");
+        return -1;
+    }
+    /* now we know the logfile locations, so init the log functions */
+    vrmr_enable_logprint(vctx->conf);
+
+    result = vrmr_backends_load(debuglvl, vctx->conf, vctx);
+    if(result < 0)
+    {
+        vrmr_error(-1, "Error", "loading backends failed");
+        return -1;
+    }
+
+    result = vrmr_interfaces_load(debuglvl, vctx, vctx->interfaces);
+    if (result < -1) {
+        vrmr_error(-1, "Error", "initializing interfaces failed");
+        return -1;
+    }
+
+    result = vrmr_zones_load(debuglvl, vctx, vctx->zones, vctx->interfaces, &vctx->reg);
+    if (result == -1) {
+        vrmr_error(-1, "Error", "initializing zones failed");
+        return -1;
+    }
+
+    result = vrmr_services_load(debuglvl, vctx, vctx->services, &vctx->reg);
+    if (result == -1) {
+        vrmr_error(-1, "Error", "initializing services failed");
+        return -1;
+    }
+
+    if (vctx->rules != NULL) {
+        result = vrmr_rules_init_list(debuglvl, vctx, vctx->conf, vctx->rules, &vctx->reg);
+        if (result < 0) {
+            vrmr_error(-1, "Error", "initializing the rules failed");
+            return -1;
+        }
+    }
+
+    if (vctx->blocklist != NULL) {
+        if (vrmr_blocklist_init_list(debuglvl, vctx, vctx->conf, vctx->zones,
+                    vctx->blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0) {
+            vrmr_error(-1, "Error", "initializing the blocklist failed");
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
