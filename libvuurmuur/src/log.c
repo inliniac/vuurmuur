@@ -35,6 +35,11 @@ vrmr_logprint(char *logfile, char *logstring)
     (void)time(&td);
     dcp = localtime(&td);
 
+    if (logfile == NULL || strlen(logfile) == 0) {
+        fprintf(stdout, "Invalid logpath '%s' (%p).\n", logfile, logfile);
+        return(-1);
+    }
+
     fp = fopen(logfile, "a");
     if(!fp) {
         fprintf(stdout, "Error opening logfile '%s', %s.\n", logfile, strerror(errno));

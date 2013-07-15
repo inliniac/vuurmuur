@@ -69,6 +69,8 @@
 #define FALSE           (char)0
 #endif
 
+#define VRMR_LOG_PATH_SIZE          96
+
 /*
     Max length of a host, network or zone. WARNING: if you change this, you also need to change it in the VRMR_ZONE_REGEX!!!
 */
@@ -344,11 +346,11 @@ enum vrmr_reload_result {
 /* in this structure we register the print functions. */
 struct vrprint_ {
     /* the name of the program that is logging */
-    char *logger;
+    const char *logger;
 
     /* print error. Head may be null. */
     int(*error)(int errorcode, char *head, char *fmt, ...);
-    char *errorlog;
+    char errorlog[VRMR_LOG_PATH_SIZE];
 
     /* print warning */
     int(*warning)(char *head, char *fmt, ...);
@@ -356,18 +358,18 @@ struct vrprint_ {
 
     /* print info */
     int(*info)(char *head, char *fmt, ...);
-    char *infolog;
+    char infolog[VRMR_LOG_PATH_SIZE];
 
     /* print debug */
     int(*debug)(char *head, char *fmt, ...);
-    char *debuglog;
+    char debuglog[VRMR_LOG_PATH_SIZE];
 
     /* the username used in the auditlog */
-    char *username;
+    const char *username;
 
     /* auditlog */
     int(*audit)(char *fmt, ...);
-    char *auditlog;
+    char auditlog[VRMR_LOG_PATH_SIZE];
 };
 
 struct vrprint_ vrprint;
@@ -412,11 +414,11 @@ struct vrmr_config {
     /* logfile locations */
     char            vuurmuur_logdir_location[64];
 
-    char            debuglog_location[96];
-    char            vuurmuurlog_location[96];
-    char            auditlog_location[96];
-    char            errorlog_location[96];
-    char            trafficlog_location[96];
+    char            debuglog_location[VRMR_LOG_PATH_SIZE];
+    char            vuurmuurlog_location[VRMR_LOG_PATH_SIZE];
+    char            auditlog_location[VRMR_LOG_PATH_SIZE];
+    char            errorlog_location[VRMR_LOG_PATH_SIZE];
+    char            trafficlog_location[VRMR_LOG_PATH_SIZE];
 
     char            systemlog_location[64]; /* location to the log where syslog puts the iptables messages */
 

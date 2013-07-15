@@ -402,7 +402,7 @@ vrmr_config_set_log_names(const int debuglvl, struct vrmr_config *cnf)
         vrmr_error(-1, "Error", "vuurmuur.log location was truncated (in: %s:%d).", __FUNC__, __LINE__);
         retval = -1;
     }
-    vrprint.infolog = cnf->vuurmuurlog_location;
+    strlcpy(vrprint.infolog, cnf->vuurmuurlog_location, sizeof(vrprint.infolog));
 
     if(snprintf(cnf->trafficlog_location,  sizeof(cnf->trafficlog_location),  "%s/traffic.log",  cnf->vuurmuur_logdir_location) >= (int)sizeof(cnf->trafficlog_location))
     {
@@ -415,21 +415,21 @@ vrmr_config_set_log_names(const int debuglvl, struct vrmr_config *cnf)
         vrmr_error(-1, "Error", "debug.log location was truncated (in: %s:%d).", __FUNC__, __LINE__);
         retval = -1;
     }
-    vrprint.debuglog = cnf->debuglog_location;
+    strlcpy(vrprint.debuglog, cnf->debuglog_location, sizeof(vrprint.debuglog));
 
     if(snprintf(cnf->errorlog_location,    sizeof(cnf->errorlog_location),    "%s/error.log",    cnf->vuurmuur_logdir_location) >= (int)sizeof(cnf->errorlog_location))
     {
         vrmr_error(-1, "Error", "error.log location was truncated (in: %s:%d).", __FUNC__, __LINE__);
         retval = -1;
     }
-    vrprint.errorlog = cnf->errorlog_location;
+    strlcpy(vrprint.errorlog, cnf->errorlog_location, sizeof(vrprint.errorlog));
 
     if(snprintf(cnf->auditlog_location,    sizeof(cnf->auditlog_location),    "%s/audit.log",    cnf->vuurmuur_logdir_location) >= (int)sizeof(cnf->auditlog_location))
     {
         vrmr_error(-1, "Error", "audit.log location was truncated (in: %s:%d).", __FUNC__, __LINE__);
         retval = -1;
     }
-    vrprint.auditlog = cnf->auditlog_location;
+    strlcpy(vrprint.auditlog, cnf->auditlog_location, sizeof(vrprint.auditlog));
 
     return(retval);
 }
@@ -1751,8 +1751,8 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 int
 vrmr_reload_config(const int debuglvl, struct vrmr_config *old_cnf)
 {
-    struct vrmr_config  new_cnf;
-    int                     retval = VRMR_CNF_OK;
+    struct vrmr_config new_cnf;
+    int retval = VRMR_CNF_OK;
 
     /* safety */
     if(!old_cnf)
@@ -1763,7 +1763,7 @@ vrmr_reload_config(const int debuglvl, struct vrmr_config *old_cnf)
     }
 
     /* some initilization */
-    if(vrmr_pre_init_config(&new_cnf) < 0)
+    if (vrmr_pre_init_config(&new_cnf) < 0)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
     /* loglevel can be overrided by commandline */
@@ -1804,9 +1804,8 @@ vrmr_reload_config(const int debuglvl, struct vrmr_config *old_cnf)
         }
 
         /* copy the data to the old struct */
-        *old_cnf = new_cnf;
+        memcpy(old_cnf, &new_cnf, sizeof(new_cnf));
     }
-
     return(retval);
 }
 
@@ -2256,14 +2255,14 @@ int vrmr_init(struct vrmr_ctx *ctx, struct vrmr_config *cnf, char *toolname) {
 
 void vrmr_enable_logprint(struct vrmr_config *cnf) {
     cnf->vrprint.error = vrprint.error = vrmr_logprint_error;
-    cnf->vrprint.errorlog = vrprint.errorlog;
+    strlcpy(cnf->vrprint.errorlog, vrprint.errorlog, sizeof(cnf->vrprint.errorlog));
     cnf->vrprint.warning = vrprint.warning = vrmr_logprint_warning;
     cnf->vrprint.info = vrprint.info = vrmr_logprint_info;
-    cnf->vrprint.infolog = vrprint.infolog;
+    strlcpy(cnf->vrprint.infolog, vrprint.infolog, sizeof(cnf->vrprint.infolog));
     cnf->vrprint.debug = vrprint.debug = vrmr_logprint_debug;
-    cnf->vrprint.debuglog = vrprint.debuglog;
+    strlcpy(cnf->vrprint.debuglog, vrprint.debuglog, sizeof(cnf->vrprint.debuglog));
     cnf->vrprint.audit = vrprint.audit = vrmr_logprint_audit;
-    cnf->vrprint.auditlog = vrprint.auditlog;
+    strlcpy(cnf->vrprint.auditlog, vrprint.auditlog, sizeof(cnf->vrprint.auditlog));
 }
 
 int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx) {
