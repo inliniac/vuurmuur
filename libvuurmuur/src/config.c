@@ -2218,13 +2218,6 @@ vrmr_pre_init_config(struct vrmr_config *cnf)
 int vrmr_init(struct vrmr_ctx *ctx, struct vrmr_config *cnf, char *toolname) {
     int debuglvl = 0;
 
-    cnf->vrprint.logger = toolname;
-    cnf->vrprint.error = vrmr_stdoutprint_error;
-    cnf->vrprint.warning = vrmr_stdoutprint_warning;
-    cnf->vrprint.info = vrmr_stdoutprint_info;
-    cnf->vrprint.debug = vrmr_stdoutprint_debug;
-    cnf->vrprint.audit = vrmr_stdoutprint_audit;
-
     vrprint.logger = toolname;
     vrprint.error = vrmr_stdoutprint_error;
     vrprint.warning = vrmr_stdoutprint_warning;
@@ -2236,7 +2229,6 @@ int vrmr_init(struct vrmr_ctx *ctx, struct vrmr_config *cnf, char *toolname) {
         return(-1);
 
     vrmr_user_get_info(debuglvl, &ctx->user_data);
-    cnf->vrprint.username = ctx->user_data.realusername;
     vrprint.username = ctx->user_data.realusername;
 
     /* init plugin list */
@@ -2254,15 +2246,11 @@ int vrmr_init(struct vrmr_ctx *ctx, struct vrmr_config *cnf, char *toolname) {
 }
 
 void vrmr_enable_logprint(struct vrmr_config *cnf) {
-    cnf->vrprint.error = vrprint.error = vrmr_logprint_error;
-    strlcpy(cnf->vrprint.errorlog, vrprint.errorlog, sizeof(cnf->vrprint.errorlog));
-    cnf->vrprint.warning = vrprint.warning = vrmr_logprint_warning;
-    cnf->vrprint.info = vrprint.info = vrmr_logprint_info;
-    strlcpy(cnf->vrprint.infolog, vrprint.infolog, sizeof(cnf->vrprint.infolog));
-    cnf->vrprint.debug = vrprint.debug = vrmr_logprint_debug;
-    strlcpy(cnf->vrprint.debuglog, vrprint.debuglog, sizeof(cnf->vrprint.debuglog));
-    cnf->vrprint.audit = vrprint.audit = vrmr_logprint_audit;
-    strlcpy(cnf->vrprint.auditlog, vrprint.auditlog, sizeof(cnf->vrprint.auditlog));
+    vrprint.error = vrmr_logprint_error;
+    vrprint.warning = vrmr_logprint_warning;
+    vrprint.info = vrmr_logprint_info;
+    vrprint.debug = vrmr_logprint_debug;
+    vrprint.audit = vrmr_logprint_audit;
 }
 
 int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx) {

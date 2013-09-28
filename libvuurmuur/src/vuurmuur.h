@@ -486,8 +486,6 @@ struct vrmr_config {
 
     /* conntrack options */
     char            invalid_drop_enabled;
-
-    struct vrprint_ vrprint;
 };
 
 /* DATA STRUCTURES */
