@@ -52,13 +52,13 @@ ask_textdir(const int debuglvl,
     /* better safe than sorry */
     if(!backend || !name || !question)
     {
-        (void)tb->cfg->vrprint.error(-1, "Internal Error", "parameter problem "
+        vrmr_error(-1, "Internal Error", "parameter problem "
             "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     if(debuglvl >= HIGH)
-        (void)tb->cfg->vrprint.debug(__FUNC__, "question: %s, name: %s, multi: %d", question, name, multi);
+        vrmr_debug(__FUNC__, "question: %s, name: %s, multi: %d", question, name, multi);
 
     if(!(tb = (struct TextdirBackend_ *)backend))
         return(-1);
@@ -66,7 +66,7 @@ ask_textdir(const int debuglvl,
     /* check if backend is open */
     if(!tb->backend_open)
     {
-        (void)tb->cfg->vrprint.error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
+        vrmr_error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
         return(-1);
     }
 
@@ -84,7 +84,7 @@ ask_textdir(const int debuglvl,
     /* check if we are clean */
     if(tb->file != NULL && multi == 0)
     {
-        (void)tb->cfg->vrprint.warning("Warning", "the last 'multi' call to '%s' probably failed, because the file is still open when it shouldn't.", __FUNC__);
+        vrmr_warning("Warning", "the last 'multi' call to '%s' probably failed, because the file is still open when it shouldn't.", __FUNC__);
 
         fclose(tb->file);
         tb->file = NULL;
@@ -95,7 +95,7 @@ ask_textdir(const int debuglvl,
     {
         if(!(tb->file = vuurmuur_fopen(debuglvl, tb->cfg, file_location, "r")))
         {
-            (void)tb->cfg->vrprint.error(-1, "Error", "Unable to open file '%s'.", file_location);
+            vrmr_error(-1, "Error", "Unable to open file '%s'.", file_location);
 
             free(file_location);
             return(-1);
@@ -108,7 +108,7 @@ ask_textdir(const int debuglvl,
         line_length = strlen(line);
         if(line_length < 0)
         {
-            (void)tb->cfg->vrprint.error(-1, "Internal Error", "unable to determine the length of 'line' (in: %s).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "unable to determine the length of 'line' (in: %s).", __FUNC__);
 
             free(file_location);
             fclose(tb->file);
@@ -117,7 +117,7 @@ ask_textdir(const int debuglvl,
         }
         else if(line_length > MAX_LINE_LENGTH)
         {
-            (void)tb->cfg->vrprint.error(-1, "Error", "line is longer than allowed (line: %d, max: %d) (in: %s).", line_length, MAX_LINE_LENGTH, __FUNC__);
+            vrmr_error(-1, "Error", "line is longer than allowed (line: %d, max: %d) (in: %s).", line_length, MAX_LINE_LENGTH, __FUNC__);
 
             free(file_location);
             fclose(tb->file);
@@ -150,7 +150,7 @@ ask_textdir(const int debuglvl,
         strlcpy(variable, line, var_len);
 
         if (debuglvl >= LOW)
-            (void)tb->cfg->vrprint.debug(__FUNC__, "variable %s", variable);
+            vrmr_debug(__FUNC__, "variable %s", variable);
 
         /* now see if this was what we were looking for */
         if(strcmp(question, variable) != 0) {
@@ -189,13 +189,13 @@ ask_textdir(const int debuglvl,
             value[val_pos] = '\0';
 
         if(debuglvl >= MEDIUM)
-            (void)tb->cfg->vrprint.debug(__FUNC__, "question '%s' matched, value: '%s'", question, value);
+            vrmr_debug(__FUNC__, "question '%s' matched, value: '%s'", question, value);
 
         /* copy back the value to "answer" */
         len = strlcpy(answer, value, max_answer);
         if(len >= max_answer)
         {
-            (void)tb->cfg->vrprint.error(-1, "Error", "buffer overrun when reading file '%s', question '%s': len %u, max: %u (in: %s:%d).",
+            vrmr_error(-1, "Error", "buffer overrun when reading file '%s', question '%s': len %u, max: %u (in: %s:%d).",
                     file_location, question, len, max_answer, __FUNC__, __LINE__);
 
             free(file_location);
@@ -216,11 +216,11 @@ ask_textdir(const int debuglvl,
     if((multi == 1 && retval != 1) || multi == 0)
     {
         if(debuglvl >= HIGH)
-            (void)tb->cfg->vrprint.debug(__FUNC__, "close the file.");
+            vrmr_debug(__FUNC__, "close the file.");
 
         if(fclose(tb->file) != 0)
         {
-            (void)tb->cfg->vrprint.error(-1, "Error", "closing file '%s' failed: %s (in: %s).", file_location, strerror(errno), __FUNC__);
+            vrmr_error(-1, "Error", "closing file '%s' failed: %s (in: %s).", file_location, strerror(errno), __FUNC__);
             retval = -1;
         }
         tb->file = NULL;
@@ -231,8 +231,8 @@ ask_textdir(const int debuglvl,
 
     if(debuglvl >= HIGH)
     {
-        (void)tb->cfg->vrprint.debug(__FUNC__, "at exit: tb->file: %p (retval: %d).", tb->file, retval);
-        (void)tb->cfg->vrprint.debug(__FUNC__, "** end **, retval=%d", retval);
+        vrmr_debug(__FUNC__, "at exit: tb->file: %p (retval: %d).", tb->file, retval);
+        vrmr_debug(__FUNC__, "** end **, retval=%d", retval);
     }
 
     return(retval);

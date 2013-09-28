@@ -1133,8 +1133,6 @@ struct vrmr_plugin {
 
     struct vrmr_plugin_data     *f;
 
-    void                        *handle;
-
     /* version */
     char                        *version;
 };

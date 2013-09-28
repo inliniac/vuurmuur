@@ -21,6 +21,8 @@
 #include "config.h"
 #include "vuurmuur.h"
 
+#include "textdir/textdir.h"
+
 /** \brief Plugin registration function
  *  To be called from plugin
  */
@@ -65,54 +67,9 @@ vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
     return;
 }
 
-/*  open_plugin
-
-    Opens the plugin supplied with 'plugin'. Upon succes its
-    returns the plugin handle, otherwise NULL.
-*/
-
-/*@null@*/
-static void *
-open_plugin(const int debuglvl, char *plugin)
-{
-    void    *ptr = NULL;
-
-    if(!plugin)
-    {
-        vrmr_error(-1, "Internal Error", "parameter problem "
-            "(in: %s:%d).", __FUNC__, __LINE__);
-        return(NULL);
-    }
-
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "this is the plugin: '%s'.", plugin);
-
-    ptr = dlopen(plugin, RTLD_NOW);
-    if(ptr == NULL)
-    {
-        vrmr_error(-1, "Error", "opening plugin '%s' failed:"
-                " %s (in: %s:%d).", plugin, dlerror(),
-                __FUNC__, __LINE__);
-        return(NULL);
-    }
-
-    return(ptr);
-}
-
-
 /*  load_plugin
 
-    Loads a plugin!
-
-    Steps:
-        Checks if the plugin is already open
-            yes:    link func_ptr to existing function struct
-                increment ref_cmt
-
-            no: alloc memory for plugin struct
-                open plugin and store the handle in to alloc'd struct
-                store functions
-                insert into pluginlist
+    returns the functions for 'plugin' <plugin_name>.
 
     Returncodes:
         0: ok
@@ -122,7 +79,6 @@ static int
 load_plugin(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *plugin_list,
         char *plugin_name, struct vrmr_plugin_data **func_ptr)
 {
-    int                 retval=0;
     char                plugin_location[512] = "";
     struct vrmr_plugin  *plugin = NULL;
     struct vrmr_list_node         *d_node = NULL;
@@ -144,9 +100,6 @@ load_plugin(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *plugi
         return(-1);
     }
 
-    /*
-        first check if we already have the plugin loaded
-    */
     for(d_node = plugin_list->top; d_node; d_node = d_node->next)
     {
         plugin = d_node->data;
@@ -157,52 +110,7 @@ load_plugin(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *plugi
             return(0);
         }
     }
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "opening plugin.");
-
-    if(snprintf(plugin_location, sizeof(plugin_location), "%s/lib%s.so", cfg->plugdir, plugin_name) >= (int)sizeof(plugin_location))
-    {
-        vrmr_error(-1, "Internal Error", "pluginpath "
-                "overflow (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    void *handle = open_plugin(debuglvl, plugin_location);
-    if(!handle)
-    {
-        vrmr_error(-1, "Internal Error", "pluginpath "
-                "overflow (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    plugin = NULL;
-    for(d_node = plugin_list->top; d_node; d_node = d_node->next)
-    {
-        plugin = d_node->data;
-
-        if(strcmp(plugin->name, plugin_name) == 0) {
-            break;
-        }
-    }
-    if (!plugin) {
-        vrmr_error(-1, "Internal Error", "plugin not registered "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        dlclose(handle);
-        return(-1);
-    }
-
-    /* set func_ptr */
-    *func_ptr = plugin->f;
-    plugin->handle = handle;
-
-    if(cfg->verbose_out == TRUE && debuglvl >= LOW)
-    {
-        vrmr_info("Info", "Successfully loaded plugin '%s' version %s.",
-                plugin_name, plugin->version);
-    }
-
-    return(retval);
+    return(-1);
 }
 
 
@@ -275,15 +183,6 @@ unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_na
         /* if ref_cnt is zero, we unload the plugin */
         if(plugin->ref_cnt == 0)
         {
-            if(dlclose(plugin->handle) < 0)
-            {
-                vrmr_error(-1, "Error", "unloading plugin failed: %s (in: %s).", dlerror(), __FUNC__);
-                return(-1);
-            }
-
-            /* the plugin handle is now gone, so set to NULL */
-            plugin->handle = NULL;
-
             /* remove the plugindata from the list */
             if(vrmr_list_remove_node(debuglvl, plugin_list, d_node) < 0)
             {
@@ -299,7 +198,6 @@ unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_na
 
     return(0);
 }
-
 
 /*  load_backends
 
@@ -320,6 +218,8 @@ unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_na
 int
 vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ctx *vctx)
 {
+    textdir_init();
+
     /* first the SERVICES */
     if (load_plugin(debuglvl, cfg, &vrmr_plugin_list, cfg->serv_backend_name, &vctx->sf) < 0)
         return(-1);
@@ -365,7 +265,6 @@ vrmr_backends_load(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ctx 
         return(-1);
     if (vctx->rf->open(debuglvl, vctx->rule_backend, 0, VRMR_BT_RULES) < 0)
         return(-1);
-
     return(0);
 }
 
@@ -436,6 +335,5 @@ vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ct
 
     if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->rule_backend_name, &vctx->rf) < 0)
         return(-1);
-
     return(0);
 }

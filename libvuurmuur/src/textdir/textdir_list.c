@@ -46,7 +46,7 @@ char
     /* safety */
     if(!backend || !name || !zonetype)
     {
-        (void)tb->cfg->vrprint.error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(NULL);
     }
@@ -55,12 +55,12 @@ char
     /* check if the backend is opened */
     if(!(tb = (struct TextdirBackend_ *)backend))
     {
-        (void)tb->cfg->vrprint.error(-1, "Internal Error", "backend parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "backend parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
     if(!tb->backend_open)
     {
-        (void)tb->cfg->vrprint.error(-1, "Internal Error", "backend not opened yet (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "backend not opened yet (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
@@ -80,7 +80,7 @@ char
                 /* open the dir */
                 if(!(tb->service_p = vuurmuur_opendir(debuglvl, tb->cfg, dir_location)))
                 {
-                    (void)tb->cfg->vrprint.error(-1, "Error", "unable to open '%s', %s (in: list_textdir, opendir).", dir_location, strerror(errno));
+                    vrmr_error(-1, "Error", "unable to open '%s', %s (in: list_textdir, opendir).", dir_location, strerror(errno));
                     return(NULL);
                 }
             }
@@ -89,7 +89,7 @@ char
             if((dir_entry_p = readdir(tb->service_p)) != NULL)
             {
                 if(debuglvl >= HIGH)
-                    (void)tb->cfg->vrprint.debug(__FUNC__, "name: '%s'.", dir_entry_p->d_name);
+                    vrmr_debug(__FUNC__, "name: '%s'.", dir_entry_p->d_name);
 
                 (void)strlcpy(name, dir_entry_p->d_name, VRMR_MAX_SERVICE);
 
@@ -105,7 +105,7 @@ char
                             return(NULL);
                         
                         if(debuglvl >= HIGH)
-                            (void)tb->cfg->vrprint.debug(__FUNC__, "service '%s', file: '%s'.", name, file_location);
+                            vrmr_debug(__FUNC__, "service '%s', file: '%s'.", name, file_location);
 
                         /* now stat it */
                         if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
@@ -144,7 +144,7 @@ char
                 // open the dir
                 if(!(tb->interface_p = vuurmuur_opendir(debuglvl, tb->cfg, dir_location)))
                 {
-                    (void)tb->cfg->vrprint.error(-1, "Error", "Unable to open '%s', %s.", dir_location, strerror(errno));
+                    vrmr_error(-1, "Error", "Unable to open '%s', %s.", dir_location, strerror(errno));
                     return(NULL);
                 }
             }
@@ -152,7 +152,7 @@ char
             if((dir_entry_p = readdir(tb->interface_p)) != NULL)
             {
                 if(debuglvl >= HIGH)
-                    (void)tb->cfg->vrprint.debug(__FUNC__, "name: '%s'.", dir_entry_p->d_name);
+                    vrmr_debug(__FUNC__, "name: '%s'.", dir_entry_p->d_name);
 
                 if( strncmp(dir_entry_p->d_name, ".", 1) != 0 &&
                     strcmp(dir_entry_p->d_name, "..") != 0 &&
@@ -182,7 +182,7 @@ char
                                     return(NULL);
                                 
                                 if(debuglvl >= HIGH)
-                                    (void)tb->cfg->vrprint.debug(__FUNC__, "interface '%s', file: '%s'.", name, file_location);
+                                    vrmr_debug(__FUNC__, "interface '%s', file: '%s'.", name, file_location);
 
                                 /* now stat it */
                                 if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
@@ -190,7 +190,7 @@ char
                                     free(file_location);
 
                                     if(debuglvl >= HIGH)
-                                        (void)tb->cfg->vrprint.debug(__FUNC__, "returning name: '%s'.", name);
+                                        vrmr_debug(__FUNC__, "returning name: '%s'.", name);
                                     
                                     return(name);
                                 }
@@ -202,7 +202,7 @@ char
                         else
                         {
                             if(debuglvl >= HIGH)
-                                (void)tb->cfg->vrprint.debug(__FUNC__, "'%s' is too long.", dir_entry_p->d_name);
+                                vrmr_debug(__FUNC__, "'%s' is too long.", dir_entry_p->d_name);
                         }
                     }
                 }
@@ -229,7 +229,7 @@ char
                 /* open the dir */
                 if(!(tb->rule_p = vuurmuur_opendir(debuglvl, tb->cfg, dir_location)))
                 {
-                    (void)tb->cfg->vrprint.error(-1, "Error", "unable to open '%s': %s.",
+                    vrmr_error(-1, "Error", "unable to open '%s': %s.",
                                         dir_location, strerror(errno));
                     return(NULL);
                 }
@@ -238,7 +238,7 @@ char
             if((dir_entry_p = readdir(tb->rule_p)) != NULL)
             {
                 if(debuglvl >= HIGH)
-                    (void)tb->cfg->vrprint.debug(__FUNC__, "name: '%s'.", dir_entry_p->d_name);
+                    vrmr_debug(__FUNC__, "name: '%s'.", dir_entry_p->d_name);
 
                 if( (strncmp(dir_entry_p->d_name, ".", 1) != 0) &&
                     (strcmp(dir_entry_p->d_name, "..") != 0) &&
@@ -266,7 +266,7 @@ char
                                 return(NULL);
 
                             if(debuglvl >= HIGH)
-                                (void)tb->cfg->vrprint.debug(__FUNC__, "rule '%s', file: '%s'.", name, file_location);
+                                vrmr_debug(__FUNC__, "rule '%s', file: '%s'.", name, file_location);
 
                             /* now stat it */
                             if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
@@ -274,7 +274,7 @@ char
                                 free(file_location);
 
                                 if(debuglvl >= HIGH)
-                                    (void)tb->cfg->vrprint.debug(__FUNC__, "returning name: '%s'.", name);
+                                    vrmr_debug(__FUNC__, "returning name: '%s'.", name);
                                     
                                 return(name);
                             }
@@ -303,7 +303,7 @@ char
             if(tb->host_p != NULL)
             {
                 if(debuglvl >= HIGH)
-                    (void)tb->cfg->vrprint.debug(__FUNC__, "getting a hostname.");
+                    vrmr_debug(__FUNC__, "getting a hostname.");
 
 
                 if((dir_entry_p = readdir(tb->host_p)) != NULL)
@@ -312,10 +312,10 @@ char
                     if((strncmp(dir_entry_p->d_name, ".", 1) != 0) && (strcmp(dir_entry_p->d_name, "..") != 0) && (strlen(dir_entry_p->d_name) > 5))
                     {
                         if(debuglvl >= HIGH)
-                            (void)tb->cfg->vrprint.debug(__FUNC__, "host name: %s.", dir_entry_p->d_name);
+                            vrmr_debug(__FUNC__, "host name: %s.", dir_entry_p->d_name);
 
                         if(debuglvl >= HIGH)
-                            (void)tb->cfg->vrprint.debug(__FUNC__, "item: %s, %d.", dir_entry_p->d_name, strlen(dir_entry_p->d_name));
+                            vrmr_debug(__FUNC__, "item: %s, %d.", dir_entry_p->d_name, strlen(dir_entry_p->d_name));
 
                         // max sure the name is not too long
                         if(strlen(dir_entry_p->d_name) < VRMR_MAX_HOST + 5)
@@ -333,7 +333,7 @@ char
                                     return(NULL);
                                 
                                 if(debuglvl >= HIGH)
-                                    (void)tb->cfg->vrprint.debug(__FUNC__, "host '%s', file: '%s'.", cur_zonename, file_location);
+                                    vrmr_debug(__FUNC__, "host '%s', file: '%s'.", cur_zonename, file_location);
 
                                 // now stat it
                                 if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
@@ -354,7 +354,7 @@ char
                 else
                 {
                     if(debuglvl >= HIGH)
-                        (void)tb->cfg->vrprint.debug(__FUNC__, "host dir closed.");
+                        vrmr_debug(__FUNC__, "host dir closed.");
                     
                     closedir(tb->host_p);
                     tb->host_p = NULL;
@@ -363,7 +363,7 @@ char
             else if(tb->group_p != NULL)
             {
                 if(debuglvl >= HIGH)
-                    (void)tb->cfg->vrprint.debug(__FUNC__, "getting a groupname.");
+                    vrmr_debug(__FUNC__, "getting a groupname.");
 
                 if((dir_entry_p = readdir(tb->group_p)) != NULL)
                 {
@@ -371,7 +371,7 @@ char
                     if((strncmp(dir_entry_p->d_name, ".", 1) != 0) && (strcmp(dir_entry_p->d_name, "..") != 0) && (strlen(dir_entry_p->d_name) > 5))
                     {
                         if(debuglvl >= HIGH)
-                            (void)tb->cfg->vrprint.debug(__FUNC__, "group name: %s.", dir_entry_p->d_name);
+                            vrmr_debug(__FUNC__, "group name: %s.", dir_entry_p->d_name);
 
                         // max sure the name is not too long
                         if(strlen(dir_entry_p->d_name) < VRMR_MAX_HOST + 5)
@@ -389,7 +389,7 @@ char
                                     return(NULL);
                                 
                                 if(debuglvl >= HIGH)
-                                    (void)tb->cfg->vrprint.debug(__FUNC__, "group '%s', file: '%s'.", cur_zonename, file_location);
+                                    vrmr_debug(__FUNC__, "group '%s', file: '%s'.", cur_zonename, file_location);
 
                                 // now stat it
                                 if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
@@ -410,7 +410,7 @@ char
                 else
                 {
                     if(debuglvl >= HIGH)
-                        (void)tb->cfg->vrprint.debug(__FUNC__, "group dir closed.");
+                        vrmr_debug(__FUNC__, "group dir closed.");
 
                     closedir(tb->group_p);
                     tb->group_p = NULL;
@@ -419,25 +419,25 @@ char
             else if(tb->network_p != NULL)
             {
                 if(debuglvl >= HIGH)
-                    (void)tb->cfg->vrprint.debug(__FUNC__, "getting a networkname.");
+                    vrmr_debug(__FUNC__, "getting a networkname.");
 
                 if((dir_entry_p = readdir(tb->network_p)) != NULL)
                 {
                     snprintf(netdir_location, sizeof(netdir_location), "%s/zones/%s/networks", tb->textdirlocation, tb->cur_zone);
 
                     if(debuglvl >= HIGH)
-                        (void)tb->cfg->vrprint.debug(__FUNC__, "network entry: %s.", dir_entry_p->d_name);
+                        vrmr_debug(__FUNC__, "network entry: %s.", dir_entry_p->d_name);
 
                     if((strncmp(dir_entry_p->d_name, ".", 1) != 0) && (strcmp(dir_entry_p->d_name, "..") != 0))
                     {
                         (void)strlcpy(tb->cur_network, dir_entry_p->d_name, VRMR_MAX_NETWORK);
                         if(debuglvl >= HIGH)
-                            (void)tb->cfg->vrprint.debug(__FUNC__, "network name: %s.", dir_entry_p->d_name);
+                            vrmr_debug(__FUNC__, "network name: %s.", dir_entry_p->d_name);
 
                         // open the hostdir
                         snprintf(hostdir_location, sizeof(hostdir_location), "%s/%s/hosts", netdir_location, dir_entry_p->d_name);
                         if(debuglvl >= HIGH)
-                            (void)tb->cfg->vrprint.debug(__FUNC__, "opening host dir: %s.", hostdir_location);
+                            vrmr_debug(__FUNC__, "opening host dir: %s.", hostdir_location);
 
                         /* this is allowed to fail, if it does, is will be NULL, and will be detected above */
                         tb->host_p = vuurmuur_opendir(debuglvl, tb->cfg, hostdir_location);
@@ -445,7 +445,7 @@ char
                         /* open the groupdir */
                         snprintf(groupdir_location, sizeof(groupdir_location), "%s/%s/groups", netdir_location, dir_entry_p->d_name);
                         if(debuglvl >= HIGH)
-                            (void)tb->cfg->vrprint.debug(__FUNC__, "opening group dir: %s.", groupdir_location);
+                            vrmr_debug(__FUNC__, "opening group dir: %s.", groupdir_location);
 
                         /* this is allowed to fail, if it does, is will be NULL, and will be detected above */
                         tb->group_p = vuurmuur_opendir(debuglvl, tb->cfg, groupdir_location);
@@ -460,7 +460,7 @@ char
                                 return(NULL);
                             
                             if(debuglvl >= HIGH)
-                                (void)tb->cfg->vrprint.debug(__FUNC__, "list_textdir: network '%s', file: '%s'.", cur_zonename, file_location);
+                                vrmr_debug(__FUNC__, "list_textdir: network '%s', file: '%s'.", cur_zonename, file_location);
 
                             // now stat it
                             if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
@@ -468,7 +468,7 @@ char
                                 free(file_location);
 
                                 if(debuglvl >= HIGH)
-                                    (void)tb->cfg->vrprint.debug(__FUNC__, "list_textdir: '%s' ('%s', '%s').", cur_zonename, tb->cur_network, tb->cur_zone);
+                                    vrmr_debug(__FUNC__, "list_textdir: '%s' ('%s', '%s').", cur_zonename, tb->cur_network, tb->cur_zone);
 
                                 *zonetype = VRMR_TYPE_NETWORK;
 
@@ -483,7 +483,7 @@ char
                 else
                 {
                     if(debuglvl >= HIGH)
-                        (void)tb->cfg->vrprint.debug(__FUNC__, "network dir closed.");
+                        vrmr_debug(__FUNC__, "network dir closed.");
 
                     closedir(tb->network_p);
                     tb->network_p = NULL;
@@ -492,24 +492,24 @@ char
             else if(tb->zone_p != NULL)
             {
                 if(debuglvl >= HIGH)
-                    (void)tb->cfg->vrprint.debug(__FUNC__, "getting a zonename.");
+                    vrmr_debug(__FUNC__, "getting a zonename.");
 
                 if((dir_entry_p = readdir(tb->zone_p)) != NULL)
                 {
                     if(debuglvl >= HIGH)
-                        (void)tb->cfg->vrprint.debug(__FUNC__, "zone entry: %s.", dir_entry_p->d_name);
+                        vrmr_debug(__FUNC__, "zone entry: %s.", dir_entry_p->d_name);
 
                     if((strncmp(dir_entry_p->d_name, ".", 1) != 0) && (strcmp(dir_entry_p->d_name, "..") != 0))
                     {
                         (void)strlcpy(tb->cur_zone, dir_entry_p->d_name, VRMR_MAX_ZONE);
 
                         if(debuglvl >= HIGH)
-                            (void)tb->cfg->vrprint.debug(__FUNC__, "zone name: %s.", dir_entry_p->d_name);
+                            vrmr_debug(__FUNC__, "zone name: %s.", dir_entry_p->d_name);
 
                         // open the networkdir
                         snprintf(netdir_location, sizeof(netdir_location), "%s/%s/networks", dir_location, dir_entry_p->d_name);
                         if(debuglvl >= HIGH)
-                            (void)tb->cfg->vrprint.debug(__FUNC__, "opening: %s.", netdir_location);
+                            vrmr_debug(__FUNC__, "opening: %s.", netdir_location);
 
                         /* this is allowed to fail, if it does, is will be NULL, and will be detected above */
                         tb->network_p = vuurmuur_opendir(debuglvl, tb->cfg, netdir_location);
@@ -522,7 +522,7 @@ char
                                 return(NULL);
                             
                             if(debuglvl >= HIGH)
-                                (void)tb->cfg->vrprint.debug(__FUNC__, "zone '%s', file: '%s'.", tb->cur_zone, file_location);
+                                vrmr_debug(__FUNC__, "zone '%s', file: '%s'.", tb->cur_zone, file_location);
 
                             // now stat it
                             if(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST))
@@ -530,7 +530,7 @@ char
                                 free(file_location);
 
                                 if(debuglvl >= HIGH)
-                                    (void)tb->cfg->vrprint.debug(__FUNC__, "zone '%s'.", tb->cur_zone);
+                                    vrmr_debug(__FUNC__, "zone '%s'.", tb->cur_zone);
 
                                 *zonetype = VRMR_TYPE_ZONE;
 
@@ -545,7 +545,7 @@ char
                 else
                 {
                     if(debuglvl >= HIGH)
-                        (void)tb->cfg->vrprint.debug(__FUNC__, "zone dir closing.");
+                        vrmr_debug(__FUNC__, "zone dir closing.");
 
                     closedir(tb->zone_p);
                     tb->zone_p = NULL;
@@ -557,12 +557,12 @@ char
             if(!done && !tb->zone_p)
             {
                 if(debuglvl >= HIGH)
-                    (void)tb->cfg->vrprint.debug(__FUNC__, "opening the zonesdir.");
+                    vrmr_debug(__FUNC__, "opening the zonesdir.");
 
                 // open the dir
                 if(!(tb->zone_p = vuurmuur_opendir(debuglvl, tb->cfg, dir_location)))
                 {
-                    (void)tb->cfg->vrprint.error(-1, "Error", "unable to open directory: %s: %s.", dir_location, strerror(errno));
+                    vrmr_error(-1, "Error", "unable to open directory: %s: %s.", dir_location, strerror(errno));
                     return(NULL);
                 }
             }
@@ -570,7 +570,7 @@ char
     }
     else
     {
-        (void)tb->cfg->vrprint.error(-1, "Internal Error", "unknown type '%d'.", type);
+        vrmr_error(-1, "Internal Error", "unknown type '%d'.", type);
         return(NULL);
     }
 
