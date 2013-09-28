@@ -174,7 +174,6 @@ int
 main(int argc, char *argv[])
 {
     struct vrmr_ctx vctx;
-    struct vrmr_interfaces interfaces;
     struct vrmr_services services;
     FILE        *system_log = NULL;
     char        line_in[1024] = "";
@@ -217,7 +216,6 @@ main(int argc, char *argv[])
     char        quit = 0;
 
     vctx.services = &services;
-    vctx.interfaces = &interfaces;
     vctx.conf = &conf;
 
     snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
@@ -376,16 +374,16 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
-    if (vrmr_interfaces_load(debuglvl, &vctx, &interfaces) == -1)
+    if (vrmr_interfaces_load(debuglvl, &vctx, &vctx.interfaces) == -1)
         exit(EXIT_FAILURE);
 
     /* load the zonedata into memory */
-    if (vrmr_zones_load(debuglvl, &vctx, &vctx.zones, &interfaces, &vctx.reg) == -1)
+    if (vrmr_zones_load(debuglvl, &vctx, &vctx.zones, &vctx.interfaces, &vctx.reg) == -1)
         exit(EXIT_FAILURE);
 
 
     /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
-    if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &vctx.zones.list) < 0)
+    if(vrmr_ins_iface_into_zonelist(debuglvl, &vctx.interfaces.list, &vctx.zones.list) < 0)
     {
         vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
         exit(EXIT_FAILURE);
@@ -547,7 +545,7 @@ main(int argc, char *argv[])
             /* destroy the ZonedataList */
             vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
             /* destroy the InterfacesList */
-            vrmr_destroy_interfaceslist(debuglvl, &interfaces);
+            vrmr_destroy_interfaceslist(debuglvl, &vctx.interfaces);
 
             /* close backend */
             result = vrmr_backends_unload(debuglvl, &conf, &vctx);
@@ -582,7 +580,7 @@ main(int argc, char *argv[])
 
             /* re-initialize the data */
             vrmr_info("Info", "Initializing interfaces...");
-            if (vrmr_init_interfaces(debuglvl, &vctx, &interfaces) < 0)
+            if (vrmr_init_interfaces(debuglvl, &vctx, &vctx.interfaces) < 0)
             {
                 vrmr_error(-1, "Error", "initializing interfaces failed.");
                 exit(EXIT_FAILURE);
@@ -591,7 +589,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 40);
 
             vrmr_info("Info", "Initializing zones...");
-            if (vrmr_init_zonedata(debuglvl, &vctx, &vctx.zones, &interfaces, &vctx.reg) < 0)
+            if (vrmr_init_zonedata(debuglvl, &vctx, &vctx.zones, &vctx.interfaces, &vctx.reg) < 0)
             {
                 vrmr_error(-1, "Error", "initializing zones failed.");
                 exit(EXIT_FAILURE);
@@ -609,7 +607,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 60);
 
             /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
-            if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &vctx.zones.list) < 0)
+            if(vrmr_ins_iface_into_zonelist(debuglvl, &vctx.interfaces.list, &vctx.zones.list) < 0)
             {
                 vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
                 exit(EXIT_FAILURE);
@@ -695,7 +693,7 @@ main(int argc, char *argv[])
     /* destroy the ZonedataList */
     vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
     /* destroy the InterfacesList */
-    vrmr_destroy_interfaceslist(debuglvl, &interfaces);
+    vrmr_destroy_interfaceslist(debuglvl, &vctx.interfaces);
 
     if(nodaemon)
         show_stats (&Counters);

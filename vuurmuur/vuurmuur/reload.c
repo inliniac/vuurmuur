@@ -108,7 +108,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
     vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 20);
 
     vrmr_info("Info", "Reloading interfaces...");
-    result = reload_interfaces(debuglvl, vctx, vctx->interfaces);
+    result = reload_interfaces(debuglvl, vctx, &vctx->interfaces);
     if(result == 0)
     {
         if(debuglvl >= LOW)
@@ -127,7 +127,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
     vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 25);
 
     vrmr_info("Info", "Reloading zones...");
-    result = reload_zonedata(debuglvl, vctx, &vctx->zones, vctx->interfaces, reg);
+    result = reload_zonedata(debuglvl, vctx, &vctx->zones, &vctx->interfaces, reg);
     if(result == 0)
     {
         if(debuglvl >= LOW)

@@ -64,7 +64,6 @@ void bash_enable_interfaces(struct vrmr_interfaces *ifaces) {
 int
 main(int argc, char *argv[])
 {
-    struct vrmr_interfaces      interfaces;
     struct vrmr_services        services;
     struct vrmr_rules           rules;
     /* list of ipaddresses to be blocked */
@@ -120,7 +119,6 @@ main(int argc, char *argv[])
     vctx.services = &services;
     vctx.blocklist = &blocklist;
     vctx.iptcaps = &iptcap;
-    vctx.interfaces = &interfaces;
     vctx.conf = &conf;
 
     snprintf(version_string,sizeof(version_string),"%s (using libvuurmuur %s)", VUURMUUR_VERSION, libvuurmuur_get_version());
@@ -446,15 +444,15 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
-    result = vrmr_interfaces_load(debuglvl, &vctx, &interfaces);
+    result = vrmr_interfaces_load(debuglvl, &vctx, &vctx.interfaces);
     if(result == -1)
         exit(EXIT_FAILURE);
     if (conf.bash_out) {
-        bash_enable_interfaces(&interfaces);
+        bash_enable_interfaces(&vctx.interfaces);
     }
 
     /* load the zonedata into memory */
-    result = vrmr_zones_load(debuglvl, &vctx, &vctx.zones, &interfaces, &vctx.reg);
+    result = vrmr_zones_load(debuglvl, &vctx, &vctx.zones, &vctx.interfaces, &vctx.reg);
     if(result == -1)
         exit(EXIT_FAILURE);
 
@@ -668,7 +666,7 @@ main(int argc, char *argv[])
                 /*  if we have one or more dynamic interfaces
                     we check if there we're changes.
                 */
-                if(conf.dynamic_changes_check == TRUE && interfaces.dynamic_interfaces == TRUE)
+                if(conf.dynamic_changes_check == TRUE && vctx.interfaces.dynamic_interfaces == TRUE)
                 {
                     dynamic_wait_time++;
 
@@ -677,7 +675,7 @@ main(int argc, char *argv[])
                         if(debuglvl >= LOW)
                             vrmr_debug(__FUNC__, "check the dynamic ipaddresses.");
 
-                        if(check_for_changed_dynamic_ips(debuglvl, &interfaces))
+                        if(check_for_changed_dynamic_ips(debuglvl, &vctx.interfaces))
                         {
                             reload_dyn = TRUE;
                         }
@@ -837,7 +835,7 @@ main(int argc, char *argv[])
     vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
 
     /* destroy the InterfacesList */
-    vrmr_destroy_interfaceslist(debuglvl, &interfaces);
+    vrmr_destroy_interfaceslist(debuglvl, &vctx.interfaces);
 
     /* destroy the QuerydataList */
     if(vrmr_rules_cleanup_list(debuglvl, &rules) < 0)

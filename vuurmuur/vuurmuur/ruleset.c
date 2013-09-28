@@ -1301,17 +1301,17 @@ ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *rule
     char    forward_rules = 0;
 
     /* create shaping setup */
-    if(shaping_clear_interfaces(debuglvl, vctx->conf, vctx->interfaces, ruleset) < 0)
+    if(shaping_clear_interfaces(debuglvl, vctx->conf, &vctx->interfaces, ruleset) < 0)
     {
         vrmr_error(-1, "Error", "setting up interface shaping clearing failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    if(shaping_setup_roots(debuglvl, vctx->conf, vctx->interfaces, ruleset) < 0)
+    if(shaping_setup_roots(debuglvl, vctx->conf, &vctx->interfaces, ruleset) < 0)
     {
         vrmr_error(-1, "Error", "setting up interface shaping roots failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    if(shaping_create_default_rules(debuglvl, vctx->conf, vctx->interfaces, ruleset) < 0)
+    if(shaping_create_default_rules(debuglvl, vctx->conf, &vctx->interfaces, ruleset) < 0)
     {
         vrmr_error(-1, "Error", "setting up interface default rules failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1321,7 +1321,7 @@ ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *rule
     vrmr_info("Info", "Creating the rules... (rules to create: %d)", vctx->rules->list.len);
 
     /* create the prerules if were called with it */
-    result = pre_rules(debuglvl, ruleset, vctx->interfaces, vctx->iptcaps);
+    result = pre_rules(debuglvl, ruleset, &vctx->interfaces, vctx->iptcaps);
     if(result < 0)
     {
         vrmr_error(-1, "Error", "create pre-rules failed.");
@@ -1346,7 +1346,7 @@ ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *rule
     }
 
     /* create the interface rules */
-    if(create_interface_rules(debuglvl, ruleset, vctx->iptcaps, vctx->interfaces) < 0)
+    if(create_interface_rules(debuglvl, ruleset, vctx->iptcaps, &vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "create protectrules failed.");
     }
@@ -1608,7 +1608,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     ruleset.ipv = VRMR_IPV4;
 
     /* store counters */
-    if(ruleset_save_interface_counters(debuglvl, vctx->conf, vctx->interfaces) < 0)
+    if(ruleset_save_interface_counters(debuglvl, vctx->conf, &vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "saving interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1623,7 +1623,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     }
 
     /* clear the counters again */
-    if(ruleset_clear_interface_counters(debuglvl, vctx->interfaces) < 0)
+    if(ruleset_clear_interface_counters(debuglvl, &vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "clearing interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1794,7 +1794,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     ruleset.ipv = VRMR_IPV6;
 
     /* store counters */
-    if(ruleset_save_interface_counters(debuglvl, vctx->conf, vctx->interfaces) < 0)
+    if(ruleset_save_interface_counters(debuglvl, vctx->conf, &vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "saving interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1809,7 +1809,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     }
 
     /* clear the counters again */
-    if(ruleset_clear_interface_counters(debuglvl, vctx->interfaces) < 0)
+    if(ruleset_clear_interface_counters(debuglvl, &vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "clearing interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);

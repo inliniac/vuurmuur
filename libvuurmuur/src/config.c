@@ -2276,13 +2276,13 @@ int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx) {
         return -1;
     }
 
-    result = vrmr_interfaces_load(debuglvl, vctx, vctx->interfaces);
+    result = vrmr_interfaces_load(debuglvl, vctx, &vctx->interfaces);
     if (result < -1) {
         vrmr_error(-1, "Error", "initializing interfaces failed");
         return -1;
     }
 
-    result = vrmr_zones_load(debuglvl, vctx, &vctx->zones, vctx->interfaces, &vctx->reg);
+    result = vrmr_zones_load(debuglvl, vctx, &vctx->zones, &vctx->interfaces, &vctx->reg);
     if (result == -1) {
         vrmr_error(-1, "Error", "initializing zones failed");
         return -1;

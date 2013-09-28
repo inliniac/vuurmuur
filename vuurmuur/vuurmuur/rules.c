@@ -425,18 +425,18 @@ analyze_all_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *
     vrmr_info("Info", "Analyzing the rules... ");
 
     /* interface rules */
-    if(analyze_interface_rules(debuglvl, rules, &vctx->zones, vctx->services, vctx->interfaces) < 0)
+    if(analyze_interface_rules(debuglvl, rules, &vctx->zones, vctx->services, &vctx->interfaces) < 0)
         return(-1);
 
     /* network rules */
-    if(analyze_network_protect_rules(debuglvl, vctx->rules, &vctx->zones, vctx->services, vctx->interfaces) < 0)
+    if(analyze_network_protect_rules(debuglvl, vctx->rules, &vctx->zones, vctx->services, &vctx->interfaces) < 0)
         return(-1);
 
     /* normal rules */
-    if(analyze_normal_rules(debuglvl, rules, &vctx->zones, vctx->services, vctx->interfaces) < 0)
+    if(analyze_normal_rules(debuglvl, rules, &vctx->zones, vctx->services, &vctx->interfaces) < 0)
         return(-1);
 
-    if(shaping_determine_minimal_default_rates(debuglvl, vctx->interfaces, rules) < 0)
+    if(shaping_determine_minimal_default_rates(debuglvl, &vctx->interfaces, rules) < 0)
         return(-1);
 
     return(0);
@@ -461,16 +461,16 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
 
     /* setup shaping roots */
     vrmr_info("Info", "Clearing existing shaping settings...");
-    if(shaping_clear_interfaces(debuglvl, vctx->conf, vctx->interfaces, /*ruleset*/NULL) < 0)
+    if(shaping_clear_interfaces(debuglvl, vctx->conf, &vctx->interfaces, /*ruleset*/NULL) < 0)
     {
         vrmr_error(-1, "Error", "shaping clear interfaces failed.");
     }
     vrmr_info("Info", "Setting up shaping roots for interfaces...");
-    if(shaping_setup_roots(debuglvl, vctx->conf, vctx->interfaces, /*ruleset*/NULL) < 0)
+    if(shaping_setup_roots(debuglvl, vctx->conf, &vctx->interfaces, /*ruleset*/NULL) < 0)
     {
         vrmr_error(-1, "Error", "shaping setup roots failed.");
     }
-    if(shaping_create_default_rules(debuglvl, vctx->conf, vctx->interfaces, /*ruleset*/NULL) < 0)
+    if(shaping_create_default_rules(debuglvl, vctx->conf, &vctx->interfaces, /*ruleset*/NULL) < 0)
     {
         vrmr_error(-1, "Error", "shaping setup default rules failed.");
     }
@@ -480,7 +480,7 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
     /* create the prerules if were called with it */
     if(create_prerules)
     {
-        result = pre_rules(debuglvl, NULL, vctx->interfaces, vctx->iptcaps);
+        result = pre_rules(debuglvl, NULL, &vctx->interfaces, vctx->iptcaps);
         if(result < 0)
             return(-1);
     }
@@ -514,7 +514,7 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
     }
 
     /* create the interface rules */
-    if(create_interface_rules(debuglvl, NULL, vctx->iptcaps, vctx->interfaces) < 0)
+    if(create_interface_rules(debuglvl, NULL, vctx->iptcaps, &vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "create protectrules failed.");
     }
@@ -1708,7 +1708,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
 
         if(create->option.in_int[0] != '\0') /* interface option is set */
         {
-            rule->to_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.in_int);
+            rule->to_if_ptr = vrmr_search_interface(debuglvl, &vctx->interfaces, create->option.in_int);
             if(rule->to_if_ptr == NULL)
             {
                 vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
@@ -1738,7 +1738,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             /* shaping rules */
             if (vrmr_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
-                retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
+                retval = shaping_shape_create_rule(debuglvl, vctx->conf, &vctx->interfaces, rule, ruleset,
                     rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
                     create->option.bw_in_min, create->option.bw_in_min_unit,
                     create->option.bw_in_max, create->option.bw_in_max_unit,
@@ -1749,7 +1749,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             }
             if (vrmr_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
-                retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
+                retval = shaping_shape_create_rule(debuglvl, vctx->conf, &vctx->interfaces, rule, ruleset,
                     rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
                     create->option.bw_out_min, create->option.bw_out_min_unit,
                     create->option.bw_out_max, create->option.bw_out_max_unit,
@@ -1774,7 +1774,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
 
         if(create->option.out_int[0] != '\0') /* interface option is set */
         {
-            rule->to_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.out_int);
+            rule->to_if_ptr = vrmr_search_interface(debuglvl, &vctx->interfaces, create->option.out_int);
             if(rule->to_if_ptr == NULL)
             {
                 vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
@@ -1804,7 +1804,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             /* shaping rules */
             if (vrmr_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
-                retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
+                retval = shaping_shape_create_rule(debuglvl, vctx->conf, &vctx->interfaces, rule, ruleset,
                     rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
                     create->option.bw_in_min, create->option.bw_in_min_unit,
                     create->option.bw_in_max, create->option.bw_in_max_unit,
@@ -1815,7 +1815,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             }
             if (vrmr_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
                 /* at this point we can create the tc rules */
-                retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
+                retval = shaping_shape_create_rule(debuglvl, vctx->conf, &vctx->interfaces, rule, ruleset,
                     rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
                     create->option.bw_out_min, create->option.bw_out_min_unit,
                     create->option.bw_out_max, create->option.bw_out_max_unit,
@@ -1940,7 +1940,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
                     /* shaping rules */
                     if (vrmr_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
                         /* at this point we can create the tc rules */
-                        retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
+                        retval = shaping_shape_create_rule(debuglvl, vctx->conf, &vctx->interfaces, rule, ruleset,
                                 rule->to_if_ptr, rule->from_if_ptr, rule->shape_class_out,
                                 create->option.bw_in_min, create->option.bw_in_min_unit,
                                 create->option.bw_in_max, create->option.bw_in_max_unit,
@@ -1951,7 +1951,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
                     }
                     if (vrmr_is_shape_incoming_rule(debuglvl, &create->option) == 1) {
                         /* at this point we can create the tc rules */
-                        retval = shaping_shape_create_rule(debuglvl, vctx->conf, vctx->interfaces, rule, ruleset,
+                        retval = shaping_shape_create_rule(debuglvl, vctx->conf, &vctx->interfaces, rule, ruleset,
                                 rule->from_if_ptr, rule->to_if_ptr, rule->shape_class_in,
                                 create->option.bw_out_min, create->option.bw_out_min_unit,
                                 create->option.bw_out_max, create->option.bw_out_max_unit,
@@ -1992,7 +1992,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
         {
             vrmr_debug(__FUNC__, "create->option.out_int %s", create->option.out_int);
 
-            rule->from_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.out_int);
+            rule->from_if_ptr = vrmr_search_interface(debuglvl, &vctx->interfaces, create->option.out_int);
             if(rule->from_if_ptr == NULL)
             {
                 vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
@@ -2038,7 +2038,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
 
         if(create->option.in_int[0] != '\0') /* interface option is set */
         {
-            rule->from_if_ptr = vrmr_search_interface(debuglvl, vctx->interfaces, create->option.in_int);
+            rule->from_if_ptr = vrmr_search_interface(debuglvl, &vctx->interfaces, create->option.in_int);
             if(rule->from_if_ptr == NULL)
             {
                 vrmr_error(-1, "Error", "interface '%s' not found (in: %s:%d).",
@@ -2283,10 +2283,10 @@ create_rule(const int debuglvl, struct vrmr_ctx *vctx,
 
     /* SHAPING PREPARATION */
     if (vrmr_is_shape_rule(debuglvl, &create->option) == 1) {
-        rule->shape_class_out = vctx->interfaces->shape_handle;
-        vctx->interfaces->shape_handle++;
-        rule->shape_class_in = vctx->interfaces->shape_handle;
-        vctx->interfaces->shape_handle++;
+        rule->shape_class_out = vctx->interfaces.shape_handle;
+        vctx->interfaces.shape_handle++;
+        rule->shape_class_in = vctx->interfaces.shape_handle;
+        vctx->interfaces.shape_handle++;
 
         vrmr_debug(__FUNC__, "rule->shape_class_out %u rule->shape_class_in %u",
             rule->shape_class_out, rule->shape_class_in);
