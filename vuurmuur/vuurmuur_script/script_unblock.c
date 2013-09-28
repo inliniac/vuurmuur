@@ -136,14 +136,14 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
 
     if(removed == TRUE)
     {
-        if(vrmr_blocklist_save_list(debuglvl, &vr_script->vctx, &conf, &blocklist) != 0)
+        if(vrmr_blocklist_save_list(debuglvl, &vr_script->vctx, &vr_script->vctx.conf, &blocklist) != 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
                 "could not save updated blocklist (in: %s:%d).",
                 __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
         }
-        logchange("item '%s' removed from the blocklist.", vr_script->bdat);
+        logchange(vr_script, "item '%s' removed from the blocklist.", vr_script->bdat);
     }
     else
     {

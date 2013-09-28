@@ -243,7 +243,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("zone '%s' renamed to '%s'.", vr_script->name, vr_script->set);
+        logchange(vr_script, "zone '%s' renamed to '%s'.", vr_script->name, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
@@ -253,7 +253,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("network '%s' renamed to '%s'.", vr_script->name, vr_script->set);
+        logchange(vr_script, "network '%s' renamed to '%s'.", vr_script->name, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_HOST)
     {
@@ -263,7 +263,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("host '%s' renamed to '%s'.", vr_script->name, vr_script->set);
+        logchange(vr_script, "host '%s' renamed to '%s'.", vr_script->name, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_GROUP)
     {
@@ -273,7 +273,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("group '%s' renamed to '%s'.", vr_script->name, vr_script->set);
+        logchange(vr_script, "group '%s' renamed to '%s'.", vr_script->name, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
@@ -283,7 +283,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("service '%s' renamed to '%s'.", vr_script->name, vr_script->set);
+        logchange(vr_script, "service '%s' renamed to '%s'.", vr_script->name, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
@@ -293,7 +293,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("interface '%s' renamed to '%s'.", vr_script->name, vr_script->set);
+        logchange(vr_script, "interface '%s' renamed to '%s'.", vr_script->name, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
@@ -303,7 +303,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("ruleset '%s' renamed to '%s'.", vr_script->name, vr_script->set);
+        logchange(vr_script, "ruleset '%s' renamed to '%s'.", vr_script->name, vr_script->set);
     }
     else
     {

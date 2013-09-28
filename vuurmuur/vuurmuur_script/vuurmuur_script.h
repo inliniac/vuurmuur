@@ -143,13 +143,11 @@ typedef struct VuurmuurScript_
     struct vrmr_ctx vctx;
 } VuurmuurScript;
 
-struct vrmr_config conf;
-
 /*************************************************************************************************************************\
  ******************************************************* FUNCTIONS *******************************************************
 \*************************************************************************************************************************/
 
-void logchange(char *fmt, ...);
+void logchange(VuurmuurScript *,char *fmt, ...);
 
 int script_print(const int, VuurmuurScript *);
 int script_list(const int, VuurmuurScript *);

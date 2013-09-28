@@ -236,11 +236,11 @@ main(int argc, char *argv[])
                 }
                 else if(strcmp(long_options[longopt_index].name, "list-paths") == 0)
                 {
-                    printf("SYSCONFDIR %s\n", conf.etcdir);
-                    printf("VUURMUURCONFDIR %s/vuurmuur\n", conf.etcdir);
-                    printf("CONFIGFILE %s\n", conf.configfile);
-                    printf("PLUGINDIR %s\n", conf.plugdir);
-                    printf("DATADIR %s\n", conf.datadir);
+                    printf("SYSCONFDIR %s\n", vr_script.vctx.conf.etcdir);
+                    printf("VUURMUURCONFDIR %s/vuurmuur\n", vr_script.vctx.conf.etcdir);
+                    printf("CONFIGFILE %s\n", vr_script.vctx.conf.configfile);
+                    printf("PLUGINDIR %s\n", vr_script.vctx.conf.plugdir);
+                    printf("DATADIR %s\n", vr_script.vctx.conf.datadir);
                     exit(EXIT_SUCCESS);
                 }
                 else
@@ -255,12 +255,12 @@ main(int argc, char *argv[])
             case 'c' :
 
                 /* config file */
-                if(conf.verbose_out == TRUE)
+                if(vr_script.vctx.conf.verbose_out == TRUE)
                     fprintf(stdout, "Using this configfile: %s\n", optarg);
 
-                if(strlcpy(conf.configfile, optarg, sizeof(conf.configfile)) >= sizeof(conf.configfile))
+                if(strlcpy(vr_script.vctx.conf.configfile, optarg, sizeof(vr_script.vctx.conf.configfile)) >= sizeof(vr_script.vctx.conf.configfile))
                 {
-                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "configfile (-c): argument too long (max: %d).", (int)sizeof(conf.configfile)-1);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "configfile (-c): argument too long (max: %d).", (int)sizeof(vr_script.vctx.conf.configfile)-1);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 break;
@@ -338,7 +338,7 @@ main(int argc, char *argv[])
             case 'v' :
 
                 /* verbose */
-                conf.verbose_out = TRUE;
+                vr_script.vctx.conf.verbose_out = TRUE;
                 break;
 
             case 'C' :
@@ -479,7 +479,7 @@ main(int argc, char *argv[])
         exit(VRS_SUCCESS);
     }
 
-    if(conf.verbose_out == TRUE)
+    if(vr_script.vctx.conf.verbose_out == TRUE)
     {
         /* print some nice info about me being the coolest of 'm all ;-) */
         vrmr_info("Info", "This is Vuurmuur_script %s", version_string);
@@ -510,52 +510,52 @@ main(int argc, char *argv[])
 
     if(vr_script.cmd == CMD_ADD)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "command 'add' selected.");
     }
     else if(vr_script.cmd == CMD_DEL)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "command 'delete' selected.");
     }
     else if(vr_script.cmd == CMD_MOD)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "command 'modify' selected.");
     }
     else if(vr_script.cmd == CMD_REN)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "command 'rename' selected.");
     }
     else if(vr_script.cmd == CMD_LST)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "command 'list' selected.");
     }
     else if(vr_script.cmd == CMD_PRT)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "command 'print' selected.");
     }
     else if(vr_script.cmd == CMD_BLK)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "command 'block' selected.");
     }
     else if(vr_script.cmd == CMD_UBL)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "command 'unblock' selected.");
     }
     else if(vr_script.cmd == CMD_LBL)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "command 'list-blocked' selected.");
     }
     else if(vr_script.cmd == CMD_RLD)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "command 'reload-config' selected.");
     }
     else
@@ -576,42 +576,42 @@ main(int argc, char *argv[])
 
     if(vr_script.type == VRMR_TYPE_HOST)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "type 'host' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_GROUP)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "type 'group' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_NETWORK)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "type 'network' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_ZONE)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "type 'zone' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_SERVICE)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "type 'service' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_INTERFACE)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "type 'interface' selected.");
     }
     else if(vr_script.type == VRMR_TYPE_RULE)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "type 'rule' selected.");
     }
     else if(vr_script.cmd == CMD_RLD)
     {
-        if(conf.verbose_out == TRUE)
+        if(vr_script.vctx.conf.verbose_out == TRUE)
             vrmr_info(VR_INFO, "reload has no option.");
     }
     else
@@ -705,7 +705,7 @@ main(int argc, char *argv[])
     if(debuglvl >= MEDIUM)
         vrmr_debug(__FUNC__, "initializing config... calling vrmr_init_config()");
 
-    result = vrmr_init_config(debuglvl, &conf);
+    result = vrmr_init_config(debuglvl, &vr_script.vctx.conf);
     if(result >= VRMR_CNF_OK)
     {
         if(debuglvl >= MEDIUM)
@@ -719,7 +719,7 @@ main(int argc, char *argv[])
 
 
     /* now we know the logfile locations, so init the log functions */
-    if(conf.verbose_out == TRUE)
+    if(vr_script.vctx.conf.verbose_out == TRUE)
     {
         /* if we use verbose output, we still print the logfiles as well */
         vrprint.error = vrmr_logstdoutprint_error;
@@ -743,7 +743,7 @@ main(int argc, char *argv[])
 
 
     /* load the backends */
-    result = vrmr_backends_load(debuglvl, &conf, &vr_script.vctx);
+    result = vrmr_backends_load(debuglvl, &vr_script.vctx.conf, &vr_script.vctx);
     if(result < 0)
     {
         fprintf(stdout, "Error: loading backends failed\n");
@@ -895,7 +895,7 @@ main(int argc, char *argv[])
     }
 
     /* unload the backends */
-    result = vrmr_backends_unload(debuglvl, &conf, &vr_script.vctx);
+    result = vrmr_backends_unload(debuglvl, &vr_script.vctx.conf, &vr_script.vctx);
     if(result < 0)
     {
         fprintf(stdout, "Error: unloading backends failed.\n");
@@ -917,7 +917,7 @@ main(int argc, char *argv[])
     screen.
 */
 void
-logchange(char *fmt, ...)
+logchange(VuurmuurScript *vr_script, char *fmt, ...)
 {
     va_list ap;
     char    prnt_str[VRMR_MAX_LOGRULE_SIZE] = "";
@@ -927,6 +927,6 @@ logchange(char *fmt, ...)
     va_end(ap);
 
     vrmr_audit("%s", prnt_str);
-    if(conf.verbose_out == TRUE)
+    if(vr_script->vctx.conf.verbose_out == TRUE)
         vrmr_info("Info", "%s", prnt_str);
 }

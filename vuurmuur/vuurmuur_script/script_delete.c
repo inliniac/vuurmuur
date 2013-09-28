@@ -113,7 +113,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("zone '%s' removed.", vr_script->name);
+        logchange(vr_script, "zone '%s' removed.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
@@ -123,7 +123,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("network '%s' removed.", vr_script->name);
+        logchange(vr_script, "network '%s' removed.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_HOST)
     {
@@ -133,7 +133,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("host '%s' removed.", vr_script->name);
+        logchange(vr_script, "host '%s' removed.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_GROUP)
     {
@@ -143,7 +143,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("group '%s' removed.", vr_script->name);
+        logchange(vr_script, "group '%s' removed.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
@@ -153,7 +153,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("service '%s' removed.", vr_script->name);
+        logchange(vr_script, "service '%s' removed.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
@@ -163,7 +163,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("interface '%s' removed.", vr_script->name);
+        logchange(vr_script, "interface '%s' removed.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
@@ -173,7 +173,7 @@ script_delete(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("ruleset '%s' removed.", vr_script->name);
+        logchange(vr_script, "ruleset '%s' removed.", vr_script->name);
     }
     else
     {
