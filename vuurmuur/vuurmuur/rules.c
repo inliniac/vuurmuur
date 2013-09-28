@@ -425,15 +425,15 @@ analyze_all_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *
     vrmr_info("Info", "Analyzing the rules... ");
 
     /* interface rules */
-    if(analyze_interface_rules(debuglvl, rules, &vctx->zones, vctx->services, &vctx->interfaces) < 0)
+    if(analyze_interface_rules(debuglvl, rules, &vctx->zones, &vctx->services, &vctx->interfaces) < 0)
         return(-1);
 
     /* network rules */
-    if(analyze_network_protect_rules(debuglvl, vctx->rules, &vctx->zones, vctx->services, &vctx->interfaces) < 0)
+    if(analyze_network_protect_rules(debuglvl, &vctx->rules, &vctx->zones, &vctx->services, &vctx->interfaces) < 0)
         return(-1);
 
     /* normal rules */
-    if(analyze_normal_rules(debuglvl, rules, &vctx->zones, vctx->services, &vctx->interfaces) < 0)
+    if(analyze_normal_rules(debuglvl, rules, &vctx->zones, &vctx->services, &vctx->interfaces) < 0)
         return(-1);
 
     if(shaping_determine_minimal_default_rates(debuglvl, &vctx->interfaces, rules) < 0)
@@ -475,51 +475,51 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
         vrmr_error(-1, "Error", "shaping setup default rules failed.");
     }
 
-    vrmr_info("Info", "Creating the rules... (rules to create: %d)", vctx->rules->list.len);
+    vrmr_info("Info", "Creating the rules... (rules to create: %d)", vctx->rules.list.len);
 
     /* create the prerules if were called with it */
     if(create_prerules)
     {
-        result = pre_rules(debuglvl, NULL, &vctx->interfaces, vctx->iptcaps);
+        result = pre_rules(debuglvl, NULL, &vctx->interfaces, &vctx->iptcaps);
         if(result < 0)
             return(-1);
     }
 
     /* create the nfqueue state rules */
-    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV4) < 0)
+    if(create_newnfqueue_rules(debuglvl, NULL, &vctx->rules, &vctx->iptcaps, VRMR_IPV4) < 0)
     {
         vrmr_error(-1, "Error", "create nfqueue state failed.");
     }
 #ifdef IPV6_ENABLED
-    if(create_newnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV6) < 0)
+    if(create_newnfqueue_rules(debuglvl, NULL, &vctx->rules, &vctx->iptcaps, VRMR_IPV6) < 0)
     {
         vrmr_error(-1, "Error", "create nfqueue state failed.");
     }
 #endif
-    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV4) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, NULL, &vctx->rules, &vctx->iptcaps, VRMR_IPV4) < 0)
     {
         vrmr_error(-1, "Error", "create nfqueue state failed.");
     }
 #ifdef IPV6_ENABLED
-    if(create_estrelnfqueue_rules(debuglvl, NULL, vctx->rules, vctx->iptcaps, VRMR_IPV6) < 0)
+    if(create_estrelnfqueue_rules(debuglvl, NULL, &vctx->rules, &vctx->iptcaps, VRMR_IPV6) < 0)
     {
         vrmr_error(-1, "Error", "create nfqueue state failed.");
     }
 #endif
 
     /* create the blocklist */
-    if(create_block_rules(debuglvl, NULL, vctx->blocklist) < 0)
+    if(create_block_rules(debuglvl, NULL, &vctx->blocklist) < 0)
     {
         vrmr_error(-1, "Error", "create blocklist failed.");
     }
 
     /* create the interface rules */
-    if(create_interface_rules(debuglvl, NULL, vctx->iptcaps, &vctx->interfaces) < 0)
+    if(create_interface_rules(debuglvl, NULL, &vctx->iptcaps, &vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* create the network protect rules (anti-spoofing) */
-    if(create_network_protect_rules(debuglvl, NULL, &vctx->zones, vctx->iptcaps) < 0)
+    if(create_network_protect_rules(debuglvl, NULL, &vctx->zones, &vctx->iptcaps) < 0)
     {
         vrmr_error(-1, "Error", "create protectrules failed.");
     }
@@ -529,7 +529,7 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
         vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* create custom chains if needed */
-    if(oldrules_create_custom_chains(debuglvl, vctx->rules, vctx->conf) < 0)
+    if(oldrules_create_custom_chains(debuglvl, &vctx->rules, vctx->conf) < 0)
     {
         vrmr_error(-1, "Error", "create custom chains failed.");
     }
@@ -540,7 +540,7 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
     }
 
     /* post rules: enable logging */
-    if(post_rules(debuglvl, NULL, vctx->iptcaps, forward_rules) < 0)
+    if(post_rules(debuglvl, NULL, &vctx->iptcaps, forward_rules) < 0)
         return(-1);
 
     vrmr_info("Info", "Creating rules finished.");
@@ -1733,7 +1733,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
         if (active == 1) {
             vrmr_debug(__FUNC__, "dst interface %s", rule->to_if_ptr ? rule->to_if_ptr->name : "any");
 
-            retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, vctx->iptcaps);
+            retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, &vctx->iptcaps);
 
             /* shaping rules */
             if (vrmr_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
@@ -1799,7 +1799,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
         if (active == 1) {
             vrmr_debug(__FUNC__, "dst interface %s", rule->to_if_ptr ? rule->to_if_ptr->name : "any");
 
-            retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, vctx->iptcaps);
+            retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, &vctx->iptcaps);
 
             /* shaping rules */
             if (vrmr_is_shape_outgoing_rule(debuglvl, &create->option) == 1) {
@@ -1932,7 +1932,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
                     vrmr_debug(__FUNC__, "dst interface %s", rule->to_if_ptr->name);
 
                     /* ok, continue */
-                    retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, vctx->iptcaps);
+                    retval = rulecreate_service_loop(debuglvl, ruleset, rule, create, &vctx->iptcaps);
                     if (retval < 0) {
                         return(retval);
                     }
@@ -2436,7 +2436,7 @@ create_normal_rules(const int debuglvl,
 
 
     /* walk trough the ruleslist and create the rules */
-    for(d_node = vctx->rules->list.top; d_node; d_node = d_node->next)
+    for(d_node = vctx->rules.list.top; d_node; d_node = d_node->next)
     {
         if(!(rule_ptr = d_node->data))
         {

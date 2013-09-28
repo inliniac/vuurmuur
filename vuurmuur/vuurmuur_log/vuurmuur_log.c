@@ -174,7 +174,6 @@ int
 main(int argc, char *argv[])
 {
     struct vrmr_ctx vctx;
-    struct vrmr_services services;
     FILE        *system_log = NULL;
     char        line_in[1024] = "";
     char        line_out[1024] = "";
@@ -215,7 +214,6 @@ main(int argc, char *argv[])
 
     char        quit = 0;
 
-    vctx.services = &services;
     vctx.conf = &conf;
 
     snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
@@ -370,7 +368,7 @@ main(int argc, char *argv[])
     }
 
     /* load the services into memory */
-    if (vrmr_services_load(debuglvl, &vctx, &services, &vctx.reg)== -1)
+    if (vrmr_services_load(debuglvl, &vctx, &vctx.services, &vctx.reg)== -1)
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
@@ -404,7 +402,7 @@ main(int argc, char *argv[])
     }
 
     vrmr_info("Info", "Creating hash-table for the services...");
-    if(vrmr_init_services_hashtable(debuglvl, services.list.len * 500, &services.list, vrmr_hash_port, vrmr_compare_ports, &service_htbl) < 0)
+    if(vrmr_init_services_hashtable(debuglvl, vctx.services.list.len * 500, &vctx.services.list, vrmr_hash_port, vrmr_compare_ports, &service_htbl) < 0)
     {
         vrmr_error(-1, "Error", "vrmr_init_services_hashtable failed.");
         exit(EXIT_FAILURE);
@@ -541,7 +539,7 @@ main(int argc, char *argv[])
             vrmr_hash_cleanup(debuglvl, &service_htbl);
 
             /* destroy the ServicesList */
-            vrmr_destroy_serviceslist(debuglvl, &services);
+            vrmr_destroy_serviceslist(debuglvl, &vctx.services);
             /* destroy the ZonedataList */
             vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
             /* destroy the InterfacesList */
@@ -598,7 +596,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 50);
 
             vrmr_info("Info", "Initializing services...");
-            if (vrmr_init_services(debuglvl, &vctx, &services, &vctx.reg) < 0)
+            if (vrmr_init_services(debuglvl, &vctx, &vctx.services, &vctx.reg) < 0)
             {
                 vrmr_error(-1, "Error", "initializing services failed.");
                 exit(EXIT_FAILURE);
@@ -630,7 +628,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 80);
 
             vrmr_info("Info", "Creating hash-table for the services...");
-            if(vrmr_init_services_hashtable(debuglvl, services.list.len * 500, &services.list, vrmr_hash_port, vrmr_compare_ports, &service_htbl) < 0)
+            if(vrmr_init_services_hashtable(debuglvl, vctx.services.list.len * 500, &vctx.services.list, vrmr_hash_port, vrmr_compare_ports, &service_htbl) < 0)
             {
                 vrmr_error(result, "Error", "vrmr_init_services_hashtable failed.");
                 exit(EXIT_FAILURE);
@@ -689,7 +687,7 @@ main(int argc, char *argv[])
     vrmr_hash_cleanup(debuglvl, &service_htbl);
 
     /* destroy the ServicesList */
-    vrmr_destroy_serviceslist(debuglvl, &services);
+    vrmr_destroy_serviceslist(debuglvl, &vctx.services);
     /* destroy the ZonedataList */
     vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
     /* destroy the InterfacesList */

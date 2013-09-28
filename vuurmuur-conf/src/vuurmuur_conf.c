@@ -71,9 +71,6 @@ int
 main(int argc, char *argv[])
 {
     struct vrmr_ctx         vctx;
-    struct vrmr_services    services;
-    struct vrmr_rules       rules;
-    struct vrmr_blocklist   blocklist;
 
     int         retval=0,
                 optch = 0;
@@ -94,9 +91,6 @@ main(int argc, char *argv[])
     PANEL       *main_panels[5];
     char        *s = NULL;
 
-    vctx.rules = &rules;
-    vctx.services = &services;
-    vctx.blocklist = &blocklist;
     vctx.conf = &conf;
 
     /* some defaults */
@@ -330,8 +324,8 @@ main(int argc, char *argv[])
     //form_test(debuglvl);
 
     /* startup_screen inits the config, loads the zones, rules, etc */
-    if (startup_screen(debuglvl, &vctx, &rules, &vctx.zones,
-                &services, &vctx.interfaces, &blocklist, &vctx.reg) < 0)
+    if (startup_screen(debuglvl, &vctx, &vctx.rules, &vctx.zones,
+                &vctx.services, &vctx.interfaces, &vctx.blocklist, &vctx.reg) < 0)
     {
         /* failure! Lets quit. */
 
@@ -358,9 +352,9 @@ main(int argc, char *argv[])
 
     status_print(status_win, STR_READY);
 
-    mm_status_checkall(debuglvl, &vctx, NULL, &rules, &vctx.zones, &vctx.interfaces, &services);
+    mm_status_checkall(debuglvl, &vctx, NULL, &vctx.rules, &vctx.zones, &vctx.interfaces, &vctx.services);
     /* main menu loop */
-    while(main_menu(debuglvl, &vctx, &rules, &vctx.zones, &vctx.interfaces, &services, &blocklist, &vctx.reg) == 1);
+    while(main_menu(debuglvl, &vctx, &vctx.rules, &vctx.zones, &vctx.interfaces, &vctx.services, &vctx.blocklist, &vctx.reg) == 1);
     /* clean up the status list */
     vrmr_list_cleanup(debuglvl, &VuurmuurStatus.StatusList);
 
@@ -420,10 +414,10 @@ main(int argc, char *argv[])
     }
 
     /* cleanup the datastructures */
-    (void)vrmr_list_cleanup(debuglvl, &blocklist.list);
-    (void)vrmr_destroy_serviceslist(debuglvl, &services);
+    (void)vrmr_list_cleanup(debuglvl, &vctx.blocklist.list);
+    (void)vrmr_destroy_serviceslist(debuglvl, &vctx.services);
     (void)vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
-    (void)vrmr_rules_cleanup_list(debuglvl, &rules);
+    (void)vrmr_rules_cleanup_list(debuglvl, &vctx.rules);
     (void)vrmr_destroy_interfaceslist(debuglvl, &vctx.interfaces);
     return(retval);
 }

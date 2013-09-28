@@ -89,7 +89,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
 
     /* reload the services, interfaces, zones and rules. */
     vrmr_info("Info", "Reloading services...");
-    result = reload_services(debuglvl, vctx, vctx->services, reg->servicename);
+    result = reload_services(debuglvl, vctx, &vctx->services, reg->servicename);
     if(result == 0)
     {
         if(debuglvl >= LOW)
@@ -164,7 +164,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
 
 
     /* reload the blocklist */
-    result = reload_blocklist(debuglvl, vctx, vctx->conf, &vctx->zones, vctx->blocklist);
+    result = reload_blocklist(debuglvl, vctx, vctx->conf, &vctx->zones, &vctx->blocklist);
     if(result == -1)
     {
         vrmr_error(-1, "Error", "Reloading blocklist failed.");
@@ -200,7 +200,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
 
 
     /* analyzing the rules */
-    if(analyze_all_rules(debuglvl, vctx, vctx->rules) != 0)
+    if(analyze_all_rules(debuglvl, vctx, &vctx->rules) != 0)
     {
         vrmr_error(-1, "Error", "analizing the rules failed.");
         retval=-1;
@@ -1752,7 +1752,7 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     }
 
     /* run trough the lists and compare */
-    if(vctx->rules->list.len != new_rules->list.len)
+    if(vctx->rules.list.len != new_rules->list.len)
     {
         vrmr_info("Info", "Rules: the number of rules items has been changed.");
         status = 1;
@@ -1760,7 +1760,7 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
 
     /* now loop through the member to see if they have changes */
     new_node = new_rules->list.top;
-    old_node = vctx->rules->list.top;
+    old_node = vctx->rules.list.top;
     if(!new_node && !old_node)
     {
         /* no change */
@@ -1770,10 +1770,10 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     {
         /* change */
         if(!old_node)
-            vrmr_info("Info", "Rules: ruleslist now has items (old: %d, new: %d).", vctx->rules->list.len, new_rules->list.len);
+            vrmr_info("Info", "Rules: ruleslist now has items (old: %d, new: %d).", vctx->rules.list.len, new_rules->list.len);
 
         if(!new_node)
-            vrmr_info("Info", "Rules: ruleslist no longer has items (old: %d, new: %d).", vctx->rules->list.len, new_rules->list.len);
+            vrmr_info("Info", "Rules: ruleslist no longer has items (old: %d, new: %d).", vctx->rules.list.len, new_rules->list.len);
 
         status = 1;
     }
@@ -1869,10 +1869,10 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     {
         vrmr_info("Info", "the rules themselves did change.");
 
-        vrmr_rules_cleanup_list(debuglvl, vctx->rules);
+        vrmr_rules_cleanup_list(debuglvl, &vctx->rules);
 
         /* copy the new list to the old */
-        *vctx->rules = *new_rules;
+        vctx->rules = *new_rules;
 
         free(new_rules);
         return(1);
@@ -1936,10 +1936,10 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     {
         vrmr_info("Info", "the rules zones and/or services did change.");
 
-        vrmr_rules_cleanup_list(debuglvl, vctx->rules);
+        vrmr_rules_cleanup_list(debuglvl, &vctx->rules);
 
         /* copy the new list to the old */
-        *vctx->rules = *new_rules;
+        vctx->rules = *new_rules;
     }
     else
     {

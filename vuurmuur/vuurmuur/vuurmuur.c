@@ -64,11 +64,6 @@ void bash_enable_interfaces(struct vrmr_interfaces *ifaces) {
 int
 main(int argc, char *argv[])
 {
-    struct vrmr_services        services;
-    struct vrmr_rules           rules;
-    /* list of ipaddresses to be blocked */
-    struct vrmr_blocklist       blocklist;
-    struct vrmr_iptcaps         iptcap;
     struct vrmr_ctx             vctx;
 
     pid_t           pid;
@@ -115,10 +110,6 @@ main(int argc, char *argv[])
     union semun     semarg;
     ushort          seminit[] = { 1,0 };
 
-    vctx.rules = &rules;
-    vctx.services = &services;
-    vctx.blocklist = &blocklist;
-    vctx.iptcaps = &iptcap;
     vctx.conf = &conf;
 
     snprintf(version_string,sizeof(version_string),"%s (using libvuurmuur %s)", VUURMUUR_VERSION, libvuurmuur_get_version());
@@ -401,13 +392,13 @@ main(int argc, char *argv[])
     /* check capabilities */
     if(conf.vrmr_check_iptcaps == TRUE)
     {
-        if(vrmr_check_iptcaps(debuglvl, &conf, &iptcap, conf.load_modules) < 0)
+        if(vrmr_check_iptcaps(debuglvl, &conf, &vctx.iptcaps, conf.load_modules) < 0)
         {
             fprintf(stdout, "Error: checking for iptables-capabilities failed. Please see error.log.\n");
             exit(EXIT_FAILURE);
         }
 #ifdef IPV6_ENABLED
-        if(vrmr_check_ip6tcaps(debuglvl, &conf, &iptcap, conf.load_modules) < 0)
+        if(vrmr_check_ip6tcaps(debuglvl, &conf, &vctx.iptcaps, conf.load_modules) < 0)
         {
             if (conf.check_ipv6 == TRUE)
             {
@@ -420,7 +411,7 @@ main(int argc, char *argv[])
     else
     {
         /* when not using the iptcap clear it just to be sure (and to please splint) */
-        memset(&iptcap, 0, sizeof(struct vrmr_iptcaps));
+        memset(&vctx.iptcaps, 0, sizeof(struct vrmr_iptcaps));
     }
 
     /* load the backends */
@@ -439,7 +430,7 @@ main(int argc, char *argv[])
     ipt_rulecount = 0;
 
     /* load the services into memory */
-    result = vrmr_services_load(debuglvl, &vctx, &services, &vctx.reg);
+    result = vrmr_services_load(debuglvl, &vctx, &vctx.services, &vctx.reg);
     if(result == -1)
         exit(EXIT_FAILURE);
 
@@ -460,7 +451,7 @@ main(int argc, char *argv[])
     /* load the blockfile if any */
     /* call it with load_ips == TRUE */
     if (vrmr_blocklist_init_list(debuglvl, &vctx, &conf, &vctx.zones,
-                &blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0)
+                &vctx.blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0)
     {
         vrmr_error(-1, "Error", "blocklist_read_file failed.");
     }
@@ -468,7 +459,7 @@ main(int argc, char *argv[])
 
     /* load the rulesfile into memory */
     vrmr_info("Info", "Loading rulesfile...");
-    result = vrmr_rules_init_list(debuglvl, &vctx, &conf, &rules, &vctx.reg);
+    result = vrmr_rules_init_list(debuglvl, &vctx, &conf, &vctx.rules, &vctx.reg);
     if(result == 0)
     {
         vrmr_info("Info", "Loading rulesfile succesfull.");
@@ -480,7 +471,7 @@ main(int argc, char *argv[])
     }
 
     /* Check if we have rules. If not we won't start unless we are forced to. */
-    if (rules.list.len == 0 && cmdline.force_start == FALSE)
+    if (vctx.rules.list.len == 0 && cmdline.force_start == FALSE)
     {
         vrmr_error(-1, "Error", "no rules defined, Vuurmuur will not start "
               "to prevent you from locking yourself out. Override by supplying "
@@ -489,14 +480,14 @@ main(int argc, char *argv[])
     }
 
     /* analyzing the rules */
-    if(analyze_all_rules(debuglvl, &vctx, vctx.rules) != 0)
+    if(analyze_all_rules(debuglvl, &vctx, &vctx.rules) != 0)
     {
         vrmr_error(-1, "Error", "analizing the rules failed.");
         exit(EXIT_FAILURE);
     }
 
     if(debuglvl >= LOW)
-        vrmr_rules_print_list(&rules);
+        vrmr_rules_print_list(&vctx.rules);
 
     /* now create the rules */
     if(conf.old_rulecreation_method == TRUE || conf.bash_out == TRUE)
@@ -829,7 +820,7 @@ main(int argc, char *argv[])
     */
 
     /* destroy the ServicesList */
-    vrmr_destroy_serviceslist(debuglvl, &services);
+    vrmr_destroy_serviceslist(debuglvl, &vctx.services);
 
     /* destroy the ZonedataList */
     vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
@@ -838,10 +829,10 @@ main(int argc, char *argv[])
     vrmr_destroy_interfaceslist(debuglvl, &vctx.interfaces);
 
     /* destroy the QuerydataList */
-    if(vrmr_rules_cleanup_list(debuglvl, &rules) < 0)
+    if(vrmr_rules_cleanup_list(debuglvl, &vctx.rules) < 0)
         retval = -1;
 
-    vrmr_list_cleanup(debuglvl, &blocklist.list);
+    vrmr_list_cleanup(debuglvl, &vctx.blocklist.list);
 
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "** end **, return = %d", retval);

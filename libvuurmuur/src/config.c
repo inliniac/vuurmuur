@@ -2288,26 +2288,22 @@ int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx) {
         return -1;
     }
 
-    result = vrmr_services_load(debuglvl, vctx, vctx->services, &vctx->reg);
+    result = vrmr_services_load(debuglvl, vctx, &vctx->services, &vctx->reg);
     if (result == -1) {
         vrmr_error(-1, "Error", "initializing services failed");
         return -1;
     }
 
-    if (vctx->rules != NULL) {
-        result = vrmr_rules_init_list(debuglvl, vctx, vctx->conf, vctx->rules, &vctx->reg);
-        if (result < 0) {
-            vrmr_error(-1, "Error", "initializing the rules failed");
-            return -1;
-        }
+    result = vrmr_rules_init_list(debuglvl, vctx, vctx->conf, &vctx->rules, &vctx->reg);
+    if (result < 0) {
+        vrmr_error(-1, "Error", "initializing the rules failed");
+        return -1;
     }
 
-    if (vctx->blocklist != NULL) {
-        if (vrmr_blocklist_init_list(debuglvl, vctx, vctx->conf, &vctx->zones,
-                    vctx->blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0) {
-            vrmr_error(-1, "Error", "initializing the blocklist failed");
-            return -1;
-        }
+    if (vrmr_blocklist_init_list(debuglvl, vctx, vctx->conf, &vctx->zones,
+                &vctx->blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0) {
+        vrmr_error(-1, "Error", "initializing the blocklist failed");
+        return -1;
     }
 
     return 0;
