@@ -121,7 +121,7 @@ binary-arch: build install
 #	dh_installchangelogs -a ChangeLog
 
 	install -m 755 -o root -g root -d debian/libvuurmuur/etc/vuurmuur/plugins
-	install -m 600 -o root -g root plugins/textdir/textdir.conf.debian debian/libvuurmuur/etc/vuurmuur/plugins/textdir.conf
+	install -m 600 -o root -g root src/textdir/textdir.conf.debian debian/libvuurmuur/etc/vuurmuur/plugins/textdir.conf
 
 	dh_link -a 
 #	dh_strip -a
