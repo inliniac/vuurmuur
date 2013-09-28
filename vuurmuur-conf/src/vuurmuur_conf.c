@@ -102,7 +102,7 @@ main(int argc, char *argv[])
             VUURMUURCONF_VERSION, libvuurmuur_get_version());
 
     /* some initilization */
-    if (vrmr_init(&vctx, &vctx.conf, "vuurmuur_conf") < 0)
+    if (vrmr_init(&vctx, "vuurmuur_conf") < 0)
         exit(EXIT_FAILURE);
 
     /* settings file */

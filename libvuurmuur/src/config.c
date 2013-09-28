@@ -2215,7 +2215,7 @@ vrmr_pre_init_config(struct vrmr_config *cnf)
     return(0);
 }
 
-int vrmr_init(struct vrmr_ctx *ctx, struct vrmr_config *cnf, char *toolname) {
+int vrmr_init(struct vrmr_ctx *ctx, char *toolname) {
     int debuglvl = 0;
 
     vrprint.logger = toolname;
@@ -2225,7 +2225,7 @@ int vrmr_init(struct vrmr_ctx *ctx, struct vrmr_config *cnf, char *toolname) {
     vrprint.debug = vrmr_stdoutprint_debug;
     vrprint.audit = vrmr_stdoutprint_audit;
 
-    if (vrmr_pre_init_config(cnf) < 0)
+    if (vrmr_pre_init_config(&ctx->conf) < 0)
         return(-1);
 
     vrmr_user_get_info(debuglvl, &ctx->user_data);
@@ -2240,7 +2240,6 @@ int vrmr_init(struct vrmr_ctx *ctx, struct vrmr_config *cnf, char *toolname) {
         vrmr_error(-1, "Internal Error", "setting up regular expressions failed.");
         return(-1);
     }
-
 
     return(0);
 }

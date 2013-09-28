@@ -112,7 +112,7 @@ main(int argc, char *argv[])
 
     snprintf(version_string,sizeof(version_string),"%s (using libvuurmuur %s)", VUURMUUR_VERSION, libvuurmuur_get_version());
 
-    vrmr_init(&vctx, &vctx.conf, "vuurmuur");
+    vrmr_init(&vctx, "vuurmuur");
 
     /* registering signals we use */
     setup_signal_handler(SIGINT, handle_sigint);

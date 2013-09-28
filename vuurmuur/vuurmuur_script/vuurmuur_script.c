@@ -138,7 +138,7 @@ main(int argc, char *argv[])
         exit(EXIT_SUCCESS);
     }
 
-    if (vrmr_init(&vr_script.vctx, &conf, "vuurmuur_scrp") < 0)
+    if (vrmr_init(&vr_script.vctx, "vuurmuur_scrp") < 0)
         exit(VRS_ERR_INTERNAL);
 
     /* prepare for later shm connection */
