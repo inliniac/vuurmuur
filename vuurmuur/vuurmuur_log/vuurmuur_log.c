@@ -214,12 +214,10 @@ main(int argc, char *argv[])
 
     char        quit = 0;
 
-    vctx.conf = &conf;
-
     snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
             VUURMUUR_VERSION, libvuurmuur_get_version());
 
-    vrmr_init(&vctx, &conf, "vuurmuur_log");
+    vrmr_init(&vctx, &vctx.conf, "vuurmuur_log");
 
     /* init signals */
     setup_signal_handler(SIGINT, handle_sigint);
@@ -250,12 +248,12 @@ main(int argc, char *argv[])
 
             case 'c' :
                 /* config file */
-                if(conf.verbose_out == TRUE)
+                if(vctx.conf.verbose_out == TRUE)
                     fprintf(stdout, "Using this configfile: %s\n", optarg);
 
-                if(strlcpy(conf.configfile, optarg, sizeof(conf.configfile)) >= sizeof(conf.configfile))
+                if(strlcpy(vctx.conf.configfile, optarg, sizeof(vctx.conf.configfile)) >= sizeof(vctx.conf.configfile))
                 {
-                    fprintf(stderr, "Error: configfile (-c): argument too long (max: %d).\n", (int)sizeof(conf.configfile)-1);
+                    fprintf(stderr, "Error: configfile (-c): argument too long (max: %d).\n", (int)sizeof(vctx.conf.configfile)-1);
                     exit(EXIT_FAILURE);
                 }
                 break;
@@ -299,12 +297,12 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* init the config file */
-    if(vrmr_init_config(debuglvl, &conf) < VRMR_CNF_OK) {
+    if(vrmr_init_config(debuglvl, &vctx.conf) < VRMR_CNF_OK) {
         vrmr_error(-1, "Error", "initializing the config failed.");
         exit(EXIT_FAILURE);
     }
 
-    if (conf.rule_nflog) {
+    if (vctx.conf.rule_nflog) {
         syslog = 0;
     } else {
         syslog = 1;
@@ -339,7 +337,7 @@ main(int argc, char *argv[])
     /* Setup nflog after vrmr_init_config as and logging as we need &conf in subscribe_nflog() */
     if (!syslog) {
         vrmr_debug(__FUNC__, "Setting up nflog");
-        if (subscribe_nflog(debuglvl, &conf, &logrule) < 0) {
+        if (subscribe_nflog(debuglvl, &vctx.conf, &logrule) < 0) {
             vrmr_error(-1, "Error", "could not set up nflog subscription");
             exit (EXIT_FAILURE);
         }
@@ -351,18 +349,18 @@ main(int argc, char *argv[])
     }
 #endif /* HAVE_LIBNETFILTER_LOG */
 
-    if (vrmr_backends_load(debuglvl, &conf, &vctx) < 0) {
+    if (vrmr_backends_load(debuglvl, &vctx.conf, &vctx) < 0) {
         vrmr_error(-1, "Error", "loading plugins failed, bailing out.");
         exit(EXIT_FAILURE);
     }
 
     /* open the logs */
-    if(syslog && open_syslog(debuglvl, &conf, &system_log) < 0) {
+    if(syslog && open_syslog(debuglvl, &vctx.conf, &system_log) < 0) {
         vrmr_error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
     }
 
-    if (open_vuurmuurlog (debuglvl, &conf, &g_traffic_log) < 0) {
+    if (open_vuurmuurlog (debuglvl, &vctx.conf, &g_traffic_log) < 0) {
         vrmr_error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
     }
@@ -490,12 +488,12 @@ main(int argc, char *argv[])
                             vrmr_debug(__FUNC__, "didn't get a logline for %d seconds, closing and reopening the logfiles.", waiting / 10);
 
                         /* re-open the logs */
-                        if(reopen_syslog(debuglvl, &conf, &system_log) < 0) {
+                        if(reopen_syslog(debuglvl, &vctx.conf, &system_log) < 0) {
                             vrmr_error(-1, "Error", "re-opening syslog failed.");
                             exit(EXIT_FAILURE);
                         }
 
-                        if(reopen_vuurmuurlog(debuglvl, &conf, &g_traffic_log) < 0) {
+                        if(reopen_vuurmuurlog(debuglvl, &vctx.conf, &g_traffic_log) < 0) {
                             vrmr_error(-1, "Error", "re-opening vuurmuur traffic log failed.");
                             exit(EXIT_FAILURE);
                         }
@@ -546,7 +544,7 @@ main(int argc, char *argv[])
             vrmr_destroy_interfaceslist(debuglvl, &vctx.interfaces);
 
             /* close backend */
-            result = vrmr_backends_unload(debuglvl, &conf, &vctx);
+            result = vrmr_backends_unload(debuglvl, &vctx.conf, &vctx);
             if(result < 0)
             {
                 vrmr_error(-1, "Error", "unloading backends failed.");
@@ -559,7 +557,7 @@ main(int argc, char *argv[])
 
                if it fails it's no big deal, we just keep using the old config.
             */
-            if(vrmr_reload_config(debuglvl, &conf) < VRMR_CNF_OK)
+            if(vrmr_reload_config(debuglvl, &vctx.conf) < VRMR_CNF_OK)
             {
                 vrmr_warning("Warning", "reloading config failed, using old config.");
             }
@@ -567,7 +565,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 20);
 
             /* open backends */
-            result = vrmr_backends_load(debuglvl, &conf, &vctx);
+            result = vrmr_backends_load(debuglvl, &vctx.conf, &vctx);
             if(result < 0)
             {
                 vrmr_error(-1, "Error", "re-opening backends failed.");
@@ -636,13 +634,13 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 90);
 
             /* re-open the logs */
-            if(syslog && reopen_syslog(debuglvl, &conf, &system_log) < 0)
+            if(syslog && reopen_syslog(debuglvl, &vctx.conf, &system_log) < 0)
             {
                 vrmr_error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
             }
 
-            if(reopen_vuurmuurlog(debuglvl, &conf, &g_traffic_log) < 0)
+            if(reopen_vuurmuurlog(debuglvl, &vctx.conf, &g_traffic_log) < 0)
             {
                 vrmr_error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
@@ -696,7 +694,7 @@ main(int argc, char *argv[])
     if(nodaemon)
         show_stats (&Counters);
 
-    if(vrmr_backends_unload(debuglvl, &conf, &vctx) < 0)
+    if(vrmr_backends_unload(debuglvl, &vctx.conf, &vctx) < 0)
     {
         vrmr_error(-1, "Error", "unloading backends failed.");
     }

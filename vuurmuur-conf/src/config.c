@@ -58,7 +58,7 @@ vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf)
 
 */
 int
-init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
+init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_location, vc_cnf *cnf)
 {
     int     retval = VRMR_CNF_OK,
             result = 0;
@@ -73,7 +73,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* now, based on this, the helpdir location */
-    if(snprintf(cnf->helpfile_location, sizeof(cnf->helpfile_location), "%s/help", conf.datadir) >= (int)sizeof(cnf->helpfile_location))
+    if(snprintf(cnf->helpfile_location, sizeof(cnf->helpfile_location), "%s/help", conf->datadir) >= (int)sizeof(cnf->helpfile_location))
     {
         vrmr_error(-1, "Error", "buffer too small for helpdir supplied at compile-time (in: %s:%d).",
                             __FUNC__, __LINE__);
@@ -83,7 +83,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
             sizeof(cnf->helpfile_location));
 
     /* now, based on this, the scriptsdir location */
-    if(snprintf(cnf->scripts_location, sizeof(cnf->scripts_location), "%s/scripts", conf.datadir) >= (int)sizeof(cnf->scripts_location))
+    if(snprintf(cnf->scripts_location, sizeof(cnf->scripts_location), "%s/scripts", conf->datadir) >= (int)sizeof(cnf->scripts_location))
     {
         vrmr_error(-1, "Error", "buffer too small for scriptsdir supplied at compile-time (in: %s:%d).",
                             __FUNC__, __LINE__);
@@ -115,12 +115,12 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* check if we like the configfile */
-    if(!(vrmr_stat_ok(debuglvl, &conf, configfile_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(debuglvl, conf, configfile_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
         return(VRMR_CNF_E_FILE_PERMISSION);
 
 
     /* ADVANCED_MODE */
-    result = vrmr_ask_configfile(debuglvl, &conf, "ADVANCED_MODE", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, conf, "ADVANCED_MODE", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -154,7 +154,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* MAINMENU_STATUS */
-    result = vrmr_ask_configfile(debuglvl, &conf, "MAINMENU_STATUS", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, conf, "MAINMENU_STATUS", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -188,7 +188,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* IPTRAFVOL */
-    result = vrmr_ask_configfile(debuglvl, &conf, "IPTRAFVOL", cnf->iptrafvol_location, configfile_location, sizeof(cnf->iptrafvol_location));
+    result = vrmr_ask_configfile(debuglvl, conf, "IPTRAFVOL", cnf->iptrafvol_location, configfile_location, sizeof(cnf->iptrafvol_location));
     if(result == 1)
     {
         /* ok */
@@ -216,7 +216,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* NEWRULE_LOG */
-    result = vrmr_ask_configfile(debuglvl, &conf, "NEWRULE_LOG", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, conf, "NEWRULE_LOG", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -250,7 +250,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* NEWRULE_LOGLIMIT */
-    result = vrmr_ask_configfile(debuglvl, &conf, "NEWRULE_LOGLIMIT", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, conf, "NEWRULE_LOGLIMIT", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -284,7 +284,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
 
 
     /* LOGVIEW_BUFSIZE */
-    result = vrmr_ask_configfile(debuglvl, &conf, "LOGVIEW_BUFSIZE", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, conf, "LOGVIEW_BUFSIZE", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -314,7 +314,7 @@ init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
     /* BACKGROUND */
-    result = vrmr_ask_configfile(debuglvl, &conf, "BACKGROUND", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(debuglvl, conf, "BACKGROUND", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */

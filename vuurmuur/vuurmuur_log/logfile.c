@@ -960,24 +960,24 @@ compare_logfile_stats(const int debuglvl, struct file_mon *filemon)
 
 
 static int
-close_syslog(const int debuglvl, FILE **system_log, /*@null@*/struct file_mon *filemon)
+close_syslog(const int debuglvl, const struct vrmr_config *conf, FILE **system_log, /*@null@*/struct file_mon *filemon)
 {
     int retval = 0;
 
     if(filemon != NULL)
     {
         vrmr_debug (__FUNC__, "Calling stat_logfile (%s:%d)", __FUNC__, __LINE__);
-        (void)stat_logfile(debuglvl, conf.systemlog_location, &filemon->old_file);
+        (void)stat_logfile(debuglvl, conf->systemlog_location, &filemon->old_file);
         vrmr_debug (__FUNC__, "Done stat_logfile", __FUNC__, __LINE__);
     }
-    
+
     if(fclose(*system_log) < 0)
     {
-        vrmr_error(-1, "Error", "closing the iptableslog '%s' failed: %s.", conf.systemlog_location, strerror(errno));
+        vrmr_error(-1, "Error", "closing the iptableslog '%s' failed: %s.", conf->systemlog_location, strerror(errno));
         retval = -1;
     }
 
-    *system_log   = NULL;
+    *system_log = NULL;
 
     vrmr_debug (__FUNC__, "Closed syslog (%s:%d)", __FUNC__, __LINE__);
 
@@ -985,14 +985,14 @@ close_syslog(const int debuglvl, FILE **system_log, /*@null@*/struct file_mon *f
 }
 
 static int
-close_vuurmuurlog(const int debuglvl, FILE **vuurmuur_log, /*@null@*/struct file_mon *filemon)
+close_vuurmuurlog(const int debuglvl, const struct vrmr_config *conf, FILE **vuurmuur_log, /*@null@*/struct file_mon *filemon)
 {
     int retval = 0;
 
     /* close the logfiles */
     if(fclose(*vuurmuur_log) < 0)
     {
-        vrmr_error(-1, "Error", "closing the vuurmuur-log '%s' failed: %s.", conf.trafficlog_location, strerror(errno));
+        vrmr_error(-1, "Error", "closing the vuurmuur-log '%s' failed: %s.", conf->trafficlog_location, strerror(errno));
         retval = -1;
     }
 
@@ -1037,7 +1037,7 @@ open_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_log
     /* open the system log */
     if(!(*system_log = fopen(cnf->systemlog_location, "r")))
     {
-        vrmr_error(-1, "Error", "the systemlog '%s' could not be opened: %s (in: %s:%d).", conf.systemlog_location, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "the systemlog '%s' could not be opened: %s (in: %s:%d).", cnf->systemlog_location, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -1059,9 +1059,9 @@ int
 open_vuurmuurlog (const int debuglvl, const struct vrmr_config *cnf, FILE **vuurmuur_log)
 {
     /* open the vuurmuur logfile */
-    if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, conf.trafficlog_location, "a")))
+    if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, cnf->trafficlog_location, "a")))
     {
-        vrmr_error(-1, "Error", "opening traffic log file '%s' failed: %s (in: %s:%d).", conf.trafficlog_location, strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "opening traffic log file '%s' failed: %s (in: %s:%d).", cnf->trafficlog_location, strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
     return (0);
@@ -1081,7 +1081,7 @@ reopen_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_l
     vrmr_debug (__FUNC__, "Reopening syslog files (%s:%d)", __FUNC__, __LINE__);
 
     /* close the logfiles */
-    (void)close_syslog(debuglvl, system_log, &filemon);
+    (void)close_syslog(debuglvl, cnf, system_log, &filemon);
 
     /*
         re-open the log, try for 5 minutes
@@ -1147,7 +1147,7 @@ reopen_vuurmuurlog(const int debuglvl, const struct vrmr_config *cnf, FILE **vuu
     vrmr_debug (__FUNC__, "Reopening vuurmuur log (%s:%d)", __FUNC__, __LINE__);
 
     /* close the logfiles */
-    (void)close_vuurmuurlog(debuglvl, vuurmuur_log, &filemon);
+    (void)close_vuurmuurlog(debuglvl, cnf, vuurmuur_log, &filemon);
 
     /* re-open the vuurmuur logfile */
     if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, cnf->trafficlog_location, "a")))

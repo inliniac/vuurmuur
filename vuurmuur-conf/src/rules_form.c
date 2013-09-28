@@ -379,7 +379,7 @@ static int move_rule(const int, struct vrmr_rules *, unsigned int, unsigned int)
 static int MatchFilter_RuleBar(struct vrmr_rule *rule_ptr, regex_t *reg, char only_in, char only_out, char only_forward);
 static int Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules);
 static int draw_rules(const int, struct vrmr_rules *, struct RuleBarForm_ *);
-static int Enter_RuleBar(const int, rulebar *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
+static int Enter_RuleBar(const int, rulebar *, struct vrmr_config *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
 static int edit_rule_separator(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *, unsigned int, struct vrmr_regex *);
 
 
@@ -797,7 +797,7 @@ HighlightRuleBar(rulebar *bar)
         -1: error
 */
 static int
-Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_regex *reg)
+Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_config *conf, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     unsigned int        rule_num = 0;
     int                 result = 0,
@@ -819,7 +819,7 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules, struct
     if(rule_num <= 0)
         return(0);
 
-    result = edit_rule(debuglvl, rules, zones, interfaces, services, rule_num, reg);
+    result = edit_rule(debuglvl, conf, rules, zones, interfaces, services, rule_num, reg);
     if(result < 0)
     {
         for(d_node = rules->list.top; d_node ; d_node = d_node->next)
@@ -1956,7 +1956,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             case 'e':
             case 'E':
 
-                result = Enter_RuleBar(debuglvl, cur_bar, rules, zones, interfaces, services, reg);
+                result = Enter_RuleBar(debuglvl, cur_bar, &vctx->conf, rules, zones, interfaces, services, reg);
                 if(result == 1)
                 {
                     rules_changed = 1;
@@ -2079,7 +2079,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 if(insert_new_rule(debuglvl, rules, insert_rule_num, "Drop") >= 0)
                 {
                     /* now edit the rule */
-                    if(edit_rule(debuglvl, rules, zones, interfaces, services, insert_rule_num, reg) < 0)
+                    if(edit_rule(debuglvl, &vctx->conf, rules, zones, interfaces, services, insert_rule_num, reg) < 0)
                     {
                         /* editting failed so remove the rule again */
                         if(vrmr_rules_remove_rule_from_list(debuglvl, rules, insert_rule_num, 1) < 0)
@@ -2328,7 +2328,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     /* if the rules are changed, save the changes. But only if retval != -1. */
     if(rules_changed && retval != -1)
     {
-        if(vrmr_rules_save_list(debuglvl, vctx, rules, &conf) < 0)
+        if(vrmr_rules_save_list(debuglvl, vctx, rules, &vctx->conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             retval = -1;
@@ -2545,7 +2545,7 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
 
 // returns 0: no change, or 1: change
 int
-edit_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones,
+edit_rule(const int debuglvl, struct vrmr_config *conf, struct vrmr_rules *rules, struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces, struct vrmr_services *services,
         unsigned int rule_num, struct vrmr_regex *reg)
 {
@@ -2605,7 +2605,7 @@ edit_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_zones *zones
         }
         else
         {
-            retval = edit_rule_normal(debuglvl, zones, interfaces, services, rule_ptr, rule_num, reg);
+            retval = edit_rule_normal(debuglvl, conf, zones, interfaces, services, rule_ptr, rule_num, reg);
         }
     }
     else
@@ -3305,7 +3305,7 @@ edit_rule_check_action_opts(const int debuglvl, struct vrmr_rule *rule_ptr)
     TODO: split this beast up
 */
 int
-edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
             struct vrmr_services *services, struct vrmr_rule *rule_ptr,
             unsigned int rule_num, struct vrmr_regex *reg)
 {
@@ -4810,7 +4810,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_zones *zones, struct vrmr_inter
                         else
                         {
                             /* check */
-                            if(vrmr_rules_analyze_rule(debuglvl, rule_ptr, &tmp_ruledata, services, zones, interfaces, &conf) < 0)
+                            if(vrmr_rules_analyze_rule(debuglvl, rule_ptr, &tmp_ruledata, services, zones, interfaces, conf) < 0)
                             {
                                 /* clear tmp_ruledata for the next use */
                                 bzero(&tmp_ruledata, sizeof(tmp_ruledata));

@@ -45,7 +45,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
     vrmr_info("Info", "Reloading config...");
 
     /* close the current backends */
-    result = vrmr_backends_unload(debuglvl, vctx->conf, vctx);
+    result = vrmr_backends_unload(debuglvl, &vctx->conf, vctx);
     if(result < 0)
     {
         vrmr_error(-1, "Error", "unloading backends failed.");
@@ -58,7 +58,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
 
        if it fails it's no big deal, we just keep using the old config.
     */
-    if(vrmr_reload_config(debuglvl, vctx->conf) < VRMR_CNF_OK)
+    if(vrmr_reload_config(debuglvl, &vctx->conf) < VRMR_CNF_OK)
     {
         vrmr_warning("Warning", "reloading config failed, using old config.");
     }
@@ -67,18 +67,18 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
         vrmr_info("Info", "Reloading config completed successfully.");
 
         /* reapply the cmdline overrides. Fixes #67. */
-        cmdline_override_config(debuglvl);
+        cmdline_override_config(debuglvl, &vctx->conf);
     }
     /* loglevel */
-    create_loglevel_string(debuglvl, vctx->conf, loglevel, sizeof(loglevel));
+    create_loglevel_string(debuglvl, &vctx->conf, loglevel, sizeof(loglevel));
     /* tcp options */
-    create_logtcpoptions_string(debuglvl, vctx->conf, log_tcp_options, sizeof(log_tcp_options));
+    create_logtcpoptions_string(debuglvl, &vctx->conf, log_tcp_options, sizeof(log_tcp_options));
 
     vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 10);
 
 
     /* reopen the backends */
-    result = vrmr_backends_load(debuglvl, vctx->conf, vctx);
+    result = vrmr_backends_load(debuglvl, &vctx->conf, vctx);
     if(result < 0)
     {
         vrmr_error(-1, "Error", "re-opening backends failed.");
@@ -164,7 +164,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
 
 
     /* reload the blocklist */
-    result = reload_blocklist(debuglvl, vctx, vctx->conf, &vctx->zones, &vctx->blocklist);
+    result = reload_blocklist(debuglvl, vctx, &vctx->conf, &vctx->zones, &vctx->blocklist);
     if(result == -1)
     {
         vrmr_error(-1, "Error", "Reloading blocklist failed.");
@@ -226,7 +226,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
 int
 apply_changes(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
 {
-    if(conf.old_rulecreation_method == TRUE)
+    if (vctx->conf.old_rulecreation_method == TRUE)
     {
         vrmr_error(-1, "Internal Error", "old_rulecreation_method == TRUE");
         return(-1);
@@ -1731,7 +1731,7 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     /* stage 1 starting... */
 
     /* re-initialize the rules_list */
-    if(vrmr_rules_init_list(debuglvl, vctx, vctx->conf, new_rules, reg) < 0)
+    if(vrmr_rules_init_list(debuglvl, vctx, &vctx->conf, new_rules, reg) < 0)
     {
         vrmr_error(-1, "Error", "rules_init_list() failed.");
 

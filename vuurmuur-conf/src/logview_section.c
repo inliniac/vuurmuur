@@ -776,31 +776,31 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     if(!logname)
     {
         traffic_log = 1;
-        logfile = conf.trafficlog_location;
+        logfile = vctx->conf.trafficlog_location;
         logname = "traffic.log";
     }
     else
     {
         if(strcmp(logname, "error.log") == 0)
         {
-            logfile = conf.errorlog_location;
+            logfile = vctx->conf.errorlog_location;
         }
         else if(strcmp(logname, "vuurmuur.log") == 0)
         {
-            logfile = conf.vuurmuurlog_location;
+            logfile = vctx->conf.vuurmuurlog_location;
         }
         else if(strcmp(logname, "audit.log") == 0)
         {
-            logfile = conf.auditlog_location;
+            logfile = vctx->conf.auditlog_location;
         }
         else if(strcmp(logname, "debug.log") == 0)
         {
-            logfile = conf.debuglog_location;
+            logfile = vctx->conf.debuglog_location;
         }
         else if(strcmp(logname, "traffic.log") == 0)
         {
             traffic_log = 1;
-            logfile = conf.trafficlog_location;
+            logfile = vctx->conf.trafficlog_location;
         }
         else
         {
@@ -824,7 +824,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     traffic_fp = fopen(logfile, "r");
     if(!traffic_fp)
     {
-        vrmr_error(-1, VR_ERR, gettext("opening logfile '%s' failed: %s."), conf.trafficlog_location, strerror(errno));
+        vrmr_error(-1, VR_ERR, gettext("opening logfile '%s' failed: %s."), vctx->conf.trafficlog_location, strerror(errno));
         vrmr_list_cleanup(debuglvl, buffer_ptr);
         return(-1);
     }
@@ -832,7 +832,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     fp = traffic_fp;
 
     if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "opening '%s' successful.", conf.trafficlog_location);
+        vrmr_debug(__FUNC__, "opening '%s' successful.", vctx->conf.trafficlog_location);
 
     /* set up the logwin */
     getmaxyx(stdscr, max_height, max_width);
@@ -1726,7 +1726,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             traffic_fp = fp;
 
                             /* assemble search string => ignore stderr because it messes up the screen */
-                            snprintf(search_string, sizeof(search_string), "/bin/bash %s/vuurmuur-searchlog.sh %s %s/ '%s' 2>/dev/null", vccnf.scripts_location, logname, conf.vuurmuur_logdir_location, search_ptr);
+                            snprintf(search_string, sizeof(search_string), "/bin/bash %s/vuurmuur-searchlog.sh %s %s/ '%s' 2>/dev/null", vccnf.scripts_location, logname, vctx->conf.vuurmuur_logdir_location, search_ptr);
                             vrmr_debug(__FUNC__, "search_string: '%s'.", search_string);
 
                             /* open the pipe */
@@ -1776,7 +1776,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
                 (void)zones_blocklist_add_one(debuglvl,
                     blocklist, zones);
-                (void)vrmr_blocklist_save_list(debuglvl, vctx, &conf, blocklist);
+                (void)vrmr_blocklist_save_list(debuglvl, vctx, &vctx->conf, blocklist);
                 break;
 
             case 'm':

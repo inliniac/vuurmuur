@@ -113,8 +113,6 @@
 #define VUURMUURCONF_CONFIGFILE "/etc/vuurmuur/vuurmuur_conf.conf"
 #endif
 
-struct vrmr_config conf;
-
 /* Vuurmuur_conf settings
 
 
@@ -308,8 +306,8 @@ int zones_blocklist_add_one(const int, struct vrmr_blocklist *, struct vrmr_zone
 int rules_form(const int, struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
 int delete_rule(const int, struct vrmr_rules *, unsigned int, int);
 int insert_new_rule(const int, struct vrmr_rules *, unsigned int, const char *);
-int edit_rule(const int, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, unsigned int, struct vrmr_regex *);
-int edit_rule_normal(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *, unsigned int, struct vrmr_regex *);
+int edit_rule(const int, struct vrmr_config *conf, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, unsigned int, struct vrmr_regex *);
+int edit_rule_normal(const int, struct vrmr_config *conf, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *, unsigned int, struct vrmr_regex *);
 char *VrShapeUnitMenu(const int, char *, int, int, char);
 
 
@@ -342,10 +340,10 @@ int filter_input_box(const int, struct vrmr_filter *);
 /*
     config
 */
-int edit_genconfig(const int debuglvl);
-int edit_logconfig(const int debuglvl);
-int config_menu(const int debuglvl);
-int edit_sysopt(int debuglvl);
+int edit_genconfig(const int debuglvl, struct vrmr_config *);
+int edit_logconfig(const int debuglvl, struct vrmr_config *);
+int config_menu(const int debuglvl, struct vrmr_config *);
+int edit_sysopt(int debuglvl, struct vrmr_config *);
 
 
 /*
@@ -396,7 +394,7 @@ int setup_statuslist(const int debuglvl);
 /*
     config
 */
-int init_vcconfig(const int debuglvl, char *configfile_location, vc_cnf *cnf);
+int init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_location, vc_cnf *cnf);
 int write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf);
 int edit_vcconfig(const int debuglvl);
 int vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf);
@@ -412,7 +410,7 @@ int vc_apply_changes(const int debuglvl, struct vrmr_ctx *);
 /*
     bandwidth
 */
-int trafvol_section(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
+int trafvol_section(const int, struct vrmr_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
 
 /*
     about

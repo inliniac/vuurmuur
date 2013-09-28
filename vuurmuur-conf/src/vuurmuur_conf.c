@@ -91,8 +91,6 @@ main(int argc, char *argv[])
     PANEL       *main_panels[5];
     char        *s = NULL;
 
-    vctx.conf = &conf;
-
     /* some defaults */
     vuurmuur_semid = -1;
     vuurmuur_shmid = -1;
@@ -104,19 +102,19 @@ main(int argc, char *argv[])
             VUURMUURCONF_VERSION, libvuurmuur_get_version());
 
     /* some initilization */
-    if (vrmr_init(&vctx, &conf, "vuurmuur_conf") < 0)
+    if (vrmr_init(&vctx, &vctx.conf, "vuurmuur_conf") < 0)
         exit(EXIT_FAILURE);
 
     /* settings file */
     memset(vccnf.configfile_location, 0, sizeof(vccnf.configfile_location));
-    if(conf.etcdir[0] == '\0')
+    if(vctx.conf.etcdir[0] == '\0')
         (void)strlcpy(vccnf.configfile_location, VUURMUURCONF_CONFIGFILE,
                 sizeof(vccnf.configfile_location));
     else
         (void)snprintf(vccnf.configfile_location,
                 sizeof(vccnf.configfile_location),
                 "%s/vuurmuur/vuurmuur_conf.conf",
-                conf.etcdir);
+                vctx.conf.etcdir);
 
 #ifdef ENABLE_NLS
     setlocale(LC_ALL, "");
@@ -154,7 +152,7 @@ main(int argc, char *argv[])
             /* configfile */
             case 'c' :
 
-                if(strlcpy(conf.configfile, optarg, sizeof(conf.configfile)) >= sizeof(conf.configfile))
+                if(strlcpy(vctx.conf.configfile, optarg, sizeof(vctx.conf.configfile)) >= sizeof(vctx.conf.configfile))
                 {
                     vrmr_error(EXIT_FAILURE, VR_ERR, gettext("commandline argument too long for option -c."));
                     exit(EXIT_FAILURE);
@@ -185,7 +183,7 @@ main(int argc, char *argv[])
             case 'W' :
             {
                 char wizard_path[512] = "";
-                snprintf(wizard_path, sizeof(wizard_path), "%s/scripts/vuurmuur-wizard.sh", conf.datadir);
+                snprintf(wizard_path, sizeof(wizard_path), "%s/scripts/vuurmuur-wizard.sh", vctx.conf.datadir);
                 printf("Running %s...\n", wizard_path);
                 exec_wizard(debuglvl, wizard_path);
                 exit(EXIT_SUCCESS);
@@ -203,7 +201,7 @@ main(int argc, char *argv[])
     close(STDERR_FILENO);
 
     /* init vuurmuur_conf config already to get background */
-    (void)init_vcconfig(debuglvl, vccnf.configfile_location, &vccnf);
+    (void)init_vcconfig(debuglvl, &vctx.conf, vccnf.configfile_location, &vccnf);
 
     /* Initialize curses */
     (void)initscr();
@@ -407,7 +405,7 @@ main(int argc, char *argv[])
     vrprint.audit = vrmr_stdoutprint_audit;
 
     /* unload the backends */
-    if(vrmr_backends_unload(debuglvl, &conf, &vctx) < 0)
+    if(vrmr_backends_unload(debuglvl, &vctx.conf, &vctx) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("unloading the backends failed (in: %s:%d)."), __FUNCTION__, __LINE__);
         retval=-1;
@@ -580,7 +578,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     if(debuglvl > LOW) sleep(1);
     while(!config_done)
     {
-        result = init_vcconfig(debuglvl, vccnf.configfile_location, &vccnf);
+        result = init_vcconfig(debuglvl, &vctx->conf, vccnf.configfile_location, &vccnf);
         if(result == VRMR_CNF_E_UNKNOWN_ERR || result == VRMR_CNF_E_PARAMETER)
             return(-1);
         else if(result == VRMR_CNF_E_FILE_PERMISSION)
@@ -646,7 +644,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     if(debuglvl > LOW) sleep(1);
     while(!config_done)
     {
-        result = vrmr_init_config(debuglvl, &conf);
+        result = vrmr_init_config(debuglvl, &vctx->conf);
         if(result == VRMR_CNF_E_UNKNOWN_ERR || result == VRMR_CNF_E_PARAMETER)
             return(-1);
         else if(result == VRMR_CNF_E_FILE_PERMISSION)
@@ -664,7 +662,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1))
             {
                 /* this prompt the user with the config menu */
-                cnfresult = config_menu(debuglvl);
+                cnfresult = config_menu(debuglvl, &vctx->conf);
                 if(cnfresult < 0)
                     return(-1);
             }
@@ -716,7 +714,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* now load the backends */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_PLUGINS); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = vrmr_backends_load(debuglvl, &conf, vctx);
+    result = vrmr_backends_load(debuglvl, &vctx->conf, vctx);
     if(result < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("loading the plugins failed."));
@@ -768,7 +766,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_RULES); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = vrmr_rules_init_list(debuglvl, vctx, &conf, rules, reg);
+    result = vrmr_rules_init_list(debuglvl, vctx, &vctx->conf, rules, reg);
     if(result < 0)
     {
         /* TRANSLATORS: max 40 characters */
@@ -784,7 +782,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_BLOCKLIST); update_panels(); doupdate();
     if(debuglvl > LOW) sleep(1);
-    result = vrmr_blocklist_init_list(debuglvl, vctx, &conf, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE);
+    result = vrmr_blocklist_init_list(debuglvl, vctx, &vctx->conf, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE);
     if(result < 0)
     {
         /* TRANSLATORS: max 40 characters */

@@ -32,7 +32,7 @@ struct SystemSection_
 
 
 static int
-edit_sysopt_init(const int debuglvl, int height, int width, int starty, int startx)
+edit_sysopt_init(const int debuglvl, struct vrmr_config *conf, int height, int width, int starty, int startx)
 {
     int     retval=0,
             rows,
@@ -49,11 +49,11 @@ edit_sysopt_init(const int debuglvl, int height, int width, int starty, int star
     // create the fields
     SystemSection.fields[0] = new_field(1, 1, 1, 2, 0, 1); // syn-flood
     set_field_buffer_wrap(debuglvl, SystemSection.fields[0], 1, "s");
-    set_field_buffer_wrap(debuglvl, SystemSection.fields[0], 0, conf.protect_syncookie ? "X" : " ");
+    set_field_buffer_wrap(debuglvl, SystemSection.fields[0], 0, conf->protect_syncookie ? "X" : " ");
 
     SystemSection.fields[1] = new_field(1, 1, 3, 2, 0, 1); // echo-broadcast
     set_field_buffer_wrap(debuglvl, SystemSection.fields[1], 1, "e");
-    set_field_buffer_wrap(debuglvl, SystemSection.fields[1], 0, conf.protect_echobroadcast ? "X" : " ");
+    set_field_buffer_wrap(debuglvl, SystemSection.fields[1], 0, conf->protect_echobroadcast ? "X" : " ");
 
     SystemSection.fields[2] = NULL;
 
@@ -100,7 +100,7 @@ edit_sysopt_init(const int debuglvl, int height, int width, int starty, int star
         1: changes
 */
 int
-edit_sysopt_save(const int debuglvl)
+edit_sysopt_save(const int debuglvl, struct vrmr_config *conf)
 {
     int     retval = 0;
     size_t  i = 0;
@@ -120,24 +120,24 @@ edit_sysopt_save(const int debuglvl)
             if(strncmp(field_buffer(SystemSection.fields[i], 1), "s", 1) == 0)
             {
                 if(strncmp(field_buffer(SystemSection.fields[i], 0), "X", 1) == 0)
-                    conf.protect_syncookie = 1;
+                    conf->protect_syncookie = 1;
                 else
-                    conf.protect_syncookie = 0;
+                    conf->protect_syncookie = 0;
 
                 vrmr_audit("'protect against synflood' %s '%s'.",
-                    STR_IS_NOW_SET_TO, conf.protect_syncookie ? STR_YES : STR_NO);
+                    STR_IS_NOW_SET_TO, conf->protect_syncookie ? STR_YES : STR_NO);
 
                 retval = 1;
             }
             else if(strncmp(field_buffer(SystemSection.fields[i], 1), "e", 1) == 0)
             {
                 if(strncmp(field_buffer(SystemSection.fields[i], 0), "X", 1) == 0)
-                    conf.protect_echobroadcast = 1;
+                    conf->protect_echobroadcast = 1;
                 else
-                    conf.protect_echobroadcast = 0;
+                    conf->protect_echobroadcast = 0;
 
                 vrmr_audit("'protect against echo broadcast' %s '%s'.",
-                    STR_IS_NOW_SET_TO, conf.protect_echobroadcast ? STR_YES : STR_NO);
+                    STR_IS_NOW_SET_TO, conf->protect_echobroadcast ? STR_YES : STR_NO);
 
                 retval = 1;
             }
@@ -169,7 +169,7 @@ edit_sysopt_destroy(void)
 }
 
 int
-edit_sysopt(const int debuglvl)
+edit_sysopt(const int debuglvl, struct vrmr_config *conf)
 {
     int     ch,
             retval=0,
@@ -193,7 +193,7 @@ edit_sysopt(const int debuglvl)
 
     curs_set(0);
 
-    edit_sysopt_init(debuglvl, height, width, starty, startx);
+    edit_sysopt_init(debuglvl, conf, height, width, starty, startx);
     cur = current_field(SystemSection.form);
     update_panels();
     doupdate();
@@ -277,13 +277,13 @@ edit_sysopt(const int debuglvl)
     }
 
     // save the field to the conf struct
-    if(edit_sysopt_save(debuglvl) < 0)
+    if(edit_sysopt_save(debuglvl, conf) < 0)
         retval=-1;
 
     /* write configfile */
     if(retval == 0)
     {
-        if (vrmr_write_configfile(debuglvl, conf.configfile, &conf) < 0)
+        if (vrmr_write_configfile(debuglvl, conf->configfile, conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;

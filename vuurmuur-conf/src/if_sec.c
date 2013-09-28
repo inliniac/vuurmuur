@@ -1895,7 +1895,7 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
         if(debuglvl >= LOW)
             vrmr_debug(__FUNC__, "rules changed");
 
-        if(vrmr_rules_save_list(debuglvl, vctx, rules, &conf) < 0)
+        if(vrmr_rules_save_list(debuglvl, vctx, rules, &vctx->conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);

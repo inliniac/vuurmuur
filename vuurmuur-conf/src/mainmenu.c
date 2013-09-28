@@ -575,35 +575,35 @@ mm_check_status_shm(const int debuglvl, /*@null@*/ struct vrmr_list *status_list
         check if scripts dir exists
 */
 static void
-mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_list)
+mm_check_status_config(const int debuglvl, struct vrmr_config *conf, /*@null@*/ struct vrmr_list *status_list)
 {
     /* asume ok when we start */
     VuurmuurStatus.config = 1;
 
-    if(strcmp(conf.iptables_location, "") == 0)
+    if(strcmp(conf->iptables_location, "") == 0)
     {
         VuurmuurStatus.config = -1;
         queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
     }
     else
     {
-        if(!vrmr_check_iptables_command(debuglvl, &conf, conf.iptables_location, VRMR_IPTCHK_QUIET))
+        if(!vrmr_check_iptables_command(debuglvl, conf, conf->iptables_location, VRMR_IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
         }
     }
 
-    if(conf.old_rulecreation_method == 0)
+    if(conf->old_rulecreation_method == 0)
     {
-        if(strcmp(conf.iptablesrestore_location, "") == 0)
+        if(strcmp(conf->iptablesrestore_location, "") == 0)
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables-restore'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
         }
         else
         {
-            if(!vrmr_check_iptablesrestore_command(debuglvl, &conf, conf.iptablesrestore_location, VRMR_IPTCHK_QUIET))
+            if(!vrmr_check_iptablesrestore_command(debuglvl, conf, conf->iptablesrestore_location, VRMR_IPTCHK_QUIET))
             {
                 VuurmuurStatus.config = -1;
                 queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -612,30 +612,30 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
     }
 
 #ifdef IPV6_ENABLED
-    if (strcmp(conf.ip6tables_location, "") == 0)
+    if (strcmp(conf->ip6tables_location, "") == 0)
     {
         VuurmuurStatus.config = -1;
         queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
     }
     else
     {
-        if(!vrmr_check_ip6tables_command(debuglvl, &conf, conf.ip6tables_location, VRMR_IPTCHK_QUIET))
+        if(!vrmr_check_ip6tables_command(debuglvl, conf, conf->ip6tables_location, VRMR_IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
         }
     }
 
-    if (conf.old_rulecreation_method == 0)
+    if (conf->old_rulecreation_method == 0)
     {
-        if(strcmp(conf.ip6tablesrestore_location, "") == 0)
+        if(strcmp(conf->ip6tablesrestore_location, "") == 0)
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables-restore'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
         }
         else
         {
-            if(!vrmr_check_ip6tablesrestore_command(debuglvl, &conf, conf.ip6tablesrestore_location, VRMR_IPTCHK_QUIET))
+            if(!vrmr_check_ip6tablesrestore_command(debuglvl, conf, conf->ip6tablesrestore_location, VRMR_IPTCHK_QUIET))
             {
                 VuurmuurStatus.config = -1;
                 queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -644,9 +644,9 @@ mm_check_status_config(const int debuglvl, /*@null@*/ struct vrmr_list *status_l
     }
 #endif
 
-    if(strcmp(conf.tc_location, "") != 0)
+    if(strcmp(conf->tc_location, "") != 0)
     {
-        if(!vrmr_check_tc_command(debuglvl, &conf, conf.tc_location, VRMR_IPTCHK_QUIET))
+        if(!vrmr_check_tc_command(debuglvl, conf, conf->tc_location, VRMR_IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
             queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'tc'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
@@ -704,7 +704,7 @@ mm_check_status_services(const int debuglvl, /*@null@*/ struct vrmr_list *status
 /*
 */
 static void
-mm_check_status_rules(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, struct vrmr_rules *rules)
+mm_check_status_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/ struct vrmr_list *status_list, struct vrmr_rules *rules)
 {
     struct vrmr_list_node      *d_node = NULL;
     struct vrmr_rule *rule_ptr = NULL;
@@ -723,7 +723,7 @@ mm_check_status_rules(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
     VuurmuurStatus.rules = 1;
     VuurmuurStatus.have_shape_rules = FALSE;
 
-    if (strcmp(conf.tc_location,"") == 0)
+    if (strcmp(conf->tc_location,"") == 0)
         tc_location_not_set = TRUE;
 
     for(d_node = rules->list.top; d_node; d_node = d_node->next)
@@ -1521,7 +1521,7 @@ vc_apply_changes(const int debuglvl, struct vrmr_ctx *vctx)
         /* update the vuurmuurlognames because the logs might
            have moved after applying the changes because of
            configuration changes made by the user */
-        (void)vrmr_config_set_log_names(debuglvl, &conf);
+        (void)vrmr_config_set_log_names(debuglvl, &vctx->conf);
     }
     else if(VuurmuurStatus.vuurmuur != 1)
     {
@@ -1539,7 +1539,7 @@ vc_apply_changes(const int debuglvl, struct vrmr_ctx *vctx)
             /* update the vuurmuurlognames because the logs might
                have moved after applying the changes because of
                configuration changes made by the user */
-            (void)vrmr_config_set_log_names(debuglvl, &conf);
+            (void)vrmr_config_set_log_names(debuglvl, &vctx->conf);
         }
     }
     else
@@ -1801,7 +1801,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         gettext("Convert the rules to the new format (recommended)?"),
                         vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1))
             {
-                if(convert_rulesfile_to_backend(debuglvl, vctx, rules, &conf) < 0)
+                if(convert_rulesfile_to_backend(debuglvl, vctx, rules, &vctx->conf) < 0)
                 {
                     vrmr_warning(VR_WARN, gettext("converting rules failed."));
                 }
@@ -1826,7 +1826,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         gettext("Convert the BlockList to the new format (recommended)?"),
                         vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1))
             {
-                if (convert_blocklistfile_to_backend(debuglvl, vctx, blocklist, &conf) < 0)
+                if (convert_blocklistfile_to_backend(debuglvl, vctx, blocklist, &vctx->conf) < 0)
                 {
                     vrmr_warning(VR_WARN, gettext("converting BlockList failed."));
                 }
@@ -2038,7 +2038,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             {
                 rules_form(debuglvl, vctx, rules, zones, interfaces, services, reg);
 
-                mm_check_status_rules(debuglvl, NULL, rules);
+                mm_check_status_rules(debuglvl, &vctx->conf, NULL, rules);
                 mm_check_status_interfaces(debuglvl, NULL, interfaces);
             }
             else if(strcmp(choice_ptr, MM_ITEM_ZONES) == 0)
@@ -2063,26 +2063,26 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             }
             else if(strcmp(choice_ptr, MM_ITEM_VRCONFIG) == 0)
             {
-                config_menu(debuglvl);
+                config_menu(debuglvl, &vctx->conf);
 
-                mm_check_status_config(debuglvl, NULL);
-                mm_check_status_rules(debuglvl, NULL, rules);
+                mm_check_status_config(debuglvl, &vctx->conf, NULL);
+                mm_check_status_rules(debuglvl, &vctx->conf, NULL, rules);
             }
             else if(strcmp(choice_ptr, "traffic") == 0)
             {
-                logview_section(debuglvl, vctx, &conf, zones, blocklist, interfaces, services, NULL);
+                logview_section(debuglvl, vctx, &vctx->conf, zones, blocklist, interfaces, services, NULL);
             }
             else if(strcmp(choice_ptr, MM_ITEM_LOGVIEW) == 0)
             {
-                mm_select_logfile(debuglvl, vctx, &conf, zones, blocklist, interfaces, services);
+                mm_select_logfile(debuglvl, vctx, &vctx->conf, zones, blocklist, interfaces, services);
             }
             else if(strcmp(choice_ptr, MM_ITEM_STATUS) == 0)
             {
-                status_section(debuglvl, &conf, zones, interfaces, services);
+                status_section(debuglvl, &vctx->conf, zones, interfaces, services);
             }
             else if(strcmp(choice_ptr, MM_ITEM_CONNECTIONS) == 0)
             {
-                connections_section(debuglvl, vctx, &conf, zones, interfaces, services, blocklist);
+                connections_section(debuglvl, vctx, &vctx->conf, zones, interfaces, services, blocklist);
             }
             else if(strcmp(choice_ptr, MM_ITEM_BLOCKLIST) == 0)
             {
@@ -2090,7 +2090,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             }
             else if(strcmp(choice_ptr, MM_ITEM_TRAFVOL) == 0)
             {
-                trafvol_section(debuglvl, zones, interfaces, services);
+                trafvol_section(debuglvl, &vctx->conf, zones, interfaces, services);
             }
             else if(strcmp(choice_ptr, MM_ITEM_SETTINGS) == 0)
             {
@@ -2200,7 +2200,7 @@ mm_status_checkall(const int debuglvl, struct vrmr_ctx *vctx,
     /* check the services */
     mm_check_status_services(debuglvl, status_list, services);
 
-    mm_check_status_rules(debuglvl, status_list, rules);
+    mm_check_status_rules(debuglvl, &vctx->conf, status_list, rules);
 
     /* check for (active) interfaces */
     mm_check_status_interfaces(debuglvl, status_list, interfaces);
@@ -2209,7 +2209,7 @@ mm_status_checkall(const int debuglvl, struct vrmr_ctx *vctx,
     mm_check_status_zones(debuglvl, status_list, zones);
 
     /* check config */
-    mm_check_status_config(debuglvl, status_list);
+    mm_check_status_config(debuglvl, &vctx->conf, status_list);
 
     /* check settings */
     mm_check_status_settings(debuglvl, status_list);

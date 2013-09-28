@@ -607,7 +607,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                         case 1: /* kill */
                         {
                             /* check if the conntrack tool is set */
-                            if(conf.conntrack_location[0] == '\0')
+                            if(cnf->conntrack_location[0] == '\0')
                             {
                                 vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
@@ -616,7 +616,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                                 if(confirm(gettext("Kill connection"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                                 {
-                                    kill_connection(debuglvl, conf.conntrack_location,
+                                    kill_connection(debuglvl, cnf->conntrack_location,
                                         con->src_ip, con->dst_ip, con->protocol,
                                         con->src_port, con->dst_port);
                                 }
@@ -630,7 +630,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                                 if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                                 {
-                                    kill_connections(debuglvl, &conf, connreq, ct, con);
+                                    kill_connections(debuglvl, cnf, connreq, ct, con);
                                 }
                             }
                             break;
@@ -638,55 +638,55 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
 
                         case 2: /* kill all src ip */
                             /* check if the conntrack tool is set */
-                            if(conf.conntrack_location[0] == '\0')
+                            if(cnf->conntrack_location[0] == '\0')
                             {
                                 vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
                         case 3: /* kill all dst ip */
                             /* check if the conntrack tool is set */
-                            if(conf.conntrack_location[0] == '\0')
+                            if(cnf->conntrack_location[0] == '\0')
                             {
                                 vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
                         case 4:
                             /* check if the conntrack tool is set */
-                            if(conf.conntrack_location[0] == '\0')
+                            if(cnf->conntrack_location[0] == '\0')
                             {
                                 vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->src_ip, NULL, VRMR_CONN_UNUSED);
-                                kill_connections_by_ip(debuglvl, &conf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ct, NULL, con->src_ip, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
                         case 5:
                             /* check if the conntrack tool is set */
-                            if(conf.conntrack_location[0] == '\0')
+                            if(cnf->conntrack_location[0] == '\0')
                             {
                                 vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
-                                kill_connections_by_ip(debuglvl, &conf, ct, con->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ct, con->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
@@ -901,7 +901,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                         case 1: /* kill */
                         {
                             /* check if the conntrack tool is set */
-                            if(conf.conntrack_location[0] == '\0')
+                            if(cnf->conntrack_location[0] == '\0')
                             {
                                 vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
@@ -910,7 +910,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                                 if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                                 {
-                                    kill_connections_by_ip(debuglvl, &conf, ctr,
+                                    kill_connections_by_ip(debuglvl, cnf, ctr,
                                         log->src_ip, log->dst_ip, log->ser, VRMR_CONN_UNUSED);
                                 }
                             }
@@ -919,55 +919,55 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
 
                         case 2: /* kill all src ip */
                             /* check if the conntrack tool is set */
-                            if(conf.conntrack_location[0] == '\0')
+                            if(cnf->conntrack_location[0] == '\0')
                             {
                                 vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
                         case 3: /* kill all dst ip */
                             /* check if the conntrack tool is set */
-                            if(conf.conntrack_location[0] == '\0')
+                            if(cnf->conntrack_location[0] == '\0')
                             {
                                 vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 
                         case 4:
                             /* check if the conntrack tool is set */
-                            if(conf.conntrack_location[0] == '\0')
+                            if(cnf->conntrack_location[0] == '\0')
                             {
                                 vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->src_ip, NULL, VRMR_CONN_UNUSED);
-                                kill_connections_by_ip(debuglvl, &conf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ctr, NULL, log->src_ip, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
                 
                         case 5:
                             /* check if the conntrack tool is set */
-                            if(conf.conntrack_location[0] == '\0')
+                            if(cnf->conntrack_location[0] == '\0')
                             {
                                 vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
                             }
                             else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                             {
-                                kill_connections_by_ip(debuglvl, &conf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
-                                kill_connections_by_ip(debuglvl, &conf, ctr, log->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
+                                kill_connections_by_ip(debuglvl, cnf, ctr, log->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
 

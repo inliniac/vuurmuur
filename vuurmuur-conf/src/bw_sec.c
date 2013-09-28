@@ -126,7 +126,7 @@ bandwidth_store(const int debuglvl, struct vrmr_list *list, int year, int month,
          1: ok
 */
 int
-bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
+bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, int year, int month,
             int start_day, int days, char only_total, struct vrmr_list *list)
 {
     char            bw_buf[512] = "",
@@ -207,14 +207,14 @@ bandwidth_get_iface(const int debuglvl, char *device, int year, int month,
                          "-b", cmd_start_day_str,
                          "-s", cmd_num_days_str, NULL };
         char *outputs[] = { tmpfile, "/dev/null", NULL };
-        result = libvuurmuur_exec_command(debuglvl, &conf, vccnf.iptrafvol_location, args, outputs);
+        result = libvuurmuur_exec_command(debuglvl, conf, vccnf.iptrafvol_location, args, outputs);
     } else {
         char *args[] = { vccnf.iptrafvol_location,
                          "-d", "-y", cmd_year_str,
                          "-m", cmd_month_str,
                          "-b", cmd_start_day_str, NULL };
         char *outputs[] = { tmpfile, "/dev/null", NULL };
-        result = libvuurmuur_exec_command(debuglvl, &conf, vccnf.iptrafvol_location, args, outputs);
+        result = libvuurmuur_exec_command(debuglvl, conf, vccnf.iptrafvol_location, args, outputs);
     }
     if(result != 0)
     {
@@ -688,7 +688,7 @@ create_bw_string(const int debuglvl, unsigned int mb, char *str, size_t len)
         -1: error
 */
 int
-trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
             struct vrmr_services *services)
 {
     int                     retval = 0;
@@ -835,7 +835,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                     set_field_buffer_wrap(debuglvl, TrafVolSection.fields[11 * i], 0, iface_ptr->name);
 
                     /* get the bw for today */
-                    result = bandwidth_get_iface(debuglvl, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, cur_tm.tm_mday, 1, 1, &bw_list);
+                    result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, cur_tm.tm_mday, 1, 1, &bw_list);
                     if(result == 1)
                     {
                         for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
@@ -867,7 +867,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                     }
 
                     /* get the bw for yesterday */
-                    result = bandwidth_get_iface(debuglvl, iface_ptr->device, yesterday_tm.tm_year + 1900, yesterday_tm.tm_mon + 1, yesterday_tm.tm_mday, 1, 1, &bw_list);
+                    result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, yesterday_tm.tm_year + 1900, yesterday_tm.tm_mon + 1, yesterday_tm.tm_mday, 1, 1, &bw_list);
                     if(result == 1)
                     {
                         for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
@@ -899,7 +899,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                     }
 
                     /* get the bw for past 7 days */
-                    result = bandwidth_get_iface(debuglvl, iface_ptr->device, lastweek_tm.tm_year + 1900, lastweek_tm.tm_mon + 1, lastweek_tm.tm_mday, 7, 1, &bw_list);
+                    result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, lastweek_tm.tm_year + 1900, lastweek_tm.tm_mon + 1, lastweek_tm.tm_mday, 7, 1, &bw_list);
                     if(result == 1)
                     {
                         for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
@@ -931,7 +931,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                     }
 
                     /* get the bw for the current month */
-                    result = bandwidth_get_iface(debuglvl, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, 1, 0, 1, &bw_list);
+                    result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, 1, 0, 1, &bw_list);
                     if(result == 1)
                     {
                         for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
@@ -977,7 +977,7 @@ trafvol_section(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interf
                         year = year - 1;
                     }
 
-                    result = bandwidth_get_iface(debuglvl, iface_ptr->device, year, month, 1, 0, 1, &bw_list);
+                    result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, year, month, 1, 0, 1, &bw_list);
                     if(result == 1)
                     {
                         for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)

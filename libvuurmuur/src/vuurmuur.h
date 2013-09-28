@@ -1152,7 +1152,7 @@ struct vrmr_ctx {
     struct vrmr_blocklist blocklist;
     struct vrmr_rules rules;
     struct vrmr_services services;
-    struct vrmr_config *conf;
+    struct vrmr_config conf;
     struct vrmr_iptcaps iptcaps;
     struct vrmr_regex reg;
     struct vrmr_user user_data;

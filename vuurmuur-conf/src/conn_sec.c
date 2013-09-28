@@ -1448,7 +1448,7 @@ block_and_kill(const int debuglvl, struct vrmr_ctx *vctx, Conntrack *ct, struct 
     }
 
     /* save the list */
-    if(vrmr_blocklist_save_list(debuglvl, vctx, &conf, blocklist) < 0)
+    if(vrmr_blocklist_save_list(debuglvl, vctx, &vctx->conf, blocklist) < 0)
     {
         vrmr_error(-1, VR_INTERR, "blocklist_save_list() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -1465,11 +1465,11 @@ block_and_kill(const int debuglvl, struct vrmr_ctx *vctx, Conntrack *ct, struct 
 
     /*  if we don't support killing connections we are happy with
         only blocking as well */
-    if(conf.conntrack_location[0] != '\0')
+    if(vctx->conf.conntrack_location[0] != '\0')
     {
         /* kill all connections for this ip */
-        kill_connections_by_ip(debuglvl, &conf, ct, NULL, ip, NULL, VRMR_CONN_UNUSED);
-        kill_connections_by_ip(debuglvl, &conf, ct, ip, NULL, NULL, VRMR_CONN_UNUSED);
+        kill_connections_by_ip(debuglvl, &vctx->conf, ct, NULL, ip, NULL, VRMR_CONN_UNUSED);
+        kill_connections_by_ip(debuglvl, &vctx->conf, ct, ip, NULL, NULL, VRMR_CONN_UNUSED);
     }
 
     VrBusyWinHide();

@@ -48,30 +48,30 @@ send_hup_to_vuurmuurlog(const int debuglvl)
     return;
 }
 
-void cmdline_override_config(const int debuglvl) {
+void cmdline_override_config(const int debuglvl, struct vrmr_config *conf) {
     if (cmdline.vrmr_check_iptcaps_set == TRUE) {
-        conf.vrmr_check_iptcaps = cmdline.vrmr_check_iptcaps;
+        conf->vrmr_check_iptcaps = cmdline.vrmr_check_iptcaps;
         vrmr_debug(__FUNC__, "overriding vrmr_check_iptcaps from commandline to %s.",
-            conf.vrmr_check_iptcaps ? "TRUE" : "FALSE");
+            conf->vrmr_check_iptcaps ? "TRUE" : "FALSE");
     }
 
     if (cmdline.verbose_out_set == TRUE) {
-        conf.verbose_out = cmdline.verbose_out;
+        conf->verbose_out = cmdline.verbose_out;
         vrmr_debug(__FUNC__, "overriding verbose_out from commandline to %s.",
-            conf.verbose_out ? "TRUE" : "FALSE");
+            conf->verbose_out ? "TRUE" : "FALSE");
     }
 
     if (cmdline.configfile_set == TRUE) {
-        strlcpy(conf.configfile, cmdline.configfile, sizeof(conf.configfile));
+        strlcpy(conf->configfile, cmdline.configfile, sizeof(conf->configfile));
         vrmr_debug(__FUNC__, "overriding configfile from commandline to %s.",
-            conf.configfile);
+            conf->configfile);
     }
 
     if (cmdline.loglevel_set == TRUE) {
-        strlcpy(cmdline.loglevel, conf.loglevel, sizeof(cmdline.loglevel));
-        conf.loglevel_cmdline = TRUE;
+        strlcpy(cmdline.loglevel, conf->loglevel, sizeof(cmdline.loglevel));
+        conf->loglevel_cmdline = TRUE;
         vrmr_debug(__FUNC__, "overriding verbose_out from loglevel to %s.",
-            conf.loglevel);
+            conf->loglevel);
     }
 }
 
