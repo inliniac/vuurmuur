@@ -127,7 +127,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
     vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 25);
 
     vrmr_info("Info", "Reloading zones...");
-    result = reload_zonedata(debuglvl, vctx, vctx->zones, vctx->interfaces, reg);
+    result = reload_zonedata(debuglvl, vctx, &vctx->zones, vctx->interfaces, reg);
     if(result == 0)
     {
         if(debuglvl >= LOW)
@@ -146,7 +146,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
     vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 30);
 
     /* changed networks (for antispoofing) */
-    result = check_for_changed_networks(debuglvl, vctx->zones);
+    result = check_for_changed_networks(debuglvl, &vctx->zones);
     if(result == -1)
     {
         vrmr_error(-1, "Error", "checking for changed networks failed.");
@@ -164,7 +164,7 @@ apply_changes_ruleset(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_reg
 
 
     /* reload the blocklist */
-    result = reload_blocklist(debuglvl, vctx, vctx->conf, vctx->zones, vctx->blocklist);
+    result = reload_blocklist(debuglvl, vctx, vctx->conf, &vctx->zones, vctx->blocklist);
     if(result == -1)
     {
         vrmr_error(-1, "Error", "Reloading blocklist failed.");

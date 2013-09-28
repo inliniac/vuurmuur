@@ -425,15 +425,15 @@ analyze_all_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *
     vrmr_info("Info", "Analyzing the rules... ");
 
     /* interface rules */
-    if(analyze_interface_rules(debuglvl, rules, vctx->zones, vctx->services, vctx->interfaces) < 0)
+    if(analyze_interface_rules(debuglvl, rules, &vctx->zones, vctx->services, vctx->interfaces) < 0)
         return(-1);
 
     /* network rules */
-    if(analyze_network_protect_rules(debuglvl, vctx->rules, vctx->zones, vctx->services, vctx->interfaces) < 0)
+    if(analyze_network_protect_rules(debuglvl, vctx->rules, &vctx->zones, vctx->services, vctx->interfaces) < 0)
         return(-1);
 
     /* normal rules */
-    if(analyze_normal_rules(debuglvl, rules, vctx->zones, vctx->services, vctx->interfaces) < 0)
+    if(analyze_normal_rules(debuglvl, rules, &vctx->zones, vctx->services, vctx->interfaces) < 0)
         return(-1);
 
     if(shaping_determine_minimal_default_rates(debuglvl, vctx->interfaces, rules) < 0)
@@ -519,7 +519,7 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
         vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* create the network protect rules (anti-spoofing) */
-    if(create_network_protect_rules(debuglvl, NULL, vctx->zones, vctx->iptcaps) < 0)
+    if(create_network_protect_rules(debuglvl, NULL, &vctx->zones, vctx->iptcaps) < 0)
     {
         vrmr_error(-1, "Error", "create protectrules failed.");
     }
@@ -1836,7 +1836,7 @@ rulecreate_dst_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
     } else if (create->to->type == VRMR_TYPE_NETWORK) {
         iterations = 1;
     } else if (create->to->type == VRMR_TYPE_ZONE) {
-        for (d_node = vctx->zones->list.top; d_node != NULL; d_node = d_node->next) {
+        for (d_node = vctx->zones.list.top; d_node != NULL; d_node = d_node->next) {
             struct vrmr_zone *zone_ptr = (struct vrmr_zone *)d_node->data;
             if (zone_ptr != NULL &&
                     zone_ptr->type == VRMR_TYPE_NETWORK &&
@@ -2079,7 +2079,7 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
     } else if (create->from->type == VRMR_TYPE_NETWORK) {
         iterations = 1;
     } else if (create->from->type == VRMR_TYPE_ZONE) {
-        for (d_node = vctx->zones->list.top; d_node != NULL; d_node = d_node->next) {
+        for (d_node = vctx->zones.list.top; d_node != NULL; d_node = d_node->next) {
             struct vrmr_zone *zone_ptr = (struct vrmr_zone *)d_node->data;
             if (zone_ptr != NULL &&
                     zone_ptr->type == VRMR_TYPE_NETWORK &&

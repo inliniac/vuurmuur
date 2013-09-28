@@ -1351,7 +1351,7 @@ ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *rule
         vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* create the network protect rules (anti-spoofing) */
-    if(create_network_protect_rules(debuglvl, ruleset, vctx->zones, vctx->iptcaps) < 0)
+    if(create_network_protect_rules(debuglvl, ruleset, &vctx->zones, vctx->iptcaps) < 0)
     {
         vrmr_error(-1, "Error", "create protectrules failed.");
     }

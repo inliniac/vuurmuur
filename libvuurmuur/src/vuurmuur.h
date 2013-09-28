@@ -1147,7 +1147,7 @@ struct vrmr_user {
 };
 
 struct vrmr_ctx {
-    struct vrmr_zones *zones;
+    struct vrmr_zones zones;
     struct vrmr_interfaces *interfaces;
     struct vrmr_blocklist *blocklist;
     struct vrmr_rules *rules;

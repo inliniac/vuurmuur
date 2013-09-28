@@ -2282,7 +2282,7 @@ int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx) {
         return -1;
     }
 
-    result = vrmr_zones_load(debuglvl, vctx, vctx->zones, vctx->interfaces, &vctx->reg);
+    result = vrmr_zones_load(debuglvl, vctx, &vctx->zones, vctx->interfaces, &vctx->reg);
     if (result == -1) {
         vrmr_error(-1, "Error", "initializing zones failed");
         return -1;
@@ -2303,7 +2303,7 @@ int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx) {
     }
 
     if (vctx->blocklist != NULL) {
-        if (vrmr_blocklist_init_list(debuglvl, vctx, vctx->conf, vctx->zones,
+        if (vrmr_blocklist_init_list(debuglvl, vctx, vctx->conf, &vctx->zones,
                     vctx->blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0) {
             vrmr_error(-1, "Error", "initializing the blocklist failed");
             return -1;

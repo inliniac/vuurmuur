@@ -66,7 +66,6 @@ main(int argc, char *argv[])
 {
     struct vrmr_interfaces      interfaces;
     struct vrmr_services        services;
-    struct vrmr_zones           zones;
     struct vrmr_rules           rules;
     /* list of ipaddresses to be blocked */
     struct vrmr_blocklist       blocklist;
@@ -117,7 +116,6 @@ main(int argc, char *argv[])
     union semun     semarg;
     ushort          seminit[] = { 1,0 };
 
-    vctx.zones = &zones;
     vctx.rules = &rules;
     vctx.services = &services;
     vctx.blocklist = &blocklist;
@@ -456,14 +454,14 @@ main(int argc, char *argv[])
     }
 
     /* load the zonedata into memory */
-    result = vrmr_zones_load(debuglvl, &vctx, &zones, &interfaces, &vctx.reg);
+    result = vrmr_zones_load(debuglvl, &vctx, &vctx.zones, &interfaces, &vctx.reg);
     if(result == -1)
         exit(EXIT_FAILURE);
 
 
     /* load the blockfile if any */
     /* call it with load_ips == TRUE */
-    if (vrmr_blocklist_init_list(debuglvl, &vctx, &conf, &zones,
+    if (vrmr_blocklist_init_list(debuglvl, &vctx, &conf, &vctx.zones,
                 &blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0)
     {
         vrmr_error(-1, "Error", "blocklist_read_file failed.");
@@ -836,7 +834,7 @@ main(int argc, char *argv[])
     vrmr_destroy_serviceslist(debuglvl, &services);
 
     /* destroy the ZonedataList */
-    vrmr_destroy_zonedatalist(debuglvl, &zones);
+    vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
 
     /* destroy the InterfacesList */
     vrmr_destroy_interfaceslist(debuglvl, &interfaces);

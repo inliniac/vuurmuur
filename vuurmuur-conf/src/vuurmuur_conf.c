@@ -72,7 +72,6 @@ main(int argc, char *argv[])
 {
     struct vrmr_ctx         vctx;
     struct vrmr_interfaces  interfaces;
-    struct vrmr_zones       zones;
     struct vrmr_services    services;
     struct vrmr_rules       rules;
     struct vrmr_blocklist   blocklist;
@@ -96,7 +95,6 @@ main(int argc, char *argv[])
     PANEL       *main_panels[5];
     char        *s = NULL;
 
-    vctx.zones = &zones;
     vctx.rules = &rules;
     vctx.services = &services;
     vctx.blocklist = &blocklist;
@@ -334,7 +332,7 @@ main(int argc, char *argv[])
     //form_test(debuglvl);
 
     /* startup_screen inits the config, loads the zones, rules, etc */
-    if (startup_screen(debuglvl, &vctx, &rules, &zones,
+    if (startup_screen(debuglvl, &vctx, &rules, &vctx.zones,
                 &services, &interfaces, &blocklist, &vctx.reg) < 0)
     {
         /* failure! Lets quit. */
@@ -362,9 +360,9 @@ main(int argc, char *argv[])
 
     status_print(status_win, STR_READY);
 
-    mm_status_checkall(debuglvl, &vctx, NULL, &rules, &zones, &interfaces, &services);
+    mm_status_checkall(debuglvl, &vctx, NULL, &rules, &vctx.zones, &interfaces, &services);
     /* main menu loop */
-    while(main_menu(debuglvl, &vctx, &rules, &zones, &interfaces, &services, &blocklist, &vctx.reg) == 1);
+    while(main_menu(debuglvl, &vctx, &rules, &vctx.zones, &interfaces, &services, &blocklist, &vctx.reg) == 1);
     /* clean up the status list */
     vrmr_list_cleanup(debuglvl, &VuurmuurStatus.StatusList);
 
@@ -426,7 +424,7 @@ main(int argc, char *argv[])
     /* cleanup the datastructures */
     (void)vrmr_list_cleanup(debuglvl, &blocklist.list);
     (void)vrmr_destroy_serviceslist(debuglvl, &services);
-    (void)vrmr_destroy_zonedatalist(debuglvl, &zones);
+    (void)vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
     (void)vrmr_rules_cleanup_list(debuglvl, &rules);
     (void)vrmr_destroy_interfaceslist(debuglvl, &interfaces);
     return(retval);

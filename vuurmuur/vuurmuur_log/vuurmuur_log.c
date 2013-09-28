@@ -176,7 +176,6 @@ main(int argc, char *argv[])
     struct vrmr_ctx vctx;
     struct vrmr_interfaces interfaces;
     struct vrmr_services services;
-    struct vrmr_zones zones;
     FILE        *system_log = NULL;
     char        line_in[1024] = "";
     char        line_out[1024] = "";
@@ -217,7 +216,6 @@ main(int argc, char *argv[])
 
     char        quit = 0;
 
-    vctx.zones = &zones;
     vctx.services = &services;
     vctx.interfaces = &interfaces;
     vctx.conf = &conf;
@@ -382,26 +380,26 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* load the zonedata into memory */
-    if (vrmr_zones_load(debuglvl, &vctx, &zones, &interfaces, &vctx.reg) == -1)
+    if (vrmr_zones_load(debuglvl, &vctx, &vctx.zones, &interfaces, &vctx.reg) == -1)
         exit(EXIT_FAILURE);
 
 
     /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
-    if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &zones.list) < 0)
+    if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &vctx.zones.list) < 0)
     {
         vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
         exit(EXIT_FAILURE);
     }
 
     /* these are removed by: vrmr_rem_iface_from_zonelist() (see below) */
-    if(vrmr_add_broadcasts_zonelist(debuglvl, &zones) < 0)
+    if(vrmr_add_broadcasts_zonelist(debuglvl, &vctx.zones) < 0)
     {
         vrmr_error(-1, "Error", "unable to add broadcasts to list.");
         exit(EXIT_FAILURE);
     }
 
     vrmr_info("Info", "Creating hash-table for the zones...");
-    if(vrmr_init_zonedata_hashtable(debuglvl, zones.list.len * 3, &zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, &zone_htbl) < 0)
+    if(vrmr_init_zonedata_hashtable(debuglvl, vctx.zones.list.len * 3, &vctx.zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, &zone_htbl) < 0)
     {
         vrmr_error(-1, "Error", "vrmr_init_zonedata_hashtable failed.");
         exit(EXIT_FAILURE);
@@ -547,7 +545,7 @@ main(int argc, char *argv[])
             /* destroy the ServicesList */
             vrmr_destroy_serviceslist(debuglvl, &services);
             /* destroy the ZonedataList */
-            vrmr_destroy_zonedatalist(debuglvl, &zones);
+            vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
             /* destroy the InterfacesList */
             vrmr_destroy_interfaceslist(debuglvl, &interfaces);
 
@@ -593,7 +591,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 40);
 
             vrmr_info("Info", "Initializing zones...");
-            if (vrmr_init_zonedata(debuglvl, &vctx, &zones, &interfaces, &vctx.reg) < 0)
+            if (vrmr_init_zonedata(debuglvl, &vctx, &vctx.zones, &interfaces, &vctx.reg) < 0)
             {
                 vrmr_error(-1, "Error", "initializing zones failed.");
                 exit(EXIT_FAILURE);
@@ -611,14 +609,14 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 60);
 
             /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
-            if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &zones.list) < 0)
+            if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces.list, &vctx.zones.list) < 0)
             {
                 vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
                 exit(EXIT_FAILURE);
             }
 
             /* these are removed by: vrmr_rem_iface_from_zonelist() (see below) */
-            if(vrmr_add_broadcasts_zonelist(debuglvl, &zones) < 0)
+            if(vrmr_add_broadcasts_zonelist(debuglvl, &vctx.zones) < 0)
             {
                 vrmr_error(-1, "Error", "unable to add broadcasts to list.");
                 return(-1);
@@ -626,7 +624,7 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 70);
 
             vrmr_info("Info", "Creating hash-table for the zones...");
-            if(vrmr_init_zonedata_hashtable(debuglvl, zones.list.len * 3, &zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, &zone_htbl) < 0)
+            if(vrmr_init_zonedata_hashtable(debuglvl, vctx.zones.list.len * 3, &vctx.zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, &zone_htbl) < 0)
             {
                 vrmr_error(result, "Error", "vrmr_init_zonedata_hashtable failed.");
                 exit(EXIT_FAILURE);
@@ -695,7 +693,7 @@ main(int argc, char *argv[])
     /* destroy the ServicesList */
     vrmr_destroy_serviceslist(debuglvl, &services);
     /* destroy the ZonedataList */
-    vrmr_destroy_zonedatalist(debuglvl, &zones);
+    vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
     /* destroy the InterfacesList */
     vrmr_destroy_interfaceslist(debuglvl, &interfaces);
 
