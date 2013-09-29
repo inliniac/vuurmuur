@@ -37,8 +37,8 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     int                     delta = 'a' - 'A';
     FILE                    *fp = NULL;
     struct TextdirBackend_  *tb = NULL;
-    struct vrmr_list                  storelist;
-    struct vrmr_list_node             *d_node = NULL;
+    struct vrmr_list        storelist;
+    struct vrmr_list_node   *d_node = NULL;
 
     /*
         safety
@@ -255,14 +255,15 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
                     return(-1);
                 }
 
-                /* we no longer need these */
-                tmp_line_ptr = NULL;
-                line_ptr = NULL;
-
                 /* after inserting we're done */
                 break;
             }
         }
+
+        /* we no longer need these */
+        tmp_line_ptr = NULL;
+        line_ptr = NULL;
+
     }
 
     /*
@@ -300,6 +301,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         }
 
         /* we no longer need this */
+        free(line_ptr);
         line_ptr = NULL;
     }
 
