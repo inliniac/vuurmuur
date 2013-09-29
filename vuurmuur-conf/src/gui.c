@@ -633,14 +633,14 @@ VrNewForm(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
     form->x = x;
 
     form->nfields = n + 2; /* for ok and cancel */
-    form->fields = calloc(sizeof(FIELD), form->nfields + 1);
+    form->fields = calloc(form->nfields + 1, sizeof(FIELD *));
     if ( form->fields == NULL )
     {
         // error
         vrmr_error(-1, VR_ERR, "calloc failed");
         return(NULL);
     }
-    memset(form->fields, 0, (sizeof(FIELD) * form->nfields + 1));
+    memset(form->fields, 0, (sizeof(FIELD *) * (form->nfields + 1)));
 
     form->fg = fg;
     form->bg = bg;
@@ -858,7 +858,7 @@ VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol
     }
 
     /* +1 because we create two fields */
-    if(form->cur_field+1 >= form->nfields)
+    if(form->cur_field + 2 > form->nfields)
     {
         vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
         return(-1);
@@ -915,6 +915,13 @@ VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol
 static int
 VrFormAddOKCancel(const int debuglvl, VrForm *form) {
     int result;
+
+    /* +1 because we create two fields */
+    if(form->cur_field + 2 > form->nfields)
+    {
+        vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
+        return(-1);
+    }
 
     form->fields[form->cur_field] = new_field_wrap(1, 10, form->h - 2, 2, 0, 2);
     if(form->fields[form->cur_field] == NULL)
@@ -973,7 +980,7 @@ VrFormConnectToWin(const int debuglvl, VrForm *form, VrWin *win)
     /* we are done adding fields, so reset counter */
     form->cur_field = 0;
 
-    form->f = new_form((FIELD **)form->fields);
+    form->f = new_form(form->fields);
     if ( form->f == NULL )
     {
         // error

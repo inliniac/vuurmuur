@@ -132,7 +132,7 @@ void VrTcpmssIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interf
     }
     VrWinSetTitle(win, gettext("Tcpmss"));
 
-    form = VrNewForm(9, 58, 1, 1, 2, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
+    form = VrNewForm(9, 58, 1, 1, 3, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
 
     VrFormSetSaveFunc(debuglvl, form, VrTcpmssIfaceSave, &config);
 
