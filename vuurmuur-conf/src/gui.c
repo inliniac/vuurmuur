@@ -247,14 +247,14 @@ VrNewMenu(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
     menu->y = y;
     menu->x = x;
 
-    menu->i = calloc(sizeof(ITEM), n);
+    menu->i = calloc(n, sizeof(ITEM *));
     if ( menu->i == NULL )
     {
         // error
         vrmr_error(-1, VR_ERR, "calloc failed");
         return(NULL);
     }
-    memset(menu->i, 0, (sizeof(ITEM) * n));
+    memset(menu->i, 0, (sizeof(ITEM *) * n));
     menu->nitems = n;
 
     menu->free_name = NULL;
