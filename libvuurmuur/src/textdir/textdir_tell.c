@@ -173,8 +173,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         /*
             now append the line to the storelist, except if we were told to skip this one. Then just free the data.
         */
-        if(!skip)
-        {
+        if (!skip) {
             if(vrmr_list_append(debuglvl, &storelist, line_ptr) == NULL)
             {
                 vrmr_error(-1, "Internal Error", "inserting line into temporary storage list failed (in: %s).", __FUNC__);
@@ -186,18 +185,14 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
                 fclose(fp);
                 return(-1);
             }
-
-            /* we dont need this anymore */
-            line_ptr = NULL;
         }
-        else
-        {
-            /* free and null */
-            free(line_ptr);
-            line_ptr = NULL;
-
+        else {
             skip = 0;
         }
+
+        /* free and null */
+        free(line_ptr);
+        line_ptr = NULL;
     }
 
     /*
@@ -262,8 +257,9 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
 
         /* we no longer need these */
         tmp_line_ptr = NULL;
-        line_ptr = NULL;
 
+        free(line_ptr);
+        line_ptr = NULL;
     }
 
     /*
