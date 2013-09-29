@@ -1664,7 +1664,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
          * pass the result to this same function again...
          * Ugly, yeah... the whole parsing could use a big
          * rewrite... */
-        int i = 0;
+        size_t i = 0;
         char *ptr = (char *)line + 4; /* set past 'ipv4'*/
 
         /* look for next alpha char since we expect 'tcp', 'udp', etc */
@@ -1683,7 +1683,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
          * pass the result to this same function again...
          * Ugly, yeah... the whole parsing could use a big
          * rewrite... */
-        int i = 0;
+        size_t i = 0;
         char *ptr = (char *)line + 4; /* set past 'ipv4'*/
 
         /* look for next alpha char since we expect 'tcp', 'udp', etc */

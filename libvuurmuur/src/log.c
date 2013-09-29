@@ -624,7 +624,7 @@ vrmr_log_record_build_line(const int debuglvl, struct vrmr_log_record *log_recor
 void
 vrmr_log_record_parse_prefix(struct vrmr_log_record *log_record, char *prefix) {
     char *needle;
-    int i;
+    size_t i;
 
     if (prefix != NULL && strlen(prefix) > 6) {
         needle = strstr(prefix, "vrmr: ");

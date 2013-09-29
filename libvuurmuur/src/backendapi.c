@@ -30,7 +30,6 @@ void
 vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
 {
     struct vrmr_plugin  *plugin = NULL;
-    struct vrmr_list_node         *d_node = NULL;
 
     if (!plugin_data) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: load_plugin).");
@@ -79,7 +78,6 @@ static int
 load_plugin(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *plugin_list,
         char *plugin_name, struct vrmr_plugin_data **func_ptr)
 {
-    char                plugin_location[512] = "";
     struct vrmr_plugin  *plugin = NULL;
     struct vrmr_list_node         *d_node = NULL;
 

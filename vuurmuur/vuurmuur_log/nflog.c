@@ -96,7 +96,6 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     struct vrmr_log_record *log_record = data;
     time_t when;
     char    s[256];
-    int     i;
     union ipv4_adress ip;
 
     memset(log_record, 0, sizeof(struct vrmr_log_record));
@@ -130,31 +129,23 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     }
 
     /* Find indev idx for pkg and translate to interface name */
-    if ((indev = nflog_get_indev (nfa)) == -1) {
-        vrmr_error (-1, "Error", "Can't get indev idx");
-        return -1;
+    indev = nflog_get_indev (nfa);
+    if (indev) {
+        if_indextoname (indev, log_record->interface_in);
+        snprintf(log_record->from_int, sizeof(log_record->from_int), "in: %s ", log_record->interface_in);
     } else {
-        if (indev) {
-            if_indextoname (indev, log_record->interface_in);
-            snprintf(log_record->from_int, sizeof(log_record->from_int), "in: %s ", log_record->interface_in);
-        } else {
-            *log_record->interface_in = 0;
-            *log_record->from_int = 0;
-        }
+        *log_record->interface_in = 0;
+        *log_record->from_int = 0;
     }
 
     /* Find outdev idx for pkg and translate to interface name */
-    if ((outdev = nflog_get_outdev (nfa)) == -1) {
-        vrmr_error (-1, "Error", "Can't get outdev idx");
-        return -1;
+    outdev = nflog_get_outdev (nfa);
+    if (outdev) {
+        if_indextoname (outdev, log_record->interface_out);
+        snprintf(log_record->to_int, sizeof(log_record->to_int), "out: %s ", log_record->interface_out);
     } else {
-        if (outdev) {
-            if_indextoname (outdev, log_record->interface_out);
-            snprintf(log_record->to_int, sizeof(log_record->to_int), "out: %s ", log_record->interface_out);
-        } else {
-            *log_record->interface_out = 0;
-            *log_record->to_int = 0;
-        }
+        *log_record->interface_out = 0;
+        *log_record->to_int = 0;
     }
 
     /* Put packet's timestamp in log_rule struct */
@@ -182,11 +173,11 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 #ifdef IPV6_ENABLED
             struct ip6_hdr *ip6h = (struct ip6_hdr *)payload;
 #endif
-            if (payload_len >= sizeof(struct iphdr) && iph->version == 4) {
+            if (payload_len >= (int)sizeof(struct iphdr) && iph->version == 4) {
                 vrmr_debug(__FUNC__, "IPv4");
                 hw_protocol = ETH_P_IP;
 #ifdef IPV6_ENABLED
-            } else if (payload_len >= sizeof(struct ip6_hdr) && ((ip6h->ip6_vfc & 0xf0) >> 4) == 6) {
+            } else if (payload_len >= (int)sizeof(struct ip6_hdr) && ((ip6h->ip6_vfc & 0xf0) >> 4) == 6) {
                 vrmr_debug(__FUNC__, "IPv6");
                 hw_protocol = ETH_P_IPV6;
 #endif
@@ -201,7 +192,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                 /* we tried, but failed */
                 break;
             case ETH_P_IP:
-                if (payload_len < sizeof(struct iphdr))
+                if (payload_len < (int)sizeof(struct iphdr))
                     break;
 
                 iph = (struct iphdr *)payload;
@@ -244,7 +235,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 #ifdef IPV6_ENABLED
                 vrmr_debug(__FUNC__, "hw proto said IPv6, lets try to decode.");
 
-                if (payload_len < sizeof(struct ip6_hdr))
+                if (payload_len < (int)sizeof(struct ip6_hdr))
                     break;
 
                 struct ip6_hdr *ip6h = (struct ip6_hdr *)payload;
@@ -263,7 +254,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                 log_record->protocol = ip6h->ip6_nxt;
                 switch (log_record->protocol) {
                     case IPPROTO_ICMPV6:
-                        if (payload_len >= sizeof(struct icmp6_hdr)) {
+                        if (payload_len >= (int)sizeof(struct icmp6_hdr)) {
                             struct icmp6_hdr *icmp6h = (struct icmp6_hdr *)payload;
                             log_record->icmp_type = icmp6h->icmp6_type;
                             log_record->icmp_code = icmp6h->icmp6_code;
@@ -272,7 +263,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                         }
                         break;
                     case IPPROTO_TCP:
-                        if (payload_len >= sizeof(struct tcphdr)) {
+                        if (payload_len >= (int)sizeof(struct tcphdr)) {
                             tcph = (struct tcphdr *)payload;
                             log_record->src_port = ntohs(tcph->source);
                             log_record->dst_port = ntohs(tcph->dest);
@@ -285,7 +276,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                         }
                         break;
                     case IPPROTO_UDP:
-                        if (payload_len >= sizeof(struct tcphdr)) {
+                        if (payload_len >= (int)sizeof(struct tcphdr)) {
                             udph = (struct udphdr *)payload;
                             log_record->src_port = ntohs(udph->source);
                             log_record->dst_port = ntohs(udph->dest);

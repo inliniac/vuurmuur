@@ -3019,7 +3019,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 char    bw_string[24] = "",
                         value_string[11] = "",
                         unit_string[5] = "";
-                int     i = 0;
+                size_t  i = 0;
 
                 for(p = 0, o = strlen("in_max") + 1;
                         o < strlen(curopt) && p < sizeof(bw_string);
@@ -3066,7 +3066,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 char    bw_string[24] = "",
                         value_string[11] = "",
                         unit_string[5] = "";
-                int     i = 0;
+                size_t  i = 0;
 
                 for(p = 0, o = strlen("in_min") + 1;
                         o < strlen(curopt) && p < sizeof(bw_string);
@@ -3113,7 +3113,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 char    bw_string[24] = "",
                         value_string[11] = "",
                         unit_string[5] = "";
-                int     i = 0;
+                size_t  i = 0;
 
                 for(p = 0, o = strlen("out_max") + 1;
                         o < strlen(curopt) && p < sizeof(bw_string);
@@ -3160,7 +3160,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 char    bw_string[24] = "",
                         value_string[11] = "",
                         unit_string[5] = "";
-                int     i = 0;
+                size_t  i = 0;
 
                 for(p = 0, o = strlen("out_min") + 1;
                         o < strlen(curopt) && p < sizeof(bw_string);

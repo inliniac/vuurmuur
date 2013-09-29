@@ -965,9 +965,9 @@ struct vrmr_conntrack_stats {
     int active_from;
     int active_to;
 
-    int sername_max;
-    int fromname_max;
-    int toname_max;
+    unsigned int sername_max;
+    unsigned int fromname_max;
+    unsigned int toname_max;
 
     /** if any of the flows/connections has accounting info, this
      *  is set to 1. */

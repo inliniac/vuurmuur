@@ -1314,8 +1314,6 @@ edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces
                             width,
                             startx,
                             starty,
-                            max_height,
-                            max_width,
                             not_defined;    /* 1 if a key is undefined */
 
     struct vrmr_interface   *iface_ptr = NULL;

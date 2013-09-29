@@ -203,7 +203,7 @@ edit_zone_host_init(const int debuglvl, struct vrmr_ctx *vctx, char *name, int h
             cols,
             comment_y = 0,  /* for the dimentions of */
             comment_x = 0;  /* the comment field */
-    int     field_num = 0;
+    unsigned int field_num = 0;
     size_t  i = 0;
 
     /* safety */
@@ -649,9 +649,7 @@ edit_zone_host(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
     int                 height,
                         width,
                         startx,
-                        starty,
-                        max_height,
-                        max_width;
+                        starty;
     FIELD               *cur = NULL,
                         *prev = NULL;
     /* top menu */
@@ -5050,9 +5048,7 @@ edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
     int                 height = 0,
                         width = 0,
                         startx = 0,
-                        starty = 0,
-                        max_height = 0,
-                        max_width = 0;
+                        starty = 0;
     FIELD               *cur = NULL,
                         *prev = NULL;
     char                *key_choices[] =    {   "F12",
@@ -5912,7 +5908,7 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_ctx *vctx,
     size_t  i = 0;
     int     comment_y = 0,
             comment_x = 0;
-    int     field_num = 0;
+    unsigned int     field_num = 0;
 
     /* safety */
     if(name == NULL || zone_ptr == NULL || zones == NULL)
@@ -6133,9 +6129,7 @@ edit_zone_zone(const int debuglvl, struct vrmr_ctx *vctx,
     int                 height,
                         width,
                         startx,
-                        starty,
-                        max_height,
-                        max_width;
+                        starty;
     FIELD               *cur = NULL,
                         *prev = NULL;
     char                *key_choices[] =    {   "F12",

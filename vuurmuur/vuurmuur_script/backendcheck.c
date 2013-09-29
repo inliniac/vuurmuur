@@ -423,7 +423,7 @@ backend_check_interface_shape(const int debuglvl, char *value, struct vrmr_regex
 int
 backend_check_interface_bw(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
-    int i = 0;
+    size_t i = 0;
 
     /* safety */
     if(value == NULL || reg == NULL)

@@ -722,7 +722,7 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
         }
     }
 
-    if((int)item_len * cols + 8 > max_width)
+    if((int)(item_len * cols + 8) > max_width)
         cols = 1;
 
     min_len = len + 8;

@@ -52,7 +52,7 @@ SetupVMIPC (int *shm_id, struct vrmr_shm_table **shm_table)
         (void)sleep(3);
 
         *shm_id = shmget(IPC_PRIVATE, sizeof(**shm_table), 0600);
-        if(shm_id < 0)
+        if(*shm_id < 0)
         {
             vrmr_error(-1, "Error", "Unable to create shared memory: %s (retry).", strerror(errno));
             return (-1);

@@ -238,7 +238,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
             */
             if(strncmp(question, tmp_line_ptr, strlen(question)) == 0)
             {
-                if(vrmr_list_insert_after(debuglvl, &storelist, d_node, line_ptr) < 0)
+                if(vrmr_list_insert_after(debuglvl, &storelist, d_node, line_ptr) == NULL)
                 {
                     vrmr_error(-1, "Internal Error", "inserting line into temporary storage list failed (in: %s).", __FUNC__);
 

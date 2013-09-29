@@ -261,7 +261,7 @@ parse_log_srcdst(const int debuglvl, char *str, char *ret_ip, size_t ip_size,
     char mac[18] = "";
     char port[6] = "";
 
-    for (s = 0; s < strlen(str); s++)
+    for (s = 0; s < (int)strlen(str); s++)
     {
         if(what == 0) {
             ip[i] = str[s];
@@ -363,7 +363,7 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
         s = log_record->details;
 
         /* split the tokens */
-        for(x = 0, y = 0, z = 0; x < strlen(s); x++)
+        for(x = 0, y = 0, z = 0; x < (int)strlen(s); x++)
         {
             /* copy char */
             store[y][z] = s[x];

@@ -579,8 +579,8 @@ vrmr_split_portrange(char *portrange, int *lowport, int *highport)
 int
 vrmr_process_portrange(const int debuglvl, const char *proto, const char *portrange, struct vrmr_service *ser_ptr)
 {
-    int                 port=0,
-                        range=0;
+    unsigned int        port = 0;
+    unsigned int        range = 0;
 
     char                current_portrange[32] = "",   /* 3+1+5+1+5+1+5+1+5+1 eg. 6,12345:56789*12345:56789 */
                         src_portrange[16] = "",
@@ -630,7 +630,7 @@ vrmr_process_portrange(const int debuglvl, const char *proto, const char *portra
             if (strncasecmp(proto, "RANGE", 5) == 0) {
                 char protostr[4] = "";
                 range = 0;
-                int i = 0;
+                size_t i = 0;
                 while (range < strlen(current_portrange) &&
                         i < sizeof(protostr) &&
                         current_portrange[range] != ';')
@@ -688,7 +688,7 @@ vrmr_process_portrange(const int debuglvl, const char *proto, const char *portra
             /*
                 split current_portrange to dst_portrange and src_portrange, and split both of them
             */
-            port=0;
+            port = 0;
             while (range < strlen(current_portrange) &&
                     port < sizeof(dst_portrange) &&
                     current_portrange[range] != '*')

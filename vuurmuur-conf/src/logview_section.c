@@ -1877,7 +1877,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     }
                 }
                 
-                if(delta == max_onscreen + offset)
+                if(delta == (int)(max_onscreen + offset))
                 {
                     break;
                 }

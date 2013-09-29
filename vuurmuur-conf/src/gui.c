@@ -207,7 +207,7 @@ VrWinSetTitle(VrWin *win, char *title)
     size_t  len = StrLen(title);
     size_t  printstart = 0;
 
-    if((len - 4) > win->width)
+    if((int)(len - 4) > win->width)
     {
         return(0);
     }
@@ -303,7 +303,7 @@ VrMenuSetDescFreeFunc(VrMenu *menu, void (*free_func)(void *ptr))
 void
 VrDelMenu(const int debuglvl, VrMenu *menu)
 {
-    int i = 0;
+    size_t i = 0;
 
     if (menu->m) {
         unpost_menu(menu->m);
@@ -654,7 +654,7 @@ VrNewForm(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
 void
 VrDelForm(const int debuglvl, VrForm *form)
 {
-    int i = 0;
+    size_t i = 0;
 
     if (form->f) {
         unpost_form(form->f);
@@ -774,7 +774,7 @@ VrFormAddTextField(const int debuglvl, VrForm *form, int height, int width, int 
 {
     int result;
 
-    if (StrLen(name) > width) {
+    if ((int)StrLen(name) > width) {
         vrmr_error(-1, VR_ERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
         return(-1);
     }
@@ -852,7 +852,7 @@ VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol
     int width = 1;
     char *value = enabled ? "X" : " ";
 
-    if (StrLen(name) > width) {
+    if ((int)StrLen(name) > width) {
         vrmr_error(-1, VR_INTERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
         return(-1);
     }
