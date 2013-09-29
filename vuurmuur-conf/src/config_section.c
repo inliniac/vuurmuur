@@ -2459,10 +2459,6 @@ edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
                 return(-1);
             }
         }
-        else
-        {
-            vrmr_audit("No field status change");
-        }
     }
 
     return(retval);
