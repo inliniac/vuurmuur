@@ -2303,3 +2303,32 @@ int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx) {
     return 0;
 }
 
+int vrmr_create_log_hash(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_hash_table *service_hash, struct vrmr_hash_table *zone_hash)
+{
+    /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall',
+     * so this appears in to log as 'firewall(interface)' */
+    if (vrmr_ins_iface_into_zonelist(debuglvl, &vctx->interfaces.list, &vctx->zones.list) < 0) {
+        vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
+        return(-1);
+    }
+
+    /* these are removed by: vrmr_rem_iface_from_zonelist() (see below) */
+    if (vrmr_add_broadcasts_zonelist(debuglvl, &vctx->zones) < 0) {
+        vrmr_error(-1, "Error", "unable to add broadcasts to list.");
+        return(-1);
+    }
+
+    if (vrmr_init_zonedata_hashtable(debuglvl, vctx->zones.list.len * 3,
+                &vctx->zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, zone_hash) < 0) {
+        vrmr_error(-1, "Error", "vrmr_init_zonedata_hashtable failed.");
+        return(-1);
+    }
+
+    if (vrmr_init_services_hashtable(debuglvl, vctx->services.list.len * 500, &vctx->services.list,
+                vrmr_hash_port, vrmr_compare_ports, service_hash) < 0) {
+        vrmr_error(-1, "Error", "vrmr_init_services_hashtable failed.");
+        return(-1);
+    }
+    return(0);
+}
