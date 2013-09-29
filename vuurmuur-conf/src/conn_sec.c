@@ -516,7 +516,7 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
     if(ct == NULL)
         return(NULL);
 
-    memset(ct, 0, sizeof(ct));
+    memset(ct, 0, sizeof(*ct));
 
     /*  insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist
         as 'firewall', so this appears in to the connections */

@@ -550,10 +550,9 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, struct vrmr_rul
     FIELD   **fields;
     FORM    *form;
 
-    if(cur_rule < 0 || !rules)
+    if (rules == NULL)
         return(-1);
-
-    if(cur_rule == 0)
+    if (cur_rule == 0)
         return(0);
 
     // create window, panel, fields, form and post it

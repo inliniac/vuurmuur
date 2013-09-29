@@ -2640,7 +2640,7 @@ VrEditConntrackSetup(const int debuglvl, struct VrEditConntrackCnf_ *c, struct v
         return(-1);
 
     c->invalid_drop_enabled = conf->invalid_drop_enabled;
-    c->conf;
+    c->conf = conf;
     return(0);
 }
 

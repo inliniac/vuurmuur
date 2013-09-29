@@ -1815,23 +1815,13 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         /* offset cannot be smaller than 0, or bigger than buffer_size - max_onscreen */
         if(!use_filter)
         {
-            if(offset < 0)
-                offset = 0;
-            else if(offset != 0 && offset > (buffer_size - max_onscreen))
+            if (offset != 0 && offset > (buffer_size - max_onscreen))
                 offset = buffer_size - max_onscreen;
 
-            if(max_onscreen >= (int)buffer_size)
-            {
+            if (max_onscreen >= (int)buffer_size)
                 start_print = 0;
-            }
             else
-            {
                 start_print = buffer_size - max_onscreen - offset;
-                if(start_print < 0)
-                {
-                    start_print = 0;
-                }
-            }
 
             if(debuglvl >= HIGH)
                 status_print(status_win, "buf_size: %u, max_onscr: %d, start: %d, o: %u, p: %d, q: %d, s: %d", buffer_size, max_onscreen, start_print, offset, control.print, control.queue, control.sleep);
