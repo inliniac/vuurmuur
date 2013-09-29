@@ -113,7 +113,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("zone '%s' added.", vr_script->name);
+        logchange(vr_script, "zone '%s' added.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
@@ -123,7 +123,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("network '%s' added.", vr_script->name);
+        logchange(vr_script, "network '%s' added.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_HOST)
     {
@@ -133,7 +133,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("host '%s' added.", vr_script->name);
+        logchange(vr_script, "host '%s' added.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_GROUP)
     {
@@ -143,7 +143,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("group '%s' added.", vr_script->name);
+        logchange(vr_script, "group '%s' added.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
@@ -153,7 +153,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("service '%s' added.", vr_script->name);
+        logchange(vr_script, "service '%s' added.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
@@ -163,7 +163,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("interface '%s' added.", vr_script->name);
+        logchange(vr_script, "interface '%s' added.", vr_script->name);
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
@@ -173,7 +173,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
             return(VRS_ERR_COMMAND_FAILED);
         }
 
-        logchange("ruleset '%s' added.", vr_script->name);
+        logchange(vr_script, "ruleset '%s' added.", vr_script->name);
     }
     else
     {

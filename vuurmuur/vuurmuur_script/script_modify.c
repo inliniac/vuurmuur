@@ -122,9 +122,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         }
 
         if(vr_script->overwrite == TRUE)
-            logchange("for zone '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for zone '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
         else
-            logchange("for zone '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for zone '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
@@ -135,9 +135,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         }
 
         if(vr_script->overwrite == TRUE)
-            logchange("for network '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for network '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
         else
-            logchange("for network '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for network '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_HOST)
     {
@@ -148,9 +148,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         }
 
         if(vr_script->overwrite == TRUE)
-            logchange("for host '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for host '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
         else
-            logchange("for host '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for host '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_GROUP)
     {
@@ -161,9 +161,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         }
 
         if(vr_script->overwrite == TRUE)
-            logchange("for group '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for group '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
         else
-            logchange("for group '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for group '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
@@ -174,9 +174,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         }
 
         if(vr_script->overwrite == TRUE)
-            logchange("for service '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for service '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
         else
-            logchange("for service '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for service '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
@@ -187,9 +187,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         }
 
         if(vr_script->overwrite == TRUE)
-            logchange("for interface '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for interface '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
         else
-            logchange("for interface '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for interface '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
@@ -200,9 +200,9 @@ script_modify(const int debuglvl, VuurmuurScript *vr_script)
         }
 
         if(vr_script->overwrite == TRUE)
-            logchange("for ruleset '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for ruleset '%s' variable '%s' is set to '%s'.", vr_script->name, vr_script->var, vr_script->set);
         else
-            logchange("for ruleset '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
+            logchange(vr_script, "for ruleset '%s' variable '%s' appended '%s'.", vr_script->name, vr_script->var, vr_script->set);
     }
     else
     {
