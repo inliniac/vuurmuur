@@ -166,7 +166,7 @@ zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
 }
 
 
-/*  vrmr_vrmr_insert_zonedata_list
+/*  vrmr_insert_zonedata_list
 
     Inserts a zone into the list. It sorts by name. It makes sure the datastructure is
     preserved:
@@ -186,7 +186,7 @@ zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
         -1: (serious) error
 */
 int
-vrmr_vrmr_insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
+vrmr_insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
              const struct vrmr_zone *zone_ptr)
 {
     struct vrmr_zone    *check_zone_ptr = NULL,
@@ -288,7 +288,7 @@ vrmr_vrmr_insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
         if(debuglvl >= HIGH)
             vrmr_debug(__FUNC__, "prepend %s", zone_ptr->name);
 
-        if(vrmr_list_prepend(debuglvl, &zones->list, zone_ptr) < 0)
+        if(vrmr_list_prepend(debuglvl, &zones->list, zone_ptr) == NULL)
         {
             vrmr_error(-1, "Internal Error",
                     "vrmr_list_prepend() failed (in: %s:%d).",
@@ -302,7 +302,7 @@ vrmr_vrmr_insert_zonedata_list(const int debuglvl, struct vrmr_zones *zones,
         if(debuglvl >= HIGH)
             vrmr_debug(__FUNC__, "insert %s", zone_ptr->name);
 
-        if(vrmr_list_insert_before(debuglvl, &zones->list, d_node, zone_ptr) < 0)
+        if(vrmr_list_insert_before(debuglvl, &zones->list, d_node, zone_ptr) == NULL)
         {
             vrmr_error(-1, "Internal Error",
                     "vrmr_list_insert_before() failed (in: %s:%d).",
@@ -387,10 +387,10 @@ vrmr_insert_zonedata(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone
     /*
         now insert into the list
     */
-    if(vrmr_vrmr_insert_zonedata_list(debuglvl, zones, zone_ptr) < 0)
+    if(vrmr_insert_zonedata_list(debuglvl, zones, zone_ptr) < 0)
     {
         vrmr_error(-1, "Internal Error",
-                "vrmr_vrmr_insert_zonedata_list() failed (in: %s:%d).",
+                "vrmr_insert_zonedata_list() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);
     }
@@ -978,7 +978,7 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
 
 
     /* insert into the list */
-    if(vrmr_vrmr_insert_zonedata_list(debuglvl, zones, zone_ptr) < 0)
+    if(vrmr_insert_zonedata_list(debuglvl, zones, zone_ptr) < 0)
     {
         vrmr_error(-1, "Internal Error", "unable to insert new zone into the list (in: %s).", __FUNC__);
         return(-1);
