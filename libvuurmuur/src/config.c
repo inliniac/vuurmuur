@@ -1747,6 +1747,64 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     return(retval);
 }
 
+int
+vrmr_pre_init_config(struct vrmr_config *cnf)
+{
+    /* safety */
+    if(cnf == NULL)
+    {
+        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* init the struct */
+    memset(cnf, 0, sizeof(struct vrmr_config));
+
+    /* set the configdir location */
+    if(strlcpy(cnf->etcdir, xstr(SYSCONFDIR), sizeof(cnf->etcdir)) >= sizeof(cnf->etcdir))
+    {
+        vrmr_error(-1, "Error", "buffer too small for config-dir supplied at compile-time (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return(-1);
+    }
+    //printf("cnf->etcdir %s\n", cnf->etcdir);
+
+    if(snprintf(cnf->configfile, sizeof(cnf->configfile), "%s/vuurmuur/config.conf", cnf->etcdir) >= (int)sizeof(cnf->configfile))
+    {
+        vrmr_error(-1, "Error", "buffer too small for configfile supplied at compile-time (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return(-1);
+    }
+    //printf("cnf->configfile %s\n", cnf->configfile);
+
+
+    /* set the plugin location */
+    if(strlcpy(cnf->plugdir, xstr(PLUGINDIR), sizeof(cnf->plugdir)) >= sizeof(cnf->plugdir))
+    {
+        vrmr_error(-1, "Error", "buffer too small for plugdir supplied at compile-time (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return(-1);
+    }
+    //printf("cnf->libdir %s\n", cnf->libdir);
+
+
+    /* set the datadir location */
+    if(strlcpy(cnf->datadir, xstr(DATADIR), sizeof(cnf->datadir)) >= sizeof(cnf->datadir))
+    {
+        vrmr_error(-1, "Error", "buffer too small for sysconfdir supplied at compile-time (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* default to yes */
+    cnf->vrmr_check_iptcaps = TRUE;
+
+    /* Don't do any permissin checks until we loaded MAX_PERMISSION from the config file */
+    cnf->max_permission = VRMR_ANY_PERMISSION;
+    return(0);
+}
+
 
 int
 vrmr_reload_config(const int debuglvl, struct vrmr_config *old_cnf)
@@ -2155,64 +2213,6 @@ br_extract_prefix (const char *path)
     }
 
     return(result);
-}
-
-int
-vrmr_pre_init_config(struct vrmr_config *cnf)
-{
-    /* safety */
-    if(cnf == NULL)
-    {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    /* init the struct */
-    memset(cnf, 0, sizeof(struct vrmr_config));
-
-    /* set the configdir location */
-    if(strlcpy(cnf->etcdir, xstr(SYSCONFDIR), sizeof(cnf->etcdir)) >= sizeof(cnf->etcdir))
-    {
-        vrmr_error(-1, "Error", "buffer too small for config-dir supplied at compile-time (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-    //printf("cnf->etcdir %s\n", cnf->etcdir);
-
-    if(snprintf(cnf->configfile, sizeof(cnf->configfile), "%s/vuurmuur/config.conf", cnf->etcdir) >= (int)sizeof(cnf->configfile))
-    {
-        vrmr_error(-1, "Error", "buffer too small for configfile supplied at compile-time (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-    //printf("cnf->configfile %s\n", cnf->configfile);
-
-
-    /* set the plugin location */
-    if(strlcpy(cnf->plugdir, xstr(PLUGINDIR), sizeof(cnf->plugdir)) >= sizeof(cnf->plugdir))
-    {
-        vrmr_error(-1, "Error", "buffer too small for plugdir supplied at compile-time (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-    //printf("cnf->libdir %s\n", cnf->libdir);
-
-
-    /* set the datadir location */
-    if(strlcpy(cnf->datadir, xstr(DATADIR), sizeof(cnf->datadir)) >= sizeof(cnf->datadir))
-    {
-        vrmr_error(-1, "Error", "buffer too small for sysconfdir supplied at compile-time (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    /* default to yes */
-    cnf->vrmr_check_iptcaps = TRUE;
-
-    /* Don't do any permissin checks until we loaded MAX_PERMISSION from the config file */
-    cnf->max_permission = VRMR_ANY_PERMISSION;
-    return(0);
 }
 
 int vrmr_init(struct vrmr_ctx *ctx, char *toolname) {

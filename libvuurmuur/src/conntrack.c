@@ -2074,8 +2074,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
     int                     conntrack_cmd = 0;
 
     /* safety */
-    if(serv_hash == NULL || zone_hash == NULL ||
-        cnf == NULL || prev_conn_cnt < 0)
+    if(serv_hash == NULL || zone_hash == NULL || cnf == NULL)
     {
         vrmr_error(-1, "Internal Error", "parameter problem "
                 "(in: %s:%d).", __FUNC__, __LINE__);

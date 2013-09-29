@@ -106,16 +106,7 @@ ask_textdir(const int debuglvl,
     while (fgets(line, (int)sizeof(line), tb->file) != NULL)
     {
         line_length = strlen(line);
-        if(line_length < 0)
-        {
-            vrmr_error(-1, "Internal Error", "unable to determine the length of 'line' (in: %s).", __FUNC__);
-
-            free(file_location);
-            fclose(tb->file);
-            tb->file = NULL;
-            return(-1);
-        }
-        else if(line_length > MAX_LINE_LENGTH)
+        if(line_length > MAX_LINE_LENGTH)
         {
             vrmr_error(-1, "Error", "line is longer than allowed (line: %d, max: %d) (in: %s).", line_length, MAX_LINE_LENGTH, __FUNC__);
 

@@ -1292,13 +1292,6 @@ vrmr_zones_group_save_members(const int debuglvl, struct vrmr_ctx *vctx, struct 
         return(-1);
     }
 
-    /* safety */
-    if(group_ptr->GroupList.len < 0)
-    {
-        vrmr_error(-1, "Internal Error", "negative number of groupmembers (in: %s).", __FUNC__);
-        return(-1);
-    }
-
     /* write to backend */
     if(group_ptr->GroupList.len == 0)
     {
