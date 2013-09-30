@@ -108,76 +108,38 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     */
     while(fgets(line, MAX_LINE_LENGTH, fp) != NULL)
     {
-        if(!(line_ptr = malloc(sizeof(line))))
-        {
-            vrmr_error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
+        skip = 0;
 
+        if(!(line_ptr = malloc(sizeof(line)))) {
+            vrmr_error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
             /* cleanup */
             vrmr_list_cleanup(debuglvl, &storelist);
             free(file_location);
             fclose(fp);
-
             return(-1);
         }
 
-        /*
-            compare the line
-
-            make sure we don't match BW_IN on BW_IN_UNIT
-            XXX: redo this one day
-        */
-        if(strncmp(question, line, strlen(question)) == 0 && line[strlen(question)] == '=')
-        {
-            if(overwrite && !found)
-            {
-//TODO
+        if (strncmp(question, line, strlen(question)) == 0 && line[strlen(question)] == '=') {
+            if(overwrite && !found) {
                 snprintf(line_ptr, sizeof(line), "%s=\"%s\"\n", question, answer);
                 found = 1;
-            }
-            else if(overwrite && found)
-            {
+            } else if(overwrite && found) {
                 skip = 1;
-            }
-            else
-            {
-                if(strlcpy(line_ptr, line, sizeof(line)) >= sizeof(line))
-                {
-                    vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
-
-                    /* cleanup */
-                    vrmr_list_cleanup(debuglvl, &storelist);
-                    free(line_ptr);
-                    free(file_location);
-                    fclose(fp);
-                    return(-1);
-                }
-
+            } else {
+                (void)strlcpy(line_ptr, line, sizeof(line));
                 found = 1;
             }
-        }
-        else
-        {
-            if(strlcpy(line_ptr, line, sizeof(line)) >= sizeof(line))
-            {
-                vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
-
-                /* cleanup */
-                vrmr_list_cleanup(debuglvl, &storelist);
-                free(line_ptr);
-                free(file_location);
-                fclose(fp);
-                return(-1);
-            }
+        } else {
+            (void)strlcpy(line_ptr, line, sizeof(line));
         }
 
         /*
             now append the line to the storelist, except if we were told to skip this one. Then just free the data.
         */
         if (!skip) {
-            if(vrmr_list_append(debuglvl, &storelist, line_ptr) == NULL)
+            if (vrmr_list_append(debuglvl, &storelist, line_ptr) == NULL)
             {
                 vrmr_error(-1, "Internal Error", "inserting line into temporary storage list failed (in: %s).", __FUNC__);
-
                 /* cleanup */
                 vrmr_list_cleanup(debuglvl, &storelist);
                 free(line_ptr);
@@ -185,26 +147,21 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
                 fclose(fp);
                 return(-1);
             }
+        } else {
+            /* free and null */
+            free(line_ptr);
+            line_ptr = NULL;
         }
-        else {
-            skip = 0;
-        }
-
-        /* free and null */
-        free(line_ptr);
-        line_ptr = NULL;
     }
 
     /*
         if we are not overwriting and the type of data is already found somewhere, we try to insert is just below
         the last one.
     */
-    if(!overwrite && found)
+    if (!overwrite && found)
     {
-        if(!(line_ptr = malloc(sizeof(line))))
-        {
+        if(!(line_ptr = malloc(sizeof(line)))) {
             vrmr_error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
-
             /* cleanup */
             vrmr_list_cleanup(debuglvl, &storelist);
             free(file_location);
@@ -213,18 +170,15 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         }
 
         /* assemble the line */
-//TODO
         snprintf(line_ptr, sizeof(line), "%s=\"%s\"\n", question, answer);
 
         /*
             loop the list bottom up so we match the last one first
         */
-        for(d_node = storelist.bot; d_node; d_node = d_node->prev)
+        for (d_node = storelist.bot; d_node; d_node = d_node->prev)
         {
-            if(!(tmp_line_ptr = d_node->data))
-            {
+            if(!(tmp_line_ptr = d_node->data)) {
                 vrmr_error(-1, "Internal Error", "NULL pointer (in: %s)", __FUNC__);
-
                 /* cleanup */
                 vrmr_list_cleanup(debuglvl, &storelist);
                 free(file_location);
@@ -236,12 +190,11 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
             /*
                 check if the line is the same. If so insert after it.
             */
-            if(strncmp(question, tmp_line_ptr, strlen(question)) == 0)
+            if (strncmp(question, tmp_line_ptr, strlen(question)) == 0)
             {
-                if(vrmr_list_insert_after(debuglvl, &storelist, d_node, line_ptr) == NULL)
+                if (vrmr_list_insert_after(debuglvl, &storelist, d_node, line_ptr) == NULL)
                 {
                     vrmr_error(-1, "Internal Error", "inserting line into temporary storage list failed (in: %s).", __FUNC__);
-
                     /* cleanup */
                     vrmr_list_cleanup(debuglvl, &storelist);
                     free(file_location);
@@ -251,25 +204,24 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
                 }
 
                 /* after inserting we're done */
+                line_ptr = NULL;
                 break;
             }
+            /* after inserting we're done */
+            free(line_ptr);
+            line_ptr = NULL;
         }
-
         /* we no longer need these */
         tmp_line_ptr = NULL;
-
-        free(line_ptr);
-        line_ptr = NULL;
     }
 
     /*
         if its not found, we insert it at the end of the list
     */
-    if(found == 0)
+    if (found == 0)
     {
         /* first alloc */
-        if(!(line_ptr = malloc(sizeof(line))))
-        {
+        if(!(line_ptr = malloc(sizeof(line)))) {
             vrmr_error(-1, "Error", "malloc failed: %s.", strerror(errno));
 
             /* cleanup */
@@ -279,15 +231,11 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
             return(-1);
         }
 
-        /* assemble the line */
-//TODO
         snprintf(line_ptr, sizeof(line), "%s=\"%s\"\n", question, answer);
 
         /* append into the list */
-        if(vrmr_list_append(debuglvl, &storelist, line_ptr) == NULL)
-        {
+        if (vrmr_list_append(debuglvl, &storelist, line_ptr) == NULL) {
             vrmr_error(-1, "Internal Error", "inserting line into temporary storage list failed (in: %s).", __FUNC__);
-
             /* cleanup */
             vrmr_list_cleanup(debuglvl, &storelist);
             free(file_location);
@@ -297,7 +245,6 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         }
 
         /* we no longer need this */
-        free(line_ptr);
         line_ptr = NULL;
     }
 
