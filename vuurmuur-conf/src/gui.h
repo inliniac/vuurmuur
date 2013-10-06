@@ -51,6 +51,25 @@ typedef struct
 
 } VrMenu;
 
+/** form field types */
+enum vrmr_gui_form_field_types {
+    VRMR_GUI_FORM_FIELD_TYPE_LABEL,
+    VRMR_GUI_FORM_FIELD_TYPE_TEXT,
+    VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX,
+};
+
+/** storage for form field registration */
+struct vrmr_gui_form_field {
+    enum vrmr_gui_form_field_types type;
+    chtype cp;
+    int h, w, toprow, leftcol;
+    const char *name;
+    union {
+        char *value_str;
+        int value_bool;
+    };
+};
+
 /* form wrapper */
 typedef struct
 {
@@ -74,6 +93,8 @@ typedef struct
     int             (*save)(const int debuglvl, void *ctx, char *name, char *value);
     void            *save_ctx;
 
+    struct vrmr_list list;  /**< list of vrmr_gui_form_field's, filled
+                             *   during setup of a form. */
 } VrForm;
 
 /* window/panel wrapper */
@@ -120,7 +141,7 @@ char VrMenuDefaultNavigation(const int debuglvl, VrMenu *menu, int key);
 int VrMenuPost(const int, VrMenu *);
 int VrMenuUnPost(const int, VrMenu *);
 
-VrForm *VrNewForm(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg);
+VrForm *VrNewForm(int h, int w, int y, int x, chtype bg, chtype fg);
 void VrDelForm(const int debuglvl, VrForm *form);
 int VrFormPost(const int debuglvl, VrForm *form);
 int VrFormUnPost(const int debuglvl, VrForm *form);

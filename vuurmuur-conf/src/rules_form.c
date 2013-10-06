@@ -209,7 +209,7 @@ void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
     }
     VrWinSetTitle(win, gettext("Shaping"));
 
-    form = VrNewForm(14, 58, 1, 1, 14, vccnf.color_win, vccnf.color_win | A_BOLD);
+    form = VrNewForm(14, 58, 1, 1, vccnf.color_win, vccnf.color_win | A_BOLD);
 
     VrFormSetSaveFunc(debuglvl, form, VrShapeRuleSave, &config);
 

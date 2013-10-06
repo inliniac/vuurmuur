@@ -614,7 +614,7 @@ VrMenuUnPost(const int debuglvl, VrMenu *menu)
 }
 
 VrForm *
-VrNewForm(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
+VrNewForm(int h, int w, int y, int x, chtype bg, chtype fg)
 {
     VrForm *form;
 
@@ -632,21 +632,13 @@ VrNewForm(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
     form->y = y;
     form->x = x;
 
-    form->nfields = n + 2; /* for ok and cancel */
-    form->fields = calloc(form->nfields + 1, sizeof(FIELD *));
-    if ( form->fields == NULL )
-    {
-        // error
-        vrmr_error(-1, VR_ERR, "calloc failed");
-        return(NULL);
-    }
-    memset(form->fields, 0, (sizeof(FIELD *) * (form->nfields + 1)));
-
     form->fg = fg;
     form->bg = bg;
 
     form->save = NULL;
     form->save_ctx = NULL;
+
+    vrmr_list_setup(0, &form->list, free);
 
     return(form);
 }
@@ -670,6 +662,8 @@ VrDelForm(const int debuglvl, VrForm *form)
     /* free items */
     if(form->fields != NULL)
         free(form->fields);
+
+    vrmr_list_cleanup(debuglvl, &form->list);
 
     /* free memory */
     free(form);
@@ -769,146 +763,145 @@ VrFormUnPost(const int debuglvl, VrForm *form)
     return(0);
 }
 
+static int VrFormStoreField (const int debuglvl, VrForm *form,
+        enum vrmr_gui_form_field_types type, chtype cp,
+        int h, int w, int toprow, int leftcol,
+        const char *name, char *value_str, int value_bool)
+{
+    struct vrmr_gui_form_field *fld = malloc(sizeof(*fld));
+    if (fld == NULL)
+        return -1;
+    memset(fld, 0x00, sizeof(*fld));
+
+    fld->type = type;
+    fld->cp = cp;
+    fld->h = h;
+    fld->w = w;
+    fld->toprow = toprow;
+    fld->leftcol = leftcol;
+    fld->name = name;
+
+    switch (type) {
+        case VRMR_GUI_FORM_FIELD_TYPE_LABEL:
+        case VRMR_GUI_FORM_FIELD_TYPE_TEXT:
+            fld->value_str = value_str;
+            break;
+        case VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX:
+            fld->value_bool = value_bool;
+            break;
+    }
+
+    vrmr_list_append(debuglvl, &form->list, fld);
+    return 0;
+}
+
 int
 VrFormAddTextField(const int debuglvl, VrForm *form, int height, int width, int toprow, int leftcol, chtype cp, char *name, char *value)
 {
-    int result;
-
     if ((int)StrLen(name) > width) {
         vrmr_error(-1, VR_ERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
         return(-1);
     }
 
-    if(form->cur_field >= form->nfields)
-    {
-        vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
-        return(-1);
-    }
-
-    form->fields[form->cur_field] = new_field_wrap(height, width, toprow, leftcol, 0, 2);
-    if(form->fields[form->cur_field] == NULL)
-    {
-        vrmr_error(-1, VR_ERR, "new_field failed");
-        return(-1);
-    }
-
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, value);
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, name);
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "txt");
-
-    result = set_field_back(form->fields[form->cur_field], cp);
-    if(result != E_OK)
-    {
-        vrmr_error(-1, VR_ERR, "set_field_back failed");
-        return(-1);
-    }
-
-    form->cur_field++;
-
+    VrFormStoreField(debuglvl, form, VRMR_GUI_FORM_FIELD_TYPE_TEXT, cp, height, width, toprow, leftcol, name, value, 0);
     return(0);
 }
 
 int
 VrFormAddLabelField(const int debuglvl, VrForm *form, int height, int width, int toprow, int leftcol, chtype cp, char *value)
 {
-    int result;
-
-    if(form->cur_field >= form->nfields)
-    {
-        vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
-        return(-1);
-    }
-
-    form->fields[form->cur_field] = new_field_wrap(height, width, toprow, leftcol, 0, 2);
-    if(form->fields[form->cur_field] == NULL)
-    {
-        vrmr_error(-1, VR_ERR, "new_field failed");
-        return(-1);
-    }
-
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, value);
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "lbl");
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "lbl");
-
-    field_opts_off(form->fields[form->cur_field], O_ACTIVE);
-
-    result = set_field_back(form->fields[form->cur_field], cp);
-    if(result != E_OK)
-    {
-        vrmr_error(-1, VR_ERR, "set_field_back failed");
-        return(-1);
-    }
-
-    form->cur_field++;
-
+    VrFormStoreField(debuglvl, form, VRMR_GUI_FORM_FIELD_TYPE_LABEL, cp, height, width, toprow, leftcol, NULL, value, 0);
     return(0);
 }
 
 int
 VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol, chtype cp, char *name, char enabled)
 {
-    int result;
     int height = 1;
     int width = 1;
-    char *value = enabled ? "X" : " ";
 
     if ((int)StrLen(name) > width) {
         vrmr_error(-1, VR_INTERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
         return(-1);
     }
 
-    /* +1 because we create two fields */
-    if(form->cur_field + 2 > form->nfields)
-    {
+    VrFormStoreField(debuglvl, form, VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX, cp, height, width, toprow, leftcol, name, NULL, (int)enabled);
+    return(0);
+}
+
+static int VrFormCreateField(const int debuglvl, VrForm *form, struct vrmr_gui_form_field *fld) {
+    int result = 0;
+
+    if (form->cur_field >= form->nfields) {
         vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
         return(-1);
     }
 
-    /* create the field that will contain the X or be empty */
-    form->fields[form->cur_field] = new_field_wrap(height, width, toprow, leftcol+1, 0, 2);
-    if(form->fields[form->cur_field] == NULL)
-    {
+    if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_TEXT) {
+        form->fields[form->cur_field] = new_field_wrap(fld->h, fld->w, fld->toprow, fld->leftcol, 0, 2);
+    } else if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_LABEL) {
+        form->fields[form->cur_field] = new_field_wrap(fld->h, fld->w, fld->toprow, fld->leftcol, 0, 2);
+    } else if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX) {
+        form->fields[form->cur_field] = new_field_wrap(fld->h, fld->w, fld->toprow, fld->leftcol+1, 0, 2);
+    }
+    if (form->fields[form->cur_field] == NULL) {
         vrmr_error(-1, VR_ERR, "new_field failed");
         return(-1);
     }
 
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, value);
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, name);
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "C");
+    if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_TEXT) {
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, fld->value_str);
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, fld->name);
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "txt");
+    } else if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_LABEL) {
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, fld->value_str);
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "lbl");
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "lbl");
 
-    result = set_field_back(form->fields[form->cur_field], cp);
-    if(result != E_OK)
-    {
+        field_opts_off(form->fields[form->cur_field], O_ACTIVE);
+    } else if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX) {
+        char *value = fld->value_bool ? "X" : " ";
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, value);
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, fld->name);
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "C");
+    }
+
+    result = set_field_back(form->fields[form->cur_field], fld->cp);
+    if (result != E_OK) {
         vrmr_error(-1, VR_ERR, "set_field_back failed");
         return(-1);
     }
 
     form->cur_field++;
 
-    /* create the label [ ] */
-    form->fields[form->cur_field] = new_field_wrap(height, 3, toprow, leftcol, 0, 2);
-    if(form->fields[form->cur_field] == NULL)
-    {
-        vrmr_error(-1, VR_ERR, "new_field failed");
-        return(-1);
+    if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX) {
+        if (form->cur_field >= form->nfields) {
+            vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
+            return(-1);
+        }
+
+        /* create the label [ ] */
+        form->fields[form->cur_field] = new_field_wrap(fld->h, 3, fld->toprow, fld->leftcol, 0, 2);
+        if(form->fields[form->cur_field] == NULL) {
+            vrmr_error(-1, VR_ERR, "new_field failed");
+            return(-1);
+        }
+
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, "[ ]");
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "lbl");
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "lbl");
+
+        field_opts_off(form->fields[form->cur_field], O_EDIT);
+        field_opts_off(form->fields[form->cur_field], O_ACTIVE);
+
+        result = set_field_back(form->fields[form->cur_field], fld->cp);
+        if(result != E_OK) {
+            vrmr_error(-1, VR_ERR, "set_field_back failed");
+            return(-1);
+        }
+
+        form->cur_field++;
     }
-
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, "[ ]");
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "lbl");
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "lbl");
-
-    field_opts_off(form->fields[form->cur_field], O_EDIT);
-    field_opts_off(form->fields[form->cur_field], O_ACTIVE);
-
-    result = set_field_back(form->fields[form->cur_field], cp);
-    if(result != E_OK)
-    {
-        vrmr_error(-1, VR_ERR, "set_field_back failed");
-        return(-1);
-    }
-
-    form->cur_field++;
-
     return(0);
 }
 
@@ -973,6 +966,39 @@ VrFormConnectToWin(const int debuglvl, VrForm *form, VrWin *win)
 {
     int result;
     int rows, cols;
+    struct vrmr_list_node *node = NULL;
+    struct vrmr_gui_form_field *fld = NULL;
+    int fields = 2; /* ok & cancel */
+
+    /* count number of fields we need to create */
+    for (node = form->list.top; node; node = node->next) {
+        fld = node->data;
+        switch (fld->type) {
+            case VRMR_GUI_FORM_FIELD_TYPE_LABEL:
+            case VRMR_GUI_FORM_FIELD_TYPE_TEXT:
+                fields++;
+                break;
+            /* checkbox is actually 2 fields */
+            case VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX:
+                fields += 2;
+                break;
+        }
+    }
+
+    form->nfields = fields;
+    form->fields = calloc(form->nfields + 1, sizeof(FIELD *));
+    if (form->fields == NULL )
+    {
+        // error
+        vrmr_error(-1, VR_ERR, "calloc failed");
+        return(-1);
+    }
+    memset(form->fields, 0, (sizeof(FIELD *) * (form->nfields + 1)));
+
+    for (node = form->list.top; node; node = node->next) {
+        fld = node->data;
+        VrFormCreateField(debuglvl, form, fld);
+    }
 
     /* add OK and Cancel fields */
     VrFormAddOKCancel(debuglvl, form);
@@ -1392,7 +1418,7 @@ void form_test (const int debuglvl) {
     }
     VrWinSetTitle(win, "title");
 
-    form = VrNewForm(20, 60, 1, 1, 4, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
+    form = VrNewForm(20, 60, 1, 1, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
 
     VrFormSetSaveFunc(debuglvl, form, form_test_save, &config);
 
