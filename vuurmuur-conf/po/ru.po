@@ -1414,7 +1414,7 @@ msgstr ""
 #: src/mainmenu.c:992
 #, c-format
 msgid ""
-"- The network '%s' has no interfaces attached to it. Please attach one or "
+"- The network '%s' as no interfaces attached to it. Please attach one or "
 "more interfaces to it in the Zones Section\n"
 msgstr ""
 "- Сеть '%s' не имеет подключенных интерфейсов. Подключите хотя бы один "

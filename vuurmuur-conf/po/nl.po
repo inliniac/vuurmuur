@@ -1441,7 +1441,7 @@ msgstr ""
 #: src/mainmenu.c:992
 #, c-format
 msgid ""
-"- The network '%s' has no interfaces attached to it. Please attach one or "
+"- The network '%s' as no interfaces attached to it. Please attach one or "
 "more interfaces to it in the Zones Section\n"
 msgstr ""
 "- Aan het netwerk '%s' zijn geen interfaces toegewezen. Wijst u aub één of "
