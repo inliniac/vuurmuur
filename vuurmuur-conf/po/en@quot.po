@@ -1428,10 +1428,10 @@ msgstr ""
 #: src/mainmenu.c:992
 #, c-format
 msgid ""
-"- The network '%s' as no interfaces attached to it. Please attach one or "
+"- The network '%s' has no interfaces attached to it. Please attach one or "
 "more interfaces to it in the Zones Section\n"
 msgstr ""
-"- The network ‘%s’ as no interfaces attached to it. Please attach one or "
+"- The network ‘%s’ has no interfaces attached to it. Please attach one or "
 "more interfaces to it in the Zones Section\n"
 
 #: src/mainmenu.c:1001
