@@ -56,7 +56,7 @@ DEFAULTS="0"
 VERBOSE="1"
 DEBUG="0"
 WIDEC="0"
-FROM_SVN="0"
+FROM_GIT="0"
 BUILDUPDATE="0"
 DISABLE_IPV6="0"
 
@@ -66,17 +66,17 @@ if [ "`$ID_PROG -g`" != "0" ]; then
     exit 1
 fi
 
-# Check if we use this script from within the svn tree and export the revision
+# Check if we use this script from within the git tree and export the revision
 # number
-SVN="$(which svn 2>/dev/null || echo /usr/bin/svn)"
-if [ -x $SVN ]; then
-    SVN_REV=`$SVN info $0|grep "^Revision:"|cut -d ' ' -f 2`
+GIT="$(which git 2>/dev/null || echo /usr/bin/git)"
+if [ -x ${GIT} ]; then
+    GIT_COMMIT=`${GIT} log --oneline -n 1 } cut -d ' ' -f 1`
 fi
 
-if [ ! -z "$SVN_REV" ]; then
-    VERSION="$VERSION-rev$SVN_REV"
-    # only use this option if we are really using a svn checkout
-    FROM_SVN="1"
+if [ ! -z "${GIT_COMMIT}" ]; then
+    VERSION="$VERSION-${GIT_COMMIT}"
+    # only use this option if we are really using a git checkout
+    FROM_GIT="1"
 fi
 
 # initialize the log
@@ -109,7 +109,7 @@ function Exit
     echo "autoconf:" >> $LOG
     $AUTOCONF --version >> $LOG
     echo "subversion:" >> $LOG
-    svn --version >> $LOG
+    ${GIT} --version >> $LOG
     echo >> $LOG
     uname -a >> $LOG
     
@@ -162,7 +162,7 @@ function PrintHelp
     echo "                      (Use early on the commandline)"
     echo "  --nounpack      don't unpack, use the already unpacked archives"
     echo "  --widec         use widec support in vuurmuur_conf (utf-8)"
-    echo "  --from-svn      do the action based on the svn tree (this is guessed)"
+    echo "  --from-git      do the action based on a git clone (this is guessed)"
     echo "  --build-update  update the buildsystem (regenerates make files etc)"
     echo "  --no-ipv6       don't build IPv6 support (the default is with IPv6 support)"
     echo
@@ -458,10 +458,10 @@ do
             fi
             shift 1
         ;;
-        --from-svn)
-            FROM_SVN="1"
+        --from-git)
+            FROM_GIT="1"
             if [ "$DEBUG" = "1" ]; then
-                PrintL "Commandline option '--from-svn' enabled."
+                PrintL "Commandline option '--from-git' enabled."
             fi
             shift 1
         ;;
@@ -523,9 +523,9 @@ do
     esac
 done
 
-# tigerp 20080323 - Make sure that we don't try to unpack when we use svn
+# tigerp 20080323 - Make sure that we don't try to unpack when we use git
 # sources
-if [ "$FROM_SVN" = "1" ]; then
+if [ "${FROM_GIT}" = "1" ]; then
     NOUNPACK="1"
 fi
 
@@ -747,9 +747,9 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ] || [ "$UNPACK" = "1" ]; then
 fi
 
 # build libvuurmuur
-if [ "$FROM_SVN" = "1" ]; then
-    # tigerp 20080323 - This should work when the person has a normal svn
-    # checkout
+if [ "${FROM_GIT}" = "1" ]; then
+    # tigerp 20080323 - This should work when the person has a normal git
+    # clone
     Cd ${FULL_PATH}
     Cd ../libvuurmuur
 else
@@ -782,7 +782,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
             chmod 0700 $ETCDIR/vuurmuur/plugins
         fi
     fi
-    if [ "${FROM_SVN}" = "0" ]; then
+    if [ "${FROM_GIT}" = "0" ]; then
         Make clean
     fi
     PrintL "Building and installing libvuurmuur finished."
@@ -796,7 +796,7 @@ fi
 Cd ..
 
 # build vuurmuur
-if [ "$FROM_SVN" = "1" ]; then
+if [ "${FROM_GIT}" = "1" ]; then
     Cd ${FULL_PATH}
     Cd ../vuurmuur
 else
@@ -825,7 +825,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     if [ "$DRYRUN" != "1" ]; then
         Make install
     fi
-    if [ "${FROM_SVN}" = "0" ]; then
+    if [ "${FROM_GIT}" = "0" ]; then
         Make clean
     fi
     PrintL "Building and installing vuurmuur finished."
@@ -839,7 +839,7 @@ fi
 Cd ..
 
 # build vuurmuur_conf
-if [ "$FROM_SVN" = "1" ]; then
+if [ "${FROM_GIT}" = "1" ]; then
     Cd ${FULL_PATH}
     Cd ../vuurmuur-conf
 else
@@ -877,7 +877,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     if [ "$DRYRUN" != "1" ]; then
         Make install
     fi
-    if [ "${FROM_SVN}" = "0" ]; then
+    if [ "${FROM_GIT}" = "0" ]; then
         Make clean
     fi
     PrintL "Building and installing vuurmuur_conf finished."
@@ -921,7 +921,7 @@ if [ "$INSTALL" = "1" ]; then
         chown root:root $ETCDIR/vuurmuur/textdir/zones
         chmod 0700 $ETCDIR/vuurmuur/textdir/zones
 
-        if [ "$FROM_SVN" = "1" ]; then
+        if [ "${FROM_GIT}" = "1" ]; then
             cp -r --preserve=mode ${FULL_PATH}/zones/* $ETCDIR/vuurmuur/textdir/zones
         else
             cp -r --preserve=mode zones/* $ETCDIR/vuurmuur/textdir/zones
