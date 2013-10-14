@@ -1437,7 +1437,7 @@ msgid ""
 "- The network '%s' as no interfaces attached to it. Please attach one or "
 "more interfaces to it in the Zones Section\n"
 msgstr ""
-"- The network ‘[1m%s[0m’ as no interfaces attached to it. Please attach one "
+"- The network ‘[1m%s[0m’ has no interfaces attached to it. Please attach one "
 "or more interfaces to it in the Zones Section\n"
 
 #: src/mainmenu.c:1001
