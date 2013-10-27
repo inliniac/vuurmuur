@@ -21,6 +21,8 @@ autom4te.cache
 .libs
 .deps
 stamp-h1
+installer/install.log
+installer/vm_tmplog.*
 
 # our binaries
 vuurmuur-conf/src/vuurmuur_conf
@@ -33,3 +35,13 @@ libvuurmuur/config.h
 vuurmuur-conf/config.h
 vuurmuur/config.h
 
+# m4 files are generated
+libvuurmuur/aclocal.m4
+libvuurmuur/compile
+libvuurmuur/m4
+vuurmuur-conf/aclocal.m4
+vuurmuur-conf/compile
+vuurmuur-conf/m4
+vuurmuur/aclocal.m4
+vuurmuur/compile
+vuurmuur/m4
