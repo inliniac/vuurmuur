@@ -207,12 +207,13 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
                 line_ptr = NULL;
                 break;
             }
-            /* after inserting we're done */
-            free(line_ptr);
-            line_ptr = NULL;
+            /* Don't free line_ptr yet, because it might be used again in the
+             * next iteration */
         }
         /* we no longer need these */
         tmp_line_ptr = NULL;
+        free(line_ptr);
+        line_ptr = NULL;
     }
 
     /*
@@ -279,6 +280,13 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     */
     for(d_node = storelist.top; d_node; d_node = d_node->next)
     {
+        if ( d_node->data == NULL )
+        {
+            vrmr_error(-1, "Internal Error", "Cannot write data to '%s' (in: %s).", file_location, __FUNC__);
+            vrmr_list_cleanup(debuglvl, &storelist);
+            free(file_location);
+            return(-1);
+        }
         fprintf(fp, "%s", (char *)d_node->data);
     }
 
