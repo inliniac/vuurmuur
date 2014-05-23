@@ -735,7 +735,8 @@ rulebar_setcolor(   FIELD *active,
         set_field_back(action, vccnf.color_bgd_red);
     else if(strncasecmp(field_buffer(action, 0), "accept", 6) == 0)
         set_field_back(action, vccnf.color_bgd_green|A_BOLD);
-    else if(strncasecmp(field_buffer(action, 0), "log", 3) == 0)
+    else if(strncasecmp(field_buffer(action, 0), "log", 3) == 0 ||
+            strncasecmp(field_buffer(action, 0), "nflog", 5) == 0)
         set_field_back(action, vccnf.color_bgd|A_BOLD);
     else if(strncasecmp(field_buffer(action, 0), "portfw", 6) == 0  ||
             strncasecmp(field_buffer(action, 0), "dnat", 4) == 0    ||
@@ -2681,6 +2682,9 @@ struct RuleFlds_
             *nfqueuenum_label_fld_ptr,
             *nfqueuenum_fld_ptr,
 
+            *nflognum_label_fld_ptr,
+            *nflognum_fld_ptr,
+
             *nfmark_label_fld_ptr,
             *nfmark_fld_ptr,
 
@@ -2708,6 +2712,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             nfmarkstr[9] = "";
     char    limit_str[6] = "";
     char    nfqueuenum_str[6] = "";
+    char    nflognum_str[6] = "";
     int     last_char = 0;
     char    action_str[32] = "";
     size_t  i = 0;
@@ -3056,6 +3061,29 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
                 retval=1;
             }
+            else if(fields[i] == RuleFlds.nflognum_fld_ptr)
+            {
+                /* nflognum */
+
+                /* if needed alloc the opt struct */
+                if(rule_ptr->opt == NULL)
+                {
+                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
+                    {
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        return(-1);
+                    }
+                }
+
+                if(!(copy_field2buf(nflognum_str,
+                                    field_buffer(fields[i], 0),
+                                    sizeof(nflognum_str))))
+                    return(-1);
+
+                rule_ptr->opt->nflog_num = atoi(nflognum_str);
+
+                retval=1;
+            }
             else if(fields[i] == RuleFlds.queue_fld_ptr)
             {
                 /* queue */
@@ -3327,7 +3355,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     char        redirect_port[6]   = "",
                 loglimit_string[4] = "",
                 nfmark_string[9] = "",
-                nfqueuenum_string[6] = "0";
+                nfqueuenum_string[6] = "0",
+                nflognum_string[6] = "0";
     int         height,
                 width,
                 startx,
@@ -3345,6 +3374,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                         "Dnat",
                                         "Queue",
                                         "NFQueue",
+                                        "NFLog",
                                         "Chain",
                                         "Bounce", },
                 *action_ptr=NULL,
@@ -3357,7 +3387,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                     "tcp-reset" },
                 *reject_ptr=NULL;
     char        select_choice[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
-    size_t      action_choices_n = 13,
+    size_t      action_choices_n = 14,
                 reject_types_n = 7;
     char        **zone_choices,
                 **choices,
@@ -3421,7 +3451,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
         starty = 2;
 
     /* set number of fields */
-    n_fields = 49;
+    n_fields = 51;
     if(!(fields = (FIELD **)calloc(n_fields + 1, sizeof(FIELD *))))
     {
         vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
@@ -3534,6 +3564,31 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* start disabled  */
     field_opts_off(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
     field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_VISIBLE);
+
+
+    /* nflognum label */
+    RuleFlds.nflognum_label_fld_ptr = (fields[field_num] = new_field(1, 18, 5, 10, 0, 0));
+    set_field_buffer_wrap(debuglvl, RuleFlds.nflognum_label_fld_ptr, 0, gettext("NFLog number"));
+    field_opts_off(RuleFlds.nflognum_label_fld_ptr, O_ACTIVE);
+    set_field_back(RuleFlds.nflognum_label_fld_ptr, vccnf.color_win);
+    set_field_fore(RuleFlds.nflognum_label_fld_ptr, vccnf.color_win);
+    field_num++;
+
+    /* nflognum */
+    RuleFlds.nflognum_fld_ptr = (fields[field_num] = new_field(1, 6, 5, 30, 0, 0));
+    set_field_back(RuleFlds.nflognum_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.nflognum_fld_ptr, vccnf.color_win_rev|A_BOLD);
+    field_num++;
+
+    /* enable nflognum option */
+    if(rule_ptr->opt != NULL)
+        snprintf(nflognum_string, sizeof(nflognum_string), "%u", rule_ptr->opt->nflog_num);
+
+    set_field_buffer_wrap(debuglvl, RuleFlds.nflognum_fld_ptr, 0, nflognum_string);
+
+    /* start disabled  */
+    field_opts_off(RuleFlds.nflognum_fld_ptr, O_VISIBLE);
+    field_opts_off(RuleFlds.nflognum_label_fld_ptr, O_VISIBLE);
 
 
     /* service label */
@@ -4072,6 +4127,12 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
             field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
         }
+        if( ((rule_ptr->action != VRMR_AT_NFLOG)) ||
+            !advanced_mode)
+        {
+            field_opts_off(RuleFlds.nflognum_label_fld_ptr, O_VISIBLE);
+            field_opts_off(RuleFlds.nflognum_fld_ptr, O_VISIBLE);
+        }
         if(rule_ptr->action != VRMR_AT_LOG || !advanced_mode)
         {
             field_opts_off(RuleFlds.loglimit_label_fld_ptr, O_VISIBLE);
@@ -4159,6 +4220,12 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
         {
             field_opts_on(RuleFlds.nfqueuenum_label_fld_ptr, O_VISIBLE);
             field_opts_on(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
+        }
+        if( rule_ptr->action == VRMR_AT_NFLOG
+            && advanced_mode)
+        {
+            field_opts_on(RuleFlds.nflognum_label_fld_ptr, O_VISIBLE);
+            field_opts_on(RuleFlds.nflognum_fld_ptr, O_VISIBLE);
         }
 
         if( advanced_mode)
@@ -4270,6 +4337,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
             status_print(status_win, gettext("Press SPACE to toggle logging of this rule."));
         else if(cur == RuleFlds.nfqueuenum_fld_ptr)
             status_print(status_win, gettext("Queue number to use. Possible values: 0-65535."));
+        else if(cur == RuleFlds.nflognum_fld_ptr)
+            status_print(status_win, gettext("NFLog number to use. Possible values: 0-65535."));
         else if(cur == RuleFlds.queue_fld_ptr)
             status_print(status_win, gettext("Press SPACE to toggle queue'ing of this rule."));
         else if(cur == RuleFlds.in_int_fld_ptr)
@@ -4302,6 +4371,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
             cur == RuleFlds.chain_fld_ptr     ||
             cur == RuleFlds.limit_fld_ptr     ||
             cur == RuleFlds.nfqueuenum_fld_ptr ||
+            cur == RuleFlds.nflognum_fld_ptr ||
             cur == RuleFlds.burst_fld_ptr)
         {
             if(nav_field_simpletext(debuglvl, form, ch) < 0)
