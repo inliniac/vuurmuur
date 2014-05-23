@@ -596,6 +596,8 @@ struct vrmr_rule_options {
 
     /* queue num for the NFQUEUE action. There can be 65536: 0-65535 */
     uint16_t        nfqueue_num;
+    /* queue num for the NFLOG action. There can be 65536: 0-65535 */
+    uint16_t        nflog_num;
 
     /* shaping */
     uint32_t        bw_in_max;          /* ceil from dst to src */
@@ -1266,7 +1268,8 @@ enum vrmr_conf_return_codes {
 
 
 /*  Valid actions are: "Accept", "Drop", "Reject", "Log",
-    "Portfw", "Redirect", "Snat", "Masq", "Queue", "Chain"
+    "Portfw", "Redirect", "Snat", "Masq", "Queue", "Chain",
+    "NFQueue", "NFlog"
 */
 enum vrmr_actiontypes {
     VRMR_AT_ERROR = -1,
@@ -1283,6 +1286,7 @@ enum vrmr_actiontypes {
     VRMR_AT_DNAT,        /* DNAT */
     VRMR_AT_BOUNCE,      /* DNAT+SNAT */
     VRMR_AT_NFQUEUE,     /* NFQUEUE */
+    VRMR_AT_NFLOG,       /* NFLOG */
 
     /* special for networks and interfaces */
     VRMR_AT_PROTECT,

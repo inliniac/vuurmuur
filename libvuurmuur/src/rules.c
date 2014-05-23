@@ -145,6 +145,10 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char 
     {
         (void)strlcpy(action, "NEWNFQUEUE", size);
     }
+    else if(action_type == VRMR_AT_NFLOG)
+    {
+        (void)strlcpy(action, "NEWNFLOG", size);
+    }
     else
     {
         vrmr_error(-1, "Error", "unknown action '%s' "
@@ -1852,6 +1856,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
     int     action_type = 0;
     /* nfqueuenum="50000", : nfqueue (10) = (1) " (1) 65535 (5) " (1) , (1) \0 (1) = 20 */
     char    nfqueue_string[20] = "";
+    char    nflog_string[20] = "";
     /* in_max="1000000000kbit" = 23 */
     char    bw_string[24] = "";
 
@@ -1924,6 +1929,19 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
                 "nfqueuenum=\"%u\",", opt->nfqueue_num);
 
         if(strlcat(options, nfqueue_string, sizeof(options)) >= sizeof(options))
+        {
+            vrmr_error(-1, "Internal Error", "string "
+                    "overflow (in: %s:%d).", __FUNC__, __LINE__);
+            return(NULL);
+        }
+    }
+
+    if(action_type == VRMR_AT_NFLOG)
+    {
+        snprintf(nflog_string, sizeof(nflog_string),
+                "nflognum=\"%u\",", opt->nflog_num);
+
+        if(strlcat(options, nflog_string, sizeof(options)) >= sizeof(options))
         {
             vrmr_error(-1, "Internal Error", "string "
                     "overflow (in: %s:%d).", __FUNC__, __LINE__);
@@ -2993,6 +3011,26 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 if(debuglvl >= MEDIUM)
                     vrmr_debug(__FUNC__, "nfqueuenum: %d, %s", op->nfqueue_num, portstring);
             }
+            /* nflognum */
+            else if(strncmp(curopt, "nflognum", strlen("nflognum")) == 0)
+            {
+                for(p = 0, o = strlen("nflognum") + 1;
+                        o < strlen(curopt) && p < sizeof(portstring);
+                        o++)
+                {
+                    if(curopt[o] != '\"')
+                    {
+                        portstring[p] = curopt[o];
+                        p++;
+                    }
+                }
+                portstring[p] = '\0';
+
+                op->nflog_num = atoi(portstring);
+
+                if(debuglvl >= MEDIUM)
+                    vrmr_debug(__FUNC__, "nflognum: %d, %s", op->nflog_num, portstring);
+            }
             /* prio */
             else if(strncmp(curopt, "prio", strlen("prio")) == 0)
             {
@@ -3248,6 +3286,7 @@ char *actions[] =
     "Dnat",
     "Bounce",
     "NFQueue",
+    "NFLog",
     "Protect",
     "Separator",
     "ERROR",
@@ -3280,6 +3319,7 @@ char *actions_cap[] =
     "DNAT",
     "BOUNCE",
     "NFQUEUE",
+    "NFLOG",
     "PROTECT",
     "SEPARATOR",
     "ERROR",
@@ -3337,6 +3377,8 @@ vrmr_rules_actiontoi(const char *action)
         return(VRMR_AT_BOUNCE);
     else if(strcasecmp(action, "nfqueue") == 0)
         return(VRMR_AT_NFQUEUE);
+    else if(strcasecmp(action, "nflog") == 0)
+        return(VRMR_AT_NFLOG);
     else if(strcasecmp(action, "sepparator") == 0 ||
         strcasecmp(action, "separator") == 0)
         return(VRMR_AT_SEPARATOR);
