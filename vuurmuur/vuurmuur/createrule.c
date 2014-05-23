@@ -4520,20 +4520,26 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
             vrmr_debug(__FUNC__, "Enabling ip-forwarding because "
                     "forwarding rules were created.");
 
-        result = sysctl_exec(debuglvl, conf, "net.ipv4.ip_forward", "1", conf->bash_out);
-        if (result != 0)
-        {
-            /* if it fails, we dont really care, its not fatal */
-            vrmr_error(-1, "Error", "enabling ip-forwarding failed.");
-        }
+	if (ruleset->ipv == VRMR_IPV4)
+	{
+	    result = sysctl_exec(debuglvl, conf, "net.ipv4.ip_forward", "1", conf->bash_out);
+	    if (result != 0)
+	    {
+		/* if it fails, we dont really care, its not fatal */
+		vrmr_error(-1, "Error", "enabling ip-forwarding failed.");
+	    }
+	}
 
 #ifdef IPV6_ENABLED
-        result = sysctl_exec(debuglvl, conf, "net.ipv6.conf.all.forwarding", "1", conf->bash_out);
-        if (result != 0)
-        {
-            /* if it fails, we dont really care, its not fatal */
-            vrmr_error(-1, "Error", "enabling ip-forwarding for ipv6 failed.");
-        }
+	else
+	{
+	    result = sysctl_exec(debuglvl, conf, "net.ipv6.conf.all.forwarding", "1", conf->bash_out);
+	    if (result != 0)
+	    {
+		/* if it fails, we dont really care, its not fatal */
+		vrmr_error(-1, "Error", "enabling ip-forwarding for ipv6 failed.");
+	    }
+	}
 #endif
     }
     else
@@ -4544,20 +4550,26 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
             vrmr_debug(__FUNC__, "Disabling ip-forwarding because no "
                     "forwarding rules were created.");
 
-        result = sysctl_exec(debuglvl, conf, "net.ipv4.ip_forward", "0", conf->bash_out);
-        if (result != 0)
-        {
-            /* if it fails, we dont really care, its not fatal */
-            vrmr_error(-1, "Error", "enabling ip-forwarding failed.");
-        }
+	if (ruleset->ipv == VRMR_IPV4)
+	{
+	    result = sysctl_exec(debuglvl, conf, "net.ipv4.ip_forward", "0", conf->bash_out);
+	    if (result != 0)
+	    {
+		/* if it fails, we dont really care, its not fatal */
+		vrmr_error(-1, "Error", "enabling ip-forwarding failed.");
+	    }
+	}
 
 #ifdef IPV6_ENABLED
-        result = sysctl_exec(debuglvl, conf, "net.ipv6.conf.all.forwarding", "0", conf->bash_out);
-        if (result != 0)
-        {
-            /* if it fails, we dont really care, its not fatal */
-            vrmr_error(-1, "Error", "enabling ip-forwarding for ipv6 failed.");
-        }
+	else
+	{
+	    result = sysctl_exec(debuglvl, conf, "net.ipv6.conf.all.forwarding", "0", conf->bash_out);
+	    if (result != 0)
+	    {
+		/* if it fails, we dont really care, its not fatal */
+		vrmr_error(-1, "Error", "enabling ip-forwarding for ipv6 failed.");
+	    }
+	}
 #endif
     }
 
