@@ -115,6 +115,11 @@ ruleset_setup(const int debuglvl, RuleSet *ruleset)
         return(-1);
     if(vrmr_list_setup(debuglvl, &ruleset->filter_estrelnfqueuetarget, free) < 0)
         return(-1);
+    /* NFLog state */
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_newnflogtarget, free) < 0)
+        return(-1);
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_estrelnflogtarget, free) < 0)
+        return(-1);
     /* tcp reset */
     if(vrmr_list_setup(debuglvl, &ruleset->filter_tcpresettarget, free) < 0)
         return(-1);
@@ -182,6 +187,8 @@ ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
     vrmr_list_cleanup(debuglvl, &ruleset->filter_udplimittarget);
     vrmr_list_cleanup(debuglvl, &ruleset->filter_estrelnfqueuetarget);
     vrmr_list_cleanup(debuglvl, &ruleset->filter_newnfqueuetarget);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_estrelnflogtarget);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_newnflogtarget);
     vrmr_list_cleanup(debuglvl, &ruleset->filter_tcpresettarget);
 
     vrmr_list_cleanup(debuglvl, &ruleset->filter_accounting);
@@ -898,6 +905,28 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         snprintf(cmd, sizeof(cmd), "--new NEWNFQUEUE\n");
         ruleset_writeprint(ruleset_fd, cmd);
 
+        /* Do this before NEWNFLOG because it references
+         * to it. */
+        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "ESTRELNFLOG"))
+        {
+            snprintf(cmd, sizeof(cmd), "--flush ESTRELNFLOG\n");
+            ruleset_writeprint(ruleset_fd, cmd);
+            snprintf(cmd, sizeof(cmd), "--delete-chain ESTRELNFLOG\n");
+            ruleset_writeprint(ruleset_fd, cmd);
+        }
+        snprintf(cmd, sizeof(cmd), "--new ESTRELNFLOG\n");
+        ruleset_writeprint(ruleset_fd, cmd);
+
+        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "NEWNFLOG"))
+        {
+            snprintf(cmd, sizeof(cmd), "--flush NEWNFLOG\n");
+            ruleset_writeprint(ruleset_fd, cmd);
+            snprintf(cmd, sizeof(cmd), "--delete-chain NEWNFLOG\n");
+            ruleset_writeprint(ruleset_fd, cmd);
+        }
+        snprintf(cmd, sizeof(cmd), "--new NEWNFLOG\n");
+        ruleset_writeprint(ruleset_fd, cmd);
+
         if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "SYNLIMIT"))
         {
             snprintf(cmd, sizeof(cmd), "--flush SYNLIMIT\n");
@@ -1083,6 +1112,30 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         }
         /* estrelnfqueue */
         for(d_node = ruleset->filter_estrelnfqueuetarget.top; d_node; d_node = d_node->next)
+        {
+            if(!(rule = d_node->data))
+            {
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            snprintf(cmd, sizeof(cmd), "%s\n", rule);
+            ruleset_writeprint(ruleset_fd, cmd);
+        }
+        /* newnflog */
+        for(d_node = ruleset->filter_newnflogtarget.top; d_node; d_node = d_node->next)
+        {
+            if(!(rule = d_node->data))
+            {
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            snprintf(cmd, sizeof(cmd), "%s\n", rule);
+            ruleset_writeprint(ruleset_fd, cmd);
+        }
+        /* estrelnflog */
+        for(d_node = ruleset->filter_estrelnflogtarget.top; d_node; d_node = d_node->next)
         {
             if(!(rule = d_node->data))
             {
@@ -1337,6 +1390,17 @@ ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *rule
     if(create_estrelnfqueue_rules(debuglvl, &vctx->conf, ruleset, &vctx->rules, &vctx->iptcaps, ruleset->ipv) < 0)
     {
         vrmr_error(-1, "Error", "create estrelnfqueue failed.");
+    }
+
+    /* create NEWNFLOG target */
+    if(create_newnflog_rules(debuglvl, &vctx->conf, ruleset, &vctx->rules, &vctx->iptcaps, ruleset->ipv) < 0)
+    {
+        vrmr_error(-1, "Error", "create newnflog failed.");
+    }
+    /* NFLOG related established */
+    if(create_estrelnflog_rules(debuglvl, &vctx->conf, ruleset, &vctx->rules, &vctx->iptcaps, ruleset->ipv) < 0)
+    {
+        vrmr_error(-1, "Error", "create estrelnflog failed.");
     }
 
     /* create the blocklist */

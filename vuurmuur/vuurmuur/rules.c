@@ -508,6 +508,28 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
     }
 #endif
 
+    /* create the nflog state rules */
+    if(create_newnflog_rules(debuglvl, &vctx->conf, NULL, &vctx->rules, &vctx->iptcaps, VRMR_IPV4) < 0)
+    {
+        vrmr_error(-1, "Error", "create nflog state failed.");
+    }
+#ifdef IPV6_ENABLED
+    if(create_newnflog_rules(debuglvl, &vctx->conf, NULL, &vctx->rules, &vctx->iptcaps, VRMR_IPV6) < 0)
+    {
+        vrmr_error(-1, "Error", "create nflog state failed.");
+    }
+#endif
+    if(create_estrelnflog_rules(debuglvl, &vctx->conf, NULL, &vctx->rules, &vctx->iptcaps, VRMR_IPV4) < 0)
+    {
+        vrmr_error(-1, "Error", "create nflog state failed.");
+    }
+#ifdef IPV6_ENABLED
+    if(create_estrelnflog_rules(debuglvl, &vctx->conf, NULL, &vctx->rules, &vctx->iptcaps, VRMR_IPV6) < 0)
+    {
+        vrmr_error(-1, "Error", "create nflog state failed.");
+    }
+#endif
+
     /* create the blocklist */
     if(create_block_rules(debuglvl, &vctx->conf, NULL, &vctx->blocklist) < 0)
     {

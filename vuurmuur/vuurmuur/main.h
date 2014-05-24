@@ -66,6 +66,7 @@
 #define PIDFILE                 "/var/run/vuurmuur.pid"
 
 #define NFQ_MARK_BASE           3
+#define NFLOG_MARK_BASE         65536+NFQ_MARK_BASE
 
 /* define these here so converting to gettext will be easier */
 #define VR_ERR                  "Error"
@@ -232,6 +233,8 @@ typedef struct
     struct vrmr_list  filter_newqueuetarget;      /* list with rules */
     struct vrmr_list  filter_newnfqueuetarget;    /* list with rules */
     struct vrmr_list  filter_estrelnfqueuetarget; /* list with rules */
+    struct vrmr_list  filter_newnflogtarget;    /* list with rules */
+    struct vrmr_list  filter_estrelnflogtarget; /* list with rules */
     struct vrmr_list  filter_accounting;          /* list with rules */
 
     /*
@@ -306,6 +309,8 @@ int create_block_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *,
 
 int create_newnfqueue_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct vrmr_rules *, struct vrmr_iptcaps *, int);
 int create_estrelnfqueue_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct vrmr_rules *, struct vrmr_iptcaps *, int);
+int create_newnflog_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct vrmr_rules *, struct vrmr_iptcaps *, int);
+int create_estrelnflog_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct vrmr_rules *, struct vrmr_iptcaps *, int);
 
 int create_network_protect_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct vrmr_zones *, struct vrmr_iptcaps *);
 int create_interface_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct vrmr_iptcaps *, struct vrmr_interfaces *);

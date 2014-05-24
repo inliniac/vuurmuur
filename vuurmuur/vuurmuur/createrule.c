@@ -43,6 +43,8 @@
 #define CH_NEWQUEUE         "-A NEWQUEUE"
 #define CH_NEWNFQUEUE       "-A NEWNFQUEUE"
 #define CH_ESTRELNFQUEUE    "-A ESTRELNFQUEUE"
+#define CH_NEWNFLOG         "-A NEWNFLOG"
+#define CH_ESTRELNFLOG      "-A ESTRELNFLOG"
 
 /* use -I for classify rules so the rules get in
  * reverse order */
@@ -370,6 +372,10 @@ process_rule(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ru
             return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_newnfqueuetarget, chain, cmd, packets, bytes));
         else if(strcmp(chain, CH_ESTRELNFQUEUE) == 0)
             return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_estrelnfqueuetarget, chain, cmd, packets, bytes));
+        else if(strcmp(chain, CH_NEWNFLOG) == 0)
+            return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_newnflogtarget, chain, cmd, packets, bytes));
+        else if(strcmp(chain, CH_ESTRELNFLOG) == 0)
+            return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_estrelnflogtarget, chain, cmd, packets, bytes));
 
         else if(strcmp(chain, CH_TCPRESETTARGET) == 0)
             return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_tcpresettarget, chain, cmd, packets, bytes));
@@ -500,6 +506,14 @@ create_rule_input(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSe
                     "this system.");
             return(0); /* this is not an error */
         }
+        else if(iptcap->target_nflog == FALSE &&
+            strcmp(rule->action, "NEWNFLOG") == 0)
+        {
+            vrmr_warning("Warning", "input rule not "
+                    "created: NFLOG not supported by "
+                    "this system.");
+            return(0); /* this is not an error */
+        }
         else if(iptcap->target_log == FALSE &&
             strncmp(rule->action, "LOG", 3) == 0)
         {
@@ -544,7 +558,8 @@ create_rule_input(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSe
 
     create->iptcount.input++;
 
-    if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 || strcasecmp(rule->action, "NEWQUEUE") == 0 || strcasecmp(rule->action, "NEWACCEPT") == 0)
+    if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 || strcasecmp(rule->action, "NEWQUEUE") == 0 ||
+        strcasecmp(rule->action, "NEWACCEPT") == 0 || strcasecmp(rule->action, "NEWNFLOG") == 0)
     {
         uint32_t connmark = 0;
         if (strcasecmp(rule->action, "NEWNFQUEUE") == 0) {
@@ -552,6 +567,11 @@ create_rule_input(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSe
                 vrmr_debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
 
             connmark = create->option.nfqueue_num + NFQ_MARK_BASE;
+        } else if (strcasecmp(rule->action, "NEWNFLOG") == 0) {
+            if(debuglvl >= MEDIUM)
+                vrmr_debug(__FUNC__, "nflog_num '%u'.", create->option.nflog_num);
+
+            connmark = create->option.nflog_num + NFLOG_MARK_BASE;
         } else if (strcasecmp(rule->action, "NEWQUEUE") == 0)
             connmark = 2;
         else if (strcasecmp(rule->action, "NEWACCEPT") == 0)
@@ -935,6 +955,14 @@ create_rule_output(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleS
                     "this system.");
             return(0); /* this is not an error */
         }
+        else if(iptcap->target_nflog == FALSE &&
+            strcmp(rule->action, "NEWNFLOG") == 0)
+        {
+            vrmr_warning("Warning", "output rule not "
+                    "created: NFLOG not supported by "
+                    "this system.");
+            return(0); /* this is not an error */
+        }
         else if(iptcap->target_log == FALSE &&
             strncmp(rule->action, "LOG", 3) == 0)
         {
@@ -977,7 +1005,8 @@ create_rule_output(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleS
     /* update rule counter */
     create->iptcount.output++;
 
-    if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 || strcasecmp(rule->action, "NEWQUEUE") == 0 || strcasecmp(rule->action, "NEWACCEPT") == 0)
+    if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 || strcasecmp(rule->action, "NEWQUEUE") == 0 ||
+        strcasecmp(rule->action, "NEWACCEPT") == 0 || strcasecmp(rule->action, "NEWNFLOG") == 0)
     {
         uint32_t connmark = 0;
         if (strcasecmp(rule->action, "NEWNFQUEUE") == 0) {
@@ -985,6 +1014,11 @@ create_rule_output(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleS
                 vrmr_debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
 
             connmark = create->option.nfqueue_num + NFQ_MARK_BASE;
+        } else if (strcasecmp(rule->action, "NEWNFLOG") == 0) {
+            if(debuglvl >= MEDIUM)
+                vrmr_debug(__FUNC__, "nflog_num '%u'.", create->option.nflog_num);
+
+            connmark = create->option.nflog_num + NFLOG_MARK_BASE;
         } else if (strcasecmp(rule->action, "NEWQUEUE") == 0)
             connmark = 2;
         else if (strcasecmp(rule->action, "NEWACCEPT") == 0)
@@ -1368,6 +1402,14 @@ create_rule_forward(const int debuglvl, struct vrmr_config *conf, /*@null@*/Rule
                     "this system.");
             return(0); /* this is not an error */
         }
+        else if(iptcap->target_nflog == FALSE &&
+            strcmp(rule->action, "NEWNFLOG") == 0)
+        {
+            vrmr_warning("Warning", "forward rule not "
+                    "created: NFLOG not supported by "
+                    "this system.");
+            return(0); /* this is not an error */
+        }
         else if(iptcap->target_log == FALSE && 
             strncmp(rule->action, "LOG", 3) == 0)
         {
@@ -1413,7 +1455,8 @@ create_rule_forward(const int debuglvl, struct vrmr_config *conf, /*@null@*/Rule
 
     create->iptcount.forward++;
 
-    if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 || strcasecmp(rule->action, "NEWQUEUE") == 0 || strcasecmp(rule->action, "NEWACCEPT") == 0)
+    if (strcasecmp(rule->action, "NEWNFQUEUE") == 0 || strcasecmp(rule->action, "NEWQUEUE") == 0 ||
+        strcasecmp(rule->action, "NEWACCEPT") == 0 || strcasecmp(rule->action, "NEWNFLOG") == 0)
     {
         uint32_t connmark = 0;
         if (strcasecmp(rule->action, "NEWNFQUEUE") == 0) {
@@ -1421,6 +1464,11 @@ create_rule_forward(const int debuglvl, struct vrmr_config *conf, /*@null@*/Rule
                 vrmr_debug(__FUNC__, "nfqueue_num '%u'.", create->option.nfqueue_num);
 
             connmark = create->option.nfqueue_num + NFQ_MARK_BASE;
+        } else if (strcasecmp(rule->action, "NEWNFLOG") == 0) {
+            if(debuglvl >= MEDIUM)
+                vrmr_debug(__FUNC__, "nflog_num '%u'.", create->option.nflog_num);
+
+            connmark = create->option.nflog_num + NFLOG_MARK_BASE;
         } else if (strcasecmp(rule->action, "NEWQUEUE") == 0)
             connmark = 2;
         else if (strcasecmp(rule->action, "NEWACCEPT") == 0)
@@ -3937,6 +3985,90 @@ static int pre_rules_nfqueue(const int debuglvl, struct vrmr_config *conf, /*@nu
     return (retval);
 }
 
+static int pre_rules_nflog(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ruleset,
+        struct vrmr_iptcaps *iptcap, int ipv)
+{
+    int retval = 0;
+    char cmd[VRMR_MAX_PIPE_COMMAND] = "";
+
+    /*
+        create the NEWNFLOG target: the content of the chain
+        is handled by create_newnflog_rules()
+    */
+    if (conf->bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up NEWNFLOG target...\n");
+
+    if (debuglvl >= LOW)
+        vrmr_debug(__FUNC__, "Setting up NEWNFLOG target...");
+
+    if (conf->vrmr_check_iptcaps == FALSE || iptcap->target_nflog == TRUE) {
+        if (ruleset == NULL) {
+            if (ipv == VRMR_IPV4) {
+                snprintf(cmd, sizeof(cmd), "%s -N NEWNFLOG 2>/dev/null",
+                        conf->iptables_location);
+                (void)vrmr_pipe_command(debuglvl, conf, cmd, VRMR_PIPE_QUIET);
+            } else {
+#ifdef IPV6_ENABLED
+                snprintf(cmd, sizeof(cmd), "%s -N NEWNFLOG 2>/dev/null",
+                        conf->ip6tables_location);
+                (void)vrmr_pipe_command(debuglvl, conf, cmd, VRMR_PIPE_QUIET);
+#endif
+            }
+        }
+    } else {
+        vrmr_info("Info", "NEWNFLOG target not setup. "
+                "NFLOG-target not supported by system.");
+    }
+
+    /*
+        Setup NFLOG connection tracking
+
+        All connmarked traffic with state ESTABLISHED and RELATED is
+        send to a special chain to handle it: ESTRELNFLOG
+    */
+    if (conf->bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up connection-tracking for NFLOG targets...\n");
+
+    if (debuglvl >= LOW)
+        vrmr_debug(__FUNC__, "Setting up connection-tracking for NFLOG targets...");
+
+    if (conf->vrmr_check_iptcaps == FALSE || (iptcap->target_nflog == TRUE && iptcap->match_connmark == TRUE))
+    {
+        if(ruleset == NULL) {
+            /* create the chain and insert it into input, output and forward.
+             *
+             * NOTE: we ignore the returncode and want no output (although we get some
+             * in the errorlog) because if we start vuurmuur when a ruleset is already in
+             *  place, the chain will exist and iptables will complain.
+             */
+            if (ipv == VRMR_IPV4) {
+                snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFLOG 2>/dev/null",
+                        conf->iptables_location);
+                (void)vrmr_pipe_command(debuglvl, conf, cmd, VRMR_PIPE_QUIET);
+            } else {
+#ifdef IPV6_ENABLED
+                snprintf(cmd, sizeof(cmd), "%s -N ESTRELNFLOG 2>/dev/null",
+                        conf->ip6tables_location);
+                (void)vrmr_pipe_command(debuglvl, conf, cmd, VRMR_PIPE_QUIET);
+#endif
+            }
+        }
+
+        snprintf(cmd, sizeof(cmd), "%s ESTABLISHED,RELATED "
+                "-m connmark ! --mark 0 -j ESTRELNFLOG", create_state_string(conf, ipv, iptcap));
+        if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            retval = -1;
+
+        if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            retval = -1;
+
+        if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            retval = -1;
+    }
+
+    return (retval);
+}
+
 static int pre_rules_tcpreset(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ruleset,
         struct vrmr_iptcaps *iptcap, int ipv)
 {
@@ -4158,6 +4290,13 @@ pre_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rules
         retval = -1;
 #ifdef IPV6_ENABLED
     if (pre_rules_nfqueue(debuglvl, conf, ruleset, iptcap, VRMR_IPV6) < 0)
+        retval = -1;
+#endif
+
+    if (pre_rules_nflog(debuglvl, conf, ruleset, iptcap, VRMR_IPV4) < 0)
+        retval = -1;
+#ifdef IPV6_ENABLED
+    if (pre_rules_nflog(debuglvl, conf, ruleset, iptcap, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
@@ -5517,3 +5656,192 @@ create_newnfqueue_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/
     return(retval);
 }
 
+/* create_estrelnflog_rules
+ *
+ * Create the rules for RELATED and ESTABLISHED traffic for nflog.
+ *
+ * Return:  0: ok
+ *          -1: error
+ */
+int
+create_estrelnflog_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ruleset,
+        struct vrmr_rules *rules, struct vrmr_iptcaps *iptcap, int ipv)
+{
+    char                cmd[VRMR_MAX_PIPE_COMMAND] = "";
+    struct vrmr_list_node         *d_node = NULL;
+    int                 retval = 0;
+    struct vrmr_rule    *rule_ptr = NULL;
+    u_int16_t           nflog_num = 0;
+    char                queues[65536/8];
+
+    /* safety */
+    if(rules == NULL)
+    {
+        vrmr_error(-1, "Internal Error", "parameter problem "
+            "(in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    if(conf->bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up NFLog state rules...\n");
+
+    if(rules->list.len == 0)
+    {
+        if(debuglvl >= HIGH)
+            vrmr_debug(__FUNC__, "no items in ruleslist.");
+
+        return(0);
+    }
+
+    memset(&queues, 0, sizeof(queues));
+
+    /* create two rules for each ipaddress */
+    for (d_node = rules->list.top; d_node; d_node = d_node->next)
+    {
+        if(!(rule_ptr = d_node->data))
+        {
+            vrmr_error(-1, "Internal Error", "NULL pointer "
+                "(in: %s:%d).", __FUNC__, __LINE__);
+            return(-1);
+        }
+
+        if (rule_ptr->action == VRMR_AT_NFLOG)
+        {
+            if (rule_ptr->opt != NULL)
+                nflog_num = rule_ptr->opt->nflog_num;
+            else
+                nflog_num = 0;
+
+            /* check if we already handled this queue num */
+            if (!(queues[(nflog_num/8)] & (1<<(nflog_num%8))))
+            {
+                /* ESTABLISHED */
+                snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+                    "%s ESTABLISHED -j NFLOG --nflog-group %u",
+                    nflog_num + NFLOG_MARK_BASE, create_state_string(conf, ipv, iptcap), nflog_num);
+                if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_ESTRELNFLOG, cmd, 0, 0) < 0)
+                    retval = -1;
+
+                /* ACCEPT rule to make it terminating */
+                snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+                        "%s ESTABLISHED -j ACCEPT",
+                        nflog_num + NFLOG_MARK_BASE, create_state_string(conf, ipv, iptcap));
+
+                if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_ESTRELNFLOG, cmd, 0, 0) < 0)
+                    retval = -1;
+
+                /* RELATED */
+                snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+                    "%s RELATED -j NEWNFLOG",
+                    nflog_num + NFLOG_MARK_BASE, create_state_string(conf, ipv, iptcap));
+                if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_ESTRELNFLOG, cmd, 0, 0) < 0)
+                    retval=-1;
+
+                /* mark this queue num processed */
+                queues[(nflog_num/8)] |= 1<<(nflog_num%8);
+
+                /* ACCEPT rule to make it terminating */
+                snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+                        "%s NEW,RELATED -j ACCEPT",
+                        nflog_num + NFLOG_MARK_BASE, create_state_string(conf, ipv, iptcap));
+
+                if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_ESTRELNFLOG, cmd, 0, 0) < 0)
+                    retval = -1;
+            }
+        }
+    }
+
+    return(retval);
+}
+
+/* create_newnflog_rules
+ *
+ * Create the rules for the NEWQUEUE target.
+ *
+ * Return:  0: ok
+ *          -1: error
+ */
+int
+create_newnflog_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ruleset,
+        struct vrmr_rules *rules, struct vrmr_iptcaps *iptcap, int ipv)
+{
+    char cmd[VRMR_MAX_PIPE_COMMAND] = "";
+    struct vrmr_list_node *d_node = NULL;
+    int retval = 0;
+    struct vrmr_rule *rule_ptr = NULL;
+    u_int16_t nflog_num = 0;
+    char queues[65536/8];
+
+    /* safety */
+    if(rules == NULL)
+    {
+        vrmr_error(-1, "Internal Error", "parameter problem "
+            "(in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    if(conf->bash_out == TRUE)
+        fprintf(stdout, "\n# Setting up NFLog NEWNFLOG target rules...\n");
+
+    /* TCP and UDP limits */
+    snprintf(cmd, sizeof(cmd), "-p tcp -m tcp --syn -j SYNLIMIT");
+    if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_NEWNFLOG, cmd, 0, 0) < 0)
+        retval = -1;
+
+    snprintf(cmd, sizeof(cmd), "-p udp %s NEW,RELATED -j UDPLIMIT", create_state_string(conf, ipv, iptcap));
+    if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_NEWNFLOG, cmd, 0, 0) < 0)
+        retval = -1;
+
+    if(rules->list.len == 0) {
+        if(debuglvl >= HIGH)
+            vrmr_debug(__FUNC__, "no items in ruleslist.");
+
+        return(0);
+    }
+
+    memset(&queues, 0, sizeof(queues));
+
+    /* create two rules for each ipaddress */
+    for (d_node = rules->list.top; d_node; d_node = d_node->next)
+    {
+        if(!(rule_ptr = d_node->data))
+        {
+            vrmr_error(-1, "Internal Error", "NULL pointer "
+                "(in: %s:%d).", __FUNC__, __LINE__);
+            return(-1);
+        }
+
+        if (rule_ptr->action == VRMR_AT_NFLOG)
+        {
+            if (rule_ptr->opt != NULL)
+                nflog_num = rule_ptr->opt->nflog_num;
+            else
+                nflog_num = 0;
+
+            /* check if we already handled this queue num */
+            if (!(queues[(nflog_num/8)] & (1<<(nflog_num%8))))
+            {
+                /* NEW */
+                snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+                    "%s NEW,RELATED -j NFLOG --nflog-group %u",
+                    nflog_num + NFLOG_MARK_BASE, create_state_string(conf, ipv, iptcap), nflog_num);
+
+                if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_NEWNFLOG, cmd, 0, 0) < 0)
+                    retval = -1;
+
+                /* mark this queue num processed */
+                queues[(nflog_num/8)] |= 1<<(nflog_num%8);
+
+                /* ACCEPT rule to make it terminating */
+                snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
+                        "%s NEW,RELATED -j ACCEPT",
+                        nflog_num + NFLOG_MARK_BASE, create_state_string(conf, ipv, iptcap));
+
+                if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_NEWNFLOG, cmd, 0, 0) < 0)
+                    retval = -1;
+            }
+        }
+    }
+
+    return(retval);
+}
