@@ -4392,7 +4392,7 @@ update_udplimit_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/Ru
  */
 int
 post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ruleset, struct vrmr_iptcaps *iptcap,
-        int forward_rules)
+        int forward_rules, int ipv)
 {
     int     retval=0,
             result=0;
@@ -4458,12 +4458,8 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
                         limit, logprefix, loglevel, log_tcp_options);
             }
 
-            if (process_rule(debuglvl, conf, ruleset, VRMR_IPV4, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+            if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
                 retval = -1;
-#ifdef IPV6_ENABLED
-            if (process_rule(debuglvl, conf, ruleset, VRMR_IPV6, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-                retval = -1;
-#endif
 
             /* output */
             create_logprefix_string(debuglvl, conf, logprefix, sizeof(logprefix),
@@ -4480,12 +4476,8 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
                         limit, logprefix, loglevel, log_tcp_options);
             }
 
-            if (process_rule(debuglvl, conf, ruleset, VRMR_IPV4, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+            if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
                 retval = -1;
-#ifdef IPV6_ENABLED
-            if (process_rule(debuglvl, conf, ruleset, VRMR_IPV6, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-                retval = -1;
-#endif
 
             /* forward */
             create_logprefix_string(debuglvl, conf, logprefix, sizeof(logprefix),
@@ -4501,12 +4493,8 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
                 snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
                         limit, logprefix, loglevel, log_tcp_options);
             }
-            if (process_rule(debuglvl, conf, ruleset, VRMR_IPV4, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+            if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
                 retval=-1;
-#ifdef IPV6_ENABLED
-            if (process_rule(debuglvl, conf, ruleset, VRMR_IPV6, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-                retval = -1;
-#endif
         }
     }
 
@@ -4520,13 +4508,13 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
             vrmr_debug(__FUNC__, "Enabling ip-forwarding because "
                     "forwarding rules were created.");
 
-	if (ruleset->ipv == VRMR_IPV4)
+	if (ipv == VRMR_IPV4)
 	{
 	    result = sysctl_exec(debuglvl, conf, "net.ipv4.ip_forward", "1", conf->bash_out);
 	    if (result != 0)
 	    {
-		/* if it fails, we dont really care, its not fatal */
-		vrmr_error(-1, "Error", "enabling ip-forwarding failed.");
+            /* if it fails, we dont really care, its not fatal */
+            vrmr_error(-1, "Error", "enabling ip-forwarding failed.");
 	    }
 	}
 
@@ -4536,8 +4524,8 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
 	    result = sysctl_exec(debuglvl, conf, "net.ipv6.conf.all.forwarding", "1", conf->bash_out);
 	    if (result != 0)
 	    {
-		/* if it fails, we dont really care, its not fatal */
-		vrmr_error(-1, "Error", "enabling ip-forwarding for ipv6 failed.");
+            /* if it fails, we dont really care, its not fatal */
+            vrmr_error(-1, "Error", "enabling ip-forwarding for ipv6 failed.");
 	    }
 	}
 #endif
@@ -4550,13 +4538,13 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
             vrmr_debug(__FUNC__, "Disabling ip-forwarding because no "
                     "forwarding rules were created.");
 
-	if (ruleset->ipv == VRMR_IPV4)
+	if (ipv == VRMR_IPV4)
 	{
 	    result = sysctl_exec(debuglvl, conf, "net.ipv4.ip_forward", "0", conf->bash_out);
 	    if (result != 0)
 	    {
-		/* if it fails, we dont really care, its not fatal */
-		vrmr_error(-1, "Error", "enabling ip-forwarding failed.");
+            /* if it fails, we dont really care, its not fatal */
+            vrmr_error(-1, "Error", "enabling ip-forwarding failed.");
 	    }
 	}
 
@@ -4566,8 +4554,8 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
 	    result = sysctl_exec(debuglvl, conf, "net.ipv6.conf.all.forwarding", "0", conf->bash_out);
 	    if (result != 0)
 	    {
-		/* if it fails, we dont really care, its not fatal */
-		vrmr_error(-1, "Error", "enabling ip-forwarding for ipv6 failed.");
+            /* if it fails, we dont really care, its not fatal */
+            vrmr_error(-1, "Error", "enabling ip-forwarding for ipv6 failed.");
 	    }
 	}
 #endif

@@ -1367,7 +1367,7 @@ ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *rule
     }
 
     /* post rules: enable logging */
-    if(post_rules(debuglvl, &vctx->conf, ruleset, &vctx->iptcaps, forward_rules) < 0)
+    if(post_rules(debuglvl, &vctx->conf, ruleset, &vctx->iptcaps, forward_rules, ruleset->ipv) < 0)
         return(-1);
 
     vrmr_info("Info", "Creating rules finished.");

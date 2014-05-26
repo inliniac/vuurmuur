@@ -298,7 +298,7 @@ int analyze_all_rules(const int, struct vrmr_ctx *, struct vrmr_rules *);
 int create_all_rules(const int, struct vrmr_ctx *, int);
 
 int pre_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct vrmr_interfaces *, struct vrmr_iptcaps *);
-int post_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct vrmr_iptcaps *, int);
+int post_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct vrmr_iptcaps *, int, int ipv);
 
 int update_synlimit_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct vrmr_iptcaps *, int);
 int update_udplimit_rules(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct vrmr_iptcaps *, int);

@@ -541,8 +541,12 @@ create_all_rules(const int debuglvl, struct vrmr_ctx *vctx, int create_prerules)
     }
 
     /* post rules: enable logging */
-    if(post_rules(debuglvl, &vctx->conf, NULL, &vctx->iptcaps, forward_rules) < 0)
+    if(post_rules(debuglvl, &vctx->conf, NULL, &vctx->iptcaps, forward_rules, VRMR_IPV4) < 0)
         return(-1);
+#ifdef IPV6_ENABLED
+    if(post_rules(debuglvl, &vctx->conf, NULL, &vctx->iptcaps, forward_rules, VRMR_IPV6) < 0)
+        return(-1);
+#endif
 
     vrmr_info("Info", "Creating rules finished.");
     return(0);
