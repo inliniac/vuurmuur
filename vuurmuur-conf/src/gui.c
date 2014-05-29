@@ -121,8 +121,8 @@ int VrWinGetOffset(int yj, int xj, int h, int w, int yo, int xo, int *y, int *x)
     while (startx + w > maxx)
         startx--;
 
-    /* magic: keep upper and lower 3 lines free if possible */
-    while (starty > 3 && maxy - (starty + h) < 3)
+    /* magic: keep upper and lower 4 lines free if possible */
+    while (starty > 4 && maxy - (starty + h) < 4)
         starty--;
 
     *y = starty;

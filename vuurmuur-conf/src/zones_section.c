@@ -2215,9 +2215,9 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
     }
 
     getmaxyx(stdscr, max_height, max_width);
-    height = 20 + zone_ptr->GroupList.len;
-    if(height > max_height - 6)
-        height = max_height - 6;
+    height = 17 + zone_ptr->GroupList.len;
+    if(height > max_height - 8)
+        height = max_height - 8;
     width = 54;
     VrWinGetOffset(-1, -1, height, width, ZonesSection.h_yle + 1, ZonesSection.n_xre + 1, &starty, &startx);
 
@@ -2312,7 +2312,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
     mvwprintw(ZonesSection.EditZone.win, 1, 2, "%s: %s", gettext("Name"), zone_ptr->name);
     mvwprintw(ZonesSection.EditZone.win, 13, 2, gettext("Press <F6> to manage the members of this group."));
 
-    if(height > 13 + 5)
+    if(height > 12 + 5)
     {
         mvwprintw(ZonesSection.EditZone.win, 15, 2, gettext("List of members:"));
         if(zone_ptr->GroupList.len == 0)
@@ -2327,7 +2327,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
                 mvwprintw(ZonesSection.EditZone.win, (int)(15 + i), 2, "  %s", member_ptr->host_name);
                 mvwprintw(ZonesSection.EditZone.win, (int)(15 + i), width - 20, "  %s", member_ptr->ipv4.ipaddress);
 
-                if((int)(15 + i) == height - 3) /* -1 is for the border */
+                if((int)(17 + i) == height - 1) /* -1 is for the border */
                 {
                     if((zone_ptr->GroupList.len - i) > 1)
                     {
@@ -2466,6 +2466,7 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
 {
     int                 ch,
                         not_defined = 0,
+                        reload = 0,
                         retval = 0;
     struct vrmr_zone    *zone_ptr = NULL;
     int                 quit = 0;
@@ -2480,6 +2481,7 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
                                                 gettext("members"),
                                                 gettext("back")};
     int                 cmd_choices_n = 3;
+    char                comment[sizeof(ZonesSection.comment)];
 
     /* safety */
     if(name == NULL || zones == NULL)
@@ -2495,139 +2497,162 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
         return(-1);
     }
 
-    /* init */
-    if (edit_zone_group_init(debuglvl, vctx, zones, name, zone_ptr) < 0)
-        return(-1);
-
-    /* print (or not) initial warning about the group being empty. */
-    if(zone_ptr->GroupList.len == 0)
-    {
-        set_field_buffer_wrap(debuglvl, GroupSec.warningfld, 0, gettext("Warning: no members!"));
-        field_opts_on(GroupSec.warningfld, O_VISIBLE);
-    }
-    else if(zone_ptr->active == TRUE && vrmr_zones_active(debuglvl, zone_ptr) == 0)
-    {
-        set_field_buffer_wrap(debuglvl, GroupSec.warningfld, 0, gettext("Note: parent zone/network is inactive."));
-        field_opts_on(GroupSec.warningfld, O_VISIBLE);
-        set_field_status(GroupSec.warningfld, FALSE);
-    }
-
-    mvwprintw(ZonesSection.EditZone.win, 4, 37, "%s: %4d", gettext("Members"), zone_ptr->GroupList.len);
-
-    /* print, set cursor etc */
-    pos_form_cursor(ZonesSection.EditZone.form);
-    cur = current_field(ZonesSection.EditZone.form);
-
-    draw_top_menu(debuglvl, top_win, gettext("Edit Group"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
-
-    wrefresh(ZonesSection.EditZone.win);
-    update_panels();
-    doupdate();
-
     /* loop through to get user requests */
     while(quit == 0)
     {
-        draw_field_active_mark(cur, prev, ZonesSection.EditZone.win, ZonesSection.EditZone.form, vccnf.color_win_mark|A_BOLD);
-
-        /* get user input */
-        ch = wgetch(ZonesSection.EditZone.win);
-
-        not_defined = 0;
-
-        /* handle input */
-        if(cur == GroupSec.commentfld)
+        if (reload != 0)
         {
-            if(nav_field_comment(debuglvl, ZonesSection.EditZone.form, ch) < 0)
-                not_defined = 1;
-        }
-        else if(cur == GroupSec.activefld)
-        {
-            if(nav_field_yesno(debuglvl, ZonesSection.EditZone.form, ch) < 0)
-                not_defined = 1;
-        }
-        else
-            not_defined = 1;
-
-        /* the rest is handled here */
-        if(not_defined == 1)
-        {
-            switch(ch)
-            {
-                case KEY_F(6):
-                case 'e':
-                case 'E':
-
-                    /* edit the members */
-                    if (edit_zone_group_members(debuglvl, vctx, zones, zone_ptr) < 0)
-                    {
-                        retval = -1;
-                        quit = 1;
-                    }
-
-                    draw_top_menu(debuglvl, top_win, gettext("Edit Group"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
-                    break;
-
-                case 27:
-                case 'q':
-                case 'Q':
-                case KEY_F(10): /* quit */
-
-                    quit = 1;
-                    break;
-
-                case KEY_DOWN:
-                case 9: // tab
-                case 10:    // enter
-
-                    form_driver(ZonesSection.EditZone.form, REQ_NEXT_FIELD);
-                    form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
-                    break;
-
-                case KEY_UP:
-
-                    form_driver(ZonesSection.EditZone.form, REQ_PREV_FIELD);
-                    form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
-                    break;
-
-                case KEY_F(12):
-                case 'h':
-                case 'H':
-                case '?':
-
-                    print_help(debuglvl, ":[VUURMUUR:ZONES:GROUP:EDIT]:");
-                    break;
-            }
+            if(edit_zone_group_destroy() < 0)
+                return -1;
         }
 
-        /* before we get the new 'cur', store cur in prev */
-        prev = cur;
-        cur = current_field(ZonesSection.EditZone.form);
+        /* init */
+        if (edit_zone_group_init(debuglvl, vctx, zones, name, zone_ptr) < 0)
+            return(-1);
 
-        /* draw empty group warning */
+        if (reload != 0)
+        {
+            set_field_buffer_wrap(debuglvl, GroupSec.commentfld, 0, comment);
+        }
+        
+        /* print (or not) initial warning about the group being empty. */
         if(zone_ptr->GroupList.len == 0)
         {
             set_field_buffer_wrap(debuglvl, GroupSec.warningfld, 0, gettext("Warning: no members!"));
             field_opts_on(GroupSec.warningfld, O_VISIBLE);
-            set_field_status(GroupSec.warningfld, FALSE);
         }
-        else if(strncasecmp(field_buffer(GroupSec.activefld, 0), STR_YES, StrLen(STR_YES)) == 0 &&
-            vrmr_zones_active(debuglvl, zone_ptr) == 0)
+        else if(zone_ptr->active == TRUE && vrmr_zones_active(debuglvl, zone_ptr) == 0)
         {
             set_field_buffer_wrap(debuglvl, GroupSec.warningfld, 0, gettext("Note: parent zone/network is inactive."));
             field_opts_on(GroupSec.warningfld, O_VISIBLE);
             set_field_status(GroupSec.warningfld, FALSE);
         }
-        /* and clear */
-        else
-        {
-            field_opts_off(GroupSec.warningfld, O_VISIBLE);
-        }
 
         mvwprintw(ZonesSection.EditZone.win, 4, 37, "%s: %4d", gettext("Members"), zone_ptr->GroupList.len);
 
-        /* refresh and restore cursor. */
-        wrefresh(ZonesSection.EditZone.win);
+        /* print, set cursor etc */
         pos_form_cursor(ZonesSection.EditZone.form);
+        cur = current_field(ZonesSection.EditZone.form);
+
+        draw_top_menu(debuglvl, top_win, gettext("Edit Group"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+
+        wrefresh(ZonesSection.EditZone.win);
+        update_panels();
+        doupdate();
+
+        reload = 0;
+        
+        while (quit == 0 && reload == 0)
+        {
+            draw_field_active_mark(cur, prev, ZonesSection.EditZone.win, ZonesSection.EditZone.form, vccnf.color_win_mark|A_BOLD);
+
+            /* get user input */
+            ch = wgetch(ZonesSection.EditZone.win);
+
+            not_defined = 0;
+
+            /* handle input */
+            if(cur == GroupSec.commentfld)
+            {
+                if(nav_field_comment(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+                    not_defined = 1;
+            }
+            else if(cur == GroupSec.activefld)
+            {
+                if(nav_field_yesno(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+                    not_defined = 1;
+            }
+            else
+                not_defined = 1;
+
+            /* the rest is handled here */
+            if(not_defined == 1)
+            {
+                switch(ch)
+                {
+                    case KEY_F(6):
+                    case 'e':
+                    case 'E':
+
+                        /* edit the members */
+                        if (edit_zone_group_members(debuglvl, vctx, zones, zone_ptr) < 0)
+                        {
+                            retval = -1;
+                            quit = 1;
+                        }
+                        else
+                        {
+                            zone_ptr->active = (strncasecmp(field_buffer(GroupSec.activefld, 0), STR_YES, StrLen(STR_YES)) == 0) ? 1 : 0;
+                            strncpy(comment, field_buffer(GroupSec.commentfld, 0), sizeof(comment));
+
+                            reload = 1;
+                        }
+
+                        draw_top_menu(debuglvl, top_win, gettext("Edit Group"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        break;
+
+                    case 27:
+                    case 'q':
+                    case 'Q':
+                    case KEY_F(10): /* quit */
+
+                        quit = 1;
+                        break;
+
+                    case KEY_DOWN:
+                    case 9: // tab
+                    case 10:    // enter
+
+                        form_driver(ZonesSection.EditZone.form, REQ_NEXT_FIELD);
+                        form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
+                        break;
+
+                    case KEY_UP:
+
+                        form_driver(ZonesSection.EditZone.form, REQ_PREV_FIELD);
+                        form_driver(ZonesSection.EditZone.form, REQ_BEG_LINE);
+                        break;
+
+                    case KEY_F(12):
+                    case 'h':
+                    case 'H':
+                    case '?':
+
+                        print_help(debuglvl, ":[VUURMUUR:ZONES:GROUP:EDIT]:");
+                        break;
+                }
+            }
+
+            /* before we get the new 'cur', store cur in prev */
+            prev = cur;
+            cur = current_field(ZonesSection.EditZone.form);
+
+            /* draw empty group warning */
+            if(zone_ptr->GroupList.len == 0)
+            {
+                set_field_buffer_wrap(debuglvl, GroupSec.warningfld, 0, gettext("Warning: no members!"));
+                field_opts_on(GroupSec.warningfld, O_VISIBLE);
+                set_field_status(GroupSec.warningfld, FALSE);
+            }
+            else if(strncasecmp(field_buffer(GroupSec.activefld, 0), STR_YES, StrLen(STR_YES)) == 0 &&
+                vrmr_zones_active(debuglvl, zone_ptr) == 0)
+            {
+                set_field_buffer_wrap(debuglvl, GroupSec.warningfld, 0, gettext("Note: parent zone/network is inactive."));
+                field_opts_on(GroupSec.warningfld, O_VISIBLE);
+                set_field_status(GroupSec.warningfld, FALSE);
+            }
+            /* and clear */
+            else
+            {
+                field_opts_off(GroupSec.warningfld, O_VISIBLE);
+            }
+
+            mvwprintw(ZonesSection.EditZone.win, 4, 37, "%s: %4d", gettext("Members"), zone_ptr->GroupList.len);
+
+            /* refresh and restore cursor. */
+            wrefresh(ZonesSection.EditZone.win);
+            pos_form_cursor(ZonesSection.EditZone.form);
+        }
     }
 
     /* save to backend */
@@ -5099,7 +5124,7 @@ edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
     cur = current_field(ZonesSection.EditZone.form);
     pos_form_cursor(ZonesSection.EditZone.form);
 
-    draw_top_menu(debuglvl, top_win, gettext("Networks"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(debuglvl, top_win, gettext("Network"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     update_panels();
     doupdate();
@@ -5372,8 +5397,15 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
         return(-1);
     }
 
-    height = (int)(ZonesSection.network_n + 10);
+    starty = 4;
+    height = (int)(ZonesSection.network_n + 9);
     width  = VRMR_MAX_NETWORK + 32 + 4;
+    
+    if(maxy < starty + height + 4)
+    {
+        height = maxy - (2 * starty);
+    }
+    
     /* place on the same y as zones list */
     VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.z_xre + 1, &starty, &startx);
     ZonesSection.n_yle = starty + height;
@@ -5498,6 +5530,24 @@ zones_section_menu_networks(const int debuglvl,
             *choice_ptr = NULL;
     ITEM    *cur = NULL;
 
+    /* top menu */
+    char    *key_choices[] =    {   "F12",
+                                    "INS",
+                                    "DEL",
+                                    "r",
+                                    "RET",
+                                    "e",
+                                    "F10"};
+    int     key_choices_n = 7;
+    char    *cmd_choices[] =    {   gettext("help"),
+                                    gettext("new"),
+                                    gettext("del"),
+                                    gettext("rename"),
+                                    gettext("open"),
+                                    gettext("edit"),
+                                    gettext("back")};
+    int     cmd_choices_n = 7;
+    
     /* safety */
     if( zonename == NULL || reg == NULL || interfaces == NULL ||
         zones == NULL || rules == NULL || blocklist == NULL)
@@ -5513,6 +5563,8 @@ zones_section_menu_networks(const int debuglvl,
                                 __FUNC__, __LINE__);
         return(-1);
     }
+    
+    draw_top_menu(debuglvl, top_win, gettext("Networks"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     while(quit == 0)
     {
@@ -5807,8 +5859,10 @@ zones_section_menu_networks(const int debuglvl,
                             }
                             free(choice_ptr);
                         }
+                        
+                        draw_top_menu(debuglvl, top_win, gettext("Networks"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     }
-                        break;
+                    break;
 
                 case 'g':   /* group quick key */
                 case 'G':   /* group quick key */
@@ -6338,15 +6392,15 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
         return(-1);
     }
 
-    height = (int)(ZonesSection.zone_n + 10);
+    height = (int)(ZonesSection.zone_n + 9);
     width  = 45;
     startx = 1;
     starty = 4;
 
-    if(maxy < starty + height + 3)
+    if(maxy < starty + height + 4)
     {
-        starty = 3;
-        height = maxy - 2 * starty;
+        starty = 4;
+        height = maxy - (2 * starty);
     }
 
     ZonesSection.z_yle = starty + height;
@@ -6777,15 +6831,15 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
     }
 
     /* now set the size of the window */
-    height = (int)(ZonesSection.host_n + 9);
+    height = (int)(ZonesSection.host_n + 7);
     width  = VRMR_VRMR_MAX_HOST_NET_ZONE + 2;
     startx = 1;
     starty = 4;
 
-    if(maxy < starty + height + 3)
+    if(maxy < starty + height + 4)
     {
-        starty = 3;
-        height = maxy - 2 * starty;
+        starty = 4;
+        height = maxy - (2 * starty);
     }
 
     if(maxx < startx + width + 3)
@@ -6812,9 +6866,9 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
     }
 
     set_menu_win(ZonesSection.h_menu, ZonesSection.h_win);
-    set_menu_sub(ZonesSection.h_menu, derwin(ZonesSection.h_win, height-7, width-2, 3, 1));
+    set_menu_sub(ZonesSection.h_menu, derwin(ZonesSection.h_win, height-6, width-2, 3, 1));
 
-    set_menu_format(ZonesSection.h_menu, height-8, 1);
+    set_menu_format(ZonesSection.h_menu, height-7, 1);
 
     mvwaddch(ZonesSection.h_win, 2, 0, ACS_LTEE);
     mvwhline(ZonesSection.h_win, 2, 1, ACS_HLINE, width-2);

@@ -745,7 +745,7 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
     }
 
     getmaxyx(stdscr, max_height, max_width);
-    max_onscreen = max_height - 6 - 6;
+    max_onscreen = max_height - 8 - 6;
 
     /* count the number of non virtual interfaces */
     for(ifac_num = 0, d_node = interfaces->list.top; d_node; d_node = d_node->next)
@@ -766,7 +766,7 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
         ifac_num = (unsigned int)max_onscreen;
 
     /* init */
-    if(trafvol_section_init(debuglvl, max_height - 6, 78, 3, 1, ifac_num) < 0)
+    if(trafvol_section_init(debuglvl, max_height - 8, 78, 4, 1, ifac_num) < 0)
         return(-1);
 
     /* make sure wgetch doesn't block */

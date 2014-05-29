@@ -2077,8 +2077,8 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
      * sizing the window */
     getmaxyx(stdscr, max_height, max_width);
     height = 20 + ser_ptr->PortrangeList.len;
-    if(height > max_height - 6)
-        height = max_height - 6;
+    if(height > max_height - 8)
+        height = max_height - 8;
     width = 54;
 
     /* place on the same y as "edit service" */
@@ -2231,7 +2231,7 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
                     wprintw(ServicesSection.EditService.win, gettext("uses no ports."));
                 }
 
-                if((int)(18+i) == height-1) /* -1 is for the border */
+                if((int)(20+i) == height-1) /* -1 is for the border */
                 {
                     if((ser_ptr->PortrangeList.len - i) > 1)
                     {
@@ -2249,169 +2249,11 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     return(0);
 }
 
-
 static int
-edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, const char *name)
+edit_service_destroy(const int debuglvl)
 {
-    int                     ch, /* for recording keystrokes */
-                            quit = 0,
-                            not_defined = 0,
-                            retval = 0;
-    struct vrmr_service    *ser_ptr = NULL;
-    FIELD                   *cur = NULL,
-                            *prev = NULL;
-    /* top menu */
-    char                    *key_choices[] =    {   "F12",
-                                                    "F6",
-                                                    "F10"};
-    int                     key_choices_n = 3;
-    char                    *cmd_choices[] =    {   gettext("help"),
-                                                    gettext("portranges"),
-                                                    gettext("back")};
-    int                     cmd_choices_n = 3;
-    size_t                  i = 0;
-
-    /* safety */
-    if(name == NULL || services == NULL)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
-    
-    /* search the service */
-    if(!(ser_ptr = vrmr_search_service(debuglvl, services, (char *)name)))
-    {
-        vrmr_error(-1, VR_INTERR, "service '%s' was not found in memory (in: %s:%d).", name, __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    /* init */
-    if(edit_service_init(debuglvl, vctx, ser_ptr) < 0)
-        return(-1);
-
-    /* show (or hide) initial warning about the group being empty. */
-    if(ser_ptr->PortrangeList.len == 0)
-    {
-        field_opts_on(ServiceSec.norangewarningfld, O_VISIBLE);
-    }
-
-    pos_form_cursor(ServicesSection.EditService.form);
-    cur = current_field(ServicesSection.EditService.form);
-
-    draw_top_menu(debuglvl, top_win, gettext("Edit Service"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
-
-    wrefresh(ServicesSection.EditService.win);
-    update_panels();
-    doupdate();
-
-    /* Loop through to get user requests */
-    while(quit == 0)
-    {
-        draw_field_active_mark(cur, prev, ServicesSection.EditService.win, ServicesSection.EditService.form, vccnf.color_win_mark|A_BOLD);
-
-        ch = wgetch(ServicesSection.EditService.win);
-
-        not_defined = 0;
-
-        if(cur == ServiceSec.commentfld)
-        {
-            if(nav_field_comment(debuglvl, ServicesSection.EditService.form, ch) < 0)
-                not_defined = 1;
-        }
-        else if(cur == ServiceSec.helperfld)
-        {
-            if(nav_field_simpletext(debuglvl, ServicesSection.EditService.form, ch) < 0)
-                not_defined = 1;
-        }
-        else if(cur == ServiceSec.activefld ||
-            cur == ServiceSec.broadcastfld)
-        {
-            if(nav_field_yesno(debuglvl, ServicesSection.EditService.form, ch) < 0)
-                not_defined = 1;
-        }
-        else
-        {
-            not_defined = 1;
-        }
-
-        if(not_defined == 1)
-        {
-            switch(ch)
-            {
-                case KEY_F(6):
-                case 'e':
-                case 'E':
-                    /* F6 opens the portranges section */
-//TODO
-                    edit_serv_portranges(debuglvl, vctx, ser_ptr);
-
-                    draw_top_menu(debuglvl, top_win, gettext("Edit Service"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
-                    break;
-
-                case 27:
-                case KEY_F(10):
-                case 'q':
-                case 'Q':
-                    quit=1;
-                    break;
-
-                case KEY_DOWN:
-                case 10:    // enter
-                case 9: // tab
-
-                    form_driver(ServicesSection.EditService.form, REQ_NEXT_FIELD);
-                    form_driver(ServicesSection.EditService.form, REQ_END_LINE);
-                    break;
-
-                case KEY_UP:
-
-                    form_driver(ServicesSection.EditService.form, REQ_PREV_FIELD);
-                    form_driver(ServicesSection.EditService.form, REQ_END_LINE);
-                    break;
-
-                case KEY_F(12):
-                case 'h':
-                case 'H':
-                case '?':
-                    print_help(debuglvl, ":[VUURMUUR:SERVICE:EDIT]:");
-                    break;
-            }
-        }
-
-        prev = cur;
-        cur = current_field(ServicesSection.EditService.form);
-
-        /* print or erase warning about the group being empty. */
-        if(ser_ptr->PortrangeList.len == 0)
-        {
-            field_opts_on(ServiceSec.norangewarningfld, O_VISIBLE);
-        }
-        else
-            field_opts_off(ServiceSec.norangewarningfld, O_VISIBLE);
-
-        wrefresh(ServicesSection.EditService.win);
-        pos_form_cursor(ServicesSection.EditService.form);
-    }
-
-
-    /* save */
-
-    /* save the service */
-    if (edit_service_save(debuglvl, vctx, ser_ptr) < 0)
-    {
-        vrmr_error(-1, "Error", "saving the service failed (in: %s).", __FUNC__);
-        retval = -1;
-    }
-
-    /* save the portranges */
-    if (vrmr_services_save_portranges(debuglvl, vctx, ser_ptr) < 0)
-    {
-        vrmr_error(-1, "Error", "saving the portranges failed (in: %s).", __FUNC__);
-        retval = -1;
-    }
-
-
-    /* cleanup */
+    int         retval 	= 0;
+    size_t      i       = 0;
     
     /* Un post form and free the memory */
     unpost_form(ServicesSection.EditService.form);
@@ -2431,6 +2273,200 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
 
     update_panels();
     doupdate();
+    
+    return (retval);
+}
+
+static int
+edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, const char *name)
+{
+    int                     ch, /* for recording keystrokes */
+                            quit = 0,
+                            not_defined = 0,
+                            reload = 0,
+                            result = 0,
+                            retval = 0;
+    struct vrmr_service    *ser_ptr = NULL;
+    FIELD                   *cur = NULL,
+                            *prev = NULL;
+    /* top menu */
+    char                    *key_choices[] =    {   "F12",
+                                                    "F6",
+                                                    "F10"};
+    int                     key_choices_n = 3;
+    char                    *cmd_choices[] =    {   gettext("help"),
+                                                    gettext("portranges"),
+                                                    gettext("back")};
+    int                     cmd_choices_n = 3;
+    size_t                  i = 0;
+    char                    comment[sizeof(ServicesSection.comment)];
+
+    /* safety */
+    if(name == NULL || services == NULL)
+    {
+        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+    
+    /* search the service */
+    if(!(ser_ptr = vrmr_search_service(debuglvl, services, (char *)name)))
+    {
+        vrmr_error(-1, VR_INTERR, "service '%s' was not found in memory (in: %s:%d).", name, __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* Loop through to get user requests */
+    while(quit == 0)
+    {
+        draw_field_active_mark(cur, prev, ServicesSection.EditService.win, ServicesSection.EditService.form, vccnf.color_win_mark|A_BOLD);
+
+        if (reload != 0)
+        {
+            result = edit_service_destroy(debuglvl);
+            if (result < 0)
+                return -1;
+        }
+        
+        /* init */
+        if(edit_service_init(debuglvl, vctx, ser_ptr) < 0)
+            return(-1);
+        
+        if (reload != 0)
+        {
+            set_field_buffer_wrap(debuglvl, ServiceSec.commentfld, 0, comment);
+        }
+
+        /* show (or hide) initial warning about the group being empty. */
+        if(ser_ptr->PortrangeList.len == 0)
+        {
+            field_opts_on(ServiceSec.norangewarningfld, O_VISIBLE);
+        }
+
+        pos_form_cursor(ServicesSection.EditService.form);
+        cur = current_field(ServicesSection.EditService.form);
+
+        draw_top_menu(debuglvl, top_win, gettext("Edit Service"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+
+        wrefresh(ServicesSection.EditService.win);
+        update_panels();
+        doupdate();
+
+        /* reset reload flag */
+        reload = 0;
+        while(quit == 0 && reload == 0)
+        {
+            ch = wgetch(ServicesSection.EditService.win);
+
+            not_defined = 0;
+
+            if(cur == ServiceSec.commentfld)
+            {
+                if(nav_field_comment(debuglvl, ServicesSection.EditService.form, ch) < 0)
+                    not_defined = 1;
+            }
+            else if(cur == ServiceSec.helperfld)
+            {
+                if(nav_field_simpletext(debuglvl, ServicesSection.EditService.form, ch) < 0)
+                    not_defined = 1;
+            }
+            else if(cur == ServiceSec.activefld ||
+                cur == ServiceSec.broadcastfld)
+            {
+                if(nav_field_yesno(debuglvl, ServicesSection.EditService.form, ch) < 0)
+                    not_defined = 1;
+            }
+            else
+            {
+                not_defined = 1;
+            }
+
+            if(not_defined == 1)
+            {
+                switch(ch)
+                {
+                    case KEY_F(6):
+                    case 'e':
+                    case 'E':
+                        /* F6 opens the portranges section */
+                        /* store current values (needed for reload) */
+                        ser_ptr->active = (strncasecmp(field_buffer(ServiceSec.activefld, 0), STR_YES, StrLen(STR_YES)) == 0) ? 1 : 0;
+                        ser_ptr->broadcast = (strncasecmp(field_buffer(ServiceSec.broadcastfld, 0), STR_YES, StrLen(STR_YES)) == 0) ? 1 : 0;
+                        strncpy(ser_ptr->helper, field_buffer(ServiceSec.helperfld, 0), sizeof(ser_ptr->helper));
+                        strncpy(comment, field_buffer(ServiceSec.commentfld, 0), sizeof(comment));
+                        
+                        /* open portranges window */
+                        edit_serv_portranges(debuglvl, vctx, ser_ptr);
+
+                        draw_top_menu(debuglvl, top_win, gettext("Edit Service"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        
+                        reload = 1;
+                        break;
+
+                    case 27:
+                    case KEY_F(10):
+                    case 'q':
+                    case 'Q':
+                        quit=1;
+                        break;
+
+                    case KEY_DOWN:
+                    case 10:    // enter
+                    case 9: // tab
+
+                        form_driver(ServicesSection.EditService.form, REQ_NEXT_FIELD);
+                        form_driver(ServicesSection.EditService.form, REQ_END_LINE);
+                        break;
+
+                    case KEY_UP:
+
+                        form_driver(ServicesSection.EditService.form, REQ_PREV_FIELD);
+                        form_driver(ServicesSection.EditService.form, REQ_END_LINE);
+                        break;
+
+                    case KEY_F(12):
+                    case 'h':
+                    case 'H':
+                    case '?':
+                        print_help(debuglvl, ":[VUURMUUR:SERVICE:EDIT]:");
+                        break;
+                }
+            }
+
+            prev = cur;
+            cur = current_field(ServicesSection.EditService.form);
+
+            /* print or erase warning about the group being empty. */
+            if(ser_ptr->PortrangeList.len == 0)
+            {
+                field_opts_on(ServiceSec.norangewarningfld, O_VISIBLE);
+            }
+            else
+                field_opts_off(ServiceSec.norangewarningfld, O_VISIBLE);
+
+            wrefresh(ServicesSection.EditService.win);
+            pos_form_cursor(ServicesSection.EditService.form);
+        }
+    }
+
+
+    /* save */
+
+    /* save the service */
+    if (edit_service_save(debuglvl, vctx, ser_ptr) < 0)
+    {
+        vrmr_error(-1, "Error", "saving the service failed (in: %s).", __FUNC__);
+        retval = -1;
+    }
+
+    /* save the portranges */
+    if (vrmr_services_save_portranges(debuglvl, vctx, ser_ptr) < 0)
+    {
+        vrmr_error(-1, "Error", "saving the portranges failed (in: %s).", __FUNC__);
+        retval = -1;
+    }
+
+    /* cleanup */
+    result = edit_service_destroy(debuglvl);
     
     return(retval);
 }

@@ -1161,9 +1161,9 @@ print_about(const int debuglvl)
     getmaxyx(stdscr, max_height, max_width);
 
     width  = 72;
-    height = max_height - 6;
+    height = max_height - 8;
     startx = (max_width - width) / 2;
-    starty = 3;
+    starty = 4;
 
     vrmr_list_setup(debuglvl, &about_list, free_helpword);
 

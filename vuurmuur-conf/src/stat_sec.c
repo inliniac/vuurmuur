@@ -315,7 +315,7 @@ status_section_init(const int debuglvl, int height, int width, int starty, int s
     getmaxyx(stdscr, max_height, max_width);
     if(width > max_width)
         return(-1);
-    if(15 + (int)ifac_num > height)
+    if((int)ifac_num > height - 15)
         ifac_num = (unsigned int)height - 15;
 
     /* set the number of fields */
@@ -815,7 +815,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
     /*
         init
     */
-    if(status_section_init(debuglvl, max_height-6, 78, 3, 1, interfaces->list.len) < 0)
+    if(status_section_init(debuglvl, max_height-8, 78, 4, 1, interfaces->list.len) < 0)
         return(-1);
 
     /*
@@ -1003,7 +1003,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
 
             /* print interfaces, starting at line 13 */
             for(cur_interface = 0, y = 13, d_node = interfaces->list.top, shadow_node = shadow_list.top;
-                d_node && y < max_height-8;
+                d_node && y < max_height-8-2;
                 d_node = d_node->next, shadow_node = shadow_node->next)
             {
                 unsigned long long  tmp_ull;
