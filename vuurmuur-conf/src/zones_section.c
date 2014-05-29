@@ -939,8 +939,14 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_ctx *vctx,
     }
 
     /* now set the size of the window */
-    height = (int)(ZonesSection.host_n + 9);
+    height = (int)(ZonesSection.host_n + 8);
     width  = VRMR_MAX_HOST + 18 + 2;
+    
+    if (height > maxy - 8)
+    {
+        height = maxy - 8;
+    }
+    
     /* place on the same y as zones list */
     VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.n_xre + 1, &starty, &startx);
     ZonesSection.h_yle = starty + height;
@@ -991,7 +997,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_ctx *vctx,
     mvwprintw(ZonesSection.h_win, height-2, 1, "<DEL> %s", STR_REMOVE);
 
     /* create the top and bottom fields */
-    if(!(ZonesSection.h_win_top = newwin(1, 6, starty + 2, width - 8)))
+    if(!(ZonesSection.h_win_top = newwin(1, 6, starty + 2, startx + width - 8)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -1002,7 +1008,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_ctx *vctx,
     wprintw(ZonesSection.h_win_top, "(%s)", gettext("more"));
     hide_panel(ZonesSection.h_panel_top[0]);
 
-    if(!(ZonesSection.h_win_bot = newwin(1, 6, starty + height - 5, width - 8)))
+    if(!(ZonesSection.h_win_bot = newwin(1, 6, starty + height - 5, startx + width - 8)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -2833,7 +2839,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
     mvwprintw(ZonesSection.h_win, height-2, 1, "<DEL> %s", STR_REMOVE);
 
     /* create the top and bottom fields */
-    if(!(ZonesSection.h_win_top = newwin(1, 6, starty + 2, width - 8)))
+    if(!(ZonesSection.h_win_top = newwin(1, 6, starty + 2, startx + width - 8)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -2844,7 +2850,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
     wprintw(ZonesSection.h_win_top, "(%s)", gettext("more"));
 //    hide_panel(ZonesSection.h_panel_top[0]);
 
-    if(!(ZonesSection.h_win_bot = newwin(1, 6, starty + height - 5, width - 8)))
+    if(!(ZonesSection.h_win_bot = newwin(1, 6, starty + height - 5, startx + width - 8)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -5448,7 +5454,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
     mvwprintw(ZonesSection.n_win, height-2, 2, "< e > %s", STR_EDIT);
 
     /* create the top and bottom fields */
-    if(!(ZonesSection.n_win_top = newwin(1, 6, starty + 2, width - 8)))
+    if(!(ZonesSection.n_win_top = newwin(1, 6, starty + 2, startx + width - 8)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -5459,7 +5465,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
     wprintw(ZonesSection.n_win_top, "(%s)", gettext("more"));
     hide_panel(ZonesSection.n_panel_top[0]);
 
-    if(!(ZonesSection.n_win_bot = newwin(1, 6, starty + height - 6, width - 8)))
+    if(!(ZonesSection.n_win_bot = newwin(1, 6, starty + height - 6, startx + width - 8)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -6444,7 +6450,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
     mvwprintw(ZonesSection.win, height-2, 2, "< e > %s", STR_EDIT);
 
     /* create the top and bottom fields */
-    if(!(ZonesSection.z_win_top = newwin(1, 6, starty + 2, width - 8)))
+    if(!(ZonesSection.z_win_top = newwin(1, 6, starty + 2, startx + width - 8)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);
@@ -6455,7 +6461,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
     wprintw(ZonesSection.z_win_top, "(%s)", gettext("more"));
     hide_panel(ZonesSection.z_panel_top[0]);
 
-    if(!(ZonesSection.z_win_bot = newwin(1, 6, starty + height - 6, width - 8)))
+    if(!(ZonesSection.z_win_bot = newwin(1, 6, starty + height - 6, startx + width - 8)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
         return(-1);

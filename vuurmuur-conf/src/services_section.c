@@ -51,6 +51,12 @@ struct ServicesSection_
         MENU    *menu;
         ITEM    **items;
         size_t  n_items;
+        ITEM    *top,
+                *bot;
+        PANEL   *panel_top[1];
+        PANEL   *panel_bot[1];
+        WINDOW  *win_top;
+        WINDOW  *win_bot;
 
         struct vrmr_list  item_list;
         struct vrmr_list  item_number_list;
@@ -1579,8 +1585,8 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
 
     /* get window height */
     height = (int)ServicesSection.EditServicePrt.n_items + 8;   /* 8 because: 3 above the list, 5 below */
-    if((height + 6) > max_height)
-        height = max_height - 6;
+    if((height + 8) > max_height)
+        height = max_height - 8;
 
     /* place on the same y as "edit service" */
     VrWinGetOffset(-1, -1, height, width, 4, ServicesSection.EditService.se_xre + 1, &starty, &startx);
@@ -1684,6 +1690,17 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
         }
     }
     ServicesSection.EditServicePrt.items[ServicesSection.EditServicePrt.n_items] = (ITEM *)NULL;
+    
+    if(ServicesSection.EditServicePrt.n_items > 0)
+    {
+        ServicesSection.EditServicePrt.top = ServicesSection.EditServicePrt.items[0];
+        ServicesSection.EditServicePrt.bot = ServicesSection.EditServicePrt.items[ServicesSection.EditServicePrt.n_items - 1];
+    }
+    else
+    {
+        ServicesSection.top = NULL;
+        ServicesSection.bot = NULL;
+    }
 
     /* create win and panel */
     ServicesSection.EditServicePrt.win = newwin(height, width, starty, startx);
@@ -1733,10 +1750,29 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
     mvwprintw(ServicesSection.EditServicePrt.win, height-3, 2, "<DEL> %s", STR_REMOVE);
     mvwprintw(ServicesSection.EditServicePrt.win, height-2, 2, "<RET> %s", STR_EDIT);
 
-    update_panels();
-    doupdate();
-    wrefresh(ServicesSection.EditServicePrt.win);
+    /* create the top and bottom fields */
+    if(!(ServicesSection.EditServicePrt.win_top = newwin(1, 6, starty + 2, startx + width - 8)))
+    {
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
+        return(-1);
+    }
+    wbkgd(ServicesSection.EditServicePrt.win_top, vccnf.color_win);
+    ServicesSection.EditServicePrt.panel_top[0] = new_panel(ServicesSection.EditServicePrt.win_top);
+    /* TRANSLATORS: max 4 chars */
+    wprintw(ServicesSection.EditServicePrt.win_top, "(%s)", gettext("more"));
+    hide_panel(ServicesSection.EditServicePrt.panel_top[0]);
 
+    if(!(ServicesSection.EditServicePrt.win_bot = newwin(1, 6, starty + height - 5, startx + width - 8)))
+    {
+        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
+        return(-1);
+    }
+    wbkgd(ServicesSection.EditServicePrt.win_bot, vccnf.color_win);
+    ServicesSection.EditServicePrt.panel_bot[0] = new_panel(ServicesSection.EditServicePrt.win_bot);
+    /* TRANSLATORS: max 4 chars */
+    wprintw(ServicesSection.EditServicePrt.win_bot, "(%s)", gettext("more"));
+    hide_panel(ServicesSection.EditServicePrt.panel_bot[0]);
+    
     return(retval);
 }
 
@@ -1759,6 +1795,11 @@ edit_serv_portranges_destroy(const int debuglvl)
 
     del_panel(ServicesSection.EditServicePrt.panel[0]);
     destroy_win(ServicesSection.EditServicePrt.win);
+
+    del_panel(ServicesSection.EditServicePrt.panel_top[0]);
+    destroy_win(ServicesSection.EditServicePrt.win_top);
+    del_panel(ServicesSection.EditServicePrt.panel_bot[0]);
+    destroy_win(ServicesSection.EditServicePrt.win_bot);
 
     vrmr_list_cleanup(debuglvl, &ServicesSection.EditServicePrt.item_list);
     vrmr_list_cleanup(debuglvl, &ServicesSection.EditServicePrt.item_number_list);
@@ -1824,6 +1865,22 @@ edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_serv
 
         while(quit == 0 && reload == 0)
         {
+            if(ServicesSection.EditServicePrt.top != NULL && !item_visible(ServicesSection.EditServicePrt.top))
+                show_panel(ServicesSection.EditServicePrt.panel_top[0]);
+            else
+                hide_panel(ServicesSection.EditServicePrt.panel_top[0]);
+
+            if(ServicesSection.EditServicePrt.bot != NULL && !item_visible(ServicesSection.EditServicePrt.bot))
+                show_panel(ServicesSection.EditServicePrt.panel_bot[0]);
+            else
+                hide_panel(ServicesSection.EditServicePrt.panel_bot[0]);
+
+            update_panels();
+            doupdate();
+
+            /* restore the cursor */
+            pos_menu_cursor(ServicesSection.EditServicePrt.menu);
+
             ch = wgetch(ServicesSection.EditServicePrt.win);
             switch(ch)
             {
