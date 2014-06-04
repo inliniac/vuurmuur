@@ -769,6 +769,8 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
         vrmr_error(-1, VR_INTERR, "InterfacesSection.EditInterface.n_fields != field_num.");
 
     /* create the window & panel */
+    VrWinGetOffset(-1, -1, height, width, starty, startx, &starty, &startx);
+
     InterfacesSection.EditInterface.win = create_newwin(height, width, starty, startx, gettext("Edit Interface"), vccnf.color_win);
     InterfacesSection.EditInterface.panel[0] = new_panel(InterfacesSection.EditInterface.win);
     keypad(InterfacesSection.EditInterface.win, TRUE);

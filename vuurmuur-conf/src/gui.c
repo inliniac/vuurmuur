@@ -124,6 +124,18 @@ int VrWinGetOffset(int yj, int xj, int h, int w, int yo, int xo, int *y, int *x)
     /* magic: keep upper and lower 4 lines free if possible */
     while (starty > 4 && maxy - (starty + h) < 4)
         starty--;
+    
+    /* center window if height > main middle window */
+    if (h > maxy - (2 * 4) && h <= maxy)
+    {
+        starty = ((maxy - h) / 2) + ((maxy - h) % 2);
+        
+        /* try to show always top menu */
+        if (starty < 2 && (maxy - h) >= 2)
+        {
+            starty = 2;
+        }
+    }
 
     *y = starty;
     *x = startx;

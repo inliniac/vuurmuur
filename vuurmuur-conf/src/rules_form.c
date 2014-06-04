@@ -3416,7 +3416,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     width  = 78; /* = minimum screensize - 2 */
     startx = 1;
     if(max_height > 24)
-        starty = 3;
+        starty = 4;
     else
         starty = 2;
 

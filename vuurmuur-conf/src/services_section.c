@@ -2136,6 +2136,8 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     height = 20 + ser_ptr->PortrangeList.len;
     if(height > max_height - 8)
         height = max_height - 8;
+    if (height < 20)
+        height = 20;
     width = 54;
 
     /* place on the same y as "edit service" */
@@ -2288,7 +2290,7 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
                     wprintw(ServicesSection.EditService.win, gettext("uses no ports."));
                 }
 
-                if((int)(20+i) == height-1) /* -1 is for the border */
+                if((int)(20+i) >= height-1) /* -1 is for the border */
                 {
                     if((ser_ptr->PortrangeList.len - i) > 1)
                     {
@@ -2298,6 +2300,13 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
                 }
             }
         }
+    }
+    else
+    {
+        if(ser_ptr->PortrangeList.len > 0)
+            mvwprintw(ServicesSection.EditService.win, 18, 4, gettext("No portranges defined yet."));
+        else
+            mvwprintw(ServicesSection.EditService.win, 18, 2, gettext("There are %d portranges. Press F6 to manage."), ser_ptr->PortrangeList.len);
     }
 
     /* position the cursor in the active field */
