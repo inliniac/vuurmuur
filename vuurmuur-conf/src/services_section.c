@@ -2303,7 +2303,7 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     }
     else
     {
-        if(ser_ptr->PortrangeList.len > 0)
+        if(ser_ptr->PortrangeList.len == 0)
             mvwprintw(ServicesSection.EditService.win, 18, 4, gettext("No portranges defined yet."));
         else
             mvwprintw(ServicesSection.EditService.win, 18, 2, gettext("There are %d portranges. Press F6 to manage."), ser_ptr->PortrangeList.len);
@@ -2364,7 +2364,6 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
                                                     gettext("portranges"),
                                                     gettext("back")};
     int                     cmd_choices_n = 3;
-    size_t                  i = 0;
     char                    comment[sizeof(ServicesSection.comment)];
 
     /* safety */
@@ -2457,8 +2456,8 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
                         /* store current values (needed for reload) */
                         ser_ptr->active = (strncasecmp(field_buffer(ServiceSec.activefld, 0), STR_YES, StrLen(STR_YES)) == 0) ? 1 : 0;
                         ser_ptr->broadcast = (strncasecmp(field_buffer(ServiceSec.broadcastfld, 0), STR_YES, StrLen(STR_YES)) == 0) ? 1 : 0;
-                        strncpy(ser_ptr->helper, field_buffer(ServiceSec.helperfld, 0), sizeof(ser_ptr->helper));
-                        strncpy(comment, field_buffer(ServiceSec.commentfld, 0), sizeof(comment));
+                        strlcpy(ser_ptr->helper, field_buffer(ServiceSec.helperfld, 0), sizeof(ser_ptr->helper));
+                        strlcpy(comment, field_buffer(ServiceSec.commentfld, 0), sizeof(comment));
                         
                         /* open portranges window */
                         edit_serv_portranges(debuglvl, vctx, ser_ptr);

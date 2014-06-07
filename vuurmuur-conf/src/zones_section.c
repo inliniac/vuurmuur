@@ -2589,7 +2589,7 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
                         else
                         {
                             zone_ptr->active = (strncasecmp(field_buffer(GroupSec.activefld, 0), STR_YES, StrLen(STR_YES)) == 0) ? 1 : 0;
-                            strncpy(comment, field_buffer(GroupSec.commentfld, 0), sizeof(comment));
+                            strlcpy(comment, field_buffer(GroupSec.commentfld, 0), sizeof(comment));
 
                             reload = 1;
                         }

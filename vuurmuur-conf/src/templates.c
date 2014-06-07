@@ -328,7 +328,7 @@ input_box(size_t length, char *title, char *description)
         return(NULL);
     }
 
-    strncpy(result_ptr, temp_ptr, (size_t)i);
+    strlcpy(result_ptr, temp_ptr, (size_t)i);
     result_ptr[i]='\0';
 
     if(result_ptr[0] == '\0')
