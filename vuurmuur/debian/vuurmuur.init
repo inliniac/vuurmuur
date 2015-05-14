@@ -1,5 +1,17 @@
 #!/bin/bash
 
+### BEGIN INIT INFO
+# Provides:        vuurmuur
+# Required-Start:  $syslog $network $local_fs
+# Required-Stop:   $syslog $network $local_fs
+# Should-Start:
+# Should-Stop:
+# Default-Start:   1 2 3 4 5
+# Default-Stop:        0 6
+# Short-Description:   Starts the Vuurmuur Firewall.
+# Description:     Vuurmuur is a middle-end and frontend for netfilter.
+### END INIT INFO
+
 # This is an implementation of a start-script for Vuurmuur.
 #
 # (c) 2004 Victor Julien, released under GPL.
