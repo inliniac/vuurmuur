@@ -3530,7 +3530,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
             if(debuglvl >= HIGH)
                 vrmr_debug(__FUNC__, "rule_ptr->from: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->from, rule_host, rule_net, rule_zone);
 
-            if( (type == VRMR_TYPE_NETWORK && strcmp(rule_net, old_net) == 0) ||
+            if( (type == VRMR_TYPE_NETWORK && strcmp(rule_net, old_net) == 0 && strcmp(rule_zone, old_zone) == 0) ||
                 (type == VRMR_TYPE_ZONE && strcmp(rule_zone, old_zone) == 0))
             {
                 if(type == VRMR_TYPE_NETWORK)
@@ -3588,7 +3588,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
             if(debuglvl >= HIGH)
                 vrmr_debug(__FUNC__, "rule_ptr->to: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->to, rule_host, rule_net, rule_zone);
 
-            if( (type == VRMR_TYPE_NETWORK && strcmp(rule_net, old_net) == 0) ||
+            if( (type == VRMR_TYPE_NETWORK && strcmp(rule_net, old_net) == 0 && strcmp(rule_zone, old_zone) == 0) ||
                 (type == VRMR_TYPE_ZONE && strcmp(rule_zone, old_zone) == 0))
             {
                 if(type == VRMR_TYPE_NETWORK)
