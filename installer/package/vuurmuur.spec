@@ -1,5 +1,5 @@
 %define name		vuurmuur
-%define version		0.8rc1
+%define version		0.8rc2
 %define release		1
 # %define root_prefix_vm	/usr/
 %define root_prefix_vm	%{_prefix}/

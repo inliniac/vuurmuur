@@ -76,7 +76,7 @@
 #define NLINES  10
 #define NCOLS   40
 
-#define VUURMUURCONF_VERSION	"0.8rc1"
+#define VUURMUURCONF_VERSION	"0.8rc2"
 
 /* Initialize all the color pairs */
 #define CP_WIN          1
