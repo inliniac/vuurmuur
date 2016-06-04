@@ -976,6 +976,30 @@ if [ "$INSTALL" = "1" ]; then
             IPTABLESRESLOC="/sbin/iptables-restore"
         fi
 
+        # seek ip6tables
+        which ip6tables &> /dev/null
+        RESULT=$?
+        if [ "$RESULT" = "0" ]; then
+            IP6TABLESLOC=`which ip6tables`
+        else
+            echo
+            echo "Warning: could not find the location of the 'ip6tables' command. Please make sure you have"
+            echo "ip6tables installed and set it's location in the Vuurmuur config."
+            IP6TABLESLOC="/sbin/ip6tables"
+        fi
+
+        # seek ip6tables-restore
+        which ip6tables-restore &> /dev/null
+        RESULT=$?
+        if [ "$RESULT" = "0" ]; then
+            IP6TABLESRESLOC=`which ip6tables-restore`
+        else
+            echo
+            echo "Warning: could not find the location of the 'ip6tables-restore' command. Please make sure"
+            echo " you have ip6tables-restore installed and set it's location in the Vuurmuur config."
+            IP6TABLESRESLOC="/sbin/ip6tables-restore"
+        fi
+
         # seek conntrack
         CONNTRACKLOC="$(which conntrack 2>/dev/null || echo "")"
 
