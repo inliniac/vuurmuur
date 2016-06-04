@@ -1,4 +1,4 @@
-AC_INIT(configure.in)
+AC_INIT(configure.ac)
 
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE(vuurmuur_conf,0.8rc2)
