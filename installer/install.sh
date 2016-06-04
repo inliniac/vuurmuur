@@ -5,7 +5,7 @@
 # TODO: setup an initial configuration that works for most
 # setups.
 #
-# Copyright (c) 2004-2009 by Victor Julien, Stefan Ubbink
+# Copyright (c) 2004-2016 by Victor Julien, Stefan Ubbink
 # Licenced under the GPL.
 #
 VERSION="0.8rc2"
@@ -621,8 +621,8 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
             echo
             echo "Please enter the current base config directory ($ETCDIR)."
             echo
-            echo "NOTE!!! in this directory a directory 'vuurmuur' must exist. This behaviour"
-            echo "has been changed in 0.5.65 (so for '/etc/vuurmuur' choose '/etc' here)."
+            echo "NOTE!!! in this directory a directory 'vuurmuur' must exist."
+            echo "So for '/etc/vuurmuur' choose '/etc' here."
             echo
             echo "Examples: /etc, /usr/local/etc, /opt/vuurmuur/etc"
             echo
@@ -630,8 +630,8 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
             echo
                 echo "Please enter the directory where the config is going to be stored ($ETCDIR)."
             echo
-            echo "NOTE!!! in this directory a directory 'vuurmuur' will be created. This behaviour"
-            echo "has been changed in 0.5.65 (so for '/etc/vuurmuur' choose '/etc' here)."
+            echo "NOTE!!! in this directory a directory 'vuurmuur' will be created."
+            echo "Sso for '/etc/vuurmuur' choose '/etc' here."
             echo
             echo "Examples: /etc, /usr/local/etc, /opt/vuurmuur/etc"
             echo
@@ -728,7 +728,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ] || [ "$UNPACK" = "1" ]; then
     if [ "$UNPACK" = "0" ]; then
         echo
         echo "Ok, thank you. Going to build Vuurmuur now. Depending on your hardware"
-        echo "this process will take about 2 to 10 minutes."
+        echo "this process will take about 1 to 5 minutes."
         echo
     fi
 
