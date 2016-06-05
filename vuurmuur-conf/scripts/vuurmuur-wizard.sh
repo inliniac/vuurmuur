@@ -2,7 +2,7 @@
 
 # Quick setup wizard for Vuurmuur.
 #
-# Copyright (c) 2009, 2010 by Victor Julien <victor@inliniac.net>
+# Copyright (c) 2009-2016 by Victor Julien <victor@inliniac.net>
 
 VMS="vuurmuur_script"
 
@@ -511,6 +511,14 @@ DIALOG=`which dialog` || {
 ID_PROG="$(which id 2>/dev/null || echo /usr/bin/id)"
 if [ "`$ID_PROG -g`" != "0" ]; then
     echo "Error: this script requires to be run as user root."
+    exit 1
+fi
+
+SELFTEST="$(vuurmuur_script -L -r rules 2>/dev/null)"
+SELFTESTR=$?
+if [ $SELFTESTR -ne 0 ]; then
+    echo "Error: selftest failed. Is a basic vuurmuur config in place?"
+    echo $SELFTEST
     exit 1
 fi
 
