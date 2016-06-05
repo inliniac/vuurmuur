@@ -1,10 +1,8 @@
 Installation instructions for Vuurmuur
 ======================================
 
-This is a far from finished installation script for Vuurmuur.
-
 Unpack the installer package with:
-gzip -cd Vuurmuur-0.5.66.tar.gz | tar -xvf -
+gzip -cd Vuurmuur-0.8rc2.tar.gz | tar -xvf -
 
 After this run install.sh like this:
 'sh install.sh --install' for a new installation.
@@ -21,9 +19,6 @@ and will use '/etc/vuurmuur' as configdir and '/var/log/vuurmuur' as logdir.
 
 New (versions of) services will be installed in the services map in $PREFIX/share/vuurmuur.
 Please copy them to your services map if you need them.
-
-The process takes about 3 minutes on a Celeron 2.2Ghz and about 10 minutes on a
-166Mhz Pentium I.
 
 If anything goes wrong see the install.log. It will (hopefully) contain pointers
 to what went wrong. Please contact me at victor@vuurmuur.org if you run into trouble.

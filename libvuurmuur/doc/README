@@ -1,27 +1,5 @@
 Please refer to INSTALL for information on installing Vuurmuur.
 
-Please look at INSTALL.DEBIAN for installing on Debian systems,
-INSTALL.MANDRAKE for Mandrake, INSTALL.SUSE for SUSE Linux.
-
 Other documentation is currently only available online. Please visit
-http://vuurmuur.sourceforge.net/
+https://www.vuurmuur.org/
 
-A wiki site is available at http://vuurmuur.twc-net.com/tiki/
-On the wiki a FAQ is also available.
-
-
-Especially take a look at the QuickSetupGuide, written by Philippe
-Baumgart, which will get you going with the configuration. The Guide
-can be found here:
-http://sourceforge.net/project/showfiles.php?group_id=114382&package_id=150383
-
-
-Vuurmuur supports using IPTrafficVolume (http://iptrafficvolume.sourceforge.net/)
-for keeping track of the traffic volume per interface. Please read this for
-instructions for setting it up:
-http://sourceforge.net/docman/display_doc.php?docid=26869&group_id=114382
-
-
-For using Vuurmuur with the Portscan Attack Detector (http://www.cipherdyne.org/),
-please read these instructions:
-http://sourceforge.net/docman/display_doc.php?docid=25631&group_id=114382
