@@ -1,4 +1,4 @@
-INCLUDES = 
+AM_CPPFLAGS = 
 METASOURCES = AUTO
 bin_PROGRAMS = vuurmuur_log
 vuurmuur_log_SOURCES = logfile.c vuurmuur_log.c nflog.c stats.c vuurmuur_ipc.c

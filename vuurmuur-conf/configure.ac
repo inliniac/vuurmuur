@@ -1,7 +1,8 @@
-AC_INIT(configure.ac)
+AC_INIT([vuurmuur-conf],[0.8rc2])
+AC_CONFIG_SRCDIR([src/vuurmuur_conf.c])
+AM_INIT_AUTOMAKE
 
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(vuurmuur_conf,0.8rc2)
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_USE_SYSTEM_EXTENSIONS

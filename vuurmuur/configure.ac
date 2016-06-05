@@ -1,7 +1,8 @@
-AC_INIT(configure.ac)
+AC_INIT([vuurmuur],[0.8rc2])
+AC_CONFIG_SRCDIR([vuurmuur/vuurmuur.c])
+AM_INIT_AUTOMAKE
 
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(vuurmuur,0.8rc2)
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_LANG_C

@@ -5,7 +5,7 @@ vuurmuur_conf_SOURCES = vuurmuur_conf.c config_section.c conn_sec.c if_sec.c \
         		gui.c statevent.c
 
 # set the include path found by configure
-INCLUDES = -I. -I.. -I$(top_srcdir)/intl $(all_includes)
+AM_CPPFLAGS = -I. -I.. -I$(top_srcdir)/intl $(all_includes)
 
 # the library search path.
 vuurmuur_conf_LDFLAGS = $(all_libraries) 

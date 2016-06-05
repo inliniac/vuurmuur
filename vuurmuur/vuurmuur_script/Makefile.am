@@ -1,4 +1,4 @@
-INCLUDES =
+AM_CPPFLAGS =
 METASOURCES = AUTO
 bin_PROGRAMS = vuurmuur_script
 
