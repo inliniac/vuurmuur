@@ -498,6 +498,40 @@ function SelectIncomingInternetRules
     done
 }
 
+function CreateBasicConfig
+{
+    SRCDIR=$($VMS --list-paths | grep DATADIR | awk '{print $2}')
+    if test ! -d ${SRCDIR}; then
+        echo "Error: can't setup config: $SRCDIR missing"
+        exit 1
+    fi
+    echo "SRCFILE $SRCFILE"
+    SRCFILE="${SRCDIR}/config/config.conf.sample"
+    if test ! -f ${SRCFILE}; then
+        echo "Error: can't setup config: $SRCFILE missing"
+        exit 1
+    fi
+    ETCDIR=$($VMS --list-paths | grep VUURMUURCONFDIR | awk '{print $2}')
+    if test ! -d ${ETCDIR}; then
+        install -m 700 -d ${ETCDIR}
+        install -m 700 -d "${ETCDIR}/zones"
+        install -m 700 -d "${ETCDIR}/services"
+        install -m 700 -d "${ETCDIR}/interfaces"
+        install -m 700 -d "${ETCDIR}/rules"
+    fi
+    if test ! -d "${ETCDIR}/plugins"; then
+        install -m 700 -d "${ETCDIR}/plugins"
+    fi
+    if test ! -f "${ETCDIR}/plugins/textdir.conf"; then
+        echo "LOCATION=${ETCDIR}" > "${ETCDIR}/plugins/textdir.conf"
+    fi
+
+    CONFIGFILE=$($VMS --list-paths | grep CONFIGFILE | awk '{print $2}')
+    if test ! -f ${CONFIGFILE}; then
+        install -m 600 ${SRCFILE} "${ETCDIR}/config.conf"
+    fi
+}
+
 #
 #
 ######################## start ############################
@@ -513,6 +547,8 @@ if [ "`$ID_PROG -g`" != "0" ]; then
     echo "Error: this script requires to be run as user root."
     exit 1
 fi
+
+CreateBasicConfig
 
 SELFTEST="$(vuurmuur_script -L -r rules 2>/dev/null)"
 SELFTESTR=$?
