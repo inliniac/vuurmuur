@@ -693,7 +693,7 @@ create_rule_input(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSe
             } else {
                 /* Ignore the rest of icmp */
             }
-                }
+        }
         else
         {
             (void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
@@ -939,7 +939,7 @@ create_rule_output(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleS
     /* check caps */
     if(conf->vrmr_check_iptcaps == TRUE)
     {
-        if( iptcap->target_queue == FALSE && 
+        if( iptcap->target_queue == FALSE &&
             strcmp(rule->action, "NEWQUEUE") == 0)
         {
             vrmr_warning("Warning", "output rule not "
@@ -947,7 +947,7 @@ create_rule_output(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleS
                     "this system.");
             return(0); /* this is not an error */
         }
-        else if(iptcap->target_nfqueue == FALSE && 
+        else if(iptcap->target_nfqueue == FALSE &&
             strcmp(rule->action, "NEWNFQUEUE") == 0)
         {
             vrmr_warning("Warning", "output rule not "
@@ -971,7 +971,7 @@ create_rule_output(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleS
                     "this system.");
             return(0); /* this is not an error */
         }
-        else if(iptcap->target_reject == FALSE && 
+        else if(iptcap->target_reject == FALSE &&
             strncmp(rule->action, "REJECT", 6) == 0)
         {
             vrmr_warning("Warning", "output rule not "
@@ -1163,7 +1163,7 @@ create_rule_output(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleS
             (void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
         else
             (void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
-        
+
         /* new, related, established */
         create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip, rule->from_netmask, rule->temp_src, sizeof(rule->temp_src));
         create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip, rule->to_netmask, rule->temp_dst, sizeof(rule->temp_dst));
@@ -1410,7 +1410,7 @@ create_rule_forward(const int debuglvl, struct vrmr_config *conf, /*@null@*/Rule
                     "this system.");
             return(0); /* this is not an error */
         }
-        else if(iptcap->target_log == FALSE && 
+        else if(iptcap->target_log == FALSE &&
             strncmp(rule->action, "LOG", 3) == 0)
         {
             vrmr_warning("Warning", "forward rule not "
@@ -1418,7 +1418,7 @@ create_rule_forward(const int debuglvl, struct vrmr_config *conf, /*@null@*/Rule
                     "this system.");
             return(0); /* this is not an error */
         }
-        else if(iptcap->target_reject == FALSE && 
+        else if(iptcap->target_reject == FALSE &&
             strncmp(rule->action, "REJECT", 6) == 0)
         {
             vrmr_warning("Warning", "forward rule not "
@@ -1495,7 +1495,7 @@ create_rule_forward(const int debuglvl, struct vrmr_config *conf, /*@null@*/Rule
             } else {
                 /* Ignore the rest of icmp */
             }
-                }
+        }
         else
         {
             (void)strlcpy(temp_src_port, rule->temp_src_port, sizeof(temp_src_port));
