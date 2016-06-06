@@ -333,5 +333,7 @@ vrmr_backends_unload(const int debuglvl, struct vrmr_config *cfg, struct vrmr_ct
 
     if (unload_plugin(debuglvl, &vrmr_plugin_list, cfg->rule_backend_name, &vctx->rf) < 0)
         return(-1);
+
+    vrmr_list_cleanup(debuglvl, &vrmr_plugin_list);
     return(0);
 }

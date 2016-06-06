@@ -2232,7 +2232,7 @@ int vrmr_init(struct vrmr_ctx *ctx, char *toolname) {
     vrprint.username = ctx->user_data.realusername;
 
     /* init plugin list */
-    vrmr_list_setup(debuglvl, &vrmr_plugin_list, NULL);
+    vrmr_list_setup(debuglvl, &vrmr_plugin_list, free);
 
     /* setup regexes */
     if (vrmr_regex_setup(1, &ctx->reg) < 0)
