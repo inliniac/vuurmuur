@@ -177,6 +177,8 @@ typedef struct
     */
     struct vrmr_list  raw_preroute;               /* list with rules */
     char    raw_preroute_policy;
+    struct vrmr_list  raw_output;                 /* list with rules */
+    char    raw_output_policy;
 
     /*
         mangle
