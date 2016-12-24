@@ -562,7 +562,8 @@ create_rule_input(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSe
 
     /* if CT and raw are available, create a CT rule */
     if (strcmp(rule->helper, "") != 0 && (!conf->vrmr_check_iptcaps ||
-                (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)))
+                (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)) &&
+                (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0))
     {
         snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -m connmark --mark 0 -j CT --helper %s",
                 input_device,
@@ -1023,7 +1024,8 @@ create_rule_output(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleS
 
     /* if CT and raw are available, create a CT rule */
     if (strcmp(rule->helper, "") != 0 && (!conf->vrmr_check_iptcaps ||
-                (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)))
+                (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)) &&
+                (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0))
     {
         snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -j CT --helper %s",
                 output_device, rule->proto, rule->temp_src,
@@ -1486,7 +1488,8 @@ create_rule_forward(const int debuglvl, struct vrmr_config *conf, /*@null@*/Rule
 
     /* if CT and raw are available, create a CT rule */
     if (strcmp(rule->helper, "") != 0 && (!conf->vrmr_check_iptcaps ||
-                (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)))
+                (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)) &&
+                (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0))
     {
         snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -j CT --helper %s",
                 input_device, rule->proto,
