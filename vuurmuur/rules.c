@@ -1289,7 +1289,9 @@ rulecreate_dst_loop (const int debuglvl, struct vrmr_config *conf, /*@null@*/Rul
         }
     }
     /* network */
-    else if (create->to->type == VRMR_TYPE_NETWORK) {
+    else if (create->to->type == VRMR_TYPE_NETWORK &&
+             create->to_broadcast == FALSE)
+    {
         if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_to.ipaddress,
                     create->to->ipv4.network,
@@ -1308,6 +1310,23 @@ rulecreate_dst_loop (const int debuglvl, struct vrmr_config *conf, /*@null@*/Rul
 
         if (create->to->active == 1) {
             retval = rulecreate_create_rule_and_options(debuglvl, conf, ruleset, rule, create, iptcap);
+        }
+    }
+    /* network broadcast address (ipv4 only) */
+    else if (create->to->type == VRMR_TYPE_NETWORK &&
+             create->to_broadcast == TRUE)
+    {
+        if (rule->ipv == VRMR_IPV4) {
+            (void)strlcpy(rule->ipv4_to.ipaddress,
+                    create->to->ipv4.broadcast,
+                    sizeof(rule->ipv4_to.ipaddress));
+            (void)strlcpy(rule->ipv4_to.netmask,
+                    "255.255.255.255",
+                    sizeof(rule->ipv4_to.netmask));
+
+            if (create->to->active == 1) {
+                retval = rulecreate_create_rule_and_options(debuglvl, conf, ruleset, rule, create, iptcap);
+            }
         }
     } else if (create->to->type == VRMR_TYPE_ZONE) {
         if (rule->ipv == VRMR_IPV4) {
