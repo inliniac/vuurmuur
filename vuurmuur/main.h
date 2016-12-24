@@ -326,6 +326,8 @@ int create_rule_portfw(const int, struct vrmr_config *conf, /*@null@*/RuleSet *,
 int create_rule_redirect(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
 int create_rule_dnat(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
 int create_rule_bounce(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_output_broadcast(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_input_broadcast(const int, struct vrmr_config *conf, /*@null@*/RuleSet *, struct RuleCreateData_ *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
 
 int clear_vuurmuur_iptables_rules(const int debuglvl, struct vrmr_config *cnf);
 int clear_all_iptables_rules(const int debuglvl, struct vrmr_config *);

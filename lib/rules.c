@@ -37,7 +37,9 @@
  *     -1: invalid query
  */
 static int
-determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char *action, size_t size, struct vrmr_rule_options *option)
+determine_action(const int debuglvl, struct vrmr_config *cfg, char *query,
+        char *action, size_t size,
+        struct vrmr_rule_options *option, int broadcast)
 {
     int action_type = 0;
 
@@ -60,6 +62,8 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char 
     if(action_type == VRMR_AT_ACCEPT)
     {
         (void)strlcpy(action, "NEWACCEPT", size);
+        if (broadcast)
+            (void)strlcpy(action, "ACCEPT", size);
     }
     else if(action_type == VRMR_AT_DROP)
     {
@@ -140,6 +144,8 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char 
     else if(action_type == VRMR_AT_NFQUEUE)
     {
         (void)strlcpy(action, "NEWNFQUEUE", size);
+        if (broadcast)
+            (void)strlcpy(action, "NFQUEUE", size);
     }
     else if(action_type == VRMR_AT_NFLOG)
     {
@@ -362,13 +368,23 @@ vrmr_rules_analyze_rule( const int debuglvl,
             if(strcasecmp(rule_ptr->to, "firewall(any)") == 0)
                 create->to_firewall_any = TRUE;
         }
-        else if(strcasecmp(rule_ptr->to, "any") == 0)
-        {
+        else if(strcasecmp(rule_ptr->to, "any") == 0) {
             /* we get the data later */
             create->to_any = TRUE;
-        }
-        else
-        {
+        } else if (strstr(rule_ptr->to, "(broadcast)") != NULL) {
+            char network_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+            strlcpy(network_name, rule_ptr->to, sizeof(network_name));
+            network_name[strlen(network_name) - 11] = '\0';
+
+            /* get the pointer to the zonedata in the ZonedataList */
+            if(!(create->to = vrmr_search_zonedata(debuglvl, zones, network_name)))
+            {
+                vrmr_error(-1, "Error", "'to' zone '%s' not found (in: %s).", rule_ptr->to, __FUNC__);
+                return(-1);
+            }
+
+            create->to_broadcast = TRUE;
+        } else {
             /* get the pointer to the zonedata in the ZonedataList */
             if(!(create->to = vrmr_search_zonedata(debuglvl, zones, rule_ptr->to)))
             {
@@ -420,7 +436,9 @@ vrmr_rules_analyze_rule( const int debuglvl,
             create->option = *rule_ptr->opt;
 
         /* determine which action to take (ACCEPT, DROP, REJECT etc.). */
-        if(determine_action(debuglvl, cnf, vrmr_rules_itoaction(rule_ptr->action), create->action, sizeof(create->action), &create->option) == 0)
+        if(determine_action(debuglvl, cnf, vrmr_rules_itoaction(rule_ptr->action),
+                    create->action, sizeof(create->action), &create->option,
+                    create->to_broadcast) == 0)
         {
             if(debuglvl >= HIGH)
                 vrmr_debug(__FUNC__, "determine_action succes, create->action = %s",
@@ -3712,13 +3730,14 @@ vrmr_rules_determine_ruletype(const int debuglvl, struct vrmr_rule *rule_ptr)
         return(VRMR_RT_ERROR);
     }
 
-    /* output */
+    /* output: when source is firewall */
     if(strncasecmp(rule_ptr->from, "firewall", 8) == 0)
     {
         ruletype = VRMR_RT_OUTPUT;
     }
-    /* input */
-    else if(strncasecmp(rule_ptr->to, "firewall", 8) == 0)
+    /* input: when dest is firewall, or when dest is broadcast
+     * When src is firewall and dest broadcast it's output. */
+    else if (strncasecmp(rule_ptr->to, "firewall", 8) == 0)
     {
         ruletype = VRMR_RT_INPUT;
     }
