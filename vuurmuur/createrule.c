@@ -2465,6 +2465,275 @@ create_rule_bounce( const int debuglvl, struct vrmr_config *conf, /*@null@*/Rule
     return(retval);
 }
 
+/*  create_rule_input_broadcast
+
+    Creates a rule in the input chain.
+
+    Returncodes:
+        -1: error
+         0: ok
+*/
+int
+create_rule_input_broadcast(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ruleset,
+            struct RuleCreateData_ *rule,
+            struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
+{
+    int             retval = 0;
+    char            cmd[VRMR_MAX_PIPE_COMMAND] = "",
+                    stripped_proto[16] = "";    /* proto stripped from --syn */
+    char            input_device[sizeof(rule->from_int) + 3] = "";
+    unsigned long   nfmark = 0;
+
+
+    /* safety */
+    if(rule == NULL || create == NULL || iptcap == NULL)
+    {
+        vrmr_error(-1, "Internal Error", "parameter problem "
+                "(in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* check caps */
+    if(conf->vrmr_check_iptcaps == TRUE)
+    {
+        if(iptcap->target_nfqueue == FALSE &&
+            strcmp(rule->action, "NEWNFQUEUE") == 0)
+        {
+            vrmr_warning("Warning", "input rule not "
+                    "created: NFQUEUE not supported by "
+                    "this system.");
+            return(0); /* this is not an error */
+        }
+        else if(iptcap->target_nflog == FALSE &&
+            strcmp(rule->action, "NEWNFLOG") == 0)
+        {
+            vrmr_warning("Warning", "input rule not "
+                    "created: NFLOG not supported by "
+                    "this system.");
+            return(0); /* this is not an error */
+        }
+        else if(iptcap->target_log == FALSE &&
+            strncmp(rule->action, "LOG", 3) == 0)
+        {
+            vrmr_warning("Warning", "input rule not "
+                    "created: LOG not supported by "
+                    "this system.");
+            return(0); /* this is not an error */
+        }
+        else if(iptcap->target_reject == FALSE &&
+            strncmp(rule->action, "REJECT", 6) == 0)
+        {
+            vrmr_warning("Warning", "input rule not "
+                    "created: REJECT not supported by "
+                    "this system.");
+            return(0); /* this is not an error */
+        }
+    }
+
+    /* handle empty device (virtual) */
+    if(rule->from_int[0] != '\0')
+        snprintf(input_device, sizeof(input_device), "-i %s",
+                rule->from_int);
+
+    /* create source and destination strings */
+    create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip,
+            rule->from_netmask, rule->temp_src,
+            sizeof(rule->temp_src));
+    create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip,
+            rule->to_netmask, rule->temp_dst,
+            sizeof(rule->temp_dst));
+
+    /* create the rule */
+    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s -j %s",
+            input_device, rule->proto, rule->temp_src,
+            rule->temp_src_port, rule->temp_dst,
+            rule->temp_dst_port, rule->from_mac, rule->limit,
+            rule->action);
+
+    /* add it to the list */
+    if(queue_rule(debuglvl, rule, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+        return(-1);
+
+    create->iptcount.input++;
+
+    /*  if the target is NEWQUEUE we mark the traffic
+
+        if nfmark is set as well, unless we handle the LOG rule
+
+        if the protocol is ICMP, we dont create mark rules
+    */
+    if( (create->option.nfmark > 0 &&
+                strncasecmp(rule->action, "LOG", 3) != 0 &&
+                strncasecmp(rule->action, "NFLOG", 5) != 0)
+            &&
+        (rule->portrange_ptr == NULL || rule->portrange_ptr->protocol != 1))
+    {
+        nfmark = create->option.nfmark;
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "nfmark '%lu'.", nfmark);
+
+        /* check cap */
+        if(conf->vrmr_check_iptcaps == TRUE)
+        {
+            if(iptcap->target_mark == FALSE)
+            {
+                vrmr_warning("Warning", "mark rules not created: MARK not supported by this system.");
+                return(0); /* this is not an error */
+            }
+        }
+
+        /* create mangle rules for 'normal' QUEUE, or just set nfmark */
+
+        /* we dont want '--syn' in the next rules */
+        if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
+            (void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
+        else
+            (void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
+
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -j MARK --set-mark %lu",
+            input_device, stripped_proto, rule->temp_src,
+            rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
+            rule->from_mac, nfmark);
+
+        if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+            return(-1);
+    }
+    return(retval);
+}
+
+/*  create_rule_output_broadcast
+
+    Creates a broadcast rule in the output chain.
+
+    Returncodes:
+        -1: error
+         0: ok
+*/
+int
+create_rule_output_broadcast(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ruleset,
+            struct RuleCreateData_ *rule,
+            struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
+{
+    int             retval = 0;
+    char            cmd[VRMR_MAX_PIPE_COMMAND] = "",
+                    stripped_proto[16] = "";    /* proto stripped from --syn */
+    char            output_device[sizeof(rule->to_int) + 3] = "";
+    unsigned long   nfmark = 0;
+
+    /* safety */
+    if(rule == NULL || create == NULL || iptcap == NULL)
+    {
+        vrmr_error(-1, "Internal Error", "parameter problem "
+                "(in: %s:%d).", __FUNC__, __LINE__);
+        return(-1);
+    }
+
+    /* check caps */
+    if(conf->vrmr_check_iptcaps == TRUE)
+    {
+        if (iptcap->target_nfqueue == FALSE &&
+            strcmp(rule->action, "NEWNFQUEUE") == 0)
+        {
+            vrmr_warning("Warning", "output rule not "
+                    "created: NFQUEUE not supported by "
+                    "this system.");
+            return(0); /* this is not an error */
+        }
+        else if(iptcap->target_nflog == FALSE &&
+            strcmp(rule->action, "NEWNFLOG") == 0)
+        {
+            vrmr_warning("Warning", "output rule not "
+                    "created: NFLOG not supported by "
+                    "this system.");
+            return(0); /* this is not an error */
+        }
+        else if(iptcap->target_log == FALSE &&
+            strncmp(rule->action, "LOG", 3) == 0)
+        {
+            vrmr_warning("Warning", "output rule not "
+                    "created: LOG not supported by "
+                    "this system.");
+            return(0); /* this is not an error */
+        }
+        else if(iptcap->target_reject == FALSE &&
+            strncmp(rule->action, "REJECT", 6) == 0)
+        {
+            vrmr_warning("Warning", "output rule not "
+                    "created: REJECT not supported by "
+                    "this system.");
+            return(0); /* this is not an error */
+        }
+    }
+
+    /* handle empty device (virtual) */
+    if(rule->to_int[0] != '\0')
+        snprintf(output_device, sizeof(output_device), "-o %s",
+                rule->to_int);
+
+    create_srcdst_string(debuglvl, SRCDST_SOURCE, rule->from_ip,
+            rule->from_netmask, rule->temp_src,
+            sizeof(rule->temp_src));
+    create_srcdst_string(debuglvl, SRCDST_DESTINATION, rule->to_ip,
+            rule->to_netmask, rule->temp_dst,
+            sizeof(rule->temp_dst));
+
+    snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -j %s",
+            output_device, rule->proto, rule->temp_src,
+            rule->temp_src_port, rule->temp_dst,
+            rule->temp_dst_port, rule->limit, /* log limit */
+            rule->action);
+
+    if(queue_rule(debuglvl, rule, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+        return(-1);
+
+    /* update rule counter */
+    create->iptcount.output++;
+
+
+    /*  if the target is QUEUE we mark the traffic
+
+        if nfmark is set as well, unless we handle the LOG rule
+    */
+    if( (create->option.nfmark > 0 && strncasecmp(rule->action, "LOG", 3) != 0 && strncasecmp(rule->action, "NFLOG", 5) != 0)
+            &&
+        (rule->portrange_ptr == NULL || rule->portrange_ptr->protocol != 1))
+    {
+        nfmark = create->option.nfmark;
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "nfmark '%lu'.", nfmark);
+
+        /* check cap */
+        if(conf->vrmr_check_iptcaps == TRUE)
+        {
+            if(iptcap->target_mark == FALSE)
+            {
+                vrmr_warning("Warning", "mark rules not created: MARK not supported by this system.");
+                return(0); /* this is not an error */
+            }
+        }
+
+        /* create mangle rules for 'normal' QUEUE, or for setting nfmark */
+
+        /* we dont want --syn in the next rules */
+        if(strcmp(rule->proto, "-p tcp -m tcp --syn") == 0)
+            (void)strlcpy(stripped_proto, "-p tcp -m tcp", sizeof(stripped_proto));
+        else
+            (void)strlcpy(stripped_proto, rule->proto, sizeof(stripped_proto));
+
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -j MARK --set-mark %lu",
+            output_device, stripped_proto, rule->temp_src,
+            rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
+            nfmark);
+
+        if(queue_rule(debuglvl, rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+            return(-1);
+    }
+
+    return(retval);
+}
+
 
 static int
 create_interface_tcpmss_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ruleset,

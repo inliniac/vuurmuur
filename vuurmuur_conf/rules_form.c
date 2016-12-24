@@ -3962,8 +3962,11 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                             vrmr_fatal_if_null(d_node->data);
                             zone_ptr = d_node->data;
 
-                            if(zone_ptr->type != VRMR_TYPE_FIREWALL)
-                            {
+                            if(zone_ptr->type != VRMR_TYPE_FIREWALL) {
+                                zone_choices_n++;
+                            }
+                            /* extra one for network(broadcast) */
+                            if (zone_ptr->type == VRMR_TYPE_NETWORK) {
                                 zone_choices_n++;
                             }
                         }
@@ -3977,11 +3980,21 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                             vrmr_fatal_if_null(d_node->data);
                             zone_ptr = d_node->data;
 
-                            if(zone_ptr->type != VRMR_TYPE_FIREWALL)
-                            {
-                                zone_choices[i] = zone_ptr->name;
+                            if (zone_ptr->type == VRMR_TYPE_FIREWALL)
+                                continue;
+
+                            /* extra one for network(broadcast) */
+                            if (zone_ptr->type == VRMR_TYPE_NETWORK) {
+                                snprintf(zone_ptr->broadcast_name,
+                                        sizeof(zone_ptr->broadcast_name),
+                                        "%s.%s(broadcast)",
+                                        zone_ptr->network_name,
+                                        zone_ptr->zone_name);
+                                zone_choices[i] = zone_ptr->broadcast_name;
                                 i--;
                             }
+                            zone_choices[i] = zone_ptr->name;
+                            i--;
                         }
                         zone_choices[0] = "firewall";
                         zone_choices[1] = "firewall(any)";

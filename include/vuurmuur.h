@@ -86,6 +86,7 @@
 
 #define VRMR_MAX_HOST                32
 #define VRMR_MAX_NETWORK             32
+#define VRMR_MAX_BROADCAST           (VRMR_MAX_NETWORK + 11) /* network(broadcast) */
 #define VRMR_MAX_ZONE                32
 
 #define VRMR_MAX_NET_ZONE            VRMR_MAX_NETWORK+VRMR_MAX_ZONE
@@ -747,6 +748,7 @@ struct vrmr_zone {
     /* for names */
     char                host_name[VRMR_MAX_HOST];
     char                network_name[VRMR_MAX_NETWORK];
+    char                broadcast_name[VRMR_MAX_BROADCAST]; /* network(broadcast) */
     char                zone_name[VRMR_MAX_ZONE];
 
     /* pointers to parent zone and network (NULL if zone/network) */
@@ -819,6 +821,7 @@ struct vrmr_rule_cache {
 
     char                from_any;           /* from is 'any' */
     char                to_any;             /* to is 'any' */
+    char                to_broadcast;
     char                service_any;        /* service is 'any' */
 
     struct vrmr_zone            *from;              /* from data */
