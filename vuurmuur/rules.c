@@ -673,40 +673,61 @@ rulecreate_call_create_funcs(const int debuglvl, struct vrmr_config *conf, /*@nu
     /* normal output rules */
     else if(create->ruletype == VRMR_RT_OUTPUT)
     {
-        if(create_rule_output(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
-        {
-            vrmr_error(-1, "Error", "creating output rule failed (in: %s).", __FUNC__);
-            retval = -1;
-        }
-    }
-    /* normal forward rules */
-    else if(create->ruletype == VRMR_RT_FORWARD)
-    {
-        if(create_rule_forward(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
-        {
-            vrmr_error(-1, "Error", "creating forward rule failed (in: %s).", __FUNC__);
-            retval = -1;
-        }
-        /*  a bit of a hack: if from is any we need output as well
-            because from 'any' can be firewall as well.
-        */
-        if(create->from_any == TRUE)
-        {
+        if (create->to_broadcast) {
+            if(create_rule_output_broadcast(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
+            {
+                vrmr_error(-1, "Error", "creating output rule failed (in: %s).", __FUNC__);
+                retval = -1;
+            }
+            if(create_rule_input_broadcast(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
+            {
+                vrmr_error(-1, "Error", "creating forward rule failed (in: %s).", __FUNC__);
+                retval = -1;
+            }
+        } else {
             if(create_rule_output(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
             {
                 vrmr_error(-1, "Error", "creating output rule failed (in: %s).", __FUNC__);
                 retval = -1;
             }
         }
-        /*  a bit of a hack: if to is any we need input as well
-            because to 'any' can be firewall as well.
-        */
-        if(create->to_any == TRUE)
-        {
-            if(create_rule_input(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
+    }
+    /* normal forward rules */
+    else if(create->ruletype == VRMR_RT_FORWARD)
+    {
+        if (create->to_broadcast) {
+            if(create_rule_input_broadcast(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
             {
-                vrmr_error(-1, "Error", "creating input rule failed (in: %s).", __FUNC__);
+                vrmr_error(-1, "Error", "creating forward rule failed (in: %s).", __FUNC__);
                 retval = -1;
+            }
+        } else {
+            if(create_rule_forward(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
+            {
+                vrmr_error(-1, "Error", "creating forward rule failed (in: %s).", __FUNC__);
+                retval = -1;
+            }
+            /*  a bit of a hack: if from is any we need output as well
+                because from 'any' can be firewall as well.
+             */
+            if(create->from_any == TRUE)
+            {
+                if(create_rule_output(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
+                {
+                    vrmr_error(-1, "Error", "creating output rule failed (in: %s).", __FUNC__);
+                    retval = -1;
+                }
+            }
+            /*  a bit of a hack: if to is any we need input as well
+                because to 'any' can be firewall as well.
+             */
+            if(create->to_any == TRUE)
+            {
+                if(create_rule_input(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
+                {
+                    vrmr_error(-1, "Error", "creating input rule failed (in: %s).", __FUNC__);
+                    retval = -1;
+                }
             }
         }
     }
@@ -968,7 +989,7 @@ rulecreate_create_rule_and_options(const int debuglvl, struct vrmr_config *conf,
         memset(rule->limit, 0, sizeof(rule->limit));
     }
 
-    if (rule->ipv == VRMR_IPV4) {
+    if (rule->ipv == VRMR_IPV4 && create->to_broadcast == FALSE) {
         /* if we have a broadcasting protocol and want logging, and haven't logged yet */
         if (create->service != NULL &&
                 create->service->broadcast == TRUE &&
@@ -1289,7 +1310,9 @@ rulecreate_dst_loop (const int debuglvl, struct vrmr_config *conf, /*@null@*/Rul
         }
     }
     /* network */
-    else if (create->to->type == VRMR_TYPE_NETWORK) {
+    else if (create->to->type == VRMR_TYPE_NETWORK &&
+             create->to_broadcast == FALSE)
+    {
         if (rule->ipv == VRMR_IPV4) {
             (void)strlcpy(rule->ipv4_to.ipaddress,
                     create->to->ipv4.network,
@@ -1308,6 +1331,23 @@ rulecreate_dst_loop (const int debuglvl, struct vrmr_config *conf, /*@null@*/Rul
 
         if (create->to->active == 1) {
             retval = rulecreate_create_rule_and_options(debuglvl, conf, ruleset, rule, create, iptcap);
+        }
+    }
+    /* network broadcast address (ipv4 only) */
+    else if (create->to->type == VRMR_TYPE_NETWORK &&
+             create->to_broadcast == TRUE)
+    {
+        if (rule->ipv == VRMR_IPV4) {
+            (void)strlcpy(rule->ipv4_to.ipaddress,
+                    create->to->ipv4.broadcast,
+                    sizeof(rule->ipv4_to.ipaddress));
+            (void)strlcpy(rule->ipv4_to.netmask,
+                    "255.255.255.255",
+                    sizeof(rule->ipv4_to.netmask));
+
+            if (create->to->active == 1) {
+                retval = rulecreate_create_rule_and_options(debuglvl, conf, ruleset, rule, create, iptcap);
+            }
         }
     } else if (create->to->type == VRMR_TYPE_ZONE) {
         if (rule->ipv == VRMR_IPV4) {
@@ -1648,6 +1688,12 @@ rulecreate_service_loop (const int debuglvl, struct vrmr_config *conf, /*@null@*
             vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
                 __FUNC__, __LINE__);
             return(-1);
+        }
+
+        /* TODO check what protos need to be supported */
+        if (create->to_broadcast &&
+            (rule->ipv == VRMR_IPV6 || rule->portrange_ptr->protocol != 17)) {
+            continue;
         }
 
         /* skip ICMP for IPv6 */
@@ -2157,13 +2203,13 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             {
                 vrmr_info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
                 active = 0;
-            vrmr_debug(__FUNC__, "active %d (dynamic up check)", active);
+                vrmr_debug(__FUNC__, "active %d (dynamic up check)", active);
             }
 #ifdef IPV6_ENABLED
             if (rule->ipv == VRMR_IPV6 &&
                     !vrmr_interface_ipv6_enabled(debuglvl, rule->from_if_ptr)) {
                 active = 0;
-            vrmr_debug(__FUNC__, "active %d (ipv6)", active);
+                vrmr_debug(__FUNC__, "active %d (ipv6)", active);
             }
 #endif
             if (active == 1) {

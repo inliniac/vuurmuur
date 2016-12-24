@@ -1166,6 +1166,7 @@ vrmr_add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
 int
 vrmr_validate_zonename(const int debuglvl, const char *zonename, int onlyvalidate, char *zone, char *network, char *host, regex_t *reg_ex, char quiet)
 {
+    char name[VRMR_VRMR_MAX_HOST_NET_ZONE];
     int         retval=0;
     /* this initalization pleases splint */
     regmatch_t  reg_match[8] = {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}};
@@ -1173,9 +1174,15 @@ vrmr_validate_zonename(const int debuglvl, const char *zonename, int onlyvalidat
     if(debuglvl >= MEDIUM)
         vrmr_debug(__FUNC__, "checking: %s, onlyvalidate: %s.", zonename, onlyvalidate ? "Yes" : "No");
 
+    strlcpy(name, zonename, sizeof(name));
+
+    if (strstr(zonename, "(broadcast)") != NULL) {
+        name[strlen(name) - 11] = '\0';
+    }
+
     if(onlyvalidate == 1)
     {
-        if(regexec(reg_ex, zonename, 0, NULL, 0) != 0)
+        if(regexec(reg_ex, name, 0, NULL, 0) != 0)
         {
             if(quiet == VRMR_VERBOSE)
                 vrmr_error(-1, "Error", "zonename '%s' is invalid. A zonename can contain normal letters and numbers and the underscore (_) and minus (-) characters.", zonename);
@@ -1189,7 +1196,7 @@ vrmr_validate_zonename(const int debuglvl, const char *zonename, int onlyvalidat
 
     if(onlyvalidate == 0)
     {
-        if(regexec(reg_ex, zonename, 8, reg_match, 0) != 0)
+        if(regexec(reg_ex, name, 8, reg_match, 0) != 0)
         {
             if(quiet == VRMR_VERBOSE)
                 vrmr_error(-1, "Error", "zonename '%s' is invalid. A zonename can contain normal letters and numbers and the underscore (_) and minus (-) characters.", zonename);
@@ -1215,24 +1222,24 @@ vrmr_validate_zonename(const int debuglvl, const char *zonename, int onlyvalidat
                 }
                 else
                 {
-                    (void)range_strcpy(zone, zonename, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, VRMR_MAX_ZONE);
+                    (void)range_strcpy(zone, name, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, VRMR_MAX_ZONE);
                     if(debuglvl >= HIGH)
                         vrmr_debug(__FUNC__, "zone: %s.", zone);
                 }
             }
             else
             {
-                (void)range_strcpy(network, zonename, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, VRMR_MAX_NETWORK);
-                (void)range_strcpy(zone, zonename, (size_t)reg_match[4].rm_so, (size_t)reg_match[4].rm_eo, VRMR_MAX_ZONE);
+                (void)range_strcpy(network, name, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, VRMR_MAX_NETWORK);
+                (void)range_strcpy(zone, name, (size_t)reg_match[4].rm_so, (size_t)reg_match[4].rm_eo, VRMR_MAX_ZONE);
                 if(debuglvl >= HIGH)
                     vrmr_debug(__FUNC__, "zone: %s, network: %s.", zone, network);
             }
         }
         else
         {
-            (void)range_strcpy(host, zonename, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, VRMR_MAX_HOST);
-            (void)range_strcpy(network, zonename, (size_t)reg_match[4].rm_so, (size_t)reg_match[4].rm_eo, VRMR_MAX_NETWORK);
-            (void)range_strcpy(zone, zonename, (size_t)reg_match[7].rm_so, (size_t)reg_match[7].rm_eo, VRMR_MAX_ZONE);
+            (void)range_strcpy(host, name, (size_t)reg_match[1].rm_so, (size_t)reg_match[1].rm_eo, VRMR_MAX_HOST);
+            (void)range_strcpy(network, name, (size_t)reg_match[4].rm_so, (size_t)reg_match[4].rm_eo, VRMR_MAX_NETWORK);
+            (void)range_strcpy(zone, name, (size_t)reg_match[7].rm_so, (size_t)reg_match[7].rm_eo, VRMR_MAX_ZONE);
             if(debuglvl >= HIGH)
                 vrmr_debug(__FUNC__, "zone: %s, network: %s, host: %s.", zone, network, host);
         }
