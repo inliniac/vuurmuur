@@ -1988,8 +1988,10 @@ struct
             *helperlabelfld,
             *helperfld,
             
-            *norangewarningfld;
+            *norangewarningfld,
 
+            *portrangesfld;
+    int portranges_lines;
 } ServiceSec;
 
 
@@ -2107,6 +2109,105 @@ edit_service_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     return(retval);
 }
 
+#define MAX_RANGES 4
+
+static void
+edit_service_update_portrangesfld(const int debuglvl, struct vrmr_ctx *vctx,
+        struct vrmr_service *ser_ptr)
+{
+    struct vrmr_portdata *portrange_ptr = NULL;
+    struct vrmr_list_node *d_node = NULL;
+    int i;
+    const int lines = ServiceSec.portranges_lines;
+    int bsize = lines * 48;
+
+    char buffer[bsize];
+    memset(buffer, 0, bsize);
+
+    if (ServiceSec.portranges_lines == 0)
+        return;
+
+    for(d_node = ser_ptr->PortrangeList.top, i = 1; d_node; d_node = d_node->next, i++)
+    {
+        if(!(portrange_ptr = d_node->data))
+            return;
+
+        char line[49] = "";
+        int size = 49;
+        size_t len;
+
+        if (i == MAX_RANGES && ser_ptr->PortrangeList.len > MAX_RANGES) {
+            snprintf(line, sizeof(line), gettext("%d more portrange(s). Press F6 to manage."),
+                    ser_ptr->PortrangeList.len - (i - 1));
+            goto finalize;
+        }
+
+        if(portrange_ptr->protocol == 6)
+            strlcat(line, "TCP : ", size);
+        else if(portrange_ptr->protocol == 17)
+            strlcat(line, "UDP : ", size);
+        else if(portrange_ptr->protocol == 1)
+            strlcat(line, "ICMP: ", size);
+        else if(portrange_ptr->protocol == 47)
+            strlcat(line, "GRE : ", size);
+        else if(portrange_ptr->protocol == 50)
+            strlcat(line, "ESP : ", size);
+        else if(portrange_ptr->protocol == 51)
+            strlcat(line, "AH  : ", size);
+        else
+        {
+            char proto[7];
+            snprintf(proto, sizeof(proto), "%03d : ", portrange_ptr->protocol);
+            strlcat(line, proto, size);
+        }
+
+        if(portrange_ptr->protocol == 6 || portrange_ptr->protocol == 17)
+        {
+            char range[64];
+
+            if (portrange_ptr->src_high == 0 && portrange_ptr->dst_high == 0) {
+                snprintf(range, sizeof(range), "%11d -> %d",
+                    portrange_ptr->src_low, portrange_ptr->dst_low);
+            } else if (portrange_ptr->src_high != 0 && portrange_ptr->dst_high == 0) {
+                snprintf(range, sizeof(range), "%5d:%5d -> %d                              ",
+                    portrange_ptr->src_low, portrange_ptr->src_high,
+                    portrange_ptr->dst_low);
+            } else if (portrange_ptr->src_high == 0 && portrange_ptr->dst_high != 0) {
+                snprintf(range, sizeof(range), "%11d -> %d:%d",
+                    portrange_ptr->src_low, portrange_ptr->dst_low,
+                    portrange_ptr->dst_high);
+            } else {
+                snprintf(range, sizeof(range), "%5d:%5d -> %d:%d",
+                    portrange_ptr->src_low, portrange_ptr->src_high,
+                    portrange_ptr->dst_low, portrange_ptr->dst_high);
+
+            }
+            strlcat(line, range, size);
+        }
+        else if(portrange_ptr->protocol == 1)
+        {
+            char range[64];
+            snprintf(range, sizeof(range), "type: %d, code: %d.", portrange_ptr->dst_low, portrange_ptr->dst_high);
+            strlcat(line, range, size);
+        }
+        else
+        {
+            strlcat(line, gettext("uses no ports."), size);
+        }
+    finalize:
+        /* pad line with spaces */
+        len = StrMemLen(line);
+        for (size_t x = len; x < sizeof(line); x++) {
+            line[x] = ' ';
+            if (x == sizeof(line) - 1)
+                line[x] = '\0';
+        }
+        strlcat(buffer, line, bsize);
+        if (i == MAX_RANGES)
+            break;
+    }
+    set_field_buffer_wrap(debuglvl, ServiceSec.portrangesfld, 0, buffer);
+}
 
 static int
 edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
@@ -2116,10 +2217,9 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
                     comment_y=0,
                     comment_x=0;
     int             height, width, starty, startx, max_height, max_width;
-    struct vrmr_portdata *portrange_ptr = NULL;
-    struct vrmr_list_node     *d_node = NULL;
     size_t          field_num = 0,
                     i = 0;
+    int             portranges_lines = 0;
 
     /* safety */
     if(ser_ptr == NULL)
@@ -2133,12 +2233,15 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     /* get the screen dimentions for dynamically
      * sizing the window */
     getmaxyx(stdscr, max_height, max_width);
-    height = 20 + ser_ptr->PortrangeList.len;
-    if(height > max_height - 8)
+    height = 24;
+    if (height > max_height - 8)
         height = max_height - 8;
     if (height < 20)
         height = 20;
     width = 54;
+    if (height >= 24)
+        portranges_lines = height - 20;
+    ServiceSec.portranges_lines = portranges_lines;
 
     /* place on the same y as "edit service" */
     VrWinGetOffset(-1, -1, height, width, 4, ServicesSection.sl_xre + 1, &starty, &startx);
@@ -2146,7 +2249,7 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     ServicesSection.EditService.se_yle = starty + height;
 
     /* 4 fields: active, broadcast, comment and helper */
-    ServicesSection.EditService.n_fields = 9;
+    ServicesSection.EditService.n_fields = 10;
     if(!(ServicesSection.EditService.fields = (FIELD **)calloc(ServicesSection.EditService.n_fields + 1, sizeof(FIELD *))))
     {
         vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
@@ -2196,6 +2299,10 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     field_opts_off(ServiceSec.norangewarningfld, O_VISIBLE|O_ACTIVE);
     set_field_just(ServiceSec.norangewarningfld, JUSTIFY_CENTER);
 
+    ServiceSec.portrangesfld = (ServicesSection.EditService.fields[field_num++] = new_field(portranges_lines, 48, 17, 1, 0, 0));
+    field_opts_off(ServiceSec.portrangesfld, O_ACTIVE);
+    set_field_just(ServiceSec.portrangesfld, JUSTIFY_CENTER);
+
     if (ServicesSection.EditService.n_fields != field_num) {
         vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -2218,6 +2325,7 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     set_field_back(ServiceSec.broadcastlabelfld, vccnf.color_win);
     set_field_back(ServiceSec.helperlabelfld, vccnf.color_win);
     set_field_back(ServiceSec.commentlabelfld, vccnf.color_win);
+    set_field_back(ServiceSec.portrangesfld, vccnf.color_win);
 
     set_field_back(ServiceSec.norangewarningfld, vccnf.color_win);
     set_field_fore(ServiceSec.norangewarningfld, vccnf.color_win_warn|A_BOLD);
@@ -2237,77 +2345,8 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     /* print labels */
     mvwprintw(ServicesSection.EditService.win, 1, 2,  "%s: %s", gettext("Name"), ser_ptr->name);
     mvwprintw(ServicesSection.EditService.win, 16, 1, gettext("Press <F6> to manage the portranges of this service."));
-    
-    if(height > 16+4)
-    {
-        mvwprintw(ServicesSection.EditService.win, 18, 2, gettext("List of portranges:"));
-        if(ser_ptr->PortrangeList.len == 0)
-            mvwprintw(ServicesSection.EditService.win, 19, 4, gettext("No portranges defined yet."));
-        else
-        {
-            for(d_node = ser_ptr->PortrangeList.top, i = 1; d_node; d_node = d_node->next, i++)
-            {
-                if(!(portrange_ptr = d_node->data))
-                    return(-1);
 
-                if(portrange_ptr->protocol == 6)
-                    mvwprintw(ServicesSection.EditService.win, (int)(18+i), 2, "  TCP : ");
-                else if(portrange_ptr->protocol == 17)
-                    mvwprintw(ServicesSection.EditService.win, (int)(18+i), 2, "  UDP : ");
-                else if(portrange_ptr->protocol == 1)
-                    mvwprintw(ServicesSection.EditService.win, (int)(18+i), 2, "  ICMP: ");
-                else if(portrange_ptr->protocol == 47)
-                    mvwprintw(ServicesSection.EditService.win, (int)(18+i), 2, "  GRE : ");
-                else if(portrange_ptr->protocol == 50)
-                    mvwprintw(ServicesSection.EditService.win, (int)(18+i), 2, "  ESP : ");
-                else if(portrange_ptr->protocol == 51)
-                    mvwprintw(ServicesSection.EditService.win, (int)(18+i), 2, "  AH  : ");
-                else
-                {
-                    mvwprintw(ServicesSection.EditService.win, (int)(18+i), 2, "  %3d : ", portrange_ptr->protocol);
-                }
-
-                if(portrange_ptr->protocol == 6 || portrange_ptr->protocol == 17)
-                {
-                    if(portrange_ptr->src_high == 0)
-                        wprintw(ServicesSection.EditService.win, "%11d", portrange_ptr->src_low);
-                    else
-                        wprintw(ServicesSection.EditService.win, "%5d:%5d", portrange_ptr->src_low, portrange_ptr->src_high);
-
-                    wprintw(ServicesSection.EditService.win, " -> ");
-
-                    if(portrange_ptr->dst_high == 0)
-                        wprintw(ServicesSection.EditService.win, "%d", portrange_ptr->dst_low);
-                    else
-                        wprintw(ServicesSection.EditService.win, "%d:%d", portrange_ptr->dst_low, portrange_ptr->dst_high);
-                }
-                else if(portrange_ptr->protocol == 1)
-                {
-                    wprintw(ServicesSection.EditService.win, "type: %d, code: %d.", portrange_ptr->dst_low, portrange_ptr->dst_high);
-                }
-                else
-                {
-                    wprintw(ServicesSection.EditService.win, gettext("uses no ports."));
-                }
-
-                if((int)(20+i) >= height-1) /* -1 is for the border */
-                {
-                    if((ser_ptr->PortrangeList.len - i) > 1)
-                    {
-                        mvwprintw(ServicesSection.EditService.win, (int)(18+i+1), 2, gettext("There are %d more portranges. Press F6 to manage."), ser_ptr->PortrangeList.len - i);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        if(ser_ptr->PortrangeList.len == 0)
-            mvwprintw(ServicesSection.EditService.win, 18, 4, gettext("No portranges defined yet."));
-        else
-            mvwprintw(ServicesSection.EditService.win, 18, 2, gettext("There are %d portranges. Press F6 to manage."), ser_ptr->PortrangeList.len);
-    }
+    edit_service_update_portrangesfld(debuglvl, vctx, ser_ptr);
 
     /* position the cursor in the active field */
     pos_form_cursor(ServicesSection.EditService.form);
@@ -2349,7 +2388,6 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
     int                     ch, /* for recording keystrokes */
                             quit = 0,
                             not_defined = 0,
-                            reload = 0,
                             result = 0,
                             retval = 0;
     struct vrmr_service    *ser_ptr = NULL;
@@ -2364,7 +2402,6 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
                                                     gettext("portranges"),
                                                     gettext("back")};
     int                     cmd_choices_n = 3;
-    char                    comment[sizeof(ServicesSection.comment)];
 
     /* safety */
     if(name == NULL || services == NULL)
@@ -2385,21 +2422,9 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
     {
         draw_field_active_mark(cur, prev, ServicesSection.EditService.win, ServicesSection.EditService.form, vccnf.color_win_mark|A_BOLD);
 
-        if (reload != 0)
-        {
-            result = edit_service_destroy(debuglvl);
-            if (result < 0)
-                return -1;
-        }
-        
         /* init */
         if(edit_service_init(debuglvl, vctx, ser_ptr) < 0)
             return(-1);
-        
-        if (reload != 0)
-        {
-            set_field_buffer_wrap(debuglvl, ServiceSec.commentfld, 0, comment);
-        }
 
         /* show (or hide) initial warning about the group being empty. */
         if(ser_ptr->PortrangeList.len == 0)
@@ -2416,9 +2441,7 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
         update_panels();
         doupdate();
 
-        /* reset reload flag */
-        reload = 0;
-        while(quit == 0 && reload == 0)
+        while(quit == 0)
         {
             ch = wgetch(ServicesSection.EditService.win);
 
@@ -2452,19 +2475,11 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
                     case KEY_F(6):
                     case 'e':
                     case 'E':
-                        /* F6 opens the portranges section */
-                        /* store current values (needed for reload) */
-                        ser_ptr->active = (strncasecmp(field_buffer(ServiceSec.activefld, 0), STR_YES, StrLen(STR_YES)) == 0) ? 1 : 0;
-                        ser_ptr->broadcast = (strncasecmp(field_buffer(ServiceSec.broadcastfld, 0), STR_YES, StrLen(STR_YES)) == 0) ? 1 : 0;
-                        strlcpy(ser_ptr->helper, field_buffer(ServiceSec.helperfld, 0), sizeof(ser_ptr->helper));
-                        strlcpy(comment, field_buffer(ServiceSec.commentfld, 0), sizeof(comment));
-                        
                         /* open portranges window */
                         edit_serv_portranges(debuglvl, vctx, ser_ptr);
+                        edit_service_update_portrangesfld(debuglvl, vctx, ser_ptr);
 
                         draw_top_menu(debuglvl, top_win, gettext("Edit Service"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
-                        
-                        reload = 1;
                         break;
 
                     case 27:
