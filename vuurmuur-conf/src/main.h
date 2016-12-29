@@ -113,6 +113,14 @@
 #define VUURMUURCONF_CONFIGFILE "/etc/vuurmuur/vuurmuur_conf.conf"
 #endif
 
+#ifndef MIN
+#define MIN(x, y) (((x)<(y))?(x):(y))
+#endif
+
+#ifndef MAX
+#define MAX(x, y) (((x)<(y))?(y):(x))
+#endif
+
 /* Vuurmuur_conf settings
 
 
