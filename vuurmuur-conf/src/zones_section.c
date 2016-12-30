@@ -2210,8 +2210,6 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
                         comment_x = 0;
     size_t              i,
                         field_num = 0;
-    struct vrmr_zone    *member_ptr = NULL;
-    struct vrmr_list_node         *d_node = NULL;
 
     /* safety */
     if(name == NULL || zone_ptr == NULL)
@@ -2221,7 +2219,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
     }
 
     getmaxyx(stdscr, max_height, max_width);
-    height = 17 + zone_ptr->GroupList.len;
+    height = 17;
     if(height > max_height - 8)
         height = max_height - 8;
     width = 54;
@@ -2317,33 +2315,6 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
     /* draw labels */
     mvwprintw(ZonesSection.EditZone.win, 1, 2, "%s: %s", gettext("Name"), zone_ptr->name);
     mvwprintw(ZonesSection.EditZone.win, 13, 2, gettext("Press <F6> to manage the members of this group."));
-
-    if(height > 12 + 5)
-    {
-        mvwprintw(ZonesSection.EditZone.win, 15, 2, gettext("List of members:"));
-        if(zone_ptr->GroupList.len == 0)
-            mvwprintw(ZonesSection.EditZone.win, 16, 4, gettext("No members assigned yet."));
-        else
-        {
-            for(d_node = zone_ptr->GroupList.top, i = 1; d_node; d_node = d_node->next, i++)
-            {
-                if(!(member_ptr = d_node->data))
-                    return(-1);
-
-                mvwprintw(ZonesSection.EditZone.win, (int)(15 + i), 2, "  %s", member_ptr->host_name);
-                mvwprintw(ZonesSection.EditZone.win, (int)(15 + i), width - 20, "  %s", member_ptr->ipv4.ipaddress);
-
-                if((int)(17 + i) == height - 1) /* -1 is for the border */
-                {
-                    if((zone_ptr->GroupList.len - i) > 1)
-                    {
-                        mvwprintw(ZonesSection.EditZone.win, (int)(15+i+1), 2, gettext("There are %d more members. Press F6 to manage."), zone_ptr->GroupList.len - i);
-                        break;
-                    }
-                }
-            }
-        }
-    }
 
     wrefresh(ZonesSection.EditZone.win);
 
@@ -2472,7 +2443,6 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
 {
     int                 ch,
                         not_defined = 0,
-                        reload = 0,
                         retval = 0;
     struct vrmr_zone    *zone_ptr = NULL;
     int                 quit = 0;
@@ -2487,7 +2457,6 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
                                                 gettext("members"),
                                                 gettext("back")};
     int                 cmd_choices_n = 3;
-    char                comment[sizeof(ZonesSection.comment)];
 
     /* safety */
     if(name == NULL || zones == NULL)
@@ -2506,21 +2475,10 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
     /* loop through to get user requests */
     while(quit == 0)
     {
-        if (reload != 0)
-        {
-            if(edit_zone_group_destroy() < 0)
-                return -1;
-        }
-
         /* init */
         if (edit_zone_group_init(debuglvl, vctx, zones, name, zone_ptr) < 0)
             return(-1);
 
-        if (reload != 0)
-        {
-            set_field_buffer_wrap(debuglvl, GroupSec.commentfld, 0, comment);
-        }
-        
         /* print (or not) initial warning about the group being empty. */
         if(zone_ptr->GroupList.len == 0)
         {
@@ -2546,9 +2504,7 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
         update_panels();
         doupdate();
 
-        reload = 0;
-        
-        while (quit == 0 && reload == 0)
+        while (quit == 0)
         {
             draw_field_active_mark(cur, prev, ZonesSection.EditZone.win, ZonesSection.EditZone.form, vccnf.color_win_mark|A_BOLD);
 
@@ -2585,13 +2541,6 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
                         {
                             retval = -1;
                             quit = 1;
-                        }
-                        else
-                        {
-                            zone_ptr->active = (strncasecmp(field_buffer(GroupSec.activefld, 0), STR_YES, StrLen(STR_YES)) == 0) ? 1 : 0;
-                            strlcpy(comment, field_buffer(GroupSec.commentfld, 0), sizeof(comment));
-
-                            reload = 1;
                         }
 
                         draw_top_menu(debuglvl, top_win, gettext("Edit Group"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
