@@ -1698,8 +1698,8 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
     }
     else
     {
-        ServicesSection.top = NULL;
-        ServicesSection.bot = NULL;
+        ServicesSection.EditServicePrt.top = NULL;
+        ServicesSection.EditServicePrt.bot = NULL;
     }
 
     /* create win and panel */
