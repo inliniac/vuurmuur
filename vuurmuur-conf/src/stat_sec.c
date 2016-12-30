@@ -220,9 +220,9 @@ int get_meminfo(int *mem_total, int *mem_free, int *mem_cached, int *mem_buffers
 {
     FILE    *fp=NULL;
     char    proc_meminfo[] = "/proc/meminfo",
-            line[64],
-            variable[16],
-            value[16];
+            line[128],
+            variable[64],
+            value[64];
 
     // open the proc entry
     if(!(fp = fopen(proc_meminfo, "r")))
@@ -237,7 +237,7 @@ int get_meminfo(int *mem_total, int *mem_free, int *mem_cached, int *mem_buffers
     // loop trough the file and get the info
     while(fgets(line, (int)sizeof(line), fp) != NULL)
     {
-        sscanf(line, "%s %s", variable, value);
+        sscanf(line, "%63s %63s", variable, value);
 
         if(strcmp(variable, "MemTotal:") == 0)
             *mem_total = atoi(value);
