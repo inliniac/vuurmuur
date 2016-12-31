@@ -1,0 +1,3541 @@
+# translation of fr.po to
+# translation of nl.po to French
+# French translations for vuurmuur_conf package.
+# Copyright (C) 2005 Victor Julien
+# This file is distributed under the same license as the vuurmuur_conf package.
+# Nicolas DEJARDIN <zephura (ad) free (dot) fr>, 2005.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fr\n"
+"Report-Msgid-Bugs-To: https://www.vuurmuur.org/\n"
+"POT-Creation-Date: 2017-01-01 12:28+0100\n"
+"PO-Revision-Date: 2006-04-11 01:59+0200\n"
+"Last-Translator: Nicolas DEJARDIN <zephura (ad) free (dot) fr>\n"
+"Language-Team:  <fr@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: KBabel 1.10.2\n"
+
+#: vuurmuur_conf/bw_sec.c:85 vuurmuur_conf/help.c:86 vuurmuur_conf/help.c:95
+#: vuurmuur_conf/help.c:123 vuurmuur_conf/help.c:171 vuurmuur_conf/help.c:180
+#: vuurmuur_conf/help.c:207 vuurmuur_conf/if_sec.c:1621
+#: vuurmuur_conf/logview_section.c:897 vuurmuur_conf/logview_section.c:935
+#: vuurmuur_conf/logview_section.c:976 vuurmuur_conf/logview_section.c:1083
+#: vuurmuur_conf/logview_section.c:1137 vuurmuur_conf/logview_section.c:1185
+#: vuurmuur_conf/rules_form.c:1077 vuurmuur_conf/rules_form.c:1583
+#: vuurmuur_conf/rules_form.c:2782 vuurmuur_conf/rules_form.c:2806
+#: vuurmuur_conf/rules_form.c:2833 vuurmuur_conf/rules_form.c:2853
+#: vuurmuur_conf/rules_form.c:2889 vuurmuur_conf/rules_form.c:2934
+#: vuurmuur_conf/rules_form.c:2967 vuurmuur_conf/rules_form.c:3002
+#: vuurmuur_conf/rules_form.c:3029 vuurmuur_conf/rules_form.c:3050
+#: vuurmuur_conf/rules_form.c:3073 vuurmuur_conf/rules_form.c:3096
+#: vuurmuur_conf/rules_form.c:3117 vuurmuur_conf/rules_form.c:3136
+#: vuurmuur_conf/rules_form.c:3156 vuurmuur_conf/rules_form.c:3176
+#: vuurmuur_conf/rules_form.c:3196 vuurmuur_conf/rules_form.c:3214
+#: vuurmuur_conf/rules_form.c:3239 vuurmuur_conf/rules_form.c:3257
+#: vuurmuur_conf/rules_form.c:4403 vuurmuur_conf/rules_form.c:4470
+#: vuurmuur_conf/rules_form.c:4517 vuurmuur_conf/rules_form.c:5013
+#: vuurmuur_conf/services_section.c:584 vuurmuur_conf/services_section.c:597
+#: vuurmuur_conf/services_section.c:694 vuurmuur_conf/services_section.c:821
+#: vuurmuur_conf/services_section.c:833 vuurmuur_conf/services_section.c:926
+#: vuurmuur_conf/services_section.c:1288 vuurmuur_conf/services_section.c:1611
+#: vuurmuur_conf/services_section.c:1619 vuurmuur_conf/templates.c:230
+#: vuurmuur_conf/templates.c:327 vuurmuur_conf/zones_section.c:1414
+#: vuurmuur_conf/zones_section.c:1441 vuurmuur_conf/zones_section.c:1494
+#: vuurmuur_conf/zones_section.c:1554 vuurmuur_conf/zones_section.c:1646
+#: vuurmuur_conf/zones_section.c:2713 vuurmuur_conf/zones_section.c:2962
+#: vuurmuur_conf/zones_section.c:2989 vuurmuur_conf/zones_section.c:3068
+#: vuurmuur_conf/zones_section.c:3091 vuurmuur_conf/zones_section.c:3171
+#: vuurmuur_conf/zones_section.c:3348 vuurmuur_conf/zones_section.c:5315
+#: vuurmuur_conf/zones_section.c:5592 vuurmuur_conf/zones_section.c:5617
+#: vuurmuur_conf/zones_section.c:5796 vuurmuur_conf/zones_section.c:5854
+#: vuurmuur_conf/zones_section.c:6994
+#, c-format
+msgid "malloc failed: %s (in: %s:%d)."
+msgstr "erreur malloc: %s (dans: %s:%d)."
+
+#: vuurmuur_conf/bw_sec.c:229 vuurmuur_conf/stat_sec.c:230
+#, c-format
+msgid "opening '%s' failed: %s (in: %s:%d)."
+msgstr "échec d'ouverture '%s': %s (dans: %s:%d)."
+
+#: vuurmuur_conf/bw_sec.c:347
+#, c-format
+msgid "could not parse month '%s' (in: %s:%d)."
+msgstr "impossible de parser le mois '%s' (dans: %s:%d)."
+
+#: vuurmuur_conf/bw_sec.c:405
+#, c-format
+msgid "closing of '%s' failed: %s (in: %s:%d)."
+msgstr "échec de fermeture '%s': %s (dans: %s:%d)."
+
+#: vuurmuur_conf/bw_sec.c:414
+#, c-format
+msgid "removing '%s' failed (unlink): %s (in: %s:%d)."
+msgstr "échec de la suppression de '%s' (unlink): %s (dans: %s:%d)."
+
+#: vuurmuur_conf/bw_sec.c:465 vuurmuur_conf/if_sec.c:1599
+#: vuurmuur_conf/rules_form.c:1608 vuurmuur_conf/rules_form.c:3457
+#: vuurmuur_conf/rules_form.c:4626 vuurmuur_conf/rules_form.c:4733
+#: vuurmuur_conf/rules_form.c:4792 vuurmuur_conf/rules_form.c:5124
+#: vuurmuur_conf/services_section.c:321 vuurmuur_conf/services_section.c:556
+#: vuurmuur_conf/services_section.c:561 vuurmuur_conf/services_section.c:566
+#: vuurmuur_conf/services_section.c:794 vuurmuur_conf/services_section.c:800
+#: vuurmuur_conf/services_section.c:806 vuurmuur_conf/services_section.c:1040
+#: vuurmuur_conf/services_section.c:1580 vuurmuur_conf/services_section.c:2255
+#: vuurmuur_conf/stat_sec.c:327 vuurmuur_conf/zones_section.c:221
+#: vuurmuur_conf/zones_section.c:891 vuurmuur_conf/zones_section.c:1735
+#: vuurmuur_conf/zones_section.c:1976 vuurmuur_conf/zones_section.c:2233
+#: vuurmuur_conf/zones_section.c:2691 vuurmuur_conf/zones_section.c:3634
+#: vuurmuur_conf/zones_section.c:3717 vuurmuur_conf/zones_section.c:4387
+#: vuurmuur_conf/zones_section.c:5290 vuurmuur_conf/zones_section.c:5934
+#: vuurmuur_conf/zones_section.c:6308 vuurmuur_conf/zones_section.c:6745
+#: vuurmuur_conf/filter.c:177
+#, c-format
+msgid "calloc failed: %s (in: %s:%d)."
+msgstr "erreur calloc: %s (dans: %s:%d)."
+
+#: vuurmuur_conf/bw_sec.c:527
+msgid "Traffic Volume Section"
+msgstr "Volume de trafic réseau"
+
+#: vuurmuur_conf/bw_sec.c:529 vuurmuur_conf/if_sec.c:1703
+#: vuurmuur_conf/if_sec.c:1714 vuurmuur_conf/logview_section.c:874
+#: vuurmuur_conf/logview_section.c:1037 vuurmuur_conf/logview_section.c:1047
+#: vuurmuur_conf/logview_section.c:1059 vuurmuur_conf/logview_section.c:1406
+#: vuurmuur_conf/mainmenu.c:1169 vuurmuur_conf/rules_form.c:561
+#: vuurmuur_conf/rules_form.c:1574 vuurmuur_conf/rules_form.c:1593
+#: vuurmuur_conf/rules_form.c:4025 vuurmuur_conf/rules_form.c:5152
+#: vuurmuur_conf/services_section.c:1756 vuurmuur_conf/services_section.c:1767
+#: vuurmuur_conf/services_section.c:2711 vuurmuur_conf/services_section.c:2722
+#: vuurmuur_conf/templates.c:865 vuurmuur_conf/templates.c:876
+#: vuurmuur_conf/zones_section.c:297 vuurmuur_conf/zones_section.c:1002
+#: vuurmuur_conf/zones_section.c:1013 vuurmuur_conf/zones_section.c:1822
+#: vuurmuur_conf/zones_section.c:1833 vuurmuur_conf/zones_section.c:2793
+#: vuurmuur_conf/zones_section.c:2804 vuurmuur_conf/zones_section.c:3801
+#: vuurmuur_conf/zones_section.c:3812 vuurmuur_conf/zones_section.c:5408
+#: vuurmuur_conf/zones_section.c:5419 vuurmuur_conf/zones_section.c:6404
+#: vuurmuur_conf/zones_section.c:6415 vuurmuur_conf/zones_section.c:6852
+#: vuurmuur_conf/zones_section.c:6863 vuurmuur_conf/filter.c:161
+msgid "creating window failed."
+msgstr "échec création de fenêtre"
+
+#: vuurmuur_conf/bw_sec.c:535 vuurmuur_conf/rules_form.c:4031
+#: vuurmuur_conf/rules_form.c:5158 vuurmuur_conf/zones_section.c:302
+#: vuurmuur_conf/filter.c:168
+msgid "creating panel failed."
+msgstr "échec de création de panneau"
+
+#: vuurmuur_conf/bw_sec.c:557 vuurmuur_conf/rules_form.c:4038
+#: vuurmuur_conf/rules_form.c:5165 vuurmuur_conf/zones_section.c:336
+msgid "creating form failed."
+msgstr "échec de création de formulaire "
+
+#: vuurmuur_conf/bw_sec.c:569
+msgid "posting the form failed."
+msgstr "échec de l'envoi du formulaire"
+
+#: vuurmuur_conf/bw_sec.c:573 vuurmuur_conf/strings.h:38
+msgid "Interface"
+msgstr "Interface"
+
+#: vuurmuur_conf/bw_sec.c:574
+msgid "Today"
+msgstr "aujourd'hui"
+
+#. TRANSLATORS: max 6 chars.
+#: vuurmuur_conf/bw_sec.c:575 vuurmuur_conf/bw_sec.c:578
+#: vuurmuur_conf/bw_sec.c:581 vuurmuur_conf/bw_sec.c:584
+#: vuurmuur_conf/bw_sec.c:587 vuurmuur_conf/stat_sec.c:504
+msgid "In"
+msgstr "Desc."
+
+#. TRANSLATORS: max 6 chars.
+#: vuurmuur_conf/bw_sec.c:576 vuurmuur_conf/bw_sec.c:579
+#: vuurmuur_conf/bw_sec.c:582 vuurmuur_conf/bw_sec.c:585
+#: vuurmuur_conf/bw_sec.c:588 vuurmuur_conf/stat_sec.c:506
+msgid "Out"
+msgstr "Mont."
+
+#: vuurmuur_conf/bw_sec.c:577
+msgid "Yesterday"
+msgstr "hier"
+
+#: vuurmuur_conf/bw_sec.c:580
+msgid "7-days"
+msgstr "semaine"
+
+#: vuurmuur_conf/bw_sec.c:583
+msgid "This month"
+msgstr "ce mois"
+
+#: vuurmuur_conf/bw_sec.c:586
+msgid "Last month"
+msgstr "mois dern."
+
+#: vuurmuur_conf/bw_sec.c:731 vuurmuur_conf/config_section.c:1938
+#: vuurmuur_conf/config_section.c:2867 vuurmuur_conf/config_section.c:3080
+#: vuurmuur_conf/config_section.c:3240 vuurmuur_conf/conn_sec.c:708
+#: vuurmuur_conf/if_sec.c:1336 vuurmuur_conf/if_sec.c:1977
+#: vuurmuur_conf/logview_section.c:732 vuurmuur_conf/logview_section.c:751
+#: vuurmuur_conf/mainmenu.c:1642 vuurmuur_conf/rules_form.c:1538
+#: vuurmuur_conf/rules_form.c:3414 vuurmuur_conf/services_section.c:1829
+#: vuurmuur_conf/services_section.c:2401 vuurmuur_conf/services_section.c:2783
+#: vuurmuur_conf/stat_sec.c:780 vuurmuur_conf/zones_section.c:659
+#: vuurmuur_conf/zones_section.c:1306 vuurmuur_conf/zones_section.c:2456
+#: vuurmuur_conf/zones_section.c:2868 vuurmuur_conf/zones_section.c:5038
+#: vuurmuur_conf/zones_section.c:5497 vuurmuur_conf/zones_section.c:6147
+#: vuurmuur_conf/zones_section.c:6479 vuurmuur_conf/zones_section.c:7064
+#: vuurmuur_conf/statevent.c:498 vuurmuur_conf/statevent.c:778
+#: vuurmuur_conf/statevent.c:1100
+msgid "help"
+msgstr "Aide"
+
+#: vuurmuur_conf/bw_sec.c:732 vuurmuur_conf/config_section.c:1939
+#: vuurmuur_conf/config_section.c:2869 vuurmuur_conf/config_section.c:3082
+#: vuurmuur_conf/config_section.c:3241 vuurmuur_conf/conn_sec.c:719
+#: vuurmuur_conf/help.c:1153 vuurmuur_conf/if_sec.c:1340
+#: vuurmuur_conf/if_sec.c:1982 vuurmuur_conf/logview_section.c:739
+#: vuurmuur_conf/logview_section.c:756 vuurmuur_conf/mainmenu.c:189
+#: vuurmuur_conf/rules_form.c:1544 vuurmuur_conf/rules_form.c:3417
+#: vuurmuur_conf/services_section.c:1833 vuurmuur_conf/services_section.c:2403
+#: vuurmuur_conf/services_section.c:2788 vuurmuur_conf/stat_sec.c:781
+#: vuurmuur_conf/zones_section.c:660 vuurmuur_conf/zones_section.c:1312
+#: vuurmuur_conf/zones_section.c:2458 vuurmuur_conf/zones_section.c:2874
+#: vuurmuur_conf/zones_section.c:5040 vuurmuur_conf/zones_section.c:5503
+#: vuurmuur_conf/zones_section.c:6148 vuurmuur_conf/zones_section.c:6485
+#: vuurmuur_conf/zones_section.c:7067 vuurmuur_conf/statevent.c:499
+#: vuurmuur_conf/statevent.c:779 vuurmuur_conf/statevent.c:1102
+msgid "back"
+msgstr "retour"
+
+#: vuurmuur_conf/bw_sec.c:737 vuurmuur_conf/zones_section.c:3627
+msgid "no interfaces found. Please define an interface first."
+msgstr "aucune interfaces trouvé. Veuillez d'abord définir une interface."
+
+#: vuurmuur_conf/bw_sec.c:743
+msgid "please set the location of the iptrafvol.pl command in the Settings."
+msgstr ""
+"Veuillez définir le chemin du script 'iptrafvol.pl' dans les Paramètres"
+
+#: vuurmuur_conf/bw_sec.c:776 vuurmuur_conf/mainmenu.c:1578
+msgid "Traffic Volume"
+msgstr "Statistiques du trafic"
+
+#: vuurmuur_conf/bw_sec.c:865 vuurmuur_conf/bw_sec.c:866
+#: vuurmuur_conf/bw_sec.c:897 vuurmuur_conf/bw_sec.c:898
+#: vuurmuur_conf/bw_sec.c:929 vuurmuur_conf/bw_sec.c:930
+#: vuurmuur_conf/bw_sec.c:961 vuurmuur_conf/bw_sec.c:962
+#: vuurmuur_conf/bw_sec.c:1007 vuurmuur_conf/bw_sec.c:1008
+#: vuurmuur_conf/stat_sec.c:831 vuurmuur_conf/stat_sec.c:847
+#: vuurmuur_conf/stat_sec.c:892 vuurmuur_conf/stat_sec.c:893
+#: vuurmuur_conf/stat_sec.c:894 vuurmuur_conf/stat_sec.c:895
+#: vuurmuur_conf/topmenu.c:82
+#, c-format
+msgid "error"
+msgstr "erreur"
+
+#: vuurmuur_conf/config.c:391
+msgid "rewritten Vuurmuur_conf config file."
+msgstr "Réécriture du fichier de configuration de vuurmuur_conf"
+
+#: vuurmuur_conf/config_section.c:27
+msgid "General"
+msgstr "Général"
+
+#. TRANSLATORS: max 11 chars.
+#: vuurmuur_conf/config_section.c:28 vuurmuur_conf/conn_sec.c:756
+#: vuurmuur_conf/conn_sec.c:947 vuurmuur_conf/conn_sec.c:987
+#: vuurmuur_conf/conn_sec.c:1163 vuurmuur_conf/mainmenu.c:1577
+#: vuurmuur_conf/stat_sec.c:476
+msgid "Connections"
+msgstr "Connexions"
+
+#. TRANSLATORS: max 11 chars.
+#: vuurmuur_conf/config_section.c:29 vuurmuur_conf/if_sec.c:1681
+#: vuurmuur_conf/if_sec.c:1990 vuurmuur_conf/if_sec.c:2093
+#: vuurmuur_conf/if_sec.c:2170 vuurmuur_conf/mainmenu.c:1572
+#: vuurmuur_conf/stat_sec.c:497 vuurmuur_conf/zones_section.c:3783
+msgid "Interfaces"
+msgstr "Interfaces"
+
+#: vuurmuur_conf/config_section.c:30 vuurmuur_conf/sys_sec.c:60
+msgid "System Protection"
+msgstr "Protection du système"
+
+#: vuurmuur_conf/config_section.c:31 vuurmuur_conf/config_section.c:2694
+msgid "Conntrack"
+msgstr ""
+
+#: vuurmuur_conf/config_section.c:32
+msgid "Logging"
+msgstr "Rapports"
+
+#: vuurmuur_conf/config_section.c:33
+msgid "Modules"
+msgstr "Modules"
+
+#: vuurmuur_conf/config_section.c:34
+msgid "Plugins"
+msgstr "Plugins"
+
+#: vuurmuur_conf/config_section.c:35 vuurmuur_conf/config_section.c:2881
+msgid "Capabilities"
+msgstr "Possibilités"
+
+#: vuurmuur_conf/config_section.c:37 vuurmuur_conf/config_section.c:3094
+#, fuzzy
+msgid "IPv6 Capabilities"
+msgstr "Possibilités"
+
+#: vuurmuur_conf/config_section.c:119
+msgid "Edit Config: General"
+msgstr "Configuration > Général"
+
+#: vuurmuur_conf/config_section.c:165
+msgid "Iptables location (full path):"
+msgstr "Chemin de 'iptables' (chemin absolu)"
+
+#: vuurmuur_conf/config_section.c:166
+msgid "Iptables-restore location (full path):"
+msgstr "Chemin de 'iptables-restore' (chemin absolu)"
+
+#: vuurmuur_conf/config_section.c:168
+#, fuzzy
+msgid "Ip6tables location (full path):"
+msgstr "Chemin de 'iptables' (chemin absolu)"
+
+#: vuurmuur_conf/config_section.c:169
+#, fuzzy
+msgid "Ip6tables-restore location (full path):"
+msgstr "Chemin de 'iptables-restore' (chemin absolu)"
+
+#: vuurmuur_conf/config_section.c:171
+#, fuzzy
+msgid "Conntrack location (full path):"
+msgstr "Chemin de 'iptables' (chemin absolu)"
+
+#: vuurmuur_conf/config_section.c:172
+#, fuzzy
+msgid "Tc location (full path):"
+msgstr "Chemin de 'iptables' (chemin absolu)"
+
+#: vuurmuur_conf/config_section.c:173
+msgid "Maximum config and log file and dir permissions (octal):"
+msgstr ""
+
+#: vuurmuur_conf/config_section.c:174
+#, fuzzy
+msgid "Sysctl location (full path):"
+msgstr "Chemin de 'iptables' (chemin absolu)"
+
+#: vuurmuur_conf/config_section.c:398 vuurmuur_conf/config_section.c:664
+#: vuurmuur_conf/config_section.c:949 vuurmuur_conf/config_section.c:1226
+#: vuurmuur_conf/config_section.c:2548
+msgid "Saving config failed"
+msgstr "Échec de la sauvegarde de la configuration"
+
+#: vuurmuur_conf/config_section.c:399 vuurmuur_conf/config_section.c:665
+#: vuurmuur_conf/config_section.c:950 vuurmuur_conf/config_section.c:1227
+#: vuurmuur_conf/config_section.c:2549
+msgid "Saving the config failed. Sure you want to quit?"
+msgstr ""
+"Échec de la sauvegarde de la configuration. Êtes-vous sûr de vouloir sortir?"
+
+#: vuurmuur_conf/config_section.c:464 vuurmuur_conf/config_section.c:730
+#: vuurmuur_conf/config_section.c:1015 vuurmuur_conf/config_section.c:1292
+#: vuurmuur_conf/config_section.c:1690 vuurmuur_conf/config_section.c:2061
+#: vuurmuur_conf/config_section.c:2615 vuurmuur_conf/config_section.c:2666
+#: vuurmuur_conf/sys_sec.c:288
+msgid "writing configfile failed."
+msgstr "Échec de l'écriture du fichier de configuration"
+
+#: vuurmuur_conf/config_section.c:504
+msgid "Edit Config: Interfaces"
+msgstr "Configuration > Interfaces"
+
+#: vuurmuur_conf/config_section.c:538
+msgid "check dynamic interfaces for changes."
+msgstr "Vérification des changements des interfaces dynamiques"
+
+#: vuurmuur_conf/config_section.c:539
+msgid "Check interval:"
+msgstr "Périodicité"
+
+#: vuurmuur_conf/config_section.c:540
+msgid "sec."
+msgstr "secondes"
+
+#: vuurmuur_conf/config_section.c:773
+msgid "Edit Config: Modules"
+msgstr "Configuration > Modules"
+
+#: vuurmuur_conf/config_section.c:807
+msgid "Modprobe location (full path)"
+msgstr "chemin de 'modprobe' (chemin absolu)"
+
+#: vuurmuur_conf/config_section.c:810
+msgid "load modules"
+msgstr "chargé les modules"
+
+#: vuurmuur_conf/config_section.c:811
+msgid "waittime after loading a module (in 1/10 th of a second)"
+msgstr "attente après le chargement d'un module (en dixième de seconde)"
+
+#: vuurmuur_conf/config_section.c:1056
+msgid "Edit Config: Plugins"
+msgstr "Configuration > Plugins"
+
+#: vuurmuur_conf/config_section.c:1086
+msgid "Services Backend:"
+msgstr "Chemins des \"Services\":"
+
+#: vuurmuur_conf/config_section.c:1087
+msgid "Zones Backend:"
+msgstr "Chemins des \"Zones\":"
+
+#: vuurmuur_conf/config_section.c:1088
+msgid "Interfaces Backend:"
+msgstr "Chemin des \"Interfaces\":"
+
+#: vuurmuur_conf/config_section.c:1089
+msgid "Rules Backend:"
+msgstr "Chemins des \"Règles\":"
+
+#: vuurmuur_conf/config_section.c:1341
+msgid "Edit Config: Connections"
+msgstr "Configuration > Connexions"
+
+#: vuurmuur_conf/config_section.c:1401
+msgid "You can limit the number of new connections per second:"
+msgstr "Vous pouvez limiter le nombre de nouvelles connexions par seconde :"
+
+#: vuurmuur_conf/config_section.c:1405
+msgid "Limit new TCP connections."
+msgstr "Limite des nouvelles connexions TCP"
+
+#: vuurmuur_conf/config_section.c:1406
+msgid "Number of SYN-packets per second"
+msgstr "Nombre de paquets \"SYN\" par second"
+
+#: vuurmuur_conf/config_section.c:1407 vuurmuur_conf/config_section.c:1414
+msgid "Burst-rate"
+msgstr "Quantité d'Extra"
+
+#: vuurmuur_conf/config_section.c:1411
+msgid "Limit new udp 'connections'."
+msgstr "Limite des nouvelles connexions UDP"
+
+#: vuurmuur_conf/config_section.c:1413
+msgid "Number of new UDP 'connections' per second"
+msgstr "Nombre de nouvelles connexions UDP par seconde"
+
+#: vuurmuur_conf/config_section.c:1741 vuurmuur_conf/config_section.c:1958
+#: vuurmuur_conf/mainmenu.c:1579
+msgid "Vuurmuur_conf Settings"
+msgstr "Paramètres (Vuurmuur_conf)"
+
+#: vuurmuur_conf/config_section.c:1798
+msgid "Defaults for creating new rules:"
+msgstr "Paramètre par défaut lors de la création de nouvelles règles:"
+
+#: vuurmuur_conf/config_section.c:1800
+msgid "Log the rule"
+msgstr "Rapporte la règle"
+
+#: vuurmuur_conf/config_section.c:1804
+msgid "Loglimit per second"
+msgstr "Nombre de rapport par seconde"
+
+#: vuurmuur_conf/config_section.c:1806
+msgid "Buffersize logviewer (number of lines):"
+msgstr "Taille des rapports (nombre de ligne)"
+
+#: vuurmuur_conf/config_section.c:1807
+msgid "Advanced mode by default:"
+msgstr "Mode avancé par défaut :"
+
+#: vuurmuur_conf/config_section.c:1811
+msgid "Draw status in Main Menu:"
+msgstr "Affichage du statut du Menu Principal"
+
+#: vuurmuur_conf/config_section.c:1815
+msgid "Use black background?:"
+msgstr ""
+
+#: vuurmuur_conf/config_section.c:1819
+msgid "iptrafvol.pl location (full path)"
+msgstr "chemin de 'iptrafvol.pl' (chemin absolu)"
+
+#: vuurmuur_conf/config_section.c:2126
+msgid "Edit Config: Logging"
+msgstr "Configuration > Rapports"
+
+#: vuurmuur_conf/config_section.c:2191
+msgid "Use NFLOG"
+msgstr ""
+
+#: vuurmuur_conf/config_section.c:2195
+#, fuzzy
+msgid "Netfilter Group"
+msgstr "Nouveau Groupe"
+
+#: vuurmuur_conf/config_section.c:2197
+msgid "Vuurmuur logfiles location (full path):"
+msgstr "Chemin des fichiers de rapport de Vuurmuur (chemin absolu)"
+
+#: vuurmuur_conf/config_section.c:2198
+msgid "Loglevel (for use with syslog, requires vuurmuur restart):"
+msgstr ""
+"Niveau de rapport (loglevel) : pour syslog (vuurmuur doit redémarrer) :"
+
+#: vuurmuur_conf/config_section.c:2199
+msgid "Logfile containing IPtables/Netfilter logs:"
+msgstr ""
+
+#: vuurmuur_conf/config_section.c:2201
+msgid "Log the default policy? (DROP):"
+msgstr "Rapport de la politique par défaut? (DROP):"
+
+#: vuurmuur_conf/config_section.c:2205
+msgid "Limit of the number of logs per second (0 for no limit):"
+msgstr "Limite du nombre de rapport par seconde (0: sans limite)"
+
+#: vuurmuur_conf/config_section.c:2207
+msgid "Log TCP options (for use with PSAD):"
+msgstr "Rapport des options TCP (utiliser avec PSAD)"
+
+#. TRANSLATORS: max 55 chars
+#: vuurmuur_conf/config_section.c:2212
+msgid "Log blocklist violations:"
+msgstr "Rapport des viols de la Liste Noire"
+
+#. TRANSLATORS: max 55 chars, don't translate 'INVALID'
+#: vuurmuur_conf/config_section.c:2217
+msgid "Log packets with state INVALID:"
+msgstr "Rapport des paquets marqués NON-VALIDE"
+
+#. TRANSLATORS: max 55 chars
+#: vuurmuur_conf/config_section.c:2222
+msgid "Log new TCP packets with no SYN flag set:"
+msgstr "Rapport des nouveaux paquets TCP sans drapeau SYN"
+
+#. TRANSLATORS: max 55 chars
+#: vuurmuur_conf/config_section.c:2227
+msgid "Log scan probe packets:"
+msgstr "Rapport des paquets de tentative de scann"
+
+#. TRANSLATORS: max 55 chars
+#: vuurmuur_conf/config_section.c:2232
+msgid "Log Fragments:"
+msgstr "Rapports des fragments"
+
+#: vuurmuur_conf/config_section.c:2279
+msgid ""
+"changing the logdir requires applying changes to get into effect in the "
+"logviewer."
+msgstr ""
+"Modifier le chemin des fichier de rapport nécessite d'\"Appliquer les "
+"Modifications\" pour prendre effet dans les Rapports"
+
+#: vuurmuur_conf/config_section.c:2332
+#, fuzzy
+msgid "NF group must be between 0-999."
+msgstr "limite entre 0-999"
+
+#: vuurmuur_conf/config_section.c:2372
+msgid "limit must be between 0-999."
+msgstr "limite entre 0-999"
+
+#: vuurmuur_conf/config_section.c:2700
+msgid "Enable dropping INVALID packets"
+msgstr ""
+
+#: vuurmuur_conf/config_section.c:2769
+msgid "View Capabilities"
+msgstr "Affichage Possibilités"
+
+#: vuurmuur_conf/config_section.c:2793 vuurmuur_conf/config_section.c:2822
+#: vuurmuur_conf/config_section.c:2840 vuurmuur_conf/config_section.c:3003
+#: vuurmuur_conf/config_section.c:3036 vuurmuur_conf/config_section.c:3054
+msgid "Could not check."
+msgstr "Impossible de vérifier"
+
+#: vuurmuur_conf/config_section.c:2868 vuurmuur_conf/config_section.c:3081
+msgid "probe"
+msgstr ""
+
+#: vuurmuur_conf/config_section.c:2887 vuurmuur_conf/config_section.c:2936
+#: vuurmuur_conf/config_section.c:3100 vuurmuur_conf/config_section.c:3149
+msgid "checking capabilities failed."
+msgstr "Vérification possibilité échoué"
+
+#: vuurmuur_conf/config_section.c:2929 vuurmuur_conf/config_section.c:3142
+#, fuzzy
+msgid "Probe Capabilities"
+msgstr "Possibilités"
+
+#: vuurmuur_conf/config_section.c:2930 vuurmuur_conf/config_section.c:3143
+msgid "Try to determine capabities? Warning: this may load iptables modules!"
+msgstr ""
+
+#: vuurmuur_conf/config_section.c:2980
+#, fuzzy
+msgid "View IPv6 Capabilities"
+msgstr "Affichage Possibilités"
+
+#: vuurmuur_conf/config_section.c:3215 vuurmuur_conf/config_section.c:3368
+#: vuurmuur_conf/mainmenu.c:201 vuurmuur_conf/mainmenu.c:320
+msgid "Back"
+msgstr "Retour"
+
+#: vuurmuur_conf/config_section.c:3265
+msgid "Configuration Menu"
+msgstr "Configuration"
+
+#: vuurmuur_conf/config_section.c:3281
+msgid "Select a section."
+msgstr "Choisissez une Section"
+
+#: vuurmuur_conf/config_section.c:3283 vuurmuur_conf/mainmenu.c:1574
+msgid "Vuurmuur Config"
+msgstr "Configuration (Vuurmuur)"
+
+#. TRANSLATORS: max 4 chars: CONNECTING, like building a new connection.
+#: vuurmuur_conf/conn_sec.c:247
+msgid "CONN"
+msgstr "CONN"
+
+#. TRANSLATORS: max 4 chars: ESTABLISHED, an existing connection.
+#: vuurmuur_conf/conn_sec.c:263
+msgid "ESTA"
+msgstr "EST."
+
+#. TRANSLATORS: max 4 chars: DISCONNECTING, an existing connection is shutting down.
+#: vuurmuur_conf/conn_sec.c:279
+msgid "DISC"
+msgstr "DECO"
+
+#. TRANSLATORS: max 3 chars: INCOMING, an incoming connection.
+#: vuurmuur_conf/conn_sec.c:317
+msgid "IN"
+msgstr "ENT"
+
+#. TRANSLATORS: max 3 chars: OUTGOING, an outgoing connection.
+#: vuurmuur_conf/conn_sec.c:332
+msgid "OUT"
+msgstr "SOR"
+
+#. TRANSLATORS: max 3 chars: FORWARDING, an forwarding connection.
+#: vuurmuur_conf/conn_sec.c:347
+msgid "FWD"
+msgstr "TRA"
+
+#: vuurmuur_conf/conn_sec.c:629
+msgid "getting the connections failed."
+msgstr "échec de la lecture des connexions"
+
+#: vuurmuur_conf/conn_sec.c:709 vuurmuur_conf/logview_section.c:733
+msgid "manage"
+msgstr ""
+
+#: vuurmuur_conf/conn_sec.c:711
+msgid "in/out/fw"
+msgstr "Entrée/Sortie/Transfert"
+
+#: vuurmuur_conf/conn_sec.c:712
+msgid "connect"
+msgstr "connexion"
+
+#: vuurmuur_conf/conn_sec.c:714
+msgid "grp"
+msgstr "groupe"
+
+#: vuurmuur_conf/conn_sec.c:715
+msgid "unknown ip"
+msgstr "inconnu"
+
+#: vuurmuur_conf/conn_sec.c:716 vuurmuur_conf/logview_section.c:735
+#: vuurmuur_conf/logview_section.c:753 vuurmuur_conf/rules_form.c:1543
+msgid "filter"
+msgstr "filtre"
+
+#: vuurmuur_conf/conn_sec.c:717
+msgid "account"
+msgstr "Compte"
+
+#: vuurmuur_conf/conn_sec.c:718
+msgid "details"
+msgstr "échec pour supprimer"
+
+#. TRANSLATORS: max 5 chars.
+#: vuurmuur_conf/conn_sec.c:948 vuurmuur_conf/conn_sec.c:988
+#: vuurmuur_conf/stat_sec.c:465
+msgid "Total"
+msgstr "Total"
+
+#: vuurmuur_conf/conn_sec.c:949
+msgid "Incoming"
+msgstr "Entrante"
+
+#: vuurmuur_conf/conn_sec.c:950
+msgid "Forwarding"
+msgstr "Transfert"
+
+#: vuurmuur_conf/conn_sec.c:951
+msgid "Outgoing"
+msgstr "Sortante"
+
+#: vuurmuur_conf/conn_sec.c:963
+msgid "Established Connections"
+msgstr "Connexions établies"
+
+#: vuurmuur_conf/conn_sec.c:970
+msgid "Connections Initializing"
+msgstr "Initialisation des connexions"
+
+#: vuurmuur_conf/conn_sec.c:976
+msgid "Connections Closing"
+msgstr "Fermeture des connexions"
+
+#: vuurmuur_conf/conn_sec.c:989
+msgid "Connecting"
+msgstr "Connexion"
+
+#: vuurmuur_conf/conn_sec.c:990
+msgid "Established"
+msgstr "établie"
+
+#: vuurmuur_conf/conn_sec.c:991
+msgid "Disconnecting"
+msgstr "Déconnexion"
+
+#: vuurmuur_conf/conn_sec.c:1002
+msgid "Forwarded Connections"
+msgstr "Connexions transmises"
+
+#: vuurmuur_conf/conn_sec.c:1009
+msgid "Incoming Connections"
+msgstr "Connexions entrantes"
+
+#: vuurmuur_conf/conn_sec.c:1015
+msgid "Outgoing Connections"
+msgstr "Connexions sortantes"
+
+#: vuurmuur_conf/conn_sec.c:1143 vuurmuur_conf/logview_section.c:1381
+#, c-format
+msgid "Active filter: '%s' (press 'enter' to clear)."
+msgstr "Activation du filtre: '%s' (appuyez 'Entrée' pour effacer)."
+
+#: vuurmuur_conf/conn_sec.c:1148 vuurmuur_conf/logview_section.c:1386
+#: vuurmuur_conf/rules_form.c:2248
+msgid "Filter removed."
+msgstr "Filtre effacé"
+
+#: vuurmuur_conf/conn_sec.c:1259
+msgid "killing connections is only supported for TCP and UDP."
+msgstr ""
+
+#. TRANSLATORS: example "killed connection: 1.2.3.4:5678 -> 8.7.6.5:4321 (6)"
+#: vuurmuur_conf/conn_sec.c:1264
+#, fuzzy
+msgid "failed to kill connection"
+msgstr "Déconnexion"
+
+#: vuurmuur_conf/conn_sec.c:1264
+#, fuzzy
+msgid "killed connection"
+msgstr "Déconnexion"
+
+#: vuurmuur_conf/conn_sec.c:1283 vuurmuur_conf/conn_sec.c:1356
+#: vuurmuur_conf/strings.h:204
+msgid ""
+"'conntrack' location not set. To be able to kill connections, set the "
+"location of the 'conntrack' tool in 'Vuurmuur Options -> General'. Note that "
+"the tool requires kernel version 2.6.14 or higher."
+msgstr ""
+
+#: vuurmuur_conf/conn_sec.c:1328 vuurmuur_conf/conn_sec.c:1398
+msgid "all connections already gone, none killed."
+msgstr ""
+
+#: vuurmuur_conf/conn_sec.c:1331 vuurmuur_conf/conn_sec.c:1401
+#, fuzzy, c-format
+msgid "killing of %d out of %d connections failed."
+msgstr "échec de la lecture des connexions"
+
+#: vuurmuur_conf/conn_sec.c:1334 vuurmuur_conf/conn_sec.c:1404
+#, fuzzy, c-format
+msgid "killing of all %d connections failed."
+msgstr "échec de la lecture des connexions"
+
+#: vuurmuur_conf/conn_sec.c:1433
+#, c-format
+msgid ""
+"ipaddress belongs to interface '%s'. It will not be added to the blocklist."
+msgstr ""
+
+#: vuurmuur_conf/help.c:264 vuurmuur_conf/help.c:392
+msgid "vuurmuur.hlp"
+msgstr "vuurmuur-fr.hlp"
+
+#: vuurmuur_conf/help.c:362
+msgid "vuurmuur.UTF-8.hlp"
+msgstr "vuurmuur-fr.hlp"
+
+#: vuurmuur_conf/help.c:902 vuurmuur_conf/help.c:904
+msgid "Press <F10> to close this window."
+msgstr "Appuyez <F10> pour fermer la fenêtre"
+
+#: vuurmuur_conf/help.c:913
+msgid "The requested helptext was not found.\n"
+msgstr "Impossible trouvé le fichier d'aide.\n"
+
+#: vuurmuur_conf/help.c:1049 vuurmuur_conf/help.c:1068
+msgid "Help"
+msgstr "Aide"
+
+#: vuurmuur_conf/help.c:1097
+msgid "No problems were detected in the current setup.\n"
+msgstr "Aucun problème n'a été détecté dans la configuration actuelle\n"
+
+#: vuurmuur_conf/help.c:1103 vuurmuur_conf/mainmenu.c:1576
+#: vuurmuur_conf/vuurmuur_conf.c:296
+msgid "Status"
+msgstr "Statut"
+
+#: vuurmuur_conf/help.c:1219 vuurmuur_conf/help.c:1221
+#: vuurmuur_conf/mainmenu.c:1581
+msgid "About"
+msgstr "À propos"
+
+#: vuurmuur_conf/if_sec.c:133 vuurmuur_conf/strings.h:82
+msgid "Tcpmss"
+msgstr ""
+
+#: vuurmuur_conf/if_sec.c:139
+msgid "Enable TCP MSS clamping"
+msgstr ""
+
+#: vuurmuur_conf/if_sec.c:361 vuurmuur_conf/rules_form.c:210
+#: vuurmuur_conf/strings.h:81
+#, fuzzy
+msgid "Shaping"
+msgstr "Chaine"
+
+#: vuurmuur_conf/if_sec.c:367
+msgid "Enable shaping"
+msgstr ""
+
+#: vuurmuur_conf/if_sec.c:369 vuurmuur_conf/strings.h:77
+#, fuzzy
+msgid "Incoming bandwidth"
+msgstr "Entrante"
+
+#: vuurmuur_conf/if_sec.c:372 vuurmuur_conf/strings.h:78
+#, fuzzy
+msgid "Outgoing bandwidth"
+msgstr "Sortante"
+
+#: vuurmuur_conf/if_sec.c:652
+msgid "Protection"
+msgstr "Protection"
+
+#: vuurmuur_conf/if_sec.c:734 vuurmuur_conf/rules_form.c:3715
+#: vuurmuur_conf/services_section.c:2284 vuurmuur_conf/zones_section.c:266
+#: vuurmuur_conf/zones_section.c:2247 vuurmuur_conf/zones_section.c:4654
+#: vuurmuur_conf/zones_section.c:5946
+msgid "Comment"
+msgstr "Observ."
+
+#: vuurmuur_conf/if_sec.c:743 vuurmuur_conf/services_section.c:2292
+#: vuurmuur_conf/zones_section.c:277 vuurmuur_conf/zones_section.c:2258
+#: vuurmuur_conf/zones_section.c:4673
+msgid "error while loading the comment."
+msgstr "Erreur lors du chargement des commentaires"
+
+#. TRANSLATORS: max 18 chars
+#: vuurmuur_conf/if_sec.c:757
+msgid "Is interface up?"
+msgstr "Interface montée?"
+
+#: vuurmuur_conf/if_sec.c:774 vuurmuur_conf/if_sec.c:1360
+msgid "Edit Interface"
+msgstr "Interface > Modifier"
+
+#: vuurmuur_conf/if_sec.c:849 vuurmuur_conf/services_section.c:2346
+#: vuurmuur_conf/zones_section.c:345 vuurmuur_conf/zones_section.c:2316
+#: vuurmuur_conf/zones_section.c:4738 vuurmuur_conf/zones_section.c:6003
+msgid "Name"
+msgstr "Nom"
+
+#: vuurmuur_conf/if_sec.c:1337 vuurmuur_conf/rules_form.c:3415
+msgid "advanced"
+msgstr "Avancé"
+
+#: vuurmuur_conf/if_sec.c:1338 vuurmuur_conf/rules_form.c:3416
+#, fuzzy
+msgid "shaping"
+msgstr "Chaine"
+
+#: vuurmuur_conf/if_sec.c:1339
+msgid "tcpmss"
+msgstr ""
+
+#: vuurmuur_conf/if_sec.c:1536
+msgid "shaping is not supported on a virtual interface."
+msgstr ""
+
+#: vuurmuur_conf/if_sec.c:1544
+msgid "tcpmss is not supported on a virtual interface."
+msgstr ""
+
+#. TRANSLATORS: max 4 chars
+#: vuurmuur_conf/if_sec.c:1709 vuurmuur_conf/if_sec.c:1720
+#: vuurmuur_conf/rules_form.c:1599 vuurmuur_conf/services_section.c:1762
+#: vuurmuur_conf/services_section.c:1773 vuurmuur_conf/services_section.c:2717
+#: vuurmuur_conf/services_section.c:2728 vuurmuur_conf/templates.c:871
+#: vuurmuur_conf/templates.c:882 vuurmuur_conf/zones_section.c:1008
+#: vuurmuur_conf/zones_section.c:1019 vuurmuur_conf/zones_section.c:1828
+#: vuurmuur_conf/zones_section.c:1839 vuurmuur_conf/zones_section.c:2799
+#: vuurmuur_conf/zones_section.c:2810 vuurmuur_conf/zones_section.c:3807
+#: vuurmuur_conf/zones_section.c:3818 vuurmuur_conf/zones_section.c:5414
+#: vuurmuur_conf/zones_section.c:5425 vuurmuur_conf/zones_section.c:6410
+#: vuurmuur_conf/zones_section.c:6421 vuurmuur_conf/zones_section.c:6858
+#: vuurmuur_conf/zones_section.c:6869
+msgid "more"
+msgstr "Plus"
+
+#: vuurmuur_conf/if_sec.c:1831 vuurmuur_conf/services_section.c:2031
+#: vuurmuur_conf/services_section.c:2060 vuurmuur_conf/services_section.c:2082
+#: vuurmuur_conf/services_section.c:2098 vuurmuur_conf/zones_section.c:421
+#: vuurmuur_conf/zones_section.c:464 vuurmuur_conf/zones_section.c:525
+#: vuurmuur_conf/zones_section.c:592 vuurmuur_conf/zones_section.c:609
+#: vuurmuur_conf/zones_section.c:2369 vuurmuur_conf/zones_section.c:2383
+#: vuurmuur_conf/zones_section.c:4107 vuurmuur_conf/zones_section.c:4133
+#: vuurmuur_conf/zones_section.c:4142 vuurmuur_conf/zones_section.c:4358
+#: vuurmuur_conf/zones_section.c:4798 vuurmuur_conf/zones_section.c:4822
+#: vuurmuur_conf/zones_section.c:4846 vuurmuur_conf/zones_section.c:4873
+#: vuurmuur_conf/zones_section.c:4900 vuurmuur_conf/zones_section.c:4916
+#: vuurmuur_conf/zones_section.c:5217 vuurmuur_conf/zones_section.c:6062
+#: vuurmuur_conf/zones_section.c:6078
+#, c-format
+msgid "saving to backend failed (in: %s:%d)."
+msgstr "échec de l'enregistrement (dans: %s:%d)"
+
+#: vuurmuur_conf/if_sec.c:1900 vuurmuur_conf/rules_form.c:2333
+#: vuurmuur_conf/services_section.c:2634 vuurmuur_conf/zones_section.c:1177
+#: vuurmuur_conf/zones_section.c:3591
+msgid "saving rules failed."
+msgstr "Échec de la sauvegarde des règles"
+
+#: vuurmuur_conf/if_sec.c:1978 vuurmuur_conf/rules_form.c:1539
+#: vuurmuur_conf/services_section.c:1830 vuurmuur_conf/services_section.c:2784
+#: vuurmuur_conf/zones_section.c:1307 vuurmuur_conf/zones_section.c:2869
+#: vuurmuur_conf/zones_section.c:5498 vuurmuur_conf/zones_section.c:6480
+#: vuurmuur_conf/zones_section.c:7065 vuurmuur_conf/strings.h:166
+msgid "new"
+msgstr "nouveau"
+
+#: vuurmuur_conf/if_sec.c:1979 vuurmuur_conf/rules_form.c:1540
+#: vuurmuur_conf/services_section.c:1832 vuurmuur_conf/services_section.c:2785
+#: vuurmuur_conf/zones_section.c:1308 vuurmuur_conf/zones_section.c:2870
+#: vuurmuur_conf/zones_section.c:5499 vuurmuur_conf/zones_section.c:6481
+#: vuurmuur_conf/zones_section.c:7066
+msgid "del"
+msgstr "effacer"
+
+#: vuurmuur_conf/if_sec.c:1980 vuurmuur_conf/services_section.c:2786
+#: vuurmuur_conf/zones_section.c:1309 vuurmuur_conf/zones_section.c:2871
+#: vuurmuur_conf/zones_section.c:5500 vuurmuur_conf/zones_section.c:6482
+#: vuurmuur_conf/strings.h:169
+msgid "rename"
+msgstr "renommer"
+
+#: vuurmuur_conf/if_sec.c:1981 vuurmuur_conf/rules_form.c:1541
+#: vuurmuur_conf/services_section.c:1831 vuurmuur_conf/services_section.c:2787
+#: vuurmuur_conf/zones_section.c:1311 vuurmuur_conf/zones_section.c:2873
+#: vuurmuur_conf/zones_section.c:5502 vuurmuur_conf/zones_section.c:6484
+#: vuurmuur_conf/strings.h:168
+msgid "edit"
+msgstr "modifier"
+
+#: vuurmuur_conf/if_sec.c:2052
+msgid "Rename Interface"
+msgstr "Renommer l'Interface"
+
+#: vuurmuur_conf/if_sec.c:2081
+msgid "New Interface"
+msgstr "Nouvelle Interface"
+
+#: vuurmuur_conf/if_sec.c:2099
+msgid "creating new interface failed."
+msgstr "Échec de la création de la nouvelle Interface"
+
+#: vuurmuur_conf/if_sec.c:2117 vuurmuur_conf/services_section.c:2938
+#: vuurmuur_conf/zones_section.c:1538 vuurmuur_conf/zones_section.c:3084
+#: vuurmuur_conf/zones_section.c:5711 vuurmuur_conf/zones_section.c:6609
+msgid "Delete"
+msgstr "Supprimer"
+
+#: vuurmuur_conf/if_sec.c:2117 vuurmuur_conf/rules_form.c:2408
+#: vuurmuur_conf/services_section.c:1501 vuurmuur_conf/services_section.c:2938
+#: vuurmuur_conf/statevent.c:616 vuurmuur_conf/statevent.c:630
+#: vuurmuur_conf/statevent.c:645 vuurmuur_conf/statevent.c:658
+#: vuurmuur_conf/statevent.c:671 vuurmuur_conf/statevent.c:685
+#: vuurmuur_conf/statevent.c:695 vuurmuur_conf/statevent.c:703
+#: vuurmuur_conf/statevent.c:711 vuurmuur_conf/statevent.c:910
+#: vuurmuur_conf/statevent.c:926 vuurmuur_conf/statevent.c:939
+#: vuurmuur_conf/statevent.c:952 vuurmuur_conf/statevent.c:966
+#: vuurmuur_conf/statevent.c:976 vuurmuur_conf/statevent.c:984
+#: vuurmuur_conf/statevent.c:992
+msgid "Are you sure?"
+msgstr "Êtes-vous sûr?"
+
+#: vuurmuur_conf/if_sec.c:2125
+#, c-format
+msgid "deleting interface %s failed."
+msgstr "Échec de l'effacement de l'interface %s"
+
+#: vuurmuur_conf/logview_section.c:220
+#, c-format
+msgid "Filter: %s"
+msgstr "Filtre: %s"
+
+#: vuurmuur_conf/logview_section.c:239
+#, c-format
+msgid "Search: %s"
+msgstr "Recherche: %s"
+
+#: vuurmuur_conf/logview_section.c:258
+#, c-format
+msgid "checking failed for '%s': %s."
+msgstr "échec de la vérification pour '%s': %s"
+
+#: vuurmuur_conf/logview_section.c:265
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not allow following "
+"symbolic-links."
+msgstr ""
+"Ouverture du fichier '%s': Pour des raisons de sécurité Vuurmuur ne suit pas "
+"les liens symboliques"
+
+#: vuurmuur_conf/logview_section.c:272
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not allow opening "
+"anything other than a file or a directory."
+msgstr ""
+"Ouverture du fichier '%s': Pour des raisons de sécurité, Vuurmuur n'ouvre "
+"rien d'autre qu'un fichier ou un répertoire"
+
+#: vuurmuur_conf/logview_section.c:279
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not open files that "
+"are writable by 'group' or 'other'. Check the file content & permissions."
+msgstr ""
+"Ouverture du fichier '%s': Pour des raisons de sécurité, Vuurmuur n'ouvre "
+"pas des fichiers ouvert en écriture par 'group' or 'other'. Vérifier le "
+"contenu et les permissions du fichier"
+
+#: vuurmuur_conf/logview_section.c:286
+#, c-format
+msgid ""
+"opening file '%s': For security reasons Vuurmuur will not open files that "
+"are not owned by root."
+msgstr ""
+"Ouverture du fichier '%s': Pour des raisons de sécurité Vuurmuur n'ouvrira "
+"pas des fichiers qui n'appartiennent pas à \"root\""
+
+#: vuurmuur_conf/logview_section.c:734 vuurmuur_conf/logview_section.c:752
+msgid "search"
+msgstr "Recherche"
+
+#: vuurmuur_conf/logview_section.c:736 vuurmuur_conf/logview_section.c:754
+msgid "pause"
+msgstr "pause"
+
+#: vuurmuur_conf/logview_section.c:737 vuurmuur_conf/logview_section.c:755
+msgid "clear"
+msgstr "effacer"
+
+#: vuurmuur_conf/logview_section.c:738
+msgid "hide"
+msgstr "caché"
+
+#: vuurmuur_conf/logview_section.c:827
+#, c-format
+msgid "opening logfile '%s' failed: %s."
+msgstr "Échec de l'ouverture du fichier de rapport '%s' : %s."
+
+#: vuurmuur_conf/logview_section.c:851
+#, c-format
+msgid "could not examine the logfile: %s."
+msgstr "impossible de lire le fichier rapport: %s."
+
+#: vuurmuur_conf/logview_section.c:864
+#, c-format
+msgid "fseek failed: %s."
+msgstr "échec de fseek: %s"
+
+#: vuurmuur_conf/logview_section.c:868
+#, c-format
+msgid "Loading loglines into memory (trying to load %u lines)..."
+msgstr "Chargement du rapport en mémoire (chargement de %u lignes)"
+
+#: vuurmuur_conf/logview_section.c:872 vuurmuur_conf/logview_section.c:1404
+#: vuurmuur_conf/mainmenu.c:1167
+msgid "One moment please..."
+msgstr "Veuillez patienter..."
+
+#: vuurmuur_conf/logview_section.c:881 vuurmuur_conf/logview_section.c:883
+#: vuurmuur_conf/logview_section.c:1793 vuurmuur_conf/mainmenu.c:238
+#: vuurmuur_conf/mainmenu.c:256 vuurmuur_conf/mainmenu.c:324
+#: vuurmuur_conf/mainmenu.c:1575
+msgid "Logview"
+msgstr "Rapports"
+
+#: vuurmuur_conf/logview_section.c:885
+msgid "Loading log ..."
+msgstr "Chargement des rapports"
+
+#: vuurmuur_conf/logview_section.c:1026
+#, c-format
+msgid "Loading loglines into memory... loaded %d lines."
+msgstr "Chargement du rapport en mémoire (%d lignes chargées)"
+
+#: vuurmuur_conf/logview_section.c:1067
+msgid "Logview starting.\n"
+msgstr "Générateur de rapports démarré\n"
+
+#: vuurmuur_conf/logview_section.c:1276
+#, c-format
+msgid "closing search pipe failed: %s."
+msgstr "Échec de fermeture du processus de recherche: %s"
+
+#: vuurmuur_conf/logview_section.c:1288
+msgid "Search canceled. Press SPACE to return to normal logging."
+msgstr "Recherche annulée, <ESPACE> pour retourner au rapport normal"
+
+#: vuurmuur_conf/logview_section.c:1293
+msgid "Search ERROR. Press SPACE to return to normal logging."
+msgstr "Erreur dans la recherche, <ESPACE> pour retourner au rapport normal"
+
+#: vuurmuur_conf/logview_section.c:1303
+#, c-format
+msgid "Search done: %lu matches. Press SPACE to return to normal logging."
+msgstr ""
+"Recherche terminée: %lu occurrences, <ESPACE> pour retourner au rapport "
+"normal"
+
+#: vuurmuur_conf/logview_section.c:1411
+msgid "Applying changed filter..."
+msgstr "Changement du nouveau filtre"
+
+#: vuurmuur_conf/logview_section.c:1486
+msgid "Search in progress. Press 'S' to stop current search."
+msgstr "Recherche en cours. Appuyez sur 'S' pour arrêter la recherche en cours"
+
+#: vuurmuur_conf/logview_section.c:1491 vuurmuur_conf/logview_section.c:1685
+msgid "Please first close the current search by pressing SPACE."
+msgstr "Veuillez fermer la recherche en cours en pressant <ESPACE>"
+
+#: vuurmuur_conf/logview_section.c:1523
+msgid "Continue viewing the log."
+msgstr "Continuer à parcourir le rapport"
+
+#: vuurmuur_conf/logview_section.c:1525
+msgid "Continue searching."
+msgstr "Continuer la recherche"
+
+#: vuurmuur_conf/logview_section.c:1537
+msgid "*** PAUSED *** (press 'p' to continue)"
+msgstr "*** PAUSE *** (appuyez sur 'p' pour continuer)"
+
+#: vuurmuur_conf/logview_section.c:1552 vuurmuur_conf/logview_section.c:1571
+#: vuurmuur_conf/logview_section.c:1590 vuurmuur_conf/logview_section.c:1609
+#: vuurmuur_conf/logview_section.c:1628 vuurmuur_conf/logview_section.c:1647
+#: vuurmuur_conf/logview_section.c:1666
+msgid "hidden"
+msgstr "caché"
+
+#: vuurmuur_conf/logview_section.c:1552 vuurmuur_conf/logview_section.c:1571
+#: vuurmuur_conf/logview_section.c:1590 vuurmuur_conf/logview_section.c:1609
+#: vuurmuur_conf/logview_section.c:1628 vuurmuur_conf/logview_section.c:1647
+#: vuurmuur_conf/logview_section.c:1666
+msgid "visible"
+msgstr "visible"
+
+#: vuurmuur_conf/logview_section.c:1680
+msgid "Already searching. Press 'S' to stop current search."
+msgstr "Recherche en cours. Appuyez sur 'S' pour arrêter la recherche en cours"
+
+#: vuurmuur_conf/logview_section.c:1710
+msgid "Search"
+msgstr "Recherche"
+
+#: vuurmuur_conf/logview_section.c:1710
+msgid "What do you want to search for?"
+msgstr "Que voulez vous chercher?"
+
+#: vuurmuur_conf/logview_section.c:1735
+#, c-format
+msgid "opening pipe failed: %s."
+msgstr "Échec de l'ouverture du processus : %s"
+
+#: vuurmuur_conf/logview_section.c:1745
+msgid "Search started. Press 'S' to stop searching."
+msgstr "Recherche démarrée. Appuyez sur 'S' pour arrêter la recherche"
+
+#: vuurmuur_conf/logview_section.c:1757
+msgid "search script was not ok, search is disabled."
+msgstr "le script de recherche est incorrect, Recherche est désactivée"
+
+#: vuurmuur_conf/logview_section.c:1769
+msgid "No search in progress."
+msgstr "Aucune recherche n'est en cours"
+
+#: vuurmuur_conf/logview_section.c:1912
+#, c-format
+msgid "Search in progress: %lu matches so far. SPACE to pause, 'S' to stop."
+msgstr ""
+"Recherche en cours: %lu occurrences. <ESPACE> pour mettre en pause, 'S' pour "
+"Arrêter"
+
+#: vuurmuur_conf/logview_section.c:1914
+#, c-format
+msgid "Search PAUSED: %lu matches so far. SPACE to continue, 'S' to stop."
+msgstr ""
+"Recherche en pause: %lu occurrences. <ESPACE> pour continuer, 'S' pour "
+"Arrêter"
+
+#: vuurmuur_conf/logview_section.c:2006
+#, c-format
+msgid "closing logfile failed: %s."
+msgstr "Échec de la fermeture du fichier rapport: %s"
+
+#: vuurmuur_conf/logview_section.c:2026 vuurmuur_conf/mainmenu.c:1819
+#: vuurmuur_conf/mainmenu.c:1844 vuurmuur_conf/rules_form.c:1730
+#: vuurmuur_conf/rules_form.c:2133 vuurmuur_conf/rules_form.c:2164
+#: vuurmuur_conf/rules_form.c:4959 vuurmuur_conf/rules_form.c:5245
+#: vuurmuur_conf/services_section.c:494 vuurmuur_conf/services_section.c:1196
+#: vuurmuur_conf/zones_section.c:835 vuurmuur_conf/zones_section.c:1700
+#: vuurmuur_conf/zones_section.c:2179 vuurmuur_conf/zones_section.c:2627
+#: vuurmuur_conf/zones_section.c:3214 vuurmuur_conf/zones_section.c:5228
+#: vuurmuur_conf/zones_section.c:5894 vuurmuur_conf/zones_section.c:6261
+#: vuurmuur_conf/zones_section.c:6716 vuurmuur_conf/zones_section.c:7262
+#: vuurmuur_conf/strings.h:99
+msgid "Ready."
+msgstr "Prêt"
+
+#: vuurmuur_conf/mainmenu.c:72
+msgid "saving rules failed"
+msgstr "Échec de la sauvegarde des règles"
+
+#: vuurmuur_conf/mainmenu.c:79
+msgid "cannot rename rulesfile because its location is not set"
+msgstr "impossible de renommer les règles car leur chemin n'est pas spécifié"
+
+#: vuurmuur_conf/mainmenu.c:94 vuurmuur_conf/mainmenu.c:163
+#, c-format
+msgid "renaming '%s' to '%s' failed: %s."
+msgstr "Échec pour renommer '%s' en '%s': %s"
+
+#: vuurmuur_conf/mainmenu.c:141
+msgid "saving blocklist failed"
+msgstr "Échec de la sauvegarde de la Liste Noire"
+
+#: vuurmuur_conf/mainmenu.c:148
+msgid "cannot rename blocklistfile because its location is not set"
+msgstr ""
+"Impossible de renommer la Liste Noire, car son chemin n'est pas spécifié"
+
+#: vuurmuur_conf/mainmenu.c:254
+msgid "Select a log to view."
+msgstr "Choisissez le rapport à voir"
+
+#: vuurmuur_conf/mainmenu.c:387 vuurmuur_conf/mainmenu.c:432
+#, c-format
+msgid "attaching to shared memory failed: %s."
+msgstr "Échec de l'attache à la mémoire partagé: %s"
+
+#: vuurmuur_conf/mainmenu.c:472
+msgid "(fail).\n"
+msgstr "(échec)\n"
+
+#: vuurmuur_conf/mainmenu.c:474
+msgid "(warn).\n"
+msgstr "(alerte)\n"
+
+#: vuurmuur_conf/mainmenu.c:497
+msgid ""
+"- The path to the Vuurmuur helpfile was not specified, please do so in the "
+"Vuurmuur_conf Settings\n"
+msgstr ""
+"- Le chemin vers le fichier d'aide Vuurmuur n'est pas spécifié, veuillez le "
+"définir dans les 'Paramètres' de vuurmuur_conf\n"
+
+#: vuurmuur_conf/mainmenu.c:504
+msgid "- Opening the helpfile failed. Please check the file\n"
+msgstr ""
+"- Échec de l'ouverture du fichier d'aide. Veuillez vérifier le fichier\n"
+
+#: vuurmuur_conf/mainmenu.c:526
+msgid ""
+"- The last time the changes were applied, applying the changes failed for "
+"Vuurmuur. Please check the Error.log\n"
+msgstr ""
+"-Lors de la dernière mise à jour, vuurmuur n'a pas pu appliquer les "
+"modification. Veuillez vérifier le rapport error.log\n"
+
+#: vuurmuur_conf/mainmenu.c:531
+msgid ""
+"- The last time the changes were applied, applying the changes failed for "
+"Vuurmuur_log. Please check the Error.log\n"
+msgstr ""
+"-Lors de la dernière mise à jour, vuurmuur_log n'a pas pu appliquer les "
+"modification. Veuillez vérifier le rapport error.log\n"
+
+#: vuurmuur_conf/mainmenu.c:539
+msgid ""
+"- No connection could be established with Vuurmuur. Please make sure that it "
+"is running\n"
+msgstr ""
+"- Aucune connexion n'a pu être établie avec vuurmuur. Veuillez vérifier que "
+"vuurmuur est en cours d'exécution\n"
+
+#: vuurmuur_conf/mainmenu.c:546
+msgid ""
+"- The connection with Vuurmuur seems to be lost. Please make sure that it is "
+"running\n"
+msgstr ""
+"- La connexion avec vuurmuur a été perdue. Veuillez vérifier que vuurmuur "
+"est  en cours d'exécution\n"
+
+#: vuurmuur_conf/mainmenu.c:556
+msgid ""
+"- No connection could be established with Vuurmuur_log. Please make sure "
+"that it is running\n"
+msgstr ""
+"- Aucune connexion n'a pu être établie avec vuurmuur_log. Veuillez vérifier "
+"que  vuurmuur_log est en cours d'exécution\n"
+
+#: vuurmuur_conf/mainmenu.c:563
+msgid ""
+"- The connection with Vuurmuur_log seems to be lost. Please make sure that "
+"it is running\n"
+msgstr ""
+"- La connexion avec vuurmuur_log a été perdue. Veuillez vérifier que "
+"vuurmuur_log est en cours d'exécution\n"
+
+#: vuurmuur_conf/mainmenu.c:586
+msgid ""
+"- The path to the 'iptables'-command is not yet specified. Please do so in "
+"the 'Vuurmuur Config' section\n"
+msgstr ""
+"- Le chemin vers la commande 'iptables' n'a pas été spécifié. Veuillez  le "
+"définir de la configuration de vuurmuur_log\n"
+
+#: vuurmuur_conf/mainmenu.c:593
+msgid ""
+"- The path to the 'iptables'-command seems to be wrong. There was an error "
+"while testing it. Please check it in your system and correct it in the "
+"'Vuurmuur Config' section\n"
+msgstr ""
+"- Le chemin vers la commande 'iptables' semble faux, une erreur s'est "
+"produite lors de la vérification. Veuillez vérifier dans votre système et "
+"corriger le chemin dans la configuration de vuurmuur_log\n"
+
+#: vuurmuur_conf/mainmenu.c:602
+msgid ""
+"- The path to the 'iptables-restore'-command is not yet specified. Please do "
+"so in the 'Vuurmuur Config' section\n"
+msgstr ""
+"- Le chemin vers la commande 'iptables-restore' n'a pas été spécifié. "
+"Veuillez le définir de la configuration de vuurmuur_log\n"
+
+#: vuurmuur_conf/mainmenu.c:609
+msgid ""
+"- The path to the 'iptables-restore'-command seems to be wrong. There was an "
+"error while testing it. Please check it in your system and correct it in the "
+"'Vuurmuur Config' section\n"
+msgstr ""
+"- Le chemin vers la commande 'iptables-restore' semble faux, une erreur "
+"s'est produite lors de la vérification. Veuillez vérifier dans votre système "
+"et corriger le chemin dans la configuration de vuurmuur_log\n"
+
+#: vuurmuur_conf/mainmenu.c:618
+#, fuzzy
+msgid ""
+"- The path to the 'ip6tables'-command is not yet specified. Please do so in "
+"the 'Vuurmuur Config' section\n"
+msgstr ""
+"- Le chemin vers la commande 'iptables' n'a pas été spécifié. Veuillez  le "
+"définir de la configuration de vuurmuur_log\n"
+
+#: vuurmuur_conf/mainmenu.c:625
+#, fuzzy
+msgid ""
+"- The path to the 'ip6tables'-command seems to be wrong. There was an error "
+"while testing it. Please check it in your system and correct it in the "
+"'Vuurmuur Config' section\n"
+msgstr ""
+"- Le chemin vers la commande 'iptables' semble faux, une erreur s'est "
+"produite lors de la vérification. Veuillez vérifier dans votre système et "
+"corriger le chemin dans la configuration de vuurmuur_log\n"
+
+#: vuurmuur_conf/mainmenu.c:634
+#, fuzzy
+msgid ""
+"- The path to the 'ip6tables-restore'-command is not yet specified. Please "
+"do so in the 'Vuurmuur Config' section\n"
+msgstr ""
+"- Le chemin vers la commande 'iptables-restore' n'a pas été spécifié. "
+"Veuillez le définir de la configuration de vuurmuur_log\n"
+
+#: vuurmuur_conf/mainmenu.c:641
+#, fuzzy
+msgid ""
+"- The path to the 'ip6tables-restore'-command seems to be wrong. There was "
+"an error while testing it. Please check it in your system and correct it in "
+"the 'Vuurmuur Config' section\n"
+msgstr ""
+"- Le chemin vers la commande 'iptables-restore' semble faux, une erreur "
+"s'est produite lors de la vérification. Veuillez vérifier dans votre système "
+"et corriger le chemin dans la configuration de vuurmuur_log\n"
+
+#: vuurmuur_conf/mainmenu.c:652
+#, fuzzy
+msgid ""
+"- The path to the 'tc'-command seems to be wrong. There was an error while "
+"testing it. Please check it in your system and correct it in the 'Vuurmuur "
+"Config' section\n"
+msgstr ""
+"- Le chemin vers la commande 'iptables' semble faux, une erreur s'est "
+"produite lors de la vérification. Veuillez vérifier dans votre système et "
+"corriger le chemin dans la configuration de vuurmuur_log\n"
+
+#: vuurmuur_conf/mainmenu.c:696
+#, c-format
+msgid "- No portranges/protocols defined in service '%s'\n"
+msgstr ""
+"- Aucunes plages de ports/protocoles n'ont été défini pour le service '%s'\n"
+
+#: vuurmuur_conf/mainmenu.c:741
+msgid ""
+"- Shaping rules present while the 'tc'-location is not set. Please set the "
+"'tc'-location\n"
+msgstr ""
+
+#: vuurmuur_conf/mainmenu.c:781
+msgid "- No interfaces are defined. Please define one or more interfaces\n"
+msgstr ""
+"- Aucune interface n'a été défini. Veuillez définir une interface ou plus\n"
+
+#: vuurmuur_conf/mainmenu.c:802
+#, c-format
+msgid ""
+"- The interface '%s' does not have a device. Please enter a device in the "
+"Interfaces Section\n"
+msgstr ""
+"- l'interface '%s' n'a pas de périphérique. Choisissez un périphérique dans "
+"la Section Interface\n"
+
+#: vuurmuur_conf/mainmenu.c:834
+#, c-format
+msgid "- The ipaddress '%s' of interface '%s' is invalid\n"
+msgstr "- L'adresse IP '%s' de l'interface '%s' n'est pas valide\n"
+
+#: vuurmuur_conf/mainmenu.c:866
+#, c-format
+msgid ""
+"- The ipaddress '%s' of interface '%s' (%s) does not match the ipaddress of "
+"the actual interface (%s)\n"
+msgstr ""
+"- L'adresse IP '%s' de l'interface '%s' (%s) ne correspond pas avec  "
+"l'adresse IP de l'actuelle interface (%s)\n"
+
+#: vuurmuur_conf/mainmenu.c:888
+#, fuzzy
+msgid ""
+"- No interfaces have shaping enabled. Please make sure that at least one of "
+"the interfaces has shaping enabled\n"
+msgstr ""
+"- Aucune interface n'est activée Veuillez vérifier qu'au moins une interface "
+"est activée\n"
+
+#: vuurmuur_conf/mainmenu.c:894
+msgid ""
+"- No interfaces are active. Please make sure that at least one of the "
+"interfaces is active\n"
+msgstr ""
+"- Aucune interface n'est activée Veuillez vérifier qu'au moins une interface "
+"est activée\n"
+
+#: vuurmuur_conf/mainmenu.c:931
+msgid ""
+"- No zones are defined. Please define one or more zones, and at least one "
+"network\n"
+msgstr ""
+"- Aucune zone n'a été définie. Veuillez définir une zone ou plus, et au "
+"moins un réseau\n"
+
+#: vuurmuur_conf/mainmenu.c:957
+#, c-format
+msgid "- The host '%s' does not have an IPAddress\n"
+msgstr "- L'hôte '%s' n'a pas d'adresse IP\n"
+
+#: vuurmuur_conf/mainmenu.c:974
+#, c-format
+msgid "- The IPAddress '%s' of host '%s' is invalid\n"
+msgstr "- L'adresse IP '%s' de l'hôte '%s' n'est pas valide\n"
+
+#: vuurmuur_conf/mainmenu.c:983
+#, c-format
+msgid ""
+"- The IPAddress '%s' of host '%s' does not belong to network '%s' with "
+"netmask '%s'\n"
+msgstr ""
+"- L'adresse IP '%s' de l'hôte '%s' n'appartient pas au réseau '%s' de masque "
+"sous-réseau '%s'\n"
+
+#: vuurmuur_conf/mainmenu.c:997
+#, fuzzy, c-format
+msgid ""
+"- The network '%s' has no interfaces attached to it. Please attach one or "
+"more interfaces to it in the Zones Section\n"
+msgstr ""
+"- Le réseau '%s' n'est lié à aucune interface. Veuillez lier une interface "
+"ou plus dans la section Zone\n"
+
+#: vuurmuur_conf/mainmenu.c:1006
+#, c-format
+msgid ""
+"- The network address for network '%s' is missing. See the Zones Section\n"
+msgstr ""
+"- L'adresse réseau du réseau '%s' est manquante. Vérifier la section Zone\n"
+
+#: vuurmuur_conf/mainmenu.c:1018
+#, c-format
+msgid "- The network address '%s' of network '%s' is invalid."
+msgstr "- L'adresse réseau '%s' du réseau '%s' n'est pas valide"
+
+#: vuurmuur_conf/mainmenu.c:1028
+#, c-format
+msgid "- The netmask for network '%s' is missing. See the Zones Section\n"
+msgstr ""
+"- Le masque pour le réseau '%s' est manquant. Veuillez vérifier la section "
+"Zone\n"
+
+#: vuurmuur_conf/mainmenu.c:1040
+#, c-format
+msgid "- The netmask '%s' of network '%s' is invalid. See the Zones Section\n"
+msgstr ""
+"- Le masque '%s' du réseau '%s' n'est pas valide. Vérifiez la section Zone\n"
+
+#: vuurmuur_conf/mainmenu.c:1050
+msgid ""
+"- No networks are defined. Please make sure that you define at least one "
+"network. See the Zones Section\n"
+msgstr ""
+"- Aucun réseau n'a été défini. Veuillez vérifier qu'au moins un réseau a "
+"été  défini dans la section Zone\n"
+
+#: vuurmuur_conf/mainmenu.c:1055
+msgid ""
+"- No networks are active. Please make sure that at least one of the networks "
+"is active. See the Zones Section\n"
+msgstr ""
+"- Aucune réseau n'a été activé. Veuillez vérifier qu'au moins un des réseaux "
+"a été activé dans la section Zone\n"
+
+#: vuurmuur_conf/mainmenu.c:1131
+msgid "Not connected"
+msgstr "Non connecté"
+
+#: vuurmuur_conf/mainmenu.c:1132
+msgid "Success"
+msgstr "Réussit"
+
+#: vuurmuur_conf/mainmenu.c:1133
+msgid "No changes"
+msgstr "Aucune modification"
+
+#: vuurmuur_conf/mainmenu.c:1134 vuurmuur_conf/templates.c:602
+#: vuurmuur_conf/strings.h:106
+msgid "Error"
+msgstr "Erreur"
+
+#: vuurmuur_conf/mainmenu.c:1135
+msgid "Timed out"
+msgstr "Temps dépassé"
+
+#: vuurmuur_conf/mainmenu.c:1196 vuurmuur_conf/mainmenu.c:1203
+msgid "Applying changes ..."
+msgstr "Mise à jour des modifications ..."
+
+#: vuurmuur_conf/mainmenu.c:1403
+msgid "applying changes failed. Please check error.log."
+msgstr ""
+"la mise à jour des modifications a échoué, veuillez consulter le rapport "
+"error.log"
+
+#. TRANSLATORS: max 6 characters
+#: vuurmuur_conf/mainmenu.c:1461
+msgid "  OK  "
+msgstr "  OK  "
+
+#. TRANSLATORS: max 6 characters
+#: vuurmuur_conf/mainmenu.c:1467
+msgid " Warn "
+msgstr "Alerte"
+
+#. TRANSLATORS: max 6 characters
+#: vuurmuur_conf/mainmenu.c:1473
+msgid " Fail "
+msgstr "Échec"
+
+#: vuurmuur_conf/mainmenu.c:1528
+msgid ""
+"Vuurmuur daemon not running. Can't notify it of any changes. Please start it "
+"first."
+msgstr ""
+
+#: vuurmuur_conf/mainmenu.c:1533 vuurmuur_conf/mainmenu.c:1580
+msgid "Apply Changes"
+msgstr "Appliquer les Modifications"
+
+#: vuurmuur_conf/mainmenu.c:1534
+msgid "The overall status is not OK. Apply anyway?"
+msgstr "Le statut global n'est pas correct. Appliquer malgré tout?"
+
+#: vuurmuur_conf/mainmenu.c:1547
+msgid "will not apply changes if the overall status is 'fail'."
+msgstr ""
+"Impossible d'appliquer les modifications si le statut global est 'échec'"
+
+#: vuurmuur_conf/mainmenu.c:1569 vuurmuur_conf/rules_form.c:1724
+#: vuurmuur_conf/rules_form.c:1989 vuurmuur_conf/rules_form.c:2098
+msgid "Rules"
+msgstr "Règles"
+
+#: vuurmuur_conf/mainmenu.c:1570 vuurmuur_conf/zones_section.c:6814
+#: vuurmuur_conf/zones_section.c:7085
+msgid "BlockList"
+msgstr "Liste noire"
+
+#: vuurmuur_conf/mainmenu.c:1571 vuurmuur_conf/zones_section.c:6382
+#: vuurmuur_conf/zones_section.c:6498 vuurmuur_conf/zones_section.c:6590
+#: vuurmuur_conf/zones_section.c:6675 vuurmuur_conf/zones_section.c:6696
+msgid "Zones"
+msgstr "Zones"
+
+#: vuurmuur_conf/mainmenu.c:1573 vuurmuur_conf/services_section.c:2690
+#: vuurmuur_conf/services_section.c:2811 vuurmuur_conf/services_section.c:2915
+#: vuurmuur_conf/services_section.c:2993
+msgid "Services"
+msgstr "Services"
+
+#: vuurmuur_conf/mainmenu.c:1582
+msgid "Quit"
+msgstr "Quitter"
+
+#: vuurmuur_conf/mainmenu.c:1678
+#, c-format
+msgid "calloc failed: %s."
+msgstr "calloc a échoué: %s."
+
+#: vuurmuur_conf/mainmenu.c:1692
+msgid "Main Menu"
+msgstr "Menu principal"
+
+#: vuurmuur_conf/mainmenu.c:1744 vuurmuur_conf/mainmenu.c:1780
+#, c-format
+msgid "Welcome to Vuurmuur_conf %s"
+msgstr "Bienvenue dans Vuurmuur_conf %s"
+
+#: vuurmuur_conf/mainmenu.c:1746
+msgid "Overall"
+msgstr "Global"
+
+#: vuurmuur_conf/mainmenu.c:1749
+msgid "Backend"
+msgstr "Principal"
+
+#: vuurmuur_conf/mainmenu.c:1751
+msgid "Config"
+msgstr "Configuration"
+
+#: vuurmuur_conf/mainmenu.c:1753
+msgid "Settings"
+msgstr "Paramètres"
+
+#: vuurmuur_conf/mainmenu.c:1756
+msgid "Daemons"
+msgstr "Démons"
+
+#: vuurmuur_conf/mainmenu.c:1759
+msgid "System"
+msgstr "Système"
+
+#. TRANSLATORS: max 27 chars.
+#: vuurmuur_conf/mainmenu.c:1766
+msgid "Press F5 for details."
+msgstr "<F5> : mode avancé"
+
+#: vuurmuur_conf/mainmenu.c:1795
+msgid "Main"
+msgstr "Principal"
+
+#: vuurmuur_conf/mainmenu.c:1800
+msgid "Convert Rules"
+msgstr "Conversion des règles"
+
+#: vuurmuur_conf/mainmenu.c:1801
+msgid "Convert the rules to the new format (recommended)?"
+msgstr "Convertir les règles dans le nouveau format (recommandé)?"
+
+#: vuurmuur_conf/mainmenu.c:1806
+msgid "converting rules failed."
+msgstr "Échec de la conversion des règles"
+
+#: vuurmuur_conf/mainmenu.c:1810
+msgid "Rules converted successfully."
+msgstr "Les règles ont été correctement converties"
+
+#: vuurmuur_conf/mainmenu.c:1825
+msgid "Convert BlockList"
+msgstr "Conversion de la liste noire"
+
+#: vuurmuur_conf/mainmenu.c:1826
+msgid "Convert the BlockList to the new format (recommended)?"
+msgstr "Convertir la liste noire dans le nouveau format (recommandé)?"
+
+#: vuurmuur_conf/mainmenu.c:1831
+msgid "converting BlockList failed."
+msgstr "la conversion de la liste noire a échouée"
+
+#: vuurmuur_conf/mainmenu.c:1835
+msgid "BlockList converted successfully."
+msgstr "La liste noire a été correctement convertie"
+
+#: vuurmuur_conf/mainmenu.c:2195
+msgid ""
+"One or more problems were detected in your current setup. Below is a list\n"
+msgstr ""
+"Un problème ou plus ont été détecté dans les paramètres actuels. Voici une "
+"liste\n"
+
+#: vuurmuur_conf/mainmenu.c:2233
+msgid "No problems were detected in your setup\n"
+msgstr "Aucun problème n'a été détecté dans vos paramètres\n"
+
+#: vuurmuur_conf/navigation.c:365
+msgid "the double quote sign \" is not allowed in the commentfield."
+msgstr "le signe guillemet \" n'est pas autorisé dans les commentaires"
+
+#: vuurmuur_conf/navigation.c:370
+msgid "the percent sign is not allowed in the commentfield."
+msgstr "le signe pourcent % n'est pas autorisé dans les commentaires"
+
+#: vuurmuur_conf/rules_form.c:216
+msgid "Incoming guaranteed rate"
+msgstr ""
+
+#: vuurmuur_conf/rules_form.c:219
+msgid "Incoming maximum rate"
+msgstr ""
+
+#: vuurmuur_conf/rules_form.c:223
+#, fuzzy
+msgid "Outgoing guaranteed rate"
+msgstr "Interface de sortie"
+
+#: vuurmuur_conf/rules_form.c:226
+#, fuzzy
+msgid "Outgoing maximum rate"
+msgstr "Interface de sortie"
+
+#: vuurmuur_conf/rules_form.c:230
+msgid "Priority"
+msgstr ""
+
+#: vuurmuur_conf/rules_form.c:488
+msgid "Moving rule..."
+msgstr "Déplacement de la Règle..."
+
+#: vuurmuur_conf/rules_form.c:559
+msgid "Move Rule"
+msgstr "Déplacer une Règle"
+
+#: vuurmuur_conf/rules_form.c:585
+msgid "Enter the new rule number:"
+msgstr "Entrée le nouveau numéro de la Règle"
+
+#: vuurmuur_conf/rules_form.c:586
+#, c-format
+msgid "Cur: %d, Min: 1, Max: %d"
+msgstr "Actuel: %d, Mini: 1, Maxi: %d"
+
+#: vuurmuur_conf/rules_form.c:1542
+msgid "move"
+msgstr "Déplacer"
+
+#: vuurmuur_conf/rules_form.c:1572
+msgid "Rules Section"
+msgstr "Section Règles"
+
+#. TRANSLATORS: max 3 chars
+#: vuurmuur_conf/rules_form.c:1713
+msgid "Nr."
+msgstr "N°."
+
+#: vuurmuur_conf/rules_form.c:1714 vuurmuur_conf/rules_form.c:3467
+#: vuurmuur_conf/rules_form.c:4433
+msgid "Action"
+msgstr "Action"
+
+#: vuurmuur_conf/rules_form.c:1715 vuurmuur_conf/rules_form.c:3596
+#: vuurmuur_conf/strings.h:40
+msgid "Service"
+msgstr "Service"
+
+#: vuurmuur_conf/rules_form.c:1716 vuurmuur_conf/services_section.c:373
+msgid "Source"
+msgstr "Source"
+
+#: vuurmuur_conf/rules_form.c:1717 vuurmuur_conf/services_section.c:379
+msgid "Destination"
+msgstr "Destination"
+
+#: vuurmuur_conf/rules_form.c:1718
+msgid "Options"
+msgstr "Options"
+
+#: vuurmuur_conf/rules_form.c:2002
+msgid "Delete rule cancelled."
+msgstr "Supprimer Règle, annulé"
+
+#: vuurmuur_conf/rules_form.c:2005
+#, c-format
+msgid "rule %d removed."
+msgstr "Règle %d supprimée"
+
+#: vuurmuur_conf/rules_form.c:2210
+msgid "Set the filter"
+msgstr "définir le filtre"
+
+#: vuurmuur_conf/rules_form.c:2210 vuurmuur_conf/filter.c:205
+msgid "Enter filter (leave empty for no filter)"
+msgstr "Entrer le filtre (vide pour aucun filtre)"
+
+#: vuurmuur_conf/rules_form.c:2232
+#, c-format
+msgid "Active filter: '%s' (press 'f' and then just 'enter' to clear)."
+msgstr "Filtre activé: '%s' (appuyez sur 'f' puis <ENTREE> pour annuler)"
+
+#: vuurmuur_conf/rules_form.c:2278
+msgid "Showing only forward rules."
+msgstr "Afficher uniquement les Règles de transmissions"
+
+#: vuurmuur_conf/rules_form.c:2279 vuurmuur_conf/rules_form.c:2297
+#: vuurmuur_conf/rules_form.c:2315
+msgid "Showing all rules."
+msgstr "Afficher toutes les règles"
+
+#: vuurmuur_conf/rules_form.c:2296
+msgid "Showing only input rules."
+msgstr "Afficher uniquement les Règles d'entrée"
+
+#: vuurmuur_conf/rules_form.c:2314
+msgid "Showing only output rules."
+msgstr "Afficher uniquement les Règles de sortie"
+
+#: vuurmuur_conf/rules_form.c:2408
+msgid "Delete rule"
+msgstr "Supprimer Règle"
+
+#: vuurmuur_conf/rules_form.c:2540
+msgid "new rule inserted."
+msgstr "Nouvelle Règle insérée"
+
+#. TRANSLATORS: don't translate 'redirectport'.
+#: vuurmuur_conf/rules_form.c:2820
+msgid "redirectport must be 1-65535."
+msgstr "redirectport doit être entre 1-65535"
+
+#. TRANSLATORS: don't translate 'loglimit'.
+#: vuurmuur_conf/rules_form.c:3016
+msgid "loglimit must be 0-999."
+msgstr "loglimit doit être entre 0-999"
+
+#: vuurmuur_conf/rules_form.c:3227
+msgid "new connection limit must be 0-9999."
+msgstr "la limite de nouvelle connexion doit être entre 0-9999"
+
+#: vuurmuur_conf/rules_form.c:3270
+#, fuzzy
+msgid "new connection limit burst must be 1-9999."
+msgstr "la limite des nouvelles connexions 'extra' doit être entre 0-9999"
+
+#. TRANSLATORS: max 7 chars
+#: vuurmuur_conf/rules_form.c:3483
+msgid "Random"
+msgstr ""
+
+#: vuurmuur_conf/rules_form.c:3515
+msgid "Queue"
+msgstr "File d'attente"
+
+#: vuurmuur_conf/rules_form.c:3546
+msgid "Queue number"
+msgstr ""
+
+#: vuurmuur_conf/rules_form.c:3571
+msgid "NFLog number"
+msgstr ""
+
+#. TRANSLATORS: max 7 chars
+#: vuurmuur_conf/rules_form.c:3613
+msgid "Mark"
+msgstr "Marque"
+
+#: vuurmuur_conf/rules_form.c:3638
+msgid "From"
+msgstr "Orig."
+
+#: vuurmuur_conf/rules_form.c:3654
+msgid "Listen Interface"
+msgstr "Interface d'entrée"
+
+#: vuurmuur_conf/rules_form.c:3676
+msgid "To"
+msgstr "Dest."
+
+#: vuurmuur_conf/rules_form.c:3692
+msgid "Outgoing Interface"
+msgstr "Interface de sortie"
+
+#: vuurmuur_conf/rules_form.c:3733
+msgid "Log"
+msgstr "Rap."
+
+#: vuurmuur_conf/rules_form.c:3761
+msgid "Prefix"
+msgstr "Préfixe"
+
+#: vuurmuur_conf/rules_form.c:3778
+msgid "Limit"
+msgstr "Limite"
+
+#: vuurmuur_conf/rules_form.c:3802
+msgid "Rule Limit"
+msgstr "Limite de Règle"
+
+#: vuurmuur_conf/rules_form.c:3852
+msgid "Burst"
+msgstr "Extra"
+
+#: vuurmuur_conf/rules_form.c:3879
+msgid "Chain"
+msgstr "Chaine"
+
+#: vuurmuur_conf/rules_form.c:3901
+msgid "Via"
+msgstr "Virtuel"
+
+#: vuurmuur_conf/rules_form.c:3923 vuurmuur_conf/rules_form.c:4557
+msgid "Reject type"
+msgstr "Type de Refus"
+
+#: vuurmuur_conf/rules_form.c:3946
+msgid "Redirect port"
+msgstr "Port de Redirection"
+
+#: vuurmuur_conf/rules_form.c:3971
+msgid "Listen port"
+msgstr "Port d'entrée"
+
+#: vuurmuur_conf/rules_form.c:3995
+msgid "Remote port"
+msgstr "Port distant"
+
+#: vuurmuur_conf/rules_form.c:4022
+#, c-format
+msgid "Edit Rule: %d"
+msgstr "Modifier Règle : %d"
+
+#: vuurmuur_conf/rules_form.c:4046
+msgid "Edit Rule"
+msgstr "Règles > Modifier"
+
+#: vuurmuur_conf/rules_form.c:4317
+msgid "Press SPACE to select an action."
+msgstr "Appuyez sur <ESPACE> pour choisir une action"
+
+#: vuurmuur_conf/rules_form.c:4319
+msgid "Press SPACE to select a service."
+msgstr "Appuyez sur <ESPACE> pour choisir un service"
+
+#: vuurmuur_conf/rules_form.c:4321
+msgid "Press SPACE to select a host, group or network, or the firewall."
+msgstr "Appuyez sur <ESPACE> pour choisir un hôte/groupe/réseau ou le pare-feu"
+
+#: vuurmuur_conf/rules_form.c:4323
+msgid "Enter a text to be included in the log message."
+msgstr "Entrez un texte qui sera inclut dans le message du rapport"
+
+#: vuurmuur_conf/rules_form.c:4325
+msgid "Press SPACE to select a reject type."
+msgstr "Appuyez sur <ESPACE> pour choisir un type de refus"
+
+#: vuurmuur_conf/rules_form.c:4327
+msgid "Enter a portnumber to redirect to."
+msgstr "Entrez un numéro de port distant"
+
+#: vuurmuur_conf/rules_form.c:4329
+msgid "Enter a comma-sepparated list of ports for the firewall to listen on."
+msgstr ""
+"Entrée une liste de port séparés par des virgules, de port d'entrée pour le "
+"pare-feu"
+
+#: vuurmuur_conf/rules_form.c:4331
+msgid "Enter a comma-sepparated list of ports for the firewall to forward to."
+msgstr ""
+"Entrée une liste de port séparés par des virgules, de port de transfert pour "
+"le pare-feu"
+
+#: vuurmuur_conf/rules_form.c:4333 vuurmuur_conf/zones_section.c:808
+msgid "Enter a optional comment."
+msgstr "Entrez un commentaire optionnel"
+
+#: vuurmuur_conf/rules_form.c:4335
+msgid "Maximum number of loglines per second (to prevent DoS), 0 for no limit."
+msgstr ""
+"le nombre maximal de ligne par seconde dans le rapport (pour prévenir les  "
+"attaques 'DoS' -par déni de service), 0 pour aucune limite."
+
+#: vuurmuur_conf/rules_form.c:4337
+msgid "Press SPACE to toggle logging of this rule."
+msgstr "Appuyez sur <ESPACE> pour inclure cette règle dans les rapports"
+
+#: vuurmuur_conf/rules_form.c:4339
+msgid "Queue number to use. Possible values: 0-65535."
+msgstr ""
+
+#: vuurmuur_conf/rules_form.c:4341
+msgid "NFLog number to use. Possible values: 0-65535."
+msgstr ""
+
+#: vuurmuur_conf/rules_form.c:4343
+msgid "Press SPACE to toggle queue'ing of this rule."
+msgstr "Appuyez sur <ESPACE> pour placer cette règle en file d'attente"
+
+#: vuurmuur_conf/rules_form.c:4345 vuurmuur_conf/rules_form.c:4347
+msgid "Press SPACE to select an interface to limit this rule to."
+msgstr ""
+"Appuyez sur <ESPACE> pour choisir une interface pour limiter cette règle"
+
+#: vuurmuur_conf/rules_form.c:4349
+msgid "Press SPACE to select an interface. Read help for more info."
+msgstr ""
+"Appuyez sur <ESPACE> pour choisir une interface pour limiter cette règle"
+
+#: vuurmuur_conf/rules_form.c:4351
+msgid "Enter a nfmark. Use > 20.000.000 when using the QUEUE action."
+msgstr "Entrez une 'nfmark' ( >20.000.000 avec l'action QUEUE)"
+
+#: vuurmuur_conf/rules_form.c:4353
+#, fuzzy
+msgid ""
+"Average new connections per amount of time (to prevent DoS), 0 for no limit."
+msgstr ""
+"Nombre moyen de nouvelles connexions par secondes (pour prévenir les "
+"attaques DoS - déni de services), 0 pour aucune limite"
+
+#: vuurmuur_conf/rules_form.c:4355
+msgid "Unit for the limit: sec, min, hour, day."
+msgstr ""
+
+#: vuurmuur_conf/rules_form.c:4357
+msgid "Maximum new connections per second (to prevent DoS), 0 for no limit."
+msgstr ""
+"Nombre maximum de nouvelles connexions par secondes (pour prévenir  les "
+"attaques DoS - déni de services), 0 pour aucune limite"
+
+#: vuurmuur_conf/rules_form.c:4359
+msgid "Randomize the source ports of NAT'd connections."
+msgstr ""
+
+#: vuurmuur_conf/rules_form.c:4434
+msgid "Select action"
+msgstr "Choisir une action"
+
+#: vuurmuur_conf/rules_form.c:4501 vuurmuur_conf/rules_form.c:4540
+#: vuurmuur_conf/zones_section.c:5778 vuurmuur_conf/zones_section.c:6928
+#: vuurmuur_conf/zones_section.c:7015
+msgid "Select"
+msgstr "Choisir"
+
+#: vuurmuur_conf/rules_form.c:4501
+msgid "Select a host, group or network"
+msgstr "Choisir un hôte, un groupe ou un réseau"
+
+#: vuurmuur_conf/rules_form.c:4540
+msgid "Select a service"
+msgstr "Choisir un Service"
+
+#: vuurmuur_conf/rules_form.c:4557
+msgid "Select reject type"
+msgstr "Choisir un type de Refus"
+
+#: vuurmuur_conf/rules_form.c:4568
+msgid "no from zone, please select one first."
+msgstr "aucune Origine, choisissez en une d'abord"
+
+#: vuurmuur_conf/rules_form.c:4596 vuurmuur_conf/rules_form.c:4702
+msgid "\"zone\" not yet supported."
+msgstr ""
+
+#: vuurmuur_conf/rules_form.c:4643 vuurmuur_conf/rules_form.c:4658
+#: vuurmuur_conf/rules_form.c:4752 vuurmuur_conf/rules_form.c:4767
+msgid "Any"
+msgstr "Tout"
+
+#: vuurmuur_conf/rules_form.c:4651 vuurmuur_conf/rules_form.c:4760
+msgid "Set interface filter"
+msgstr "Activer un filtre sur les interfaces"
+
+#: vuurmuur_conf/rules_form.c:4651 vuurmuur_conf/rules_form.c:4760
+msgid "Select an interface ('Any' to disable filter)"
+msgstr "Choisir une interface ('Tout' pour désactiver le filtre)"
+
+#: vuurmuur_conf/rules_form.c:4676
+msgid "no 'to' zone, please select one first."
+msgstr "Aucune 'Destination', choisissez en une d'abord"
+
+#: vuurmuur_conf/rules_form.c:4816
+msgid "Set Via interface"
+msgstr "Choisissez une interface"
+
+#: vuurmuur_conf/rules_form.c:4816 vuurmuur_conf/zones_section.c:3654
+msgid "Select an interface"
+msgstr "Choisissez une interface"
+
+#: vuurmuur_conf/rules_form.c:4843
+msgid "Unit"
+msgstr ""
+
+#: vuurmuur_conf/rules_form.c:4844
+#, fuzzy
+msgid "Select time unit"
+msgstr "Choisir une action"
+
+#: vuurmuur_conf/rules_form.c:4871
+#, fuzzy
+msgid "Not all required fields are filled in"
+msgstr "Tout les champs ne sont pas remplis"
+
+#: vuurmuur_conf/rules_form.c:4872
+msgid "Do you want to look at the rule again? (no will delete the rule)"
+msgstr "Voulez vous revenir à la règle? ('Non' détruira cette règle)"
+
+#: vuurmuur_conf/rules_form.c:4888
+msgid "An error was detected in the rule"
+msgstr "Une erreur a été détectée dans la règle"
+
+#: vuurmuur_conf/rules_form.c:4889
+msgid "Do you want to look at it again? (no will delete the rule)"
+msgstr "Voulez vous y revenir ? ('Non' détruira cette règle)"
+
+#: vuurmuur_conf/rules_form.c:5150
+msgid "Enter comment (optional)"
+msgstr "Entrez commentaire (optionnel)"
+
+#: vuurmuur_conf/rules_form.c:5190
+msgid "Enter an optional comment."
+msgstr "Entrez un commentaire facultatif"
+
+#: vuurmuur_conf/services_section.c:128
+msgid ""
+"one of the ports is too low or too high. Valid port values for tcp and udp "
+"are 1-65535."
+msgstr ""
+"l'un des ports est trop petit ou trop grand. Les plages valides pour TCP et "
+"UDP est 1-65535"
+
+#: vuurmuur_conf/services_section.c:138
+msgid ""
+"please make sure that the 'high'-port is actually higher than the 'low'-port."
+msgstr ""
+"Veuillez vérifier que le port 'Haut' est bien plus grand que le port 'Bas'"
+
+#: vuurmuur_conf/services_section.c:150
+msgid ""
+"one of the values is too high. Valid icmp-types values are 1-255 (note that "
+"41-255 are reserved). Valid icmp-codes are 0-16 (note that not all "
+"combinations of types and codes are valid. See http://www.iana.org/"
+"assignments/icmp-parameters for details)."
+msgstr ""
+"L'une des valeurs est trop grande. les valeurs valides pour le type ICMP "
+"sont 1-255 (Rq: les ports 41-255 sont réservés). les codes ICMP valides sont "
+"0-16 (Rq: toutes les combinaisons de type et code ne sont pas valides. cf "
+"http://www.iana.org/assignments/icmp-parameters pour plus de détails)."
+
+#: vuurmuur_conf/services_section.c:183
+#, fuzzy, c-format
+msgid "only one protocol %d portrange is allowed."
+msgstr "une seule plage %s est autorisée"
+
+#: vuurmuur_conf/services_section.c:235 vuurmuur_conf/services_section.c:1525
+#, c-format
+msgid "saving the portranges failed (in: %s:%d)."
+msgstr "la sauvegarde de la plage a échouée (dans: %s:%d)"
+
+#: vuurmuur_conf/services_section.c:301
+msgid "TCP Portrange"
+msgstr "plage TCP"
+
+#: vuurmuur_conf/services_section.c:303
+msgid "UDP Portrange"
+msgstr "plage UDP"
+
+#: vuurmuur_conf/services_section.c:374 vuurmuur_conf/services_section.c:380
+msgid "Low"
+msgstr "Bas"
+
+#: vuurmuur_conf/services_section.c:375 vuurmuur_conf/services_section.c:381
+msgid "High"
+msgstr "Haut"
+
+#: vuurmuur_conf/services_section.c:399 vuurmuur_conf/services_section.c:403
+msgid "Enter a portnumber (1-65535)."
+msgstr "Entrez un numéro de port (1-65535)"
+
+#: vuurmuur_conf/services_section.c:401 vuurmuur_conf/services_section.c:405
+msgid "Enter a portnumber (1-65535). This is the high-end of the range."
+msgstr "Entrez un numéro de port (1-65535). L'extrémité supérieure de la plage"
+
+#: vuurmuur_conf/services_section.c:643
+msgid "ICMP Types"
+msgstr "Type ICMP "
+
+#: vuurmuur_conf/services_section.c:783
+#, c-format
+msgid "no ICMP-codes with selected ICMP-type (%d)."
+msgstr "aucun code ICMP avec le type ICMP choisi (%d)."
+
+#: vuurmuur_conf/services_section.c:885
+msgid "ICMP Codes"
+msgstr "Code ICMP"
+
+#: vuurmuur_conf/services_section.c:1072
+msgid "Type"
+msgstr "Type"
+
+#: vuurmuur_conf/services_section.c:1073
+msgid "Code"
+msgstr "Code"
+
+#: vuurmuur_conf/services_section.c:1086
+msgid "Press SPACE to select an ICMP-type."
+msgstr "Appuyez sur <ESPACE> pour choisir un type ICMP"
+
+#: vuurmuur_conf/services_section.c:1088
+msgid "Press SPACE to select an ICMP-code."
+msgstr "Appuyez sur <ESPACE> pour choisir un code ICMP"
+
+#: vuurmuur_conf/services_section.c:1295
+msgid "New portrange"
+msgstr "Nouvelle plage de ports"
+
+#: vuurmuur_conf/services_section.c:1295
+msgid "Select a Protocol"
+msgstr "Choisir un Protocole"
+
+#: vuurmuur_conf/services_section.c:1360
+#, fuzzy
+msgid "Protocol"
+msgstr "Aide du Protocole"
+
+#: vuurmuur_conf/services_section.c:1360
+#, fuzzy
+msgid "Enter protocol number"
+msgstr "Entrée le nouveau numéro de la Règle"
+
+#: vuurmuur_conf/services_section.c:1370
+msgid "invalid protocol. Enter a number in the range 0-255."
+msgstr ""
+
+#: vuurmuur_conf/services_section.c:1460
+msgid "this protocol can only be removed or added."
+msgstr "ce protocole peut uniquement être supprimé ou ajouté"
+
+#: vuurmuur_conf/services_section.c:1465
+#, c-format
+msgid "edit of protocol %d not supported."
+msgstr "la modification du protocole %d n'est pas supportée"
+
+#: vuurmuur_conf/services_section.c:1501
+msgid "Delete portrange"
+msgstr "Supprimer la plage de ports"
+
+#: vuurmuur_conf/services_section.c:1846 vuurmuur_conf/services_section.c:1904
+#: vuurmuur_conf/services_section.c:1935
+msgid "Edit Portrange"
+msgstr "Services > Modifier > Plage"
+
+#: vuurmuur_conf/services_section.c:2140
+#, fuzzy, c-format
+msgid "%d more portrange(s). Press F6 to manage."
+msgstr ""
+"Il y a plus de %d plages de ports supplémentaires. Appuyez sur <F6> pour la "
+"gestion"
+
+#: vuurmuur_conf/services_section.c:2195
+msgid "uses no ports."
+msgstr "n'utilise aucun port"
+
+#. TRANSLATORS: is an object active or in-active?
+#: vuurmuur_conf/services_section.c:2261 vuurmuur_conf/zones_section.c:2239
+#: vuurmuur_conf/zones_section.c:4394 vuurmuur_conf/zones_section.c:5939
+#: vuurmuur_conf/strings.h:53
+msgid "Active"
+msgstr "Actif"
+
+#: vuurmuur_conf/services_section.c:2269 vuurmuur_conf/strings.h:55
+msgid "Broadcast"
+msgstr "Broadcast"
+
+#: vuurmuur_conf/services_section.c:2277
+msgid "Protocol helper"
+msgstr "Aide du Protocole"
+
+#: vuurmuur_conf/services_section.c:2298
+msgid "Warning: no port(range)s defined!"
+msgstr "Avertissement: aucun port/plage de ports n'a été défini"
+
+#: vuurmuur_conf/services_section.c:2334 vuurmuur_conf/services_section.c:2438
+#: vuurmuur_conf/services_section.c:2482
+msgid "Edit Service"
+msgstr "Service > Modifier"
+
+#: vuurmuur_conf/services_section.c:2347
+msgid "Press <F6> to manage the portranges of this service."
+msgstr "Appuyez sur <F6> pour gérer les plages du service"
+
+#: vuurmuur_conf/services_section.c:2402 vuurmuur_conf/strings.h:44
+msgid "portranges"
+msgstr "Plage"
+
+#: vuurmuur_conf/services_section.c:2869
+msgid "Rename Service"
+msgstr "Renommer le Service"
+
+#: vuurmuur_conf/services_section.c:2895
+msgid "New Service"
+msgstr "Nouveau Service"
+
+#: vuurmuur_conf/services_section.c:2895
+msgid "Please enter the name of the new service"
+msgstr "Entrez le nouveau nom du service"
+
+#: vuurmuur_conf/services_section.c:2902
+#, c-format
+msgid "service %s already exists."
+msgstr "le service %s existe déjà"
+
+#: vuurmuur_conf/services_section.c:2919
+msgid "creating new service failed."
+msgstr "échec de la création du nouveau service"
+
+#: vuurmuur_conf/services_section.c:2925
+#, fuzzy, c-format
+msgid "service name %s is invalid."
+msgstr "le nom de groupe '%s' est invalide"
+
+#: vuurmuur_conf/stat_sec.c:402
+msgid "Status Section"
+msgstr "Statut"
+
+#. TRANSLATORS: max 11 chars.
+#: vuurmuur_conf/stat_sec.c:448
+msgid "Hostname"
+msgstr "Nom d'hôte"
+
+#. TRANSLATORS: max 3 chars.
+#: vuurmuur_conf/stat_sec.c:452
+msgid "day"
+msgstr " jr"
+
+#. TRANSLATORS: this must be exactly the same regarding positions.
+#: vuurmuur_conf/stat_sec.c:454
+msgid "h  m  s"
+msgstr "h :m :s"
+
+#. TRANSLATORS: max 6 chars.
+#: vuurmuur_conf/stat_sec.c:458
+msgid "Uptime"
+msgstr "Durée"
+
+#. TRANSLATORS: max 10 chars.
+#: vuurmuur_conf/stat_sec.c:463
+msgid "Load"
+msgstr "Charge"
+
+#. TRANSLATORS: max 5 chars.
+#: vuurmuur_conf/stat_sec.c:467
+msgid "Free"
+msgstr "Libre"
+
+#. TRANSLATORS: max 5 chars.
+#: vuurmuur_conf/stat_sec.c:469
+msgid "Cache"
+msgstr "Cache"
+
+#. TRANSLATORS: max 6 chars.
+#: vuurmuur_conf/stat_sec.c:471
+msgid "Buffer"
+msgstr "Buffer"
+
+#. TRANSLATORS: max 9 chars.
+#: vuurmuur_conf/stat_sec.c:473
+msgid "Memory(MB)"
+msgstr "Mémoire"
+
+#. TRANSLATORS: max 7 chars.
+#: vuurmuur_conf/stat_sec.c:482
+msgid "Other"
+msgstr "Autre"
+
+#. TRANSLATORS: max 7 chars.
+#: vuurmuur_conf/stat_sec.c:485
+msgid "Current"
+msgstr "Actuel"
+
+#. TRANSLATORS: max 7 chars.
+#: vuurmuur_conf/stat_sec.c:487
+msgid "Maximal"
+msgstr "Maximal"
+
+#. TRANSLATORS: max 11 chars.
+#: vuurmuur_conf/stat_sec.c:490
+msgid "Speed/s"
+msgstr "Vitesse(/s)"
+
+#. TRANSLATORS: max 11 chars.
+#: vuurmuur_conf/stat_sec.c:492
+msgid "Firewall"
+msgstr "Pare-feu"
+
+#. TRANSLATORS: max 11 chars.
+#: vuurmuur_conf/stat_sec.c:494
+msgid "Forwarded"
+msgstr "Transmis"
+
+#. TRANSLATORS: max 6 chars.
+#: vuurmuur_conf/stat_sec.c:500
+msgid "Down"
+msgstr "Desc."
+
+#. TRANSLATORS: max 6 chars.
+#: vuurmuur_conf/stat_sec.c:502
+msgid "Up"
+msgstr "Mont."
+
+#. TRANSLATORS: max 6 chars.
+#: vuurmuur_conf/stat_sec.c:508
+msgid "Recv"
+msgstr "Reçu"
+
+#. TRANSLATORS: max 6 chars.
+#: vuurmuur_conf/stat_sec.c:510
+msgid "Send"
+msgstr "Envoyé"
+
+#: vuurmuur_conf/stat_sec.c:851
+msgid "System Status"
+msgstr "Statut du Système"
+
+#: vuurmuur_conf/sys_sec.c:86
+msgid "Syn-flood protection"
+msgstr "Protection 'SYN-flood'"
+
+#: vuurmuur_conf/sys_sec.c:90
+msgid "Echo-broadcast protect"
+msgstr "Protection 'echo-broadcast'"
+
+#: vuurmuur_conf/templates.c:283
+msgid "Note: whitespaces not allowed."
+msgstr "Rq: espaces interdits"
+
+#: vuurmuur_conf/templates.c:540 vuurmuur_conf/vuurmuur_conf.c:497
+#: vuurmuur_conf/strings.h:109
+msgid "Warning"
+msgstr "Avertissement"
+
+#: vuurmuur_conf/templates.c:541 vuurmuur_conf/templates.c:603
+msgid "Press any key to continue..."
+msgstr "Appuyez sur n'importe quel touche pour continuer..."
+
+#: vuurmuur_conf/vuurmuur_conf.c:157
+msgid "commandline argument too long for option -c."
+msgstr "l'argument de l'option '-c' est trop longue"
+
+#: vuurmuur_conf/vuurmuur_conf.c:168
+msgid "commandline debuglevel out of range."
+msgstr "le niveau de débogue 'debuglevel' est hors spécification"
+
+#: vuurmuur_conf/vuurmuur_conf.c:193
+msgid "unknown commandline option."
+msgstr "option inconnue"
+
+#: vuurmuur_conf/vuurmuur_conf.c:315
+#, fuzzy, c-format
+msgid "This is Vuurmuur_conf %s, Copyright (c) 2003-2008 by Victor Julien"
+msgstr "vuurmuur_conf %s, Copyright (c) 2003-2005 par Victor Julien"
+
+#: vuurmuur_conf/vuurmuur_conf.c:410
+#, c-format
+msgid "unloading the backends failed (in: %s:%d)."
+msgstr "le déchargement du système central a échoué (dans: %s:%d)."
+
+#: vuurmuur_conf/vuurmuur_conf.c:497
+#, c-format
+msgid "title '%s' too long, window will be drawn without a title."
+msgstr "le titre '%s' est trop long, la fenêtre sera affiché sans titre"
+
+#: vuurmuur_conf/vuurmuur_conf.c:571
+#, c-format
+msgid "Version: %s"
+msgstr "Version: %s"
+
+#: vuurmuur_conf/vuurmuur_conf.c:601
+msgid "Problem with the Vuurmuur_conf settings"
+msgstr "Problème avec les 'Paramètres' de vuurmuur_conf"
+
+#: vuurmuur_conf/vuurmuur_conf.c:602
+msgid "Do you want to edit the settings now?"
+msgstr "Voulez vous modifier les paramètres?"
+
+#: vuurmuur_conf/vuurmuur_conf.c:660
+msgid "Problem with the Vuurmuur config"
+msgstr "Problème avec la configuration de vuurmuur"
+
+#: vuurmuur_conf/vuurmuur_conf.c:661
+msgid "Do you want to edit the config now?"
+msgstr "Voulez vous modifier la configuration?"
+
+#: vuurmuur_conf/vuurmuur_conf.c:720
+msgid "loading the plugins failed."
+msgstr "Échec lors de la sauvegarde de l'interface"
+
+#: vuurmuur_conf/vuurmuur_conf.c:733
+msgid "intializing the services failed."
+msgstr "Échec de l'initialisation des services"
+
+#: vuurmuur_conf/vuurmuur_conf.c:746
+msgid "intializing the interfaces failed."
+msgstr "Échec de l'initialisation des interfaces"
+
+#: vuurmuur_conf/vuurmuur_conf.c:759
+msgid "intializing the zones failed."
+msgstr "Échec de l'initialisation des zones"
+
+#: vuurmuur_conf/vuurmuur_conf.c:810
+#, c-format
+msgid "attaching to shared memory failed: %s (in: %s:%d)."
+msgstr "Échec du lien vers la mémoire partagée: %s (dans %s:%d)"
+
+#: vuurmuur_conf/zones_section.c:295
+msgid "Edit Zone: Host"
+msgstr "Modifier l'hôte"
+
+#: vuurmuur_conf/zones_section.c:478 vuurmuur_conf/zones_section.c:540
+#, c-format
+msgid "ipaddress '%s' doesn't belong in the network %s/%s."
+msgstr "l'adresse IP '%s' n'appartient pas au réseau %s/%s"
+
+#: vuurmuur_conf/zones_section.c:575
+#, c-format
+msgid "MAC Address '%s' is invalid."
+msgstr "l'adresse MAC '%s' est non valide"
+
+#: vuurmuur_conf/zones_section.c:628
+msgid "empty IP address. No rules will be created for this host."
+msgstr "adresse IP vide, aucune règle ne sera créée par cet hôte"
+
+#: vuurmuur_conf/zones_section.c:701 vuurmuur_conf/zones_section.c:814
+#: vuurmuur_conf/zones_section.c:2490 vuurmuur_conf/zones_section.c:2595
+msgid "Note: parent zone/network is inactive."
+msgstr "Rq: le réseau/zone parent est inactif"
+
+#: vuurmuur_conf/zones_section.c:706
+msgid "Edit Host"
+msgstr "Zone > Réseau > Hôte > Modifier"
+
+#: vuurmuur_conf/zones_section.c:770
+msgid "saving host failed."
+msgstr "Échec de sauvegarde de l'hôte"
+
+#: vuurmuur_conf/zones_section.c:771
+msgid "Look at the host again?"
+msgstr "Revenir à l'édition de l'hôte?"
+
+#: vuurmuur_conf/zones_section.c:802
+msgid "Please enter an ipaddress (mandatory)."
+msgstr "Veuillez entrer une adresse IP (obligatoire)"
+
+#: vuurmuur_conf/zones_section.c:804
+msgid "Please enter the macaddress (optional)."
+msgstr "Veuillez entrer une adresse MAC (optionnel)"
+
+#: vuurmuur_conf/zones_section.c:806
+msgid "If set to 'No' no rules will be created for it."
+msgstr "Non: aucune règle ne sera créée"
+
+#: vuurmuur_conf/zones_section.c:963 vuurmuur_conf/zones_section.c:1329
+#: vuurmuur_conf/zones_section.c:1516 vuurmuur_conf/zones_section.c:1663
+#: vuurmuur_conf/zones_section.c:4745 vuurmuur_conf/zones_section.c:5481
+#: vuurmuur_conf/zones_section.c:5781 vuurmuur_conf/zones_section.c:6007
+msgid "Hosts"
+msgstr "Hôtes"
+
+#: vuurmuur_conf/zones_section.c:1267
+msgid "saving changed group to backend failed."
+msgstr ""
+"échec de la sauvegarde de la modification des groupes dans le programme "
+"principal"
+
+#: vuurmuur_conf/zones_section.c:1310 vuurmuur_conf/zones_section.c:2872
+#: vuurmuur_conf/zones_section.c:5501 vuurmuur_conf/zones_section.c:6483
+msgid "open"
+msgstr "ouvrir"
+
+#: vuurmuur_conf/zones_section.c:1426
+msgid "Rename Host"
+msgstr "Renommer Hôte"
+
+#: vuurmuur_conf/zones_section.c:1426
+msgid "Enter the new name of the host"
+msgstr "Entrez le nouveau nom de l'hôte"
+
+#: vuurmuur_conf/zones_section.c:1431 vuurmuur_conf/zones_section.c:1454
+#: vuurmuur_conf/zones_section.c:1484 vuurmuur_conf/zones_section.c:1507
+#, c-format
+msgid "invalid hostname '%s'."
+msgstr "nom d'hôte non valide '%s'."
+
+#: vuurmuur_conf/zones_section.c:1479
+msgid "New Host"
+msgstr "Nouvel hôte"
+
+#: vuurmuur_conf/zones_section.c:1479
+msgid "Enter the name of the new host"
+msgstr "Entrez le nom du nouvel hôte"
+
+#: vuurmuur_conf/zones_section.c:1538
+msgid "This host?"
+msgstr "Cet hôte?"
+
+#: vuurmuur_conf/zones_section.c:1573
+#, c-format
+msgid "host '%s' is still a member of %u group(s)."
+msgstr "l'hôte '%s' est toujours membre du/des groupe(s) %u"
+
+#: vuurmuur_conf/zones_section.c:1578
+#, c-format
+msgid "host '%s' is still in the blocklist (%u times)."
+msgstr "l'hôte '%s' est toujours dans la liste noire (%u fois)"
+
+#: vuurmuur_conf/zones_section.c:1585
+msgid "deleting zone failed."
+msgstr "échec lors de l'effacement de la zone"
+
+#: vuurmuur_conf/zones_section.c:1802 vuurmuur_conf/zones_section.c:2495
+#: vuurmuur_conf/zones_section.c:2605
+msgid "Members"
+msgstr "Membres"
+
+#: vuurmuur_conf/zones_section.c:1969
+msgid "please add some hosts to the network first."
+msgstr "Veuillez d'abord ajouter des hôtes au réseau"
+
+#: vuurmuur_conf/zones_section.c:2003
+msgid "New member"
+msgstr "Nouveau membre"
+
+#: vuurmuur_conf/zones_section.c:2003
+msgid "Select a host"
+msgstr "Choisissez un hôte"
+
+#: vuurmuur_conf/zones_section.c:2137
+msgid "removing groupmember failed."
+msgstr "échec lors de l'effacement de ce membre"
+
+#: vuurmuur_conf/zones_section.c:2276
+msgid "Edit Zone: Group"
+msgstr "Modifier groupe"
+
+#: vuurmuur_conf/zones_section.c:2317
+msgid "Press <F6> to manage the members of this group."
+msgstr "Appuyez sur <F6> pour gérer les membres du groupe"
+
+#: vuurmuur_conf/zones_section.c:2457 vuurmuur_conf/zones_section.c:2708
+msgid "members"
+msgstr "membres"
+
+#: vuurmuur_conf/zones_section.c:2485 vuurmuur_conf/zones_section.c:2588
+msgid "Warning: no members!"
+msgstr "Avertissement: aucun membre!"
+
+#: vuurmuur_conf/zones_section.c:2501 vuurmuur_conf/zones_section.c:2546
+msgid "Edit Group"
+msgstr "Zone > Réseau > Groupe > Modifier"
+
+#: vuurmuur_conf/zones_section.c:2761 vuurmuur_conf/zones_section.c:2891
+#: vuurmuur_conf/zones_section.c:3052 vuurmuur_conf/zones_section.c:3185
+#: vuurmuur_conf/zones_section.c:4747 vuurmuur_conf/zones_section.c:5482
+#: vuurmuur_conf/zones_section.c:5785 vuurmuur_conf/zones_section.c:6009
+msgid "Groups"
+msgstr "Groupes"
+
+#: vuurmuur_conf/zones_section.c:2974
+msgid "Rename Group"
+msgstr "Renommer le groupe"
+
+#: vuurmuur_conf/zones_section.c:2974
+msgid "Enter the new name of the group"
+msgstr "Entrez le nouveau nom du groupe"
+
+#: vuurmuur_conf/zones_section.c:2979 vuurmuur_conf/zones_section.c:3002
+#: vuurmuur_conf/zones_section.c:3030
+#, c-format
+msgid "invalid groupname '%s'."
+msgstr "nom de groupe invalide '%s'."
+
+#: vuurmuur_conf/zones_section.c:3025
+msgid "New Group"
+msgstr "Nouveau Groupe"
+
+#: vuurmuur_conf/zones_section.c:3025
+msgid "Enter the name of the new group"
+msgstr "Entrez le nom du nouveau groupe"
+
+#: vuurmuur_conf/zones_section.c:3056
+msgid "failed to create new group."
+msgstr "Échec de la création du nouveau groupe"
+
+#: vuurmuur_conf/zones_section.c:3063
+#, c-format
+msgid "groupname '%s' is invalid."
+msgstr "le nom de groupe '%s' est invalide"
+
+#: vuurmuur_conf/zones_section.c:3084
+msgid "This group?"
+msgstr "Ce groupe?"
+
+#: vuurmuur_conf/zones_section.c:3110
+#, c-format
+msgid "group '%s' is still in the blocklist (%u times)."
+msgstr "le groupe '%s' est toujours dans la liste noire (%u fois)"
+
+#: vuurmuur_conf/zones_section.c:3118
+msgid "deleting group failed."
+msgstr "échec lors de l'effacement du groupe"
+
+#: vuurmuur_conf/zones_section.c:3654
+msgid "New interface"
+msgstr "Nouvelle Interface"
+
+#: vuurmuur_conf/zones_section.c:3675
+msgid "saving the interfaces failed."
+msgstr "Échec lors de la sauvegarde de l'interface"
+
+#: vuurmuur_conf/zones_section.c:4404 vuurmuur_conf/zones_section.c:5082
+#: vuurmuur_conf/zones_section.c:5483 vuurmuur_conf/strings.h:34
+msgid "Network"
+msgstr "Réseau"
+
+#: vuurmuur_conf/zones_section.c:4415
+msgid "Netmask"
+msgstr "Masque"
+
+#: vuurmuur_conf/zones_section.c:4427
+#, fuzzy
+msgid "IPv6 Network"
+msgstr "Réseau"
+
+#: vuurmuur_conf/zones_section.c:4440
+msgid "IPv6 CIDR"
+msgstr ""
+
+#: vuurmuur_conf/zones_section.c:4454
+msgid "Loopback"
+msgstr "Loopback"
+
+#: vuurmuur_conf/zones_section.c:4469
+msgid "Class A"
+msgstr "Classe A"
+
+#: vuurmuur_conf/zones_section.c:4484
+msgid "Class B"
+msgstr "Classe B"
+
+#: vuurmuur_conf/zones_section.c:4499
+msgid "Class C"
+msgstr "Classe C"
+
+#: vuurmuur_conf/zones_section.c:4514
+msgid "Class D"
+msgstr "Classe D"
+
+#: vuurmuur_conf/zones_section.c:4529
+msgid "Class E"
+msgstr "Classe E"
+
+#: vuurmuur_conf/zones_section.c:4544
+msgid "Test-net"
+msgstr "Test-net"
+
+#: vuurmuur_conf/zones_section.c:4559
+msgid "Link local net"
+msgstr "Link local net"
+
+#: vuurmuur_conf/zones_section.c:4574
+msgid "0.0.0.0/8 res."
+msgstr "0.0.0.0/8 res."
+
+#: vuurmuur_conf/zones_section.c:4589
+msgid "Broadcast src."
+msgstr "Broadcast src."
+
+#: vuurmuur_conf/zones_section.c:4604
+msgid "Broadcast dst."
+msgstr "Broadcast dst."
+
+#: vuurmuur_conf/zones_section.c:4619
+msgid "DHCP Server"
+msgstr "Serveur DHCP"
+
+#: vuurmuur_conf/zones_section.c:4634
+msgid "DHCP Client"
+msgstr "Client DHCP"
+
+#: vuurmuur_conf/zones_section.c:4678
+msgid "Edit Zone: Network"
+msgstr "Modifier réseau"
+
+#: vuurmuur_conf/zones_section.c:4739
+msgid "Anti-spoofing"
+msgstr "Anti-spoofing"
+
+#: vuurmuur_conf/zones_section.c:5039
+msgid "interfaces"
+msgstr "interfaces"
+
+#: vuurmuur_conf/zones_section.c:5067 vuurmuur_conf/zones_section.c:5190
+msgid "Warning: no interfaces attached!"
+msgstr "Avertissement: aucun lien vers une interface"
+
+#: vuurmuur_conf/zones_section.c:5073 vuurmuur_conf/zones_section.c:5198
+msgid "Note: parent zone is inactive."
+msgstr "Rq: la zone parent est désactivée"
+
+#: vuurmuur_conf/zones_section.c:5151 vuurmuur_conf/zones_section.c:5387
+#: vuurmuur_conf/zones_section.c:5522 vuurmuur_conf/zones_section.c:5818
+#: vuurmuur_conf/zones_section.c:6005
+msgid "Networks"
+msgstr "Réseau"
+
+#. TRANSLATORS: max 32 chars
+#: vuurmuur_conf/zones_section.c:5308
+#, c-format
+msgid "No network/netmask defined."
+msgstr "pas de réseau/masque de définit"
+
+#: vuurmuur_conf/zones_section.c:5400
+msgid "to enter the hosts/groups of this network"
+msgstr "accéder aux hôtes/groupes de ce réseau"
+
+#: vuurmuur_conf/zones_section.c:5602
+msgid "Rename Network"
+msgstr "Renommer le réseau"
+
+#: vuurmuur_conf/zones_section.c:5602
+msgid "Enter the new name of the network"
+msgstr "Entrez le nouveau nom du réseau"
+
+#: vuurmuur_conf/zones_section.c:5607 vuurmuur_conf/zones_section.c:5661
+#, c-format
+msgid "invalid networkname '%s'."
+msgstr "nom de réseau invalide '%s'."
+
+#: vuurmuur_conf/zones_section.c:5631
+msgid "renaming network failed."
+msgstr "Échec pour renommer le réseau"
+
+#: vuurmuur_conf/zones_section.c:5641 vuurmuur_conf/zones_section.c:5692
+#, c-format
+msgid "'%s' is an invalid name for a network."
+msgstr "'%s' est un nom de réseau invalide"
+
+#: vuurmuur_conf/zones_section.c:5656
+msgid "New Network"
+msgstr "Nouveau Réseau"
+
+#: vuurmuur_conf/zones_section.c:5656
+msgid "Enter the name of the new network"
+msgstr "Entrez le nom du nouveau réseau"
+
+#: vuurmuur_conf/zones_section.c:5678
+msgid "adding network failed."
+msgstr "Échec de l'ajout du nouveau réseau"
+
+#: vuurmuur_conf/zones_section.c:5711
+msgid "This network?"
+msgstr "Ce réseau?"
+
+#: vuurmuur_conf/zones_section.c:5725
+msgid "deleting network failed."
+msgstr "Échec de la suppression du réseau"
+
+#: vuurmuur_conf/zones_section.c:5740
+msgid "unable to delete: network not empty."
+msgstr "Impossible de supprimer: le réseau n'est pas vide"
+
+#: vuurmuur_conf/zones_section.c:5778
+msgid "Hosts, Groups or this Network"
+msgstr "Hôtes, Groupes ou ce Réseau"
+
+#: vuurmuur_conf/zones_section.c:5969
+msgid "Edit Zone: Zone"
+msgstr "Modifier Zone"
+
+#: vuurmuur_conf/zones_section.c:6177
+msgid "Edit Zone"
+msgstr "Zone > Modifier"
+
+#: vuurmuur_conf/zones_section.c:6396
+msgid "to enter the networks of this zone"
+msgstr "accéder aux réseaux de cette zone"
+
+#: vuurmuur_conf/zones_section.c:6548
+msgid "Rename Zone"
+msgstr "Renommer la Zone"
+
+#: vuurmuur_conf/zones_section.c:6548
+msgid "Enter the new name of the zone"
+msgstr "Entrez le nouveau nom de la zone"
+
+#: vuurmuur_conf/zones_section.c:6569
+msgid "New Zone"
+msgstr "Nouvelle Zone"
+
+#: vuurmuur_conf/zones_section.c:6569
+msgid "Enter the name of the new zone"
+msgstr "Entrez le nom de la nouvelle Zone"
+
+#: vuurmuur_conf/zones_section.c:6609
+msgid "This zone?"
+msgstr "Cette Zone?"
+
+#: vuurmuur_conf/zones_section.c:6618
+#, c-format
+msgid "deleting zone failed (in: %s:%d)."
+msgstr "Échec lors de la suppression de la zone (dans: %s:%d)"
+
+#: vuurmuur_conf/zones_section.c:6632
+#, fuzzy
+msgid "unable to delete: zone not empty."
+msgstr "Impossible de supprimer: le réseau n'est pas vide"
+
+#: vuurmuur_conf/zones_section.c:6909 vuurmuur_conf/zones_section.c:6931
+msgid "IPAddress"
+msgstr "Adresse IP"
+
+#: vuurmuur_conf/zones_section.c:6910 vuurmuur_conf/zones_section.c:6962
+#: vuurmuur_conf/zones_section.c:6967 vuurmuur_conf/strings.h:30
+msgid "Host"
+msgstr "Hôte"
+
+#: vuurmuur_conf/zones_section.c:6911 vuurmuur_conf/zones_section.c:6962
+#: vuurmuur_conf/strings.h:32
+msgid "Group"
+msgstr "Groupe"
+
+#: vuurmuur_conf/zones_section.c:6928
+msgid "What do you want to block?"
+msgstr "Que voulez vous bloquer?"
+
+#: vuurmuur_conf/zones_section.c:6933
+msgid "New IPAddress"
+msgstr "Nouvelle adresse IP"
+
+#: vuurmuur_conf/zones_section.c:6933
+msgid "Enter the IPAddress to be blocked"
+msgstr "Entrez l'adresse IP à bloquer"
+
+#: vuurmuur_conf/zones_section.c:6939
+#, c-format
+msgid "'%s' is not a valid ipaddress."
+msgstr "'%s' n'est pas une adresse IP valide"
+
+#: vuurmuur_conf/zones_section.c:6988
+msgid "please create one or more hosts/groups first."
+msgstr "Veuillez d'abord créer un hôte/groupe ou plus"
+
+#: vuurmuur_conf/zones_section.c:7015
+msgid "Select a host or group to block"
+msgstr "Choisissez un hôte ou un groupe à bloquer"
+
+#: vuurmuur_conf/zones_section.c:7020
+#, c-format
+msgid "adding host/group to list failed (in: %s:%d)."
+msgstr "échec lors de l'ajout de l'hôte/groupe à la liste noir (dans: %s:%d)"
+
+#: vuurmuur_conf/zones_section.c:7173
+msgid "Remove"
+msgstr "Supprimer"
+
+#: vuurmuur_conf/zones_section.c:7173
+msgid "This IP/Host/Group?"
+msgstr "Cet IP/Hôte/Groupe ?"
+
+#: vuurmuur_conf/strings.h:29
+msgid "host"
+msgstr "hôte"
+
+#: vuurmuur_conf/strings.h:31
+msgid "group"
+msgstr "groupe"
+
+#: vuurmuur_conf/strings.h:33
+msgid "network"
+msgstr "réseau"
+
+#: vuurmuur_conf/strings.h:35
+msgid "zone"
+msgstr "zone"
+
+#: vuurmuur_conf/strings.h:36
+msgid "Zone"
+msgstr "Zone"
+
+#: vuurmuur_conf/strings.h:37
+msgid "interface"
+msgstr "interface"
+
+#: vuurmuur_conf/strings.h:39
+msgid "service"
+msgstr "service"
+
+#: vuurmuur_conf/strings.h:42
+msgid "portrange"
+msgstr "plage"
+
+#: vuurmuur_conf/strings.h:43
+msgid "Portrange"
+msgstr "Plage"
+
+#: vuurmuur_conf/strings.h:45
+msgid "Portranges"
+msgstr "Plages"
+
+#. TRANSLATORS: is an object active or in-active?
+#: vuurmuur_conf/strings.h:51
+msgid "active"
+msgstr "activé"
+
+#: vuurmuur_conf/strings.h:54
+msgid "broadcast"
+msgstr "broadcast"
+
+#: vuurmuur_conf/strings.h:56
+msgid "protocol helper"
+msgstr "aide protocole"
+
+#: vuurmuur_conf/strings.h:57
+msgid "Protocol Helper"
+msgstr "Aide Protocole"
+
+#: vuurmuur_conf/strings.h:58
+msgid "IP address"
+msgstr "Adresse IP"
+
+#: vuurmuur_conf/strings.h:59
+#, fuzzy
+msgid "IPv6 address"
+msgstr "Adresse IP"
+
+#: vuurmuur_conf/strings.h:60
+#, fuzzy
+msgid "IPv6 network"
+msgstr "réseau"
+
+#: vuurmuur_conf/strings.h:61
+msgid "IPv6 cidr"
+msgstr ""
+
+#: vuurmuur_conf/strings.h:62
+msgid "MAC address"
+msgstr "Adresse MAC"
+
+#. TRANSLATORS: max 18 chars
+#: vuurmuur_conf/strings.h:64
+msgid "dynamic IP Address"
+msgstr "adresse IP dyn."
+
+#. TRANSLATORS: max 18 chars
+#: vuurmuur_conf/strings.h:66
+msgid "Dynamic IP Address"
+msgstr "Adresse IP Dyn."
+
+#. TRANSLATORS: e.g. eth0 or ppp0
+#: vuurmuur_conf/strings.h:68
+msgid "device"
+msgstr "périphérique"
+
+#. TRANSLATORS: e.g. eth0 or ppp0
+#: vuurmuur_conf/strings.h:70
+msgid "Device"
+msgstr "Périphérique"
+
+#. TRANSLATORS: e.g. eth0:0 is a virtual device
+#: vuurmuur_conf/strings.h:72
+msgid "virtual"
+msgstr "virtuel"
+
+#. TRANSLATORS: e.g. eth0:0 is a virtual device
+#: vuurmuur_conf/strings.h:74
+msgid "Virtual"
+msgstr "Virtuel"
+
+#: vuurmuur_conf/strings.h:75
+msgid "network address"
+msgstr "Adresse réseau"
+
+#: vuurmuur_conf/strings.h:76
+msgid "netmask"
+msgstr "masque de sous-réseau"
+
+#: vuurmuur_conf/strings.h:79
+#, fuzzy
+msgid "Incoming unit"
+msgstr "Entrante"
+
+#: vuurmuur_conf/strings.h:80
+#, fuzzy
+msgid "Outgoing unit"
+msgstr "Sortante"
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: vuurmuur_conf/strings.h:85
+msgid "rules are changed"
+msgstr "règles modifiées"
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: vuurmuur_conf/strings.h:87
+msgid "number of rules"
+msgstr "nombre de règles"
+
+#. TRANSLATORS: "interface 'lan' has been changed: rules are changed: number of rules: 5 (listed below)."
+#: vuurmuur_conf/strings.h:89
+msgid "listed below"
+msgstr "liste suivante"
+
+#: vuurmuur_conf/strings.h:91
+msgid "rename failed"
+msgstr "échec pour renommer"
+
+#: vuurmuur_conf/strings.h:92
+msgid "delete failed"
+msgstr "échec pour supprimer"
+
+#: vuurmuur_conf/strings.h:93
+msgid "invalid name"
+msgstr "nom invalide"
+
+#: vuurmuur_conf/strings.h:94
+msgid "Please enter the name"
+msgstr "Veuillez entrer un nom"
+
+#: vuurmuur_conf/strings.h:100
+msgid "Yes"
+msgstr "Oui"
+
+#: vuurmuur_conf/strings.h:101
+msgid "No"
+msgstr "Non"
+
+#: vuurmuur_conf/strings.h:103
+msgid "OK"
+msgstr "OK"
+
+#: vuurmuur_conf/strings.h:104
+msgid "FAILED"
+msgstr "ÉCHEC"
+
+#: vuurmuur_conf/strings.h:107
+msgid "Internal Error"
+msgstr "Erreur Interne"
+
+#: vuurmuur_conf/strings.h:108
+msgid "Info"
+msgstr "Info"
+
+#: vuurmuur_conf/strings.h:111
+msgid "saving to backend failed"
+msgstr "échec de la sauvegarde du programme principal"
+
+#: vuurmuur_conf/strings.h:113
+msgid "opening file failed"
+msgstr "Échec de l'ouverture du processus : %s"
+
+#: vuurmuur_conf/strings.h:115
+msgid "only ASCII is allowed in the prefix field."
+msgstr "le signe pourcent % n'est pas autorisé dans les commentaires"
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: vuurmuur_conf/strings.h:121
+msgid "has been changed"
+msgstr "a été modifié"
+
+#. TRANSLATORS: example: service 'http' has been changed: portrange 'TCP: 1024:65535->80' has been added.
+#: vuurmuur_conf/strings.h:123
+msgid "has been added"
+msgstr "a été ajoutée"
+
+#. TRANSLATORS: example: service 'http' has been created.
+#: vuurmuur_conf/strings.h:125
+msgid "has been created"
+msgstr "a été créé"
+
+#. TRANSLATORS: example: service 'htpt' has been renamed to 'http'.
+#: vuurmuur_conf/strings.h:127
+msgid "has been renamed to"
+msgstr "a été renommé en "
+
+#. TRANSLATORS: example: service 'http' has been changed: portrange 'TCP: 1024:65535->80' has been removed.
+#: vuurmuur_conf/strings.h:129
+msgid "has been removed"
+msgstr "a été supprimée"
+
+#. TRANSLATORS: example: service 'http' has been deleted.
+#: vuurmuur_conf/strings.h:131
+msgid "has been deleted"
+msgstr "a été supprimé"
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: vuurmuur_conf/strings.h:133
+msgid "is now set to"
+msgstr "est devenu"
+
+#. TRANSLATORS: example: service 'http' has been changed: active is now set to 'Yes' (was: 'No').
+#: vuurmuur_conf/strings.h:135
+msgid "was"
+msgstr "au lieu de"
+
+#. TRANSLATORS: example: service '%s' has been changed: the comment has been changed.
+#: vuurmuur_conf/strings.h:138
+msgid "the comment has been changed"
+msgstr "le commentaire a été modifié"
+
+#: vuurmuur_conf/strings.h:143
+msgid "this protocol doesn't use ports."
+msgstr "ce protocole n'utilise pas de port"
+
+#: vuurmuur_conf/strings.h:148
+msgid "a member has been added"
+msgstr "un membre a été ajouté"
+
+#: vuurmuur_conf/strings.h:149
+msgid "a member has been removed"
+msgstr "un membre a été supprimé"
+
+#: vuurmuur_conf/strings.h:154
+msgid "an interface has been added"
+msgstr "une interface a été ajoutée"
+
+#: vuurmuur_conf/strings.h:155
+msgid "an interface has been removed"
+msgstr "une interface a été supprimée"
+
+#: vuurmuur_conf/strings.h:160 vuurmuur_conf/strings.h:161
+msgid "has been added to the blocklist"
+msgstr "a été ajouté à la liste noire"
+
+#: vuurmuur_conf/strings.h:167
+msgid "remove"
+msgstr "supprimer"
+
+#: vuurmuur_conf/strings.h:174
+msgid "Initializing Services"
+msgstr "Initialisation des Services"
+
+#: vuurmuur_conf/strings.h:175
+msgid "Initializing Interfaces"
+msgstr "Initialisation des Interfaces"
+
+#: vuurmuur_conf/strings.h:176
+msgid "Initializing Zones"
+msgstr "Initialisation des Zones"
+
+#: vuurmuur_conf/strings.h:177
+msgid "Initializing Rules"
+msgstr "Initialisation des Règles"
+
+#: vuurmuur_conf/strings.h:178
+msgid "Initializing BlockList"
+msgstr "Initialisation de la Liste Noire"
+
+#: vuurmuur_conf/strings.h:179
+msgid "Loading plugins"
+msgstr "Chargement des plugins"
+
+#: vuurmuur_conf/strings.h:180
+msgid "Loading Vuurmuur_conf settings"
+msgstr "Chargement des paramètres de vuurmuur_conf"
+
+#: vuurmuur_conf/strings.h:181
+msgid "Loading Vuurmuur config"
+msgstr "Chargement de la configuration de vuurmuur"
+
+#: vuurmuur_conf/strings.h:183
+msgid "Connecting to"
+msgstr "Connexion à"
+
+#: vuurmuur_conf/strings.h:188
+msgid "The date is now"
+msgstr "La date est"
+
+#: vuurmuur_conf/strings.h:189
+msgid "The action is now"
+msgstr "L'action est maintenant"
+
+#: vuurmuur_conf/strings.h:190
+msgid "The service is now"
+msgstr "Le service est maintenant"
+
+#: vuurmuur_conf/strings.h:191
+msgid "The source is now"
+msgstr "L'origine est maintenant"
+
+#: vuurmuur_conf/strings.h:192
+msgid "The destination is now"
+msgstr "La destination est maintenant"
+
+#: vuurmuur_conf/strings.h:193
+msgid "The prefix is now"
+msgstr "Le préfixe est maintenant"
+
+#: vuurmuur_conf/strings.h:194
+msgid "The details are now"
+msgstr "Les détails sont maintenant"
+
+#: vuurmuur_conf/strings.h:195
+msgid "logging options are only available for the traffic.log."
+msgstr ""
+
+#: vuurmuur_conf/strings.h:200
+msgid "the action 'Bounce' requires the 'via' option to be set."
+msgstr ""
+
+#: vuurmuur_conf/strings.h:201
+msgid "the action 'Redirect' requires the 'Redirect port' option to be set."
+msgstr ""
+
+#: vuurmuur_conf/filter.c:158
+msgid "Filter"
+msgstr "filtre"
+
+#: vuurmuur_conf/filter.c:209
+msgid "show lines that don't match"
+msgstr "Afficher les entrées ne corespondant pas"
+
+#: vuurmuur_conf/filter.c:303
+msgid "setting filter failed."
+msgstr "Échec de l'ouverture du processus : %s"
+
+#: vuurmuur_conf/gui.c:35
+msgid "Please Wait"
+msgstr ""
+
+#: vuurmuur_conf/gui.c:938
+#, fuzzy
+msgid "    OK"
+msgstr "  OK  "
+
+#: vuurmuur_conf/gui.c:959
+#, fuzzy
+msgid "  Cancel"
+msgstr "Cache"
+
+#: vuurmuur_conf/statevent.c:504
+#, fuzzy
+msgid "Manage Connection"
+msgstr "Connexions"
+
+#: vuurmuur_conf/statevent.c:544 vuurmuur_conf/statevent.c:836
+#, fuzzy
+msgid "Kill this connection"
+msgstr "Déconnexion"
+
+#: vuurmuur_conf/statevent.c:545
+msgid "Kill all connections with this service/source/destination"
+msgstr ""
+
+#: vuurmuur_conf/statevent.c:548 vuurmuur_conf/statevent.c:840
+#, fuzzy
+msgid "Kill options"
+msgstr "Options"
+
+#: vuurmuur_conf/statevent.c:551 vuurmuur_conf/statevent.c:843
+#, c-format
+msgid "Kill all connections with source %s"
+msgstr ""
+
+#: vuurmuur_conf/statevent.c:554 vuurmuur_conf/statevent.c:846
+#, c-format
+msgid "Kill all connections with destination %s"
+msgstr ""
+
+#: vuurmuur_conf/statevent.c:557 vuurmuur_conf/statevent.c:560
+#: vuurmuur_conf/statevent.c:849 vuurmuur_conf/statevent.c:852
+#, c-format
+msgid "Kill all connections of %s"
+msgstr ""
+
+#: vuurmuur_conf/statevent.c:563 vuurmuur_conf/statevent.c:855
+#, fuzzy
+msgid "BlockList options"
+msgstr "Liste noire"
+
+#: vuurmuur_conf/statevent.c:566 vuurmuur_conf/statevent.c:858
+#, fuzzy, c-format
+msgid "Add source %s to BlockList"
+msgstr "Conversion de la liste noire"
+
+#: vuurmuur_conf/statevent.c:569 vuurmuur_conf/statevent.c:861
+#, fuzzy, c-format
+msgid "Add destination %s to BlockList"
+msgstr "La destination est maintenant"
+
+#: vuurmuur_conf/statevent.c:572 vuurmuur_conf/statevent.c:864
+msgid "Add both source and destination to BlockList"
+msgstr ""
+
+#: vuurmuur_conf/statevent.c:616
+#, fuzzy
+msgid "Kill connection"
+msgstr "Déconnexion"
+
+#: vuurmuur_conf/statevent.c:630 vuurmuur_conf/statevent.c:645
+#: vuurmuur_conf/statevent.c:658 vuurmuur_conf/statevent.c:671
+#: vuurmuur_conf/statevent.c:685 vuurmuur_conf/statevent.c:910
+#: vuurmuur_conf/statevent.c:926 vuurmuur_conf/statevent.c:939
+#: vuurmuur_conf/statevent.c:952 vuurmuur_conf/statevent.c:966
+#, fuzzy
+msgid "Kill connections"
+msgstr "Connexions"
+
+#: vuurmuur_conf/statevent.c:695 vuurmuur_conf/statevent.c:703
+#: vuurmuur_conf/statevent.c:711 vuurmuur_conf/statevent.c:976
+#: vuurmuur_conf/statevent.c:984 vuurmuur_conf/statevent.c:992
+msgid "Add to BlockList and Apply Changes"
+msgstr ""
+
+#: vuurmuur_conf/statevent.c:785
+#, fuzzy
+msgid "Manage Log"
+msgstr "Rapports"
+
+#: vuurmuur_conf/statevent.c:1051
+#, fuzzy
+msgid "Manage Connections"
+msgstr "Connexions"
+
+#: vuurmuur_conf/statevent.c:1052
+#, fuzzy
+msgid "connection actions"
+msgstr "Connexion à"
+
+#: vuurmuur_conf/statevent.c:1053
+msgid "No connections to act on."
+msgstr ""
+
+#: vuurmuur_conf/statevent.c:1061
+#, fuzzy
+msgid "Manage Logging"
+msgstr "Rapports"
+
+#: vuurmuur_conf/statevent.c:1062
+#, fuzzy
+msgid "logging actions"
+msgstr "Liste noire"
+
+#: vuurmuur_conf/statevent.c:1063
+msgid "No logs to act on."
+msgstr ""
+
+#~ msgid "List of portranges:"
+#~ msgstr "Liste des plages de ports"
+
+#~ msgid "No portranges defined yet."
+#~ msgstr "Aucune plage de ports actuellement définie"
+
+#~ msgid "List of members:"
+#~ msgstr "Liste des membres"
+
+#~ msgid "No members assigned yet."
+#~ msgstr "Aucun membre assigné"
+
+#~ msgid "There are %d more members. Press F6 to manage."
+#~ msgstr "Il y a %d membres supplémentaires."
+
+#~ msgid "unknown."
+#~ msgstr "inconnu"
+
+#, fuzzy
+#~ msgid "Iptables Capabilities"
+#~ msgstr "Affichage Possibilités"
+
+#~ msgid ""
+#~ "Essential capabilities are not loaded, missing, or not properly detected. "
+#~ "Try loading modules?"
+#~ msgstr ""
+#~ "Les possibilités essentiels ne sont pas chargés, manquantes ou mal "
+#~ "détecté. Charger les modules?"
+
+#~ msgid "Mark IptState"
+#~ msgstr "Sélectionner l'état iptable"
+
+#~ msgid "Press SPACE to toggle marking the state of this rule (snort_inline)."
+#~ msgstr ""
+#~ "Appuyez sur <ESPACE> pour sélectionner l'état de cette règle "
+#~ "(snort_inline)"
+
+#~ msgid "Systemlog filename (full path (for vuurmuur_log)):"
+#~ msgstr "Fichier de rapport système : (chemin absolu)"
+
+#, fuzzy
+#~ msgid "Connection Options"
+#~ msgstr "Connexion à"
+
+#, fuzzy
+#~ msgid "Log Options"
+#~ msgstr "Options"
+
+#, fuzzy
+#~ msgid "Iptables Capabilities missing or not loaded"
+#~ msgstr "Possibilité iptables"
+
+#, fuzzy
+#~ msgid "Try loading modules?"
+#~ msgstr "chargé les modules"
