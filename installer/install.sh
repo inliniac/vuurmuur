@@ -5,7 +5,7 @@
 # TODO: setup an initial configuration that works for most
 # setups.
 #
-# Copyright (c) 2004-2016 by Victor Julien, Stefan Ubbink
+# Copyright (c) 2004-2017 by Victor Julien, Stefan Ubbink
 # Licenced under the GPL.
 #
 VERSION="0.8rc2"

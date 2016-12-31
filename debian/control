@@ -1,0 +1,13 @@
+Source: vuurmuur
+Priority: optional
+Maintainer: Victor Julien <victor@vuurmuur.org>
+Section: contrib/net
+Standards-Version: 3.6.2.1
+Build-Depends: debhelper, libtool, libnfnetlink-dev, libnetfilter-log-dev, libncurses5-dev
+
+Package: vuurmuur
+Architecture: any
+Depends: libnfnetlink0, libnetfilter-log1, libncurses5
+Recommends: iptables, iproute
+Conflicts: vuurmuur-log
+Description: Iptables manager.
