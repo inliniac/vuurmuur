@@ -3662,8 +3662,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     if(rule_ptr->opt != NULL)
         set_field_buffer_wrap(debuglvl, RuleFlds.in_int_fld_ptr, 0, rule_ptr->opt->in_int);
 
-    set_field_back(RuleFlds.in_int_fld_ptr, vccnf.color_win_note);
-    set_field_fore(RuleFlds.in_int_fld_ptr, vccnf.color_win_note|A_BOLD);
+    set_field_back(RuleFlds.in_int_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.in_int_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* in_int interface starts disabled */
@@ -3700,8 +3700,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     if(rule_ptr->opt != NULL)
         set_field_buffer_wrap(debuglvl, RuleFlds.out_int_fld_ptr, 0, rule_ptr->opt->out_int);
 
-    set_field_back(RuleFlds.out_int_fld_ptr, vccnf.color_win_note);
-    set_field_fore(RuleFlds.out_int_fld_ptr, vccnf.color_win_note|A_BOLD);
+    set_field_back(RuleFlds.out_int_fld_ptr, vccnf.color_win_rev);
+    set_field_fore(RuleFlds.out_int_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
 
     /* out_int interface starts disabled */
