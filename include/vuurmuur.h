@@ -51,6 +51,8 @@
 /* our version */
 #define VUURMUUR_VERSION	"0.8rc3"
 
+#define VUURMUUR_COPYRIGHT  "Copyright (C) 2002-2017 Victor Julien et al"
+
 /* we need this to stringify the VUURMUUR_CONFIGDIR which is supplied at compiletime see:
    http://gcc.gnu.org/onlinedocs/gcc-3.4.1/cpp/Stringification.html#Stringification */
 #define xstr(s) str(s)

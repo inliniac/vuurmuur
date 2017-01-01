@@ -1167,6 +1167,8 @@ print_about(const int debuglvl)
 
     vrmr_list_setup(debuglvl, &about_list, free_helpword);
 
+    char copyright[64];
+    snprintf(copyright, sizeof(copyright), "%s.\n", VUURMUUR_COPYRIGHT);
     (void)read_helpline(debuglvl, &about_list, "Vuurmuur_conf\n");
     (void)read_helpline(debuglvl, &about_list, "\n");
     (void)read_helpline(debuglvl, &about_list, "=============\n");
@@ -1174,8 +1176,8 @@ print_about(const int debuglvl)
     (void)read_helpline(debuglvl, &about_list, about_version_string);
     (void)read_helpline(debuglvl, &about_list, "\n");
     (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "Copyright 2003-2007 (c) Victor Julien <victor(at)vuurmuur(dot)org>.\n");
-    (void)read_helpline(debuglvl, &about_list, "This program is distributed under the terms of the GPL.\n");
+    (void)read_helpline(debuglvl, &about_list, copyright);
+    (void)read_helpline(debuglvl, &about_list, "This program is distributed under the terms of the GPL2+.\n");
     (void)read_helpline(debuglvl, &about_list, "\n");
 
     (void)read_helpline(debuglvl, &about_list, "Support\n");
