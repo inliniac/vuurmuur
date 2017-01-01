@@ -4536,7 +4536,7 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
     int     retval=0,
             result=0;
     char    cmd[VRMR_MAX_PIPE_COMMAND] = "";
-    char    limit[42] = "";
+    char    my_limit[42] = "";
     char    logprefix[64] = "";
 
     /* safety */
@@ -4558,13 +4558,13 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
         }
         else
         {
-            /* see if we want to limit the logging of the default policy */
+            /* see if we want to my_limit the logging of the default policy */
             if (conf->log_policy_limit > 0)
             {
                 /* cap */
                 if (conf->vrmr_check_iptcaps == FALSE || iptcap->match_limit == TRUE)
                 {
-                    snprintf(limit, sizeof(limit), "-m limit --limit %u/s "
+                    snprintf(my_limit, sizeof(my_limit), "-m limit --limit %u/s "
                             "--limit-burst %u", conf->log_policy_limit,
                             conf->log_policy_burst);
                 }
@@ -4589,12 +4589,12 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
             if (conf->rule_nflog == 1)
             {
                 snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
-                        limit, logprefix, loglevel, conf->nfgrp);
+                        my_limit, logprefix, loglevel, conf->nfgrp);
             }
             else
             {
                 snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                        limit, logprefix, loglevel, log_tcp_options);
+                        my_limit, logprefix, loglevel, log_tcp_options);
             }
 
             if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
@@ -4607,12 +4607,12 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
             if (conf->rule_nflog == 1)
             {
                 snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
-                        limit, logprefix, loglevel, conf->nfgrp);
+                        my_limit, logprefix, loglevel, conf->nfgrp);
             }
             else
             {
                 snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                        limit, logprefix, loglevel, log_tcp_options);
+                        my_limit, logprefix, loglevel, log_tcp_options);
             }
 
             if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
@@ -4625,12 +4625,12 @@ post_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rule
             if (conf->rule_nflog == 1)
             {
                 snprintf(cmd, sizeof(cmd), "%s -j NFLOG %s %s --nflog-group %u",
-                        limit, logprefix, loglevel, conf->nfgrp);
+                        my_limit, logprefix, loglevel, conf->nfgrp);
             }
             else
             {
                 snprintf(cmd, sizeof(cmd), "%s -j LOG %s %s %s",
-                        limit, logprefix, loglevel, log_tcp_options);
+                        my_limit, logprefix, loglevel, log_tcp_options);
             }
             if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
                 retval=-1;
@@ -4708,7 +4708,7 @@ static int create_interface_rpfilter_rules(const int debuglvl, struct vrmr_confi
                                 struct vrmr_interface *if_ptr)
 {
     char input_device[16 + 3] = "";  /* 16 + '-i ' */
-    char limit[] = "-m limit --limit 1/s --limit-burst 5";
+    const char my_limit[] = "-m limit --limit 1/s --limit-burst 5";
     char logprefix[64] = "";
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
@@ -4752,12 +4752,12 @@ static int create_interface_rpfilter_rules(const int debuglvl, struct vrmr_confi
     if (conf->rule_nflog == 1)
     {
         snprintf(cmd, sizeof(cmd), "%s -m rpfilter --invert %s -j NFLOG %s %s --nflog-group %u",
-                input_device, limit, logprefix, loglevel, conf->nfgrp);
+                input_device, my_limit, logprefix, loglevel, conf->nfgrp);
     }
     else
     {
         snprintf(cmd, sizeof(cmd), "%s -m rpfilter --invert %s -j LOG %s %s %s",
-                input_device, limit, logprefix, loglevel, log_tcp_options);
+                input_device, my_limit, logprefix, loglevel, log_tcp_options);
     }
 
     if (conf->vrmr_check_iptcaps == FALSE ||
@@ -4932,7 +4932,7 @@ create_network_antispoof_rule(const int debuglvl, struct vrmr_config *conf, /*@n
 {
     char input_device[16 + 3] = "";  /* 16 + '-i ' */
     char output_device[16 + 3] = ""; /* 16 + '-i ' */
-    char limit[] = "-m limit --limit 1/s --limit-burst 5";
+    const char my_limit[] = "-m limit --limit 1/s --limit-burst 5";
     char logprefix[64] = "";
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
 
@@ -4985,7 +4985,7 @@ create_network_antispoof_rule(const int debuglvl, struct vrmr_config *conf, /*@n
                 snprintf(cmd, sizeof(cmd), "-s %s/%s -d %s/255.255.255.255 %s -j NFLOG %s %s --nflog-group %u",
                     create->danger.source_ip.ipaddress,
                     create->danger.source_ip.netmask,
-                    from_if_ptr->ipv4.ipaddress, limit, logprefix,
+                    from_if_ptr->ipv4.ipaddress, my_limit, logprefix,
                     loglevel, conf->nfgrp);
             }
             else
@@ -4993,7 +4993,7 @@ create_network_antispoof_rule(const int debuglvl, struct vrmr_config *conf, /*@n
                 snprintf(cmd, sizeof(cmd), "-s %s/%s -d %s/255.255.255.255 %s -j LOG %s %s %s",
                     create->danger.source_ip.ipaddress,
                     create->danger.source_ip.netmask,
-                    from_if_ptr->ipv4.ipaddress, limit, logprefix,
+                    from_if_ptr->ipv4.ipaddress, my_limit, logprefix,
                     loglevel, log_tcp_options);
             }
 
@@ -5023,7 +5023,7 @@ create_network_antispoof_rule(const int debuglvl, struct vrmr_config *conf, /*@n
                 snprintf(cmd, sizeof(cmd), "-s %s/255.255.255.255 -d %s/%s %s -j NFLOG %s %s --nflog-group %u",
                     from_if_ptr->ipv4.ipaddress,
                     create->danger.source_ip.ipaddress,
-                    create->danger.source_ip.netmask, limit,
+                    create->danger.source_ip.netmask, my_limit,
                     logprefix, loglevel, conf->nfgrp);
             }
             else
@@ -5031,7 +5031,7 @@ create_network_antispoof_rule(const int debuglvl, struct vrmr_config *conf, /*@n
                 snprintf(cmd, sizeof(cmd), "-s %s/255.255.255.255 -d %s/%s %s -j LOG %s %s %s",
                     from_if_ptr->ipv4.ipaddress,
                     create->danger.source_ip.ipaddress,
-                    create->danger.source_ip.netmask, limit,
+                    create->danger.source_ip.netmask, my_limit,
                     logprefix, loglevel, log_tcp_options);
             }
 
@@ -5064,14 +5064,14 @@ create_network_antispoof_rule(const int debuglvl, struct vrmr_config *conf, /*@n
             {
                 snprintf(cmd, sizeof(cmd), "%s -s %s/%s %s -j NFLOG %s %s --nflog-group %u",
                     input_device, create->danger.source_ip.ipaddress,
-                    create->danger.source_ip.netmask, limit, logprefix,
+                    create->danger.source_ip.netmask, my_limit, logprefix,
                     loglevel, conf->nfgrp);
             }
             else
             {
                 snprintf(cmd, sizeof(cmd), "%s -s %s/%s %s -j LOG %s %s %s",
                     input_device, create->danger.source_ip.ipaddress,
-                    create->danger.source_ip.netmask, limit, logprefix,
+                    create->danger.source_ip.netmask, my_limit, logprefix,
                     loglevel, log_tcp_options);
             }
             if(process_rule(debuglvl, conf, ruleset, VRMR_IPV4, TB_FILTER, CH_ANTISPOOF, cmd, 0, 0) < 0)
@@ -5099,14 +5099,14 @@ create_network_antispoof_rule(const int debuglvl, struct vrmr_config *conf, /*@n
             {
                 snprintf(cmd, sizeof(cmd), "%s -d %s/%s %s -j NFLOG %s %s --nflog-group %u",
                     output_device, create->danger.source_ip.ipaddress,
-                    create->danger.source_ip.netmask, limit,
+                    create->danger.source_ip.netmask, my_limit,
                     logprefix, loglevel, conf->nfgrp);
             }
             else
             {
                 snprintf(cmd, sizeof(cmd), "%s -d %s/%s %s -j LOG %s %s %s",
                     output_device, create->danger.source_ip.ipaddress,
-                    create->danger.source_ip.netmask, limit,
+                    create->danger.source_ip.netmask, my_limit,
                     logprefix, loglevel, log_tcp_options);
             }
 
