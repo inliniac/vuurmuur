@@ -246,7 +246,7 @@ main(int argc, char *argv[])
             case 'V' :
                 /* print version */
                 fprintf(stdout, "Vuurmuur_conf %s\n", version_string);
-                fprintf(stdout, "Copyright (C) 2002-2008 by Victor Julien\n");
+                fprintf(stdout, "%s\n", VUURMUUR_COPYRIGHT);
 
                 exit(EXIT_SUCCESS);
 
@@ -316,7 +316,8 @@ main(int argc, char *argv[])
     vrprint.warning = vuumuurconf_print_warning;
     vrprint.info = vuumuurconf_print_info;
 
-    if(status_print(status_win, gettext("This is Vuurmuur_conf %s, Copyright (c) 2003-2008 by Victor Julien"), version_string) < 0)
+    if(status_print(status_win, gettext("This is Vuurmuur_conf %s, %s"),
+                version_string, VUURMUUR_COPYRIGHT) < 0)
         exit(EXIT_FAILURE);
 
     /* setup the global busywin */
@@ -571,8 +572,8 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     mvwprintw(startup_win, 5, 4, "    \\//  \\/| \\/| |\\ ||   || \\/| \\/| |\\ ");
     mvwprintw(startup_win, 6, 4, "                                Config ");
     mvwprintw(startup_win, 7, 4, "  ------------------------------------ ");
-    mvwprintw(startup_win, 9, 4, "  Copyright (c) 2003-2012 by Victor Julien ");
-    mvwprintw(startup_win, 10, 6, gettext("Version: %s"), VUURMUURCONF_VERSION);
+    mvwprintw(startup_win, 9, 3, "%s ", VUURMUUR_COPYRIGHT);
+    mvwprintw(startup_win, 10, 3, gettext("Version: %s"), VUURMUURCONF_VERSION);
     mvwprintw(startup_win, 12, 4, "[");
     mvwprintw(startup_win, 12, 4+print_pan_width+1, "]");
 
@@ -897,7 +898,6 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
         werase(startup_print_win); wprintw(startup_print_win, "%s Vuurmuur_log... %s", STR_CONNECTING_TO, STR_CFAILED); update_panels(); doupdate();
         vuurmuurlog_shmp = NULL;
     }
-
 
     /* cleanup */
     del_panel(startup_panel[0]);
