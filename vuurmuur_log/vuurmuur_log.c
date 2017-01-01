@@ -330,7 +330,7 @@ main(int argc, char *argv[])
 
     /* get the current user */
     vrmr_audit("Vuurmuur_log %s %s started by user %s.",
-            version_string, (syslog) ? "" :"(experimental nflog mode)",
+            version_string, (syslog) ? "" :"(nflog mode)",
             vctx.user_data.realusername);
 
 #ifdef HAVE_LIBNETFILTER_LOG
