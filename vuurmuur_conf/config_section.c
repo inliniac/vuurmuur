@@ -2814,8 +2814,6 @@ view_caps_init(int height, int width, int starty, int startx, struct vrmr_iptcap
     {
         mvwprintw(ConfigSection.win, 4,  27, "LOG\t\t%s", iptcap->target_log ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 5,  27, "REJECT\t%s", iptcap->target_reject ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 6,  27, "QUEUE\t%s", iptcap->target_queue ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 7,  27, "-> Peer pid\t%u", iptcap->queue_peer_pid);
         mvwprintw(ConfigSection.win, 8,  27, "SNAT\t\t%s", iptcap->target_snat ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 9,  27, "MASQUERADE\t%s", iptcap->target_masquerade ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 10, 27, "DNAT\t\t%s", iptcap->target_dnat ? STR_YES : STR_NO);
@@ -3027,8 +3025,6 @@ view_ip6_caps_init(int height, int width, int starty, int startx, struct vrmr_ip
     {
         mvwprintw(ConfigSection.win, 4,  27, "LOG\t\t%s", iptcap->target_ip6_log ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 5,  27, "REJECT\t%s", iptcap->target_ip6_reject ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 6,  27, "QUEUE\t%s", iptcap->target_ip6_queue ? STR_YES : STR_NO);
-        mvwprintw(ConfigSection.win, 7,  27, "-> Peer pid\t%u", iptcap->ip6_queue_peer_pid);
 /*
         mvwprintw(ConfigSection.win, 8,  27, "SNAT\t\t%s", iptcap->target_snat ? STR_YES : STR_NO);
         mvwprintw(ConfigSection.win, 9,  27, "MASQUERADE\t%s", iptcap->target_masquerade ? STR_YES : STR_NO);

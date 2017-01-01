@@ -1805,9 +1805,8 @@ vrmr_zones_network_analyze_rule( const int debuglvl,
         }
     }
     /* network accept rule */
-    else if(rule_ptr->type == VRMR_PROT_IPTABLES &&
-        (rule_ptr->action == VRMR_AT_ACCEPT ||
-        rule_ptr->action == VRMR_AT_QUEUE))
+    else if (rule_ptr->type == VRMR_PROT_IPTABLES &&
+             rule_ptr->action == VRMR_AT_ACCEPT)
     {
         create->danger.solution = VRMR_PROT_IPTABLES;
 
