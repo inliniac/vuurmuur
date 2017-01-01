@@ -70,7 +70,7 @@ if test "$with_libnfnetlink_libraries" != "no"; then
 LDFLAGS="${LDFLAGS}  -L${with_libnfnetlink_libraries}"
 fi
 
-AC_CHECK_LIB(nfnetlink, nfnl_fd,, NFNETLINK="no")
+AC_CHECK_LIB(nfnetlink, nfnl_fd, [LIBNFNETLINK_LIBS="-lnfnetlink"], NFNETLINK="no")
 if test "$NFNETLINK" != "no"; then
     AC_DEFINE([HAVE_NFNETLINK],[1],[libnfnetlink available])
 fi
@@ -92,7 +92,7 @@ if test "$with_libnetfilter_conntrack_libraries" != "no"; then
 LDFLAGS="${LDFLAGS}  -L${with_libnetfilter_conntrack_libraries}"
 fi
 
-AC_CHECK_LIB(netfilter_conntrack, nfct_fd,, NFCONNTRACK="no")
+AC_CHECK_LIB(netfilter_conntrack, nfct_fd, [LIBNETFILTER_CONNTRACK_LIBS="-lnetfilter_conntrack"], NFCONNTRACK="no")
 if test "$NFCONNTRACK" != "no"; then
     AC_DEFINE([HAVE_LIBNETFILTER_CONNTRACK],[1],[libnetfilter_conntrack available])
 fi
@@ -114,7 +114,7 @@ if test "$with_libnetfilter_log_libraries" != "no"; then
 LDFLAGS="${LDFLAGS}  -L${with_libnetfilter_log_libraries}"
 fi
 
-AC_CHECK_LIB(netfilter_log, nflog_open,, NFLOG="no")
+AC_CHECK_LIB(netfilter_log, nflog_open, [LIBNETFILTER_LOG_LIBS="-lnetfilter_log"], NFLOG="no")
 if test "$NFLOG" != "no"; then
     AC_DEFINE([HAVE_LIBNETFILTER_LOG],[1],[libnetfilter_log available])
 fi
@@ -178,9 +178,9 @@ if test "$widec" = "auto"; then
 
 	NCURS=""
 	NCURSW=""
-	AC_CHECK_LIB(ncursesw,initscr,, NCURSW="no")
+	AC_CHECK_LIB(ncursesw,initscr,[NCURSES_LIBS="$NCURSES_LIBS -lncursesw"], NCURSW="no")
 	if test "$NCURSW" = "no"; then
-		AC_CHECK_LIB(ncurses,initscr,, NCURS="no")
+		AC_CHECK_LIB(ncurses,initscr,[NCURSES_LIBS="$NCURSES_LIBS -lncurses"], NCURS="no")
 		if test "$NCURS" = "no" && test "$NCURSW" = "no"; then
 			echo
 			echo "   ERROR!  Ncurses library not found!"
@@ -192,7 +192,7 @@ if test "$widec" = "auto"; then
 
 	NCURS=""
 	NCURSW=""
-	AC_CHECK_LIB(menuw,new_menu,, NCURSW="no")
+	AC_CHECK_LIB(menuw,new_menu,[NCURSES_LIBS="$NCURSES_LIBS -lmenuw"], NCURSW="no")
 	if test "$NCURSW" = "no"; then
 		AC_CHECK_LIB(menu,new_menu,, NCURS="no")
 		if test "$NCURS" = "no"; then
@@ -204,7 +204,7 @@ if test "$widec" = "auto"; then
 
 	NCURS=""
 	NCURSW=""
-	AC_CHECK_LIB(formw,new_form,, NCURSW="no")
+	AC_CHECK_LIB(formw,new_form,[NCURSES_LIBS="$NCURSES_LIBS -lformw"], NCURSW="no")
 	if test "$NCURSW" = "no"; then
 		AC_CHECK_LIB(form,new_form,, NCURS="no")
 		if test "$NCURS" = "no"; then
@@ -216,7 +216,7 @@ if test "$widec" = "auto"; then
 
 	NCURS=""
 	NCURSW=""
-	AC_CHECK_LIB(panelw,new_panel,, NCURSW="no")
+	AC_CHECK_LIB(panelw,new_panel,[NCURSES_LIBS="$NCURSES_LIBS -lpanelw"], NCURSW="no")
 	if test "$NCURSW" = "no"; then
 		AC_CHECK_LIB(panel,new_panel,, NCURS="no")
 		if test "$NCURS" = "no"; then
@@ -268,7 +268,7 @@ elif test "$widec" = "yes"; then
 	fi
 
 	NCURSW=""
-	AC_CHECK_LIB(ncursesw,initscr,, NCURSW="no")
+	AC_CHECK_LIB(ncursesw,initscr,[NCURSES_LIBS="$NCURSES_LIBS -lncursesw"], NCURSW="no")
 	if test "$NCURSW" = "no"; then
 		echo
 		echo "   ERROR!  Ncursesw library not found!"
@@ -276,7 +276,7 @@ elif test "$widec" = "yes"; then
 	fi
 
 	NCURSW=""
-	AC_CHECK_LIB(menuw,new_menu,, NCURSW="no")
+	AC_CHECK_LIB(menuw,new_menu,[NCURSES_LIBS="$NCURSES_LIBS -lmenuw"], NCURSW="no")
 	if test "$NCURSW" = "no"; then
 		echo
 		echo "   ERROR!  Ncursesw/menuw library not found!"
@@ -284,7 +284,7 @@ elif test "$widec" = "yes"; then
 	fi
 
 	NCURSW=""
-	AC_CHECK_LIB(formw,new_form,, NCURSW="no")
+	AC_CHECK_LIB(formw,new_form,[NCURSES_LIBS="$NCURSES_LIBS -lformw"], NCURSW="no")
 	if test "$NCURSW" = "no"; then
 		echo
 		echo "   ERROR!  Ncursesw/formw library not found!"
@@ -292,7 +292,7 @@ elif test "$widec" = "yes"; then
 	fi
 
 	NCURSW=""
-	AC_CHECK_LIB(panelw,new_panel,, NCURSW="no")
+	AC_CHECK_LIB(panelw,new_panel,[NCURSES_LIBS="$NCURSES_LIBS -lpanelw"], NCURSW="no")
 	if test "$NCURSW" = "no"; then
 		echo
 		echo "   ERROR!  Ncursesw/panelw library not found!"
@@ -331,7 +331,7 @@ else
 	fi
 
 	NCURS=""
-	AC_CHECK_LIB(ncurses,initscr,, NCURS="no")
+	AC_CHECK_LIB(ncurses,initscr,[NCURSES_LIBS="$NCURSES_LIBS -lncurses"], NCURS="no")
 	if test "$NCURS" = "no"; then
 		echo
 		echo "   ERROR!  Ncurses library not found!"
@@ -339,7 +339,7 @@ else
 	fi
 
 	NCURS=""
-	AC_CHECK_LIB(menu,new_menu,, NCURS="no")
+	AC_CHECK_LIB(menu,new_menu,[NCURSES_LIBS="$NCURSES_LIBS -lmenu"], NCURS="no")
 	if test "$NCURS" = "no"; then
 		echo
 		echo "   ERROR!  Ncurses/menu library not found!"
@@ -347,7 +347,7 @@ else
 	fi
 
 	NCURS=""
-	AC_CHECK_LIB(form,new_form,, NCURS="no")
+	AC_CHECK_LIB(form,new_form, [NCURSES_LIBS="$NCURSES_LIBS -lform"], NCURS="no")
 	if test "$NCURS" = "no"; then
 		echo
 		echo "   ERROR!  Ncurses/form library not found!"
@@ -355,7 +355,7 @@ else
 	fi
 
 	NCURS=""
-	AC_CHECK_LIB(panel,new_panel,, NCURS="no")
+	AC_CHECK_LIB(panel,new_panel, [NCURSES_LIBS="$NCURSES_LIBS -lpanel"], NCURS="no")
 	if test "$NCURS" = "no"; then
 		echo
 		echo "   ERROR!  Ncurses/panel library not found!"
@@ -367,6 +367,10 @@ LIBVUURMUUR_LDADD="../lib/libvuurmuur.la"
 AC_SUBST(LIBVUURMUUR_LDADD)
 # make sure vuurmuur.h is added to the includes
 CPPFLAGS="-I\${top_srcdir}/include/ ${CPPFLAGS}"
+AC_SUBST(LIBNFNETLINK_LIBS)
+AC_SUBST(LIBNETFILTER_CONNTRACK_LIBS)
+AC_SUBST(LIBNETFILTER_LOG_LIBS)
+AC_SUBST(NCURSES_LIBS)
 
 AC_OUTPUT(Makefile include/Makefile lib/Makefile lib/textdir/Makefile
         vuurmuur/Makefile vuurmuur_log/Makefile vuurmuur_conf/Makefile
