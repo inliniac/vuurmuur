@@ -436,11 +436,11 @@ conn_line_to_data(  const int debuglvl,
         conndata_ptr->toname = conndata_ptr->to->name;
     }
 
-    if(connline_ptr->state == SYN_SENT || connline_ptr->state == SYN_RECV || connline_ptr->state == UNREPLIED)
+    if(connline_ptr->state == VRMR_STATE_SYN_SENT || connline_ptr->state == VRMR_STATE_SYN_RECV || connline_ptr->state == VRMR_STATE_UNREPLIED)
         conndata_ptr->connect_status = VRMR_CONN_CONNECTING;
-    else if(connline_ptr->state == TCP_ESTABLISHED || connline_ptr->state == UDP_ESTABLISHED)
+    else if(connline_ptr->state == VRMR_STATE_TCP_ESTABLISHED || connline_ptr->state == VRMR_STATE_UDP_ESTABLISHED)
         conndata_ptr->connect_status = VRMR_CONN_CONNECTED;
-    else if(connline_ptr->state == FIN_WAIT || connline_ptr->state == TIME_WAIT || connline_ptr->state == CLOSE || connline_ptr->state == CLOSE_WAIT || connline_ptr->state == LAST_ACK)
+    else if(connline_ptr->state == VRMR_STATE_FIN_WAIT || connline_ptr->state == VRMR_STATE_TIME_WAIT || connline_ptr->state == VRMR_STATE_CLOSE || connline_ptr->state == VRMR_STATE_CLOSE_WAIT || connline_ptr->state == VRMR_STATE_LAST_ACK)
         conndata_ptr->connect_status = VRMR_CONN_DISCONNECTING;
     else
         conndata_ptr->connect_status = VRMR_CONN_UNUSED;
@@ -1583,29 +1583,29 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
 
     /* process status */
     if(strcmp(connline_ptr->status, "none") == 0)
-        connline_ptr->state = NONE;
+        connline_ptr->state = VRMR_STATE_NONE;
     else if(strcmp(connline_ptr->status, "ESTABLISHED") == 0)
-        connline_ptr->state = TCP_ESTABLISHED;
+        connline_ptr->state = VRMR_STATE_TCP_ESTABLISHED;
     else if(strcmp(connline_ptr->status, "UDP_ESTABLISHED") == 0)
-        connline_ptr->state = UDP_ESTABLISHED;
+        connline_ptr->state = VRMR_STATE_UDP_ESTABLISHED;
     else if(strcmp(connline_ptr->status, "SYN_SENT") == 0)
-        connline_ptr->state = SYN_SENT;
+        connline_ptr->state = VRMR_STATE_SYN_SENT;
     else if(strcmp(connline_ptr->status, "SYN_RECV") == 0)
-        connline_ptr->state = SYN_RECV;
+        connline_ptr->state = VRMR_STATE_SYN_RECV;
     else if(strcmp(connline_ptr->status, "FIN_WAIT") == 0)
-        connline_ptr->state = FIN_WAIT;
+        connline_ptr->state = VRMR_STATE_FIN_WAIT;
     else if(strcmp(connline_ptr->status, "TIME_WAIT") == 0)
-        connline_ptr->state = TIME_WAIT;
+        connline_ptr->state = VRMR_STATE_TIME_WAIT;
     else if(strcmp(connline_ptr->status, "CLOSE") == 0)
-        connline_ptr->state = CLOSE;
+        connline_ptr->state = VRMR_STATE_CLOSE;
     else if(strcmp(connline_ptr->status, "CLOSE_WAIT") == 0)
-        connline_ptr->state = CLOSE_WAIT;
+        connline_ptr->state = VRMR_STATE_CLOSE_WAIT;
     else if(strcmp(connline_ptr->status, "LAST_ACK") == 0)
-        connline_ptr->state = LAST_ACK;
+        connline_ptr->state = VRMR_STATE_LAST_ACK;
     else if(strcmp(connline_ptr->status, "[UNREPLIED]") == 0)
-        connline_ptr->state = UNREPLIED;
+        connline_ptr->state = VRMR_STATE_UNREPLIED;
     else
-        connline_ptr->state = UNDEFINED;
+        connline_ptr->state = VRMR_STATE_UNDEFINED;
 
     if(connline_ptr->use_acc == TRUE)
     {
@@ -1800,29 +1800,29 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
 
     /* process status */
     if(strcmp(connline_ptr->status, "none") == 0)
-        connline_ptr->state = NONE;
+        connline_ptr->state = VRMR_STATE_NONE;
     else if(strcmp(connline_ptr->status, "ESTABLISHED") == 0)
-        connline_ptr->state = TCP_ESTABLISHED;
+        connline_ptr->state = VRMR_STATE_TCP_ESTABLISHED;
     else if(strcmp(connline_ptr->status, "UDP_ESTABLISHED") == 0)
-        connline_ptr->state = UDP_ESTABLISHED;
+        connline_ptr->state = VRMR_STATE_UDP_ESTABLISHED;
     else if(strcmp(connline_ptr->status, "SYN_SENT") == 0)
-        connline_ptr->state = SYN_SENT;
+        connline_ptr->state = VRMR_STATE_SYN_SENT;
     else if(strcmp(connline_ptr->status, "SYN_RECV") == 0)
-        connline_ptr->state = SYN_RECV;
+        connline_ptr->state = VRMR_STATE_SYN_RECV;
     else if(strcmp(connline_ptr->status, "FIN_WAIT") == 0)
-        connline_ptr->state = FIN_WAIT;
+        connline_ptr->state = VRMR_STATE_FIN_WAIT;
     else if(strcmp(connline_ptr->status, "TIME_WAIT") == 0)
-        connline_ptr->state = TIME_WAIT;
+        connline_ptr->state = VRMR_STATE_TIME_WAIT;
     else if(strcmp(connline_ptr->status, "CLOSE") == 0)
-        connline_ptr->state = CLOSE;
+        connline_ptr->state = VRMR_STATE_CLOSE;
     else if(strcmp(connline_ptr->status, "CLOSE_WAIT") == 0)
-        connline_ptr->state = CLOSE_WAIT;
+        connline_ptr->state = VRMR_STATE_CLOSE_WAIT;
     else if(strcmp(connline_ptr->status, "LAST_ACK") == 0)
-        connline_ptr->state = LAST_ACK;
+        connline_ptr->state = VRMR_STATE_LAST_ACK;
     else if(strcmp(connline_ptr->status, "[UNREPLIED]") == 0)
-        connline_ptr->state = UNREPLIED;
+        connline_ptr->state = VRMR_STATE_UNREPLIED;
     else
-        connline_ptr->state = UNDEFINED;
+        connline_ptr->state = VRMR_STATE_UNDEFINED;
 
     if(connline_ptr->use_acc == TRUE)
     {

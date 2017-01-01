@@ -72,7 +72,7 @@ fi
 
 AC_CHECK_LIB(nfnetlink, nfnl_fd,, NFNETLINK="no")
 if test "$NFNETLINK" != "no"; then
-CFLAGS="${CFLAGS} -DHAVE_NFNETLINK"
+    AC_DEFINE([HAVE_NFNETLINK],[1],[libnfnetlink available])
 fi
 
 # netfilter_conntrack lib
@@ -94,7 +94,7 @@ fi
 
 AC_CHECK_LIB(netfilter_conntrack, nfct_fd,, NFCONNTRACK="no")
 if test "$NFCONNTRACK" != "no"; then
-CFLAGS="${CFLAGS} -DHAVE_LIBNETFILTER_CONNTRACK"
+    AC_DEFINE([HAVE_LIBNETFILTER_CONNTRACK],[1],[libnetfilter_conntrack available])
 fi
 
 # netfilter_log lib
@@ -116,7 +116,7 @@ fi
 
 AC_CHECK_LIB(netfilter_log, nflog_open,, NFLOG="no")
 if test "$NFLOG" != "no"; then
-CFLAGS="${CFLAGS} -DHAVE_LIBNETFILTER_LOG"
+    AC_DEFINE([HAVE_LIBNETFILTER_LOG],[1],[libnetfilter_log available])
 fi
 
 AC_ARG_WITH(ncurses_includes,

@@ -18,10 +18,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifdef HAVE_LIBNETFILTER_LOG
-
 /** \file
- * nflog.c implements functions to communicate with the NFLOG iptables target. */
+ *  nflog.c implements functions to communicate with the NFLOG iptables target. */
+
+#include "vuurmuur_log.h"
+
+#ifdef HAVE_LIBNETFILTER_LOG
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -34,7 +36,6 @@
 #include <libnetfilter_log/libnetfilter_log.h>
 #include <sys/time.h>
 
-#include "vuurmuur_log.h"
 #include "nflog.h"
 
 #ifdef IPV6_ENABLED
