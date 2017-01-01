@@ -36,8 +36,6 @@ CURPATH=`pwd`
 FULL_SCRIPT=$(readlink -f $0)
 FULL_PATH=$(dirname ${FULL_SCRIPT})
 LOG="$CURPATH/install.log"
-# A temp file, where we store output from some commands
-TMP_LOG=`mktemp ${CURPATH}/vm_tmplog.XXXXXXXX`
 # The vuurmuur sample file. Will be filled with the full path
 VM_SAMPLE=""
 # The vuurmuur_conf sample file. Will be filled with the full path
@@ -48,10 +46,8 @@ INSTALL="0"
 UPGRADE="0"
 UNINSTALL="0"
 DRYRUN="0"
-UNPACK="0"
 
 # minor
-NOUNPACK="0"
 DEFAULTS="0"
 VERBOSE="1"
 DEBUG="0"
@@ -70,7 +66,7 @@ fi
 # number
 GIT="$(which git 2>/dev/null || echo /usr/bin/git)"
 if [ -x ${GIT} ]; then
-    GIT_COMMIT=`${GIT} log --oneline -n 1 } cut -d ' ' -f 1`
+    GIT_COMMIT=`${GIT} log --oneline -n 1 | cut -d ' ' -f 1`
 fi
 
 if [ ! -z "${GIT_COMMIT}" ]; then
@@ -153,14 +149,12 @@ function PrintHelp
     echo "  --install       install and setup up the config"
     echo "  --upgrade       install without touching the config"
     echo "  --uninstall     uninstall but leave the config alone"
-    echo "  --unpack        unpack the archives"
     echo
     echo " Sub options:"
     echo
     echo "  --defaults      use the default values for all questions"
     echo "  --debug         print some extra info for debugging the install script"
     echo "                      (Use early on the commandline)"
-    echo "  --nounpack      don't unpack, use the already unpacked archives"
     echo "  --widec         use widec support in vuurmuur_conf (utf-8)"
     echo "  --from-git      do the action based on a git clone (this is guessed)"
     echo "  --build-update  update the buildsystem (regenerates make files etc)"
@@ -362,23 +356,6 @@ function CheckFile
     fi
 }
 
-function UnPack
-{
-    touch ${TMP_LOG}
-    gzip -cd $1 | tar -xvf - >> $LOG
-    RESULT="$?"
-    cat ${TMP_LOG} >> $LOG
-    rm -f ${TMP_LOG}
-    if [ "$RESULT" = "0" ]; then
-        if [ "$DEBUG" = "1" ]; then
-            PrintL "UnPack $1 succeeded."
-        fi
-    else
-        PrintL "UnPack $1 failed with returncode $RESULT."
-        Exit 1
-    fi
-}
-
 function CheckDir
 {
     if [ ! -d $1 ]; then
@@ -444,13 +421,6 @@ do
             fi
             shift 1
         ;;
-        --nounpack)
-            NOUNPACK="1"
-            if [ "$DEBUG" = "1" ]; then
-                PrintL "Commandline option '--nounpack' enabled."
-            fi
-            shift 1
-        ;;
         --widec)
             WIDEC="1"
             if [ "$DEBUG" = "1" ]; then
@@ -502,13 +472,6 @@ do
             fi
             shift 1
         ;;
-        --unpack)
-            UNPACK="1"
-            if [ "$DEBUG" = "1" ]; then
-                PrintL "Commandline option '--unpack' enabled."
-            fi
-            shift 1
-        ;;
         --build-update)
             BUILDUPDATE="1"
             if [ "$DEBUG" = "1" ]; then
@@ -523,23 +486,16 @@ do
     esac
 done
 
-# tigerp 20080323 - Make sure that we don't try to unpack when we use git
-# sources
-if [ "${FROM_GIT}" = "1" ]; then
-    NOUNPACK="1"
-fi
-
 # if none of the main options is selected, print help and exit.
 if  [ "$DRYRUN" = "0" ] && 
     [ "$INSTALL" = "0" ] && 
     [ "$UPGRADE" = "0" ] && 
-    [ "$UNINSTALL" = "0" ] && 
-    [ "$UNPACK" = "0" ]; then
+    [ "$UNINSTALL" = "0" ]; then
     PrintHelp
 fi
 
 # check that only one major option is selected.
-TOTAL=$((DRYRUN + INSTALL + UPGRADE + UNINSTALL + UNPACK))
+TOTAL=$((DRYRUN + INSTALL + UPGRADE + UNINSTALL))
 if [ "$TOTAL" -gt "1" ]; then
     echo "Error: please select only one main option."
     exit 0
@@ -551,20 +507,27 @@ if [ "$INSTALL" = "1" ]; then
     echo "Vuurmuur installation"
     echo "====================="
     echo
-    echo "Welcome to the installation of Vuurmuur. First you will be"
-    echo "asked a couple of questions about the location to install the"
-    echo "various parts of Vuurmuur. It is recommended that you choose"
-    echo "the defaults, by pressing just enter."
+    echo "Welcome to the installation of Vuurmuur. "
+    if [ "$DEFAULTS" = "0" ]; then
+        echo "First you will be asked a couple of questions about "
+        echo "the location to install the various parts of Vuurmuur. "
+        echo "It is recommended that you choose the defaults, by "
+        echo "pressing just enter."
+    else
+        echo "Vuurmuur will be installed into /usr."
+    fi
     echo
 elif [ "$UPGRADE" = "1" ]; then
     echo
     echo "Vuurmuur installation (upgrade)"
     echo "==============================="
     echo
-    echo "Welcome to the installation of Vuurmuur. First you will be"
-    echo "asked a couple of questions about the location to install the"
-    echo "various parts of Vuurmuur. Make sure that you point to the"
-    echo "existing paths."
+    echo "Welcome to the upgrade script for Vuurmuur. "
+    if [ "$DEFAULTS" = "0" ]; then
+        echo "First you will be asked a couple of questions about the"
+        echo "location to install the various parts of Vuurmuur. Make"
+        echo "sure that you point to the existing paths."
+    fi
     echo
 fi
 
@@ -574,6 +537,8 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     CheckRequiredBins
 fi
 
+# A temp file, where we store output from some commands
+TMP_LOG=`mktemp ${CURPATH}/vm_tmplog.XXXXXXXX`
 
 # installdir
 if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
@@ -598,24 +563,23 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
 fi
 
 # libdir
-if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
-
-    if [ "$DEFAULTS" = "0" ]; then
-        # get the libdir
-        echo "Please enter the library dir ($LIBDIR)."
-        read TALK
-        if [ "$TALK" != "" ]; then
-            LIBDIR="$TALK"
-        fi
-    fi
-    PrintL "Libdir: $LIBDIR ..."
-    
-    MkDir $LIBDIR mayfail
-fi
+#if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
+#
+#    if [ "$DEFAULTS" = "0" ]; then
+#        # get the libdir
+#        echo "Please enter the library dir ($LIBDIR)."
+#        read TALK
+#        if [ "$TALK" != "" ]; then
+#            LIBDIR="$TALK"
+#        fi
+#    fi
+#    PrintL "Libdir: $LIBDIR ..."
+#
+#    MkDir $LIBDIR mayfail
+#fi
 
 # etcdir
 if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
-
     if [ "$DEFAULTS" = "0" ]; then
         if [ "$UPGRADE" = "1" ]; then
             echo
@@ -628,7 +592,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
             echo
         elif [ "$INSTALL" = "1" ]; then
             echo
-                echo "Please enter the directory where the config is going to be stored ($ETCDIR)."
+            echo "Please enter the directory where the config is going to be stored ($ETCDIR)."
             echo
             echo "NOTE!!! in this directory a directory 'vuurmuur' will be created."
             echo "Sso for '/etc/vuurmuur' choose '/etc' here."
@@ -652,14 +616,8 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         echo
 
         # create a backup of a previous version of vuurmuur
-        if [ ! -d /root/backups ]; then
-            mkdir /root/backups || \
-                ExitMessage "error creating /root/backups"
-            PrintL "backup directory /root/backups created."
-        fi
-
         if [ ! -d /root/backups/vuurmuur ]; then
-            mkdir /root/backups/vuurmuur || \
+            mkdir -p /root/backups/vuurmuur || \
                 ExitMessage "error creating /root/backups/vuurmuur"
             PrintL "backup directory /root/backups/vuurmuur created."
         fi
@@ -667,17 +625,12 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         BACKUP_DIR="/root/backups/vuurmuur/upgrade-$(date +'%Y.%m.%d-%H.%M')"
 
         if [ ! -d $BACKUP_DIR ]; then
-            mkdir ${BACKUP_DIR} || \
+            mkdir -m 0700 -p ${BACKUP_DIR} || \
                 ExitMessage "error creating ${BACKUP_DIR}"
             PrintL "backup directory ${BACKUP_DIR} created."
         else
             ExitMessage "error: directory ${BACKUP_DIR} already exists?! -- I am confused!"
         fi
-
-        # set strict permissions on our backup since it contains sensitive data
-        chmod 0700 ${BACKUP_DIR} || \
-            ExitMessage "settings permissions on backup directory ${BACKUP_DIR} failed!"
-        PrintL "changed permissions of ${BACKUP_DIR} to 0700."
 
         if [ -d $ETCDIR/vuurmuur ]; then
             cp -a $ETCDIR/vuurmuur/* ${BACKUP_DIR} || \
@@ -690,6 +643,10 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         echo
         echo "Backing up your current Vuurmuur configuration complete."
         echo
+    elif [ "$INSTALL" = "1" ]; then
+        if [ -f "$ETCDIR/vuurmuur/config.conf" ]; then
+            ExitMessage "vuurmuur config found in $ETCDIR/vuurmuur, did you mean --upgrade?"
+        fi
     fi
 
     # update plugin dir
@@ -698,8 +655,6 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     if [ "$UPGRADE" = "1" ]; then
         CheckDir "$ETCDIR/vuurmuur"
     elif [ "$INSTALL" = "1" ]; then
-        # create the vuurmuur dir and the textdir
-        mkdir -p -m 0700 "$ETCDIR/vuurmuur/textdir"
         mkdir -p -m 0700 "$ETCDIR/vuurmuur/plugins"
     fi
 fi
@@ -722,43 +677,19 @@ if [ "$INSTALL" = "1" ]; then
     chmod 0700 $LOGDIR
 fi
 
-# unpack
-if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ] || [ "$UNPACK" = "1" ]; then
+if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
 
-    if [ "$UNPACK" = "0" ]; then
-        echo
-        echo "Ok, thank you. Going to build Vuurmuur now. Depending on your hardware"
-        echo "this process will take about 1 to 5 minutes."
-        echo
-    fi
-
-    if [ "$NOUNPACK" = "0" ]; then
-        PrintL "Testing for the installation files..."
-        CheckFile vuurmuur-$VERSION.tar.gz
-        CheckFile libvuurmuur-$VERSION.tar.gz
-        CheckFile vuurmuur_conf-$VERSION.tar.gz
-
-        PrintL "Going to extract the files..."
-        UnPack vuurmuur-$VERSION.tar.gz
-        UnPack vuurmuur_conf-$VERSION.tar.gz
-        UnPack libvuurmuur-$VERSION.tar.gz
-        PrintL "Extracting the files done..."
-    fi
-fi
-
-# build libvuurmuur
-if [ "${FROM_GIT}" = "1" ]; then
-    # tigerp 20080323 - This should work when the person has a normal git
-    # clone
-    Cd ${FULL_PATH}
-    Cd ../libvuurmuur
-else
-    Cd libvuurmuur-$VERSION
+    echo
+    echo "Ok, thank you. Going to build Vuurmuur now. Depending on your hardware"
+    echo "this process will take about 1/2 to 5 minutes."
+    echo
 fi
 
 if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
+    VM_SAMPLE="`pwd`/config/config.conf.sample"
+    VMC_SAMPLE="`pwd`/config/vuurmuur_conf.conf.sample"
 
-    PrintL "Going to build libvuurmuur... (common code for all parts of Vuurmuur)."
+    PrintL "Going to build vuurmuur..."
     if [ "$BUILDUPDATE" = "1" ]; then
         Libtoolize -f
         Aclocal
@@ -766,9 +697,20 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         Automake
         Autoconf
     fi
-    Configure --prefix=$INSTALLDIR \
-                --sysconfdir=$ETCDIR \
-                --libdir=$LIBDIR
+    if [ "$WIDEC" = "1" ]; then
+        WIDESTR="yes"
+    else
+        WIDESTR="no"
+    fi
+
+    CONFIG_OPTS="--prefix=$INSTALLDIR   \
+                 --sysconfdir=$ETCDIR   \
+                 --with-widec=$WIDESTR"
+    if [ "${DISABLE_IPV6}" = "1" ]; then
+        CONFIG_OPTS="${CONFIG_OPTS} --disable-ipv6"
+    fi
+    Configure ${CONFIG_OPTS}
+    Make clean
     Make
     if [ "$DRYRUN" != "1" ]; then
         Make install
@@ -776,54 +718,11 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         if [ "$INSTALL" = "1" ]; then
             touch $ETCDIR/vuurmuur/plugins/textdir.conf
             chmod 0600 $ETCDIR/vuurmuur/plugins/textdir.conf
-            echo "LOCATION=\"$ETCDIR/vuurmuur/textdir\"" > $ETCDIR/vuurmuur/plugins/textdir.conf
+            echo "LOCATION=\"$ETCDIR/vuurmuur\"" > $ETCDIR/vuurmuur/plugins/textdir.conf
 
             chmod 0700 $ETCDIR/vuurmuur
             chmod 0700 $ETCDIR/vuurmuur/plugins
         fi
-    fi
-    if [ "${FROM_GIT}" = "0" ]; then
-        Make clean
-    fi
-    PrintL "Building and installing libvuurmuur finished."
-
-elif [ "$UNINSTALL" = "1" ]; then
-
-    PrintL "Going to uninstall libvuurmuur..."
-    Make uninstall
-    PrintL "Un-installing libvuurmuur finished."
-fi
-Cd ..
-
-# build vuurmuur
-if [ "${FROM_GIT}" = "1" ]; then
-    Cd ${FULL_PATH}
-    Cd ../vuurmuur
-else
-    Cd vuurmuur-$VERSION
-fi
-
-if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
-    VM_SAMPLE="`pwd`/config/config.conf.sample"
-    PrintL "Going to build vuurmuur... (the daemons)."
-    if [ "$BUILDUPDATE" = "1" ]; then
-        Libtoolize -f
-        Aclocal
-        Autoheader
-        Automake
-        Autoconf
-    fi
-    CONFIG_OPTS="--prefix=$INSTALLDIR \
-                --sysconfdir=$ETCDIR \
-                --with-libvuurmuur-includes=$INSTALLDIR/include \
-                --with-libvuurmuur-libraries=$LIBDIR"
-    if [ "${DISABLE_IPV6}" = "1" ]; then
-        CONFIG_OPTS="${CONFIG_OPTS} --disable-ipv6"
-    fi
-    Configure ${CONFIG_OPTS}
-    Make
-    if [ "$DRYRUN" != "1" ]; then
-        Make install
     fi
     if [ "${FROM_GIT}" = "0" ]; then
         Make clean
@@ -836,112 +735,48 @@ elif [ "$UNINSTALL" = "1" ]; then
     Make uninstall
     PrintL "Un-installing vuurmuur finished."
 fi
-Cd ..
-
-# build vuurmuur_conf
-if [ "${FROM_GIT}" = "1" ]; then
-    Cd ${FULL_PATH}
-    Cd ../vuurmuur-conf
-else
-    Cd vuurmuur_conf-$VERSION
-fi
-
-if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
-    VMC_SAMPLE="`pwd`/config/vuurmuur_conf.conf.sample"
-    PrintL "Going to build vuurmuur_conf... (the Ncurses based user interface)."
-    if [ "$BUILDUPDATE" = "1" ]; then
-        Libtoolize -f
-        Aclocal
-        WrapGettextize
-        Autoheader
-        Automake
-        Autoconf
-    fi
-
-    if [ "$WIDEC" = "1" ]; then
-        WIDESTR="yes"
-    else
-        WIDESTR="no"
-    fi
-
-    CONFIG_OPTS="--prefix=$INSTALLDIR \
-                --sysconfdir=$ETCDIR \
-                --with-libvuurmuur-includes=$INSTALLDIR/include \
-                --with-libvuurmuur-libraries=$LIBDIR \
-                --with-widec=$WIDESTR"
-    if [ "${DISABLE_IPV6}" = "1" ]; then
-        CONFIG_OPTS="${CONFIG_OPTS} --disable-ipv6"
-    fi
-    Configure ${CONFIG_OPTS}
-    Make
-    if [ "$DRYRUN" != "1" ]; then
-        Make install
-    fi
-    if [ "${FROM_GIT}" = "0" ]; then
-        Make clean
-    fi
-    PrintL "Building and installing vuurmuur_conf finished."
-
-elif [ "$UNINSTALL" = "1" ]; then
-
-    PrintL "Going to uninstall vuurmuur_conf..."
-    Make uninstall
-    PrintL "Un-installing vuurmuur_conf finished."
-fi
-Cd ..
-
 
 if [ "$INSTALL" = "1" ]; then
 
     echo
     echo "Setting up the Vuurmuur config for first-time use."
 
-    mkdir -p -m 0700 $ETCDIR/vuurmuur/textdir
-    chown root:root $ETCDIR/vuurmuur/textdir
-    chmod 0700 $ETCDIR/vuurmuur/textdir
+    mkdir -p -m 0700 $ETCDIR/vuurmuur
     
-    if [ ! -d "$ETCDIR/vuurmuur/textdir/interfaces" ]; then
-        MkDir $ETCDIR/vuurmuur/textdir/interfaces
-        chown root:root $ETCDIR/vuurmuur/textdir/interfaces
-        chmod 0700 $ETCDIR/vuurmuur/textdir/interfaces
+    if [ ! -d "$ETCDIR/vuurmuur/interfaces" ]; then
+        mkdir -p -m 0700 $ETCDIR/vuurmuur/interfaces
     fi
     
-    if [ ! -d "$ETCDIR/vuurmuur/textdir/services" ]; then
-        MkDir $ETCDIR/vuurmuur/textdir/services
-        chown root:root $ETCDIR/vuurmuur/textdir/services
-        chmod 0700 $ETCDIR/vuurmuur/textdir/services
+    if [ ! -d "$ETCDIR/vuurmuur/services" ]; then
+        mkdir -p -m 0700 $ETCDIR/vuurmuur/services
     
-        cp $SHAREDDIR/vuurmuur/services/* $ETCDIR/vuurmuur/textdir/services/
-        chown -R root:root $ETCDIR/vuurmuur/textdir/services
-        chmod 0700 $ETCDIR/vuurmuur/textdir/services
+        cp $SHAREDDIR/vuurmuur/services/* $ETCDIR/vuurmuur/services/
+        chown -R root:root $ETCDIR/vuurmuur/services
+        chmod 0700 $ETCDIR/vuurmuur/services
     fi
 
-    if [ ! -d "$ETCDIR/vuurmuur/textdir/zones" ]; then
-        MkDir $ETCDIR/vuurmuur/textdir/zones
-        chown root:root $ETCDIR/vuurmuur/textdir/zones
-        chmod 0700 $ETCDIR/vuurmuur/textdir/zones
+    if [ ! -d "$ETCDIR/vuurmuur/zones" ]; then
+        mkdir -p -m 0700 $ETCDIR/vuurmuur/zones
 
         if [ "${FROM_GIT}" = "1" ]; then
-            cp -r --preserve=mode ${FULL_PATH}/zones/* $ETCDIR/vuurmuur/textdir/zones
+            cp -r --preserve=mode ${FULL_PATH}/zones/* $ETCDIR/vuurmuur/zones
         else
-            cp -r --preserve=mode zones/* $ETCDIR/vuurmuur/textdir/zones
+            cp -r --preserve=mode zones/* $ETCDIR/vuurmuur/zones
         fi
-        chown -R root:root $ETCDIR/vuurmuur/textdir/zones
-        chmod 0700 $ETCDIR/vuurmuur/textdir/zones
+        chown -R root:root $ETCDIR/vuurmuur/zones
+        chmod 0700 $ETCDIR/vuurmuur/zones
     fi
 
-    if [ ! -d "$ETCDIR/vuurmuur/textdir/rules" ]; then
-        MkDir $ETCDIR/vuurmuur/textdir/rules
-        chown root:root $ETCDIR/vuurmuur/textdir/rules
-        chmod 0700 $ETCDIR/vuurmuur/textdir/rules
+    if [ ! -d "$ETCDIR/vuurmuur/rules" ]; then
+        mkdir -p -m 0700 $ETCDIR/vuurmuur/rules
 
-        touch $ETCDIR/vuurmuur/textdir/rules/rules.conf
-        chown root:root $ETCDIR/vuurmuur/textdir/rules/rules.conf
-        chmod 0600 $ETCDIR/vuurmuur/textdir/rules/rules.conf
+        touch $ETCDIR/vuurmuur/rules/rules.conf
+        chown root:root $ETCDIR/vuurmuur/rules/rules.conf
+        chmod 0600 $ETCDIR/vuurmuur/rules/rules.conf
 
-        touch $ETCDIR/vuurmuur/textdir/rules/blocklist.conf
-        chown root:root $ETCDIR/vuurmuur/textdir/rules/blocklist.conf
-        chmod 0600 $ETCDIR/vuurmuur/textdir/rules/blocklist.conf
+        touch $ETCDIR/vuurmuur/rules/blocklist.conf
+        chown root:root $ETCDIR/vuurmuur/rules/blocklist.conf
+        chmod 0600 $ETCDIR/vuurmuur/rules/blocklist.conf
     fi
 
     # create the config file
