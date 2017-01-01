@@ -286,7 +286,7 @@ int startup_screen(const int, struct vrmr_ctx *, struct vrmr_rules *, struct vrm
 void draw_field_active_mark(const FIELD *cur, const FIELD *prev, WINDOW *formwin, FORM *form, chtype ch);
 int copy_field2buf(char *buf, char *fieldbuf, size_t bufsize);
 int protectrule_loaded(const int, struct vrmr_list *, char *, char *, char *);
-
+void setup_colors(void);
 
 /*
     topmenu

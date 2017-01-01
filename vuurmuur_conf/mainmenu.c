@@ -1986,7 +1986,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 choice_ptr = malloc(StrMemLen("showhelp")+1);
                 strcpy(choice_ptr, "showhelp");
                 break;
-
+#if 0
             case KEY_F(1):
 
                 choice_ptr = NULL;
@@ -2026,7 +2026,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
                 set_colors(debuglvl, &vccnf);
                 break;
-
+#endif
         }
 
         /* now act */
