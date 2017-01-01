@@ -66,6 +66,76 @@ exec_wizard(const int debuglvl, char *path)
     return retval;
 }
 
+void setup_colors()
+{
+    /* Initialize all the colors */
+
+    if (vccnf.background == 0) {
+        vccnf.win_fore = COLOR_BLUE;
+        vccnf.bgd_back = COLOR_BLUE;
+    } else {
+        vccnf.win_fore = COLOR_BLACK;
+        vccnf.bgd_back = COLOR_BLACK;
+    }
+    vccnf.win_back = COLOR_WHITE;
+    vccnf.bgd_fore = COLOR_WHITE;
+
+    init_pair(CP_WIN,       vccnf.win_fore, vccnf.win_back);
+    init_pair(CP_WIN_REV,   vccnf.win_back, vccnf.win_fore);
+    init_pair(CP_WIN_MARK,  COLOR_RED,      vccnf.win_back);
+    init_pair(CP_WIN_FIELD, COLOR_WHITE,    COLOR_BLUE);
+
+    init_pair(CP_WIN_RED,       COLOR_RED, vccnf.win_back);
+    init_pair(CP_WIN_RED_REV,   vccnf.win_back, COLOR_RED);
+    init_pair(CP_WIN_GREEN,     COLOR_GREEN, vccnf.win_back);
+    init_pair(CP_WIN_GREEN_REV, vccnf.win_back, COLOR_GREEN);
+    init_pair(CP_WIN_YELLOW,    COLOR_YELLOW, vccnf.win_back);
+    init_pair(CP_WIN_MAGENTA,   COLOR_MAGENTA, vccnf.win_back);
+    init_pair(CP_WIN_CYAN,      COLOR_CYAN, vccnf.win_back);
+
+    init_pair(CP_WIN_INIT,      COLOR_YELLOW, COLOR_RED);
+    init_pair(CP_WIN_WARN,      COLOR_YELLOW, COLOR_RED);
+    init_pair(CP_WIN_NOTE,      COLOR_RED, COLOR_WHITE);
+    init_pair(CP_WIN_NOTE_REV,  COLOR_WHITE, COLOR_RED);
+
+    init_pair(CP_RULE_BAR,      COLOR_RED, COLOR_WHITE);
+
+    init_pair(CP_BGD,           vccnf.bgd_fore, vccnf.bgd_back);
+    init_pair(CP_BGD_REV,       vccnf.bgd_back, vccnf.bgd_fore);
+    init_pair(CP_BGD_RED,       COLOR_RED, vccnf.bgd_back);
+    init_pair(CP_BGD_GREEN,     COLOR_GREEN, vccnf.bgd_back);
+    init_pair(CP_BGD_YELLOW,    COLOR_YELLOW, vccnf.bgd_back);
+    init_pair(CP_BGD_MAGENTA,   COLOR_MAGENTA, vccnf.bgd_back);
+    init_pair(CP_BGD_CYAN,      COLOR_CYAN, vccnf.bgd_back);
+
+    vccnf.color_win       = (chtype)COLOR_PAIR(CP_WIN);
+    vccnf.color_win_rev   = (chtype)COLOR_PAIR(CP_WIN_REV);
+    vccnf.color_win_mark  = (chtype)COLOR_PAIR(CP_WIN_MARK);
+    vccnf.color_win_field = (chtype)COLOR_PAIR(CP_WIN_FIELD);
+    vccnf.color_win_red = (chtype)COLOR_PAIR(CP_WIN_RED);
+    vccnf.color_win_red_rev = (chtype)COLOR_PAIR(CP_WIN_RED_REV);
+    vccnf.color_win_green = (chtype)COLOR_PAIR(CP_WIN_GREEN);
+    vccnf.color_win_green_rev = (chtype)COLOR_PAIR(CP_WIN_GREEN_REV);
+    vccnf.color_win_yellow = (chtype)COLOR_PAIR(CP_WIN_YELLOW);
+    vccnf.color_win_magenta = (chtype)COLOR_PAIR(CP_WIN_MAGENTA);
+    vccnf.color_win_cyan = (chtype)COLOR_PAIR(CP_WIN_CYAN);
+
+    vccnf.color_win_init = (chtype)COLOR_PAIR(CP_WIN_INIT);
+    vccnf.color_win_warn = (chtype)COLOR_PAIR(CP_WIN_WARN);
+    vccnf.color_win_note = (chtype)COLOR_PAIR(CP_WIN_NOTE);
+    vccnf.color_win_note_rev = (chtype)COLOR_PAIR(CP_WIN_NOTE_REV);
+
+    vccnf.color_bgd     = (chtype)COLOR_PAIR(CP_BGD);
+    vccnf.color_bgd_hi  = (chtype)COLOR_PAIR(CP_BGD_YELLOW);
+    vccnf.color_bgd_rev = (chtype)COLOR_PAIR(CP_BGD_REV);
+    vccnf.color_bgd_red = (chtype)COLOR_PAIR(CP_BGD_RED);
+    vccnf.color_bgd_green = (chtype)COLOR_PAIR(CP_BGD_GREEN);
+    vccnf.color_bgd_yellow = (chtype)COLOR_PAIR(CP_BGD_YELLOW);
+    vccnf.color_bgd_magenta = (chtype)COLOR_PAIR(CP_BGD_MAGENTA);
+    vccnf.color_bgd_cyan = (chtype)COLOR_PAIR(CP_BGD_CYAN);
+
+    vccnf.color_rule_bar = (chtype)COLOR_PAIR(CP_RULE_BAR);
+}
 
 int
 main(int argc, char *argv[])
@@ -210,73 +280,7 @@ main(int argc, char *argv[])
     (void)noecho();
     (void)keypad(stdscr, (bool)TRUE);
 
-    /* Initialize all the colors */
-
-    if (vccnf.background == 0) {
-        vccnf.win_fore = COLOR_BLUE;
-        vccnf.bgd_back = COLOR_BLUE;
-    } else {
-        vccnf.win_fore = COLOR_BLACK;
-        vccnf.bgd_back = COLOR_BLACK;
-    }
-    vccnf.win_back = COLOR_WHITE;
-    vccnf.bgd_fore = COLOR_WHITE;
-
-    init_pair(CP_WIN,       vccnf.win_fore, vccnf.win_back);
-    init_pair(CP_WIN_REV,   vccnf.win_back, vccnf.win_fore);
-    init_pair(CP_WIN_MARK,  COLOR_RED,      vccnf.win_back);
-    init_pair(CP_WIN_FIELD, COLOR_WHITE,    COLOR_BLUE);
-
-    init_pair(CP_WIN_RED,       COLOR_RED, vccnf.win_back);
-    init_pair(CP_WIN_RED_REV,   vccnf.win_back, COLOR_RED);
-    init_pair(CP_WIN_GREEN,     COLOR_GREEN, vccnf.win_back);
-    init_pair(CP_WIN_GREEN_REV, vccnf.win_back, COLOR_GREEN);
-    init_pair(CP_WIN_YELLOW,    COLOR_YELLOW, vccnf.win_back);
-    init_pair(CP_WIN_MAGENTA,   COLOR_MAGENTA, vccnf.win_back);
-    init_pair(CP_WIN_CYAN,      COLOR_CYAN, vccnf.win_back);
-
-    init_pair(CP_WIN_INIT,      COLOR_YELLOW, COLOR_RED);
-    init_pair(CP_WIN_WARN,      COLOR_YELLOW, COLOR_RED);
-    init_pair(CP_WIN_NOTE,      COLOR_RED, COLOR_WHITE);
-    init_pair(CP_WIN_NOTE_REV,  COLOR_WHITE, COLOR_RED);
-
-    init_pair(CP_RULE_BAR,      COLOR_RED, COLOR_WHITE);
-
-    init_pair(CP_BGD,           vccnf.bgd_fore, vccnf.bgd_back);
-    init_pair(CP_BGD_REV,       vccnf.bgd_back, vccnf.bgd_fore);
-    init_pair(CP_BGD_RED,       COLOR_RED, vccnf.bgd_back);
-    init_pair(CP_BGD_GREEN,     COLOR_GREEN, vccnf.bgd_back);
-    init_pair(CP_BGD_YELLOW,    COLOR_YELLOW, vccnf.bgd_back);
-    init_pair(CP_BGD_MAGENTA,   COLOR_MAGENTA, vccnf.bgd_back);
-    init_pair(CP_BGD_CYAN,      COLOR_CYAN, vccnf.bgd_back);
-
-    vccnf.color_win       = (chtype)COLOR_PAIR(CP_WIN);
-    vccnf.color_win_rev   = (chtype)COLOR_PAIR(CP_WIN_REV);
-    vccnf.color_win_mark  = (chtype)COLOR_PAIR(CP_WIN_MARK);
-    vccnf.color_win_field = (chtype)COLOR_PAIR(CP_WIN_FIELD);
-    vccnf.color_win_red = (chtype)COLOR_PAIR(CP_WIN_RED);
-    vccnf.color_win_red_rev = (chtype)COLOR_PAIR(CP_WIN_RED_REV);
-    vccnf.color_win_green = (chtype)COLOR_PAIR(CP_WIN_GREEN);
-    vccnf.color_win_green_rev = (chtype)COLOR_PAIR(CP_WIN_GREEN_REV);
-    vccnf.color_win_yellow = (chtype)COLOR_PAIR(CP_WIN_YELLOW);
-    vccnf.color_win_magenta = (chtype)COLOR_PAIR(CP_WIN_MAGENTA);
-    vccnf.color_win_cyan = (chtype)COLOR_PAIR(CP_WIN_CYAN);
-
-    vccnf.color_win_init = (chtype)COLOR_PAIR(CP_WIN_INIT);
-    vccnf.color_win_warn = (chtype)COLOR_PAIR(CP_WIN_WARN);
-    vccnf.color_win_note = (chtype)COLOR_PAIR(CP_WIN_NOTE);
-    vccnf.color_win_note_rev = (chtype)COLOR_PAIR(CP_WIN_NOTE_REV);
-
-    vccnf.color_bgd     = (chtype)COLOR_PAIR(CP_BGD);
-    vccnf.color_bgd_hi  = (chtype)COLOR_PAIR(CP_BGD_YELLOW);
-    vccnf.color_bgd_rev = (chtype)COLOR_PAIR(CP_BGD_REV);
-    vccnf.color_bgd_red = (chtype)COLOR_PAIR(CP_BGD_RED);
-    vccnf.color_bgd_green = (chtype)COLOR_PAIR(CP_BGD_GREEN);
-    vccnf.color_bgd_yellow = (chtype)COLOR_PAIR(CP_BGD_YELLOW);
-    vccnf.color_bgd_magenta = (chtype)COLOR_PAIR(CP_BGD_MAGENTA);
-    vccnf.color_bgd_cyan = (chtype)COLOR_PAIR(CP_BGD_CYAN);
-
-    vccnf.color_rule_bar = (chtype)COLOR_PAIR(CP_RULE_BAR);
+    setup_colors();
 
     /* create the three main windows */
     if(!(status_frame_win = create_newwin(3, COLS, LINES-3, 0, NULL, vccnf.color_bgd)))

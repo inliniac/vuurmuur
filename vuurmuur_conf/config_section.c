@@ -1983,8 +1983,18 @@ edit_vcconfig(const int debuglvl)
             cur == VcConfig.mainmenu_statusfld ||
             cur == VcConfig.backgroundfld)
         {
-            if(nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0)
+            if (nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0) {
                 not_defined = 1;
+            } else {
+                /* hack to make color setting available instantly */
+                if (cur == VcConfig.backgroundfld) {
+                    if(field_buffer(cur, 0)[0] == 'X')
+                        vccnf.background = 1;
+                    else
+                        vccnf.background = 0;
+                    setup_colors();
+                }
+            }
         }
         else
         {
@@ -2065,7 +2075,7 @@ edit_vcconfig(const int debuglvl)
 
     /* cleanup */
     edit_config_destroy();
-
+    setup_colors();
     return(retval);
 }
 
