@@ -21,4 +21,7 @@ LOGVIEW_BUFSIZE="1500"
 # The location of the iptrafvol.pl command.
 IPTRAFVOL="/usr/bin/iptrafvol.pl"
 
+# Background color: blue or black.
+BACKGROUND="black"
+
 # end of file
