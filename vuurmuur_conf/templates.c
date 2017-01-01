@@ -955,11 +955,11 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
             case 32:
             case 10: // enter
             {
-                ITEM *cur;
+                ITEM *cur_item;
 
-                cur = current_item(confirm_menu);
+                cur_item = current_item(confirm_menu);
 
-                size = StrMemLen((char *)item_name(cur))+1;
+                size = StrMemLen((char *)item_name(cur_item))+1;
                 if(size == 0)
                 {
                     vrmr_error(-1, VR_INTERR, "could not determine the size of the selection (in: %s).", __FUNC__);
@@ -969,7 +969,7 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
                 if(!(select_ptr = malloc(size)))
                     return(NULL);
 
-                (void)strlcpy(select_ptr, item_name(cur), size);
+                (void)strlcpy(select_ptr, item_name(cur_item), size);
 
                 quit=1;
                 break;
