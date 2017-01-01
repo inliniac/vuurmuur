@@ -475,15 +475,15 @@ main(int argc, char *argv[])
     if(version_flag == 1)
     {
         fprintf(stdout, "Vuurmuur_script %s\n", version_string);
-        fprintf(stdout, "Copyright (C) 2002-2008 by Victor Julien\n");
+        fprintf(stdout, "%s\n", VUURMUUR_COPYRIGHT);
         exit(VRS_SUCCESS);
     }
 
     if(vr_script.vctx.conf.verbose_out == TRUE)
     {
         /* print some nice info about me being the coolest of 'm all ;-) */
-        vrmr_info("Info", "This is Vuurmuur_script %s", version_string);
-        vrmr_info("Info", "Copyright (C) 2002-2008 by Victor Julien");
+        vrmr_info("Info", "Vuurmuur_script %s", version_string);
+        vrmr_info("Info", "%s", VUURMUUR_COPYRIGHT);
     }
 
     /* apply and no-apply */
