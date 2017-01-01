@@ -2626,10 +2626,6 @@ struct RuleFlds_
     FIELD   *action_label_fld_ptr,
             *action_fld_ptr,
 
-            *queue_label_fld_ptr,
-            *queue_brackets_fld_ptr,
-            *queue_fld_ptr,
-
             *random_label_fld_ptr,
             *random_brackets_fld_ptr,
             *random_fld_ptr,
@@ -3084,27 +3080,6 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
                 retval=1;
             }
-            else if(fields[i] == RuleFlds.queue_fld_ptr)
-            {
-                /* queue */
-
-                /* if needed alloc the opt struct */
-                if(rule_ptr->opt == NULL)
-                {
-                    if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
-                    {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
-                        return(-1);
-                    }
-                }
-
-                if(strncmp(field_buffer(fields[i], 0), "X", 1) == 0)
-                    rule_ptr->opt->queue = 1;
-                else
-                    rule_ptr->opt->queue = 0;
-
-                retval=1;
-            }
             else if(fields[i] == RuleFlds.random_fld_ptr)
             {
                 /* random */
@@ -3372,7 +3347,6 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                         "Snat",
                                         "Masq",
                                         "Dnat",
-                                        "Queue",
                                         "NFQueue",
                                         "NFLog",
                                         "Chain",
@@ -3387,7 +3361,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                     "tcp-reset" },
                 *reject_ptr=NULL;
     char        select_choice[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
-    size_t      action_choices_n = 14,
+    size_t      action_choices_n = 13,
                 reject_types_n = 7;
     char        **zone_choices,
                 **choices,
@@ -3451,7 +3425,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
         starty = 2;
 
     /* set number of fields */
-    n_fields = 51;
+    n_fields = 48;
     if(!(fields = (FIELD **)calloc(n_fields + 1, sizeof(FIELD *))))
     {
         vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
@@ -3507,38 +3481,6 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     field_opts_off(RuleFlds.random_fld_ptr, O_VISIBLE);
     field_opts_off(RuleFlds.random_label_fld_ptr, O_VISIBLE);
     field_opts_off(RuleFlds.random_brackets_fld_ptr, O_VISIBLE);
-
-
-    /* portfw/redirect queue label */
-    /* TRANSLATORS: max 7 chars */
-    RuleFlds.queue_label_fld_ptr = (fields[field_num] = new_field(1, 7, 5, 10, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.queue_label_fld_ptr, 0, gettext("Queue"));
-    field_opts_off(RuleFlds.queue_label_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.queue_label_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.queue_label_fld_ptr, vccnf.color_win);
-    field_num++;
-
-    RuleFlds.queue_brackets_fld_ptr = (fields[field_num] = new_field(1, 3, 5, 17, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.queue_brackets_fld_ptr, 0, "[ ]");
-    field_opts_off(RuleFlds.queue_brackets_fld_ptr, O_ACTIVE);
-    set_field_back(RuleFlds.queue_brackets_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.queue_brackets_fld_ptr, vccnf.color_win);
-    field_num++;
-
-    /* portfw/redirect queue */
-    RuleFlds.queue_fld_ptr = (fields[field_num] = new_field(1, 1, 5, 18, 0, 0));
-    set_field_back(RuleFlds.queue_fld_ptr, vccnf.color_win);
-    set_field_fore(RuleFlds.queue_fld_ptr, vccnf.color_win);
-    field_num++;
-
-    /* enable */
-    if(rule_ptr->opt != NULL && rule_ptr->opt->queue == 1)
-        set_field_buffer_wrap(debuglvl, RuleFlds.queue_fld_ptr, 0, "X");
-
-    /* queue starts disabled */
-    field_opts_off(RuleFlds.queue_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.queue_label_fld_ptr, O_VISIBLE);
-    field_opts_off(RuleFlds.queue_brackets_fld_ptr, O_VISIBLE);
 
 
     /* nfqueuenum label */
@@ -4088,14 +4030,6 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
             field_opts_off(RuleFlds.random_label_fld_ptr, O_VISIBLE);
             field_opts_off(RuleFlds.random_fld_ptr, O_VISIBLE);
         }
-        if( (rule_ptr->action != VRMR_AT_REDIRECT &&
-             rule_ptr->action != VRMR_AT_PORTFW) ||
-             !advanced_mode)
-        {
-            field_opts_off(RuleFlds.queue_brackets_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.queue_label_fld_ptr, O_VISIBLE);
-            field_opts_off(RuleFlds.queue_fld_ptr, O_VISIBLE);
-        }
         if( !advanced_mode)
         {
             field_opts_off(RuleFlds.burst_fld_ptr, O_VISIBLE|O_STATIC);
@@ -4179,13 +4113,6 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
         {
             field_opts_on(RuleFlds.redirect_fld_ptr, O_VISIBLE);
             field_opts_on(RuleFlds.redirect_label_fld_ptr, O_VISIBLE);
-
-            if(advanced_mode)
-            {
-                field_opts_on(RuleFlds.queue_brackets_fld_ptr, O_VISIBLE);
-                field_opts_on(RuleFlds.queue_label_fld_ptr, O_VISIBLE);
-                field_opts_on(RuleFlds.queue_fld_ptr, O_VISIBLE);
-            }
         }
         if(rule_ptr->action == VRMR_AT_SNAT || rule_ptr->action == VRMR_AT_MASQ ||
            rule_ptr->action == VRMR_AT_DNAT || rule_ptr->action == VRMR_AT_PORTFW ||
@@ -4207,13 +4134,6 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
             field_opts_on(RuleFlds.remote_fld_ptr, O_VISIBLE);
             field_opts_on(RuleFlds.remote_label_fld_ptr, O_VISIBLE);
-        }
-        if( rule_ptr->action == VRMR_AT_PORTFW &&
-            advanced_mode)
-        {
-            field_opts_on(RuleFlds.queue_brackets_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.queue_label_fld_ptr, O_VISIBLE);
-            field_opts_on(RuleFlds.queue_fld_ptr, O_VISIBLE);
         }
         if( rule_ptr->action == VRMR_AT_NFQUEUE
             && advanced_mode)
@@ -4339,8 +4259,6 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
             status_print(status_win, gettext("Queue number to use. Possible values: 0-65535."));
         else if(cur == RuleFlds.nflognum_fld_ptr)
             status_print(status_win, gettext("NFLog number to use. Possible values: 0-65535."));
-        else if(cur == RuleFlds.queue_fld_ptr)
-            status_print(status_win, gettext("Press SPACE to toggle queue'ing of this rule."));
         else if(cur == RuleFlds.in_int_fld_ptr)
             status_print(status_win, gettext("Press SPACE to select an interface to limit this rule to."));
         else if(cur == RuleFlds.out_int_fld_ptr)
@@ -4377,8 +4295,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
             if(nav_field_simpletext(debuglvl, form, ch) < 0)
                 not_defined = 1;
         }
-        else if(cur == RuleFlds.queue_fld_ptr         ||
-                cur == RuleFlds.random_fld_ptr        ||
+        else if(cur == RuleFlds.random_fld_ptr        ||
                 cur == RuleFlds.log_fld_ptr)
         {
             if(nav_field_toggleX(debuglvl, form, ch) < 0)
