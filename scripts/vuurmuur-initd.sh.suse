@@ -40,7 +40,7 @@ DAEMONLOG_PIDFILE=/var/run/vuurmuur_log.pid
 DAEMONLOG_OPT=""
 
 # space separated list of modules to load on start, or 'none' if none ;-)
-MODULES_TO_LOAD="ip_tables iptable_filter iptable_mangle iptable_nat ip_conntrack ipt_state ip_conntrack_ftp ip_nat_ftp ip_queue"
+MODULES_TO_LOAD="ip_tables iptable_filter iptable_mangle iptable_nat ip_conntrack ipt_state ip_conntrack_ftp ip_nat_ftp"
 #MODULES_TO_LOAD="none"
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin

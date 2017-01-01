@@ -137,10 +137,6 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query, char 
     {
         (void)strlcpy(action, "DNAT", size);
     }
-    else if(action_type == VRMR_AT_QUEUE)
-    {
-        (void)strlcpy(action, "NEWQUEUE", size);
-    }
     else if(action_type == VRMR_AT_NFQUEUE)
     {
         (void)strlcpy(action, "NEWNFQUEUE", size);
@@ -256,7 +252,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
     }
     /* network accept rule */
     else if(rule_ptr->type == VRMR_PROT_IPTABLES &&
-        (rule_ptr->action == VRMR_AT_ACCEPT || rule_ptr->action == VRMR_AT_QUEUE))
+        (rule_ptr->action == VRMR_AT_ACCEPT))
     {
         create->danger.solution = VRMR_PROT_IPTABLES;
 
@@ -453,14 +449,6 @@ vrmr_rules_analyze_rule( const int debuglvl,
             return(-1);
         }
 
-        /* QUEUE-ing can only be in input, output and forward rules */
-        if( rule_ptr->action == VRMR_AT_QUEUE &&
-            (create->ruletype != VRMR_RT_INPUT && create->ruletype != VRMR_RT_OUTPUT && create->ruletype != VRMR_RT_FORWARD))
-        {
-            vrmr_error(-1, "Error", "the QUEUE target can only be used in the input, output and forward chains (in: %s).", __FUNC__);
-            return(-1);
-        }
-
         if( rule_ptr->action == VRMR_AT_CHAIN &&
             (rule_ptr->opt == NULL || rule_ptr->opt->chain[0] == '\0'))
         {
@@ -645,7 +633,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         }
     }
     else if(rule_ptr->type == VRMR_PROT_IPTABLES &&
-        (rule_ptr->action == VRMR_AT_ACCEPT || rule_ptr->action == VRMR_AT_QUEUE))
+        (rule_ptr->action == VRMR_AT_ACCEPT))
     {
         /* description */
         if(cnf->bash_out && create->description != NULL)
@@ -2026,17 +2014,6 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
         }
     }
 
-    /* queue, for portfw and redirect */
-    if(opt->queue == 1 && (action_type == VRMR_AT_PORTFW || action_type == VRMR_AT_REDIRECT))
-    {
-        if(strlcat(options, "queue,", sizeof(options)) >= sizeof(options))
-        {
-            vrmr_error(-1, "Internal Error", "string "
-                    "overflow (in: %s:%d).", __FUNC__, __LINE__);
-            return(NULL);
-        }
-    }
-
     /* listenport and remoteport */
     if(action_type == VRMR_AT_PORTFW || action_type == VRMR_AT_DNAT)
     {
@@ -2719,17 +2696,9 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                 if(debuglvl >= MEDIUM)
                     vrmr_debug(__FUNC__, "obsolete option 'markiptstate'.");
             }
-            /* queue instead of accept (portfw and redirect)
-                         *
-                         * TODO: just a nat rule + separate queue rule is
-                         * a better solution. 
-                         * */
             else if(strcmp(curopt, "queue") == 0)
             {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "queue'ing enabled.");
-
-                op->queue = 1;
+                vrmr_warning("Warning", "'queue' is no longer supported, use nfqueue instead");
             }
             /* int */
             else if(strncmp(curopt, "int", 3) == 0)
@@ -3281,7 +3250,6 @@ char *actions[] =
     "Redirect",
     "Snat",
     "Masq",
-    "Queue",
     "Chain",
     "Dnat",
     "Bounce",
@@ -3314,7 +3282,6 @@ char *actions_cap[] =
     "REDIRECT",
     "SNAT",
     "MASQ",
-    "QUEUE",
     "CHAIN",
     "DNAT",
     "BOUNCE",
@@ -3367,8 +3334,10 @@ vrmr_rules_actiontoi(const char *action)
         return(VRMR_AT_SNAT);
     else if(strcasecmp(action, "masq") == 0)
         return(VRMR_AT_MASQ);
-    else if(strcasecmp(action, "queue") == 0)
-        return(VRMR_AT_QUEUE);
+    else if(strcasecmp(action, "queue") == 0) {
+        vrmr_error(VRMR_AT_ERROR, "Error", "'queue' is no longer supported, use nfqueue instead");
+        return(VRMR_AT_ERROR);
+    }
     else if(strcasecmp(action, "chain") == 0)
         return(VRMR_AT_CHAIN);
     else if(strcasecmp(action, "dnat") == 0)
