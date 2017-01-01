@@ -9,7 +9,7 @@ AM_CPPFLAGS = -I. -I.. -I$(top_srcdir)/intl $(all_includes)
 
 # the library search path.
 vuurmuur_conf_LDFLAGS = $(all_libraries) 
-vuurmuur_conf_LDADD = $(LIBVUURMUUR_LDADD)
+vuurmuur_conf_LDADD = $(LIBVUURMUUR_LDADD) $(NCURSES_LIBS)
 
 #DEFS = -DLOCALEDIR=\"$(localedir)\" -DDATADIR=$(datadir) @DEFS@
 LIBS = @LIBINTL@ @LIBS@
