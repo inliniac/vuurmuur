@@ -8,7 +8,7 @@
 # Copyright (c) 2004-2017 by Victor Julien, Stefan Ubbink
 # Licenced under the GPL.
 #
-VERSION="0.8rc2"
+VERSION="0.8rc3"
 
 # progams
 ACLOCAL="aclocal"
@@ -613,13 +613,12 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     if [ "$UPGRADE" = "1" ]; then
         echo
         echo "Backing up your current Vuurmuur configuration..."
-        echo
 
         # create a backup of a previous version of vuurmuur
         if [ ! -d /root/backups/vuurmuur ]; then
             mkdir -p /root/backups/vuurmuur || \
                 ExitMessage "error creating /root/backups/vuurmuur"
-            PrintL "backup directory /root/backups/vuurmuur created."
+            PrintL "* backup directory /root/backups/vuurmuur created."
         fi
 
         BACKUP_DIR="/root/backups/vuurmuur/upgrade-$(date +'%Y.%m.%d-%H.%M')"
@@ -627,7 +626,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         if [ ! -d $BACKUP_DIR ]; then
             mkdir -m 0700 -p ${BACKUP_DIR} || \
                 ExitMessage "error creating ${BACKUP_DIR}"
-            PrintL "backup directory ${BACKUP_DIR} created."
+            PrintL "* backup directory ${BACKUP_DIR} created."
         else
             ExitMessage "error: directory ${BACKUP_DIR} already exists?! -- I am confused!"
         fi
@@ -635,12 +634,11 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
         if [ -d $ETCDIR/vuurmuur ]; then
             cp -a $ETCDIR/vuurmuur/* ${BACKUP_DIR} || \
                 ExitMessage "copying vuurmuur configuration failed!"
-            PrintL "copied vuurmuur configuration to ${BACKUP_DIR}."
+            PrintL "* copied vuurmuur configuration to ${BACKUP_DIR}."
         else
-            PrintL "no vuurmuur config found (no $ETCDIR/vuurmuur directory)!"
+            PrintL "* no vuurmuur config found (no $ETCDIR/vuurmuur directory)!"
         fi
 
-        echo
         echo "Backing up your current Vuurmuur configuration complete."
         echo
     elif [ "$INSTALL" = "1" ]; then
@@ -680,8 +678,8 @@ fi
 if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
 
     echo
-    echo "Ok, thank you. Going to build Vuurmuur now. Depending on your hardware"
-    echo "this process will take about 1/2 to 5 minutes."
+    echo "Building Vuurmuur. Depending on your hardware"
+    echo "this process will take about 0.5 to 5 minutes."
     echo
 fi
 
@@ -689,8 +687,8 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     VM_SAMPLE="`pwd`/config/config.conf.sample"
     VMC_SAMPLE="`pwd`/config/vuurmuur_conf.conf.sample"
 
-    PrintL "Going to build vuurmuur..."
     if [ "$BUILDUPDATE" = "1" ]; then
+        PrintL "* build system update"
         Libtoolize -f
         Aclocal
         Autoheader
@@ -709,10 +707,13 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
     if [ "${DISABLE_IPV6}" = "1" ]; then
         CONFIG_OPTS="${CONFIG_OPTS} --disable-ipv6"
     fi
+    PrintL "* configure"
     Configure ${CONFIG_OPTS}
     Make clean
+    PrintL "* make"
     Make
     if [ "$DRYRUN" != "1" ]; then
+        PrintL "* make install"
         Make install
 
         if [ "$INSTALL" = "1" ]; then
