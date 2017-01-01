@@ -228,7 +228,6 @@ typedef struct
     struct vrmr_list  filter_udplimittarget;      /* list with rules */
     struct vrmr_list  filter_tcpresettarget;      /* list with rules */
     struct vrmr_list  filter_newaccepttarget;     /* list with rules */
-    struct vrmr_list  filter_newqueuetarget;      /* list with rules */
     struct vrmr_list  filter_newnfqueuetarget;    /* list with rules */
     struct vrmr_list  filter_estrelnfqueuetarget; /* list with rules */
     struct vrmr_list  filter_newnflogtarget;    /* list with rules */
