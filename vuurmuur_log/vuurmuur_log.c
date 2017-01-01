@@ -286,7 +286,7 @@ main(int argc, char *argv[])
             case 'V' :
                 /* print version */
                 fprintf(stdout, "Vuurmuur_log %s\n", version_string);
-                fprintf(stdout, "Copyright (C) 2002-2008 by Victor Julien\n");
+                fprintf(stdout, "%s\n", VUURMUUR_COPYRIGHT);
 
                 exit(EXIT_SUCCESS);
         }
