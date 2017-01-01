@@ -366,8 +366,6 @@ process_rule(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ru
 
         else if(strcmp(chain, CH_NEWACCEPT) == 0)
             return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_newaccepttarget, chain, cmd, packets, bytes));
-        else if(strcmp(chain, CH_NEWQUEUE) == 0)
-            return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_newqueuetarget, chain, cmd, packets, bytes));
         else if(strcmp(chain, CH_NEWNFQUEUE) == 0)
             return(ruleset_add_rule_to_set(debuglvl, &ruleset->filter_newnfqueuetarget, chain, cmd, packets, bytes));
         else if(strcmp(chain, CH_ESTRELNFQUEUE) == 0)
@@ -490,15 +488,7 @@ create_rule_input(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSe
     /* check caps */
     if(conf->vrmr_check_iptcaps == TRUE)
     {
-        if( iptcap->target_queue == FALSE &&
-            strcmp(rule->action, "NEWQUEUE") == 0)
-        {
-            vrmr_warning("Warning", "input rule not "
-                    "created: QUEUE not supported by "
-                    "this system.");
-            return(0); /* this is not an error */
-        }
-        else if(iptcap->target_nfqueue == FALSE &&
+        if(iptcap->target_nfqueue == FALSE &&
             strcmp(rule->action, "NEWNFQUEUE") == 0)
         {
             vrmr_warning("Warning", "input rule not "
@@ -939,15 +929,7 @@ create_rule_output(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleS
     /* check caps */
     if(conf->vrmr_check_iptcaps == TRUE)
     {
-        if( iptcap->target_queue == FALSE &&
-            strcmp(rule->action, "NEWQUEUE") == 0)
-        {
-            vrmr_warning("Warning", "output rule not "
-                    "created: QUEUE not supported by "
-                    "this system.");
-            return(0); /* this is not an error */
-        }
-        else if(iptcap->target_nfqueue == FALSE &&
+        if(iptcap->target_nfqueue == FALSE &&
             strcmp(rule->action, "NEWNFQUEUE") == 0)
         {
             vrmr_warning("Warning", "output rule not "
@@ -1386,15 +1368,7 @@ create_rule_forward(const int debuglvl, struct vrmr_config *conf, /*@null@*/Rule
     /* check caps */
     if(conf->vrmr_check_iptcaps == TRUE)
     {
-        if( iptcap->target_queue == FALSE &&
-            strcmp(rule->action, "NEWQUEUE") == 0)
-        {
-            vrmr_warning("Warning", "forward rule not "
-                    "created: QUEUE not supported by "
-                    "this system.");
-            return(0); /* this is not an error */
-        }
-        else if(iptcap->target_nfqueue == FALSE &&
+        if(iptcap->target_nfqueue == FALSE &&
             strcmp(rule->action, "NEWNFQUEUE") == 0)
         {
             vrmr_warning("Warning", "forward rule not "
@@ -2098,10 +2072,7 @@ create_rule_portfw(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleS
     /* set the action */
     if(strncmp(rule->action, "DNAT", 4) == 0)
     {
-        if(!create->option.queue)
-            snprintf(rule->action, sizeof(rule->action), "NEWACCEPT");
-        else
-            snprintf(rule->action, sizeof(rule->action), "NEWQUEUE");
+        snprintf(rule->action, sizeof(rule->action), "NEWACCEPT");
     }
 
     if(create_rule_forward(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
@@ -2201,10 +2172,7 @@ create_rule_redirect(const int debuglvl, struct vrmr_config *conf, /*@null@*/Rul
     /* set the action */
     if(strncasecmp(rule->action, "LOG", 3) != 0)
     {
-        if(!create->option.queue)
-            snprintf(rule->action, sizeof(rule->action), "NEWACCEPT");
-        else
-            snprintf(rule->action, sizeof(rule->action), "NEWQUEUE");
+        snprintf(rule->action, sizeof(rule->action), "NEWACCEPT");
     }
     if(create->to_firewall == FALSE && create->from_any == FALSE)
     {
@@ -2482,10 +2450,7 @@ create_rule_bounce( const int debuglvl, struct vrmr_config *conf, /*@null@*/Rule
     if( strncmp(rule->action, "DNAT", 4) == 0 ||
         strncmp(rule->action, "SNAT", 4) == 0)
     {
-        if(!create->option.queue)
-            snprintf(rule->action, sizeof(rule->action), "NEWACCEPT");
-        else
-            snprintf(rule->action, sizeof(rule->action), "NEWQUEUE");
+        snprintf(rule->action, sizeof(rule->action), "NEWACCEPT");
     }
 
     if(create_rule_forward(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
@@ -2700,51 +2665,6 @@ static int pre_rules_conntrack(const int debuglvl, struct vrmr_config *conf, /*@
             retval=-1;
         if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
             retval=-1;
-    }
-
-
-    /*
-        set up connectiontracking for QUEUE:
-
-         mark 0x1000000/0xff000000 means:
-         start mark:    16777216
-         end mark:      33554432
-    */
-    if (conf->vrmr_check_iptcaps == FALSE ||
-            (iptcap->target_queue == TRUE && iptcap->match_connmark == TRUE && ipv == VRMR_IPV4)
-#ifdef IPV6_ENABLED
-         || (iptcap->target_ip6_queue == TRUE && iptcap->match_ip6_connmark == TRUE && ipv == VRMR_IPV6)
-#endif
-        )
-    {
-        if (conf->bash_out == TRUE)
-            fprintf(stdout, "\n# Setting up connection-tracking for QUEUE targets...\n");
-
-        if (debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "Setting up connection-tracking for QUEUE targets...");
-
-        snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
-                "%s ESTABLISHED -j QUEUE", 2, create_state_string(conf, ipv, iptcap));
-        if(process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-
-        snprintf(cmd, sizeof(cmd), "-m connmark --mark %u "
-                "%s RELATED -j NEWQUEUE", 2, create_state_string(conf, ipv, iptcap));
-        if(process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
-            retval=-1;
-        if(process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
-            retval=-1;
-    }
-    else
-    {
-        vrmr_info("Info", "connection tracking for QUEUE not setup. "
-                "QUEUE-target and/or mark-match not supported by system.");
     }
 
     return(retval);
@@ -3852,55 +3772,6 @@ static int pre_rules_newaccept(const int debuglvl, struct vrmr_config *conf, /*@
     return (retval);
 }
 
-static int pre_rules_newqueue(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ruleset,
-        struct vrmr_iptcaps *iptcap, int ipv)
-{
-    int retval = 0;
-    char cmd[VRMR_MAX_PIPE_COMMAND] = "";
-
-    /*
-        create the NEWQUEUE target
-    */
-    if (conf->bash_out == TRUE)
-        fprintf(stdout, "\n# Setting up NEWQUEUE target...\n");
-
-    if (debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "Setting up NEWQUEUE target...");
-
-    if (conf->vrmr_check_iptcaps == FALSE || (iptcap->target_queue == TRUE && iptcap->match_connmark)) {
-        if(ruleset == NULL) {
-            if (ipv == VRMR_IPV4) {
-                snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null",
-                        conf->iptables_location);
-                (void)vrmr_pipe_command(debuglvl, conf, cmd, VRMR_PIPE_QUIET);
-            } else {
-#ifdef IPV6_ENABLED
-                snprintf(cmd, sizeof(cmd), "%s -N NEWQUEUE 2>/dev/null",
-                        conf->ip6tables_location);
-                (void)vrmr_pipe_command(debuglvl, conf, cmd, VRMR_PIPE_QUIET);
-#endif
-            }
-        }
-
-        snprintf(cmd, sizeof(cmd), "-m connmark --mark 2 -p tcp -m tcp --syn -j SYNLIMIT");
-        if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-            retval = -1;
-
-        snprintf(cmd, sizeof(cmd), "-m connmark --mark 2 -p udp %s NEW -j UDPLIMIT", create_state_string(conf, ipv, iptcap));
-        if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-            retval = -1;
-
-        snprintf(cmd, sizeof(cmd), "-m connmark --mark 2 -j QUEUE");
-        if (process_rule(debuglvl, conf, ruleset, ipv, TB_FILTER, CH_NEWQUEUE, cmd, 0, 0) < 0)
-            retval = -1;
-    } else {
-        vrmr_info("Info", "NEWQUEUE target not setup. QUEUE-target "
-                "not supported by system.");
-    }
-
-    return (retval);
-}
-
 static int pre_rules_nfqueue(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *ruleset,
         struct vrmr_iptcaps *iptcap, int ipv)
 {
@@ -4276,13 +4147,6 @@ pre_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/RuleSet *rules
         retval = -1;
 #ifdef IPV6_ENABLED
     if (create_interface_tcpmss_rules(debuglvl, conf, ruleset, interfaces, iptcap, VRMR_IPV6) < 0)
-        retval = -1;
-#endif
-
-    if (pre_rules_newqueue(debuglvl, conf, ruleset, iptcap, VRMR_IPV4) < 0)
-        retval = -1;
-#ifdef IPV6_ENABLED
-    if (pre_rules_newqueue(debuglvl, conf, ruleset, iptcap, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
