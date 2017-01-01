@@ -88,7 +88,6 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     struct tcphdr *tcph;
     struct udphdr *udph;
     struct icmphdr *icmph;
-    struct iphdr *iph;
     char *prefix;
     char *payload;
     int payload_len;
@@ -192,10 +191,11 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                 /* we tried, but failed */
                 break;
             case ETH_P_IP:
+            {
                 if (payload_len < (int)sizeof(struct iphdr))
                     break;
 
-                iph = (struct iphdr *)payload;
+                struct iphdr *iph = (struct iphdr *)payload;
                 protoh = (uint32_t *)iph + iph->ihl;
                 log_record->protocol = iph->protocol;
                 log_record->packet_len = ntohs(iph->tot_len) - iph->ihl * 4;
@@ -230,6 +230,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                         "%u.%u.%u.%u", ip.a[0], ip.a[1], ip.a[2], ip.a[3]);
                 log_record->ttl = iph->ttl;
                 break;
+            }
             case ETH_P_IPV6:
             {
 #ifdef IPV6_ENABLED
