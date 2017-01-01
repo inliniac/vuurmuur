@@ -223,152 +223,6 @@ iptcap_check_file(const int debuglvl, char *path)
 
 
 static int
-iptcap_get_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
-{
-    char    proc_net_ipqueue[] = "/proc/net/ip_queue",
-            line[128] = "",
-            pid_number[16] = "";
-    FILE    *fp = NULL;
-    int     i = 0,
-            k = 0;
-    char    copy_now = 0;
-
-    /* safety */
-    if(iptcap == NULL)
-    {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-            __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    /* open the file */
-    if(!(fp = fopen(proc_net_ipqueue, "r")))
-    {
-        vrmr_error(-1, "Error", "opening file '%s' failed: %s (in: %s:%d).",
-            proc_net_ipqueue, strerror(errno), __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    /* get the first line */
-    if(fgets(line, (int)sizeof(line), fp) == NULL)
-    {
-        vrmr_error(-1, "Error", "reading line from ip_queue failed (in: %s:%d).",
-            __FUNC__, __LINE__);
-
-        fclose(fp);
-        return(-1);
-    }
-    /* strip newline */
-    if(line[strlen(line)-1] == '\n')
-        line[strlen(line)-1] = '\0';
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "line '%s'.", line);
-
-    /* interpret the line */
-    for(i = 0, k = 0; i < (int)strlen(line); i++)
-    {
-        if(copy_now)
-        {
-            pid_number[k] = line[i];
-
-            k++;
-        }
-
-        if(line[i] == ':')
-            copy_now = 1;
-    }
-    /* term */
-    pid_number[k] = '\0';
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "pid_number '%s'.", pid_number);
-
-    /* convert */
-    iptcap->queue_peer_pid = atoi(pid_number);
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "pid '%u'.", iptcap->queue_peer_pid);
-
-    fclose(fp);
-
-    return(0);
-}
-
-static int
-iptcap_get_ip6_queue_peer_pid(const int debuglvl, struct vrmr_iptcaps *iptcap)
-{
-    char    proc_net_ip6queue[] = "/proc/net/ip6_queue",
-            line[128] = "",
-            pid_number[16] = "";
-    FILE    *fp = NULL;
-    int     i = 0,
-            k = 0;
-    char    copy_now = 0;
-
-    /* safety */
-    if(iptcap == NULL)
-    {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
-            __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    /* open the file */
-    if(!(fp = fopen(proc_net_ip6queue, "r")))
-    {
-        vrmr_error(-1, "Error", "opening file '%s' failed: %s (in: %s:%d).",
-            proc_net_ip6queue, strerror(errno), __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    /* get the first line */
-    if(fgets(line, (int)sizeof(line), fp) == NULL)
-    {
-        vrmr_error(-1, "Error", "reading line from ip6_queue failed (in: %s:%d).",
-            __FUNC__, __LINE__);
-
-        fclose(fp);
-        return(-1);
-    }
-    /* strip newline */
-    if(line[strlen(line)-1] == '\n')
-        line[strlen(line)-1] = '\0';
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "line '%s'.", line);
-
-    /* interpret the line */
-    for(i = 0, k = 0; i < (int)strlen(line); i++)
-    {
-        if(copy_now)
-        {
-            pid_number[k] = line[i];
-
-            k++;
-        }
-
-        if(line[i] == ':')
-            copy_now = 1;
-    }
-    /* term */
-    pid_number[k] = '\0';
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "pid_number '%s'.", pid_number);
-
-    /* convert */
-    iptcap->ip6_queue_peer_pid = atoi(pid_number);
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "pid '%u'.", iptcap->ip6_queue_peer_pid);
-
-    fclose(fp);
-
-    return(0);
-}
-
-static int
 iptcap_create_test_mangle_chain(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     char *args[] = { ipt_loc, "-t", "mangle", "-N", "VRMRIPTCAP", NULL };
@@ -872,11 +726,6 @@ vrmr_check_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
         return(-1);
     }
 
-    if(iptcap->target_queue == TRUE && iptcap->queue_peer_pid == 0)
-    {
-        vrmr_warning("Warning", "no application is currently listening to the queue. Queue rules may be uneffective.");
-    }
-
     return(0);
 }
 
@@ -907,7 +756,6 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
     char    proc_net_match[]    = "/proc/net/ip_tables_matches",
             proc_net_target[]   = "/proc/net/ip_tables_targets",
             proc_net_names[]    = "/proc/net/ip_tables_names",
-            proc_net_ipqueue[]  = "/proc/net/ip_queue",
             proc_net_netfilter_nfnetlink_queue[] = "/proc/net/netfilter/nfnetlink_queue",
             proc_net_ipconntrack[]  = VRMR_PROC_IPCONNTRACK,
             proc_net_nfconntrack[]  = VRMR_PROC_NFCONNTRACK;
@@ -1074,41 +922,6 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
         }
     }
 
-
-    /* check for the QUEUE */
-    if(!(iptcap_check_file(debuglvl, proc_net_ipqueue)))
-    {
-        if(load_modules == TRUE)
-        {
-            /* try to load the module, if it fails, return 0 */
-            (void)iptcap_load_module(debuglvl, cnf, "ip_queue");
-
-            /* check again */
-            if(!(iptcap_check_file(debuglvl, proc_net_ipqueue)))
-                iptcap->target_queue = 0;
-            else
-            {
-                iptcap->target_queue = TRUE;
-
-                if(iptcap_get_queue_peer_pid(debuglvl, iptcap) < 0)
-                {
-                    vrmr_error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
-            }
-
-        }
-    }
-    else
-    {
-        iptcap->target_queue = TRUE;
-
-        if(iptcap_get_queue_peer_pid(debuglvl, iptcap) < 0)
-        {
-            vrmr_error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
-    }
 
     /* check for the /proc/net/netfilter/nfnetlink_queue */
     if(!(iptcap_check_file(debuglvl, proc_net_netfilter_nfnetlink_queue)))
@@ -1565,11 +1378,6 @@ vrmr_check_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_ipt
         return(-1);
     }
 
-    if(iptcap->target_ip6_queue == TRUE && iptcap->ip6_queue_peer_pid == 0)
-    {
-        vrmr_warning("Warning", "no application is currently listening to the queue. Queue rules may be uneffective.");
-    }
-
     return(0);
 }
 
@@ -1578,8 +1386,7 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
 {
     char    proc_net_ip6_match[] = "/proc/net/ip6_tables_matches",
             proc_net_ip6_target[] = "/proc/net/ip6_tables_targets",
-            proc_net_ip6_names[] = "/proc/net/ip6_tables_names",
-            proc_net_ip6queue[] = "/proc/net/ip6_queue";
+            proc_net_ip6_names[] = "/proc/net/ip6_tables_names";
 /*
             proc_net_netfilter_nfnetlink_queue[] = "/proc/net/netfilter/nfnetlink_queue",
             proc_net_ipconntrack[]  = VRMR_PROC_IPCONNTRACK,
@@ -1747,41 +1554,6 @@ vrmr_load_ip6tcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptc
         }
     }
 #endif
-
-    /* check for the QUEUE */
-    if(!(iptcap_check_file(debuglvl, proc_net_ip6queue)))
-    {
-        if(load_modules == TRUE)
-        {
-            /* try to load the module, if it fails, return 0 */
-            (void)iptcap_load_module(debuglvl, cnf, "ip6_queue");
-
-            /* check again */
-            if(!(iptcap_check_file(debuglvl, proc_net_ip6queue)))
-                iptcap->target_queue = 0;
-            else
-            {
-                iptcap->target_queue = TRUE;
-
-                if(iptcap_get_ip6_queue_peer_pid(debuglvl, iptcap) < 0)
-                {
-                    vrmr_error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
-            }
-
-        }
-    }
-    else
-    {
-        iptcap->target_queue = TRUE;
-
-        if(iptcap_get_ip6_queue_peer_pid(debuglvl, iptcap) < 0)
-        {
-            vrmr_error(-1, "Error", "getting queue peer pid failed (in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
-    }
 
 #if 0
     /* check for the /proc/net/netfilter/nfnetlink_queue */

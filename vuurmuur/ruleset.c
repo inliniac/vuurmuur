@@ -1086,18 +1086,6 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
             snprintf(cmd, sizeof(cmd), "%s\n", rule);
             ruleset_writeprint(ruleset_fd, cmd);
         }
-        /* newqueue */
-        for(d_node = ruleset->filter_newqueuetarget.top; d_node; d_node = d_node->next)
-        {
-            if(!(rule = d_node->data))
-            {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
-
-            snprintf(cmd, sizeof(cmd), "%s\n", rule);
-            ruleset_writeprint(ruleset_fd, cmd);
-        }
         /* newnfqueue */
         for(d_node = ruleset->filter_newnfqueuetarget.top; d_node; d_node = d_node->next)
         {

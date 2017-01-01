@@ -573,8 +573,6 @@ struct vrmr_rule_options {
     /* redirect */
     int             redirectport;
 
-    /* portfw and redirect: queue instead of accept: 1: queue, 0: accept */
-    char            queue;
     /* portfw and redirect: create only a firewall rule for this interface. */
     char            in_int[VRMR_MAX_INTERFACE];
     /* snat: select an outgoing interface */
@@ -1022,9 +1020,6 @@ struct vrmr_iptcaps {
     char    target_masquerade;
     char    target_classify;
 
-    char    target_queue;
-    pid_t   queue_peer_pid;
-
     char    target_nfqueue;
     char    target_connmark;
     char    proc_net_netfilter_nfnetlink_queue;
@@ -1067,9 +1062,6 @@ struct vrmr_iptcaps {
     char    target_ip6_log;
     char    target_ip6_mark;
     char    target_ip6_classify;
-
-    char    target_ip6_queue;
-    pid_t   ip6_queue_peer_pid;
 
     char    target_ip6_nfqueue;
     char    target_ip6_connmark;
@@ -1270,7 +1262,7 @@ enum vrmr_conf_return_codes {
 
 
 /*  Valid actions are: "Accept", "Drop", "Reject", "Log",
-    "Portfw", "Redirect", "Snat", "Masq", "Queue", "Chain",
+    "Portfw", "Redirect", "Snat", "Masq", "Chain",
     "NFQueue", "NFlog"
 */
 enum vrmr_actiontypes {
@@ -1283,7 +1275,6 @@ enum vrmr_actiontypes {
     VRMR_AT_REDIRECT,    /* REDIRECT+ACCEPT( or QUEUE) */
     VRMR_AT_SNAT,        /* SNAT */
     VRMR_AT_MASQ,        /* MASQUERADE */
-    VRMR_AT_QUEUE,       /* QUEUE */
     VRMR_AT_CHAIN,       /* custom chain */
     VRMR_AT_DNAT,        /* DNAT */
     VRMR_AT_BOUNCE,      /* DNAT+SNAT */
