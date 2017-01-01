@@ -870,23 +870,22 @@ struct vrmr_filter {
 
 };
 
-#ifndef _NETINET_TCP_H
+
 /* connection status from conntrack */
 enum vrmr_tcp_states {
-    UNDEFINED=0,
-    TCP_ESTABLISHED,
-    UDP_ESTABLISHED,
-    SYN_SENT,
-    SYN_RECV,
-    FIN_WAIT,
-    TIME_WAIT,
-    CLOSE,
-    CLOSE_WAIT,
-    LAST_ACK,
-    UNREPLIED,
-    NONE,
+    VRMR_STATE_UNDEFINED=0,
+    VRMR_STATE_TCP_ESTABLISHED,
+    VRMR_STATE_UDP_ESTABLISHED,
+    VRMR_STATE_SYN_SENT,
+    VRMR_STATE_SYN_RECV,
+    VRMR_STATE_FIN_WAIT,
+    VRMR_STATE_TIME_WAIT,
+    VRMR_STATE_CLOSE,
+    VRMR_STATE_CLOSE_WAIT,
+    VRMR_STATE_LAST_ACK,
+    VRMR_STATE_UNREPLIED,
+    VRMR_STATE_NONE,
 };
-#endif
 
 /* simplified connection status in vuurmuur */
 enum
