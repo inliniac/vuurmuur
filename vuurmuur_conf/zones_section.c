@@ -6957,6 +6957,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
                         STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
 
                     changes = TRUE;
+                    free(new_ipaddress);
                     new_ipaddress = NULL;
                 }
             }
@@ -7014,10 +7015,11 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
             zone_choices[i] = NULL;
 
             /* get the zone */
-            if((choice_ptr = selectbox(gettext("Select"), gettext("Select a host or group to block"), i, zone_choices, 2, NULL)))
+            char *hostgroup = NULL;
+            if((hostgroup = selectbox(gettext("Select"), gettext("Select a host or group to block"), i, zone_choices, 2, NULL)))
             {
                 /* add to list */
-                if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, choice_ptr) < 0)
+                if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, hostgroup) < 0)
                 {
                     vrmr_error(-1, VR_ERR, gettext("adding host/group to list failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -7025,13 +7027,14 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
 
                 if(choice_type == VRMR_TYPE_HOST)
                     vrmr_audit("%s '%s' %s.",
-                        STR_HOST, choice_ptr,
+                        STR_HOST, hostgroup,
                         STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
                 else
                     vrmr_audit("%s '%s' %s.",
-                        STR_GROUP, choice_ptr,
+                        STR_GROUP, hostgroup,
                         STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
 
+                free(hostgroup);
                 changes = TRUE;
             }
 

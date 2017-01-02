@@ -1402,7 +1402,7 @@ void vrmr_zonedata_print_list(const struct vrmr_zones *);
 int vrmr_init_zonedata(const int, struct vrmr_ctx *, /*@out@*/ struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
 int vrmr_insert_zonedata(const int, struct vrmr_ctx *, struct vrmr_zones *, struct vrmr_interfaces *, char *, int, struct vrmr_regex *);
 int vrmr_read_zonedata(const int, struct vrmr_ctx *, struct vrmr_zones *, struct vrmr_interfaces *, char *, int, struct vrmr_zone *, struct vrmr_regex *);
-void *vrmr_search_zonedata(const int, const struct vrmr_zones *, char *);
+void *vrmr_search_zonedata(const int, const struct vrmr_zones *, const char *);
 void vrmr_destroy_zonedatalist(const int, struct vrmr_zones *);
 int vrmr_count_zones(const int, struct vrmr_zones *, int, char *, char *);
 int vrmr_new_zone(const int, struct vrmr_ctx *, struct vrmr_zones *, char *, int);
@@ -1458,7 +1458,7 @@ char *vrmr_list_to_portopts(const int, struct vrmr_list *, /*@null@*/char *);
 int vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *);
 int vrmr_check_active(const int debuglvl, struct vrmr_ctx *, char *data, int type);
 int vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t size);
-int vrmr_check_ipv4address(const int debuglvl, char *network, char *netmask, char *ipaddress, char quiet);
+int vrmr_check_ipv4address(const int debuglvl, const char *network, const char *netmask, const char *ipaddress, char quiet);
 int vrmr_get_mac_address(const int debuglvl, struct vrmr_ctx *, char *hostname, char *answer_ptr, size_t size, regex_t *mac_rgx);
 int vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr_danger_info *danger_struct);
 char *vrmr_get_network_for_ipv4(const int debuglvl, const char *ipaddress, struct vrmr_list *zonelist);
@@ -1500,7 +1500,7 @@ char *vrmr_rules_itoaction_cap(const int);
 /*
     blocklist
 */
-int vrmr_blocklist_add_one(const int, struct vrmr_zones *, struct vrmr_blocklist *, char, char, char *);
+int vrmr_blocklist_add_one(const int, struct vrmr_zones *, struct vrmr_blocklist *, char, char, const char *);
 int vrmr_blocklist_rem_one(const int, struct vrmr_zones *, struct vrmr_blocklist *, char *);
 int vrmr_blocklist_init_list(const int, struct vrmr_ctx *, struct vrmr_config *cfg, struct vrmr_zones *, struct vrmr_blocklist *, char, char);
 int vrmr_blocklist_save_list(const int, struct vrmr_ctx *, struct vrmr_config *cfg, struct vrmr_blocklist *);
