@@ -2244,6 +2244,10 @@ int vrmr_init(struct vrmr_ctx *ctx, char *toolname) {
     return(0);
 }
 
+void vrmr_deinit(struct vrmr_ctx *ctx) {
+    (void)vrmr_regex_setup(0, &ctx->reg);
+}
+
 void vrmr_enable_logprint(struct vrmr_config *cnf) {
     vrprint.error = vrmr_logprint_error;
     vrprint.warning = vrmr_logprint_warning;
