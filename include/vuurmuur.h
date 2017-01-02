@@ -1389,7 +1389,7 @@ void *vrmr_search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddre
 /*
     query.c
 */
-int vrmr_rules_remove_rule_from_list(const int, struct vrmr_rules *, unsigned int, int);
+struct vrmr_rule *vrmr_rules_remove_rule_from_list(const int, struct vrmr_rules *, unsigned int, int);
 void vrmr_rules_update_numbers(const int, struct vrmr_rules *, unsigned int place, int);
 void vrmr_rules_print_list(const struct vrmr_rules *);
 void vrmr_rules_free_options(const int debuglvl, struct vrmr_rule_options *opt);
