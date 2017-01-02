@@ -27,7 +27,7 @@
         -1: error
 */
 static int
-blocklist_add_ip_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, char *ip)
+blocklist_add_ip_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, const char *ip)
 {
     size_t  len = 0;
     char    *ipaddress = NULL;
@@ -79,7 +79,7 @@ blocklist_add_ip_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, c
 
 
 static int
-blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, char *str)
+blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, const char *str)
 {
     size_t  len = 0;
     char    *string = NULL;
@@ -135,7 +135,7 @@ blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklis
     we reload in vuurmuur.
 */
 int
-vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt, char *line)
+vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt, const char *line)
 {
     struct vrmr_zone    *zone_ptr = NULL,
                 *member_ptr = NULL;
@@ -452,7 +452,6 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
     int         result = 0;
     size_t      len = 0;
     char        value[128] = "";
-    char        block_keyw[6] = "";
     char        rule_name[32] = "";
     int         type = 0;
     char        blocklist_found = FALSE;
@@ -524,30 +523,24 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
         while ((vctx->rf->ask(debuglvl, vctx->rule_backend, "blocklist", "RULE", line, sizeof(line), VRMR_TYPE_RULE, 1)) == 1)
         {
             len = strlen(line);
-            if(len > 0 && line[0] != '#')
+            if (len == 0 || line[0] == '#')
+                continue;
+
+            /* cut of the newline */
+            if (line[len - 1] == '\n')
+                line[len - 1] = '\0';
+
+            if (strncmp(line, "block", 5) == 0)
             {
-                /* cut of the newline */
-                if(line[len - 1] == '\n')
-                    line[len - 1] = '\0';
-
-                sscanf(line, "%6s", block_keyw);
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "line '%s', keyword '%s'",
-                        line, block_keyw);
-
-                if(strcmp(block_keyw, "block") == 0)
+                sscanf(line, "block %120s", value);
+                if(strlen(value) > 0)
                 {
-                    sscanf(line, "block %128s", value);
-                    if(strlen(value) > 0)
+                    /* add it to the list */
+                    if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, load_ips, no_refcnt, value) < 0)
                     {
-                        /* add it to the list */
-                        if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, load_ips, no_refcnt, value) < 0)
-                        {
-                            vrmr_error(-1, "Error", "adding to the blocklist failed (in: %s:%d).",
+                        vrmr_error(-1, "Error", "adding to the blocklist failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
-                            return(-1);
-                        }
+                        return(-1);
                     }
                 }
             }
