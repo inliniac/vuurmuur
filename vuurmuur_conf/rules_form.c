@@ -84,6 +84,8 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
                 ITEM *cur = current_item(menu->m);
                 if(cur != NULL)
                 {
+                    if (r)
+                        free(r);
                     r = strdup((char *)item_name(cur));
                     //vrmr_debug(__FUNC__, "r %s", r);
                     quit = TRUE;

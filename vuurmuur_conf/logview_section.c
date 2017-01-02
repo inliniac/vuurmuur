@@ -88,7 +88,7 @@ logline2logrule(char *logline, struct LogRule_ *logrule)
         }
     }
     /* terminate the string. If the last char is a white-space remove it. */
-    if(logrule->prefix[x-1] == ' ')
+    if(x && logrule->prefix[x-1] == ' ')
         logrule->prefix[x-1] = '\0';
     else
         logrule->prefix[x] = '\0';
