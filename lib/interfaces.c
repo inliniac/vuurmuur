@@ -1384,7 +1384,7 @@ vrmr_get_iface_stats(    const int debuglvl,
                 NOTE: if you change the length of the interface, also change it in
                 sscanf!!!!
             */
-            interface[32] = "",
+            interface[33] = "",
             recv_byte_str[32] = "";
 
     int     copy_bytes = 0,
