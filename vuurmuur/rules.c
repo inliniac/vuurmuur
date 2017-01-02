@@ -893,7 +893,7 @@ rulecreate_create_rule_and_options(const int debuglvl, struct vrmr_config *conf,
     memset(rule->limit, 0, sizeof(rule->limit));
 
     /* get the first part of the action, because action can be like this: REJECT --reject-type icmp-adm.... */
-    sscanf(create->action, "%64s", action);
+    sscanf(create->action, "%63s", action);
 
     if (rule->ipv == VRMR_IPV4) {
         (void)strlcpy(rule->from_ip, rule->ipv4_from.ipaddress, sizeof(rule->from_ip));

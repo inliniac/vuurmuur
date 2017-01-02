@@ -208,7 +208,7 @@ vrmr_check_pidfile(char *pidfile_location, char *service, pid_t *thepid)
     FILE    *fp;
     pid_t   pid;
     char    pid_char[32],
-            pid_small[16];
+            pid_small[17];
 
     if(!pidfile_location)
         return(-1);
