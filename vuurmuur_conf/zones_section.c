@@ -3842,6 +3842,8 @@ edit_zone_network_interfaces_destroy(void)
     free(ZonesSection.EditZoneInt.items);
 
     del_panel(ZonesSection.EditZoneInt.panel[0]);
+    del_panel(ZonesSection.EditZoneInt.panel_top[0]);
+    del_panel(ZonesSection.EditZoneInt.panel_bot[0]);
     destroy_win(ZonesSection.EditZoneInt.win);
     return(retval);
 }
@@ -5318,7 +5320,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
 
             (void)strlcpy(desc_ptr, temp, size);
 
-            if(vrmr_list_append(debuglvl, &ZonesSection.group_desc_list, desc_ptr)  == NULL)
+            if(vrmr_list_append(debuglvl, &ZonesSection.network_desc_list, desc_ptr)  == NULL)
             {
                 vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
