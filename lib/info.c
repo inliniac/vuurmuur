@@ -765,7 +765,7 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
         -1: error: no valid ip/net/mask
 */
 int
-vrmr_check_ipv4address(const int debuglvl, char *network, char *netmask, char *ipaddress, char quiet)
+vrmr_check_ipv4address(const int debuglvl, const char *network, const char *netmask, const char *ipaddress, char quiet)
 {
     int                 retval = 0;
 

@@ -535,7 +535,7 @@ vrmr_read_zonedata(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones 
     It returns the pointer or a NULL-pointer if not found.
 */
 void *
-vrmr_search_zonedata(const int debuglvl, const struct vrmr_zones *zones, char *name)
+vrmr_search_zonedata(const int debuglvl, const struct vrmr_zones *zones, const char *name)
 {
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_zone    *zonedata_ptr = NULL;
