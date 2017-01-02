@@ -906,6 +906,8 @@ main(int argc, char *argv[])
         Destroy the data structures
     */
 
+    vrmr_deinit(&vr_script.vctx);
+
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "** end **, return = %d", retval);
 
