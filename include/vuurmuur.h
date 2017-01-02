@@ -1565,6 +1565,7 @@ int vrmr_ask_configfile(const int debuglvl, const struct vrmr_config *, char *qu
 int vrmr_write_configfile(const int debuglvl, char *file_location, struct vrmr_config *cfg);
 
 int vrmr_init(struct vrmr_ctx *, char *toolname);
+void vrmr_deinit(struct vrmr_ctx *);
 void vrmr_enable_logprint(struct vrmr_config *cnf);
 int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx);
 int vrmr_create_log_hash(const int, struct vrmr_ctx *, struct vrmr_hash_table *, struct vrmr_hash_table *);
