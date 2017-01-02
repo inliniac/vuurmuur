@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VERSION="0.8rc2"
+
 # needs: file, sort, cat, zcat, grep
 
 LOGNAME="$1"
