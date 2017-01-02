@@ -8,9 +8,9 @@ AC_CONFIG_MACRO_DIR([m4])
 
 AC_USE_SYSTEM_EXTENSIONS
 
-AC_LANG_C
+AC_LANG([C])
 AC_PROG_CC
-AM_PROG_LIBTOOL
+LT_INIT
 
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION
@@ -372,10 +372,11 @@ AC_SUBST(LIBNETFILTER_CONNTRACK_LIBS)
 AC_SUBST(LIBNETFILTER_LOG_LIBS)
 AC_SUBST(NCURSES_LIBS)
 
-AC_OUTPUT(Makefile include/Makefile lib/Makefile lib/textdir/Makefile
+AC_CONFIG_FILES([Makefile include/Makefile lib/Makefile lib/textdir/Makefile
         vuurmuur/Makefile vuurmuur_log/Makefile vuurmuur_conf/Makefile
         po/Makefile.in
         vuurmuur_script/Makefile scripts/Makefile services/Makefile
         config/Makefile man/Makefile man/en/Makefile man/ru/Makefile
-        debian/Makefile help/Makefile doc/Makefile)
+        debian/Makefile help/Makefile doc/Makefile])
+AC_OUTPUT
 
