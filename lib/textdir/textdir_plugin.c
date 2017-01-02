@@ -1374,12 +1374,12 @@ static struct vrmr_plugin_data textdir_plugin = {
     .name = "textdir",
 };
 
-void __attribute__ ((constructor))
+void //__attribute__ ((constructor))
 textdir_init(void) {
     vrmr_plugin_register(&textdir_plugin);
 }
 
-void __attribute__ ((destructor))
+void //__attribute__ ((destructor))
 textdir_fini(void) {
     /* nothing to do */
 }
