@@ -14,18 +14,11 @@ libncurses5-dev
 First unpack the installer package with:
 gzip -cd Vuurmuur-0.8rc2.tar.gz | tar -xvf -
 
-After this run install.sh like this:
-'sh install.sh --unpack' this will unpack the archives.
+Then go to the vuurmuur directory and run: 'dpkg-buildpackage'
+If all goes well go back one directorylevel and you will see something
+like: 'vuurmuur_0.8~rc2-1_i386.deb'
 
-1. Then go to the libvuurmuur directory and run: 'dpkg-buildpackage'
-   If all goes well go back one directorylevel and you will see something
-   like: 'libvuurmuur_0.8~rc2-1_i386.deb'
-2. Now install this deb using 'dpkg --install libvuurmuur_0.8~rc2-1_i386.deb'.
-   Do this now because the other packages will depend on this one.
-
-Repeat the above two steps for the other packages (in order):
-vuurmuur
-vuurmuur-conf
+Now install this deb using 'dpkg --install vuurmuur_0.8~rc2-1_i386.deb'.
 
 Done!
 
