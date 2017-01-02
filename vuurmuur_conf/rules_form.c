@@ -479,7 +479,6 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     struct vrmr_rule    *rule_ptr = NULL;
     struct vrmr_list_node         *d_node = NULL;
 
-
     /* safety */
     if(!rules)
     {
@@ -500,35 +499,19 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     else if(new_place <= 0)
         new_place = 1;
 
-
-    for(d_node = rules->list.top; d_node ; d_node = d_node->next)
-    {
-        if(!(rule_ptr = d_node->data))
-        {
-            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
-
-        if(rule_ptr->number == rule_num)
-            break;
-    }
+    rule_ptr = vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1);
     if (rule_ptr == NULL)
         return(-1);
 
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "rule_ptr found: i: %d (rule_ptr: %s %s %s %s)", i, vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service, rule_ptr->from, rule_ptr->to);
 
-//TODO
-    vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1);
-
     rule_ptr->number = new_place;
-    
+
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "new_place: %d, rule_ptr->number: %d", new_place, rule_ptr->number);
 
-//TODO
     vrmr_rules_insert_list(debuglvl, rules, new_place, rule_ptr);
-
 
     if(debuglvl >= LOW)
         vrmr_rules_print_list(rules);
@@ -824,31 +807,20 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_config *conf, struct
     result = edit_rule(debuglvl, conf, rules, zones, interfaces, services, rule_num, reg);
     if(result < 0)
     {
-        for(d_node = rules->list.top; d_node ; d_node = d_node->next)
+        /* editting failed so remove the rule again */
+        rule_ptr = vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1);
+        if (rule_ptr == NULL)
         {
-            if(!(rule_ptr = d_node->data))
-            {
-                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
-
-            if(rule_ptr->number == rule_num)
-                break;
+            vrmr_error(-1, VR_INTERR, "removing rule failed "
+                    "(in: %s:%d).", __FUNC__, __LINE__);
+            return(-1);
         }
-        if (rule_ptr != NULL) {
-            /* editting failed so remove the rule again */
-            if(vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1) < 0)
-            {
-                vrmr_error(-1, VR_INTERR, "removing rule failed "
-                        "(in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
 
-            vrmr_rules_free_options(debuglvl, rule_ptr->opt);
-            rule_ptr->opt = NULL;
-            free(rule_ptr);
-            rule_ptr = NULL;
-        }
+        vrmr_rules_free_options(debuglvl, rule_ptr->opt);
+        rule_ptr->opt = NULL;
+        free(rule_ptr);
+        rule_ptr = NULL;
+
         retval = -1;
     }
     else if(result == 1)
@@ -2084,11 +2056,16 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                     if(edit_rule(debuglvl, &vctx->conf, rules, zones, interfaces, services, insert_rule_num, reg) < 0)
                     {
                         /* editting failed so remove the rule again */
-                        if(vrmr_rules_remove_rule_from_list(debuglvl, rules, insert_rule_num, 1) < 0)
+                        rule_ptr = vrmr_rules_remove_rule_from_list(debuglvl, rules, insert_rule_num, 1);
+                        if (!rule_ptr)
                         {
                             vrmr_error(-1, VR_INTERR, "removing rule failed (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
                         }
+                        vrmr_rules_free_options(debuglvl, rule_ptr->opt);
+                        rule_ptr->opt = NULL;
+                        free(rule_ptr);
+                        rule_ptr = NULL;
                     }
                     else
                     {
@@ -2419,23 +2396,9 @@ delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
 
     if(remove_rule == 1)
     {
-        for(d_node = rules->list.top; d_node ; d_node = d_node->next)
-        {
-            if(!(rule_ptr = d_node->data))
-            {
-                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
-
-            if(rule_ptr->number == rule_num)
-                break;
-        }
-        if (rule_ptr == NULL) {
-            return(-1);
-        }
-
         /* editting failed so remove the rule again */
-        if(vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1) < 0)
+        rule_ptr = vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1);
+        if (!rule_ptr)
         {
             vrmr_error(-1, VR_INTERR, "removing rule failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);

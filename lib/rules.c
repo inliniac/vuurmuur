@@ -3878,19 +3878,18 @@ vrmr_rules_determine_ruletype(const int debuglvl, struct vrmr_rule *rule_ptr)
 
     Remove a rule from the list.
 */
-int
+struct vrmr_rule *
 vrmr_rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, unsigned int place, int updatenumbers)
 {
-    struct vrmr_rule    *rule_ptr = NULL;
-    struct vrmr_list_node         *d_node = NULL;
-
+    struct vrmr_rule *rule_ptr = NULL;
+    struct vrmr_list_node *d_node = NULL;
 
     /* safety */
     if(rules == NULL)
     {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
-        return(-1);
+        return(NULL);
     }
 
     if(debuglvl >= LOW)
@@ -3899,64 +3898,55 @@ vrmr_rules_remove_rule_from_list(const int debuglvl, struct vrmr_rules *rules, u
     for(d_node = rules->list.top; d_node ; d_node = d_node->next)
     {
         if(!(rule_ptr = d_node->data))
-        {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
-        }
+            continue;
 
         if(debuglvl >= HIGH)
             vrmr_debug(__FUNC__, "rule_ptr->number: %d, place: %d", rule_ptr->number, place);
 
         if(rule_ptr->number != place)
+            continue;
+
+        if(debuglvl >= HIGH)
+            vrmr_debug(__FUNC__, "now we have to remove (query_ptr->number: %d, place: %d)", rule_ptr->number, place);
+
+        if(vrmr_list_node_is_bot(debuglvl, d_node))
         {
-            //fprintf(stdout, "do nothing\n");
+            if(debuglvl >= HIGH)
+                vrmr_debug(__FUNC__, "removing last entry");
+
+            if(vrmr_list_remove_bot(debuglvl, &rules->list) < 0)
+            {
+                vrmr_error(-1, "Internal Error", "vrmr_list_remove_bot() failed (in: %s:%d).",
+                        __FUNC__, __LINE__);
+                return(NULL);
+            }
         }
         else
         {
             if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "now we have to remove (query_ptr->number: %d, place: %d)", rule_ptr->number, place);
+                vrmr_debug(__FUNC__, "removing normal entry");
 
-            if(vrmr_list_node_is_bot(debuglvl, d_node))
+            if(vrmr_list_remove_node(debuglvl, &rules->list, d_node) < 0)
             {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "removing last entry");
-
-                if(vrmr_list_remove_bot(debuglvl, &rules->list) < 0)
-                {
-                    vrmr_error(-1, "Internal Error", "vrmr_list_remove_bot() failed (in: %s:%d).",
-                            __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-            }
-            else
-            {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "removing normal entry");
-
-                if(vrmr_list_remove_node(debuglvl, &rules->list, d_node) < 0)
-                {
-                    vrmr_error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
-                            __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-                if(updatenumbers == 1)
-                {
-                    if(debuglvl >= HIGH)
-                        vrmr_debug(__FUNC__, "updatenumbers: %d, %d", place, 0);
-
-                    vrmr_rules_update_numbers(debuglvl, rules, place, 0);
-                }
+                vrmr_error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
+                        __FUNC__, __LINE__);
+                return(NULL);
             }
 
-            /* we only remove one rule at a time */
-            break;
+            if(updatenumbers == 1)
+            {
+                if(debuglvl >= HIGH)
+                    vrmr_debug(__FUNC__, "updatenumbers: %d, %d", place, 0);
+
+                vrmr_rules_update_numbers(debuglvl, rules, place, 0);
+            }
         }
+
+        /* we only remove one rule at a time */
+        return(rule_ptr);
     }
 
-    return(0);
+    return(NULL);
 }
 
 
