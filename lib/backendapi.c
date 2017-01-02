@@ -44,7 +44,7 @@ vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
     memset(plugin, 0x00, sizeof(*plugin));
 
     plugin->f = plugin_data;
-    plugin->ref_cnt = 1;
+    plugin->ref_cnt = 0;
 
     /* store the name of the plugin */
     if (strlcpy(plugin->name, plugin_data->name, sizeof(plugin->name)) >= sizeof(plugin->name))
@@ -168,29 +168,25 @@ unload_plugin(const int debuglvl, struct vrmr_list *plugin_list, char *plugin_na
     if(!plugin)
     {
         vrmr_warning("Warning", "it seems that the plugin '%s' is already unloaded, or was never loaded.", plugin_name);
+        return(0);
     }
+
     /* else decrement ref_cnt, and unload if the cnt is 0. */
-    else
+
+    /* decrement ref_cnt */
+    plugin->ref_cnt--;
+
+    /* set func_ptr to null */
+    *func_ptr = NULL;
+
+    /* if ref_cnt is zero, we unload the plugin */
+    if(plugin->ref_cnt == 0)
     {
-        /* decrement ref_cnt */
-        plugin->ref_cnt--;
-
-        /* set func_ptr to null */
-        *func_ptr = NULL;
-
-        /* if ref_cnt is zero, we unload the plugin */
-        if(plugin->ref_cnt == 0)
+        /* remove the plugindata from the list */
+        if(vrmr_list_remove_node(debuglvl, plugin_list, d_node) < 0)
         {
-            /* remove the plugindata from the list */
-            if(vrmr_list_remove_node(debuglvl, plugin_list, d_node) < 0)
-            {
-                vrmr_error(-1, "Internal Error", "removing plugin form list (in: %s).", __FUNC__);
-                return(-1);
-            }
-
-            /* finally free the memory */
-            free(plugin);
-            plugin = NULL;
+            vrmr_error(-1, "Internal Error", "removing plugin form list (in: %s).", __FUNC__);
+            return(-1);
         }
     }
 
