@@ -125,7 +125,7 @@ main(int argc, char *argv[])
 
     /*  close the STDERR_FILENO because it gives us annoying "Broken
         Pipe" errors on some systems with bash3. */
-    close(STDERR_FILENO);
+    //close(STDERR_FILENO);
 
     /* Process commandline options */
     while((optch = getopt_long(argc, argv, optstring, prog_opts,
