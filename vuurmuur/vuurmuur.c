@@ -831,6 +831,8 @@ main(int argc, char *argv[])
 
     vrmr_list_cleanup(debuglvl, &vctx.blocklist.list);
 
+    vrmr_deinit(&vctx);
+
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "** end **, return = %d", retval);
 
