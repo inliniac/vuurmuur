@@ -422,6 +422,7 @@ main(int argc, char *argv[])
     (void)vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
     (void)vrmr_rules_cleanup_list(debuglvl, &vctx.rules);
     (void)vrmr_destroy_interfaceslist(debuglvl, &vctx.interfaces);
+    vrmr_deinit(&vctx);
     return(retval);
 }
 
