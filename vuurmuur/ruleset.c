@@ -110,6 +110,8 @@ ruleset_setup(const int debuglvl, RuleSet *ruleset)
         return(-1);
     if(vrmr_list_setup(debuglvl, &ruleset->filter_udplimittarget, free) < 0)
         return(-1);
+    if(vrmr_list_setup(debuglvl, &ruleset->filter_newaccepttarget, free) < 0)
+        return(-1);
     /* NFQueue state */
     if(vrmr_list_setup(debuglvl, &ruleset->filter_newnfqueuetarget, free) < 0)
         return(-1);
@@ -185,6 +187,7 @@ ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
     vrmr_list_cleanup(debuglvl, &ruleset->filter_badtcp);
     vrmr_list_cleanup(debuglvl, &ruleset->filter_synlimittarget);
     vrmr_list_cleanup(debuglvl, &ruleset->filter_udplimittarget);
+    vrmr_list_cleanup(debuglvl, &ruleset->filter_newaccepttarget);
     vrmr_list_cleanup(debuglvl, &ruleset->filter_estrelnfqueuetarget);
     vrmr_list_cleanup(debuglvl, &ruleset->filter_newnfqueuetarget);
     vrmr_list_cleanup(debuglvl, &ruleset->filter_estrelnflogtarget);
