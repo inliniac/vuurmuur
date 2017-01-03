@@ -4993,7 +4993,7 @@ create_network_antispoof_rule(const int debuglvl, struct vrmr_config *conf, /*@n
 /*
     TODO: add some descriptions to each rule. What they do, etc.
 */
-int
+static int
 create_network_protect_rules_dhcp_server(   const int debuglvl,
                                             struct vrmr_config *conf,
                                             /*@null@*/RuleSet *ruleset,
@@ -5082,7 +5082,7 @@ create_network_protect_rules_dhcp_server(   const int debuglvl,
 /*
     TODO: add some descriptions to each rule. What they do, etc.
 */
-int
+static int
 create_network_protect_rules_dhcp_client(   const int debuglvl,
                                             struct vrmr_config *conf,
                                             /*@null@*/RuleSet *ruleset,
