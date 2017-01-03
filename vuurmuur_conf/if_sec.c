@@ -1578,11 +1578,11 @@ init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
                             width = 0,
                             startx = 0,
                             starty = 0;
-    char                    temp[32] = "",
+    char                    temp[32 + 4] = "",
                             *desc_ptr = NULL;
     size_t                  size = 0;
 
-    width = VRMR_MAX_INTERFACE + 32 + 4;
+    width = VRMR_MAX_INTERFACE + 32 + 4 + 4;
     startx = 1;
     starty = 4;
 
@@ -1610,9 +1610,13 @@ init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
         }
 
         if(iface_ptr->dynamic == FALSE)
-            snprintf(temp, sizeof(temp), "   %-6s  %s", iface_ptr->device, iface_ptr->ipv4.ipaddress);
+            snprintf(temp, sizeof(temp), "   %-12s  %s",
+                    iface_ptr->device, iface_ptr->ipv4.ipaddress[0] == '\0' ?
+                    "-" : iface_ptr->ipv4.ipaddress);
         else
-            snprintf(temp, sizeof(temp), "   %-6s  -", iface_ptr->device);
+            snprintf(temp, sizeof(temp), "   %-12s  %s (*)",
+                    iface_ptr->device, iface_ptr->ipv4.ipaddress[0] == '\0' ?
+                    "-" : iface_ptr->ipv4.ipaddress);
 
         size = StrMemLen(temp) + 1;
 
@@ -1696,6 +1700,7 @@ init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
     mvwprintw(InterfacesSection.win, height-4, 2, "<RET> %s", STR_EDIT);
     mvwprintw(InterfacesSection.win, height-3, 2, "<INS> %s", STR_NEW);
     mvwprintw(InterfacesSection.win, height-2, 2, "<DEL> %s", STR_REMOVE);
+    mvwprintw(InterfacesSection.win, height-4, 28, "(*) %s", gettext("interface IP is dynamic"));
 
     /* create the top and bottom fields */
     if(!(InterfacesSection.win_top = newwin(1, 6, starty + 2, width - 8)))
