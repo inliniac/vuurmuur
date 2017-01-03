@@ -290,7 +290,7 @@ iptcap_delete_test_filter_chain(const int debuglvl, struct vrmr_config *cnf, cha
     return 0;
 }
 
-int
+static int
 iptcap_test_filter_connmark_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
@@ -322,7 +322,7 @@ iptcap_test_filter_connmark_match(const int debuglvl, struct vrmr_config *cnf, c
     return retval;
 }
 
-int
+static int
 iptcap_test_filter_conntrack_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
@@ -389,7 +389,7 @@ iptcap_test_filter_rpfilter_match(const int debuglvl, struct vrmr_config *cnf, c
     return retval;
 }
 
-int
+static int
 iptcap_test_filter_connmark_target(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
@@ -417,7 +417,7 @@ iptcap_test_filter_connmark_target(const int debuglvl, struct vrmr_config *cnf, 
     return retval;
 }
 
-int
+static int
 iptcap_test_filter_helper_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
@@ -445,7 +445,7 @@ iptcap_test_filter_helper_match(const int debuglvl, struct vrmr_config *cnf, cha
     return retval;
 }
 
-int
+static int
 iptcap_test_filter_mark_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
@@ -473,7 +473,7 @@ iptcap_test_filter_mark_match(const int debuglvl, struct vrmr_config *cnf, char 
     return retval;
 }
 
-int
+static int
 iptcap_test_mangle_mark_target(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
@@ -501,7 +501,7 @@ iptcap_test_mangle_mark_target(const int debuglvl, struct vrmr_config *cnf, char
     return retval;
 }
 
-int
+static int
 iptcap_test_mangle_classify_target(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
@@ -529,7 +529,7 @@ iptcap_test_mangle_classify_target(const int debuglvl, struct vrmr_config *cnf, 
     return retval;
 }
 
-int
+static int
 iptcap_test_filter_mac_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
@@ -563,7 +563,7 @@ iptcap_test_filter_mac_match(const int debuglvl, struct vrmr_config *cnf, char *
  * \param[in] ipt_loc The full path to the ip[6]tables program. You should 
  *      cnf.iptables_location or cnf.ip6tables_location for this.
  */
-int
+static int
 iptcap_test_filter_limit_match(const int debuglvl, struct vrmr_config *cnf, char *ipt_loc)
 {
     int retval = 1;
@@ -628,7 +628,7 @@ iptcap_delete_test_nat_chain(const int debuglvl, struct vrmr_config *cnf) {
     return 0;
 }
 
-int
+static int
 iptcap_test_nat_random(const int debuglvl, struct vrmr_config *cnf) {
     int retval = 1;
 

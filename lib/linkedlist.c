@@ -155,7 +155,7 @@ vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_li
     }
 
     return(0);
-};
+}
 
 
 int
