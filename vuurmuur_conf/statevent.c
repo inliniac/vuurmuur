@@ -789,7 +789,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
     }
     VrWinSetTitle(win, title);
 
-    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win);
+    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win_rev);
     if(menu == NULL)
     {
         vrmr_error(-1, VR_ERR, "VrNewMenu failed");
@@ -1079,7 +1079,7 @@ statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cn
         return(0);
     }
 
-    win = VrNewWin(LINES - 6,COLS - 2,3,1,vccnf.color_win);
+    win = VrNewWin(LINES - 6,COLS - 2,3,1,vccnf.color_win_rev);
     if(win == NULL)
     {
         vrmr_error(-1, VR_ERR, "VrNewWin failed");
@@ -1091,7 +1091,7 @@ statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cn
             key_choices, cmd_choices_n, cmd_choices);
 
     menu = VrNewMenu(LINES - 8,COLS - 4,1,1,ctl->list.len,
-            vccnf.color_win,vccnf.color_win_rev);
+            vccnf.color_win_rev,vccnf.color_win);
     if(menu == NULL)
     {
         vrmr_error(-1, VR_ERR, "VrNewMenu failed");
