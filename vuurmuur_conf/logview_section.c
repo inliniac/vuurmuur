@@ -640,10 +640,10 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     FILE            *fp = NULL,
                     *traffic_fp = NULL,
                     *search_pipe = NULL;
-    
+
     size_t          linelen = 0;
     char            *line = NULL,
-            
+
                     *logfile = NULL,
 
                     /* infobar stuff */
@@ -690,16 +690,16 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             cur_logrule_length=0;
 
     struct vrmr_filter      vfilter;
-    
+
     int                     done = 0,
                             first_logline_done = 0,
                             filtered_lines = 0;
-            
+
     unsigned int            run_count = 0;
     int                     delta = 0;
     unsigned int            first_draw = 0;
     int                     drawn_lines = 0;
-    
+
     off_t                   logfile_size = 0;
     long                    logfile_fseek_offset = 0;
 
@@ -709,13 +709,13 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             search_completed = 0,
                             search_error = 0;
     unsigned long           search_results = 0;
-    
+
     char                    *search_ptr = NULL,
                             search_string[512] = "";
-            
+
     char                    search_script_checked = 0,
                             search_script_ok = 0;
-    
+
     /* is the current log the trafficlog? */
     char                    traffic_log = FALSE;
 
@@ -851,7 +851,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         vrmr_error(-1, VR_ERR, gettext("could not examine the logfile: %s."), strerror(errno));
         return(-1);
     }
-    
+
     logfile_size = stat_buf.st_size;
     logfile_fseek_offset = (int)max_buffer_size * READLINE_LEN * -1;
 
@@ -864,7 +864,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         vrmr_error(-1, VR_ERR, gettext("fseek failed: %s."), strerror(errno));
         return(-1);
     }
-    
+
     status_print(status_win, gettext("Loading loglines into memory (trying to load %u lines)..."), max_buffer_size);
 
     /* create a little wait dialog */
@@ -885,142 +885,137 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     mvwprintw(wait_win, 2, 4, gettext("Loading log ..."));
     update_panels();
     doupdate();
-    
+
     /*
-        load the initial rules
+        load the initial lines
     */
-    while(!done)
+    while (!done)
     {
         /* read line from log */
-        if(!(line = malloc(READLINE_LEN)))
-        {
+        if (!(line = malloc(READLINE_LEN))) {
             vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
             vrmr_list_cleanup(debuglvl, buffer_ptr);
             return(-1);
         }
 
-        if(fgets(line, READLINE_LEN, fp) != NULL)
-        {
-            linelen = StrMemLen(line);
-
-            /*  ignore the first line we read for it shall almost certainly be broken
-                because of fseek.
-            */
-            if(!first_logline_done)
-            {
-                first_logline_done = 1;
-                free(line);
-            }
-            /*
-                if the line doesn't end with a newline character we rewind and try again.
-            */
-            else if(linelen < READLINE_LEN-1 && line[linelen - 1] != '\n')
-            {
-                fseek(fp, (long)(StrMemLen(line)*-1), SEEK_CUR);
-                free(line);
-
-                /* done because we reached the end of the file which does not have a newline */
-                done = 1;
-            }
-            /*
-                insert the line into the buffer list
-            */
-            else
-            {
-                if(traffic_log)
-                {
-                    /* here we can analyse the rule */
-                    if(!(log_record = malloc(sizeof(struct LogRule_))))
-                    {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-                        return(-1);
-                    }
-
-                    /* start not filtered (was filtered) */
-                    log_record->filtered = 0;
-
-                    result = logline2logrule(line, log_record);
-                    if(result < 0)
-                    {
-                        free(log_record);
-                        free(line);
-    
-                        return(-1);
-                    }
-
-                    /* now insert the rule */
-                    if(vrmr_list_append(debuglvl, buffer_ptr, log_record)  == NULL)
-                    {
-                        vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
-                        return(-1);
-                    }
-
-                    /* if the bufferlist is full, remove the oldest item from it */
-                    if(buffer_ptr->len > max_buffer_size)
-                    {
-                        if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
-                        {
-                            vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
-                            return(-1);
-                        }
-                    }
-
-                    log_record = NULL;
-                    control.queue++;
-                }
-                else
-                {
-                    /* here we can analyse the rule */
-                    if(!(plainlog_record = malloc(sizeof(struct PlainLogRule_))))
-                    {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-                        return(-1);
-                    }
-
-                    /* start not filtered (was filtered) */
-                    plainlog_record->filtered = 0;
-
-                    result = logline2plainlogrule(line, plainlog_record);
-                    if(result < 0)
-                    {
-                        free(plainlog_record);
-                        free(line);
-    
-                        return(-1);
-                    }
-
-                    /* now insert the rule */
-                    if(vrmr_list_append(debuglvl, buffer_ptr, plainlog_record)  == NULL)
-                    {
-                        vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
-                        return(-1);
-                    }
-
-                    /* if the bufferlist is full, remove the oldest item from it */
-                    if(buffer_ptr->len > max_buffer_size)
-                    {
-                        if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
-                        {
-                            vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
-                            return(-1);
-                        }
-                    }
-
-                    plainlog_record = NULL;
-                    control.queue++;
-                }
-
-                /* free the line string, we don't need it anymore */
-                free(line);
-            }
-        }
-        else
+        if (fgets(line, READLINE_LEN, fp) == NULL)
         {
             /* free the alloced line */
             free(line);
-
             done = 1;
+            break;
         }
+
+        /*  ignore the first line we read for it shall almost certainly be broken
+            because of fseek. */
+        if (!first_logline_done) {
+            first_logline_done = 1;
+            free(line);
+            continue;
+        }
+
+        /*
+           if the line doesn't end with a newline character we rewind and try again.
+         */
+        linelen = StrMemLen(line);
+        if (linelen < READLINE_LEN-1 && line[linelen - 1] != '\n') {
+            fseek(fp, (long)(StrMemLen(line)*-1), SEEK_CUR);
+            free(line);
+
+            /* done because we reached the end of the file which does not have a newline */
+            done = 1;
+            break;
+        }
+
+        /*
+           insert the line into the buffer list
+         */
+        if(traffic_log)
+        {
+            /* here we can analyse the rule */
+            if(!(log_record = malloc(sizeof(struct LogRule_))))
+            {
+                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+                return(-1);
+            }
+
+            /* start not filtered (was filtered) */
+            log_record->filtered = 0;
+
+            result = logline2logrule(line, log_record);
+            if(result < 0)
+            {
+                free(log_record);
+                free(line);
+                return(-1);
+            }
+
+            /* now insert the rule */
+            if(vrmr_list_append(debuglvl, buffer_ptr, log_record)  == NULL)
+            {
+                vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
+                return(-1);
+            }
+
+            /* if the bufferlist is full, remove the oldest item from it */
+            if(buffer_ptr->len > max_buffer_size)
+            {
+                if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
+                {
+                    vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
+                    return(-1);
+                }
+            }
+
+            log_record = NULL;
+            control.queue++;
+        }
+        else
+        {
+            /* here we can analyse the rule */
+            if(!(plainlog_record = malloc(sizeof(struct PlainLogRule_))))
+            {
+                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+                return(-1);
+            }
+
+            /* start not filtered (was filtered) */
+            plainlog_record->filtered = 0;
+
+            result = logline2plainlogrule(line, plainlog_record);
+            if(result < 0)
+            {
+                free(plainlog_record);
+                free(line);
+                return(-1);
+            }
+
+            /* now insert the rule */
+            if(vrmr_list_append(debuglvl, buffer_ptr, plainlog_record)  == NULL)
+            {
+                vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
+                return(-1);
+            }
+
+            /* if the bufferlist is full, remove the oldest item from it */
+            if(buffer_ptr->len > max_buffer_size)
+            {
+                if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
+                {
+                    vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
+                    return(-1);
+                }
+            }
+
+            plainlog_record = NULL;
+            control.queue++;
+        }
+
+        /* free the line string, we don't need it anymore */
+        free(line);
+
+        if (buffer_ptr->len >= max_buffer_size)
+            break;
     }
 
     status_print(status_win, gettext("Loading loglines into memory... loaded %d lines."), buffer_ptr->len);
@@ -1065,7 +1060,6 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
     /* print initial banner */
     wprintw(log_win, gettext("Logview starting.\n"));
-//    wrefresh(log_win);
 
     /* make sure wgetch doesn't block */
     nodelay(log_win, TRUE);
@@ -1073,7 +1067,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
     update_panels();
     doupdate();
-    
+
     /* the main loop */
     while(quit == 0)
     {
@@ -1119,8 +1113,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                 if(search_completed)
                 {
                     /* if we bail out here it's because of an EOF or ERROR
-                       and we are not interested in the line. So free it.
-                    */
+                       and we are not interested in the line. So free it. */
                     free(line);
                     line = NULL;
                 }
@@ -1156,7 +1149,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     {
                         log_record->filtered = logrule_filtered(debuglvl, log_record, &vfilter);
                     }
-                    
+
                     /* now really insert the rule into the buffer */
                     if(vrmr_list_append(debuglvl, buffer_ptr, log_record)  == NULL)
                     {
@@ -1194,7 +1187,6 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     {
                         free(plainlog_record);
                         free(line);
-    
                         return(-1);
                     }
 
@@ -1229,8 +1221,8 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                 free(line);
             }
         }
-        /*  no rule read
-        
+        /*  no line read
+
             This means we have to sleep for a little while.
         */
         else
@@ -1243,7 +1235,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             control.sleep = 1;
 
             /* unless we still have a queue! */
-            if(control.queue > 0)
+            if (control.queue > 0)
                 control.print = 1;
         }
 
@@ -1260,12 +1252,12 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             /*  if the search is completed we have to do two things:
                 1. cleanup search stuff so we can return to normal logging
                 2. inform the user
-                
+
                 One thing is not done here: we don't clean the buffer and
                 we dont restore the bufferpointer to the LogBufferList
                 This is done only after the user disables the pause mode.
-                
-                The reason for this is that we want to be able to scroll 
+
+                The reason for this is that we want to be able to scroll
                 through the search results.
             */
             if(search_completed)
@@ -1293,11 +1285,6 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     status_print(status_win, gettext("Search ERROR. Press SPACE to return to normal logging."));
                     search_error = 0;
                 }
-//                else if(search_timedout)
-//                {
-//                    status_print(status_win, "Search timed out. Press SPACE to return to normal logging.");
-//                    search_timedout = 0;
-//                }
                 else
                 {
                     status_print(status_win, gettext("Search done: %lu matches. Press SPACE to return to normal logging."), search_results);
@@ -1305,17 +1292,17 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
                 /* pause to leave the results on screen */
                 control.pause = 1;
-                
+
                 /* finally free the search ptr */
                 free(search_ptr);
                 search_ptr = NULL;
-                
+
                 /* reset counter */
                 search_results = 0;
-            
+
                 /* clear for the infobar */
                 (void)strlcpy(search, "none", sizeof(search));
-                
+
                 /* hide the search panel */
                 draw_search(info_bar_panels[1], search_ib_win, search);
             }
@@ -1367,12 +1354,9 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             case 'F':
             case 10:
 
-                if(ch != 10)
-                {
+                if (ch != 10) {
                     filter_input_box(debuglvl, &vfilter);
-                }
-                else
-                {
+                } else {
                     vrmr_filter_cleanup(debuglvl, &vfilter);
                 }
 
@@ -1407,7 +1391,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     return(-1);
                 }
                 wait_panels[0] = new_panel(wait_win);
-    
+
                 mvwprintw(wait_win, 2, 2, gettext("Applying changed filter..."));
 
                 update_panels();
@@ -1423,12 +1407,9 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             return(-1);
                         }
 
-                        if(use_filter)
-                        {
+                        if (use_filter) {
                             log_record->filtered = logrule_filtered(debuglvl, log_record, &vfilter);
-                        }
-                        else
-                        {
+                        } else {
                             log_record->filtered = 0;
                         }
                     }
@@ -1440,24 +1421,20 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             return(-1);
                         }
 
-                        if(use_filter)
-                        {
+                        if(use_filter) {
                             plainlog_record->filtered = plainlogrule_filtered(debuglvl, plainlog_record->line, &vfilter);
-                        }
-                        else
-                        {
+                        } else {
                             plainlog_record->filtered = 0;
                         }
                     }
                 }
-                
+
                 /* destroy the wait dialog */
                 del_panel(wait_panels[0]);
                 destroy_win(wait_win);
 
                 control.print = 1;
                 offset = 0;
-                
                 break;
 
             /* clear the screen */
@@ -1495,7 +1472,6 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                 {
                     quit = 1;
                 }
-                
                 break;
 
             /* pause the logging or searching */
@@ -1512,9 +1488,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
                         /* restore buffer pointer */
                         buffer_ptr = &LogBufferList;
-                        
                         search_completed = 0;
-                        
                         control.print = 1;
                         control.pause = 0;
                     }
@@ -1523,22 +1497,21 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                         status_print(status_win, gettext("Continue viewing the log."));
                     else
                         status_print(status_win, gettext("Continue searching."));
-                    
+
                     control.pause = 0;
                 }
                 else
                 {
                     control.pause = 1;
                     control.sleep = 1;
-                    
+
                     /* search_mode has it's own way of letting the user know
                        that a search is paused. */
                     if(!search_mode)
                         status_print(status_win, gettext("*** PAUSED *** (press 'p' to continue)"));
                 }
-                
                 break;
-                
+
             case '1': /* one */
                 if(traffic_log == 1)
                 {
@@ -1557,7 +1530,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
-            
+
             case '2':
                 if(traffic_log == 1)
                 {
@@ -1671,10 +1644,10 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
-                
+
             /* search */
             case 's':
-            
+
                 if(search_mode)
                 {
                     status_print(status_win, gettext("Already searching. Press 'S' to stop current search."));
@@ -1780,11 +1753,10 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                 break;
 
             case 'm':
-            case 'M':
-                if(traffic_log == 1)
-                {
+            case 'M': {
+                if (buffer_ptr) {
                     statevent(debuglvl, vctx, cnf, STATEVENTTYPE_LOG,
-                        &LogBufferList, /* no ct */NULL,
+                        buffer_ptr, /* no ct */NULL,
                         /* no connreq*/NULL,
                         zones, blocklist, interfaces,
                         services);
@@ -1794,11 +1766,8 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                         key_choices, cmd_choices_n,
                         cmd_choices);
                 }
-                else
-                    vrmr_warning(VR_WARN,
-                        STR_LOGGING_OPTS_NOT_AVAIL);
                 break;
-
+            }
             case KEY_F(12):
             case 'h':
             case 'H':
@@ -1935,7 +1904,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                         if(!use_filter || (use_filter && !log_record->filtered))
                         {
                             drawn_lines++;
-                    
+
                             print_logrule(log_win, log_record, max_logrule_length, cur_logrule_length, hide_date, hide_action, hide_service, hide_from, hide_to, hide_prefix, hide_details);
                         }
                     }
@@ -1975,7 +1944,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             /* if we are in search mode, there is no need to keep up with the log in real-time.
                So we take some time to draw the screen. It will slow down the printing and thereby
                the searching, but it will keep the log better readable
-               
+
                furthermore it will decrease the load on the system during a search */
             if(search_mode)
                 usleep(90000);
