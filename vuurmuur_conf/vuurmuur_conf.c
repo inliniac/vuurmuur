@@ -412,7 +412,7 @@ main(int argc, char *argv[])
     /* unload the backends */
     if(vrmr_backends_unload(debuglvl, &vctx.conf, &vctx) < 0)
     {
-        vrmr_error(-1, VR_ERR, gettext("unloading the backends failed (in: %s:%d)."), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("unloading the backends failed (in: %s:%d)."), __func__, __LINE__);
         retval=-1;
     }
 
@@ -634,7 +634,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
         }
         else
         {
-            vrmr_error(-1, VR_ERR, "unknown return code from init_vcconfig. This can't be good (in: %s:%d).", __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, "unknown return code from init_vcconfig. This can't be good (in: %s:%d).", __func__, __LINE__);
             return(-1);
         }
 
@@ -693,7 +693,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
         }
         else
         {
-            vrmr_error(-1, VR_INTERR, "unknown return code from vrmr_init_config. This can't be good (in: %s:%d).", __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_INTERR, "unknown return code from vrmr_init_config. This can't be good (in: %s:%d).", __func__, __LINE__);
             return(-1);
         }
 
@@ -813,7 +813,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
         vuurmuur_shmp = shmat(vuurmuur_shmid, 0, 0);
         if(vuurmuur_shmp == (char *)(-1))
         {
-            vrmr_error(-1, VR_ERR, gettext("attaching to shared memory failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("attaching to shared memory failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         }
         else
         {
@@ -862,7 +862,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
         vuurmuurlog_shmp = shmat(vuurmuurlog_shmid, 0, 0);
         if(vuurmuurlog_shmp == (char *)(-1))
         {
-            vrmr_error(-1, VR_ERR, "attaching to shared memory failed: %s (in: %s:%d).", strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, "attaching to shared memory failed: %s (in: %s:%d).", strerror(errno), __func__, __LINE__);
         }
         else
         {
