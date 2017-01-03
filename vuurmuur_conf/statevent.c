@@ -37,8 +37,8 @@ typedef struct StatEventLog_
     char src[VRMR_VRMR_MAX_HOST_NET_ZONE];
     char dst[VRMR_VRMR_MAX_HOST_NET_ZONE];
 
-    char src_ip[16];
-    char dst_ip[16];
+    char src_ip[46];
+    char dst_ip[46];
     int  protocol;
     int  dst_port;
     int  src_port;
@@ -62,8 +62,8 @@ typedef struct StatEventConn_
     char src[VRMR_VRMR_MAX_HOST_NET_ZONE];
     char dst[VRMR_VRMR_MAX_HOST_NET_ZONE];
 
-    char src_ip[16];
-    char dst_ip[16];
+    char src_ip[46];
+    char dst_ip[46];
     int  protocol;
     int  dst_port;
     int  src_port;
@@ -244,73 +244,39 @@ statevent_convert_conn(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *
 }
 
 static char
-parse_log_srcdst(const int debuglvl, char *str, char *ret_ip, size_t ip_size,
+parse_log_srcdst(const int debuglvl, const char *str_in, char *ret_ip, size_t ip_size,
             char *ret_mac, size_t mac_size, int *ret_port)
 {
     if (debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "str     '%s'", str);
+        vrmr_debug(__FUNC__, "str_in '%s'", str_in);
 
-    int s = 0; /* string */
-    int i = 0; /* ip */
-    int m = 0; /* mac */
-    int p = 0; /* port */
+    char str[strlen(str_in)+1];
+    strlcpy(str, str_in, strlen(str_in)+1);
 
-    char what = 0; // 0 ip 1 mac 2 port
+    /* find last : that separates the port, but make sure we're not
+     * already inside the mac address */
+    char *mac = strrchr(str, ')');
+    char *port = strrchr(str, ':');
+    if (port != NULL && port > mac) {
+        *port = '\0';
+        port++;
+        *ret_port = atoi(port);
+    }
 
-    char ip[16] = "";
-    char mac[18] = "";
-    char port[6] = "";
+    char *mac_start = strchr(str, '(');
+    if (mac_start != NULL) {
+        *mac_start = '\0';
+        mac_start++;
 
-    for (s = 0; s < (int)strlen(str); s++)
-    {
-        if(what == 0) {
-            ip[i] = str[s];
-
-            if(str[s] == '(' || (i + 1) == sizeof(ip)) {
-                what++;
-                ip[i] = '\0';
-            } else if(str[s] == ':') {
-                what += 2;
-                ip[i] = '\0';
-            } else
-                i++;
-        } else if(what == 1) {
-            mac[m] = str[s];
-
-            if(str[s] == ')' || (m + 1) == sizeof(mac)) {
-                what++;
-                mac[m] = '\0';
-
-                s++; /* skip past : */
-            } else
-                m++;
-        } else if(what == 2) {
-            port[p] = str[s];
-            if ((p + 1) == sizeof(port)) {
-                port[p] = '\0';
-                break;
-            }
-
-            p++;
+        char *mac_end = strchr(mac_start, ')');
+        if (mac_end == NULL) {
+            return FALSE;
         }
+        *mac_end = '\0';
+        strlcpy(ret_mac, mac_start, mac_size);
     }
-
-    /* term all */
-    ip[i] = '\0';
-    mac[m] = '\0';
-    port[p] = '\0';
-
-    if (debuglvl >= MEDIUM) {
-        vrmr_debug(__FUNC__, "src ip   '%s'", ip);
-        vrmr_debug(__FUNC__, "src mac  '%s'", mac);
-        vrmr_debug(__FUNC__, "src port '%s'", port);
-    }
-
-    strlcpy(ret_ip, ip, ip_size);
-    strlcpy(ret_mac, mac, mac_size);
-    *ret_port = atoi(port);
-
-    return(TRUE);
+    strlcpy(ret_ip, str, ip_size);
+    return TRUE;
 }
 
 /* convert struct LogRule to StatEventLog
@@ -348,6 +314,7 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
             log_record->month, log_record->date, log_record->time);
 
         log->filtered = log_record->filtered;
+        //vrmr_debug(__FUNC__, "filtered %d, %s", log->filtered, log->ser);
 
         /* parse the details :-S */
         //vrprint.error(-1, "Details", "%s", log_record->details);
@@ -383,32 +350,32 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
         int next = 0;
 
         if (strcmp(store[0],"(in:") == 0) {
-            vrprint.debug(__FUNC__, "in = %s", store[1]);
+            //vrprint.debug(__FUNC__, "in = %s", store[1]);
             next = 2;
         } else if(strcmp(store[0],"(out:") == 0) {
-            vrprint.debug(__FUNC__, "out = %s", store[1]);
+            //vrprint.debug(__FUNC__, "out = %s", store[1]);
             next = 2;
         }
         if(strcmp(store[next],"out:") == 0) {
-            vrprint.debug(__FUNC__, "out = %s", store[3]);
+            //vrprint.debug(__FUNC__, "out = %s", store[3]);
             next +=2;
         }
 
         /* ip or ip+port */
-        vrprint.debug(__FUNC__, "src ip/ip+port %s", store[next]);
+        //vrprint.debug(__FUNC__, "src ip/ip+port %s", store[next]);
         char *src = store[next];
         next++;
 
         /* arrow */
-        vrprint.debug(__FUNC__, "arrow %s", store[next]);
+        //vrprint.debug(__FUNC__, "arrow %s", store[next]);
         next++;
 
         /* ip or ip+port */
-        vrprint.debug(__FUNC__, "dst ip/ip+port %s", store[next]);
+        //vrprint.debug(__FUNC__, "dst ip/ip+port %s", store[next]);
         char *dst = store[next];
         next++;
 
-        vrprint.debug(__FUNC__, "store[next] %s", store[next]);
+        //vrprint.debug(__FUNC__, "store[next] %s", store[next]);
 
         /*  parse src and dst
 
@@ -432,7 +399,6 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
                 sizeof(log->dst_ip), mac, sizeof(mac),
                 &log->dst_port);
 
-
         if(strcmp(store[next],"TCP") == 0) {
             log->protocol = 6;
         } else if (strcmp(store[next],"UDP") == 0) {
@@ -445,9 +411,13 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
             log->protocol = 50;
         } else if (strcmp(store[next],"AH") == 0) {
             log->protocol = 51;
+        } else if (strcmp(store[next],"PROTO") == 0) {
+            log->protocol = atoi(store[next+1]);
+            next++;
         } else {
             vrprint.debug(__FUNC__, "no match '%s'", store[next]);
         }
+        //vrmr_debug(__FUNC__, "log->protocol %d", log->protocol);
 
         //vrprint.debug(__FUNC__, "x = %d, y = %d, z = %d", x,y,z);
 
@@ -956,7 +926,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                                 kill_connections_by_ip(debuglvl, cnf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                             }
                             break;
-                
+
                         case 5:
                             /* check if the conntrack tool is set */
                             if(cnf->conntrack_location[0] == '\0')
