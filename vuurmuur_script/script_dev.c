@@ -32,7 +32,7 @@
      0: ok
     -1: error
 */
-int
+static int
 create_network_ip(const int debuglvl, char *ipaddress, char *netmask, char *network_ip, size_t size)
 {
     int retval=0;

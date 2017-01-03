@@ -768,7 +768,7 @@ backend_check_service_proto41(const int debuglvl, char *value, struct vrmr_regex
 }
 
 
-int
+static int
 backend_check_blocklist_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
 {
 //    char                line[1024] = "";
