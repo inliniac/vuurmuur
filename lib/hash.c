@@ -478,7 +478,7 @@ void vrmr_print_table_service(const int debuglvl, const struct vrmr_hash_table *
         {
             list_data = d_node->data;
 
-            fprintf(stdout, "%s(%p), ", (char *)list_data, d_node);
+            fprintf(stdout, "%s(%p), ", (char *)list_data, (void *)d_node);
         }
 
         fprintf(stdout, "\n");
