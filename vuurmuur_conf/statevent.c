@@ -325,8 +325,7 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
     char *s = NULL;
 
 #define MAX_TOK 32
-    char store[MAX_TOK][42]; /* max: ip + mac + port + :() and \0 =
-                    15 + 18 + 5 + 4 = 42 */
+    char store[MAX_TOK][128];
     int x = 0, y = 0, z = 0;
 
     for(d_node = list->top; d_node; d_node = d_node->next)
@@ -363,7 +362,7 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
         s = log_record->details;
 
         /* split the tokens */
-        for(x = 0, y = 0, z = 0; x < (int)strlen(s); x++)
+        for (x = 0, y = 0, z = 0; x < (int)strlen(s); x++)
         {
             /* copy char */
             store[y][z] = s[x];
@@ -374,10 +373,11 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
                 y++;
                 z = 0;
 
-                if(y == MAX_TOK)
+                if (y == MAX_TOK)
                     break;
-            } else
+            } else {
                 z++;
+            }
         }
 
         int next = 0;
@@ -1277,7 +1277,7 @@ statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cn
                 break;
         }
     }
-    
+
     VrDelMenu(debuglvl, menu);
     VrDelWin(win);
     update_panels();
