@@ -31,7 +31,7 @@ static void mm_check_status_zones(const int, /*@null@*/ struct vrmr_list *, stru
 static void mm_check_status_services(const int, /*@null@*/ struct vrmr_list *, struct vrmr_services *);
 
 
-int
+static int
 convert_rulesfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
         struct vrmr_rules *rules, struct vrmr_config *cnf)
 {
@@ -100,7 +100,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
 }
 
 
-int
+static int
 convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
         struct vrmr_blocklist *blocklist, struct vrmr_config *cnf)
 {
@@ -169,7 +169,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
 }
 
 
-int
+static int
 mm_select_logfile(const int debuglvl, struct vrmr_ctx *vctx,
         struct vrmr_config *cnf, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
@@ -344,8 +344,8 @@ mm_select_logfile(const int debuglvl, struct vrmr_ctx *vctx,
     return(0);
 }
 
-
-void
+#if 0
+static void
 set_colors(const int debuglvl, vc_cnf *cnf)
 {
     if(!cnf)
@@ -361,7 +361,7 @@ set_colors(const int debuglvl, vc_cnf *cnf)
 
     return;
 }
-
+#endif
 
 static void
 mm_shm_connect_vuurmuur(const int debuglvl)

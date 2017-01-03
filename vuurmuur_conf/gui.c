@@ -796,10 +796,10 @@ static int VrFormStoreField (const int debuglvl, VrForm *form,
     switch (type) {
         case VRMR_GUI_FORM_FIELD_TYPE_LABEL:
         case VRMR_GUI_FORM_FIELD_TYPE_TEXT:
-            fld->value_str = value_str;
+            fld->v.value_str = value_str;
             break;
         case VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX:
-            fld->value_bool = value_bool;
+            fld->v.value_bool = value_bool;
             break;
     }
 
@@ -862,17 +862,17 @@ static int VrFormCreateField(const int debuglvl, VrForm *form, struct vrmr_gui_f
     }
 
     if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_TEXT) {
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, fld->value_str);
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, fld->v.value_str);
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, fld->name);
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "txt");
     } else if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_LABEL) {
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, fld->value_str);
+        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, fld->v.value_str);
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "lbl");
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "lbl");
 
         field_opts_off(form->fields[form->cur_field], O_ACTIVE);
     } else if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX) {
-        char *value = fld->value_bool ? "X" : " ";
+        char *value = fld->v.value_bool ? "X" : " ";
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, value);
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, fld->name);
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "C");
@@ -1058,7 +1058,7 @@ VrFormConnectToWin(const int debuglvl, VrForm *form, VrWin *win)
     return(0);
 }
 
-char
+static char
 VrFormTextNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
 {
     char    match = FALSE;
@@ -1134,7 +1134,7 @@ VrFormTextNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
     return(match);
 }
 
-char
+static char
 VrFormCheckboxNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
 {
     char    match = FALSE;
@@ -1268,7 +1268,7 @@ VrFormDefaultNavigation(const int debuglvl, VrForm *form, int key)
     return(match);
 }
 
-int
+static int
 VrFormGetFields(const int debuglvl, VrForm *form, char *name, size_t nlen, char *value, size_t vlen)
 {
     FIELD *field = NULL;
@@ -1397,7 +1397,7 @@ struct cnf_ {
     char file[64];
 };
 
-int
+static int
 form_test_save(const int debuglvl, void *ctx, char *name, char *value)
 {
     struct cnf_ *c = (struct cnf_ *)ctx;
