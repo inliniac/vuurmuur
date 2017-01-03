@@ -896,7 +896,7 @@ parse_ipt_logline(  const int debuglvl,
 
     /* if we reach this, it's a valid logline */
     return(1);
-};
+}
 
 static int
 stat_logfile(const int debuglvl, const char *path, struct stat *logstat)
