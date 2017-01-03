@@ -29,7 +29,7 @@
 #include <libnetfilter_log/libnetfilter_log.h>
 
 int subscribe_nflog (const int, const struct vrmr_config *,struct vrmr_log_record *logrule);
-int readnflog ();
+int readnflog (void);
 
 #endif /* HAVE_LIBNETFILTER_LOG */
 
