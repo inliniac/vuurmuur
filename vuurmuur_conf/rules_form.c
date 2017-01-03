@@ -2740,7 +2740,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -2764,7 +2764,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -2791,7 +2791,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -2811,7 +2811,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -2847,7 +2847,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -2892,7 +2892,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     {
                         if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
-                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                             return(-1);
                         }
                     }
@@ -2925,7 +2925,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     {
                         if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
-                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                             return(-1);
                         }
                     }
@@ -2960,7 +2960,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -2987,7 +2987,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3008,7 +3008,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3031,7 +3031,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3054,7 +3054,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3133,7 +3133,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3151,7 +3151,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3176,7 +3176,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3194,7 +3194,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
                 }
@@ -3393,7 +3393,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     n_fields = 48;
     if(!(fields = (FIELD **)calloc(n_fields + 1, sizeof(FIELD *))))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -4282,7 +4282,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                     {
                         if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
-                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                             return(-1);
                         }
                     }
@@ -4349,7 +4349,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
                         if(!(zone_choices = calloc(zone_choices_n + 1, VRMR_VRMR_MAX_HOST_NET_ZONE)))
                         {
-                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                             return(-1);
                         }
 
@@ -4396,7 +4396,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
                         if(!(service_choices = calloc(service_choices_n + 1, sizeof(char *))))
                         {
-                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                             return(-1);
                         }
 
@@ -4505,7 +4505,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                 /* get some mem */
                                 if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
                                 {
-                                    vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                    vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                                     return(-1);
                                 }
 
@@ -4613,7 +4613,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                 if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
                                 {
                                     vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
-                                        strerror(errno), __FUNCTION__, __LINE__);
+                                        strerror(errno), __func__, __LINE__);
                                     return(-1);
                                 }
 
@@ -4671,7 +4671,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                             /* get some mem */
                             if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
                             {
-                                vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                                 return(-1);
                             }
 
@@ -4892,7 +4892,7 @@ edit_seprule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields,
                     {
                         if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
-                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                             return(-1);
                         }
                     }
