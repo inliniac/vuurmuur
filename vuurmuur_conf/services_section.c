@@ -1550,8 +1550,7 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
                     width  = 64, // max width of host_name (32) + box (2) + 4 + 16
                     startx = 5,
                     starty = 5,
-                    max_height,
-                    max_width;
+                    max_height;
     struct vrmr_portdata *portrange_ptr = NULL;
 
     char            *port_string_ptr = NULL,
@@ -1581,7 +1580,7 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
         return(-1);
     }
 
-    getmaxyx(stdscr, max_height, max_width);
+    max_height = getmaxy(stdscr);
 
     /* get window height */
     height = (int)ServicesSection.EditServicePrt.n_items + 8;   /* 8 because: 3 above the list, 5 below */
@@ -2216,7 +2215,7 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
                     cols,
                     comment_y=0,
                     comment_x=0;
-    int             height, width, starty, startx, max_height, max_width;
+    int             height, width, starty, startx, max_height;
     size_t          field_num = 0,
                     i = 0;
     int             portranges_lines = 0;
@@ -2232,7 +2231,7 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
 
     /* get the screen dimentions for dynamically
      * sizing the window */
-    getmaxyx(stdscr, max_height, max_width);
+    max_height = getmaxy(stdscr);
     height = 24;
     if (height > max_height - 8)
         height = max_height - 8;
@@ -2354,17 +2353,16 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     return(0);
 }
 
-static int
+static void
 edit_service_destroy(const int debuglvl)
 {
-    int         retval 	= 0;
-    size_t      i       = 0;
-    
+    size_t i;
+
     /* Un post form and free the memory */
     unpost_form(ServicesSection.EditService.form);
     free_form(ServicesSection.EditService.form);
 
-    for(i=0; i < ServicesSection.EditService.n_fields;i++)
+    for (i = 0; i < ServicesSection.EditService.n_fields; i++)
     {
         free_field(ServicesSection.EditService.fields[i]);
     }
@@ -2374,12 +2372,10 @@ edit_service_destroy(const int debuglvl)
     destroy_win(ServicesSection.EditService.win);
 
     /* clear comment */
-    strcpy(ServicesSection.comment, "");
+    strlcpy(ServicesSection.comment, "", sizeof(ServicesSection.comment));
 
     update_panels();
     doupdate();
-    
-    return (retval);
 }
 
 static int
@@ -2388,7 +2384,6 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
     int                     ch, /* for recording keystrokes */
                             quit = 0,
                             not_defined = 0,
-                            result = 0,
                             retval = 0;
     struct vrmr_service    *ser_ptr = NULL;
     FIELD                   *cur = NULL,
@@ -2546,8 +2541,8 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
     }
 
     /* cleanup */
-    result = edit_service_destroy(debuglvl);
-    
+    edit_service_destroy(debuglvl);
+
     return(retval);
 }
 
