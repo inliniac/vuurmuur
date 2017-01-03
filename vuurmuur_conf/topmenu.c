@@ -70,12 +70,12 @@ struct
 static void
 setup_topmenu(WINDOW *local_win)
 {
-    int max_width, max_heigth;
+    int max_width;
 
     if(!local_win)
         return;
 
-    getmaxyx(stdscr, max_heigth, max_width);
+    max_width = getmaxx(stdscr);
 
     /* get the hostname */
     if(gethostname(TopMenu.hostname, sizeof(TopMenu.hostname)) < 0)
@@ -90,9 +90,7 @@ setup_topmenu(WINDOW *local_win)
 void
 draw_top_menu(const int debuglvl, WINDOW *local_win, char *title, int key_n, char **keys, int cmd_n, char **cmds)
 {
-    int max_width = 0,
-        max_heigth = 0,
-        pos = 2,
+    int pos = 2,
         i = 0;
 
     if(key_n != cmd_n)
@@ -102,7 +100,6 @@ draw_top_menu(const int debuglvl, WINDOW *local_win, char *title, int key_n, cha
         return;
     }
 
-    getmaxyx(stdscr, max_heigth, max_width);
     werase(local_win);
 
     /* draw the box and the title */

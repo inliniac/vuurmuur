@@ -20,7 +20,7 @@
 
 #include "main.h"
 
-void
+static void
 print_commandline_args(void)
 {
     fprintf(stdout, "Usage: vuurmuur_conf [OPTIONS]\n");

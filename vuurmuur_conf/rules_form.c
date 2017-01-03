@@ -477,7 +477,6 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     int                 retval = 0,
                         i = 0;
     struct vrmr_rule    *rule_ptr = NULL;
-    struct vrmr_list_node         *d_node = NULL;
 
     /* safety */
     if(!rules)
@@ -636,7 +635,7 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, struct vrmr_rul
 }
 
 
-rulebar *
+static rulebar *
 CurrentBar(struct RuleBarForm_ *rbform, FORM *form)
 {
     FIELD       *cur_field = NULL;
@@ -763,7 +762,7 @@ rulebar_setcolor(   FIELD *active,
 
     Highlights the cursor, and clears the previous highlight.
 */
-void
+static void
 HighlightRuleBar(rulebar *bar)
 {
     if(bar != NULL)
@@ -788,7 +787,6 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_config *conf, struct
     int                 result = 0,
                         retval = 0;
     struct vrmr_rule    *rule_ptr = NULL;
-    struct vrmr_list_node         *d_node = NULL;
 
     /* safety */
     if(!bar || !rules || !reg)
@@ -837,7 +835,7 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_config *conf, struct
          0: ok
         -1: error
 */
-int
+static int
 rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_rule *org_rule_ptr, struct vrmr_regex *reg)
 {
     char                *rule_str = NULL;
@@ -1031,7 +1029,7 @@ Set_RuleBar(const int debuglvl, struct RuleBarForm_ *rbform, FORM *form,
 }
 
 
-int
+static int
 Insert_RuleBar( const int debuglvl,
                 struct RuleBarForm_ *rbform,
                 FIELD *active,
@@ -2375,7 +2373,6 @@ delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     int                 result = 0;
     int                 retval = 0;
     struct vrmr_rule    *rule_ptr = NULL;
-    struct vrmr_list_node         *d_node = NULL;
 
     if (rule_num == 0) {
         return(-1);
@@ -3301,8 +3298,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                 width,
                 startx,
                 starty,
-                max_height,
-                max_width;
+                max_height;
     char        *action_choices[] = {   "Accept",
                                         "Drop",
                                         "Reject",
@@ -3378,7 +3374,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     rule_ptr->status = VRMR_ST_CHANGED;
 
     /* get the dimentions of the screen */
-    getmaxyx(stdscr, max_height, max_width);
+    max_height = getmaxy(stdscr);
 
     /* set windowsize and start position */
     height = 20;
