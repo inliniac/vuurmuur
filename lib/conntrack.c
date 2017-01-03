@@ -162,9 +162,7 @@ conn_line_to_data(  const int debuglvl,
                 )
 {
     char    service_name[VRMR_MAX_SERVICE] = "",
-            zone_name[VRMR_VRMR_MAX_HOST_NET_ZONE] = "",
             *zone_name_ptr = NULL;
-    size_t  size = 0;
 
     /* safety */
     if( connline_ptr == NULL || conndata_ptr == NULL ||
@@ -207,20 +205,10 @@ conn_line_to_data(  const int debuglvl,
                 snprintf(service_name, sizeof(service_name), "proto %d",
                         connline_ptr->protocol);
 
-            size = strlen(service_name) + 1;
-
-            if(!(conndata_ptr->sername = malloc(size)))
+            if(!(conndata_ptr->sername = strdup(service_name)))
             {
-                vrmr_error(-1, "Error", "malloc() failed: %s "
+                vrmr_error(-1, "Error", "strdup() failed: %s "
                         "(in: %s:%d).", strerror(errno),
-                        __FUNC__, __LINE__);
-                return(-1);
-            }
-
-            if(strlcpy(conndata_ptr->sername, service_name, size) >= size)
-            {
-                vrmr_error(-1, "Internal Error",
-                        "string overflow (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
@@ -265,70 +253,30 @@ conn_line_to_data(  const int debuglvl,
 
         if(req->unknown_ip_as_net == FALSE)
         {
-            snprintf(zone_name, sizeof(zone_name), "%s",
-                    connline_ptr->src_ip);
-
-            size = strlen(zone_name) + 1;
-
-            if(!(conndata_ptr->fromname = malloc(size)))
+            if(!(conndata_ptr->fromname = strdup(connline_ptr->src_ip)))
             {
-                vrmr_error(-1, "Error", "malloc() "
+                vrmr_error(-1, "Error", "strdup() "
                         "failed: %s (in: %s:%d).",
                         strerror(errno), __FUNC__, __LINE__);
                 return(-1);
-            }
-            else
-            {
-                if(strlcpy(conndata_ptr->fromname, zone_name, size) >= size)
-                {
-                    vrmr_error(-1, "Internal Error",
-                            "string overflow (in: %s:%d).",
-                            __FUNC__, __LINE__);
-                    return(-1);
-                }
             }
         }
         else
         {
             if(!(zone_name_ptr = vrmr_get_network_for_ipv4(debuglvl, connline_ptr->src_ip, zonelist)))
             {
-                size = strlen(connline_ptr->src_ip) + 1;
-
-                if(!(conndata_ptr->fromname = malloc(size)))
+                if(!(conndata_ptr->fromname = strdup(connline_ptr->src_ip)))
                 {
                     vrmr_error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
                     return(-1);
-                }
-                else
-                {
-                    if(strlcpy(conndata_ptr->fromname, connline_ptr->src_ip, size) >= size)
-                    {
-                        vrmr_error(-1, "Internal Error",
-                                "string overflow (in: %s:%d).",
-                                __FUNC__, __LINE__);
-                        return(-1);
-                    }
                 }
             }
             else
             {
-                size = strlen(zone_name_ptr) + 1;
-
-                if(!(conndata_ptr->fromname = malloc(size)))
+                if(!(conndata_ptr->fromname = strdup(zone_name_ptr)))
                 {
-                    vrmr_error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
+                    vrmr_error(-1, "Internal Error", "strdup failed: %s (in: conntrack_line_to_data).", strerror(errno));
                     return(-1);
-                }
-                else
-                {
-                    if(strlcpy(conndata_ptr->fromname, zone_name_ptr, size) >= size)
-                    {
-                        vrmr_error(-1, "Internal Error",
-                                "string overflow (in: %s:%d).",
-                                __FUNC__, __LINE__);
-                        free(zone_name_ptr);
-                        return(-1);
-                    }
                 }
 
                 free(zone_name_ptr);
@@ -365,66 +313,28 @@ conn_line_to_data(  const int debuglvl,
     {
         if(req->unknown_ip_as_net == FALSE)
         {
-            snprintf(zone_name, sizeof(zone_name), "%s", connline_ptr->dst_ip);
-
-            size = strlen(zone_name) + 1;
-
-            if(!(conndata_ptr->toname = malloc(size)))
+            if(!(conndata_ptr->toname = strdup(connline_ptr->dst_ip)))
             {
-                vrmr_error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
+                vrmr_error(-1, "Internal Error", "strdup failed: %s (in: conntrack_line_to_data).", strerror(errno));
                 return(-1);
-            }
-            else
-            {
-                if(strlcpy(conndata_ptr->toname, zone_name, size) >= size)
-                {
-                    vrmr_error(-1, "Internal Error",
-                            "string overflow (in: %s:%d).",
-                            __FUNC__, __LINE__);
-                    return(-1);
-                }
             }
         }
         else
         {
             if(!(zone_name_ptr = vrmr_get_network_for_ipv4(debuglvl, connline_ptr->dst_ip, zonelist)))
             {
-                size = strlen(connline_ptr->dst_ip) + 1;
-
-                if(!(conndata_ptr->toname = malloc(size)))
+                if(!(conndata_ptr->toname = strdup(connline_ptr->dst_ip)))
                 {
-                    vrmr_error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
+                    vrmr_error(-1, "Internal Error", "strdup failed: %s (in: conntrack_line_to_data).", strerror(errno));
                     return(-1);
-                }
-                else
-                {
-                    if(strlcpy(conndata_ptr->toname, connline_ptr->dst_ip, size) >= size)
-                    {
-                        vrmr_error(-1, "Internal Error",
-                                "string overflow (in: %s:%d).",
-                                __FUNC__, __LINE__);
-                        return(-1);
-                    }
                 }
             }
             else
             {
-                size = strlen(zone_name_ptr) + 1;
-
-                if(!(conndata_ptr->toname = malloc(size)))
+                if(!(conndata_ptr->toname = strdup(zone_name_ptr)))
                 {
-                    vrmr_error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
+                    vrmr_error(-1, "Internal Error", "strdup failed: %s (in: conntrack_line_to_data).", strerror(errno));
                     return(-1);
-                }
-                else
-                {
-                    if(strlcpy(conndata_ptr->toname, zone_name_ptr, size) >= size)
-                    {
-                        vrmr_error(-1, "Internal Error",
-                                "string overflow (in: %s:%d).",
-                                __FUNC__, __LINE__);
-                        return(-1);
-                    }
                 }
 
                 free(zone_name_ptr);
@@ -436,14 +346,27 @@ conn_line_to_data(  const int debuglvl,
         conndata_ptr->toname = conndata_ptr->to->name;
     }
 
-    if(connline_ptr->state == VRMR_STATE_SYN_SENT || connline_ptr->state == VRMR_STATE_SYN_RECV || connline_ptr->state == VRMR_STATE_UNREPLIED)
-        conndata_ptr->connect_status = VRMR_CONN_CONNECTING;
-    else if(connline_ptr->state == VRMR_STATE_TCP_ESTABLISHED || connline_ptr->state == VRMR_STATE_UDP_ESTABLISHED)
-        conndata_ptr->connect_status = VRMR_CONN_CONNECTED;
-    else if(connline_ptr->state == VRMR_STATE_FIN_WAIT || connline_ptr->state == VRMR_STATE_TIME_WAIT || connline_ptr->state == VRMR_STATE_CLOSE || connline_ptr->state == VRMR_STATE_CLOSE_WAIT || connline_ptr->state == VRMR_STATE_LAST_ACK)
-        conndata_ptr->connect_status = VRMR_CONN_DISCONNECTING;
-    else
-        conndata_ptr->connect_status = VRMR_CONN_UNUSED;
+    switch (connline_ptr->state) {
+        case VRMR_STATE_SYN_SENT:
+        case VRMR_STATE_SYN_RECV:
+        case VRMR_STATE_UNREPLIED:
+            conndata_ptr->connect_status = VRMR_CONN_CONNECTING;
+            break;
+        case VRMR_STATE_TCP_ESTABLISHED:
+        case VRMR_STATE_UDP_ESTABLISHED:
+            conndata_ptr->connect_status = VRMR_CONN_CONNECTED;
+            break;
+        case VRMR_STATE_FIN_WAIT:
+        case VRMR_STATE_TIME_WAIT:
+        case VRMR_STATE_CLOSE:
+        case VRMR_STATE_CLOSE_WAIT:
+        case VRMR_STATE_LAST_ACK:
+            conndata_ptr->connect_status = VRMR_CONN_DISCONNECTING;
+            break;
+        default:
+            conndata_ptr->connect_status = VRMR_CONN_UNUSED;
+            break;
+    }
 
     if(conndata_ptr->from != NULL && conndata_ptr->from->type == VRMR_TYPE_FIREWALL)
         conndata_ptr->direction_status = VRMR_CONN_OUT;
