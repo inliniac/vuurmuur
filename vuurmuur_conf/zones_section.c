@@ -888,7 +888,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_ctx *vctx,
     /* allow the menu items */
     if(!(ZonesSection.hostitems = (ITEM **)calloc(ZonesSection.host_n + 1, sizeof(ITEM *))))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -1411,7 +1411,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                         // alloc the memory
                         if(!(cur_zonename_ptr = malloc(size)))
                         {
-                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                             return(-1);
                         }
 
@@ -1438,7 +1438,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                                 /* alloc the memory */
                                 if(!(temp_ptr = malloc(size)))
                                 {
-                                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                                     return(-1);
                                 }
 
@@ -1491,7 +1491,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                             /* alloc the memory */
                             if(!(temp_ptr = malloc(size)))
                             {
-                                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                                 return(-1);
                             }
 
@@ -1551,7 +1551,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                             /* alloc the memory */
                             if(!(temp_ptr = malloc(size)))
                             {
-                                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                                 return(-1);
                             }
 
@@ -1643,7 +1643,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                         // alloc the memory
                         if(!(temp_ptr = malloc(size)))
                         {
-                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                             return(-1);
                         }
 
@@ -1732,7 +1732,7 @@ edit_zone_group_members_init(const int debuglvl, struct vrmr_ctx *vctx, struct v
 
     if(!(ZonesSection.EditZoneGrp.items = (ITEM **)calloc(ZonesSection.EditZoneGrp.n_items + 1, sizeof(ITEM *))))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -1973,7 +1973,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_ctx *vctx,
     /* alloc the mem */
     if(!(choices = calloc(n_choices + 1, VRMR_MAX_HOST)))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -2230,7 +2230,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
 
     if(!(ZonesSection.EditZone.fields = (FIELD **)calloc(ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *))))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -5591,7 +5591,7 @@ zones_section_menu_networks(const int debuglvl,
 
                         if(!(cur_zonename_ptr = malloc(size)))
                         {
-                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                             return(-1);
                         }
 
@@ -5616,7 +5616,7 @@ zones_section_menu_networks(const int debuglvl,
                                 /* alloc the memory */
                                 if(!(temp_ptr = malloc(size)))
                                 {
-                                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                                     free(vrmr_new_zone_ptr);
                                     return(-1);
                                 }
@@ -5795,7 +5795,7 @@ zones_section_menu_networks(const int debuglvl,
                                 {
                                     if(!(zonename_ptr = malloc(size)))
                                     {
-                                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                                         retval = -1;
                                     }
                                     else
@@ -5853,7 +5853,7 @@ zones_section_menu_networks(const int debuglvl,
                         {
                             if(!(zonename_ptr = malloc(size)))
                             {
-                                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                                 retval = -1;
                             }
                             else
@@ -5933,7 +5933,7 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_ctx *vctx,
 
     if(!(ZonesSection.EditZone.fields = (FIELD **)calloc(ZonesSection.EditZone.n_fields + 1, sizeof(FIELD *))))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -6307,7 +6307,7 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
 
     if(!(ZonesSection.zoneitems = (ITEM **)calloc(ZonesSection.zone_n + 1, sizeof(ITEM *))))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -6744,7 +6744,7 @@ zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
     /* allow the menu items */
     if(!(ZonesSection.hostitems = (ITEM **)calloc(ZonesSection.host_n + 1, sizeof(ITEM *))))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -6994,7 +6994,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
 
             if(!(zone_choices = calloc(i + 1, VRMR_VRMR_MAX_HOST_NET_ZONE)))
             {
-                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                 return(-1);
             }
 
