@@ -37,7 +37,7 @@
         -1: error
          0: ok
  */
-int
+static int
 zones_split_zonename(const int debuglvl, struct vrmr_zones *zones,
             struct vrmr_zone *zone_ptr, regex_t *reg_ex)
 {

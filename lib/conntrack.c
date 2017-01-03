@@ -151,7 +151,7 @@ vrmr_conn_print_dlist(const struct vrmr_list *dlist)
          0: ok
         -1: (serious) error
 */
-int
+static int
 conn_line_to_data(  const int debuglvl,
                     struct ConntrackLine *connline_ptr,
                     struct vrmr_conntrack_entry *conndata_ptr,
@@ -1438,7 +1438,7 @@ parse_unknown_line_ipv6(const int debuglvl, const char *line,
 
 
 /*  process one line from the conntrack file */
-int
+static int
 conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
                                 struct ConntrackLine *connline_ptr)
 {
@@ -1619,7 +1619,7 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
 }
 
 /*  process one line from the conntrack file */
-int
+static int
 conn_process_one_conntrack_line(const int debuglvl, const char *line,
                                 struct ConntrackLine *connline_ptr)
 {
@@ -1898,32 +1898,6 @@ vrmr_conn_list_print(const struct vrmr_list *conn_list)
 }
 
 
-unsigned int
-conn_vrmr_hash_string(const void *key)
-{
-    const char      *ptr = NULL;
-    unsigned int    val = 0;
-    unsigned int    tmp = 0;
-
-    ptr = key;
-
-    while(*ptr != '\0')
-    {
-
-        val = (val << 4) + (*ptr);
-
-        if((tmp = (val & 0xf0000000)))
-        {
-            val = val ^ (tmp >> 24);
-            val = val ^ tmp;
-        }
-        ptr++;
-    }
-
-    return(val);
-}
-
-
 /*  hash_conntrackdata
 
     Hashes conntrackdata. It does this by creating seperate
@@ -1931,7 +1905,7 @@ conn_vrmr_hash_string(const void *key)
 
     Returns the hash.
 */
-unsigned int
+static unsigned int
 conn_hash_conntrackdata(const void *key)
 {
     unsigned int            retval = 0;
@@ -1956,7 +1930,7 @@ conn_hash_conntrackdata(const void *key)
 /*  match_conntrackdata
 
 */
-int
+static int
 conn_match_conntrackdata(const void *check, const void *hash)
 {
     struct vrmr_conntrack_entry    *check_cd = NULL,
