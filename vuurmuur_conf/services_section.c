@@ -318,7 +318,7 @@ edit_tcpudp(const int debuglvl, struct vrmr_portdata *port_ptr)
     fields = (FIELD **)calloc(4 + 1, sizeof(FIELD *));
     if(fields == NULL)
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -553,17 +553,17 @@ icmp_choose_type(void)
     /* get memory */
     if(!(items = (ITEM **)calloc(n_items + 1, sizeof(ITEM *))))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
     if(!(itemnames = calloc(n_items + 1, 32)))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
     if(!(itemnumbers = calloc(n_items + 1, 32)))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -581,7 +581,7 @@ icmp_choose_type(void)
         /* set itemnames and itemnumbers */
         if(!(name = malloc(name_size)))
         {
-            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
             return(-1);
         }
         if(vrmr_get_icmp_name_short(icmp_type, -1, name, name_size, 0) < 0)
@@ -594,7 +594,7 @@ icmp_choose_type(void)
         /* now the typenumber string */
         if(!(name = malloc(type_size)))
         {
-            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
             return(-1);
         }
         snprintf(name, type_size, "%d", icmp_type);
@@ -691,7 +691,7 @@ icmp_choose_type(void)
                     select_ptr = malloc(size);
                     if(select_ptr == NULL)
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
 
@@ -791,19 +791,19 @@ icmp_choose_code(const int icmp_type)
     items = (ITEM **)calloc(n_items + 1, sizeof(ITEM *));
     if(items == NULL)
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
     itemnames = calloc(n_items + 1, 32);
     if(itemnames == NULL)
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
     itemnumbers = calloc(n_items + 1, 32);
     if(itemnumbers == NULL)
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -818,7 +818,7 @@ icmp_choose_code(const int icmp_type)
         /* set itemnames and itemnumbers */
         if(!(name = malloc(name_size)))
         {
-            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
             return(-1);
         }
         if(vrmr_get_icmp_name_short(icmp_type, icmp_code, name, name_size, 1) < 0)
@@ -830,7 +830,7 @@ icmp_choose_code(const int icmp_type)
 
         if(!(name = malloc(code_size)))
         {
-            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
             return(-1);
         }
         snprintf(name, code_size, "%d", icmp_code);
@@ -923,7 +923,7 @@ icmp_choose_code(const int icmp_type)
                     select_ptr = malloc(size);
                     if(select_ptr == NULL)
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
 
@@ -1037,7 +1037,7 @@ edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
     fields = (FIELD **)calloc(2 + 1, sizeof(FIELD *));
     if(fields == NULL)
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -1285,7 +1285,7 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
     /* alloc a new portrange */
     if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
     {
-        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -2252,7 +2252,7 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     ServicesSection.EditService.n_fields = 10;
     if(!(ServicesSection.EditService.fields = (FIELD **)calloc(ServicesSection.EditService.n_fields + 1, sizeof(FIELD *))))
     {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 

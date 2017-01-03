@@ -813,7 +813,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     /* setup the buffer */
     if(vrmr_list_setup(debuglvl, &LogBufferList, free) < 0)
     {
-        vrmr_error(-1, VR_INTERR, "setting up buffer failed (in: %s:%d).", __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_INTERR, "setting up buffer failed (in: %s:%d).", __func__, __LINE__);
         return(-1);
     }
     /* point the buffer pointer to the LogBufferList */
@@ -894,7 +894,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         /* read line from log */
         if(!(line = malloc(READLINE_LEN)))
         {
-            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
             vrmr_list_cleanup(debuglvl, buffer_ptr);
             return(-1);
         }
@@ -932,7 +932,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     /* here we can analyse the rule */
                     if(!(log_record = malloc(sizeof(struct LogRule_))))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
 
@@ -973,7 +973,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     /* here we can analyse the rule */
                     if(!(plainlog_record = malloc(sizeof(struct PlainLogRule_))))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
 
@@ -1080,7 +1080,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         /* read line from log */
         if(!(line = malloc(READLINE_LEN)))
         {
-            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
             vrmr_list_cleanup(debuglvl, buffer_ptr);
             return(-1);
         }
@@ -1134,7 +1134,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     /* here we can analyse the rule */
                     if(!(log_record = malloc(sizeof(struct LogRule_))))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
 
@@ -1182,7 +1182,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     /* here we can analyse the rule */
                     if(!(plainlog_record = malloc(sizeof(struct PlainLogRule_))))
                     {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
                         return(-1);
                     }
 
