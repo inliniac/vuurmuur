@@ -46,7 +46,7 @@
 
 /* this is to prevent some compiler warning when feeding the function name directly
    to vrprint.debug */
-#define __FUNC__        (char *)__FUNCTION__
+#define __FUNC__        (char *)__func__
 
 /* our version */
 #define VUURMUUR_VERSION	"0.8rc3"

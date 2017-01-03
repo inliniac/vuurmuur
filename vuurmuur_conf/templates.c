@@ -227,7 +227,7 @@ input_box(size_t length, char *title, char *description)
     /* create a buffer with the size of 'length' */
     if(!(temp_ptr = malloc(length)))
     {
-        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(NULL);
     }
 
@@ -324,7 +324,7 @@ input_box(size_t length, char *title, char *description)
 
     if(!(result_ptr = malloc((size_t)(i+1))))
     {
-        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNCTION__, __LINE__);
+        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(NULL);
     }
 
