@@ -3017,7 +3017,7 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
 
                 op->prio = atoi(portstring);
 
-                //if(debuglvl >= MEDIUM)
+                if(debuglvl >= MEDIUM)
                     vrmr_debug(__FUNC__, "prio: %d, %s", op->prio, portstring);
             }
             /* in_max */
@@ -3061,7 +3061,8 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                     op->bw_in_max = atoi(value_string);
                     strlcpy(op->bw_in_max_unit, unit_string, sizeof(op->bw_in_max_unit));
 
-                    vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+                    if(debuglvl >= MEDIUM)
+                        vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
                 } else {
                     vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
                     return(-1);
@@ -3108,7 +3109,8 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                     op->bw_in_min = atoi(value_string);
                     strlcpy(op->bw_in_min_unit, unit_string, sizeof(op->bw_in_min_unit));
 
-                    vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+                    if(debuglvl >= MEDIUM)
+                        vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
                 } else {
                     vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
                     return(-1);
@@ -3155,7 +3157,8 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                     op->bw_out_max = atoi(value_string);
                     strlcpy(op->bw_out_max_unit, unit_string, sizeof(op->bw_out_max_unit));
 
-                    vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+                    if(debuglvl >= MEDIUM)
+                        vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
                 } else {
                     vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
                     return(-1);
@@ -3202,7 +3205,8 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
                     op->bw_out_min = atoi(value_string);
                     strlcpy(op->bw_out_min_unit, unit_string, sizeof(op->bw_out_min_unit));
 
-                    vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+                    if(debuglvl >= MEDIUM)
+                        vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
                 } else {
                     vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
                     return(-1);
