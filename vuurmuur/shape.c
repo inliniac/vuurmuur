@@ -352,7 +352,7 @@ shaping_setup_roots (const int debuglvl, struct vrmr_config *cnf, struct vrmr_in
 }
 
 /* add a rate to the iface. If the rate is 0 use the default rate */
-int
+static int
 shaping_add_rate_to_iface(const int debuglvl, struct vrmr_interface *iface_ptr, u_int32_t rate, char *unit) {
     u_int32_t   kbit_rate = 0;
 

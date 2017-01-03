@@ -38,7 +38,7 @@ static void handle_sigterm(/*@unused@*/ int sig) { sigterm_count = 1; }
 static void handle_sighup(/*@unused@*/ int sig) { sighup_count = 1; }
 
 static void
-setup_signal_handler(int sig, void (*handler)())
+setup_signal_handler(int sig, void (*handler)(int))
 {
     struct sigaction action;
 
@@ -50,7 +50,7 @@ setup_signal_handler(int sig, void (*handler)())
 }
 
 /** \brief UP all interfaces in bash mode */
-void bash_enable_interfaces(struct vrmr_interfaces *ifaces) {
+static void bash_enable_interfaces(struct vrmr_interfaces *ifaces) {
     struct vrmr_list_node *node;
     struct vrmr_interface  *iface_ptr = NULL;
 
