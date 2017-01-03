@@ -53,21 +53,21 @@ static int sighup_count = 0;
 static int sigterm_count = 0;
 
 
-void
+static void
 handle_sigint(int sig)
 {
     sigint_count = 1;
 }
 
 
-void
+static void
 handle_sigterm(int sig)
 {
     sigterm_count = 1;
 }
 
 
-void
+static void
 handle_sighup(int sig)
 {
     sighup_count = 1;
@@ -75,7 +75,7 @@ handle_sighup(int sig)
 
 
 static void
-setup_signal_handler(int sig, void (*handler)())
+setup_signal_handler(int sig, void (*handler)(int))
 {
     struct sigaction action;
 
