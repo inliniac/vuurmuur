@@ -229,9 +229,7 @@ read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *lin
 }
 #endif /* USE_WIDEC */
 
-
-
-int
+static int
 read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
 {
     char    line[128] = "";
@@ -857,7 +855,7 @@ do_wide_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
 #endif /* USE_WIDEC */
 
 
-void
+static void
 print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
         int width, int starty, int startx, char utf8)
 {

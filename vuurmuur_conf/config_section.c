@@ -596,7 +596,7 @@ edit_intconfig_save(const int debuglvl, struct vrmr_config *conf)
 }
 
 
-int
+static int
 edit_intconfig(const int debuglvl, struct vrmr_config *conf)
 {
     int     ch,
@@ -880,7 +880,7 @@ edit_modconfig_save(const int debuglvl, struct vrmr_config *conf)
 }
 
 
-int
+static int
 edit_modconfig(const int debuglvl, struct vrmr_config *conf)
 {
     int     ch,
@@ -1160,7 +1160,7 @@ edit_plugconfig_save(const int debuglvl, struct vrmr_config *conf)
 }
 
 
-int
+static int
 edit_plugconfig(const int debuglvl, struct vrmr_config *conf)
 {
     int     ch,
@@ -1533,7 +1533,7 @@ edit_conconfig_save(struct vrmr_config *conf)
 }
 
 
-int
+static int
 edit_conconfig(const int debuglvl, struct vrmr_config *conf)
 {
     int     ch,
@@ -2852,7 +2852,7 @@ view_caps_init(int height, int width, int starty, int startx, struct vrmr_iptcap
 }
 
 
-int
+static int
 view_caps(const int debuglvl, struct vrmr_config *conf)
 {
     int     ch,
@@ -3063,7 +3063,7 @@ view_ip6_caps_init(int height, int width, int starty, int startx, struct vrmr_ip
     return(retval);
 }
 
-int
+static int
 view_ip6_caps(const int debuglvl, struct vrmr_config *conf)
 {
     int     ch,

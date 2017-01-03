@@ -67,7 +67,7 @@ struct vrmr_gui_form_field {
     union {
         char *value_str;
         int value_bool;
-    };
+    } v;
 };
 
 /* form wrapper */

@@ -122,7 +122,7 @@ typedef struct StatEventCtl_
     functions
 */
 
-StatEventConn *
+static StatEventConn *
 statevent_init_conn(const int debuglvl)
 {
     StatEventConn *conn = NULL;
@@ -138,7 +138,7 @@ statevent_init_conn(const int debuglvl)
     return(conn);
 }
 
-StatEventLog *
+static StatEventLog *
 statevent_init_log(const int debuglvl)
 {
     StatEventLog *log = NULL;
@@ -462,7 +462,7 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
 }
 
 /* wrapper around ip and name killing */
-int kill_connections(const int debuglvl, struct vrmr_config *cnf,
+static int kill_connections(const int debuglvl, struct vrmr_config *cnf,
         struct vrmr_conntrack_request *connreq, Conntrack *ct, StatEventConn *conn) {
     if (connreq->unknown_ip_as_net) {
         return (kill_connections_by_name(debuglvl, cnf, ct, conn->src,
@@ -1080,7 +1080,7 @@ statevent_free_ctl(const int debuglvl, StatEventCtl **ctl)
 }
 
 
-int
+static int
 statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
         StatEventCtl *ctl, Conntrack *ct,
         struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,

@@ -110,7 +110,7 @@ VrTcpmssIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
     return(0);
 }
 
-void VrTcpmssIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr) {
+static void VrTcpmssIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr) {
     VrWin   *win = NULL;
     VrForm  *form = NULL;
     int     ch = 0, result = 0;

@@ -847,7 +847,6 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_ctx *vctx,
                         width = 0,
                         startx = 0,
                         starty = 0,
-                        maxx = 0,
                         maxy = 0,
                         result = 0;
     struct vrmr_list_node         *d_node = NULL;
@@ -861,7 +860,7 @@ zones_section_menu_hosts_init(const int debuglvl, struct vrmr_ctx *vctx,
     }
 
     /* get the screensize */
-    getmaxyx(stdscr, maxy, maxx);
+    maxy = getmaxy(stdscr);
 
     /* count how many hosts there are */
     for(ZonesSection.host_n = 0, d_node = zones->list.top; d_node ; d_node = d_node->next)
@@ -1713,8 +1712,7 @@ edit_zone_group_members_init(const int debuglvl, struct vrmr_ctx *vctx, struct v
                         width  = 54, /* max width of host_name (32) + box (2) + 4 + 16 */
                         startx = 0,
                         starty = 0,
-                        max_height = 0,
-                        max_width = 0;
+                        max_height = 0;
 
     /* safety */
     if(!group_ptr || !zones)
@@ -1736,7 +1734,7 @@ edit_zone_group_members_init(const int debuglvl, struct vrmr_ctx *vctx, struct v
         return(-1);
     }
 
-    getmaxyx(stdscr, max_height, max_width);
+    max_height = getmaxy(stdscr);
     height = (int)(ZonesSection.EditZoneGrp.n_items + 7); /* 7 because: 3 above the list, 4 below */
     if (height >= max_height - 6)
     {
@@ -2201,7 +2199,6 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
                         rows,
                         cols,
                         max_height = 0,
-                        max_width = 0,
                         height = 0,
                         width = 0,
                         startx = 0,
@@ -2218,7 +2215,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
         return(-1);
     }
 
-    getmaxyx(stdscr, max_height, max_width);
+    max_height = getmaxy(stdscr);
     height = 17;
     if(height > max_height - 8)
         height = max_height - 8;
@@ -2639,7 +2636,6 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
                         width,
                         starty,
                         startx,
-                        maxx,
                         maxy;
     struct vrmr_list_node         *d_node = NULL;
     char                temp[32],
@@ -2654,7 +2650,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
     }
 
     /* get screensize */
-    getmaxyx(stdscr, maxy, maxx);
+    maxy = getmaxy(stdscr);
 
     /* count how many zones there are */
     ZonesSection.host_n = 0;
@@ -3695,8 +3691,7 @@ edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr
                             width  = 34, // max width of interface (32) + box (2)
                             startx = 5,
                             starty = 5,
-                            max_height = 0,
-                            max_width = 0;
+                            max_height = 0;
 
     /* safety */
     if(!zone_ptr)
@@ -3718,8 +3713,8 @@ edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr
         return(-1);
     }
 
-    getmaxyx(stdscr, max_height, max_width);
-    
+    max_height = getmaxy(stdscr);
+
     height = (int)(ZonesSection.EditZoneInt.n_items + 7); // 7 because: 3 above the list, 4 below
     if(height >= max_height - starty - 3)
     {
@@ -3849,7 +3844,7 @@ edit_zone_network_interfaces_destroy(void)
 }
 
 
-int
+static int
 edit_zone_network_interfaces(const int debuglvl, struct vrmr_ctx *vctx,
         struct vrmr_interfaces *interfaces, struct vrmr_zone *zone_ptr)
 {
@@ -4085,7 +4080,7 @@ struct
          0: ok
         -1: error
 */
-int
+static int
 zones_network_save_protectrules(const int debuglvl, struct vrmr_ctx *vctx,
         struct vrmr_zone *network_ptr)
 {
@@ -5244,7 +5239,6 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
                         width,
                         startx,
                         starty,
-                        maxx,
                         maxy;
     struct vrmr_list_node         *d_node = NULL;
     char                temp[64] = "", /* set to twice 32 because it
@@ -5261,7 +5255,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
     }
 
     /* get screen dimentions */
-    getmaxyx(stdscr, maxy, maxx);
+    maxy = getmaxy(stdscr);
 
     /* count how many networks there are */
     ZonesSection.network_n = 0;
@@ -6279,12 +6273,11 @@ zones_section_init(const int debuglvl, struct vrmr_zones *zones)
                         width,
                         startx,
                         starty,
-                        maxx,
                         maxy;
     size_t              zones_cnt = 0;
     struct vrmr_list_node         *d_node = NULL;
 
-    getmaxyx(stdscr, maxy, maxx);
+    maxy = getmaxy(stdscr);
 
     if (zones == NULL) {
         return(-1);

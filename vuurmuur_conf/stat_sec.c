@@ -39,7 +39,7 @@ struct StatusSection_
          0: ok
         -1: error
 */
-int get_sys_load(float *load_s, float *load_m, float *load_l)
+static int get_sys_load(float *load_s, float *load_m, float *load_l)
 {
     FILE    *fp=NULL;
     char    proc_loadavg[] = "/proc/loadavg",
@@ -61,8 +61,8 @@ int get_sys_load(float *load_s, float *load_m, float *load_l)
     
     return(0);
 }
-
-int count_host_tcp_conn(int *tcp_count, int *tcp_list_count)
+#if 0
+static int count_host_tcp_conn(int *tcp_count, int *tcp_list_count)
 {
     FILE    *fp=NULL;
     char    proc_net_tcp[] = "/proc/net/tcp",
@@ -104,7 +104,7 @@ int count_host_tcp_conn(int *tcp_count, int *tcp_list_count)
     return(0);
 }
 
-int count_host_udp_conn(int *udp_count, int *udp_list_count)
+static int count_host_udp_conn(int *udp_count, int *udp_list_count)
 {
     FILE    *fp=NULL;
     char    proc_net_udp[] = "/proc/net/udp",
@@ -145,8 +145,9 @@ int count_host_udp_conn(int *udp_count, int *udp_list_count)
 
     return(0);
 }
+#endif
 
-int count_conntrack_conn(struct vrmr_config *cnf, int *conntrack_count,
+static int count_conntrack_conn(struct vrmr_config *cnf, int *conntrack_count,
             int *tcp_count, int *udp_count, int *other_count)
 {
     FILE    *fp=NULL;
@@ -185,7 +186,7 @@ int count_conntrack_conn(struct vrmr_config *cnf, int *conntrack_count,
     return(0);
 }
 
-int get_conntrack_max(int *conntrack_max)
+static int get_conntrack_max(int *conntrack_max)
 {
     FILE    *fp = NULL;
     char    proc_ip_conntrack_max[] = "/proc/sys/net/ipv4/ip_conntrack_max",
@@ -216,7 +217,7 @@ int get_conntrack_max(int *conntrack_max)
          0: ok
         -1: error
 */
-int get_meminfo(int *mem_total, int *mem_free, int *mem_cached, int *mem_buffers)
+static int get_meminfo(int *mem_total, int *mem_free, int *mem_cached, int *mem_buffers)
 {
     FILE    *fp=NULL;
     char    proc_meminfo[] = "/proc/meminfo",
@@ -255,7 +256,7 @@ int get_meminfo(int *mem_total, int *mem_free, int *mem_cached, int *mem_buffers
     return(0);
 }
 
-int get_system_uptime(char *s_day, char *s_hour, char *s_minute, char *s_second)
+static int get_system_uptime(char *s_day, char *s_hour, char *s_minute, char *s_second)
 {
     FILE    *fp=NULL;
     char    proc_uptime[] = "/proc/uptime",
@@ -299,12 +300,11 @@ int get_system_uptime(char *s_day, char *s_hour, char *s_minute, char *s_second)
          0: ok
         -1: error
 */
-int
+static int
 status_section_init(const int debuglvl, int height, int width, int starty, int startx, unsigned int ifac_num)
 {
     int             rows,
                     cols,
-                    max_height,
                     max_width;
     unsigned int    ifac_fields=0,
                     ifacs=0,
@@ -312,7 +312,7 @@ status_section_init(const int debuglvl, int height, int width, int starty, int s
     size_t          i = 0;
 
     /* get and check the screen dimentions */
-    getmaxyx(stdscr, max_height, max_width);
+    max_width = getmaxx(stdscr);
     if(width > max_width)
         return(-1);
     if((int)ifac_num > height - 15)
@@ -628,7 +628,7 @@ status_section_init(const int debuglvl, int height, int width, int starty, int s
     return(0);
 }
 
-int status_section_destroy(void)
+static int status_section_destroy(void)
 {
     size_t i;
 
@@ -670,7 +670,6 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
                     cur_interface = 0;
 
     int     max_height = 0,
-            max_width = 0,
 
             conntrack_conn_max = 0,
 
@@ -810,7 +809,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
     /*
         set up the statuswin
     */
-    getmaxyx(stdscr, max_height, max_width);
+    max_height = getmaxy(stdscr);
 
     /*
         init
