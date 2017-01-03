@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include "textdir.h"
 #include "textdir_plugin.h"
 
 /*  get_filelocation
@@ -1378,9 +1379,9 @@ void //__attribute__ ((constructor))
 textdir_init(void) {
     vrmr_plugin_register(&textdir_plugin);
 }
-
+#if 0
 void //__attribute__ ((destructor))
 textdir_fini(void) {
     /* nothing to do */
 }
-
+#endif
