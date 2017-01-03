@@ -1747,7 +1747,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     return(retval);
 }
 
-int
+static int
 vrmr_pre_init_config(struct vrmr_config *cnf)
 {
     /* safety */
