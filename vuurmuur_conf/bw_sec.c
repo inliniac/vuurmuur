@@ -47,7 +47,7 @@ struct TrafVol_
 /*  strip the buf src from the spaces before the text. Leave other
     spaces alone.
 */
-void
+static void
 strip_buf(char *src, char *dst, size_t dstsize)
 {
     size_t  i = 0,
@@ -125,7 +125,7 @@ bandwidth_store(const int debuglvl, struct vrmr_list *list, int year, int month,
          0: ok, but no data
          1: ok
 */
-int
+static int
 bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, int year, int month,
             int start_day, int days, char only_total, struct vrmr_list *list)
 {
@@ -445,7 +445,7 @@ trafvol_section_init(const int debuglvl, int height, int width, int starty,
 
     /* get and check the screen dimentions */
     getmaxyx(stdscr, max_height, max_width);
-    if(width > max_width)
+    if(width > max_width || height > max_height)
         return(-1);
 
     /* set the number of fields:
@@ -696,8 +696,7 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
                             ch;
 
     int                     max_onscreen = 0,
-                            max_height = 0,
-                            max_width = 0;
+                            max_height = 0;
     unsigned int            i = 0;
     unsigned int            ifac_num = 0;
     struct vrmr_interface   *iface_ptr=NULL;
@@ -744,7 +743,7 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
         return(-1);
     }
 
-    getmaxyx(stdscr, max_height, max_width);
+    max_height = getmaxy(stdscr);
     max_onscreen = max_height - 8 - 6;
 
     /* count the number of non virtual interfaces */

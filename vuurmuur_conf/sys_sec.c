@@ -37,11 +37,7 @@ edit_sysopt_init(const int debuglvl, struct vrmr_config *conf, int height, int w
     int     retval=0,
             rows,
             cols;
-    int     max_height,
-            max_width;
     size_t  i = 0;
-
-    getmaxyx(stdscr, max_height, max_width);
 
     SystemSection.n_fields = 2;
     SystemSection.fields = (FIELD **)calloc(SystemSection.n_fields + 1, sizeof(FIELD *));
@@ -99,7 +95,7 @@ edit_sysopt_init(const int debuglvl, struct vrmr_config *conf, int height, int w
         0: no changes
         1: changes
 */
-int
+static int
 edit_sysopt_save(const int debuglvl, struct vrmr_config *conf)
 {
     int     retval = 0;
