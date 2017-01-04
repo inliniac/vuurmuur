@@ -20,6 +20,7 @@ LIBTOOLIZE="libtoolize"
 
 
 # defaults
+PREFIX=""
 INSTALLDIR=${INSTALLDIR:-"/usr"}
 SHAREDDIR=${SHAREDDIR:-"$INSTALLDIR/share"}
 ETCDIR=${ETCDIR:-"/etc"}
@@ -366,7 +367,7 @@ function CheckDir
 
 function MkDir
 {
-    mkdir $1 &> /dev/null
+    mkdir -p $1 &> /dev/null
     RESULT="$?"
     if [ "$RESULT" != "0" -a "$2" != "mayfail" ]; then
         PrintL "Error: the directory '$1' could not be created."
@@ -479,6 +480,11 @@ do
             fi
             shift 1
         ;;
+        --prefix)
+            echo  "Commandline option '$1'='$2'."
+            PREFIX=$2
+            shift 2
+        ;;
         *)
             PrintHelp
             shift 1
@@ -514,7 +520,7 @@ if [ "$INSTALL" = "1" ]; then
         echo "It is recommended that you choose the defaults, by "
         echo "pressing just enter."
     else
-        echo "Vuurmuur will be installed into /usr."
+        echo "Vuurmuur will be installed into $PREFIX/usr."
     fi
     echo
 elif [ "$UPGRADE" = "1" ]; then
@@ -557,9 +563,10 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
             fi
         fi
     fi
+    INSTALLDIR=${PREFIX}${INSTALLDIR}
     PrintL "Installdir: $INSTALLDIR ..."
     
-    MkDir $INSTALLDIR mayfail
+    MkDir ${INSTALLDIR} mayfail
 fi
 
 # libdir
@@ -603,10 +610,11 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
 
         read TALK
         if [ "$TALK" != "" ]; then
-                ETCDIR="$TALK"
+            ETCDIR="$TALK"
         fi
 
     fi
+    ETCDIR=${PREFIX}${ETCDIR}
     PrintL "Using Etcdir: '$ETCDIR/vuurmuur'."
 
     # try to backup the etc dir
@@ -669,6 +677,7 @@ if [ "$INSTALL" = "1" ]; then
             LOGDIR="$TALK"
         fi
     fi
+    LOGDIR=${PREFIX}${LOGDIR}
     PrintL "Using Logdir: '$LOGDIR'."
 
     MkDir $LOGDIR mayfail
