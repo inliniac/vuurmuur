@@ -110,7 +110,8 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     {
         skip = 0;
 
-        if(!(line_ptr = malloc(sizeof(line)))) {
+        size_t line_size = sizeof(line);
+        if(!(line_ptr = malloc(line_size))) {
             vrmr_error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
             /* cleanup */
             vrmr_list_cleanup(debuglvl, &storelist);
@@ -121,16 +122,16 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
 
         if (strncmp(question, line, strlen(question)) == 0 && line[strlen(question)] == '=') {
             if(overwrite && !found) {
-                snprintf(line_ptr, sizeof(line), "%s=\"%s\"\n", question, answer);
+                snprintf(line_ptr, line_size, "%s=\"%s\"\n", question, answer);
                 found = 1;
             } else if(overwrite && found) {
                 skip = 1;
             } else {
-                (void)strlcpy(line_ptr, line, sizeof(line));
+                (void)strlcpy(line_ptr, line, line_size);
                 found = 1;
             }
         } else {
-            (void)strlcpy(line_ptr, line, sizeof(line));
+            (void)strlcpy(line_ptr, line, line_size);
         }
 
         /*
