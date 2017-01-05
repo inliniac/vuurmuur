@@ -2343,22 +2343,10 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
     /* check if we did anything */
     if(strcmp(options, "options") != 0)
     {
-        if(!(option_ptr = malloc(strlen(options)+1)))
+        if(!(option_ptr = strdup(options)))
         {
-            vrmr_error(-1, "Error", "malloc failed: %s.", strerror(errno));
+            vrmr_error(-1, "Error", "strdup failed: %s.", strerror(errno));
             return(NULL);
-        }
-        else
-        {
-            if(strlcpy(option_ptr, options, strlen(options)+1) >= strlen(options)+1)
-            {
-                vrmr_error(-1, "Internal Error", "string "
-                        "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                return(NULL);
-            }
-
-            if(debuglvl >= MEDIUM)
-                vrmr_debug(__FUNC__, "'%s'.", option_ptr);
         }
     }
 

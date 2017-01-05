@@ -250,8 +250,8 @@ parse_log_srcdst(const int debuglvl, const char *str_in, char *ret_ip, size_t ip
     if (debuglvl >= MEDIUM)
         vrmr_debug(__FUNC__, "str_in '%s'", str_in);
 
-    char str[strlen(str_in)+1];
-    strlcpy(str, str_in, strlen(str_in)+1);
+    char str[256];
+    strlcpy(str, str_in, sizeof(str));
 
     /* find last : that separates the port, but make sure we're not
      * already inside the mac address */
