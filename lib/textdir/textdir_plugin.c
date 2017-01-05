@@ -238,17 +238,9 @@ char
     }
 
     /* now allocate some memory */
-    if(!(fileloc_ptr = malloc(strlen(file_location)+1)))
+    if(!(fileloc_ptr = strdup(file_location)))
     {
-        vrmr_error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
-        return(NULL);
-    }
-
-    /* now copy the string to the new mem */
-    if(strlcpy(fileloc_ptr, file_location, strlen(file_location)+1) >= strlen(file_location)+1)
-    {
-        vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
-        free(fileloc_ptr);
+        vrmr_error(-1, "Error", "strdup failed: %s (in: %s).", strerror(errno), __FUNC__);
         return(NULL);
     }
 
