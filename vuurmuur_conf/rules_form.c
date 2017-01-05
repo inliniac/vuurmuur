@@ -1155,8 +1155,7 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
     char                sep = FALSE,
                         bot_visible = FALSE;
 
-    size_t              comment_len = 0,
-                        before_len = 0;
+    size_t              before_len = 0;
 
     for(dl_node = rules->list.top, d_node = rbform->RuleBar_list.top;
         dl_node && draw_count < rbform->max_bars_on_screen && d_node;
@@ -1294,7 +1293,7 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
 #else /* USE_WIDEC */
                     if(rule_ptr->opt != NULL && rule_ptr->opt->comment[0] != '\0')
                     {
-                        comment_len = StrLen(rule_ptr->opt->comment);
+                        size_t comment_len = StrLen(rule_ptr->opt->comment);
 
                         before_len = (rbform->separator_size - (comment_len + 4)) / 2;
                         separator_str[before_len] = '[';
