@@ -151,7 +151,7 @@ int
 read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *line)
 {
     wchar_t     oneword[512] = L"";
-    int         i = 0;
+    size_t      i = 0;
     int         k = 0;
     whelpword   *hw = NULL;
 
@@ -626,7 +626,7 @@ set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
                 if(next_hw->word != NULL && next_hw->newline == 0)
                 {
                     /* don't add this on the current line */
-                    if((wcslen(hw->word) + 1) >= (width - line_width))
+                    if((int)(wcslen(hw->word) + 1) >= (width - line_width))
                     {
                         /* set line_width to the size of this word */
                         line_width = wcslen(hw->word) + 1;
@@ -647,7 +647,7 @@ set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
                 else if(next_hw->word == NULL && next_hw->newline == 1)
                 {
                     /* don't add this on the current line */
-                    if(wcslen(hw->word) >= (width - line_width))
+                    if((int)wcslen(hw->word) >= (width - line_width))
                     {
                         /* set line_width to the size of this word */
                         line_width = wcslen(hw->word);
@@ -675,7 +675,7 @@ set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
             else
             {
                 /* don't add this on the current line */
-                if(wcslen(hw->word) >= (width - line_width))
+                if((int)wcslen(hw->word) >= (width - line_width))
                 {
                     /* set line_width to the size of this word */
                     line_width = wcslen(hw->word);
@@ -802,7 +802,7 @@ do_wide_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
             return;
         }
 
-        if(hw->line_num >= start_print && hw->line_num <= end_print)
+        if((int)hw->line_num >= start_print && (int)hw->line_num <= end_print)
         {
             if(hw->word != NULL)
             {
