@@ -434,7 +434,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
             max_mwidth = mwidth;
     }
 
-    if(menu->namelen > max_name_len)
+    if(menu->namelen > (int)max_name_len)
     {
         if(debuglvl >= LOW)
             vrmr_debug(__FUNC__, "adjusting menu->namelen "
@@ -442,7 +442,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
 
         menu->namelen = max_name_len;
     }
-    if(menu->desclen > max_desc_len)
+    if(menu->desclen > (int)max_desc_len)
     {
         if(debuglvl >= LOW)
             vrmr_debug(__FUNC__, "adjusting menu->desclen "
@@ -454,7 +454,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
     /* adjust menu->width if needed */
     if(menu->cols == 1)
     {
-        if(menu->width > max_mwidth + 2)
+        if(menu->width > (int)(max_mwidth + 2))
         {
             if(debuglvl >= LOW)
                 vrmr_debug(__FUNC__, "adjusting "
@@ -478,7 +478,7 @@ fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
         /* no desc */
         if(max_desc_len == 0)
         {
-            if(max_name_len + menu->spc_cols != menu->itemlen)
+            if((int)max_name_len + (int)menu->spc_cols != (int)menu->itemlen)
             {
                 menu->itemlen = max_name_len + menu->spc_cols;
 

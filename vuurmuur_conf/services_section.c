@@ -2119,6 +2119,7 @@ edit_service_update_portrangesfld(const int debuglvl, struct vrmr_ctx *vctx,
     int i;
     const int lines = ServiceSec.portranges_lines;
     int bsize = lines * 48;
+    size_t x;
 
     char buffer[bsize];
     memset(buffer, 0, bsize);
@@ -2196,7 +2197,7 @@ edit_service_update_portrangesfld(const int debuglvl, struct vrmr_ctx *vctx,
     finalize:
         /* pad line with spaces */
         len = StrMemLen(line);
-        for (size_t x = len; x < sizeof(line); x++) {
+        for (x = len; x < sizeof(line); x++) {
             line[x] = ' ';
             if (x == sizeof(line) - 1)
                 line[x] = '\0';
