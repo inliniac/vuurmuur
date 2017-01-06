@@ -1,0 +1,90 @@
+#!/bin/sh
+
+# This is an implementation of a start-script for Vuurmuur.
+#
+# (c) 2004-2006 Victor Julien, released under GPL.
+# Adapted for Slackware by Nicolas Dejardin
+#
+# where do the executables reside? NOTE: no trailing slash
+VUURMUUR_LOCATION=/usr/local/bin
+
+# space separated list of modules to load on start, or 'none' if none ;-)
+MODULES_TO_LOAD="ip_tables iptable_filter iptable_mangle iptable_nat ip_conntrack ipt_state ip_conntrack_ftp ip_nat_ftp"
+#MODULES_TO_LOAD="none"
+
+case "$1" in
+	start)
+		echo "Starting firewall: Vuurmuur:"
+		
+                # check if vuurmuur is configured
+                IFNUM=`$VUURMUUR_LOCATION/vuurmuur_script --list --interface any | wc -l`
+                if [ "$IFNUM" = "0" ]; then
+                        echo "FAILED: please configure Vuurmuur first by defining at least one interface."
+                        exit 1
+                fi
+
+		echo -n -e "\tLoading modules:\t"
+		if [ "$MODULES_TO_LOAD" == "none" ]; then
+			echo "disabled."
+		else
+			# load the modules
+			for MODULE in `echo $MODULES_TO_LOAD`; do
+				echo -n "$MODULE:"
+				/sbin/modprobe $MODULE
+				echo "OK "
+			done
+			echo ""
+		fi
+	
+		echo -n -e "\tLoading Vuurmuur:\t"
+		# start vuurmuur
+		if [ ! -f /var/run/vuurmuur.pid ]; then
+			$VUURMUUR_LOCATION/vuurmuur -D
+			RESULT="$?"
+			if [ "$RESULT" = "0" ]; then
+			    echo "OK."
+			else
+			    echo "FAILED."
+			fi
+		else
+			PID=`cat /var/run/vuurmuur.pid | cut -d " " -f 1`
+			echo "FAILED: already running at pid $PID."
+		fi
+		
+		echo -n -e "\tLoading Vuurmuur_log:\t"
+		# start vuurmuur_log
+		if [ ! -f /var/run/vuurmuur_log.pid ]; then
+			$VUURMUUR_LOCATION/vuurmuur_log
+			RESULT="$?"
+			if [ "$RESULT" = "0" ]; then
+			    echo "OK."
+			else
+			    echo "FAILED."
+			fi
+		else
+			PID=`cat /var/run/vuurmuur_log.pid | cut -d " " -f 1`
+			echo "FAILED: already running at pid $PID."
+		fi
+	
+		echo "Starting firewall: Vuurmuur: done"
+		echo ""
+		;;
+	stop)
+		echo -n "Stopping firewall: Vuurmuur."
+		kill -n INT `pidof vuurmuur`
+		echo -n "."
+		kill -n INT `pidof vuurmuur_log`
+		echo -n "."
+		echo "done."
+		echo ""
+		;;
+	force-reload|restart)
+		$0 stop
+		$0 start
+		;;
+	*)
+		echo "Usage: /etc/rc.d/rc.vuurmuur {start|stop|restart|force-reload}"
+		exit 1
+esac
+
+exit 0
