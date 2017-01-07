@@ -1481,7 +1481,7 @@ int vrmr_rules_insert_list(const int, struct vrmr_rules *, unsigned int, struct 
 char *vrmr_rules_assemble_options_string(const int, struct vrmr_rule_options *, const char *);
 int vrmr_rules_compare_options(const int, struct vrmr_rule_options *, struct vrmr_rule_options *, char *);
 void *vrmr_search_rule(const int, struct vrmr_rules *, struct vrmr_rule *);
-int vrmr_rules_read_options(const int, char *, struct vrmr_rule_options *);
+int vrmr_rules_read_options(const int, const char *, struct vrmr_rule_options *);
 struct vrmr_rule *rules_create_protect_rule(const int, char *, /*@null@*/ char *, char *, /*@null@*/char *);
 char *vrmr_rules_assemble_rule(const int, struct vrmr_rule *);
 int vrmr_rules_save_list(const int, struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_config *);

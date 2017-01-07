@@ -2487,25 +2487,657 @@ vrmr_search_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_rule 
     return(NULL);
 }
 
+static int
+parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *op)
+{
+    const size_t curopt_len = strlen(curopt);
+    char portstring[512];
+    size_t o = 0;
+    size_t p = 0;
+
+    /* log - log the rule? */
+    if(strcmp(curopt, "log") == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "logging enabled.");
+
+        op->rule_log = 1;
+    }
+    /* random */
+    else if(strcmp(curopt, "random") == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "random enabled.");
+
+        op->random = 1;
+    }
+    /* loglimit */
+    else if(strncmp(curopt, "loglimit", strlen("loglimit")) == 0)
+    {
+        for (p = 0, o = strlen("loglimit") + 1;
+                o < curopt_len &&
+                p < sizeof(portstring);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                portstring[p] = curopt[o];
+                p++;
+            }
+        }
+        portstring[p] = '\0';
+
+        op->loglimit = (unsigned int)atoi(portstring);
+        op->logburst = op->loglimit * 2;
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "loglimit: %d, logburst %d.", op->loglimit, op->logburst);
+    }
+    /* limit */
+    else if(strncmp(curopt, "limit", strlen("limit")) == 0)
+    {
+        char *ptr = NULL;
+
+        ptr = strstr(curopt, "/");
+
+        if(ptr == NULL) {
+            strlcpy(op->limit_unit,"sec",sizeof(op->limit_unit));
+        } else {
+            for(p = 0, o = ptr - curopt + 1;
+                    o < curopt_len && p < sizeof(op->limit_unit);
+                    o++)
+            {
+                if(curopt[o] != '\"')
+                {
+                    op->limit_unit[p] = curopt[o];
+                    p++;
+                }
+            }
+            op->limit_unit[p] = '\0';
+
+            if (strcasecmp(op->limit_unit,"sec") != 0  &&
+                    strcasecmp(op->limit_unit,"min") != 0 &&
+                    strcasecmp(op->limit_unit,"hour") != 0 &&
+                    strcasecmp(op->limit_unit,"day") != 0)
+            {
+                vrmr_error(-1, "Error", "parsing limit option timeunit failed. Please check the syntax of the rule.");
+                op->limit_unit[0] = '\0';
+                return(-1);
+            }
+        }
+
+        for(p = 0, o = strlen("limit") + 1;
+                o < curopt_len &&
+                p < sizeof(portstring);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                portstring[p] = curopt[o];
+                p++;
+            }
+        }
+        portstring[p] = '\0';
+
+        op->limit = (unsigned int)atoi(portstring);
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "limit: %d / %s.", op->limit, op->limit_unit);
+    }
+    /* burst */
+    else if(strncmp(curopt, "burst", strlen("burst")) == 0)
+    {
+        for(p = 0, o = strlen("burst") + 1;
+                o < curopt_len &&
+                p < sizeof(portstring);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                portstring[p] = curopt[o];
+                p++;
+            }
+        }
+        portstring[p] = '\0';
+
+        op->burst = (unsigned int)atoi(portstring);
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "burst: %d.", op->burst);
+    }
+    /* obsolete: mark the iptablesstate? */
+    else if(strcmp(curopt, "markiptstate") == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "obsolete option 'markiptstate'.");
+    }
+    else if(strcmp(curopt, "queue") == 0)
+    {
+        vrmr_warning("Warning", "'queue' is no longer supported, use nfqueue instead");
+    }
+    /* int */
+    else if(strncmp(curopt, "int", 3) == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "int (old for in_int) option.");
+
+        for(p = 0, o = strlen("int") + 2;
+                p < sizeof(op->in_int) && o < curopt_len - 1;
+                o++, p++)
+        {
+            op->in_int[p] = curopt[o];
+        }
+        op->in_int[p] = '\0';
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "in_int: '%s'.", op->in_int);
+    }
+    /* in_int */
+    else if(strncmp(curopt, "in_int", 6) == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "in_int option.");
+
+        for(p = 0, o = strlen("in_int") + 2;
+                p < sizeof(op->in_int) && o < curopt_len - 1;
+                o++, p++)
+        {
+            op->in_int[p] = curopt[o];
+        }
+        op->in_int[p] = '\0';
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "in_int: '%s'.", op->in_int);
+    }
+    /* out_int */
+    else if(strncmp(curopt, "out_int", 7) == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "out_int option.");
+
+        for(p = 0, o = strlen("out_int") + 2;
+                p < sizeof(op->out_int) && o < curopt_len - 1;
+                o++, p++)
+        {
+            op->out_int[p] = curopt[o];
+        }
+        op->out_int[p] = '\0';
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "out_int: '%s'.", op->out_int);
+    }
+    /* via_int */
+    else if(strncmp(curopt, "via_int", 7) == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "via_int option.");
+
+        for(p = 0, o = strlen("via_int") + 2;
+                p < sizeof(op->via_int) && o < curopt_len - 1;
+                o++, p++)
+        {
+            op->via_int[p] = curopt[o];
+        }
+        op->via_int[p] = '\0';
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "via_int: '%s'.", op->via_int);
+    }
+    /* remoteport - for portforwarding */
+    else if(strncmp(curopt, "remoteport", strlen("remoteport")) == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "remoteport specified.");
+
+        const char *valuestart = curopt + (strlen("remoteport") + 1);
+        strlcpy(portstring, valuestart, sizeof(portstring));
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "remoteport string: '%s'.", portstring);
+
+        if(vrmr_portopts_to_list(debuglvl, portstring, &op->RemoteportList) < 0)
+        {
+            vrmr_error(-1, "Error", "parsing remoteport option failed. Please check the syntax of the rule.");
+            return(-1);
+        }
+
+        op->remoteport = 1;
+    }
+    /* listenport - for portforwarding */
+    else if(strncmp(curopt, "listenport", strlen("listenport")) == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "listenport specified.");
+
+        const char *valuestart = curopt + (strlen("listenport") + 1);
+        strlcpy(portstring, valuestart, sizeof(portstring));
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "listenport string: '%s'.", portstring);
+
+        if(vrmr_portopts_to_list(debuglvl, portstring, &op->ListenportList) < 0)
+        {
+            vrmr_error(-1, "Error", "parsing listenport option failed. Please check the syntax of the rule.");
+            return(-1);
+        }
+
+        op->listenport = 1;
+    }
+    /* rule comment */
+    else if(strncmp(curopt, "comment", strlen("comment")) == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "comment.");
+
+        for(p = 0, o = strlen("comment") + 2;
+                o < curopt_len - 1 && p < sizeof(op->comment);
+                o++, p++)
+        {
+            op->comment[p] = curopt[o];
+        }
+        op->comment[p] = '\0';
+        op->rule_comment = 1;
+    }
+    /* logprefix, max 29 characters long. */
+    else if(strncmp(curopt, "logprefix", strlen("logprefix")) == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "logprefix.");
+
+        for(p = 0, o = strlen("logprefix") + 2;
+                p < 12 && o < curopt_len - 1 && p < sizeof(op->logprefix);
+                o++, p++)
+        {
+            op->logprefix[p] = curopt[o];
+        }
+        op->logprefix[p] = '\0';
+
+        if(strlen(op->logprefix) > 14)
+        {
+            //TODO: not disable, but truncate */
+            vrmr_warning("Warning", "logprefix is too long. Maximum length is 14 characters.");
+            op->rule_logprefix = 0;
+            op->logprefix[0] = '\0';
+        }
+        else
+        {
+            op->rule_logprefix=1;
+        }
+    }
+    /* redirectport */
+    else if(strncmp(curopt, "redirectport", strlen("redirectport")) == 0)
+    {
+        for(p = 0, o = strlen("redirectport") + 1;
+                o < curopt_len &&
+                p < sizeof(portstring);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                portstring[p] = curopt[o];
+                p++;
+            }
+        }
+        portstring[p] = '\0';
+
+        op->redirectport = atoi(portstring);
+        if(op->redirectport <= 0 || op->redirectport > 65535)
+        {
+            vrmr_error(-1, "Error", "redirectport must be 1-65535.");
+            op->redirectport = 0;
+            return(-1);
+        }
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "redirectport: %d, %s", op->redirectport, portstring);
+    }
+    /* nfmark */
+    else if(strncmp(curopt, "nfmark", strlen("nfmark")) == 0)
+    {
+        for(p = 0, o = strlen("nfmark") + 1;
+                o < curopt_len && p < sizeof(portstring);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                portstring[p] = curopt[o];
+                p++;
+            }
+        }
+        portstring[p] = '\0';
+
+        op->nfmark = strtoul(portstring, (char **)NULL, 10);
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "nfmark: %lu, %s", op->nfmark, portstring);
+    }
+    /* reject type */
+    else if(strncmp(curopt, "rejecttype", strlen("rejecttype")) == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "rejecttype.");
+
+        for(p = 0, o = strlen("rejecttype") + 1;
+                o < curopt_len && o < 23 + strlen("rejecttype") + 1 && p < sizeof(op->reject_type);
+                o++)
+        { /* 23 is from the length of the string */
+
+            if(curopt[o] != '\"')
+            {
+                op->reject_type[p] = curopt[o];
+                p++;
+            }
+        }
+        op->reject_type[p] = '\0';
+        op->reject_option = 1;
+
+        /* check if the option is valid. */
+        if( strcmp(op->reject_type, "icmp-net-unreachable") == 0 ||
+                strcmp(op->reject_type, "icmp-host-unreachable") == 0 ||
+                strcmp(op->reject_type, "icmp-proto-unreachable") == 0 ||
+                strcmp(op->reject_type, "icmp-port-unreachable") == 0 ||
+                strcmp(op->reject_type, "icmp-net-prohibited") == 0 ||
+                strcmp(op->reject_type, "icmp-host-prohibited") == 0 ||
+                strcmp(op->reject_type, "tcp-reset") == 0)
+        {
+            if(debuglvl >= HIGH)
+                vrmr_debug(__FUNC__, "valid reject type %s", op->reject_type);
+        }
+        else
+        {
+            vrmr_error(-1, "Error", "%s is not a valid reject-type.", op->reject_type);
+
+            op->reject_option = 0;
+            return(-1);
+        }
+    }
+    /* chain */
+    else if(strncmp(curopt, "chain", strlen("chain")) == 0)
+    {
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "chain.");
+
+        for(p = 0, o = strlen("chain") + 2;
+                o < curopt_len - 1 && p < sizeof(op->chain);
+                o++, p++)
+        {
+            op->chain[p] = curopt[o];
+        }
+        op->chain[p] = '\0';
+    }
+    /* nfqueuenum */
+    else if(strncmp(curopt, "nfqueuenum", strlen("nfqueuenum")) == 0)
+    {
+        for(p = 0, o = strlen("nfqueuenum") + 1;
+                o < curopt_len && p < sizeof(portstring);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                portstring[p] = curopt[o];
+                p++;
+            }
+        }
+        portstring[p] = '\0';
+
+        op->nfqueue_num = atoi(portstring);
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "nfqueuenum: %d, %s", op->nfqueue_num, portstring);
+    }
+    /* nflognum */
+    else if(strncmp(curopt, "nflognum", strlen("nflognum")) == 0)
+    {
+        for(p = 0, o = strlen("nflognum") + 1;
+                o < curopt_len && p < sizeof(portstring);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                portstring[p] = curopt[o];
+                p++;
+            }
+        }
+        portstring[p] = '\0';
+
+        op->nflog_num = atoi(portstring);
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "nflognum: %d, %s", op->nflog_num, portstring);
+    }
+    /* prio */
+    else if(strncmp(curopt, "prio", strlen("prio")) == 0)
+    {
+        for(p = 0, o = strlen("prio") + 1;
+                o < curopt_len && p < sizeof(portstring);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                portstring[p] = curopt[o];
+                p++;
+            }
+        }
+        portstring[p] = '\0';
+
+        op->prio = atoi(portstring);
+
+        if(debuglvl >= MEDIUM)
+            vrmr_debug(__FUNC__, "prio: %d, %s", op->prio, portstring);
+    }
+    /* in_max */
+    else if(strncmp(curopt, "in_max", strlen("in_max")) == 0)
+    {
+        char    bw_string[24] = "",
+                value_string[12] = "",
+                unit_string[5] = "";
+        size_t  i = 0;
+
+        for(p = 0, o = strlen("in_max") + 1;
+                o < curopt_len && p < sizeof(bw_string);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                bw_string[p] = curopt[o];
+                p++;
+            }
+        }
+        bw_string[p] = '\0';
+
+        /* split the value and the unit */
+        for (p = 0, i = 0; p < sizeof(value_string)-1 && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
+        {
+            value_string[p] = bw_string[i];
+        }
+        value_string[p] = '\0';
+
+        for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+        {
+            unit_string[p] = bw_string[i];
+        }
+        unit_string[p] = '\0';
+
+        if (strcmp(unit_string, "kbit") == 0 ||
+                strcmp(unit_string, "mbit") == 0 ||
+                strcmp(unit_string, "kbps") == 0 ||
+                strcmp(unit_string, "mbps") == 0)
+        {
+            op->bw_in_max = atoi(value_string);
+            strlcpy(op->bw_in_max_unit, unit_string, sizeof(op->bw_in_max_unit));
+
+            if(debuglvl >= MEDIUM)
+                vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+        } else {
+            vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+            return(-1);
+        }
+    }
+    /* in_min */
+    else if(strncmp(curopt, "in_min", strlen("in_min")) == 0)
+    {
+        char    bw_string[24] = "",
+                value_string[12] = "",
+                unit_string[5] = "";
+        size_t  i = 0;
+
+        for(p = 0, o = strlen("in_min") + 1;
+                o < curopt_len && p < sizeof(bw_string);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                bw_string[p] = curopt[o];
+                p++;
+            }
+        }
+        bw_string[p] = '\0';
+
+        /* split the value and the unit */
+        for (p = 0, i = 0; p < sizeof(value_string)-1 && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
+        {
+            value_string[p] = bw_string[i];
+        }
+        value_string[p] = '\0';
+
+        for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+        {
+            unit_string[p] = bw_string[i];
+        }
+        unit_string[p] = '\0';
+
+        if (strcmp(unit_string, "kbit") == 0 ||
+                strcmp(unit_string, "mbit") == 0 ||
+                strcmp(unit_string, "kbps") == 0 ||
+                strcmp(unit_string, "mbps") == 0)
+        {
+            op->bw_in_min = atoi(value_string);
+            strlcpy(op->bw_in_min_unit, unit_string, sizeof(op->bw_in_min_unit));
+
+            if(debuglvl >= MEDIUM)
+                vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+        } else {
+            vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+            return(-1);
+        }
+    }
+    /* out_max */
+    else if(strncmp(curopt, "out_max=", 8) == 0)
+    {
+        char    bw_string[24] = "",
+                value_string[12] = "",
+                unit_string[5] = "";
+        size_t  i = 0;
+
+        for(p = 0, o = 8;
+                o < curopt_len && p < sizeof(bw_string);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                bw_string[p] = curopt[o];
+                p++;
+            }
+        }
+        bw_string[p] = '\0';
+
+        /* split the value and the unit */
+        for (p = 0, i = 0; p < sizeof(value_string)-1 && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
+        {
+            value_string[p] = bw_string[i];
+        }
+        value_string[p] = '\0';
+
+        for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+        {
+            unit_string[p] = bw_string[i];
+        }
+        unit_string[p] = '\0';
+
+        if (strcmp(unit_string, "kbit") == 0 ||
+                strcmp(unit_string, "mbit") == 0 ||
+                strcmp(unit_string, "kbps") == 0 ||
+                strcmp(unit_string, "mbps") == 0)
+        {
+            op->bw_out_max = atoi(value_string);
+            strlcpy(op->bw_out_max_unit, unit_string, sizeof(op->bw_out_max_unit));
+
+            if(debuglvl >= MEDIUM)
+                vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+        } else {
+            vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+            return(-1);
+        }
+    }
+    /* out_min */
+    else if(strncmp(curopt, "out_min=", 8) == 0)
+    {
+        char    bw_string[24] = "",
+                value_string[11] = "",
+                unit_string[5] = "";
+        size_t  i = 0;
+
+        for(p = 0, o = 8;
+                o < curopt_len && p < sizeof(bw_string);
+                o++)
+        {
+            if(curopt[o] != '\"')
+            {
+                bw_string[p] = curopt[o];
+                p++;
+            }
+        }
+        bw_string[p] = '\0';
+
+        /* split the value and the unit */
+        for (p = 0, i = 0; p < sizeof(value_string)-1 && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
+        {
+            value_string[p] = bw_string[i];
+        }
+        value_string[p] = '\0';
+
+        for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+        {
+            unit_string[p] = bw_string[i];
+        }
+        unit_string[p] = '\0';
+
+        if (strcmp(unit_string, "kbit") == 0 ||
+                strcmp(unit_string, "mbit") == 0 ||
+                strcmp(unit_string, "kbps") == 0 ||
+                strcmp(unit_string, "mbps") == 0)
+        {
+            op->bw_out_min = atoi(value_string);
+            strlcpy(op->bw_out_min_unit, unit_string, sizeof(op->bw_out_min_unit));
+
+            if(debuglvl >= MEDIUM)
+                vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
+        } else {
+            vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
+            return(-1);
+        }
+    }
+    /* unknown option */
+    else
+    {
+        vrmr_warning("Warning", "unknown rule option '%s'.", curopt);
+        //return(-1);
+    }
+    return(0);
+}
 
 /* vrmr_rules_read_options
 
     Call with the string with options and ouputs the option structure.
-
-    TODO: this needs to be totally redesigned
-
 */
 int
-vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_options *op)
+vrmr_rules_read_options(const int debuglvl, const char *optstr, struct vrmr_rule_options *op)
 {
     int     retval = 0,
             trema = 0;
-    char    curopt[512] = "",
-            portstring[512] = "";
+    char    curopt[512];
     size_t  x = 0,
-            cur_pos = 0,
-            o = 0,
-            p = 0;
+            cur_pos = 0;
 
     /* safety */
     if(optstr == NULL || op == NULL)
@@ -2518,694 +3150,67 @@ vrmr_rules_read_options(const int debuglvl, char *optstr, struct vrmr_rule_optio
         vrmr_debug(__FUNC__, "options: '%s', strlen(optstr): %d", optstr, strlen(optstr));
 
     /* check if we even got a string to disassemble */
-    if(strlen(optstr) == 0)
+    const size_t optstr_len = strlen(optstr);
+    if(optstr_len == 0)
     {
         if(debuglvl >= MEDIUM)
             vrmr_debug(__FUNC__, "no options.");
-
         return(0);
     }
 
-
-    while((strlen(optstr) >= x))
+    while (x <= optstr_len)
     {
         curopt[cur_pos] = optstr[x];
         cur_pos++;
 
         /* between the trema's (") don't use the comma as a separator. */
-        if((optstr[x] == '"') && (trema == 1))
-        {
+        if((optstr[x] == '"') && (trema == 1)) {
             trema = 2;
-        }
-        if((optstr[x] == '"') && (trema == 0))
-        {
+        } else if((optstr[x] == '"') && (trema == 0)) {
             trema = 1;
         }
 
-        if(((optstr[x] == ',') && ((trema == 0) || (trema == 2))) || (optstr[x] == '\0'))
-        {
+        if (((optstr[x] == ',') && ((trema == 0)))) {
             curopt[cur_pos - 1] = '\0';
             cur_pos = 0;
+        }
+        else if (((optstr[x] == ',') && (trema == 2))) {
+            curopt[cur_pos - 1] = '\0';
+            cur_pos = 0;
+        } else if ((optstr[x] == '\0')) {
+            if (cur_pos > 0) {
+                curopt[cur_pos - 1] = '\0';
+                cur_pos = 0;
+            } else {
+                curopt[0] = '\0';
+                cur_pos = 0;
+            }
+
         }
         x++;
 
         /* reset trema, so we can have more trema pairs. */
-        if(trema == 2)
+        if (trema == 2)
             trema = 0;
 
         /* we are done */
-        if(cur_pos == 0)
+        if (cur_pos == 0 && strlen(curopt) > 0)
         {
             if(debuglvl >= LOW)
                 vrmr_debug(__FUNC__, "curopt: '%s'.", curopt);
 
             /* error message for a missing trema */
-            if(trema == 1)
-            {
+            if (trema == 1) {
                 vrmr_error(-1, "Error", "unbalanced \" in rule (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
             }
 
-
             /*
                 start parsing the options
             */
-
-            /* log - log the rule? */
-            if(strcmp(curopt, "log") == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "logging enabled.");
-
-                op->rule_log = 1;
-            }
-            /* random */
-            else if(strcmp(curopt, "random") == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "random enabled.");
-
-                op->random = 1;
-            }
-            /* loglimit */
-            else if(strncmp(curopt, "loglimit", strlen("loglimit")) == 0)
-            {
-                for(p = 0, o = strlen("loglimit") + 1;
-                        o < strlen(curopt) && p < sizeof(portstring);
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        portstring[p] = curopt[o];
-                        p++;
-                    }
-                }
-                portstring[p] = '\0';
-
-                op->loglimit = (unsigned int)atoi(portstring);
-                op->logburst = op->loglimit * 2;
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "loglimit: %d, logburst %d.", op->loglimit, op->logburst);
-            }
-            /* limit */
-            else if(strncmp(curopt, "limit", strlen("limit")) == 0)
-            {
-                char *ptr = NULL;
-
-                ptr = strstr(curopt, "/");
-
-                if(ptr == NULL) {
-                    strlcpy(op->limit_unit,"sec",sizeof(op->limit_unit));
-                } else {
-                    for(p = 0, o = ptr - curopt + 1;
-                            o < strlen(curopt) && p < sizeof(op->limit_unit);
-                            o++)
-                    {
-                        if(curopt[o] != '\"')
-                        {
-                            op->limit_unit[p] = curopt[o];
-                            p++;
-                        }
-                    }
-                    op->limit_unit[p] = '\0';
-
-                    if (strcasecmp(op->limit_unit,"sec") != 0  &&
-                        strcasecmp(op->limit_unit,"min") != 0 &&
-                        strcasecmp(op->limit_unit,"hour") != 0 &&
-                        strcasecmp(op->limit_unit,"day") != 0)
-                    {
-                        vrmr_error(-1, "Error", "parsing limit option timeunit failed. Please check the syntax of the rule.");
-                        op->limit_unit[0] = '\0';
-                        return(-1);
-                    }
-                }
-
-                for(p = 0, o = strlen("limit") + 1;
-                        o < strlen(curopt) && p < sizeof(portstring) && curopt[0] != '/';
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        portstring[p] = curopt[o];
-                        p++;
-                    }
-                }
-                portstring[p] = '\0';
-
-                op->limit = (unsigned int)atoi(portstring);
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "limit: %d / %s.", op->limit, op->limit_unit);
-            }
-            /* burst */
-            else if(strncmp(curopt, "burst", strlen("burst")) == 0)
-            {
-                for(p = 0, o = strlen("burst") + 1;
-                        o < strlen(curopt) && p < sizeof(portstring);
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        portstring[p] = curopt[o];
-                        p++;
-                    }
-                }
-                portstring[p] = '\0';
-
-                op->burst = (unsigned int)atoi(portstring);
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "burst: %d.", op->burst);
-            }
-            /* obsolete: mark the iptablesstate? */
-            else if(strcmp(curopt, "markiptstate") == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "obsolete option 'markiptstate'.");
-            }
-            else if(strcmp(curopt, "queue") == 0)
-            {
-                vrmr_warning("Warning", "'queue' is no longer supported, use nfqueue instead");
-            }
-            /* int */
-            else if(strncmp(curopt, "int", 3) == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "int (old for in_int) option.");
-
-                for(p = 0, o = strlen("int") + 2;
-                        p < sizeof(op->in_int) && o < strlen(curopt) - 1;
-                        o++, p++)
-                {
-                    op->in_int[p] = curopt[o];
-                }
-                op->in_int[p] = '\0';
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "in_int: '%s'.", op->in_int);
-            }
-            /* in_int */
-            else if(strncmp(curopt, "in_int", 6) == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "in_int option.");
-
-                for(p = 0, o = strlen("in_int") + 2;
-                        p < sizeof(op->in_int) && o < strlen(curopt) - 1;
-                        o++, p++)
-                {
-                    op->in_int[p] = curopt[o];
-                }
-                op->in_int[p] = '\0';
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "in_int: '%s'.", op->in_int);
-            }
-            /* out_int */
-            else if(strncmp(curopt, "out_int", 7) == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "out_int option.");
-
-                for(p = 0, o = strlen("out_int") + 2;
-                        p < sizeof(op->out_int) && o < strlen(curopt) - 1;
-                        o++, p++)
-                {
-                    op->out_int[p] = curopt[o];
-                }
-                op->out_int[p] = '\0';
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "out_int: '%s'.", op->out_int);
-            }
-            /* via_int */
-            else if(strncmp(curopt, "via_int", 7) == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "via_int option.");
-
-                for(p = 0, o = strlen("via_int") + 2;
-                        p < sizeof(op->via_int) && o < strlen(curopt) - 1;
-                        o++, p++)
-                {
-                    op->via_int[p] = curopt[o];
-                }
-                op->via_int[p] = '\0';
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "via_int: '%s'.", op->via_int);
-            }
-            /* remoteport - for portforwarding */
-            else if(strncmp(curopt, "remoteport", strlen("remoteport")) == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "remoteport specified.");
-
-                /* copy the string containing the ports */
-                for(p = 0, o = strlen("remoteport") + 1;
-                        o <= strlen(curopt) && p < sizeof(portstring);
-                        o++, p++)
-                {
-                    portstring[p] = curopt[o];
-                }
-//TODO: no NULL?
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "remoteport string: '%s'.", portstring);
-
-                if(vrmr_portopts_to_list(debuglvl, portstring, &op->RemoteportList) < 0)
-                {
-                    vrmr_error(-1, "Error", "parsing remoteport option failed. Please check the syntax of the rule.");
-                    return(-1);
-                }
-
-                op->remoteport = 1;
-            }
-            /* listenport - for portforwarding */
-            else if(strncmp(curopt, "listenport", strlen("listenport")) == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "listenport specified.");
-
-                /* copy the string containing the ports */
-                for(p = 0, o = strlen("listenport") + 1;
-                        o <= strlen(curopt) && p < sizeof(portstring);
-                        o++, p++)
-                {
-                    portstring[p] = curopt[o];
-                }
-//TODO: no NULL?
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "listenport string: '%s'.", portstring);
-
-                if(vrmr_portopts_to_list(debuglvl, portstring, &op->ListenportList) < 0)
-                {
-                    vrmr_error(-1, "Error", "parsing listenport option failed. Please check the syntax of the rule.");
-                    return(-1);
-                }
-
-                op->listenport = 1;
-            }
-            /* rule comment */
-            else if(strncmp(curopt, "comment", strlen("comment")) == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "comment.");
-
-                for(p = 0, o = strlen("comment") + 2;
-                        o < strlen(curopt) - 1 && p < sizeof(op->comment);
-                        o++, p++)
-                {
-                    op->comment[p] = curopt[o];
-                }
-                op->comment[p] = '\0';
-                op->rule_comment = 1;
-            }
-            /* logprefix, max 29 characters long. */
-            else if(strncmp(curopt, "logprefix", strlen("logprefix")) == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "logprefix.");
-
-                for(p = 0, o = strlen("logprefix") + 2;
-                        p < 12 && o < strlen(curopt) - 1 && p < sizeof(op->logprefix);
-                        o++, p++)
-                {
-                    op->logprefix[p] = curopt[o];
-                }
-                op->logprefix[p] = '\0';
-
-                if(strlen(op->logprefix) > 14)
-                {
-//TODO: not disable, but truncate */
-                    vrmr_warning("Warning", "logprefix is too long. Maximum length is 14 characters.");
-                    op->rule_logprefix = 0;
-                    op->logprefix[0] = '\0';
-                }
-                else
-                {
-                    op->rule_logprefix=1;
-                }
-            }
-            /* redirectport */
-            else if(strncmp(curopt, "redirectport", strlen("redirectport")) == 0)
-            {
-                for(p = 0, o = strlen("redirectport") + 1;
-                        o < strlen(curopt) && p < sizeof(portstring);
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        portstring[p] = curopt[o];
-                        p++;
-                    }
-                }
-                portstring[p] = '\0';
-
-                op->redirectport = atoi(portstring);
-                if(op->redirectport <= 0 || op->redirectport > 65535)
-                {
-                    vrmr_error(-1, "Error", "redirectport must be 1-65535.");
-                    op->redirectport = 0;
-                    return(-1);
-                }
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "redirectport: %d, %s", op->redirectport, portstring);
-            }
-            /* nfmark */
-            else if(strncmp(curopt, "nfmark", strlen("nfmark")) == 0)
-            {
-                for(p = 0, o = strlen("nfmark") + 1;
-                        o < strlen(curopt) && p < sizeof(portstring);
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        portstring[p] = curopt[o];
-                        p++;
-                    }
-                }
-                portstring[p] = '\0';
-
-                op->nfmark = strtoul(portstring, (char **)NULL, 10);
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "nfmark: %lu, %s", op->nfmark, portstring);
-            }
-            /* reject type */
-            else if(strncmp(curopt, "rejecttype", strlen("rejecttype")) == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "rejecttype.");
-
-                for(p = 0, o = strlen("rejecttype") + 1;
-                        o < strlen(curopt) && o < 23 + strlen("rejecttype") + 1 && p < sizeof(op->reject_type);
-                        o++)
-                { /* 23 is from the length of the string */
-
-                    if(curopt[o] != '\"')
-                    {
-                        op->reject_type[p] = curopt[o];
-                        p++;
-                    }
-                }
-                op->reject_type[p] = '\0';
-                op->reject_option = 1;
-
-                /* check if the option is valid. */
-                if( strcmp(op->reject_type, "icmp-net-unreachable") == 0 ||
-                    strcmp(op->reject_type, "icmp-host-unreachable") == 0 ||
-                    strcmp(op->reject_type, "icmp-proto-unreachable") == 0 ||
-                    strcmp(op->reject_type, "icmp-port-unreachable") == 0 ||
-                    strcmp(op->reject_type, "icmp-net-prohibited") == 0 ||
-                    strcmp(op->reject_type, "icmp-host-prohibited") == 0 ||
-                    strcmp(op->reject_type, "tcp-reset") == 0)
-                {
-                    if(debuglvl >= HIGH)
-                        vrmr_debug(__FUNC__, "valid reject type %s", op->reject_type);
-                }
-                else
-                {
-                    vrmr_error(-1, "Error", "%s is not a valid reject-type.", op->reject_type);
-
-                    op->reject_option = 0;
-                    return(-1);
-                }
-            }
-            /* chain */
-            else if(strncmp(curopt, "chain", strlen("chain")) == 0)
-            {
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "chain.");
-
-                for(p = 0, o = strlen("chain") + 2;
-                        o < strlen(curopt) - 1 && p < sizeof(op->chain);
-                        o++, p++)
-                {
-                    op->chain[p] = curopt[o];
-                }
-                op->chain[p] = '\0';
-            }
-            /* nfqueuenum */
-            else if(strncmp(curopt, "nfqueuenum", strlen("nfqueuenum")) == 0)
-            {
-                for(p = 0, o = strlen("nfqueuenum") + 1;
-                        o < strlen(curopt) && p < sizeof(portstring);
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        portstring[p] = curopt[o];
-                        p++;
-                    }
-                }
-                portstring[p] = '\0';
-
-                op->nfqueue_num = atoi(portstring);
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "nfqueuenum: %d, %s", op->nfqueue_num, portstring);
-            }
-            /* nflognum */
-            else if(strncmp(curopt, "nflognum", strlen("nflognum")) == 0)
-            {
-                for(p = 0, o = strlen("nflognum") + 1;
-                        o < strlen(curopt) && p < sizeof(portstring);
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        portstring[p] = curopt[o];
-                        p++;
-                    }
-                }
-                portstring[p] = '\0';
-
-                op->nflog_num = atoi(portstring);
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "nflognum: %d, %s", op->nflog_num, portstring);
-            }
-            /* prio */
-            else if(strncmp(curopt, "prio", strlen("prio")) == 0)
-            {
-                for(p = 0, o = strlen("prio") + 1;
-                        o < strlen(curopt) && p < sizeof(portstring);
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        portstring[p] = curopt[o];
-                        p++;
-                    }
-                }
-                portstring[p] = '\0';
-
-                op->prio = atoi(portstring);
-
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "prio: %d, %s", op->prio, portstring);
-            }
-            /* in_max */
-            else if(strncmp(curopt, "in_max", strlen("in_max")) == 0)
-            {
-                char    bw_string[24] = "",
-                        value_string[11] = "",
-                        unit_string[5] = "";
-                size_t  i = 0;
-
-                for(p = 0, o = strlen("in_max") + 1;
-                        o < strlen(curopt) && p < sizeof(bw_string);
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        bw_string[p] = curopt[o];
-                        p++;
-                    }
-                }
-                bw_string[p] = '\0';
-
-                /* split the value and the unit */
-                for (p = 0, i = 0; p < sizeof(value_string) && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
-                {
-                    value_string[p] = bw_string[i];
-                }
-                value_string[p] = '\0';
-
-                for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
-                {
-                    unit_string[p] = bw_string[i];
-                }
-                unit_string[p] = '\0';
-
-                if (strcmp(unit_string, "kbit") == 0 ||
-                    strcmp(unit_string, "mbit") == 0 ||
-                    strcmp(unit_string, "kbps") == 0 ||
-                    strcmp(unit_string, "mbps") == 0)
-                {
-                    op->bw_in_max = atoi(value_string);
-                    strlcpy(op->bw_in_max_unit, unit_string, sizeof(op->bw_in_max_unit));
-
-                    if(debuglvl >= MEDIUM)
-                        vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
-                } else {
-                    vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
-                    return(-1);
-                }
-            }
-            /* in_min */
-            else if(strncmp(curopt, "in_min", strlen("in_min")) == 0)
-            {
-                char    bw_string[24] = "",
-                        value_string[11] = "",
-                        unit_string[5] = "";
-                size_t  i = 0;
-
-                for(p = 0, o = strlen("in_min") + 1;
-                        o < strlen(curopt) && p < sizeof(bw_string);
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        bw_string[p] = curopt[o];
-                        p++;
-                    }
-                }
-                bw_string[p] = '\0';
-
-                /* split the value and the unit */
-                for (p = 0, i = 0; p < sizeof(value_string) && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
-                {
-                    value_string[p] = bw_string[i];
-                }
-                value_string[p] = '\0';
-
-                for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
-                {
-                    unit_string[p] = bw_string[i];
-                }
-                unit_string[p] = '\0';
-
-                if (strcmp(unit_string, "kbit") == 0 ||
-                    strcmp(unit_string, "mbit") == 0 ||
-                    strcmp(unit_string, "kbps") == 0 ||
-                    strcmp(unit_string, "mbps") == 0)
-                {
-                    op->bw_in_min = atoi(value_string);
-                    strlcpy(op->bw_in_min_unit, unit_string, sizeof(op->bw_in_min_unit));
-
-                    if(debuglvl >= MEDIUM)
-                        vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
-                } else {
-                    vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
-                    return(-1);
-                }
-            }
-            /* out_max */
-            else if(strncmp(curopt, "out_max", strlen("out_max")) == 0)
-            {
-                char    bw_string[24] = "",
-                        value_string[11] = "",
-                        unit_string[5] = "";
-                size_t  i = 0;
-
-                for(p = 0, o = strlen("out_max") + 1;
-                        o < strlen(curopt) && p < sizeof(bw_string);
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        bw_string[p] = curopt[o];
-                        p++;
-                    }
-                }
-                bw_string[p] = '\0';
-
-                /* split the value and the unit */
-                for (p = 0, i = 0; p < sizeof(value_string) && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
-                {
-                    value_string[p] = bw_string[i];
-                }
-                value_string[p] = '\0';
-
-                for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
-                {
-                    unit_string[p] = bw_string[i];
-                }
-                unit_string[p] = '\0';
-
-                if (strcmp(unit_string, "kbit") == 0 ||
-                    strcmp(unit_string, "mbit") == 0 ||
-                    strcmp(unit_string, "kbps") == 0 ||
-                    strcmp(unit_string, "mbps") == 0)
-                {
-                    op->bw_out_max = atoi(value_string);
-                    strlcpy(op->bw_out_max_unit, unit_string, sizeof(op->bw_out_max_unit));
-
-                    if(debuglvl >= MEDIUM)
-                        vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
-                } else {
-                    vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
-                    return(-1);
-                }
-            }
-            /* out_min */
-            else if(strncmp(curopt, "out_min", strlen("out_min")) == 0)
-            {
-                char    bw_string[24] = "",
-                        value_string[11] = "",
-                        unit_string[5] = "";
-                size_t  i = 0;
-
-                for(p = 0, o = strlen("out_min") + 1;
-                        o < strlen(curopt) && p < sizeof(bw_string);
-                        o++)
-                {
-                    if(curopt[o] != '\"')
-                    {
-                        bw_string[p] = curopt[o];
-                        p++;
-                    }
-                }
-                bw_string[p] = '\0';
-
-                /* split the value and the unit */
-                for (p = 0, i = 0; p < sizeof(value_string) && i < strlen(bw_string) && isdigit(bw_string[i]); i++, p++)
-                {
-                    value_string[p] = bw_string[i];
-                }
-                value_string[p] = '\0';
-
-                for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
-                {
-                    unit_string[p] = bw_string[i];
-                }
-                unit_string[p] = '\0';
-
-                if (strcmp(unit_string, "kbit") == 0 ||
-                    strcmp(unit_string, "mbit") == 0 ||
-                    strcmp(unit_string, "kbps") == 0 ||
-                    strcmp(unit_string, "mbps") == 0)
-                {
-                    op->bw_out_min = atoi(value_string);
-                    strlcpy(op->bw_out_min_unit, unit_string, sizeof(op->bw_out_min_unit));
-
-                    if(debuglvl >= MEDIUM)
-                        vrmr_debug(__FUNC__, "value_string %s unit_string %s", value_string, unit_string);
-                } else {
-                    vrmr_error(-1, "Error", "%s is not a valid unit for shaping.", unit_string);
-                    return(-1);
-                }
-            }
-            /* unknown option */
-            else
-            {
-                vrmr_warning("Warning", "unknown rule option '%s'.", curopt);
-                //return(-1);
-            }
+            retval = parse_option(debuglvl, curopt, op);
+            if (retval != 0)
+                break;
         }
     }
 
