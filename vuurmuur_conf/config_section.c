@@ -192,10 +192,9 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
             if(ConfigSection.fields[i] == GenConfig.iptableslocfld)
             {
                 /* iptables location */
-                if(!(copy_field2buf(conf->iptables_location,
+                copy_field2buf(conf->iptables_location,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->iptables_location))))
-                    return(-1);
+                                    sizeof(conf->iptables_location));
 
                 vrmr_sanitize_path(debuglvl, conf->iptables_location,
                         StrLen(conf->iptables_location));
@@ -206,10 +205,9 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == GenConfig.iptablesrestorelocfld)
             {
                 /* iptables-restore location */
-                if(!(copy_field2buf(conf->iptablesrestore_location,
+                copy_field2buf(conf->iptablesrestore_location,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->iptablesrestore_location))))
-                    return(-1);
+                                    sizeof(conf->iptablesrestore_location));
 
                 vrmr_sanitize_path(debuglvl, conf->iptablesrestore_location,
                         StrLen(conf->iptablesrestore_location));
@@ -221,10 +219,9 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == GenConfig.ip6tableslocfld)
             {
                 /* ip6tables location */
-                if(!(copy_field2buf(conf->ip6tables_location,
+                copy_field2buf(conf->ip6tables_location,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->ip6tables_location))))
-                    return(-1);
+                                    sizeof(conf->ip6tables_location));
 
                 vrmr_sanitize_path(debuglvl, conf->ip6tables_location,
                         StrLen(conf->ip6tables_location));
@@ -235,10 +232,9 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == GenConfig.ip6tablesrestorelocfld)
             {
                 /* ip6tables-restore location */
-                if(!(copy_field2buf(conf->ip6tablesrestore_location,
+                copy_field2buf(conf->ip6tablesrestore_location,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->ip6tablesrestore_location))))
-                    return(-1);
+                                    sizeof(conf->ip6tablesrestore_location));
 
                 vrmr_sanitize_path(debuglvl, conf->ip6tablesrestore_location,
                         StrLen(conf->ip6tablesrestore_location));
@@ -250,10 +246,9 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == GenConfig.conntracklocfld)
             {
                 /* conntrack location */
-                if(!(copy_field2buf(conf->conntrack_location,
+                copy_field2buf(conf->conntrack_location,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->conntrack_location))))
-                    return(-1);
+                                    sizeof(conf->conntrack_location));
 
                 vrmr_sanitize_path(debuglvl, conf->conntrack_location,
                         StrLen(conf->conntrack_location));
@@ -264,10 +259,9 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == GenConfig.tclocfld)
             {
                 /* tc location */
-                if(!(copy_field2buf(conf->tc_location,
+                copy_field2buf(conf->tc_location,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->tc_location))))
-                    return(-1);
+                                    sizeof(conf->tc_location));
 
                 vrmr_sanitize_path(debuglvl, conf->tc_location,
                         StrLen(conf->tc_location));
@@ -282,10 +276,8 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
                 long int newval;
 
                 /* maximum file permissions */
-                if(!(copy_field2buf(buf,
-                                    field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(buf))))
-                    return(-1);
+                copy_field2buf(buf, field_buffer(ConfigSection.fields[i], 0),
+                                    sizeof(buf));
 
                 /* Parse it as an octal mode */
                 newval = strtol(buf, &endptr, 8);
@@ -303,10 +295,9 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == GenConfig.sysctllocfld)
             {
                 /* tc location */
-                if(!(copy_field2buf(conf->sysctl_location,
+                copy_field2buf(conf->sysctl_location,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->sysctl_location))))
-                    return(-1);
+                                    sizeof(conf->sysctl_location));
 
                 vrmr_sanitize_path(debuglvl, conf->sysctl_location,
                         StrLen(conf->sysctl_location));
@@ -559,10 +550,9 @@ edit_intconfig_save(const int debuglvl, struct vrmr_config *conf)
             if(ConfigSection.fields[i] == IntConfig.dynchkintfld)
             {
                 /* synlimit */
-                if(!(copy_field2buf(IntConfig.number,
+                copy_field2buf(IntConfig.number,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(IntConfig.number))))
-                    return(-1);
+                                    sizeof(IntConfig.number));
 
                 interval = atoi(IntConfig.number);
                 if(interval > 0)
@@ -829,10 +819,9 @@ edit_modconfig_save(const int debuglvl, struct vrmr_config *conf)
         {
             if(ConfigSection.fields[i] == ModConfig.modprobefld)
             {
-                if(!(copy_field2buf(conf->modprobe_location,
+                copy_field2buf(conf->modprobe_location,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->modprobe_location))))
-                    return(-1);
+                                    sizeof(conf->modprobe_location));
 
                 vrmr_sanitize_path(debuglvl, conf->modprobe_location,
                         StrLen(conf->modprobe_location));
@@ -854,10 +843,9 @@ edit_modconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == ModConfig.waittimefld)
             {
                 /* synlimit */
-                if(!(copy_field2buf(ModConfig.number,
+                copy_field2buf(ModConfig.number,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(ModConfig.number))))
-                    return(-1);
+                                    sizeof(ModConfig.number));
 
                 interval = atoi(ModConfig.number);
                 if(interval >= 0)
@@ -1107,10 +1095,9 @@ edit_plugconfig_save(const int debuglvl, struct vrmr_config *conf)
             if(ConfigSection.fields[i] == PlugConfig.servbackfld)
             {
                 /* services backend */
-                if(!(copy_field2buf(conf->serv_backend_name,
+                copy_field2buf(conf->serv_backend_name,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->serv_backend_name))))
-                    return(-1);
+                                    sizeof(conf->serv_backend_name));
 
                 vrmr_audit("'service backend name' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf->serv_backend_name);
@@ -1118,10 +1105,9 @@ edit_plugconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == PlugConfig.zonebackfld)
             {
                 /* zones backend */
-                if(!(copy_field2buf(conf->zone_backend_name,
+                copy_field2buf(conf->zone_backend_name,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->zone_backend_name))))
-                    return(-1);
+                                    sizeof(conf->zone_backend_name));
 
                 vrmr_audit("'zone backend name' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf->zone_backend_name);
@@ -1129,10 +1115,9 @@ edit_plugconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == PlugConfig.ifacbackfld)
             {
                 /* interfaces backend */
-                if(!(copy_field2buf(conf->ifac_backend_name,
+                copy_field2buf(conf->ifac_backend_name,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->ifac_backend_name))))
-                    return(-1);
+                                    sizeof(conf->ifac_backend_name));
 
                 vrmr_audit("'interface backend name' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf->ifac_backend_name);
@@ -1140,10 +1125,9 @@ edit_plugconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == PlugConfig.rulebackfld)
             {
                 /* interfaces backend */
-                if(!(copy_field2buf(conf->rule_backend_name,
+                copy_field2buf(conf->rule_backend_name,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->rule_backend_name))))
-                    return(-1);
+                                    sizeof(conf->rule_backend_name));
 
                 vrmr_audit("'rule backend name' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf->rule_backend_name);
@@ -1445,10 +1429,9 @@ edit_conconfig_save(struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == ConConfig.synlimitfld)
             {
                 /* synlimit */
-                if(!(copy_field2buf(ConConfig.number,
+                copy_field2buf(ConConfig.number,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(ConConfig.number))))
-                    return(-1);
+                                    sizeof(ConConfig.number));
 
                 syn = atoi(ConConfig.number);
                 if(syn > 0)
@@ -1462,10 +1445,9 @@ edit_conconfig_save(struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == ConConfig.synburstfld)
             {
                 /* synlimit */
-                if(!(copy_field2buf(ConConfig.number,
+                copy_field2buf(ConConfig.number,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(ConConfig.number))))
-                    return(-1);
+                                    sizeof(ConConfig.number));
 
                 syn = atoi(ConConfig.number);
                 if(syn > 0)
@@ -1490,10 +1472,9 @@ edit_conconfig_save(struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == ConConfig.udplimitfld)
             {
                 /* udplimit */
-                if(!(copy_field2buf(ConConfig.number,
+                copy_field2buf(ConConfig.number,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(ConConfig.number))))
-                    return(-1);
+                                    sizeof(ConConfig.number));
 
                 udplimit = atoi(ConConfig.number);
                 if(udplimit > 0)
@@ -1507,10 +1488,9 @@ edit_conconfig_save(struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == ConConfig.udpburstfld)
             {
                 /* udpburst */
-                if(!(copy_field2buf(ConConfig.number,
+                copy_field2buf(ConConfig.number,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(ConConfig.number))))
-                    return(-1);
+                                    sizeof(ConConfig.number));
 
                 udplimit = atoi(ConConfig.number);
                 if(udplimit > 0)
@@ -1839,9 +1819,9 @@ edit_vcconfig_save(const int debuglvl)
             if(ConfigSection.fields[i] == VcConfig.newrule_loglimitfld)
             {
                 /* synlimit */
-                if(!(copy_field2buf(VcConfig.number,
+                copy_field2buf(VcConfig.number,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(VcConfig.number))))
+                                    sizeof(VcConfig.number));
                     return(-1);
 
                 syn = atoi(VcConfig.number);
@@ -1881,9 +1861,9 @@ edit_vcconfig_save(const int debuglvl)
             else if(ConfigSection.fields[i] == VcConfig.logview_bufsizefld)
             {
                 /* bufsize */
-                if(!(copy_field2buf(VcConfig.number,
+                copy_field2buf(VcConfig.number,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(VcConfig.number))))
+                                    sizeof(VcConfig.number));
                     return(-1);
 
                 bufsize = atoi(VcConfig.number);
@@ -1895,9 +1875,9 @@ edit_vcconfig_save(const int debuglvl)
             else if(ConfigSection.fields[i] == VcConfig.iptrafvollocfld)
             {
                 /* synlimit */
-                if(!(copy_field2buf(vccnf.iptrafvol_location,
+                copy_field2buf(vccnf.iptrafvol_location,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(vccnf.iptrafvol_location))))
+                                    sizeof(vccnf.iptrafvol_location));
                     return(-1);
 
                 vrmr_sanitize_path(debuglvl, vccnf.iptrafvol_location,
@@ -2264,11 +2244,10 @@ edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
             if(ConfigSection.fields[i] == LogConfig.logdirfld)
             {
                 /* vuurmuurlog location */
-                if(!(copy_field2buf(conf->vuurmuur_logdir_location,
+                copy_field2buf(conf->vuurmuur_logdir_location,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->vuurmuur_logdir_location))))
-                    return(-1);
-                
+                                    sizeof(conf->vuurmuur_logdir_location));
+
                 if(StrLen(conf->vuurmuur_logdir_location) > 0)
                 {
                     /* cut of the trailing slash if we have any */
@@ -2295,10 +2274,9 @@ edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == LogConfig.loglevelfld)
             {
                 /* loglevel */
-                if(!(copy_field2buf(conf->loglevel,
+                copy_field2buf(conf->loglevel,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->loglevel))))
-                    return(-1);
+                                    sizeof(conf->loglevel));
 
                 vrmr_audit("'log level' %s '%s'.",
                     STR_IS_NOW_SET_TO, conf->systemlog_location);
@@ -2306,10 +2284,9 @@ edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == LogConfig.systemlogfld)
             {
                 /* systemlog */
-                if(!(copy_field2buf(conf->systemlog_location,
+                copy_field2buf(conf->systemlog_location,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(conf->systemlog_location))))
-                    return(-1);
+                                    sizeof(conf->systemlog_location));
 
                 vrmr_sanitize_path(debuglvl, conf->systemlog_location,
                         StrLen(conf->systemlog_location));
@@ -2331,10 +2308,9 @@ edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == LogConfig.nfgrpfld)
             {
                 /* NF group*/
-                if(!(copy_field2buf(limit_string,
+                copy_field2buf(limit_string,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(limit_string))))
-                    return(-1);
+                                    sizeof(limit_string));
 
                 result = atoi(limit_string);
                 if(result < 0 || result > 999)
@@ -2371,10 +2347,9 @@ edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
             else if(ConfigSection.fields[i] == LogConfig.logpolicylimitfld)
             {
                 /* log policy limit */
-                if(!(copy_field2buf(limit_string,
+                copy_field2buf(limit_string,
                                     field_buffer(ConfigSection.fields[i], 0),
-                                    sizeof(limit_string))))
-                    return(-1);
+                                    sizeof(limit_string));
 
                 result = atoi(limit_string);
                 if(result < 0 || result > 999)

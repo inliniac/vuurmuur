@@ -2137,10 +2137,9 @@ edit_service_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
             {
                 (void)strlcpy(helper, ser_ptr->helper, sizeof(helper));
 
-                if(!(copy_field2buf(ser_ptr->helper,
+                copy_field2buf(ser_ptr->helper,
                                     field_buffer(ServicesSection.EditService.fields[i], 0),
-                                    sizeof(ser_ptr->helper))))
-                    return(-1);
+                                    sizeof(ser_ptr->helper));
 
                 if (vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "HELPER", ser_ptr->helper, 1, VRMR_TYPE_SERVICE) < 0)
                 {

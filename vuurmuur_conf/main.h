@@ -284,7 +284,7 @@ WINDOW *create_newwin(int height, int width, int starty, int startx, /*@null@*/ 
 void destroy_win(WINDOW *local_win);
 int startup_screen(const int, struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *, struct vrmr_blocklist *, struct vrmr_regex *);
 void draw_field_active_mark(const FIELD *cur, const FIELD *prev, WINDOW *formwin, FORM *form, chtype ch);
-int copy_field2buf(char *buf, char *fieldbuf, size_t bufsize);
+void copy_field2buf(char *buf, char *fieldbuf, size_t bufsize);
 int protectrule_loaded(const int, struct vrmr_list *, char *, char *, char *);
 void setup_colors(void);
 

@@ -66,10 +66,9 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
         /* ipaddress field */
         else if(FiFi.fields[i] == FiFi.string_fld)
         {
-            if(!(copy_field2buf(filter->str,
+            copy_field2buf(filter->str,
                                 field_buffer(FiFi.fields[i], 0),
-                                sizeof(filter->str))))
-                return(-1);
+                                sizeof(filter->str));
 
             if(debuglvl >= MEDIUM)
                 vrmr_debug(__FUNC__, "filter field changed: %s.",

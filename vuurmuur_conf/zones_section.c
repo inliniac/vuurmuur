@@ -441,10 +441,9 @@ edit_zone_host_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone 
                     return(-1);
                 }
 
-                if(!(copy_field2buf(zone_ptr->ipv4.ipaddress,
+                copy_field2buf(zone_ptr->ipv4.ipaddress,
                                     field_buffer(ZonesSection.EditZone.fields[i], 0),
-                                    sizeof(zone_ptr->ipv4.ipaddress))))
-                    return(-1);
+                                    sizeof(zone_ptr->ipv4.ipaddress));
 
                 /*  we dont check for invalid ip
                     (check_ip == 0), because this is done
@@ -500,10 +499,9 @@ edit_zone_host_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone 
                     return(-1);
                 }
 
-                if(!(copy_field2buf(zone_ptr->ipv6.ip6,
+                copy_field2buf(zone_ptr->ipv6.ip6,
                                     field_buffer(ZonesSection.EditZone.fields[i], 0),
-                                    sizeof(zone_ptr->ipv6.ip6))))
-                    return(-1);
+                                    sizeof(zone_ptr->ipv6.ip6));
 
                 /*  we dont check for invalid ip
                     (check_ip == 0), because this is done
@@ -562,10 +560,9 @@ edit_zone_host_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone 
                     return(-1);
                 }
 
-                if(!(copy_field2buf(zone_ptr->mac,
+                copy_field2buf(zone_ptr->mac,
                                     field_buffer(ZonesSection.EditZone.fields[i], 0),
-                                    sizeof(zone_ptr->mac))))
-                    return(-1);
+                                    sizeof(zone_ptr->mac));
 
                 if(zone_ptr->mac[0] != '\0')
                 {
@@ -4806,10 +4803,9 @@ edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zo
 
                 (void)strlcpy(network, zone_ptr->ipv4.network, sizeof(network));
 
-                if(!(copy_field2buf(zone_ptr->ipv4.network,
+                copy_field2buf(zone_ptr->ipv4.network,
                                     field_buffer(ZonesSection.EditZone.fields[i], 0),
-                                    sizeof(zone_ptr->ipv4.network))))
-                    return(-1);
+                                    sizeof(zone_ptr->ipv4.network));
 
                 if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "NETWORK", zone_ptr->ipv4.network, 1, VRMR_TYPE_NETWORK) < 0)
                 {
@@ -4830,10 +4826,9 @@ edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zo
 
                 (void)strlcpy(network, zone_ptr->ipv4.network, sizeof(network));
 
-                if(!(copy_field2buf(zone_ptr->ipv4.netmask,
+                copy_field2buf(zone_ptr->ipv4.netmask,
                                     field_buffer(ZonesSection.EditZone.fields[i], 0),
-                                    sizeof(zone_ptr->ipv4.netmask))))
-                    return(-1);
+                                    sizeof(zone_ptr->ipv4.netmask));
 
                 if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "NETMASK", zone_ptr->ipv4.netmask, 1, VRMR_TYPE_NETWORK) < 0)
                 {
@@ -4857,10 +4852,9 @@ edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zo
 
                 (void)strlcpy(network6, zone_ptr->ipv6.net6, sizeof(network6));
 
-                if(!(copy_field2buf(zone_ptr->ipv6.net6,
+                copy_field2buf(zone_ptr->ipv6.net6,
                                     field_buffer(ZonesSection.EditZone.fields[i], 0),
-                                    sizeof(zone_ptr->ipv6.net6))))
-                    return(-1);
+                                    sizeof(zone_ptr->ipv6.net6));
 
                 if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "IPV6NETWORK", zone_ptr->ipv6.net6, 1, VRMR_TYPE_NETWORK) < 0)
                 {
@@ -4884,10 +4878,9 @@ edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zo
                 int cidr = zone_ptr->ipv6.cidr6;
                 char cidrstr[3] = "";
 
-                if(!(copy_field2buf(cidrstr,
+                copy_field2buf(cidrstr,
                                     field_buffer(ZonesSection.EditZone.fields[i], 0),
-                                    sizeof(cidrstr))))
-                    return(-1);
+                                    sizeof(cidrstr));
 
                 if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "IPV6CIDR", cidrstr, 1, VRMR_TYPE_NETWORK) < 0)
                 {

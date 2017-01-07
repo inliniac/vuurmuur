@@ -2691,43 +2691,35 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             if(fields[i] == RuleFlds.action_fld_ptr)
             {
                 /* action */
-                if(!(copy_field2buf(action_str,
+                copy_field2buf(action_str,
                                     field_buffer(fields[i], 0),
-                                    sizeof(action_str))))
-                    return(-1);
+                                    sizeof(action_str));
 
                 rule_ptr->action = vrmr_rules_actiontoi(action_str);
-
                 retval = 1;
             }
             else if(fields[i] == RuleFlds.service_fld_ptr)
             {
                 /* service */
-                if(!(copy_field2buf(rule_ptr->service,
+                copy_field2buf(rule_ptr->service,
                                     field_buffer(fields[i], 0),
-                                    sizeof(rule_ptr->service))))
-                    return(-1);
-
+                                    sizeof(rule_ptr->service));
                 retval = 1;
             }
             else if(fields[i] == RuleFlds.fromzone_fld_ptr)
             {
                 /* from */
-                if(!(copy_field2buf(rule_ptr->from,
+                copy_field2buf(rule_ptr->from,
                                     field_buffer(fields[i], 0),
-                                    sizeof(rule_ptr->from))))
-                    return(-1);
-
+                                    sizeof(rule_ptr->from));
                 retval = 1;
             }
             else if(fields[i] == RuleFlds.tozone_fld_ptr)
             {
                 /* to */
-                if(!(copy_field2buf(rule_ptr->to,
+                copy_field2buf(rule_ptr->to,
                                     field_buffer(fields[i], 0),
-                                    sizeof(rule_ptr->to))))
-                    return(-1);
-
+                                    sizeof(rule_ptr->to));
                 retval = 1;
             }
             else if(fields[i] == RuleFlds.reject_fld_ptr)
@@ -2742,10 +2734,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(rule_ptr->opt->reject_type,
+                copy_field2buf(rule_ptr->opt->reject_type,
                                     field_buffer(fields[i], 0),
-                                    sizeof(rule_ptr->opt->reject_type))))
-                    return(-1);
+                                    sizeof(rule_ptr->opt->reject_type));
 
                 if(strcmp(rule_ptr->opt->reject_type, "") == 0)
                     rule_ptr->opt->reject_option = 0;
@@ -2766,10 +2757,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(port_one,
+                copy_field2buf(port_one,
                                     field_buffer(fields[i], 0),
-                                    sizeof(port_one))))
-                    return(-1);
+                                    sizeof(port_one));
 
                 rule_ptr->opt->redirectport = atoi(port_one);
                 if(rule_ptr->opt->redirectport <= 0 || rule_ptr->opt->redirectport > 65535)
@@ -2793,13 +2783,11 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(nfmarkstr,
+                copy_field2buf(nfmarkstr,
                                     field_buffer(fields[i], 0),
-                                    sizeof(nfmarkstr))))
-                    return(-1);
+                                    sizeof(nfmarkstr));
 
                 rule_ptr->opt->nfmark = strtoul(nfmarkstr, (char **)NULL, 10);
-
                 retval = 1;
             }
             else if(fields[i] == RuleFlds.listen_fld_ptr)
@@ -2962,10 +2950,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(limit_str,
+                copy_field2buf(limit_str,
                                     field_buffer(fields[i], 0),
-                                    sizeof(limit_str))))
-                    return(-1);
+                                    sizeof(limit_str));
 
                 rule_ptr->opt->loglimit = (unsigned int)atoi(limit_str);
                 if(rule_ptr->opt->loglimit > 999)
@@ -3010,10 +2997,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(nfqueuenum_str,
+                copy_field2buf(nfqueuenum_str,
                                     field_buffer(fields[i], 0),
-                                    sizeof(nfqueuenum_str))))
-                    return(-1);
+                                    sizeof(nfqueuenum_str));
 
                 rule_ptr->opt->nfqueue_num = atoi(nfqueuenum_str);
 
@@ -3033,10 +3019,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(nflognum_str,
+                copy_field2buf(nflognum_str,
                                     field_buffer(fields[i], 0),
-                                    sizeof(nflognum_str))))
-                    return(-1);
+                                    sizeof(nflognum_str));
 
                 rule_ptr->opt->nflog_num = atoi(nflognum_str);
 
@@ -3076,11 +3061,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(rule_ptr->opt->in_int,
+                copy_field2buf(rule_ptr->opt->in_int,
                                     field_buffer(fields[i], 0),
-                                    sizeof(rule_ptr->opt->in_int))))
-                    return(-1);
-
+                                    sizeof(rule_ptr->opt->in_int));
                 retval = 1;
             }
             else if(fields[i] == RuleFlds.out_int_fld_ptr)
@@ -3096,11 +3079,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(rule_ptr->opt->out_int,
+                copy_field2buf(rule_ptr->opt->out_int,
                                     field_buffer(fields[i], 0),
-                                    sizeof(rule_ptr->opt->out_int))))
-                    return(-1);
-
+                                    sizeof(rule_ptr->opt->out_int));
                 retval = 1;
             }
             else if(fields[i] == RuleFlds.via_int_fld_ptr)
@@ -3116,11 +3097,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(rule_ptr->opt->via_int,
+                copy_field2buf(rule_ptr->opt->via_int,
                                     field_buffer(fields[i], 0),
-                                    sizeof(rule_ptr->opt->via_int))))
-                    return(-1);
-
+                                    sizeof(rule_ptr->opt->via_int));
                 retval = 1;
             }
             else if(fields[i] == RuleFlds.chain_fld_ptr)
@@ -3135,11 +3114,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(rule_ptr->opt->chain,
+                copy_field2buf(rule_ptr->opt->chain,
                                     field_buffer(fields[i], 0),
-                                    sizeof(rule_ptr->opt->chain))))
-                    return(-1);
-
+                                    sizeof(rule_ptr->opt->chain));
                 retval = 1;
             }
             else if(fields[i] == RuleFlds.limit_fld_ptr)
@@ -3153,10 +3130,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(limit_str,
+                copy_field2buf(limit_str,
                                     field_buffer(fields[i], 0),
-                                    sizeof(limit_str))))
-                    return(-1);
+                                    sizeof(limit_str));
 
                 rule_ptr->opt->limit = (unsigned int)atoi(limit_str);
                 if(rule_ptr->opt->limit > 9999)
@@ -3178,11 +3154,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(rule_ptr->opt->limit_unit,
+                copy_field2buf(rule_ptr->opt->limit_unit,
                                     field_buffer(fields[i], 0),
-                                    sizeof(rule_ptr->opt->limit_unit))))
-                    return(-1);
-
+                                    sizeof(rule_ptr->opt->limit_unit));
                 retval = 1;
             }
             else if(fields[i] == RuleFlds.burst_fld_ptr)
@@ -3196,10 +3170,9 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                     }
                 }
 
-                if(!(copy_field2buf(limit_str,
+                copy_field2buf(limit_str,
                                     field_buffer(fields[i], 0),
-                                    sizeof(limit_str))))
-                    return(-1);
+                                    sizeof(limit_str));
 
                 rule_ptr->opt->burst = (unsigned int)atoi(limit_str);
                 if(rule_ptr->opt->burst > 9999 || rule_ptr->opt->burst == 0)
@@ -3210,7 +3183,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
                 retval = 1;
             }
-        }  
+        }
     }
 
     if(debuglvl >= LOW)
@@ -4314,10 +4287,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
                     if(cur == RuleFlds.action_fld_ptr)
                     {
-                        if(!(copy_field2buf(select_choice,
+                        copy_field2buf(select_choice,
                                             field_buffer(cur, 0),
-                                            sizeof(select_choice))))
-                            return(-1);
+                                            sizeof(select_choice));
 
                         /* ask the user about the new action */
                         if((action_ptr = selectbox( gettext("Action"),
@@ -4376,7 +4348,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         zone_choices[2] = "any";
                         zone_choices[zone_choices_n] = NULL;
 
-                        (void)copy_field2buf(select_choice,
+                        copy_field2buf(select_choice,
                                             field_buffer(cur, 0),
                                             sizeof(select_choice));
 
@@ -4411,7 +4383,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         service_choices[0] = "any";
                         service_choices[i] = NULL;
 
-                        (void)copy_field2buf(select_choice,
+                        copy_field2buf(select_choice,
                                             field_buffer(cur, 0),
                                             sizeof(select_choice));
 
@@ -4428,10 +4400,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                     }
                     else if(cur == RuleFlds.reject_fld_ptr)
                     {
-                        if(!(copy_field2buf(select_choice,
+                        copy_field2buf(select_choice,
                                             field_buffer(cur, 0),
-                                            sizeof(select_choice))))
-                            return(-1);
+                                            sizeof(select_choice));
 
                         if((reject_ptr = selectbox(gettext("Reject type"), gettext("Select reject type"), reject_types_n, reject_types, 1, select_choice)))
                         {
@@ -4459,10 +4430,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                             else
                             {
                                 /* copy the from field to the zonename buffer */
-                                if(!(copy_field2buf(zonename,
+                                copy_field2buf(zonename,
                                                     field_buffer(RuleFlds.fromzone_fld_ptr, 0),
-                                                    sizeof(zonename))))
-                                    return(-1);
+                                                    sizeof(zonename));
 
                                 /* get the zone */
                                 if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, zonename)))
@@ -4521,10 +4491,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                 }
                                 choices[i] = gettext("Any");
 
-                                if(!(copy_field2buf(select_choice,
+                                copy_field2buf(select_choice,
                                                     field_buffer(cur, 0),
-                                                    sizeof(select_choice))))
-                                    return(-1);
+                                                    sizeof(select_choice));
 
                                 /* ask the user to select an interface */
                                 if(!(choice_ptr = selectbox(gettext("Set interface filter"), gettext("Select an interface ('Any' to disable filter)"), n_choices, choices, 1, select_choice)))
@@ -4567,10 +4536,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                             else
                             {
                                 /* copy the from field to the zonename buffer */
-                                if(!(copy_field2buf(zonename,
+                                copy_field2buf(zonename,
                                                     field_buffer(RuleFlds.tozone_fld_ptr, 0),
-                                                    sizeof(zonename))))
-                                    return(-1);
+                                                    sizeof(zonename));
                                 /* get the zone */
                                 if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, zonename)))
                                 {
@@ -4630,10 +4598,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                 }
                                 choices[i] = gettext("Any");
 
-                                if(!(copy_field2buf(select_choice,
+                                copy_field2buf(select_choice,
                                                     field_buffer(cur, 0),
-                                                    sizeof(select_choice))))
-                                    return(-1);
+                                                    sizeof(select_choice));
 
                                 /* ask the user to select an interface */
                                 if(!(choice_ptr = selectbox(gettext("Set interface filter"), gettext("Select an interface ('Any' to disable filter)"), n_choices, choices, 1, select_choice)))
@@ -4686,10 +4653,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                             }
                             choices[i] = NULL;
 
-                            if(!(copy_field2buf(select_choice,
+                            copy_field2buf(select_choice,
                                                 field_buffer(cur, 0),
-                                                sizeof(select_choice))))
-                                return(-1);
+                                                sizeof(select_choice));
 
                             /* ask the user to select an interface */
                             if(!(choice_ptr = selectbox(gettext("Set Via interface"), gettext("Select an interface"), n_choices, choices, 1, select_choice)))
@@ -4713,10 +4679,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                 *limit_unit_ptr = NULL;
                         size_t  limit_unit_choices_n = 4;
 
-                        if(!(copy_field2buf(select_choice,
+                        copy_field2buf(select_choice,
                                             field_buffer(cur, 0),
-                                            sizeof(select_choice))))
-                            return(-1);
+                                            sizeof(select_choice));
 
                         /* ask the user about the new action */
                         if((limit_unit_ptr = selectbox( gettext("Unit"),

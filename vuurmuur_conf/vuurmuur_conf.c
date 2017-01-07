@@ -964,23 +964,15 @@ draw_field_active_mark(const FIELD *cur, const FIELD *prev, WINDOW *formwin, FOR
     copies a buffer to another...
 
     Will copy for bufsize - 1 to leave space for '\0'.
-    
-    Returncodes:
-        1: ok
-        0: error
 */
-int
+void
 copy_field2buf(char *buf, char *fieldbuf, size_t bufsize)
 {
     size_t i = 0;
 
     /* safety */
     if(!buf || !fieldbuf)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
-                                __FUNC__, __LINE__);
-        return(0);
-    }
+        abort();
 
     /* copy while:
         1. we are inside the target buffers size
@@ -994,6 +986,4 @@ copy_field2buf(char *buf, char *fieldbuf, size_t bufsize)
         buf[i] = fieldbuf[i];
     }
     buf[i] = '\0';
-
-    return(1);
 }

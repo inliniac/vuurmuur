@@ -1067,10 +1067,9 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                 // ipaddress
                 status = VRMR_ST_CHANGED;
 
-                if(!(copy_field2buf(tempiface_ptr->ipv4.ipaddress,
+                copy_field2buf(tempiface_ptr->ipv4.ipaddress,
                                     field_buffer(InterfacesSection.EditInterface.fields[i], 0),
-                                    sizeof(tempiface_ptr->ipv4.ipaddress))))
-                    return(-1);
+                                    sizeof(tempiface_ptr->ipv4.ipaddress));
 
                 result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
@@ -1093,10 +1092,9 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                 // ipaddress
                 status = VRMR_ST_CHANGED;
 
-                if(!(copy_field2buf(tempiface_ptr->ipv6.ip6,
+                copy_field2buf(tempiface_ptr->ipv6.ip6,
                                     field_buffer(InterfacesSection.EditInterface.fields[i], 0),
-                                    sizeof(tempiface_ptr->ipv6.ip6))))
-                    return(-1);
+                                    sizeof(tempiface_ptr->ipv6.ip6));
 
                 result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPV6ADDRESS", tempiface_ptr->ipv6.ip6, 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
@@ -1160,10 +1158,9 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
             {
                 status = VRMR_ST_CHANGED;
 
-                if(!(copy_field2buf(tempiface_ptr->device,
+                copy_field2buf(tempiface_ptr->device,
                                     field_buffer(InterfacesSection.EditInterface.fields[i], 0),
-                                    sizeof(tempiface_ptr->device))))
-                    return(-1);
+                                    sizeof(tempiface_ptr->device));
 
                 result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "DEVICE", tempiface_ptr->device, 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
