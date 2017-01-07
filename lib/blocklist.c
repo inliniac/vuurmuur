@@ -582,11 +582,7 @@ blocklist_write_file(const int debuglvl, struct vrmr_config *cfg, struct vrmr_li
     for(d_node = block_list->top; d_node; d_node = d_node->next)
     {
         if(!(itemname = d_node->data))
-        {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
-        }
+            continue;
 
         fprintf(fp, "block %s\n", itemname);
     }

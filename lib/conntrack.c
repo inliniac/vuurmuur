@@ -2081,7 +2081,8 @@ vrmr_conn_get_connections_do(const int debuglvl,
             vrmr_error(-1, "Internal Error",
                     "conn_process_one_conntrack_line() failed "
                     "(in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
+            retval = -1;
+            goto end;
         } else if (r == 0) {
             /* invalid line */
             continue;
@@ -2093,7 +2094,8 @@ vrmr_conn_get_connections_do(const int debuglvl,
             vrmr_error(-1, "Error", "malloc() failed: %s "
                     "(in: %s:%d).", strerror(errno),
                     __FUNC__, __LINE__);
-            return(-1);
+            retval = -1;
+            goto end;
         }
         /* init to 0 */
         memset(cd_ptr, 0, sizeof(struct vrmr_conntrack_entry));
@@ -2106,7 +2108,8 @@ vrmr_conn_get_connections_do(const int debuglvl,
                     "failed: (in: %s:%d).",
                     __FUNC__, __LINE__);
             free(cd_ptr);
-            return(-1);
+            retval = -1;
+            goto end;
         }
 
         /*  if the hashlookup is succesfull, cd_ptr is overwritten,
@@ -2202,14 +2205,16 @@ vrmr_conn_get_connections_do(const int debuglvl,
                         if(vrmr_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
                         {
                             vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
-                            return(-1);
+                            retval = -1;
+                            goto end;
                         }
 
                         /* now reinsert */
                         if(!(cd_ptr->d_node = vrmr_list_insert_before(debuglvl, conn_dlist, d_node, cd_ptr)))
                         {
                             vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
-                            return(-1);
+                            retval = -1;
+                            goto end;
                         }
                     }
                     /*  check if the beneath cd in the list is bigger than we are,
@@ -2225,14 +2230,16 @@ vrmr_conn_get_connections_do(const int debuglvl,
                             if(vrmr_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
                             {
                                 vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
-                                return(-1);
+                                retval = -1;
+                                goto end;
                             }
 
                             /* now reinsert */
                             if(!(cd_ptr->d_node = vrmr_list_insert_after(debuglvl, conn_dlist, d_node, cd_ptr)))
                             {
                                 vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
-                                return(-1);
+                                retval = -1;
+                                goto end;
                             }
                         }
                     }
@@ -2255,14 +2262,16 @@ vrmr_conn_get_connections_do(const int debuglvl,
                         if(vrmr_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
                         {
                             vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
-                            return(-1);
+                            retval = -1;
+                            goto end;
                         }
 
                         /* and then re-insert */
                         if(!(prev_cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, prev_cd_ptr)))
                         {
                             vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
-                            return(-1);
+                            retval = -1;
+                            goto end;
                         }
                     }
                 }
@@ -2280,14 +2289,16 @@ vrmr_conn_get_connections_do(const int debuglvl,
                         if(vrmr_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
                         {
                             vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
-                            return(-1);
+                            retval = -1;
+                            goto end;
                         }
 
                         /* now reinsert */
                         if(!(next_cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, next_cd_ptr)))
                         {
                             vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
-                            return(-1);
+                            retval = -1;
+                            goto end;
                         }
                     }
                 }
@@ -2305,14 +2316,16 @@ vrmr_conn_get_connections_do(const int debuglvl,
                 if(!cd_ptr->d_node)
                 {
                     vrmr_error(-1, "Internal Error", "unable to append into list (in: vrmr_conn_get_connections).");
-                    return(-1);
+                    retval = -1;
+                    goto end;
                 }
 
                 /* and insert it into the hash */
                 if(vrmr_hash_insert(debuglvl, &conn_hash, cd_ptr) != 0)
                 {
                     vrmr_error(-1, "Internal Error", "unable to insert into hash (in: vrmr_conn_get_connections).");
-                    return(-1);
+                    retval = -1;
+                    goto end;
                 }
 
                 /* set cnt to 1 */
@@ -2321,6 +2334,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         }
     }
 
+end:
     /* close the file */
     if(fclose(fp) < 0)
         retval = -1;

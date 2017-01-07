@@ -221,29 +221,27 @@ vrmr_check_pidfile(char *pidfile_location, char *service, pid_t *thepid)
             sscanf(pid_char, "%16s", pid_small);
             pid = atol(pid_small);
             /* We found a PID in a pidfile. Let's check if it's non stale */
-            if (kill (pid, 0))
+            if (kill (pid, 0) != 0)
             {
                 if (errno == ESRCH)     /* process didn't exist */
                 {
-                    if (unlink (pidfile_location))
-                    {
-                        fprintf (stderr, "Cannot unlink stale PID file %s: %s\n", pidfile_location, strerror(errno));
+                    fclose(fp);
+
+                    if (unlink (pidfile_location) != 0) {
+                        fprintf (stderr, "Cannot unlink stale PID file %s: %s\n",
+                                pidfile_location, strerror(errno));
                         return (-1);
                     }
-                    else
-                    {
-                        return 0;
-                    }
+
+                    return 0;
                 }
             }
             *thepid = pid;
             fclose(fp);
             return(-1);
         }
-
         fclose(fp);
     }
-
     return(0);
 }
 
@@ -274,6 +272,7 @@ vrmr_create_pidfile(char *pidfile_location, int shm_id)
     if(fprintf(fp, "%ld %d\n", (long)pid, shm_id) < 0)
     {
         vrmr_error(-1, "Error", "writing pid-file '%s' failed: %s.", pidfile_location, strerror(errno));
+        fclose(fp);
         return(-1);
     }
     if(fclose(fp) < 0)

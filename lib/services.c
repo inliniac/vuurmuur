@@ -682,6 +682,7 @@ vrmr_process_portrange(const int debuglvl, const char *proto, const char *portra
             {
                 vrmr_error(-1, "Internal Error", "unknown protocol '%s' (in: %s:%d).",
                         proto, __FUNC__, __LINE__);
+                free(portrange_ptr);
                 return(-1);
             }
 
