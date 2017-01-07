@@ -25,7 +25,6 @@ configure-stamp:
 				     --sysconfdir=/etc                  \
                      --with-widec=no
 
-
 	touch configure-stamp
 
 build: configure-stamp build-stamp
@@ -41,10 +40,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-
-	# Add here commands to clean up after the build process.
-	-$(MAKE) distclean
-
+	dh_auto_clean
 	dh_clean
 
 install: build
@@ -114,27 +110,17 @@ binary-arch: build install
 
 	dh_installmenu -a
 	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
-# On debian Woody the --no-start option is not supported :-(
-#	dh_installinit --no-start
-	dh_installinit
+	dh_installinit --no-start
 #	dh_installcron -a
 	dh_installman -a
 	dh_installinfo -a
-#	dh_undocumented
 #	dh_installchangelogs -a ChangeLog
-
-
-
 	dh_link -a 
 #	dh_strip -a
 	dh_compress -a
 	dh_fixperms -a
 	dh_makeshlibs -a
 	dh_installdeb -a
-#	dh_perl
 #	dh_shlibdeps -a
 	dh_gencontrol -a
 	dh_md5sums -a
