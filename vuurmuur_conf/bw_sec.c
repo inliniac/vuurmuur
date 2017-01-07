@@ -347,7 +347,8 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
                             vrmr_error(-1, VR_ERR, gettext("could not parse month '%s' (in: %s:%d)."),
                                                     month_str,
                                                     __FUNC__, __LINE__);
-                            return(-1);
+                            retval = -1;
+                            goto end;
                         }
 
                         //vrmr_info(__FUNC__, "day: '%d', month: '%d'", data_day, data_month);
@@ -397,7 +398,7 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
             done = TRUE;
         }
     }
-
+end:
     /* close the file again */
     if(close(fd) == -1)
     {

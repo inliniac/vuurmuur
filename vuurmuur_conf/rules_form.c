@@ -1224,12 +1224,9 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
                     else
                     {
                         /* cut off: 'options:' */
-                        for(i=8, x=0; i < StrMemLen(option_str) &&
-                            x < sizeof(options); i++, x++)
-                        {
-                            options[x] = option_str[i];
-                        }
-                        options[x]='\0';
+                        char *options_start = option_str + 8;
+                        strlcpy(options, options_start, sizeof(options));
+                        //vrmr_debug(__FUNC__, "options_str '%s' options '%s'", option_str, options);
 
                         free(option_str);
                         option_str = NULL;
@@ -1246,11 +1243,8 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
                 /* separator */
                 else
                 {
-                    for(i = 0; i < rbform->separator_size && i < sizeof(separator_str); i++)
-                    {
-                        separator_str[i] = '-';
-                    }
-                    separator_str[i] = '\0';
+                    memset(separator_str, '-', sizeof(separator_str));
+                    separator_str[rbform->separator_size - 1] = '\0';
 
 #ifdef USE_WIDEC
                     if(rule_ptr->opt != NULL && rule_ptr->opt->comment[0] != '\0')
