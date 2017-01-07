@@ -1,0 +1,30 @@
+Instructions for creating Debian packages for Vuurmuur
+======================================================
+
+Dependencies:
+libtool
+debhelper
+automake
+autoconf
+gcc
+g++
+libc6-dev
+libncurses5-dev
+
+First unpack the installer package with:
+gzip -cd Vuurmuur-0.8rc2.tar.gz | tar -xvf -
+
+Then go to the vuurmuur directory and run: 'dpkg-buildpackage'
+If all goes well go back one directorylevel and you will see something
+like: 'vuurmuur_0.8~rc2-1_i386.deb'
+
+Now install this deb using 'dpkg --install vuurmuur_0.8~rc2-1_i386.deb'.
+
+Done!
+
+Now try to run vuurmuur_conf first, as it will enable you to configure Vuurmuur.
+
+
+Please contact me at victor@vuurmuur.org if you run into trouble. Please append as
+much information and output to your mail as possible.
+

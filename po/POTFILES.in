@@ -1,0 +1,25 @@
+# list of source files containing translateble strings
+# (c) Victor Julien <victor@vuurmuur.org>
+
+vuurmuur_conf/bw_sec.c
+vuurmuur_conf/config.c
+vuurmuur_conf/config_section.c
+vuurmuur_conf/conn_sec.c
+vuurmuur_conf/help.c
+vuurmuur_conf/if_sec.c
+vuurmuur_conf/logview_section.c
+vuurmuur_conf/main.h
+vuurmuur_conf/mainmenu.c
+vuurmuur_conf/navigation.c
+vuurmuur_conf/rules_form.c
+vuurmuur_conf/services_section.c
+vuurmuur_conf/stat_sec.c
+vuurmuur_conf/sys_sec.c
+vuurmuur_conf/templates.c
+vuurmuur_conf/topmenu.c
+vuurmuur_conf/vuurmuur_conf.c
+vuurmuur_conf/zones_section.c
+vuurmuur_conf/strings.h
+vuurmuur_conf/filter.c
+vuurmuur_conf/gui.c
+vuurmuur_conf/statevent.c
