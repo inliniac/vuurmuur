@@ -1,4 +1,4 @@
-AC_INIT([vuurmuur],[0.8rc3])
+AC_INIT([vuurmuur],[0.8rc2])
 m4_ifndef([AM_SILENT_RULES], [m4_define([AM_SILENT_RULES],[])])AM_SILENT_RULES([yes])
 AC_CONFIG_SRCDIR([vuurmuur/vuurmuur.c])
 AM_INIT_AUTOMAKE
@@ -363,12 +363,9 @@ else
 	fi
 fi
 
-#AC_CONFIG_SUBDIRS([libvuurmuur])
-#LIBVUURMUUR_DIR="libvuurmuur"
-#AC_SUBST(LIBVUURMUUR_DIR)
 LIBVUURMUUR_LDADD="../lib/libvuurmuur.la"
 AC_SUBST(LIBVUURMUUR_LDADD)
-# make sure libvuurmuur is added to the includes
+# make sure vuurmuur.h is added to the includes
 CPPFLAGS="-I\${top_srcdir}/include/ ${CPPFLAGS}"
 
 AC_OUTPUT(Makefile include/Makefile lib/Makefile lib/textdir/Makefile
