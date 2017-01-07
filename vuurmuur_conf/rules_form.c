@@ -530,6 +530,7 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
 static int
 MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, struct vrmr_rules *rules, unsigned int cur_rule)
 {
+    int retval = 0;
     int     ch,
             quit=0;
     WINDOW  *move_win;
@@ -587,10 +588,10 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, struct vrmr_rul
         {
             case 10: // enter
                 form_driver(form, REQ_VALIDATION);
-                
-//TODO atoi sepparate
+
                 if(move_rule(debuglvl, rules, cur_rule, (unsigned int)atoi(field_buffer(fields[0], 0))) < 0)
-                    return(-1);
+                    retval = -1;
+
                 quit = 1;
                 break;
 
@@ -634,7 +635,7 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, struct vrmr_rul
     update_panels();
     doupdate();
 
-    return(0);
+    return(retval);
 }
 
 
@@ -1552,13 +1553,16 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         return(-1);
     }
     /* now set it up */
-    if(SetupRuleBarForm(debuglvl, rbform, bars, rules, width-4) < 0)
+    if(SetupRuleBarForm(debuglvl, rbform, bars, rules, width-4) < 0) {
+        free(rbform);
         return(-1);
+    }
 
     /* create the (more) win+pan */
     if(!(rbform->more_win = newwin(1, 6, starty + height - 1, 2)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
+        free(rbform);
         return(-1);
     }
     wbkgd(rbform->more_win, vccnf.color_win_rev);
@@ -1753,8 +1757,10 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         
             this will also hide or show the (more) panel
         */
-        if(draw_rules(debuglvl, rules, rbform) < 0)
-            return(-1);
+        if (draw_rules(debuglvl, rules, rbform) < 0) {
+            retval = -1;
+            goto end;
+        }
 
         /* highlight the current bar */
         HighlightRuleBar(cur_bar);
@@ -2058,7 +2064,8 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         if (!rule_ptr)
                         {
                             vrmr_error(-1, VR_INTERR, "removing rule failed (in: %s:%d).", __FUNC__, __LINE__);
-                            return(-1);
+                            retval = -1;
+                            goto end;
                         }
                         vrmr_rules_free_options(debuglvl, rule_ptr->opt);
                         rule_ptr->opt = NULL;
@@ -2101,8 +2108,10 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 cur_rule_num = (unsigned int)atoi(field_buffer(cur_bar->num_field, 0));
                 if(cur_rule_num > 0)
                 {
-                    if(MoveRuleBarForm(debuglvl, rbform, rules, cur_rule_num) < 0)
-                        return(-1);
+                    if (MoveRuleBarForm(debuglvl, rbform, rules, cur_rule_num) < 0) {
+                        retval = -1;
+                        goto end;
+                    }
 
                     rules_changed = 1;
                     update_filter = 1;
@@ -2193,24 +2202,24 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                     }
 
                     /* first construct the regex string */
-                    if(!(filter_string_regex = malloc(sizeof(filter_ptr)+1+4)))
-                        return(-1);
-                    snprintf(filter_string_regex, (sizeof(filter_ptr)+1+4), ".*%s.*", filter_ptr);
+                    if((filter_string_regex = malloc(sizeof(filter_ptr)+1+4))) {
+                        snprintf(filter_string_regex, (sizeof(filter_ptr)+1+4),
+                                ".*%s.*", filter_ptr);
+                        rbform->use_filter = 1;
 
-                    rbform->use_filter = 1;
+                        /* compiling the regex */
+                        if(regcomp(&rbform->filter_reg, filter_string_regex, REG_EXTENDED) != 0)
+                        {
+                            vrmr_error(-1, VR_INTERR, "Setting up the regular expression with regcomp failed. Disabling filter.");
+                            rbform->use_filter = 0;
+                        }
 
-                    /* compiling the regex */
-                    if(regcomp(&rbform->filter_reg, filter_string_regex, REG_EXTENDED) != 0)
-                    {
-                        vrmr_error(-1, VR_INTERR, "Setting up the regular expression with regcomp failed. Disabling filter.");
-                        rbform->use_filter = 0;
+                        status_print(status_win, gettext("Active filter: '%s' (press 'f' and then just 'enter' to clear)."), filter_ptr);
+
+                        free(filter_ptr);
+                        filter_ptr = NULL;
+                        free(filter_string_regex);
                     }
-
-                    status_print(status_win, gettext("Active filter: '%s' (press 'f' and then just 'enter' to clear)."), filter_ptr);
-
-                    free(filter_ptr);
-                    filter_ptr = NULL;
-                    free(filter_string_regex);
                 }
                 else
                 {
@@ -2302,6 +2311,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         }
     }
 
+end:
     /* if the rules are changed, save the changes. But only if retval != -1. */
     if(rules_changed && retval != -1)
     {
@@ -4264,7 +4274,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         if(!(rule_ptr->opt = vrmr_rule_option_malloc(debuglvl)))
                         {
                             vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-                            return(-1);
+                            retval = -1;
+                            goto end;
                         }
                     }
                     VrShapeRule(debuglvl, rule_ptr->opt);
@@ -4327,7 +4338,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         if(!(zone_choices = calloc(zone_choices_n + 1, VRMR_VRMR_MAX_HOST_NET_ZONE)))
                         {
                             vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-                            return(-1);
+                            retval = -1;
+                            goto end;
                         }
 
                         for(i = zone_choices_n - 1, d_node = zones->list.bot; d_node ; d_node = d_node->prev)
@@ -4370,7 +4382,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         if(!(service_choices = calloc(service_choices_n + 1, sizeof(char *))))
                         {
                             vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-                            return(-1);
+                            retval = -1;
+                            goto end;
                         }
 
                         for(i = 1, d_node = services->list.top; d_node && i < service_choices_n; d_node = d_node->next, i++)
@@ -4456,7 +4469,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                         else
                                         {
                                             vrmr_error(-1, VR_INTERR, "wrong zone type '%d'  (in: %s:%d).", zone_ptr->type, __FUNC__, __LINE__);
-                                            return(-1);
+                                            retval = -1;
+                                            goto end;
                                         }
 
                                         interfaces_list = &network_ptr->InterfaceList;
@@ -4473,7 +4487,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                 if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
                                 {
                                     vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-                                    return(-1);
+                                    retval = -1;
+                                    goto end;
                                 }
 
                                 /* load the interfaces */
@@ -4483,7 +4498,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                     {
                                         vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
                                         free(choices);
-                                        return(-1);
+                                        retval = -1;
+                                        goto end;
                                     }
 
                                     choices[i] = iface_ptr->name;
@@ -4561,7 +4577,8 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                         {
                                             vrmr_error(-1, VR_INTERR, "wrong zone type '%d'  (in: %s:%d).",
                                                     zone_ptr->type, __FUNC__, __LINE__);
-                                            return(-1);
+                                            retval = -1;
+                                            goto end;
                                         }
 
                                         interfaces_list = &network_ptr->InterfaceList;
@@ -4579,19 +4596,15 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                 {
                                     vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
                                         strerror(errno), __func__, __LINE__);
-                                    return(-1);
+                                    retval = -1;
+                                    goto end;
                                 }
 
                                 /* load the interfaces */
                                 for(i = n_choices-1, d_node = interfaces_list->bot; d_node ; d_node = d_node->prev)
                                 {
                                     if(!(iface_ptr = d_node->data))
-                                    {
-                                        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
-                                                    __FUNC__, __LINE__);
-                                        free(choices);
-                                        return(-1);
-                                    }
+                                        continue;
 
                                     choices[i] = iface_ptr->name;
                                     i--;
@@ -4636,18 +4649,15 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                             if(!(choices = calloc(n_choices + 1, VRMR_MAX_INTERFACE)))
                             {
                                 vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-                                return(-1);
+                                retval = -1;
+                                goto end;
                             }
 
                             /* load the interfaces */
                             for(i = 0, d_node = interfaces_list->top; d_node ; d_node = d_node->next, i++)
                             {
                                 if(!(iface_ptr = d_node->data))
-                                {
-                                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
-                                    free(choices);
-                                    return(-1);
-                                }
+                                    continue;
 
                                 choices[i] = iface_ptr->name;
                             }
@@ -4784,7 +4794,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
             }
         }
     }
-
+end:
     /* Un post form and free the memory */
     unpost_form(form);
     free_form(form);

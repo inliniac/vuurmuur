@@ -81,19 +81,26 @@ struct ServicesSection_
 */
 static int
 edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
-        struct vrmr_service *ser_ptr, struct vrmr_portdata *port_ptr)
+        struct vrmr_service *ser_ptr, const struct vrmr_portdata *in_port_ptr)
 {
-    struct vrmr_list_node     *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
     struct vrmr_portdata *portlist_ptr = NULL;
-    int             insert_now = 0,
-                    insert_append = 0;
+    struct vrmr_portdata *port_ptr = NULL;
+    int insert_now = 0;
+    int insert_append = 0;
 
     /* safety */
-    if(port_ptr == NULL || ser_ptr == NULL)
+    if(in_port_ptr == NULL || ser_ptr == NULL)
     {
         vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
+
+    port_ptr = calloc(1, sizeof(*port_ptr));
+    if (port_ptr == NULL) {
+        return(-1);
+    }
+    memcpy(port_ptr, in_port_ptr, sizeof(struct vrmr_portdata));
 
     /* if low and high are the same, only src is enough */
     if(port_ptr->src_low == port_ptr->src_high)
@@ -109,6 +116,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
     {
         vrmr_error(-1, VR_INTERR, "invalid protocol %d "
             "(in: %s:%d).", port_ptr->protocol, __FUNC__, __LINE__);
+        free(port_ptr);
         return(-1);
     }
 
@@ -126,6 +134,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
         {
             /* this is an error because of wrong user input, so no function name */
             vrmr_error(-1, VR_ERR, gettext("one of the ports is too low or too high. Valid port values for tcp and udp are 1-65535."));
+            free(port_ptr);
             return(-1);
         }
 
@@ -136,6 +145,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
         {
             /* this is an error because of wrong user input, so no function name */
             vrmr_error(-1, VR_ERR, gettext("please make sure that the 'high'-port is actually higher than the 'low'-port."));
+            free(port_ptr);
             return(-1);
         }
     }
@@ -148,19 +158,20 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
         {
             /* this is an error because of wrong user input, so no function name */
             vrmr_error(-1, VR_ERR, gettext("one of the values is too high. Valid icmp-types values are 1-255 (note that 41-255 are reserved). Valid icmp-codes are 0-16 (note that not all combinations of types and codes are valid. See http://www.iana.org/assignments/icmp-parameters for details)."));
+            free(port_ptr);
             return(-1);
         }
     }
 
     /* in an empty list we insert now */
-    if(ser_ptr->PortrangeList.len == 0)
+    if (ser_ptr->PortrangeList.len == 0) {
         insert_now = 1;
-    else
-    {
+    } else {
         /* else set the initial d_node */
         if(!(d_node = ser_ptr->PortrangeList.top))
         {
             vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            free(port_ptr);
             return(-1);
         }
     }
@@ -171,6 +182,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
         if(!(portlist_ptr = d_node->data))
         {
             vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+            free(port_ptr);
             return(-1);
         }
 
@@ -181,6 +193,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
             if (port_ptr->protocol == portlist_ptr->protocol) {
                 /* this is an error because of wrong user input, so no function name */
                 vrmr_error(-1, VR_ERR, gettext("only one protocol %d portrange is allowed."), port_ptr->protocol);
+                free(port_ptr);
                 return(-1);
             }
         }
@@ -215,6 +228,7 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
             if(vrmr_list_insert_before(debuglvl, &ser_ptr->PortrangeList, d_node, port_ptr) == NULL)
             {
                 vrmr_error(-1, VR_INTERR, "vrmr_list_insert_before() failed (in: %s:%d).", __FUNC__, __LINE__);
+                free(port_ptr);
                 return(-1);
             }
         }
@@ -223,9 +237,11 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
             if(vrmr_list_append(debuglvl, &ser_ptr->PortrangeList, port_ptr) == NULL)
             {
                 vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+                free(port_ptr);
                 return(-1);
             }
         }
+        port_ptr = NULL; /* now owned by ser_ptr->PortrangeList */
 
         ser_ptr->status = VRMR_ST_CHANGED;
 
@@ -1332,19 +1348,13 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
                     *choices[]= { "TCP", "UDP", "ICMP", "GRE", "AH", "ESP", "Other" };
     size_t          n_choices = 7;
 
-    struct vrmr_portdata *portrange_ptr = NULL;
+    struct vrmr_portdata portrange_s = { 0,0,0,0,0 };
+    struct vrmr_portdata *portrange_ptr = &portrange_s;
 
     /* safety */
     if(!ser_ptr)
     {
         vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    /* alloc a new portrange */
-    if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
-    {
-        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         return(-1);
     }
 
@@ -1434,7 +1444,6 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
         else
         {
             vrmr_error(-1, VR_INTERR, "undefined protocol '%s' (%s:%d).", choice_ptr, __FUNC__, __LINE__);
-            free(portrange_ptr);
             free(choice_ptr);
             return(-1);
         }
@@ -1445,8 +1454,9 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
 
     if(retval == 0)
     {
-        if(edit_serv_portranges_new_validate(debuglvl, vctx, ser_ptr, portrange_ptr) < 0)
+        if (edit_serv_portranges_new_validate(debuglvl, vctx, ser_ptr, portrange_ptr) < 0) {
             retval = -1;
+        }
     }
 
     if(retval == 0)
