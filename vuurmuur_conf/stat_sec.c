@@ -41,24 +41,26 @@ struct StatusSection_
 */
 static int get_sys_load(float *load_s, float *load_m, float *load_l)
 {
-    FILE    *fp=NULL;
-    char    proc_loadavg[] = "/proc/loadavg",
-            line[512] = "";
+    FILE *fp = NULL;
+    const char proc_loadavg[] = "/proc/loadavg";
+    char line[512] = "";
 
-    if(!(fp = fopen(proc_loadavg, "r")))
+    if (!(fp = fopen(proc_loadavg, "r")))
         return(-1);
 
-    if(fgets(line, (int)sizeof(line), fp) != NULL)
+    if (fgets(line, (int)sizeof(line), fp) != NULL)
     {
-        if(sscanf(line, "%f %f %f", load_s, load_m, load_l) == 0)
+        if (sscanf(line, "%f %f %f", load_s, load_m, load_l) == 0) {
+            fclose(fp);
             return(-1);
+        }
+    } else {
+        fclose(fp);
+        return(-1);
     }
-    else
-        return(-1);
 
-    if(fclose(fp) < 0)
+    if (fclose(fp) < 0)
         return(-1);
-    
     return(0);
 }
 #if 0

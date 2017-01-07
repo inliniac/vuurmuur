@@ -309,8 +309,10 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
 
         if(inrange)
         {
-            if(read_helpline(debuglvl, help_list, line) < 0)
+            if (read_helpline(debuglvl, help_list, line) < 0) {
+                fclose(fp);
                 return(-1);
+            }
         }
         else
         {
@@ -318,7 +320,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
                 inrange = 1;
         }
     }
-    
+
     fclose(fp);
     return(0);
 }
@@ -438,8 +440,10 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
 
         if(inrange)
         {
-            if(read_wide_helpline(debuglvl, help_list, line) < 0)
+            if  (read_wide_helpline(debuglvl, help_list, line) < 0) {
+                fclose(fp);
                 return(-1);
+            }
         }
         else
         {
@@ -447,7 +451,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
                 inrange = 1;
         }
     }
-    
+
     fclose(fp);
     return(0);
 }

@@ -1979,10 +1979,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_ctx *vctx,
     for(i = n_choices - 1, d_node = zones->list.bot; d_node ; d_node = d_node->prev)
     {
         if(!(zonelist_ptr = d_node->data))
-        {
-            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
+            continue;
 
         if(zonelist_ptr->type == VRMR_TYPE_HOST)
         {
@@ -6994,10 +6991,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
             for(d_node = zones->list.top, i = 0; d_node ; d_node = d_node->next)
             {
                 if(!(zone_ptr = d_node->data))
-                {
-                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
+                    continue;
 
                 if(zone_ptr->type == choice_type)
                 {

@@ -36,6 +36,7 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
     if(win == NULL)
     {
         vrmr_error(-1, VR_ERR, "VrNewWin failed");
+        free(r);
         return NULL;
     }
 
@@ -43,6 +44,8 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
     if(menu == NULL)
     {
         vrmr_error(-1, VR_ERR, "VrNewMenu failed");
+        VrDelWin(win);
+        free(r);
         return NULL;
     }
 
@@ -1644,6 +1647,10 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                             fields[field_bar_num-x+7+1] /* separator */
                 ) < 0)
         {
+            for (i = 0; i < (unsigned int)n_fields; i++) {
+                free_field(fields[i]);
+            }
+            free(fields);
             vrmr_error(-1, VR_INTERR, "Insert_RuleBar() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
         }
@@ -3919,12 +3926,20 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     if(!(edit_win = create_newwin(height, width, starty, startx, window_title, vccnf.color_win)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
+        for(i = 0; i < n_fields; i++) {
+            free_field(fields[i]);
+        }
+        free(fields);
         return(-1);
     }
 
     if(!(my_panels[0] = new_panel(edit_win)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating panel failed."));
+        for(i = 0; i < n_fields; i++) {
+            free_field(fields[i]);
+        }
+        free(fields);
         return(-1);
     }
     keypad(edit_win, TRUE);
@@ -3932,6 +3947,10 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     if(!(form = new_form(fields)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating form failed."));
+        for(i = 0; i < n_fields; i++) {
+            free_field(fields[i]);
+        }
+        free(fields);
         return(-1);
     }
     scale_form(form, &rows, &cols);
@@ -4324,10 +4343,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         for(zone_choices_n = 0, d_node = zones->list.top; d_node; d_node = d_node->next)
                         {
                             if(!(zone_ptr = d_node->data))
-                            {
-                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                                return(-1);
-                            }
+                                continue;
 
                             if(zone_ptr->type != VRMR_TYPE_FIREWALL)
                             {
@@ -4345,10 +4361,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         for(i = zone_choices_n - 1, d_node = zones->list.bot; d_node ; d_node = d_node->prev)
                         {
                             if(!(zone_ptr = d_node->data))
-                            {
-                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                                return(-1);
-                            }
+                                continue;
 
                             if(zone_ptr->type != VRMR_TYPE_FIREWALL)
                             {
@@ -4363,10 +4376,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         zone_choices[2] = "any";
                         zone_choices[zone_choices_n] = NULL;
 
-                        if(!(copy_field2buf(select_choice,
+                        (void)copy_field2buf(select_choice,
                                             field_buffer(cur, 0),
-                                            sizeof(select_choice))))
-                            return(-1);
+                                            sizeof(select_choice));
 
                         /* get the zone */
                         if((choice_ptr = selectbox(gettext("Select"), gettext("Select a host, group or network"), zone_choices_n, zone_choices, 2, select_choice)))
@@ -4392,20 +4404,16 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         for(i = 1, d_node = services->list.top; d_node && i < service_choices_n; d_node = d_node->next, i++)
                         {
                             if(!(service_ptr = d_node->data))
-                            {
-                                vrmr_error(-1, VR_INTERR, "service_ptr == NULL! (in: edit_rule_normal).");
-                                return(-1);
-                            }
+                                continue;
 
                             service_choices[i] = service_ptr->name;
                         }
                         service_choices[0] = "any";
                         service_choices[i] = NULL;
 
-                        if(!(copy_field2buf(select_choice,
+                        (void)copy_field2buf(select_choice,
                                             field_buffer(cur, 0),
-                                            sizeof(select_choice))))
-                            return(-1);
+                                            sizeof(select_choice));
 
                         /* get the service */
                         if((choice_ptr = selectbox(gettext("Select"), gettext("Select a service"), service_choices_n, service_choices, 3, select_choice)))
@@ -5021,12 +5029,20 @@ edit_rule_separator(const int debuglvl,
     if(!(edit_win = create_newwin(height, width, starty, startx, gettext("Enter comment (optional)"), vccnf.color_win)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating window failed."));
+        for (i = 0; i < n_fields; i++) {
+            free_field(fields[i]);
+        }
+        free(fields);
         return(-1);
     }
 
     if(!(my_panels[0] = new_panel(edit_win)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating panel failed."));
+        for (i = 0; i < n_fields; i++) {
+            free_field(fields[i]);
+        }
+        free(fields);
         return(-1);
     }
     keypad(edit_win, TRUE);
@@ -5034,6 +5050,10 @@ edit_rule_separator(const int debuglvl,
     if(!(form = new_form(fields)))
     {
         vrmr_error(-1, VR_ERR, gettext("creating form failed."));
+        for (i = 0; i < n_fields; i++) {
+            free_field(fields[i]);
+        }
+        free(fields);
         return(-1);
     }
     scale_form(form, &rows, &cols);

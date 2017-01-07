@@ -87,8 +87,10 @@ confirm(char *title, char *text, chtype forecolor, chtype backcolor, int def)
 
     // first display the menu
     menu_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *));
-    if(menu_items == NULL)
+    if(menu_items == NULL) {
+        free(print_title);
         return(-1);
+    }
 
     for(i = 0; i < n_choices; ++i)
     {
@@ -757,8 +759,10 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
 
     snprintf(print_title, StrMemLen(title)+3, " %s ", title);
 
-    if(!(menu_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *))))
+    if(!(menu_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *)))) {
+        free(print_title);
         return(NULL);
+    }
 
     for(i = 0; i < n_choices; ++i)
     {

@@ -177,6 +177,7 @@ VrNewWin(int h, int w, int y, int x, chtype cp)
     {
         // error
         // cleanup
+        free(win);
         return(NULL);
     }
     win->p = new_panel(win->w);
@@ -184,6 +185,8 @@ VrNewWin(int h, int w, int y, int x, chtype cp)
     {
         // error
         // cleanup
+        destroy_win(win->w);
+        free(win);
         return(NULL);
     }
 
@@ -262,6 +265,8 @@ VrNewMenu(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
     menu->i = calloc(n + 1, sizeof(ITEM *));
     if ( menu->i == NULL )
     {
+        free(menu);
+
         // error
         vrmr_error(-1, VR_ERR, "calloc failed");
         return(NULL);

@@ -353,6 +353,11 @@ edit_tcpudp(const int debuglvl, struct vrmr_portdata *port_ptr)
     if (field_num != 4) {
         vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
+
+        for(i = 0; i < 4; i++) {
+            free_field(fields[i]);
+        }
+        free(fields);
         return(-1);
     }
 
@@ -559,11 +564,14 @@ icmp_choose_type(void)
     if(!(itemnames = calloc(n_items + 1, 32)))
     {
         vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+        free(items);
         return(-1);
     }
     if(!(itemnumbers = calloc(n_items + 1, 32)))
     {
         vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+        free(itemnames);
+        free(items);
         return(-1);
     }
 
@@ -582,11 +590,17 @@ icmp_choose_type(void)
         if(!(name = malloc(name_size)))
         {
             vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+            free(itemnumbers);
+            free(itemnames);
+            free(items);
             return(-1);
         }
         if(vrmr_get_icmp_name_short(icmp_type, -1, name, name_size, 0) < 0)
         {
             vrmr_error(-1, VR_INTERR, "vrmr_get_icmp_name_short() failed (in: %s:%d).", __FUNC__, __LINE__);
+            free(itemnumbers);
+            free(itemnames);
+            free(items);
             return(-1);
         }
         itemnames[type_cnt] = name;
@@ -595,6 +609,9 @@ icmp_choose_type(void)
         if(!(name = malloc(type_size)))
         {
             vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+            free(itemnumbers);
+            free(itemnames);
+            free(items);
             return(-1);
         }
         snprintf(name, type_size, "%d", icmp_type);
@@ -604,6 +621,9 @@ icmp_choose_type(void)
         if(items[type_cnt] == NULL)
         {
             vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
+            free(itemnumbers);
+            free(itemnames);
+            free(items);
             return(-1);
         }
 
@@ -617,6 +637,9 @@ icmp_choose_type(void)
     if(menu == NULL)
     {
         vrmr_error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
+        free(itemnumbers);
+        free(itemnames);
+        free(items);
         return(-1);
     }
 
@@ -635,6 +658,9 @@ icmp_choose_type(void)
     if(win == NULL)
     {
         vrmr_error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        free(itemnumbers);
+        free(itemnames);
+        free(items);
         return(-1);
     }
     wbkgd(win, vccnf.color_win);
@@ -647,6 +673,9 @@ icmp_choose_type(void)
     if(panel[0] == NULL)
     {
         vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        free(itemnumbers);
+        free(itemnames);
+        free(items);
         return(-1);
     }
 
@@ -692,6 +721,9 @@ icmp_choose_type(void)
                     if(select_ptr == NULL)
                     {
                         vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+                        free(itemnumbers);
+                        free(itemnames);
+                        free(items);
                         return(-1);
                     }
 
@@ -798,12 +830,15 @@ icmp_choose_code(const int icmp_type)
     if(itemnames == NULL)
     {
         vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+        free(items);
         return(-1);
     }
     itemnumbers = calloc(n_items + 1, 32);
     if(itemnumbers == NULL)
     {
         vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+        free(itemnames);
+        free(items);
         return(-1);
     }
 
@@ -819,11 +854,17 @@ icmp_choose_code(const int icmp_type)
         if(!(name = malloc(name_size)))
         {
             vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+            free(itemnumbers);
+            free(itemnames);
+            free(items);
             return(-1);
         }
         if(vrmr_get_icmp_name_short(icmp_type, icmp_code, name, name_size, 1) < 0)
         {
             vrmr_error(-1, VR_INTERR, "vrmr_get_icmp_name_short() failed (in: %s:%d).", __FUNC__, __LINE__);
+            free(itemnumbers);
+            free(itemnames);
+            free(items);
             return(-1);
         }
         itemnames[code_cnt] = name;
@@ -831,6 +872,9 @@ icmp_choose_code(const int icmp_type)
         if(!(name = malloc(code_size)))
         {
             vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+            free(itemnumbers);
+            free(itemnames);
+            free(items);
             return(-1);
         }
         snprintf(name, code_size, "%d", icmp_code);
@@ -840,6 +884,9 @@ icmp_choose_code(const int icmp_type)
         if(items[code_cnt] == NULL)
         {
             vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
+            free(itemnumbers);
+            free(itemnames);
+            free(items);
             return(-1);
         }
 
@@ -853,6 +900,9 @@ icmp_choose_code(const int icmp_type)
     if(menu == NULL)
     {
         vrmr_error(-1, VR_INTERR, "new_menu() failed (in: %s:%d).", __FUNC__, __LINE__);
+        free(itemnumbers);
+        free(itemnames);
+        free(items);
         return(-1);
     }
 
@@ -871,12 +921,18 @@ icmp_choose_code(const int icmp_type)
     if(win == NULL)
     {
         vrmr_error(-1, VR_INTERR, "newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
+        free(itemnumbers);
+        free(itemnames);
+        free(items);
         return(-1);
     }
     panel[0] = new_panel(win);
     if(panel[0] == NULL)
     {
         vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
+        free(itemnumbers);
+        free(itemnames);
+        free(items);
         return(-1);
     }
     box(win, 0, 0);
@@ -924,6 +980,9 @@ icmp_choose_code(const int icmp_type)
                     if(select_ptr == NULL)
                     {
                         vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+                        free(itemnumbers);
+                        free(itemnames);
+                        free(items);
                         return(-1);
                     }
 
@@ -1375,6 +1434,7 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
         else
         {
             vrmr_error(-1, VR_INTERR, "undefined protocol '%s' (%s:%d).", choice_ptr, __FUNC__, __LINE__);
+            free(portrange_ptr);
             free(choice_ptr);
             return(-1);
         }
@@ -1616,6 +1676,7 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
         if(!(port_string_ptr = malloc(rangestr_size)))
         {
             vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
+            free(item_number_ptr);
             return(-1);
         }
 
@@ -1673,6 +1734,8 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
         if(ServicesSection.EditServicePrt.items[i] == NULL)
         {
             vrmr_error(-1, VR_INTERR, "new_item() failed (in: %s:%d).", __FUNC__, __LINE__);
+            free(port_string_ptr);
+            free(item_number_ptr);
             return(-1);
         }
 
@@ -1680,11 +1743,14 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
         if(vrmr_list_append(debuglvl, &ServicesSection.EditServicePrt.item_list, port_string_ptr)  == NULL)
         {
             vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+            free(port_string_ptr);
+            free(item_number_ptr);
             return(-1);
         }
         if(vrmr_list_append(debuglvl, &ServicesSection.EditServicePrt.item_number_list, item_number_ptr)  == NULL)
         {
             vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
+            free(item_number_ptr);
             return(-1);
         }
     }
