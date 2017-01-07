@@ -1,1 +1,1 @@
-EXTRA_DIST = changelog  control  copyright  default  preinst  rules  vuurmuur.init  vuurmuur.logrotate .keep
+EXTRA_DIST = changelog compat control copyright default preinst rules vuurmuur.init vuurmuur.logrotate .keep
