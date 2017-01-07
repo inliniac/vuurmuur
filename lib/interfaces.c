@@ -1377,33 +1377,29 @@ vrmr_get_iface_stats(    const int debuglvl,
                     unsigned long *trans_bytes,
                     unsigned long *trans_packets)
 {
-    char    proc_net_dev[] = "/proc/net/dev",
-            line[256] = "",
+    char    proc_net_dev[] = "/proc/net/dev";
+    char    line[256] = "",
 
             /*
                 NOTE: if you change the length of the interface, also change it in
                 sscanf!!!!
             */
-            interface[33] = "",
-            recv_byte_str[32] = "";
+            interface[64] = "";
 
-    int     copy_bytes = 0,
-            i = 0,
-            k = 0,
-            found = 0;  /* indicates that the interface was found */
+    int     found = 0;  /* indicates that the interface was found */
 
     FILE    *fp = NULL;
 
     struct
     {
-        unsigned long bytes;    /* a long because otherwise it would max handle 2gb */
-        unsigned long packets;
-        int errors;
-        int drop;
-        int fifo;
-        int frame;
-        int comp;
-        int multi;
+        unsigned long long bytes;    /* a long because otherwise it would max handle 2gb */
+        unsigned long long packets;
+        unsigned int errors;
+        unsigned int drop;
+        unsigned int fifo;
+        unsigned int frame;
+        unsigned int comp;
+        unsigned int multi;
     }   recv  = {0, 0, 0, 0, 0, 0, 0, 0},
         trans = {0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -1425,6 +1421,9 @@ vrmr_get_iface_stats(    const int debuglvl,
     /* loop trough the file */
     while(fgets(line, (int)sizeof(line), fp) != NULL)
     {
+        if (strlen(line) == 0 || line[0] == '\n')
+            continue;
+
         /*  first scan only the first string, here you can see why (from the file):
             lo: 3335005   17735 ...
             eth0:1055472756 4679465 ...
@@ -1432,8 +1431,9 @@ vrmr_get_iface_stats(    const int debuglvl,
             notice that with eth0 there is no space between the semicolon and the number.
             Thats where we test for.
         */
-        sscanf(line, "%32s", interface);
-        if(strncmp(interface, iface_name, strlen(iface_name)) == 0)
+        sscanf(line, "%63s", interface);
+
+        if  (strncmp(interface, iface_name, strlen(iface_name)) == 0)
         {
             found = 1;
 
@@ -1441,43 +1441,37 @@ vrmr_get_iface_stats(    const int debuglvl,
             if(!recv_bytes && !trans_bytes && !recv_packets && !trans_packets)
                 break;
 
-            /* if we have an semicolon at the end */
-            if(interface[strlen(interface)-1] == ':')
+            /* if we have an semicolon at the end (common) */
+            if (interface[strlen(interface)-1] == ':')
             {
-                sscanf(line, "%32s %lud %lu %d %d %d %d %d %d %lu %lu %d %d %d %d %d %d",
+                int r = sscanf(line, "%32s %llu %llu %u %u %u %u %u %u %llu %llu %u %u %u %u %u %u",
                         interface, &recv.bytes, &recv.packets, &recv.errors,
                         &recv.drop, &recv.fifo, &recv.frame, &recv.comp, &recv.multi,
                         &trans.bytes, &trans.packets, &trans.errors, &trans.drop, &trans.fifo,
                         &trans.frame, &trans.comp, &trans.multi);
+                if (r != 17)
+                    vrmr_debug(__FUNC__, "r %d (17?), interface '%s' iface_name '%s' line '%s'", r, interface, iface_name, line);
             }
-            /* else the recv bytes is very big */
+            /* else the recv bytes is very big and old format */
             else
             {
-                /* okay, lets split up */
-                for(i=0, k=0; (i < (int)strlen(interface) && k < (int)sizeof(recv_byte_str)); i++)
-                {
-                    if(copy_bytes == 1)
-                    {
-                        recv_byte_str[k] = interface[i];
-                        k++;
+                char *bytes_start = strchr(interface, ':');
+                if (bytes_start != NULL) {
+                    bytes_start++; // skip past :
+                    char *end;
+                    recv.bytes = strtoul(bytes_start, &end, 10);
+                    if (end) {
+                        vrmr_debug(__FUNC__, "recv.bytes %lu %s", recv.bytes, end);
                     }
+                    char *line_part = line + strlen(interface);
 
-                    if(interface[i] == ':')
-                        copy_bytes = 1;
+                    int y = sscanf(line_part, "%llu %u %u %u %u %u %u %llu %llu %u %u %u %u %u %u",
+                            &recv.packets, &recv.errors, &recv.drop, &recv.fifo,
+                            &recv.frame, &recv.comp, &recv.multi, &trans.bytes, &trans.packets,
+                            &trans.errors, &trans.drop, &trans.fifo, &trans.frame, &trans.comp, &trans.multi);
+                    if (y != 15)
+                        vrmr_debug(__FUNC__, "y %d (15?), line '%s'", y, line_part);
                 }
-                recv_byte_str[k] = '\0';
-
-                /* now convert to unsigned long */
-                recv.bytes = strtoul(recv_byte_str, (char **)NULL, 10);
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "recv_byte_str: '%s', recv.bytes: '%lu'.",
-                            recv_byte_str,
-                            recv.bytes);
-
-                sscanf(line, "%32s %lu %d %d %d %d %d %d %lu %lu %d %d %d %d %d %d",
-                        interface, &recv.packets, &recv.errors, &recv.drop, &recv.fifo,
-                        &recv.frame, &recv.comp, &recv.multi, &trans.bytes, &trans.packets,
-                        &trans.errors, &trans.drop, &trans.fifo, &trans.frame, &trans.comp, &trans.multi);
             }
 
             /* pass back to the calling function */
