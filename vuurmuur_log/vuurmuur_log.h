@@ -38,8 +38,6 @@
 #endif
 #include <getopt.h>
 
-#include "../vuurmuur/version.h"
-
 #define PIDFILE         "/var/run/vuurmuur_log.pid"
 #define SVCNAME         "vuurmuur_log"
 
