@@ -121,6 +121,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
                 vrmr_error(VRS_ERR_INTERNAL, VR_ERR,
                     "parameter problem (in: %s:%d)",
                     __FUNC__, __LINE__);
+                free(str);
                 return(VRS_ERR_INTERNAL);
             }
         }
