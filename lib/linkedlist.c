@@ -527,7 +527,7 @@ vrmr_list_cleanup(const int debuglvl, struct vrmr_list *list)
                 __FUNC__, __LINE__);
         return(-1);
     }
-
+#ifndef __clang_analyzer__
     /* remove the top while list len > 0 */
     for(;list->len;)
     {
@@ -538,6 +538,6 @@ vrmr_list_cleanup(const int debuglvl, struct vrmr_list *list)
             return(-1);
         }
     }
-
+#endif
     return(0);
 }
