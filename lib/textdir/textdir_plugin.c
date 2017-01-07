@@ -1370,7 +1370,7 @@ static struct vrmr_plugin_data textdir_plugin = {
     .rename = rename_textdir,
     .conf = conf_textdir,
     .setup = setup_textdir,
-    .version = LIBVUURMUUR_VERSION,
+    .version = VUURMUUR_VERSION,
     .name = "textdir",
 };
 

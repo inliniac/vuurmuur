@@ -198,7 +198,7 @@ vrmr_shm_lock(int lock, int sem_id)
 
 /* return a ptr to the lib version string */
 char *libvuurmuur_get_version(void) {
-    return LIBVUURMUUR_VERSION;
+    return VUURMUUR_VERSION;
 }
 
 /*  range_strcpy
