@@ -506,75 +506,6 @@ update_draw_size(const int debuglvl, struct vrmr_conntrack_request *connreq, int
 }
 
 
-Conntrack *
-conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
-            struct vrmr_services *services, struct vrmr_blocklist *blocklist )
-{
-    Conntrack   *ct = NULL;
-
-    ct = malloc(sizeof(Conntrack));
-    if(ct == NULL)
-        return(NULL);
-
-    memset(ct, 0, sizeof(*ct));
-
-    /*  insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist
-        as 'firewall', so this appears in to the connections */
-    if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces->list, &zones->list) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "vrmr_ins_iface_into_zonelist() "
-            "failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(NULL);
-    }
-
-    /*  do the same for broadcasts. These are removed by:
-        vrmr_rem_iface_from_zonelist() (see below) */
-    if(vrmr_add_broadcasts_zonelist(debuglvl, zones) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "vrmr_add_broadcasts_zonelist() "
-            "failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(NULL);
-    }
-
-    /* create hashtables */
-    if(vrmr_init_zonedata_hashtable(debuglvl, zones->list.len * 3, &zones->list,
-        vrmr_hash_ipaddress, vrmr_compare_ipaddress, &ct->zone_hash) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "vrmr_init_zonedata_hashtable() "
-            "failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(NULL);
-    }
-    /*  the hashtable size may seem very big, but some services have
-        really a lot items. e.g. 137->1024:65535 */
-    if(vrmr_init_services_hashtable(debuglvl, services->list.len * 500,
-        &services->list, vrmr_hash_port, vrmr_compare_ports, &ct->service_hash) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "vrmr_init_services_hashtable() "
-            "failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(NULL);
-    }
-
-    /*  initialize this list with destroy is null, because it only
-        points to zonedatalist nodes */
-    if(vrmr_list_setup(debuglvl, &ct->network_list, NULL) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "vrmr_list_setup() failed "
-            "(in: %s:%d).", __FUNC__, __LINE__);
-        return(NULL);
-    }
-    if(vrmr_zonelist_to_networklist(debuglvl, zones, &ct->network_list) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "vrmr_zonelist_to_networklist() "
-            "failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(NULL);
-    }
-
-    /* initialize the prev size because it is used in get_connections */
-    ct->prev_list_size = 500;
-
-    return(ct);
-}
-
 void
 conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones)
 {
@@ -601,6 +532,75 @@ conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones)
     vrmr_hash_cleanup(debuglvl, &(*ct)->service_hash);
 
     free(*ct);
+}
+
+Conntrack *
+conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+            struct vrmr_services *services, struct vrmr_blocklist *blocklist )
+{
+    Conntrack   *ct = calloc(1, sizeof(Conntrack));
+    if(ct == NULL)
+        return(NULL);
+
+
+    /*  insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist
+        as 'firewall', so this appears in to the connections */
+    if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces->list, &zones->list) < 0)
+    {
+        vrmr_error(-1, VR_INTERR, "vrmr_ins_iface_into_zonelist() "
+            "failed (in: %s:%d).", __FUNC__, __LINE__);
+        goto error;
+    }
+
+    /*  do the same for broadcasts. These are removed by:
+        vrmr_rem_iface_from_zonelist() (see below) */
+    if(vrmr_add_broadcasts_zonelist(debuglvl, zones) < 0)
+    {
+        vrmr_error(-1, VR_INTERR, "vrmr_add_broadcasts_zonelist() "
+            "failed (in: %s:%d).", __FUNC__, __LINE__);
+        goto error;
+    }
+
+    /* create hashtables */
+    if(vrmr_init_zonedata_hashtable(debuglvl, zones->list.len * 3, &zones->list,
+        vrmr_hash_ipaddress, vrmr_compare_ipaddress, &ct->zone_hash) < 0)
+    {
+        vrmr_error(-1, VR_INTERR, "vrmr_init_zonedata_hashtable() "
+            "failed (in: %s:%d).", __FUNC__, __LINE__);
+        goto error;
+    }
+    /*  the hashtable size may seem very big, but some services have
+        really a lot items. e.g. 137->1024:65535 */
+    if(vrmr_init_services_hashtable(debuglvl, services->list.len * 500,
+        &services->list, vrmr_hash_port, vrmr_compare_ports, &ct->service_hash) < 0)
+    {
+        vrmr_error(-1, VR_INTERR, "vrmr_init_services_hashtable() "
+            "failed (in: %s:%d).", __FUNC__, __LINE__);
+        goto error;
+    }
+
+    /*  initialize this list with destroy is null, because it only
+        points to zonedatalist nodes */
+    if(vrmr_list_setup(debuglvl, &ct->network_list, NULL) < 0)
+    {
+        vrmr_error(-1, VR_INTERR, "vrmr_list_setup() failed "
+            "(in: %s:%d).", __FUNC__, __LINE__);
+        goto error;
+    }
+    if(vrmr_zonelist_to_networklist(debuglvl, zones, &ct->network_list) < 0)
+    {
+        vrmr_error(-1, VR_INTERR, "vrmr_zonelist_to_networklist() "
+            "failed (in: %s:%d).", __FUNC__, __LINE__);
+        goto error;
+    }
+
+    /* initialize the prev size because it is used in get_connections */
+    ct->prev_list_size = 500;
+
+    return(ct);
+error:
+    conn_free_ct(debuglvl, &ct, zones);
+    return(NULL);
 }
 
 int
