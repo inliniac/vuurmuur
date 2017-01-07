@@ -216,7 +216,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
 {
     struct vrmr_list_node     *d_node = NULL;
     char            chain_found = 0;
-    char            stripped_chain[32] = "",
+    char            stripped_chain[33] = "",
                     commandline_switch[3] = ""; /* '-A' =2 + '\0' = 1 == 3 */
     struct ChainRef *chainref_ptr = NULL;
 
@@ -231,7 +231,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
     if(strncmp(chain, "-A ACC-", 7) == 0)
     {
         /* strip chain from -A */
-        sscanf(chain, "%3s %32s", commandline_switch, stripped_chain);
+        sscanf(chain, "%2s %32s", commandline_switch, stripped_chain);
         if(debuglvl >= HIGH)
             vrmr_debug(__FUNC__, "chain: '%s', commandline_switch: '%s', stripped_chain '%s'.",
                                 chain,
@@ -369,6 +369,7 @@ ruleset_add_rule_to_set(const int debuglvl, struct vrmr_list *list, char *chain,
     if(result >= (int)size)
     {
         vrmr_error(-1, "Error", "ruleset string overflow (%d >= %d, %s) (in: %s:%d).", result, size, rule, __FUNC__, __LINE__);
+        free(line);
         return(-1);
     }
 
@@ -376,6 +377,7 @@ ruleset_add_rule_to_set(const int debuglvl, struct vrmr_list *list, char *chain,
     if(vrmr_list_append(debuglvl, list, line) == NULL)
     {
         vrmr_error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).", __FUNC__, __LINE__);
+        free(line);
         return(-1);
     }
 
