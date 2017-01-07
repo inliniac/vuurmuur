@@ -902,7 +902,6 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         {
             /* free the alloced line */
             free(line);
-            done = 1;
             break;
         }
 
@@ -923,7 +922,6 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             free(line);
 
             /* done because we reached the end of the file which does not have a newline */
-            done = 1;
             break;
         }
 
@@ -936,6 +934,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             if(!(log_record = malloc(sizeof(struct LogRule_))))
             {
                 vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
+                free(line);
                 return(-1);
             }
 
@@ -954,6 +953,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             if(vrmr_list_append(debuglvl, buffer_ptr, log_record)  == NULL)
             {
                 vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
+                free(line);
                 return(-1);
             }
 
@@ -963,6 +963,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                 if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
                 {
                     vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
+                    free(line);
                     return(-1);
                 }
             }

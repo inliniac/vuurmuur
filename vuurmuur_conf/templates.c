@@ -242,7 +242,6 @@ input_box(size_t length, char *title, char *description)
     }
     else if((int)length + 8 > max_width)
     {
-//        status_print(status_win, "Window too big!");
         free(temp_ptr);
         return NULL;
     }
@@ -327,9 +326,8 @@ input_box(size_t length, char *title, char *description)
     if(!(result_ptr = malloc((size_t)(i+1))))
     {
         vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-        return(NULL);
+        goto end;
     }
-
     strlcpy(result_ptr, temp_ptr, (size_t)i+1);
 
     if(result_ptr[0] == '\0')
@@ -338,6 +336,7 @@ input_box(size_t length, char *title, char *description)
         result_ptr = NULL;
     }
 
+end:
     free(temp_ptr);
 
     unpost_form(my_form);
@@ -959,23 +958,14 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
             case 32:
             case 10: // enter
             {
-                ITEM *cur_item;
+                ITEM *cur_item = current_item(confirm_menu);
 
-                cur_item = current_item(confirm_menu);
+                select_ptr = strdup((char *)item_name(cur_item));
+                if (select_ptr == NULL)
+                    vrmr_error(-1, VR_ERR, gettext("strdup failed: %s (in: %s:%d)."),
+                            strerror(errno), __func__, __LINE__);
 
-                size = StrMemLen((char *)item_name(cur_item))+1;
-                if(size == 0)
-                {
-                    vrmr_error(-1, VR_INTERR, "could not determine the size of the selection (in: %s).", __FUNC__);
-                    return(NULL);
-                }
-
-                if(!(select_ptr = malloc(size)))
-                    return(NULL);
-
-                (void)strlcpy(select_ptr, item_name(cur_item), size);
-
-                quit=1;
+                quit = 1;
                 break;
             }
 
@@ -983,7 +973,7 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
             case KEY_F(10):
             case 'q':
             case 'Q':
-                quit=1;
+                quit = 1;
                 break;
         }
     }

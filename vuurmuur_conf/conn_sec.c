@@ -498,7 +498,7 @@ update_draw_size(const int debuglvl, struct vrmr_conntrack_request *connreq, int
     int tow = left;
     if (tow > to)
         tow = to;
-    left -= tow;
+    //left -= tow;
 
     update_draw_size_do(&service_width, ser, serw, ser_snprintf_str, sizeof(ser_snprintf_str));
     update_draw_size_do(&fromzone_width, from, fromw, fromzone_snprintf_str, sizeof(fromzone_snprintf_str));
