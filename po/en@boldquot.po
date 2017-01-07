@@ -32,7 +32,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vuurmuur 0.8rc3\n"
 "Report-Msgid-Bugs-To: https://www.vuurmuur.org/\n"
-"POT-Creation-Date: 2017-01-01 12:28+0100\n"
+"POT-Creation-Date: 2017-01-02 21:20+0100\n"
 "PO-Revision-Date: 2017-01-01 12:28+0100\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -48,34 +48,33 @@ msgstr ""
 #: vuurmuur_conf/logview_section.c:897 vuurmuur_conf/logview_section.c:935
 #: vuurmuur_conf/logview_section.c:976 vuurmuur_conf/logview_section.c:1083
 #: vuurmuur_conf/logview_section.c:1137 vuurmuur_conf/logview_section.c:1185
-#: vuurmuur_conf/rules_form.c:1077 vuurmuur_conf/rules_form.c:1583
-#: vuurmuur_conf/rules_form.c:2782 vuurmuur_conf/rules_form.c:2806
-#: vuurmuur_conf/rules_form.c:2833 vuurmuur_conf/rules_form.c:2853
-#: vuurmuur_conf/rules_form.c:2889 vuurmuur_conf/rules_form.c:2934
-#: vuurmuur_conf/rules_form.c:2967 vuurmuur_conf/rules_form.c:3002
-#: vuurmuur_conf/rules_form.c:3029 vuurmuur_conf/rules_form.c:3050
-#: vuurmuur_conf/rules_form.c:3073 vuurmuur_conf/rules_form.c:3096
-#: vuurmuur_conf/rules_form.c:3117 vuurmuur_conf/rules_form.c:3136
-#: vuurmuur_conf/rules_form.c:3156 vuurmuur_conf/rules_form.c:3176
-#: vuurmuur_conf/rules_form.c:3196 vuurmuur_conf/rules_form.c:3214
-#: vuurmuur_conf/rules_form.c:3239 vuurmuur_conf/rules_form.c:3257
-#: vuurmuur_conf/rules_form.c:4403 vuurmuur_conf/rules_form.c:4470
-#: vuurmuur_conf/rules_form.c:4517 vuurmuur_conf/rules_form.c:5013
-#: vuurmuur_conf/services_section.c:584 vuurmuur_conf/services_section.c:597
-#: vuurmuur_conf/services_section.c:694 vuurmuur_conf/services_section.c:821
-#: vuurmuur_conf/services_section.c:833 vuurmuur_conf/services_section.c:926
-#: vuurmuur_conf/services_section.c:1288 vuurmuur_conf/services_section.c:1611
-#: vuurmuur_conf/services_section.c:1619 vuurmuur_conf/templates.c:230
-#: vuurmuur_conf/templates.c:327 vuurmuur_conf/zones_section.c:1414
-#: vuurmuur_conf/zones_section.c:1441 vuurmuur_conf/zones_section.c:1494
-#: vuurmuur_conf/zones_section.c:1554 vuurmuur_conf/zones_section.c:1646
-#: vuurmuur_conf/zones_section.c:2713 vuurmuur_conf/zones_section.c:2962
-#: vuurmuur_conf/zones_section.c:2989 vuurmuur_conf/zones_section.c:3068
-#: vuurmuur_conf/zones_section.c:3091 vuurmuur_conf/zones_section.c:3171
-#: vuurmuur_conf/zones_section.c:3348 vuurmuur_conf/zones_section.c:5315
-#: vuurmuur_conf/zones_section.c:5592 vuurmuur_conf/zones_section.c:5617
-#: vuurmuur_conf/zones_section.c:5796 vuurmuur_conf/zones_section.c:5854
-#: vuurmuur_conf/zones_section.c:6994
+#: vuurmuur_conf/rules_form.c:1051 vuurmuur_conf/rules_form.c:1557
+#: vuurmuur_conf/rules_form.c:2743 vuurmuur_conf/rules_form.c:2767
+#: vuurmuur_conf/rules_form.c:2794 vuurmuur_conf/rules_form.c:2814
+#: vuurmuur_conf/rules_form.c:2850 vuurmuur_conf/rules_form.c:2895
+#: vuurmuur_conf/rules_form.c:2928 vuurmuur_conf/rules_form.c:2963
+#: vuurmuur_conf/rules_form.c:2990 vuurmuur_conf/rules_form.c:3011
+#: vuurmuur_conf/rules_form.c:3034 vuurmuur_conf/rules_form.c:3057
+#: vuurmuur_conf/rules_form.c:3076 vuurmuur_conf/rules_form.c:3096
+#: vuurmuur_conf/rules_form.c:3116 vuurmuur_conf/rules_form.c:3136
+#: vuurmuur_conf/rules_form.c:3154 vuurmuur_conf/rules_form.c:3179
+#: vuurmuur_conf/rules_form.c:3197 vuurmuur_conf/rules_form.c:4285
+#: vuurmuur_conf/rules_form.c:4352 vuurmuur_conf/rules_form.c:4399
+#: vuurmuur_conf/rules_form.c:4895 vuurmuur_conf/services_section.c:584
+#: vuurmuur_conf/services_section.c:597 vuurmuur_conf/services_section.c:694
+#: vuurmuur_conf/services_section.c:821 vuurmuur_conf/services_section.c:833
+#: vuurmuur_conf/services_section.c:926 vuurmuur_conf/services_section.c:1288
+#: vuurmuur_conf/services_section.c:1611 vuurmuur_conf/services_section.c:1619
+#: vuurmuur_conf/templates.c:230 vuurmuur_conf/templates.c:327
+#: vuurmuur_conf/zones_section.c:1414 vuurmuur_conf/zones_section.c:1441
+#: vuurmuur_conf/zones_section.c:1494 vuurmuur_conf/zones_section.c:1554
+#: vuurmuur_conf/zones_section.c:1646 vuurmuur_conf/zones_section.c:2713
+#: vuurmuur_conf/zones_section.c:2962 vuurmuur_conf/zones_section.c:2989
+#: vuurmuur_conf/zones_section.c:3068 vuurmuur_conf/zones_section.c:3091
+#: vuurmuur_conf/zones_section.c:3171 vuurmuur_conf/zones_section.c:3348
+#: vuurmuur_conf/zones_section.c:5317 vuurmuur_conf/zones_section.c:5594
+#: vuurmuur_conf/zones_section.c:5619 vuurmuur_conf/zones_section.c:5798
+#: vuurmuur_conf/zones_section.c:5856 vuurmuur_conf/zones_section.c:6997
 #, c-format
 msgid "malloc failed: %s (in: %s:%d)."
 msgstr "malloc failed: %s (in: %s:%d)."
@@ -101,9 +100,9 @@ msgid "removing '%s' failed (unlink): %s (in: %s:%d)."
 msgstr "removing ‘[1m%s[0m’ failed (unlink): %s (in: %s:%d)."
 
 #: vuurmuur_conf/bw_sec.c:465 vuurmuur_conf/if_sec.c:1599
-#: vuurmuur_conf/rules_form.c:1608 vuurmuur_conf/rules_form.c:3457
-#: vuurmuur_conf/rules_form.c:4626 vuurmuur_conf/rules_form.c:4733
-#: vuurmuur_conf/rules_form.c:4792 vuurmuur_conf/rules_form.c:5124
+#: vuurmuur_conf/rules_form.c:1582 vuurmuur_conf/rules_form.c:3396
+#: vuurmuur_conf/rules_form.c:4508 vuurmuur_conf/rules_form.c:4615
+#: vuurmuur_conf/rules_form.c:4674 vuurmuur_conf/rules_form.c:5006
 #: vuurmuur_conf/services_section.c:321 vuurmuur_conf/services_section.c:556
 #: vuurmuur_conf/services_section.c:561 vuurmuur_conf/services_section.c:566
 #: vuurmuur_conf/services_section.c:794 vuurmuur_conf/services_section.c:800
@@ -113,9 +112,9 @@ msgstr "removing ‘[1m%s[0m’ failed (unlink): %s (in: %s:%d)."
 #: vuurmuur_conf/zones_section.c:891 vuurmuur_conf/zones_section.c:1735
 #: vuurmuur_conf/zones_section.c:1976 vuurmuur_conf/zones_section.c:2233
 #: vuurmuur_conf/zones_section.c:2691 vuurmuur_conf/zones_section.c:3634
-#: vuurmuur_conf/zones_section.c:3717 vuurmuur_conf/zones_section.c:4387
-#: vuurmuur_conf/zones_section.c:5290 vuurmuur_conf/zones_section.c:5934
-#: vuurmuur_conf/zones_section.c:6308 vuurmuur_conf/zones_section.c:6745
+#: vuurmuur_conf/zones_section.c:3717 vuurmuur_conf/zones_section.c:4389
+#: vuurmuur_conf/zones_section.c:5292 vuurmuur_conf/zones_section.c:5936
+#: vuurmuur_conf/zones_section.c:6310 vuurmuur_conf/zones_section.c:6747
 #: vuurmuur_conf/filter.c:177
 #, c-format
 msgid "calloc failed: %s (in: %s:%d)."
@@ -129,9 +128,9 @@ msgstr "Traffic Volume Section"
 #: vuurmuur_conf/if_sec.c:1714 vuurmuur_conf/logview_section.c:874
 #: vuurmuur_conf/logview_section.c:1037 vuurmuur_conf/logview_section.c:1047
 #: vuurmuur_conf/logview_section.c:1059 vuurmuur_conf/logview_section.c:1406
-#: vuurmuur_conf/mainmenu.c:1169 vuurmuur_conf/rules_form.c:561
-#: vuurmuur_conf/rules_form.c:1574 vuurmuur_conf/rules_form.c:1593
-#: vuurmuur_conf/rules_form.c:4025 vuurmuur_conf/rules_form.c:5152
+#: vuurmuur_conf/mainmenu.c:1169 vuurmuur_conf/rules_form.c:546
+#: vuurmuur_conf/rules_form.c:1548 vuurmuur_conf/rules_form.c:1567
+#: vuurmuur_conf/rules_form.c:3932 vuurmuur_conf/rules_form.c:5034
 #: vuurmuur_conf/services_section.c:1756 vuurmuur_conf/services_section.c:1767
 #: vuurmuur_conf/services_section.c:2711 vuurmuur_conf/services_section.c:2722
 #: vuurmuur_conf/templates.c:865 vuurmuur_conf/templates.c:876
@@ -139,21 +138,21 @@ msgstr "Traffic Volume Section"
 #: vuurmuur_conf/zones_section.c:1013 vuurmuur_conf/zones_section.c:1822
 #: vuurmuur_conf/zones_section.c:1833 vuurmuur_conf/zones_section.c:2793
 #: vuurmuur_conf/zones_section.c:2804 vuurmuur_conf/zones_section.c:3801
-#: vuurmuur_conf/zones_section.c:3812 vuurmuur_conf/zones_section.c:5408
-#: vuurmuur_conf/zones_section.c:5419 vuurmuur_conf/zones_section.c:6404
-#: vuurmuur_conf/zones_section.c:6415 vuurmuur_conf/zones_section.c:6852
-#: vuurmuur_conf/zones_section.c:6863 vuurmuur_conf/filter.c:161
+#: vuurmuur_conf/zones_section.c:3812 vuurmuur_conf/zones_section.c:5410
+#: vuurmuur_conf/zones_section.c:5421 vuurmuur_conf/zones_section.c:6406
+#: vuurmuur_conf/zones_section.c:6417 vuurmuur_conf/zones_section.c:6854
+#: vuurmuur_conf/zones_section.c:6865 vuurmuur_conf/filter.c:161
 msgid "creating window failed."
 msgstr "creating window failed."
 
-#: vuurmuur_conf/bw_sec.c:535 vuurmuur_conf/rules_form.c:4031
-#: vuurmuur_conf/rules_form.c:5158 vuurmuur_conf/zones_section.c:302
+#: vuurmuur_conf/bw_sec.c:535 vuurmuur_conf/rules_form.c:3938
+#: vuurmuur_conf/rules_form.c:5040 vuurmuur_conf/zones_section.c:302
 #: vuurmuur_conf/filter.c:168
 msgid "creating panel failed."
 msgstr "creating panel failed."
 
-#: vuurmuur_conf/bw_sec.c:557 vuurmuur_conf/rules_form.c:4038
-#: vuurmuur_conf/rules_form.c:5165 vuurmuur_conf/zones_section.c:336
+#: vuurmuur_conf/bw_sec.c:557 vuurmuur_conf/rules_form.c:3945
+#: vuurmuur_conf/rules_form.c:5047 vuurmuur_conf/zones_section.c:336
 msgid "creating form failed."
 msgstr "creating form failed."
 
@@ -200,37 +199,37 @@ msgid "Last month"
 msgstr "Last month"
 
 #: vuurmuur_conf/bw_sec.c:731 vuurmuur_conf/config_section.c:1938
-#: vuurmuur_conf/config_section.c:2867 vuurmuur_conf/config_section.c:3080
-#: vuurmuur_conf/config_section.c:3240 vuurmuur_conf/conn_sec.c:708
+#: vuurmuur_conf/config_section.c:2875 vuurmuur_conf/config_section.c:3086
+#: vuurmuur_conf/config_section.c:3246 vuurmuur_conf/conn_sec.c:708
 #: vuurmuur_conf/if_sec.c:1336 vuurmuur_conf/if_sec.c:1977
 #: vuurmuur_conf/logview_section.c:732 vuurmuur_conf/logview_section.c:751
-#: vuurmuur_conf/mainmenu.c:1642 vuurmuur_conf/rules_form.c:1538
-#: vuurmuur_conf/rules_form.c:3414 vuurmuur_conf/services_section.c:1829
+#: vuurmuur_conf/mainmenu.c:1642 vuurmuur_conf/rules_form.c:1512
+#: vuurmuur_conf/rules_form.c:3353 vuurmuur_conf/services_section.c:1829
 #: vuurmuur_conf/services_section.c:2401 vuurmuur_conf/services_section.c:2783
 #: vuurmuur_conf/stat_sec.c:780 vuurmuur_conf/zones_section.c:659
 #: vuurmuur_conf/zones_section.c:1306 vuurmuur_conf/zones_section.c:2456
-#: vuurmuur_conf/zones_section.c:2868 vuurmuur_conf/zones_section.c:5038
-#: vuurmuur_conf/zones_section.c:5497 vuurmuur_conf/zones_section.c:6147
-#: vuurmuur_conf/zones_section.c:6479 vuurmuur_conf/zones_section.c:7064
+#: vuurmuur_conf/zones_section.c:2868 vuurmuur_conf/zones_section.c:5040
+#: vuurmuur_conf/zones_section.c:5499 vuurmuur_conf/zones_section.c:6149
+#: vuurmuur_conf/zones_section.c:6481 vuurmuur_conf/zones_section.c:7069
 #: vuurmuur_conf/statevent.c:498 vuurmuur_conf/statevent.c:778
 #: vuurmuur_conf/statevent.c:1100
 msgid "help"
 msgstr "help"
 
 #: vuurmuur_conf/bw_sec.c:732 vuurmuur_conf/config_section.c:1939
-#: vuurmuur_conf/config_section.c:2869 vuurmuur_conf/config_section.c:3082
-#: vuurmuur_conf/config_section.c:3241 vuurmuur_conf/conn_sec.c:719
+#: vuurmuur_conf/config_section.c:2877 vuurmuur_conf/config_section.c:3088
+#: vuurmuur_conf/config_section.c:3247 vuurmuur_conf/conn_sec.c:719
 #: vuurmuur_conf/help.c:1153 vuurmuur_conf/if_sec.c:1340
 #: vuurmuur_conf/if_sec.c:1982 vuurmuur_conf/logview_section.c:739
 #: vuurmuur_conf/logview_section.c:756 vuurmuur_conf/mainmenu.c:189
-#: vuurmuur_conf/rules_form.c:1544 vuurmuur_conf/rules_form.c:3417
+#: vuurmuur_conf/rules_form.c:1518 vuurmuur_conf/rules_form.c:3356
 #: vuurmuur_conf/services_section.c:1833 vuurmuur_conf/services_section.c:2403
 #: vuurmuur_conf/services_section.c:2788 vuurmuur_conf/stat_sec.c:781
 #: vuurmuur_conf/zones_section.c:660 vuurmuur_conf/zones_section.c:1312
 #: vuurmuur_conf/zones_section.c:2458 vuurmuur_conf/zones_section.c:2874
-#: vuurmuur_conf/zones_section.c:5040 vuurmuur_conf/zones_section.c:5503
-#: vuurmuur_conf/zones_section.c:6148 vuurmuur_conf/zones_section.c:6485
-#: vuurmuur_conf/zones_section.c:7067 vuurmuur_conf/statevent.c:499
+#: vuurmuur_conf/zones_section.c:5042 vuurmuur_conf/zones_section.c:5505
+#: vuurmuur_conf/zones_section.c:6150 vuurmuur_conf/zones_section.c:6487
+#: vuurmuur_conf/zones_section.c:7072 vuurmuur_conf/statevent.c:499
 #: vuurmuur_conf/statevent.c:779 vuurmuur_conf/statevent.c:1102
 msgid "back"
 msgstr "back"
@@ -288,7 +287,7 @@ msgstr "Interfaces"
 msgid "System Protection"
 msgstr "System Protection"
 
-#: vuurmuur_conf/config_section.c:31 vuurmuur_conf/config_section.c:2694
+#: vuurmuur_conf/config_section.c:31 vuurmuur_conf/config_section.c:2704
 msgid "Conntrack"
 msgstr "Conntrack"
 
@@ -304,11 +303,11 @@ msgstr "Modules"
 msgid "Plugins"
 msgstr "Plugins"
 
-#: vuurmuur_conf/config_section.c:35 vuurmuur_conf/config_section.c:2881
+#: vuurmuur_conf/config_section.c:35 vuurmuur_conf/config_section.c:2889
 msgid "Capabilities"
 msgstr "Capabilities"
 
-#: vuurmuur_conf/config_section.c:37 vuurmuur_conf/config_section.c:3094
+#: vuurmuur_conf/config_section.c:37 vuurmuur_conf/config_section.c:3100
 msgid "IPv6 Capabilities"
 msgstr "IPv6 Capabilities"
 
@@ -350,20 +349,20 @@ msgstr "Sysctl location (full path):"
 
 #: vuurmuur_conf/config_section.c:398 vuurmuur_conf/config_section.c:664
 #: vuurmuur_conf/config_section.c:949 vuurmuur_conf/config_section.c:1226
-#: vuurmuur_conf/config_section.c:2548
+#: vuurmuur_conf/config_section.c:2558
 msgid "Saving config failed"
 msgstr "Saving config failed"
 
 #: vuurmuur_conf/config_section.c:399 vuurmuur_conf/config_section.c:665
 #: vuurmuur_conf/config_section.c:950 vuurmuur_conf/config_section.c:1227
-#: vuurmuur_conf/config_section.c:2549
+#: vuurmuur_conf/config_section.c:2559
 msgid "Saving the config failed. Sure you want to quit?"
 msgstr "Saving the config failed. Sure you want to quit?"
 
 #: vuurmuur_conf/config_section.c:464 vuurmuur_conf/config_section.c:730
 #: vuurmuur_conf/config_section.c:1015 vuurmuur_conf/config_section.c:1292
-#: vuurmuur_conf/config_section.c:1690 vuurmuur_conf/config_section.c:2061
-#: vuurmuur_conf/config_section.c:2615 vuurmuur_conf/config_section.c:2666
+#: vuurmuur_conf/config_section.c:1690 vuurmuur_conf/config_section.c:2071
+#: vuurmuur_conf/config_section.c:2625 vuurmuur_conf/config_section.c:2676
 #: vuurmuur_conf/sys_sec.c:288
 msgid "writing configfile failed."
 msgstr "writing configfile failed."
@@ -485,68 +484,68 @@ msgstr "Use black background?:"
 msgid "iptrafvol.pl location (full path)"
 msgstr "iptrafvol.pl location (full path)"
 
-#: vuurmuur_conf/config_section.c:2126
+#: vuurmuur_conf/config_section.c:2136
 msgid "Edit Config: Logging"
 msgstr "Edit Config: Logging"
 
-#: vuurmuur_conf/config_section.c:2191
+#: vuurmuur_conf/config_section.c:2201
 msgid "Use NFLOG"
 msgstr "Use NFLOG"
 
-#: vuurmuur_conf/config_section.c:2195
+#: vuurmuur_conf/config_section.c:2205
 msgid "Netfilter Group"
 msgstr "Netfilter Group"
 
-#: vuurmuur_conf/config_section.c:2197
+#: vuurmuur_conf/config_section.c:2207
 msgid "Vuurmuur logfiles location (full path):"
 msgstr "Vuurmuur logfiles location (full path):"
 
-#: vuurmuur_conf/config_section.c:2198
+#: vuurmuur_conf/config_section.c:2208
 msgid "Loglevel (for use with syslog, requires vuurmuur restart):"
 msgstr "Loglevel (for use with syslog, requires vuurmuur restart):"
 
-#: vuurmuur_conf/config_section.c:2199
+#: vuurmuur_conf/config_section.c:2209
 msgid "Logfile containing IPtables/Netfilter logs:"
 msgstr "Logfile containing IPtables/Netfilter logs:"
 
-#: vuurmuur_conf/config_section.c:2201
+#: vuurmuur_conf/config_section.c:2211
 msgid "Log the default policy? (DROP):"
 msgstr "Log the default policy? (DROP):"
 
-#: vuurmuur_conf/config_section.c:2205
+#: vuurmuur_conf/config_section.c:2215
 msgid "Limit of the number of logs per second (0 for no limit):"
 msgstr "Limit of the number of logs per second (0 for no limit):"
 
-#: vuurmuur_conf/config_section.c:2207
+#: vuurmuur_conf/config_section.c:2217
 msgid "Log TCP options (for use with PSAD):"
 msgstr "Log TCP options (for use with PSAD):"
 
 #. TRANSLATORS: max 55 chars
-#: vuurmuur_conf/config_section.c:2212
+#: vuurmuur_conf/config_section.c:2222
 msgid "Log blocklist violations:"
 msgstr "Log blocklist violations:"
 
 #. TRANSLATORS: max 55 chars, don't translate 'INVALID'
-#: vuurmuur_conf/config_section.c:2217
+#: vuurmuur_conf/config_section.c:2227
 msgid "Log packets with state INVALID:"
 msgstr "Log packets with state INVALID:"
 
 #. TRANSLATORS: max 55 chars
-#: vuurmuur_conf/config_section.c:2222
+#: vuurmuur_conf/config_section.c:2232
 msgid "Log new TCP packets with no SYN flag set:"
 msgstr "Log new TCP packets with no SYN flag set:"
 
 #. TRANSLATORS: max 55 chars
-#: vuurmuur_conf/config_section.c:2227
+#: vuurmuur_conf/config_section.c:2237
 msgid "Log scan probe packets:"
 msgstr "Log scan probe packets:"
 
 #. TRANSLATORS: max 55 chars
-#: vuurmuur_conf/config_section.c:2232
+#: vuurmuur_conf/config_section.c:2242
 msgid "Log Fragments:"
 msgstr "Log Fragments:"
 
-#: vuurmuur_conf/config_section.c:2279
+#: vuurmuur_conf/config_section.c:2289
 msgid ""
 "changing the logdir requires applying changes to get into effect in the "
 "logviewer."
@@ -554,63 +553,63 @@ msgstr ""
 "changing the logdir requires applying changes to get into effect in the "
 "logviewer."
 
-#: vuurmuur_conf/config_section.c:2332
+#: vuurmuur_conf/config_section.c:2342
 msgid "NF group must be between 0-999."
 msgstr "NF group must be between 0-999."
 
-#: vuurmuur_conf/config_section.c:2372
+#: vuurmuur_conf/config_section.c:2382
 msgid "limit must be between 0-999."
 msgstr "limit must be between 0-999."
 
-#: vuurmuur_conf/config_section.c:2700
+#: vuurmuur_conf/config_section.c:2710
 msgid "Enable dropping INVALID packets"
 msgstr "Enable dropping INVALID packets"
 
-#: vuurmuur_conf/config_section.c:2769
+#: vuurmuur_conf/config_section.c:2779
 msgid "View Capabilities"
 msgstr "View Capabilities"
 
-#: vuurmuur_conf/config_section.c:2793 vuurmuur_conf/config_section.c:2822
-#: vuurmuur_conf/config_section.c:2840 vuurmuur_conf/config_section.c:3003
-#: vuurmuur_conf/config_section.c:3036 vuurmuur_conf/config_section.c:3054
+#: vuurmuur_conf/config_section.c:2803 vuurmuur_conf/config_section.c:2830
+#: vuurmuur_conf/config_section.c:2848 vuurmuur_conf/config_section.c:3011
+#: vuurmuur_conf/config_section.c:3042 vuurmuur_conf/config_section.c:3060
 msgid "Could not check."
 msgstr "Could not check."
 
-#: vuurmuur_conf/config_section.c:2868 vuurmuur_conf/config_section.c:3081
+#: vuurmuur_conf/config_section.c:2876 vuurmuur_conf/config_section.c:3087
 msgid "probe"
 msgstr "probe"
 
-#: vuurmuur_conf/config_section.c:2887 vuurmuur_conf/config_section.c:2936
-#: vuurmuur_conf/config_section.c:3100 vuurmuur_conf/config_section.c:3149
+#: vuurmuur_conf/config_section.c:2895 vuurmuur_conf/config_section.c:2944
+#: vuurmuur_conf/config_section.c:3106 vuurmuur_conf/config_section.c:3155
 msgid "checking capabilities failed."
 msgstr "checking capabilities failed."
 
-#: vuurmuur_conf/config_section.c:2929 vuurmuur_conf/config_section.c:3142
+#: vuurmuur_conf/config_section.c:2937 vuurmuur_conf/config_section.c:3148
 msgid "Probe Capabilities"
 msgstr "Probe Capabilities"
 
-#: vuurmuur_conf/config_section.c:2930 vuurmuur_conf/config_section.c:3143
+#: vuurmuur_conf/config_section.c:2938 vuurmuur_conf/config_section.c:3149
 msgid "Try to determine capabities? Warning: this may load iptables modules!"
 msgstr "Try to determine capabities? Warning: this may load iptables modules!"
 
-#: vuurmuur_conf/config_section.c:2980
+#: vuurmuur_conf/config_section.c:2988
 msgid "View IPv6 Capabilities"
 msgstr "View IPv6 Capabilities"
 
-#: vuurmuur_conf/config_section.c:3215 vuurmuur_conf/config_section.c:3368
+#: vuurmuur_conf/config_section.c:3221 vuurmuur_conf/config_section.c:3374
 #: vuurmuur_conf/mainmenu.c:201 vuurmuur_conf/mainmenu.c:320
 msgid "Back"
 msgstr "Back"
 
-#: vuurmuur_conf/config_section.c:3265
+#: vuurmuur_conf/config_section.c:3271
 msgid "Configuration Menu"
 msgstr "Configuration Menu"
 
-#: vuurmuur_conf/config_section.c:3281
+#: vuurmuur_conf/config_section.c:3287
 msgid "Select a section."
 msgstr "Select a section."
 
-#: vuurmuur_conf/config_section.c:3283 vuurmuur_conf/mainmenu.c:1574
+#: vuurmuur_conf/config_section.c:3289 vuurmuur_conf/mainmenu.c:1574
 msgid "Vuurmuur Config"
 msgstr "Vuurmuur Config"
 
@@ -669,7 +668,7 @@ msgid "unknown ip"
 msgstr "unknown ip"
 
 #: vuurmuur_conf/conn_sec.c:716 vuurmuur_conf/logview_section.c:735
-#: vuurmuur_conf/logview_section.c:753 vuurmuur_conf/rules_form.c:1543
+#: vuurmuur_conf/logview_section.c:753 vuurmuur_conf/rules_form.c:1517
 msgid "filter"
 msgstr "filter"
 
@@ -741,7 +740,7 @@ msgid "Active filter: '%s' (press 'enter' to clear)."
 msgstr "Active filter: ‘[1m%s[0m’ (press ‘[1menter[0m’ to clear)."
 
 #: vuurmuur_conf/conn_sec.c:1148 vuurmuur_conf/logview_section.c:1386
-#: vuurmuur_conf/rules_form.c:2248
+#: vuurmuur_conf/rules_form.c:2227
 msgid "Filter removed."
 msgstr "Filter removed."
 
@@ -815,11 +814,11 @@ msgid "No problems were detected in the current setup.\n"
 msgstr "No problems were detected in the current setup.\n"
 
 #: vuurmuur_conf/help.c:1103 vuurmuur_conf/mainmenu.c:1576
-#: vuurmuur_conf/vuurmuur_conf.c:296
+#: vuurmuur_conf/vuurmuur_conf.c:300
 msgid "Status"
 msgstr "Status"
 
-#: vuurmuur_conf/help.c:1219 vuurmuur_conf/help.c:1221
+#: vuurmuur_conf/help.c:1221 vuurmuur_conf/help.c:1223
 #: vuurmuur_conf/mainmenu.c:1581
 msgid "About"
 msgstr "About"
@@ -832,7 +831,7 @@ msgstr "Tcpmss"
 msgid "Enable TCP MSS clamping"
 msgstr "Enable TCP MSS clamping"
 
-#: vuurmuur_conf/if_sec.c:361 vuurmuur_conf/rules_form.c:210
+#: vuurmuur_conf/if_sec.c:361 vuurmuur_conf/rules_form.c:212
 #: vuurmuur_conf/strings.h:81
 msgid "Shaping"
 msgstr "Shaping"
@@ -853,16 +852,16 @@ msgstr "Outgoing bandwidth"
 msgid "Protection"
 msgstr "Protection"
 
-#: vuurmuur_conf/if_sec.c:734 vuurmuur_conf/rules_form.c:3715
+#: vuurmuur_conf/if_sec.c:734 vuurmuur_conf/rules_form.c:3622
 #: vuurmuur_conf/services_section.c:2284 vuurmuur_conf/zones_section.c:266
-#: vuurmuur_conf/zones_section.c:2247 vuurmuur_conf/zones_section.c:4654
-#: vuurmuur_conf/zones_section.c:5946
+#: vuurmuur_conf/zones_section.c:2247 vuurmuur_conf/zones_section.c:4656
+#: vuurmuur_conf/zones_section.c:5948
 msgid "Comment"
 msgstr "Comment"
 
 #: vuurmuur_conf/if_sec.c:743 vuurmuur_conf/services_section.c:2292
 #: vuurmuur_conf/zones_section.c:277 vuurmuur_conf/zones_section.c:2258
-#: vuurmuur_conf/zones_section.c:4673
+#: vuurmuur_conf/zones_section.c:4675
 msgid "error while loading the comment."
 msgstr "error while loading the comment."
 
@@ -877,15 +876,15 @@ msgstr "Edit Interface"
 
 #: vuurmuur_conf/if_sec.c:849 vuurmuur_conf/services_section.c:2346
 #: vuurmuur_conf/zones_section.c:345 vuurmuur_conf/zones_section.c:2316
-#: vuurmuur_conf/zones_section.c:4738 vuurmuur_conf/zones_section.c:6003
+#: vuurmuur_conf/zones_section.c:4740 vuurmuur_conf/zones_section.c:6005
 msgid "Name"
 msgstr "Name"
 
-#: vuurmuur_conf/if_sec.c:1337 vuurmuur_conf/rules_form.c:3415
+#: vuurmuur_conf/if_sec.c:1337 vuurmuur_conf/rules_form.c:3354
 msgid "advanced"
 msgstr "advanced"
 
-#: vuurmuur_conf/if_sec.c:1338 vuurmuur_conf/rules_form.c:3416
+#: vuurmuur_conf/if_sec.c:1338 vuurmuur_conf/rules_form.c:3355
 msgid "shaping"
 msgstr "shaping"
 
@@ -903,17 +902,17 @@ msgstr "tcpmss is not supported on a virtual interface."
 
 #. TRANSLATORS: max 4 chars
 #: vuurmuur_conf/if_sec.c:1709 vuurmuur_conf/if_sec.c:1720
-#: vuurmuur_conf/rules_form.c:1599 vuurmuur_conf/services_section.c:1762
+#: vuurmuur_conf/rules_form.c:1573 vuurmuur_conf/services_section.c:1762
 #: vuurmuur_conf/services_section.c:1773 vuurmuur_conf/services_section.c:2717
 #: vuurmuur_conf/services_section.c:2728 vuurmuur_conf/templates.c:871
 #: vuurmuur_conf/templates.c:882 vuurmuur_conf/zones_section.c:1008
 #: vuurmuur_conf/zones_section.c:1019 vuurmuur_conf/zones_section.c:1828
 #: vuurmuur_conf/zones_section.c:1839 vuurmuur_conf/zones_section.c:2799
 #: vuurmuur_conf/zones_section.c:2810 vuurmuur_conf/zones_section.c:3807
-#: vuurmuur_conf/zones_section.c:3818 vuurmuur_conf/zones_section.c:5414
-#: vuurmuur_conf/zones_section.c:5425 vuurmuur_conf/zones_section.c:6410
-#: vuurmuur_conf/zones_section.c:6421 vuurmuur_conf/zones_section.c:6858
-#: vuurmuur_conf/zones_section.c:6869
+#: vuurmuur_conf/zones_section.c:3818 vuurmuur_conf/zones_section.c:5416
+#: vuurmuur_conf/zones_section.c:5427 vuurmuur_conf/zones_section.c:6412
+#: vuurmuur_conf/zones_section.c:6423 vuurmuur_conf/zones_section.c:6860
+#: vuurmuur_conf/zones_section.c:6871
 msgid "more"
 msgstr "more"
 
@@ -923,50 +922,50 @@ msgstr "more"
 #: vuurmuur_conf/zones_section.c:464 vuurmuur_conf/zones_section.c:525
 #: vuurmuur_conf/zones_section.c:592 vuurmuur_conf/zones_section.c:609
 #: vuurmuur_conf/zones_section.c:2369 vuurmuur_conf/zones_section.c:2383
-#: vuurmuur_conf/zones_section.c:4107 vuurmuur_conf/zones_section.c:4133
-#: vuurmuur_conf/zones_section.c:4142 vuurmuur_conf/zones_section.c:4358
-#: vuurmuur_conf/zones_section.c:4798 vuurmuur_conf/zones_section.c:4822
-#: vuurmuur_conf/zones_section.c:4846 vuurmuur_conf/zones_section.c:4873
-#: vuurmuur_conf/zones_section.c:4900 vuurmuur_conf/zones_section.c:4916
-#: vuurmuur_conf/zones_section.c:5217 vuurmuur_conf/zones_section.c:6062
-#: vuurmuur_conf/zones_section.c:6078
+#: vuurmuur_conf/zones_section.c:4109 vuurmuur_conf/zones_section.c:4135
+#: vuurmuur_conf/zones_section.c:4144 vuurmuur_conf/zones_section.c:4360
+#: vuurmuur_conf/zones_section.c:4800 vuurmuur_conf/zones_section.c:4824
+#: vuurmuur_conf/zones_section.c:4848 vuurmuur_conf/zones_section.c:4875
+#: vuurmuur_conf/zones_section.c:4902 vuurmuur_conf/zones_section.c:4918
+#: vuurmuur_conf/zones_section.c:5219 vuurmuur_conf/zones_section.c:6064
+#: vuurmuur_conf/zones_section.c:6080
 #, c-format
 msgid "saving to backend failed (in: %s:%d)."
 msgstr "saving to backend failed (in: %s:%d)."
 
-#: vuurmuur_conf/if_sec.c:1900 vuurmuur_conf/rules_form.c:2333
+#: vuurmuur_conf/if_sec.c:1900 vuurmuur_conf/rules_form.c:2312
 #: vuurmuur_conf/services_section.c:2634 vuurmuur_conf/zones_section.c:1177
 #: vuurmuur_conf/zones_section.c:3591
 msgid "saving rules failed."
 msgstr "saving rules failed."
 
-#: vuurmuur_conf/if_sec.c:1978 vuurmuur_conf/rules_form.c:1539
+#: vuurmuur_conf/if_sec.c:1978 vuurmuur_conf/rules_form.c:1513
 #: vuurmuur_conf/services_section.c:1830 vuurmuur_conf/services_section.c:2784
 #: vuurmuur_conf/zones_section.c:1307 vuurmuur_conf/zones_section.c:2869
-#: vuurmuur_conf/zones_section.c:5498 vuurmuur_conf/zones_section.c:6480
-#: vuurmuur_conf/zones_section.c:7065 vuurmuur_conf/strings.h:166
+#: vuurmuur_conf/zones_section.c:5500 vuurmuur_conf/zones_section.c:6482
+#: vuurmuur_conf/zones_section.c:7070 vuurmuur_conf/strings.h:166
 msgid "new"
 msgstr "new"
 
-#: vuurmuur_conf/if_sec.c:1979 vuurmuur_conf/rules_form.c:1540
+#: vuurmuur_conf/if_sec.c:1979 vuurmuur_conf/rules_form.c:1514
 #: vuurmuur_conf/services_section.c:1832 vuurmuur_conf/services_section.c:2785
 #: vuurmuur_conf/zones_section.c:1308 vuurmuur_conf/zones_section.c:2870
-#: vuurmuur_conf/zones_section.c:5499 vuurmuur_conf/zones_section.c:6481
-#: vuurmuur_conf/zones_section.c:7066
+#: vuurmuur_conf/zones_section.c:5501 vuurmuur_conf/zones_section.c:6483
+#: vuurmuur_conf/zones_section.c:7071
 msgid "del"
 msgstr "del"
 
 #: vuurmuur_conf/if_sec.c:1980 vuurmuur_conf/services_section.c:2786
 #: vuurmuur_conf/zones_section.c:1309 vuurmuur_conf/zones_section.c:2871
-#: vuurmuur_conf/zones_section.c:5500 vuurmuur_conf/zones_section.c:6482
+#: vuurmuur_conf/zones_section.c:5502 vuurmuur_conf/zones_section.c:6484
 #: vuurmuur_conf/strings.h:169
 msgid "rename"
 msgstr "rename"
 
-#: vuurmuur_conf/if_sec.c:1981 vuurmuur_conf/rules_form.c:1541
+#: vuurmuur_conf/if_sec.c:1981 vuurmuur_conf/rules_form.c:1515
 #: vuurmuur_conf/services_section.c:1831 vuurmuur_conf/services_section.c:2787
 #: vuurmuur_conf/zones_section.c:1311 vuurmuur_conf/zones_section.c:2873
-#: vuurmuur_conf/zones_section.c:5502 vuurmuur_conf/zones_section.c:6484
+#: vuurmuur_conf/zones_section.c:5504 vuurmuur_conf/zones_section.c:6486
 #: vuurmuur_conf/strings.h:168
 msgid "edit"
 msgstr "edit"
@@ -985,11 +984,11 @@ msgstr "creating new interface failed."
 
 #: vuurmuur_conf/if_sec.c:2117 vuurmuur_conf/services_section.c:2938
 #: vuurmuur_conf/zones_section.c:1538 vuurmuur_conf/zones_section.c:3084
-#: vuurmuur_conf/zones_section.c:5711 vuurmuur_conf/zones_section.c:6609
+#: vuurmuur_conf/zones_section.c:5713 vuurmuur_conf/zones_section.c:6611
 msgid "Delete"
 msgstr "Delete"
 
-#: vuurmuur_conf/if_sec.c:2117 vuurmuur_conf/rules_form.c:2408
+#: vuurmuur_conf/if_sec.c:2117 vuurmuur_conf/rules_form.c:2387
 #: vuurmuur_conf/services_section.c:1501 vuurmuur_conf/services_section.c:2938
 #: vuurmuur_conf/statevent.c:616 vuurmuur_conf/statevent.c:630
 #: vuurmuur_conf/statevent.c:645 vuurmuur_conf/statevent.c:658
@@ -1224,15 +1223,15 @@ msgid "closing logfile failed: %s."
 msgstr "closing logfile failed: %s."
 
 #: vuurmuur_conf/logview_section.c:2026 vuurmuur_conf/mainmenu.c:1819
-#: vuurmuur_conf/mainmenu.c:1844 vuurmuur_conf/rules_form.c:1730
-#: vuurmuur_conf/rules_form.c:2133 vuurmuur_conf/rules_form.c:2164
-#: vuurmuur_conf/rules_form.c:4959 vuurmuur_conf/rules_form.c:5245
+#: vuurmuur_conf/mainmenu.c:1844 vuurmuur_conf/rules_form.c:1704
+#: vuurmuur_conf/rules_form.c:2112 vuurmuur_conf/rules_form.c:2143
+#: vuurmuur_conf/rules_form.c:4841 vuurmuur_conf/rules_form.c:5127
 #: vuurmuur_conf/services_section.c:494 vuurmuur_conf/services_section.c:1196
 #: vuurmuur_conf/zones_section.c:835 vuurmuur_conf/zones_section.c:1700
 #: vuurmuur_conf/zones_section.c:2179 vuurmuur_conf/zones_section.c:2627
-#: vuurmuur_conf/zones_section.c:3214 vuurmuur_conf/zones_section.c:5228
-#: vuurmuur_conf/zones_section.c:5894 vuurmuur_conf/zones_section.c:6261
-#: vuurmuur_conf/zones_section.c:6716 vuurmuur_conf/zones_section.c:7262
+#: vuurmuur_conf/zones_section.c:3214 vuurmuur_conf/zones_section.c:5230
+#: vuurmuur_conf/zones_section.c:5896 vuurmuur_conf/zones_section.c:6263
+#: vuurmuur_conf/zones_section.c:6718 vuurmuur_conf/zones_section.c:7267
 #: vuurmuur_conf/strings.h:99
 msgid "Ready."
 msgstr "Ready."
@@ -1615,19 +1614,19 @@ msgstr "The overall status is not OK. Apply anyway?"
 msgid "will not apply changes if the overall status is 'fail'."
 msgstr "will not apply changes if the overall status is 'fail'."
 
-#: vuurmuur_conf/mainmenu.c:1569 vuurmuur_conf/rules_form.c:1724
-#: vuurmuur_conf/rules_form.c:1989 vuurmuur_conf/rules_form.c:2098
+#: vuurmuur_conf/mainmenu.c:1569 vuurmuur_conf/rules_form.c:1698
+#: vuurmuur_conf/rules_form.c:1963 vuurmuur_conf/rules_form.c:2077
 msgid "Rules"
 msgstr "Rules"
 
-#: vuurmuur_conf/mainmenu.c:1570 vuurmuur_conf/zones_section.c:6814
-#: vuurmuur_conf/zones_section.c:7085
+#: vuurmuur_conf/mainmenu.c:1570 vuurmuur_conf/zones_section.c:6816
+#: vuurmuur_conf/zones_section.c:7090
 msgid "BlockList"
 msgstr "BlockList"
 
-#: vuurmuur_conf/mainmenu.c:1571 vuurmuur_conf/zones_section.c:6382
-#: vuurmuur_conf/zones_section.c:6498 vuurmuur_conf/zones_section.c:6590
-#: vuurmuur_conf/zones_section.c:6675 vuurmuur_conf/zones_section.c:6696
+#: vuurmuur_conf/mainmenu.c:1571 vuurmuur_conf/zones_section.c:6384
+#: vuurmuur_conf/zones_section.c:6500 vuurmuur_conf/zones_section.c:6592
+#: vuurmuur_conf/zones_section.c:6677 vuurmuur_conf/zones_section.c:6698
 msgid "Zones"
 msgstr "Zones"
 
@@ -1738,407 +1737,399 @@ msgstr "the double quote sign \" is not allowed in the commentfield."
 msgid "the percent sign is not allowed in the commentfield."
 msgstr "the percent sign is not allowed in the commentfield."
 
-#: vuurmuur_conf/rules_form.c:216
+#: vuurmuur_conf/rules_form.c:218
 msgid "Incoming guaranteed rate"
 msgstr "Incoming guaranteed rate"
 
-#: vuurmuur_conf/rules_form.c:219
+#: vuurmuur_conf/rules_form.c:221
 msgid "Incoming maximum rate"
 msgstr "Incoming maximum rate"
 
-#: vuurmuur_conf/rules_form.c:223
+#: vuurmuur_conf/rules_form.c:225
 msgid "Outgoing guaranteed rate"
 msgstr "Outgoing guaranteed rate"
 
-#: vuurmuur_conf/rules_form.c:226
+#: vuurmuur_conf/rules_form.c:228
 msgid "Outgoing maximum rate"
 msgstr "Outgoing maximum rate"
 
-#: vuurmuur_conf/rules_form.c:230
+#: vuurmuur_conf/rules_form.c:232
 msgid "Priority"
 msgstr "Priority"
 
-#: vuurmuur_conf/rules_form.c:488
+#: vuurmuur_conf/rules_form.c:489
 msgid "Moving rule..."
 msgstr "Moving rule..."
 
-#: vuurmuur_conf/rules_form.c:559
+#: vuurmuur_conf/rules_form.c:544
 msgid "Move Rule"
 msgstr "Move Rule"
 
-#: vuurmuur_conf/rules_form.c:585
+#: vuurmuur_conf/rules_form.c:570
 msgid "Enter the new rule number:"
 msgstr "Enter the new rule number:"
 
-#: vuurmuur_conf/rules_form.c:586
+#: vuurmuur_conf/rules_form.c:571
 #, c-format
 msgid "Cur: %d, Min: 1, Max: %d"
 msgstr "Cur: %d, Min: 1, Max: %d"
 
-#: vuurmuur_conf/rules_form.c:1542
+#: vuurmuur_conf/rules_form.c:1516
 msgid "move"
 msgstr "move"
 
-#: vuurmuur_conf/rules_form.c:1572
+#: vuurmuur_conf/rules_form.c:1546
 msgid "Rules Section"
 msgstr "Rules Section"
 
 #. TRANSLATORS: max 3 chars
-#: vuurmuur_conf/rules_form.c:1713
+#: vuurmuur_conf/rules_form.c:1687
 msgid "Nr."
 msgstr "Nr."
 
-#: vuurmuur_conf/rules_form.c:1714 vuurmuur_conf/rules_form.c:3467
-#: vuurmuur_conf/rules_form.c:4433
+#: vuurmuur_conf/rules_form.c:1688 vuurmuur_conf/rules_form.c:3406
+#: vuurmuur_conf/rules_form.c:4315
 msgid "Action"
 msgstr "Action"
 
-#: vuurmuur_conf/rules_form.c:1715 vuurmuur_conf/rules_form.c:3596
+#: vuurmuur_conf/rules_form.c:1689 vuurmuur_conf/rules_form.c:3503
 #: vuurmuur_conf/strings.h:40
 msgid "Service"
 msgstr "Service"
 
-#: vuurmuur_conf/rules_form.c:1716 vuurmuur_conf/services_section.c:373
+#: vuurmuur_conf/rules_form.c:1690 vuurmuur_conf/services_section.c:373
 msgid "Source"
 msgstr "Source"
 
-#: vuurmuur_conf/rules_form.c:1717 vuurmuur_conf/services_section.c:379
+#: vuurmuur_conf/rules_form.c:1691 vuurmuur_conf/services_section.c:379
 msgid "Destination"
 msgstr "Destination"
 
-#: vuurmuur_conf/rules_form.c:1718
+#: vuurmuur_conf/rules_form.c:1692
 msgid "Options"
 msgstr "Options"
 
-#: vuurmuur_conf/rules_form.c:2002
+#: vuurmuur_conf/rules_form.c:1976
 msgid "Delete rule cancelled."
 msgstr "Delete rule cancelled."
 
-#: vuurmuur_conf/rules_form.c:2005
+#: vuurmuur_conf/rules_form.c:1979
 #, c-format
 msgid "rule %d removed."
 msgstr "rule %d removed."
 
-#: vuurmuur_conf/rules_form.c:2210
+#: vuurmuur_conf/rules_form.c:2189
 msgid "Set the filter"
 msgstr "Set the filter"
 
-#: vuurmuur_conf/rules_form.c:2210 vuurmuur_conf/filter.c:205
+#: vuurmuur_conf/rules_form.c:2189 vuurmuur_conf/filter.c:205
 msgid "Enter filter (leave empty for no filter)"
 msgstr "Enter filter (leave empty for no filter)"
 
-#: vuurmuur_conf/rules_form.c:2232
+#: vuurmuur_conf/rules_form.c:2211
 #, c-format
 msgid "Active filter: '%s' (press 'f' and then just 'enter' to clear)."
 msgstr ""
 "Active filter: ‘[1m%s[0m’ (press ‘[1mf[0m’ and then just ‘[1menter[0m’ to "
 "clear)."
 
-#: vuurmuur_conf/rules_form.c:2278
+#: vuurmuur_conf/rules_form.c:2257
 msgid "Showing only forward rules."
 msgstr "Showing only forward rules."
 
-#: vuurmuur_conf/rules_form.c:2279 vuurmuur_conf/rules_form.c:2297
-#: vuurmuur_conf/rules_form.c:2315
+#: vuurmuur_conf/rules_form.c:2258 vuurmuur_conf/rules_form.c:2276
+#: vuurmuur_conf/rules_form.c:2294
 msgid "Showing all rules."
 msgstr "Showing all rules."
 
-#: vuurmuur_conf/rules_form.c:2296
+#: vuurmuur_conf/rules_form.c:2275
 msgid "Showing only input rules."
 msgstr "Showing only input rules."
 
-#: vuurmuur_conf/rules_form.c:2314
+#: vuurmuur_conf/rules_form.c:2293
 msgid "Showing only output rules."
 msgstr "Showing only output rules."
 
-#: vuurmuur_conf/rules_form.c:2408
+#: vuurmuur_conf/rules_form.c:2387
 msgid "Delete rule"
 msgstr "Delete rule"
 
-#: vuurmuur_conf/rules_form.c:2540
+#: vuurmuur_conf/rules_form.c:2505
 msgid "new rule inserted."
 msgstr "new rule inserted."
 
 #. TRANSLATORS: don't translate 'redirectport'.
-#: vuurmuur_conf/rules_form.c:2820
+#: vuurmuur_conf/rules_form.c:2781
 msgid "redirectport must be 1-65535."
 msgstr "redirectport must be 1-65535."
 
 #. TRANSLATORS: don't translate 'loglimit'.
-#: vuurmuur_conf/rules_form.c:3016
+#: vuurmuur_conf/rules_form.c:2977
 msgid "loglimit must be 0-999."
 msgstr "loglimit must be 0-999."
 
-#: vuurmuur_conf/rules_form.c:3227
+#: vuurmuur_conf/rules_form.c:3167
 msgid "new connection limit must be 0-9999."
 msgstr "new connection limit must be 0-9999."
 
-#: vuurmuur_conf/rules_form.c:3270
+#: vuurmuur_conf/rules_form.c:3210
 msgid "new connection limit burst must be 1-9999."
 msgstr "new connection limit burst must be 1-9999."
 
 #. TRANSLATORS: max 7 chars
-#: vuurmuur_conf/rules_form.c:3483
+#: vuurmuur_conf/rules_form.c:3422
 msgid "Random"
 msgstr "Random"
 
-#: vuurmuur_conf/rules_form.c:3515
-msgid "Queue"
-msgstr "Queue"
-
-#: vuurmuur_conf/rules_form.c:3546
+#: vuurmuur_conf/rules_form.c:3453
 msgid "Queue number"
 msgstr "Queue number"
 
-#: vuurmuur_conf/rules_form.c:3571
+#: vuurmuur_conf/rules_form.c:3478
 msgid "NFLog number"
 msgstr "NFLog number"
 
 #. TRANSLATORS: max 7 chars
-#: vuurmuur_conf/rules_form.c:3613
+#: vuurmuur_conf/rules_form.c:3520
 msgid "Mark"
 msgstr "Mark"
 
-#: vuurmuur_conf/rules_form.c:3638
+#: vuurmuur_conf/rules_form.c:3545
 msgid "From"
 msgstr "From"
 
-#: vuurmuur_conf/rules_form.c:3654
+#: vuurmuur_conf/rules_form.c:3561
 msgid "Listen Interface"
 msgstr "Listen Interface"
 
-#: vuurmuur_conf/rules_form.c:3676
+#: vuurmuur_conf/rules_form.c:3583
 msgid "To"
 msgstr "To"
 
-#: vuurmuur_conf/rules_form.c:3692
+#: vuurmuur_conf/rules_form.c:3599
 msgid "Outgoing Interface"
 msgstr "Outgoing Interface"
 
-#: vuurmuur_conf/rules_form.c:3733
+#: vuurmuur_conf/rules_form.c:3640
 msgid "Log"
 msgstr "Log"
 
-#: vuurmuur_conf/rules_form.c:3761
+#: vuurmuur_conf/rules_form.c:3668
 msgid "Prefix"
 msgstr "Prefix"
 
-#: vuurmuur_conf/rules_form.c:3778
+#: vuurmuur_conf/rules_form.c:3685
 msgid "Limit"
 msgstr "Limit"
 
-#: vuurmuur_conf/rules_form.c:3802
+#: vuurmuur_conf/rules_form.c:3709
 msgid "Rule Limit"
 msgstr "Rule Limit"
 
-#: vuurmuur_conf/rules_form.c:3852
+#: vuurmuur_conf/rules_form.c:3759
 msgid "Burst"
 msgstr "Burst"
 
-#: vuurmuur_conf/rules_form.c:3879
+#: vuurmuur_conf/rules_form.c:3786
 msgid "Chain"
 msgstr "Chain"
 
-#: vuurmuur_conf/rules_form.c:3901
+#: vuurmuur_conf/rules_form.c:3808
 msgid "Via"
 msgstr "Via"
 
-#: vuurmuur_conf/rules_form.c:3923 vuurmuur_conf/rules_form.c:4557
+#: vuurmuur_conf/rules_form.c:3830 vuurmuur_conf/rules_form.c:4439
 msgid "Reject type"
 msgstr "Reject type"
 
-#: vuurmuur_conf/rules_form.c:3946
+#: vuurmuur_conf/rules_form.c:3853
 msgid "Redirect port"
 msgstr "Redirect port"
 
-#: vuurmuur_conf/rules_form.c:3971
+#: vuurmuur_conf/rules_form.c:3878
 msgid "Listen port"
 msgstr "Listen port"
 
-#: vuurmuur_conf/rules_form.c:3995
+#: vuurmuur_conf/rules_form.c:3902
 msgid "Remote port"
 msgstr "Remote port"
 
-#: vuurmuur_conf/rules_form.c:4022
+#: vuurmuur_conf/rules_form.c:3929
 #, c-format
 msgid "Edit Rule: %d"
 msgstr "Edit Rule: %d"
 
-#: vuurmuur_conf/rules_form.c:4046
+#: vuurmuur_conf/rules_form.c:3953
 msgid "Edit Rule"
 msgstr "Edit Rule"
 
-#: vuurmuur_conf/rules_form.c:4317
+#: vuurmuur_conf/rules_form.c:4202
 msgid "Press SPACE to select an action."
 msgstr "Press SPACE to select an action."
 
-#: vuurmuur_conf/rules_form.c:4319
+#: vuurmuur_conf/rules_form.c:4204
 msgid "Press SPACE to select a service."
 msgstr "Press SPACE to select a service."
 
-#: vuurmuur_conf/rules_form.c:4321
+#: vuurmuur_conf/rules_form.c:4206
 msgid "Press SPACE to select a host, group or network, or the firewall."
 msgstr "Press SPACE to select a host, group or network, or the firewall."
 
-#: vuurmuur_conf/rules_form.c:4323
+#: vuurmuur_conf/rules_form.c:4208
 msgid "Enter a text to be included in the log message."
 msgstr "Enter a text to be included in the log message."
 
-#: vuurmuur_conf/rules_form.c:4325
+#: vuurmuur_conf/rules_form.c:4210
 msgid "Press SPACE to select a reject type."
 msgstr "Press SPACE to select a reject type."
 
-#: vuurmuur_conf/rules_form.c:4327
+#: vuurmuur_conf/rules_form.c:4212
 msgid "Enter a portnumber to redirect to."
 msgstr "Enter a portnumber to redirect to."
 
-#: vuurmuur_conf/rules_form.c:4329
+#: vuurmuur_conf/rules_form.c:4214
 msgid "Enter a comma-sepparated list of ports for the firewall to listen on."
 msgstr "Enter a comma-sepparated list of ports for the firewall to listen on."
 
-#: vuurmuur_conf/rules_form.c:4331
+#: vuurmuur_conf/rules_form.c:4216
 msgid "Enter a comma-sepparated list of ports for the firewall to forward to."
 msgstr "Enter a comma-sepparated list of ports for the firewall to forward to."
 
-#: vuurmuur_conf/rules_form.c:4333 vuurmuur_conf/zones_section.c:808
+#: vuurmuur_conf/rules_form.c:4218 vuurmuur_conf/zones_section.c:808
 msgid "Enter a optional comment."
 msgstr "Enter a optional comment."
 
-#: vuurmuur_conf/rules_form.c:4335
+#: vuurmuur_conf/rules_form.c:4220
 msgid "Maximum number of loglines per second (to prevent DoS), 0 for no limit."
 msgstr ""
 "Maximum number of loglines per second (to prevent DoS), 0 for no limit."
 
-#: vuurmuur_conf/rules_form.c:4337
+#: vuurmuur_conf/rules_form.c:4222
 msgid "Press SPACE to toggle logging of this rule."
 msgstr "Press SPACE to toggle logging of this rule."
 
-#: vuurmuur_conf/rules_form.c:4339
+#: vuurmuur_conf/rules_form.c:4224
 msgid "Queue number to use. Possible values: 0-65535."
 msgstr "Queue number to use. Possible values: 0-65535."
 
-#: vuurmuur_conf/rules_form.c:4341
+#: vuurmuur_conf/rules_form.c:4226
 msgid "NFLog number to use. Possible values: 0-65535."
 msgstr "NFLog number to use. Possible values: 0-65535."
 
-#: vuurmuur_conf/rules_form.c:4343
-msgid "Press SPACE to toggle queue'ing of this rule."
-msgstr "Press SPACE to toggle queue'ing of this rule."
-
-#: vuurmuur_conf/rules_form.c:4345 vuurmuur_conf/rules_form.c:4347
+#: vuurmuur_conf/rules_form.c:4228 vuurmuur_conf/rules_form.c:4230
 msgid "Press SPACE to select an interface to limit this rule to."
 msgstr "Press SPACE to select an interface to limit this rule to."
 
-#: vuurmuur_conf/rules_form.c:4349
+#: vuurmuur_conf/rules_form.c:4232
 msgid "Press SPACE to select an interface. Read help for more info."
 msgstr "Press SPACE to select an interface. Read help for more info."
 
-#: vuurmuur_conf/rules_form.c:4351
+#: vuurmuur_conf/rules_form.c:4234
 msgid "Enter a nfmark. Use > 20.000.000 when using the QUEUE action."
 msgstr "Enter a nfmark. Use > 20.000.000 when using the QUEUE action."
 
-#: vuurmuur_conf/rules_form.c:4353
+#: vuurmuur_conf/rules_form.c:4236
 msgid ""
 "Average new connections per amount of time (to prevent DoS), 0 for no limit."
 msgstr ""
 "Average new connections per amount of time (to prevent DoS), 0 for no limit."
 
-#: vuurmuur_conf/rules_form.c:4355
+#: vuurmuur_conf/rules_form.c:4238
 msgid "Unit for the limit: sec, min, hour, day."
 msgstr "Unit for the limit: sec, min, hour, day."
 
-#: vuurmuur_conf/rules_form.c:4357
+#: vuurmuur_conf/rules_form.c:4240
 msgid "Maximum new connections per second (to prevent DoS), 0 for no limit."
 msgstr "Maximum new connections per second (to prevent DoS), 0 for no limit."
 
-#: vuurmuur_conf/rules_form.c:4359
+#: vuurmuur_conf/rules_form.c:4242
 msgid "Randomize the source ports of NAT'd connections."
 msgstr "Randomize the source ports of NAT'd connections."
 
-#: vuurmuur_conf/rules_form.c:4434
+#: vuurmuur_conf/rules_form.c:4316
 msgid "Select action"
 msgstr "Select action"
 
-#: vuurmuur_conf/rules_form.c:4501 vuurmuur_conf/rules_form.c:4540
-#: vuurmuur_conf/zones_section.c:5778 vuurmuur_conf/zones_section.c:6928
-#: vuurmuur_conf/zones_section.c:7015
+#: vuurmuur_conf/rules_form.c:4383 vuurmuur_conf/rules_form.c:4422
+#: vuurmuur_conf/zones_section.c:5780 vuurmuur_conf/zones_section.c:6930
+#: vuurmuur_conf/zones_section.c:7019
 msgid "Select"
 msgstr "Select"
 
-#: vuurmuur_conf/rules_form.c:4501
+#: vuurmuur_conf/rules_form.c:4383
 msgid "Select a host, group or network"
 msgstr "Select a host, group or network"
 
-#: vuurmuur_conf/rules_form.c:4540
+#: vuurmuur_conf/rules_form.c:4422
 msgid "Select a service"
 msgstr "Select a service"
 
-#: vuurmuur_conf/rules_form.c:4557
+#: vuurmuur_conf/rules_form.c:4439
 msgid "Select reject type"
 msgstr "Select reject type"
 
-#: vuurmuur_conf/rules_form.c:4568
+#: vuurmuur_conf/rules_form.c:4450
 msgid "no from zone, please select one first."
 msgstr "no from zone, please select one first."
 
-#: vuurmuur_conf/rules_form.c:4596 vuurmuur_conf/rules_form.c:4702
+#: vuurmuur_conf/rules_form.c:4478 vuurmuur_conf/rules_form.c:4584
 msgid "\"zone\" not yet supported."
 msgstr "“[1mzone[0m” not yet supported."
 
-#: vuurmuur_conf/rules_form.c:4643 vuurmuur_conf/rules_form.c:4658
-#: vuurmuur_conf/rules_form.c:4752 vuurmuur_conf/rules_form.c:4767
+#: vuurmuur_conf/rules_form.c:4525 vuurmuur_conf/rules_form.c:4540
+#: vuurmuur_conf/rules_form.c:4634 vuurmuur_conf/rules_form.c:4649
 msgid "Any"
 msgstr "Any"
 
-#: vuurmuur_conf/rules_form.c:4651 vuurmuur_conf/rules_form.c:4760
+#: vuurmuur_conf/rules_form.c:4533 vuurmuur_conf/rules_form.c:4642
 msgid "Set interface filter"
 msgstr "Set interface filter"
 
-#: vuurmuur_conf/rules_form.c:4651 vuurmuur_conf/rules_form.c:4760
+#: vuurmuur_conf/rules_form.c:4533 vuurmuur_conf/rules_form.c:4642
 msgid "Select an interface ('Any' to disable filter)"
 msgstr "Select an interface ('Any' to disable filter)"
 
-#: vuurmuur_conf/rules_form.c:4676
+#: vuurmuur_conf/rules_form.c:4558
 msgid "no 'to' zone, please select one first."
 msgstr "no ‘[1mto[0m’ zone, please select one first."
 
-#: vuurmuur_conf/rules_form.c:4816
+#: vuurmuur_conf/rules_form.c:4698
 msgid "Set Via interface"
 msgstr "Set Via interface"
 
-#: vuurmuur_conf/rules_form.c:4816 vuurmuur_conf/zones_section.c:3654
+#: vuurmuur_conf/rules_form.c:4698 vuurmuur_conf/zones_section.c:3654
 msgid "Select an interface"
 msgstr "Select an interface"
 
-#: vuurmuur_conf/rules_form.c:4843
+#: vuurmuur_conf/rules_form.c:4725
 msgid "Unit"
 msgstr "Unit"
 
-#: vuurmuur_conf/rules_form.c:4844
+#: vuurmuur_conf/rules_form.c:4726
 msgid "Select time unit"
 msgstr "Select time unit"
 
-#: vuurmuur_conf/rules_form.c:4871
+#: vuurmuur_conf/rules_form.c:4753
 msgid "Not all required fields are filled in"
 msgstr "Not all required fields are filled in"
 
-#: vuurmuur_conf/rules_form.c:4872
+#: vuurmuur_conf/rules_form.c:4754
 msgid "Do you want to look at the rule again? (no will delete the rule)"
 msgstr "Do you want to look at the rule again? (no will delete the rule)"
 
-#: vuurmuur_conf/rules_form.c:4888
+#: vuurmuur_conf/rules_form.c:4770
 msgid "An error was detected in the rule"
 msgstr "An error was detected in the rule"
 
-#: vuurmuur_conf/rules_form.c:4889
+#: vuurmuur_conf/rules_form.c:4771
 msgid "Do you want to look at it again? (no will delete the rule)"
 msgstr "Do you want to look at it again? (no will delete the rule)"
 
-#: vuurmuur_conf/rules_form.c:5150
+#: vuurmuur_conf/rules_form.c:5032
 msgid "Enter comment (optional)"
 msgstr "Enter comment (optional)"
 
-#: vuurmuur_conf/rules_form.c:5190
+#: vuurmuur_conf/rules_form.c:5072
 msgid "Enter an optional comment."
 msgstr "Enter an optional comment."
 
@@ -2280,7 +2271,7 @@ msgstr "uses no ports."
 
 #. TRANSLATORS: is an object active or in-active?
 #: vuurmuur_conf/services_section.c:2261 vuurmuur_conf/zones_section.c:2239
-#: vuurmuur_conf/zones_section.c:4394 vuurmuur_conf/zones_section.c:5939
+#: vuurmuur_conf/zones_section.c:4396 vuurmuur_conf/zones_section.c:5941
 #: vuurmuur_conf/strings.h:53
 msgid "Active"
 msgstr "Active"
@@ -2451,7 +2442,7 @@ msgstr "Echo-broadcast protect"
 msgid "Note: whitespaces not allowed."
 msgstr "Note: whitespaces not allowed."
 
-#: vuurmuur_conf/templates.c:540 vuurmuur_conf/vuurmuur_conf.c:497
+#: vuurmuur_conf/templates.c:540 vuurmuur_conf/vuurmuur_conf.c:503
 #: vuurmuur_conf/strings.h:109
 msgid "Warning"
 msgstr "Warning"
@@ -2460,71 +2451,71 @@ msgstr "Warning"
 msgid "Press any key to continue..."
 msgstr "Press any key to continue..."
 
-#: vuurmuur_conf/vuurmuur_conf.c:157
+#: vuurmuur_conf/vuurmuur_conf.c:227
 msgid "commandline argument too long for option -c."
 msgstr "commandline argument too long for option -c."
 
-#: vuurmuur_conf/vuurmuur_conf.c:168
+#: vuurmuur_conf/vuurmuur_conf.c:238
 msgid "commandline debuglevel out of range."
 msgstr "commandline debuglevel out of range."
 
-#: vuurmuur_conf/vuurmuur_conf.c:193
+#: vuurmuur_conf/vuurmuur_conf.c:263
 msgid "unknown commandline option."
 msgstr "unknown commandline option."
 
-#: vuurmuur_conf/vuurmuur_conf.c:315
-#, c-format
-msgid "This is Vuurmuur_conf %s, Copyright (c) 2003-2008 by Victor Julien"
-msgstr "This is Vuurmuur_conf %s, Copyright (c) 2003-2008 by Victor Julien"
+#: vuurmuur_conf/vuurmuur_conf.c:319
+#, fuzzy, c-format
+msgid "This is Vuurmuur_conf %s, %s"
+msgstr "Welcome to Vuurmuur_conf %s"
 
-#: vuurmuur_conf/vuurmuur_conf.c:410
+#: vuurmuur_conf/vuurmuur_conf.c:415
 #, c-format
 msgid "unloading the backends failed (in: %s:%d)."
 msgstr "unloading the backends failed (in: %s:%d)."
 
-#: vuurmuur_conf/vuurmuur_conf.c:497
+#: vuurmuur_conf/vuurmuur_conf.c:503
 #, c-format
 msgid "title '%s' too long, window will be drawn without a title."
 msgstr "title ‘[1m%s[0m’ too long, window will be drawn without a title."
 
-#: vuurmuur_conf/vuurmuur_conf.c:571
+#: vuurmuur_conf/vuurmuur_conf.c:577
 #, c-format
 msgid "Version: %s"
 msgstr "Version: %s"
 
-#: vuurmuur_conf/vuurmuur_conf.c:601
+#: vuurmuur_conf/vuurmuur_conf.c:607
 msgid "Problem with the Vuurmuur_conf settings"
 msgstr "Problem with the Vuurmuur_conf settings"
 
-#: vuurmuur_conf/vuurmuur_conf.c:602
+#: vuurmuur_conf/vuurmuur_conf.c:608
 msgid "Do you want to edit the settings now?"
 msgstr "Do you want to edit the settings now?"
 
-#: vuurmuur_conf/vuurmuur_conf.c:660
+#: vuurmuur_conf/vuurmuur_conf.c:666
 msgid "Problem with the Vuurmuur config"
 msgstr "Problem with the Vuurmuur config"
 
-#: vuurmuur_conf/vuurmuur_conf.c:661
+#: vuurmuur_conf/vuurmuur_conf.c:667
 msgid "Do you want to edit the config now?"
 msgstr "Do you want to edit the config now?"
 
-#: vuurmuur_conf/vuurmuur_conf.c:720
+#: vuurmuur_conf/vuurmuur_conf.c:726
 msgid "loading the plugins failed."
 msgstr "loading the plugins failed."
 
-#: vuurmuur_conf/vuurmuur_conf.c:733
+#: vuurmuur_conf/vuurmuur_conf.c:739
 msgid "intializing the services failed."
 msgstr "intializing the services failed."
 
-#: vuurmuur_conf/vuurmuur_conf.c:746
+#: vuurmuur_conf/vuurmuur_conf.c:752
 msgid "intializing the interfaces failed."
 msgstr "intializing the interfaces failed."
 
-#: vuurmuur_conf/vuurmuur_conf.c:759
+#: vuurmuur_conf/vuurmuur_conf.c:765
 msgid "intializing the zones failed."
 msgstr "intializing the zones failed."
 
-#: vuurmuur_conf/vuurmuur_conf.c:810
+#: vuurmuur_conf/vuurmuur_conf.c:816
 #, c-format
 msgid "attaching to shared memory failed: %s (in: %s:%d)."
 msgstr "attaching to shared memory failed: %s (in: %s:%d)."
@@ -2578,8 +2569,8 @@ msgstr "If set to ‘[1mNo[0m’ no rules will be created for it."
 
 #: vuurmuur_conf/zones_section.c:963 vuurmuur_conf/zones_section.c:1329
 #: vuurmuur_conf/zones_section.c:1516 vuurmuur_conf/zones_section.c:1663
-#: vuurmuur_conf/zones_section.c:4745 vuurmuur_conf/zones_section.c:5481
-#: vuurmuur_conf/zones_section.c:5781 vuurmuur_conf/zones_section.c:6007
+#: vuurmuur_conf/zones_section.c:4747 vuurmuur_conf/zones_section.c:5483
+#: vuurmuur_conf/zones_section.c:5783 vuurmuur_conf/zones_section.c:6009
 msgid "Hosts"
 msgstr "Hosts"
 
@@ -2588,7 +2579,7 @@ msgid "saving changed group to backend failed."
 msgstr "saving changed group to backend failed."
 
 #: vuurmuur_conf/zones_section.c:1310 vuurmuur_conf/zones_section.c:2872
-#: vuurmuur_conf/zones_section.c:5501 vuurmuur_conf/zones_section.c:6483
+#: vuurmuur_conf/zones_section.c:5503 vuurmuur_conf/zones_section.c:6485
 msgid "open"
 msgstr "open"
 
@@ -2675,8 +2666,8 @@ msgstr "Edit Group"
 
 #: vuurmuur_conf/zones_section.c:2761 vuurmuur_conf/zones_section.c:2891
 #: vuurmuur_conf/zones_section.c:3052 vuurmuur_conf/zones_section.c:3185
-#: vuurmuur_conf/zones_section.c:4747 vuurmuur_conf/zones_section.c:5482
-#: vuurmuur_conf/zones_section.c:5785 vuurmuur_conf/zones_section.c:6009
+#: vuurmuur_conf/zones_section.c:4749 vuurmuur_conf/zones_section.c:5484
+#: vuurmuur_conf/zones_section.c:5787 vuurmuur_conf/zones_section.c:6011
 msgid "Groups"
 msgstr "Groups"
 
@@ -2732,251 +2723,251 @@ msgstr "New interface"
 msgid "saving the interfaces failed."
 msgstr "saving the interfaces failed."
 
-#: vuurmuur_conf/zones_section.c:4404 vuurmuur_conf/zones_section.c:5082
-#: vuurmuur_conf/zones_section.c:5483 vuurmuur_conf/strings.h:34
+#: vuurmuur_conf/zones_section.c:4406 vuurmuur_conf/zones_section.c:5084
+#: vuurmuur_conf/zones_section.c:5485 vuurmuur_conf/strings.h:34
 msgid "Network"
 msgstr "Network"
 
-#: vuurmuur_conf/zones_section.c:4415
+#: vuurmuur_conf/zones_section.c:4417
 msgid "Netmask"
 msgstr "Netmask"
 
-#: vuurmuur_conf/zones_section.c:4427
+#: vuurmuur_conf/zones_section.c:4429
 msgid "IPv6 Network"
 msgstr "IPv6 Network"
 
-#: vuurmuur_conf/zones_section.c:4440
+#: vuurmuur_conf/zones_section.c:4442
 msgid "IPv6 CIDR"
 msgstr "IPv6 CIDR"
 
-#: vuurmuur_conf/zones_section.c:4454
+#: vuurmuur_conf/zones_section.c:4456
 msgid "Loopback"
 msgstr "Loopback"
 
-#: vuurmuur_conf/zones_section.c:4469
+#: vuurmuur_conf/zones_section.c:4471
 msgid "Class A"
 msgstr "Class A"
 
-#: vuurmuur_conf/zones_section.c:4484
+#: vuurmuur_conf/zones_section.c:4486
 msgid "Class B"
 msgstr "Class B"
 
-#: vuurmuur_conf/zones_section.c:4499
+#: vuurmuur_conf/zones_section.c:4501
 msgid "Class C"
 msgstr "Class C"
 
-#: vuurmuur_conf/zones_section.c:4514
+#: vuurmuur_conf/zones_section.c:4516
 msgid "Class D"
 msgstr "Class D"
 
-#: vuurmuur_conf/zones_section.c:4529
+#: vuurmuur_conf/zones_section.c:4531
 msgid "Class E"
 msgstr "Class E"
 
-#: vuurmuur_conf/zones_section.c:4544
+#: vuurmuur_conf/zones_section.c:4546
 msgid "Test-net"
 msgstr "Test-net"
 
-#: vuurmuur_conf/zones_section.c:4559
+#: vuurmuur_conf/zones_section.c:4561
 msgid "Link local net"
 msgstr "Link local net"
 
-#: vuurmuur_conf/zones_section.c:4574
+#: vuurmuur_conf/zones_section.c:4576
 msgid "0.0.0.0/8 res."
 msgstr "0.0.0.0/8 res."
 
-#: vuurmuur_conf/zones_section.c:4589
+#: vuurmuur_conf/zones_section.c:4591
 msgid "Broadcast src."
 msgstr "Broadcast src."
 
-#: vuurmuur_conf/zones_section.c:4604
+#: vuurmuur_conf/zones_section.c:4606
 msgid "Broadcast dst."
 msgstr "Broadcast dst."
 
-#: vuurmuur_conf/zones_section.c:4619
+#: vuurmuur_conf/zones_section.c:4621
 msgid "DHCP Server"
 msgstr "DHCP Server"
 
-#: vuurmuur_conf/zones_section.c:4634
+#: vuurmuur_conf/zones_section.c:4636
 msgid "DHCP Client"
 msgstr "DHCP Client"
 
-#: vuurmuur_conf/zones_section.c:4678
+#: vuurmuur_conf/zones_section.c:4680
 msgid "Edit Zone: Network"
 msgstr "Edit Zone: Network"
 
-#: vuurmuur_conf/zones_section.c:4739
+#: vuurmuur_conf/zones_section.c:4741
 msgid "Anti-spoofing"
 msgstr "Anti-spoofing"
 
-#: vuurmuur_conf/zones_section.c:5039
+#: vuurmuur_conf/zones_section.c:5041
 msgid "interfaces"
 msgstr "interfaces"
 
-#: vuurmuur_conf/zones_section.c:5067 vuurmuur_conf/zones_section.c:5190
+#: vuurmuur_conf/zones_section.c:5069 vuurmuur_conf/zones_section.c:5192
 msgid "Warning: no interfaces attached!"
 msgstr "Warning: no interfaces attached!"
 
-#: vuurmuur_conf/zones_section.c:5073 vuurmuur_conf/zones_section.c:5198
+#: vuurmuur_conf/zones_section.c:5075 vuurmuur_conf/zones_section.c:5200
 msgid "Note: parent zone is inactive."
 msgstr "Note: parent zone is inactive."
 
-#: vuurmuur_conf/zones_section.c:5151 vuurmuur_conf/zones_section.c:5387
-#: vuurmuur_conf/zones_section.c:5522 vuurmuur_conf/zones_section.c:5818
-#: vuurmuur_conf/zones_section.c:6005
+#: vuurmuur_conf/zones_section.c:5153 vuurmuur_conf/zones_section.c:5389
+#: vuurmuur_conf/zones_section.c:5524 vuurmuur_conf/zones_section.c:5820
+#: vuurmuur_conf/zones_section.c:6007
 msgid "Networks"
 msgstr "Networks"
 
 #. TRANSLATORS: max 32 chars
-#: vuurmuur_conf/zones_section.c:5308
+#: vuurmuur_conf/zones_section.c:5310
 #, c-format
 msgid "No network/netmask defined."
 msgstr "No network/netmask defined."
 
-#: vuurmuur_conf/zones_section.c:5400
+#: vuurmuur_conf/zones_section.c:5402
 msgid "to enter the hosts/groups of this network"
 msgstr "to enter the hosts/groups of this network"
 
-#: vuurmuur_conf/zones_section.c:5602
+#: vuurmuur_conf/zones_section.c:5604
 msgid "Rename Network"
 msgstr "Rename Network"
 
-#: vuurmuur_conf/zones_section.c:5602
+#: vuurmuur_conf/zones_section.c:5604
 msgid "Enter the new name of the network"
 msgstr "Enter the new name of the network"
 
-#: vuurmuur_conf/zones_section.c:5607 vuurmuur_conf/zones_section.c:5661
+#: vuurmuur_conf/zones_section.c:5609 vuurmuur_conf/zones_section.c:5663
 #, c-format
 msgid "invalid networkname '%s'."
 msgstr "invalid networkname '%s'."
 
-#: vuurmuur_conf/zones_section.c:5631
+#: vuurmuur_conf/zones_section.c:5633
 msgid "renaming network failed."
 msgstr "renaming network failed."
 
-#: vuurmuur_conf/zones_section.c:5641 vuurmuur_conf/zones_section.c:5692
+#: vuurmuur_conf/zones_section.c:5643 vuurmuur_conf/zones_section.c:5694
 #, c-format
 msgid "'%s' is an invalid name for a network."
 msgstr "‘[1m%s[0m’ is an invalid name for a network."
 
-#: vuurmuur_conf/zones_section.c:5656
+#: vuurmuur_conf/zones_section.c:5658
 msgid "New Network"
 msgstr "New Network"
 
-#: vuurmuur_conf/zones_section.c:5656
+#: vuurmuur_conf/zones_section.c:5658
 msgid "Enter the name of the new network"
 msgstr "Enter the name of the new network"
 
-#: vuurmuur_conf/zones_section.c:5678
+#: vuurmuur_conf/zones_section.c:5680
 msgid "adding network failed."
 msgstr "adding network failed."
 
-#: vuurmuur_conf/zones_section.c:5711
+#: vuurmuur_conf/zones_section.c:5713
 msgid "This network?"
 msgstr "This network?"
 
-#: vuurmuur_conf/zones_section.c:5725
+#: vuurmuur_conf/zones_section.c:5727
 msgid "deleting network failed."
 msgstr "deleting network failed."
 
-#: vuurmuur_conf/zones_section.c:5740
+#: vuurmuur_conf/zones_section.c:5742
 msgid "unable to delete: network not empty."
 msgstr "unable to delete: network not empty."
 
-#: vuurmuur_conf/zones_section.c:5778
+#: vuurmuur_conf/zones_section.c:5780
 msgid "Hosts, Groups or this Network"
 msgstr "Hosts, Groups or this Network"
 
-#: vuurmuur_conf/zones_section.c:5969
+#: vuurmuur_conf/zones_section.c:5971
 msgid "Edit Zone: Zone"
 msgstr "Edit Zone: Zone"
 
-#: vuurmuur_conf/zones_section.c:6177
+#: vuurmuur_conf/zones_section.c:6179
 msgid "Edit Zone"
 msgstr "Edit Zone"
 
-#: vuurmuur_conf/zones_section.c:6396
+#: vuurmuur_conf/zones_section.c:6398
 msgid "to enter the networks of this zone"
 msgstr "to enter the networks of this zone"
 
-#: vuurmuur_conf/zones_section.c:6548
+#: vuurmuur_conf/zones_section.c:6550
 msgid "Rename Zone"
 msgstr "Rename Zone"
 
-#: vuurmuur_conf/zones_section.c:6548
+#: vuurmuur_conf/zones_section.c:6550
 msgid "Enter the new name of the zone"
 msgstr "Enter the new name of the zone"
 
-#: vuurmuur_conf/zones_section.c:6569
+#: vuurmuur_conf/zones_section.c:6571
 msgid "New Zone"
 msgstr "New Zone"
 
-#: vuurmuur_conf/zones_section.c:6569
+#: vuurmuur_conf/zones_section.c:6571
 msgid "Enter the name of the new zone"
 msgstr "Enter the name of the new zone"
 
-#: vuurmuur_conf/zones_section.c:6609
+#: vuurmuur_conf/zones_section.c:6611
 msgid "This zone?"
 msgstr "This zone?"
 
-#: vuurmuur_conf/zones_section.c:6618
+#: vuurmuur_conf/zones_section.c:6620
 #, c-format
 msgid "deleting zone failed (in: %s:%d)."
 msgstr "deleting zone failed (in: %s:%d)."
 
-#: vuurmuur_conf/zones_section.c:6632
+#: vuurmuur_conf/zones_section.c:6634
 msgid "unable to delete: zone not empty."
 msgstr "unable to delete: zone not empty."
 
-#: vuurmuur_conf/zones_section.c:6909 vuurmuur_conf/zones_section.c:6931
+#: vuurmuur_conf/zones_section.c:6911 vuurmuur_conf/zones_section.c:6933
 msgid "IPAddress"
 msgstr "IPAddress"
 
-#: vuurmuur_conf/zones_section.c:6910 vuurmuur_conf/zones_section.c:6962
-#: vuurmuur_conf/zones_section.c:6967 vuurmuur_conf/strings.h:30
+#: vuurmuur_conf/zones_section.c:6912 vuurmuur_conf/zones_section.c:6965
+#: vuurmuur_conf/zones_section.c:6970 vuurmuur_conf/strings.h:30
 msgid "Host"
 msgstr "Host"
 
-#: vuurmuur_conf/zones_section.c:6911 vuurmuur_conf/zones_section.c:6962
+#: vuurmuur_conf/zones_section.c:6913 vuurmuur_conf/zones_section.c:6965
 #: vuurmuur_conf/strings.h:32
 msgid "Group"
 msgstr "Group"
 
-#: vuurmuur_conf/zones_section.c:6928
+#: vuurmuur_conf/zones_section.c:6930
 msgid "What do you want to block?"
 msgstr "What do you want to block?"
 
-#: vuurmuur_conf/zones_section.c:6933
+#: vuurmuur_conf/zones_section.c:6935
 msgid "New IPAddress"
 msgstr "New IPAddress"
 
-#: vuurmuur_conf/zones_section.c:6933
+#: vuurmuur_conf/zones_section.c:6935
 msgid "Enter the IPAddress to be blocked"
 msgstr "Enter the IPAddress to be blocked"
 
-#: vuurmuur_conf/zones_section.c:6939
+#: vuurmuur_conf/zones_section.c:6941
 #, c-format
 msgid "'%s' is not a valid ipaddress."
 msgstr "‘[1m%s[0m’ is not a valid ipaddress."
 
-#: vuurmuur_conf/zones_section.c:6988
+#: vuurmuur_conf/zones_section.c:6991
 msgid "please create one or more hosts/groups first."
 msgstr "please create one or more hosts/groups first."
 
-#: vuurmuur_conf/zones_section.c:7015
+#: vuurmuur_conf/zones_section.c:7019
 msgid "Select a host or group to block"
 msgstr "Select a host or group to block"
 
-#: vuurmuur_conf/zones_section.c:7020
+#: vuurmuur_conf/zones_section.c:7024
 #, c-format
 msgid "adding host/group to list failed (in: %s:%d)."
 msgstr "adding host/group to list failed (in: %s:%d)."
 
-#: vuurmuur_conf/zones_section.c:7173
+#: vuurmuur_conf/zones_section.c:7178
 msgid "Remove"
 msgstr "Remove"
 
-#: vuurmuur_conf/zones_section.c:7173
+#: vuurmuur_conf/zones_section.c:7178
 msgid "This IP/Host/Group?"
 msgstr "This IP/Host/Group?"
 
@@ -3440,3 +3431,12 @@ msgstr "logging actions"
 #: vuurmuur_conf/statevent.c:1063
 msgid "No logs to act on."
 msgstr "No logs to act on."
+
+#~ msgid "Queue"
+#~ msgstr "Queue"
+
+#~ msgid "Press SPACE to toggle queue'ing of this rule."
+#~ msgstr "Press SPACE to toggle queue'ing of this rule."
+
+#~ msgid "This is Vuurmuur_conf %s, Copyright (c) 2003-2008 by Victor Julien"
+#~ msgstr "This is Vuurmuur_conf %s, Copyright (c) 2003-2008 by Victor Julien"
