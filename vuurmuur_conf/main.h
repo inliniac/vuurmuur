@@ -502,5 +502,42 @@ void VrShapeIface(const int debuglvl, struct vrmr_ctx *, struct vrmr_interface *
 #define wsizeof(s)  sizeof(s)/sizeof(wchar_t)
 #endif /* USE_WIDEC */
 
+#define vrmr_fatal(...)                                         \
+    do {                                                        \
+        char _vrmr_msg[2048];                                   \
+        char _vrmr_loc[512];                                    \
+        char _vrmr_line[2048];                                  \
+                                                                \
+        snprintf(_vrmr_msg, 2048, __VA_ARGS__);                 \
+        snprintf(_vrmr_loc, sizeof(_vrmr_loc),                  \
+                 "[%s:%d:%s]", __FILE__, __LINE__, __func__);   \
+        snprintf(_vrmr_line, sizeof(_vrmr_line), "%s %s",       \
+                _vrmr_loc, _vrmr_msg);                          \
+                                                                \
+        vrmr_error(EXIT_FAILURE,gettext("Fatal Error"),         \
+                   "%s", _vrmr_line);                           \
+        exit(EXIT_FAILURE);                                     \
+    } while(0)
+
+#define vrmr_fatal_alloc(func, ptr)                             \
+    do {                                                        \
+        if ((ptr) == NULL) {                                    \
+            vrmr_fatal("%s: %s", (func), strerror(errno));      \
+        }                                                       \
+    } while(0)
+
+#define vrmr_fatal_if_null(ptr)                                 \
+    do {                                                        \
+        if ((ptr) == NULL) {                                    \
+            vrmr_fatal("NULL pointer");                         \
+        }                                                       \
+    } while(0)
+
+#define vrmr_fatal_if(expr)                                     \
+    do {                                                        \
+        if (expr) {                                             \
+            vrmr_fatal("check failed");                         \
+        }                                                       \
+    } while(0)
 
 #endif
