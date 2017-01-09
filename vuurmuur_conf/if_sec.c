@@ -20,7 +20,6 @@
 
 #include "main.h"
 
-
 struct InterfacesSection_
 {
     WINDOW          *win;
@@ -55,22 +54,20 @@ struct InterfacesSection_
 
 } InterfacesSection;
 
-
 struct TcpmssIfaceCnf_ {
     struct vrmr_interface *iface_ptr;
     char enabled;
     struct vrmr_ctx *vctx;
 };
 
-static int
-VrTcpmssIfaceSetup(const int debuglvl, struct TcpmssIfaceCnf_ *c, struct vrmr_interface *iface_ptr) {
-    if (c == NULL || iface_ptr == NULL)
-        return(-1);
+static void
+VrTcpmssIfaceSetup(const int debuglvl, struct TcpmssIfaceCnf_ *c, struct vrmr_interface *iface_ptr)
+{
+    vrmr_fatal_if_null(c);
+    vrmr_fatal_if_null(iface_ptr);
 
     c->iface_ptr = iface_ptr;
     c->enabled = iface_ptr->tcpmss_clamp;
-
-    return(0);
 }
 
 static int
@@ -79,11 +76,8 @@ VrTcpmssIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
     struct TcpmssIfaceCnf_ *c = (struct TcpmssIfaceCnf_ *)ctx;
     int result = 0;
 
-    //vrmr_debug(__FUNC__, "%s:%s", name, value);
-
     if(strcmp(name,"S") == 0) {
         char enabled = 0;
-
         if (strcmp(value,"X") == 0) {
             enabled = 1;
         }
@@ -106,43 +100,31 @@ VrTcpmssIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         }
         c->iface_ptr->tcpmss_clamp = enabled;
     }
-
     return(0);
 }
 
-static void VrTcpmssIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr) {
+static void
+VrTcpmssIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
+{
     VrWin   *win = NULL;
     VrForm  *form = NULL;
     int     ch = 0, result = 0;
     struct TcpmssIfaceCnf_ config;
     config.vctx = vctx;
 
-    if (VrTcpmssIfaceSetup(debuglvl, &config, iface_ptr) < 0)
-    {
-        vrmr_error(-1, VR_ERR, "VrTcpmssIfaceSetup failed");
-        return;
-    }
+    VrTcpmssIfaceSetup(debuglvl, &config, iface_ptr);
 
     /* create the window and put it in the middle of the screen */
     win = VrNewWin(11,51,0,0,vccnf.color_win);
-    if(win == NULL)
-    {
-        vrmr_error(-1, VR_ERR, "VrNewWin failed");
-        return;
-    }
+    vrmr_fatal_if_null(win);
     VrWinSetTitle(win, gettext("Tcpmss"));
 
     form = VrNewForm(9, 58, 1, 1, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
-
     VrFormSetSaveFunc(debuglvl, form, VrTcpmssIfaceSave, &config);
-
     VrFormAddLabelField(debuglvl,   form, 1, 25, 1, 1,  vccnf.color_win, gettext("Enable TCP MSS clamping"));
     VrFormAddCheckboxField(debuglvl,form,        1, 28, vccnf.color_win, "S", config.enabled);
-
     VrFormConnectToWin(debuglvl, form, win);
-
     VrFormPost(debuglvl, form);
-
     update_panels();
     doupdate();
 
@@ -199,13 +181,13 @@ struct ShapeIfaceCnf_ {
     struct vrmr_ctx *vctx;
 };
 
-static int
-VrShapeIfaceSetup(const int debuglvl, struct ShapeIfaceCnf_ *c, struct vrmr_interface *iface_ptr) {
-    if (c == NULL || iface_ptr == NULL)
-        return(-1);
+static void
+VrShapeIfaceSetup(const int debuglvl, struct ShapeIfaceCnf_ *c, struct vrmr_interface *iface_ptr)
+{
+    vrmr_fatal_if_null(c);
+    vrmr_fatal_if_null(iface_ptr);
 
     c->iface_ptr = iface_ptr;
-
     c->enabled = iface_ptr->shape;
 
     snprintf(c->in, sizeof(c->in),   "%u", c->iface_ptr->bw_in);
@@ -220,8 +202,6 @@ VrShapeIfaceSetup(const int debuglvl, struct ShapeIfaceCnf_ *c, struct vrmr_inte
         strlcpy(c->out_unit, "kbit", sizeof(c->out_unit));
     else
         snprintf(c->out_unit, sizeof(c->out_unit), "%s", c->iface_ptr->bw_out_unit);
-
-    return(0);
 }
 
 static int
@@ -338,30 +318,22 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
     return(0);
 }
 
-void VrShapeIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr) {
+void
+VrShapeIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
+{
     VrWin   *win = NULL;
     VrForm  *form = NULL;
     int     ch = 0, result = 0;
     struct ShapeIfaceCnf_ config;
     config.vctx = vctx;
 
-    if (VrShapeIfaceSetup(debuglvl, &config, iface_ptr) < 0)
-    {
-        vrmr_error(-1, VR_ERR, "VrShapeIfaceSetup failed");
-        return;
-    }
+    VrShapeIfaceSetup(debuglvl, &config, iface_ptr);
 
     /* create the window and put it in the middle of the screen */
     win = VrNewWin(11,51,0,0,vccnf.color_win);
-    if(win == NULL)
-    {
-        vrmr_error(-1, VR_ERR, "VrNewWin failed");
-        return;
-    }
+    vrmr_fatal_if_null(win);
     VrWinSetTitle(win, gettext("Shaping"));
-
     form = VrNewForm(9, 58, 1, 1, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
-
     VrFormSetSaveFunc(debuglvl, form, VrShapeIfaceSave, &config);
 
     VrFormAddLabelField(debuglvl,   form, 1, 25, 1, 1,  vccnf.color_win, gettext("Enable shaping"));
@@ -374,9 +346,7 @@ void VrShapeIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfa
     VrFormAddTextField(debuglvl,    form, 1,  5, 5, 41, vccnf.color_win_rev | A_BOLD, "unit2", config.out_unit);
 
     VrFormConnectToWin(debuglvl, form, win);
-
     VrFormPost(debuglvl, form);
-
     update_panels();
     doupdate();
 
@@ -493,26 +463,23 @@ struct
 int
 protectrule_loaded(const int debuglvl, struct vrmr_list *rules_list, char *action, char *danger, char *source)
 {
-    struct vrmr_rule    *rule_ptr = NULL;
-    struct vrmr_list_node         *d_node = NULL;
-    int                 act = 0;
+    struct vrmr_rule *rule_ptr = NULL;
+    struct vrmr_list_node *d_node = NULL;
+    int act = 0;
 
-    if(!rules_list || !danger || !action)
-    {
-        return(0);
-    }
+    vrmr_fatal_if_null(rules_list);
+    vrmr_fatal_if_null(danger);
+    vrmr_fatal_if_null(action);
 
-    if(rules_list->len == 0)
+    if (rules_list->len == 0)
         return(0);
 
     act = vrmr_rules_actiontoi(action);
 
-    for(d_node = rules_list->top; d_node; d_node = d_node->next)
+    for (d_node = rules_list->top; d_node; d_node = d_node->next)
     {
-        if(!(rule_ptr = d_node->data))
-        {
-            return(0);
-        }
+        vrmr_fatal_if_null(d_node->data);
+        rule_ptr = d_node->data;
 
         if(act == rule_ptr->action)
         {
@@ -539,12 +506,10 @@ protectrule_loaded(const int debuglvl, struct vrmr_list *rules_list, char *actio
             }
         }
     }
-
     return(0);
 }
 
-
-static int
+static void
 edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
         int height, int width, int starty, int startx, struct vrmr_interface *iface_ptr)
 {
@@ -558,6 +523,7 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
 
     InterfacesSection.EditInterface.n_fields = 34;
     InterfacesSection.EditInterface.fields = (FIELD **)calloc(InterfacesSection.EditInterface.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_alloc("calloc", InterfacesSection.EditInterface.fields);
 
     /*
         create the fields
@@ -573,7 +539,6 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
     field_num++;
     set_field_buffer_wrap(debuglvl, IfSec.activefld, 0, iface_ptr->active ? STR_YES : STR_NO);
 
-
     /* device */
     IfSec.devicelabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 5, 0, 0, 0));
     field_num++;
@@ -583,7 +548,6 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
     IfSec.devicefld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 12, 6, 1, 0, 0));
     field_num++;
     set_field_buffer_wrap(debuglvl, IfSec.devicefld, 0, iface_ptr->device);
-
 
     /* ipaddress */
     IfSec.ipaddresslabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 7, 0, 0, 0));
@@ -612,7 +576,6 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
 #ifdef IPV6_ENABLED
     set_field_buffer_wrap(debuglvl, IfSec.ip6addressfld, 0, iface_ptr->ipv6.ip6);
 #endif
-
 
     /* dynamic ip toggle */
     IfSec.dynamicbracketsfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 3, 6, 20, 0, 0));
@@ -644,7 +607,6 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
     IfSec.devicevirtualfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 1, 8, 21, 0, 0));
     field_num++;
     set_field_buffer_wrap(debuglvl, IfSec.devicevirtualfld, 0, iface_ptr->device_virtual ? "X" : " ");
-
 
     /* protect label */
     IfSec.labelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 2, 38, 0, 0));
@@ -727,7 +689,6 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
     field_num++;
     set_field_buffer_wrap(debuglvl, IfSec.logmartiansfld, 0, protectrule_loaded(debuglvl, &iface_ptr->ProtectList, "protect", "log-martians", NULL) ? "X" : " ");
 
-
     /* comment */
     IfSec.commentlabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 12, 0, 0, 0));
     field_num++;
@@ -765,8 +726,7 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
     /* terminate the fields */
     InterfacesSection.EditInterface.fields[InterfacesSection.EditInterface.n_fields] = NULL;
 
-    if(InterfacesSection.EditInterface.n_fields != field_num)
-        vrmr_error(-1, VR_INTERR, "InterfacesSection.EditInterface.n_fields != field_num.");
+    vrmr_fatal_if(InterfacesSection.EditInterface.n_fields != field_num);
 
     /* create the window & panel */
     VrWinGetOffset(-1, -1, height, width, starty, startx, &starty, &startx);
@@ -775,13 +735,9 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
     InterfacesSection.EditInterface.panel[0] = new_panel(InterfacesSection.EditInterface.win);
     keypad(InterfacesSection.EditInterface.win, TRUE);
 
-    for(i = 0; i < InterfacesSection.EditInterface.n_fields; i++)
-    {
-        // set field options
+    for (i = 0; i < InterfacesSection.EditInterface.n_fields; i++) {
         set_field_back(InterfacesSection.EditInterface.fields[i], vccnf.color_win_rev);
-
         field_opts_off(InterfacesSection.EditInterface.fields[i], O_AUTOSKIP);
-        // set status to false
         set_field_status(InterfacesSection.EditInterface.fields[i], FALSE);
     }
 
@@ -803,39 +759,30 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
     set_field_back(IfSec.devicelabelfld, vccnf.color_win);
     set_field_back(IfSec.commentlabelfld, vccnf.color_win);
     set_field_back(IfSec.interfaceuplabelfld, vccnf.color_win);
-
     set_field_back(IfSec.dynamicfld, vccnf.color_win);
     set_field_back(IfSec.dynamiclabelfld, vccnf.color_win);
     set_field_back(IfSec.dynamicbracketsfld, vccnf.color_win);
-
     set_field_back(IfSec.devicevirtualfld, vccnf.color_win);
     set_field_back(IfSec.devicevirtuallabelfld, vccnf.color_win);
     set_field_back(IfSec.devicevirtualbracketsfld, vccnf.color_win);
 
-
     /* the toggles */
     set_field_back(IfSec.labelfld, vccnf.color_win);
-
     set_field_back(IfSec.srcrtpktsfld, vccnf.color_win);
     set_field_back(IfSec.srcrtpktslabelfld, vccnf.color_win);
     set_field_back(IfSec.srcrtpktsbracketsfld, vccnf.color_win);
-
     set_field_back(IfSec.icmpredirectfld, vccnf.color_win);
     set_field_back(IfSec.icmpredirectlabelfld, vccnf.color_win);
     set_field_back(IfSec.icmpredirectbracketsfld, vccnf.color_win);
-
     set_field_back(IfSec.sendredirectfld, vccnf.color_win);
     set_field_back(IfSec.sendredirectlabelfld, vccnf.color_win);
     set_field_back(IfSec.sendredirectbracketsfld, vccnf.color_win);
-
     set_field_back(IfSec.rpfilterfld, vccnf.color_win);
     set_field_back(IfSec.rpfilterlabelfld, vccnf.color_win);
     set_field_back(IfSec.rpfilterbracketsfld, vccnf.color_win);
-
     set_field_back(IfSec.logmartiansfld, vccnf.color_win);
     set_field_back(IfSec.logmartianslabelfld, vccnf.color_win);
     set_field_back(IfSec.logmartiansbracketsfld, vccnf.color_win);
-
     set_field_back(IfSec.interfaceupfld, vccnf.color_win);
 
     // Create the form and post it
@@ -843,41 +790,30 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
     scale_form(InterfacesSection.EditInterface.form, &rows, &cols);
     set_form_win(InterfacesSection.EditInterface.form, InterfacesSection.EditInterface.win);
     set_form_sub(InterfacesSection.EditInterface.form, derwin(InterfacesSection.EditInterface.win, rows, cols, 1, 2));
-
     post_form(InterfacesSection.EditInterface.form);
 
     mvwprintw(InterfacesSection.EditInterface.win, 1, 2,  "%s: %s", gettext("Name"), iface_ptr->name);
 
     wrefresh(InterfacesSection.EditInterface.win);
-
-    return(retval);
 }
 
-
-static int
+static void
 edit_interface_destroy(void)
 {
-    int     retval = 0;
     size_t  i = 0;
 
     // Un post form and free the memory
     unpost_form(InterfacesSection.EditInterface.form);
     free_form(InterfacesSection.EditInterface.form);
-
-    for(i=0;i<InterfacesSection.EditInterface.n_fields;i++)
-    {
+    for (i = 0; i < InterfacesSection.EditInterface.n_fields; i++) {
         free_field(InterfacesSection.EditInterface.fields[i]);
     }
     free(InterfacesSection.EditInterface.fields);
-
     del_panel(InterfacesSection.EditInterface.panel[0]);
     destroy_win(InterfacesSection.EditInterface.win);
-
     update_panels();
     doupdate();
-
     strlcpy(InterfacesSection.comment, "", sizeof(InterfacesSection.comment));
-    return(retval);
 }
 
 
@@ -887,93 +823,43 @@ edit_interface_save_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
     struct vrmr_rule    *rule_ptr = NULL;
 
     /* safety */
-    if(iface_ptr == NULL)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
-                                __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if_null(iface_ptr);
 
     vrmr_list_cleanup(debuglvl, &iface_ptr->ProtectList);
 
     if(field_buffer(IfSec.srcrtpktsfld, 0)[0] == 'X')
     {
-        if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "source-routed-packets", NULL)))
-        {
-            vrmr_error(-1, VR_INTERR, "rules_create_protect_rule() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
-            return(-1);
-        }
-        if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr)  == NULL)
-        {
-            vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
-            return(-1);
-        }
+        rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "source-routed-packets", NULL);
+        vrmr_fatal_if_null(rule_ptr);
+        vrmr_fatal_if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(IfSec.icmpredirectfld, 0)[0] == 'X')
     {
-        if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "icmp-redirect", NULL)))
-        {
-            vrmr_error(-1, VR_INTERR, "rules_create_protect_rule() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
-            return(-1);
-        }
-        if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr)  == NULL)
-        {
-            vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
-            return(-1);
-        }
+        rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "icmp-redirect", NULL);
+        vrmr_fatal_if_null(rule_ptr);
+        vrmr_fatal_if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(IfSec.sendredirectfld, 0)[0] == 'X')
     {
-        if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "send-redirect", NULL)))
-        {
-            vrmr_error(-1, VR_INTERR, "rules_create_protect_rule() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
-            return(-1);
-        }
-        if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr)  == NULL)
-        {
-            vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
-            return(-1);
-        }
+        rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "send-redirect", NULL);
+        vrmr_fatal_if_null(rule_ptr);
+        vrmr_fatal_if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(IfSec.rpfilterfld, 0)[0] == 'X')
     {
-        if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "rp-filter", NULL)))
-        {
-            vrmr_error(-1, VR_INTERR, "rules_create_protect_rule() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
-            return(-1);
-        }
-        if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr)  == NULL)
-        {
-            vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
-            return(-1);
-        }
+        rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "rp-filter", NULL);
+        vrmr_fatal_if_null(rule_ptr);
+        vrmr_fatal_if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(IfSec.logmartiansfld, 0)[0] == 'X')
     {
-        if(!(rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "log-martians", NULL)))
-        {
-            vrmr_error(-1, VR_INTERR, "rules_create_protect_rule() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
-            return(-1);
-        }
-        if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr)  == NULL)
-        {
-            vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).",
-                                __FUNC__, __LINE__);
-            return(-1);
-        }
+        rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "log-martians", NULL);
+        vrmr_fatal_if_null(rule_ptr);
+        vrmr_fatal_if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     /* now let try to write this to the backend */
@@ -1006,265 +892,259 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
     struct vrmr_list_node   *d_node = NULL;
 
     /* safety */
-    if(iface_ptr == NULL)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
-                                __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if_null(iface_ptr);
 
     /* get a temp interface */
     tempiface_ptr = vrmr_interface_malloc(debuglvl);
-    if(!tempiface_ptr)
-        return(-1);
+    vrmr_fatal_alloc("vrmr_interface_malloc", tempiface_ptr);
 
     /* copy the interface to the temp one */
     *tempiface_ptr = *iface_ptr;
 
     /* check for changed fields */
-    for(i=0; i < InterfacesSection.EditInterface.n_fields; i++)
+    for(i = 0; i < InterfacesSection.EditInterface.n_fields; i++)
     {
-        if(field_status(InterfacesSection.EditInterface.fields[i]) == TRUE)
+        if (field_status(InterfacesSection.EditInterface.fields[i]) == FALSE)
+            continue;
+
+        /* changes! */
+        retval = 1;
+
+        /* active */
+        if(InterfacesSection.EditInterface.fields[i] == IfSec.activefld)
         {
-            /* changes! */
-            retval = 1;
+            status = VRMR_ST_CHANGED;
 
-            /* active */
-            if(InterfacesSection.EditInterface.fields[i] == IfSec.activefld)
+            if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), STR_YES, StrLen(STR_YES)) == 0)
             {
-                status = VRMR_ST_CHANGED;
+                tempiface_ptr->active = 1;
+            }
+            else if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), STR_NO, StrLen(STR_NO)) == 0)
+            {
+                tempiface_ptr->active = 0;
+            }
+            else
+            {
+                tempiface_ptr->active = -1;
+            }
 
-                if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), STR_YES, StrLen(STR_YES)) == 0)
-                {
-                    tempiface_ptr->active = 1;
-                }
-                else if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), STR_NO, StrLen(STR_NO)) == 0)
-                {
-                    tempiface_ptr->active = 0;
-                }
-                else
-                {
-                    tempiface_ptr->active = -1;
-                }
+            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "ACTIVE", tempiface_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+            if(result < 0)
+            {
+                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
+                        STR_SAVING_TO_BACKEND_FAILED,
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
 
-                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "ACTIVE", tempiface_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+            /* example: "interface 'lan' has been changed: active is now set to 'Yes' (was: 'No')." */
+            vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                    STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                    STR_ACTIVE, STR_IS_NOW_SET_TO, tempiface_ptr->active ? "Yes" : "No",
+                    STR_WAS, iface_ptr->active ? "Yes" : "No");
+        }
+        else if(InterfacesSection.EditInterface.fields[i] == IfSec.ipaddressfld)
+        {
+            // ipaddress
+            status = VRMR_ST_CHANGED;
+
+            copy_field2buf(tempiface_ptr->ipv4.ipaddress,
+                    field_buffer(InterfacesSection.EditInterface.fields[i], 0),
+                    sizeof(tempiface_ptr->ipv4.ipaddress));
+
+            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
+            if(result < 0)
+            {
+                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
+                        STR_SAVING_TO_BACKEND_FAILED,
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            /* example: "interface 'lan' has been changed: IP address is now set to '1.2.3.4' (was: '4.3.2.1')." */
+            vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                    STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                    STR_IPADDRESS, STR_IS_NOW_SET_TO, tempiface_ptr->ipv4.ipaddress,
+                    STR_WAS, iface_ptr->ipv4.ipaddress);
+        }
+        else if(InterfacesSection.EditInterface.fields[i] == IfSec.ip6addressfld)
+        {
+#ifdef IPV6_ENABLED
+            // ipaddress
+            status = VRMR_ST_CHANGED;
+
+            copy_field2buf(tempiface_ptr->ipv6.ip6,
+                    field_buffer(InterfacesSection.EditInterface.fields[i], 0),
+                    sizeof(tempiface_ptr->ipv6.ip6));
+
+            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPV6ADDRESS", tempiface_ptr->ipv6.ip6, 1, VRMR_TYPE_INTERFACE);
+            if(result < 0)
+            {
+                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
+                        STR_SAVING_TO_BACKEND_FAILED,
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            /* example: "interface 'lan' has been changed: IP address is now set to '1.2.3.4' (was: '4.3.2.1')." */
+            vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                    STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                    STR_IP6ADDRESS, STR_IS_NOW_SET_TO, tempiface_ptr->ipv6.ip6,
+                    STR_WAS, iface_ptr->ipv6.ip6);
+#endif
+        }
+        else if(InterfacesSection.EditInterface.fields[i] == IfSec.dynamicfld)
+        {
+            // active
+            status = VRMR_ST_CHANGED;
+
+            if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), "X", 1) == 0)
+            {
+                tempiface_ptr->dynamic = 1;
+
+                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", "dynamic", 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                                STR_SAVING_TO_BACKEND_FAILED,
-                                __FUNC__, __LINE__);
+                            STR_SAVING_TO_BACKEND_FAILED,
+                            __FUNC__, __LINE__);
                     return(-1);
                 }
-
-                /* example: "interface 'lan' has been changed: active is now set to 'Yes' (was: 'No')." */
-                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
-                                STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
-                                STR_ACTIVE, STR_IS_NOW_SET_TO, tempiface_ptr->active ? "Yes" : "No",
-                                STR_WAS, iface_ptr->active ? "Yes" : "No");
             }
-            else if(InterfacesSection.EditInterface.fields[i] == IfSec.ipaddressfld)
+            else if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), " ", 1) == 0)
             {
-                // ipaddress
-                status = VRMR_ST_CHANGED;
-
-                copy_field2buf(tempiface_ptr->ipv4.ipaddress,
-                                    field_buffer(InterfacesSection.EditInterface.fields[i], 0),
-                                    sizeof(tempiface_ptr->ipv4.ipaddress));
+                tempiface_ptr->dynamic = 0;
 
                 result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                                STR_SAVING_TO_BACKEND_FAILED,
-                                __FUNC__, __LINE__);
+                            STR_SAVING_TO_BACKEND_FAILED,
+                            __FUNC__, __LINE__);
                     return(-1);
                 }
-
-                /* example: "interface 'lan' has been changed: IP address is now set to '1.2.3.4' (was: '4.3.2.1')." */
-                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
-                                STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
-                                STR_IPADDRESS, STR_IS_NOW_SET_TO, tempiface_ptr->ipv4.ipaddress,
-                                STR_WAS, iface_ptr->ipv4.ipaddress);
             }
-            else if(InterfacesSection.EditInterface.fields[i] == IfSec.ip6addressfld)
+            else
             {
-#ifdef IPV6_ENABLED
-                // ipaddress
-                status = VRMR_ST_CHANGED;
-
-                copy_field2buf(tempiface_ptr->ipv6.ip6,
-                                    field_buffer(InterfacesSection.EditInterface.fields[i], 0),
-                                    sizeof(tempiface_ptr->ipv6.ip6));
-
-                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPV6ADDRESS", tempiface_ptr->ipv6.ip6, 1, VRMR_TYPE_INTERFACE);
-                if(result < 0)
-                {
-                    vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                                STR_SAVING_TO_BACKEND_FAILED,
-                                __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-                /* example: "interface 'lan' has been changed: IP address is now set to '1.2.3.4' (was: '4.3.2.1')." */
-                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
-                                STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
-                                STR_IP6ADDRESS, STR_IS_NOW_SET_TO, tempiface_ptr->ipv6.ip6,
-                                STR_WAS, iface_ptr->ipv6.ip6);
-#endif
+                tempiface_ptr->dynamic = -1;
             }
-            else if(InterfacesSection.EditInterface.fields[i] == IfSec.dynamicfld)
+
+            /* example: "interface 'lan' has been changed: dynamic IP address is now set to 'Yes' (was: 'No')." */
+            vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                    STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                    STR_DYNAMICIP, STR_IS_NOW_SET_TO, tempiface_ptr->dynamic ? "Yes" : "No",
+                    STR_WAS, iface_ptr->dynamic ? "Yes" : "No");
+        }
+        else if(InterfacesSection.EditInterface.fields[i] == IfSec.devicefld)
+        {
+            status = VRMR_ST_CHANGED;
+
+            copy_field2buf(tempiface_ptr->device,
+                    field_buffer(InterfacesSection.EditInterface.fields[i], 0),
+                    sizeof(tempiface_ptr->device));
+
+            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "DEVICE", tempiface_ptr->device, 1, VRMR_TYPE_INTERFACE);
+            if(result < 0)
             {
-                // active
-                status = VRMR_ST_CHANGED;
-
-                if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), "X", 1) == 0)
-                {
-                    tempiface_ptr->dynamic = 1;
-
-                    result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", "dynamic", 1, VRMR_TYPE_INTERFACE);
-                    if(result < 0)
-                    {
-                        vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                                    STR_SAVING_TO_BACKEND_FAILED,
-                                    __FUNC__, __LINE__);
-                        return(-1);
-                    }
-                }
-                else if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), " ", 1) == 0)
-                {
-                    tempiface_ptr->dynamic = 0;
-
-                    result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
-                    if(result < 0)
-                    {
-                        vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                                    STR_SAVING_TO_BACKEND_FAILED,
-                                    __FUNC__, __LINE__);
-                        return(-1);
-                    }
-                }
-                else
-                {
-                    tempiface_ptr->dynamic = -1;
-                }
-
-                /* example: "interface 'lan' has been changed: dynamic IP address is now set to 'Yes' (was: 'No')." */
-                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
-                                STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
-                                STR_DYNAMICIP, STR_IS_NOW_SET_TO, tempiface_ptr->dynamic ? "Yes" : "No",
-                                STR_WAS, iface_ptr->dynamic ? "Yes" : "No");
+                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
+                        STR_SAVING_TO_BACKEND_FAILED,
+                        __FUNC__, __LINE__);
+                return(-1);
             }
-            else if(InterfacesSection.EditInterface.fields[i] == IfSec.devicefld)
-            {
-                status = VRMR_ST_CHANGED;
 
-                copy_field2buf(tempiface_ptr->device,
-                                    field_buffer(InterfacesSection.EditInterface.fields[i], 0),
-                                    sizeof(tempiface_ptr->device));
+            /* example: "interface 'lan' has been changed: device is now set to 'eth0' (was: 'eth1')." */
+            vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                    STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                    STR_DEVICE, STR_IS_NOW_SET_TO, tempiface_ptr->device,
+                    STR_WAS, iface_ptr->device);
 
-                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "DEVICE", tempiface_ptr->device, 1, VRMR_TYPE_INTERFACE);
-                if(result < 0)
-                {
-                    vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                                STR_SAVING_TO_BACKEND_FAILED,
-                                __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-                /* example: "interface 'lan' has been changed: device is now set to 'eth0' (was: 'eth1')." */
-                vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
-                                STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
-                                STR_DEVICE, STR_IS_NOW_SET_TO, tempiface_ptr->device,
-                                STR_WAS, iface_ptr->device);
-
-                /*  if the devicename indicates a virtual
-                    interface, set virtual to TRUE. */
-                if( vrmr_interface_check_devicename(debuglvl, tempiface_ptr->device) == 0 &&
+            /*  if the devicename indicates a virtual
+                interface, set virtual to TRUE. */
+            if( vrmr_interface_check_devicename(debuglvl, tempiface_ptr->device) == 0 &&
                     strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), "X", 1) != 0)
-                {
-                    tempiface_ptr->device_virtual = 1;
-
-                    result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
-                    if(result < 0)
-                    {
-                        vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                                STR_SAVING_TO_BACKEND_FAILED,
-                                __FUNC__, __LINE__);
-                        return(-1);
-                    }
-
-                    /* example: "interface 'lan' has been changed: virtual is now set to 'Yes' (was: 'No')." */
-                    vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
-                            STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
-                            STR_VIRTUAL, STR_IS_NOW_SET_TO, tempiface_ptr->device_virtual ? "Yes" : "No",
-                            STR_WAS, iface_ptr->device_virtual ? "Yes" : "No");
-                }
-            }
-            else if(InterfacesSection.EditInterface.fields[i] == IfSec.commentfld)
             {
-                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "COMMENT", field_buffer(InterfacesSection.EditInterface.fields[i], 0), 1, VRMR_TYPE_INTERFACE);
-                if(result < 0)
-                {
-                    vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                                STR_SAVING_TO_BACKEND_FAILED,
-                                __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-                /* example: "interface 'lan' has been changed: the comment was changed." */
-                vrmr_audit("%s '%s' %s: %s.",
-                                STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
-                                STR_COMMENT_CHANGED);
-            }
-            else if(InterfacesSection.EditInterface.fields[i] == IfSec.devicevirtualfld)
-            {
-                status = VRMR_ST_CHANGED;
-
-                if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), "X", 1) == 0)
-                {
-                    tempiface_ptr->device_virtual = 1;
-                }
-                else
-                {
-                    tempiface_ptr->device_virtual = 0;
-                }
+                tempiface_ptr->device_virtual = 1;
 
                 result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                                STR_SAVING_TO_BACKEND_FAILED,
-                                __FUNC__, __LINE__);
+                            STR_SAVING_TO_BACKEND_FAILED,
+                            __FUNC__, __LINE__);
                     return(-1);
                 }
 
                 /* example: "interface 'lan' has been changed: virtual is now set to 'Yes' (was: 'No')." */
                 vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
-                                STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
-                                STR_VIRTUAL, STR_IS_NOW_SET_TO, tempiface_ptr->device_virtual ? "Yes" : "No",
-                                STR_WAS, iface_ptr->device_virtual ? "Yes" : "No");
+                        STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                        STR_VIRTUAL, STR_IS_NOW_SET_TO, tempiface_ptr->device_virtual ? "Yes" : "No",
+                        STR_WAS, iface_ptr->device_virtual ? "Yes" : "No");
             }
-            /*
-
-            */
-            else if(InterfacesSection.EditInterface.fields[i] == IfSec.srcrtpktsfld     ||
-                    InterfacesSection.EditInterface.fields[i] == IfSec.icmpredirectfld  || 
-                    InterfacesSection.EditInterface.fields[i] == IfSec.sendredirectfld  ||
-                    InterfacesSection.EditInterface.fields[i] == IfSec.rpfilterfld      ||
-                    InterfacesSection.EditInterface.fields[i] == IfSec.logmartiansfld)
+        }
+        else if(InterfacesSection.EditInterface.fields[i] == IfSec.commentfld)
+        {
+            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "COMMENT", field_buffer(InterfacesSection.EditInterface.fields[i], 0), 1, VRMR_TYPE_INTERFACE);
+            if(result < 0)
             {
-                status = VRMR_ST_CHANGED;
-
-                if(edit_interface_save_rules(debuglvl, vctx, tempiface_ptr) < 0)
-                {
-                    vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
-                                STR_SAVING_TO_BACKEND_FAILED,
-                                __FUNC__, __LINE__);
-                    return(-1);
-                }
-
-                rules_changed = TRUE;
+                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
+                        STR_SAVING_TO_BACKEND_FAILED,
+                        __FUNC__, __LINE__);
+                return(-1);
             }
+
+            /* example: "interface 'lan' has been changed: the comment was changed." */
+            vrmr_audit("%s '%s' %s: %s.",
+                    STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                    STR_COMMENT_CHANGED);
+        }
+        else if(InterfacesSection.EditInterface.fields[i] == IfSec.devicevirtualfld)
+        {
+            status = VRMR_ST_CHANGED;
+
+            if(strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), "X", 1) == 0)
+            {
+                tempiface_ptr->device_virtual = 1;
+            }
+            else
+            {
+                tempiface_ptr->device_virtual = 0;
+            }
+
+            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+            if(result < 0)
+            {
+                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
+                        STR_SAVING_TO_BACKEND_FAILED,
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            /* example: "interface 'lan' has been changed: virtual is now set to 'Yes' (was: 'No')." */
+            vrmr_audit("%s '%s' %s: %s %s '%s' (%s: '%s').",
+                    STR_INTERFACE, iface_ptr->name, STR_HAS_BEEN_CHANGED,
+                    STR_VIRTUAL, STR_IS_NOW_SET_TO, tempiface_ptr->device_virtual ? "Yes" : "No",
+                    STR_WAS, iface_ptr->device_virtual ? "Yes" : "No");
+        }
+        /*
+
+         */
+        else if(InterfacesSection.EditInterface.fields[i] == IfSec.srcrtpktsfld     ||
+                InterfacesSection.EditInterface.fields[i] == IfSec.icmpredirectfld  || 
+                InterfacesSection.EditInterface.fields[i] == IfSec.sendredirectfld  ||
+                InterfacesSection.EditInterface.fields[i] == IfSec.rpfilterfld      ||
+                InterfacesSection.EditInterface.fields[i] == IfSec.logmartiansfld)
+        {
+            status = VRMR_ST_CHANGED;
+
+            if(edit_interface_save_rules(debuglvl, vctx, tempiface_ptr) < 0)
+            {
+                vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
+                        STR_SAVING_TO_BACKEND_FAILED,
+                        __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            rules_changed = TRUE;
         }
     }
 
@@ -1283,11 +1163,12 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                     STR_RULES_ARE_CHANGED, STR_NUMBER_OF_RULES,
                     iface_ptr->ProtectList.len, STR_LISTED_BELOW);
 
-        for(i = 1, d_node = iface_ptr->ProtectList.top; d_node; d_node = d_node->next, i++)
+        for (i = 1, d_node = iface_ptr->ProtectList.top; d_node; d_node = d_node->next, i++)
         {
+            vrmr_fatal_if_null(d_node->data);
             rule_ptr = d_node->data;
 
-            if(rule_ptr->action == VRMR_AT_PROTECT)
+            if (rule_ptr->action == VRMR_AT_PROTECT)
             {
                 vrmr_audit("%2d: %s against %s",
                             i, vrmr_rules_itoaction(rule_ptr->action),
@@ -1346,10 +1227,7 @@ edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces
 
     /* search the interface in memory */
     iface_ptr = vrmr_search_interface(debuglvl, interfaces, name);
-    if (iface_ptr == NULL) {
-        vrmr_error(-1, VR_INTERR, "interface not found in memory");
-        return(-1);
-    }
+    vrmr_fatal_if_null(iface_ptr);
 
     edit_interface_init(debuglvl, vctx, name, height, width, starty, startx, iface_ptr);
     cur = current_field(InterfacesSection.EditInterface.form);
