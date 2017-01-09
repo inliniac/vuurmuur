@@ -292,27 +292,25 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
                 vccnf.helpfile_location,
                 gettext("vuurmuur.hlp"));
         vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
-    }
 
-    /* open the file */
-    fp = fopen(helpfile, "r");
-    if(fp == NULL)
-    {
-        vrmr_debug(__FUNC__, "opening '%s' failed: %s, "
-                "falling back to default.",
-                helpfile, strerror(errno));
-
-        /* language helpfile does not exist, try to fall back to default */
-        snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
-                vccnf.helpfile_location);
-        vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
-
-        if(!(fp = fopen(helpfile, "r")))
-        {
-            vrmr_error(-1, VR_ERR, "%s %s: %s",
-                    STR_OPENING_FILE_FAILED,
+        /* open the file */
+        fp = fopen(helpfile, "r");
+        if (fp == NULL) {
+            vrmr_debug(__FUNC__, "opening '%s' failed: %s, "
+                    "falling back to default.",
                     helpfile, strerror(errno));
-            return(-1);
+
+            /* language helpfile does not exist, try to fall back to default */
+            snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
+                    vccnf.helpfile_location);
+            vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+
+            if(!(fp = fopen(helpfile, "r"))) {
+                vrmr_error(-1, VR_ERR, "%s %s: %s",
+                        STR_OPENING_FILE_FAILED,
+                        helpfile, strerror(errno));
+                return(-1);
+            }
         }
     }
 
