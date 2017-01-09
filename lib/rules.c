@@ -2622,7 +2622,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
             vrmr_debug(__FUNC__, "int (old for in_int) option.");
 
         for(p = 0, o = strlen("int") + 2;
-                p < sizeof(op->in_int) && o < curopt_len - 1;
+                p < sizeof(op->in_int) - 1 && o < curopt_len - 1;
                 o++, p++)
         {
             op->in_int[p] = curopt[o];
@@ -2639,7 +2639,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
             vrmr_debug(__FUNC__, "in_int option.");
 
         for(p = 0, o = strlen("in_int") + 2;
-                p < sizeof(op->in_int) && o < curopt_len - 1;
+                p < sizeof(op->in_int) - 1 && o < curopt_len - 1;
                 o++, p++)
         {
             op->in_int[p] = curopt[o];
@@ -2656,7 +2656,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
             vrmr_debug(__FUNC__, "out_int option.");
 
         for(p = 0, o = strlen("out_int") + 2;
-                p < sizeof(op->out_int) && o < curopt_len - 1;
+                p < sizeof(op->out_int) - 1 && o < curopt_len - 1;
                 o++, p++)
         {
             op->out_int[p] = curopt[o];
@@ -2673,7 +2673,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
             vrmr_debug(__FUNC__, "via_int option.");
 
         for(p = 0, o = strlen("via_int") + 2;
-                p < sizeof(op->via_int) && o < curopt_len - 1;
+                p < sizeof(op->via_int) - 1 && o < curopt_len - 1;
                 o++, p++)
         {
             op->via_int[p] = curopt[o];
@@ -2730,7 +2730,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
             vrmr_debug(__FUNC__, "comment.");
 
         for(p = 0, o = strlen("comment") + 2;
-                o < curopt_len - 1 && p < sizeof(op->comment);
+                o < curopt_len - 1 && p < sizeof(op->comment) - 1;
                 o++, p++)
         {
             op->comment[p] = curopt[o];
@@ -2745,7 +2745,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
             vrmr_debug(__FUNC__, "logprefix.");
 
         for(p = 0, o = strlen("logprefix") + 2;
-                p < 12 && o < curopt_len - 1 && p < sizeof(op->logprefix);
+                p < 12 && o < curopt_len - 1 && p < sizeof(op->logprefix) - 1;
                 o++, p++)
         {
             op->logprefix[p] = curopt[o];
@@ -2769,7 +2769,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
     {
         for(p = 0, o = strlen("redirectport") + 1;
                 o < curopt_len &&
-                p < sizeof(portstring);
+                p < sizeof(portstring) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
@@ -2818,7 +2818,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
             vrmr_debug(__FUNC__, "rejecttype.");
 
         for(p = 0, o = strlen("rejecttype") + 1;
-                o < curopt_len && o < 23 + strlen("rejecttype") + 1 && p < sizeof(op->reject_type);
+                o < curopt_len && o < 23 + strlen("rejecttype") + 1 && p < sizeof(op->reject_type) - 1;
                 o++)
         { /* 23 is from the length of the string */
 
@@ -2858,7 +2858,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
             vrmr_debug(__FUNC__, "chain.");
 
         for(p = 0, o = strlen("chain") + 2;
-                o < curopt_len - 1 && p < sizeof(op->chain);
+                o < curopt_len - 1 && p < sizeof(op->chain) - 1;
                 o++, p++)
         {
             op->chain[p] = curopt[o];
@@ -2869,7 +2869,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
     else if(strncmp(curopt, "nfqueuenum", strlen("nfqueuenum")) == 0)
     {
         for(p = 0, o = strlen("nfqueuenum") + 1;
-                o < curopt_len && p < sizeof(portstring);
+                o < curopt_len && p < sizeof(portstring) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
@@ -2889,7 +2889,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
     else if(strncmp(curopt, "nflognum", strlen("nflognum")) == 0)
     {
         for(p = 0, o = strlen("nflognum") + 1;
-                o < curopt_len && p < sizeof(portstring);
+                o < curopt_len && p < sizeof(portstring) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
@@ -2909,7 +2909,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
     else if(strncmp(curopt, "prio", strlen("prio")) == 0)
     {
         for(p = 0, o = strlen("prio") + 1;
-                o < curopt_len && p < sizeof(portstring);
+                o < curopt_len && p < sizeof(portstring) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
@@ -2934,7 +2934,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
         size_t  i = 0;
 
         for(p = 0, o = strlen("in_max") + 1;
-                o < curopt_len && p < sizeof(bw_string);
+                o < curopt_len && p < sizeof(bw_string) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
@@ -2952,7 +2952,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
         }
         value_string[p] = '\0';
 
-        for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+        for (p = 0, i = strlen(value_string); p < sizeof(unit_string)-1 && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
         {
             unit_string[p] = bw_string[i];
         }
@@ -2982,7 +2982,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
         size_t  i = 0;
 
         for(p = 0, o = strlen("in_min") + 1;
-                o < curopt_len && p < sizeof(bw_string);
+                o < curopt_len && p < sizeof(bw_string) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
@@ -3000,7 +3000,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
         }
         value_string[p] = '\0';
 
-        for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+        for (p = 0, i = strlen(value_string); p < sizeof(unit_string)-1 && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
         {
             unit_string[p] = bw_string[i];
         }
@@ -3030,7 +3030,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
         size_t  i = 0;
 
         for(p = 0, o = 8;
-                o < curopt_len && p < sizeof(bw_string);
+                o < curopt_len && p < sizeof(bw_string) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
@@ -3048,7 +3048,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
         }
         value_string[p] = '\0';
 
-        for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+        for (p = 0, i = strlen(value_string); p < sizeof(unit_string) - 1 && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
         {
             unit_string[p] = bw_string[i];
         }
@@ -3078,7 +3078,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
         size_t  i = 0;
 
         for(p = 0, o = 8;
-                o < curopt_len && p < sizeof(bw_string);
+                o < curopt_len && p < sizeof(bw_string) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
@@ -3096,7 +3096,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
         }
         value_string[p] = '\0';
 
-        for (p = 0, i = strlen(value_string); p < sizeof(unit_string) && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
+        for (p = 0, i = strlen(value_string); p < sizeof(unit_string)-1 && i < strlen(bw_string) && isalpha(bw_string[i]); i++, p++)
         {
             unit_string[p] = bw_string[i];
         }
