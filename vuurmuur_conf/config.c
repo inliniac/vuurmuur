@@ -50,7 +50,7 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
 
     /* safety first */
     vrmr_fatal_if_null(configfile_location);
-    vrmr_fatal_uf_null(cnf);
+    vrmr_fatal_if_null(cnf);
 
     /* now, based on this, the helpdir location */
     snprintf(cnf->helpfile_location, sizeof(cnf->helpfile_location), "%s/help", conf->datadir);
