@@ -101,22 +101,9 @@ assemble_logline_sscanf_string(const int debuglvl, struct vrmr_log_record *log_r
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "assemble_logline_sscanf_string: string: '%s'. (len: %d)", temp_buf, strlen(temp_buf));
 
-    str_len = strlen(temp_buf) + 1;
-    if(str_len > sizeof(temp_buf))
-    {
-        vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).", __FUNC__, __LINE__);
-        return(NULL);
-    }
-
-    if(!(string = malloc(str_len)))
-    {
-        vrmr_error(-1, "Error", "malloc failed: %s.", strerror(errno));
-        return(NULL);
-    }
-
-    if(strlcpy(string, temp_buf, str_len) > str_len)
-    {
-        vrmr_error(-1, "Internal Error", "buffer overflow (in: %s:%d).", __FUNC__, __LINE__);
+    string = strdup(temp_buf);
+    if (string == NULL) {
+        vrmr_error(-1, "Error", "strdup failed: %s.", strerror(errno));
         return(NULL);
     }
 

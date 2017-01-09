@@ -26,16 +26,16 @@
     returns 1 if yes 0 if no
     we only accept rules which contain our own 'vrmr:' prefix
 
-    TODO: we could use a regex?
+    TODO: we could use a regex or strstr?
 */
 int
 check_ipt_line(char *line)
 {
-    size_t  start = 0,
-            end = 0;
+    size_t start = 0;
+    size_t end = 0;
 
-    search_in_ipt_line(line, LINE_START, "vrmr:", &start, &end);
-    if(start == end)
+    int r = search_in_ipt_line(line, LINE_START, "vrmr:", &start, &end);
+    if (r == -1 || start == end)
         return(0);
 
     return(1);
@@ -1024,6 +1024,7 @@ open_logfile(const int debuglvl, const struct vrmr_config *cnf, const char *path
     if(fseek(fp, (off_t) 0, SEEK_END) == -1)
     {
         vrmr_error(-1, "Error", "attaching to the end of the logfile failed: %s (in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
+        fclose(fp);
         return(NULL);
     }
 
