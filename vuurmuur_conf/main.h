@@ -502,6 +502,7 @@ void VrShapeIface(const int debuglvl, struct vrmr_ctx *, struct vrmr_interface *
 #define wsizeof(s)  sizeof(s)/sizeof(wchar_t)
 #endif /* USE_WIDEC */
 
+#if !defined(__clang_analyzer__) && !defined(DEBUG)
 #define vrmr_fatal(...)                                         \
     do {                                                        \
         char _vrmr_msg[2048];                                   \
@@ -540,4 +541,12 @@ void VrShapeIface(const int debuglvl, struct vrmr_ctx *, struct vrmr_interface *
         }                                                       \
     } while(0)
 
+#else /* __clang_analyzer__ */
+
+#define vrmr_fatal(...) abort()
+#define vrmr_fatal_alloc(func, ptr) if((ptr) == NULL) abort()
+#define vrmr_fatal_if_null(ptr) if((ptr) == NULL) abort()
+#define vrmr_fatal_if(expr) if((expr)) abort()
+
+#endif /* __clang_analyzer__ */
 #endif
