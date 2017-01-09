@@ -124,12 +124,12 @@ int VrWinGetOffset(int yj, int xj, int h, int w, int yo, int xo, int *y, int *x)
     /* magic: keep upper and lower 4 lines free if possible */
     while (starty > 4 && maxy - (starty + h) < 4)
         starty--;
-    
+
     /* center window if height > main middle window */
     if (h > maxy - (2 * 4) && h <= maxy)
     {
         starty = ((maxy - h) / 2) + ((maxy - h) % 2);
-        
+
         /* try to show always top menu */
         if (starty < 2 && (maxy - h) >= 2)
         {
@@ -142,9 +142,7 @@ int VrWinGetOffset(int yj, int xj, int h, int w, int yo, int xo, int *y, int *x)
     return 0;
 }
 
-
-
-VrWin *
+VrWin * __attribute__((returns_nonnull))
 VrNewWin(int h, int w, int y, int x, chtype cp)
 {
     VrWin   *win;
@@ -165,30 +163,13 @@ VrNewWin(int h, int w, int y, int x, chtype cp)
     }
 
     win = malloc(sizeof(VrWin));
-    if ( win == NULL )
-    {
-        // error
-        return(NULL);
-    }
+    vrmr_fatal_alloc("malloc", win);
     memset(win, 0, sizeof(VrWin));
 
     win->w = newwin(h, w, y, x);
-    if( win->w == NULL)
-    {
-        // error
-        // cleanup
-        free(win);
-        return(NULL);
-    }
+    vrmr_fatal_if_null(win->w);
     win->p = new_panel(win->w);
-    if( win->p == NULL)
-    {
-        // error
-        // cleanup
-        destroy_win(win->w);
-        free(win);
-        return(NULL);
-    }
+    vrmr_fatal_if_null(win->p);
 
     box(win->w, 0, 0);
     wbkgd(win->w, cp);
@@ -198,10 +179,8 @@ VrNewWin(int h, int w, int y, int x, chtype cp)
     win->width= w;
     win->y = y;
     win->x = x;
-
     return(win);
 }
-
 
 void
 VrDelWin(VrWin *win)
@@ -210,11 +189,9 @@ VrDelWin(VrWin *win)
     nodelay(win->w, FALSE);
     del_panel(win->p);
     destroy_win(win->w);
-
     /* free memory */
     free(win);
 }
-
 
 int
 VrWinSetTitle(VrWin *win, char *title)
@@ -227,14 +204,10 @@ VrWinSetTitle(VrWin *win, char *title)
         return(0);
     }
 
-    /* */
     printstart = (win->width - len - 2)/2;
-
     mvwprintw(win->w, 0, (int)printstart, " %s ", title);
-
     return(0);
 }
-
 
 int
 VrWinGetch(VrWin *win)
@@ -242,19 +215,11 @@ VrWinGetch(VrWin *win)
     return(wgetch(win->w));
 }
 
-
-VrMenu *
+VrMenu * __attribute__((returns_nonnull))
 VrNewMenu(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
 {
-    VrMenu *menu;
-
-    menu = malloc(sizeof(VrMenu));
-    if ( menu == NULL )
-    {
-        // error
-        vrmr_error(-1, VR_ERR, "malloc failed");
-        return(NULL);
-    }
+    VrMenu *menu = malloc(sizeof(VrMenu));
+    vrmr_fatal_alloc("malloc", menu);
     memset(menu, 0, sizeof(VrMenu));
 
     menu->h = h;
@@ -263,29 +228,18 @@ VrNewMenu(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
     menu->x = x;
 
     menu->i = calloc(n + 1, sizeof(ITEM *));
-    if ( menu->i == NULL )
-    {
-        free(menu);
-
-        // error
-        vrmr_error(-1, VR_ERR, "calloc failed");
-        return(NULL);
-    }
+    vrmr_fatal_alloc("calloc", menu->i);
     memset(menu->i, 0, (sizeof(ITEM *) * (n + 1)));
     menu->nitems = n;
 
     menu->free_name = NULL;
     menu->use_namelist = FALSE;
-
     menu->free_desc = NULL;
     menu->use_desclist = FALSE;
-
     menu->fg = fg;
     menu->bg = bg;
-
     return(menu);
 }
-
 
 void
 VrMenuSetupNameList(const int debuglvl, VrMenu *menu)
@@ -294,7 +248,6 @@ VrMenuSetupNameList(const int debuglvl, VrMenu *menu)
     menu->use_namelist = TRUE;
 }
 
-
 void
 VrMenuSetupDescList(const int debuglvl, VrMenu *menu)
 {
@@ -302,20 +255,17 @@ VrMenuSetupDescList(const int debuglvl, VrMenu *menu)
     menu->use_desclist = TRUE;
 }
 
-
 void
 VrMenuSetNameFreeFunc(VrMenu *menu, void (*free_func)(void *ptr))
 {
     menu->free_name = free_func;
 }
 
-
 void
 VrMenuSetDescFreeFunc(VrMenu *menu, void (*free_func)(void *ptr))
 {
     menu->free_desc = free_func;
 }
-
 
 void
 VrDelMenu(const int debuglvl, VrMenu *menu)
@@ -411,71 +361,34 @@ VrMenuAddSepItem(const int debuglvl, VrMenu *menu, char *desc)
     item_opts_off(menu->i[menu->cur_item], O_SELECTABLE);
 
     menu->cur_item++;
-
     return(0);
 }
 
-
-int
+void
 VrMenuConnectToWin(const int debuglvl, VrMenu *menu, VrWin *win)
 {
     int result;
 
+    vrmr_fatal_if_null(menu);
+    vrmr_fatal_if_null(win);
+
     menu->m = new_menu((ITEM **)menu->i);
-    if ( menu->m == NULL )
-    {
-        // error
-        vrmr_error(-1, VR_ERR, "new_menu failed");
-        return(-1);
-    }
+    vrmr_fatal_if_null(menu->m);
     result = set_menu_win(menu->m, win->w);
-    if(result != E_OK)
-    {
-        vrmr_error(-1, VR_ERR, "set_menu_win failed");
-        return(-1);
-    }
+    vrmr_fatal_if(result != E_OK);
 
     menu->dw = derwin(win->w, menu->h, menu->w, menu->y, menu->x);
-    if(menu->dw == NULL)
-    {
-        vrmr_error(-1, VR_ERR, "derwin failed");
-        return(-1);
-    }
+    vrmr_fatal_if_null(menu->dw);
 
     result = set_menu_sub(menu->m, menu->dw);
-    if(result != E_OK)
-    {
-        vrmr_error(-1, VR_ERR, "set_menu_sub failed");
-        return(-1);
-    }
-    result = set_menu_format(menu->m, win->height - 2, 1);
-    if(result != E_OK)
-    {
-        if(result == E_BAD_ARGUMENT)
-        {
-            vrmr_error(-1, VR_ERR, "set_menu_format failed: E_BAD_ARGUMENT");
-        }
-        else if(result == E_SYSTEM_ERROR)
-        {
-            vrmr_error(-1, VR_ERR, "set_menu_format failed: E_SYSTEM_ERROR");
-        }
-        else if(result == E_POSTED)
-        {
-            vrmr_error(-1, VR_ERR, "set_menu_format failed: E_POSTED");
-        }
-        else
-        {
-            vrmr_error(-1, VR_ERR, "set_menu_format failed: unknown error");
-        }
+    vrmr_fatal_if(result != E_OK);
 
-        return(-1);
-    }
+    result = set_menu_format(menu->m, win->height - 2, 1);
+    vrmr_fatal_if(result != E_OK);
 
     set_menu_back(menu->m, menu->bg);
     set_menu_grey(menu->m, menu->bg);
     set_menu_fore(menu->m, menu->fg);
-
-    return(0);
 }
 
 
@@ -536,127 +449,37 @@ VrMenuDefaultNavigation(const int debuglvl, VrMenu *menu, int key)
 }
 
 
-int
+void
 VrMenuPost(const int debuglvl, VrMenu *menu)
 {
-    int result = 0;
-
-    result = post_menu(menu->m);
-    if(result != E_OK)
-    {
-        if(result == E_BAD_ARGUMENT)
-        {
-            vrmr_error(-1, VR_ERR, "post_menu failed: E_BAD_ARGUMENT");
-        }
-        else if(result == E_SYSTEM_ERROR)
-        {
-            vrmr_error(-1, VR_ERR, "post_menu failed: E_SYSTEM_ERROR");
-        }
-        else if(result == E_POSTED)
-        {
-            vrmr_error(-1, VR_ERR, "post_menu failed: E_POSTED");
-        }
-        else if(result == E_BAD_STATE)
-        {
-            vrmr_error(-1, VR_ERR, "post_menu failed: E_BAD_STATE");
-        }
-        else if(result == E_NO_ROOM)
-        {
-            vrmr_error(-1, VR_ERR, "post_menu failed: E_NO_ROOM");
-        }
-        else if(result == E_NOT_POSTED)
-        {
-            vrmr_error(-1, VR_ERR, "post_menu failed: E_NOT_POSTED");
-        }
-        else if(result == E_NOT_CONNECTED)
-        {
-            vrmr_error(-1, VR_ERR, "post_menu failed: E_NOT_CONNECTED");
-        }
-        else
-        {
-            vrmr_error(-1, VR_ERR, "post_menu failed: unknown error %d", result);
-        }
-
-        return(-1);
-    }
-
-    return(0);
+    int result = post_menu(menu->m);
+    vrmr_fatal_if(result != E_OK);
 }
 
-int
+void
 VrMenuUnPost(const int debuglvl, VrMenu *menu)
 {
-    int result = 0;
-
-    result = unpost_menu(menu->m);
-    if(result != E_OK)
-    {
-        if(result == E_BAD_ARGUMENT)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_BAD_ARGUMENT");
-        }
-        else if(result == E_SYSTEM_ERROR)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_SYSTEM_ERROR");
-        }
-        else if(result == E_POSTED)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_POSTED");
-        }
-        else if(result == E_BAD_STATE)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_BAD_STATE");
-        }
-        else if(result == E_NO_ROOM)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_NO_ROOM");
-        }
-        else if(result == E_NOT_POSTED)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_NOT_POSTED");
-        }
-        else if(result == E_NOT_CONNECTED)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_menu failed: E_NOT_CONNECTED");
-        }
-        else
-        {
-            vrmr_error(-1, VR_ERR, "unpost_menu failed: unknown error %d", result);
-        }
-
-        return(-1);
-    }
-
-    return(0);
+    int result = unpost_menu(menu->m);
+    vrmr_fatal_if(result != E_OK);
 }
 
-VrForm *
+VrForm * __attribute__((returns_nonnull))
 VrNewForm(int h, int w, int y, int x, chtype bg, chtype fg)
 {
-    VrForm *form;
-
-    form = malloc(sizeof(VrForm));
-    if ( form == NULL )
-    {
-        // error
-        vrmr_error(-1, VR_ERR, "malloc failed");
-        return(NULL);
-    }
+    VrForm *form = malloc(sizeof(VrForm));
+    vrmr_fatal_alloc("malloc", form);
     memset(form, 0, sizeof(VrForm));
 
     form->h = h;
     form->w = w;
     form->y = y;
     form->x = x;
-
     form->fg = fg;
     form->bg = bg;
-
     form->save = NULL;
     form->save_ctx = NULL;
 
-    vrmr_list_setup(0, &form->list, free);
-
+    vrmr_fatal_if(vrmr_list_setup(0, &form->list, free) < 0);
     return(form);
 }
 
@@ -686,109 +509,27 @@ VrDelForm(const int debuglvl, VrForm *form)
     free(form);
 }
 
-int
+void
 VrFormPost(const int debuglvl, VrForm *form)
 {
-    int result = 0;
-
-    result = post_form(form->f);
-    if(result != E_OK)
-    {
-        if(result == E_BAD_ARGUMENT)
-        {
-            vrmr_error(-1, VR_ERR, "post_form failed: E_BAD_ARGUMENT");
-        }
-        else if(result == E_SYSTEM_ERROR)
-        {
-            vrmr_error(-1, VR_ERR, "post_form failed: E_SYSTEM_ERROR");
-        }
-        else if(result == E_POSTED)
-        {
-            vrmr_error(-1, VR_ERR, "post_form failed: E_POSTED");
-        }
-        else if(result == E_BAD_STATE)
-        {
-            vrmr_error(-1, VR_ERR, "post_form failed: E_BAD_STATE");
-        }
-        else if(result == E_NO_ROOM)
-        {
-            vrmr_error(-1, VR_ERR, "post_form failed: E_NO_ROOM");
-        }
-        else if(result == E_NOT_POSTED)
-        {
-            vrmr_error(-1, VR_ERR, "post_form failed: E_NOT_POSTED");
-        }
-        else if(result == E_NOT_CONNECTED)
-        {
-            vrmr_error(-1, VR_ERR, "post_form failed: E_NOT_CONNECTED");
-        }
-        else
-        {
-            vrmr_error(-1, VR_ERR, "post_form failed: unknown error %d", result);
-        }
-
-        return(-1);
-    }
-
-    return(0);
+    int result = post_form(form->f);
+    vrmr_fatal_if(result != E_OK);
 }
 
-int
+void
 VrFormUnPost(const int debuglvl, VrForm *form)
 {
-    int result = 0;
-
-    result = unpost_form(form->f);
-    if(result != E_OK)
-    {
-        if(result == E_BAD_ARGUMENT)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_form failed: E_BAD_ARGUMENT");
-        }
-        else if(result == E_SYSTEM_ERROR)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_form failed: E_SYSTEM_ERROR");
-        }
-        else if(result == E_POSTED)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_form failed: E_POSTED");
-        }
-        else if(result == E_BAD_STATE)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_form failed: E_BAD_STATE");
-        }
-        else if(result == E_NO_ROOM)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_form failed: E_NO_ROOM");
-        }
-        else if(result == E_NOT_POSTED)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_form failed: E_NOT_POSTED");
-        }
-        else if(result == E_NOT_CONNECTED)
-        {
-            vrmr_error(-1, VR_ERR, "unpost_form failed: E_NOT_CONNECTED");
-        }
-        else
-        {
-            vrmr_error(-1, VR_ERR, "unpost_form failed: unknown error %d", result);
-        }
-
-        return(-1);
-    }
-
-    return(0);
+    int result = unpost_form(form->f);
+    vrmr_fatal_if(result != E_OK);
 }
 
-static int VrFormStoreField (const int debuglvl, VrForm *form,
+static void VrFormStoreField (const int debuglvl, VrForm *form,
         enum vrmr_gui_form_field_types type, chtype cp,
         int h, int w, int toprow, int leftcol,
         const char *name, char *value_str, int value_bool)
 {
     struct vrmr_gui_form_field *fld = malloc(sizeof(*fld));
-    if (fld == NULL)
-        return -1;
-    memset(fld, 0x00, sizeof(*fld));
+    vrmr_fatal_alloc("malloc", fld);
 
     fld->type = type;
     fld->cp = cp;
@@ -808,51 +549,36 @@ static int VrFormStoreField (const int debuglvl, VrForm *form,
             break;
     }
 
-    vrmr_list_append(debuglvl, &form->list, fld);
-    return 0;
+    vrmr_fatal_if(vrmr_list_append(debuglvl, &form->list, fld) == NULL);
 }
 
-int
+void
 VrFormAddTextField(const int debuglvl, VrForm *form, int height, int width, int toprow, int leftcol, chtype cp, char *name, char *value)
 {
-    if ((int)StrLen(name) > width) {
-        vrmr_error(-1, VR_ERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
-        return(-1);
-    }
-
+    vrmr_fatal_if((int)StrLen(name) > width);
     VrFormStoreField(debuglvl, form, VRMR_GUI_FORM_FIELD_TYPE_TEXT, cp, height, width, toprow, leftcol, name, value, 0);
-    return(0);
 }
 
-int
+void
 VrFormAddLabelField(const int debuglvl, VrForm *form, int height, int width, int toprow, int leftcol, chtype cp, char *value)
 {
     VrFormStoreField(debuglvl, form, VRMR_GUI_FORM_FIELD_TYPE_LABEL, cp, height, width, toprow, leftcol, NULL, value, 0);
-    return(0);
 }
 
-int
+void
 VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol, chtype cp, char *name, char enabled)
 {
     int height = 1;
     int width = 1;
 
-    if ((int)StrLen(name) > width) {
-        vrmr_error(-1, VR_INTERR, "field name length (%u) is bigger than field length (%d)", StrLen(name), width);
-        return(-1);
-    }
-
+    vrmr_fatal_if((int)StrLen(name) > width);
     VrFormStoreField(debuglvl, form, VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX, cp, height, width, toprow, leftcol, name, NULL, (int)enabled);
-    return(0);
 }
 
-static int VrFormCreateField(const int debuglvl, VrForm *form, struct vrmr_gui_form_field *fld) {
+static void VrFormCreateField(const int debuglvl, VrForm *form, struct vrmr_gui_form_field *fld) {
     int result = 0;
 
-    if (form->cur_field >= form->nfields) {
-        vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
-        return(-1);
-    }
+    vrmr_fatal_if (form->cur_field >= form->nfields);
 
     if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_TEXT) {
         form->fields[form->cur_field] = new_field_wrap(fld->h, fld->w, fld->toprow, fld->leftcol, 0, 2);
@@ -861,10 +587,8 @@ static int VrFormCreateField(const int debuglvl, VrForm *form, struct vrmr_gui_f
     } else if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX) {
         form->fields[form->cur_field] = new_field_wrap(fld->h, fld->w, fld->toprow, fld->leftcol+1, 0, 2);
     }
-    if (form->fields[form->cur_field] == NULL) {
-        vrmr_error(-1, VR_ERR, "new_field failed");
-        return(-1);
-    }
+    form->fields[form->cur_field];
+    vrmr_fatal_if_null(form->fields[form->cur_field]);
 
     if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_TEXT) {
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, fld->v.value_str);
@@ -874,7 +598,6 @@ static int VrFormCreateField(const int debuglvl, VrForm *form, struct vrmr_gui_f
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, fld->v.value_str);
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "lbl");
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "lbl");
-
         field_opts_off(form->fields[form->cur_field], O_ACTIVE);
     } else if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX) {
         char *value = fld->v.value_bool ? "X" : " ";
@@ -884,101 +607,63 @@ static int VrFormCreateField(const int debuglvl, VrForm *form, struct vrmr_gui_f
     }
 
     result = set_field_back(form->fields[form->cur_field], fld->cp);
-    if (result != E_OK) {
-        vrmr_error(-1, VR_ERR, "set_field_back failed");
-        return(-1);
-    }
-
+    vrmr_fatal_if(result != E_OK);
     form->cur_field++;
 
     if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX) {
-        if (form->cur_field >= form->nfields) {
-            vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
-            return(-1);
-        }
+        vrmr_fatal_if (form->cur_field >= form->nfields);
 
         /* create the label [ ] */
         form->fields[form->cur_field] = new_field_wrap(fld->h, 3, fld->toprow, fld->leftcol, 0, 2);
-        if(form->fields[form->cur_field] == NULL) {
-            vrmr_error(-1, VR_ERR, "new_field failed");
-            return(-1);
-        }
+        vrmr_fatal_if_null(form->fields[form->cur_field]);
 
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, "[ ]");
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "lbl");
         set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "lbl");
-
         field_opts_off(form->fields[form->cur_field], O_EDIT);
         field_opts_off(form->fields[form->cur_field], O_ACTIVE);
 
         result = set_field_back(form->fields[form->cur_field], fld->cp);
-        if(result != E_OK) {
-            vrmr_error(-1, VR_ERR, "set_field_back failed");
-            return(-1);
-        }
-
+        vrmr_fatal_if(result != E_OK);
         form->cur_field++;
     }
-    return(0);
 }
 
-static int
+static void
 VrFormAddOKCancel(const int debuglvl, VrForm *form) {
     int result;
 
     /* +1 because we create two fields */
-    if(form->cur_field + 2 > form->nfields)
-    {
-        vrmr_error(-1, VR_ERR, "form full: all %u fields already added", form->nfields);
-        return(-1);
-    }
+    vrmr_fatal_if(form->cur_field + 2 > form->nfields);
 
     form->fields[form->cur_field] = new_field_wrap(1, 10, form->h - 2, 2, 0, 2);
-    if(form->fields[form->cur_field] == NULL)
-    {
-        vrmr_error(-1, VR_ERR, "new_field failed");
-        return(-1);
-    }
+    vrmr_fatal_if_null(form->fields[form->cur_field]);
 
     set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, gettext("    OK"));
     set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "save");
     set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "btn");
 
     result = set_field_back(form->fields[form->cur_field], vccnf.color_win_green_rev | A_BOLD);
-    if(result != E_OK)
-    {
-        vrmr_error(-1, VR_ERR, "set_field_back failed");
-        return(-1);
-    }
+    vrmr_fatal_if(result != E_OK);
     field_opts_off(form->fields[form->cur_field], O_EDIT);
 
     form->cur_field++;
 
     form->fields[form->cur_field] = new_field_wrap(1, 10, form->h - 2, 16, 0, 2);
-    if(form->fields[form->cur_field] == NULL)
-    {
-        vrmr_error(-1, VR_ERR, "new_field failed");
-        return(-1);
-    }
+    vrmr_fatal_if_null(form->fields[form->cur_field]);
 
     set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, gettext("  Cancel"));
     set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "nosave");
     set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "btn");
 
     result = set_field_back(form->fields[form->cur_field], vccnf.color_win_red_rev | A_BOLD);
-    if(result != E_OK)
-    {
-        vrmr_error(-1, VR_ERR, "set_field_back failed");
-        return(-1);
-    }
+    vrmr_fatal_if(result != E_OK);
     field_opts_off(form->fields[form->cur_field], O_EDIT);
 
     form->cur_field++;
-
-    return(0);
 }
 
-int
+void
 VrFormConnectToWin(const int debuglvl, VrForm *form, VrWin *win)
 {
     int result;
@@ -1004,12 +689,7 @@ VrFormConnectToWin(const int debuglvl, VrForm *form, VrWin *win)
 
     form->nfields = fields;
     form->fields = calloc(form->nfields + 1, sizeof(FIELD *));
-    if (form->fields == NULL )
-    {
-        // error
-        vrmr_error(-1, VR_ERR, "calloc failed");
-        return(-1);
-    }
+    vrmr_fatal_alloc("calloc", form->fields);
     memset(form->fields, 0, (sizeof(FIELD *) * (form->nfields + 1)));
 
     for (node = form->list.top; node; node = node->next) {
@@ -1024,51 +704,25 @@ VrFormConnectToWin(const int debuglvl, VrForm *form, VrWin *win)
     form->cur_field = 0;
 
     form->f = new_form(form->fields);
-    if ( form->f == NULL )
-    {
-        // error
-        vrmr_error(-1, VR_ERR, "new_form failed");
-        return(-1);
-    }
+    vrmr_fatal_if_null(form->f);
 
     result = scale_form(form->f, &rows, &cols);
-    if(result != E_OK)
-    {
-        vrmr_error(-1, VR_ERR, "scale_form failed");
-        return(-1);
-    }
-    //vrmr_debug(__FUNC__, "rows %d, cols %d", rows, cols);
+    vrmr_fatal_if(result != E_OK);
 
     result = set_form_win(form->f, win->w);
-    if(result != E_OK)
-    {
-        vrmr_error(-1, VR_ERR, "set_form_win failed");
-        return(-1);
-    }
+    vrmr_fatal_if(result != E_OK);
 
     form->dw = derwin(win->w, rows, cols, form->y, form->x);
-    if(form->dw == NULL)
-    {
-        vrmr_error(-1, VR_ERR, "derwin failed");
-        return(-1);
-    }
+    vrmr_fatal_if_null(form->dw);
 
     result = set_form_sub(form->f, form->dw);
-    if(result != E_OK)
-    {
-        vrmr_error(-1, VR_ERR, "set_form_sub failed");
-        return(-1);
-    }
-
-    return(0);
+    vrmr_fatal_if(result != E_OK);
 }
 
 static char
 VrFormTextNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
 {
     char    match = FALSE;
-
-    //vrmr_info(VR_INFO, "key %d", key);
 
     switch(key)
     {
@@ -1143,8 +797,6 @@ static char
 VrFormCheckboxNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
 {
     char    match = FALSE;
-
-    //vrmr_info(VR_INFO, "key %d", key);
 
     switch(key)
     {
@@ -1341,7 +993,6 @@ VrFormCheckOKCancel(const int debuglvl, VrForm *form, int key)
                 form->save(debuglvl, form->save_ctx, name, value);
             }
         }
-
         return(1);
 
     }
@@ -1397,94 +1048,3 @@ VrFormSetSaveFunc(const int debuglvl, VrForm *form, int (*save)(const int debugl
     form->save = save;
     return(0);
 }
-
-struct cnf_ {
-    char file[64];
-};
-
-static int
-form_test_save(const int debuglvl, void *ctx, char *name, char *value)
-{
-    struct cnf_ *c = (struct cnf_ *)ctx;
-
-    vrmr_info(VR_INFO, "c %p", c);
-
-    if (strcmp(name,"test1") == 0) {
-        vrmr_info(VR_INFO, "%s:%s", name, value);
-    } else if (strcmp(name,"test2") == 0) {
-        vrmr_info(VR_INFO, "%s:%s", name, value);
-    }
-
-    return(0);
-}
-
-void form_test (const int debuglvl) {
-    VrWin   *win = NULL;
-    VrForm  *form = NULL;
-    int     ch = 0, result = 0;
-    struct cnf_ config;
-
-    strlcpy(config.file, "/tmp", sizeof(config.file));
-
-    /* create the window and put it in the middle of the screen */
-    win = VrNewWin(30,80,0,0,vccnf.color_win);
-    if(win == NULL)
-    {
-        vrmr_error(-1, VR_ERR, "VrNewWin failed");
-        return;
-    }
-    VrWinSetTitle(win, "title");
-
-    form = VrNewForm(20, 60, 1, 1, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
-
-    VrFormSetSaveFunc(debuglvl, form, form_test_save, &config);
-
-    VrFormAddLabelField(debuglvl, form, 1, 6, 1, 1, vccnf.color_win, "Label1");
-    VrFormAddTextField(debuglvl, form, 1, 10, 1, 9, vccnf.color_win_rev | A_BOLD, "test1", "test1");
-    VrFormAddLabelField(debuglvl, form, 1, 6, 3, 1, vccnf.color_win, "Label2");
-    VrFormAddTextField(debuglvl, form, 1, 10, 3, 9, vccnf.color_win_rev | A_BOLD, "test2", "test2");
-
-    VrFormConnectToWin(debuglvl, form, win);
-
-    VrFormPost(debuglvl, form);
-
-    update_panels();
-    doupdate();
-
-    /* user input */
-    char quit = FALSE;
-    while(quit == FALSE)
-    {
-        ch = VrWinGetch(win);
-
-        /* check OK/Cancel buttons */
-        result = VrFormCheckOKCancel(debuglvl, form, ch);
-        if (result == -1 || result == 1) {
-            break;
-        }
-
-        if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
-            switch(ch)
-            {
-                case KEY_DOWN:
-                case 10: // enter
-                    form_driver(form->f, REQ_NEXT_FIELD);
-                    form_driver(form->f, REQ_BEG_LINE);
-                    break;
-                case 27:
-                case 'q':
-                case 'Q':
-                case KEY_F(10):
-                    quit = TRUE;
-                    break;
-                case KEY_F(12):
-                case 'h':
-                case 'H':
-                case '?':
-                    print_help(debuglvl, ":[VUURMUUR:INTERFACES:SHAPE]:");
-                    break;
-            }
-        }
-    }
-}
-
