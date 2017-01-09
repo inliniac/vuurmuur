@@ -394,7 +394,7 @@ int connections_section(const int, struct vrmr_ctx *, struct vrmr_config *, stru
 void print_help(const int debuglvl, char *part);
 void print_status(const int debuglvl);
 int read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line);
-int setup_statuslist(const int debuglvl);
+void setup_statuslist(const int debuglvl);
 
 
 /*
