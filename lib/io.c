@@ -113,9 +113,8 @@ vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file
         return(0);
     }
 
-    /* stat the damn thing */
-    if(lstat(file_loc, &stat_buf) == -1)
-    {
+    /* coverity[toctou] */
+    if (lstat(file_loc, &stat_buf) == -1) {
         if (errno == ENOENT) {
             if (must_exist == VRMR_STATOK_ALLOW_NOTFOUND) {
                 /* Allow the file to be non-existing. */
@@ -183,8 +182,8 @@ vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file
         {
             vrmr_info("Info", "'%s' has mode %o, which is more than maximum allowed mode %o. Resetting to %o.", file_loc, perm, max, max);
 
-            if(chmod(file_loc, max) == -1)
-            {
+            /* coverity[toctou] */
+            if (chmod(file_loc, max) == -1) {
                 vrmr_error(-1, "Error", "failed to repair permissions for '%s': %s.", file_loc, strerror(errno));
                 return(0);
             }
