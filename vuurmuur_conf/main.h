@@ -403,7 +403,7 @@ int setup_statuslist(const int debuglvl);
 int init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_location, vc_cnf *cnf);
 int write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf);
 int edit_vcconfig(const int debuglvl);
-int vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf);
+void vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf);
 
 
 /*
