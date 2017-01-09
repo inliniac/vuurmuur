@@ -455,19 +455,16 @@ reload_vrmr_services_check(const int debuglvl, struct vrmr_ctx *vctx,
                     {
                         for(; list_node && temp_node; list_node = list_node->next, temp_node = temp_node->next)
                         {
-                            if(!(list_port = list_node->data))
-                            {
-                                vrmr_error(-1, "Internal Error", "reload_vrmr_services_check: list_port == NULL!");
-                                return(-1);
-                            }
+                            list_port = list_node->data;
+                            temp_port = temp_node->data;
+                            if (list_port == NULL || temp_port == NULL)
+                                continue;
 
-                            if(!(temp_port = temp_node->data))
-                            {
-                                vrmr_error(-1, "Internal Error", "reload_vrmr_services_check: temp_port == NULL!");
-                                return(-1);
-                            }
-
-                            if((list_port->protocol == temp_port->protocol) && (list_port->src_low == temp_port->src_low) && (list_port->src_high == temp_port->src_high) && (list_port->dst_low == temp_port->dst_low) && (list_port->dst_high == temp_port->dst_high))
+                            if ((list_port->protocol == temp_port->protocol) &&
+                                (list_port->src_low == temp_port->src_low) &&
+                                (list_port->src_high == temp_port->src_high) &&
+                                (list_port->dst_low == temp_port->dst_low) &&
+                                (list_port->dst_high == temp_port->dst_high))
                             {
                                 /* nothing changed */
                             }
@@ -1116,17 +1113,10 @@ reload_zonedata_check(const int debuglvl, struct vrmr_ctx *vctx,
                     {
                         for(; d_node_new && d_node_orig; d_node_new = d_node_new->next, d_node_orig = d_node_orig->next)
                         {
-                            if(!(host_ptr_new = d_node_new->data))
-                            {
-                                vrmr_error(-1, "Internal Error", "reload_zonedata_check: host_ptr_new == NULL (and it shouldn't).");
-                                return(-1);
-                            }
-
-                            if(!(host_ptr_orig = d_node_orig->data))
-                            {
-                                vrmr_error(-1, "Internal Error", "reload_zonedata_check: host_ptr_orig == NULL (and it shouldn't).");
-                                return(-1);
-                            }
+                            host_ptr_new = d_node_new->data;
+                            host_ptr_orig = d_node_orig->data;
+                            if (host_ptr_new == NULL || host_ptr_orig == NULL)
+                                continue;
 
                             if(strcmp(host_ptr_orig->name, host_ptr_new->name) != 0)
                             {
@@ -1308,9 +1298,9 @@ reload_interfaces(const int debuglvl, struct vrmr_ctx *vctx,
         {
             /* existing interface, so check it for changes */
             result = reload_vrmr_interfaces_check(debuglvl, vctx, iface_ptr);
-            if(result == 1)
+            if (result == 1)
                 retval = 1;
-            else if(retval < 0)
+            else if (result < 0)
                 return(-1);
         }
 
@@ -1392,15 +1382,8 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_ctx *vctx,
         return(-1);
     }
 
-
     /* set the name */
-    if(strlcpy(new_iface_ptr->name, iface_ptr->name, sizeof(new_iface_ptr->name)) >= sizeof(new_iface_ptr->name))
-    {
-        vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-
+    (void)strlcpy(new_iface_ptr->name, iface_ptr->name, sizeof(new_iface_ptr->name));
 
     /* first we asume that the interface did not change, if so we change it below */
     status = VRMR_ST_KEEP;
@@ -1467,16 +1450,10 @@ reload_vrmr_interfaces_check(const int debuglvl, struct vrmr_ctx *vctx,
                                 {
                                     for(; protect_d_node_new && protect_d_node_orig; protect_d_node_new = protect_d_node_new->next, protect_d_node_orig = protect_d_node_orig->next)
                                     {
-                                        if(!(new_rule_ptr = protect_d_node_new->data))
-                                        {
-                                            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                                            return(-1);
-                                        }
-                                        if(!(org_rule_ptr = protect_d_node_orig->data))
-                                        {
-                                            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                                            return(-1);
-                                        }
+                                        new_rule_ptr = protect_d_node_new->data;
+                                        org_rule_ptr = protect_d_node_orig->data;
+                                        if (new_rule_ptr == NULL || org_rule_ptr == NULL)
+                                            continue;
 
                                         if( strcmp(org_rule_ptr->danger, new_rule_ptr->danger) != 0 ||
                                             strcmp(org_rule_ptr->source, new_rule_ptr->source) != 0)
@@ -1662,16 +1639,10 @@ reload_blocklist(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *
     {
         for(; new_node && old_node; new_node = new_node->next, old_node = old_node->next)
         {
-            if(!(new_ip = new_node->data))
-            {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
-            if(!(org_ip = old_node->data))
-            {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
+            new_ip = new_node->data;
+            org_ip = old_node->data;
+            if (new_ip == NULL || org_ip == NULL)
+                continue;
 
             if(strcmp(org_ip, new_ip) != 0)
             {
@@ -1710,16 +1681,15 @@ reload_blocklist(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *
 int
 reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
 {
-    struct vrmr_rules       *new_rules = NULL;
-    char                    status = 0,
-                            changed = 0;
-    struct vrmr_list_node             *new_node = NULL,
-                            *old_node = NULL;
-    struct vrmr_rule        *new_rule_ptr = NULL,
-                            *org_rule_ptr = NULL;
-    struct vrmr_zone        *vrmr_new_zone_ptr = NULL;
-    struct vrmr_service    *new_serv_ptr = NULL;
-    struct vrmr_rule_cache       *rulecache = NULL;
+    struct vrmr_rules *new_rules = NULL;
+    char status = 0;
+    struct vrmr_list_node *new_node = NULL;
+    struct vrmr_list_node *old_node = NULL;
+    struct vrmr_rule *new_rule_ptr = NULL;
+    struct vrmr_rule *org_rule_ptr = NULL;
+    struct vrmr_zone *vrmr_new_zone_ptr = NULL;
+    struct vrmr_service *new_serv_ptr = NULL;
+    struct vrmr_rule_cache *rulecache = NULL;
 
 
     if(!(new_rules = malloc(sizeof(*new_rules))))
@@ -1781,16 +1751,10 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     {
         for(; new_node && old_node; new_node = new_node->next, old_node = old_node->next)
         {
-            if(!(new_rule_ptr = new_node->data))
-            {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
-            if(!(org_rule_ptr = old_node->data))
-            {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
+            new_rule_ptr = new_node->data;
+            org_rule_ptr = old_node->data;
+            if (new_rule_ptr == NULL || org_rule_ptr == NULL)
+                continue;
 
             /* active */
             if(org_rule_ptr->active != new_rule_ptr->active)
@@ -1845,22 +1809,6 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
 
                 status = 1;
             }
-
-            /* once we know that there were changes, we don't need to keep checking */
-            if(changed == 1)
-            {
-                if(debuglvl >= LOW)
-                    vrmr_debug(__FUNC__, "%d: %s(%s) %s(%s) %s(%s) -> %s(%s).",    org_rule_ptr->number,
-                                                        vrmr_rules_itoaction(org_rule_ptr->action),
-                                                        vrmr_rules_itoaction(new_rule_ptr->action),
-                                                        org_rule_ptr->service,
-                                                        new_rule_ptr->service,
-                                                        org_rule_ptr->from,
-                                                        new_rule_ptr->from,
-                                                        org_rule_ptr->to,
-                                                        new_rule_ptr->to);
-                changed = 0;
-            }
         }
     }
 
@@ -1894,18 +1842,11 @@ reload_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_regex *reg)
     {
         for(; new_node; new_node = new_node->next)
         {
-            if(!(new_rule_ptr = new_node->data))
-            {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                                        __FUNC__, __LINE__);
-                return(-1);
-            }
-            if(!(rulecache = &new_rule_ptr->rulecache))
-            {
-                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                                        __FUNC__, __LINE__);
-                return(-1);
-            }
+            new_rule_ptr = new_node->data;
+            if (new_rule_ptr == NULL)
+                continue;
+
+            rulecache = &new_rule_ptr->rulecache;
 
             /* from zone */
             if((vrmr_new_zone_ptr = rulecache->from))
