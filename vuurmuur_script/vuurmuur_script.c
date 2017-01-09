@@ -865,7 +865,7 @@ main(int argc, char *argv[])
     }
     else if(vr_script.cmd == CMD_LBL)
     {
-        while((result = vr_script.vctx.rf->ask(debuglvl, vr_script.vctx.rule_backend, "blocklist", "RULE", vr_script.bdat, sizeof(vr_script.bdat), VRMR_TYPE_RULE, 1) == 1))
+        while ((result = vr_script.vctx.rf->ask(debuglvl, vr_script.vctx.rule_backend, "blocklist", "RULE", vr_script.bdat, sizeof(vr_script.bdat), VRMR_TYPE_RULE, 1)) == 1)
         {
             vrmr_rules_encode_rule(debuglvl, vr_script.bdat, sizeof(vr_script.bdat));
             str = remove_leading_part(vr_script.bdat);
