@@ -23,13 +23,11 @@
 #define UTF8_TRUE   TRUE
 #define UTF8_FALSE  FALSE
 
-
 typedef struct
 {
     char    newline;
     char    *word;
     size_t  line_num;
-
 } helpword;
 
 /* wide variant */
@@ -38,28 +36,21 @@ typedef struct
     char    newline;
     wchar_t *word;
     size_t  line_num;
-
 } whelpword;
-
 
 static void
 free_helpword(void *ptr)
 {
     helpword    *hw = NULL;
-    
+
     if(!ptr)
         return;
-        
-    hw = (helpword *)ptr;
-        
-    if(hw->word != NULL)
-        free(hw->word);
-        
-    free(hw);
-    
-    return;
-}
 
+    hw = (helpword *)ptr;
+    if (hw->word != NULL)
+        free(hw->word);
+    free(hw);
+}
 
 /* parse a line from the helpfile */
 int
@@ -81,57 +72,34 @@ read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
             if(StrLen(oneword) > 0)
             {
                 /* get some mem for the word struct */
-                if(!(hw = malloc(sizeof(helpword))))
-                {
-                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
-                    return(-1);
-                }
+                hw = malloc(sizeof(helpword));
+                vrmr_fatal_alloc("malloc", hw);
                 hw->word = NULL;
                 hw->newline = 0;
                 hw->line_num = 0;
 
-                if(!(hw->word = malloc(StrMemLen(oneword) + 1)))
-                {
-                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
-                    return(-1);
-                }
-                (void)strlcpy(hw->word, oneword,
-                        StrMemLen(oneword) + 1);
+                hw->word = strdup(oneword);
+                vrmr_fatal_alloc("strdup", hw->word);
 
-                if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
-                {
-                    vrmr_error(-1, VR_INTERR, "append to list failed (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
+                vrmr_fatal_if(vrmr_list_append(debuglvl, help_list, hw) == NULL);
             }
 
             /* the newline is a special word */
             if( (i == 0 && line[i] == '\n') ||
 
                 (i > 0  && line[i] == '\n' &&
-                (line[i-1] == '.' ||
-                 line[i-1] == '?' ||
-                 line[i-1] == '!' ||
-                 line[i-1] == ':' ||
-                (line[i-1] == ',' && i == (StrMemLen(line) - 1) ))
-                )
-            )
+                (line[i-1] == '.' || line[i-1] == '?' ||
+                 line[i-1] == '!' || line[i-1] == ':' ||
+                (line[i-1] == ',' && i == (StrMemLen(line) - 1) ))))
             {
                 /* get some mem for the word struct */
-                if(!(hw = malloc(sizeof(helpword))))
-                {
-                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
-                    return(-1);
-                }
+                hw = malloc(sizeof(helpword));
+                vrmr_fatal_alloc("malloc", hw);
                 hw->word = NULL;
                 hw->newline = 1;
                 hw->line_num = 0;
 
-                if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
-                {
-                    vrmr_error(-1, VR_INTERR, "append to list (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
+                vrmr_fatal_if(vrmr_list_append(debuglvl, help_list, hw) == NULL);
             }
         }
         else
@@ -143,7 +111,6 @@ read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
 
     return(0);
 }
-
 
 #ifdef USE_WIDEC
 /* parse a line from the UTF-8 helpfile */
@@ -165,57 +132,35 @@ read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *lin
             /* only add a word to the list if it really contains characters */
             if(wcslen(oneword) > 0)
             {
-                /* get some mem for the word struct */
-                if(!(hw = malloc(sizeof(helpword))))
-                {
-                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
-                    return(-1);
-                }
+                hw = malloc(sizeof(helpword));
+                vrmr_fatal_alloc("malloc", hw);
                 hw->word = NULL;
                 hw->newline = 0;
                 hw->line_num = 0;
 
-                if(!(hw->word = calloc(wcslen(oneword) + 1, sizeof(wchar_t))))
-                {
-                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
-                    return(-1);
-                }
+                hw->word = calloc(wcslen(oneword) + 1, sizeof(wchar_t));
+                vrmr_fatal_alloc("calloc", hw->word);
                 wcsncpy(hw->word, oneword, wcslen(oneword) + 1);
 
-                if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
-                {
-                    vrmr_error(-1, VR_INTERR, "append to list failed (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
+                vrmr_fatal_if(vrmr_list_append(debuglvl, help_list, hw) == NULL);
             }
 
             /* the newline is a special word */
             if( (i == 0 && line[i] == L'\n') ||
 
                 (i > 0  && line[i] == L'\n' &&
-                (line[i-1] == L'.' ||
-                 line[i-1] == L'?' ||
-                 line[i-1] == L'!' ||
-                 line[i-1] == L':' ||
-                (line[i-1] == L',' && i == (wcslen(line) - 1) ))
-                )
-            )
+                (line[i-1] == L'.' || line[i-1] == L'?' ||
+                 line[i-1] == L'!' || line[i-1] == L':' ||
+                (line[i-1] == L',' && i == (wcslen(line) - 1) ))))
             {
                 /* get some mem for the word struct */
-                if(!(hw = malloc(sizeof(helpword))))
-                {
-                    vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
-                    return(-1);
-                }
+                hw = malloc(sizeof(helpword));
+                vrmr_fatal_alloc("malloc", hw);
                 hw->word = NULL;
                 hw->newline = 1;
                 hw->line_num = 0;
 
-                if(vrmr_list_append(debuglvl, help_list, hw) == NULL)
-                {
-                    vrmr_error(-1, VR_INTERR, "append to list (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
-                }
+                vrmr_fatal_if(vrmr_list_append(debuglvl, help_list, hw) == NULL);
             }
         }
         else
@@ -238,53 +183,32 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
     char    helpfile[256] = "";
 
     /* safety */
-    if(!help_list || !part)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if_null(help_list);
+    vrmr_fatal_if_null(part);
 
     /* setup the list */
-    if(vrmr_list_setup(debuglvl, help_list, free_helpword) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "vrmr_list_setup failed "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if(vrmr_list_setup(debuglvl, help_list, free_helpword) < 0);
 
     /* TRANSLATORS: translate this to you language code: so for
        'ru' use 'vuurmuur-ru.hlp', for 'pt_BR' use
        'vuurmuur-pt_BR.hlp'
      */
-    if(snprintf(helpfile, sizeof(helpfile), "%s/%s",
+    snprintf(helpfile, sizeof(helpfile), "%s/%s",
             vccnf.helpfile_location,
-            gettext("vuurmuur.hlp")) >= (int)sizeof(helpfile))
-    {
-        vrmr_error(-1, "Error", "buffer too small for "
-                    "helpfile supplied at compile-time "
-                    "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+            gettext("vuurmuur.hlp"));
     vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
 
     /* open the file */
     fp = fopen(helpfile, "r");
-    if(fp == NULL)
+    if (fp == NULL)
     {
         vrmr_debug(__FUNC__, "opening '%s' failed: %s, "
                 "falling back to default.",
                 helpfile, strerror(errno));
 
         /* language helpfile does not exist, try to fall back to default */
-        if(snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
-                vccnf.helpfile_location) >= (int)sizeof(helpfile))
-        {
-            vrmr_error(-1, "Error", "buffer too small for "
-                    "helpfile supplied at compile-time "
-                    "(in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
+        snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
+                vccnf.helpfile_location);
         vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
 
         if(!(fp = fopen(helpfile, "r")))
@@ -298,8 +222,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
 
     while(fgets(line, (int)sizeof(line), fp) != NULL)
     {
-        if(inrange)
-        {
+        if (inrange) {
             if(strcmp(line, ":[END]:\n") == 0)
             {
                 /* implied inrange = 0; */
@@ -307,20 +230,16 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
             }
         }
 
-        if(inrange)
-        {
+        if(inrange) {
             if (read_helpline(debuglvl, help_list, line) < 0) {
                 fclose(fp);
                 return(-1);
             }
-        }
-        else
-        {
-            if(strncmp(line, part, StrMemLen(part)) == 0)
+        } else {
+            if (strncmp(line, part, StrMemLen(part)) == 0)
                 inrange = 1;
         }
     }
-
     fclose(fp);
     return(0);
 }
@@ -336,46 +255,28 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
     char    helpfile[256] = "";
 
     /* safety */
-    if(!help_list || !part)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if_null(help_list);
+    vrmr_fatal_if_null(part);
 
     /* setup the list */
-    if(vrmr_list_setup(debuglvl, help_list, free_helpword) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "vrmr_list_setup failed "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if(vrmr_list_setup(debuglvl, help_list, free_helpword) < 0);
 
-    if(utf8_mode == 1)
-    {
+    if (utf8_mode == 1) {
         /* TRANSLATORS: translate this to you language code: so for
           'ru' use 'vuurmuur-ru.UTF-8.hlp', for 'pt_BR' use
           'vuurmuur-pt_BR.UTF-8.hlp'
         */
-        if(snprintf(helpfile, sizeof(helpfile), "%s/%s",
+        snprintf(helpfile, sizeof(helpfile), "%s/%s",
                 vccnf.helpfile_location,
-                gettext("vuurmuur.UTF-8.hlp")
-                ) >= (int)sizeof(helpfile))
-        {
-            vrmr_error(-1, VR_INTERR, "buffer too small "
-                "for helpfile supplied at compile-time "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
+                gettext("vuurmuur.UTF-8.hlp"));
         vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
 
         /* open the file */
         fp = fopen(helpfile, "r");
     }
 
-    if(fp == NULL)
-    {
-        if(utf8_mode == 1)
+    if (fp == NULL) {
+        if (utf8_mode == 1)
             vrmr_debug(__FUNC__, "opening '%s' failed: "
                 "%s, falling back to non UTF-8 language file.",
                 helpfile, strerror(errno));
@@ -387,66 +288,47 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
            'ru' use 'vuurmuur-ru.hlp', for 'pt_BR' use
            'vuurmuur-pt_BR.hlp'
          */
-        if(snprintf(helpfile, sizeof(helpfile), "%s/%s",
+        snprintf(helpfile, sizeof(helpfile), "%s/%s",
                 vccnf.helpfile_location,
-                gettext("vuurmuur.hlp")) >= (int)sizeof(helpfile))
-        {
-            vrmr_error(-1, "Error", "buffer too small for "
-                    "helpfile supplied at compile-time "
-                    "(in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
-        vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
-    }
-
-    /* open the file */
-    fp = fopen(helpfile, "r");
-    if(fp == NULL)
-    {
-        vrmr_debug(__FUNC__, "opening '%s' failed: %s, "
-                "falling back to default.",
-                helpfile, strerror(errno));
-
-        /* language helpfile does not exist, try to fall back to default */
-        if(snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
-                vccnf.helpfile_location) >= (int)sizeof(helpfile))
-        {
-            vrmr_error(-1, "Error", "buffer too small for "
-                    "helpfile supplied at compile-time "
-                    "(in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
+                gettext("vuurmuur.hlp"));
         vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
 
-        if(!(fp = fopen(helpfile, "r")))
-        {
-            vrmr_error(-1, VR_ERR, "%s %s: %s",
-                    STR_OPENING_FILE_FAILED,
+        /* open the file */
+        fp = fopen(helpfile, "r");
+        if (fp == NULL) {
+            vrmr_debug(__FUNC__, "opening '%s' failed: %s, "
+                    "falling back to default.",
                     helpfile, strerror(errno));
-            return(-1);
+
+            /* language helpfile does not exist, try to fall back to default */
+            snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
+                    vccnf.helpfile_location);
+            vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+
+            if(!(fp = fopen(helpfile, "r"))) {
+                vrmr_error(-1, VR_ERR, "%s %s: %s",
+                        STR_OPENING_FILE_FAILED,
+                        helpfile, strerror(errno));
+                return(-1);
+            }
         }
     }
 
     while(fgetws(line, wsizeof(line), fp) != NULL)
     {
-        if(inrange)
-        {
-            if(wcscmp(line, L":[END]:\n") == 0)
-            {
+        if(inrange) {
+            if(wcscmp(line, L":[END]:\n") == 0) {
                 /* implied inrange = 0; */
                 break;
             }
         }
 
-        if(inrange)
-        {
-            if  (read_wide_helpline(debuglvl, help_list, line) < 0) {
+        if(inrange) {
+            if (read_wide_helpline(debuglvl, help_list, line) < 0) {
                 fclose(fp);
                 return(-1);
             }
-        }
-        else
-        {
+        } else {
             if(wcsncmp(line, part, wcslen(part)) == 0)
                 inrange = 1;
         }
@@ -456,7 +338,6 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
     return(0);
 }
 #endif /* USE_WIDEC */
-
 
 static void
 set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
@@ -469,43 +350,28 @@ set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
     struct vrmr_list_node *d_node = NULL,
                 *next_d_node = NULL;
 
-
     /* safety */
-    if(help_list == NULL)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return;
-    }
+    vrmr_fatal_if_null(help_list);
 
     for(d_node = help_list->top; d_node; d_node = d_node->next, words++)
     {
-        if(!(hw = d_node->data))
-        {
-            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-            return;
-        }
+        vrmr_fatal_if_null(d_node->data);
+        hw = d_node->data;
 
-        if(hw->word != NULL && !hw->newline)
-        {
+        if(hw->word != NULL && !hw->newline) {
             /* get the next word */
             if((next_d_node = d_node->next))
             {
-                if(!(next_hw = next_d_node->data))
-                {
-                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                    return;
-                }
+                vrmr_fatal_if_null(next_d_node->data);
+                next_hw = next_d_node->data;
 
                 /* middle in sentence, so we add a space to the word */
-                if(next_hw->word != NULL && next_hw->newline == 0)
-                {
+                if(next_hw->word != NULL && next_hw->newline == 0) {
                     /* don't add this on the current line */
                     if((StrLen(hw->word) + 1) >= (width - line_width))
                     {
                         /* set line_width to the size of this word */
                         line_width = StrLen(hw->word) + 1;
-
                         line_num++;
                         hw->line_num = line_num;
                     }
@@ -514,19 +380,16 @@ set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
                     {
                         /* add this word to the line_width */
                         line_width = line_width + StrLen(hw->word) + 1;
-
                         hw->line_num = line_num;
                     }
                 }
                 /* end of sentence, so no trailing space */
-                else if(next_hw->word == NULL && next_hw->newline == 1)
-                {
+                else if(next_hw->word == NULL && next_hw->newline == 1) {
                     /* don't add this on the current line */
                     if(StrLen(hw->word) >= (width - line_width))
                     {
                         /* set line_width to the size of this word */
                         line_width = StrLen(hw->word);
-
                         line_num++;
                         hw->line_num = line_num;
                     }
@@ -535,26 +398,18 @@ set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
                     {
                         /* add this word to the line_width */
                         line_width = line_width + StrLen(hw->word);
-
                         hw->line_num = line_num;
                     }
-                }
-                else
-                {
-                    /* undefined state */
-                    vrmr_error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
-                    return;
+                } else {
+                    vrmr_fatal("undefined state");
                 }
             }
             /* end of text, doc has no trailing new-line */
-            else
-            {
+            else {
                 /* don't add this on the current line */
-                if(StrLen(hw->word) >= (width - line_width))
-                {
+                if(StrLen(hw->word) >= (width - line_width)) {
                     /* set line_width to the size of this word */
                     line_width = StrLen(hw->word);
-
                     line_num++;
                     hw->line_num = line_num;
                 }
@@ -563,29 +418,18 @@ set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
                 {
                     /* add this word to the line_width */
                     line_width = line_width + StrLen(hw->word);
-
                     hw->line_num = line_num;
                 }
             }
-        }
-        else if(hw->word == NULL && hw->newline)
-        {
+        } else if(hw->word == NULL && hw->newline) {
             hw->line_num = line_num;
             line_num++;
-
             line_width = 0;
-        }
-        else
-        {
-            /* undefined state */
-            vrmr_error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
-            return;
+        } else {
+            vrmr_fatal("undefined state");
         }
     }
-
-    return;
 }
-
 
 #ifdef USE_WIDEC
 static void
@@ -599,123 +443,83 @@ set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
     struct vrmr_list_node *d_node = NULL,
                 *next_d_node = NULL;
 
-
     /* safety */
-    if(!help_list)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return;
-    }
+    vrmr_fatal_if_null(help_list);
 
     for(d_node = help_list->top; d_node; d_node = d_node->next, words++)
     {
-        if(!(hw = d_node->data))
-        {
-            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-            return;
-        }
+        vrmr_fatal_if_null(d_node->data);
+        hw = d_node->data;
 
-        if(hw->word != NULL && !hw->newline)
-        {
+        if(hw->word != NULL && !hw->newline) {
             /* get the next word */
             if((next_d_node = d_node->next))
             {
-                if(!(next_hw = next_d_node->data))
-                {
-                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                    return;
-                }
+                vrmr_fatal_if_null(next_d_node->data);
+                next_hw = next_d_node->data;
 
                 /* middle in sentence, so we add a space to the word */
-                if(next_hw->word != NULL && next_hw->newline == 0)
-                {
+                if(next_hw->word != NULL && next_hw->newline == 0) {
                     /* don't add this on the current line */
-                    if((int)(wcslen(hw->word) + 1) >= (width - line_width))
-                    {
+                    if((int)(wcslen(hw->word) + 1) >= (width - line_width)) {
                         /* set line_width to the size of this word */
                         line_width = wcslen(hw->word) + 1;
-
                         line_num++;
                         hw->line_num = line_num;
                     }
                     /* this word fits on the current line */
-                    else
-                    {
+                    else {
                         /* add this word to the line_width */
                         line_width = line_width + wcslen(hw->word) + 1;
-
                         hw->line_num = line_num;
                     }
                 }
                 /* end of sentence, so no trailing space */
-                else if(next_hw->word == NULL && next_hw->newline == 1)
-                {
+                else if(next_hw->word == NULL && next_hw->newline == 1) {
                     /* don't add this on the current line */
-                    if((int)wcslen(hw->word) >= (width - line_width))
-                    {
+                    if((int)wcslen(hw->word) >= (width - line_width)) {
                         /* set line_width to the size of this word */
                         line_width = wcslen(hw->word);
-
                         line_num++;
                         hw->line_num = line_num;
                     }
                     /* this word fits on the current line */
-                    else
-                    {
+                    else {
                         /* add this word to the line_width */
                         line_width = line_width + wcslen(hw->word);
-
                         hw->line_num = line_num;
                     }
                 }
-                else
-                {
-                    /* undefined state */
-                    vrmr_error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
-                    return;
+                else {
+                    vrmr_fatal("undefined state");
                 }
             }
             /* end of text, doc has no trailing new-line */
-            else
-            {
+            else {
                 /* don't add this on the current line */
-                if((int)wcslen(hw->word) >= (width - line_width))
-                {
+                if((int)wcslen(hw->word) >= (width - line_width)) {
                     /* set line_width to the size of this word */
                     line_width = wcslen(hw->word);
-
                     line_num++;
                     hw->line_num = line_num;
                 }
                 /* this word fits on the current line */
-                else
-                {
+                else {
                     /* add this word to the line_width */
                     line_width = line_width + wcslen(hw->word);
-
                     hw->line_num = line_num;
                 }
             }
-        }
-        else if(hw->word == NULL && hw->newline)
-        {
+        } else if(hw->word == NULL && hw->newline) {
             hw->line_num = line_num;
             line_num++;
-
             line_width = 0;
-        }
-        else
-        {
-            /* undefined state */
-            vrmr_error(-1, VR_INTERR, "undefined state (in: %s:%d).", __FUNC__, __LINE__);
-            return;
+        } else {
+            vrmr_fatal("undefined state");
         }
     }
-
-    return;
 }
 #endif /* USE_WIDEC */
-
 
 static void
 do_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
@@ -729,25 +533,14 @@ do_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
     /* print the text */
     for(d_node = list->top; d_node; d_node = d_node->next)
     {
-        if(!(hw = d_node->data))
-        {
-            vrmr_error(-1, VR_INTERR, "NULL pointer "
-                    "(in: %s:%d).", __FUNC__, __LINE__);
-            return;
-        }
+        vrmr_fatal_if_null(d_node->data);
+        hw = d_node->data;
 
-        if(hw->line_num >= start_print && hw->line_num <= end_print)
-        {
-            if(hw->word != NULL)
-            {
-                if((next_d_node = d_node->next))
-                {
-                    if(!(next_hw = next_d_node->data))
-                    {
-                        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                        return;
-                    }
-                    
+        if(hw->line_num >= start_print && hw->line_num <= end_print) {
+            if(hw->word != NULL) {
+                if((next_d_node = d_node->next)) {
+                    vrmr_fatal_if_null(next_d_node->data);
+                    next_hw = next_d_node->data;
 
                     /* end of sentence */
                     if(next_hw->word == NULL && next_hw->newline == 1)
@@ -785,7 +578,6 @@ do_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
     }
 }
 
-
 #ifdef USE_WIDEC
 static void
 do_wide_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
@@ -799,27 +591,14 @@ do_wide_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
     /* print the text */
     for(d_node = list->top; d_node; d_node = d_node->next)
     {
-        if(!(hw = d_node->data))
-        {
-            vrmr_error(-1, VR_INTERR, "NULL pointer "
-                    "(in: %s:%d).", __FUNC__, __LINE__);
-            return;
-        }
+        vrmr_fatal_if_null(d_node->data);
+        hw = d_node->data;
 
-        if((int)hw->line_num >= start_print && (int)hw->line_num <= end_print)
-        {
-            if(hw->word != NULL)
-            {
-                if((next_d_node = d_node->next))
-                {
-                    if(!(next_hw = next_d_node->data))
-                    {
-                        vrmr_error(-1, VR_INTERR,
-                                "NULL pointer "
-                                "(in: %s:%d).",
-                                __FUNC__, __LINE__);
-                        return;
-                    }
+        if((int)hw->line_num >= start_print && (int)hw->line_num <= end_print) {
+            if(hw->word != NULL) {
+                if((next_d_node = d_node->next)) {
+                    vrmr_fatal_if_null(next_d_node->data);
+                    next_hw = next_d_node->data;
 
                     /* end of sentence */
                     if(next_hw->word == NULL && next_hw->newline == 1)
@@ -858,7 +637,6 @@ do_wide_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
 }
 #endif /* USE_WIDEC */
 
-
 static void
 print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
         int width, int starty, int startx, char utf8)
@@ -875,34 +653,20 @@ print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
     int         i = 0;
     size_t      size = 0;
 
-
     end_print = (size_t)height - 2;
 
-    if(!(boxwin = create_newwin(height, width, starty, startx, title, vccnf.color_win)))
-    {
-        vrmr_error(-1, VR_ERR, "could not create window (in: %s:%d).", __FUNC__, __LINE__);
-        return;
-    }
-    if(!(panel[0] = new_panel(boxwin)))
-    {
-        vrmr_error(-1, VR_ERR, "could not create panel (in: %s:%d).", __FUNC__, __LINE__);
-        return;
-    }
-    if(!(printwin = newwin(height-2, width-4, starty+1, startx+2)))
-    {
-        vrmr_error(-1, VR_ERR, "could not create window (in: %s:%d).", __FUNC__, __LINE__);
-        return;
-    }
+    boxwin = create_newwin(height, width, starty, startx, title, vccnf.color_win);
+    vrmr_fatal_if_null(boxwin);
+    panel[0] = new_panel(boxwin);
+    vrmr_fatal_if_null(panel[0]);
+    printwin = newwin(height-2, width-4, starty+1, startx+2);
+    vrmr_fatal_if_null(printwin);
     (void)wbkgd(printwin, vccnf.color_win);
-    if(!(panel[1] = new_panel(printwin)))
-    {
-        vrmr_error(-1, VR_ERR, "could not create panel (in: %s:%d).", __FUNC__, __LINE__);
-        return;
-    }
+    panel[1] = new_panel(printwin);
+    vrmr_fatal_if_null(panel[1]);
     keypad(printwin, TRUE);
 
     size = StrLen(gettext("Press <F10> to close this window."));
-
     mvwprintw(boxwin, height-1, (int)(width-size)/2, " %s ", gettext("Press <F10> to close this window."));
     wrefresh(boxwin);
 
@@ -910,8 +674,7 @@ print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
     {
         werase(printwin);
 
-        if(list->len == 0)
-        {
+        if (list->len == 0) {
             wprintw(printwin, gettext("The requested helptext was not found.\n"));
         }
 
@@ -923,27 +686,20 @@ print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
 #endif /* USE_WIDEC */
             do_print(debuglvl, printwin, list, start_print,
                     end_print);
-
         update_panels();
         doupdate();
 
         /* get user input */
         ch = wgetch(printwin);
-
         switch(ch)
         {
             case KEY_DOWN:
 
-                if(list->len > 0)
-                {
-                    if(!(hw = list->bot->data))
-                    {
-                        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                        return;
-                    }
+                if(list->len > 0) {
+                    hw = list->bot->data;
+                    vrmr_fatal_if_null(hw);
 
-                    if(end_print < hw->line_num)
-                    {
+                    if(end_print < hw->line_num) {
                         start_print++;
                         end_print++;
                     }
@@ -952,20 +708,17 @@ print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
 
             case KEY_UP:
 
-                if(list->len > 0)
-                {
-                    if(start_print > 1)
-                    {
+                if(list->len > 0) {
+                    if(start_print > 1) {
                         start_print--;
                         end_print--;
                     }
                 }
                 break;
-        
+
             case KEY_PPAGE:
 
-                if(list->len > 0)
-                {
+                if(list->len > 0) {
                     i = (height - 2)/3;
 
                     while((start_print - i) < 1)
@@ -974,20 +727,15 @@ print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
                     start_print = start_print - i;
                     end_print = end_print - i;
                 }
-
                 break;
 
             case KEY_NPAGE:
 
-                if(list->len > 0)
-                {
+                if(list->len > 0) {
                     i = (height - 2)/3;
 
-                    if(!(hw = list->bot->data))
-                    {
-                        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                        return;
-                    }
+                    hw = list->bot->data;
+                    vrmr_fatal_if_null(hw);
 
                     while((end_print + i) > hw->line_num)
                         i--;
@@ -1032,7 +780,6 @@ print_help(const int debuglvl, char *part)
 
     /* get screensize */
     getmaxyx(stdscr, max_height, max_width);
-
     width  = 72;
     height = max_height - 6;
     startx = max_width - width - 5;
@@ -1045,11 +792,8 @@ print_help(const int debuglvl, char *part)
         /* read the helpfile */
         if(read_helpfile(debuglvl, &HelpList, part) < 0)
             return;
-    
         set_lines(debuglvl, &HelpList, (size_t)(width - 4));
-
         print_list(debuglvl, &HelpList, gettext("Help"), height, width, starty, startx, UTF8_FALSE);
-
         vrmr_list_cleanup(debuglvl, &HelpList);
 #ifdef USE_WIDEC
     }
@@ -1064,16 +808,12 @@ print_help(const int debuglvl, char *part)
         /* read the helpfile */
         if(read_wide_helpfile(debuglvl, &HelpList, wpart) < 0)
             return;
-    
         set_wide_lines(debuglvl, &HelpList, width - 4);
-
         print_list(debuglvl, &HelpList, gettext("Help"), height, width, starty, startx, UTF8_TRUE);
-
         vrmr_list_cleanup(debuglvl, &HelpList);
     }
 #endif /* USE_WIDEC */
 }
-
 
 void
 print_status(const int debuglvl)
@@ -1087,26 +827,22 @@ print_status(const int debuglvl)
 
     /* get screensize */
     getmaxyx(stdscr, max_height, max_width);
-
     width  = 72;
     height = max_height - 6;
     startx = (max_width - width) / 2;
     starty = 3;
 
     /* should not happen */
-    if(VuurmuurStatus.StatusList.len == 0)
-    {
+    if(VuurmuurStatus.StatusList.len == 0) {
         (void)read_helpline(debuglvl, &VuurmuurStatus.StatusList, gettext("No problems were detected in the current setup.\n"));
     }
 
     set_lines(debuglvl, &VuurmuurStatus.StatusList, (size_t)(width - 4));
-
     /* print the status list */
     print_list(debuglvl, &VuurmuurStatus.StatusList, gettext("Status"), height, width, starty, startx, UTF8_FALSE);
 }
 
-
-int
+void
 setup_statuslist(const int debuglvl)
 {
     /* initialize */
@@ -1115,7 +851,7 @@ setup_statuslist(const int debuglvl)
 
     VuurmuurStatus.vuurmuur = 1;
     VuurmuurStatus.vuurmuur_log = 1;
-    
+
     VuurmuurStatus.zones = 1;
     VuurmuurStatus.interfaces = 1;
     VuurmuurStatus.services = 1;
@@ -1128,15 +864,8 @@ setup_statuslist(const int debuglvl)
     VuurmuurStatus.system = 1;
 
     /* setup the status list */
-    if(vrmr_list_setup(debuglvl, &VuurmuurStatus.StatusList, free_helpword) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "setup the statuslist failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    return(0);
+    vrmr_fatal_if(vrmr_list_setup(debuglvl, &VuurmuurStatus.StatusList, free_helpword) < 0);
 }
-
 
 void
 print_about(const int debuglvl)
