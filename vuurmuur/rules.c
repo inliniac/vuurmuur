@@ -1528,18 +1528,13 @@ rulecreate_src_loop (const int debuglvl, struct vrmr_config *conf, /*@null@*/Rul
                     sizeof(from_mac));
 
                 /* add mac-address if we happen to know it, only 'from' is supported by iptables */
-                if(from_has_mac == TRUE)
-                {
-                    if(conf->vrmr_check_iptcaps == FALSE || iptcap->match_mac == TRUE)
-                        snprintf(rule->from_mac, sizeof(rule->from_mac), "-m mac --mac-source %s", from_mac);
-                    else
-                    {
-                        vrmr_warning("Warning", "not using macaddress. Mac-match not supported by system.");
-                        memset(rule->from_mac, 0, sizeof(rule->from_mac));
-                    }
-                }
+                if(conf->vrmr_check_iptcaps == FALSE || iptcap->match_mac == TRUE)
+                    snprintf(rule->from_mac, sizeof(rule->from_mac), "-m mac --mac-source %s", from_mac);
                 else
+                {
+                    vrmr_warning("Warning", "not using macaddress. Mac-match not supported by system.");
                     memset(rule->from_mac, 0, sizeof(rule->from_mac));
+                }
             } else {
                 memset(rule->from_mac, 0, sizeof(rule->from_mac));
             }
