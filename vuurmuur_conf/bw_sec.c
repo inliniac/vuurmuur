@@ -27,7 +27,6 @@ struct TrafVolSection_
     FIELD   **fields;
     FORM    *form;
     size_t  n_fields;
-
 } TrafVolSection;
 
 struct TrafVol_
@@ -35,14 +34,10 @@ struct TrafVol_
     int             year;
     int             month;
     int             day;
-
     char            total;  /* total for this timeunit */
-
     unsigned int    recv_mb;
     unsigned int    send_mb;
-
 } TrafVol;
-
 
 /*  strip the buf src from the spaces before the text. Leave other
     spaces alone.
@@ -68,45 +63,24 @@ strip_buf(char *src, char *dst, size_t dstsize)
     dst[k] = '\0';
 }
 
-
-/*
-
-*/
-static int
+static void
 bandwidth_store(const int debuglvl, struct vrmr_list *list, int year, int month, int day,
             char total, unsigned int recv, unsigned int send)
 {
     struct TrafVol_ *bw_ptr = NULL;
 
     bw_ptr = malloc(sizeof(struct TrafVol_));
-    if(bw_ptr == NULL)
-    {
-        vrmr_error(-1, VR_ERR,
-                gettext("malloc failed: %s (in: %s:%d)."),
-                strerror(errno), __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_alloc("malloc", bw_ptr);
 
     bw_ptr->year = year;
     bw_ptr->month = month;
     bw_ptr->day = day;
-
     bw_ptr->total = total;
-
     bw_ptr->recv_mb = recv;
     bw_ptr->send_mb = send;
 
     /* append to the list */
-    if(vrmr_list_append(debuglvl, list, bw_ptr) == NULL)
-    {
-        vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-
-        free(bw_ptr);
-        return(-1);
-    }
-
-    return(0);
+    vrmr_fatal_if(vrmr_list_append(debuglvl, list, bw_ptr) == NULL);
 }
 
 
@@ -174,12 +148,8 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
                     cmd_num_days_str[8] = "";
 
     /* safety */
-    if(device == NULL || list == NULL)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if_null(device);
+    vrmr_fatal_if_null(list);
 
     /* setup the list */
     vrmr_list_setup(debuglvl, list, free);
@@ -189,10 +159,10 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
 
     /* create the tempfile */
     fd = vrmr_create_tempfile(debuglvl, tmpfile);
-    if(fd == -1)
+    if (fd == -1)
         return(-1);
-    else
-        close(fd);
+
+    close(fd);
 
     snprintf(cmd_year_str, sizeof(cmd_year_str), "%d", year);
     snprintf(cmd_month_str, sizeof(cmd_month_str), "%d", month);
@@ -216,15 +186,13 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
         char *outputs[] = { tmpfile, "/dev/null", NULL };
         result = libvuurmuur_exec_command(debuglvl, conf, vccnf.iptrafvol_location, args, outputs);
     }
-    if(result != 0)
-    {
+    if(result != 0) {
         return(-1);
     }
 
-    /* open the file for reaing */
+    /* open the file for reading */
     fd = open(tmpfile, 0);
-    if(fd < 0)
-    {
+    if(fd < 0) {
         vrmr_error(-1, VR_ERR,
                 gettext("opening '%s' failed: %s (in: %s:%d)."),
                 tmpfile, strerror(errno), __FUNC__, __LINE__);
@@ -238,12 +206,8 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
         readsize = read(fd, bw_buf, sizeof(bw_buf));
         if(readsize > 0)
         {
-            //fprintf(stdout, "bw_buf: '%s'.\n", bw_buf);
-
             for(i = 0; i < (unsigned int)readsize; i++)
             {
-                //vrmr_info(__FUNC__, "bw_buf[%d] = '%c', k = %d", i, bw_buf[i], k);
-
                 if(bw_buf[i] == '\n')
                 {
                     line_num++;
@@ -261,7 +225,6 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
                     }
                     if(parsing_total_line == 1)
                     {
-                        //retval = 1;
                         done = 1;
                         break;
                     }
@@ -358,7 +321,6 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
                         ((only_total == 1 && parsing_total_line == 1) || only_total == 0))
                     {
                         sscanf(sect_buf_stripped, "%u.%u %u.%u", &recv, &recv_sub, &send, &send_sub);
-
                         recv = ((recv * 10) + recv_sub) / 10;
                         send = ((send * 10) + send_sub) / 10;
 
@@ -368,14 +330,7 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
                         retval = 1;
 
                         /* we asume that the date is already parsed */
-                        result = bandwidth_store(debuglvl, list, year, data_month, data_day, parsing_total_line, recv, send);
-                        if(result < 0)
-                        {
-                            vrmr_error(-1, VR_INTERR, "bandwidth_store() failed (in: %s:%d).", __FUNC__, __LINE__);
-
-                            done = TRUE;
-                            retval = -1;
-                        }
+                        bandwidth_store(debuglvl, list, year, data_month, data_day, parsing_total_line, recv, send);
                     }
 
                     /* parse the deviceline to determine the column */
@@ -400,13 +355,7 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
     }
 end:
     /* close the file again */
-    if(close(fd) == -1)
-    {
-        vrmr_error(-1, VR_ERR,
-                gettext("closing of '%s' failed: %s (in: %s:%d)."),
-                tmpfile, strerror(errno), __FUNC__, __LINE__);
-        return(-1);
-    }
+    (void)close(fd);
 
     /* remove the file */
     if(unlink(tmpfile) == -1)
@@ -424,12 +373,8 @@ end:
 /*  trafvol_section_init
 
     This function creates the trafvol section window and the fields inside it.
-
-    Returncodes:
-         0: ok
-        -1: error
 */
-static int
+static void
 trafvol_section_init(const int debuglvl, int height, int width, int starty,
             int startx, unsigned int ifac_num)
 {
@@ -446,8 +391,7 @@ trafvol_section_init(const int debuglvl, int height, int width, int starty,
 
     /* get and check the screen dimentions */
     getmaxyx(stdscr, max_height, max_width);
-    if(width > max_width || height > max_height)
-        return(-1);
+    vrmr_fatal_if(width > max_width || height > max_height);
 
     /* set the number of fields:
 
@@ -461,13 +405,8 @@ trafvol_section_init(const int debuglvl, int height, int width, int starty,
     TrafVolSection.n_fields = 11 * (size_t)ifac_num;
 
     /* alloc the needed memory */
-    if(!(TrafVolSection.fields = (FIELD **)calloc(TrafVolSection.n_fields + 1, sizeof(FIELD *))))
-    {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
-                                strerror(errno),
-                                __FUNC__, __LINE__);
-        return(-1);
-    }
+    TrafVolSection.fields = (FIELD **)calloc(TrafVolSection.n_fields + 1, sizeof(FIELD *));
+    vrmr_fatal_alloc("calloc", TrafVolSection.fields);
 
     /* create iface stats fields */
     for(ifacs = 0, ifac_fields = 0; ifacs < ifac_num; ifacs++)
@@ -524,52 +463,31 @@ trafvol_section_init(const int debuglvl, int height, int width, int starty,
     TrafVolSection.fields[TrafVolSection.n_fields] = NULL;
 
     /* create the window and the panel */
-    if(!(TrafVolSection.win = create_newwin(height, width, starty, startx,
-            gettext("Traffic Volume Section"), vccnf.color_win)))
-    {
-        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
-        return(-1);
-    }
+    TrafVolSection.win = create_newwin(height, width, starty, startx,
+            gettext("Traffic Volume Section"), vccnf.color_win);
+    vrmr_fatal_if_null(TrafVolSection.win);
 
-    if(!(TrafVolSection.panel[0] = new_panel(TrafVolSection.win)))
-    {
-        vrmr_error(-1, VR_ERR, gettext("creating panel failed."));
-        return(-1);
-    }
+    TrafVolSection.panel[0] = new_panel(TrafVolSection.win);
+    vrmr_fatal_if_null(TrafVolSection.panel[0]);
 
     /* field options */
-    for(i = 0; i < TrafVolSection.n_fields; i++)
-    {
-        if(debuglvl >= LOW)
-            set_field_back(TrafVolSection.fields[i],
-                    vccnf.color_win);
-        else
-            set_field_back(TrafVolSection.fields[i],
-                    vccnf.color_win);
-
+    for (i = 0; i < TrafVolSection.n_fields; i++) {
+        set_field_back(TrafVolSection.fields[i],
+                vccnf.color_win);
         field_opts_off(TrafVolSection.fields[i], O_AUTOSKIP);
-        /* set status to false */
         set_field_status(TrafVolSection.fields[i], FALSE);
     }
 
     /* Create the form and post it */
-    if(!(TrafVolSection.form = new_form(TrafVolSection.fields)))
-    {
-        vrmr_error(-1, VR_ERR, gettext("creating form failed."));
-        return(-1);
-    }
+    TrafVolSection.form = new_form(TrafVolSection.fields);
+    vrmr_fatal_if_null(TrafVolSection.form);
     /* Calculate the area required for the form */
     scale_form(TrafVolSection.form, &rows, &cols);
     keypad(TrafVolSection.win, TRUE);
     /* Set main window and sub window */
     set_form_win(TrafVolSection.form, TrafVolSection.win);
     set_form_sub(TrafVolSection.form, derwin(TrafVolSection.win, rows, cols, 1, 2));
-
-    if(post_form(TrafVolSection.form) != E_OK)
-    {
-        vrmr_error(-1, VR_ERR, gettext("posting the form failed."));
-        return(-1);
-    }
+    vrmr_fatal_if(post_form(TrafVolSection.form) != E_OK);
 
     mvwprintw(TrafVolSection.win, 3, 2,  gettext("Interface"));
     mvwprintw(TrafVolSection.win, 2, 18, gettext("Today"));
@@ -630,12 +548,9 @@ trafvol_section_init(const int debuglvl, int height, int width, int starty,
     mvwaddch(TrafVolSection.win,  5 + num_rows, 59, ACS_BTEE);
     mvwaddch(TrafVolSection.win,  5 + num_rows, 65, ACS_BTEE);
     mvwaddch(TrafVolSection.win,  5 + num_rows, 71, ACS_BTEE);
-
-    return(0);
 }
 
-
-static int
+static void
 trafvol_section_destroy(void)
 {
     size_t  i = 0;
@@ -643,25 +558,18 @@ trafvol_section_destroy(void)
     // Un post form and free the memory
     unpost_form(TrafVolSection.form);
     free_form(TrafVolSection.form);
-
-    for(i = 0; i < TrafVolSection.n_fields; i++)
-    {
+    for (i = 0; i < TrafVolSection.n_fields; i++) {
         free_field(TrafVolSection.fields[i]);
     }
     free(TrafVolSection.fields);
-
     del_panel(TrafVolSection.panel[0]);
     destroy_win(TrafVolSection.win);
-
-    return(0);
 }
-
 
 static void
 create_bw_string(const int debuglvl, unsigned int mb, char *str, size_t len)
 {
-    if(str == NULL)
-        return;
+    vrmr_fatal_if_null(str);
 
     if(mb == 0)
         snprintf(str, len, "  0 M");
@@ -679,11 +587,10 @@ create_bw_string(const int debuglvl, unsigned int mb, char *str, size_t len)
         snprintf(str, len, "%uG", mb/1024);
 }
 
-
 /*  trafvol_section
 
     This section shows bandwidth usage of the system.
-    
+
     Returncodes:
         0: ok
         -1: error
@@ -732,14 +639,12 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
                                                 gettext("back")};
     int                     cmd_choices_n = 2;
 
-    if(interfaces->list.len == 0)
-    {
+    if (interfaces->list.len == 0) {
         vrmr_warning(VR_WARN, gettext("no interfaces found. Please define an interface first."));
         return(0);
     }
 
-    if(strcmp(vccnf.iptrafvol_location, "") == 0)
-    {
+    if(strcmp(vccnf.iptrafvol_location, "") == 0) {
         vrmr_error(-1, VR_ERR, gettext("please set the location of the iptrafvol.pl command in the Settings."));
         return(-1);
     }
@@ -748,33 +653,25 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
     max_onscreen = max_height - 8 - 6;
 
     /* count the number of non virtual interfaces */
-    for(ifac_num = 0, d_node = interfaces->list.top; d_node; d_node = d_node->next)
+    for (d_node = interfaces->list.top; d_node; d_node = d_node->next)
     {
-        if(!(iface_ptr = d_node->data))
-        {
-            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
+        vrmr_fatal_if_null(d_node->data);
+        iface_ptr = d_node->data;
 
-        if(iface_ptr->device_virtual == FALSE)
-        {
+        if(iface_ptr->device_virtual == FALSE) {
             ifac_num++;
         }
     }
 
-    if(ifac_num > (unsigned int)max_onscreen)
+    if (ifac_num > (unsigned int)max_onscreen)
         ifac_num = (unsigned int)max_onscreen;
 
     /* init */
-    if(trafvol_section_init(debuglvl, max_height - 8, 78, 4, 1, ifac_num) < 0)
-        return(-1);
-
+    trafvol_section_init(debuglvl, max_height - 8, 78, 4, 1, ifac_num);
     /* make sure wgetch doesn't block */
     nodelay(TrafVolSection.win, TRUE);
     keypad(TrafVolSection.win, TRUE);
-
     draw_top_menu(debuglvl, top_win, gettext("Traffic Volume"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
-
     update_panels();
     doupdate();
 
@@ -794,226 +691,185 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
 
             /* get the time */
             cur_time = time(NULL);
-            if(cur_time == -1)
-            {
-                vrmr_error(-1, VR_INTERR, "getting current time failed (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
+            vrmr_fatal_if(cur_time == -1);
             yesterday_time = cur_time - 86400;
             lastweek_time = cur_time - (86400 * 7);
 
-            if(localtime_r(&cur_time, &cur_tm) == NULL)
-            {
-                vrmr_error(-1, VR_INTERR, "converting current time failed (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
-
-            if(localtime_r(&yesterday_time, &yesterday_tm) == NULL)
-            {
-                vrmr_error(-1, VR_INTERR, "converting yesterday's time failed (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
-
-            if(localtime_r(&lastweek_time, &lastweek_tm) == NULL)
-            {
-                vrmr_error(-1, VR_INTERR, "converting lastweeks's time failed (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
-            }
+            vrmr_fatal_if(localtime_r(&cur_time, &cur_tm) == NULL);
+            vrmr_fatal_if(localtime_r(&yesterday_time, &yesterday_tm) == NULL);
+            vrmr_fatal_if(localtime_r(&lastweek_time, &lastweek_tm) == NULL);
 
             /* update data here */
             for(d_node = interfaces->list.top, i = 0; d_node && i < ifac_num; d_node = d_node->next)
             {
-                if(!(iface_ptr = d_node->data))
+                vrmr_fatal_if_null(d_node->data);
+                iface_ptr = d_node->data;
+
+                if (iface_ptr->device_virtual == TRUE)
+                    continue;
+
+                /* interface name */
+                set_field_buffer_wrap(debuglvl, TrafVolSection.fields[11 * i], 0, iface_ptr->name);
+
+                /* get the bw for today */
+                result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, cur_tm.tm_mday, 1, 1, &bw_list);
+                if (result == 1)
                 {
-                    vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                    return(-1);
+                    for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
+                    {
+                        vrmr_fatal_if_null(bw_d_node->data);
+                        bw_ptr = bw_d_node->data;
+
+                        create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[1 + (11 * i)], 0, bw_str);
+
+                        create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[2 + (11 * i)], 0, bw_str);
+                    }
+                    vrmr_list_cleanup(debuglvl, &bw_list);
+                }
+                else if(result == 0)
+                {
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[1 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[2 + (11 * i)], 0, "  -  ");
+                }
+                else
+                {
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[1 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[2 + (11 * i)], 0, gettext("error"));
                 }
 
-                if(iface_ptr->device_virtual == FALSE)
+                /* get the bw for yesterday */
+                result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, yesterday_tm.tm_year + 1900, yesterday_tm.tm_mon + 1, yesterday_tm.tm_mday, 1, 1, &bw_list);
+                if (result == 1)
                 {
-                    /* interface name */
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[11 * i], 0, iface_ptr->name);
-
-                    /* get the bw for today */
-                    result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, cur_tm.tm_mday, 1, 1, &bw_list);
-                    if(result == 1)
+                    for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
                     {
-                        for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
-                        {
-                            if(!(bw_ptr = bw_d_node->data))
-                            {
-                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                                return(-1);
-                            }
-                            //printf("%2d/%2d/%4d: in: %u, out: %u %s\n", bw_ptr->day, bw_ptr->month, bw_ptr->year, bw_ptr->recv_mb, bw_ptr->send_mb, bw_ptr->total ? "(total)" : "");
+                        vrmr_fatal_if_null(bw_d_node->data);
+                        bw_ptr = bw_d_node->data;
 
-                            create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
-                            set_field_buffer_wrap(debuglvl, TrafVolSection.fields[1 + (11 * i)], 0, bw_str);
+                        create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[3 + (11 * i)], 0, bw_str);
 
-                            create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
-                            set_field_buffer_wrap(debuglvl, TrafVolSection.fields[2 + (11 * i)], 0, bw_str);
-                        }
-                        vrmr_list_cleanup(debuglvl, &bw_list);
+                        create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[4 + (11 * i)], 0, bw_str);
                     }
-                    else if(result == 0)
-                    {
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[1 + (11 * i)], 0, "  -  ");
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[2 + (11 * i)], 0, "  -  ");
-                    }
-                    else
-                    {
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[1 + (11 * i)], 0, gettext("error"));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[2 + (11 * i)], 0, gettext("error"));
-                    }
-
-                    /* get the bw for yesterday */
-                    result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, yesterday_tm.tm_year + 1900, yesterday_tm.tm_mon + 1, yesterday_tm.tm_mday, 1, 1, &bw_list);
-                    if(result == 1)
-                    {
-                        for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
-                        {
-                            if(!(bw_ptr = bw_d_node->data))
-                            {
-                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                                return(-1);
-                            }
-                            //printf("%2d/%2d/%4d: in: %u, out: %u %s\n", bw_ptr->day, bw_ptr->month, bw_ptr->year, bw_ptr->recv_mb, bw_ptr->send_mb, bw_ptr->total ? "(total)" : "");
-
-                            create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
-                            set_field_buffer_wrap(debuglvl, TrafVolSection.fields[3 + (11 * i)], 0, bw_str);
-
-                            create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
-                            set_field_buffer_wrap(debuglvl, TrafVolSection.fields[4 + (11 * i)], 0, bw_str);
-                        }
-                        vrmr_list_cleanup(debuglvl, &bw_list);
-                    }
-                    else if(result == 0)
-                    {
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[3 + (11 * i)], 0, "  -  ");
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[4 + (11 * i)], 0, "  -  ");
-                    }
-                    else
-                    {
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[3 + (11 * i)], 0, gettext("error"));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[4 + (11 * i)], 0, gettext("error"));
-                    }
-
-                    /* get the bw for past 7 days */
-                    result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, lastweek_tm.tm_year + 1900, lastweek_tm.tm_mon + 1, lastweek_tm.tm_mday, 7, 1, &bw_list);
-                    if(result == 1)
-                    {
-                        for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
-                        {
-                            if(!(bw_ptr = bw_d_node->data))
-                            {
-                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                                return(-1);
-                            }
-                            //printf("%2d/%2d/%4d: in: %u, out: %u %s\n", bw_ptr->day, bw_ptr->month, bw_ptr->year, bw_ptr->recv_mb, bw_ptr->send_mb, bw_ptr->total ? "(total)" : "");
-
-                            create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
-                            set_field_buffer_wrap(debuglvl, TrafVolSection.fields[5 + (11 * i)], 0, bw_str);
-
-                            create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
-                            set_field_buffer_wrap(debuglvl, TrafVolSection.fields[6 + (11 * i)], 0, bw_str);
-                        }
-                        vrmr_list_cleanup(debuglvl, &bw_list);
-                    }
-                    else if(result == 0)
-                    {
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[5 + (11 * i)], 0, "  -  ");
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[6 + (11 * i)], 0, "  -  ");
-                    }
-                    else
-                    {
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[5 + (11 * i)], 0, gettext("error"));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[6 + (11 * i)], 0, gettext("error"));
-                    }
-
-                    /* get the bw for the current month */
-                    result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, 1, 0, 1, &bw_list);
-                    if(result == 1)
-                    {
-                        for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
-                        {
-                            if(!(bw_ptr = bw_d_node->data))
-                            {
-                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                                return(-1);
-                            }
-                            //printf("%2d/%2d/%4d: in: %u, out: %u %s\n", bw_ptr->day, bw_ptr->month, bw_ptr->year, bw_ptr->recv_mb, bw_ptr->send_mb, bw_ptr->total ? "(total)" : "");
-
-                            create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
-                            set_field_buffer_wrap(debuglvl, TrafVolSection.fields[7 + (11 * i)], 0, bw_str);
-
-                            create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
-                            set_field_buffer_wrap(debuglvl, TrafVolSection.fields[8 + (11 * i)], 0, bw_str);
-                        }
-                        vrmr_list_cleanup(debuglvl, &bw_list);
-                    }
-                    else if(result == 0)
-                    {
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[7 + (11 * i)], 0, "  -  ");
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[8 + (11 * i)], 0, "  -  ");
-                    }
-                    else
-                    {
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[7 + (11 * i)], 0, gettext("error"));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[8 + (11 * i)], 0, gettext("error"));
-                    }
-
-                    /* get the bw for the last month */
-                    year = cur_tm.tm_year + 1900;
-                    /* get prev month (by not adding +1) */
-                    month = cur_tm.tm_mon;
-
-                    /*  if month = 0 (Jan), set it to 12
-                        (Dec) and subtract one of the
-                        year.
-                    */
-                    if(month == 0)
-                    {
-                        month = 12;
-                        year = year - 1;
-                    }
-
-                    result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, year, month, 1, 0, 1, &bw_list);
-                    if(result == 1)
-                    {
-                        for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
-                        {
-                            if(!(bw_ptr = bw_d_node->data))
-                            {
-                                vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-                                return(-1);
-                            }
-                            //printf("%2d/%2d/%4d: in: %u, out: %u %s\n", bw_ptr->day, bw_ptr->month, bw_ptr->year, bw_ptr->recv_mb, bw_ptr->send_mb, bw_ptr->total ? "(total)" : "");
-
-                            create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
-                            set_field_buffer_wrap(debuglvl, TrafVolSection.fields[9 + (11 * i)], 0, bw_str);
-
-                            create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
-                            set_field_buffer_wrap(debuglvl, TrafVolSection.fields[10 + (11 * i)], 0, bw_str);
-                        }
-                        vrmr_list_cleanup(debuglvl, &bw_list);
-                    }
-                    else if(result == 0)
-                    {
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[9  + (11 * i)], 0, "  -  ");
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[10 + (11 * i)], 0, "  -  ");
-                    }
-                    else
-                    {
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[9  + (11 * i)], 0, gettext("error"));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[10 + (11 * i)], 0, gettext("error"));
-                    }
-
-                    /* finally draw the screen */
-                    wrefresh(TrafVolSection.win);
-
-                    /* update the line */
-                    i++;
+                    vrmr_list_cleanup(debuglvl, &bw_list);
                 }
+                else if(result == 0)
+                {
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[3 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[4 + (11 * i)], 0, "  -  ");
+                }
+                else
+                {
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[3 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[4 + (11 * i)], 0, gettext("error"));
+                }
+
+                /* get the bw for past 7 days */
+                result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, lastweek_tm.tm_year + 1900, lastweek_tm.tm_mon + 1, lastweek_tm.tm_mday, 7, 1, &bw_list);
+                if(result == 1)
+                {
+                    for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
+                    {
+                        vrmr_fatal_if_null(bw_d_node->data);
+                        bw_ptr = bw_d_node->data;
+
+                        create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[5 + (11 * i)], 0, bw_str);
+
+                        create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[6 + (11 * i)], 0, bw_str);
+                    }
+                    vrmr_list_cleanup(debuglvl, &bw_list);
+                }
+                else if(result == 0)
+                {
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[5 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[6 + (11 * i)], 0, "  -  ");
+                }
+                else
+                {
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[5 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[6 + (11 * i)], 0, gettext("error"));
+                }
+
+                /* get the bw for the current month */
+                result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, 1, 0, 1, &bw_list);
+                if(result == 1)
+                {
+                    for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
+                    {
+                        vrmr_fatal_if_null(bw_d_node->data);
+                        bw_ptr = bw_d_node->data;
+
+                        create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[7 + (11 * i)], 0, bw_str);
+
+                        create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[8 + (11 * i)], 0, bw_str);
+                    }
+                    vrmr_list_cleanup(debuglvl, &bw_list);
+                }
+                else if(result == 0)
+                {
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[7 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[8 + (11 * i)], 0, "  -  ");
+                }
+                else
+                {
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[7 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[8 + (11 * i)], 0, gettext("error"));
+                }
+
+                /* get the bw for the last month */
+                year = cur_tm.tm_year + 1900;
+                /* get prev month (by not adding +1) */
+                month = cur_tm.tm_mon;
+
+                /*  if month = 0 (Jan), set it to 12
+                    (Dec) and subtract one of the
+                    year.
+                 */
+                if(month == 0)
+                {
+                    month = 12;
+                    year = year - 1;
+                }
+
+                result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, year, month, 1, 0, 1, &bw_list);
+                if(result == 1)
+                {
+                    for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
+                    {
+                        vrmr_fatal_if_null(bw_d_node->data);
+                        bw_ptr = bw_d_node->data;
+
+                        create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[9 + (11 * i)], 0, bw_str);
+
+                        create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[10 + (11 * i)], 0, bw_str);
+                    }
+                    vrmr_list_cleanup(debuglvl, &bw_list);
+                }
+                else if(result == 0)
+                {
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[9  + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[10 + (11 * i)], 0, "  -  ");
+                }
+                else
+                {
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[9  + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[10 + (11 * i)], 0, gettext("error"));
+                }
+
+                /* finally draw the screen */
+                wrefresh(TrafVolSection.win);
+
+                /* update the line */
+                i++;
             }
         }
 
