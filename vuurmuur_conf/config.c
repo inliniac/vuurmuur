@@ -19,19 +19,13 @@
  ***************************************************************************/
 
 #include "main.h"
- 
-/* returns: 0 ok, -1 error */
-int
+
+void
 vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf)
 {
     size_t  size = 0;
-    
-    if(cnf == NULL)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+
+    vrmr_fatal_if_null(cnf);
 
     cnf->advanced_mode = VRMR_DEFAULT_ADVANCED_MODE;
     cnf->draw_status = VRMR_DEFAULT_MAINMENU_STATUS;
@@ -41,22 +35,10 @@ vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf)
     cnf->logview_bufsize = VRMR_DEFAULT_LOGVIEW_BUFFERSIZE;
     cnf->background = 0; /* blue */
 
-    size = strlcpy(cnf->iptrafvol_location, VRMR_DEFAULT_IPTRAFVOL_LOCATION,
+    (void)strlcpy(cnf->iptrafvol_location, VRMR_DEFAULT_IPTRAFVOL_LOCATION,
         sizeof(cnf->iptrafvol_location));
-    if(size >= sizeof(cnf->iptrafvol_location))
-    {
-        vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    return(0);
 }
 
-
-/*
-
-*/
 int
 init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_location, vc_cnf *cnf)
 {
@@ -66,32 +48,19 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
     FILE    *fp = NULL;
     size_t  size = 0;
 
-
     /* safety first */
-    if(configfile_location == NULL || cnf == NULL)
-        return(VRMR_CNF_E_PARAMETER);
-
+    vrmr_fatal_if_null(configfile_location);
+    vrmr_fatal_uf_null(cnf);
 
     /* now, based on this, the helpdir location */
-    if(snprintf(cnf->helpfile_location, sizeof(cnf->helpfile_location), "%s/help", conf->datadir) >= (int)sizeof(cnf->helpfile_location))
-    {
-        vrmr_error(-1, "Error", "buffer too small for helpdir supplied at compile-time (in: %s:%d).",
-                            __FUNC__, __LINE__);
-        return(-1);
-    }
+    snprintf(cnf->helpfile_location, sizeof(cnf->helpfile_location), "%s/help", conf->datadir);
     vrmr_sanitize_path(debuglvl, cnf->helpfile_location,
             sizeof(cnf->helpfile_location));
 
     /* now, based on this, the scriptsdir location */
-    if(snprintf(cnf->scripts_location, sizeof(cnf->scripts_location), "%s/scripts", conf->datadir) >= (int)sizeof(cnf->scripts_location))
-    {
-        vrmr_error(-1, "Error", "buffer too small for scriptsdir supplied at compile-time (in: %s:%d).",
-                            __FUNC__, __LINE__);
-        return(-1);
-    }
+    snprintf(cnf->scripts_location, sizeof(cnf->scripts_location), "%s/scripts", conf->datadir);
     vrmr_sanitize_path(debuglvl, cnf->scripts_location,
             sizeof(cnf->scripts_location));
-
 
     if(!(fp = fopen(configfile_location, "r")))
     {
@@ -124,16 +93,11 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
     if(result == 1)
     {
         /* ok, found */
-        if(strcasecmp(answer, "yes") == 0)
-        {
+        if(strcasecmp(answer, "yes") == 0) {
             cnf->advanced_mode = 1;
-        }
-        else if(strcasecmp(answer, "no") == 0)
-        {
+        } else if(strcasecmp(answer, "no") == 0) {
             cnf->advanced_mode = 0;
-        }
-        else
-        {
+        } else {
             vrmr_debug(__FUNC__, "Not sure what to make of ADVANCED_MODE '%s', using default (%s).",
                             answer,
                             VRMR_DEFAULT_ADVANCED_MODE ? "Yes": "No");
@@ -158,16 +122,11 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
     if(result == 1)
     {
         /* ok, found */
-        if(strcasecmp(answer, "yes") == 0)
-        {
+        if(strcasecmp(answer, "yes") == 0) {
             cnf->draw_status = 1;
-        }
-        else if(strcasecmp(answer, "no") == 0)
-        {
+        } else if(strcasecmp(answer, "no") == 0) {
             cnf->draw_status = 0;
-        }
-        else
-        {
+        } else {
             vrmr_debug(__FUNC__, "Not sure what to make of MAINMENU_STATUS '%s', using default (%s).",
                             answer,
                             VRMR_DEFAULT_MAINMENU_STATUS ? "Yes": "No");
@@ -199,14 +158,8 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
                         configfile_location,
                         VRMR_DEFAULT_IPTRAFVOL_LOCATION);
 
-        size = strlcpy(cnf->iptrafvol_location, VRMR_DEFAULT_IPTRAFVOL_LOCATION,
+        (void)strlcpy(cnf->iptrafvol_location, VRMR_DEFAULT_IPTRAFVOL_LOCATION,
             sizeof(cnf->iptrafvol_location));
-        if(size >= sizeof(cnf->iptrafvol_location))
-        {
-            vrmr_error(-1, "Error", "buffer overflow "
-                    "(in: %s:%d).", __FUNC__, __LINE__);
-            return(-1);
-        }
     }
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
@@ -220,16 +173,11 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
     if(result == 1)
     {
         /* ok, found */
-        if(strcasecmp(answer, "yes") == 0)
-        {
+        if(strcasecmp(answer, "yes") == 0) {
             cnf->newrule_log = 1;
-        }
-        else if(strcasecmp(answer, "no") == 0)
-        {
+        } else if(strcasecmp(answer, "no") == 0) {
             cnf->newrule_log = 0;
-        }
-        else
-        {
+        } else {
             vrmr_debug(__FUNC__, "Not sure what to make of NEWRULE_LOG '%s', using default (%s).",
                             answer,
                             VRMR_DEFAULT_NEWRULE_LOG ? "Yes": "No");
@@ -339,12 +287,8 @@ write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf)
 
 
     /* safety */
-    if(file_location == NULL || cnf == NULL)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if_null(file_location);
+    vrmr_fatal_if_null(cnf);
 
     /* open for over-writing */
     if(!(fp = fopen(file_location, "w+")))
@@ -391,3 +335,4 @@ write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf)
     vrmr_info(VR_INFO, gettext("rewritten Vuurmuur_conf config file."));
     return(0);
 }
+
