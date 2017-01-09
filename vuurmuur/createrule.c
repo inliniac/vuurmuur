@@ -3161,15 +3161,9 @@ static int pre_rules_set_policy(const int debuglvl, struct vrmr_config *conf, /*
     }
     else
     {
-        if (ipv == VRMR_IPV4) {
-            ruleset->filter_input_policy = 1;   /* drop */
-            ruleset->filter_output_policy = 1;  /* drop */
-            ruleset->filter_forward_policy = 1; /* drop */
-        } else {
-            ruleset->filter_input_policy = 1;   /* drop */
-            ruleset->filter_output_policy = 1;  /* drop */
-            ruleset->filter_forward_policy = 1; /* drop */
-        }
+        ruleset->filter_input_policy = 1;   /* drop */
+        ruleset->filter_output_policy = 1;  /* drop */
+        ruleset->filter_forward_policy = 1; /* drop */
     }
 
     return (retval);
