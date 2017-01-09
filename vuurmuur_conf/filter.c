@@ -20,19 +20,13 @@
 
 #include "main.h"
 
-
 struct FilterFields_
 {
     FIELD   **fields;
-
     FIELD   *string_fld,
             *check_fld;
-
     size_t  n_fields;
-
 } FiFi;
-
-
 
 static int
 filter_save(const int debuglvl, struct vrmr_filter *filter)
@@ -41,17 +35,12 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
     char    filter_str[48] = "";
 
     /* safety */
-    if(filter == NULL)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).",
-                                __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if_null(filter);
 
     /* check for changed fields */
     for(i = 0; i < FiFi.n_fields; i++)
     {
-        if(FiFi.fields[i] == FiFi.check_fld)
+        if (FiFi.fields[i] == FiFi.check_fld)
         {
             if(strncmp(field_buffer(FiFi.fields[i], 0), "X", 1) == 0)
                 filter->neg = TRUE;
@@ -62,7 +51,6 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
                 vrmr_debug(__FUNC__, "filter->neg is now %s.",
                                 filter->neg ? "TRUE" : "FALSE");
         }
-
         /* ipaddress field */
         else if(FiFi.fields[i] == FiFi.string_fld)
         {
@@ -108,17 +96,12 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
                 filter->reg_active = FALSE;
             }
         }
-        else
-        {
-            vrmr_error(-1, VR_INTERR, "unknown field (in: %s:%d).",
-                                    __FUNC__, __LINE__);
-            return(-1);
+        else {
+            vrmr_fatal("unknown field");
         }
     }
-
     return(0);
 }
-
 
 int
 filter_input_box(const int debuglvl, struct vrmr_filter *filter)
@@ -148,35 +131,19 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
     getmaxyx(stdscr, max_height, max_width);
     height = 9;
     width = 48;
-
     /* print on the center of the screen */
     starty = (max_height - height) / 2;
     startx = (max_width - width) / 2;
 
     /* create window */
     ib_win = create_newwin(height, width, starty, startx, gettext("Filter"), vccnf.color_win);
-    if(ib_win == NULL)
-    {
-        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
-        return(-1);
-    }
-
+    vrmr_fatal_if_null(ib_win);
     my_panels[0] = new_panel(ib_win);
-    if(my_panels[0] == NULL)
-    {
-        vrmr_error(-1, VR_ERR, gettext("creating panel failed."));
-        return(-1);
-    }
-
+    vrmr_fatal_if_null(my_panels[0]);
     FiFi.n_fields = 2;
 
     FiFi.fields = (FIELD **)calloc(FiFi.n_fields + 1, sizeof(FIELD *));
-    if(FiFi.fields == NULL)
-    {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
-                                strerror(errno), __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_alloc("calloc", FiFi.fields);
 
     FiFi.string_fld = (FiFi.fields[0] = new_field(1, 31, 3,  4, 0, 0));
     FiFi.check_fld = (FiFi.fields[1]  = new_field(1,  1, 5,  5, 0, 0));
@@ -185,7 +152,6 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
     field_opts_off(FiFi.string_fld, O_AUTOSKIP);
     set_field_status(FiFi.string_fld, FALSE);
     set_field_buffer_wrap(debuglvl, FiFi.string_fld, 0, filter->str);
-
 
     set_field_back(FiFi.check_fld, vccnf.color_win);
     field_opts_off(FiFi.check_fld, O_AUTOSKIP);
@@ -210,12 +176,8 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
     update_panels();
     doupdate();
 
-    if(!(cur = current_field(my_form)))
-    {
-        vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s:%d).",
-                                __FUNC__, __LINE__);
-        return(-1);
-    }
+    cur = current_field(my_form);
+    vrmr_fatal_if_null(cur);
 
     while(quit == 0)
     {
@@ -262,12 +224,9 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
 
                 case 10: // enter
 
-                    if(cur == FiFi.check_fld)
-                    {
+                    if(cur == FiFi.check_fld) {
                         quit = 1;
-                    }
-                    else
-                    {
+                    } else {
                         form_driver(my_form, REQ_NEXT_FIELD);
                         form_driver(my_form, REQ_END_LINE);
                     }
@@ -285,37 +244,26 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
 
         /* before we get the new 'cur', store cur in prev */
         prev = cur;
-        if(!(cur = current_field(my_form)))
-        {
-            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
-            return(-1);
-        }
+        cur = current_field(my_form);
+        vrmr_fatal_if_null(cur);
 
         /* draw and set cursor */
         wrefresh(ib_win);
         pos_form_cursor(my_form);
     }
 
-    /* save here */
-    if(filter_save(debuglvl, filter) < 0)
-    {
-        vrmr_error(-1, VR_ERR, gettext("setting filter failed."));
-    }
+    /* save here: errors printed in filter_save() */
+    (void)filter_save(debuglvl, filter);
 
     unpost_form(my_form);
     free_form(my_form);
-
-    for(i=0; i < FiFi.n_fields; i++)
-    {
+    for (i = 0; i < FiFi.n_fields; i++) {
         free_field(FiFi.fields[i]);
     }
     free(FiFi.fields);
-
     del_panel(my_panels[0]);
     destroy_win(ib_win);
-
     update_panels();
     doupdate();
-
     return(0);
 }
