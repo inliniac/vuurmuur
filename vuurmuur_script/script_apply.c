@@ -166,38 +166,26 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
 
     /* wait max 60 seconds */
     while (((vuurmuur_result == VRMR_RR_NO_RESULT_YET || vuurmuur_result == VRMR_RR_RESULT_ACK) ||
-                (vuurmuurlog_result == VRMR_RR_NO_RESULT_YET || vuurmuurlog_result == VRMR_RR_RESULT_ACK))
+            (vuurmuurlog_result == VRMR_RR_NO_RESULT_YET || vuurmuurlog_result == VRMR_RR_RESULT_ACK))
             && waittime < 60000000)
     {
-        if(vuurmuur_shmtable != NULL && vuurmuur_semid != -1) {
-            if(vuurmuur_progress < 100)
-            {
-                if(vrmr_lock(vuurmuur_semid))
-                {
-                    if(vuurmuur_shmtable->reload_result != VRMR_RR_READY)
-                    {
-                        vuurmuur_result   = vuurmuur_shmtable->reload_result;
+        if (vuurmuur_shmtable != NULL && vuurmuur_semid != -1) {
+            if (vuurmuur_progress < 100) {
+                if (vrmr_lock(vuurmuur_semid)) {
+                    if (vuurmuur_shmtable->reload_result != VRMR_RR_READY) {
+                        vuurmuur_result = vuurmuur_shmtable->reload_result;
                     }
                     vuurmuur_progress = vuurmuur_shmtable->reload_progress;
-
                     vrmr_unlock(vuurmuur_semid);
                 }
             }
 
-            if(vuurmuur_progress == 100)
-            {
-                if(vuurmuur_semid == -1)
-                {
-                    vuurmuur_result = VRMR_RR_READY;
-                    failed = 1;
-                }
-                else if(vrmr_lock(vuurmuur_semid))
-                {
+            if (vuurmuur_progress == 100) {
+                if(vrmr_lock(vuurmuur_semid)) {
                     vuurmuur_shmtable->reload_result = VRMR_RR_RESULT_ACK;
                     vrmr_unlock(vuurmuur_semid);
 
-                    if(vuurmuur_result != VRMR_RR_SUCCES && vuurmuur_result != VRMR_RR_NOCHANGES)
-                    {
+                    if (vuurmuur_result != VRMR_RR_SUCCES && vuurmuur_result != VRMR_RR_NOCHANGES) {
                         vuurmuur_result = VRMR_RR_READY;
                         failed = 1;
                     }
@@ -208,33 +196,23 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
             failed = 1;
         }
 
-        if(vuurmuurlog_shmtable != NULL && vuurmuurlog_semid != -1) {
-            if(vuurmuurlog_progress < 100)
-            {
-                if(vrmr_lock(vuurmuurlog_semid))
-                {
-                    if(vuurmuurlog_shmtable->reload_result != VRMR_RR_READY)
-                    {
+        if (vuurmuurlog_shmtable != NULL && vuurmuurlog_semid != -1) {
+            if(vuurmuurlog_progress < 100) {
+                if(vrmr_lock(vuurmuurlog_semid)) {
+                    if (vuurmuurlog_shmtable->reload_result != VRMR_RR_READY) {
                         vuurmuurlog_result = vuurmuurlog_shmtable->reload_result;
                     }
                     vuurmuurlog_progress = vuurmuurlog_shmtable->reload_progress;
-
                     vrmr_unlock(vuurmuurlog_semid);
                 }
             }
 
-            if(vuurmuurlog_progress == 100)
-            {
-                if(vuurmuurlog_semid == -1)
-                {
-                }
-                else if(vrmr_lock(vuurmuurlog_semid))
-                {
+            if(vuurmuurlog_progress == 100) {
+                if(vrmr_lock(vuurmuurlog_semid)) {
                     vuurmuurlog_shmtable->reload_result = VRMR_RR_RESULT_ACK;
                     vrmr_unlock(vuurmuurlog_semid);
 
-                    if(vuurmuurlog_result != VRMR_RR_SUCCES && vuurmuur_result != VRMR_RR_NOCHANGES)
-                    {
+                    if (vuurmuurlog_result != VRMR_RR_SUCCES && vuurmuurlog_result != VRMR_RR_NOCHANGES) {
                         vuurmuurlog_result = VRMR_RR_READY;
                         failed = 1;
                     }
@@ -255,14 +233,12 @@ script_apply(const int debuglvl, VuurmuurScript *vr_script)
     }
 
     /* timed out */
-    if(vuurmuur_progress < 100)
-    {
+    if (vuurmuur_progress < 100) {
         failed = 1;
     }
 
     /* timed out */
-    if(vuurmuurlog_progress < 100)
-    {
+    if (vuurmuurlog_progress < 100) {
         failed = 1;
     }
 
