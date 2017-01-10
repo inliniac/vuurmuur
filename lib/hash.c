@@ -733,6 +733,7 @@ vrmr_search_service_in_hash(const int debuglvl, const int src, const int dst, co
     if(vrmr_list_append(debuglvl, &ser_search_ptr->PortrangeList, portrange_ptr) == NULL)
     {
         vrmr_error(-1, "Error", "insert into list failed for src: %d, dst: %d, prot: %d (in: vrmr_search_service_in_hash).", src, dst, protocol);
+        free(portrange_ptr);
         return(NULL);
     }
 

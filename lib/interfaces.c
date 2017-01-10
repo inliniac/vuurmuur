@@ -706,14 +706,15 @@ vrmr_insert_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_int
     {
         vrmr_error(-1, "Internal Error", "vrmr_read_interface_info() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
+        free(iface_ptr);
         return(-1);
     }
 
-
     /* insert into the list (sorted) */
-    if(vrmr_insert_interface_list(debuglvl, interfaces, iface_ptr) < 0)
+    if (vrmr_insert_interface_list(debuglvl, interfaces, iface_ptr) < 0) {
+        free(iface_ptr);
         return(-1);
-
+    }
 
     /* update status */
     iface_ptr->status = VRMR_ST_ADDED;

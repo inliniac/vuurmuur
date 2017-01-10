@@ -350,18 +350,17 @@ vrmr_rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const ch
 
     /* try to open the lockfile */
     lock_fp = fopen(lock_path, "r");
-    if(lock_fp != NULL)
+    if (lock_fp != NULL)
     {
         /* we are locked! enter wait loop */
         vrmr_warning("Warning", "rulesfile is locked, will try for 60 seconds.");
         for(i = 0; i < 60; i++)
         {
             /* close the lockfile */
-            if(fclose(lock_fp) < 0)
-                return(NULL);
+            (void)fclose(lock_fp);
 
             lock_fp = fopen(lock_path, "r");
-            if(lock_fp != NULL)
+            if (lock_fp != NULL)
             {
                 /* we are still locked! */
                 sleep(1);
@@ -369,33 +368,33 @@ vrmr_rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const ch
             else
                 break;
         }
+        if (lock_fp) {
+            (void)fclose(lock_fp);
+            /* one last try */
+            lock_fp = fopen(lock_path, "r");
+            if(lock_fp != NULL)
+            {
+                vrmr_error(-1, "Error", "opening rulesfile timed out, check if there was a crash.");
 
-        /* one last try */
-        lock_fp = fopen(lock_path, "r");
-        if(lock_fp != NULL)
-        {
-            vrmr_error(-1, "Error", "opening rulesfile timed out, check if there was a crash.");
-
-            fclose(lock_fp);
-            free(lock_path);
-
-            return(NULL);
+                fclose(lock_fp);
+                free(lock_path);
+                return(NULL);
+            }
         }
     }
 
     lock_fp = fopen(lock_path, "w");
     if(!lock_fp)
     {
+        free(lock_path);
+
         vrmr_error(-1, "Error", "creating lockfile failed: %s.", strerror(errno));
         return(NULL);
     }
-    else
-    {
-        fprintf(lock_fp, "%d\n", caller);
 
-        fclose(lock_fp);
-        free(lock_path);
-    }
+    fprintf(lock_fp, "%d\n", caller);
+    fclose(lock_fp);
+    free(lock_path);
 
     fp = vuurmuur_fopen(debuglvl, cnf, path, mode);
     return(fp);

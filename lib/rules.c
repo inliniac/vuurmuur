@@ -243,12 +243,7 @@ vrmr_rules_analyze_rule( const int debuglvl,
         }
 
         /* set the action */
-        if(strlcpy(create->action, "protect", sizeof(create->action)) > sizeof(create->action))
-        {
-            vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
-        }
+        strlcpy(create->action, "protect", sizeof(create->action));
     }
     /* network accept rule */
     else if(rule_ptr->type == VRMR_PROT_IPTABLES &&
@@ -1455,14 +1450,7 @@ vrmr_rules_assemble_rule(const int debuglvl, struct vrmr_rule *rule_ptr)
         return(NULL);
     }
 
-    if(strlcpy(line, buf, bufsize) >= bufsize)
-    {
-        vrmr_error(-1, "Internal Error", "string "
-            "overflow (in: %s:%d).", __FUNC__, __LINE__);
-        free(line);
-        return(NULL);
-    }
-
+    strlcpy(line, buf, bufsize);
     return(line);
 }
 
@@ -1596,19 +1584,13 @@ vrmr_rules_save_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rule
                     return(-1);
                 }
 
-                if(line[strlen(line)-1] == '\n')
+                if (line[strlen(line)-1] == '\n')
                     line[strlen(line)-1] = '\0';
 
-                if(strlcpy(eline, line, sizeof(eline)) >= sizeof(eline))
-                {
-                    vrmr_error(-1, "Internal Error", "copy rule failed: buffer to small (in: %s:%d).",
-                            __FUNC__, __LINE__);
-                    return(-1);
-                }
+                strlcpy(eline, line, sizeof(eline));
 
                 free(line);
                 line = NULL;
-
 
                 /* encode */
                 if(vrmr_rules_encode_rule(debuglvl, eline, sizeof(eline)) < 0)
@@ -1859,12 +1841,7 @@ vrmr_rules_assemble_options_string(const int debuglvl, struct vrmr_rule_options 
     }
 
     /* init */
-    if(strlcpy(options, "options ", sizeof(options)) >= sizeof(options))
-    {
-        vrmr_error(-1, "Internal Error", "string "
-            "overflow (in: %s:%d).", __FUNC__, __LINE__);
-        return(NULL);
-    }
+    strlcpy(options, "options ", sizeof(options));
 
     /* this one comes first so it's clearly visible in vuurmuur_conf */
     if(opt->via_int[0] != '\0' && action_type == VRMR_AT_BOUNCE)
@@ -2790,7 +2767,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
     else if(strncmp(curopt, "nfmark", strlen("nfmark")) == 0)
     {
         for(p = 0, o = strlen("nfmark") + 1;
-                o < curopt_len && p < sizeof(portstring);
+                o < curopt_len && p < sizeof(portstring) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
@@ -3383,44 +3360,19 @@ rules_create_protect_rule(const int debuglvl, char *action, /*@null@*/ char *who
     if(rule_ptr->action == VRMR_AT_ACCEPT)
     {
         /* who do we protect */
-        if(strlcpy(rule_ptr->service, danger, sizeof(rule_ptr->service)) >= sizeof(rule_ptr->service))
-        {
-            vrmr_error(-1, "Internal Error", "string "
-                    "overflow (in: %s:%d).", __FUNC__, __LINE__);
-            free(rule_ptr);
-            return(NULL);
-        }
+        strlcpy(rule_ptr->service, danger, sizeof(rule_ptr->service));
     }
     else
     {
         /* who do we protect */
-        if(strlcpy(rule_ptr->who, who, sizeof(rule_ptr->who)) >= sizeof(rule_ptr->who))
-        {
-            vrmr_error(-1, "Internal Error", "string "
-                    "overflow (in: %s:%d).", __FUNC__, __LINE__);
-            free(rule_ptr);
-            return(NULL);
-        }
+        strlcpy(rule_ptr->who, who, sizeof(rule_ptr->who));
 
         /* and against what? */
-        if(strlcpy(rule_ptr->danger, danger, sizeof(rule_ptr->danger)) >= sizeof(rule_ptr->danger))
-        {
-            vrmr_error(-1, "Internal Error", "string "
-                    "overflow (in: %s:%d).", __FUNC__, __LINE__);
-            free(rule_ptr);
-            return(NULL);
-        }
+        strlcpy(rule_ptr->danger, danger, sizeof(rule_ptr->danger));
 
-        if(source != NULL)
-        {
+        if(source != NULL) {
             /* from which source */
-            if(strlcpy(rule_ptr->source, source, sizeof(rule_ptr->source)) >= sizeof(rule_ptr->source))
-            {
-                vrmr_error(-1, "Internal Error", "string "
-                        "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                free(rule_ptr);
-                return(NULL);
-            }
+            strlcpy(rule_ptr->source, source, sizeof(rule_ptr->source));
         }
     }
 
@@ -3521,13 +3473,7 @@ vrmr_rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
                         return(-1);
                     }
 
-                    if(strlcpy(str, rule_ptr->opt->chain, size) >= size)
-                    {
-                        vrmr_error(-1, "Internal Error", "string "
-                                "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                        free(str);
-                        return(-1);
-                    }
+                    strlcpy(str, rule_ptr->opt->chain, size);
 
                     if(vrmr_list_append(debuglvl, &rules->custom_chain_list, str) == NULL)
                     {
@@ -3595,14 +3541,7 @@ vrmr_rules_get_system_chains_per_table(const int debuglvl, char *tablename,
                     return(-1);
                 }
 
-                if(strlcpy(name, chainname, size) >= size)
-                {
-                    vrmr_error(-1, "Internal Error", "string "
-                            "overflow (in: %s:%d).", __FUNC__, __LINE__);
-                    free(name);
-                    pclose(p);
-                    return(-1);
-                }
+                strlcpy(name, chainname, size);
 
                 if(vrmr_list_append(debuglvl, list, name) == NULL)
                 {
@@ -3723,13 +3662,7 @@ vrmr_rules_encode_rule(const int debuglvl, char *rulestr, size_t size)
     }
     line[x] = '\0';
 
-    if(strlcpy(rulestr, line, size) >= size)
-    {
-        vrmr_error(-1, "Internal Error", "encoding rule failed: buffer to small (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-
+    strlcpy(rulestr, line, size);
     return(0);
 }
 
@@ -3739,7 +3672,6 @@ vrmr_rules_decode_rule(const int debuglvl, char *rulestr, size_t size)
     char    line[1024] = "";
     size_t  i = 0,
             x = 0;
-    size_t  len = 0;
 
     /* safety */
     if(rulestr == NULL)
@@ -3763,15 +3695,7 @@ vrmr_rules_decode_rule(const int debuglvl, char *rulestr, size_t size)
     }
     line[x] = '\0';
 
-    /* this error should be impossible... thats why we check ;-) */
-    len = strlcpy(rulestr, line, size);
-    if(len >= size)
-    {
-        vrmr_error(-1, "Internal Error", "decoding rule failed: buffer to small: %u>=%u (in: %s:%d).",
-                len, size, __FUNC__, __LINE__);
-        return(-1);
-    }
-
+    strlcpy(rulestr, line, size);
     return(0);
 }
 
