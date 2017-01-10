@@ -23,12 +23,9 @@
 static void
 menunameprint(const int debuglvl, WINDOW *win, const char *menuname)
 {
-    if(menuname == NULL)
-        return;
-
-    mvwprintw(win, 0, 2, " %s ", menuname);
+    if (menuname != NULL)
+        mvwprintw(win, 0, 2, " %s ", menuname);
 }
-
 
 static int
 keyprint(const int debuglvl, WINDOW *win, int y, int x, const char *keystr, const char *fmt, ...)
@@ -36,11 +33,10 @@ keyprint(const int debuglvl, WINDOW *win, int y, int x, const char *keystr, cons
     int res = 0,
         printlen = 0;
 
-    if(keystr == NULL || fmt == NULL)
-        return(-1);
+    vrmr_fatal_if_null(keystr);
+    vrmr_fatal_if_null(fmt);
 
     printlen = (int)(StrLen(keystr) + 2 + StrLen(fmt));
-
     if(printlen + x > COLS - 2)
         return(0);
     if(x > COLS - 2)
@@ -55,17 +51,12 @@ keyprint(const int debuglvl, WINDOW *win, int y, int x, const char *keystr, cons
     wattroff(win, vccnf.color_bgd_hi | A_BOLD);
 
     res = (int)(x + StrLen(keystr) + 1 + StrLen(fmt) + 2);
-
     return(res);
 }
 
-
-struct
-{
-    char    hostname[60];
-
+struct {
+    char hostname[60];
 } TopMenu;
-
 
 static void
 setup_topmenu(WINDOW *local_win)
@@ -93,12 +84,7 @@ draw_top_menu(const int debuglvl, WINDOW *local_win, char *title, int key_n, cha
     int pos = 2,
         i = 0;
 
-    if(key_n != cmd_n)
-    {
-        vrmr_error(-1, VR_INTERR, "key_n != cmd_n (in: %s:%d)",
-                            __FUNC__, __LINE__);
-        return;
-    }
+    vrmr_fatal_if(key_n != cmd_n);
 
     werase(local_win);
 
@@ -108,10 +94,9 @@ draw_top_menu(const int debuglvl, WINDOW *local_win, char *title, int key_n, cha
     menunameprint(debuglvl, local_win, title);
     wattroff(local_win, vccnf.color_bgd);
 
-    for(i = 0; i < key_n; i++)
-    {
+    for (i = 0; i < key_n; i++) {
         pos = keyprint(debuglvl, local_win, 1, pos, keys[i], cmds[i]);
-        if(pos == 0)
+        if(pos <= 0)
             break;
     }
 

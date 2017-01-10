@@ -24,13 +24,11 @@
 #include <ncursesw/panel.h>
 #endif /* HAVE_NC_WIDE_HEADERS */
 #if defined(NCURSES_VERSION_PATCH) && (NCURSES_VERSION_PATCH < 20071013)
-#define NCURSES_FIELD_INTERNALS char** expanded; WINDOW *working;
+#error "upgrade your ncurses to something recent please"
 #endif
 #endif /* USE_WIDEC */
 #include "main.h"
 
-// minimun width = 13
-// TODO: check maximum width of both values
 /*
 
     returns 1 if yes, 0 if no
@@ -62,75 +60,50 @@ confirm(char *title, char *text, chtype forecolor, chtype backcolor, int def)
 
     char    *print_title;
 
-
     /* safety */
-    if(!title || !text)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if_null(title);
+    vrmr_fatal_if_null(text);
 
-    if(width-4 < (int)StrLen(text))
+    if (width-4 < (int)StrLen(text))
         width = (int)StrLen(text) + 4;
-    if(width-6 < (int)StrLen(title))
+    if (width-6 < (int)StrLen(title))
         width = (int)StrLen(title) + 6;
-
     getmaxyx(stdscr, max_y, max_x);
     startx = (max_x - width) /2;
     starty = (max_y - height)/2;
 
-    /* get some mem */
-    if(!(print_title = malloc(StrMemLen(title)+3)))
-        return(-1);
-
+    print_title = malloc(StrMemLen(title)+3);
+    vrmr_fatal_alloc("malloc", print_title);
     snprintf(print_title, StrMemLen(title) + 3, " %s ", title);
 
-    // first display the menu
     menu_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *));
-    if(menu_items == NULL) {
-        free(print_title);
-        return(-1);
-    }
-
-    for(i = 0; i < n_choices; ++i)
-    {
+    vrmr_fatal_alloc("calloc", menu_items);
+    for (i = 0; i < n_choices; ++i) {
         menu_items[i] = new_item(choices[i], NULL);
     }
     menu_items[n_choices] = (ITEM *)NULL;
-
     confirm_menu = new_menu((ITEM **)menu_items);
-
+    vrmr_fatal_if_null(confirm_menu);
     confirm_win = newwin(height, width, starty, startx);
     wbkgd(confirm_win, backcolor);
     keypad(confirm_win, TRUE);
     wrefresh(confirm_win);
-
     my_panels[0] = new_panel(confirm_win);
-
     set_menu_win(confirm_menu, confirm_win);
     dw = derwin(confirm_win, height-4, 10, 4, (width)/2-5);
     set_menu_sub(confirm_menu, dw);
-
     set_menu_format(confirm_menu, height-4, 2);
-
     box(confirm_win, 0, 0);
     print_in_middle(confirm_win, 0, 0, width, print_title, backcolor);
     print_in_middle(confirm_win, 2, 0, width, text, backcolor);
-
     set_menu_back(confirm_menu, backcolor);
     set_menu_fore(confirm_menu, forecolor);
-
-    fix_wide_menu(0, confirm_menu, menu_items);
-
     post_menu(confirm_menu);
 
-
     /* set the cursor to the 'no' position */
-    if(!def)
-    {
+    if (!def) {
         menu_driver(confirm_menu, REQ_RIGHT_ITEM);
     }
-
     update_panels();
     doupdate();
 
@@ -155,32 +128,31 @@ confirm(char *title, char *text, chtype forecolor, chtype backcolor, int def)
             case 10: // enter
             {
                 cur = current_item(confirm_menu);
-                if(strcmp((char *)item_name(cur), STR_YES) == 0)
-                {
-                    retval=1;
+                vrmr_fatal_if_null(cur);
+                if (strcmp((char *)item_name(cur), STR_YES) == 0) {
+                    retval = 1;
                 }
-
-                quit=1;
+                quit = 1;
                 break;
             }
 
             case 'y':
             case 'Y':
-                retval=1;
-                quit=1;
+                retval = 1;
+                quit = 1;
                 break;
 
             case 'n':
             case 'N':
-                retval=0;
-                quit=1;
+                retval = 0;
+                quit = 1;
                 break;
 
             case 27:
             case KEY_F(10):
             case 'q':
             case 'Q':
-                quit=1;
+                quit = 1;
                 break;
         }
     }
@@ -189,21 +161,15 @@ confirm(char *title, char *text, chtype forecolor, chtype backcolor, int def)
     free_menu(confirm_menu);
     for(i = 0; i < n_choices; ++i)
         free_item(menu_items[i]);
-
     free(menu_items);
-
     destroy_win(dw);
-
     del_panel(my_panels[0]);
-
     destroy_win(confirm_win);
-
     free(print_title);
     update_panels();
     doupdate();
     return(retval);
 }
-
 
 char *
 input_box(size_t length, char *title, char *description)
@@ -236,43 +202,30 @@ input_box(size_t length, char *title, char *description)
     // set the window size
     getmaxyx(stdscr, max_height, max_width);
     height = 8;
-    if(length < 16)
-    {
+    if (length < 16) {
         width = 37; // minimum TODO: why 37?
-    }
-    else if((int)length + 8 > max_width)
-    {
+    } else if((int)length + 8 > max_width) {
         free(temp_ptr);
         return NULL;
-    }
-    else
-    {
+    } else {
         width = (int)length + 8;
         if((int)StrLen(title) + 8 > width)
             width = (int)StrLen(title)+8;
-
         if((int)StrLen(description)+8 > width)
             width = (int)StrLen(description)+8;
     }
-
     // print on the centre of the screen
     starty = (max_height-height)/2;
     startx = (max_width-width)/2;
 
     // create window
     ib_win = create_newwin(height, width, starty, startx, title, vccnf.color_win);
-
     my_panels[0] = new_panel(ib_win);
-
     fields = (FIELD **)calloc(1 + 1, sizeof(FIELD *));
-
     fields[0] = new_field(1, (int)length-1, 3, (int)(((width-length)/2)-2), 0, 0);
-
     set_field_back(fields[0], vccnf.color_win_rev);
     field_opts_off(fields[0], O_AUTOSKIP);
-    // set status to false
     set_field_status(fields[0], FALSE);
-
     my_form = new_form(fields);
     scale_form(my_form, &rows, &cols);
     keypad(ib_win, TRUE);
@@ -323,12 +276,10 @@ input_box(size_t length, char *title, char *description)
     // get the length of the entry
     for(i=0; temp_ptr[i] != ' ' && i < (int)length-1; i++);
 
-    if(!(result_ptr = malloc((size_t)(i+1))))
-    {
+    if(!(result_ptr = strdup(temp_ptr))) {
         vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
         goto end;
     }
-    strlcpy(result_ptr, temp_ptr, (size_t)i+1);
 
     if(result_ptr[0] == '\0')
     {
@@ -338,166 +289,20 @@ input_box(size_t length, char *title, char *description)
 
 end:
     free(temp_ptr);
-
     unpost_form(my_form);
     free_form(my_form);
-
     free_field(fields[0]);
     free(fields);
-
     del_panel(my_panels[0]);
     destroy_win(ib_win);
-
     update_panels();
     doupdate();
-
     return(result_ptr);
 }
-
-
-/*  fix_wide_menu
-
-    NOTE: run right before post_menu
-
-    This function adds some ncurses hacking voodoo. Basicly ncurses before
-    5.5 + 20051210 patch doesnt get the menu size right when the menu
-    items contain wide characters. So in this function we re-check the
-    length of the items and correct the flawed values ncurses comes up with.
-    Of course, we don't touch it when we are not in wide mode, and try not
-    to change anything unneeded.
-
-    Currently we handle two cases:
-
-    1. one column, name + desc:
-        - name len
-        - desc len
-        - menu width
-
-        This is how the mainmenu works.
-
-    2. two columns, only name (desc NULL)
-        - we adjust itemlen to be max_name_len + menu->spc_cols
-
-        This is how the confirm template works.
-*/
-void
-fix_wide_menu(const int debuglvl, MENU *menu, ITEM **items)
-{
-#ifdef USE_WIDEC
-    size_t  name_len = 0,
-            desc_len = 0;
-    size_t  max_name_len = 0,
-            max_desc_len = 0;
-    size_t  mwidth = 0,
-            max_mwidth = 0;
-    int     i = 0;
-
-    if(menu == NULL || items == NULL)
-        return;
-
-    /* loop through all the items and get the length of the strings */
-    for(i = 0; i < menu->nitems; i++)
-    {
-        name_len = 0;
-        desc_len = 0;
-
-        if(items[i] != NULL)
-        {
-            /* name */
-            if(items[i]->name.str != NULL)
-            {
-                name_len = StrLen(items[i]->name.str);
-                if(name_len > max_name_len)
-                    max_name_len = name_len;
-
-                if(debuglvl >= LOW)
-                        vrmr_debug(__FUNC__, "name "
-                    "%s, len %u", items[i]->name.str,
-                    name_len);
-            }
-
-            /* description */
-            if(items[i]->description.str != NULL)
-            {
-                desc_len = StrLen(items[i]->description.str);
-                if(desc_len > max_desc_len)
-                    max_desc_len = desc_len;
-
-                if(debuglvl >= LOW)
-                    vrmr_debug(__FUNC__, "desc %s"
-                    ", len %u", items[i]->description.str,
-                    desc_len);
-            }
-        }
-
-        mwidth = name_len + desc_len;
-        if(mwidth > max_mwidth)
-            max_mwidth = mwidth;
-    }
-
-    if(menu->namelen > (int)max_name_len)
-    {
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "adjusting menu->namelen "
-                "to %u, was %u.", max_name_len, menu->namelen);
-
-        menu->namelen = max_name_len;
-    }
-    if(menu->desclen > (int)max_desc_len)
-    {
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "adjusting menu->desclen "
-                "to %u, was %u.", max_desc_len, menu->desclen);
-
-        menu->desclen = max_desc_len;
-    }
-
-    /* adjust menu->width if needed */
-    if(menu->cols == 1)
-    {
-        if(menu->width > (int)(max_mwidth + 2))
-        {
-            if(debuglvl >= LOW)
-                vrmr_debug(__FUNC__, "adjusting "
-                    "menu->width to %u, was %u.",
-                    max_mwidth, menu->width);
-
-            menu->width = max_mwidth + 2;
-        }
-    }
-    /* adjust menu->itemlen if needed */
-    else if(menu->cols == 2)
-    {
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "width %u, cols %u, "
-                "fcols %u, itemlen %u, spc_desc %u, "
-                "spc_cols %u",
-                menu->width, menu->cols, menu->fcols,
-                menu->itemlen, menu->spc_desc,
-                menu->spc_cols);
-
-        /* no desc */
-        if(max_desc_len == 0)
-        {
-            if((int)max_name_len + (int)menu->spc_cols != (int)menu->itemlen)
-            {
-                menu->itemlen = max_name_len + menu->spc_cols;
-
-                if(debuglvl >= LOW)
-                    vrmr_debug(__FUNC__,
-                        "adjusting itemlen to %u",
-                        menu->itemlen);
-            }
-        }
-    }
-#endif /* USE_WIDEC */
-}
-
 
 int
 vuumuurconf_print_warning(char *title, char *fmt, ...)
 {
-    int     retval = 0;
     va_list ap;
     char    long_str[512] = "";
 
@@ -516,31 +321,21 @@ vuumuurconf_print_warning(char *title, char *fmt, ...)
     va_end(ap);
 
     getmaxyx(stdscr, max_height, max_width);
-
     width = (int)StrLen(long_str)+15;
-    if(width > max_width)
-    {
+    if(width > max_width) {
         width = max_width - 10;
     }
-
     starty = (max_height - height) / 2;
     startx = (max_width - width) / 2;
-
     err_win = create_newwin(height, width, starty, startx, title, vccnf.color_win);
-    if(err_win == NULL)
-        return(-1);
-
+    assert(err_win);
     print_err_win = newwin(height-4, width-6, starty+2, startx+3);
-    if(print_err_win == NULL)
-        return(-1);
-
+    assert(print_err_win);
     wbkgd(print_err_win, vccnf.color_win);
     my_panels[0] = new_panel(err_win);
     keypad(err_win, TRUE);
-
     wprintw(print_err_win, "%s: %s", gettext("Warning"), long_str);
     mvwprintw(err_win, height-2, 2, gettext("Press any key to continue..."));
-
     update_panels();
     doupdate();
 
@@ -549,18 +344,14 @@ vuumuurconf_print_warning(char *title, char *fmt, ...)
     del_panel(my_panels[0]);
     destroy_win(print_err_win);
     destroy_win(err_win);
-
     update_panels();
     doupdate();
-
-    return(retval);
+    return(0);
 }
-
 
 int
 vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
 {
-    int     retval=0;
     va_list ap;
     char    long_str[512] = "";
     WINDOW  *err_win = NULL,
@@ -578,31 +369,21 @@ vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
     va_end(ap);
 
     getmaxyx(stdscr, max_height, max_width);
-
     width = (int)StrLen(long_str) + 13;
-    if(width > max_width)
-    {
+    if (width > max_width) {
         width = max_width - 10;
     }
-
     starty = (max_height - height) / 2;
     startx = (max_width - width) / 2;
-
     err_win = create_newwin(height, width, starty, startx, title, vccnf.color_win_warn|A_BOLD);
-    if(err_win == NULL)
-        return(-1);
-
+    assert(err_win);
     print_err_win = newwin(height-4, width-6, starty+2, startx+3);
-    if(print_err_win == NULL)
-        return(-1);
-
+    assert(print_err_win);
     wbkgd(print_err_win, vccnf.color_win_warn|A_BOLD);
     my_panels[0] = new_panel(err_win);
     keypad(err_win, TRUE);
-
     wprintw(print_err_win, "%s: %s (%d)", gettext("Error"), long_str, error_no);
     mvwprintw(err_win, height-2, 2, gettext("Press any key to continue..."));
-
     update_panels();
     doupdate();
 
@@ -611,18 +392,15 @@ vuumuurconf_print_error(int error_no, char *title, char *fmt, ...)
     del_panel(my_panels[0]);
     destroy_win(print_err_win);
     destroy_win(err_win);
-
     update_panels();
     doupdate();
-
-    return(retval);
+    return(0);
 }
 
 
 int
 vuumuurconf_print_info(char *title, char *fmt, ...)
 {
-    int     retval=0;
     va_list ap;
     char    long_str[512] = "";
 
@@ -634,10 +412,8 @@ vuumuurconf_print_info(char *title, char *fmt, ...)
 
     update_panels();
     doupdate();
-
-    return(retval);
+    return(0);
 }
-
 
 /*
     draws a box where the user can make a choice
@@ -688,135 +464,83 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
     unsigned int    col_n = 1,
                     first_col = 0;
 
-    if(n_choices == 0)
-    {
-        vrmr_error(-1, VR_INTERR, "n_choices == 0 (in: %s:%d).", __FUNC__, __LINE__);
-        return(NULL);
-    }
+    vrmr_fatal_if(n_choices == 0);
+    vrmr_fatal_if(cols == 0);
 
-    /*
-        cols can never be 0 ofcourse
-    */
-    if(cols == 0)
-        cols = 1;
-
-    /*
-        get the screen size
-    */
     getmaxyx(stdscr, max_height, max_width);
-
-    /*
-        determine the minimal width of the window
-    */
     len = StrLen(title);
-    if(StrLen(text) > len)
+    if (StrLen(text) > len)
         len = StrLen(text);
 
-    for(i = 0; i < n_choices; i++)
-    {
-        if(StrLen(choices[i]) > item_len)
-        {
+    for (i = 0; i < n_choices; i++) {
+        if (StrLen(choices[i]) > item_len) {
             item_len = StrLen(choices[i]);
         }
     }
 
-    if((int)(item_len * cols + 8) > max_width)
+    if ((int)(item_len * cols + 8) > max_width)
         cols = 1;
-
     min_len = len + 8;
-
-    if(cols == 1)
+    if (cols == 1) {
         width = (int)item_len + 8;
-    else
-    {
+    } else {
         width = (int)item_len * cols + 8;
     }
-
-    if(width < (int)min_len)
+    if (width < (int)min_len)
         width = (int)min_len;
-
-    /*
-        set height, if it is to big we set starty
-    */
     height = 6 + (n_choices / cols);
-    if(height > max_height - 8)
-    {
+    if (height > max_height - 8) {
         height = max_height - 8;
     }
-
-    /*
-        center the window
-    */
     starty = (max_height - height)/2;
     startx = (max_width - width)/2;
 
     print_title = malloc(StrMemLen(title)+3);
-    if(print_title == NULL)
-        return(NULL);
-
+    vrmr_fatal_alloc("malloc", print_title);
     snprintf(print_title, StrMemLen(title)+3, " %s ", title);
 
-    if(!(menu_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *)))) {
-        free(print_title);
-        return(NULL);
-    }
-
-    for(i = 0; i < n_choices; ++i)
-    {
+    menu_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *));
+    vrmr_fatal_if_null(menu_items);
+    for(i = 0; i < n_choices; ++i) {
         menu_items[i] = new_item(choices[i], NULL);
     }
     menu_items[n_choices] = (ITEM *)NULL;
 
     top = menu_items[0];
-
-    if(cols == 1)
+    if (cols == 1) {
         bot = menu_items[i - 1];
-    else
-    {
-        for(x = 0; x < n_choices; x++)
+    } else {
+        for (x = 0; x < n_choices; x++)
         {
-            if(col_n == 1)
+            if (col_n == 1)
                 first_col++;
-
-            if(col_n == cols)
+            if (col_n == cols)
                 col_n = 0;
-
             col_n++;
         }
-
         bot = menu_items[first_col-1];
     }
 
     confirm_menu = new_menu((ITEM **)menu_items);
-
     confirm_win = newwin(height, width, starty, startx);
     wbkgd(confirm_win, vccnf.color_win);
     keypad(confirm_win, TRUE);
     wrefresh(confirm_win);
-
     my_panels[0] = new_panel(confirm_win);
-
     set_menu_win(confirm_menu, confirm_win);
     set_menu_sub(confirm_menu, derwin(confirm_win, height-5, width-3, 4, 2));
-
     set_menu_format(confirm_menu, height-5, (int)cols);
-
     box(confirm_win, 0, 0);
     print_in_middle(confirm_win, 0, 0, width, print_title, vccnf.color_win);
     print_in_middle(confirm_win, 2, 0, width, text, vccnf.color_win);
-
     set_menu_back(confirm_menu, vccnf.color_win);
     set_menu_fore(confirm_menu, vccnf.color_win_rev);
 
-    /*
-        make sure the colums are filled top->down, not left->right
-    */
+    /* make sure the colums are filled top->down, not left->right */
     menu_opts_off(confirm_menu, O_ROWMAJOR);
     post_menu(confirm_menu);
 
-
-    if(set_to_name != NULL)
-    {
+    if (set_to_name != NULL) {
         down = 1;
         done = 0;
         first_item = current_item(confirm_menu);
@@ -846,11 +570,6 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
                 found = 1;
                 done = 1;
             }
-
-            //status_print(status_win, "down: %d", down);
-            //update_panels();
-            //doupdate();
-            //sleep(1);
         }
 
         if(found == 0)
@@ -861,29 +580,20 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
     }
 
     /* create the top and bottom fields */
-    if(!(win_top = newwin(1, 6, starty + 3, startx + width - 8)))
-    {
-        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
-        return(NULL);
-    }
+    win_top = newwin(1, 6, starty + 3, startx + width - 8);
+    vrmr_fatal_if_null(win_top);
     wbkgd(win_top, vccnf.color_win);
     panel_top[0] = new_panel(win_top);
     /* TRANSLATORS: max 4 chars */
     wprintw(win_top, "(%s)", gettext("more"));
     hide_panel(panel_top[0]);
-
-    if(!(win_bot = newwin(1, 6, starty + height - 1, startx + width - 8)))
-    {
-        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
-        return(NULL);
-    }
+    win_bot = newwin(1, 6, starty + height - 1, startx + width - 8);
+    vrmr_fatal_if_null(win_bot);
     wbkgd(win_bot, vccnf.color_win);
     panel_bot[0] = new_panel(win_bot);
     /* TRANSLATORS: max 4 chars */
     wprintw(win_bot, "(%s)", gettext("more"));
     hide_panel(panel_bot[0]);
-
-
     update_panels();
     doupdate();
 
@@ -898,7 +608,6 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
             show_panel(panel_bot[0]);
         else
             hide_panel(panel_bot[0]);
-
         update_panels();
         doupdate();
 
@@ -941,28 +650,21 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
 
                 break;
 
-            /*
-                not so nice code: if we only have one column we fall
-                trough...
-            */
             case KEY_RIGHT:
                 if(cols > 1)
                 {
                     menu_driver(confirm_menu, REQ_RIGHT_ITEM);
                     break;
                 }
+                /* fall through */
 
-//            case KEY_RIGHT:
             case 32:
             case 10: // enter
             {
                 ITEM *cur_item = current_item(confirm_menu);
-
+                vrmr_fatal_if_null(cur_item);
                 select_ptr = strdup((char *)item_name(cur_item));
-                if (select_ptr == NULL)
-                    vrmr_error(-1, VR_ERR, gettext("strdup failed: %s (in: %s:%d)."),
-                            strerror(errno), __func__, __LINE__);
-
+                vrmr_fatal_alloc("strdup", select_ptr);
                 quit = 1;
                 break;
             }
@@ -981,26 +683,18 @@ selectbox(char *title, char *text, size_t n_choices, char **choices, unsigned in
     */
     unpost_menu(confirm_menu);
     free_menu(confirm_menu);
-
-    for(i = 0; i < n_choices; ++i)
+    for (i = 0; i < n_choices; ++i)
         free_item(menu_items[i]);
-
     free(menu_items);
-
     del_panel(my_panels[0]);
-
     destroy_win(confirm_win);
-
     del_panel(panel_top[0]);
     destroy_win(win_top);
     del_panel(panel_bot[0]);
     destroy_win(win_bot);
-
     free(print_title);
-
     update_panels();
     doupdate();
-
     return(select_ptr);
 }
 
@@ -1009,10 +703,10 @@ status_print(WINDOW *local_win, char *fmt, ...)
 {
     va_list ap;
     char    long_str[256] = ""; /*  this must be bigger than the
-                        screen so wide chars also fit */
+                                    screen so wide chars also fit */
 
-    if(!local_win || !fmt)
-        return(-1);
+    vrmr_fatal_if_null(local_win);
+    vrmr_fatal_if_null(fmt);
 
     werase(local_win);
 
@@ -1024,10 +718,8 @@ status_print(WINDOW *local_win, char *fmt, ...)
     mvwprintw(local_win, 0, 0, "%s", long_str);
     wattroff(local_win, vccnf.color_bgd | A_BOLD);
     wrefresh(local_win);
-
     return(0);
 }
-
 
 /*
     wrapper around set_field_buffer so we always send only 'printable' characters.
@@ -1048,8 +740,8 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
 #endif /* USE_WIDEC */
 
     /* safety */
-    if(!field || !value)
-        return;
+    vrmr_fatal_if_null(field);
+    vrmr_fatal_if_null(value);
 
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "value: '%s'.", value);
@@ -1072,10 +764,10 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
 
     /* calc the total field size */
     field_size = field_rows * field_cols;
-    if(field_size >= (int)sizeof(buffer))
+    if (field_size >= (int)sizeof(buffer))
         field_size = (int)sizeof(buffer) - 1;
 
-    if(debuglvl >= HIGH)
+    if (debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "field_size: '%d', field_rows: '%d', field_cols: '%d'.", field_size, field_rows, field_cols);
 
 #ifdef USE_WIDEC
@@ -1088,7 +780,6 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
 
     wcstombs(buffer, wbuffer, sizeof(buffer));
 #else
-
     /* get the size of the string */
     value_size = StrLen(value);
 
@@ -1096,7 +787,6 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
         vrmr_debug(__FUNC__, "value_size: '%d'.", value_size);
 
     /* copy the string into the new buffer */
-    //strlcpy(buffer, value, field_size+1);
     (void)strlcpy(buffer, value, sizeof(buffer));
 
     if(debuglvl >= HIGH)
@@ -1128,11 +818,7 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
         }
         else
             vrmr_debug(__FUNC__, "set_field_buffer: unknown returncode %d", result);
-
-        return;
     }
-
-    return;
 }
 
 FIELD *
@@ -1141,34 +827,6 @@ new_field_wrap(int rows, int cols, int frow, int fcol, int nrow, int nbuf)
     FIELD *f = new_field (rows, cols, frow, fcol, nrow, nbuf);
     if (f == NULL)
         return(NULL);
-
-#ifdef USE_WIDEC
-#ifdef HAVE_NC_WIDE_HEADERS
-    /* Work around a Ncurses bug that occurs when nbufs are used.
-     * See: https://bugzilla.redhat.com/show_bug.cgi?id=310071
-     */
-#if defined(NCURSES_VERSION_PATCH) && (NCURSES_VERSION_PATCH < 20071013)
-    if (nbuf) {
-        size_t len = (1 + (unsigned)nbuf) * sizeof(char *);
-        /* realloc the memory so it will be enough */
-        f->expanded = realloc(f->expanded, len);
-        if (f->expanded == NULL) {
-            vrmr_error(-1, VR_INTERR, "realloc failed: %s (in: %s:%d)",
-                strerror(errno), __FUNC__, __LINE__);
-            return(NULL);
-        }
-
-        /* set the memory to null, otherwise the memory
-         * will be used uninitialized.
-         *
-         * ncurses doesn't use memset for this, but I
-         * noticed all bytes are 0 anyway, so memset
-         * should be fine */
-        memset(f->expanded, 0, len);
-    }
-#endif /* ncurses patchlvl */
-#endif /* HAVE_NC_WIDE_HEADERS */
-#endif /* USE_WIDEC */
     return(f);
 }
 

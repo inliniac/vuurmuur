@@ -1500,9 +1500,6 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     set_menu_format(main_menu, y-4, 1);
     set_menu_back(main_menu, vccnf.color_win);
     set_menu_fore(main_menu, vccnf.color_win_rev);
-
-    fix_wide_menu(debuglvl, main_menu, menu_items);
-
     post_menu(main_menu);
 
     /* the form for the status */

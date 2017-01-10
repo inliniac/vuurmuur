@@ -933,6 +933,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                         STR_SAVING_TO_BACKEND_FAILED,
                         __FUNC__, __LINE__);
+                free(tempiface_ptr);
                 return(-1);
             }
 
@@ -957,6 +958,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                         STR_SAVING_TO_BACKEND_FAILED,
                         __FUNC__, __LINE__);
+                free(tempiface_ptr);
                 return(-1);
             }
 
@@ -982,6 +984,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                         STR_SAVING_TO_BACKEND_FAILED,
                         __FUNC__, __LINE__);
+                free(tempiface_ptr);
                 return(-1);
             }
 
@@ -1007,6 +1010,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                             STR_SAVING_TO_BACKEND_FAILED,
                             __FUNC__, __LINE__);
+                    free(tempiface_ptr);
                     return(-1);
                 }
             }
@@ -1020,6 +1024,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                             STR_SAVING_TO_BACKEND_FAILED,
                             __FUNC__, __LINE__);
+                    free(tempiface_ptr);
                     return(-1);
                 }
             }
@@ -1048,6 +1053,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                         STR_SAVING_TO_BACKEND_FAILED,
                         __FUNC__, __LINE__);
+                free(tempiface_ptr);
                 return(-1);
             }
 
@@ -1070,6 +1076,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                             STR_SAVING_TO_BACKEND_FAILED,
                             __FUNC__, __LINE__);
+                    free(tempiface_ptr);
                     return(-1);
                 }
 
@@ -1088,6 +1095,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                         STR_SAVING_TO_BACKEND_FAILED,
                         __FUNC__, __LINE__);
+                free(tempiface_ptr);
                 return(-1);
             }
 
@@ -1115,6 +1123,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                         STR_SAVING_TO_BACKEND_FAILED,
                         __FUNC__, __LINE__);
+                free(tempiface_ptr);
                 return(-1);
             }
 
@@ -1140,6 +1149,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                         STR_SAVING_TO_BACKEND_FAILED,
                         __FUNC__, __LINE__);
+                free(tempiface_ptr);
                 return(-1);
             }
 

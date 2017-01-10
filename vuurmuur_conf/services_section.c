@@ -1574,10 +1574,16 @@ edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_serv
                     menu_driver(ServicesSection.EditServicePrt.menu, REQ_UP_ITEM);
                     break;
                 case KEY_NPAGE:
-                    menu_driver(ServicesSection.EditServicePrt.menu, REQ_SCR_DPAGE); // page up
+                    if(menu_driver(ServicesSection.EditServicePrt.menu, REQ_SCR_DPAGE) != E_OK)
+                    {
+                        while(menu_driver(ServicesSection.EditServicePrt.menu, REQ_DOWN_ITEM) == E_OK);
+                    }
                     break;
                 case KEY_PPAGE:
-                    menu_driver(ServicesSection.EditServicePrt.menu, REQ_SCR_UPAGE); // page down
+                    if(menu_driver(ServicesSection.EditServicePrt.menu, REQ_SCR_UPAGE) != E_OK)
+                    {
+                        while(menu_driver(ServicesSection.EditServicePrt.menu, REQ_UP_ITEM) == E_OK);
+                    }
                     break;
                 case KEY_HOME:
                     menu_driver(ServicesSection.EditServicePrt.menu, REQ_FIRST_ITEM); // page up
