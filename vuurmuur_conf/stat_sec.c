@@ -196,18 +196,20 @@ static int get_conntrack_max(int *conntrack_max)
             line[16] = "";
 
     /* try to open the conntrack max file */
-    if(!(fp = fopen(proc_ip_conntrack_max, "r"))) {
-        if(!(fp = fopen(proc_nf_conntrack_max, "r"))) {
+    if (!(fp = fopen(proc_ip_conntrack_max, "r"))) {
+        if (!(fp = fopen(proc_nf_conntrack_max, "r"))) {
             return(-1);
         }
     }
 
-    if(fgets(line, (int)sizeof(line), fp) != NULL)
-        *conntrack_max = atoi(line);
+    if (fgets(line, (int)sizeof(line), fp) != NULL) {
+        int v = atoi(line);
+        if (v >= 0 && v < 2000000000) {
+            *conntrack_max = v;
+        }
+    }
 
-    if(fclose(fp) < 0)
-        return(-1);
-
+    (void)fclose(fp);
     return(0);
 }
 

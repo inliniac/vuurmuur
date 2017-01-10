@@ -1130,6 +1130,7 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
                     vrmr_error(-1, VR_ERR, gettext("invalid protocol. Enter a number in the range 0-255."));
                     retval = -1;
                 }
+                free(protostr);
             }
         }
         else {
@@ -1318,11 +1319,11 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
     VrWinGetOffset(-1, -1, height, width, 4, ServicesSection.EditService.se_xre + 1, &starty, &startx);
 
     // string item list
-    vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_list, free);
+    vrmr_fatal_if(vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_list, free) < 0);
     // number item list
-    vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_number_list, free);
+    vrmr_fatal_if(vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_number_list, free) < 0);
 
-    for(i = 0, d_node = ser_ptr->PortrangeList.top; d_node ; d_node = d_node->next, i++)
+    for (i = 0, d_node = ser_ptr->PortrangeList.top; d_node ; d_node = d_node->next, i++)
     {
         vrmr_fatal_if_null(d_node->data);
         portrange_ptr = d_node->data;
@@ -1443,7 +1444,6 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
     wprintw(ServicesSection.EditServicePrt.win_bot, "(%s)", gettext("more"));
     hide_panel(ServicesSection.EditServicePrt.panel_bot[0]);
 }
-
 
 static void
 edit_serv_portranges_destroy(const int debuglvl)

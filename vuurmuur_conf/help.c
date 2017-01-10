@@ -896,7 +896,7 @@ print_about(const int debuglvl)
     startx = (max_width - width) / 2;
     starty = 4;
 
-    vrmr_list_setup(debuglvl, &about_list, free_helpword);
+    vrmr_fatal_if(vrmr_list_setup(debuglvl, &about_list, free_helpword) < 0);
 
     char copyright[64];
     snprintf(copyright, sizeof(copyright), "%s.\n", VUURMUUR_COPYRIGHT);

@@ -151,9 +151,6 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
     vrmr_fatal_if_null(device);
     vrmr_fatal_if_null(list);
 
-    /* setup the list */
-    vrmr_list_setup(debuglvl, list, free);
-
     if(debuglvl >= LOW)
         vrmr_debug(__FUNC__, "looking for data for '%s'.", device);
 
@@ -161,8 +158,10 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
     fd = vrmr_create_tempfile(debuglvl, tmpfile);
     if (fd == -1)
         return(-1);
-
     close(fd);
+
+    /* setup the list */
+    vrmr_fatal_if(vrmr_list_setup(debuglvl, list, free) < 0);
 
     snprintf(cmd_year_str, sizeof(cmd_year_str), "%d", year);
     snprintf(cmd_month_str, sizeof(cmd_month_str), "%d", month);

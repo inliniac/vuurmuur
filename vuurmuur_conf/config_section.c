@@ -2692,7 +2692,7 @@ view_ip6_caps(const int debuglvl, struct vrmr_config *conf)
             starty,
             max_height,
             max_width;
-    struct vrmr_iptcaps  iptcap;
+    struct vrmr_iptcaps iptcap;
     char    reload = 0;
     /* top menu */
     char    *key_choices[] =    {   "F12",
@@ -2703,7 +2703,6 @@ view_ip6_caps(const int debuglvl, struct vrmr_config *conf)
                                     gettext("probe"),
                                     gettext("back")};
     int     cmd_choices_n = 3;
-
 
     /* window dimentions */
     getmaxyx(stdscr, max_height, max_width);
@@ -2716,6 +2715,7 @@ view_ip6_caps(const int debuglvl, struct vrmr_config *conf)
     draw_top_menu(debuglvl, top_win, gettext("IPv6 Capabilities"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     /* load iptcaps */
+    memset(&iptcap, 0, sizeof(iptcap));
     result = vrmr_load_ip6tcaps(debuglvl, conf, &iptcap, 0);
     if(result == -1)
     {
@@ -2925,8 +2925,8 @@ config_menu(const int debuglvl, struct vrmr_config *conf)
 
                 cur = current_item(main_menu);
                 vrmr_fatal_if_null(cur);
-                choice_ptr = malloc(StrMemLen((char *)item_name(cur))+1);
-                strcpy(choice_ptr, (char *)item_name(cur));
+                choice_ptr = strdup((char *)item_name(cur));
+                vrmr_fatal_alloc("strdup", choice_ptr);
                 break;
         }
 
