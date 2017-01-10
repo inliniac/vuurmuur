@@ -711,6 +711,8 @@ vrmr_search_service_in_hash(const int debuglvl, const int src, const int dst, co
     if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
     {
         vrmr_error(-1, "Error", "malloc failed: %s (in: vrmr_search_service_in_hash).", strerror(errno));
+
+        free(ser_search_ptr);
         return(NULL);
     }
 
@@ -734,6 +736,7 @@ vrmr_search_service_in_hash(const int debuglvl, const int src, const int dst, co
     {
         vrmr_error(-1, "Error", "insert into list failed for src: %d, dst: %d, prot: %d (in: vrmr_search_service_in_hash).", src, dst, protocol);
         free(portrange_ptr);
+        free(ser_search_ptr);
         return(NULL);
     }
 

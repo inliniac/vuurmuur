@@ -42,7 +42,6 @@ char
     struct dirent           *dir_entry_p = NULL;
     int                     done = 0;
 
-
     /* safety */
     if(!backend || !name || !zonetype)
     {
@@ -51,19 +50,13 @@ char
         return(NULL);
     }
 
-
     /* check if the backend is opened */
-    if(!(tb = (struct TextdirBackend_ *)backend))
-    {
-        vrmr_error(-1, "Internal Error", "backend parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return(NULL);
-    }
+    tb = (struct TextdirBackend_ *)backend;
     if(!tb->backend_open)
     {
         vrmr_error(-1, "Internal Error", "backend not opened yet (in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
-
 
     /* services */
     if(type == VRMR_BT_SERVICES)

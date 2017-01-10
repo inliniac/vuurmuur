@@ -720,7 +720,9 @@ vrmr_create_tempfile(const int debuglvl, char *pathname)
     errno = 0;
 
     /* call mkstemp */
+    mode_t prev = umask(0600);
     fd = mkstemp(pathname);
+    umask(prev);
     if(fd == -1)
     {
         if(errno == 0)

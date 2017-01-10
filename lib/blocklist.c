@@ -48,21 +48,12 @@ blocklist_add_ip_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, c
             "size %u (in: %s:%d).", len, __FUNC__, __LINE__);
         return(-1);
     }
-    len = len + 1;
 
     /* alloc the mem */
-    if(!(ipaddress = malloc(len)))
+    if(!(ipaddress = strdup(ip)))
     {
-        vrmr_error(-1, "Error", "malloc failed: %s "
+        vrmr_error(-1, "Error", "strdup failed: %s "
             "(in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    /*  copy addr */
-    if(strlcpy(ipaddress, ip, len) >= len)
-    {
-        vrmr_error(-1, "Internal Error", "ipaddress overflow "
-            "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -71,6 +62,7 @@ blocklist_add_ip_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, c
     {
         vrmr_error(-1, "Internal Error", "appending into the "
             "list failed (in: %s:%d).", __FUNC__, __LINE__);
+        free(ipaddress);
         return(-1);
     }
 
@@ -81,7 +73,6 @@ blocklist_add_ip_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, c
 static int
 blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, const char *str)
 {
-    size_t  len = 0;
     char    *string = NULL;
 
     /* safety */
@@ -92,29 +83,11 @@ blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklis
         return(-1);
     }
 
-    /* get the length */
-    len = strlen(str);
-    if(len == 0)
-    {
-        vrmr_error(-1, "Internal Error", "weird string size "
-            "%u (in: %s:%d).", len, __FUNC__, __LINE__);
-        return(-1);
-    }
-    len = len + 1;
-
     /* alloc the mem */
-    if(!(string = malloc(len)))
+    if(!(string = strdup(str)))
     {
-        vrmr_error(-1, "Error", "malloc failed: %s "
+        vrmr_error(-1, "Error", "strdup failed: %s "
             "(in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    /*  copy string */
-    if(strlcpy(string, str, len) >= len)
-    {
-        vrmr_error(-1, "Internal Error", "string overflow "
-            "(in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
@@ -123,6 +96,7 @@ blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklis
     {
         vrmr_error(-1, "Internal Error", "appending into the "
             "list failed (in: %s:%d).", __FUNC__, __LINE__);
+        free(string);
         return(-1);
     }
 

@@ -853,7 +853,6 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                         x=0;
     char                parent_str[VRMR_MAX_NET_ZONE] = "";
 
-
     /* safety */
     if(!zonename || !zones)
     {
@@ -861,6 +860,14 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
         return(-1);
     }
 
+    for (i=0, dotcount=0; i < strlen(zonename); i++) {
+        if(zonename[i] == '.')
+            dotcount++;
+    }
+    if(dotcount > 2) {
+        vrmr_error(-1, "Error", "Invalid name '%s' (in: vrmr_new_zone).", zonename);
+        return(-1);
+    }
 
     /* allocated memory for the new zone */
     if(!(zone_ptr = vrmr_zone_malloc(debuglvl)))
@@ -869,28 +876,9 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
         return(-1);
     }
 
-    for(i=0, dotcount=0; i < strlen(zonename); i++)
-    {
-        if(zonename[i] == '.')
-            dotcount++;
-    }
-
-    if(dotcount > 2)
-    {
-        vrmr_error(-1, "Error", "Invalid name '%s' (in: vrmr_new_zone).", zonename);
-        return(-1);
-    }
-
-    if(dotcount == 0)
-    {
-        for(i=0; i < strlen(zonename); i++)
-        {
-            zone_ptr->zone_name[i] = zonename[i];
-        }
-        zone_ptr->zone_name[i]='\0';
-    }
-    else if(dotcount == 1)
-    {
+    if(dotcount == 0) {
+        strlcpy(zone_ptr->zone_name, zonename, sizeof(zone_ptr->zone_name));
+    } else if(dotcount == 1) {
         // network
         for(i=0; i < strlen(zonename);i++)
         {
@@ -905,7 +893,6 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
             zone_ptr->zone_name[x] = zonename[i];
         }
         zone_ptr->zone_name[x]='\0';
-
     }
     else
     {
@@ -933,7 +920,6 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
         zone_ptr->zone_name[x]='\0';
     }
 
-
     /* check if the zone already exists */
     if(vrmr_search_zonedata(debuglvl, zones, zonename) != NULL)
     {
@@ -943,18 +929,9 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
         return(-1);
     }
 
-
     /* set the bare minimum */
-    if(strlcpy(zone_ptr->name, zonename, sizeof(zone_ptr->name)) >= sizeof(zone_ptr->name))
-    {
-        vrmr_error(-1, "Internal Error", "string "
-            "overflow (in: %s:%d).", __FUNC__, __LINE__);
-        vrmr_zone_free(debuglvl, zone_ptr);
-        return(-1);
-    }
-
+    strlcpy(zone_ptr->name, zonename, sizeof(zone_ptr->name));
     zone_ptr->type = zonetype;
-
 
     /* set the parent(s) */
     snprintf(parent_str, sizeof(parent_str), "%s.%s", zone_ptr->network_name, zone_ptr->zone_name);
@@ -963,6 +940,7 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
         if(!(zone_ptr->network_parent = vrmr_search_zonedata(debuglvl, zones, parent_str)))
         {
             vrmr_error(-1, "Internal Error", "can't find the network-parent in the list (in: vrmr_new_zone).");
+            vrmr_zone_free(debuglvl, zone_ptr);
             return(-1);
         }
     }
@@ -971,6 +949,7 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
         if(!(zone_ptr->zone_parent = vrmr_search_zonedata(debuglvl, zones, zone_ptr->zone_name)))
         {
             vrmr_error(-1, "Internal Error", "can't find the zone-parent in the list (in: vrmr_new_zone).");
+            vrmr_zone_free(debuglvl, zone_ptr);
             return(-1);
         }
     }
@@ -980,9 +959,9 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
     if(vrmr_insert_zonedata_list(debuglvl, zones, zone_ptr) < 0)
     {
         vrmr_error(-1, "Internal Error", "unable to insert new zone into the list (in: %s).", __FUNC__);
+        vrmr_zone_free(debuglvl, zone_ptr);
         return(-1);
     }
-
 
     /* add the zone to the backend */
     if (vctx->zf->add(debuglvl, vctx->zone_backend, zonename, zonetype) < 0)
@@ -990,7 +969,6 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
         vrmr_error(-1, "Error", "Add to backend failed (in: vrmr_new_zone).");
         return(-1);
     }
-
 
     /* set active */
     if (vctx->zf->tell(debuglvl, vctx->zone_backend, zonename, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, zonetype) < 0)
@@ -1002,7 +980,6 @@ vrmr_new_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
     vrmr_info("Info", "new zone '%s' succesfully added to the backend.", zonename);
     return(0);
 }
-
 
 /*
     TODO: input check

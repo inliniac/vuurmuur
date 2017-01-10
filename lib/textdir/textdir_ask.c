@@ -60,10 +60,7 @@ ask_textdir(const int debuglvl,
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "question: %s, name: %s, multi: %d", question, name, multi);
 
-    if(!(tb = (struct TextdirBackend_ *)backend))
-        return(-1);
-
-    /* check if backend is open */
+    tb = (struct TextdirBackend_ *)backend;
     if(!tb->backend_open)
     {
         vrmr_error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);

@@ -21,6 +21,12 @@
 #include "config.h"
 #include "vuurmuur.h"
 
+static void vrmr_service_free(struct vrmr_service *service)
+{
+    assert(service);
+    vrmr_list_cleanup(0, &service->PortrangeList);
+    free(service);
+}
 
 static int
 vrmr_insert_service_list(const int debuglvl, struct vrmr_services *services, const struct vrmr_service *ser_ptr)
@@ -132,7 +138,6 @@ vrmr_insert_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servi
                             result = 0;
     struct vrmr_service    *ser_ptr = NULL;
 
-
     /* check our input */
     if(services == NULL || name == NULL)
     {
@@ -151,23 +156,21 @@ vrmr_insert_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servi
 
     /* reading the service information */
     result = vrmr_read_service(debuglvl, vctx, name, ser_ptr);
-    if(result == -1)
-    {
+    if (result == -1) {
         vrmr_error(-1, "Internal Error", "vrmr_read_service() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
+        vrmr_service_free(ser_ptr);
         return(-1);
     }
 
     /* insert into the list (sorted) */
-    if(vrmr_insert_service_list(debuglvl, services, ser_ptr) < 0)
+    if (vrmr_insert_service_list(debuglvl, services, ser_ptr) < 0) {
+        vrmr_service_free(ser_ptr);
         return(-1);
+    }
 
     /* set the status */
     ser_ptr->status = VRMR_ST_KEEP;
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "** end **, retval=%d", retval);
-
     return(retval);
 }
 
@@ -818,12 +821,7 @@ vrmr_new_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services
         return(-1);
 
     /* set the bare minimum */
-    if(strlcpy(ser_ptr->name, sername, sizeof(ser_ptr->name)) > sizeof(ser_ptr->name))
-    {
-        vrmr_error(-1, "Internal Error", "buffer overflow (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
+    strlcpy(ser_ptr->name, sername, sizeof(ser_ptr->name));
     vrmr_list_setup(debuglvl, &ser_ptr->PortrangeList, free);
 
     /* insert into the list */
@@ -831,6 +829,7 @@ vrmr_new_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services
     {
         vrmr_error(-1, "Internal Error", "vrmr_insert_service_list() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
+        vrmr_service_free(ser_ptr);
         return(-1);
     }
 
@@ -839,27 +838,11 @@ vrmr_new_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services
 
     /* add to the backend */
     result = vctx->sf->add(debuglvl, vctx->serv_backend, sername, sertype);
-    if(result < 0)
-    {
-        vrmr_error(-1, "Internal Error", "sf->add() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "calling sf->add for '%s' succes.", sername);
-
     /* set active and broadcast */
-    result = vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "ACTIVE", ser_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
-    if(result < 0)
-    {
-        vrmr_error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-    result = vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
-    if(result < 0)
-    {
+    result |= vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "ACTIVE", ser_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
+    result |= vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
+
+    if (result != 0) {
         vrmr_error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(-1);

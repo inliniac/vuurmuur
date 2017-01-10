@@ -276,6 +276,7 @@ conn_line_to_data(  const int debuglvl,
                 if(!(conndata_ptr->fromname = strdup(zone_name_ptr)))
                 {
                     vrmr_error(-1, "Internal Error", "strdup failed: %s (in: conntrack_line_to_data).", strerror(errno));
+                    free(zone_name_ptr);
                     return(-1);
                 }
 
@@ -289,23 +290,11 @@ conn_line_to_data(  const int debuglvl,
     }
 
     /* dst ip */
-    if(strlcpy(conndata_ptr->dst_ip, connline_ptr->dst_ip,
-            sizeof(conndata_ptr->dst_ip))
-                >= sizeof(conndata_ptr->dst_ip))
-    {
-        vrmr_error(-1, "Internal Error", "string overflow "
-            "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    strlcpy(conndata_ptr->dst_ip, connline_ptr->dst_ip,
+            sizeof(conndata_ptr->dst_ip));
     /* dst ip */
-    if(strlcpy(conndata_ptr->orig_dst_ip, connline_ptr->orig_dst_ip,
-       sizeof(conndata_ptr->orig_dst_ip))
-          >= sizeof(conndata_ptr->orig_dst_ip))
-    {
-        vrmr_error(-1, "Internal Error", "string overflow "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    strlcpy(conndata_ptr->orig_dst_ip, connline_ptr->orig_dst_ip,
+       sizeof(conndata_ptr->orig_dst_ip));
     /* then the to name */
     if (!(conndata_ptr->ipv6))
         conndata_ptr->to = vrmr_search_zone_in_hash_with_ipv4(debuglvl, connline_ptr->dst_ip, zonehash);
@@ -334,6 +323,8 @@ conn_line_to_data(  const int debuglvl,
                 if(!(conndata_ptr->toname = strdup(zone_name_ptr)))
                 {
                     vrmr_error(-1, "Internal Error", "strdup failed: %s (in: conntrack_line_to_data).", strerror(errno));
+
+                    free(zone_name_ptr);
                     return(-1);
                 }
 
@@ -1865,11 +1856,6 @@ conn_match_conntrackdata(const void *check, const void *hash)
 
     check_cd = (struct vrmr_conntrack_entry *)check;
     hash_cd  = (struct vrmr_conntrack_entry *)hash;
-    if(!check_cd || !hash_cd)
-    {
-        vrmr_error(0, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-        return(0);
-    }
 
     if(strncmp(check_cd->sername, hash_cd->sername, VRMR_MAX_SERVICE) == 0)
     {

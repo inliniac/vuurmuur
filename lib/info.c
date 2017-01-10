@@ -1198,19 +1198,10 @@ char
         }
     }
 
-    if(best_so_far_ptr != NULL)
-    {
-        if(!(result_ptr = (char *)malloc(sizeof(best_so_far_ptr->name))))
-        {
-            vrmr_error(-1, "Error", "malloc failed: %s (in: %s).", strerror(errno), __FUNC__);
-            return(NULL);
-        }
-
-        if(strlcpy(result_ptr, best_so_far_ptr->name, sizeof(best_so_far_ptr->name)) > sizeof(best_so_far_ptr->name))
-        {
-            vrmr_error(-1, "Internal Error", "string overflow (in: %s:d).", __FUNC__, __LINE__);
-            free(result_ptr);
-
+    if (best_so_far_ptr != NULL) {
+        if(!(result_ptr = (char *)strdup(best_so_far_ptr->name))) {
+            vrmr_error(-1, "Error", "strdup failed: %s (in: %s).",
+                    strerror(errno), __FUNC__);
             return(NULL);
         }
     }

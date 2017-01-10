@@ -3145,19 +3145,12 @@ vrmr_rules_read_options(const int debuglvl, const char *optstr, struct vrmr_rule
         if (((optstr[x] == ',') && ((trema == 0)))) {
             curopt[cur_pos - 1] = '\0';
             cur_pos = 0;
-        }
-        else if (((optstr[x] == ',') && (trema == 2))) {
+        } else if (((optstr[x] == ',') && (trema == 2))) {
             curopt[cur_pos - 1] = '\0';
             cur_pos = 0;
         } else if ((optstr[x] == '\0')) {
-            if (cur_pos > 0) {
-                curopt[cur_pos - 1] = '\0';
-                cur_pos = 0;
-            } else {
-                curopt[0] = '\0';
-                cur_pos = 0;
-            }
-
+            curopt[cur_pos - 1] = '\0';
+            cur_pos = 0;
         }
         x++;
 
