@@ -2018,25 +2018,29 @@ vrmr_conn_get_connections_do(const int debuglvl,
                     __FUNC__, __LINE__);
             return(-1);
         }
-
+    }
     /* open conntrack file (fopen)... default to nf_conntrack */
-    } else if (cnf->use_ipconntrack == TRUE || (!(fp = fopen(VRMR_PROC_NFCONNTRACK, "r"))))
-    {
-        if((fp = fopen(VRMR_PROC_IPCONNTRACK, "r")))
-        {
-            cnf->use_ipconntrack = TRUE;
+    if (fp == NULL) {
+        /* shortcut to ipconntrack for repeated calls */
+        if (cnf->use_ipconntrack == TRUE) {
+            fp = fopen(VRMR_PROC_IPCONNTRACK, "r");
         }
-        else
-        {
-            vrmr_error(-1, "Error", "unable to open proc "
-                    "conntrack: %s (in: %s:%d).", strerror(errno),
-                    __FUNC__, __LINE__);
-            return(-1);
+        if (fp == NULL) {
+            fp = fopen(VRMR_PROC_NFCONNTRACK, "r");
+            if (fp == NULL) {
+                fp = fopen(VRMR_PROC_IPCONNTRACK, "r");
+                if (fp != NULL) {
+                    cnf->use_ipconntrack = TRUE;
+                }
+            }
         }
-    } else {
+    }
+    if (fp == NULL) {
+        vrmr_error(-1, "Error", "unable to open proc "
+                "conntrack: %s (in: %s:%d).", strerror(errno),
+                __FUNC__, __LINE__);
         return(-1);
     }
-
 
     /*  now read the file, interpret the line and trough hash_look up
         if the line is already in the list
