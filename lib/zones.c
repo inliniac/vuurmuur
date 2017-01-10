@@ -1893,7 +1893,7 @@ vrmr_zones_network_rule_parse_line(const int debuglvl, const char *line, struct 
     if(rule_ptr->action == VRMR_AT_PROTECT)
     {
         /* get the 'against' */
-        for(line_pos++, var_pos = 0; var_pos < sizeof(against_keyw) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+        for(line_pos++, var_pos = 0; var_pos < sizeof(against_keyw) - 1 && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
         {
             against_keyw[var_pos] = line[line_pos];
         }
@@ -1907,7 +1907,7 @@ vrmr_zones_network_rule_parse_line(const int debuglvl, const char *line, struct 
         }
 
         /* okay, now lets see what kind of danger we are talking about */
-        for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->danger) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+        for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->danger) - 1 && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
         {
             rule_ptr->danger[var_pos] = line[line_pos];
         }
@@ -1941,7 +1941,7 @@ vrmr_zones_network_rule_parse_line(const int debuglvl, const char *line, struct 
         }
 
         /* get the source */
-        for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->source) && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+        for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->source) -1 && line[line_pos] != ' ' && line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
         {
             rule_ptr->source[var_pos] = line[line_pos];
         }
@@ -1959,7 +1959,7 @@ vrmr_zones_network_rule_parse_line(const int debuglvl, const char *line, struct 
         if(debuglvl >= MEDIUM)
             vrmr_debug(__FUNC__, "action: '%s'", vrmr_rules_itoaction(rule_ptr->action));
 
-        for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->service) && line[line_pos] != ' ' && line[line_pos] != ',' &&line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
+        for(line_pos++, var_pos = 0; var_pos < sizeof(rule_ptr->service) - 1 && line[line_pos] != ' ' && line[line_pos] != ',' &&line[line_pos] != '\0' && line[line_pos] != '\n'; line_pos++, var_pos++)
         {
             rule_ptr->service[var_pos] = line[line_pos];
         }

@@ -511,11 +511,11 @@ vrmr_split_portrange(char *portrange, int *lowport, int *highport)
     *highport = 0;
 
     /* now split */
-    for(; count < strlen(portrange) && low_count < sizeof(low) && high_count < sizeof(high); count++)
+    for(; count < strlen(portrange) && low_count < sizeof(low) - 1 && high_count < sizeof(high) - 1; count++)
     {
         if (portrange[count] != ':' && !isdigit(portrange[count]))
             continue;
-           
+
         if(portrange[count] == ':')
         {
             range = TRUE;
@@ -632,7 +632,7 @@ vrmr_process_portrange(const int debuglvl, const char *proto, const char *portra
                 range = 0;
                 size_t i = 0;
                 while (range < strlen(current_portrange) &&
-                        i < sizeof(protostr) &&
+                        i < sizeof(protostr) - 1 &&
                         current_portrange[range] != ';')
                 {
                     protostr[i] = current_portrange[range];
@@ -691,8 +691,8 @@ vrmr_process_portrange(const int debuglvl, const char *proto, const char *portra
             */
             port = 0;
             while (range < strlen(current_portrange) &&
-                    port < sizeof(dst_portrange) &&
-                    current_portrange[range] != '*')
+                   port < sizeof(dst_portrange) - 1 &&
+                   current_portrange[range] != '*')
             {
                 dst_portrange[port]=current_portrange[range];
                 range++; port++;

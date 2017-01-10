@@ -2516,7 +2516,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
     {
         for (p = 0, o = strlen("loglimit") + 1;
                 o < curopt_len &&
-                p < sizeof(portstring);
+                p < sizeof(portstring) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
@@ -2544,7 +2544,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
             strlcpy(op->limit_unit,"sec",sizeof(op->limit_unit));
         } else {
             for(p = 0, o = ptr - curopt + 1;
-                    o < curopt_len && p < sizeof(op->limit_unit);
+                    o < curopt_len && p < sizeof(op->limit_unit) - 1;
                     o++)
             {
                 if(curopt[o] != '\"')
@@ -2568,7 +2568,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
 
         for(p = 0, o = strlen("limit") + 1;
                 o < curopt_len &&
-                p < sizeof(portstring);
+                p < sizeof(portstring) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
@@ -2589,7 +2589,7 @@ parse_option(const int debuglvl, const char *curopt, struct vrmr_rule_options *o
     {
         for(p = 0, o = strlen("burst") + 1;
                 o < curopt_len &&
-                p < sizeof(portstring);
+                p < sizeof(portstring) - 1;
                 o++)
         {
             if(curopt[o] != '\"')
