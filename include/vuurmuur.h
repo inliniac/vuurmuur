@@ -207,6 +207,26 @@
 #define VRMR_VERBOSE                0
 #define VRMR_QUIET                  1
 
+/* wrapper for __attribute__((returns_nonnull)) for
+ * gcc and clang versions known to support it */
+#if defined(__clang__) && defined(__clang_major__) && defined(__clang_minor__) && defined(__clang_patchlevel__)
+    #if (__clang_major__ * 10000 +  __clang_minor__ * 100 + __clang_patchlevel__) >= 30800
+        #define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
+    #else
+        #define ATTR_RETURNS_NONNULL
+    #endif
+#elif defined (__GNUC__)
+    #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+    #if GCC_VERSION >= 50400
+        #define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
+    #else
+        #define ATTR_RETURNS_NONNULL
+    #endif
+#else
+    #warn "unknown or very old compiler"
+    #define ATTR_RETURNS_NONNULL
+#endif
+
 #if defined (__GNU_LIBRARY__) && !defined (_SEM_SEMUN_UNDEFINED)
     /* use semun from sys/sem.h */
 #else
