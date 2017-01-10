@@ -371,28 +371,12 @@ vrmr_list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/cha
     if(option_name != NULL)
     {
         /* the trailing trema */
-        if(strlcat(options, "\"", sizeof(options)) >= sizeof(options))
-        {
-            vrmr_error(-1, "Internal Error",
-                    "string overflow (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(NULL);
-        }
+        strlcat(options, "\"", sizeof(options));
     }
 
-    size = strlen(options) + 1;
-
-    if(!(return_ptr = malloc(size)))
-    {
+    if(!(return_ptr = strdup(options))) {
         vrmr_error(-1, "Error", "malloc failed: %s "
             "(in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
-        return(NULL);
-    }
-
-    if(strlcpy(return_ptr, options, size) >= size)
-    {
-        vrmr_error(-1, "Internal Error", "string overflow "
-            "(in: %s:%d).", __FUNC__, __LINE__);
         return(NULL);
     }
 
