@@ -59,9 +59,6 @@ vrmr_list_setup(const int debuglvl, struct vrmr_list *list, void (*remove)(void 
 int
 vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_list_node *d_node)
 {
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "start.");
-
     /* safety first */
     if(!list || !d_node)
     {
@@ -72,84 +69,40 @@ vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_li
     /* we cannot remove from an empty list */
     if(list->len == 0)
     {
+        assert(list->top == NULL);
+        assert(list->bot == NULL);
+
         vrmr_error(-1, "Internal Error", "cannot remove from an empty list (in: %s).", __FUNC__);
         return(-1);
     }
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "list len %d.", list->len);
 
     assert(list->top);
     assert(list->bot);
 
     /* we remove the top */
-    if(d_node->prev)
-    {
+    if (d_node->prev) {
         assert(d_node != list->top);
-
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "setting d_node->prev->next to d_node->next.");
-
         d_node->prev->next = d_node->next;
-    }
-    else
-    {
+    } else {
         assert(d_node == list->top);
-
-        if(debuglvl >= HIGH)
-        {
-            vrmr_debug(__FUNC__, "removing the top.");
-            vrmr_debug(__FUNC__, "top setting top to next.");
-        }
-
         list->top = d_node->next;
     }
 
     /* we remove the bottom */
-    if(d_node->next)
-    {
+    if (d_node->next) {
         assert(d_node != list->bot);
-
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "setting d_node->next->prev to d_node->prev.");
-
         d_node->next->prev = d_node->prev;
-    }
-    else
-    {
+    } else {
         assert(d_node == list->bot);
-
-        if(debuglvl >= HIGH)
-        {
-            vrmr_debug(__FUNC__, "removing the bottom.");
-            vrmr_debug(__FUNC__, "top setting bot to prev.");
-        }
-
         list->bot = d_node->prev;
     }
 
-    /* debug */
-    if(debuglvl >= HIGH)
-    {
-        if(list->top == NULL)
-            vrmr_debug(__FUNC__, "top is now NULL.");
-
-        if(list->bot == NULL)
-            vrmr_debug(__FUNC__, "bot is now NULL.");
-    }
-
     /* call the user remove function */
-    if(list->remove != NULL)
-    {
+    if (list->remove != NULL) {
         if(debuglvl >= HIGH)
             vrmr_debug(__FUNC__, "calling the user defined data remove function.");
 
         list->remove(d_node->data);
-    }
-    else
-    {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "no data remove function defined.");
     }
 
     /* free the node */
@@ -158,13 +111,6 @@ vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_li
 
     /* adjust the length */
     list->len--;
-
-    if(debuglvl >= HIGH)
-    {
-        vrmr_debug(__FUNC__, "at exit list len %d.", list->len);
-        vrmr_debug(__FUNC__, "stop.");
-    }
-
     return(0);
 }
 
