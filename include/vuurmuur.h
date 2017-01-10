@@ -207,6 +207,19 @@
 #define VRMR_VERBOSE                0
 #define VRMR_QUIET                  1
 
+#if defined(__clang__) && defined(__clang_major__) && defined(__clang_minor__) && defined(__clang_patchlevel__)
+    #if (__clang_major__ * 1000 +  __clang_minor__ * 100 + __clang_patchlevel__) >= 3800
+        #define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
+    #else
+        #define ATTR_RETURNS_NONNULL
+    #endif
+#elif defined (__GNUC__)
+    #define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
+#else
+    #warn "unknown or very old compiler"
+    #define ATTR_RETURNS_NONNULL
+#endif
+
 #if defined (__GNU_LIBRARY__) && !defined (_SEM_SEMUN_UNDEFINED)
     /* use semun from sys/sem.h */
 #else
