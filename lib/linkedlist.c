@@ -79,9 +79,14 @@ vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_li
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "list len %d.", list->len);
 
+    assert(list->top);
+    assert(list->bot);
+
     /* we remove the top */
     if(d_node->prev)
     {
+        assert(d_node != list->top);
+
         if(debuglvl >= HIGH)
             vrmr_debug(__FUNC__, "setting d_node->prev->next to d_node->next.");
 
@@ -89,6 +94,8 @@ vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_li
     }
     else
     {
+        assert(d_node == list->top);
+
         if(debuglvl >= HIGH)
         {
             vrmr_debug(__FUNC__, "removing the top.");
@@ -101,6 +108,8 @@ vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_li
     /* we remove the bottom */
     if(d_node->next)
     {
+        assert(d_node != list->bot);
+
         if(debuglvl >= HIGH)
             vrmr_debug(__FUNC__, "setting d_node->next->prev to d_node->prev.");
 
@@ -108,6 +117,8 @@ vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_li
     }
     else
     {
+        assert(d_node == list->bot);
+
         if(debuglvl >= HIGH)
         {
             vrmr_debug(__FUNC__, "removing the bottom.");
@@ -527,7 +538,7 @@ vrmr_list_cleanup(const int debuglvl, struct vrmr_list *list)
                 __FUNC__, __LINE__);
         return(-1);
     }
-#ifndef __clang_analyzer__
+
     /* remove the top while list len > 0 */
     for(;list->len;)
     {
@@ -538,6 +549,5 @@ vrmr_list_cleanup(const int debuglvl, struct vrmr_list *list)
             return(-1);
         }
     }
-#endif
     return(0);
 }
