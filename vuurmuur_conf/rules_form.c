@@ -949,8 +949,8 @@ Insert_RuleBar( const int debuglvl,
 static int
 MatchFilter_RuleBar(struct vrmr_rule *rule_ptr, /*@null@*/regex_t *reg, char only_in, char only_out, char only_forward)
 {
-    char    *options_ptr = NULL,
-            rule_str[512] = "";
+    //char *options_ptr = NULL;
+    char rule_str[512] = "";
     int     result = 0,
             retval = 0;
 
@@ -982,9 +982,9 @@ MatchFilter_RuleBar(struct vrmr_rule *rule_ptr, /*@null@*/regex_t *reg, char onl
     (void)strlcat(rule_str, rule_ptr->from, sizeof(rule_str));
     (void)strlcat(rule_str, " ", sizeof(rule_str));
     (void)strlcat(rule_str, rule_ptr->to, sizeof(rule_str));
-    (void)strlcat(rule_str, " ", sizeof(rule_str));
-    if(options_ptr != NULL)
-        (void)strlcat(rule_str, options_ptr, sizeof(rule_str));
+    //(void)strlcat(rule_str, " ", sizeof(rule_str));
+    //if(options_ptr != NULL)
+    //    (void)strlcat(rule_str, options_ptr, sizeof(rule_str));
 
     /* now filter */
     result = regexec(reg, rule_str, 0, NULL, 0);
@@ -1156,7 +1156,7 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
                         separator_str[before_len + 1] = ' ';
 
                         for(i = before_len + 2, x = 0;
-                            i < rbform->separator_size && i < sizeof(separator_str) &&
+                            i < rbform->separator_size && i < sizeof(separator_str)-2 &&
                                 x < comment_len;
                             i++, x++)
                         {

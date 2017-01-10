@@ -3261,8 +3261,9 @@ char *actions[] =
 char *
 vrmr_rules_itoaction(int i)
 {
-    /* i needs to be smaller than the number of items in the array */
-    if(i >= ( (int)sizeof(actions) / (int)sizeof(actions[0]) ) -1 )
+    if (i < 0)
+        return(NULL);
+    if (i >= ( (int)sizeof(actions) / (int)sizeof(actions[0]) ) -1 )
         return(NULL);
 
     return(actions[i]);
@@ -3293,8 +3294,9 @@ char *actions_cap[] =
 char *
 vrmr_rules_itoaction_cap(int i)
 {
-    /* status needs to be smaller than the number of items in the array */
-    if(i >= ( (int)sizeof(actions_cap) / (int)sizeof(actions_cap[0]) ) -1 )
+    if (i < 0)
+        return(NULL);
+    if (i >= ( (int)sizeof(actions_cap) / (int)sizeof(actions_cap[0]) ) -1 )
         return(NULL);
 
     return(actions_cap[i]);

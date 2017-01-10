@@ -470,6 +470,8 @@ create_newwin(int height, int width, int starty, int startx, char *title, chtype
             screensize = 0;
     char    *title_ptr = NULL;
 
+    vrmr_fatal_if(height <= 0 || width <= 0 || starty < 0 || startx < 0);
+
     /* create the window */
     if(!(local_win = newwin(height, width, starty, startx)))
         return(NULL);
