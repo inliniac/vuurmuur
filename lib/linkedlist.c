@@ -109,20 +109,37 @@ vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_li
     return(0);
 }
 
-
+/** \brief shortcut for removing list head
+ *  \note the complicated assertions are to convince coverity
+ *        no double free is happening. Apparently it doesn't
+ *        properly keep track of list->top.
+ */
 int
 vrmr_list_remove_top(const int debuglvl, struct vrmr_list *list)
 {
-    return(vrmr_list_remove_node(debuglvl, list, list->top));
+    assert(list);
+    struct vrmr_list_node *old_top = list->top;
+    int result = vrmr_list_remove_node(debuglvl, list, old_top);
+    assert(old_top != list->top);
+    struct vrmr_list_node *new_top = list->top;
+    assert(old_top != new_top);
+    return result;
 }
 
-
+/** \brief shortcut for removing list tail
+ *  \note see vrmr_list_remove_top()
+ */
 int
 vrmr_list_remove_bot(const int debuglvl, struct vrmr_list *list)
 {
-    return(vrmr_list_remove_node(debuglvl, list, list->bot));
+    assert(list);
+    struct vrmr_list_node *old_bot = list->bot;
+    int result = vrmr_list_remove_node(debuglvl, list, old_bot);
+    assert(old_bot != list->bot);
+    struct vrmr_list_node *new_bot = list->bot;
+    assert(old_bot != new_bot);
+    return result;
 }
-
 
 /*  vrmr_list_append
 
