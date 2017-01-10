@@ -45,12 +45,7 @@ char
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
         return(NULL);
     }
-
-    if(!(tb = (struct TextdirBackend_ *)backend))
-    {
-        vrmr_error(-1, "Internal Error", "backend parameter problem (in: %s).", __FUNC__);
-        return(NULL);
-    }
+    tb = (struct TextdirBackend_ *)backend;
 
     /* check if backend is open */
     if(!tb->backend_open)
@@ -259,7 +254,6 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
     char                    dir_location[256] = "";
     DIR                     *dir_p = NULL;
 
-
     if(backend == NULL)
     {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
@@ -268,12 +262,7 @@ open_textdir(int debuglvl, void *backend, int mode, int type)
     }
 
     /* check if the backend is opened */
-    if(!(tb = (struct TextdirBackend_ *)backend))
-    {
-        vrmr_error(-1, "Internal Error", "backend parameter problem (in: %s:%d).",
-                                    __FUNC__, __LINE__);
-        return(-1);
-    }
+    tb = (struct TextdirBackend_ *)backend;
 
     /* see if we like the permissions of the textdirroot */
     if(!(vrmr_stat_ok(debuglvl, tb->cfg, tb->textdirlocation, VRMR_STATOK_WANT_DIR, VRMR_STATOK_QUIET, VRMR_STATOK_MUST_EXIST)))
@@ -447,19 +436,12 @@ close_textdir(int debuglvl, void *backend, int type)
 {
     struct TextdirBackend_ *tb = NULL;
 
-    if(backend == NULL)
-    {
+    if (backend == NULL) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                                     __FUNC__, __LINE__);
         return(-1);
     }
-
-    if(!(tb = (struct TextdirBackend_ *)backend))
-    {
-        vrmr_error(-1, "Internal Error", "backend parameter problem (in: %s:%d).",
-                                    __FUNC__, __LINE__);
-        return(-1);
-    }
+    tb = (struct TextdirBackend_ *)backend;
 
     if(tb->backend_open == 1)
     {
@@ -536,7 +518,6 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
                             zonename[VRMR_MAX_ZONE] = "";
     int                     fd = 0;
 
-
     /* safety */
     if(!backend || !name)
     {
@@ -545,11 +526,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
     }
 
     /* check if the backend is open */
-    if(!(tb = (struct TextdirBackend_ *)backend))
-    {
-        vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    tb = (struct TextdirBackend_ *)backend;
     if(!tb->backend_open)
     {
         vrmr_error(-1, "Error", "Backend not opened yet (in: %s:%d).", __FUNC__, __LINE__);
@@ -662,162 +639,135 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
     */
     if(type != VRMR_TYPE_RULE)
     {
-        if(write(fd, "ACTIVE=\"\"\n", 10) == -1)
-        {
+        if (write(fd, "ACTIVE=\"\"\n", 10) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
     }
 
     if(type == VRMR_TYPE_HOST)
     {
-        if(write(fd, "IPADDRESS=\"\"\n", 13) == -1)
-        {
+        if (write(fd, "IPADDRESS=\"\"\n", 13) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "MAC=\"\"\n", 7) == -1)
-        {
+        if (write(fd, "MAC=\"\"\n", 7) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
     }
     else if(type == VRMR_TYPE_GROUP)
     {
-        if(write(fd, "MEMBER=\"\"\n", 10) == -1)
-        {
+        if (write(fd, "MEMBER=\"\"\n", 10) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
     }
     else if(type == VRMR_TYPE_NETWORK)
     {
-        if(write(fd, "NETWORK=\"\"\n", 11) == -1)
-        {
+        if (write(fd, "NETWORK=\"\"\n", 11) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "NETMASK=\"\"\n", 11) == -1)
-        {
+        if (write(fd, "NETMASK=\"\"\n", 11) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "INTERFACE=\"\"\n", 13) == -1)
-        {
+        if (write(fd, "INTERFACE=\"\"\n", 13) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "RULE=\"\"\n", 8) == -1)
-        {
+        if (write(fd, "RULE=\"\"\n", 8) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
     }
     else if(type == VRMR_TYPE_SERVICE)
     {
-        if(write(fd, "TCP=\"\"\n", 7) == -1)
-        {
+        if (write(fd, "TCP=\"\"\n", 7) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "UDP=\"\"\n", 7) == -1)
-        {
+        if (write(fd, "UDP=\"\"\n", 7) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "ICMP=\"\"\n", 8) == -1)
-        {
+        if (write(fd, "ICMP=\"\"\n", 8) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "GRE=\"\"\n", 7) == -1)
-        {
+        if (write(fd, "GRE=\"\"\n", 7) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "AH=\"\"\n", 6) == -1)
-        {
+        if (write(fd, "AH=\"\"\n", 6) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "ESP=\"\"\n", 7) == -1)
-        {
+        if (write(fd, "ESP=\"\"\n", 7) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "PROTO_41=\"\"\n", 12) == -1)
-        {
+        if (write(fd, "PROTO_41=\"\"\n", 12) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "BROADCAST=\"\"\n", 13) == -1)
-        {
+        if (write(fd, "BROADCAST=\"\"\n", 13) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "HELPER=\"\"\n", 10) == -1)
-        {
+        if (write(fd, "HELPER=\"\"\n", 10) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
     }
     else if(type == VRMR_TYPE_INTERFACE)
     {
-        if(write(fd, "IPADDRESS=\"\"\n", 13) == -1)
-        {
+        if (write(fd, "IPADDRESS=\"\"\n", 13) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "DEVICE=\"\"\n", 10) == -1)
-        {
+        if (write(fd, "DEVICE=\"\"\n", 10) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "VIRTUAL=\"\"\n", 11) == -1)
-        {
+        if (write(fd, "VIRTUAL=\"\"\n", 11) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
-        if(write(fd, "RULE=\"\"\n", 8) == -1)
-        {
+        if (write(fd, "RULE=\"\"\n", 8) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
     }
     else if(type == VRMR_TYPE_RULE)
     {
-        if(write(fd, "RULE=\"\"\n", 8) == -1)
-        {
+        if (write(fd, "RULE=\"\"\n", 8) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
     }
 
     if(type != VRMR_TYPE_RULE)
     {
-        if(write(fd, "COMMENT=\"\"\n", 11) == -1)
-        {
+        if (write(fd, "COMMENT=\"\"\n", 11) == -1) {
             vrmr_error(-1, "Error", "write: %s", strerror(errno));
-            return(-1);
+            goto error;
         }
     }
 
     fsync(fd);
-
-    if(close(fd) == -1)
-    {
-        vrmr_error(-1, "Error", "closing file descriptor failed.");
-        return(-1);
-    }
-
+    (void)close(fd);
     return(0);
+error:
+    (void)close(fd);
+    return(-1);
 }
-
 
 /*  del_textdir
 
     Delete from the textdir.
-    
+
     Returncodes:
         0: ok
         -1: error
@@ -840,11 +790,7 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
     }
 
     /* check if the backend was properly openend */
-    if(!(tb = (struct TextdirBackend_ *)backend))
-    {
-        vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    tb = (struct TextdirBackend_ *)backend;
     if(!tb->backend_open)
     {
         vrmr_error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
@@ -1058,14 +1004,13 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
     return(0);
 }
 
-
 /*  rename_textdir
 
     Renames the item 'name' to 'newname'. The item can be a host, interface, service, etc.
 
     Warning: when renaming a host, group or network, make sure you _only_ rename
     the host/group/network part of the name!
-    
+
     Returncodes:
         -1: error
          0: ok
@@ -1094,11 +1039,7 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
     }
 
     /* check if the backend was properly openend */
-    if(!(tb = (struct TextdirBackend_ *)backend))
-    {
-        vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    tb = (struct TextdirBackend_ *)backend;
     if(!tb->backend_open)
     {
         vrmr_error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
@@ -1251,7 +1192,6 @@ rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int
     return(0);
 }
 
-
 /*  conf_textdir
 
     Loads the config settings from the plugin config file.
@@ -1269,17 +1209,11 @@ conf_textdir(const int debuglvl, void *backend)
     struct TextdirBackend_  *tb = NULL;
 
     /* safety first */
-    if(!backend)
-    {
+    if (!backend) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
         return(-1);
     }
-
-    if(!(tb = (struct TextdirBackend_ *)backend))
-    {
-        vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    tb = (struct TextdirBackend_ *)backend;
 
     /* assemble config location */
     if(snprintf(configfile_location, sizeof(configfile_location), "%s/vuurmuur/plugins/textdir.conf", tb->cfg->etcdir) >= (int)sizeof(configfile_location))
@@ -1309,7 +1243,6 @@ conf_textdir(const int debuglvl, void *backend)
 
     return(retval);
 }
-
 
 int
 setup_textdir(int debuglvl, const struct vrmr_config *cfg, void **backend)

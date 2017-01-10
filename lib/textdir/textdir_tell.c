@@ -43,8 +43,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     /*
         safety
     */
-    if(!backend || !name || !question || !answer)
-    {
+    if(!backend || !name || !question || !answer) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
         return(-1);
     }
@@ -52,15 +51,7 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "question: %s, answer: %s, name: %s, overwrite: %d, type: %d", question, answer, name, overwrite, type);
 
-    if(!(tb = (struct TextdirBackend_ *)backend))
-    {
-        vrmr_error(-1, "Internal Error", "backend parameter problem (in: %s).", __FUNC__);
-        return(-1);
-    }
-
-    /*
-        check if backend is open
-    */
+    tb = (struct TextdirBackend_ *)backend;
     if(!tb->backend_open)
     {
         vrmr_error(-1, "Error", "backend not opened yet (in: %s).", __FUNC__);
@@ -250,24 +241,11 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         line_ptr = NULL;
     }
 
-    /*
-        close the file
-    */
-    if(fclose(fp) < 0)
-    {
-        vrmr_error(-1, "Error", "closing file '%s' failed: %s.", file_location, strerror(errno));
+    /* close the file */
+    (void)fclose(fp);
 
-        /* cleanup */
-        vrmr_list_cleanup(debuglvl, &storelist);
-        free(file_location);
-        return(-1);
-    }
-
-    /*
-        now open the file for writing
-    */
-    if(!(fp = vuurmuur_fopen(debuglvl, tb->cfg, file_location, "w+")))
-    {
+    /* now open the file for writing */
+    if(!(fp = vuurmuur_fopen(debuglvl, tb->cfg, file_location, "w+"))) {
         vrmr_error(-1, "Error", "unable to open file '%s' for writing: %s (in: %s).", file_location, strerror(errno), __FUNC__);
 
         /* cleanup */
@@ -276,37 +254,18 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         return(-1);
     }
 
-    /*
-        print the list into the file
-    */
-    for(d_node = storelist.top; d_node; d_node = d_node->next)
-    {
-        if ( d_node->data == NULL )
-        {
-            vrmr_error(-1, "Internal Error", "Cannot write data to '%s' (in: %s).", file_location, __FUNC__);
-            vrmr_list_cleanup(debuglvl, &storelist);
-            free(file_location);
-            return(-1);
-        }
+    /* print the list into the file */
+    for(d_node = storelist.top; d_node; d_node = d_node->next) {
+        if (d_node->data == NULL)
+            continue;
         fprintf(fp, "%s", (char *)d_node->data);
     }
 
-    if(fclose(fp) < 0)
-    {
-        vrmr_error(-1, "Error", "closing file '%s' failed: %s.", file_location, strerror(errno));
+    (void)fclose(fp);
 
-        /* cleanup */
-        vrmr_list_cleanup(debuglvl, &storelist);
-        free(file_location);
-        return(-1);
-    }
-
-    /*
-        destroy the temp storage
-    */
+    /* destroy the temp storage */
     vrmr_list_cleanup(debuglvl, &storelist);
     free(file_location);
-
     return(retval);
 }
 
