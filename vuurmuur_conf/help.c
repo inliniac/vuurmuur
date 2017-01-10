@@ -187,7 +187,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
     vrmr_fatal_if_null(part);
 
     /* setup the list */
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, help_list, free_helpword) < 0);
+    vrmr_list_setup(debuglvl, help_list, free_helpword);
 
     /* TRANSLATORS: translate this to you language code: so for
        'ru' use 'vuurmuur-ru.hlp', for 'pt_BR' use
@@ -259,7 +259,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
     vrmr_fatal_if_null(part);
 
     /* setup the list */
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, help_list, free_helpword) < 0);
+    vrmr_list_setup(debuglvl, help_list, free_helpword);
 
     if (utf8_mode == 1) {
         /* TRANSLATORS: translate this to you language code: so for
@@ -864,7 +864,7 @@ setup_statuslist(const int debuglvl)
     VuurmuurStatus.system = 1;
 
     /* setup the status list */
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &VuurmuurStatus.StatusList, free_helpword) < 0);
+    vrmr_list_setup(debuglvl, &VuurmuurStatus.StatusList, free_helpword);
 }
 
 void
@@ -896,7 +896,7 @@ print_about(const int debuglvl)
     startx = (max_width - width) / 2;
     starty = 4;
 
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &about_list, free_helpword) < 0);
+    vrmr_list_setup(debuglvl, &about_list, free_helpword);
 
     char copyright[64];
     snprintf(copyright, sizeof(copyright), "%s.\n", VUURMUUR_COPYRIGHT);

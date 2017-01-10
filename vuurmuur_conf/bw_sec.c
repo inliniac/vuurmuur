@@ -161,7 +161,7 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
     close(fd);
 
     /* setup the list */
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, list, free) < 0);
+    vrmr_list_setup(debuglvl, list, free);
 
     snprintf(cmd_year_str, sizeof(cmd_year_str), "%d", year);
     snprintf(cmd_month_str, sizeof(cmd_month_str), "%d", month);

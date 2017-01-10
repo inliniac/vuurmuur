@@ -84,15 +84,8 @@ tell_textdir(const int debuglvl, void *backend, char *name, char *question, char
         return(-1);
     }
 
-    /*
-        initialize the store list
-    */
-    if(vrmr_list_setup(debuglvl, &storelist, free) < 0)
-    {
-        free(file_location);
-        fclose(fp);
-        return(-1);
-    }
+    /* initialize the store list */
+    vrmr_list_setup(debuglvl, &storelist, free);
 
     /*
         loop trough the current file

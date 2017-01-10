@@ -723,12 +723,7 @@ vrmr_rules_init_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_conf
 
     /*  setup the list: the cleanup function is set to NULL
         so it's the users responsibility to free memory. */
-    if(vrmr_list_setup(debuglvl, &rules->list, NULL) < 0)
-    {
-        vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_list_setup(debuglvl, &rules->list, NULL);
 
     if(debuglvl >= MEDIUM)
         vrmr_debug(__FUNC__, "rules_location: '%s'", cfg->rules_location);
@@ -3498,12 +3493,7 @@ vrmr_rules_get_custom_chains(const int debuglvl, struct vrmr_rules *rules)
         return(-1);
     }
 
-    if(vrmr_list_setup(debuglvl, &rules->custom_chain_list, free) < 0)
-    {
-        vrmr_error(-1, "Internal Error", "vrmr_list_setup() "
-            "failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_list_setup(debuglvl, &rules->custom_chain_list, free);
 
     for(d_node = rules->list.top; d_node; d_node = d_node->next)
     {
@@ -3659,22 +3649,10 @@ vrmr_rules_get_system_chains(const int debuglvl, struct vrmr_rules *rules, struc
     }
 
     /* initialize the lists */
-    if(vrmr_list_setup(debuglvl, &rules->system_chain_filter, free) < 0) {
-        vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
-    if(vrmr_list_setup(debuglvl, &rules->system_chain_mangle, free) < 0) {
-        vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_list_setup(debuglvl, &rules->system_chain_filter, free);
+    vrmr_list_setup(debuglvl, &rules->system_chain_mangle, free);
     if (ipv == VRMR_IPV4) {
-        if(vrmr_list_setup(debuglvl, &rules->system_chain_nat, free) < 0) {
-            vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-            return(-1);
-        }
+        vrmr_list_setup(debuglvl, &rules->system_chain_nat, free);
     }
     //if(vrmr_list_setup(debuglvl, &rules->system_chain_raw, free) < 0) {
     //    vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",

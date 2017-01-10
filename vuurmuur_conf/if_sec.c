@@ -1462,11 +1462,7 @@ init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
 
     InterfacesSection.list_items = interfaces->list.len;
 
-    if(vrmr_list_setup(debuglvl, &InterfacesSection.desc_list, free) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "vrmr_list_setup() failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_list_setup(debuglvl, &InterfacesSection.desc_list, free);
 
     if(!(InterfacesSection.items = (ITEM **)calloc(InterfacesSection.list_items + 1, sizeof(ITEM *))))
     {

@@ -1319,9 +1319,9 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
     VrWinGetOffset(-1, -1, height, width, 4, ServicesSection.EditService.se_xre + 1, &starty, &startx);
 
     // string item list
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_list, free) < 0);
+    vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_list, free);
     // number item list
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_number_list, free) < 0);
+    vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_number_list, free);
 
     for (i = 0, d_node = ser_ptr->PortrangeList.top; d_node ; d_node = d_node->next, i++)
     {

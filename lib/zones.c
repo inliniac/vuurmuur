@@ -632,8 +632,7 @@ vrmr_init_zonedata(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones 
     memset(zones, 0, sizeof(*zones));
 
     /* create the list */
-    if(vrmr_list_setup(debuglvl, &zones->list, NULL) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &zones->list, NULL);
 
     /* get the info from the backend */
     while (vctx->zf->list(debuglvl, vctx->zone_backend, zonename, &zonetype, VRMR_BT_ZONES) != NULL)

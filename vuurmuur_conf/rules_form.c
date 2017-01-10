@@ -402,7 +402,7 @@ SetupRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, unsigned int m
     rbform->show_only_forward = 0;
 
     /* setup list */
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &rbform->RuleBar_list, free) < 0);
+    vrmr_list_setup(debuglvl, &rbform->RuleBar_list, free);
 
     /* calculate field sizes */
     rbform->active_size    = MIN_ACTIVE;

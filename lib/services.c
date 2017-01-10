@@ -279,8 +279,7 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
         return(-1);
     }
 
-    if(vrmr_list_setup(debuglvl, &service_ptr->PortrangeList, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &service_ptr->PortrangeList, free);
 
     /* first check RANGE */
     while((result = vctx->sf->ask(debuglvl, vctx->serv_backend, sername, "RANGE", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
@@ -825,8 +824,7 @@ vrmr_new_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services
                 __FUNC__, __LINE__);
         return(-1);
     }
-    if(vrmr_list_setup(debuglvl, &ser_ptr->PortrangeList, free))
-        return(-1);
+    vrmr_list_setup(debuglvl, &ser_ptr->PortrangeList, free);
 
     /* insert into the list */
     if(vrmr_insert_service_list(debuglvl, services, ser_ptr) < 0)
@@ -1167,12 +1165,7 @@ vrmr_init_services(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servic
     memset(services, 0, sizeof(*services));
 
     /* setup the list */
-    if(vrmr_list_setup(debuglvl, &services->list, free) < 0)
-    {
-        vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
-                __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_list_setup(debuglvl, &services->list, free);
 
     /*
         now loop trough the list and insert

@@ -61,8 +61,8 @@ vrmr_rule_option_malloc(const int debuglvl)
     memset(opt_ptr, 0, sizeof(struct vrmr_rule_options));
 
     /* setup the lists */
-    (void)vrmr_list_setup(debuglvl, &opt_ptr->RemoteportList, NULL);
-    (void)vrmr_list_setup(debuglvl, &opt_ptr->ListenportList, NULL);
+    vrmr_list_setup(debuglvl, &opt_ptr->RemoteportList, NULL);
+    vrmr_list_setup(debuglvl, &opt_ptr->ListenportList, NULL);
 
     return(opt_ptr);
 }
@@ -84,17 +84,9 @@ vrmr_zone_malloc(const int debuglvl)
 
     zone_ptr->ipv6.cidr6 = -1;
 
-    zone_ptr->GroupList.len = 0;
-    if(vrmr_list_setup(debuglvl, &zone_ptr->GroupList, NULL) < 0)
-        return(NULL);
-
-    zone_ptr->InterfaceList.len = 0;
-    if(vrmr_list_setup(debuglvl, &zone_ptr->InterfaceList, NULL) < 0)
-        return(NULL);
-
-    zone_ptr->ProtectList.len = 0;
-    if(vrmr_list_setup(debuglvl, &zone_ptr->ProtectList, free) < 0)
-        return(NULL);
+    vrmr_list_setup(debuglvl, &zone_ptr->GroupList, NULL);
+    vrmr_list_setup(debuglvl, &zone_ptr->InterfaceList, NULL);
+    vrmr_list_setup(debuglvl, &zone_ptr->ProtectList, free);
 
     zone_ptr->type = VRMR_TYPE_UNSET;
 
@@ -161,8 +153,7 @@ vrmr_interface_malloc(const int debuglvl)
 
     iface_ptr->active = TRUE;
 
-    if(vrmr_list_setup(debuglvl, &iface_ptr->ProtectList, free) < 0)
-        return(NULL);
+    vrmr_list_setup(debuglvl, &iface_ptr->ProtectList, free);
 
     iface_ptr->cnt = NULL;
 

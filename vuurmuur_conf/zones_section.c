@@ -2194,7 +2194,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
         }
     }
 
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &ZonesSection.group_desc_list, free) < 0);
+    vrmr_list_setup(debuglvl, &ZonesSection.group_desc_list, free);
 
     i = ZonesSection.host_n - 1;
 
@@ -4336,7 +4336,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
             ZonesSection.network_n++;
     }
 
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &ZonesSection.network_desc_list, free) < 0);
+    vrmr_list_setup(debuglvl, &ZonesSection.network_desc_list, free);
 
     i = ZonesSection.network_n - 1;
 

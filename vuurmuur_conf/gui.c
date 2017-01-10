@@ -244,14 +244,14 @@ VrNewMenu(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
 void
 VrMenuSetupNameList(const int debuglvl, VrMenu *menu)
 {
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &menu->name, menu->free_name) < 0);
+    vrmr_list_setup(debuglvl, &menu->name, menu->free_name);
     menu->use_namelist = TRUE;
 }
 
 void
 VrMenuSetupDescList(const int debuglvl, VrMenu *menu)
 {
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &menu->desc, menu->free_desc) < 0);
+    vrmr_list_setup(debuglvl, &menu->desc, menu->free_desc);
     menu->use_desclist = TRUE;
 }
 
@@ -479,7 +479,7 @@ VrNewForm(int h, int w, int y, int x, chtype bg, chtype fg)
     form->save = NULL;
     form->save_ctx = NULL;
 
-    vrmr_fatal_if(vrmr_list_setup(0, &form->list, free) < 0);
+    vrmr_list_setup(0, &form->list, free);
     return(form);
 }
 

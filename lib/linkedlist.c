@@ -32,15 +32,10 @@
 
     This function can only fail due to a programming error.
 */
-int
+void
 vrmr_list_setup(const int debuglvl, struct vrmr_list *list, void (*remove)(void *data))
 {
-    /* safety first */
-    if(!list)
-    {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    assert(list);
 
     /* init */
     list->len = 0;
@@ -48,7 +43,7 @@ vrmr_list_setup(const int debuglvl, struct vrmr_list *list, void (*remove)(void 
     list->bot = NULL;
     list->remove = remove;
 
-    return(0);
+    return;
 }
 
 

@@ -1648,7 +1648,7 @@ void vrmr_connreq_cleanup(const int debuglvl, struct vrmr_conntrack_request *con
 /*
     linked list
 */
-int vrmr_list_setup(int debuglvl, /*@out@*/ struct vrmr_list *, /*@null@*/ void (*remove)(void *data));
+void vrmr_list_setup(int debuglvl, /*@out@*/ struct vrmr_list *, /*@null@*/ void (*remove)(void *data));
 int vrmr_list_remove_node(int debuglvl, struct vrmr_list *, struct vrmr_list_node *d_node);
 int vrmr_list_remove_top(int debuglvl, struct vrmr_list *);
 int vrmr_list_remove_bot(int debuglvl, struct vrmr_list *);

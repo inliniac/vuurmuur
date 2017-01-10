@@ -786,8 +786,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
 
 
     // first create our shadow list
-    if(vrmr_list_setup(debuglvl, &shadow_list, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &shadow_list, free);
 
     for(i=0; i < interfaces->list.len; i++)
     {

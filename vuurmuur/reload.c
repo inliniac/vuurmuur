@@ -395,12 +395,7 @@ reload_vrmr_services_check(const int debuglvl, struct vrmr_ctx *vctx,
                                     strerror(errno), __FUNC__, __LINE__);
         return(-1);
     }
-    if(vrmr_list_setup(debuglvl, &new_ser_ptr->PortrangeList, free) < 0)
-    {
-        vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
-                                    __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_list_setup(debuglvl, &new_ser_ptr->PortrangeList, free);
 
 
     /* read the service from the backend again */

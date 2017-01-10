@@ -748,7 +748,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     }
 
     /* setup the buffer */
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &LogBufferList, free) < 0);
+    vrmr_list_setup(debuglvl, &LogBufferList, free);
     /* point the buffer pointer to the LogBufferList */
     buffer_ptr = &LogBufferList;
 
@@ -1228,7 +1228,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
                 werase(log_win);
                 vrmr_fatal_if(vrmr_list_cleanup(debuglvl, buffer_ptr) < 0);
-                vrmr_fatal_if(vrmr_list_setup(debuglvl, buffer_ptr, free) < 0);
+                vrmr_list_setup(debuglvl, buffer_ptr, free);
                 control.print = 1;
                 break;
 
@@ -1426,7 +1426,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             sanitize_search_str(debuglvl, search_ptr, strlen(search_ptr));
 
                             /* setup the search-buffer */
-                            vrmr_fatal_if(vrmr_list_setup(debuglvl, &SearchBufferList, free) < 0);
+                            vrmr_list_setup(debuglvl, &SearchBufferList, free);
 
                             /* point the buffer-pointer to the SearchBufferList */
                             buffer_ptr = &SearchBufferList;

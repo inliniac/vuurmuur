@@ -471,12 +471,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
     memset(blocklist, 0, sizeof(struct vrmr_blocklist));
 
     /* setup the blocklist */
-    if(vrmr_list_setup(debuglvl, &blocklist->list, free) < 0)
-    {
-        vrmr_error(-1, "Internal Error", "vrmr_list_setup() failed (in: %s:%d).",
-                    __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_list_setup(debuglvl, &blocklist->list, free);
 
     /* open the blocklist-file */
     if((fp = fopen(cfg->blocklist_location, "r")))

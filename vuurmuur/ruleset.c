@@ -60,81 +60,50 @@ ruleset_setup(const int debuglvl, RuleSet *ruleset)
     /* init the lists */
 
     /* raw */
-    if(vrmr_list_setup(debuglvl, &ruleset->raw_preroute, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &ruleset->raw_preroute, free);
 
     /* mangle */
-    if(vrmr_list_setup(debuglvl, &ruleset->mangle_preroute, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->mangle_input, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->mangle_forward, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->mangle_output, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->mangle_postroute, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &ruleset->mangle_preroute, free);
+    vrmr_list_setup(debuglvl, &ruleset->mangle_input, free);
+    vrmr_list_setup(debuglvl, &ruleset->mangle_forward, free);
+    vrmr_list_setup(debuglvl, &ruleset->mangle_output, free);
+    vrmr_list_setup(debuglvl, &ruleset->mangle_postroute, free);
 
-    if(vrmr_list_setup(debuglvl, &ruleset->mangle_shape_in, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->mangle_shape_out, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->mangle_shape_fw, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &ruleset->mangle_shape_in, free);
+    vrmr_list_setup(debuglvl, &ruleset->mangle_shape_out, free);
+    vrmr_list_setup(debuglvl, &ruleset->mangle_shape_fw, free);
 
     /* nat */
-    if(vrmr_list_setup(debuglvl, &ruleset->nat_preroute, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->nat_postroute, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->nat_output, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &ruleset->nat_preroute, free);
+    vrmr_list_setup(debuglvl, &ruleset->nat_postroute, free);
+    vrmr_list_setup(debuglvl, &ruleset->nat_output, free);
 
     /* filter */
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_input, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_forward, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_output, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &ruleset->filter_input, free);
+    vrmr_list_setup(debuglvl, &ruleset->filter_forward, free);
+    vrmr_list_setup(debuglvl, &ruleset->filter_output, free);
 
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_antispoof, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_blocklist, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_blocktarget, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_badtcp, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_synlimittarget, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_udplimittarget, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_newaccepttarget, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &ruleset->filter_antispoof, free);
+    vrmr_list_setup(debuglvl, &ruleset->filter_blocklist, free);
+    vrmr_list_setup(debuglvl, &ruleset->filter_blocktarget, free);
+    vrmr_list_setup(debuglvl, &ruleset->filter_badtcp, free);
+    vrmr_list_setup(debuglvl, &ruleset->filter_synlimittarget, free);
+    vrmr_list_setup(debuglvl, &ruleset->filter_udplimittarget, free);
+    vrmr_list_setup(debuglvl, &ruleset->filter_newaccepttarget, free);
     /* NFQueue state */
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_newnfqueuetarget, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_estrelnfqueuetarget, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &ruleset->filter_newnfqueuetarget, free);
+    vrmr_list_setup(debuglvl, &ruleset->filter_estrelnfqueuetarget, free);
     /* NFLog state */
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_newnflogtarget, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_estrelnflogtarget, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &ruleset->filter_newnflogtarget, free);
+    vrmr_list_setup(debuglvl, &ruleset->filter_estrelnflogtarget, free);
     /* tcp reset */
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_tcpresettarget, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &ruleset->filter_tcpresettarget, free);
     /* accounting */
-    if(vrmr_list_setup(debuglvl, &ruleset->filter_accounting, free) < 0)
-        return(-1);
-    if(vrmr_list_setup(debuglvl, &accounting_chain_names, free) < 0)
-        return(-1);
+    vrmr_list_setup(debuglvl, &ruleset->filter_accounting, free);
+    vrmr_list_setup(debuglvl, &accounting_chain_names, free);
 
     /* shaping */
-    if(vrmr_list_setup(debuglvl, &ruleset->tc_rules, free) < 0)
-        return(-1);
-
+    vrmr_list_setup(debuglvl, &ruleset->tc_rules, free);
     return(0);
 }
 

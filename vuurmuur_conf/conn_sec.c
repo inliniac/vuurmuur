@@ -543,8 +543,8 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
 
     /*  initialize this list with destroy is null, because it only
         points to zonedatalist nodes */
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &ct->network_list, NULL) < 0);
-    vrmr_fatal_if(vrmr_zonelist_to_networklist(debuglvl, zones, &ct->network_list) < 0);
+    vrmr_list_setup(debuglvl, &ct->network_list, NULL);
+    vrmr_zonelist_to_networklist(debuglvl, zones, &ct->network_list);
 
     /* initialize the prev size because it is used in get_connections */
     ct->prev_list_size = 500;
@@ -556,7 +556,7 @@ conn_ct_get_connections(const int debuglvl, struct vrmr_config *cnf, Conntrack *
 {
     ct->conn_stats.fromname_max = ct->conn_stats.toname_max = ct->conn_stats.sername_max = 0;
 
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &ct->conn_list, NULL) < 0);
+    vrmr_list_setup(debuglvl, &ct->conn_list, NULL);
 
 #ifdef IPV6_ENABLED
     req->ipv6 = 1;

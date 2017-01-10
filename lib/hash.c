@@ -67,13 +67,8 @@ vrmr_hash_setup( const int debuglvl,                         /* debug level */
         the hash table is not supposed to contain any data, only pointers. So we
         setup the list without a cleanup function.
     */
-    for(cur_row = 0; cur_row < hash_table->rows; cur_row++)
-    {
-        if(vrmr_list_setup(debuglvl, &hash_table->table[cur_row], NULL) < 0)
-        {
-            vrmr_error(-1, "Internal Error", "setting up the hash row %d failed (in: %s, %s:%d).", cur_row, __FUNC__);
-            return(-1);
-        }
+    for (cur_row = 0; cur_row < hash_table->rows; cur_row++) {
+        vrmr_list_setup(debuglvl, &hash_table->table[cur_row], NULL);
     }
 
     return(0);

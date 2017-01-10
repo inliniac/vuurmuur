@@ -944,7 +944,7 @@ statevent_init_ctl(const int debuglvl, int type)
         ctl->help_actions     = ":[VUURMUUR:LOGVIEW:ACTIONS]:";
     }
 
-    vrmr_fatal_if(vrmr_list_setup(debuglvl, &ctl->list, ctl->remove) < 0);
+    vrmr_list_setup(debuglvl, &ctl->list, ctl->remove);
     return(ctl);
 }
 

@@ -752,7 +752,6 @@ vrmr_init_interfaces(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inte
     if(debuglvl >= HIGH)
         vrmr_debug(__FUNC__, "start");
 
-
     /* safety */
     if(interfaces == NULL)
     {
@@ -761,13 +760,10 @@ vrmr_init_interfaces(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inte
         return(-1);
     }
 
-
     /* init */
     memset(interfaces, 0, sizeof(struct vrmr_interfaces));
     /* setup the list */
-    if(vrmr_list_setup(debuglvl, &interfaces->list, NULL) < 0)
-        return(-1);
-
+    vrmr_list_setup(debuglvl, &interfaces->list, NULL);
 
     /* get the list from the backend */
     while(vctx->af->list(debuglvl, vctx->ifac_backend, ifacname, &zonetype, VRMR_BT_INTERFACES) != NULL)
