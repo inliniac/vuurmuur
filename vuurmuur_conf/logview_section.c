@@ -29,18 +29,12 @@ struct PlainLogRule_
     char line[512];
 };
 
-
 /*  logline2logrule
 
     Load a string 'logline' into the 'logrule' struct. We do this for
     pretty printing.
-
-    Returncodes:
-        -1: error
-         (0: filtered)
-         0: ok
 */
-static int
+static void
 logline2logrule(char *logline, struct LogRule_ *logrule)
 {
     size_t  i=0,
@@ -49,8 +43,8 @@ logline2logrule(char *logline, struct LogRule_ *logrule)
             comma=0;
     char    tempstr[512]="";
 
-    if(!logline || !logrule)
-        return(-1);
+    vrmr_fatal_if_null(logline);
+    vrmr_fatal_if_null(logrule);
 
     /* scan the line. Note: 'time' has a ':' as last char, and 'to' has a comma as last char. */
     sscanf(logline, "%3s %2s %9s %s service %s from %s to %s", logrule->month, logrule->date, logrule->time, logrule->action, logrule->service, logrule->from, logrule->to);
@@ -62,7 +56,7 @@ logline2logrule(char *logline, struct LogRule_ *logrule)
     logrule->to[StrMemLen(logrule->to)-1] = '\0';
 
     /* store the rest of the rule in tempstr */
-    for(i = 0, x = 0; i < StrMemLen(logline) && logline[i] != '\n' && x < sizeof(tempstr); i++)
+    for(i = 0, x = 0; i < StrMemLen(logline) && logline[i] != '\n' && x < sizeof(tempstr)-1; i++)
     {
         if(logline[i] == ',')
             comma = 1;
@@ -76,7 +70,7 @@ logline2logrule(char *logline, struct LogRule_ *logrule)
     tempstr[x] = '\0';
 
     /* tempstr contains the rest of the rule */
-    for(i=0, x=0; tempstr[i] != '(' && x < sizeof(logrule->prefix) && i < StrMemLen(tempstr) ; i++)
+    for(i=0, x=0; tempstr[i] != '(' && x < sizeof(logrule->prefix)-1 && i < StrMemLen(tempstr) ; i++)
     {
         if(tempstr[i] == '"')
             trema++;
@@ -99,28 +93,16 @@ logline2logrule(char *logline, struct LogRule_ *logrule)
         logrule->details[x] = tempstr[i];
     }
     logrule->details[x] = '\0';
-
-    return(0);
 }
 
-
-/*  logline2plainlogrule
-
-    Returncodes:
-        -1: error
-         (0: filtered)
-         0: ok
-*/
-static int
+static void
 logline2plainlogrule(char *logline, struct PlainLogRule_ *logrule)
 {
-    if(!logline || !logrule)
-        return(-1);
+    vrmr_fatal_if_null(logline);
+    vrmr_fatal_if_null(logrule);
 
     (void)strlcpy(logrule->line, logline, sizeof(logrule->line));
-    return(0);
 }
-
 
 /*
 
@@ -618,7 +600,6 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services, /*@null@*/ char *logname)
 {
-    int             result=0;
     WINDOW          *log_win = NULL,
                     *wait_win = NULL,
                     *filter_ib_win = NULL,
@@ -931,41 +912,20 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         if(traffic_log)
         {
             /* here we can analyse the rule */
-            if(!(log_record = malloc(sizeof(struct LogRule_))))
-            {
-                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-                free(line);
-                return(-1);
-            }
+            log_record = malloc(sizeof(struct LogRule_));
+            vrmr_fatal_alloc("malloc", log_record);
 
             /* start not filtered (was filtered) */
             log_record->filtered = 0;
 
-            result = logline2logrule(line, log_record);
-            if(result < 0)
-            {
-                free(log_record);
-                free(line);
-                return(-1);
-            }
+            logline2logrule(line, log_record);
 
             /* now insert the rule */
-            if(vrmr_list_append(debuglvl, buffer_ptr, log_record)  == NULL)
-            {
-                vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
-                free(line);
-                return(-1);
-            }
+            vrmr_fatal_if(vrmr_list_append(debuglvl, buffer_ptr, log_record) == NULL);
 
             /* if the bufferlist is full, remove the oldest item from it */
-            if(buffer_ptr->len > max_buffer_size)
-            {
-                if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
-                {
-                    vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
-                    free(line);
-                    return(-1);
-                }
+            if(buffer_ptr->len > max_buffer_size) {
+                vrmr_fatal_if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0);
             }
 
             log_record = NULL;
@@ -974,38 +934,20 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         else
         {
             /* here we can analyse the rule */
-            if(!(plainlog_record = malloc(sizeof(struct PlainLogRule_))))
-            {
-                vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-                return(-1);
-            }
+            plainlog_record = malloc(sizeof(struct PlainLogRule_));
+            vrmr_fatal_alloc("malloc", plainlog_record);
 
             /* start not filtered (was filtered) */
             plainlog_record->filtered = 0;
 
-            result = logline2plainlogrule(line, plainlog_record);
-            if(result < 0)
-            {
-                free(plainlog_record);
-                free(line);
-                return(-1);
-            }
+            logline2plainlogrule(line, plainlog_record);
 
             /* now insert the rule */
-            if(vrmr_list_append(debuglvl, buffer_ptr, plainlog_record)  == NULL)
-            {
-                vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
-                return(-1);
-            }
+            vrmr_fatal_if(vrmr_list_append(debuglvl, buffer_ptr, plainlog_record) == NULL);
 
             /* if the bufferlist is full, remove the oldest item from it */
-            if(buffer_ptr->len > max_buffer_size)
-            {
-                if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
-                {
-                    vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
-                    return(-1);
-                }
+            if (buffer_ptr->len > max_buffer_size) {
+                vrmr_fatal_if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0);
             }
 
             plainlog_record = NULL;
@@ -1123,46 +1065,26 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                 if(traffic_log)
                 {
                     /* here we can analyse the rule */
-                    if(!(log_record = malloc(sizeof(struct LogRule_))))
-                    {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-                        return(-1);
-                    }
+                    log_record = malloc(sizeof(struct LogRule_));
+                    vrmr_fatal_alloc("malloc", log_record);
 
                     /* we asume unfiltered (was filtered) */
                     log_record->filtered = 0;
 
                     /* convert the raw line to our data structure */
-                    result = logline2logrule(line, log_record);
-                    if(result < 0)
-                    {
-                        free(log_record);
-                        free(line);
-
-                        return(-1);
-                    }
+                    logline2logrule(line, log_record);
 
                     /* if we have a filter check it now */
-                    if(use_filter)
-                    {
+                    if (use_filter) {
                         log_record->filtered = logrule_filtered(debuglvl, log_record, &vfilter);
                     }
 
                     /* now really insert the rule into the buffer */
-                    if(vrmr_list_append(debuglvl, buffer_ptr, log_record)  == NULL)
-                    {
-                        vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
-                        return(-1);
-                    }
+                    vrmr_fatal_if(vrmr_list_append(debuglvl, buffer_ptr, log_record) == NULL);
 
                     /* if the bufferlist is full, remove the oldest item from it */
-                    if(buffer_ptr->len > max_buffer_size)
-                    {
-                        if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
-                        {
-                            vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (runtime).");
-                            return(-1);
-                        }
+                    if (buffer_ptr->len > max_buffer_size) {
+                        vrmr_fatal_if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0);
                     }
 
                     control.queue++;
@@ -1171,44 +1093,25 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                 else
                 {
                     /* here we can analyse the rule */
-                    if(!(plainlog_record = malloc(sizeof(struct PlainLogRule_))))
-                    {
-                        vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-                        return(-1);
-                    }
+                    plainlog_record = malloc(sizeof(struct PlainLogRule_));
+                    vrmr_fatal_alloc("malloc", plainlog_record);
 
                     /* we asume unfiltered (was filtered) */
                     plainlog_record->filtered = 0;
 
-                    result = logline2plainlogrule(line, plainlog_record);
-                    if(result < 0)
-                    {
-                        free(plainlog_record);
-                        free(line);
-                        return(-1);
-                    }
+                    logline2plainlogrule(line, plainlog_record);
 
                     /* if we have a filter check it now */
-                    if(use_filter)
-                    {
+                    if(use_filter) {
                         plainlog_record->filtered = plainlogrule_filtered(debuglvl, plainlog_record->line, &vfilter);
                     }
 
                     /* now insert the rule */
-                    if(vrmr_list_append(debuglvl, buffer_ptr, plainlog_record)  == NULL)
-                    {
-                        vrmr_error(-1, VR_INTERR, "unable to add line to buffer.");
-                        return(-1);
-                    }
+                    vrmr_fatal_if(vrmr_list_append(debuglvl, buffer_ptr, plainlog_record) == NULL);
 
                     /* if the bufferlist is full, remove the oldest item from it */
-                    if(buffer_ptr->len > max_buffer_size)
-                    {
-                        if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0)
-                        {
-                            vrmr_error(-1, VR_INTERR, "unable to remove line from buffer (initial buffer fill).");
-                            return(-1);
-                        }
+                    if (buffer_ptr->len > max_buffer_size) {
+                        vrmr_fatal_if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0);
                     }
 
                     plainlog_record = NULL;
@@ -1893,11 +1796,8 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
                     if(traffic_log)
                     {
-                        if(!(log_record = d_node->data))
-                        {
-                            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
-                            return(-1);
-                        }
+                        vrmr_fatal_if_null(d_node->data);
+                        log_record = d_node->data;
 
                         if(!use_filter || (use_filter && !log_record->filtered))
                         {
@@ -1908,11 +1808,8 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     }
                     else
                     {
-                        if(!(plainlog_record = d_node->data))
-                        {
-                            vrmr_error(-1, VR_INTERR, "NULL pointer (in: %s).", __FUNC__);
-                            return(-1);
-                        }
+                        vrmr_fatal_if_null(d_node->data);
+                        plainlog_record = d_node->data;
 
                         if(!use_filter || (use_filter && !plainlog_record->filtered))
                         {
@@ -1968,11 +1865,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     nodelay(log_win, FALSE);
     vrmr_list_cleanup(debuglvl, buffer_ptr);
 
-    if(fclose(fp) < 0)
-    {
-        vrmr_error(-1, VR_ERR, gettext("closing logfile failed: %s."), strerror(errno));
-        return(-1);
-    }
+    (void)fclose(fp);
 
     /* info bar stuff */
     show_panel(info_bar_panels[0]);
