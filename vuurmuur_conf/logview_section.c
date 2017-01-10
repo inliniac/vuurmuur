@@ -109,17 +109,15 @@ logline2plainlogrule(char *logline, struct PlainLogRule_ *logrule)
     Returncodes:
         0: not filtered
         1: filtered
-        
-        In case of error we return 0.
 */
 static int
 logrule_filtered(const int debuglvl, struct LogRule_ *log_record, struct vrmr_filter *filter)
 {
     char    line[512];
 
-    if(log_record == NULL || filter == NULL)
-        return(0);
-        
+    vrmr_fatal_if_null(log_record);
+    vrmr_fatal_if_null(filter);
+
     /*                            mo da ti  ac se fr to   pr  de */
     snprintf(line, sizeof(line), "%s %s %s: %s %s %s %s, '%s' %s",
                     log_record->month,
@@ -133,108 +131,85 @@ logrule_filtered(const int debuglvl, struct LogRule_ *log_record, struct vrmr_fi
                     log_record->details);
 
     /*  check the regex
-        
+
         If the regex matches, the line is not filtered, so we return 0.
     */
-    if(regexec(&filter->reg, line, 0, NULL, 0) == 0)
-    {
-        if(filter->neg == FALSE)
+    if (regexec(&filter->reg, line, 0, NULL, 0) == 0) {
+        if (filter->neg == FALSE)
             return(0);
         else
             return(1);
-    }
-    else
-    {
-        if(filter->neg == FALSE)
+    } else {
+        if (filter->neg == FALSE)
             return(1);
         else
             return(0);
     }
 }
 
-
 /*
-
     Returncodes:
         0: not filtered
         1: filtered
-        
-        In case of error we return 0.
 */
 static int
 plainlogrule_filtered(const int debuglvl, char *line, struct vrmr_filter *filter)
 {
-    if(line == NULL || filter == NULL)
-        return(0);
-        
+    vrmr_fatal_if_null(line);
+    vrmr_fatal_if_null(filter);
+
     /*  check the regex
-        
+
         If the regex matches, the line is not filtered, so we return 0.
     */
-    if(regexec(&filter->reg, line, 0, NULL, 0) == 0)
-    {
+    if(regexec(&filter->reg, line, 0, NULL, 0) == 0) {
         if(filter->neg == FALSE)
             return(0);
         else
             return(1);
-    }
-    else
-    {
+    } else {
         if(filter->neg == FALSE)
             return(1);
         else
             return(0);
     }
 }
-
 
 static void
 draw_filter(PANEL *pan, WINDOW *win, char *filter)
 {
-    if(strcmp(filter, "none") == 0)
-    {
+    if(strcmp(filter, "none") == 0) {
         hide_panel(pan);
-    }
-    else
-    {
+    } else {
         show_panel(pan);
         wclear(win);
         wprintw(win, gettext("Filter: %s"), filter);
     }
-    
     update_panels();
     doupdate();
 }
-
 
 static void
 draw_search(PANEL *pan, WINDOW *win, char *search)
 {
-    if(strcmp(search, "none") == 0)
-    {
+    if(strcmp(search, "none") == 0) {
         hide_panel(pan);
-    }
-    else
-    {
+    } else {
         show_panel(pan);
         wclear(win);
         wprintw(win, gettext("Search: %s"), search);
     }
-    
     update_panels();
     doupdate();
 }
 
-
 static int
-check_search_script(const int debuglvl, char *script)
+check_search_script(const int debuglvl, const char *script)
 {
     struct stat stat_buf;
 
-    if(!script)
-        return(-1);
+    vrmr_fatal_if_null(script);
 
-    /* stat the damn thing */
     if(lstat(script, &stat_buf) == -1)
     {
         vrmr_error(-1, VR_ERR,  gettext("checking failed for '%s': %s."), script, strerror(errno));
@@ -269,9 +244,8 @@ check_search_script(const int debuglvl, char *script)
         return(0);
     }
 
-    return(0);
+    return(1);
 }
-
 
 static void
 print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
@@ -328,8 +302,6 @@ print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(log_record->action, "REDIRECT") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "QUEUE") == 0)
-            wattron(log_win, vccnf.color_bgd | A_BOLD);
         else
             wattron(log_win, vccnf.color_bgd | A_BOLD);
 
@@ -366,8 +338,6 @@ print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else if(strcmp(log_record->action, "REDIRECT") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "QUEUE") == 0)
-            wattroff(log_win, vccnf.color_bgd | A_BOLD);
         else
             wattroff(log_win, vccnf.color_bgd | A_BOLD);
 
@@ -418,7 +388,7 @@ print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
             tmpstr_i = max_logrule_length - cur_logrule_length;
         if(tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
-    
+
         snprintf(print_str, tmpstr_i, "%s", log_record->from);
         wprintw(log_win, "%s", print_str);
 
@@ -447,7 +417,7 @@ print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
             wattron(log_win, vccnf.color_bgd | A_BOLD);
-    
+
         tmpstr_i = StrLen(log_record->to)+1;//1 nul, from
         if(cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
@@ -458,7 +428,7 @@ print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
         wprintw(log_win, "%s", print_str);
 
         cur_logrule_length = cur_logrule_length + tmpstr_i-1;
-    
+
         if(strncmp(log_record->to, "firewall", 8) == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
@@ -522,7 +492,6 @@ print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
     wprintw(log_win, "\n");
 }
 
-
 static void
 print_plainlogrule(WINDOW *log_win, char *line,
             size_t max_logrule_length, size_t cur_logrule_length)
@@ -576,7 +545,6 @@ print_plainlogrule(WINDOW *log_win, char *line,
     }
 }
 
-
 static void
 sanitize_search_str(const int debuglvl, char *str, size_t size)
 {
@@ -590,7 +558,6 @@ sanitize_search_str(const int debuglvl, char *str, size_t size)
             str[i] = '_';
     }
 }
-
 
 #define READLINE_LEN    512
 
@@ -742,26 +709,18 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
 
     /* safety */
-    if(zones == NULL || blocklist == NULL)
-    {
-        vrmr_error(-1, VR_INTERR, "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if_null(zones);
+    vrmr_fatal_if_null(blocklist);
 
     /* init filter */
     vrmr_filter_setup(debuglvl, &vfilter);
 
-
     /* if no logfile is supplied, we assume trafficlog */
-    if(!logname)
-    {
+    if (!logname) {
         traffic_log = 1;
         logfile = vctx->conf.trafficlog_location;
         logname = "traffic.log";
-    }
-    else
-    {
+    } else {
         if(strcmp(logname, "error.log") == 0)
         {
             logfile = vctx->conf.errorlog_location;
@@ -783,28 +742,19 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             traffic_log = 1;
             logfile = vctx->conf.trafficlog_location;
         }
-        else
-        {
-            vrmr_error(-1, VR_INTERR, "unknown logfile '%s'.", logname);
-            return(-1);
+        else {
+            vrmr_fatal("unknown logfile '%s'", logname);
         }
     }
 
-
     /* setup the buffer */
-    if(vrmr_list_setup(debuglvl, &LogBufferList, free) < 0)
-    {
-        vrmr_error(-1, VR_INTERR, "setting up buffer failed (in: %s:%d).", __func__, __LINE__);
-        return(-1);
-    }
+    vrmr_fatal_if(vrmr_list_setup(debuglvl, &LogBufferList, free) < 0);
     /* point the buffer pointer to the LogBufferList */
     buffer_ptr = &LogBufferList;
 
-
     /* begin with the traffic log */
     traffic_fp = fopen(logfile, "r");
-    if(!traffic_fp)
-    {
+    if (traffic_fp == NULL) {
         vrmr_error(-1, VR_ERR, gettext("opening logfile '%s' failed: %s."), vctx->conf.trafficlog_location, strerror(errno));
         vrmr_list_cleanup(debuglvl, buffer_ptr);
         return(-1);
@@ -819,50 +769,45 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     getmaxyx(stdscr, max_height, max_width);
     max_logrule_length = (size_t)(max_width - 2);
     max_onscreen = max_height - 8;
-
     /* check if the buffersize is sane */
-    if(max_buffer_size < (unsigned int)max_onscreen)
+    if (max_buffer_size < (unsigned int)max_onscreen)
         max_buffer_size = (unsigned int)max_onscreen;
 
     /*  get the size of the logfile and check if were asking to much of
-        fseek. If so, ask less.
-    */
-    if(stat(logfile, &stat_buf) == -1)
-    {
+        fseek. If so, ask less. */
+    if (stat(logfile, &stat_buf) == -1) {
         vrmr_error(-1, VR_ERR, gettext("could not examine the logfile: %s."), strerror(errno));
+        vrmr_list_cleanup(debuglvl, buffer_ptr);
+        fclose(fp);
         return(-1);
     }
 
     logfile_size = stat_buf.st_size;
     logfile_fseek_offset = (int)max_buffer_size * READLINE_LEN * -1;
-
-    if(logfile_fseek_offset < (logfile_size * -1))
+    if (logfile_fseek_offset < (logfile_size * -1))
         logfile_fseek_offset = logfile_size * -1;
 
     /* listen at the logfile_fseek_offset point in the file, so we start with a populated buffer */
-    if(fseek(fp, logfile_fseek_offset, SEEK_END) < 0)
-    {
+    if (fseek(fp, logfile_fseek_offset, SEEK_END) < 0) {
         vrmr_error(-1, VR_ERR, gettext("fseek failed: %s."), strerror(errno));
+        vrmr_list_cleanup(debuglvl, buffer_ptr);
+        fclose(fp);
         return(-1);
     }
-
     status_print(status_win, gettext("Loading loglines into memory (trying to load %u lines)..."), max_buffer_size);
 
     /* create a little wait dialog */
-    if(!(wait_win = create_newwin(5, 40, (max_height-5)/2, (max_width-40)/2,
-            gettext("One moment please..."), vccnf.color_win)))
-    {
-        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
-        return(-1);
-    }
+    wait_win = create_newwin(5, 40, (max_height-5)/2, (max_width-40)/2,
+            gettext("One moment please..."), vccnf.color_win);
+    vrmr_fatal_if_null(wait_win);
     wait_panels[0] = new_panel(wait_win);
 
     /* print the topmenu options: the nt_ functions are for non-trafficlog use */
-    if(traffic_log == 1)
+    if (traffic_log == 1) {
         draw_top_menu(debuglvl, top_win, gettext("Logview"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
-    else
+    } else {
         draw_top_menu(debuglvl, top_win, gettext("Logview"), nt_key_choices_n, nt_key_choices, nt_cmd_choices_n, nt_cmd_choices);
-
+    }
     mvwprintw(wait_win, 2, 4, gettext("Loading log ..."));
     update_panels();
     doupdate();
@@ -873,14 +818,10 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     while (!done)
     {
         /* read line from log */
-        if (!(line = malloc(READLINE_LEN))) {
-            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-            vrmr_list_cleanup(debuglvl, buffer_ptr);
-            return(-1);
-        }
+        line = malloc(READLINE_LEN);
+        vrmr_fatal_alloc("malloc", line);
 
-        if (fgets(line, READLINE_LEN, fp) == NULL)
-        {
+        if (fgets(line, READLINE_LEN, fp) == NULL) {
             /* free the alloced line */
             free(line);
             break;
@@ -899,9 +840,8 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
          */
         linelen = StrMemLen(line);
         if (linelen < READLINE_LEN-1 && line[linelen - 1] != '\n') {
-            fseek(fp, (long)(StrMemLen(line)*-1), SEEK_CUR);
+            (void)fseek(fp, (long)(StrMemLen(line)*-1), SEEK_CUR);
             free(line);
-
             /* done because we reached the end of the file which does not have a newline */
             break;
         }
@@ -909,8 +849,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         /*
            insert the line into the buffer list
          */
-        if(traffic_log)
-        {
+        if (traffic_log) {
             /* here we can analyse the rule */
             log_record = malloc(sizeof(struct LogRule_));
             vrmr_fatal_alloc("malloc", log_record);
@@ -930,9 +869,8 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
             log_record = NULL;
             control.queue++;
-        }
-        else
-        {
+
+        } else {
             /* here we can analyse the rule */
             plainlog_record = malloc(sizeof(struct PlainLogRule_));
             vrmr_fatal_alloc("malloc", plainlog_record);
@@ -957,7 +895,6 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         /* free the line string, we don't need it anymore */
         free(line);
     }
-
     status_print(status_win, gettext("Loading loglines into memory... loaded %d lines."), buffer_ptr->len);
 
     /*
@@ -967,34 +904,22 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     destroy_win(wait_win);
 
     /* create the info bar window, start hidden */
-    if(!(filter_ib_win = newwin(1, 32, 3, 2))) /* 32 + filter: */
-    {
-        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
-        return(-1);
-    }
+    filter_ib_win = newwin(1, 32, 3, 2); /* 32 + filter: */
+    vrmr_fatal_if_null(filter_ib_win);
     wbkgd(filter_ib_win, vccnf.color_win);
     info_bar_panels[0] = new_panel(filter_ib_win);
     hide_panel(info_bar_panels[0]);
 
     /* create the info bar window, start hidden */
-    if(!(search_ib_win = newwin(1, 32, 3, max_width-32-2))) /* 32 + filter: */
-    {
-        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
-        return(-1);
-    }
+    search_ib_win = newwin(1, 32, 3, max_width-32-2); /* 32 + filter: */
+    vrmr_fatal_if_null(search_ib_win);
     wbkgd(search_ib_win, vccnf.color_win);
     info_bar_panels[1] = new_panel(search_ib_win);
     hide_panel(info_bar_panels[1]);
 
-    /*
-        create the log window
-    */
-    if(!(log_win = newwin(max_height-8, max_width-2, 4, 1)))
-    {
-        vrmr_error(-1, VR_ERR, gettext("creating window failed."));
-        return(-1);
-    }
-
+    /* create the log window */
+    log_win = newwin(max_height-8, max_width-2, 4, 1);
+    vrmr_fatal_if_null(log_win);
     wbkgd(log_win, vccnf.color_bgd);
     my_panels[0] = new_panel(log_win);
 
@@ -1004,7 +929,6 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     /* make sure wgetch doesn't block */
     nodelay(log_win, TRUE);
     keypad(log_win, TRUE);
-
     update_panels();
     doupdate();
 
@@ -1012,12 +936,8 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     while(quit == 0)
     {
         /* read line from log */
-        if(!(line = malloc(READLINE_LEN)))
-        {
-            vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
-            vrmr_list_cleanup(debuglvl, buffer_ptr);
-            return(-1);
-        }
+        line = malloc(READLINE_LEN);
+        vrmr_fatal_alloc("malloc", line);
 
         /* read a line if we are not in pause mode */
         if(!control.pause && fgets(line, READLINE_LEN, fp) != NULL)
@@ -1025,33 +945,23 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             linelen = StrMemLen(line);
 
             /* if the line doesn't end with a newline character we rewind and try again the next run. */
-            if(linelen < READLINE_LEN-1 && line[linelen - 1] != '\n')
-            {
-                fseek(fp, (long)(linelen * -1), SEEK_CUR);
+            if(linelen < READLINE_LEN-1 && line[linelen - 1] != '\n') {
+                (void)fseek(fp, (long)(linelen * -1), SEEK_CUR);
                 free(line);
                 line = NULL;
-            }
-            else if(search_mode)
-            {
-                if(strncmp(line, "SL:EOF:", 7) == 0)
-                {
+            } else if(search_mode) {
+                if (strncmp(line, "SL:EOF:", 7) == 0) {
                     search_completed = 1;
-                }
-                else if(strncmp(line, "SL:ERROR:", 9) == 0)
-                {
+                } else if(strncmp(line, "SL:ERROR:", 9) == 0) {
                     search_error = 1;
                     search_completed = 1;
-
                     line[StrMemLen(line)-2] = '\0';
                     vrmr_error(-1, VR_ERR, "%s", line);
-                }
-                else
-                {
+                } else {
                     search_results++;
                 }
 
-                if(search_completed)
-                {
+                if (search_completed) {
                     /* if we bail out here it's because of an EOF or ERROR
                        and we are not interested in the line. So free it. */
                     free(line);
@@ -1060,10 +970,8 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             }
 
             /* insert the line into the buffer list */
-            if(line)
-            {
-                if(traffic_log)
-                {
+            if (line) {
+                if (traffic_log) {
                     /* here we can analyse the rule */
                     log_record = malloc(sizeof(struct LogRule_));
                     vrmr_fatal_alloc("malloc", log_record);
@@ -1126,27 +1034,22 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
             This means we have to sleep for a little while.
         */
-        else
-        {
+        else {
             /* free the allocated buffer */
             free(line);
             line = NULL;
 
             /* so we sleep, */
             control.sleep = 1;
-
             /* unless we still have a queue! */
             if (control.queue > 0)
                 control.print = 1;
         }
 
-
         /* handle the search mode */
-        if(search_mode)
-        {
+        if (search_mode) {
             /* emergengy search stop */
-            if(search_stop)
-            {
+            if(search_stop) {
                 search_completed = 1;
             }
 
@@ -1161,8 +1064,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                 The reason for this is that we want to be able to scroll
                 through the search results.
             */
-            if(search_completed)
-            {
+            if(search_completed) {
                 /* close the pipe */
                 if(pclose(search_pipe) < 0)
                 {
@@ -1283,44 +1185,28 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     draw_filter(info_bar_panels[0], filter_ib_win, "none");
                 }
 
-                /*
-                    create a little wait dialog
-                */
-                if(!(wait_win = create_newwin(5, 40, (max_height-5)/2, (max_width-40)/2, gettext("One moment please..."), vccnf.color_win)))
-                {
-                    vrmr_error(-1, VR_ERR, gettext("creating window failed."));
-                    return(-1);
-                }
+                /* create a little wait dialog */
+                wait_win = create_newwin(5, 40, (max_height-5)/2, (max_width-40)/2, gettext("One moment please..."), vccnf.color_win);
+                vrmr_fatal_if_null(wait_win);
                 wait_panels[0] = new_panel(wait_win);
-
                 mvwprintw(wait_win, 2, 2, gettext("Applying changed filter..."));
-
                 update_panels();
                 doupdate();
 
-                for(d_node = buffer_ptr->top; d_node; d_node = d_node->next)
+                for (d_node = buffer_ptr->top; d_node; d_node = d_node->next)
                 {
-                    if(traffic_log)
-                    {
-                        if(!(log_record = d_node->data))
-                        {
-                            vrmr_error(-1, VR_INTERR, "NULL pointer.");
-                            return(-1);
-                        }
+                    if (traffic_log) {
+                        vrmr_fatal_if_null(d_node->data);
+                        log_record = d_node->data;
 
                         if (use_filter) {
                             log_record->filtered = logrule_filtered(debuglvl, log_record, &vfilter);
                         } else {
                             log_record->filtered = 0;
                         }
-                    }
-                    else
-                    {
-                        if(!(plainlog_record = d_node->data))
-                        {
-                            vrmr_error(-1, VR_INTERR, "NULL pointer.");
-                            return(-1);
-                        }
+                    } else {
+                        vrmr_fatal_if_null(d_node->data);
+                        plainlog_record = d_node->data;
 
                         if(use_filter) {
                             plainlog_record->filtered = plainlogrule_filtered(debuglvl, plainlog_record->line, &vfilter);
@@ -1333,23 +1219,16 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                 /* destroy the wait dialog */
                 del_panel(wait_panels[0]);
                 destroy_win(wait_win);
-
                 control.print = 1;
                 offset = 0;
                 break;
 
             /* clear the screen */
             case 'c':
+
                 werase(log_win);
-
-                vrmr_list_cleanup(debuglvl, buffer_ptr);
-
-                if(vrmr_list_setup(debuglvl, buffer_ptr, free) < 0)
-                {
-                    vrmr_error(-1, VR_INTERR, "re-initializing buffer failed.");
-                    return(-1);
-                }
-
+                vrmr_fatal_if(vrmr_list_cleanup(debuglvl, buffer_ptr) < 0);
+                vrmr_fatal_if(vrmr_list_setup(debuglvl, buffer_ptr, free) < 0);
                 control.print = 1;
                 break;
 
@@ -1359,18 +1238,13 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             case 'Q':
             case KEY_F(10):
 
-                if(search_mode)
-                {
+                if(search_mode) {
                     status_print(status_win, gettext("Search in progress. Press 'S' to stop current search."));
                     usleep(600000);
-                }
-                else if(search_completed)
-                {
+                } else if(search_completed) {
                     status_print(status_win, gettext("Please first close the current search by pressing SPACE."));
                     usleep(600000);
-                }
-                else
-                {
+                } else {
                     quit = 1;
                 }
                 break;
@@ -1379,13 +1253,11 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             case 'p':
             case 32: /* spacebar */
 
-                if(control.pause == 1)
-                {
+                if (control.pause == 1) {
                     /* here we do the final cleanup for the search mode. */
-                    if(search_completed)
-                    {
+                    if(search_completed) {
                         /* cleanup the buffer */
-                        vrmr_list_cleanup(debuglvl, buffer_ptr);
+                        vrmr_fatal_if(vrmr_list_cleanup(debuglvl, buffer_ptr) < 0);
 
                         /* restore buffer pointer */
                         buffer_ptr = &LogBufferList;
@@ -1414,9 +1286,8 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                 break;
 
             case '1': /* one */
-                if(traffic_log == 1)
-                {
-                    if(hide_date == 0)
+                if (traffic_log == 1) {
+                    if (hide_date == 0)
                         hide_date = 1;
                     else
                         hide_date = 0;
@@ -1425,17 +1296,14 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             STR_THE_DATE_IS_NOW,
                             hide_date ? gettext("hidden") : gettext("visible"));
                     control.print = 1;
-                }
-                else
-                {
+                } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
 
             case '2':
-                if(traffic_log == 1)
-                {
-                    if(hide_action == 0)
+                if (traffic_log == 1) {
+                    if (hide_action == 0)
                         hide_action = 1;
                     else
                         hide_action = 0;
@@ -1444,17 +1312,14 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             STR_THE_ACTION_IS_NOW,
                             hide_action ? gettext("hidden") : gettext("visible"));
                     control.print = 1;
-                }
-                else
-                {
+                } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
 
             case '3':
-                if(traffic_log == 1)
-                {
-                    if(hide_service == 0)
+                if(traffic_log == 1) {
+                    if (hide_service == 0)
                         hide_service = 1;
                     else
                         hide_service = 0;
@@ -1463,17 +1328,14 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             STR_THE_SERVICE_IS_NOW,
                             hide_service ? gettext("hidden") : gettext("visible"));
                     control.print = 1;
-                }
-                else
-                {
+                } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
 
             case '4':
-                if(traffic_log == 1)
-                {
-                    if(hide_from == 0)
+                if (traffic_log == 1) {
+                    if (hide_from == 0)
                         hide_from = 1;
                     else
                         hide_from = 0;
@@ -1482,17 +1344,14 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             STR_THE_SOURCE_IS_NOW,
                             hide_from ? gettext("hidden") : gettext("visible"));
                     control.print = 1;
-                }
-                else
-                {
+                } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
 
             case '5':
-                if(traffic_log == 1)
-                {
-                    if(hide_to == 0)
+                if (traffic_log == 1) {
+                    if (hide_to == 0)
                         hide_to = 1;
                     else
                         hide_to = 0;
@@ -1501,17 +1360,14 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             STR_THE_DESTINATION_IS_NOW,
                             hide_to ? gettext("hidden") : gettext("visible"));
                     control.print = 1;
-                }
-                else
-                {
+                } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
 
             case '6':
-                if(traffic_log == 1)
-                {
-                    if(hide_prefix == 0)
+                if (traffic_log == 1) {
+                    if (hide_prefix == 0)
                         hide_prefix = 1;
                     else
                         hide_prefix = 0;
@@ -1520,17 +1376,14 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             STR_THE_PREFIX_IS_NOW,
                             hide_prefix ? gettext("hidden") : gettext("visible"));
                     control.print = 1;
-                }
-                else
-                {
+                } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
 
             case '7':
-                if(traffic_log == 1)
-                {
-                    if(hide_details == 0)
+                if (traffic_log == 1) {
+                    if (hide_details == 0)
                         hide_details = 1;
                     else
                         hide_details = 0;
@@ -1539,9 +1392,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             STR_THE_DETAILS_ARE_NOW,
                             hide_details ? gettext("hidden") : gettext("visible"));
                     control.print = 1;
-                }
-                else
-                {
+                } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
                 }
                 break;
@@ -1549,49 +1400,33 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             /* search */
             case 's':
 
-                if(search_mode)
-                {
+                if (search_mode) {
                     status_print(status_win, gettext("Already searching. Press 'S' to stop current search."));
                     usleep(600000);
-                }
-                else if(search_completed)
-                {
+                } else if(search_completed) {
                     status_print(status_win, gettext("Please first close the current search by pressing SPACE."));
                     usleep(600000);
-                }
-                else
-                {
-                    if(!search_script_checked)
-                    {
+                } else {
+                    if(!search_script_checked) {
                         /* check if the search script exists */
                         snprintf(search_string, sizeof(search_string), "%s/vuurmuur-searchlog.sh", vccnf.scripts_location);
-
-                        if(check_search_script(debuglvl, search_string) < 0)
-                        {
+                        if(check_search_script(debuglvl, search_string) != 1) {
                             search_script_ok = 0;
-                        }
-                        else
-                        {
+                        } else {
                             search_script_ok = 1;
                         }
-
                         search_script_checked = 1;
                     }
 
                     /* search already checked */
-                    if(search_script_ok)
-                    {
+                    if(search_script_ok) {
                         if((search_ptr = input_box(32, gettext("Search"), gettext("What do you want to search for?"))))
                         {
                             /* regex check the search-string */
                             sanitize_search_str(debuglvl, search_ptr, strlen(search_ptr));
 
                             /* setup the search-buffer */
-                            if(vrmr_list_setup(debuglvl, &SearchBufferList, free) < 0)
-                            {
-                                vrmr_error(-1, VR_INTERR, "initializing search buffer failed.");
-                                return(-1);
-                            }
+                            vrmr_fatal_if(vrmr_list_setup(debuglvl, &SearchBufferList, free) < 0);
 
                             /* point the buffer-pointer to the SearchBufferList */
                             buffer_ptr = &SearchBufferList;
@@ -1625,31 +1460,26 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             /* draw the search panel */
                             draw_search(info_bar_panels[1], search_ib_win, search);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         vrmr_error(-1, VR_ERR, gettext("search script was not ok, search is disabled."));
                     }
-
                 }
                 break;
 
             /* emergency search stop */
             case 'S':
 
-                if(search_mode)
+                if (search_mode)
                     search_stop = 1;
                 else
                     status_print(status_win, gettext("No search in progress."));
-
                 break;
 
             /* blocklist add */
             case 'b':
             case 'B':
 
-                (void)zones_blocklist_add_one(debuglvl,
-                    blocklist, zones);
+                (void)zones_blocklist_add_one(debuglvl, blocklist, zones);
                 (void)vrmr_blocklist_save_list(debuglvl, vctx, &vctx->conf, blocklist);
                 break;
 
@@ -1683,8 +1513,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         buffer_size = buffer_ptr->len;
 
         /* offset cannot be smaller than 0, or bigger than buffer_size - max_onscreen */
-        if(!use_filter)
-        {
+        if (!use_filter) {
             if (offset != 0 && offset > (buffer_size - max_onscreen))
                 offset = buffer_size - max_onscreen;
 
@@ -1696,125 +1525,86 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             if(debuglvl >= HIGH)
                 status_print(status_win, "buf_size: %u, max_onscr: %d, start: %d, o: %u, p: %d, q: %d, s: %d", buffer_size, max_onscreen, start_print, offset, control.print, control.queue, control.sleep);
         }
-
         /* if we're filtered, check for each line if it will be printed */
-        if(use_filter)
-        {
-            for(d_node = buffer_ptr->bot, run_count = 0, delta = 0, filtered_lines = 0;
-                run_count < buffer_size;
-                d_node = d_node->prev, run_count++)
+        else {
+            for (d_node = buffer_ptr->bot, run_count = 0, delta = 0, filtered_lines = 0;
+                 run_count < buffer_size;
+                 d_node = d_node->prev, run_count++)
             {
-                if(traffic_log)
-                {
-                    if(!(log_record = d_node->data))
-                    {
-                        vrmr_error(-1, VR_INTERR,
-                                "NULL pointer (in: %s:%d).",
-                                __FUNC__, __LINE__);
-                        return(-1);
-                    }
-        
-                    if(log_record->filtered == 0)
-                    {
-                        delta++;
-                        
-                        first_draw = buffer_size - run_count - 1;
-                    }
-                    else
-                    {
-                        filtered_lines++;
-                    }
-                }
-                else
-                {
-                    if(!(plainlog_record = d_node->data))
-                    {
-                        vrmr_error(-1, VR_INTERR,
-                                "NULL pointer (in: %s:%d).",
-                                __FUNC__, __LINE__);
-                        return(-1);
-                    }
-        
-                    if(plainlog_record->filtered == 0)
-                    {
-                        delta++;
+                if (traffic_log) {
+                    vrmr_fatal_if_null(d_node->data);
+                    log_record = d_node->data;
 
+                    if (log_record->filtered == 0) {
+                        delta++;
                         first_draw = buffer_size - run_count - 1;
+                    } else {
+                        filtered_lines++;
                     }
-                    else
-                    {
+                } else {
+                    vrmr_fatal_if_null(d_node->data);
+                    plainlog_record = d_node->data;
+
+                    if (plainlog_record->filtered == 0) {
+                        delta++;
+                        first_draw = buffer_size - run_count - 1;
+                    } else {
                         filtered_lines++;
                     }
                 }
-                
-                if(delta == (int)(max_onscreen + offset))
-                {
+
+                if(delta == (int)(max_onscreen + offset)) {
                     break;
                 }
             }
-            
             start_print = first_draw;
-            
-            if(delta < max_onscreen)
+            if (delta < max_onscreen)
                 offset = 0;
-                
+
             if(debuglvl >= HIGH)
                 status_print(status_win, "filter :st: %d, max: %d, buf: %u, del: %d, fil: %d, run: %d, fir: %d, offset: %u", start_print, max_onscreen, buffer_size, delta, filtered_lines, run_count, first_draw, offset);
         }
-        
+
         /* if the queue is getting too full, print */
-        if(control.queue > (max_onscreen/3))
+        if (control.queue > (max_onscreen/3))
             control.print = 1;
 
         /* display counters for debuging */
         if(debuglvl >= LOW)
             status_print(status_win, "buf_size: %u, max_onscr: %d, start: %d, o: %u, p: %d, q: %d, s: %d", buffer_size, max_onscreen, start_print, offset, control.print, control.queue, control.sleep);
 
-
         /* print the list to the screen */
-        if(control.print)
-        {
+        if (control.print) {
             /* update the results printer if in search_mode - we do this here because we come here less often because of
                the queue. */
-            if(search_mode)
-            {
+            if (search_mode) {
                 if(!control.pause)
                     status_print(status_win, gettext("Search in progress: %lu matches so far. SPACE to pause, 'S' to stop."), search_results);
                 else
                     status_print(status_win, gettext("Search PAUSED: %lu matches so far. SPACE to continue, 'S' to stop."), search_results);
             }
-
             /* clear the screen */
             werase(log_win);
 
             /* start the loop */
-            for(i=0, d_node = buffer_ptr->top, drawn_lines = 0; d_node ; d_node = d_node->next, i++)
+            for (i = 0, d_node = buffer_ptr->top, drawn_lines = 0; d_node ; d_node = d_node->next, i++)
             {
-                if(i >= start_print && drawn_lines < max_onscreen)
-                {
+                if(i >= start_print && drawn_lines < max_onscreen) {
                     cur_logrule_length = 0;
-
-                    if(traffic_log)
-                    {
+                    if (traffic_log) {
                         vrmr_fatal_if_null(d_node->data);
                         log_record = d_node->data;
 
-                        if(!use_filter || (use_filter && !log_record->filtered))
-                        {
+                        if (!use_filter || (use_filter && !log_record->filtered)) {
                             drawn_lines++;
-
                             print_logrule(log_win, log_record, max_logrule_length, cur_logrule_length, hide_date, hide_action, hide_service, hide_from, hide_to, hide_prefix, hide_details);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         vrmr_fatal_if_null(d_node->data);
                         plainlog_record = d_node->data;
 
-                        if(!use_filter || (use_filter && !plainlog_record->filtered))
-                        {
+                        if (!use_filter || (use_filter && !plainlog_record->filtered)) {
                             drawn_lines++;
-
                             print_plainlogrule(log_win, plainlog_record->line, max_logrule_length, cur_logrule_length);
                         }
                     }
@@ -1826,7 +1616,6 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     break;
                 }
             }
-
             /* here the screen is drawn */
             update_panels();
             doupdate();
@@ -1841,30 +1630,25 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                the searching, but it will keep the log better readable
 
                furthermore it will decrease the load on the system during a search */
-            if(search_mode)
+            if (search_mode)
                 usleep(90000);
         }
 
         /* sleep for 1 tenth of a second if we want to sleep */
-        if(control.sleep == 1)
-        {
+        if (control.sleep == 1) {
             usleep(100000);
             control.sleep = 0;
         }
     }
 
-
     /*
         EXIT: cleanup
     */
 
-
     /* filter clean up */
     vrmr_filter_cleanup(debuglvl, &vfilter);
-
     nodelay(log_win, FALSE);
-    vrmr_list_cleanup(debuglvl, buffer_ptr);
-
+    vrmr_fatal_if(vrmr_list_cleanup(debuglvl, buffer_ptr) < 0);
     (void)fclose(fp);
 
     /* info bar stuff */
@@ -1874,17 +1658,13 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     del_panel(info_bar_panels[1]);
     destroy_win(filter_ib_win);
     destroy_win(search_ib_win);
-
     /* the main panel and win */
     del_panel(my_panels[0]);
     destroy_win(log_win);
-
     /* update the panels and windows */
     update_panels();
     doupdate();
-
     status_print(status_win, gettext("Ready."));
-
     return(0);
 }
 
