@@ -551,6 +551,19 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
     return(ct);
 }
 
+static int
+conn_sort_by_cnt(const void *a, const void *b)
+{
+    /* we're sorting an array of pointers, so we need to deref
+     * our input to get to the good stuff. */
+    const struct vrmr_conntrack_entry *s0 = *(const struct vrmr_conntrack_entry **)a;
+    const struct vrmr_conntrack_entry *s1 = *(const struct vrmr_conntrack_entry **)b;
+    if (s1->cnt == s0->cnt)
+        return 0;
+    else
+        return s0->cnt > s1->cnt ? -1 : 1;
+}
+
 int
 conn_ct_get_connections(const int debuglvl, struct vrmr_config *cnf, Conntrack *ct, struct vrmr_conntrack_request *req)
 {
@@ -573,6 +586,24 @@ conn_ct_get_connections(const int debuglvl, struct vrmr_config *cnf, Conntrack *
         return(-1);
     }
 
+    if (ct->conn_list.len == 0)
+        return(0);
+
+    /* fill the array and sort it */
+
+    vrmr_fatal_if(ct->conn_array);
+    ct->conn_array = calloc(ct->conn_list.len, sizeof(struct vrmr_conntrack_entry *));
+    vrmr_fatal_alloc("calloc", ct->conn_array);
+
+    struct vrmr_list_node *d_node;
+    unsigned int x = 0;
+    for (d_node = ct->conn_list.top; d_node != NULL; d_node = d_node->next) {
+        vrmr_fatal_if_null(d_node->data);
+        ct->conn_array[x] = d_node->data;
+        x++;
+    }
+    qsort(ct->conn_array, ct->conn_list.len, sizeof(struct vrmr_conntrack_entry *), conn_sort_by_cnt);
+
     return(0);
 }
 
@@ -581,8 +612,10 @@ conn_ct_clear_connections(const int debuglvl, Conntrack *ct)
 {
     /* store prev list size */
     ct->prev_list_size = ct->conn_list.len;
-    /* clean up the list */
+
     vrmr_conn_list_cleanup(debuglvl, &ct->conn_list);
+    free(ct->conn_array);
+    ct->conn_array = NULL;
 }
 
 int
@@ -611,10 +644,6 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                             max_incoming=0,
                             max_forwarding=0,
                             max_outgoing=0;
-
-    struct vrmr_list_node             *d_node = NULL;
-    struct vrmr_conntrack_entry    *cd_ptr = NULL;
-//    unsigned int            prev_list_size = 0;
 
     struct
     {
@@ -749,15 +778,18 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
             }
 
             /* clear screen */
-            if(control.print)
+            if (control.print)
                 werase(conn_win);
 
-            if(control.print)
+            if (control.print)
             {
-                for(printed=0, d_node = ct->conn_list.top; d_node && printed < max_onscreen; d_node = d_node->next)
+                unsigned int array_size = ct->conn_list.len;
+                unsigned int idx = 0;
+
+                for (printed = 0; printed < max_onscreen && idx < array_size; idx++)
                 {
-                    vrmr_fatal_if_null(d_node->data);
-                    cd_ptr = d_node->data;
+                    struct vrmr_conntrack_entry *cd_ptr = ct->conn_array[idx];
+                    vrmr_fatal_if_null(cd_ptr);
 
                     if(connreq.sort_conn_status)
                     {
