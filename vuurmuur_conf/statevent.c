@@ -89,11 +89,13 @@ typedef struct StatEventCtl_
 {
     int type;
 
+    void *data;
+
     /* "object" functions */
     char * (*print2str )(const int, StatEventGen *, size_t);
     void   (*remove    )(void *data);
 
-    char   (*convert   )(const int debuglvl, struct StatEventCtl_ *, struct vrmr_list *);
+    char   (*convert   )(const int debuglvl, struct StatEventCtl_ *);
     /* ptr to interactive menu function */
     void   (*menu      )(const int debuglvl, struct vrmr_ctx *, struct vrmr_config *,
             struct StatEventCtl_ *, Conntrack *, struct vrmr_conntrack_request *,
@@ -190,18 +192,16 @@ statevent_print2str_conn(const int debuglvl, StatEventGen *evt, size_t len)
 
 /* convert struct vrmr_conntrack_entry to StatEventConn */
 static char
-statevent_convert_conn(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *list)
+statevent_convert_conn(const int debuglvl, StatEventCtl *ctl)
 {
-    struct vrmr_list_node *d_node = NULL;
-    struct vrmr_conntrack_entry *cd_ptr = NULL;
-    StatEventConn *conn = NULL;
+    Conntrack *ct = ctl->data;
 
-    for(d_node = list->top; d_node; d_node = d_node->next)
+    unsigned int x;
+    unsigned int array_size = ct->conn_list.len;
+    for (x = 0; x < array_size; x++)
     {
-        vrmr_fatal_if_null(d_node->data);
-        cd_ptr = d_node->data;
-
-        conn = statevent_init_conn(debuglvl);
+        struct vrmr_conntrack_entry *cd_ptr = ct->conn_array[x];
+        StatEventConn *conn = statevent_init_conn(debuglvl);
         vrmr_fatal_if_null(conn);
 
         strlcpy(conn->ser, cd_ptr->sername, sizeof(conn->ser));
@@ -259,11 +259,12 @@ parse_log_srcdst(const int debuglvl, const char *str_in, char *ret_ip, size_t ip
 /* convert struct LogRule to StatEventLog
 */
 static char
-statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *list)
+statevent_convert_log(const int debuglvl, StatEventCtl *ctl)
 {
     struct vrmr_list_node     *d_node = NULL;
     LogRule         *log_record = NULL;
     StatEventLog    *log = NULL;
+    struct vrmr_list *loglist = ctl->data;
 
     char *s = NULL;
 
@@ -271,7 +272,7 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl, struct vrmr_list *l
     char store[MAX_TOK][128];
     int x = 0, y = 0, z = 0;
 
-    for(d_node = list->top; d_node; d_node = d_node->next)
+    for(d_node = loglist->top; d_node; d_node = d_node->next)
     {
         vrmr_fatal_if_null(d_node->data);
         log_record = d_node->data;
@@ -1152,15 +1153,18 @@ statevent(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cnf, in
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services)
 {
-    StatEventCtl    *ctl = NULL;
 
     VrBusyWinShow();
 
-    ctl = statevent_init_ctl(debuglvl, type);
+    StatEventCtl *ctl = statevent_init_ctl(debuglvl, type);
     vrmr_fatal_if_null(ctl);
+    if (ctl->type == STATEVENTTYPE_CONN)
+        ctl->data = ct;
+    else if (ctl->type == STATEVENTTYPE_LOG)
+        ctl->data = list;
 
     /* convert datatypes list to our own type */
-    if(ctl->convert(debuglvl, ctl, list) == FALSE) {
+    if(ctl->convert(debuglvl, ctl) == FALSE) {
         vrmr_error(-1, VR_ERR, "loading data failed.");
     }
 

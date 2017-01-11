@@ -450,16 +450,18 @@ typedef struct LogRule_
 typedef struct ct_
 {
     /* hashes for the vuurmuur names */
-    struct vrmr_hash_table  zone_hash,
-                            service_hash;
+    struct vrmr_hash_table zone_hash;
+    struct vrmr_hash_table service_hash;
 
-    struct vrmr_list                  network_list;
+    struct vrmr_list network_list;
 
-    struct vrmr_list                  conn_list;
+    struct vrmr_list conn_list;
+    /* sorted array of entries. Sorted by cnt */
+    struct vrmr_conntrack_entry **conn_array;
 
-    struct vrmr_conntrack_stats  conn_stats;
+    struct vrmr_conntrack_stats conn_stats;
 
-    unsigned int            prev_list_size;
+    unsigned int prev_list_size;
 } Conntrack;
 
 int kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf, Conntrack *ct, char *srcip, char *dstip, char *sername, char connect_status);

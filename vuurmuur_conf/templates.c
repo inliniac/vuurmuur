@@ -274,7 +274,13 @@ input_box(size_t length, char *title, char *description)
     (void)strlcpy(temp_ptr, field_buffer(fields[0], 0), length);
 
     // get the length of the entry
-    for(i=0; temp_ptr[i] != ' ' && i < (int)length-1; i++);
+    i = strlen(temp_ptr);
+    while (i--) {
+        if (isspace(temp_ptr[i]))
+            temp_ptr[i] = '\0';
+        else
+            break;
+    }
 
     if(!(result_ptr = strdup(temp_ptr))) {
         vrmr_error(-1, VR_ERR, gettext("malloc failed: %s (in: %s:%d)."), strerror(errno), __func__, __LINE__);
