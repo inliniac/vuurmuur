@@ -496,33 +496,19 @@ static void
 print_plainlogrule(WINDOW *log_win, char *line,
             size_t max_logrule_length, size_t cur_logrule_length)
 {
-    size_t  memlen = 0;
-    char    print_str[256] = "";
-
-    memlen = StrMemLen(line)+2;
-
+    size_t memlen = StrMemLen(line)+2;
 #ifdef USE_WIDEC
-    size_t  scrlen = 0;
-    wchar_t wprint_str[256] = L"";
-    char    widec = FALSE;
+    size_t  scrlen = StrLen(line)+2;
+    if (memlen != scrlen) { /* this only happens with utf-8 strings */
+        wchar_t wprint_str[scrlen];
 
-    scrlen = StrLen(line)+2;
-
-    if(memlen != scrlen) /* this only happens with utf-8 strings */
-    {
-        widec = TRUE;
-    }
-
-    if(widec == TRUE)
-    {
-        if(cur_logrule_length + scrlen >= max_logrule_length)
+        if (cur_logrule_length + scrlen >= max_logrule_length)
             scrlen = max_logrule_length - cur_logrule_length;
-        if(scrlen > sizeof(wprint_str))
+        if (scrlen > sizeof(wprint_str))
             scrlen = sizeof(wprint_str);
 
         mbstowcs(wprint_str, line, scrlen - 1);
-        if(wprint_str[wcslen(wprint_str)-1] == L'\n')
-        {
+        if (wprint_str[wcslen(wprint_str)-1] == L'\n') {
             wprint_str[wcslen(wprint_str)-1] = L'\0';
         }
         wprintw(log_win, "%ls\n", wprint_str);
@@ -530,14 +516,15 @@ print_plainlogrule(WINDOW *log_win, char *line,
     else
 #endif /* USE_WIDEC */
     {
-        if(cur_logrule_length + memlen >= max_logrule_length)
+        char print_str[256];
+
+        if (cur_logrule_length + memlen >= max_logrule_length)
             memlen = max_logrule_length - cur_logrule_length;
-        if(memlen > sizeof(print_str))
+        if (memlen > sizeof(print_str))
             memlen = sizeof(print_str);
 
         snprintf(print_str, memlen, "%s", line);
-        if(print_str[StrMemLen(print_str)-1] == '\n')
-        {
+        if (print_str[StrMemLen(print_str)-1] == '\n') {
             print_str[StrMemLen(print_str)-1] = '\0';
         }
 

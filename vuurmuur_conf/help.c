@@ -132,7 +132,7 @@ read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *lin
             /* only add a word to the list if it really contains characters */
             if(wcslen(oneword) > 0)
             {
-                hw = malloc(sizeof(helpword));
+                hw = malloc(sizeof(whelpword));
                 vrmr_fatal_alloc("malloc", hw);
                 hw->word = NULL;
                 hw->newline = 0;
@@ -154,7 +154,7 @@ read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *lin
                 (line[i-1] == L',' && i == (wcslen(line) - 1) ))))
             {
                 /* get some mem for the word struct */
-                hw = malloc(sizeof(helpword));
+                hw = malloc(sizeof(whelpword));
                 vrmr_fatal_alloc("malloc", hw);
                 hw->word = NULL;
                 hw->newline = 1;
