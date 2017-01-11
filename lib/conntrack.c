@@ -1944,15 +1944,12 @@ vrmr_conn_get_connections_do(const int debuglvl,
     char                    line[1024] = "";
     FILE                    *fp = NULL;
     struct ConntrackLine    cl;
-    struct vrmr_conntrack_entry    *cd_ptr = NULL,
-                            *old_cd_ptr = NULL,
-                            *prev_cd_ptr = NULL,
-                            *next_cd_ptr = NULL;
+    struct vrmr_conntrack_entry *cd_ptr = NULL;
+    struct vrmr_conntrack_entry *old_cd_ptr = NULL;
 
     /* default hashtable size */
     unsigned int            hashtbl_size = 256;
     struct vrmr_hash_table  conn_hash;
-    struct vrmr_list_node             *d_node = NULL;
     char                    tmpfile[] = "/tmp/vuurmuur-conntrack-XXXXXX";
     int                     conntrack_cmd = 0;
 
@@ -2158,7 +2155,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
                 connstat_ptr->accounting = 1;
 
             /* now check if the cd is already in the list */
-            if(req->group_conns == TRUE &&
+            if (req->group_conns == TRUE &&
                 (cd_ptr = vrmr_hash_search(debuglvl, &conn_hash, (void *)cd_ptr)) != NULL)
             {
                 /*  FOUND in the hash
@@ -2183,115 +2180,6 @@ vrmr_conn_get_connections_do(const int debuglvl,
 
                 /* now increment the counter */
                 cd_ptr->cnt++;
-
-                /* check if the above cd in the list is smaller than we are */
-                if((d_node = cd_ptr->d_node->prev))
-                {
-                    prev_cd_ptr = d_node->data;
-
-                    if(cd_ptr->cnt > prev_cd_ptr->cnt)
-                    {
-                        /* yes, so now we move one up */
-                        if(vrmr_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
-                        {
-                            vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
-                            retval = -1;
-                            goto end;
-                        }
-
-                        /* now reinsert */
-                        if(!(cd_ptr->d_node = vrmr_list_insert_before(debuglvl, conn_dlist, d_node, cd_ptr)))
-                        {
-                            vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
-                            retval = -1;
-                            goto end;
-                        }
-                    }
-                    /*  check if the beneath cd in the list is bigger than we are,
-                        we only do this if the above wasn't smaller
-                    */
-                    else if((d_node = cd_ptr->d_node->next))
-                    {
-                        next_cd_ptr = d_node->data;
-
-                        if(cd_ptr->cnt < next_cd_ptr->cnt)
-                        {
-                            /* yes, so now we move one down */
-                            if(vrmr_list_remove_node(debuglvl, conn_dlist, cd_ptr->d_node) < 0)
-                            {
-                                vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
-                                retval = -1;
-                                goto end;
-                            }
-
-                            /* now reinsert */
-                            if(!(cd_ptr->d_node = vrmr_list_insert_after(debuglvl, conn_dlist, d_node, cd_ptr)))
-                            {
-                                vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
-                                retval = -1;
-                                goto end;
-                            }
-                        }
-                    }
-                }
-
-                /*
-                    now we do one last check
-                */
-
-                /* check if the one above us is 1, if so, move to bottom of the list */
-                if((d_node = cd_ptr->d_node->prev))
-                {
-                    prev_cd_ptr = d_node->data;
-
-                    /*  is the one beneath us is 1 and not the bottom of the list,
-                        move it to the bottom of the list */
-                    if(prev_cd_ptr->cnt == 1 && d_node->prev != NULL)
-                    {
-                        /* yes, so now we first remove */
-                        if(vrmr_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
-                        {
-                            vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
-                            retval = -1;
-                            goto end;
-                        }
-
-                        /* and then re-insert */
-                        if(!(prev_cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, prev_cd_ptr)))
-                        {
-                            vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
-                            retval = -1;
-                            goto end;
-                        }
-                    }
-                }
-
-                /* do the same for the one below us */
-                if((d_node = cd_ptr->d_node->next))
-                {
-                    next_cd_ptr = d_node->data;
-
-                    /* is the one beneath us is 1 and not the bottom of the list, 
-                       move it to the bottom */
-                    if(next_cd_ptr->cnt == 1 && d_node->next != NULL)
-                    {
-                        /* yes, so now remove */
-                        if(vrmr_list_remove_node(debuglvl, conn_dlist, d_node) < 0)
-                        {
-                            vrmr_error(-1, "Internal Error", "removing from list failed (in: vrmr_conn_get_connections).");
-                            retval = -1;
-                            goto end;
-                        }
-
-                        /* now reinsert */
-                        if(!(next_cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, next_cd_ptr)))
-                        {
-                            vrmr_error(-1, "Internal Error", "unable to insert into list (in: vrmr_conn_get_connections).");
-                            retval = -1;
-                            goto end;
-                        }
-                    }
-                }
             }
             else
             {
