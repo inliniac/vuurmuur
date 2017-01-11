@@ -781,9 +781,9 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
             if (control.print)
                 werase(conn_win);
 
-            if (control.print)
-            {
-                unsigned int array_size = ct->conn_list.len;
+            /* dump connections to screen */
+            if (control.print && ct->conn_array != NULL) {
+                const unsigned int array_size = ct->conn_list.len;
                 unsigned int idx = 0;
 
                 for (printed = 0; printed < max_onscreen && idx < array_size; idx++)
@@ -905,7 +905,9 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                             break;
                     }
                 }
-
+            }
+            if (control.print)
+            {
                 /* print the seperators */
                 if(connreq.sort_conn_status)
                 {
