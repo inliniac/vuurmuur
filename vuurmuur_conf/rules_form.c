@@ -838,6 +838,7 @@ Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules)
 
     vrmr_fatal_if(rules->list.len == 0);
     vrmr_fatal_if_null(rules->list.top);
+    d_node = rules->list.top;
 
     /* look for the rule_ptr */
     for(i = 1; i <= rule_num; i++)
