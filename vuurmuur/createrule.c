@@ -2496,15 +2496,7 @@ create_rule_input_broadcast(const int debuglvl, struct vrmr_config *conf, /*@nul
     /* check caps */
     if(conf->vrmr_check_iptcaps == TRUE)
     {
-        if( iptcap->target_queue == FALSE &&
-            strcmp(rule->action, "NEWQUEUE") == 0)
-        {
-            vrmr_warning("Warning", "input rule not "
-                    "created: QUEUE not supported by "
-                    "this system.");
-            return(0); /* this is not an error */
-        }
-        else if(iptcap->target_nfqueue == FALSE &&
+        if(iptcap->target_nfqueue == FALSE &&
             strcmp(rule->action, "NEWNFQUEUE") == 0)
         {
             vrmr_warning("Warning", "input rule not "
@@ -2640,15 +2632,7 @@ create_rule_output_broadcast(const int debuglvl, struct vrmr_config *conf, /*@nu
     /* check caps */
     if(conf->vrmr_check_iptcaps == TRUE)
     {
-        if( iptcap->target_queue == FALSE &&
-            strcmp(rule->action, "NEWQUEUE") == 0)
-        {
-            vrmr_warning("Warning", "output rule not "
-                    "created: QUEUE not supported by "
-                    "this system.");
-            return(0); /* this is not an error */
-        }
-        else if(iptcap->target_nfqueue == FALSE &&
+        if (iptcap->target_nfqueue == FALSE &&
             strcmp(rule->action, "NEWNFQUEUE") == 0)
         {
             vrmr_warning("Warning", "output rule not "
