@@ -4802,22 +4802,23 @@ zones_section_menu_networks(const int debuglvl,
                 case 32:    /* spacebar */
 
                     cur = current_item(ZonesSection.n_menu);
-                    vrmr_fatal_if_null(cur);
-                    size = StrMemLen((char *)item_name(cur))+1+StrMemLen(zonename)+1;
-                    zonename_ptr = malloc(size);
-                    vrmr_fatal_alloc("malloc", zonename_ptr);
+                    if (cur) {
+                        size = StrMemLen((char *)item_name(cur))+1+StrMemLen(zonename)+1;
+                        zonename_ptr = malloc(size);
+                        vrmr_fatal_alloc("malloc", zonename_ptr);
 
-                    (void)strlcpy(zonename_ptr, (char *)item_name(cur), size);
-                    (void)strlcat(zonename_ptr, ".", size);
-                    (void)strlcat(zonename_ptr, zonename, size);
+                        (void)strlcpy(zonename_ptr, (char *)item_name(cur), size);
+                        (void)strlcat(zonename_ptr, ".", size);
+                        (void)strlcat(zonename_ptr, zonename, size);
 
-                    /*  edit the network. We don't care about the result.
-                        If there is an error, its up to the user to decide
-                        what to do. */
-                    if(edit_zone_network(debuglvl, vctx, zones, interfaces, zonename_ptr) == 1)
-                        reload = 1;
+                        /*  edit the network. We don't care about the result.
+                            If there is an error, its up to the user to decide
+                            what to do. */
+                        if(edit_zone_network(debuglvl, vctx, zones, interfaces, zonename_ptr) == 1)
+                            reload = 1;
 
-                    free(zonename_ptr);
+                        free(zonename_ptr);
+                    }
                     break;
 
                 case '?':
