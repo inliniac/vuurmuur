@@ -1056,99 +1056,101 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
 
     /* get the new portrange protocol */
     choice_ptr = selectbox(gettext("New portrange"), gettext("Select a Protocol"), n_choices, choices, 1, NULL);
-    if(choice_ptr != NULL)
+    if (choice_ptr == NULL)
+        return 0;
+
+    if(strncmp(choice_ptr, "TCP", 3) == 0)
     {
-        if(strncmp(choice_ptr, "TCP", 3) == 0)
-        {
-            portrange_ptr->protocol = 6;
-            portrange_ptr->src_low  = 1024;
-            portrange_ptr->src_high = 65535;
-            portrange_ptr->dst_low  = 0;
-            portrange_ptr->dst_high = 0;
+        portrange_ptr->protocol = 6;
+        portrange_ptr->src_low  = 1024;
+        portrange_ptr->src_high = 65535;
+        portrange_ptr->dst_low  = 0;
+        portrange_ptr->dst_high = 0;
 
-            edit_tcpudp(debuglvl, portrange_ptr);
-        }
-        else if(strncmp(choice_ptr, "UDP", 3) == 0)
-        {
-            portrange_ptr->protocol = 17;
-            portrange_ptr->src_low  = 1024;
-            portrange_ptr->src_high = 65535;
-            portrange_ptr->dst_low  = 0;
-            portrange_ptr->dst_high = 0;
-
-            edit_tcpudp(debuglvl, portrange_ptr);
-        }
-        else if(strncmp(choice_ptr, "ICMP", 4) == 0)
-        {
-            portrange_ptr->protocol = 1;
-            portrange_ptr->src_low  = 0;
-            portrange_ptr->src_high = 0;
-            portrange_ptr->dst_low  = 0;
-            portrange_ptr->dst_high = 0;
-
-            edit_icmp(debuglvl, portrange_ptr);
-        }
-        else if(strncmp(choice_ptr, "GRE", 3) == 0)
-        {
-            /* gre has no ports */
-            portrange_ptr->protocol = 47;
-            portrange_ptr->src_low  =  0;
-            portrange_ptr->src_high =  0;
-            portrange_ptr->dst_low  =  0;
-            portrange_ptr->dst_high =  0;
-        }
-        else if(strncmp(choice_ptr, "ESP", 3) == 0)
-        {
-            /* gre has no ports */
-            portrange_ptr->protocol = 50;
-            portrange_ptr->src_low  =  0;
-            portrange_ptr->src_high =  0;
-            portrange_ptr->dst_low  =  0;
-            portrange_ptr->dst_high =  0;
-        }
-        else if(strncmp(choice_ptr, "AH", 2) == 0)
-        {
-            /* gre has no ports */
-            portrange_ptr->protocol = 51;
-            portrange_ptr->src_low  =  0;
-            portrange_ptr->src_high =  0;
-            portrange_ptr->dst_low  =  0;
-            portrange_ptr->dst_high =  0;
-        }
-        else if(strncmp(choice_ptr, "Other", 5) == 0)
-        {
-            char *protostr = input_box(4, gettext("Protocol"), gettext("Enter protocol number"));
-            if (protostr != NULL) {
-                int proto = atoi(protostr);
-                if (proto >= 0 && proto <= 255) {
-                    portrange_ptr->protocol = proto;
-                    portrange_ptr->src_low  =  0;
-                    portrange_ptr->src_high =  0;
-                    portrange_ptr->dst_low  =  0;
-                    portrange_ptr->dst_high =  0;
-                } else {
-                    vrmr_error(-1, VR_ERR, gettext("invalid protocol. Enter a number in the range 0-255."));
-                    retval = -1;
-                }
-                free(protostr);
-            }
-        }
-        else {
-            vrmr_fatal("undefined protocol");
-        }
-
-        /* free the choiceptr */
-        free(choice_ptr);
+        edit_tcpudp(debuglvl, portrange_ptr);
     }
+    else if(strncmp(choice_ptr, "UDP", 3) == 0)
+    {
+        portrange_ptr->protocol = 17;
+        portrange_ptr->src_low  = 1024;
+        portrange_ptr->src_high = 65535;
+        portrange_ptr->dst_low  = 0;
+        portrange_ptr->dst_high = 0;
+
+        edit_tcpudp(debuglvl, portrange_ptr);
+    }
+    else if(strncmp(choice_ptr, "ICMP", 4) == 0)
+    {
+        portrange_ptr->protocol = 1;
+        portrange_ptr->src_low  = 0;
+        portrange_ptr->src_high = 0;
+        portrange_ptr->dst_low  = 0;
+        portrange_ptr->dst_high = 0;
+
+        edit_icmp(debuglvl, portrange_ptr);
+    }
+    else if(strncmp(choice_ptr, "GRE", 3) == 0)
+    {
+        /* gre has no ports */
+        portrange_ptr->protocol = 47;
+        portrange_ptr->src_low  =  0;
+        portrange_ptr->src_high =  0;
+        portrange_ptr->dst_low  =  0;
+        portrange_ptr->dst_high =  0;
+    }
+    else if(strncmp(choice_ptr, "ESP", 3) == 0)
+    {
+        /* gre has no ports */
+        portrange_ptr->protocol = 50;
+        portrange_ptr->src_low  =  0;
+        portrange_ptr->src_high =  0;
+        portrange_ptr->dst_low  =  0;
+        portrange_ptr->dst_high =  0;
+    }
+    else if(strncmp(choice_ptr, "AH", 2) == 0)
+    {
+        /* gre has no ports */
+        portrange_ptr->protocol = 51;
+        portrange_ptr->src_low  =  0;
+        portrange_ptr->src_high =  0;
+        portrange_ptr->dst_low  =  0;
+        portrange_ptr->dst_high =  0;
+    }
+    else if(strncmp(choice_ptr, "Other", 5) == 0)
+    {
+        char *protostr = input_box(4, gettext("Protocol"), gettext("Enter protocol number"));
+        if (protostr != NULL) {
+            int proto = atoi(protostr);
+            if (proto >= 0 && proto <= 255) {
+                portrange_ptr->protocol = proto;
+                portrange_ptr->src_low  =  0;
+                portrange_ptr->src_high =  0;
+                portrange_ptr->dst_low  =  0;
+                portrange_ptr->dst_high =  0;
+            } else {
+                vrmr_error(-1, VR_ERR, gettext("invalid protocol. Enter a number in the range 0-255."));
+                retval = -1;
+            }
+            free(protostr);
+        }
+    }
+    else {
+        vrmr_fatal("undefined protocol");
+    }
+
+    /* free the choiceptr */
+    free(choice_ptr);
 
     if(retval == 0)
     {
         if (edit_serv_portranges_new_validate(debuglvl, vctx, ser_ptr, portrange_ptr) < 0) {
             retval = -1;
+        } else {
+            retval = 1;
         }
     }
 
-    if(retval == 0)
+    if(retval == 1)
     {
         create_portrange_string(debuglvl, portrange_ptr, str, sizeof(str));
 
@@ -1538,10 +1540,11 @@ edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_serv
                 case 'i':
                 case 'I':
 
-                    edit_serv_portranges_new(debuglvl, vctx, ser_ptr);
-                    reload = 1;
+                    if (edit_serv_portranges_new(debuglvl, vctx, ser_ptr) == 1) {
+                        reload = 1;
 
-                    draw_top_menu(debuglvl, top_win, gettext("Edit Portrange"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        draw_top_menu(debuglvl, top_win, gettext("Edit Portrange"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                    }
                     break;
 
                 case KEY_DC:
@@ -1549,9 +1552,10 @@ edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_serv
                 case 'D':
                 {
                     cur = current_item(ServicesSection.EditServicePrt.menu);
-                    vrmr_fatal_if_null(cur);
-                    edit_serv_portranges_del(debuglvl, vctx, atoi((char *)item_name(cur)), ser_ptr);
-                    reload = 1;
+                    if (cur) {
+                        edit_serv_portranges_del(debuglvl, vctx, atoi((char *)item_name(cur)), ser_ptr);
+                        reload = 1;
+                    }
                     break;
                 }
 
@@ -1560,10 +1564,11 @@ edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_serv
                 case 'E':
                 {
                     cur = current_item(ServicesSection.EditServicePrt.menu);
-                    vrmr_fatal_if_null(cur);
-                    edit_serv_portranges_edit(debuglvl, atoi((char *)item_name(cur)), ser_ptr);
-                    reload = 1;
-                    draw_top_menu(debuglvl, top_win, gettext("Edit Portrange"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                    if (cur) {
+                        edit_serv_portranges_edit(debuglvl, atoi((char *)item_name(cur)), ser_ptr);
+                        reload = 1;
+                        draw_top_menu(debuglvl, top_win, gettext("Edit Portrange"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                    }
                     break;
                 }
 
@@ -2400,9 +2405,8 @@ services_section(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'R':
 
                     cur = current_item(ServicesSection.menu);
-                    vrmr_fatal_if_null(cur);
                     new_name_ptr = input_box(32, gettext("Rename Service"), STR_PLEASE_ENTER_THE_NAME);
-                    if(new_name_ptr != NULL)
+                    if(cur && new_name_ptr != NULL)
                     {
                         if(vrmr_validate_servicename(debuglvl, new_name_ptr, reg->servicename, VRMR_VERBOSE) == 0)
                         {
@@ -2464,9 +2468,7 @@ services_section(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'D':
 
                     cur = current_item(ServicesSection.menu);
-                    vrmr_fatal_if_null(cur);
-
-                    if (confirm(gettext("Delete"), gettext("Are you sure?"),
+                    if (cur && confirm(gettext("Delete"), gettext("Are you sure?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
                     {
                         (void)strlcpy(save_ser_name, (char *)item_name(cur), sizeof(save_ser_name));
@@ -2513,10 +2515,11 @@ services_section(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'E':
 
                     cur = current_item(ServicesSection.menu);
-                    vrmr_fatal_if_null(cur);
-                    (void)edit_service(debuglvl, vctx, services, (char *)item_name(cur));
+                    if (cur) {
+                        (void)edit_service(debuglvl, vctx, services, (char *)item_name(cur));
 
-                    draw_top_menu(debuglvl, top_win, gettext("Services"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        draw_top_menu(debuglvl, top_win, gettext("Services"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                    }
                     break;
 
                 case KEY_F(12):

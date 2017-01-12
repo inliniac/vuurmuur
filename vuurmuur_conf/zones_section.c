@@ -1124,16 +1124,9 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'r':
                 case 'R':
 
-                    if(current_item(ZonesSection.h_menu))
-                    {
-                        /* get the current item */
-                        cur = current_item(ZonesSection.h_menu);
-                        vrmr_fatal_if_null(cur);
-
-                        // size
+                    cur = current_item(ZonesSection.h_menu);
+                    if (cur) {
                         size = StrMemLen((char *)item_name(cur))+1+StrMemLen(networkname)+1+StrMemLen(zonename)+1;
-
-                        // alloc the memory
                         cur_zonename_ptr = malloc(size);
                         vrmr_fatal_alloc("malloc", cur_zonename_ptr);
 
@@ -1143,7 +1136,6 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                         (void)strlcat(cur_zonename_ptr, networkname, size);
                         (void)strlcat(cur_zonename_ptr, ".", size);
                         (void)strlcat(cur_zonename_ptr, zonename, size);
-
 
                         vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Host"), gettext("Enter the new name of the host"));
                         if(vrmr_new_zone_ptr != NULL)
@@ -1250,9 +1242,8 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'D':
 
                     cur = current_item(ZonesSection.h_menu);
-                    vrmr_fatal_if_null(cur);
-                    if (confirm(gettext("Delete"), gettext("This host?"),
-                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
+                    if (cur && (confirm(gettext("Delete"), gettext("This host?"),
+                                vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1))
                     {
 
                         /* size */
@@ -1332,31 +1323,31 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
 
                     // get the current item
                     cur = current_item(ZonesSection.h_menu);
-                    vrmr_fatal_if_null(cur);
+                    if (cur) {
+                        // size
+                        size = StrMemLen((char *)item_name(cur))+1+StrMemLen(networkname)+1+StrMemLen(zonename)+1;
 
-                    // size
-                    size = StrMemLen((char *)item_name(cur))+1+StrMemLen(networkname)+1+StrMemLen(zonename)+1;
+                        // alloc the memory
+                        temp_ptr = malloc(size);
+                        vrmr_fatal_if_null(temp_ptr);
 
-                    // alloc the memory
-                    temp_ptr = malloc(size);
-                    vrmr_fatal_if_null(temp_ptr);
+                        // create the string
+                        (void)strlcpy(temp_ptr, (char *)item_name(cur), size);
+                        (void)strlcat(temp_ptr, ".", size);
+                        (void)strlcat(temp_ptr, networkname, size);
+                        (void)strlcat(temp_ptr, ".", size);
+                        (void)strlcat(temp_ptr, zonename, size);
 
-                    // create the string
-                    (void)strlcpy(temp_ptr, (char *)item_name(cur), size);
-                    (void)strlcat(temp_ptr, ".", size);
-                    (void)strlcat(temp_ptr, networkname, size);
-                    (void)strlcat(temp_ptr, ".", size);
-                    (void)strlcat(temp_ptr, zonename, size);
+                        zone_ptr = vrmr_search_zonedata(debuglvl, zones, temp_ptr);
+                        vrmr_fatal_if_null(zone_ptr);
+                        vrmr_fatal_if(zone_ptr->type != VRMR_TYPE_HOST);
 
-                    zone_ptr = vrmr_search_zonedata(debuglvl, zones, temp_ptr);
-                    vrmr_fatal_if_null(zone_ptr);
-                    vrmr_fatal_if(zone_ptr->type != VRMR_TYPE_HOST);
+                        (void)edit_zone_host(debuglvl, vctx, zones, zone_ptr->name, reg);
+                        draw_top_menu(debuglvl, top_win, gettext("Hosts"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
-                    (void)edit_zone_host(debuglvl, vctx, zones, zone_ptr->name, reg);
-                    draw_top_menu(debuglvl, top_win, gettext("Hosts"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
-
-                    free(temp_ptr);
-                    reload = 1;
+                        free(temp_ptr);
+                        reload = 1;
+                    }
                     break;
 
                 case KEY_F(12):
@@ -1717,10 +1708,11 @@ edit_zone_group_members(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'D':
 
                     cur = current_item(ZonesSection.EditZoneGrp.menu);
-                    vrmr_fatal_if_null(cur);
-                    char *n = (char *)item_name(cur);
-                    edit_zone_group_members_delmem(debuglvl, vctx, zone_ptr, n);
-                    reload = 1;
+                    if (cur) {
+                        char *n = (char *)item_name(cur);
+                        edit_zone_group_members_delmem(debuglvl, vctx, zone_ptr, n);
+                        reload = 1;
+                    }
                     break;
 
                 case KEY_DOWN:
@@ -2410,60 +2402,60 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'R':
 
                     cur = current_item(ZonesSection.h_menu);
-                    vrmr_fatal_if_null(cur);
+                    if (cur) {
+                        size = StrMemLen((char *)item_name(cur))+1+StrMemLen(networkname)+1+StrMemLen(zonename)+1;
+                        cur_zonename_ptr = malloc(size);
+                        vrmr_fatal_alloc("malloc", cur_zonename_ptr);
 
-                    size = StrMemLen((char *)item_name(cur))+1+StrMemLen(networkname)+1+StrMemLen(zonename)+1;
-                    cur_zonename_ptr = malloc(size);
-                    vrmr_fatal_alloc("malloc", cur_zonename_ptr);
+                        // create the string
+                        (void)strlcpy(cur_zonename_ptr, (char *)item_name(cur), size);
+                        (void)strlcat(cur_zonename_ptr, ".", size);
+                        (void)strlcat(cur_zonename_ptr, networkname, size);
+                        (void)strlcat(cur_zonename_ptr, ".", size);
+                        (void)strlcat(cur_zonename_ptr, zonename, size);
 
-                    // create the string
-                    (void)strlcpy(cur_zonename_ptr, (char *)item_name(cur), size);
-                    (void)strlcat(cur_zonename_ptr, ".", size);
-                    (void)strlcat(cur_zonename_ptr, networkname, size);
-                    (void)strlcat(cur_zonename_ptr, ".", size);
-                    (void)strlcat(cur_zonename_ptr, zonename, size);
-
-                    vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Group"), gettext("Enter the new name of the group"));
-                    if(vrmr_new_zone_ptr != NULL)
-                    {
-                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
+                        vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Group"), gettext("Enter the new name of the group"));
+                        if(vrmr_new_zone_ptr != NULL)
                         {
-                            vrmr_warning(VR_WARN, gettext("invalid groupname '%s'."), vrmr_new_zone_ptr);
-                        }
-                        else
-                        {
-                            /* get the size */
-                            size = StrMemLen(vrmr_new_zone_ptr) + 1 + StrMemLen(networkname) + 1 + StrMemLen(zonename) + 1;
-
-                            /* alloc the memory */
-                            temp_ptr = malloc(size);
-                            vrmr_fatal_alloc("malloc", temp_ptr);
-
-                            /* create the string */
-                            (void)strlcpy(temp_ptr, vrmr_new_zone_ptr, size);
-                            (void)strlcat(temp_ptr, ".", size);
-                            (void)strlcat(temp_ptr, networkname, size);
-                            (void)strlcat(temp_ptr, ".", size);
-                            (void)strlcat(temp_ptr, zonename, size);
-
-                            if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
+                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                             {
-                                vrmr_warning(VR_WARN, gettext("invalid groupname '%s'."), temp_ptr);
+                                vrmr_warning(VR_WARN, gettext("invalid groupname '%s'."), vrmr_new_zone_ptr);
                             }
                             else
                             {
-                                if (zones_rename_host_group(debuglvl, vctx, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_GROUP, reg) == 0)
-                                {
-                                    /* we have a new host, so reload the menu */
-                                    reload = 1;
-                                }
-                            }
-                            free(temp_ptr);
-                        }
-                        free(vrmr_new_zone_ptr);
-                    }
+                                /* get the size */
+                                size = StrMemLen(vrmr_new_zone_ptr) + 1 + StrMemLen(networkname) + 1 + StrMemLen(zonename) + 1;
 
-                    free(cur_zonename_ptr);
+                                /* alloc the memory */
+                                temp_ptr = malloc(size);
+                                vrmr_fatal_alloc("malloc", temp_ptr);
+
+                                /* create the string */
+                                (void)strlcpy(temp_ptr, vrmr_new_zone_ptr, size);
+                                (void)strlcat(temp_ptr, ".", size);
+                                (void)strlcat(temp_ptr, networkname, size);
+                                (void)strlcat(temp_ptr, ".", size);
+                                (void)strlcat(temp_ptr, zonename, size);
+
+                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
+                                {
+                                    vrmr_warning(VR_WARN, gettext("invalid groupname '%s'."), temp_ptr);
+                                }
+                                else
+                                {
+                                    if (zones_rename_host_group(debuglvl, vctx, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_GROUP, reg) == 0)
+                                    {
+                                        /* we have a new host, so reload the menu */
+                                        reload = 1;
+                                    }
+                                }
+                                free(temp_ptr);
+                            }
+                            free(vrmr_new_zone_ptr);
+                        }
+
+                        free(cur_zonename_ptr);
+                    }
                     break;
 
                 case KEY_IC: //insert
@@ -2521,9 +2513,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'D':
 
                     cur = current_item(ZonesSection.h_menu);
-                    vrmr_fatal_if_null(cur);
-
-                    if (confirm(gettext("Delete"), gettext("This group?"),
+                    if (cur && confirm(gettext("Delete"), gettext("This group?"),
                                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
                     {
                         size = StrMemLen((char *)item_name(cur))+1+StrMemLen(networkname)+1+StrMemLen(zonename)+1;
@@ -2596,26 +2586,26 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'E':
 
                     cur = current_item(ZonesSection.h_menu);
-                    vrmr_fatal_if_null(cur);
+                    if (cur) {
+                        size = StrMemLen((char *)item_name(cur))+1+StrMemLen(networkname)+1+StrMemLen(zonename)+1;
+                        temp_ptr = malloc(size);
+                        vrmr_fatal_alloc("malloc", temp_ptr);
 
-                    size = StrMemLen((char *)item_name(cur))+1+StrMemLen(networkname)+1+StrMemLen(zonename)+1;
-                    temp_ptr = malloc(size);
-                    vrmr_fatal_alloc("malloc", temp_ptr);
+                        (void)strlcpy(temp_ptr, (char *)item_name(cur), size);
+                        (void)strlcat(temp_ptr, ".", size);
+                        (void)strlcat(temp_ptr, networkname, size);
+                        (void)strlcat(temp_ptr, ".", size);
+                        (void)strlcat(temp_ptr, zonename, size);
 
-                    (void)strlcpy(temp_ptr, (char *)item_name(cur), size);
-                    (void)strlcat(temp_ptr, ".", size);
-                    (void)strlcat(temp_ptr, networkname, size);
-                    (void)strlcat(temp_ptr, ".", size);
-                    (void)strlcat(temp_ptr, zonename, size);
+                        zone_ptr = vrmr_search_zonedata(debuglvl, zones, temp_ptr);
+                        vrmr_fatal_if_null(zone_ptr);
 
-                    zone_ptr = vrmr_search_zonedata(debuglvl, zones, temp_ptr);
-                    vrmr_fatal_if_null(zone_ptr);
+                        (void)edit_zone_group(debuglvl, vctx, zones, zone_ptr->name);
+                        draw_top_menu(debuglvl, top_win, gettext("Groups"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        reload = 1;
 
-                    (void)edit_zone_group(debuglvl, vctx, zones, zone_ptr->name);
-                    draw_top_menu(debuglvl, top_win, gettext("Groups"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
-                    reload = 1;
-
-                    free(temp_ptr);
+                        free(temp_ptr);
+                    }
                     break;
 
                 case KEY_F(12):
@@ -3156,21 +3146,22 @@ edit_zone_network_interfaces(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'D':
 
                     cur = current_item(ZonesSection.EditZoneInt.menu);
-                    vrmr_fatal_if_null(cur);
-                    (void)strlcpy(save_iface, (char *)item_name(cur), sizeof(save_iface));
+                    if (cur) {
+                        (void)strlcpy(save_iface, (char *)item_name(cur), sizeof(save_iface));
 
-                    if (vrmr_zones_network_rem_iface(debuglvl, vctx, zone_ptr, (char *)item_name(cur)) < 0)
-                    {
-                        quit = 1;
+                        if (vrmr_zones_network_rem_iface(debuglvl, vctx, zone_ptr, (char *)item_name(cur)) < 0)
+                        {
+                            quit = 1;
+                        }
+                        else
+                        {
+                            vrmr_audit("%s '%s' %s: %s '%s'.",
+                                    STR_NETWORK, zone_ptr->name,
+                                    STR_HAS_BEEN_CHANGED, STR_AN_IFACE_HAS_BEEN_REMOVED,
+                                    save_iface);
+                        }
+                        reload = 1;
                     }
-                    else
-                    {
-                        vrmr_audit("%s '%s' %s: %s '%s'.",
-                                STR_NETWORK, zone_ptr->name,
-                                STR_HAS_BEEN_CHANGED, STR_AN_IFACE_HAS_BEEN_REMOVED,
-                                save_iface);
-                    }
-                    reload = 1;
                     break;
 
                 case KEY_DOWN:
@@ -4572,61 +4563,61 @@ zones_section_menu_networks(const int debuglvl,
                 case 'R':
 
                     cur = current_item(ZonesSection.n_menu);
-                    vrmr_fatal_if_null(cur);
+                    if (cur) {
+                        size = StrMemLen((char *)item_name(cur))+1+StrMemLen(zonename)+1;
 
-                    size = StrMemLen((char *)item_name(cur))+1+StrMemLen(zonename)+1;
+                        cur_zonename_ptr = malloc(size);
+                        vrmr_fatal_alloc("malloc", cur_zonename_ptr);
 
-                    cur_zonename_ptr = malloc(size);
-                    vrmr_fatal_alloc("malloc", cur_zonename_ptr);
+                        /* create the network name string */
+                        (void)strlcpy(cur_zonename_ptr, (char *)item_name(cur), size);
+                        (void)strlcat(cur_zonename_ptr, ".", size);
+                        (void)strlcat(cur_zonename_ptr, zonename, size);
 
-                    /* create the network name string */
-                    (void)strlcpy(cur_zonename_ptr, (char *)item_name(cur), size);
-                    (void)strlcat(cur_zonename_ptr, ".", size);
-                    (void)strlcat(cur_zonename_ptr, zonename, size);
-
-                    /* rename */
-                    vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Network"), gettext("Enter the new name of the network"));
-                    if(vrmr_new_zone_ptr != NULL)
-                    {
-                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VRMR_VERBOSE) == -1)
+                        /* rename */
+                        vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Network"), gettext("Enter the new name of the network"));
+                        if(vrmr_new_zone_ptr != NULL)
                         {
-                            vrmr_warning(VR_WARN, gettext("invalid networkname '%s'."), vrmr_new_zone_ptr);
-                        }
-                        else
-                        {
-                            /* get the size */
-                            size = StrMemLen(vrmr_new_zone_ptr) + 1 + StrMemLen(zonename) + 1;
-
-                            /* alloc the memory */
-                            temp_ptr = malloc(size);
-                            vrmr_fatal_alloc("malloc", temp_ptr);
-
-                            /* create the string */
-                            (void)strlcpy(temp_ptr, vrmr_new_zone_ptr, size);
-                            (void)strlcat(temp_ptr, ".", size);
-                            (void)strlcat(temp_ptr, zonename, size);
-
-                            if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
+                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VRMR_VERBOSE) == -1)
                             {
-                                if (zones_rename_network_zone(debuglvl, vctx, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_NETWORK, reg) < 0)
-                                {
-                                    vrmr_error(-1, VR_ERR, gettext("renaming network failed."));
-                                }
-                                else
-                                {
-                                    /* we have a renamed network, so reload the menu */
-                                    reload = 1;
-                                }
+                                vrmr_warning(VR_WARN, gettext("invalid networkname '%s'."), vrmr_new_zone_ptr);
                             }
                             else
                             {
-                                vrmr_warning(VR_WARN, gettext("'%s' is an invalid name for a network."), vrmr_new_zone_ptr);
+                                /* get the size */
+                                size = StrMemLen(vrmr_new_zone_ptr) + 1 + StrMemLen(zonename) + 1;
+
+                                /* alloc the memory */
+                                temp_ptr = malloc(size);
+                                vrmr_fatal_alloc("malloc", temp_ptr);
+
+                                /* create the string */
+                                (void)strlcpy(temp_ptr, vrmr_new_zone_ptr, size);
+                                (void)strlcat(temp_ptr, ".", size);
+                                (void)strlcat(temp_ptr, zonename, size);
+
+                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
+                                {
+                                    if (zones_rename_network_zone(debuglvl, vctx, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_NETWORK, reg) < 0)
+                                    {
+                                        vrmr_error(-1, VR_ERR, gettext("renaming network failed."));
+                                    }
+                                    else
+                                    {
+                                        /* we have a renamed network, so reload the menu */
+                                        reload = 1;
+                                    }
+                                }
+                                else
+                                {
+                                    vrmr_warning(VR_WARN, gettext("'%s' is an invalid name for a network."), vrmr_new_zone_ptr);
+                                }
+                                free(temp_ptr);
                             }
-                            free(temp_ptr);
+                            free(vrmr_new_zone_ptr);
                         }
-                        free(vrmr_new_zone_ptr);
+                        free(cur_zonename_ptr);
                     }
-                    free(cur_zonename_ptr);
                     break;
 
                 case KEY_IC:    /* insert */
@@ -4681,35 +4672,35 @@ zones_section_menu_networks(const int debuglvl,
                 case 'D':
 
                     cur = current_item(ZonesSection.n_menu);
-                    vrmr_fatal_if_null(cur);
-
-                    if (vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, (char *)item_name(cur), zonename) <= 0   &&
-                        vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, (char *)item_name(cur), zonename) <= 0)
-                    {
-                        if (confirm(gettext("Delete"), gettext("This network?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
+                    if (cur) {
+                        if (vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, (char *)item_name(cur), zonename) <= 0   &&
+                                vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, (char *)item_name(cur), zonename) <= 0)
                         {
-                            size = StrMemLen((char *)item_name(cur))+1+StrMemLen(zonename)+1;
-                            zonename_ptr = malloc(size);
-                            vrmr_fatal_alloc("malloc", zonename_ptr);
-                            (void)strlcpy(zonename_ptr, (char *)item_name(cur), size);
-                            (void)strlcat(zonename_ptr, ".", size);
-                            (void)strlcat(zonename_ptr, zonename, size);
+                            if (confirm(gettext("Delete"), gettext("This network?"),
+                                        vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
+                            {
+                                size = StrMemLen((char *)item_name(cur))+1+StrMemLen(zonename)+1;
+                                zonename_ptr = malloc(size);
+                                vrmr_fatal_alloc("malloc", zonename_ptr);
+                                (void)strlcpy(zonename_ptr, (char *)item_name(cur), size);
+                                (void)strlcat(zonename_ptr, ".", size);
+                                (void)strlcat(zonename_ptr, zonename, size);
 
-                            result = vrmr_delete_zone(debuglvl, vctx, zones, zonename_ptr, VRMR_TYPE_NETWORK);
-                            if(result < 0)
-                                vrmr_error(result, VR_ERR, gettext("deleting network failed."));
-                            else
-                                reload = 1;
+                                result = vrmr_delete_zone(debuglvl, vctx, zones, zonename_ptr, VRMR_TYPE_NETWORK);
+                                if(result < 0)
+                                    vrmr_error(result, VR_ERR, gettext("deleting network failed."));
+                                else
+                                    reload = 1;
 
-                            vrmr_audit("%s '%s' %s.",
-                                    STR_NETWORK, zonename_ptr,
-                                    STR_HAS_BEEN_DELETED);
+                                vrmr_audit("%s '%s' %s.",
+                                        STR_NETWORK, zonename_ptr,
+                                        STR_HAS_BEEN_DELETED);
 
-                            free(zonename_ptr);
+                                free(zonename_ptr);
+                            }
+                        } else {
+                            vrmr_error(-1, VR_ERR, gettext("unable to delete: network not empty."));
                         }
-                    } else {
-                        vrmr_error(-1, VR_ERR, gettext("unable to delete: network not empty."));
                     }
                     break;
 
@@ -4744,10 +4735,9 @@ zones_section_menu_networks(const int debuglvl,
                 case 'B':
 
                     cur = current_item(ZonesSection.n_menu);
-                    vrmr_fatal_if_null(cur);
                     choice_ptr = selectbox(gettext("Select"), gettext("Hosts, Groups or this Network"), 3, choices, 1, NULL);
 
-                    if(choice_ptr != NULL)
+                    if(choice_ptr != NULL && cur != NULL)
                     {
                         if(strcmp(choice_ptr, gettext("Hosts")) == 0)
                         {
@@ -4785,16 +4775,22 @@ zones_section_menu_networks(const int debuglvl,
                 case 'G':   /* group quick key */
 
                     cur = current_item(ZonesSection.n_menu);
-                    vrmr_fatal_if_null(cur);
-                    zones_section_menu_groups(debuglvl, vctx, zones, rules, blocklist, zonename, (char *)item_name(cur), reg);
+                    if (cur) {
+                        zones_section_menu_groups(debuglvl, vctx, zones,
+                                rules, blocklist, zonename,
+                                (char *)item_name(cur), reg);
+                    }
                     break;
 
                 case 'h':   /* host quick key */
                 case 'H':   /* host quick key */
 
                     cur = current_item(ZonesSection.n_menu);
-                    vrmr_fatal_if_null(cur);
-                    (void)zones_section_menu_hosts(debuglvl, vctx, zones, rules, blocklist, zonename, (char *)item_name(cur), reg);
+                    if (cur) {
+                        (void)zones_section_menu_hosts(debuglvl, vctx,
+                                zones, rules, blocklist, zonename,
+                                (char *)item_name(cur), reg);
+                    }
                     break;
 
                 case 'e':
@@ -4802,22 +4798,23 @@ zones_section_menu_networks(const int debuglvl,
                 case 32:    /* spacebar */
 
                     cur = current_item(ZonesSection.n_menu);
-                    vrmr_fatal_if_null(cur);
-                    size = StrMemLen((char *)item_name(cur))+1+StrMemLen(zonename)+1;
-                    zonename_ptr = malloc(size);
-                    vrmr_fatal_alloc("malloc", zonename_ptr);
+                    if (cur) {
+                        size = StrMemLen((char *)item_name(cur))+1+StrMemLen(zonename)+1;
+                        zonename_ptr = malloc(size);
+                        vrmr_fatal_alloc("malloc", zonename_ptr);
 
-                    (void)strlcpy(zonename_ptr, (char *)item_name(cur), size);
-                    (void)strlcat(zonename_ptr, ".", size);
-                    (void)strlcat(zonename_ptr, zonename, size);
+                        (void)strlcpy(zonename_ptr, (char *)item_name(cur), size);
+                        (void)strlcat(zonename_ptr, ".", size);
+                        (void)strlcat(zonename_ptr, zonename, size);
 
-                    /*  edit the network. We don't care about the result.
-                        If there is an error, its up to the user to decide
-                        what to do. */
-                    if(edit_zone_network(debuglvl, vctx, zones, interfaces, zonename_ptr) == 1)
-                        reload = 1;
+                        /*  edit the network. We don't care about the result.
+                            If there is an error, its up to the user to decide
+                            what to do. */
+                        if(edit_zone_network(debuglvl, vctx, zones, interfaces, zonename_ptr) == 1)
+                            reload = 1;
 
-                    free(zonename_ptr);
+                        free(zonename_ptr);
+                    }
                     break;
 
                 case '?':
@@ -5383,21 +5380,28 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                 case 'R':
 
                     cur = current_item(ZonesSection.menu);
-                    vrmr_fatal_if_null(cur);
-
-                    vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Zone"), gettext("Enter the new name of the zone"));
-                    if(vrmr_new_zone_ptr != NULL)
-                    {
-                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VRMR_VERBOSE) == 0)
+                    if (cur) {
+                        vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST,
+                                gettext("Rename Zone"),
+                                gettext("Enter the new name of the zone"));
+                        if (vrmr_new_zone_ptr != NULL)
                         {
-                            if (zones_rename_network_zone(debuglvl, vctx, zones, rules, blocklist, (char *)item_name(cur), vrmr_new_zone_ptr, VRMR_TYPE_ZONE, reg) == 0)
+                            if (vrmr_validate_zonename(debuglvl,
+                                        vrmr_new_zone_ptr, 1, NULL, NULL, NULL,
+                                        reg->zone_part, VRMR_VERBOSE) == 0)
                             {
-                                /* we have a renamed network, so reload the menu */
-                                reload = 1;
+                                if (zones_rename_network_zone(debuglvl, vctx,
+                                            zones, rules, blocklist,
+                                            (char *)item_name(cur),
+                                            vrmr_new_zone_ptr, VRMR_TYPE_ZONE, reg) == 0)
+                                {
+                                    /* we have a renamed network, so reload the menu */
+                                    reload = 1;
+                                }
                             }
-                        }
 
-                        free(vrmr_new_zone_ptr);
+                            free(vrmr_new_zone_ptr);
+                        }
                     }
                     break;
 
@@ -5439,34 +5443,34 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                 case 'D':
 
                     cur = current_item(ZonesSection.menu);
-                    vrmr_fatal_if_null(cur);
-
-                    if( vrmr_count_zones(debuglvl, zones, VRMR_TYPE_NETWORK, NULL, (char *)item_name(cur)) <= 0   &&
-                            vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, NULL, (char *)item_name(cur)) <= 0   &&
-                            vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, NULL, (char *)item_name(cur)) <= 0)
-                    {
-                        if (confirm(gettext("Delete"), gettext("This zone?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
+                    if (cur) {
+                        if(vrmr_count_zones(debuglvl, zones, VRMR_TYPE_NETWORK, NULL, (char *)item_name(cur)) <= 0   &&
+                                vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, NULL, (char *)item_name(cur)) <= 0   &&
+                                vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, NULL, (char *)item_name(cur)) <= 0)
                         {
-                            /* for logging */
-                            (void)strlcpy(save_zone_name, (char *)item_name(cur), sizeof(save_zone_name));
-
-                            result = vrmr_delete_zone(debuglvl, vctx, zones, (char *)item_name(cur), VRMR_TYPE_ZONE);
-                            if(result < 0)
+                            if (confirm(gettext("Delete"), gettext("This zone?"),
+                                        vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
                             {
-                                vrmr_error(result, VR_ERR, gettext("deleting zone failed (in: %s:%d)."), __FUNC__, __LINE__);
-                            }
-                            else
-                            {
-                                vrmr_audit("%s '%s' %s.",
-                                        STR_ZONE, save_zone_name,
-                                        STR_HAS_BEEN_DELETED);
+                                /* for logging */
+                                (void)strlcpy(save_zone_name, (char *)item_name(cur), sizeof(save_zone_name));
 
-                                reload = 1;
+                                result = vrmr_delete_zone(debuglvl, vctx, zones, (char *)item_name(cur), VRMR_TYPE_ZONE);
+                                if(result < 0)
+                                {
+                                    vrmr_error(result, VR_ERR, gettext("deleting zone failed (in: %s:%d)."), __FUNC__, __LINE__);
+                                }
+                                else
+                                {
+                                    vrmr_audit("%s '%s' %s.",
+                                            STR_ZONE, save_zone_name,
+                                            STR_HAS_BEEN_DELETED);
+
+                                    reload = 1;
+                                }
                             }
+                        } else {
+                            vrmr_error(-1, VR_ERR, gettext("unable to delete: zone not empty."));
                         }
-                    } else {
-                        vrmr_error(-1, VR_ERR, gettext("unable to delete: zone not empty."));
                     }
                     break;
 
@@ -5500,15 +5504,14 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                 case 32:
 
                     cur = current_item(ZonesSection.menu);
-                    vrmr_fatal_if_null(cur);
+                    if (cur) {
+                        if (edit_zone_zone(debuglvl, vctx, zones, (char *)item_name(cur)) < 0) {
+                            retval = -1;
+                            quit = 1;
+                        }
 
-                    if (edit_zone_zone(debuglvl, vctx, zones, (char *)item_name(cur)) < 0)
-                    {
-                        retval = -1;
-                        quit = 1;
+                        draw_top_menu(debuglvl, top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     }
-
-                    draw_top_menu(debuglvl, top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     break;
 
                 case KEY_RIGHT:
@@ -5517,12 +5520,13 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                 case 'B':
 
                     cur = current_item(ZonesSection.menu);
-                    vrmr_fatal_if_null(cur);
-                    char *n = (char *)item_name(cur);
+                    if (cur) {
+                        char *n = (char *)item_name(cur);
 
-                    zones_section_menu_networks(debuglvl, vctx, zones, interfaces, rules, blocklist, n, reg);
+                        zones_section_menu_networks(debuglvl, vctx, zones, interfaces, rules, blocklist, n, reg);
 
-                    draw_top_menu(debuglvl, top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        draw_top_menu(debuglvl, top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                    }
                     break;
 
                 case KEY_F(12):

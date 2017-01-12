@@ -736,7 +736,8 @@ Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_config *conf, struct
         vrmr_debug(__FUNC__, "field_buffer = '%s'.", field_buffer(bar->num_field, 0));
 
     rule_num = (unsigned int)atoi(field_buffer(bar->num_field, 0));
-    vrmr_fatal_if(rule_num <= 0);
+    if (rule_num <= 0) /* empty rule form */
+        return 0;
 
     result = edit_rule(debuglvl, conf, rules, zones, interfaces, services, rule_num, reg);
     if(result < 0)
