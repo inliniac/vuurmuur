@@ -59,23 +59,11 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query,
         return(-1);
     }
 
-    if (broadcast) {
-        switch (action_type) {
-            case VRMR_AT_ACCEPT:
-                (void)strlcpy(action, "ACCEPT", size);
-                break;
-            case VRMR_AT_NFQUEUE:
-                (void)strlcpy(action, "NFQUEUE", size);
-                break;
-            default:
-                abort(); //TODO
-        }
-        return(0);
-    }
-
     if(action_type == VRMR_AT_ACCEPT)
     {
         (void)strlcpy(action, "NEWACCEPT", size);
+        if (broadcast)
+            (void)strlcpy(action, "ACCEPT", size);
     }
     else if(action_type == VRMR_AT_DROP)
     {
@@ -156,6 +144,8 @@ determine_action(const int debuglvl, struct vrmr_config *cfg, char *query,
     else if(action_type == VRMR_AT_NFQUEUE)
     {
         (void)strlcpy(action, "NEWNFQUEUE", size);
+        if (broadcast)
+            (void)strlcpy(action, "NFQUEUE", size);
     }
     else if(action_type == VRMR_AT_NFLOG)
     {

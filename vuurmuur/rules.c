@@ -679,6 +679,11 @@ rulecreate_call_create_funcs(const int debuglvl, struct vrmr_config *conf, /*@nu
                 vrmr_error(-1, "Error", "creating output rule failed (in: %s).", __FUNC__);
                 retval = -1;
             }
+            if(create_rule_input_broadcast(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
+            {
+                vrmr_error(-1, "Error", "creating forward rule failed (in: %s).", __FUNC__);
+                retval = -1;
+            }
         } else {
             if(create_rule_output(debuglvl, conf, ruleset, rule, create, iptcap) < 0)
             {
@@ -2198,13 +2203,13 @@ rulecreate_src_iface_loop (const int debuglvl, struct vrmr_ctx *vctx, /*@null@*/
             {
                 vrmr_info("Info", "not creating rule: 'from'-interface '%s' is dynamic and down.", rule->from_if_ptr->name);
                 active = 0;
-            vrmr_debug(__FUNC__, "active %d (dynamic up check)", active);
+                vrmr_debug(__FUNC__, "active %d (dynamic up check)", active);
             }
 #ifdef IPV6_ENABLED
             if (rule->ipv == VRMR_IPV6 &&
                     !vrmr_interface_ipv6_enabled(debuglvl, rule->from_if_ptr)) {
                 active = 0;
-            vrmr_debug(__FUNC__, "active %d (ipv6)", active);
+                vrmr_debug(__FUNC__, "active %d (ipv6)", active);
             }
 #endif
             if (active == 1) {
