@@ -5414,9 +5414,9 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                     {
                         if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VRMR_VERBOSE) == 0)
                         {
-                            if(vrmr_new_zone(debuglvl, vctx, zones, vrmr_new_zone_ptr, VRMR_TYPE_ZONE) < 0)
+                            if (vrmr_new_zone(debuglvl, vctx, zones, vrmr_new_zone_ptr, VRMR_TYPE_ZONE) < 0)
                             {
-                                vrmr_error(result, VR_ERR, "adding zone failed (in: %s:%d).", __FUNC__);
+                                vrmr_error(result, VR_ERR, "adding zone failed (in: %s:%d).", __FUNC__, __LINE__);
                             }
                             else
                             {
