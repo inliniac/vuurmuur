@@ -118,12 +118,16 @@ int
 vrmr_list_remove_top(const int debuglvl, struct vrmr_list *list)
 {
     assert(list);
+#ifdef CPPCHECK
+    return (vrmr_list_remove_node(debuglvl, list, list->top));
+#else
     struct vrmr_list_node *old_top = list->top;
     int result = vrmr_list_remove_node(debuglvl, list, old_top);
     assert(old_top != list->top);
     struct vrmr_list_node *new_top = list->top;
     assert(old_top != new_top);
     return result;
+#endif
 }
 
 /** \brief shortcut for removing list tail
@@ -133,12 +137,16 @@ int
 vrmr_list_remove_bot(const int debuglvl, struct vrmr_list *list)
 {
     assert(list);
+#ifdef CPPCHECK
+    return(vrmr_list_remove_node(debuglvl, list, list->bot));
+#else
     struct vrmr_list_node *old_bot = list->bot;
     int result = vrmr_list_remove_node(debuglvl, list, old_bot);
     assert(old_bot != list->bot);
     struct vrmr_list_node *new_bot = list->bot;
     assert(old_bot != new_bot);
     return result;
+#endif
 }
 
 /*  vrmr_list_append
