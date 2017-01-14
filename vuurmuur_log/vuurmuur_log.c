@@ -23,6 +23,7 @@
 #include "stats.h"
 #include "logfile.h"
 #include "vuurmuur_ipc.h"
+#include "conntrack.h"
 
 #ifdef HAVE_NFNETLINK
 #include <libnfnetlink/libnfnetlink.h>
@@ -34,8 +35,8 @@
 /*@null@*/
 struct vrmr_shm_table *shm_table = 0;
 static int g_debuglvl = 0;
-static struct vrmr_hash_table zone_htbl;
-static struct vrmr_hash_table service_htbl;
+struct vrmr_hash_table zone_htbl;
+struct vrmr_hash_table service_htbl;
 static struct Counters_ Counters =
 {
     0, 0, 0, 0, 0,
@@ -44,6 +45,8 @@ static struct Counters_ Counters =
     0, 0, 0, 0,
 };
 static FILE *g_traffic_log = NULL;
+FILE *g_conn_new_log_fp = NULL;
+FILE *g_connections_log_fp = NULL;
 
 /*
     we put this here, because we only use it here in main.
@@ -192,6 +195,9 @@ main(int argc, char *argv[])
     char                        *sscanf_str = NULL;
 
     struct vrmr_log_record      logrule;
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
+    struct vrmr_log_record      logconn;
+#endif
     int                         debuglvl = 0;
 
     /* shm, sem stuff */
@@ -327,6 +333,16 @@ main(int argc, char *argv[])
             vrmr_error(-1, "Error", "could not set up nflog subscription");
             exit (EXIT_FAILURE);
         }
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
+        if (conntrack_subscribe(&logconn) < 0) {
+            vrmr_error(-1, "Error", "could not set up conntrack subscription");
+            exit (EXIT_FAILURE);
+        }
+        g_conn_new_log_fp = fopen(vctx.conf.connnewlog_location, "a");
+        assert(g_conn_new_log_fp); // TODO
+        g_connections_log_fp = fopen(vctx.conf.connlog_location, "a");
+        assert(g_connections_log_fp); // TODO
+#endif
     }
 #else
     if (!syslog) {
@@ -491,9 +507,17 @@ main(int argc, char *argv[])
                         usleep(100000);  /* this should be 1/10th of a second */
                     }
                 }
-#ifdef HAVE_LIBNETFILTER_LOG
             /* not using syslog so must be using nflog here */
             } else {
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
+                switch (conntrack_read(&logconn)) {
+                    case 0:
+                        break;
+                    case -1:
+                        break;
+                }
+#endif /* HAVE_LIBNETFILTER_CONNTRACK */
+#ifdef HAVE_LIBNETFILTER_LOG
                 switch (readnflog()) {
                     case -1:
                         vrmr_error(-1, "Error", "could not read from nflog");
@@ -663,8 +687,18 @@ main(int argc, char *argv[])
     /* close the logfiles */
     if (g_traffic_log != NULL)
         fclose(g_traffic_log);
+    if (g_connections_log_fp != NULL)
+        fclose(g_connections_log_fp);
+    if (g_conn_new_log_fp != NULL)
+        fclose(g_conn_new_log_fp);
     if (system_log != NULL)
         fclose(system_log);
+
+    if (!syslog) {
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
+        conntrack_disconnect();
+#endif
+    }
 
     /* destroy hashtables */
     vrmr_hash_cleanup(debuglvl, &zone_htbl);
