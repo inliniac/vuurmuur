@@ -443,6 +443,8 @@ struct vrmr_config {
     char            auditlog_location[VRMR_LOG_PATH_SIZE];
     char            errorlog_location[VRMR_LOG_PATH_SIZE];
     char            trafficlog_location[VRMR_LOG_PATH_SIZE];
+    char            connnewlog_location[VRMR_LOG_PATH_SIZE];
+    char            connlog_location[VRMR_LOG_PATH_SIZE];
 
     char            systemlog_location[64]; /* location to the log where syslog puts the iptables messages */
 
@@ -1314,6 +1316,25 @@ enum vrmr_actiontypes {
     VRMR_AT_TOO_BIG,
 };
 
+enum vrmr_log_conn_type {
+    VRMR_LOG_CONN_NEW,
+    VRMR_LOG_CONN_COMPLETED,
+};
+
+/* connection log */
+struct vrmr_log_conn_record
+{
+    enum vrmr_log_conn_type type;
+
+    uint32_t age_s;                 /**< age in seconds */
+
+    /* counters */
+    uint64_t toserver_packets;
+    uint64_t toserver_bytes;
+    uint64_t toclient_packets;
+    uint64_t toclient_bytes;
+};
+
 struct vrmr_log_record
 {
     char            month[4];
@@ -1364,7 +1385,13 @@ struct vrmr_log_record
     char            to_int[VRMR_MAX_INTERFACE+6];    /* 'out: ' */
 
     char            tcpflags[7];
+
+    /* type specfic things go here. TODO: move (nf)log stuff into this */
+    union {
+        struct vrmr_log_conn_record conn_r;
+    } lu;
 };
+#define conn_rec lu.conn_r
 
 /*
     libvuurmuur.c

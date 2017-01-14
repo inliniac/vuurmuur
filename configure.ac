@@ -76,6 +76,28 @@ if test "$NFNETLINK" != "no"; then
     AC_DEFINE([HAVE_NFNETLINK],[1],[libnfnetlink available])
 fi
 
+# mnl lib
+AC_ARG_WITH(libmnl_includes,
+        [  --with-libmnl-includes=DIR  libmnl include directory],
+        [with_libmnl_includes="$withval"],[with_libmnl_includes=no])
+AC_ARG_WITH(libmnl_libraries,
+        [  --with-libmnl-libraries=DIR    libmnl library directory],
+        [with_libmnl_libraries="$withval"],[with_libmnl_libraries="no"])
+
+if test "$with_libmnl_includes" != "no"; then
+CPPFLAGS="${CPPFLAGS} -I${with_libmnl_includes}"
+fi
+AC_CHECK_HEADER(libmnl/libmnl.h,,)
+
+if test "$with_libmnl_libraries" != "no"; then
+LDFLAGS="${LDFLAGS}  -L${with_libmnl_libraries}"
+fi
+
+AC_CHECK_LIB(mnl, mnl_socket_open, [LIBMNL_LIBS="-lmnl"], MNL="no")
+if test "$MNL" != "no"; then
+    AC_DEFINE([HAVE_MNL],[1],[libmnl available])
+fi
+
 # netfilter_conntrack lib
 AC_ARG_WITH(libnetfilter_conntrack_includes,
         [  --with-libnetfilter_conntrack-includes=DIR  libnetfilter_conntrack include directory],
@@ -93,7 +115,7 @@ if test "$with_libnetfilter_conntrack_libraries" != "no"; then
 LDFLAGS="${LDFLAGS}  -L${with_libnetfilter_conntrack_libraries}"
 fi
 
-AC_CHECK_LIB(netfilter_conntrack, nfct_fd, [LIBNETFILTER_CONNTRACK_LIBS="-lnetfilter_conntrack"], NFCONNTRACK="no")
+AC_CHECK_LIB(netfilter_conntrack, nfct_nlmsg_parse, [LIBNETFILTER_CONNTRACK_LIBS="-lnetfilter_conntrack"], NFCONNTRACK="no")
 if test "$NFCONNTRACK" != "no"; then
     AC_DEFINE([HAVE_LIBNETFILTER_CONNTRACK],[1],[libnetfilter_conntrack available])
 fi
@@ -369,6 +391,7 @@ AC_SUBST(LIBVUURMUUR_LDADD)
 # make sure vuurmuur.h is added to the includes
 CPPFLAGS="-I\${top_srcdir}/include/ ${CPPFLAGS}"
 AC_SUBST(LIBNFNETLINK_LIBS)
+AC_SUBST(LIBMNL_LIBS)
 AC_SUBST(LIBNETFILTER_CONNTRACK_LIBS)
 AC_SUBST(LIBNETFILTER_LOG_LIBS)
 AC_SUBST(NCURSES_LIBS)
