@@ -337,7 +337,7 @@ subscribe_nflog (const int debuglvl, const struct vrmr_config *conf, struct vrmr
 
     qh = nflog_bind_group (h, conf->nfgrp);
     if (!qh) {
-        vrmr_error(-1, "Internal Error", "nflog_bind_group error, other process attached? (in: %s:%d).", __FUNC__, __LINE__);
+        vrmr_error(-1, "Internal Error", "nflog_bind_group(%p, %d) error, other process attached? %s (in: %s:%d).", h, conf->nfgrp, strerror(errno), __FUNC__, __LINE__);
         return (-1);
     }
 
