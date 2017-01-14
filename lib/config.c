@@ -410,6 +410,18 @@ vrmr_config_set_log_names(const int debuglvl, struct vrmr_config *cnf)
         retval = -1;
     }
 
+    if(snprintf(cnf->connnewlog_location,  sizeof(cnf->connnewlog_location),  "%s/connnew.log",  cnf->vuurmuur_logdir_location) >= (int)sizeof(cnf->connnewlog_location))
+    {
+        vrmr_error(-1, "Error", "connnew.log location was truncated (in: %s:%d).", __FUNC__, __LINE__);
+        retval = -1;
+    }
+
+    if(snprintf(cnf->connlog_location,  sizeof(cnf->connlog_location),  "%s/connections.log",  cnf->vuurmuur_logdir_location) >= (int)sizeof(cnf->connlog_location))
+    {
+        vrmr_error(-1, "Error", "connections.log location was truncated (in: %s:%d).", __FUNC__, __LINE__);
+        retval = -1;
+    }
+
     if(snprintf(cnf->debuglog_location,    sizeof(cnf->debuglog_location),    "%s/debug.log",    cnf->vuurmuur_logdir_location) >= (int)sizeof(cnf->debuglog_location))
     {
         vrmr_error(-1, "Error", "debug.log location was truncated (in: %s:%d).", __FUNC__, __LINE__);
@@ -1740,6 +1752,24 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         vrmr_info("Info", "Using '%s' as traffic.log.", cnf->trafficlog_location);
 
     if(check_logfile(debuglvl, cnf->trafficlog_location) < 0)
+    {
+        retval = VRMR_CNF_E_ILLEGAL_VAR;
+    }
+
+    /* connnew.log */
+    if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
+        vrmr_info("Info", "Using '%s' as connnew.log.", cnf->connnewlog_location);
+
+    if(check_logfile(debuglvl, cnf->connnewlog_location) < 0)
+    {
+        retval = VRMR_CNF_E_ILLEGAL_VAR;
+    }
+
+    /* connections.log */
+    if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
+        vrmr_info("Info", "Using '%s' as connections.log.", cnf->connlog_location);
+
+    if(check_logfile(debuglvl, cnf->connlog_location) < 0)
     {
         retval = VRMR_CNF_E_ILLEGAL_VAR;
     }
