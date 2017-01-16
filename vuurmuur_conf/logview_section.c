@@ -35,7 +35,7 @@ struct PlainLogRule_
     pretty printing.
 */
 static void
-logline2logrule(char *logline, struct LogRule_ *logrule)
+logline2logrule(const char *logline, struct LogRule_ *logrule)
 {
     size_t  i=0,
             x=0,
@@ -47,52 +47,50 @@ logline2logrule(char *logline, struct LogRule_ *logrule)
     vrmr_fatal_if_null(logrule);
 
     /* scan the line. Note: 'time' has a ':' as last char, and 'to' has a comma as last char. */
-    sscanf(logline, "%3s %2s %9s %s service %s from %s to %s", logrule->month, logrule->date, logrule->time, logrule->action, logrule->service, logrule->from, logrule->to);
+    sscanf(logline, "%3s %2s %9s %s service %s from %s to %s",
+            logrule->month, logrule->date, logrule->time,
+            logrule->action, logrule->service, logrule->from, logrule->to);
 
     /* remove the semicolon from time */
     logrule->time[StrMemLen(logrule->time)-1] = '\0';
 
     /* remove the comma from 'to' */
-    logrule->to[StrMemLen(logrule->to)-1] = '\0';
+    if (logrule->to[StrMemLen(logrule->to)-1] == ',')
+        logrule->to[StrMemLen(logrule->to)-1] = '\0';
 
-    /* store the rest of the rule in tempstr */
-    for(i = 0, x = 0; i < StrMemLen(logline) && logline[i] != '\n' && x < sizeof(tempstr)-1; i++)
-    {
-        if(logline[i] == ',')
-            comma = 1;
+    char *details_start;
+    char *prefix_start = strstr(logline, "prefix: \"");
+    if (prefix_start && strlen(prefix_start) > 11) {
+        char *prefix_end = strchr(prefix_start+11, '"');
+        if (prefix_end == NULL)
+            return;
 
-        if(comma == 1)
-        {
-            tempstr[x] = logline[i];
-            x++;
-        }
+        prefix_start += 11;
+        if ((prefix_end - prefix_start) == 1) // 'prefix: ""' case
+            return;
+        if ((prefix_end - prefix_start) >= sizeof(logrule->prefix))
+            return;
+        size_t copy = MIN((prefix_end - prefix_start), sizeof(logrule->prefix));
+        strlcpy(logrule->prefix, prefix_start, copy);
+
+        /* terminate the string. If the last char is a white-space remove it. */
+        if(x && logrule->prefix[x-1] == ' ')
+            logrule->prefix[x-1] = '\0';
+        else
+            logrule->prefix[x] = '\0';
+
+        details_start = strchr(prefix_end, '(');
+    } else {
+        logrule->prefix[0] = '\0';
+        details_start = strrchr(logline, '(');
     }
-    tempstr[x] = '\0';
+    if (details_start == NULL)
+        return;
 
-    /* tempstr contains the rest of the rule */
-    for(i=0, x=0; tempstr[i] != '(' && x < sizeof(logrule->prefix)-1 && i < StrMemLen(tempstr) ; i++)
-    {
-        if(tempstr[i] == '"')
-            trema++;
-
-        if(trema == 1 && tempstr[i] != '"')
-        {
-            logrule->prefix[x] =  tempstr[i];
-            x++;
-        }
-    }
-    /* terminate the string. If the last char is a white-space remove it. */
-    if(x && logrule->prefix[x-1] == ' ')
-        logrule->prefix[x-1] = '\0';
-    else
-        logrule->prefix[x] = '\0';
-
-    /* i is already set above */
-    for(x=0; tempstr[i] != '\n' && tempstr[i] != '\0' && i < StrMemLen(tempstr) && x < sizeof(logrule->details)-1; x++, i++)
-    {
-        logrule->details[x] = tempstr[i];
-    }
-    logrule->details[x] = '\0';
+    strlcpy(logrule->details, details_start, sizeof(logrule->details));
+    size_t details_len = strlen(logrule->details);
+    if (logrule->details[details_len - 1] == '\n')
+        logrule->details[details_len - 1] = '\0';
 }
 
 static void
@@ -729,6 +727,11 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             traffic_log = 1;
             logfile = vctx->conf.trafficlog_location;
         }
+        else if(strcmp(logname, "connections.log") == 0)
+        {
+            traffic_log = 1;
+            logfile = vctx->conf.connlog_location;
+        }
         else {
             vrmr_fatal("unknown logfile '%s'", logname);
         }
@@ -739,10 +742,10 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     /* point the buffer pointer to the LogBufferList */
     buffer_ptr = &LogBufferList;
 
-    /* begin with the traffic log */
+    /* begin with the selected log file */
     traffic_fp = fopen(logfile, "r");
     if (traffic_fp == NULL) {
-        vrmr_error(-1, VR_ERR, gettext("opening logfile '%s' failed: %s."), vctx->conf.trafficlog_location, strerror(errno));
+        vrmr_error(-1, VR_ERR, gettext("opening logfile '%s' failed: %s."), logfile, strerror(errno));
         vrmr_list_cleanup(debuglvl, buffer_ptr);
         return(-1);
     }
