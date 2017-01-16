@@ -115,7 +115,7 @@ if test "$with_libnetfilter_conntrack_libraries" != "no"; then
 LDFLAGS="${LDFLAGS}  -L${with_libnetfilter_conntrack_libraries}"
 fi
 
-AC_CHECK_LIB(netfilter_conntrack, nfct_fd, [LIBNETFILTER_CONNTRACK_LIBS="-lnetfilter_conntrack"], NFCONNTRACK="no")
+AC_CHECK_LIB(netfilter_conntrack, nfct_nlmsg_parse, [LIBNETFILTER_CONNTRACK_LIBS="-lnetfilter_conntrack"], NFCONNTRACK="no")
 if test "$NFCONNTRACK" != "no"; then
     AC_DEFINE([HAVE_LIBNETFILTER_CONNTRACK],[1],[libnetfilter_conntrack available])
 fi

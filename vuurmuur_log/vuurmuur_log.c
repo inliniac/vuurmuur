@@ -331,6 +331,7 @@ main(int argc, char *argv[])
             vrmr_error(-1, "Error", "could not set up nflog subscription");
             exit (EXIT_FAILURE);
         }
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
         if (conntrack_subscribe(&logconn) < 0) {
             vrmr_error(-1, "Error", "could not set up conntrack subscription");
             exit (EXIT_FAILURE);
@@ -339,6 +340,7 @@ main(int argc, char *argv[])
         assert(g_conn_new_log_fp); // TODO
         g_connections_log_fp = fopen(vctx.conf.connlog_location, "a");
         assert(g_connections_log_fp); // TODO
+#endif
     }
 #else
     if (!syslog) {
@@ -691,7 +693,9 @@ main(int argc, char *argv[])
         fclose(system_log);
 
     if (!syslog) {
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
         conntrack_disconnect();
+#endif
     }
 
     /* destroy hashtables */

@@ -21,6 +21,7 @@
 #include <vuurmuur.h>
 #include "vuurmuur_log.h"
 
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
 #include <libmnl/libmnl.h>
 #include <libnetfilter_conntrack/libnetfilter_conntrack.h>
 #include <assert.h>
@@ -265,4 +266,5 @@ int conntrack_read(struct vrmr_log_record *lr)
     }
     return 0;
 }
+#endif
 
