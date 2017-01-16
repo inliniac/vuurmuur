@@ -172,7 +172,7 @@ mm_select_logfile(const int debuglvl, struct vrmr_ctx *vctx,
         struct vrmr_services *services)
 {
     size_t  i = 0,
-            n_choices = 6;
+            n_choices = 7;
     int     ch = 0,
             quit = 0;
     ITEM    **menu_items;
@@ -190,6 +190,7 @@ mm_select_logfile(const int debuglvl, struct vrmr_ctx *vctx,
 
     char *choices[] = {
             "Traffic.log",
+            "Connections.log",
             "Vuurmuur.log",
             "Audit.log",
             "Error.log",
@@ -199,6 +200,7 @@ mm_select_logfile(const int debuglvl, struct vrmr_ctx *vctx,
     };
 
     char *descriptions[] = {
+            " ",
             " ",
             " ",
             " ",
@@ -288,6 +290,10 @@ mm_select_logfile(const int debuglvl, struct vrmr_ctx *vctx,
             if(strncasecmp(choice_ptr, "traffic.log", 11) == 0)
             {
                 logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "traffic.log");
+            }
+            else if(strncasecmp(choice_ptr, "connections.log", 15) == 0)
+            {
+                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "connections.log");
             }
             else if(strncasecmp(choice_ptr, "error.log", 9) == 0)
             {
