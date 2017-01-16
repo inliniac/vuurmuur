@@ -50,5 +50,5 @@ script:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y build-essential autoconf automake libtool make fakeroot debhelper libncurses5-dev libnetfilter-log-dev 
+  - sudo apt-get install -y build-essential autoconf automake libtool make fakeroot debhelper libncurses5-dev libnetfilter-log-dev libmnl-dev libnetfilter-conntrack-dev
 
