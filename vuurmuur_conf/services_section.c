@@ -1751,11 +1751,11 @@ edit_service_update_portrangesfld(const int debuglvl, struct vrmr_ctx *vctx,
     int bsize = lines * 48;
     size_t x;
 
+    if (ServiceSec.portranges_lines == 0 || bsize == 0)
+        return;
+
     char buffer[bsize];
     memset(buffer, 0, bsize);
-
-    if (ServiceSec.portranges_lines == 0)
-        return;
 
     for(d_node = ser_ptr->PortrangeList.top, i = 1; d_node; d_node = d_node->next, i++)
     {
