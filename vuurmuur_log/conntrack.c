@@ -82,10 +82,10 @@ static int process_connrecord(struct vrmr_log_record *lr) {
 
     if (lr->conn_rec.type == VRMR_LOG_CONN_COMPLETED) {
         char extra[1024];
-        snprintf(extra, sizeof(extra), " TS: %"PRIu64"p %"PRIu64"b TC: %"PRIu64"p %"PRIu64"b age %us",
+        snprintf(extra, sizeof(extra), " age:%us pkts_ts:%"PRIu64" bytes_ts:%"PRIu64" pkts_tc:%"PRIu64" bytes_tc:%"PRIu64"",
+                lr->conn_rec.age_s,
                 lr->conn_rec.toserver_packets, lr->conn_rec.toserver_bytes,
-                lr->conn_rec.toclient_packets, lr->conn_rec.toclient_bytes,
-                lr->conn_rec.age_s);
+                lr->conn_rec.toclient_packets, lr->conn_rec.toclient_bytes);
         strlcat(line, extra, sizeof(line));
     }
 
@@ -164,7 +164,7 @@ static int record_cb(const struct nlmsghdr *nlh, void *data)
             uint32_t dst_ip = nfct_get_attr_u32(ct, ATTR_IPV4_DST);
 
             uint32_t repl_src_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_SRC);
-            uint32_t repl_dst_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_DST);
+            //uint32_t repl_dst_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_DST);
 
             inet_ntop(AF_INET, &src_ip, lr->src_ip, sizeof(lr->src_ip));
 
