@@ -160,10 +160,18 @@ static int record_cb(const struct nlmsghdr *nlh, void *data)
     switch (ipv) {
         case AF_INET:
         {
-            uint32_t ip = nfct_get_attr_u32(ct, ATTR_IPV4_SRC);
-            inet_ntop(AF_INET, &ip, lr->src_ip, sizeof(lr->src_ip));
-            ip = nfct_get_attr_u32(ct, ATTR_IPV4_DST);
-            inet_ntop(AF_INET, &ip, lr->dst_ip, sizeof(lr->dst_ip));
+            uint32_t src_ip = nfct_get_attr_u32(ct, ATTR_IPV4_SRC);
+            uint32_t dst_ip = nfct_get_attr_u32(ct, ATTR_IPV4_DST);
+
+            uint32_t repl_src_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_SRC);
+            uint32_t repl_dst_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_DST);
+
+            inet_ntop(AF_INET, &src_ip, lr->src_ip, sizeof(lr->src_ip));
+
+            /* DNAT has the ip we care about as repl_src_ip */
+            if (repl_src_ip != dst_ip)
+                dst_ip = repl_src_ip;
+            inet_ntop(AF_INET, &dst_ip, lr->dst_ip, sizeof(lr->dst_ip));
 
             if (strncmp(lr->src_ip, "127.", 4) == 0)
                 goto skip;
