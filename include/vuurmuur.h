@@ -1327,6 +1327,10 @@ struct vrmr_log_conn_record
     enum vrmr_log_conn_type type;
 
     uint32_t age_s;                 /**< age in seconds */
+    uint32_t mark;
+    uint8_t tcp_state;
+    uint8_t tcp_flags_ts;
+    uint8_t tcp_flags_tc;
 
     /* counters */
     uint64_t toserver_packets;

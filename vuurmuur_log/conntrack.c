@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <sys/time.h>
+#include <linux/netfilter/nf_conntrack_tcp.h>
 
 #include "conntrack.h"
 
@@ -82,11 +83,59 @@ static int process_connrecord(struct vrmr_log_record *lr) {
 
     if (lr->conn_rec.type == VRMR_LOG_CONN_COMPLETED) {
         char extra[1024];
-        snprintf(extra, sizeof(extra), " age:%us pkts_ts:%"PRIu64" bytes_ts:%"PRIu64" pkts_tc:%"PRIu64" bytes_tc:%"PRIu64"",
+        snprintf(extra, sizeof(extra), " age:%us pkts_ts:%"PRIu64" bytes_ts:%"PRIu64" pkts_tc:%"PRIu64" bytes_tc:%"PRIu64" mark:%u",
                 lr->conn_rec.age_s,
                 lr->conn_rec.toserver_packets, lr->conn_rec.toserver_bytes,
-                lr->conn_rec.toclient_packets, lr->conn_rec.toclient_bytes);
+                lr->conn_rec.toclient_packets, lr->conn_rec.toclient_bytes,
+                lr->conn_rec.mark);
         strlcat(line, extra, sizeof(line));
+
+        if (lr->protocol == IPPROTO_TCP) {
+            char tcp[256];
+            char *tcp_state = "none";
+            switch ((enum tcp_conntrack)lr->conn_rec.tcp_state) {
+                case TCP_CONNTRACK_NONE:
+                    tcp_state = "none";
+                    break;
+                case TCP_CONNTRACK_SYN_SENT2:
+                    tcp_state = "syn_sent2";
+                    break;
+                case TCP_CONNTRACK_SYN_SENT:
+                    tcp_state = "syn_sent";
+                    break;
+                case TCP_CONNTRACK_SYN_RECV:
+                    tcp_state = "syn_recv";
+                    break;
+                case TCP_CONNTRACK_ESTABLISHED:
+                    tcp_state = "established";
+                    break;
+                case TCP_CONNTRACK_FIN_WAIT:
+                    tcp_state = "fin_wait";
+                    break;
+                case TCP_CONNTRACK_TIME_WAIT:
+                    tcp_state = "time_wait";
+                    break;
+                case TCP_CONNTRACK_LAST_ACK:
+                    tcp_state = "last_ack";
+                    break;
+                case TCP_CONNTRACK_CLOSE_WAIT:
+                    tcp_state = "close_wait";
+                    break;
+                case TCP_CONNTRACK_CLOSE:
+                    tcp_state = "close";
+                    break;
+                case TCP_CONNTRACK_MAX:
+                case TCP_CONNTRACK_IGNORE:
+                case TCP_CONNTRACK_RETRANS:
+                case TCP_CONNTRACK_UNACK:
+                case TCP_CONNTRACK_TIMEOUT_MAX:
+                    tcp_state = "weird"; //TODO
+                    break;
+            }
+            snprintf(tcp, sizeof(tcp), " tcp_state:%s tcp_flags_ts:%02x tcp_flags_tc:%02x",
+                tcp_state, lr->conn_rec.tcp_flags_ts, lr->conn_rec.tcp_flags_tc);
+            strlcat(line, tcp, sizeof(line));
+        }
     }
 
     if (lr->conn_rec.type == VRMR_LOG_CONN_COMPLETED) {
@@ -101,6 +150,7 @@ static int process_connrecord(struct vrmr_log_record *lr) {
 
     return 0;
 }
+
 static int record_cb(const struct nlmsghdr *nlh, void *data)
 {
     uint32_t type = NFCT_T_UNKNOWN;
@@ -203,6 +253,14 @@ static int record_cb(const struct nlmsghdr *nlh, void *data)
             break;
         }
     }
+
+    if (lr->protocol == IPPROTO_TCP) {
+        lr->conn_rec.tcp_state = nfct_get_attr_u8(ct, ATTR_TCP_STATE);
+        lr->conn_rec.tcp_flags_ts = nfct_get_attr_u8(ct, ATTR_TCP_FLAGS_ORIG);
+        lr->conn_rec.tcp_flags_tc = nfct_get_attr_u8(ct, ATTR_TCP_FLAGS_REPL);
+    }
+    lr->conn_rec.mark = nfct_get_attr_u32(ct, ATTR_MARK);
+
     process_connrecord(lr);
 
 skip:
