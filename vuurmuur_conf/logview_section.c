@@ -306,7 +306,7 @@ print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
             tmpstr_i = sizeof(print_str);
 
         snprintf(print_str, tmpstr_i, "%s", log_record->action);
-        wprintw(log_win, "%-6s", print_str);
+        wprintw(log_win, "%-4s", print_str);
 
         cur_logrule_length = cur_logrule_length + tmpstr_i-1;
 
@@ -725,6 +725,11 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         {
             traffic_log = 1;
             logfile = vctx->conf.connlog_location;
+        }
+        else if(strcmp(logname, "connnew.log") == 0)
+        {
+            traffic_log = 1;
+            logfile = vctx->conf.connnewlog_location;
         }
         else {
             vrmr_fatal("unknown logfile '%s'", logname);
