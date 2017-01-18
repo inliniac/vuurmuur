@@ -38,6 +38,30 @@ extern struct vrmr_hash_table service_htbl;
 extern FILE *g_connections_log_fp;
 extern FILE *g_conn_new_log_fp;
 
+static void bytes2str(const uint64_t bytes, char *str, size_t size)
+{
+    if(bytes == 0)
+        snprintf(str, size, "0b");
+    /* 1 byte - 999 bytes */
+    else if(bytes > 0 && bytes < 1000)
+        snprintf(str, size, "%ub", (unsigned int)bytes);
+    /* 1kb - 999kb */
+    else if(bytes >= 1000 && bytes < 1000000)
+        snprintf(str, size, "%.1fk", (float)bytes/1024);
+    /* 1mb - 10mb */
+    else if(bytes >= 1000000 && bytes < 10000000)
+        snprintf(str, size, "%1.1fM", (float)bytes/(1024*1024));
+    /* 10mb - 1000mb */
+    else if(bytes >= 10000000 && bytes < 1000000000)
+        snprintf(str, size, "%.0fM", (float)bytes/(1024*1024));
+    else if(bytes >= 1000000000 && bytes < 10000000000ULL)
+        snprintf(str, size, "%1.1fG", (float)bytes/(1024*1024*1024));
+    else if(bytes >= 10000000000ULL && bytes < 100000000000ULL)
+        snprintf(str, size, "%.0fG", (float)bytes/(1024*1024*1024));
+    else
+        snprintf(str, size, "%.0fG", (float)bytes/(1024*1024*1024));
+}
+
 /* process one record */
 static int process_connrecord(struct vrmr_log_record *lr) {
     char line[1024] = "";
@@ -68,6 +92,19 @@ static int process_connrecord(struct vrmr_log_record *lr) {
             lr->conn_rec.type == VRMR_LOG_CONN_COMPLETED ? "COMPLETED" : "NEW",
             lr->ser_name, lr->from_name, lr->to_name);
 
+    if (lr->conn_rec.type == VRMR_LOG_CONN_COMPLETED) {
+        char ts[64];
+        char tc[64];
+
+        bytes2str(lr->conn_rec.toserver_bytes, ts, sizeof(ts));
+        bytes2str(lr->conn_rec.toclient_bytes, tc, sizeof(tc));
+
+        char extra[1024];
+        snprintf(extra, sizeof(extra), "%us %s><%s ",
+                lr->conn_rec.age_s, ts, tc);
+        strlcat(line, extra, sizeof(line));
+    }
+
     if (lr->protocol == IPPROTO_TCP || lr->protocol == IPPROTO_UDP) {
         char addrports[256];
         snprintf(addrports, sizeof(addrports), "%s:%u -> %s:%u %s",
@@ -82,14 +119,13 @@ static int process_connrecord(struct vrmr_log_record *lr) {
     }
 
     if (lr->conn_rec.type == VRMR_LOG_CONN_COMPLETED) {
-        char extra[1024];
-        snprintf(extra, sizeof(extra), " age:%us pkts_ts:%"PRIu64" bytes_ts:%"PRIu64" pkts_tc:%"PRIu64" bytes_tc:%"PRIu64" mark:%u",
-                lr->conn_rec.age_s,
-                lr->conn_rec.toserver_packets, lr->conn_rec.toserver_bytes,
-                lr->conn_rec.toclient_packets, lr->conn_rec.toclient_bytes,
-                lr->conn_rec.mark);
-        strlcat(line, extra, sizeof(line));
+        if (lr->conn_rec.mark > 0) {
+            char mark[16];
+            snprintf(mark, sizeof(mark), " mark:%u", lr->conn_rec.mark);
+            strlcat(line, mark, sizeof(line));
+        }
 
+#if 0 // looks like this is not available in a DESTROY record :-(
         if (lr->protocol == IPPROTO_TCP) {
             char tcp[256];
             char *tcp_state = "none";
@@ -136,6 +172,7 @@ static int process_connrecord(struct vrmr_log_record *lr) {
                 tcp_state, lr->conn_rec.tcp_flags_ts, lr->conn_rec.tcp_flags_tc);
             strlcat(line, tcp, sizeof(line));
         }
+#endif
     }
 
     if (lr->conn_rec.type == VRMR_LOG_CONN_COMPLETED) {
@@ -254,11 +291,13 @@ static int record_cb(const struct nlmsghdr *nlh, void *data)
         }
     }
 
+#if 0 // looks like this is not available in a DESTROY record :-(
     if (lr->protocol == IPPROTO_TCP) {
         lr->conn_rec.tcp_state = nfct_get_attr_u8(ct, ATTR_TCP_STATE);
         lr->conn_rec.tcp_flags_ts = nfct_get_attr_u8(ct, ATTR_TCP_FLAGS_ORIG);
         lr->conn_rec.tcp_flags_tc = nfct_get_attr_u8(ct, ATTR_TCP_FLAGS_REPL);
     }
+#endif
     lr->conn_rec.mark = nfct_get_attr_u32(ct, ATTR_MARK);
 
     process_connrecord(lr);
