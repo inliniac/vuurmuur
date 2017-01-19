@@ -11,4 +11,4 @@ Depends: libnfnetlink0, libnetfilter-log1, libncurses5
 Recommends: iptables, iproute
 Conflicts: vuurmuur-log
 Description: Iptables manager.
-Replaces: libvuurmuur, vuurmuur-conf
+Conflicts: libvuurmuur, vuurmuur-conf
