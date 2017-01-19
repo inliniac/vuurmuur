@@ -78,6 +78,9 @@ binary-arch: build install
 # setup the basic config structure
 	install -m 700 -o root -g root -d debian/vuurmuur/etc/vuurmuur/
 
+	install -m 755 -o root -g root -d debian/vuurmuur/etc/vuurmuur/plugins
+	install -m 600 -o root -g root lib/textdir/textdir.conf.debian debian/vuurmuur/etc/vuurmuur/plugins/textdir.conf
+
 	install -m 700 -o root -g root -d debian/vuurmuur/etc/vuurmuur/interfaces
 	install -m 600 -o root -g root debian/.keep debian/vuurmuur/etc/vuurmuur/interfaces/.keep
 
