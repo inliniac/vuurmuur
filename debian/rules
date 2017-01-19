@@ -96,6 +96,9 @@ binary-arch: build install
 	install -m 600 -o root -g root config/config.conf.sample debian/vuurmuur/etc/vuurmuur/
 	install -m 600 -o root -g root config/config.conf.sample debian/vuurmuur/etc/vuurmuur/config.conf
 
+	install -m 600 -o root -g root config/vuurmuur_conf.conf.sample debian/vuurmuur/etc/vuurmuur/
+	install -m 600 -o root -g root config/vuurmuur_conf.conf.sample debian/vuurmuur/etc/vuurmuur/vuurmuur_conf.conf
+
 #	install -m 700 -o root -g root -d debian/vuurmuur/usr/share/vuurmuur/scripts/
 
 #	install -m 700 -o root -g root -d debian/vuurmuur/usr/share/vuurmuur/services/
