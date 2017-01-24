@@ -159,6 +159,35 @@ int process_logrecord(struct vrmr_log_record *log_record) {
     return 0;
 }
 
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
+/** \internal
+ *
+ *  \brief open or reopen conntrack output logfiles
+ */
+static int conntrack_open_logs(struct vrmr_config *cnf)
+{
+    if (g_conn_new_log_fp != NULL)
+        fclose(g_conn_new_log_fp);
+    g_conn_new_log_fp = fopen(cnf->connnewlog_location, "a");
+    if (g_conn_new_log_fp == NULL) {
+        vrmr_error(-1, "Error", "fopen() %s failed: %s",
+                cnf->connnewlog_location, strerror(errno));
+        return(-1);
+    }
+
+    if (g_connections_log_fp != NULL)
+        fclose(g_connections_log_fp);
+    g_connections_log_fp = fopen(cnf->connlog_location, "a");
+    if (g_connections_log_fp == NULL) {
+        vrmr_error(-1, "Error", "fopen() %s failed: %s",
+                cnf->connlog_location, strerror(errno));
+        return(-1);
+    }
+
+    return(0);
+}
+#endif /* HAVE_LIBNETFILTER_CONNTRACK */
+
 int
 main(int argc, char *argv[])
 {
@@ -338,10 +367,10 @@ main(int argc, char *argv[])
             vrmr_error(-1, "Error", "could not set up conntrack subscription");
             exit (EXIT_FAILURE);
         }
-        g_conn_new_log_fp = fopen(vctx.conf.connnewlog_location, "a");
-        assert(g_conn_new_log_fp); // TODO
-        g_connections_log_fp = fopen(vctx.conf.connlog_location, "a");
-        assert(g_connections_log_fp); // TODO
+        if (conntrack_open_logs(&vctx.conf) != 0) {
+            vrmr_error(-1, "Error", "could not open connection log files");
+            exit (EXIT_FAILURE);
+        }
 #endif
     }
 #else
@@ -655,6 +684,13 @@ main(int argc, char *argv[])
                 vrmr_error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
             }
+#ifdef HAVE_LIBNETFILTER_CONNTRACK
+            vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 92);
+            if (conntrack_open_logs(&vctx.conf) != 0) {
+                vrmr_error(-1, "Error", "could not re-open connection log files");
+                exit (EXIT_FAILURE);
+            }
+#endif /* HAVE_LIBNETFILTER_CONNTRACK */
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 95);
 
             /* only ok now */
