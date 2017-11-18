@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="0.8rc2"
+VERSION="0.8rc3"
 
 # needs: file, sort, cat, zcat, grep
 

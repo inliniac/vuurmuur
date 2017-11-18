@@ -50,7 +50,7 @@
 #define __FUNC__        (char *)__func__
 
 /* our version */
-#define VUURMUUR_VERSION	"0.8rc2"
+#define VUURMUUR_VERSION	"0.8rc3"
 
 #define VUURMUUR_COPYRIGHT  "Copyright (C) 2002-2017 Victor Julien et al"
 

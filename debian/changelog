@@ -1,3 +1,9 @@
+vuurmuur (0.8~rc3-1) testing; urgency=low
+
+  * update to 0.8rc3
+
+ -- Victor Julien <victor@vuurmuur.org>  Sat, 18 Nov 2017 21:31:20 +0100
+
 vuurmuur (0.8~rc2-1) testing; urgency=low
 
   * update to 0.8rc2
