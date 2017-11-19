@@ -1589,6 +1589,7 @@ void vrmr_log_record_parse_prefix(struct vrmr_log_record *log_record, char *pref
     io.c
 */
 FILE *vuurmuur_fopen(const int, const struct vrmr_config *, const char *path, const char *mode);
+DIR *vuurmuur_tryopendir(const int debuglvl, const struct vrmr_config *cnf, const char *name);
 DIR *vuurmuur_opendir(const int, const struct vrmr_config *, const char *);
 int vrmr_stat_ok(const int, const struct vrmr_config *, const char *, char, char, char);
 int vrmr_check_pidfile(char *pidfile_location, char *service, pid_t *thepid);

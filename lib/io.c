@@ -59,6 +59,17 @@ vuurmuur_fopen(const int debuglvl, const struct vrmr_config *cnf, const char *pa
     return(fp);
 }
 
+/* open dir if it exist, don't print errors if it doesn't */
+DIR *
+vuurmuur_tryopendir(const int debuglvl, const struct vrmr_config *cnf, const char *name)
+{
+    if (!(vrmr_stat_ok(debuglvl, cnf, name, VRMR_STATOK_WANT_DIR,
+                    VRMR_STATOK_VERBOSE, VRMR_STATOK_ALLOW_NOTFOUND)))
+        return(NULL);
+
+    DIR *dir_p = opendir(name);
+    return(dir_p);
+}
 
 DIR *
 vuurmuur_opendir(const int debuglvl, const struct vrmr_config *cnf, const char *name)
