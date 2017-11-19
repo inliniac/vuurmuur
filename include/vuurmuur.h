@@ -1047,6 +1047,7 @@ struct vrmr_iptcaps {
 
     char    target_nfqueue;
     char    target_connmark;
+    char    target_ct;
     char    proc_net_netfilter_nfnetlink_queue;
 
     char    target_tcpmss;

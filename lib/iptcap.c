@@ -1280,6 +1280,27 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
                 }
             }
         }
+
+        /* raw stuff */
+        if (iptcap->table_raw == TRUE)
+        {
+            /* CT target */
+            result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "CT", "ipt_CT", load_modules);
+            if (result == 1) iptcap->target_ct = TRUE;
+            else {
+                iptcap->target_ct = FALSE;
+
+                result = iptcap_check_cap(debuglvl, cnf, proc_net_target, "CT", "xt_CT", load_modules);
+                if(result == 1) iptcap->target_ct = TRUE;
+                else {
+                    iptcap->target_ct = FALSE;
+
+                    result = iptcap_test_mangle_mark_target(debuglvl, cnf, cnf->iptables_location);
+                    if (result == 1)
+                        iptcap->target_ct = TRUE;
+                }
+            }
+        }
     }
     else
     {
@@ -1301,6 +1322,10 @@ vrmr_load_iptcaps(const int debuglvl, struct vrmr_config *cnf, struct vrmr_iptca
             iptcap->target_mark = TRUE;
             iptcap->target_connmark = TRUE;
             iptcap->target_classify = TRUE;
+        }
+        if(iptcap->table_raw == TRUE)
+        {
+            iptcap->target_ct = TRUE;
         }
     }
 

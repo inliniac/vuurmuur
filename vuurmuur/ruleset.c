@@ -61,6 +61,7 @@ ruleset_setup(const int debuglvl, RuleSet *ruleset)
 
     /* raw */
     vrmr_list_setup(debuglvl, &ruleset->raw_preroute, free);
+    vrmr_list_setup(debuglvl, &ruleset->raw_output, free);
 
     /* mangle */
     vrmr_list_setup(debuglvl, &ruleset->mangle_preroute, free);
@@ -128,6 +129,7 @@ ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
 
     /* raw */
     vrmr_list_cleanup(debuglvl, &ruleset->raw_preroute);
+    vrmr_list_cleanup(debuglvl, &ruleset->raw_output);
 
     /* mangle */
     vrmr_list_cleanup(debuglvl, &ruleset->mangle_preroute);
@@ -430,8 +432,23 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         ruleset_writeprint(ruleset_fd, cmd);
         snprintf(cmd, sizeof(cmd), ":PREROUTING %s [0:0]\n", ruleset->raw_preroute_policy ? "DROP" : "ACCEPT");
         ruleset_writeprint(ruleset_fd, cmd);
+        snprintf(cmd, sizeof(cmd), ":OUTPUT %s [0:0]\n", ruleset->raw_output_policy ? "DROP" : "ACCEPT");
+        ruleset_writeprint(ruleset_fd, cmd);
 
+        /* PREROUTING */
         for(d_node = ruleset->raw_preroute.top; d_node; d_node = d_node->next)
+        {
+            if(!(rule = d_node->data))
+            {
+                vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).", __FUNC__, __LINE__);
+                return(-1);
+            }
+
+            snprintf(cmd, sizeof(cmd), "%s\n", rule);
+            ruleset_writeprint(ruleset_fd, cmd);
+        }
+        /* OUTPUT */
+        for(d_node = ruleset->raw_output.top; d_node; d_node = d_node->next)
         {
             if(!(rule = d_node->data))
             {
