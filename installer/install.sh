@@ -65,9 +65,11 @@ fi
 
 # Check if we use this script from within the git tree and export the revision
 # number
-GIT="$(which git 2>/dev/null || echo /usr/bin/git)"
-if [ -x ${GIT} ]; then
-    GIT_COMMIT=`${GIT} log --oneline -n 1 | cut -d ' ' -f 1`
+if [ -d ".git" ]; then
+    GIT="$(which git 2>/dev/null || echo /usr/bin/git)"
+    if [ -x ${GIT} ]; then
+        GIT_COMMIT=`${GIT} log --oneline -n 1 | cut -d ' ' -f 1`
+    fi
 fi
 
 if [ ! -z "${GIT_COMMIT}" ]; then
@@ -504,7 +506,12 @@ fi
 TOTAL=$((DRYRUN + INSTALL + UPGRADE + UNINSTALL))
 if [ "$TOTAL" -gt "1" ]; then
     echo "Error: please select only one main option."
-    exit 0
+    exit 1
+fi
+
+if [ ! -f "installer/install.sh" ]; then
+    echo "Error: run from the root of the Vuurmuur source"
+    exit 1
 fi
 
 # now print some initial info for the main option that is selected
@@ -602,7 +609,7 @@ if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
             echo "Please enter the directory where the config is going to be stored ($ETCDIR)."
             echo
             echo "NOTE!!! in this directory a directory 'vuurmuur' will be created."
-            echo "Sso for '/etc/vuurmuur' choose '/etc' here."
+            echo "So for '/etc/vuurmuur' choose '/etc' here."
             echo
             echo "Examples: /etc, /usr/local/etc, /opt/vuurmuur/etc"
             echo
@@ -671,7 +678,7 @@ if [ "$INSTALL" = "1" ]; then
 
     if [ "$DEFAULTS" = "0" ]; then
         echo
-        echo "Please enter the directory where Vuurmuur will store it's logs ($LOGDIR)."
+        echo "Please enter the directory where Vuurmuur will store its logs ($LOGDIR)."
 
         read TALK
         if [ "$TALK" != "" ]; then
@@ -772,7 +779,7 @@ if [ "$INSTALL" = "1" ]; then
         if [ "${FROM_GIT}" = "1" ]; then
             cp -r --preserve=mode ${FULL_PATH}/zones/* $ETCDIR/vuurmuur/zones
         else
-            cp -r --preserve=mode zones/* $ETCDIR/vuurmuur/zones
+            cp -r --preserve=mode ${FULL_PATH}/zones/* $ETCDIR/vuurmuur/zones
         fi
         chown -R root:root $ETCDIR/vuurmuur/zones
         chmod 0700 $ETCDIR/vuurmuur/zones
