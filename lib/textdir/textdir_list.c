@@ -433,7 +433,7 @@ char
                             vrmr_debug(__FUNC__, "opening host dir: %s.", hostdir_location);
 
                         /* this is allowed to fail, if it does, is will be NULL, and will be detected above */
-                        tb->host_p = vuurmuur_opendir(debuglvl, tb->cfg, hostdir_location);
+                        tb->host_p = vuurmuur_tryopendir(debuglvl, tb->cfg, hostdir_location);
 
                         /* open the groupdir */
                         snprintf(groupdir_location, sizeof(groupdir_location), "%s/%s/groups", netdir_location, dir_entry_p->d_name);
@@ -441,7 +441,7 @@ char
                             vrmr_debug(__FUNC__, "opening group dir: %s.", groupdir_location);
 
                         /* this is allowed to fail, if it does, is will be NULL, and will be detected above */
-                        tb->group_p = vuurmuur_opendir(debuglvl, tb->cfg, groupdir_location);
+                        tb->group_p = vuurmuur_tryopendir(debuglvl, tb->cfg, groupdir_location);
 
                         snprintf(cur_zonename, sizeof(cur_zonename), "%s.%s", tb->cur_network, tb->cur_zone);
 
@@ -505,7 +505,7 @@ char
                             vrmr_debug(__FUNC__, "opening: %s.", netdir_location);
 
                         /* this is allowed to fail, if it does, is will be NULL, and will be detected above */
-                        tb->network_p = vuurmuur_opendir(debuglvl, tb->cfg, netdir_location);
+                        tb->network_p = vuurmuur_tryopendir(debuglvl, tb->cfg, netdir_location);
 
                         // lets check against regex
                         if(vrmr_validate_zonename(debuglvl, dir_entry_p->d_name, 1, NULL, NULL, NULL, tb->zonename_reg, VRMR_QUIET) == 0)

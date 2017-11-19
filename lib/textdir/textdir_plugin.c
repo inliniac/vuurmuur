@@ -502,6 +502,19 @@ init_textdir(int debuglvl, void *backend, int type)
     return(0);
 }
 
+static int create_dir_if_missing(const char *dir_location)
+{
+    errno = 0;
+    if (mkdir(dir_location, 0700) < 0) {
+        if (errno == EEXIST)
+            return 0;
+
+        vrmr_error(-1, "Error", "Creating directory %s failed: %s.",
+                dir_location, strerror(errno));
+        return -1;
+    }
+    return 0;
+}
 
 /*  add item to the backend
 
@@ -548,7 +561,8 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
     }
 
     /* create the dirs for zones and networks */
-    if(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK)
+    if (type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK ||
+        type == VRMR_TYPE_HOST || type == VRMR_TYPE_GROUP)
     {
         /* split up the name */
         if(vrmr_validate_zonename(debuglvl, name, 0, zonename, networkname, hostname, tb->zonename_reg, VRMR_VERBOSE) != 0)
@@ -560,64 +574,92 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
             return(-1);
         }
 
-        if(type == VRMR_TYPE_ZONE)
-        {
-            /* zone dir */
-            snprintf(dir_location, sizeof(dir_location), "%s/zones/%s", tb->textdirlocation, zonename);
-            if(mkdir(dir_location, 0700) < 0)
-            {
-                vrmr_error(-1, "Error", "Creating directory %s failed: %s.", dir_location, strerror(errno));
+        switch (type) {
+            case VRMR_TYPE_ZONE:
+                /* zones dir */
+                snprintf(dir_location, sizeof(dir_location), "%s/zones",
+                        tb->textdirlocation, zonename);
+                if (create_dir_if_missing(dir_location) < 0) {
+                    free(file_location);
+                    file_location = NULL;
+                    return(-1);
+                }
+                /* zone dir */
+                snprintf(dir_location, sizeof(dir_location), "%s/zones/%s",
+                        tb->textdirlocation, zonename);
+                if (create_dir_if_missing(dir_location) < 0) {
+                    free(file_location);
+                    file_location = NULL;
+                    return(-1);
+                }
 
-                free(file_location);
-                file_location = NULL;
-                return(-1);
-            }
+                /* network dir */
+                snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks",
+                        tb->textdirlocation, zonename);
+                if (create_dir_if_missing(dir_location) < 0) {
+                    free(file_location);
+                    file_location = NULL;
+                    return(-1);
+                }
+                break;
+            case VRMR_TYPE_NETWORK:
+                /* networks dir */
+                snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks",
+                        tb->textdirlocation, zonename, networkname);
+                if (create_dir_if_missing(dir_location) < 0) {
+                    free(file_location);
+                    file_location = NULL;
+                    return(-1);
+                }
 
-            /* network dir */
-            snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks", tb->textdirlocation, zonename);
-            if(mkdir(dir_location, 0700) < 0)
-            {
-                vrmr_error(-1, "Error", "Creating directory %s failed: %s.", dir_location, strerror(errno));
+                /* network dir */
+                snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks/%s",
+                        tb->textdirlocation, zonename, networkname);
+                if (create_dir_if_missing(dir_location) < 0) {
+                    free(file_location);
+                    file_location = NULL;
+                    return(-1);
+                }
 
-                free(file_location);
-                file_location = NULL;
-                return(-1);
-            }
-        }
-        else if(type == VRMR_TYPE_NETWORK)
-        {
-            /* network dir */
-            snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks/%s", tb->textdirlocation, zonename, networkname);
-            if(mkdir(dir_location, 0700) < 0)
-            {
-                vrmr_error(-1, "Error", "Creating directory %s failed: %s.", dir_location, strerror(errno));
+                /* host dir */
+                snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks/%s/hosts",
+                        tb->textdirlocation, zonename, networkname);
+                if (create_dir_if_missing(dir_location) < 0) {
+                    free(file_location);
+                    file_location = NULL;
+                    return(-1);
+                }
 
-                free(file_location);
-                file_location = NULL;
-                return(-1);
-            }
+                /* group dir */
+                snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks/%s/groups",
+                        tb->textdirlocation, zonename, networkname);
+                if (create_dir_if_missing(dir_location) < 0) {
+                    free(file_location);
+                    file_location = NULL;
+                    return(-1);
+                }
+                break;
 
-            /* host dir */
-            snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks/%s/hosts", tb->textdirlocation, zonename, networkname);
-            if(mkdir(dir_location, 0700) < 0)
-            {
-                vrmr_error(-1, "Error", "Creating directory %s failed: %s.", dir_location, strerror(errno));
+            case VRMR_TYPE_HOST:
+            case VRMR_TYPE_GROUP:
+                /* host dir */
+                snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks/%s/hosts",
+                        tb->textdirlocation, zonename, networkname);
+                if (create_dir_if_missing(dir_location) < 0) {
+                    free(file_location);
+                    file_location = NULL;
+                    return(-1);
+                }
 
-                free(file_location);
-                file_location = NULL;
-                return(-1);
-            }
-
-            /* group dir */
-            snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks/%s/groups", tb->textdirlocation, zonename, networkname);
-            if(mkdir(dir_location, 0700) < 0)
-            {
-                vrmr_error(-1, "Error", "Creating directory %s failed: %s.", dir_location, strerror(errno));
-
-                free(file_location);
-                file_location = NULL;
-                return(-1);
-            }
+                /* group dir */
+                snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks/%s/groups",
+                        tb->textdirlocation, zonename, networkname);
+                if (create_dir_if_missing(dir_location) < 0) {
+                    free(file_location);
+                    file_location = NULL;
+                    return(-1);
+                }
+                break;
         }
     }
 
