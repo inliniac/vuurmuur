@@ -471,7 +471,8 @@ int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
     /* if CT and raw are available, create a CT rule */
     if (strcmp(rule->helper, "") != 0 &&
             (!conf->vrmr_check_iptcaps ||
-                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE))) {
+                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)) &&
+            (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0)) {
         snprintf(cmd, sizeof(cmd),
                 "%s %s %s %s %s %s -m connmark --mark 0 -j CT --helper %s",
                 input_device, rule->temp_src, rule->temp_src_port,
@@ -935,7 +936,8 @@ int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
     /* if CT and raw are available, create a CT rule */
     if (strcmp(rule->helper, "") != 0 &&
             (!conf->vrmr_check_iptcaps ||
-                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE))) {
+                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)) &&
+            (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0)) {
         snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s -j CT --helper %s",
                 output_device, rule->proto, rule->temp_src, rule->temp_src_port,
                 rule->temp_dst, rule->temp_dst_port, rule->helper);
@@ -1403,7 +1405,8 @@ int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
     /* if CT and raw are available, create a CT rule */
     if (strcmp(rule->helper, "") != 0 &&
             (!conf->vrmr_check_iptcaps ||
-                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE))) {
+                    (iptcap->table_raw == TRUE && iptcap->target_ct == TRUE)) &&
+            (rule->ipv == VRMR_IPV4 || strcmp(rule->helper, "irc") != 0)) {
         snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s -j CT --helper %s",
                 input_device, rule->proto, rule->temp_src, rule->temp_src_port,
                 rule->temp_dst, rule->temp_dst_port, rule->from_mac,
