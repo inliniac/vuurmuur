@@ -17,7 +17,7 @@ AUTOCONF="autoconf"
 AUTOHEADER="autoheader"
 MAKE="make"
 LIBTOOLIZE="libtoolize"
-
+GETTEXTIZE="gettextize"
 
 # defaults
 PREFIX=""
@@ -329,24 +329,6 @@ function Configure
     fi
 }
 
-function WrapGettextize
-{
-    touch ${TMP_LOG}
-
-    GETTEXTIZE="$(which gettextize 2>/dev/null || echo gettextize)"
-
-    echo "gettextize..." >> $LOG
-    # ripped from: http://cvs.saout.de/lxr/saout/source/cryptsetup/setup-gettext
-    sed 's:read .*< /dev/tty::' $GETTEXTIZE > .temp-gettextize
-    chmod +x .temp-gettextize
-    echo n | ./.temp-gettextize --copy --force --intl --no-changelog >> $LOG || abort
-    rm -f .temp-gettextize
-    echo "gettextize... done" >> $LOG
-
-    cat ${TMP_LOG} >> $LOG
-    rm -f ${TMP_LOG}
-}
-
 function CheckFile
 {
     if [ ! -f $1 ]; then
@@ -403,6 +385,7 @@ function CheckRequiredBins
         CheckBinary $AUTOMAKE
         CheckBinary $AUTOCONF
         CheckBinary $AUTOHEADER
+        CheckBinary $GETTEXTTIZE
     fi
     CheckBinary gcc
     CheckBinary $MAKE
