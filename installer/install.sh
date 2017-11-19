@@ -385,7 +385,7 @@ function CheckRequiredBins
         CheckBinary $AUTOMAKE
         CheckBinary $AUTOCONF
         CheckBinary $AUTOHEADER
-        CheckBinary $GETTEXTTIZE
+        CheckBinary $GETTEXTIZE
     fi
     CheckBinary gcc
     CheckBinary $MAKE
@@ -527,9 +527,13 @@ elif [ "$UPGRADE" = "1" ]; then
     echo
 fi
 
-
 # check the bins needed for compiling
 if [ "$INSTALL" = "1" ] || [ "$UPGRADE" = "1" ]; then
+    if [ ! -f configure ]; then
+        echo "* configure missing, triggering build update"
+        BUILDUPDATE="1"
+    fi
+
     CheckRequiredBins
 fi
 
