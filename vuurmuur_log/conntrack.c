@@ -352,7 +352,15 @@ int conntrack_subscribe(struct vrmr_log_record *lr)
     timev.tv_usec = 1000;
 
     if (mnl_socket_setsockopt(nl, SO_RCVTIMEO, &timev, sizeof(timev)) == -1) {
-        vrmr_warning(__FUNC__,  "can't set socket "
+        vrmr_warning(__FUNC__,  "can't set mnl socket "
+                "timeout: %s", strerror(errno));
+    }
+
+    /* set timeout on the socket itself as well. W/o it it would still
+     * block on reads. */
+    int fd = mnl_socket_get_fd(nl);
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timev, sizeof(timev)) == -1) {
+        vrmr_warning(__FUNC__,  "can't set raw socket "
                 "timeout: %s", strerror(errno));
     }
     return 0;
@@ -370,11 +378,15 @@ int conntrack_read(struct vrmr_log_record *lr)
     assert(nl);
     assert(lr);
 
-    vrmr_info(__FUNC__, "calling mnl_socket_recvfrom()");
+    //vrmr_debug(__FUNC__, "calling mnl_socket_recvfrom()");
 
+    errno = 0;
     char buf[MNL_SOCKET_BUFFER_SIZE];
     int ret = mnl_socket_recvfrom(nl, buf, sizeof(buf));
     if (ret == -1) {
+        if (errno == EAGAIN) {
+            return 0;
+        }
         vrmr_warning("Warning", "mnl_socket_recvfrom failed: %s",
                 strerror(errno));
         return -1;
