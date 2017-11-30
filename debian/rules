@@ -17,7 +17,7 @@ CFLAGS = "-Wall -g3 -O0"
 
 autogen: autogen-stamp
 autogen-stamp:
-	sh autogen.sh
+	-sh autogen.sh
 	touch $@
 
 configure: configure-stamp
