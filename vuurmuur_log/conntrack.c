@@ -355,6 +355,14 @@ int conntrack_subscribe(struct vrmr_log_record *lr)
         vrmr_warning(__FUNC__,  "can't set socket "
                 "timeout: %s", strerror(errno));
     }
+
+    /* set timeout on the socket itself as well. W/o it it would still
+     * block on reads. */
+    int fd = mnl_socket_get_fd(nl);
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timev, sizeof(timev)) == -1) {
+        vrmr_warning(__FUNC__,  "can't set socket "
+                "timeout: %s", strerror(errno));
+    }
     return 0;
 }
 
