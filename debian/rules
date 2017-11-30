@@ -15,8 +15,13 @@ endif
 
 CFLAGS = "-Wall -g3 -O0"
 
+autogen: autogen-stamp
+autogen-stamp:
+	sh autogen.sh
+	touch $@
+
 configure: configure-stamp
-configure-stamp:
+configure-stamp: autogen-stamp
 	dh_testdir
 	# Add here commands to configure the package.
 	CFLAGS=$(CFLAGS) ./configure --prefix=/usr          \
