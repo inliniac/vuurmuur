@@ -1603,6 +1603,19 @@ ruleset_log_resultfile(const int debuglvl, char *path)
     return(0);
 }
 
+static void load_ruleset_error(int ruleset_fd, int result_fd, int shape_fd)
+{
+    if (ruleset_fd > 0) {
+        close(ruleset_fd);
+    }
+    if (result_fd > 0) {
+        close(result_fd);
+    }
+    if (shape_fd > 0) {
+        close(shape_fd);
+    }
+}
+
 /** \internal
  *
  *  \brief load the ipv4 ruleset
@@ -1673,6 +1686,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
+        load_ruleset_error(ruleset_fd, result_fd, shape_fd);
         return(-1);
     }
 
@@ -1684,6 +1698,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
+        load_ruleset_error(ruleset_fd, result_fd, shape_fd);
         return(-1);
     }
 
@@ -1692,6 +1707,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     {
         vrmr_error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
+        load_ruleset_error(ruleset_fd, result_fd, shape_fd);
         return(-1);
     }
     /* now create the currentrulesetfile */
@@ -1701,6 +1717,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
+        load_ruleset_error(ruleset_fd, result_fd, shape_fd);
         (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
         return(-1);
     }
@@ -1714,6 +1731,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
+        load_ruleset_error(ruleset_fd, result_fd, shape_fd);
         (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
         return(-1);
     }
@@ -1732,6 +1750,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
                                     cur_shape_path, __FUNC__, __LINE__);
         (void)ruleset_store_failed_set(debuglvl, cur_shape_path);
         (void)ruleset_log_resultfile(debuglvl, cur_result_path);
+        load_ruleset_error(ruleset_fd, result_fd, shape_fd);
         ruleset_cleanup(debuglvl, &ruleset);
         return(-1);
     }
@@ -1743,9 +1762,11 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
                                     cur_ruleset_path, __FUNC__, __LINE__);
         (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
         (void)ruleset_log_resultfile(debuglvl, cur_result_path);
+        load_ruleset_error(ruleset_fd, result_fd, shape_fd);
         ruleset_cleanup(debuglvl, &ruleset);
         return(-1);
     }
+    load_ruleset_error(ruleset_fd, result_fd, shape_fd);
 
     if(cmdline.keep_file == FALSE)
     {
@@ -1859,6 +1880,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
+        load_ruleset_error(ruleset_fd, result_fd, 0);
         return(-1);
     }
 
@@ -1867,6 +1889,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     {
         vrmr_error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
+        load_ruleset_error(ruleset_fd, result_fd, 0);
         return(-1);
     }
     /* now create the currentrulesetfile */
@@ -1876,6 +1899,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
                                     __FUNC__, __LINE__);
 
         ruleset_cleanup(debuglvl, &ruleset);
+        load_ruleset_error(ruleset_fd, result_fd, 0);
         (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
         return(-1);
     }
@@ -1896,9 +1920,11 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
                                     cur_ruleset_path, __FUNC__, __LINE__);
         (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
         (void)ruleset_log_resultfile(debuglvl, cur_result_path);
+        load_ruleset_error(ruleset_fd, result_fd, 0);
         ruleset_cleanup(debuglvl, &ruleset);
         return(-1);
     }
+    load_ruleset_error(ruleset_fd, result_fd, 0);
 
     if(cmdline.keep_file == FALSE)
     {
