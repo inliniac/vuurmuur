@@ -513,31 +513,15 @@ vrmr_split_portrange(char *portrange, int *lowport, int *highport)
     *highport = 0;
 
     /* now split */
-    for(; count < strlen(portrange) && low_count < sizeof(low) - 1 && high_count < sizeof(high) - 1; count++)
-    {
-        if (portrange[count] != ':' && !isdigit(portrange[count]))
-            continue;
-
-        if(portrange[count] == ':')
-        {
-            range = TRUE;
-            low[count] = '\0';
-            continue;
-        }
-
-        if(range == FALSE)
-        {
-            low[low_count] = portrange[count];
-            low_count++;
-        }
-        else
-        {
-            high[high_count] = portrange[count];
-            high_count++;
-        }
-    }
-
+    for(; isdigit(portrange[count]) && low_count < sizeof(low) - 1; low_count++, count++)
+        low[low_count] = portrange[count];
     low[low_count]='\0';
+
+    if (portrange[count] == ':') {
+        count++;
+        for(; isdigit(portrange[count]) && high_count < sizeof(high) - 1; high_count++, count++)
+            high[high_count] = portrange[count];
+    }
     high[high_count]='\0';
 
     /*
