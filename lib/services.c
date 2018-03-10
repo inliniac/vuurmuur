@@ -491,7 +491,6 @@ int
 vrmr_split_portrange(char *portrange, int *lowport, int *highport)
 {
     int     retval=0;
-    char    range = FALSE;
     int     lp = 0, /* low port */
             hp = 0; /* high port */
     size_t  count=0,
