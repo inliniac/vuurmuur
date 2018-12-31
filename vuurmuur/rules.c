@@ -162,7 +162,7 @@ oldrules_create_custom_chains(const int debuglvl, struct vrmr_rules *rules, stru
 {
     char        *chainname = NULL;
     struct vrmr_list_node *d_node = NULL;
-    char        cmd[128] = "";
+    char        cmd[256] = "";
 
     /* safety */
     if(rules == NULL || cnf == NULL)
@@ -1094,12 +1094,17 @@ rulecreate_create_rule_and_options(const int debuglvl, struct vrmr_config *conf,
                 snprintf(rule->limit, sizeof(rule->limit), "-m limit --limit %u/%s",
                     limit, unit);
         }
+        int s;
         if (conf->rule_nflog == 1) {
-            snprintf(rule->action, sizeof(rule->action), "NFLOG %s",
+            s = snprintf(rule->action, sizeof(rule->action), "NFLOG %s",
                     logprefix);
         } else {
-            snprintf(rule->action, sizeof(rule->action), "%s %s",
+            s = snprintf(rule->action, sizeof(rule->action), "%s %s",
                     create->action, logprefix);
+        }
+        if (s == (int)sizeof(rule->action)) {
+            vrmr_error(-1, VR_INTERR, "creating rule action failed.");
+            return(-1);
         }
     }
     else

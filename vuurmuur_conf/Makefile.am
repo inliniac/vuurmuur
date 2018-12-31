@@ -30,4 +30,4 @@ vuurmuur_conf_LDADD = $(LIBVUURMUUR_LDADD) $(NCURSES_LIBS)
 
 LIBS = @LIBINTL@ @LIBS@
 
-noinst_HEADERS = strings.h gui.h main.h gettext.h
+noinst_HEADERS = common_strings.h gui.h main.h gettext.h

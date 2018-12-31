@@ -84,7 +84,7 @@ struct RuleCreateData_
 {
     int                     ipv; /* ip version */
 
-    char                    action[122]; /* keep in sync with struct vrmr_rule_cache */
+    char                    action[128]; /* keep in sync with struct vrmr_rule_cache */
     char                    chain[48]; /* why 48? */
 
 #ifdef IPV6_ENABLED

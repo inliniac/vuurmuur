@@ -105,7 +105,7 @@ logline2plainlogrule(char *logline, struct PlainLogRule_ *logrule)
 static int
 logrule_filtered(const int debuglvl, struct LogRule_ *log_record, struct vrmr_filter *filter)
 {
-    char    line[512];
+    char    line[1024];
 
     vrmr_fatal_if_null(log_record);
     vrmr_fatal_if_null(filter);
@@ -638,7 +638,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     unsigned long           search_results = 0;
 
     char                    *search_ptr = NULL,
-                            search_string[512] = "";
+                            search_string[PATH_MAX] = "";
 
     char                    search_script_checked = 0,
                             search_script_ok = 0;
@@ -1398,7 +1398,10 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                 } else {
                     if(!search_script_checked) {
                         /* check if the search script exists */
-                        snprintf(search_string, sizeof(search_string), "%s/vuurmuur-searchlog.sh", vccnf.scripts_location);
+                        if (snprintf(search_string, sizeof(search_string), "%s/vuurmuur-searchlog.sh", vccnf.scripts_location) >= (int)sizeof(search_string)) {
+                            vrmr_error(-1, VR_ERR, gettext("opening pipe failed: %s."), strerror(errno));
+                            return(-1);
+                        }
                         if(check_search_script(debuglvl, search_string) != 1) {
                             search_script_ok = 0;
                         } else {
@@ -1424,7 +1427,12 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             traffic_fp = fp;
 
                             /* assemble search string => ignore stderr because it messes up the screen */
-                            snprintf(search_string, sizeof(search_string), "/bin/bash %s/vuurmuur-searchlog.sh %s %s/ '%s' 2>/dev/null", vccnf.scripts_location, logname, vctx->conf.vuurmuur_logdir_location, search_ptr);
+                            if (snprintf(search_string, sizeof(search_string), "/bin/bash %s/vuurmuur-searchlog.sh %s %s/ '%s' 2>/dev/null",
+                                        vccnf.scripts_location, logname, vctx->conf.vuurmuur_logdir_location, search_ptr) >= (int)sizeof(search_string))
+                            {
+                                vrmr_error(-1, VR_ERR, gettext("opening pipe failed: %s."), strerror(errno));
+                                return(-1);
+                            }
                             vrmr_debug(__FUNC__, "search_string: '%s'.", search_string);
 
                             /* open the pipe */

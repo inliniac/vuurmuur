@@ -34,6 +34,7 @@
 #include <sys/utsname.h>    /* for uname -> stat_sec */
 #include <signal.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/time.h>   /* for gettimeofday in stat_sec */
 #include <sys/wait.h>   /* for WIFEXITED macro */
 #include <ctype.h>  /* for isdigit() */
@@ -66,7 +67,7 @@
 #include <locale.h> /* for gettext() */
 #include "gettext.h"
 
-#include "strings.h"
+#include "common_strings.h"
 #include "gui.h"
 
 #ifndef LOCALEDIR
@@ -127,10 +128,10 @@
 */
 typedef struct
 {
-    char            configfile_location[128];
+    char            configfile_location[PATH_MAX];
 
-    char            helpfile_location[256];
-    char            scripts_location[256];
+    char            helpfile_location[PATH_MAX];
+    char            scripts_location[PATH_MAX];
 
     char            newrule_log;
     unsigned int    newrule_loglimit;

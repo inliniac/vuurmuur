@@ -1127,7 +1127,12 @@ vrmr_add_broadcasts_zonelist(const int debuglvl, struct vrmr_zones *zones)
                         ipaddress
                         type
                 */
-                snprintf(broadcast_ptr->name, VRMR_VRMR_MAX_HOST_NET_ZONE, "%s(broadcast)", zone_ptr->name);
+                if (snprintf(broadcast_ptr->name, VRMR_VRMR_MAX_HOST_NET_ZONE, "%s(broadcast)", zone_ptr->name) == VRMR_VRMR_MAX_HOST_NET_ZONE) {
+                    vrmr_error(-1, "Internal Error", "string "
+                            "overflow (in: %s:%d).", __FUNC__, __LINE__);
+                    vrmr_zone_free(debuglvl, broadcast_ptr);
+                    return(-1);
+                }
 
                 if(strlcpy(broadcast_ptr->ipv4.ipaddress, zone_ptr->ipv4.broadcast, sizeof(broadcast_ptr->ipv4.ipaddress)) >= sizeof(broadcast_ptr->ipv4.ipaddress))
                 {

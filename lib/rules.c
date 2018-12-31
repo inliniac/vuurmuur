@@ -3507,7 +3507,7 @@ vrmr_rules_get_system_chains_per_table(const int debuglvl, char *tablename,
         struct vrmr_list *list, struct vrmr_config *cnf, int ipv)
 {
     char    line[128] = "",
-            cmd[128] = "";
+            cmd[256] = "";
     FILE    *p = NULL;
     char    chainname[33] = "";
     char    *name = NULL;

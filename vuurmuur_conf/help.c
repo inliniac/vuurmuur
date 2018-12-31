@@ -180,7 +180,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
     char    line[128] = "";
     FILE    *fp = NULL;
     char    inrange = 0;
-    char    helpfile[256] = "";
+    char    helpfile[PATH_MAX] = "";
 
     /* safety */
     vrmr_fatal_if_null(help_list);
@@ -193,9 +193,10 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
        'ru' use 'vuurmuur-ru.hlp', for 'pt_BR' use
        'vuurmuur-pt_BR.hlp'
      */
-    snprintf(helpfile, sizeof(helpfile), "%s/%s",
+    if (snprintf(helpfile, sizeof(helpfile), "%s/%s",
             vccnf.helpfile_location,
-            gettext("vuurmuur.hlp"));
+            gettext("vuurmuur.hlp")) >= (int)sizeof(helpfile))
+        return(-1);
     vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
 
     /* open the file */
@@ -207,8 +208,9 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
                 helpfile, strerror(errno));
 
         /* language helpfile does not exist, try to fall back to default */
-        snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
-                vccnf.helpfile_location);
+        if (snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
+                vccnf.helpfile_location) >= (int)sizeof(helpfile))
+            return(-1);
         vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
 
         if(!(fp = fopen(helpfile, "r")))

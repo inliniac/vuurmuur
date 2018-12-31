@@ -19,7 +19,7 @@ vuurmuur_conf/templates.c
 vuurmuur_conf/topmenu.c
 vuurmuur_conf/vuurmuur_conf.c
 vuurmuur_conf/zones_section.c
-vuurmuur_conf/strings.h
+vuurmuur_conf/common_strings.h
 vuurmuur_conf/filter.c
 vuurmuur_conf/gui.c
 vuurmuur_conf/statevent.c

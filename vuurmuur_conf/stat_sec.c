@@ -690,7 +690,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
     char    hostname[60] = "",
             load_str[6] = "",
             mem_str[7] = "",
-            interfacename[13] = "",
+            interfacename[32] = "",
 
             upt_day[5] = "",
             upt_hour[3] = "",

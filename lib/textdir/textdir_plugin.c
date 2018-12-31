@@ -251,7 +251,7 @@ int
 open_textdir(int debuglvl, void *backend, int mode, int type)
 {
     struct TextdirBackend_  *tb = NULL;
-    char                    dir_location[256] = "";
+    char                    dir_location[PATH_MAX] = "";
     DIR                     *dir_p = NULL;
 
     if(backend == NULL)
@@ -525,7 +525,7 @@ add_textdir(const int debuglvl, void *backend, char *name, int type)
     FILE                    *fp = NULL;
     struct TextdirBackend_  *tb = NULL;
     char                    *file_location = NULL,
-                            dir_location[512] = "",
+                            dir_location[PATH_MAX] = "",
                             hostname[VRMR_MAX_HOST] = "",
                             networkname[VRMR_MAX_NETWORK] = "",
                             zonename[VRMR_MAX_ZONE] = "";

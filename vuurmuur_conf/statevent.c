@@ -162,8 +162,8 @@ static char *
 statevent_print2str_conn(const int debuglvl, StatEventGen *evt, size_t len)
 {
     StatEventConn   *conn = (StatEventConn *) evt;
-    char            src[22] = "",
-                    dst[22] = "";
+    char            src[64] = "",
+                    dst[64] = "";
     char            *str = NULL;
 
     vrmr_fatal_if_null(evt);

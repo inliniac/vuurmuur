@@ -33,10 +33,10 @@ char
 *list_textdir(const int debuglvl, void *backend, char *name, int *zonetype, int type)
 {
     struct TextdirBackend_  *tb = NULL;
-    char                    dir_location[512] = "",
-                            netdir_location[512] = "",
-                            hostdir_location[512] = "",
-                            groupdir_location[512] = "",
+    char                    dir_location[PATH_MAX] = "",
+                            netdir_location[PATH_MAX] = "",
+                            hostdir_location[PATH_MAX] = "",
+                            groupdir_location[PATH_MAX] = "",
                             *file_location = NULL;
     char                    cur_zonename[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
     struct dirent           *dir_entry_p = NULL;
