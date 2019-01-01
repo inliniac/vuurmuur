@@ -310,8 +310,7 @@ void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
 
     Container for pointers to fields.
 */
-typedef struct
-{
+struct rulebar {
     unsigned int    bar_num;
 
     /* pointers the the fields */
@@ -324,8 +323,7 @@ typedef struct
     FIELD           *options;
 
     FIELD           *separator;
-
-}  rulebar;
+};
 
 
 struct RuleBarForm_
@@ -370,9 +368,9 @@ static void move_rule(const int, struct vrmr_rules *, unsigned int, unsigned int
 static int delete_rule(const int, struct vrmr_rules *, unsigned int, int);
 static bool rules_match_filter(const struct vrmr_rule *rule_ptr, /*@null@*/regex_t *reg,
         bool only_ingress, bool only_egress, bool only_forward);
-static void Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules);
+static void Toggle_RuleBar(const int debuglvl, struct rulebar *bar, struct vrmr_rules *rules);
 static void draw_rules(const int, struct vrmr_rules *, struct RuleBarForm_ *);
-static int Enter_RuleBar(const int, rulebar *, struct vrmr_config *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
+static int Enter_RuleBar(const int, struct rulebar *, struct vrmr_config *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
 static int edit_rule_separator(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *, unsigned int, struct vrmr_regex *);
 static int insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num, const char *action);
 
@@ -585,11 +583,11 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, struct vrmr_rul
 }
 
 
-static rulebar *
+static struct rulebar *
 CurrentBar(struct RuleBarForm_ *rbform, FORM *form)
 {
     FIELD       *cur_field = NULL;
-    rulebar     *cur_bar = NULL;
+    struct rulebar     *cur_bar = NULL;
     struct vrmr_list_node *d_node = NULL;
 
     vrmr_fatal_if_null(rbform);
@@ -704,7 +702,7 @@ rulebar_setcolor(   FIELD *active,
     Highlights the cursor, and clears the previous highlight.
  */
 static void
-HighlightRuleBar(rulebar *bar)
+HighlightRuleBar(struct rulebar *bar)
 {
     vrmr_fatal_if_null(bar);
 
@@ -721,7 +719,7 @@ HighlightRuleBar(rulebar *bar)
         -1: error
 */
 static int
-Enter_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_config *conf, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_regex *reg)
+Enter_RuleBar(const int debuglvl, struct rulebar *bar, struct vrmr_config *conf, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     unsigned int        rule_num = 0;
     int                 result = 0,
@@ -825,7 +823,7 @@ rulebar_copy_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int ori
 /*
 */
 static void
-Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules)
+Toggle_RuleBar(const int debuglvl, struct rulebar *bar, struct vrmr_rules *rules)
 {
     int                 rule_num = 0;
     int                 i = 0;
@@ -876,7 +874,7 @@ Set_RuleBar(const int debuglvl, struct RuleBarForm_ *rbform, FORM *form,
         unsigned int pos)
 {
     struct vrmr_list_node     *d_node = NULL;
-    rulebar         *cur_bar = NULL;
+    struct rulebar         *cur_bar = NULL;
     unsigned int    i = 0;
     int             result = 0;
 
@@ -920,10 +918,10 @@ Insert_RuleBar( const int debuglvl,
                 FIELD *options,
                 FIELD *separator)
 {
-    rulebar *bar;
+    struct rulebar *bar;
 
     /* alloc mem */
-    bar = malloc(sizeof(rulebar));
+    bar = malloc(sizeof(*bar));
     vrmr_fatal_alloc("malloc", bar);
 
     bar->active = active;
@@ -1001,7 +999,7 @@ static void
 draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
 {
     struct vrmr_rule    *rule_ptr = NULL;
-    rulebar             *cur_bar = NULL;
+    struct rulebar             *cur_bar = NULL;
     struct vrmr_list_node         *d_node = NULL;
     struct vrmr_list_node         *dl_node = NULL;
 
@@ -1321,7 +1319,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     size_t              i = 0;
 
     struct RuleBarForm_ *rbform;
-    rulebar             *cur_bar = NULL;
+    struct rulebar             *cur_bar = NULL;
 
     int                 max_height = 0,
                         max_width = 0,
