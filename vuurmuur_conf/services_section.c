@@ -894,7 +894,7 @@ edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
                     result = icmp_choose_code(atoi(icmp_type));
                     if(result >= 0)
                     {
-                        (void)snprintf(icmp_code, sizeof(icmp_code), "%d", result);
+                        (void)snprintf(icmp_code, sizeof(icmp_code), "%d", (uint8_t)result);
                         set_field_buffer_wrap(debuglvl, cur_field, 0, icmp_code);
                     }
                 }
@@ -1300,7 +1300,7 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
                     dst[12] = "",
                     icmp_name[32] = "";
     size_t          rangestr_size = 57; /* max length of the string */
-    size_t          itemnr_size = 5;    /* max length of the itemnr str */
+    size_t          itemnr_size = 16;   /* max length of the itemnr str */
 
     /* safety */
     vrmr_fatal_if_null(ser_ptr);

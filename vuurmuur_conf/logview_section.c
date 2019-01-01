@@ -508,7 +508,7 @@ print_plainlogrule(WINDOW *log_win, char *line,
     else
 #endif /* USE_WIDEC */
     {
-        char print_str[256];
+        char print_str[512];
 
         if (cur_logrule_length + memlen >= max_logrule_length)
             memlen = max_logrule_length - cur_logrule_length;

@@ -839,14 +839,6 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
         return(-1);
     }
 
-    /* determine the location of the file */
-    if(!(file_location = get_filelocation(debuglvl, backend, name, type)))
-        return(-1);
-
-    /* see if we like the file permissions */
-    if(!(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
-        return(-1);
-
     /* name splitting only needed for network and zone, as host and group just use the file_location
        this is because network and zone need to remove directories as well
     */
@@ -858,6 +850,16 @@ del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs)
             vrmr_error(-1, "Error", "Zonename '%s' is not valid.", name);
             return(-1);
         }
+    }
+
+    /* determine the location of the file */
+    if(!(file_location = get_filelocation(debuglvl, backend, name, type)))
+        return(-1);
+
+    /* see if we like the file permissions */
+    if(!(vrmr_stat_ok(debuglvl, tb->cfg, file_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST))) {
+        free(file_location);
+        return(-1);
     }
 
     /*

@@ -1080,8 +1080,8 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
                     snprintf(active, rbform->active_size,    "%s",  rule_ptr->active ? "[x]" : "[ ]");
                     snprintf(action, rbform->action_size,    "%s",  vrmr_rules_itoaction(rule_ptr->action));
                     snprintf(service, rbform->service_size,  "%s",  rule_ptr->service);
-                    snprintf(from, rbform->from_size,        "%s",  rule_ptr->from);
-                    snprintf(to, rbform->to_size,            "%s",  rule_ptr->to);
+                    strlcpy(from, rule_ptr->from, rbform->from_size);
+                    strlcpy(to, rule_ptr->to, rbform->to_size);
 
                     if(!(option_str = vrmr_rules_assemble_options_string(debuglvl, rule_ptr->opt, vrmr_rules_itoaction(rule_ptr->action))))
                         strcpy(options, "-");

@@ -582,8 +582,14 @@ create_bw_string(const int debuglvl, unsigned int mb, char *str, size_t len)
         snprintf(str, len, "%2.2fG", (float)mb/1024);
     else if(mb >= 10000 && mb < 100000)
         snprintf(str, len, "%2.1fG", (float)mb/1024);
-    else
+    else if(mb >= 100000 && mb < 1000000)
         snprintf(str, len, "%uG", mb/1024);
+    else if(mb >= 1000000UL && mb < 10000000UL)
+        snprintf(str, len, "%2.2fT", (float)mb/(1024*1024));
+    else if(mb >= 10000000UL && mb < 100000000UL)
+        snprintf(str, len, "%2.1fT", (float)mb/(1024*1024));
+    else
+        snprintf(str, len, "%uT", mb/(1024*1024));
 }
 
 /*  trafvol_section

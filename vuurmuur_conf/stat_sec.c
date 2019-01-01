@@ -287,6 +287,18 @@ static int get_system_uptime(char *s_day, char *s_hour, char *s_minute, char *s_
     if(fclose(fp) < 0)
         return(-1);
 
+    if (day < 0)
+        day = 0;
+    else if (day > 9999)
+        day = 9999;
+
+    if (!(hour >= 0 && hour <= 24))
+        hour = -1;
+    if (!(min >= 0 && min <= 59))
+        min = -1;
+    if (!(sec >= 0 && sec <= 60)) // account for leap sec
+        sec = -1;
+
     snprintf(s_day, 5, "%4d", day);
     snprintf(s_hour, 3, "%02d", hour);
     snprintf(s_minute, 3, "%02d", min);
@@ -898,6 +910,15 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
             }
             else
             {
+                if (conntrack_conn_total > 999999)
+                    conntrack_conn_total = 999999;
+                if (conntrack_conn_tcp > 999999)
+                    conntrack_conn_tcp = 999999;
+                if (conntrack_conn_udp > 999999)
+                    conntrack_conn_udp = 999999;
+                if (conntrack_conn_other > 999999)
+                    conntrack_conn_other = 999999;
+
                 snprintf(conn_total, sizeof(conn_total), "%6d", conntrack_conn_total);
                 snprintf(conn_tcp,   sizeof(conn_tcp),   "%6d", conntrack_conn_tcp);
                 snprintf(conn_udp,   sizeof(conn_udp),   "%6d", conntrack_conn_udp);

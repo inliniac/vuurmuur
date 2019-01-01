@@ -1462,11 +1462,11 @@ init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
                             width = 0,
                             startx = 0,
                             starty = 0;
-    char                    temp[32 + 4] = "",
+    char                    temp[32 + 4 + 4] = "",
                             *desc_ptr = NULL;
     size_t                  size = 0;
 
-    width = VRMR_MAX_INTERFACE + 32 + 4 + 4;
+    width = VRMR_MAX_INTERFACE + sizeof(temp) + 4;
     startx = 1;
     starty = 4;
 

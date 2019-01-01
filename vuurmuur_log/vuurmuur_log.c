@@ -652,7 +652,7 @@ main(int argc, char *argv[])
             if(vrmr_add_broadcasts_zonelist(debuglvl, &vctx.zones) < 0)
             {
                 vrmr_error(-1, "Error", "unable to add broadcasts to list.");
-                return(-1);
+                exit(EXIT_FAILURE);
             }
             vrmr_shm_update_progress(debuglvl, sem_id, &shm_table->reload_progress, 70);
 
