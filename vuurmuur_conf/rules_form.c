@@ -372,7 +372,7 @@ static void Toggle_RuleBar(const int debuglvl, struct rulebar *bar, struct vrmr_
 static void draw_rules(const int, struct vrmr_rules *, struct RuleBarForm_ *);
 static int Enter_RuleBar(const int, struct rulebar *, struct vrmr_config *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
 static int edit_rule_separator(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *, unsigned int, struct vrmr_regex *);
-static int insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num, const char *action);
+static void insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num, const char *action);
 
 
 static void
@@ -2189,21 +2189,20 @@ delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     return(retval);
 }
 
-static int
+static void
 insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
             const char *action)
 {
-    int                 retval = 0;
-    struct vrmr_rule    *rule_ptr = NULL;
+    struct vrmr_rule *rule_ptr = NULL;
 
     /* safety */
     vrmr_fatal_if_null(rules);
 
-    if(debuglvl >= LOW)
+    if (debuglvl >= LOW)
         vrmr_debug(__FUNC__, "rule_num: %d", rule_num);
 
     /* inserting into an empty rules list */
-    if(rule_num == 0)
+    if (rule_num == 0)
         rule_num = 1;
 
     /* claim memory */
@@ -2216,10 +2215,10 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
     strcpy(rule_ptr->from, "");
     strcpy(rule_ptr->to, "");
     rule_ptr->active = 1;
-    
+    rule_ptr->number = rule_num;
+
     /* only setup the options if we are going to change one or more */
-    if(vccnf.newrule_log || vccnf.newrule_loglimit)
-    {
+    if (vccnf.newrule_log || vccnf.newrule_loglimit) {
         rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
         vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
 
@@ -2229,33 +2228,25 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
         rule_ptr->opt->logburst = vccnf.newrule_logburst;
     }
 
-    /* set the rule number */
-    rule_ptr->number = rule_num;
-
     /* handle the rules list is empty */
-    if(rules->list.len == 0)
-    {
+    if (rules->list.len == 0) {
         /* insert at 1 of course */
         rule_ptr->number = 1;
 
-        if(debuglvl >= HIGH)
+        if (debuglvl >= HIGH)
             vrmr_debug(__FUNC__, "rule_num: %d, rule_ptr->number: %d", rule_num, rule_ptr->number);
 
         vrmr_fatal_if(vrmr_rules_insert_list(debuglvl, rules, rule_ptr->number, rule_ptr) < 0);
     }
     /* handle in a non-empty list */
-    else
-    {
+    else {
         vrmr_fatal_if(vrmr_rules_insert_list(debuglvl, rules, rule_num, rule_ptr) < 0);
     }
-
 
     if(debuglvl >= LOW)
         vrmr_rules_print_list(rules);
 
-
     vrmr_info(VR_INFO, gettext("new rule inserted."));
-    return(retval);
 }
 
 
