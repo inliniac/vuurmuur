@@ -368,7 +368,8 @@ struct RuleBarForm_
 static void SetupRuleBarForm(const int, struct RuleBarForm_ *, unsigned int, struct vrmr_rules *, int);
 static void move_rule(const int, struct vrmr_rules *, unsigned int, unsigned int);
 static int delete_rule(const int, struct vrmr_rules *, unsigned int, int);
-static int MatchFilter_RuleBar(struct vrmr_rule *rule_ptr, regex_t *reg, char only_in, char only_out, char only_forward);
+static bool rules_match_filter(const struct vrmr_rule *rule_ptr, /*@null@*/regex_t *reg,
+        bool only_ingress, bool only_egress, bool only_forward);
 static void Toggle_RuleBar(const int debuglvl, rulebar *bar, struct vrmr_rules *rules);
 static void draw_rules(const int, struct vrmr_rules *, struct RuleBarForm_ *);
 static int Enter_RuleBar(const int, rulebar *, struct vrmr_config *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
@@ -947,35 +948,34 @@ Insert_RuleBar( const int debuglvl,
     return;
 }
 
-
-static int
-MatchFilter_RuleBar(struct vrmr_rule *rule_ptr, /*@null@*/regex_t *reg, char only_in, char only_out, char only_forward)
+/** \internal
+ *  \brief match rule against filter
+ *  \retval bool return true if rule is within the filter
+ */
+static bool
+rules_match_filter(const struct vrmr_rule *rule_ptr, /*@null@*/regex_t *reg,
+        bool only_ingress, bool only_egress, bool only_forward)
 {
     //char *options_ptr = NULL;
     char rule_str[512] = "";
-    int     result = 0,
-            retval = 0;
 
-    if(only_in == 1)
-    {
-        if(strcmp(rule_ptr->to, "firewall") != 0)
-            return(0);
+    if (only_ingress) {
+        if (strcmp(rule_ptr->to, "firewall") != 0)
+            return false;
     }
-    else if(only_out == 1)
-    {
-        if(strcmp(rule_ptr->from, "firewall") != 0)
-            return(0);
+    else if(only_egress) {
+        if (strcmp(rule_ptr->from, "firewall") != 0)
+            return false;
     }
-    else if(only_forward == 1)
-    {
-        if(strcmp(rule_ptr->from, "firewall") == 0 ||
-                strcmp(rule_ptr->to, "firewall") == 0)
-            return(0);
+    else if (only_forward) {
+        if (strcmp(rule_ptr->from, "firewall") == 0 ||
+            strcmp(rule_ptr->to, "firewall") == 0)
+            return false;
     }
 
     /* if we're not using a regex, we match here */
-    if(!reg)
-        return(1);
+    if (!reg)
+        return true;
 
     (void)strlcpy(rule_str, vrmr_rules_itoaction(rule_ptr->action), sizeof(rule_str));
     (void)strlcat(rule_str, " ", sizeof(rule_str));
@@ -989,13 +989,11 @@ MatchFilter_RuleBar(struct vrmr_rule *rule_ptr, /*@null@*/regex_t *reg, char onl
     //    (void)strlcat(rule_str, options_ptr, sizeof(rule_str));
 
     /* now filter */
-    result = regexec(reg, rule_str, 0, NULL, 0);
-    if(result == 0)
-        retval = 1;
+    int result = regexec(reg, rule_str, 0, NULL, 0);
+    if (result == 0)
+        return true;
     else
-        retval = 0;
-
-    return(retval);
+        return false;
 }
 
 
@@ -1238,58 +1236,52 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
 static void
 rules_update_filter(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
 {
-    struct vrmr_rule    *rule_ptr = NULL;
-    struct vrmr_list_node         *d_node = NULL;
-    char                filter = 0;
+    struct vrmr_rule *rule_ptr = NULL;
+    struct vrmr_list_node *d_node = NULL;
+    char filter = 0;
 
     /* count the number of lines that are filtered */
-    if(rbform->use_filter || rbform->show_only_input || rbform->show_only_output || rbform->show_only_forward)
+    if (rbform->use_filter || rbform->show_only_input ||
+        rbform->show_only_output || rbform->show_only_forward)
     {
         rbform->filtered_rules = 0;
 
-        for(d_node = rules->list.top; d_node; d_node = d_node->next)
+        for (d_node = rules->list.top; d_node; d_node = d_node->next)
         {
             rule_ptr = d_node->data;
             vrmr_fatal_if_null(rule_ptr);
 
             rule_ptr->filtered = 0;
 
-            if(rbform->use_filter)
-            {
-                filter = MatchFilter_RuleBar(rule_ptr, &rbform->filter_reg, rbform->show_only_input,
+            if (rbform->use_filter) {
+                filter = rules_match_filter(rule_ptr, &rbform->filter_reg, rbform->show_only_input,
                                                 rbform->show_only_output,
                                                 rbform->show_only_forward);
-                if(filter == 1)
+                if (filter == 1)
                     rule_ptr->filtered = 0;
                 else
                     rule_ptr->filtered = 1;
-            }
-            else
-            {
-                filter = MatchFilter_RuleBar(rule_ptr, NULL, rbform->show_only_input,
+            } else {
+                filter = rules_match_filter(rule_ptr, NULL, rbform->show_only_input,
                                                 rbform->show_only_output,
                                                 rbform->show_only_forward);
-                if(filter == 1)
+                if (filter == 1)
                     rule_ptr->filtered = 0;
                 else
                     rule_ptr->filtered = 1;
             }
 
-            if(rule_ptr->filtered == 1)
-            {
+            if(rule_ptr->filtered == 1) {
                 rbform->filtered_rules++;
             }
         }
-    }
-    else
-    {
+    } else {
         rbform->filtered_rules = 0;
 
-        for(d_node = rules->list.top; d_node; d_node = d_node->next)
+        for (d_node = rules->list.top; d_node; d_node = d_node->next)
         {
             rule_ptr = d_node->data;
             vrmr_fatal_if_null(rule_ptr);
-
             rule_ptr->filtered = 0;
         }
     }
