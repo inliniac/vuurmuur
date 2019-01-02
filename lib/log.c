@@ -398,14 +398,13 @@ vrmr_log_record_create_tcp_flags(struct vrmr_log_record *log_record, char *flagB
     NOTE: if the function returns -1 the memory is not cleaned up: the program is supposed to exit
 */
 int
-vrmr_log_record_get_names(const int debuglvl, struct vrmr_log_record *log_record,
+vrmr_log_record_get_names(struct vrmr_log_record *log_record,
         struct vrmr_hash_table *zone_hash, struct vrmr_hash_table *service_hash)
 {
     struct vrmr_zone *zone = NULL;
     struct vrmr_service *service = NULL;
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "start");
+    vrmr_debug(HIGH, "start");
 
     /* safety */
     if(!log_record || !zone_hash || !service_hash)
@@ -422,7 +421,7 @@ vrmr_log_record_get_names(const int debuglvl, struct vrmr_log_record *log_record
             vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
     } else {
         /* search in the hash with the ipaddress */
-        if(!(zone = vrmr_search_zone_in_hash_with_ipv4(debuglvl, log_record->src_ip, zone_hash))) {
+        if(!(zone = vrmr_search_zone_in_hash_with_ipv4(log_record->src_ip, zone_hash))) {
             /* not found in hash */
             if(strlcpy(log_record->from_name, log_record->src_ip, sizeof(log_record->from_name)) >= sizeof(log_record->from_name))
                 vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
@@ -437,7 +436,7 @@ vrmr_log_record_get_names(const int debuglvl, struct vrmr_log_record *log_record
         zone = NULL;
 
         /*  do it all again for TO */
-        if(!(zone = vrmr_search_zone_in_hash_with_ipv4(debuglvl, log_record->dst_ip, zone_hash))) {
+        if(!(zone = vrmr_search_zone_in_hash_with_ipv4(log_record->dst_ip, zone_hash))) {
             /* not found in hash */
             if(strlcpy(log_record->to_name, log_record->dst_ip, sizeof(log_record->to_name)) >= sizeof(log_record->to_name))
                 vrmr_error(-1, "Error", "buffer overflow attempt (in: %s:%d).", __FUNC__, __LINE__);
@@ -460,7 +459,7 @@ vrmr_log_record_get_names(const int debuglvl, struct vrmr_log_record *log_record
         and we can call vrmr_get_icmp_name_short.
     */
     if(log_record->protocol == 1 || log_record->protocol == 58) {
-        if(!(service = vrmr_search_service_in_hash(debuglvl, log_record->icmp_type, log_record->icmp_code, log_record->protocol, service_hash))) {
+        if(!(service = vrmr_search_service_in_hash(log_record->icmp_type, log_record->icmp_code, log_record->protocol, service_hash))) {
             /* not found in hash */
             snprintf(log_record->ser_name, sizeof(log_record->ser_name), "%d.%d(icmp)", log_record->icmp_type, log_record->icmp_code);
 
@@ -479,13 +478,13 @@ vrmr_log_record_get_names(const int debuglvl, struct vrmr_log_record *log_record
         /*  here we handle the rest */
 
         /* first a normal search */
-        if(!(service = vrmr_search_service_in_hash(debuglvl, log_record->src_port, log_record->dst_port, log_record->protocol, service_hash)))
+        if(!(service = vrmr_search_service_in_hash(log_record->src_port, log_record->dst_port, log_record->protocol, service_hash)))
         {
             /* only do the reverse check for tcp and udp */
             if(log_record->protocol == 6 || log_record->protocol == 17)
             {
                 /* not found, do a reverse search */
-                if(!(service = vrmr_search_service_in_hash(debuglvl, log_record->dst_port, log_record->src_port, log_record->protocol, service_hash)))
+                if(!(service = vrmr_search_service_in_hash(log_record->dst_port, log_record->src_port, log_record->protocol, service_hash)))
                 {
                     /* not found in the hash */
                     if(log_record->protocol == 6) /* tcp */
@@ -520,7 +519,7 @@ vrmr_log_record_get_names(const int debuglvl, struct vrmr_log_record *log_record
 
 
 int
-vrmr_log_record_build_line(const int debuglvl, struct vrmr_log_record *log_record, char *outline, size_t size)
+vrmr_log_record_build_line(struct vrmr_log_record *log_record, char *outline, size_t size)
 {
     /* TCP */
     switch (log_record->protocol)
@@ -613,8 +612,7 @@ vrmr_log_record_build_line(const int debuglvl, struct vrmr_log_record *log_recor
                 log_record->protocol,
                 log_record->packet_len, log_record->ttl);
 
-            if (debuglvl >= LOW)
-                vrmr_debug(__FUNC__, "unknown protocol");
+            vrmr_debug(LOW, "unknown protocol");
             break;
     }
 

@@ -106,7 +106,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
     /* Copy hostname in log_rule struct, seems kind of silly to do this every time */
     if (gethostname (log_record->hostname, HOST_NAME_MAX) == -1) {
-        vrmr_debug(__FUNC__, "Error getting hostname");
+        vrmr_debug(NONE, "Error getting hostname");
         return -1;
     }
 
@@ -158,7 +158,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
     strftime (s, 256, "%b %d %T", tm);
     if (sscanf (s, "%3s %2d %2d:%2d:%2d", log_record->month, &log_record->day,
         &log_record->hour, &log_record->minute, &log_record->second) != 5) {
-        vrmr_debug(__FUNC__, "did not find properly formatted timestamp");
+        vrmr_debug(NONE, "did not find properly formatted timestamp");
         return -1;
     }
 
@@ -174,16 +174,16 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
             struct ip6_hdr *ip6h = (struct ip6_hdr *)payload;
 #endif
             if (payload_len >= (int)sizeof(struct iphdr) && iph->version == 4) {
-                vrmr_debug(__FUNC__, "IPv4");
+                vrmr_debug(NONE, "IPv4");
                 hw_protocol = ETH_P_IP;
 #ifdef IPV6_ENABLED
             } else if (payload_len >= (int)sizeof(struct ip6_hdr) && ((ip6h->ip6_vfc & 0xf0) >> 4) == 6) {
-                vrmr_debug(__FUNC__, "IPv6");
+                vrmr_debug(NONE, "IPv6");
                 hw_protocol = ETH_P_IPV6;
 #endif
             }
 
-            vrmr_debug(__FUNC__, "hw_protocol 0x%04X", hw_protocol);
+            vrmr_debug(NONE, "hw_protocol 0x%04X", hw_protocol);
         }
 
         switch (hw_protocol) {
@@ -235,7 +235,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
             case ETH_P_IPV6:
             {
 #ifdef IPV6_ENABLED
-                vrmr_debug(__FUNC__, "hw proto said IPv6, lets try to decode.");
+                vrmr_debug(NONE, "hw proto said IPv6, lets try to decode.");
 
                 if (payload_len < (int)sizeof(struct ip6_hdr))
                     break;
@@ -260,7 +260,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
                             struct icmp6_hdr *icmp6h = (struct icmp6_hdr *)payload;
                             log_record->icmp_type = icmp6h->icmp6_type;
                             log_record->icmp_code = icmp6h->icmp6_code;
-                            vrmr_debug(__FILE__, "ICMPv6: type %u code %u",
+                            vrmr_debug(NONE, "ICMPv6: type %u code %u",
                                     log_record->icmp_type, log_record->icmp_code);
                         }
                         break;
@@ -288,12 +288,12 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
 
                 log_record->ipv6 = 1;
 
-                vrmr_debug(__FILE__, "IPV6 %s -> %s (%u)", log_record->src_ip, log_record->dst_ip, log_record->protocol);
+                vrmr_debug(NONE, "IPV6 %s -> %s (%u)", log_record->src_ip, log_record->dst_ip, log_record->protocol);
 #endif /* IPV6_ENABLED */
                 break;
             }
             default:
-                vrmr_debug (__FUNC__, "unknown HW Protocol: 0x%04x", hw_protocol);
+                vrmr_debug (NONE, "unknown HW Protocol: 0x%04x", hw_protocol);
                 break;
         }
     }
@@ -318,7 +318,7 @@ createlogrule_callback(struct nflog_g_handle *gh, struct nfgenmsg *nfmsg,
  * \note A note that applies to the function
  */
 int
-subscribe_nflog (const int debuglvl, const struct vrmr_config *conf, struct vrmr_log_record *log_record)
+subscribe_nflog (const struct vrmr_config *conf, struct vrmr_log_record *log_record)
 {
     struct nflog_g_handle *qh;
 
@@ -378,7 +378,7 @@ readnflog (void)
 
     rv = nflog_handle_packet (h, buf, rv);
     if (rv != 0) {
-        vrmr_debug ("nflog", "nflog_handle_packet() "
+        vrmr_debug (NONE, "nflog_handle_packet() "
                 "returned %d", rv);
         return (2); /* invalid record */
     }

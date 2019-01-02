@@ -22,7 +22,7 @@
 #include "vuurmuur.h"
 
 int
-vrmr_hash_setup( const int debuglvl,                         /* debug level */
+vrmr_hash_setup(                         /* debug level */
             struct vrmr_hash_table *hash_table,                           /* the hash table ;-) */
             unsigned int rows,                          /* the number of rows in the table */
             unsigned int (*hash_func)(const void *data),/* the hash function */
@@ -41,7 +41,7 @@ vrmr_hash_setup( const int debuglvl,                         /* debug level */
     /* safety, 0 rows is not sane of course */
     if(rows == 0)
     {
-        vrmr_debug(__FUNC__, "a hashtable of 0 rows is not really sane, setting to 10.");
+        vrmr_debug(NONE, "a hashtable of 0 rows is not really sane, setting to 10.");
         rows = 10;
     }
 
@@ -68,7 +68,7 @@ vrmr_hash_setup( const int debuglvl,                         /* debug level */
         setup the list without a cleanup function.
     */
     for (cur_row = 0; cur_row < hash_table->rows; cur_row++) {
-        vrmr_list_setup(debuglvl, &hash_table->table[cur_row], NULL);
+        vrmr_list_setup(&hash_table->table[cur_row], NULL);
     }
 
     return(0);
@@ -87,7 +87,7 @@ vrmr_hash_setup( const int debuglvl,                         /* debug level */
         -1: error
 */
 int
-vrmr_hash_cleanup(const int debuglvl, struct vrmr_hash_table *hash_table)
+vrmr_hash_cleanup(struct vrmr_hash_table *hash_table)
 {
     unsigned int    cur_row = 0;
 
@@ -101,7 +101,7 @@ vrmr_hash_cleanup(const int debuglvl, struct vrmr_hash_table *hash_table)
     /* clear all rows */
     for(cur_row = 0; cur_row < hash_table->rows; cur_row++)
     {
-        if(vrmr_list_cleanup(debuglvl, &hash_table->table[cur_row]) < 0)
+        if(vrmr_list_cleanup(&hash_table->table[cur_row]) < 0)
         {
             vrmr_error(-1, "Internal Error", "cleaning up row %d failed (in: vrmr_hash_cleanup).", cur_row);
             return(-1);
@@ -124,7 +124,7 @@ vrmr_hash_cleanup(const int debuglvl, struct vrmr_hash_table *hash_table)
     TODO: do a search first, so we can make sure data isn't inserted twice???
 */
 int
-vrmr_hash_insert(const int debuglvl, struct vrmr_hash_table *hash_table, const void *data)
+vrmr_hash_insert(struct vrmr_hash_table *hash_table, const void *data)
 {
     unsigned int    row = 0;
 
@@ -139,7 +139,7 @@ vrmr_hash_insert(const int debuglvl, struct vrmr_hash_table *hash_table, const v
     row = hash_table->hash_func(data) % hash_table->rows;
 
     /* insert the data into the row */
-    if(!(vrmr_list_append(debuglvl, &hash_table->table[row], data)))
+    if(!(vrmr_list_append(&hash_table->table[row], data)))
     {
         vrmr_error(-1, "Internal Error", "appending to the list failed (in: vrmr_hash_insert).");
         return(-1);
@@ -161,7 +161,7 @@ vrmr_hash_insert(const int debuglvl, struct vrmr_hash_table *hash_table, const v
         -1: error
 */
 int
-vrmr_hash_remove(const int debuglvl, struct vrmr_hash_table *hash_table, void *data)
+vrmr_hash_remove(struct vrmr_hash_table *hash_table, void *data)
 {
     struct vrmr_list_node     *d_node = NULL;
     unsigned int    row = 0;
@@ -192,7 +192,7 @@ vrmr_hash_remove(const int debuglvl, struct vrmr_hash_table *hash_table, void *d
         if(hash_table->compare_func(table_data, data))
         {
             /* remove the data from the row/list. */
-            if(vrmr_list_remove_node(debuglvl, &hash_table->table[row], d_node) < 0)
+            if(vrmr_list_remove_node(&hash_table->table[row], d_node) < 0)
             {
                 vrmr_error(-1, "Internal Error", "removing from the list failed (in: vrmr_hash_remove).");
                 return(-1);
@@ -216,7 +216,7 @@ vrmr_hash_remove(const int debuglvl, struct vrmr_hash_table *hash_table, void *d
     Returns a pointer to the data if found, NULL if not found.
 */
 void *
-vrmr_hash_search(const int debuglvl, const struct vrmr_hash_table *hash_table, void *data)
+vrmr_hash_search(const struct vrmr_hash_table *hash_table, void *data)
 {
     unsigned int    row = 0;
     void            *table_data = NULL;
@@ -457,7 +457,7 @@ int vrmr_compare_string(const void *string1, const void *string2)
 }
 
 // print_table
-void vrmr_print_table_service(const int debuglvl, const struct vrmr_hash_table *hash_table)
+void vrmr_print_table_service(const struct vrmr_hash_table *hash_table)
 {
     unsigned int    i;
     void            *list_data = NULL;
@@ -485,7 +485,7 @@ void vrmr_print_table_service(const int debuglvl, const struct vrmr_hash_table *
 /*
 */
 int
-vrmr_init_services_hashtable(    const int debuglvl,
+vrmr_init_services_hashtable(
                             unsigned int n_rows,
                             struct vrmr_list *services_list,
                             unsigned int (*hash_func)(const void *data),
@@ -498,8 +498,7 @@ vrmr_init_services_hashtable(    const int debuglvl,
     struct vrmr_portdata         *portrange_ptr = NULL;
     struct vrmr_list_node             *d_node_serlist = NULL;
 
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "services hashtable size will be %d rows.", n_rows);
+    vrmr_debug(LOW, "services hashtable size will be %d rows.", n_rows);
 
     /* safety */
     if(!services_list)
@@ -509,7 +508,7 @@ vrmr_init_services_hashtable(    const int debuglvl,
     }
 
     /* init the hashtable for services */
-    if(vrmr_hash_setup(debuglvl, hash_table, n_rows, hash_func, compare_func) != 0)
+    if(vrmr_hash_setup(hash_table, n_rows, hash_func, compare_func) != 0)
     {
         vrmr_error(-1, "Internal Error", "hash table initializing failed (in: vrmr_init_services_hashtable).");
         return(-1);
@@ -523,15 +522,13 @@ vrmr_init_services_hashtable(    const int debuglvl,
             return(-1);
         }
 
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "service: '%s', '%p', len: '%d'.", ser_ptr->name, ser_ptr, ser_ptr->PortrangeList.len);
+        vrmr_debug(HIGH, "service: '%s', '%p', len: '%d'.", ser_ptr->name, ser_ptr, ser_ptr->PortrangeList.len);
 
         if(ser_ptr->PortrangeList.len > 0)
         {
             for(d_node = ser_ptr->PortrangeList.top; d_node; d_node = d_node->next)
             {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "service: '%s', '%p', len: '%d', d_node: '%p', 'd_node->data: '%p'.", ser_ptr->name, ser_ptr, ser_ptr->PortrangeList.len, d_node, d_node->data);
+                vrmr_debug(HIGH, "service: '%s', '%p', len: '%d', d_node: '%p', 'd_node->data: '%p'.", ser_ptr->name, ser_ptr, ser_ptr->PortrangeList.len, d_node, d_node->data);
 
                 portrange_ptr = d_node->data;
                 if(portrange_ptr == NULL)
@@ -549,8 +546,7 @@ vrmr_init_services_hashtable(    const int debuglvl,
                     if ((portrange_ptr->protocol == 1 || portrange_ptr->protocol == 6 || portrange_ptr->protocol == 17) &&
                             portrange_ptr->dst_low == ser_ptr->vrmr_hash_port)
                     {
-                        if(debuglvl >= HIGH)
-                            vrmr_debug(__FUNC__, "dupe! service '%s': hashport: %d, prot: %d, src_low: %d, src_high: %d, dst_low: %d, dst_high: %d", ser_ptr->name, ser_ptr->vrmr_hash_port, portrange_ptr->protocol, portrange_ptr->src_low, portrange_ptr->src_high, portrange_ptr->dst_low, portrange_ptr->dst_high);
+                        vrmr_debug(HIGH, "dupe! service '%s': hashport: %d, prot: %d, src_low: %d, src_high: %d, dst_low: %d, dst_high: %d", ser_ptr->name, ser_ptr->vrmr_hash_port, portrange_ptr->protocol, portrange_ptr->src_low, portrange_ptr->src_high, portrange_ptr->dst_low, portrange_ptr->dst_high);
                     }
                     else
                     {
@@ -559,10 +555,9 @@ vrmr_init_services_hashtable(    const int debuglvl,
                         else
                             ser_ptr->vrmr_hash_port = portrange_ptr->dst_low;
 
-                        if(debuglvl >= HIGH)
-                            vrmr_debug(__FUNC__, "(dst_high == 0): service '%s': hashport: %d, prot: %d, src_low: %d, src_high: %d, dst_low: %d, dst_high: %d", ser_ptr->name, ser_ptr->vrmr_hash_port, portrange_ptr->protocol, portrange_ptr->src_low, portrange_ptr->src_high, portrange_ptr->dst_low, portrange_ptr->dst_high);
+                        vrmr_debug(HIGH, "(dst_high == 0): service '%s': hashport: %d, prot: %d, src_low: %d, src_high: %d, dst_low: %d, dst_high: %d", ser_ptr->name, ser_ptr->vrmr_hash_port, portrange_ptr->protocol, portrange_ptr->src_low, portrange_ptr->src_high, portrange_ptr->dst_low, portrange_ptr->dst_high);
 
-                        if(vrmr_hash_insert(debuglvl, hash_table, ser_ptr) != 0)
+                        if(vrmr_hash_insert(hash_table, ser_ptr) != 0)
                         {
                             vrmr_error(-1, "Internal Error", "inserting into hashtable failed (in: vrmr_init_services_hash).");
                             return(1);
@@ -575,7 +570,7 @@ vrmr_init_services_hashtable(    const int debuglvl,
                     {
                         ser_ptr->vrmr_hash_port = port;
 
-                        if(vrmr_hash_insert(debuglvl, hash_table, ser_ptr) != 0)
+                        if(vrmr_hash_insert(hash_table, ser_ptr) != 0)
                         {
                             vrmr_error(-1, "Internal Error", "inserting into hashtable failed (in: vrmr_init_services_hash).");
                             return(1);
@@ -597,7 +592,7 @@ vrmr_init_services_hashtable(    const int debuglvl,
 /*
 */
 int
-vrmr_init_zonedata_hashtable(    const int debuglvl,
+vrmr_init_zonedata_hashtable(
                             unsigned int n_rows,
                             struct vrmr_list *zones_list,
                             unsigned int (*hash_func)(const void *data),
@@ -615,7 +610,7 @@ vrmr_init_zonedata_hashtable(    const int debuglvl,
     }
 
     /* setup the hash table */
-    if(vrmr_hash_setup(debuglvl, hash_table, n_rows, hash_func, compare_func) != 0)
+    if(vrmr_hash_setup(hash_table, n_rows, hash_func, compare_func) != 0)
     {
         vrmr_error(-1, "Internal Error", "hash table initializing failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -635,21 +630,19 @@ vrmr_init_zonedata_hashtable(    const int debuglvl,
         {
             if(strcmp(zone_ptr->ipv4.ipaddress, "") != 0)
             {
-                if(vrmr_hash_insert(debuglvl, hash_table, zone_ptr) != 0)
+                if(vrmr_hash_insert(hash_table, zone_ptr) != 0)
                 {
                     vrmr_error(-1, "Internal Error", "inserting hashtable failed for %s (in: vrmr_init_zonedata_hashtable).", zone_ptr->name);
                     return(-1);
                 }
                 else
                 {
-                    if(debuglvl >= HIGH)
-                        vrmr_debug(__FUNC__, "vrmr_hash_insert succes (%s)", zone_ptr->name);
+                    vrmr_debug(HIGH, "vrmr_hash_insert succes (%s)", zone_ptr->name);
                 }
             }
             else
             {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "no ipaddress in zone %s (%s)", zone_ptr->name, zone_ptr->ipv4.ipaddress);
+                vrmr_debug(HIGH, "no ipaddress in zone %s (%s)", zone_ptr->name, zone_ptr->ipv4.ipaddress);
             }
         }
     }
@@ -659,7 +652,7 @@ vrmr_init_zonedata_hashtable(    const int debuglvl,
 
 
 void *
-vrmr_search_service_in_hash(const int debuglvl, const int src, const int dst, const int protocol, const struct vrmr_hash_table *serhash)
+vrmr_search_service_in_hash(const int src, const int dst, const int protocol, const struct vrmr_hash_table *serhash)
 {
     struct vrmr_service    *ser_search_ptr = NULL,
                             *return_ptr = NULL;
@@ -675,8 +668,7 @@ vrmr_search_service_in_hash(const int debuglvl, const int src, const int dst, co
         return(NULL);
     }
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "src: %d, dst: %d, protocol: %d.", src, dst, protocol);
+    vrmr_debug(HIGH, "src: %d, dst: %d, protocol: %d.", src, dst, protocol);
 
     if(protocol == 6 || protocol == 17)
     {
@@ -705,7 +697,7 @@ vrmr_search_service_in_hash(const int debuglvl, const int src, const int dst, co
         vrmr_error(-1, "Error", "malloc failed: %s (in: vrmr_search_service_in_hash).", strerror(errno));
         return(NULL);
     }
-    vrmr_list_setup(debuglvl, &ser_search_ptr->PortrangeList, free);
+    vrmr_list_setup(&ser_search_ptr->PortrangeList, free);
 
     /* alloc the portrange */
     if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
@@ -732,7 +724,7 @@ vrmr_search_service_in_hash(const int debuglvl, const int src, const int dst, co
     /* set the hash port */
     ser_search_ptr->vrmr_hash_port = vrmr_hash_port;
 
-    if(vrmr_list_append(debuglvl, &ser_search_ptr->PortrangeList, portrange_ptr) == NULL)
+    if(vrmr_list_append(&ser_search_ptr->PortrangeList, portrange_ptr) == NULL)
     {
         vrmr_error(-1, "Error", "insert into list failed for src: %d, dst: %d, prot: %d (in: vrmr_search_service_in_hash).", src, dst, protocol);
         free(portrange_ptr);
@@ -741,27 +733,24 @@ vrmr_search_service_in_hash(const int debuglvl, const int src, const int dst, co
     }
 
     /* here we do the actual search */
-    return_ptr = vrmr_hash_search(debuglvl, serhash, (void *)ser_search_ptr);
+    return_ptr = vrmr_hash_search(serhash, (void *)ser_search_ptr);
 
     /* cleanup */
     portrange_ptr = NULL;
-    vrmr_list_cleanup(debuglvl, &ser_search_ptr->PortrangeList);
+    vrmr_list_cleanup(&ser_search_ptr->PortrangeList);
     free(ser_search_ptr);
 
-    if(debuglvl >= HIGH)
-    {
-        if(!return_ptr)
-            vrmr_debug(__FUNC__, "src: %d, dst: %d, protocol: %d: not found.", src, dst, protocol);
-        else
-            vrmr_debug(__FUNC__, "src: %d, dst: %d, protocol: %d: found: %s.", src, dst, protocol, return_ptr->name);
-    }
+    if(!return_ptr)
+        vrmr_debug(HIGH, "src: %d, dst: %d, protocol: %d: not found.", src, dst, protocol);
+    else
+        vrmr_debug(HIGH, "src: %d, dst: %d, protocol: %d: found: %s.", src, dst, protocol, return_ptr->name);
 
     return(return_ptr);
 }
 
 
 void *
-vrmr_search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, const struct vrmr_hash_table *zonehash)
+vrmr_search_zone_in_hash_with_ipv4(const char *ipaddress, const struct vrmr_hash_table *zonehash)
 {
     struct vrmr_zone    *search_ptr = NULL,
                         *return_ptr = NULL;
@@ -788,7 +777,7 @@ vrmr_search_zone_in_hash_with_ipv4(const int debuglvl, const char *ipaddress, co
         return(NULL);
     }
 
-    return_ptr = vrmr_hash_search(debuglvl, zonehash, (void *)search_ptr);
+    return_ptr = vrmr_hash_search(zonehash, (void *)search_ptr);
 
     free(search_ptr);
 

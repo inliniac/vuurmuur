@@ -33,7 +33,7 @@
     -1: error
 */
 static int
-create_network_ip(const int debuglvl, char *ipaddress, char *netmask, char *network_ip, size_t size)
+create_network_ip(char *ipaddress, char *netmask, char *network_ip, size_t size)
 {
     int retval=0;
 
@@ -53,9 +53,7 @@ create_network_ip(const int debuglvl, char *ipaddress, char *netmask, char *netw
     }
 
     netmaskvalue = ntohl(mask.s_addr);
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "netmask = %s", inet_ntoa(mask));
+    vrmr_debug(HIGH, "netmask = %s", inet_ntoa(mask));
 
     if(inet_aton(ipaddress, &ip) == 0)
     {
@@ -63,15 +61,11 @@ create_network_ip(const int debuglvl, char *ipaddress, char *netmask, char *netw
             "(in: %s:%d).", netmask, __FUNC__, __LINE__);
         return(-1);
     }
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "ipaddress = %s", inet_ntoa(ip));
+    vrmr_debug(HIGH, "ipaddress = %s", inet_ntoa(ip));
 
     net = ip;
     net.s_addr &= ntohl(netmaskvalue);
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "network = %s", inet_ntoa(net));
+    vrmr_debug(HIGH, "network = %s", inet_ntoa(net));
 
     if(strlcpy(network_ip, inet_ntoa(net), size) >= size)
     {
@@ -95,7 +89,7 @@ create_network_ip(const int debuglvl, char *ipaddress, char *netmask, char *netw
         -1: error
  */
 int
-script_list_devices(const int debuglvl)
+script_list_devices(void)
 {
     int                 numreqs = 30;
     struct ifconf       ifc;
@@ -158,8 +152,7 @@ script_list_devices(const int debuglvl)
     ifr_ptr = ifc.ifc_req;
     for(n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq))
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
+        vrmr_debug(HIGH, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
 
         if(strlcpy(ifr_struct.ifr_name, ifr_ptr->ifr_name, sizeof(ifr_struct.ifr_name)) >= sizeof(ifr_struct.ifr_name))
         {
@@ -235,7 +228,7 @@ script_list_devices(const int debuglvl)
         }
 
         /* network address */
-        if(create_network_ip(debuglvl, ipaddress, netmask, network, sizeof(network)) == 0)
+        if(create_network_ip(ipaddress, netmask, network, sizeof(network)) == 0)
         {
             /* print to the screen */
             printf("%s ", network);

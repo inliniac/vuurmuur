@@ -123,8 +123,7 @@ search_in_ipt_line(char *line, size_t search_start, char *keyword, size_t *start
         -1: error
 */
 int
-parse_ipt_logline(  const int debuglvl,
-                    char *logline,
+parse_ipt_logline(  char *logline,
                     size_t logline_len,
                     char *sscanf_str,
                     struct vrmr_log_record *log_record,
@@ -142,9 +141,7 @@ parse_ipt_logline(  const int debuglvl,
     char    protocol[5] = "";
     char    port[6] = "";
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "parse_ipt_logline: start");
-
+    vrmr_debug(HIGH, "parse_ipt_logline: start");
 
     /* safety first */
     if( logline == NULL || log_record == NULL ||
@@ -157,9 +154,7 @@ parse_ipt_logline(  const int debuglvl,
 
 
     memset(log_record, 0, sizeof(struct vrmr_log_record));
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "sscanf_str: %s", sscanf_str);
+    vrmr_debug(HIGH, "sscanf_str: %s", sscanf_str);
 
     /* get date, time, hostname */
     result = sscanf(logline, sscanf_str, log_record->month,
@@ -170,9 +165,7 @@ parse_ipt_logline(  const int debuglvl,
                         log_record->hostname);
     if(result < 6)
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "logline is invalid because sscanf reported an error.");
-
+        vrmr_debug(HIGH, "logline is invalid because sscanf reported an error.");
         return(0);
     }
 
@@ -195,10 +188,9 @@ parse_ipt_logline(  const int debuglvl,
             return(0);
         }
 
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "action '%s', "
+        vrmr_debug(HIGH, "action '%s', "
                 "str_begin %u, str_end %u",
-                log_record->action, str_begin, str_end);
+                log_record->action, (unsigned int)str_begin, (unsigned int)str_end);
 
         /* the start of the prefix is the end of the action + 1 */
         pre_prefix_len = str_end + 1;
@@ -397,26 +389,20 @@ parse_ipt_logline(  const int debuglvl,
         /* no len keyword */
         else if(str_begin == str_end)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "No LEN keyword: no valid logline.");
-
+            vrmr_debug(HIGH, "No LEN keyword: no valid logline.");
             return(0);
         }
         /* if len is too long (4: LEN=, 5: 12345 max */
         else if(str_end > str_begin + (4 + 5))
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "LEN too long: no valid logline.");
-
+            vrmr_debug(HIGH, "LEN too long: no valid logline.");
             return(0);
         }
         else
         {
             if(range_strcpy(packet_len, logline, str_begin + strlen("LEN="), str_end, sizeof(packet_len)) < 0)
             {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "LEN: lenght copy failed: no valid logline.");
-
+                vrmr_debug(HIGH, "LEN: lenght copy failed: no valid logline.");
                 return(0);
             }
             else
@@ -446,26 +432,20 @@ parse_ipt_logline(  const int debuglvl,
         /* no ttl keyword */
         else if(str_begin == str_end)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "No TTL keyword: no valid logline.");
-
+            vrmr_debug(HIGH, "No TTL keyword: no valid logline.");
             return(0);
         }
         /* if len is too long (4: TTL=, 5: 12345 max */
         else if(str_end > str_begin + (4 + 5))
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "TTL too long: no valid logline.");
-
+            vrmr_debug(HIGH, "TTL too long: no valid logline.");
             return(0);
         }
         else
         {
             if(range_strcpy(packet_len, logline, str_begin + strlen("TTL="), str_end, sizeof(packet_len)) < 0)
             {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "TTL: lenght copy failed: no valid logline.");
-
+                vrmr_debug(HIGH, "TTL: lenght copy failed: no valid logline.");
                 return(0);
             }
             else
@@ -597,7 +577,7 @@ parse_ipt_logline(  const int debuglvl,
                 {
                     log_record->src_port = atoi(port);
 
-                    if(!vrmr_valid_tcpudp_port(debuglvl, log_record->src_port))
+                    if(!vrmr_valid_tcpudp_port(log_record->src_port))
                     {
                         return(0);
                     }
@@ -638,7 +618,7 @@ parse_ipt_logline(  const int debuglvl,
                 {
                     log_record->dst_port = atoi(port);
 
-                    if(!vrmr_valid_tcpudp_port(debuglvl, log_record->dst_port))
+                    if(!vrmr_valid_tcpudp_port(log_record->dst_port))
                     {
                         return(0);
                     }
@@ -899,10 +879,8 @@ parse_ipt_logline(  const int debuglvl,
 }
 
 static int
-stat_logfile(const int debuglvl, const char *path, struct stat *logstat)
+stat_logfile(const char *path, struct stat *logstat)
 {
-    vrmr_debug (__FUNC__, "In stat_logfile (%s:%d)", __FUNC__, __LINE__);
-
     if(path == NULL)
     {
         vrmr_error(-1, VR_INTERR, "parameter problem (in: %s:%d).", __FUNC__, __LINE__);
@@ -915,14 +893,13 @@ stat_logfile(const int debuglvl, const char *path, struct stat *logstat)
         return(-1);
     }
 
-    vrmr_debug(__FUNC__, "file '%s' statted.", path);
-
+    vrmr_debug(NONE, "file '%s' statted.", path);
     return(0);
 }
 
 
 static int
-compare_logfile_stats(const int debuglvl, struct file_mon *filemon)
+compare_logfile_stats(struct file_mon *filemon)
 {
     if(filemon == NULL)
     {
@@ -934,15 +911,12 @@ compare_logfile_stats(const int debuglvl, struct file_mon *filemon)
     {
         if(filemon->new_file.st_size == 0)
         {
-            if(debuglvl >= LOW)
-                vrmr_debug(__FUNC__, "after reopening the systemlog the file is empty. Probably rotated.");
+            vrmr_debug(LOW, "after reopening the systemlog the file is empty. Probably rotated.");
         }
         else if(filemon->old_file.st_size < filemon->new_file.st_size)
         {
             filemon->windback = filemon->new_file.st_size - filemon->old_file.st_size;
-
-            if(debuglvl >= LOW)
-                vrmr_debug(__FUNC__, "while reopening the logfile %u bytes were added to it.", filemon->windback);
+            vrmr_debug(LOW, "while reopening the logfile %ld bytes were added to it.", filemon->windback);
         }
         else if(filemon->old_file.st_size > filemon->new_file.st_size)
         {
@@ -951,8 +925,7 @@ compare_logfile_stats(const int debuglvl, struct file_mon *filemon)
     }
     else
     {
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "after reopening the systemlog the files are of equal size.");
+        vrmr_debug(HIGH, "after reopening the systemlog the files are of equal size.");
     }
 
     return(0);
@@ -960,15 +933,15 @@ compare_logfile_stats(const int debuglvl, struct file_mon *filemon)
 
 
 static int
-close_syslog(const int debuglvl, const struct vrmr_config *conf, FILE **system_log, /*@null@*/struct file_mon *filemon)
+close_syslog(const struct vrmr_config *conf, FILE **system_log, /*@null@*/struct file_mon *filemon)
 {
     int retval = 0;
 
     if(filemon != NULL)
     {
-        vrmr_debug (__FUNC__, "Calling stat_logfile (%s:%d)", __FUNC__, __LINE__);
-        (void)stat_logfile(debuglvl, conf->systemlog_location, &filemon->old_file);
-        vrmr_debug (__FUNC__, "Done stat_logfile", __FUNC__, __LINE__);
+        vrmr_debug (NONE, "Calling stat_logfile");
+        (void)stat_logfile(conf->systemlog_location, &filemon->old_file);
+        vrmr_debug (NONE, "Done stat_logfile");
     }
 
     if(fclose(*system_log) < 0)
@@ -979,13 +952,12 @@ close_syslog(const int debuglvl, const struct vrmr_config *conf, FILE **system_l
 
     *system_log = NULL;
 
-    vrmr_debug (__FUNC__, "Closed syslog (%s:%d)", __FUNC__, __LINE__);
-
+    vrmr_debug (NONE, "Closed syslog");
     return(retval);
 }
 
 static int
-close_vuurmuurlog(const int debuglvl, const struct vrmr_config *conf, FILE **vuurmuur_log, /*@null@*/struct file_mon *filemon)
+close_vuurmuurlog(const struct vrmr_config *conf, FILE **vuurmuur_log, /*@null@*/struct file_mon *filemon)
 {
     int retval = 0;
 
@@ -1002,7 +974,7 @@ close_vuurmuurlog(const int debuglvl, const struct vrmr_config *conf, FILE **vuu
 }
 
 FILE *
-open_logfile(const int debuglvl, const struct vrmr_config *cnf, const char *path, const char *mode)
+open_logfile(const struct vrmr_config *cnf, const char *path, const char *mode)
 {
     FILE    *fp = NULL;
 
@@ -1014,7 +986,7 @@ open_logfile(const int debuglvl, const struct vrmr_config *cnf, const char *path
     }
 
     /* open the logfile */
-    if(!(fp = vuurmuur_fopen(debuglvl, cnf, path, mode)))
+    if(!(fp = vuurmuur_fopen(cnf, path, mode)))
     {
         vrmr_error(-1, "Error", "the logfile '%s' could not be opened: %s (in: %s:%d).", path, strerror(errno), __FUNC__, __LINE__);
         return(NULL);
@@ -1033,7 +1005,7 @@ open_logfile(const int debuglvl, const struct vrmr_config *cnf, const char *path
 
 
 int
-open_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_log)
+open_syslog(const struct vrmr_config *cnf, FILE **system_log)
 {
     /* open the system log */
     if(!(*system_log = fopen(cnf->systemlog_location, "r")))
@@ -1057,10 +1029,10 @@ open_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_log
 }
 
 int
-open_vuurmuurlog (const int debuglvl, const struct vrmr_config *cnf, FILE **vuurmuur_log)
+open_vuurmuurlog (const struct vrmr_config *cnf, FILE **vuurmuur_log)
 {
     /* open the vuurmuur logfile */
-    if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, cnf->trafficlog_location, "a")))
+    if(!(*vuurmuur_log = open_logfile(cnf, cnf->trafficlog_location, "a")))
     {
         vrmr_error(-1, "Error", "opening traffic log file '%s' failed: %s (in: %s:%d).", cnf->trafficlog_location, strerror(errno), __FUNC__, __LINE__);
         return(-1);
@@ -1069,7 +1041,7 @@ open_vuurmuurlog (const int debuglvl, const struct vrmr_config *cnf, FILE **vuur
 }
 
 int
-reopen_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_log)
+reopen_syslog(const struct vrmr_config *cnf, FILE **system_log)
 {
     int             waiting = 0;
     char            done = 0;
@@ -1079,23 +1051,22 @@ reopen_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_l
     /* clear */
     memset(&filemon, 0, sizeof(filemon));
 
-    vrmr_debug (__FUNC__, "Reopening syslog files (%s:%d)", __FUNC__, __LINE__);
+    vrmr_debug (NONE, "Reopening syslog files");
 
     /* close the logfiles */
-    (void)close_syslog(debuglvl, cnf, system_log, &filemon);
+    (void)close_syslog(cnf, system_log, &filemon);
 
     /*
         re-open the log, try for 5 minutes
     */
     while(done == 0 && waiting < 300)
     {
-        (void)stat_logfile(debuglvl, cnf->systemlog_location, &filemon.new_file);
-        (void)compare_logfile_stats(debuglvl, &filemon);
+        (void)stat_logfile(cnf->systemlog_location, &filemon.new_file);
+        (void)compare_logfile_stats(&filemon);
 
         if(!(*system_log = fopen(cnf->systemlog_location, "r")))
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "Re-opening iptableslog '%s' failed: %s.", cnf->systemlog_location, strerror(errno));
+            vrmr_debug(LOW, "Re-opening iptableslog '%s' failed: %s.", cnf->systemlog_location, strerror(errno));
 
             /* sleep and increase waitcounter */
             sleep(3);
@@ -1132,32 +1103,31 @@ reopen_syslog(const int debuglvl, const struct vrmr_config *cnf, FILE **system_l
         return(-1);
     }
 
-    vrmr_debug (__FUNC__, "Reopened syslog files (%s:%d)", __FUNC__, __LINE__);
-
+    vrmr_debug (NONE, "Reopened syslog files");
     return(0);
 }
 
 int
-reopen_vuurmuurlog(const int debuglvl, const struct vrmr_config *cnf, FILE **vuurmuur_log)
+reopen_vuurmuurlog(const struct vrmr_config *cnf, FILE **vuurmuur_log)
 {
     struct file_mon filemon;
 
     /* clear */
     memset(&filemon, 0, sizeof(filemon));
 
-    vrmr_debug (__FUNC__, "Reopening vuurmuur log (%s:%d)", __FUNC__, __LINE__);
+    vrmr_debug (NONE, "Reopening vuurmuur log");
 
     /* close the logfiles */
-    (void)close_vuurmuurlog(debuglvl, cnf, vuurmuur_log, &filemon);
+    (void)close_vuurmuurlog(cnf, vuurmuur_log, &filemon);
 
     /* re-open the vuurmuur logfile */
-    if(!(*vuurmuur_log = open_logfile(debuglvl, cnf, cnf->trafficlog_location, "a")))
+    if(!(*vuurmuur_log = open_logfile(cnf, cnf->trafficlog_location, "a")))
     {
         vrmr_error(-1, "Error", "Re-opening traffic log file '%s'"
                 "failed: %s.", cnf->trafficlog_location, strerror(errno));
         return(-1);
     }
 
-    vrmr_debug (__FUNC__, "Done reopening");
+    vrmr_debug (NONE, "Done reopening");
     return(0);
 }

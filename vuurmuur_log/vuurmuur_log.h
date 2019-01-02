@@ -64,8 +64,8 @@
 #define VR_WARN         "Warning"
 
 
-int reopen_logfiles(const int, FILE **, FILE **);
-int open_logfiles(const int, const struct vrmr_config *cnf, FILE **, FILE **);
+int reopen_logfiles(FILE **, FILE **);
+int open_logfiles(const struct vrmr_config *cnf, FILE **, FILE **);
 
 int process_logrecord(struct vrmr_log_record *log_record);
 

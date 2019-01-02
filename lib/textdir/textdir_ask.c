@@ -27,8 +27,7 @@
         -1 error
 */
 int
-ask_textdir(const int debuglvl,
-            void *backend,
+ask_textdir(void *backend,
             char *name,
             char *question,
             char *answer,
@@ -57,8 +56,7 @@ ask_textdir(const int debuglvl,
         return(-1);
     }
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "question: %s, name: %s, multi: %d", question, name, multi);
+    vrmr_debug(HIGH, "question: %s, name: %s, multi: %d", question, name, multi);
 
     tb = (struct TextdirBackend_ *)backend;
     if(!tb->backend_open)
@@ -75,7 +73,7 @@ ask_textdir(const int debuglvl,
     }
 
     /* determine the location of the file */
-    if(!(file_location = get_filelocation(debuglvl, backend, name, type)))
+    if(!(file_location = get_filelocation(backend, name, type)))
         return(-1);
 
     /* check if we are clean */
@@ -90,7 +88,7 @@ ask_textdir(const int debuglvl,
     /* now open and read the file, but only if it is not already open */
     if(tb->file == NULL)
     {
-        if(!(tb->file = vuurmuur_fopen(debuglvl, tb->cfg, file_location, "r")))
+        if(!(tb->file = vuurmuur_fopen(tb->cfg, file_location, "r")))
         {
             vrmr_error(-1, "Error", "Unable to open file '%s'.", file_location);
 
@@ -137,8 +135,7 @@ ask_textdir(const int debuglvl,
 
         strlcpy(variable, line, var_len);
 
-        if (debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "variable %s", variable);
+        vrmr_debug(LOW, "variable %s", variable);
 
         /* now see if this was what we were looking for */
         if(strcmp(question, variable) != 0) {
@@ -176,8 +173,7 @@ ask_textdir(const int debuglvl,
         else
             value[val_pos] = '\0';
 
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "question '%s' matched, value: '%s'", question, value);
+        vrmr_debug(MEDIUM, "question '%s' matched, value: '%s'", question, value);
 
         /* copy back the value to "answer" */
         len = strlcpy(answer, value, max_answer);
@@ -203,8 +199,7 @@ ask_textdir(const int debuglvl,
     /* cleanup */
     if((multi == 1 && retval != 1) || multi == 0)
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "close the file.");
+        vrmr_debug(HIGH, "close the file.");
 
         if(fclose(tb->file) != 0)
         {
@@ -217,11 +212,8 @@ ask_textdir(const int debuglvl,
     /* cleanup filelocation */
     free(file_location);
 
-    if(debuglvl >= HIGH)
-    {
-        vrmr_debug(__FUNC__, "at exit: tb->file: %p (retval: %d).", tb->file, retval);
-        vrmr_debug(__FUNC__, "** end **, retval=%d", retval);
-    }
+    vrmr_debug(HIGH, "at exit: tb->file: %p (retval: %d).", tb->file, retval);
+    vrmr_debug(HIGH, "** end **, retval=%d", retval);
 
     return(retval);
 }

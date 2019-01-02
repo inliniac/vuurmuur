@@ -24,12 +24,12 @@
 static void vrmr_service_free(struct vrmr_service *service)
 {
     assert(service);
-    vrmr_list_cleanup(0, &service->PortrangeList);
+    vrmr_list_cleanup(&service->PortrangeList);
     free(service);
 }
 
 static int
-vrmr_insert_service_list(const int debuglvl, struct vrmr_services *services, const struct vrmr_service *ser_ptr)
+vrmr_insert_service_list(struct vrmr_services *services, const struct vrmr_service *ser_ptr)
 {
     struct vrmr_service    *check_ser_ptr = NULL;
     int                     result = 0;
@@ -59,14 +59,11 @@ vrmr_insert_service_list(const int debuglvl, struct vrmr_services *services, con
                 return(-1);
             }
 
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "ser_ptr->name: %s, check_ser_ptr->name: %s", ser_ptr->name, check_ser_ptr->name);
+            vrmr_debug(HIGH, "ser_ptr->name: %s, check_ser_ptr->name: %s", ser_ptr->name, check_ser_ptr->name);
 
             result = strcmp(ser_ptr->name, check_ser_ptr->name);
-            if(result <= 0)
-            {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "insert here.");
+            if(result <= 0) {
+                vrmr_debug(HIGH, "insert here.");
 
                 insert_here = 1;
                 break;
@@ -76,11 +73,10 @@ vrmr_insert_service_list(const int debuglvl, struct vrmr_services *services, con
 
     if(insert_here == 1 && d_node == NULL)
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "prepend %s", ser_ptr->name);
+        vrmr_debug(HIGH, "prepend %s", ser_ptr->name);
 
         /* prepend if an empty list */
-        if(!(vrmr_list_prepend(debuglvl, &services->list, ser_ptr)))
+        if(!(vrmr_list_prepend(&services->list, ser_ptr)))
         {
             vrmr_error(-1, "Internal Error", "vrmr_list_prepend() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -88,13 +84,12 @@ vrmr_insert_service_list(const int debuglvl, struct vrmr_services *services, con
     }
     else if(insert_here == 1 && d_node != NULL)
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "insert %s", ser_ptr->name);
+        vrmr_debug(HIGH, "insert %s", ser_ptr->name);
 
         /*
             insert before the current node
         */
-        if(!(vrmr_list_insert_before(debuglvl, &services->list, d_node, ser_ptr)))
+        if(!(vrmr_list_insert_before(&services->list, d_node, ser_ptr)))
         {
             vrmr_error(-1, "Internal Error", "vrmr_list_insert_before() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -102,13 +97,12 @@ vrmr_insert_service_list(const int debuglvl, struct vrmr_services *services, con
     }
     else
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "append %s", ser_ptr->name);
+        vrmr_debug(HIGH, "append %s", ser_ptr->name);
 
         /*
             append if we were bigger than all others
         */
-        if(!(vrmr_list_append(debuglvl, &services->list, ser_ptr)))
+        if(!(vrmr_list_append(&services->list, ser_ptr)))
         {
             vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).", __FUNC__, __LINE__);
             return(-1);
@@ -132,7 +126,7 @@ vrmr_insert_service_list(const int debuglvl, struct vrmr_services *services, con
     and by error an internal program error.
 */
 int
-vrmr_insert_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, char *name)
+vrmr_insert_service(struct vrmr_ctx *vctx, struct vrmr_services *services, char *name)
 {
     int                     retval = 0,
                             result = 0;
@@ -155,7 +149,7 @@ vrmr_insert_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servi
     }
 
     /* reading the service information */
-    result = vrmr_read_service(debuglvl, vctx, name, ser_ptr);
+    result = vrmr_read_service(vctx, name, ser_ptr);
     if (result == -1) {
         vrmr_error(-1, "Internal Error", "vrmr_read_service() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -164,7 +158,7 @@ vrmr_insert_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servi
     }
 
     /* insert into the list (sorted) */
-    if (vrmr_insert_service_list(debuglvl, services, ser_ptr) < 0) {
+    if (vrmr_insert_service_list(services, ser_ptr) < 0) {
         vrmr_service_free(ser_ptr);
         return(-1);
     }
@@ -182,7 +176,7 @@ vrmr_insert_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servi
     It returns the pointer or a NULL-pointer if not found.
 */
 void *
-vrmr_search_service(const int debuglvl, const struct vrmr_services *services, char *servicename)
+vrmr_search_service(const struct vrmr_services *services, char *servicename)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_service    *service_ptr = NULL;
@@ -196,8 +190,7 @@ vrmr_search_service(const int debuglvl, const struct vrmr_services *services, ch
         return(NULL);
     }
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "looking for service '%s'.", servicename);
+    vrmr_debug(MEDIUM, "looking for service '%s'.", servicename);
 
     /* loop the list and compare */
     for(d_node = services->list.top; d_node ; d_node = d_node->next)
@@ -211,20 +204,13 @@ vrmr_search_service(const int debuglvl, const struct vrmr_services *services, ch
 
         if(strcmp(service_ptr->name, servicename) == 0)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "service %s found at address: %p",
-                        servicename, service_ptr);
-
-            /* return the pointer */
+            vrmr_debug(HIGH, "service %s found at address: %p",
+                    servicename, service_ptr);
             return(service_ptr);
         }
     }
 
-    /* if the value wasn't found tell the debuglog */
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "service '%s' not found.", servicename);
-
-    /* if we get here we didn't find what we were looking for, so return NULL */
+    vrmr_debug(LOW, "service '%s' not found.", servicename);
     return(NULL);
 }
 
@@ -240,7 +226,7 @@ vrmr_search_service(const int debuglvl, const struct vrmr_services *services, ch
         -1: error
 */
 int
-vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, struct vrmr_service *service_ptr)
+vrmr_read_service(struct vrmr_ctx *vctx, char *sername, struct vrmr_service *service_ptr)
 {
     int     retval = 0,
             result = 0;
@@ -265,7 +251,7 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
     }
 
     /* first the active check */
-    result = vrmr_check_active(debuglvl, vctx, sername, VRMR_TYPE_SERVICE);
+    result = vrmr_check_active(vctx, sername, VRMR_TYPE_SERVICE);
     if(result == 1)
     {
         /* active */
@@ -282,13 +268,13 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
         return(-1);
     }
 
-    vrmr_list_setup(debuglvl, &service_ptr->PortrangeList, free);
+    vrmr_list_setup(&service_ptr->PortrangeList, free);
 
     /* first check RANGE */
-    while((result = vctx->sf->ask(debuglvl, vctx->serv_backend, sername, "RANGE", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
+    while((result = vctx->sf->ask(vctx->serv_backend, sername, "RANGE", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
     {
         /* process */
-        if(vrmr_process_portrange(debuglvl, "RANGE", portrange, service_ptr) < 0)
+        if(vrmr_process_portrange("RANGE", portrange, service_ptr) < 0)
             retval = -1;
     }
     if(result < 0)
@@ -300,10 +286,10 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
     /* no ranges, fallback to old behavior */
     if (service_ptr->PortrangeList.len == 0) {
         /* first check TCP */
-        while((result = vctx->sf->ask(debuglvl, vctx->serv_backend, sername, "TCP", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
+        while((result = vctx->sf->ask(vctx->serv_backend, sername, "TCP", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(vrmr_process_portrange(debuglvl, "TCP", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange("TCP", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -314,10 +300,10 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
         }
 
         /* then check udp */
-        while((result = vctx->sf->ask(debuglvl, vctx->serv_backend, sername, "UDP", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
+        while((result = vctx->sf->ask(vctx->serv_backend, sername, "UDP", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(vrmr_process_portrange(debuglvl, "UDP", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange("UDP", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -328,10 +314,10 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
         }
 
         /* then check icmp */
-        while((result = vctx->sf->ask(debuglvl, vctx->serv_backend, sername, "ICMP", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
+        while((result = vctx->sf->ask(vctx->serv_backend, sername, "ICMP", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(vrmr_process_portrange(debuglvl, "ICMP", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange("ICMP", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -342,10 +328,10 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
         }
 
         /* then check gre */
-        while((result = vctx->sf->ask(debuglvl, vctx->serv_backend, sername, "GRE", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
+        while((result = vctx->sf->ask(vctx->serv_backend, sername, "GRE", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(vrmr_process_portrange(debuglvl, "GRE", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange("GRE", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -356,10 +342,10 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
         }
 
         /* then check ah */
-        while((result = vctx->sf->ask(debuglvl, vctx->serv_backend, sername, "AH", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
+        while((result = vctx->sf->ask(vctx->serv_backend, sername, "AH", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(vrmr_process_portrange(debuglvl, "AH", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange("AH", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -370,10 +356,10 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
         }
 
         /* then check esp */
-        while((result = vctx->sf->ask(debuglvl, vctx->serv_backend, sername, "ESP", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
+        while((result = vctx->sf->ask(vctx->serv_backend, sername, "ESP", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(vrmr_process_portrange(debuglvl, "ESP", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange("ESP", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -384,10 +370,10 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
         }
 
         /* then check protocol 41 */
-        while((result = vctx->sf->ask(debuglvl, vctx->serv_backend, sername, "PROTO_41", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
+        while((result = vctx->sf->ask(vctx->serv_backend, sername, "PROTO_41", portrange, sizeof(portrange), VRMR_TYPE_SERVICE, 1)) == 1)
         {
             /* process */
-            if(vrmr_process_portrange(debuglvl, "PROTO_41", portrange, service_ptr) < 0)
+            if(vrmr_process_portrange("PROTO_41", portrange, service_ptr) < 0)
                 retval = -1;
         }
         if(result < 0)
@@ -399,7 +385,7 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
     }
 
     /* see if we need a helper */
-    result = vctx->sf->ask(debuglvl, vctx->serv_backend, sername, "HELPER", service_ptr->helper, sizeof(service_ptr->helper), VRMR_TYPE_SERVICE, 0);
+    result = vctx->sf->ask(vctx->serv_backend, sername, "HELPER", service_ptr->helper, sizeof(service_ptr->helper), VRMR_TYPE_SERVICE, 0);
     if(result < 0)
     {
         vrmr_error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
@@ -408,7 +394,7 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
     }
 
     /* check if the protocol is broadcasting */
-    result = vctx->sf->ask(debuglvl, vctx->serv_backend, sername, "BROADCAST", broadcast, sizeof(broadcast), VRMR_TYPE_SERVICE, 0);
+    result = vctx->sf->ask(vctx->serv_backend, sername, "BROADCAST", broadcast, sizeof(broadcast), VRMR_TYPE_SERVICE, 0);
     if(result < 0)
     {
         vrmr_error(-1, "Internal Error", "sf->ask() failed (in: %s:%d).",
@@ -421,15 +407,10 @@ vrmr_read_service(const int debuglvl, struct vrmr_ctx *vctx, char *sername, stru
     }
     else
     {
-        if(strncasecmp(broadcast, "yes", 3) == 0)
-        {
-            if(debuglvl >= LOW)
-                vrmr_debug(__FUNC__, "%s is broadcasting protocol.", sername);
-
+        if(strncasecmp(broadcast, "yes", 3) == 0) {
+            vrmr_debug(LOW, "%s is broadcasting protocol.", sername);
             service_ptr->broadcast = TRUE;
-        }
-        else
-        {
+        } else {
             service_ptr->broadcast = FALSE;
         }
     }
@@ -562,7 +543,7 @@ vrmr_split_portrange(char *portrange, int *lowport, int *highport)
         -1: error
 */
 int
-vrmr_process_portrange(const int debuglvl, const char *proto, const char *portrange, struct vrmr_service *ser_ptr)
+vrmr_process_portrange(const char *proto, const char *portrange, struct vrmr_service *ser_ptr)
 {
     unsigned int        port = 0;
     unsigned int        range = 0;
@@ -711,18 +692,17 @@ vrmr_process_portrange(const int debuglvl, const char *proto, const char *portra
                 if all went well, insert the portrange into the list, and update the counter
                 now insert the entry into the list
             */
-            if(vrmr_list_append(debuglvl, &ser_ptr->PortrangeList, portrange_ptr) == NULL)
+            if(vrmr_list_append(&ser_ptr->PortrangeList, portrange_ptr) == NULL)
             {
                 vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
                 return(-1);
             }
 
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "proto: %s, dl: %d, dh: %d, sl: %d, sh: %d",
-                        proto, portrange_ptr->dst_low,
-                        portrange_ptr->dst_high, portrange_ptr->src_low,
-                        portrange_ptr->src_high);
+            vrmr_debug(HIGH, "proto: %s, dl: %d, dh: %d, sl: %d, sh: %d",
+                    proto, portrange_ptr->dst_low,
+                    portrange_ptr->dst_high, portrange_ptr->src_low,
+                    portrange_ptr->src_high);
 
             /* reset cur_pos */
             cur_pos = 0;
@@ -739,7 +719,7 @@ vrmr_process_portrange(const int debuglvl, const char *proto, const char *portra
 
 */
 void
-vrmr_destroy_serviceslist(const int debuglvl, struct vrmr_services *services)
+vrmr_destroy_serviceslist(struct vrmr_services *services)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_service    *ser_ptr = NULL;
@@ -762,11 +742,11 @@ vrmr_destroy_serviceslist(const int debuglvl, struct vrmr_services *services)
             return;
         }
 
-        vrmr_list_cleanup(debuglvl, &ser_ptr->PortrangeList);
+        vrmr_list_cleanup(&ser_ptr->PortrangeList);
     }
 
     /* then the list itself */
-    vrmr_list_cleanup(debuglvl, &services->list);
+    vrmr_list_cleanup(&services->list);
 }
 
 
@@ -779,7 +759,7 @@ vrmr_destroy_serviceslist(const int debuglvl, struct vrmr_services *services)
         -1: error
 */
 int
-vrmr_new_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, char *sername, int sertype)
+vrmr_new_service(struct vrmr_ctx *vctx, struct vrmr_services *services, char *sername, int sertype)
 {
     int                     retval = 0,
                             result = 0;
@@ -793,7 +773,7 @@ vrmr_new_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services
         return(-1);
     }
 
-    if((vrmr_search_service(debuglvl, services, sername) != NULL))
+    if((vrmr_search_service(services, sername) != NULL))
     {
         vrmr_error(-1, "Internal Error", "service %s already exists (in: %s:%d).",
                 sername, __FUNC__, __LINE__);
@@ -805,10 +785,10 @@ vrmr_new_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services
 
     /* set the bare minimum */
     strlcpy(ser_ptr->name, sername, sizeof(ser_ptr->name));
-    vrmr_list_setup(debuglvl, &ser_ptr->PortrangeList, free);
+    vrmr_list_setup(&ser_ptr->PortrangeList, free);
 
     /* insert into the list */
-    if(vrmr_insert_service_list(debuglvl, services, ser_ptr) < 0)
+    if(vrmr_insert_service_list(services, ser_ptr) < 0)
     {
         vrmr_error(-1, "Internal Error", "vrmr_insert_service_list() failed (in: %s:%d).",
                 __FUNC__, __LINE__);
@@ -816,14 +796,13 @@ vrmr_new_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services
         return(-1);
     }
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "calling sf->add for '%s'.", sername);
+    vrmr_debug(MEDIUM, "calling sf->add for '%s'.", sername);
 
     /* add to the backend */
-    result = vctx->sf->add(debuglvl, vctx->serv_backend, sername, sertype);
+    result = vctx->sf->add(vctx->serv_backend, sername, sertype);
     /* set active and broadcast */
-    result |= vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "ACTIVE", ser_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
-    result |= vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
+    result |= vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "ACTIVE", ser_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
+    result |= vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
 
     if (result != 0) {
         vrmr_error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
@@ -846,7 +825,7 @@ vrmr_new_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services
     TODO: memory is not freed?
 */
 int
-vrmr_delete_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, char *sername, int sertype)
+vrmr_delete_service(struct vrmr_ctx *vctx, struct vrmr_services *services, char *sername, int sertype)
 {
     struct vrmr_service *ser_list_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
@@ -860,7 +839,7 @@ vrmr_delete_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servi
     }
 
     /* this is a bit overkill right now, but when we start using hash-searching, it wont be */
-    if((vrmr_search_service(debuglvl, services, sername) == NULL))
+    if((vrmr_search_service(services, sername) == NULL))
     {
         vrmr_error(-1, "Internal Error", "service %s not found in memory (in: %s:%d).",
                 sername, __FUNC__, __LINE__);
@@ -868,7 +847,7 @@ vrmr_delete_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servi
     }
 
     /* delete from backend */
-    if (vctx->sf->del(debuglvl, vctx->serv_backend, sername, sertype, 1) < 0)
+    if (vctx->sf->del(vctx->serv_backend, sername, sertype, 1) < 0)
         return(-1);
 
     /* now look for the service in the list */
@@ -883,7 +862,7 @@ vrmr_delete_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servi
 
         if(strcmp(sername, ser_list_ptr->name) == 0)
         {
-            if(vrmr_list_remove_node(debuglvl, &services->list, d_node) < 0)
+            if(vrmr_list_remove_node(&services->list, d_node) < 0)
             {
                 vrmr_error(-1, "Internal Error", "vrmr_list_remove_node() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
@@ -903,7 +882,7 @@ vrmr_delete_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servi
 
 
 int
-vrmr_validate_servicename(const int debuglvl, const char *servicename, regex_t *reg_ex, char quiet)
+vrmr_validate_servicename(const char *servicename, regex_t *reg_ex, char quiet)
 {
     /* safety */
     if(servicename == NULL || reg_ex == NULL)
@@ -913,34 +892,28 @@ vrmr_validate_servicename(const int debuglvl, const char *servicename, regex_t *
         return(-1);
     }
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "checking: %s", servicename);
+    vrmr_debug(MEDIUM, "checking: %s", servicename);
 
     /* exec the regex */
     if(regexec(reg_ex, servicename, 0, NULL, 0) != 0)
     {
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "%s is invalid", servicename);
-
+        vrmr_debug(MEDIUM, "%s is invalid", servicename);
         return(-1);
     }
 
     /* ignore make files in the services dir */
     if (strncasecmp(servicename, "Makefile", 8) == 0) {
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "%s is invalid", servicename);
+        vrmr_debug(MEDIUM, "%s is invalid", servicename);
         return(-1);
     }
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "%s is valid", servicename);
-
+    vrmr_debug(MEDIUM, "%s is valid", servicename);
     return(0);
 }
 
 
 int
-vrmr_services_save_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
+vrmr_services_save_portranges(struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
 {
     struct vrmr_portdata *port_ptr = NULL;
     char            prot_format[32] = "",
@@ -960,7 +933,7 @@ vrmr_services_save_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct 
     /* empty list, so clear all */
     if(ser_ptr->PortrangeList.len == 0)
     {
-        if (vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "RANGE", "", 1, VRMR_TYPE_SERVICE) < 0)
+        if (vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "RANGE", "", 1, VRMR_TYPE_SERVICE) < 0)
         {
             vrmr_error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
                     __FUNC__, __LINE__);
@@ -1015,7 +988,7 @@ vrmr_services_save_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct 
                 }
 
                 /* write to the backend */
-                if (vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "RANGE", prot_format, overwrite, VRMR_TYPE_SERVICE) < 0)
+                if (vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "RANGE", prot_format, overwrite, VRMR_TYPE_SERVICE) < 0)
                 {
                     vrmr_error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
@@ -1056,7 +1029,7 @@ vrmr_services_save_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct 
                 }
 
                 /* write to the backend */
-                if (vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "RANGE", prot_format, overwrite, VRMR_TYPE_SERVICE) < 0)
+                if (vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "RANGE", prot_format, overwrite, VRMR_TYPE_SERVICE) < 0)
                 {
                     vrmr_error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
@@ -1074,7 +1047,7 @@ vrmr_services_save_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct 
                 }
 
                 /* write to the backend */
-                if (vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "RANGE", prot_format, overwrite, VRMR_TYPE_SERVICE) < 0)
+                if (vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "RANGE", prot_format, overwrite, VRMR_TYPE_SERVICE) < 0)
                 {
                     vrmr_error(-1, "Internal Error", "sf->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
@@ -1095,7 +1068,7 @@ vrmr_services_save_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct 
         1 if valid
 */
 int
-vrmr_valid_tcpudp_port(const int debuglvl, int port)
+vrmr_valid_tcpudp_port(int port)
 {
     if(port < 0 || port > 65535)
         return(0);
@@ -1113,7 +1086,7 @@ vrmr_valid_tcpudp_port(const int debuglvl, int port)
         -1: error
 */
 int
-vrmr_init_services(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, struct vrmr_regex *reg)
+vrmr_init_services(struct vrmr_ctx *vctx, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     int     retval=0,
             result=0;
@@ -1131,31 +1104,28 @@ vrmr_init_services(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servic
     memset(services, 0, sizeof(*services));
 
     /* setup the list */
-    vrmr_list_setup(debuglvl, &services->list, free);
+    vrmr_list_setup(&services->list, free);
 
     /*
         now loop trough the list and insert
     */
-    while (vctx->sf->list(debuglvl, vctx->serv_backend, name, &zonetype, VRMR_BT_SERVICES) != NULL)
+    while (vctx->sf->list(vctx->serv_backend, name, &zonetype, VRMR_BT_SERVICES) != NULL)
     {
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "loading service '%s' ...", name);
+        vrmr_debug(MEDIUM, "loading service '%s' ...", name);
 
         /* but first validate the name */
-        if(vrmr_validate_servicename(debuglvl, name, reg->servicename, VRMR_VERBOSE) == 0)
+        if(vrmr_validate_servicename(name, reg->servicename, VRMR_VERBOSE) == 0)
         {
             /* now call vrmr_insert_service, which will gather the info and insert it into the list */
-            result = vrmr_insert_service(debuglvl, vctx, services, name);
+            result = vrmr_insert_service(vctx, services, name);
             if(result == 0)
             {
-                if(debuglvl >= LOW)
-                    vrmr_debug(__FUNC__, "loading service succes: '%s'.", name);
+                vrmr_debug(LOW, "loading service succes: '%s'.", name);
             }
             else if(result == 1)
             {
                 /* we failed, but non-fatal (e.g. inactive) */
-                if(debuglvl >= LOW)
-                    vrmr_debug(__FUNC__, "loading service failed with a non fatal failure: '%s'.", name);
+                vrmr_debug(LOW, "loading service failed with a non fatal failure: '%s'.", name);
             }
             else
             {
@@ -1178,7 +1148,7 @@ vrmr_init_services(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servic
         -1: error
 */
 int
-vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
+vrmr_services_check(struct vrmr_service *ser_ptr)
 {
     int retval = 1;
 
@@ -1210,7 +1180,7 @@ vrmr_services_check(const int debuglvl, struct vrmr_service *ser_ptr)
         -1: error
 */
 int
-vrmr_services_load(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, struct vrmr_regex *reg)
+vrmr_services_load(struct vrmr_ctx *vctx, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     int                     result = 0;
     struct vrmr_list_node             *d_node = NULL;
@@ -1219,7 +1189,7 @@ vrmr_services_load(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servic
 
     vrmr_info("Info", "Loading services...");
 
-    result = vrmr_init_services(debuglvl, vctx, services, reg);
+    result = vrmr_init_services(vctx, services, reg);
     if(result == -1)
     {
         vrmr_error(-1, "Error", "Loading services failed.");
@@ -1236,7 +1206,7 @@ vrmr_services_load(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_servic
             return(-1);
         }
 
-        result = vrmr_services_check(debuglvl, ser_ptr);
+        result = vrmr_services_check(ser_ptr);
         if(result == -1)
             return(-1);
         else if(result == 0)

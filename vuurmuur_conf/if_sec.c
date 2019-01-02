@@ -61,7 +61,7 @@ struct TcpmssIfaceCnf_ {
 };
 
 static void
-VrTcpmssIfaceSetup(const int debuglvl, struct TcpmssIfaceCnf_ *c, struct vrmr_interface *iface_ptr)
+VrTcpmssIfaceSetup(struct TcpmssIfaceCnf_ *c, struct vrmr_interface *iface_ptr)
 {
     vrmr_fatal_if_null(c);
     vrmr_fatal_if_null(iface_ptr);
@@ -71,7 +71,7 @@ VrTcpmssIfaceSetup(const int debuglvl, struct TcpmssIfaceCnf_ *c, struct vrmr_in
 }
 
 static int
-VrTcpmssIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
+VrTcpmssIfaceSave(void *ctx, char *name, char *value)
 {
     struct TcpmssIfaceCnf_ *c = (struct TcpmssIfaceCnf_ *)ctx;
     int result = 0;
@@ -83,7 +83,7 @@ VrTcpmssIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         }
 
         if (c->enabled != enabled) {
-            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "TCPMSS", enabled ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(c->vctx->ifac_backend, c->iface_ptr->name, "TCPMSS", enabled ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -104,7 +104,7 @@ VrTcpmssIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
 }
 
 static void
-VrTcpmssIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
+VrTcpmssIface(struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
 {
     VrWin   *win = NULL;
     VrForm  *form = NULL;
@@ -112,7 +112,7 @@ VrTcpmssIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *
     struct TcpmssIfaceCnf_ config;
     config.vctx = vctx;
 
-    VrTcpmssIfaceSetup(debuglvl, &config, iface_ptr);
+    VrTcpmssIfaceSetup(&config, iface_ptr);
 
     /* create the window and put it in the middle of the screen */
     win = VrNewWin(11,51,0,0,vccnf.color_win);
@@ -120,11 +120,11 @@ VrTcpmssIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *
     VrWinSetTitle(win, gettext("Tcpmss"));
 
     form = VrNewForm(9, 58, 1, 1, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
-    VrFormSetSaveFunc(debuglvl, form, VrTcpmssIfaceSave, &config);
-    VrFormAddLabelField(debuglvl,   form, 1, 25, 1, 1,  vccnf.color_win, gettext("Enable TCP MSS clamping"));
-    VrFormAddCheckboxField(debuglvl,form,        1, 28, vccnf.color_win, "S", config.enabled);
-    VrFormConnectToWin(debuglvl, form, win);
-    VrFormPost(debuglvl, form);
+    VrFormSetSaveFunc(form, VrTcpmssIfaceSave, &config);
+    VrFormAddLabelField(  form, 1, 25, 1, 1,  vccnf.color_win, gettext("Enable TCP MSS clamping"));
+    VrFormAddCheckboxField(form,        1, 28, vccnf.color_win, "S", config.enabled);
+    VrFormConnectToWin(form, win);
+    VrFormPost(form);
     update_panels();
     doupdate();
 
@@ -132,17 +132,17 @@ VrTcpmssIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *
     char quit = FALSE;
     while(quit == FALSE)
     {
-        VrFormDrawMarker(debuglvl, win, form);
+        VrFormDrawMarker(win, form);
 
         ch = VrWinGetch(win);
 
         /* check OK/Cancel buttons */
-        result = VrFormCheckOKCancel(debuglvl, form, ch);
+        result = VrFormCheckOKCancel(form, ch);
         if (result == -1 || result == 1) {
             break;
         }
 
-        if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
+        if (VrFormDefaultNavigation(form, ch) == FALSE) {
             switch(ch)
             {
                 case KEY_DOWN:
@@ -160,14 +160,14 @@ VrTcpmssIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:INTERFACES:TCPMSS]:");
+                    print_help(":[VUURMUUR:INTERFACES:TCPMSS]:");
                     break;
             }
         }
     }
 
-    VrFormUnPost(debuglvl, form);
-    VrDelForm(debuglvl, form);
+    VrFormUnPost(form);
+    VrDelForm(form);
     VrDelWin(win);
     update_panels();
     doupdate();
@@ -182,7 +182,7 @@ struct ShapeIfaceCnf_ {
 };
 
 static void
-VrShapeIfaceSetup(const int debuglvl, struct ShapeIfaceCnf_ *c, struct vrmr_interface *iface_ptr)
+VrShapeIfaceSetup(struct ShapeIfaceCnf_ *c, struct vrmr_interface *iface_ptr)
 {
     vrmr_fatal_if_null(c);
     vrmr_fatal_if_null(iface_ptr);
@@ -205,7 +205,7 @@ VrShapeIfaceSetup(const int debuglvl, struct ShapeIfaceCnf_ *c, struct vrmr_inte
 }
 
 static int
-VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
+VrShapeIfaceSave(void *ctx, char *name, char *value)
 {
     struct ShapeIfaceCnf_ *c = (struct ShapeIfaceCnf_ *)ctx;
     u_int32_t oldrate = 0;
@@ -218,7 +218,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         c->iface_ptr->bw_in = atoi(value);
 
         if (oldrate != c->iface_ptr->bw_in) {
-            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "BW_IN", value, 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(c->vctx->ifac_backend, c->iface_ptr->name, "BW_IN", value, 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -238,7 +238,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         c->iface_ptr->bw_out = atoi(value);
 
         if (oldrate != c->iface_ptr->bw_out) {
-            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "BW_OUT", value, 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(c->vctx->ifac_backend, c->iface_ptr->name, "BW_OUT", value, 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -255,7 +255,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         }
     } else if(strcmp(name,"unit1") == 0) {
         if (strcmp(value, c->iface_ptr->bw_in_unit) != 0) {
-            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "BW_IN_UNIT", value, 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(c->vctx->ifac_backend, c->iface_ptr->name, "BW_IN_UNIT", value, 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -273,7 +273,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         strlcpy(c->iface_ptr->bw_in_unit, value, sizeof(c->iface_ptr->bw_in_unit));
     } else if(strcmp(name,"unit2") == 0) {
         if (strcmp(value, c->iface_ptr->bw_out_unit) != 0) {
-            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "BW_OUT_UNIT", value, 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(c->vctx->ifac_backend, c->iface_ptr->name, "BW_OUT_UNIT", value, 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -297,7 +297,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
         }
 
         if (c->enabled != enabled) {
-            result = c->vctx->af->tell(debuglvl, c->vctx->ifac_backend, c->iface_ptr->name, "SHAPE", enabled ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+            result = c->vctx->af->tell(c->vctx->ifac_backend, c->iface_ptr->name, "SHAPE", enabled ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -319,7 +319,7 @@ VrShapeIfaceSave(const int debuglvl, void *ctx, char *name, char *value)
 }
 
 void
-VrShapeIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
+VrShapeIface(struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
 {
     VrWin   *win = NULL;
     VrForm  *form = NULL;
@@ -327,26 +327,26 @@ VrShapeIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *i
     struct ShapeIfaceCnf_ config;
     config.vctx = vctx;
 
-    VrShapeIfaceSetup(debuglvl, &config, iface_ptr);
+    VrShapeIfaceSetup(&config, iface_ptr);
 
     /* create the window and put it in the middle of the screen */
     win = VrNewWin(11,51,0,0,vccnf.color_win);
     vrmr_fatal_if_null(win);
     VrWinSetTitle(win, gettext("Shaping"));
     form = VrNewForm(9, 58, 1, 1, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
-    VrFormSetSaveFunc(debuglvl, form, VrShapeIfaceSave, &config);
+    VrFormSetSaveFunc(form, VrShapeIfaceSave, &config);
 
-    VrFormAddLabelField(debuglvl,   form, 1, 25, 1, 1,  vccnf.color_win, gettext("Enable shaping"));
-    VrFormAddCheckboxField(debuglvl,form,        1, 28, vccnf.color_win, "S", config.enabled);
-    VrFormAddLabelField(debuglvl,   form, 1, 25, 3, 1,  vccnf.color_win, gettext("Incoming bandwidth"));
-    VrFormAddTextField(debuglvl,    form, 1, 10, 3, 28, vccnf.color_win_rev | A_BOLD, "in", config.in);
-    VrFormAddTextField(debuglvl,    form, 1,  5, 3, 41, vccnf.color_win_rev | A_BOLD, "unit1", config.in_unit);
-    VrFormAddLabelField(debuglvl,   form, 1, 25, 5, 1,  vccnf.color_win, gettext("Outgoing bandwidth"));
-    VrFormAddTextField(debuglvl,    form, 1, 10, 5, 28, vccnf.color_win_rev | A_BOLD, "out", config.out);
-    VrFormAddTextField(debuglvl,    form, 1,  5, 5, 41, vccnf.color_win_rev | A_BOLD, "unit2", config.out_unit);
+    VrFormAddLabelField(  form, 1, 25, 1, 1,  vccnf.color_win, gettext("Enable shaping"));
+    VrFormAddCheckboxField(form,        1, 28, vccnf.color_win, "S", config.enabled);
+    VrFormAddLabelField(  form, 1, 25, 3, 1,  vccnf.color_win, gettext("Incoming bandwidth"));
+    VrFormAddTextField(   form, 1, 10, 3, 28, vccnf.color_win_rev | A_BOLD, "in", config.in);
+    VrFormAddTextField(   form, 1,  5, 3, 41, vccnf.color_win_rev | A_BOLD, "unit1", config.in_unit);
+    VrFormAddLabelField(  form, 1, 25, 5, 1,  vccnf.color_win, gettext("Outgoing bandwidth"));
+    VrFormAddTextField(   form, 1, 10, 5, 28, vccnf.color_win_rev | A_BOLD, "out", config.out);
+    VrFormAddTextField(   form, 1,  5, 5, 41, vccnf.color_win_rev | A_BOLD, "unit2", config.out_unit);
 
-    VrFormConnectToWin(debuglvl, form, win);
-    VrFormPost(debuglvl, form);
+    VrFormConnectToWin(form, win);
+    VrFormPost(form);
     update_panels();
     doupdate();
 
@@ -354,12 +354,12 @@ VrShapeIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *i
     char quit = FALSE;
     while(quit == FALSE)
     {
-        VrFormDrawMarker(debuglvl, win, form);
+        VrFormDrawMarker(win, form);
 
         ch = VrWinGetch(win);
 
         /* check OK/Cancel buttons */
-        result = VrFormCheckOKCancel(debuglvl, form, ch);
+        result = VrFormCheckOKCancel(form, ch);
         if (result == -1 || result == 1) {
             break;
         }
@@ -371,13 +371,13 @@ VrShapeIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *i
             int h,w,i;
             field_info(form->cur, &i,&i,&h,&w,&i,&i);
 
-            char *u = VrShapeUnitMenu(debuglvl, field_buffer(form->cur, 0), h+2+win->y, w-1+win->x, 0);
-            vrmr_debug(__FUNC__, "u %s", u);
+            char *u = VrShapeUnitMenu(field_buffer(form->cur, 0), h+2+win->y, w-1+win->x, 0);
+            vrmr_debug(NONE, "u %s", u);
             if (u) {
-                set_field_buffer_wrap(debuglvl, form->cur, 0, u);
+                set_field_buffer_wrap(form->cur, 0, u);
                 free(u);
             }
-        } else if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
+        } else if (VrFormDefaultNavigation(form, ch) == FALSE) {
             switch(ch)
             {
                 case KEY_DOWN:
@@ -395,14 +395,14 @@ VrShapeIface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *i
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:INTERFACES:SHAPE]:");
+                    print_help(":[VUURMUUR:INTERFACES:SHAPE]:");
                     break;
             }
         }
     }
 
-    VrFormUnPost(debuglvl, form);
-    VrDelForm(debuglvl, form);
+    VrFormUnPost(form);
+    VrDelForm(form);
     VrDelWin(win);
     update_panels();
     doupdate();
@@ -461,7 +461,7 @@ struct
 
 
 int
-protectrule_loaded(const int debuglvl, struct vrmr_list *rules_list, char *action, char *danger, char *source)
+protectrule_loaded(struct vrmr_list *rules_list, char *action, char *danger, char *source)
 {
     struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
@@ -510,7 +510,7 @@ protectrule_loaded(const int debuglvl, struct vrmr_list *rules_list, char *actio
 }
 
 static void
-edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
+edit_interface_init(struct vrmr_ctx *vctx, char *name,
         int height, int width, int starty, int startx, struct vrmr_interface *iface_ptr)
 {
     int     rows,
@@ -531,33 +531,33 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
     /* active */
     IfSec.activelabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 2, 0, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.activelabelfld, 0, STR_CACTIVE);
+    set_field_buffer_wrap(IfSec.activelabelfld, 0, STR_CACTIVE);
     field_opts_off(IfSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.activefld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 3, 3, 1, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.activefld, 0, iface_ptr->active ? STR_YES : STR_NO);
+    set_field_buffer_wrap(IfSec.activefld, 0, iface_ptr->active ? STR_YES : STR_NO);
 
     /* device */
     IfSec.devicelabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 5, 0, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.devicelabelfld, 0, STR_CDEVICE);
+    set_field_buffer_wrap(IfSec.devicelabelfld, 0, STR_CDEVICE);
     field_opts_off(IfSec.devicelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.devicefld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 12, 6, 1, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.devicefld, 0, iface_ptr->device);
+    set_field_buffer_wrap(IfSec.devicefld, 0, iface_ptr->device);
 
     /* ipaddress */
     IfSec.ipaddresslabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 7, 0, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.ipaddresslabelfld, 0, STR_IPADDRESS);
+    set_field_buffer_wrap(IfSec.ipaddresslabelfld, 0, STR_IPADDRESS);
     field_opts_off(IfSec.ipaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.ipaddressfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 8, 1, 0, 0));
     field_num++;
     set_field_type(IfSec.ipaddressfld, TYPE_IPV4);
-    set_field_buffer_wrap(debuglvl, IfSec.ipaddressfld, 0, iface_ptr->ipv4.ipaddress);
+    set_field_buffer_wrap(IfSec.ipaddressfld, 0, iface_ptr->ipv4.ipaddress);
 
     /* if ipaddress is dynamic, we don't want to edit the ipaddress */
     if(iface_ptr->dynamic)
@@ -566,132 +566,132 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
     /* ip6address */
     IfSec.ip6addresslabelfld = (InterfacesSection.EditInterface.fields[field_num++] = new_field(1, 16, 9, 0, 0, 0));
 #ifdef IPV6_ENABLED
-    set_field_buffer_wrap(debuglvl, IfSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
+    set_field_buffer_wrap(IfSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
 #endif
     field_opts_off(IfSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.ip6addressfld = (InterfacesSection.EditInterface.fields[field_num++] = new_field(1, VRMR_MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
     //set_field_type(IfSec.ip6addressfld, TYPE_IPV6);
 #ifdef IPV6_ENABLED
-    set_field_buffer_wrap(debuglvl, IfSec.ip6addressfld, 0, iface_ptr->ipv6.ip6);
+    set_field_buffer_wrap(IfSec.ip6addressfld, 0, iface_ptr->ipv6.ip6);
 #endif
 
     /* dynamic ip toggle */
     IfSec.dynamicbracketsfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 3, 6, 20, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.dynamicbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(IfSec.dynamicbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.dynamicbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.dynamiclabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 18, 5, 19, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.dynamiclabelfld, 0, STR_CDYNAMICIP);
+    set_field_buffer_wrap(IfSec.dynamiclabelfld, 0, STR_CDYNAMICIP);
     field_opts_off(IfSec.dynamiclabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.dynamicfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 1, 6, 21, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.dynamicfld, 0, iface_ptr->dynamic ? "X" : " ");
+    set_field_buffer_wrap(IfSec.dynamicfld, 0, iface_ptr->dynamic ? "X" : " ");
 
 
     /* is the device virtual */
     IfSec.devicevirtualbracketsfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 3, 8, 20, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.devicevirtualbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(IfSec.devicevirtualbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.devicevirtualbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.devicevirtuallabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 18, 7, 19, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.devicevirtuallabelfld, 0, STR_CVIRTUAL);
+    set_field_buffer_wrap(IfSec.devicevirtuallabelfld, 0, STR_CVIRTUAL);
     field_opts_off(IfSec.devicevirtuallabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.devicevirtualfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 1, 8, 21, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.devicevirtualfld, 0, iface_ptr->device_virtual ? "X" : " ");
+    set_field_buffer_wrap(IfSec.devicevirtualfld, 0, iface_ptr->device_virtual ? "X" : " ");
 
     /* protect label */
     IfSec.labelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 2, 38, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.labelfld, 0, gettext("Protection"));
+    set_field_buffer_wrap(IfSec.labelfld, 0, gettext("Protection"));
     field_opts_off(IfSec.labelfld, O_AUTOSKIP | O_ACTIVE);
 
     /* source routed packets */
     IfSec.srcrtpktsbracketsfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 3, 4, 54, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.srcrtpktsbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(IfSec.srcrtpktsbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.srcrtpktsbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.srcrtpktslabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 14, 4, 38, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.srcrtpktslabelfld, 0, "Src-rt-pkts");
+    set_field_buffer_wrap(IfSec.srcrtpktslabelfld, 0, "Src-rt-pkts");
     field_opts_off(IfSec.srcrtpktslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.srcrtpktsfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 1, 4, 55, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.srcrtpktsfld, 0, protectrule_loaded(debuglvl, &iface_ptr->ProtectList, "protect", "source-routed-packets", NULL) ? "X" : " ");
+    set_field_buffer_wrap(IfSec.srcrtpktsfld, 0, protectrule_loaded(&iface_ptr->ProtectList, "protect", "source-routed-packets", NULL) ? "X" : " ");
 
     /* icmp redirects */
     IfSec.icmpredirectbracketsfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 3, 5, 54, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.icmpredirectbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(IfSec.icmpredirectbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.icmpredirectbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.icmpredirectlabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 14, 5, 38, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.icmpredirectlabelfld, 0, "Icmp-redirect");
+    set_field_buffer_wrap(IfSec.icmpredirectlabelfld, 0, "Icmp-redirect");
     field_opts_off(IfSec.icmpredirectlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.icmpredirectfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 1, 5, 55, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.icmpredirectfld, 0, protectrule_loaded(debuglvl, &iface_ptr->ProtectList, "protect", "icmp-redirect", NULL) ? "X" : " ");
+    set_field_buffer_wrap(IfSec.icmpredirectfld, 0, protectrule_loaded(&iface_ptr->ProtectList, "protect", "icmp-redirect", NULL) ? "X" : " ");
 
     /* send redirect */
     IfSec.sendredirectbracketsfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 3, 6, 54, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.sendredirectbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(IfSec.sendredirectbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.sendredirectbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.sendredirectlabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 14, 6, 38, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.sendredirectlabelfld, 0, "Send-redirect");
+    set_field_buffer_wrap(IfSec.sendredirectlabelfld, 0, "Send-redirect");
     field_opts_off(IfSec.sendredirectlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.sendredirectfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 1, 6, 55, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.sendredirectfld, 0, protectrule_loaded(debuglvl, &iface_ptr->ProtectList, "protect", "send-redirect", NULL) ? "X" : " ");
+    set_field_buffer_wrap(IfSec.sendredirectfld, 0, protectrule_loaded(&iface_ptr->ProtectList, "protect", "send-redirect", NULL) ? "X" : " ");
 
     /* rp filter */
     IfSec.rpfilterbracketsfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 3, 7, 54, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.rpfilterbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(IfSec.rpfilterbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.rpfilterbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.rpfilterlabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 14, 7, 38, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.rpfilterlabelfld, 0, "Rp-filter");
+    set_field_buffer_wrap(IfSec.rpfilterlabelfld, 0, "Rp-filter");
     field_opts_off(IfSec.rpfilterlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.rpfilterfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 1, 7, 55, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.rpfilterfld, 0, protectrule_loaded(debuglvl, &iface_ptr->ProtectList, "protect", "rp-filter", NULL) ? "X" : " ");
+    set_field_buffer_wrap(IfSec.rpfilterfld, 0, protectrule_loaded(&iface_ptr->ProtectList, "protect", "rp-filter", NULL) ? "X" : " ");
 
     /* log martians */
     IfSec.logmartiansbracketsfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 3, 8, 54, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.logmartiansbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(IfSec.logmartiansbracketsfld, 0, "[ ]");
     field_opts_off(IfSec.logmartiansbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.logmartianslabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 14, 8, 38, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.logmartianslabelfld, 0, "Log martians");
+    set_field_buffer_wrap(IfSec.logmartianslabelfld, 0, "Log martians");
     field_opts_off(IfSec.logmartianslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     IfSec.logmartiansfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 1, 8, 55, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.logmartiansfld, 0, protectrule_loaded(debuglvl, &iface_ptr->ProtectList, "protect", "log-martians", NULL) ? "X" : " ");
+    set_field_buffer_wrap(IfSec.logmartiansfld, 0, protectrule_loaded(&iface_ptr->ProtectList, "protect", "log-martians", NULL) ? "X" : " ");
 
     /* comment */
     IfSec.commentlabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 16, 12, 0, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.commentlabelfld, 0, gettext("Comment"));
+    set_field_buffer_wrap(IfSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(IfSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     comment_y = 5;
@@ -699,13 +699,13 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
 
     IfSec.commentfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(comment_y, comment_x, 13, 1, 0, 0));
     field_num++;
-    if (vctx->af->ask(debuglvl, vctx->ifac_backend, iface_ptr->name, "COMMENT", InterfacesSection.comment, sizeof(InterfacesSection.comment), VRMR_TYPE_INTERFACE, 0) < 0)
+    if (vctx->af->ask(vctx->ifac_backend, iface_ptr->name, "COMMENT", InterfacesSection.comment, sizeof(InterfacesSection.comment), VRMR_TYPE_INTERFACE, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
-    set_field_buffer_wrap(debuglvl, IfSec.commentfld, 0, InterfacesSection.comment);
+    set_field_buffer_wrap(IfSec.commentfld, 0, InterfacesSection.comment);
 
     /* now check if the interface is currently up */
-    if(vrmr_interfaces_iface_up(debuglvl, iface_ptr) == 1)
+    if(vrmr_interfaces_iface_up(iface_ptr) == 1)
         iface_ptr->up = TRUE;
     else
         iface_ptr->up = FALSE;
@@ -714,12 +714,12 @@ edit_interface_init(const int debuglvl, struct vrmr_ctx *vctx, char *name,
     IfSec.interfaceuplabelfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 18, 2, 19, 0, 0));
     field_num++;
     /* TRANSLATORS: max 18 chars */
-    set_field_buffer_wrap(debuglvl, IfSec.interfaceuplabelfld, 0, gettext("Is interface up?"));
+    set_field_buffer_wrap(IfSec.interfaceuplabelfld, 0, gettext("Is interface up?"));
     field_opts_off(IfSec.interfaceuplabelfld, O_ACTIVE);
 
     IfSec.interfaceupfld = (InterfacesSection.EditInterface.fields[field_num] = new_field(1, 6, 3, 20, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, IfSec.interfaceupfld, 0, iface_ptr->up ? STR_YES : STR_NO);
+    set_field_buffer_wrap(IfSec.interfaceupfld, 0, iface_ptr->up ? STR_YES : STR_NO);
     field_opts_off(IfSec.interfaceupfld, O_ACTIVE);
 
     /* terminate the fields */
@@ -817,52 +817,52 @@ edit_interface_destroy(void)
 
 
 static int
-edit_interface_save_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
+edit_interface_save_rules(struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
 {
     struct vrmr_rule    *rule_ptr = NULL;
 
     /* safety */
     vrmr_fatal_if_null(iface_ptr);
 
-    vrmr_list_cleanup(debuglvl, &iface_ptr->ProtectList);
+    vrmr_list_cleanup(&iface_ptr->ProtectList);
 
     if(field_buffer(IfSec.srcrtpktsfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "source-routed-packets", NULL);
+        rule_ptr = rules_create_protect_rule("protect", iface_ptr->name, "source-routed-packets", NULL);
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&iface_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(IfSec.icmpredirectfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "icmp-redirect", NULL);
+        rule_ptr = rules_create_protect_rule("protect", iface_ptr->name, "icmp-redirect", NULL);
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&iface_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(IfSec.sendredirectfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "send-redirect", NULL);
+        rule_ptr = rules_create_protect_rule("protect", iface_ptr->name, "send-redirect", NULL);
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&iface_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(IfSec.rpfilterfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "rp-filter", NULL);
+        rule_ptr = rules_create_protect_rule("protect", iface_ptr->name, "rp-filter", NULL);
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&iface_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(IfSec.logmartiansfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", iface_ptr->name, "log-martians", NULL);
+        rule_ptr = rules_create_protect_rule("protect", iface_ptr->name, "log-martians", NULL);
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &iface_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&iface_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     /* now let try to write this to the backend */
-    if(vrmr_interfaces_save_rules(debuglvl, vctx, iface_ptr) < 0)
+    if(vrmr_interfaces_save_rules(vctx, iface_ptr) < 0)
     {
         vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                 STR_SAVING_TO_BACKEND_FAILED, __FUNC__, __LINE__);
@@ -879,7 +879,7 @@ edit_interface_save_rules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
     -1: error
 */
 static int
-edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
+edit_interface_save(struct vrmr_ctx *vctx, struct vrmr_interface *iface_ptr)
 {
     int                     retval = 0,
                             result = 0,
@@ -894,7 +894,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
     vrmr_fatal_if_null(iface_ptr);
 
     /* get a temp interface */
-    tempiface_ptr = vrmr_interface_malloc(debuglvl);
+    tempiface_ptr = vrmr_interface_malloc();
     vrmr_fatal_alloc("vrmr_interface_malloc", tempiface_ptr);
 
     /* copy the interface to the temp one */
@@ -927,7 +927,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                 tempiface_ptr->active = -1;
             }
 
-            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "ACTIVE", tempiface_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+            result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name, "ACTIVE", tempiface_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -952,7 +952,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                     field_buffer(InterfacesSection.EditInterface.fields[i], 0),
                     sizeof(tempiface_ptr->ipv4.ipaddress));
 
-            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
+            result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -978,7 +978,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                     field_buffer(InterfacesSection.EditInterface.fields[i], 0),
                     sizeof(tempiface_ptr->ipv6.ip6));
 
-            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPV6ADDRESS", tempiface_ptr->ipv6.ip6, 1, VRMR_TYPE_INTERFACE);
+            result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name, "IPV6ADDRESS", tempiface_ptr->ipv6.ip6, 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1004,7 +1004,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
             {
                 tempiface_ptr->dynamic = 1;
 
-                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", "dynamic", 1, VRMR_TYPE_INTERFACE);
+                result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", "dynamic", 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1018,7 +1018,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
             {
                 tempiface_ptr->dynamic = 0;
 
-                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
+                result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name, "IPADDRESS", tempiface_ptr->ipv4.ipaddress, 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1047,7 +1047,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                     field_buffer(InterfacesSection.EditInterface.fields[i], 0),
                     sizeof(tempiface_ptr->device));
 
-            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "DEVICE", tempiface_ptr->device, 1, VRMR_TYPE_INTERFACE);
+            result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name, "DEVICE", tempiface_ptr->device, 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1065,12 +1065,12 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
 
             /*  if the devicename indicates a virtual
                 interface, set virtual to TRUE. */
-            if( vrmr_interface_check_devicename(debuglvl, tempiface_ptr->device) == 0 &&
+            if( vrmr_interface_check_devicename(tempiface_ptr->device) == 0 &&
                     strncasecmp(field_buffer(InterfacesSection.EditInterface.fields[i], 0), "X", 1) != 0)
             {
                 tempiface_ptr->device_virtual = 1;
 
-                result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+                result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name, "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
                 if(result < 0)
                 {
                     vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1089,7 +1089,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
         }
         else if(InterfacesSection.EditInterface.fields[i] == IfSec.commentfld)
         {
-            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "COMMENT", field_buffer(InterfacesSection.EditInterface.fields[i], 0), 1, VRMR_TYPE_INTERFACE);
+            result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name, "COMMENT", field_buffer(InterfacesSection.EditInterface.fields[i], 0), 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1117,7 +1117,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
                 tempiface_ptr->device_virtual = 0;
             }
 
-            result = vctx->af->tell(debuglvl, vctx->ifac_backend, tempiface_ptr->name, "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
+            result = vctx->af->tell(vctx->ifac_backend, tempiface_ptr->name, "VIRTUAL", tempiface_ptr->device_virtual ? "Yes" : "No", 1, VRMR_TYPE_INTERFACE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
@@ -1144,7 +1144,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
         {
             status = VRMR_ST_CHANGED;
 
-            if(edit_interface_save_rules(debuglvl, vctx, tempiface_ptr) < 0)
+            if(edit_interface_save_rules(vctx, tempiface_ptr) < 0)
             {
                 vrmr_error(-1, VR_ERR, "%s (in: %s:%d).",
                         STR_SAVING_TO_BACKEND_FAILED,
@@ -1196,7 +1196,7 @@ edit_interface_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_inter
     -1: error.
 */
 static int
-edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces *interfaces, char *name)
+edit_interface(struct vrmr_ctx *vctx, struct vrmr_interfaces *interfaces, char *name)
 {
     int                     ch; /* keystroke catcher */
     int                     height,
@@ -1235,13 +1235,13 @@ edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces
     /* TODO: advanced option */
 
     /* search the interface in memory */
-    iface_ptr = vrmr_search_interface(debuglvl, interfaces, name);
+    iface_ptr = vrmr_search_interface(interfaces, name);
     vrmr_fatal_if_null(iface_ptr);
 
-    edit_interface_init(debuglvl, vctx, name, height, width, starty, startx, iface_ptr);
+    edit_interface_init(vctx, name, height, width, starty, startx, iface_ptr);
     cur = current_field(InterfacesSection.EditInterface.form);
 
-    draw_top_menu(debuglvl, top_win, gettext("Edit Interface"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Edit Interface"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     // Loop through to get user requests
     while(quit == 0)
@@ -1320,19 +1320,19 @@ edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces
         /* comment */
         if(cur == IfSec.commentfld)
         {
-            if(nav_field_comment(debuglvl, InterfacesSection.EditInterface.form, ch) < 0)
+            if(nav_field_comment(InterfacesSection.EditInterface.form, ch) < 0)
                 not_defined = 1;
         }
         /* active */
         else if(cur == IfSec.activefld)
         {
-            if(nav_field_yesno(debuglvl, InterfacesSection.EditInterface.form, ch) < 0)
+            if(nav_field_yesno(InterfacesSection.EditInterface.form, ch) < 0)
                 not_defined = 1;
         }
         /* dynamic */
         else if(cur == IfSec.dynamicfld)
         {
-            if(nav_field_toggleX(debuglvl, InterfacesSection.EditInterface.form, ch) < 0)
+            if(nav_field_toggleX(InterfacesSection.EditInterface.form, ch) < 0)
                 not_defined = 1;
 
             /* set the ipaddress field to active/inactive */
@@ -1350,14 +1350,14 @@ edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces
                 cur == IfSec.rpfilterfld        ||
                 cur == IfSec.logmartiansfld)
         {
-            if(nav_field_toggleX(debuglvl, InterfacesSection.EditInterface.form, ch) < 0)
+            if(nav_field_toggleX(InterfacesSection.EditInterface.form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == IfSec.ipaddressfld ||
                 cur == IfSec.devicefld ||
                 cur == IfSec.ip6addressfld)
         {
-            if(nav_field_simpletext(debuglvl, InterfacesSection.EditInterface.form, ch) < 0)
+            if(nav_field_simpletext(InterfacesSection.EditInterface.form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -1397,7 +1397,7 @@ edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces
                 case 'H':
                 case '?':
 
-                    print_help(debuglvl, ":[VUURMUUR:INTERFACES:EDIT]:");
+                    print_help(":[VUURMUUR:INTERFACES:EDIT]:");
                     break;
 
                 /* enable advanced mode */
@@ -1415,7 +1415,7 @@ edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces
                 case 's':
                 case 'S':
                     if(field_buffer(IfSec.devicevirtualfld, 0)[0] != 'X')
-                        VrShapeIface(debuglvl, vctx, iface_ptr);
+                        VrShapeIface(vctx, iface_ptr);
                     else
                         vrmr_warning(VR_WARN, gettext("shaping is not supported on a virtual interface."));
                     break;
@@ -1423,7 +1423,7 @@ edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces
                 case 't':
                 case 'T':
                     if(field_buffer(IfSec.devicevirtualfld, 0)[0] != 'X')
-                        VrTcpmssIface(debuglvl, vctx, iface_ptr);
+                        VrTcpmssIface(vctx, iface_ptr);
                     else
                         vrmr_warning(VR_WARN, gettext("tcpmss is not supported on a virtual interface."));
                     break;
@@ -1442,7 +1442,7 @@ edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces
     doupdate();
 
     /* save changes */
-    retval = edit_interface_save(debuglvl, vctx, iface_ptr);
+    retval = edit_interface_save(vctx, iface_ptr);
 
     /* destroy */
     edit_interface_destroy();
@@ -1452,7 +1452,7 @@ edit_interface(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_interfaces
 
 
 static int
-init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
+init_interfaces_section(struct vrmr_interfaces *interfaces)
 {
     int                     retval = 0,
                             i = 0;
@@ -1472,7 +1472,7 @@ init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
 
     InterfacesSection.list_items = interfaces->list.len;
 
-    vrmr_list_setup(debuglvl, &InterfacesSection.desc_list, free);
+    vrmr_list_setup(&InterfacesSection.desc_list, free);
 
     if(!(InterfacesSection.items = (ITEM **)calloc(InterfacesSection.list_items + 1, sizeof(ITEM *))))
     {
@@ -1509,7 +1509,7 @@ init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
 
         (void)strlcpy(desc_ptr, temp, size);
 
-        if(vrmr_list_append(debuglvl, &InterfacesSection.desc_list, desc_ptr) == NULL)
+        if(vrmr_list_append(&InterfacesSection.desc_list, desc_ptr) == NULL)
         {
             vrmr_error(-1, VR_INTERR, "vrmr_list_append() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -1613,7 +1613,7 @@ init_interfaces_section(const int debuglvl, struct vrmr_interfaces *interfaces)
 
 
 static int
-destroy_interfaces_section(const int debuglvl)
+destroy_interfaces_section(void)
 {
     int     retval = 0;
     size_t  i = 0;
@@ -1628,7 +1628,7 @@ destroy_interfaces_section(const int debuglvl)
     del_panel(InterfacesSection.panel[0]);
     destroy_win(InterfacesSection.win);
 
-    vrmr_list_cleanup(debuglvl, &InterfacesSection.desc_list);
+    vrmr_list_cleanup(&InterfacesSection.desc_list);
 
     del_panel(InterfacesSection.panel_top[0]);
     destroy_win(InterfacesSection.win_top);
@@ -1640,7 +1640,7 @@ destroy_interfaces_section(const int debuglvl)
 
 
 static int
-rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
+rename_interface(struct vrmr_ctx *vctx,
             struct vrmr_interfaces *interfaces, struct vrmr_zones *zones,
             struct vrmr_rules *rules, char *cur_name_ptr, char *new_name_ptr)
 {
@@ -1666,7 +1666,7 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
     (void)strlcpy(save_name, cur_name_ptr, sizeof(save_name));
 
     /* get the int from the list */
-    if(!(iface_ptr = vrmr_search_interface(debuglvl, interfaces, cur_name_ptr)))
+    if(!(iface_ptr = vrmr_search_interface(interfaces, cur_name_ptr)))
     {
         vrmr_error(-1, VR_INTERR, "interface not found in "
             "the list (in: %s:%d).", __FUNC__, __LINE__);
@@ -1675,7 +1675,7 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
 
     /*  rename in the backend.The backend will report errors if there
         are any. */
-    result = vctx->af->rename(debuglvl, vctx->ifac_backend, cur_name_ptr, new_name_ptr, VRMR_TYPE_INTERFACE);
+    result = vctx->af->rename(vctx->ifac_backend, cur_name_ptr, new_name_ptr, VRMR_TYPE_INTERFACE);
     if(result != 0)
     {
         return(-1);
@@ -1711,7 +1711,7 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
                 if(strcmp(iface_ptr->name, new_name_ptr) == 0)
                 {
                     /* save the interface list so the backend knows about the changed name in the list */
-                    if(vrmr_zones_network_save_interfaces(debuglvl, vctx, zone_ptr) < 0)
+                    if(vrmr_zones_network_save_interfaces(vctx, zone_ptr) < 0)
                     {
                         vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                         return(-1);
@@ -1735,8 +1735,7 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
         }
         if(rule_ptr->opt != NULL)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "in_int: '%s', "
+            vrmr_debug(HIGH, "in_int: '%s', "
                     "in_int: '%s', via_int: '%s'.",
                     rule_ptr->opt->in_int,
                     rule_ptr->opt->out_int,
@@ -1748,9 +1747,7 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
                 /* set the new name to the rules */
                 (void)strlcpy(rule_ptr->opt->in_int, new_name_ptr, sizeof(rule_ptr->opt->in_int));
                 rules_changed = 1;
-
-                if(debuglvl >= LOW)
-                    vrmr_debug(__FUNC__, "rule changed!");
+                vrmr_debug(LOW, "rule changed!");
             }
             /* do the same thing for out_int */
             if(strcmp(rule_ptr->opt->out_int, save_name) == 0)
@@ -1758,9 +1755,7 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
                 /* set the new name to the rules */
                 (void)strlcpy(rule_ptr->opt->out_int, new_name_ptr, sizeof(rule_ptr->opt->out_int));
                 rules_changed = 1;
-
-                if(debuglvl >= LOW)
-                    vrmr_debug(__FUNC__, "rule changed!");
+                vrmr_debug(LOW, "rule changed!");
             }
             /* do the same thing for via_int */
             if(strcmp(rule_ptr->opt->via_int, save_name) == 0)
@@ -1768,19 +1763,16 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
                 /* set the new name to the rules */
                 (void)strlcpy(rule_ptr->opt->via_int, new_name_ptr, sizeof(rule_ptr->opt->via_int));
                 rules_changed = 1;
-
-                if(debuglvl >= LOW)
-                    vrmr_debug(__FUNC__, "rule changed!");
+                vrmr_debug(LOW, "rule changed!");
             }
         }
     }
     /* if we have made changes we write the rulesfile */
     if(rules_changed == 1)
     {
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "rules changed");
+        vrmr_debug(LOW, "rules changed");
 
-        if(vrmr_rules_save_list(debuglvl, vctx, rules, &vctx->conf) < 0)
+        if(vrmr_rules_save_list(vctx, rules, &vctx->conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
@@ -1794,7 +1786,7 @@ rename_interface(const int debuglvl, struct vrmr_ctx *vctx,
 
 
 static int
-interfaces_section_vrmr_delete_interface(const int debuglvl, struct vrmr_ctx *vctx,
+interfaces_section_vrmr_delete_interface(struct vrmr_ctx *vctx,
         struct vrmr_interfaces *interfaces, char *cur_name_ptr)
 {
     int                     result = 0;
@@ -1812,7 +1804,7 @@ interfaces_section_vrmr_delete_interface(const int debuglvl, struct vrmr_ctx *vc
     /* for audit log */
     (void)strlcpy(save_name, cur_name_ptr, sizeof(save_name));
 
-    if(!(iface_ptr = vrmr_search_interface(debuglvl, interfaces, cur_name_ptr)))
+    if(!(iface_ptr = vrmr_search_interface(interfaces, cur_name_ptr)))
     {
         vrmr_error(-1, VR_INTERR, "search_interface() failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
@@ -1826,7 +1818,7 @@ interfaces_section_vrmr_delete_interface(const int debuglvl, struct vrmr_ctx *vc
         return(-1);
     }
 
-    result = vrmr_delete_interface(debuglvl, vctx, interfaces, iface_ptr->name);
+    result = vrmr_delete_interface(vctx, interfaces, iface_ptr->name);
     if(result < 0)
     {
         return(-1);
@@ -1839,7 +1831,7 @@ interfaces_section_vrmr_delete_interface(const int debuglvl, struct vrmr_ctx *vc
 
 
 void
-interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
+interfaces_section(struct vrmr_ctx *vctx,
         struct vrmr_interfaces *interfaces, struct vrmr_zones *zones,
         struct vrmr_rules *rules, struct vrmr_regex *reg)
 {
@@ -1868,11 +1860,11 @@ interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
     int     cmd_choices_n = 6;
 
 
-    result = init_interfaces_section(debuglvl, interfaces);
+    result = init_interfaces_section(interfaces);
     if(result < 0)
         return;
 
-    draw_top_menu(debuglvl, top_win, gettext("Interfaces"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Interfaces"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     // refresh screen
     update_panels();
@@ -1882,11 +1874,11 @@ interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
     {
         if(reload == 1)
         {
-            result=destroy_interfaces_section(debuglvl);
+            result=destroy_interfaces_section();
             if(result < 0)
                 return;
 
-            result = init_interfaces_section(debuglvl, interfaces);
+            result = init_interfaces_section(interfaces);
             if(result < 0)
                 return;
 
@@ -1937,9 +1929,9 @@ interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
                             new_name_ptr = input_box(32, gettext("Rename Interface"), STR_PLEASE_ENTER_THE_NAME);
                             if(new_name_ptr != NULL)
                             {
-                                if(vrmr_validate_interfacename(debuglvl, new_name_ptr, reg->interfacename) == 0)
+                                if(vrmr_validate_interfacename(new_name_ptr, reg->interfacename) == 0)
                                 {
-                                    result = rename_interface(debuglvl, vctx, interfaces, zones, rules, cur_name_ptr, new_name_ptr);
+                                    result = rename_interface(vctx, interfaces, zones, rules, cur_name_ptr, new_name_ptr);
                                     if(result == 0)
                                     {
                                         reload = 1;
@@ -1966,16 +1958,16 @@ interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
                     new_name_ptr = input_box(32, gettext("New Interface"), STR_PLEASE_ENTER_THE_NAME);
                     if(new_name_ptr != NULL)
                     {
-                        if(vrmr_validate_interfacename(debuglvl, new_name_ptr, reg->interfacename) == 0)
+                        if(vrmr_validate_interfacename(new_name_ptr, reg->interfacename) == 0)
                         {
-                            result = vrmr_new_interface(debuglvl, vctx, interfaces, new_name_ptr);
+                            result = vrmr_new_interface(vctx, interfaces, new_name_ptr);
                             if(result == 0)
                             {
                                 /* example: "interface '%s' has been created." */
                                 vrmr_audit("%s '%s' %s.", STR_INTERFACE, new_name_ptr, STR_HAS_BEEN_CREATED);
 
-                                edit_interface(debuglvl, vctx, interfaces, new_name_ptr);
-                                draw_top_menu(debuglvl, top_win, gettext("Interfaces"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                                edit_interface(vctx, interfaces, new_name_ptr);
+                                draw_top_menu(top_win, gettext("Interfaces"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
                                 reload = 1;
                             }
@@ -2004,7 +1996,7 @@ interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
                         {
                             char *n = (char *)item_name(cur);
 
-                            result = interfaces_section_vrmr_delete_interface(debuglvl, vctx, interfaces, n);
+                            result = interfaces_section_vrmr_delete_interface(vctx, interfaces, n);
                             if(result < 0)
                             {
                                 vrmr_error(-1, VR_ERR, gettext("deleting interface %s failed."), (char *)item_name(cur));
@@ -2049,10 +2041,10 @@ interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
                     cur = current_item(InterfacesSection.menu);
                     if(cur)
                     {
-                        if(edit_interface(debuglvl, vctx, interfaces, (char *)item_name(cur)) == 1)
+                        if(edit_interface(vctx, interfaces, (char *)item_name(cur)) == 1)
                             reload = 1;
 
-                        draw_top_menu(debuglvl, top_win, gettext("Interfaces"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        draw_top_menu(top_win, gettext("Interfaces"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     }
                     break;
 
@@ -2061,19 +2053,19 @@ interfaces_section(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'H':
                 case '?':
 
-                    print_help(debuglvl, ":[VUURMUUR:INTERFACES]:");
+                    print_help(":[VUURMUUR:INTERFACES]:");
                     break;
 
 /*              case 'b':
 
-                    bandwidth_get_iface(debuglvl, "eth0");
+                    bandwidth_get_iface("eth0");
                     break;
 */          }
         }
     }
 
 //TODO
-    (void)destroy_interfaces_section(debuglvl);
+    (void)destroy_interfaces_section();
 
     // refresh screen
     update_panels();

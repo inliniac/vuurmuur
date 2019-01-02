@@ -317,7 +317,7 @@ static int get_system_uptime(char *s_day, char *s_hour, char *s_minute, char *s_
         -1: error
 */
 static int
-status_section_init(const int debuglvl, int height, int width, int starty, int startx, unsigned int ifac_num)
+status_section_init(int height, int width, int starty, int startx, unsigned int ifac_num)
 {
     int             rows,
                     cols,
@@ -346,68 +346,68 @@ status_section_init(const int debuglvl, int height, int width, int starty, int s
 
     /* create the fields */
     StatusSection.fields[0] = new_field(1, 5, 4, 13, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[0], 1, "ld_s");
+    set_field_buffer_wrap(StatusSection.fields[0], 1, "ld_s");
     StatusSection.fields[1] = new_field(1, 5, 4, 19, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[1], 1, "ld_m");
+    set_field_buffer_wrap(StatusSection.fields[1], 1, "ld_m");
     StatusSection.fields[2] = new_field(1, 5, 4, 25, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[2], 1, "ld_l");
+    set_field_buffer_wrap(StatusSection.fields[2], 1, "ld_l");
 
     StatusSection.fields[3] = new_field(1, 6, 4, 43, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[3], 1, "mem_t");
+    set_field_buffer_wrap(StatusSection.fields[3], 1, "mem_t");
     StatusSection.fields[4] = new_field(1, 6, 4, 51, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[4], 1, "mem_f");
+    set_field_buffer_wrap(StatusSection.fields[4], 1, "mem_f");
     StatusSection.fields[5] = new_field(1, 6, 4, 59, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[5], 1, "mem_c");
+    set_field_buffer_wrap(StatusSection.fields[5], 1, "mem_c");
     StatusSection.fields[6] = new_field(1, 6, 4, 67, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[6], 1, "mem_b");
+    set_field_buffer_wrap(StatusSection.fields[6], 1, "mem_b");
 
     StatusSection.fields[7] = new_field(1, 4, 1, 61, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[7], 1, "up_d");
+    set_field_buffer_wrap(StatusSection.fields[7], 1, "up_d");
     StatusSection.fields[8] = new_field(1, 2, 1, 66, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[8], 1, "uh");
+    set_field_buffer_wrap(StatusSection.fields[8], 1, "uh");
     StatusSection.fields[9] = new_field(1, 2, 1, 69, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[9], 1, "um");
+    set_field_buffer_wrap(StatusSection.fields[9], 1, "um");
     StatusSection.fields[10] = new_field(1, 2, 1, 72, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[10], 1, "us");
+    set_field_buffer_wrap(StatusSection.fields[10], 1, "us");
 
 
     StatusSection.fields[11] = new_field(1, 6, 6, 23, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[11], 1, "con_t");
+    set_field_buffer_wrap(StatusSection.fields[11], 1, "con_t");
     StatusSection.fields[12] = new_field(1, 6, 7, 23, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[12], 1, "con_u");
+    set_field_buffer_wrap(StatusSection.fields[12], 1, "con_u");
     StatusSection.fields[13] = new_field(1, 6, 6, 41, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[13], 1, "con_o");
+    set_field_buffer_wrap(StatusSection.fields[13], 1, "con_o");
 
     StatusSection.fields[14] = new_field(1, 6, 6, 59, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[14], 1, "con_c");
+    set_field_buffer_wrap(StatusSection.fields[14], 1, "con_c");
     StatusSection.fields[15] = new_field(1, 6, 7, 59, 0, 1);
-    set_field_buffer_wrap(debuglvl, StatusSection.fields[15], 1, "con_m");
+    set_field_buffer_wrap(StatusSection.fields[15], 1, "con_m");
 
     /* create iface stats fields */
     for(ifacs = 0, ifac_fields = 16; ifacs < ifac_num; ifacs++)
     {
         StatusSection.fields[ifac_fields] = new_field(1, 8, (int)(ifac_start+ifacs), 13, 0, 1);
-        set_field_buffer_wrap(debuglvl, StatusSection.fields[ifac_fields], 1, "recv_s");
+        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "recv_s");
         ifac_fields++;
 
         StatusSection.fields[ifac_fields] = new_field(1, 8, (int)(ifac_start+ifacs), 22, 0, 1);
-        set_field_buffer_wrap(debuglvl, StatusSection.fields[ifac_fields], 1, "send_s");
+        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "send_s");
         ifac_fields++;
 
         StatusSection.fields[ifac_fields] = new_field(1, 10, (int)(ifac_start+ifacs), 31, 0, 1);
-        set_field_buffer_wrap(debuglvl, StatusSection.fields[ifac_fields], 1, "rcv_ti");
+        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "rcv_ti");
         ifac_fields++;
 
         StatusSection.fields[ifac_fields] = new_field(1, 10, (int)(ifac_start+ifacs), 42, 0, 1);
-        set_field_buffer_wrap(debuglvl, StatusSection.fields[ifac_fields], 1, "snd_to");
+        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "snd_to");
         ifac_fields++;
 
         StatusSection.fields[ifac_fields] = new_field(1, 10, (int)(ifac_start+ifacs), 53, 0, 1);
-        set_field_buffer_wrap(debuglvl, StatusSection.fields[ifac_fields], 1, "rcv_tf");
+        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "rcv_tf");
         ifac_fields++;
 
         StatusSection.fields[ifac_fields] = new_field(1, 10, (int)(ifac_start+ifacs), 64, 0, 1);
-        set_field_buffer_wrap(debuglvl, StatusSection.fields[ifac_fields], 1, "snd_tf");
+        set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "snd_tf");
         ifac_fields++;
     }
 
@@ -429,7 +429,7 @@ status_section_init(const int debuglvl, int height, int width, int starty, int s
     /* field options */
     for(i = 0; i < StatusSection.n_fields; i++)
     {
-        if(debuglvl >= LOW)
+        if(vrmr_debug_level >= LOW)
             set_field_back(StatusSection.fields[i], vccnf.color_win_rev);
         else
             set_field_back(StatusSection.fields[i], vccnf.color_win);
@@ -673,7 +673,7 @@ static int status_section_destroy(void)
         -1: error
 */
 int
-status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
 {
     FIELD   *cur = NULL;
     int     retval = 0;
@@ -798,7 +798,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
 
 
     // first create our shadow list
-    vrmr_list_setup(debuglvl, &shadow_list, free);
+    vrmr_list_setup(&shadow_list, free);
 
     for(i=0; i < interfaces->list.len; i++)
     {
@@ -815,7 +815,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
         gettimeofday(&shadow_ptr->begin_tv, 0);
 
         /* append to the list */
-        if(vrmr_list_append(debuglvl, &shadow_list, shadow_ptr)  == NULL)
+        if(vrmr_list_append(&shadow_list, shadow_ptr)  == NULL)
             return(-1);
     }
 
@@ -829,7 +829,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
     /*
         init
     */
-    if(status_section_init(debuglvl, max_height-8, 78, 4, 1, interfaces->list.len) < 0)
+    if(status_section_init(max_height-8, 78, 4, 1, interfaces->list.len) < 0)
         return(-1);
 
     /*
@@ -862,7 +862,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
     else
         (void)snprintf(conn_max, sizeof(conn_max), "%6d", conntrack_conn_max);
 
-    draw_top_menu(debuglvl, top_win, gettext("System Status"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("System Status"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     update_panels();
     doupdate();
@@ -870,15 +870,12 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
     /* the main loop */
     while(quit == 0 && retval == 0)
     {
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "slept_so_far: %d, update_interval: %d.", slept_so_far, update_interval);
+        vrmr_debug(LOW, "slept_so_far: %d, update_interval: %d.", slept_so_far, update_interval);
 
         /* check if we have slept long enough */
         if(slept_so_far >= update_interval)
         {
-            
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "slept_so_far: %d -> now print.", slept_so_far);
+            vrmr_debug(HIGH, "slept_so_far: %d -> now print.", slept_so_far);
 
             slept_so_far = 0;
 
@@ -940,7 +937,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
                         set_field_fore(cur, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_s);
-                    set_field_buffer_wrap(debuglvl, cur, 0, load_str);
+                    set_field_buffer_wrap(cur, 0, load_str);
                 }
                 else if(strncmp(field_buffer(cur, 1), "ld_m", 4) == 0)
                 {
@@ -952,7 +949,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
                         set_field_fore(cur, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_m);
-                    set_field_buffer_wrap(debuglvl, cur, 0, load_str);
+                    set_field_buffer_wrap(cur, 0, load_str);
             }
                 else if(strncmp(field_buffer(cur, 1), "ld_l", 4) == 0)
                 {
@@ -964,63 +961,63 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
                         set_field_fore(cur, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_l);
-                    set_field_buffer_wrap(debuglvl, cur, 0, load_str);
+                    set_field_buffer_wrap(cur, 0, load_str);
                 }
                 else if(strncmp(field_buffer(cur, 1), "mem_t", 5) == 0)
                 {
                     snprintf(mem_str, sizeof(mem_str), "%6d", mem_total/1024);
-                    set_field_buffer_wrap(debuglvl, cur, 0, mem_str);
+                    set_field_buffer_wrap(cur, 0, mem_str);
                 }
                 else if(strncmp(field_buffer(cur, 1), "mem_f", 5) == 0)
                 {
                     snprintf(mem_str, sizeof(mem_str), "%6d", mem_free/1024);
-                    set_field_buffer_wrap(debuglvl, cur, 0, mem_str);
+                    set_field_buffer_wrap(cur, 0, mem_str);
                 }
                 else if(strncmp(field_buffer(cur, 1), "mem_c", 5) == 0)
                 {
                     snprintf(mem_str, sizeof(mem_str), "%6d", mem_cached/1024);
-                    set_field_buffer_wrap(debuglvl, cur, 0, mem_str);
+                    set_field_buffer_wrap(cur, 0, mem_str);
                 }
                 else if(strncmp(field_buffer(cur, 1), "mem_b", 5) == 0)
                 {
                     snprintf(mem_str, sizeof(mem_str), "%6d", mem_bufferd/1024);
-                    set_field_buffer_wrap(debuglvl, cur, 0, mem_str);
+                    set_field_buffer_wrap(cur, 0, mem_str);
                 }
                 else if(strncmp(field_buffer(cur, 1), "up_d", 4) == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, cur, 0, upt_day);
+                    set_field_buffer_wrap(cur, 0, upt_day);
                 }
                 else if(strncmp(field_buffer(cur, 1), "uh", 2) == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, cur, 0, upt_hour);
+                    set_field_buffer_wrap(cur, 0, upt_hour);
                 }
                 else if(strncmp(field_buffer(cur, 1), "um", 2) == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, cur, 0, upt_minute);
+                    set_field_buffer_wrap(cur, 0, upt_minute);
                 }
                 else if(strncmp(field_buffer(cur, 1), "us", 2) == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, cur, 0, upt_second);
+                    set_field_buffer_wrap(cur, 0, upt_second);
                 }
                 else if(strncmp(field_buffer(cur, 1), "con_m", 5) == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, cur, 0, conn_max);
+                    set_field_buffer_wrap(cur, 0, conn_max);
                 }
                 else if(strncmp(field_buffer(cur, 1), "con_c", 5) == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, cur, 0, conn_total);
+                    set_field_buffer_wrap(cur, 0, conn_total);
                 }
                 else if(strncmp(field_buffer(cur, 1), "con_t", 5) == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, cur, 0, conn_tcp);
+                    set_field_buffer_wrap(cur, 0, conn_tcp);
                 }
                 else if(strncmp(field_buffer(cur, 1), "con_u", 5) == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, cur, 0, conn_udp);
+                    set_field_buffer_wrap(cur, 0, conn_udp);
                 }
                 else if(strncmp(field_buffer(cur, 1), "con_o", 5) == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, cur, 0, conn_other);
+                    set_field_buffer_wrap(cur, 0, conn_other);
                 }
             }
 
@@ -1038,19 +1035,18 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
                 if(iface_ptr->device_virtual == FALSE)
                 {
                     /* get the counters for determining speed */
-                    vrmr_get_iface_stats(debuglvl, iface_ptr->device, &recv_bytes, NULL, &trans_bytes, NULL);
+                    vrmr_get_iface_stats(iface_ptr->device, &recv_bytes, NULL, &trans_bytes, NULL);
 
                     /* get the real counters from iptables */
-                    vrmr_get_iface_stats_from_ipt(debuglvl, cnf, iface_ptr->device, "INPUT", &shadow_ptr->recv_host_packets, &shadow_ptr->recv_host, &tmp_ull, &tmp_ull);
-                    vrmr_get_iface_stats_from_ipt(debuglvl, cnf, iface_ptr->device, "OUTPUT", &tmp_ull, &tmp_ull, &shadow_ptr->send_host_packets, &shadow_ptr->send_host);
-                    vrmr_get_iface_stats_from_ipt(debuglvl, cnf, iface_ptr->device, "FORWARD", &shadow_ptr->recv_net_packets, &shadow_ptr->recv_net, &shadow_ptr->send_net_packets, &shadow_ptr->send_net);
+                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "INPUT", &shadow_ptr->recv_host_packets, &shadow_ptr->recv_host, &tmp_ull, &tmp_ull);
+                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "OUTPUT", &tmp_ull, &tmp_ull, &shadow_ptr->send_host_packets, &shadow_ptr->send_host);
+                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "FORWARD", &shadow_ptr->recv_net_packets, &shadow_ptr->recv_net, &shadow_ptr->send_net_packets, &shadow_ptr->send_net);
 
                     /* RECV host/firewall */
                     if((shadow_ptr->recv_host/(1024*1024)) >= 1000)
                     {
                         snprintf(recv_host, sizeof(recv_host), "%7.3f GB", (float)shadow_ptr->recv_host/(1024*1024*1024));
-                        if(debuglvl >= HIGH)
-                            vrmr_debug(__FUNC__, "recv_host: '%s'.", recv_host);
+                        vrmr_debug(HIGH, "recv_host: '%s'.", recv_host);
                     }
                     else if((shadow_ptr->recv_host/(1024*1024)) < 1)
                         snprintf(recv_host, sizeof(recv_host), "%7d kb", (int)shadow_ptr->recv_host/(1024));
@@ -1099,8 +1095,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
                     /* now we correct it */
                     speed_bytes = (delta_bytes/correction);
 
-                    if(debuglvl >= HIGH)
-                        vrmr_debug(__FUNC__, "bytes: %d, corrections: %f", (int)speed_bytes, correction);
+                    vrmr_debug(HIGH, "bytes: %d, corrections: %f", (int)speed_bytes, correction);
 
                     /* calculating the current connection speed */
                     if(iface_ptr->up == TRUE)
@@ -1147,20 +1142,20 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
                         cur = StatusSection.fields[i];
 
                         if(strncmp(field_buffer(cur, 1), "recv_s", 6) == 0)
-                            set_field_buffer_wrap(debuglvl, cur, 0, recv_speed);
+                            set_field_buffer_wrap(cur, 0, recv_speed);
                         else if(strncmp(field_buffer(cur, 1), "send_s", 6) == 0)
-                            set_field_buffer_wrap(debuglvl, cur, 0, send_speed);
+                            set_field_buffer_wrap(cur, 0, send_speed);
 
                         else if(strncmp(field_buffer(cur, 1), "rcv_ti", 6) == 0)
-                            set_field_buffer_wrap(debuglvl, cur, 0, recv_host);
+                            set_field_buffer_wrap(cur, 0, recv_host);
                         else if(strncmp(field_buffer(cur, 1), "snd_to", 6) == 0)
-                            set_field_buffer_wrap(debuglvl, cur, 0, send_host);
+                            set_field_buffer_wrap(cur, 0, send_host);
 
                         else if(strncmp(field_buffer(cur, 1), "rcv_tf", 6) == 0)
-                            set_field_buffer_wrap(debuglvl, cur, 0, recv_net);
+                            set_field_buffer_wrap(cur, 0, recv_net);
                         else if(strncmp(field_buffer(cur, 1), "snd_tf", 6) == 0)
                         {
-                            set_field_buffer_wrap(debuglvl, cur, 0, send_net);
+                            set_field_buffer_wrap(cur, 0, send_net);
                             break;
                         }
 
@@ -1214,7 +1209,7 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
             case 'h':
             case 'H':
             case '?':
-                print_help(debuglvl, ":[VUURMUUR:STATUS]:");
+                print_help(":[VUURMUUR:STATUS]:");
                 break;
         }
 
@@ -1223,13 +1218,12 @@ status_section(const int debuglvl, struct vrmr_config *cnf, struct vrmr_zones *z
             usleep(10000);
             slept_so_far = slept_so_far + 10000;
 
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "just slept: slept_so_far '%d'.", slept_so_far);
+            vrmr_debug(HIGH, "just slept: slept_so_far '%d'.", slept_so_far);
         }
     }
 
     /* destroy hashtables and the shadowlist */
-    vrmr_list_cleanup(debuglvl, &shadow_list);
+    vrmr_list_cleanup(&shadow_list);
 
     /* EXIT: cleanup */
     nodelay(StatusSection.win, FALSE);

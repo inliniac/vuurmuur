@@ -64,7 +64,7 @@ strip_buf(char *src, char *dst, size_t dstsize)
 }
 
 static void
-bandwidth_store(const int debuglvl, struct vrmr_list *list, int year, int month, int day,
+bandwidth_store(struct vrmr_list *list, int year, int month, int day,
             char total, unsigned int recv, unsigned int send)
 {
     struct TrafVol_ *bw_ptr = NULL;
@@ -80,7 +80,7 @@ bandwidth_store(const int debuglvl, struct vrmr_list *list, int year, int month,
     bw_ptr->send_mb = send;
 
     /* append to the list */
-    vrmr_fatal_if(vrmr_list_append(debuglvl, list, bw_ptr) == NULL);
+    vrmr_fatal_if(vrmr_list_append(list, bw_ptr) == NULL);
 }
 
 
@@ -100,7 +100,7 @@ bandwidth_store(const int debuglvl, struct vrmr_list *list, int year, int month,
          1: ok
 */
 static int
-bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, int year, int month,
+bandwidth_get_iface(struct vrmr_config *conf, char *device, int year, int month,
             int start_day, int days, char only_total, struct vrmr_list *list)
 {
     char            bw_buf[512] = "",
@@ -151,17 +151,16 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
     vrmr_fatal_if_null(device);
     vrmr_fatal_if_null(list);
 
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "looking for data for '%s'.", device);
+    vrmr_debug(LOW, "looking for data for '%s'.", device);
 
     /* create the tempfile */
-    fd = vrmr_create_tempfile(debuglvl, tmpfile);
+    fd = vrmr_create_tempfile(tmpfile);
     if (fd == -1)
         return(-1);
     close(fd);
 
     /* setup the list */
-    vrmr_list_setup(debuglvl, list, free);
+    vrmr_list_setup(list, free);
 
     snprintf(cmd_year_str, sizeof(cmd_year_str), "%d", year);
     snprintf(cmd_month_str, sizeof(cmd_month_str), "%d", month);
@@ -176,14 +175,14 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
                          "-b", cmd_start_day_str,
                          "-s", cmd_num_days_str, NULL };
         char *outputs[] = { tmpfile, "/dev/null", NULL };
-        result = libvuurmuur_exec_command(debuglvl, conf, vccnf.iptrafvol_location, args, outputs);
+        result = libvuurmuur_exec_command(conf, vccnf.iptrafvol_location, args, outputs);
     } else {
         char *args[] = { vccnf.iptrafvol_location,
                          "-d", "-y", cmd_year_str,
                          "-m", cmd_month_str,
                          "-b", cmd_start_day_str, NULL };
         char *outputs[] = { tmpfile, "/dev/null", NULL };
-        result = libvuurmuur_exec_command(debuglvl, conf, vccnf.iptrafvol_location, args, outputs);
+        result = libvuurmuur_exec_command(conf, vccnf.iptrafvol_location, args, outputs);
     }
     if(result != 0) {
         return(-1);
@@ -265,13 +264,10 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
                     /* get the current column */
                     cur_column = act_border - 1;
 
-                    if(line_num == 1)
-                    {
-                        if(debuglvl >= HIGH)
-                            vrmr_debug(__FUNC__, "line_num == 1: '%s'", sect_buf_stripped);
+                    if(line_num == 1) {
+                        vrmr_debug(HIGH, "line_num == 1: '%s'", sect_buf_stripped);
 
-                        if(strncmp("no data", sect_buf_stripped, 7) == 0)
-                        {
+                        if(strncmp("no data", sect_buf_stripped, 7) == 0) {
                             retval = 0;
                             done = TRUE;
                             break;
@@ -323,13 +319,12 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
                         recv = ((recv * 10) + recv_sub) / 10;
                         send = ((send * 10) + send_sub) / 10;
 
-                        if(debuglvl >= LOW)
-                            vrmr_info(__FUNC__, "recv = %.1u, send = %.1u.", recv, send);
+                        vrmr_debug(LOW, "recv = %.1u, send = %.1u.", recv, send);
 
                         retval = 1;
 
                         /* we asume that the date is already parsed */
-                        bandwidth_store(debuglvl, list, year, data_month, data_day, parsing_total_line, recv, send);
+                        bandwidth_store(list, year, data_month, data_day, parsing_total_line, recv, send);
                     }
 
                     /* parse the deviceline to determine the column */
@@ -340,8 +335,7 @@ bandwidth_get_iface(const int debuglvl, struct vrmr_config *conf, char *device, 
                             /* act border includes the last borderline, so -1. */
                             device_column = cur_column;
 
-                            if(debuglvl >= LOW)
-                                vrmr_info(__FUNC__, "sect_buf_stripped '%s' match! (device: %s) column = %d.", sect_buf_stripped, device, device_column);
+                            vrmr_debug(LOW, "sect_buf_stripped '%s' match! (device: %s) column = %d.", sect_buf_stripped, device, device_column);
                         }
                     }
                 }
@@ -374,7 +368,7 @@ end:
     This function creates the trafvol section window and the fields inside it.
 */
 static void
-trafvol_section_init(const int debuglvl, int height, int width, int starty,
+trafvol_section_init(int height, int width, int starty,
             int startx, unsigned int ifac_num)
 {
     size_t          i = 0;
@@ -414,47 +408,47 @@ trafvol_section_init(const int debuglvl, int height, int width, int starty,
 
         /* interface name */
         TrafVolSection.fields[ifac_fields] = new_field(1, 15, toprow, 0, 0, 1);
-        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[ifac_fields], 1, "ifacname");
+        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "ifacname");
         ifac_fields++;
 
         TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 16, 0, 1);
-        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[ifac_fields], 1, "t-in");
+        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "t-in");
         ifac_fields++;
 
         TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 22, 0, 1);
-        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[ifac_fields], 1, "t-ou");
+        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "t-ou");
         ifac_fields++;
 
         TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 28, 0, 1);
-        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[ifac_fields], 1, "y-in");
+        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "y-in");
         ifac_fields++;
 
         TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 34, 0, 1);
-        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[ifac_fields], 1, "y-ou");
+        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "y-ou");
         ifac_fields++;
 
         TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 40, 0, 1);
-        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[ifac_fields], 1, "7-in");
+        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "7-in");
         ifac_fields++;
 
         TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 46, 0, 1);
-        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[ifac_fields], 1, "7-ou");
+        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "7-ou");
         ifac_fields++;
 
         TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 52, 0, 1);
-        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[ifac_fields], 1, "t-in");
+        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "t-in");
         ifac_fields++;
 
         TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 58, 0, 1);
-        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[ifac_fields], 1, "t-ou");
+        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "t-ou");
         ifac_fields++;
 
         TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 64, 0, 1);
-        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[ifac_fields], 1, "l-in");
+        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "l-in");
         ifac_fields++;
 
         TrafVolSection.fields[ifac_fields] = new_field(1, 5, toprow, 70, 0, 1);
-        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[ifac_fields], 1, "l-ou");
+        set_field_buffer_wrap(TrafVolSection.fields[ifac_fields], 1, "l-ou");
         ifac_fields++;
     }
 
@@ -566,7 +560,7 @@ trafvol_section_destroy(void)
 }
 
 static void
-create_bw_string(const int debuglvl, unsigned int mb, char *str, size_t len)
+create_bw_string(unsigned int mb, char *str, size_t len)
 {
     vrmr_fatal_if_null(str);
 
@@ -601,7 +595,7 @@ create_bw_string(const int debuglvl, unsigned int mb, char *str, size_t len)
         -1: error
 */
 int
-trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
             struct vrmr_services *services)
 {
     int                     retval = 0;
@@ -672,25 +666,23 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
         ifac_num = (unsigned int)max_onscreen;
 
     /* init */
-    trafvol_section_init(debuglvl, max_height - 8, 78, 4, 1, ifac_num);
+    trafvol_section_init(max_height - 8, 78, 4, 1, ifac_num);
     /* make sure wgetch doesn't block */
     nodelay(TrafVolSection.win, TRUE);
     keypad(TrafVolSection.win, TRUE);
-    draw_top_menu(debuglvl, top_win, gettext("Traffic Volume"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Traffic Volume"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
     update_panels();
     doupdate();
 
     /* the main loop */
     while(quit == 0 && retval == 0)
     {
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "slept_so_far: %d, update_interval: %d.", slept_so_far, update_interval);
+        vrmr_debug(LOW, "slept_so_far: %d, update_interval: %d.", slept_so_far, update_interval);
 
         /* check if we have slept long enough */
         if(slept_so_far >= update_interval)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "slept_so_far: %d -> now print.", slept_so_far);
+            vrmr_debug(HIGH, "slept_so_far: %d -> now print.", slept_so_far);
 
             slept_so_far = 0;
 
@@ -714,10 +706,10 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
                     continue;
 
                 /* interface name */
-                set_field_buffer_wrap(debuglvl, TrafVolSection.fields[11 * i], 0, iface_ptr->name);
+                set_field_buffer_wrap(TrafVolSection.fields[11 * i], 0, iface_ptr->name);
 
                 /* get the bw for today */
-                result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, cur_tm.tm_mday, 1, 1, &bw_list);
+                result = bandwidth_get_iface(conf, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, cur_tm.tm_mday, 1, 1, &bw_list);
                 if (result == 1)
                 {
                     for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
@@ -725,27 +717,27 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
                         vrmr_fatal_if_null(bw_d_node->data);
                         bw_ptr = bw_d_node->data;
 
-                        create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[1 + (11 * i)], 0, bw_str);
+                        create_bw_string(bw_ptr->recv_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(TrafVolSection.fields[1 + (11 * i)], 0, bw_str);
 
-                        create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[2 + (11 * i)], 0, bw_str);
+                        create_bw_string(bw_ptr->send_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(TrafVolSection.fields[2 + (11 * i)], 0, bw_str);
                     }
-                    vrmr_list_cleanup(debuglvl, &bw_list);
+                    vrmr_list_cleanup(&bw_list);
                 }
                 else if(result == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[1 + (11 * i)], 0, "  -  ");
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[2 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(TrafVolSection.fields[1 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(TrafVolSection.fields[2 + (11 * i)], 0, "  -  ");
                 }
                 else
                 {
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[1 + (11 * i)], 0, gettext("error"));
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[2 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(TrafVolSection.fields[1 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(TrafVolSection.fields[2 + (11 * i)], 0, gettext("error"));
                 }
 
                 /* get the bw for yesterday */
-                result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, yesterday_tm.tm_year + 1900, yesterday_tm.tm_mon + 1, yesterday_tm.tm_mday, 1, 1, &bw_list);
+                result = bandwidth_get_iface(conf, iface_ptr->device, yesterday_tm.tm_year + 1900, yesterday_tm.tm_mon + 1, yesterday_tm.tm_mday, 1, 1, &bw_list);
                 if (result == 1)
                 {
                     for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
@@ -753,27 +745,27 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
                         vrmr_fatal_if_null(bw_d_node->data);
                         bw_ptr = bw_d_node->data;
 
-                        create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[3 + (11 * i)], 0, bw_str);
+                        create_bw_string(bw_ptr->recv_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(TrafVolSection.fields[3 + (11 * i)], 0, bw_str);
 
-                        create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[4 + (11 * i)], 0, bw_str);
+                        create_bw_string(bw_ptr->send_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(TrafVolSection.fields[4 + (11 * i)], 0, bw_str);
                     }
-                    vrmr_list_cleanup(debuglvl, &bw_list);
+                    vrmr_list_cleanup(&bw_list);
                 }
                 else if(result == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[3 + (11 * i)], 0, "  -  ");
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[4 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(TrafVolSection.fields[3 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(TrafVolSection.fields[4 + (11 * i)], 0, "  -  ");
                 }
                 else
                 {
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[3 + (11 * i)], 0, gettext("error"));
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[4 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(TrafVolSection.fields[3 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(TrafVolSection.fields[4 + (11 * i)], 0, gettext("error"));
                 }
 
                 /* get the bw for past 7 days */
-                result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, lastweek_tm.tm_year + 1900, lastweek_tm.tm_mon + 1, lastweek_tm.tm_mday, 7, 1, &bw_list);
+                result = bandwidth_get_iface(conf, iface_ptr->device, lastweek_tm.tm_year + 1900, lastweek_tm.tm_mon + 1, lastweek_tm.tm_mday, 7, 1, &bw_list);
                 if(result == 1)
                 {
                     for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
@@ -781,27 +773,27 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
                         vrmr_fatal_if_null(bw_d_node->data);
                         bw_ptr = bw_d_node->data;
 
-                        create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[5 + (11 * i)], 0, bw_str);
+                        create_bw_string(bw_ptr->recv_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(TrafVolSection.fields[5 + (11 * i)], 0, bw_str);
 
-                        create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[6 + (11 * i)], 0, bw_str);
+                        create_bw_string(bw_ptr->send_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(TrafVolSection.fields[6 + (11 * i)], 0, bw_str);
                     }
-                    vrmr_list_cleanup(debuglvl, &bw_list);
+                    vrmr_list_cleanup(&bw_list);
                 }
                 else if(result == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[5 + (11 * i)], 0, "  -  ");
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[6 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(TrafVolSection.fields[5 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(TrafVolSection.fields[6 + (11 * i)], 0, "  -  ");
                 }
                 else
                 {
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[5 + (11 * i)], 0, gettext("error"));
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[6 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(TrafVolSection.fields[5 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(TrafVolSection.fields[6 + (11 * i)], 0, gettext("error"));
                 }
 
                 /* get the bw for the current month */
-                result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, 1, 0, 1, &bw_list);
+                result = bandwidth_get_iface(conf, iface_ptr->device, cur_tm.tm_year + 1900, cur_tm.tm_mon + 1, 1, 0, 1, &bw_list);
                 if(result == 1)
                 {
                     for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
@@ -809,23 +801,23 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
                         vrmr_fatal_if_null(bw_d_node->data);
                         bw_ptr = bw_d_node->data;
 
-                        create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[7 + (11 * i)], 0, bw_str);
+                        create_bw_string(bw_ptr->recv_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(TrafVolSection.fields[7 + (11 * i)], 0, bw_str);
 
-                        create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[8 + (11 * i)], 0, bw_str);
+                        create_bw_string(bw_ptr->send_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(TrafVolSection.fields[8 + (11 * i)], 0, bw_str);
                     }
-                    vrmr_list_cleanup(debuglvl, &bw_list);
+                    vrmr_list_cleanup(&bw_list);
                 }
                 else if(result == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[7 + (11 * i)], 0, "  -  ");
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[8 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(TrafVolSection.fields[7 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(TrafVolSection.fields[8 + (11 * i)], 0, "  -  ");
                 }
                 else
                 {
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[7 + (11 * i)], 0, gettext("error"));
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[8 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(TrafVolSection.fields[7 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(TrafVolSection.fields[8 + (11 * i)], 0, gettext("error"));
                 }
 
                 /* get the bw for the last month */
@@ -843,7 +835,7 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
                     year = year - 1;
                 }
 
-                result = bandwidth_get_iface(debuglvl, conf, iface_ptr->device, year, month, 1, 0, 1, &bw_list);
+                result = bandwidth_get_iface(conf, iface_ptr->device, year, month, 1, 0, 1, &bw_list);
                 if(result == 1)
                 {
                     for(bw_d_node = bw_list.top; bw_d_node; bw_d_node = bw_d_node->next)
@@ -851,23 +843,23 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
                         vrmr_fatal_if_null(bw_d_node->data);
                         bw_ptr = bw_d_node->data;
 
-                        create_bw_string(debuglvl, bw_ptr->recv_mb, bw_str, sizeof(bw_str));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[9 + (11 * i)], 0, bw_str);
+                        create_bw_string(bw_ptr->recv_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(TrafVolSection.fields[9 + (11 * i)], 0, bw_str);
 
-                        create_bw_string(debuglvl, bw_ptr->send_mb, bw_str, sizeof(bw_str));
-                        set_field_buffer_wrap(debuglvl, TrafVolSection.fields[10 + (11 * i)], 0, bw_str);
+                        create_bw_string(bw_ptr->send_mb, bw_str, sizeof(bw_str));
+                        set_field_buffer_wrap(TrafVolSection.fields[10 + (11 * i)], 0, bw_str);
                     }
-                    vrmr_list_cleanup(debuglvl, &bw_list);
+                    vrmr_list_cleanup(&bw_list);
                 }
                 else if(result == 0)
                 {
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[9  + (11 * i)], 0, "  -  ");
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[10 + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(TrafVolSection.fields[9  + (11 * i)], 0, "  -  ");
+                    set_field_buffer_wrap(TrafVolSection.fields[10 + (11 * i)], 0, "  -  ");
                 }
                 else
                 {
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[9  + (11 * i)], 0, gettext("error"));
-                    set_field_buffer_wrap(debuglvl, TrafVolSection.fields[10 + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(TrafVolSection.fields[9  + (11 * i)], 0, gettext("error"));
+                    set_field_buffer_wrap(TrafVolSection.fields[10 + (11 * i)], 0, gettext("error"));
                 }
 
                 /* finally draw the screen */
@@ -897,7 +889,7 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
             case 'h':
             case 'H':
             case '?':
-                print_help(debuglvl, ":[VUURMUUR:TRAFVOL]:");
+                print_help(":[VUURMUUR:TRAFVOL]:");
                 break;
         }
 
@@ -906,8 +898,7 @@ trafvol_section(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones 
             usleep(10000);
             slept_so_far = slept_so_far + 10000;
 
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "just slept: slept_so_far '%d'.", slept_so_far);
+            vrmr_debug(HIGH, "just slept: slept_so_far '%d'.", slept_so_far);
         }
     }
 

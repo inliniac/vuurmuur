@@ -283,39 +283,39 @@ int                 utf8_mode;
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);
 WINDOW *create_newwin(int height, int width, int starty, int startx, /*@null@*/ char *title, chtype ch);
 void destroy_win(WINDOW *local_win);
-int startup_screen(const int, struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *, struct vrmr_blocklist *, struct vrmr_regex *);
+int startup_screen(struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_services *, struct vrmr_interfaces *, struct vrmr_blocklist *, struct vrmr_regex *);
 void draw_field_active_mark(const FIELD *cur, const FIELD *prev, WINDOW *formwin, FORM *form, chtype ch);
 void copy_field2buf(char *buf, char *fieldbuf, size_t bufsize);
-int protectrule_loaded(const int, struct vrmr_list *, char *, char *, char *);
+int protectrule_loaded(struct vrmr_list *, char *, char *, char *);
 void setup_colors(void);
 
 /*
     topmenu
 */
-void draw_top_menu(const int, WINDOW *, char *, int, char **, int, char **);
+void draw_top_menu(WINDOW *, char *, int, char **, int, char **);
 
 
 /*
     services section
 */
-void services_section(const int, struct vrmr_ctx *, struct vrmr_services *, struct vrmr_rules *, struct vrmr_regex *);
+void services_section(struct vrmr_ctx *, struct vrmr_services *, struct vrmr_rules *, struct vrmr_regex *);
 
 
 /*
     zones section
 */
-int zones_section(const int, struct vrmr_ctx *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_rules *, struct vrmr_blocklist *, struct vrmr_regex *);
-int zones_blocklist(const int, struct vrmr_ctx *, struct vrmr_blocklist *, struct vrmr_zones *, struct vrmr_regex *);
-int zones_blocklist_add_one(const int, struct vrmr_blocklist *, struct vrmr_zones *);
+int zones_section(struct vrmr_ctx *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_rules *, struct vrmr_blocklist *, struct vrmr_regex *);
+int zones_blocklist(struct vrmr_ctx *, struct vrmr_blocklist *, struct vrmr_zones *, struct vrmr_regex *);
+int zones_blocklist_add_one(struct vrmr_blocklist *, struct vrmr_zones *);
 
 
 /*
     rules_section
 */
-int rules_form(const int, struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
-int edit_rule(const int, struct vrmr_config *conf, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, unsigned int, struct vrmr_regex *);
-int edit_rule_normal(const int, struct vrmr_config *conf, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *, unsigned int, struct vrmr_regex *);
-char *VrShapeUnitMenu(const int, char *, int, int, char);
+int rules_form(struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
+int edit_rule(struct vrmr_config *conf, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, unsigned int, struct vrmr_regex *);
+int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *, unsigned int, struct vrmr_regex *);
+char *VrShapeUnitMenu(char *, int, int, char);
 
 
 /*
@@ -323,7 +323,7 @@ char *VrShapeUnitMenu(const int, char *, int, int, char);
 */
 FILE *vuurmuur_rulesfile_open(const char *path, const char *mode, int caller);
 int vuurmuur_rulesfile_close(FILE *stream, const char *path);
-int write_rulesfile(const int, char *, struct vrmr_rules *);
+int write_rulesfile(char *, struct vrmr_rules *);
 
 
 /*
@@ -338,25 +338,25 @@ char *selectbox(char *title, char *text, size_t n_choices, char **choices, unsig
 int status_print(WINDOW *local_win, /*@null@*/ char *fmt, ...);
 int check_box(int status, char *title, char *description);
 /* fixes */
-void set_field_buffer_wrap(const int, FIELD *, int, const char *);
+void set_field_buffer_wrap(FIELD *, int, const char *);
 FIELD *new_field_wrap(int rows, int cols, int frow, int fcol, int nrow, int nbuf);
 
-int filter_input_box(const int, struct vrmr_filter *);
+int filter_input_box(struct vrmr_filter *);
 
 
 /*
     config
 */
-int edit_genconfig(const int debuglvl, struct vrmr_config *);
-int edit_logconfig(const int debuglvl, struct vrmr_config *);
-int config_menu(const int debuglvl, struct vrmr_config *);
-int edit_sysopt(int debuglvl, struct vrmr_config *);
+int edit_genconfig(struct vrmr_config *);
+int edit_logconfig(struct vrmr_config *);
+int config_menu(struct vrmr_config *);
+int edit_sysopt(struct vrmr_config *);
 
 
 /*
     logview section
 */
-int logview_section(const int, struct vrmr_ctx *, struct vrmr_config *,
+int logview_section(struct vrmr_ctx *, struct vrmr_config *,
         struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *,
         struct vrmr_services *, /*@null@*/ char *);
 
@@ -364,65 +364,65 @@ int logview_section(const int, struct vrmr_ctx *, struct vrmr_config *,
 /*
     interfaces section
 */
-void interfaces_section(const int, struct vrmr_ctx *vctx, struct vrmr_interfaces *, struct vrmr_zones *, struct vrmr_rules *, struct vrmr_regex *reg);
+void interfaces_section(struct vrmr_ctx *vctx, struct vrmr_interfaces *, struct vrmr_zones *, struct vrmr_rules *, struct vrmr_regex *reg);
 
 
 /*
     navigation
 */
-int nav_field_comment(const int, FORM *, int);
-int nav_field_simpletext(const int, FORM *, int);
-int nav_field_yesno(const int, FORM *, int);
-int nav_field_toggleX(const int, FORM *, int);
-int validate_commentfield(const int, char *, regex_t *);
+int nav_field_comment(FORM *, int);
+int nav_field_simpletext(FORM *, int);
+int nav_field_yesno(FORM *, int);
+int nav_field_toggleX(FORM *, int);
+int validate_commentfield(char *, regex_t *);
 
 
 /*
     status section
 */
-int status_section(const int, struct vrmr_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
+int status_section(struct vrmr_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
 
 
 /*
     connections
 */
-int connections_section(const int, struct vrmr_ctx *, struct vrmr_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_blocklist *);
+int connections_section(struct vrmr_ctx *, struct vrmr_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_blocklist *);
 
 
 /*
     help/status
 */
-void print_help(const int debuglvl, char *part);
-void print_status(const int debuglvl);
-int read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line);
-void setup_statuslist(const int debuglvl);
+void print_help(char *part);
+void print_status(void);
+int read_helpline(struct vrmr_list *help_list, char *line);
+void setup_statuslist(void);
 
 
 /*
     config
 */
-int init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_location, vc_cnf *cnf);
-int write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf);
-int edit_vcconfig(const int debuglvl);
-void vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf);
+int init_vcconfig(struct vrmr_config *conf, char *configfile_location, vc_cnf *cnf);
+int write_vcconfigfile(char *file_location, vc_cnf *cnf);
+int edit_vcconfig(void);
+void vcconfig_use_defaults(vc_cnf *cnf);
 
 
 /*
     main menu
 */
-int main_menu(const int, struct vrmr_ctx *, struct vrmr_rules *,  struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_blocklist *, struct vrmr_regex *);
-void mm_status_checkall(const int, struct vrmr_ctx *, struct vrmr_list *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
-int vc_apply_changes(const int debuglvl, struct vrmr_ctx *);
+int main_menu(struct vrmr_ctx *, struct vrmr_rules *,  struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_blocklist *, struct vrmr_regex *);
+void mm_status_checkall(struct vrmr_ctx *, struct vrmr_list *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
+int vc_apply_changes(struct vrmr_ctx *);
 
 /*
     bandwidth
 */
-int trafvol_section(const int, struct vrmr_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
+int trafvol_section(struct vrmr_config *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *);
 
 /*
     about
 */
-void print_about(const int debuglvl);
+void print_about(void);
 
 
 /* statevent */
@@ -465,17 +465,17 @@ typedef struct ct_
     unsigned int prev_list_size;
 } Conntrack;
 
-int kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf, Conntrack *ct, char *srcip, char *dstip, char *sername, char connect_status);
-int block_and_kill(const int debuglvl, struct vrmr_ctx *vctx, Conntrack *ct, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, char *ip);
-int kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int proto, int sp, int dp);
-int kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf, Conntrack *ct, char *srcname, char *dstname, char *sername, char connect_status);
+int kill_connections_by_ip(struct vrmr_config *cnf, Conntrack *ct, char *srcip, char *dstip, char *sername, char connect_status);
+int block_and_kill(struct vrmr_ctx *vctx, Conntrack *ct, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, char *ip);
+int kill_connection(char *cmd, char *srcip, char *dstip, int proto, int sp, int dp);
+int kill_connections_by_name(struct vrmr_config *cnf, Conntrack *ct, char *srcname, char *dstname, char *sername, char connect_status);
 
-Conntrack *conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_blocklist *blocklist );
-void conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones);
-int conn_ct_get_connections(const int, struct vrmr_config *, Conntrack *, struct vrmr_conntrack_request *);
-void conn_ct_clear_connections(const int debuglvl, Conntrack *ct);
+Conntrack *conn_init_ct(struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_blocklist *blocklist );
+void conn_free_ct(Conntrack **ct, struct vrmr_zones *zones);
+int conn_ct_get_connections(struct vrmr_config *, Conntrack *, struct vrmr_conntrack_request *);
+void conn_ct_clear_connections(Conntrack *ct);
 
-void statevent(const int, struct vrmr_ctx *, struct vrmr_config *, int, struct vrmr_list *, Conntrack *, struct vrmr_conntrack_request *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *);
+void statevent(struct vrmr_ctx *, struct vrmr_config *, int, struct vrmr_list *, Conntrack *, struct vrmr_conntrack_request *, struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *, struct vrmr_services *);
 
 
 /* length in chars (be it wide chars or normal chars) */
@@ -492,12 +492,12 @@ StrMemLen(const char *s)
     return(strlen(s));
 }
 
-void fix_wide_menu(const int, MENU *, ITEM **);
+void fix_wide_menu(MENU *, ITEM **);
 
-void form_test (const int debuglvl);
+void form_test (void);
 
-void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt);
-void VrShapeIface(const int debuglvl, struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
+void VrShapeRule(struct vrmr_rule_options *opt);
+void VrShapeIface(struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
 
 #ifdef USE_WIDEC
 #define wsizeof(s)  sizeof(s)/sizeof(wchar_t)

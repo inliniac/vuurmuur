@@ -29,7 +29,7 @@ struct FilterFields_
 } FiFi;
 
 static int
-filter_save(const int debuglvl, struct vrmr_filter *filter)
+filter_save(struct vrmr_filter *filter)
 {
     size_t  i = 0;
     char    filter_str[48] = "";
@@ -47,8 +47,7 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
             else
                 filter->neg = FALSE;
 
-            if(debuglvl >= MEDIUM)
-                vrmr_debug(__FUNC__, "filter->neg is now %s.",
+                vrmr_debug(HIGH, "filter->neg is now %s.",
                                 filter->neg ? "TRUE" : "FALSE");
         }
         /* ipaddress field */
@@ -58,9 +57,8 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
                                 field_buffer(FiFi.fields[i], 0),
                                 sizeof(filter->str));
 
-            if(debuglvl >= MEDIUM)
-                vrmr_debug(__FUNC__, "filter field changed: %s.",
-                                filter->str);
+            vrmr_debug(MEDIUM, "filter field changed: %s.",
+                    filter->str);
 
             /* new str */
             if(StrLen(filter->str) > 0)
@@ -104,7 +102,7 @@ filter_save(const int debuglvl, struct vrmr_filter *filter)
 }
 
 int
-filter_input_box(const int debuglvl, struct vrmr_filter *filter)
+filter_input_box(struct vrmr_filter *filter)
 {
     WINDOW  *ib_win = NULL;
     PANEL   *my_panels[1];
@@ -151,12 +149,12 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
     set_field_back(FiFi.string_fld, vccnf.color_win_rev);
     field_opts_off(FiFi.string_fld, O_AUTOSKIP);
     set_field_status(FiFi.string_fld, FALSE);
-    set_field_buffer_wrap(debuglvl, FiFi.string_fld, 0, filter->str);
+    set_field_buffer_wrap(FiFi.string_fld, 0, filter->str);
 
     set_field_back(FiFi.check_fld, vccnf.color_win);
     field_opts_off(FiFi.check_fld, O_AUTOSKIP);
     set_field_status(FiFi.check_fld, FALSE);
-    set_field_buffer_wrap(debuglvl, FiFi.check_fld, 0, filter->neg ? "X" : " ");
+    set_field_buffer_wrap(FiFi.check_fld, 0, filter->neg ? "X" : " ");
 
     my_form = new_form(FiFi.fields);
     scale_form(my_form, &rows, &cols);
@@ -191,12 +189,12 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
 
         if(cur == FiFi.check_fld)
         {
-            if(nav_field_toggleX(debuglvl, my_form, ch) < 0)
+            if(nav_field_toggleX(my_form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == FiFi.string_fld)
         {
-            if(nav_field_simpletext(debuglvl, my_form, ch) < 0)
+            if(nav_field_simpletext(my_form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -253,7 +251,7 @@ filter_input_box(const int debuglvl, struct vrmr_filter *filter)
     }
 
     /* save here: errors printed in filter_save() */
-    (void)filter_save(debuglvl, filter);
+    (void)filter_save(filter);
 
     unpost_form(my_form);
     free_form(my_form);

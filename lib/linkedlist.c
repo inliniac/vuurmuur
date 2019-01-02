@@ -33,7 +33,7 @@
     This function can only fail due to a programming error.
 */
 void
-vrmr_list_setup(const int debuglvl, struct vrmr_list *list, void (*remove)(void *data))
+vrmr_list_setup(struct vrmr_list *list, void (*remove)(void *data))
 {
     assert(list);
 
@@ -52,7 +52,7 @@ vrmr_list_setup(const int debuglvl, struct vrmr_list *list, void (*remove)(void 
     d_node is the node to remove
 */
 int
-vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_list_node *d_node)
+vrmr_list_remove_node(struct vrmr_list *list, struct vrmr_list_node *d_node)
 {
     /* safety first */
     if(!list || !d_node)
@@ -94,8 +94,7 @@ vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_li
 
     /* call the user remove function */
     if (list->remove != NULL) {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "calling the user defined data remove function.");
+        vrmr_debug(HIGH, "calling the user defined data remove function.");
 
         list->remove(d_node->data);
     }
@@ -115,14 +114,14 @@ vrmr_list_remove_node(const int debuglvl, struct vrmr_list *list, struct vrmr_li
  *        properly keep track of list->top.
  */
 int
-vrmr_list_remove_top(const int debuglvl, struct vrmr_list *list)
+vrmr_list_remove_top(struct vrmr_list *list)
 {
     assert(list);
 #ifdef CPPCHECK
-    return (vrmr_list_remove_node(debuglvl, list, list->top));
+    return (vrmr_list_remove_node(list, list->top));
 #else
     struct vrmr_list_node *old_top = list->top;
-    int result = vrmr_list_remove_node(debuglvl, list, old_top);
+    int result = vrmr_list_remove_node(list, old_top);
     assert(old_top != list->top);
     struct vrmr_list_node *new_top = list->top;
     assert(old_top != new_top);
@@ -134,14 +133,14 @@ vrmr_list_remove_top(const int debuglvl, struct vrmr_list *list)
  *  \note see vrmr_list_remove_top()
  */
 int
-vrmr_list_remove_bot(const int debuglvl, struct vrmr_list *list)
+vrmr_list_remove_bot(struct vrmr_list *list)
 {
     assert(list);
 #ifdef CPPCHECK
-    return(vrmr_list_remove_node(debuglvl, list, list->bot));
+    return(vrmr_list_remove_node(list, list->bot));
 #else
     struct vrmr_list_node *old_bot = list->bot;
-    int result = vrmr_list_remove_node(debuglvl, list, old_bot);
+    int result = vrmr_list_remove_node(list, old_bot);
     assert(old_bot != list->bot);
     struct vrmr_list_node *new_bot = list->bot;
     assert(old_bot != new_bot);
@@ -156,13 +155,12 @@ vrmr_list_remove_bot(const int debuglvl, struct vrmr_list *list)
         -1: error
 */
 struct vrmr_list_node *
-vrmr_list_append(const int debuglvl, struct vrmr_list *list, const void *data)
+vrmr_list_append(struct vrmr_list *list, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
     struct vrmr_list_node *prev_node = NULL;
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "start.");
+    vrmr_debug(HIGH, "start.");
 
     /*
         safety first
@@ -193,14 +191,10 @@ vrmr_list_append(const int debuglvl, struct vrmr_list *list, const void *data)
         update the prev_node
     */
     prev_node = list->bot;
-    if(prev_node)
-    {
+    if (prev_node) {
         prev_node->next = new_node;
-    }
-    else
-    {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "appended in an empty list (%d).", list->len);
+    } else {
+        vrmr_debug(HIGH, "appended in an empty list (%d).", list->len);
     }
 
     /*
@@ -222,7 +216,7 @@ vrmr_list_append(const int debuglvl, struct vrmr_list *list, const void *data)
         if the top is NULL, we inserted into an empty list
         so we also have set the top to the new_node
     */
-    if(!list->top)
+    if (!list->top)
         list->top = new_node;
 
     /*
@@ -235,7 +229,7 @@ vrmr_list_append(const int debuglvl, struct vrmr_list *list, const void *data)
 
 
 struct vrmr_list_node *
-vrmr_list_prepend(const int debuglvl, struct vrmr_list *list, const void *data)
+vrmr_list_prepend(struct vrmr_list *list, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
     struct vrmr_list_node *next_node = NULL;
@@ -269,14 +263,10 @@ vrmr_list_prepend(const int debuglvl, struct vrmr_list *list, const void *data)
         update the next_node
     */
     next_node = list->top;
-    if(next_node)
-    {
+    if (next_node) {
         next_node->prev = new_node;
-    }
-    else
-    {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "prepended in an empty list (%d).", list->len);
+    } else {
+        vrmr_debug(HIGH, "prepended in an empty list (%d).", list->len);
     }
 
     /*
@@ -295,7 +285,7 @@ vrmr_list_prepend(const int debuglvl, struct vrmr_list *list, const void *data)
         if the bot is NULL, we inserted into an empty list
         so we also have set the bot to the new_node
     */
-    if(!list->bot)
+    if (!list->bot)
         list->bot = new_node;
 
     /*
@@ -308,18 +298,16 @@ vrmr_list_prepend(const int debuglvl, struct vrmr_list *list, const void *data)
 
 
 struct vrmr_list_node *
-vrmr_list_insert_after(const int debuglvl, struct vrmr_list *list, struct vrmr_list_node *d_node, const void *data)
+vrmr_list_insert_after(struct vrmr_list *list, struct vrmr_list_node *d_node, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "start.");
+    vrmr_debug(HIGH, "start.");
 
     /*
         safety first
     */
-    if(!list)
-    {
+    if (!list) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
         return(NULL);
@@ -328,12 +316,9 @@ vrmr_list_insert_after(const int debuglvl, struct vrmr_list *list, struct vrmr_l
     /*
         if d_node is NULL we pass over to the vrmr_list_append fuction
     */
-    if(d_node == NULL)
-    {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "d_node == NULL, calling vrmr_list_append.");
-
-        return(vrmr_list_append(debuglvl, list, data));
+    if (d_node == NULL) {
+        vrmr_debug(HIGH, "d_node == NULL, calling vrmr_list_append.");
+        return(vrmr_list_append(list, data));
     }
 
 
@@ -360,17 +345,12 @@ vrmr_list_insert_after(const int debuglvl, struct vrmr_list *list, struct vrmr_l
     /*
         bot of the list
     */
-    if(new_node->next == NULL)
-    {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "new node is the list bot.");
+    if (new_node->next == NULL) {
+        vrmr_debug(HIGH, "new node is the list bot.");
 
         list->bot = new_node;
-    }
-    else
-    {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "new node is NOT the list bot.");
+    } else {
+        vrmr_debug(HIGH, "new node is NOT the list bot.");
 
         new_node->next->prev = new_node;
     }
@@ -391,7 +371,7 @@ vrmr_list_insert_after(const int debuglvl, struct vrmr_list *list, struct vrmr_l
 
 
 struct vrmr_list_node *
-vrmr_list_insert_before(const int debuglvl, struct vrmr_list *list, struct vrmr_list_node *d_node, const void *data)
+vrmr_list_insert_before(struct vrmr_list *list, struct vrmr_list_node *d_node, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
 
@@ -405,12 +385,10 @@ vrmr_list_insert_before(const int debuglvl, struct vrmr_list *list, struct vrmr_
     }
 
     /* if d_node is NULL we pass over to the vrmr_list_prepend fuction */
-    if(d_node == NULL)
-    {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "d_node == NULL, calling vrmr_list_prepend.");
+    if (d_node == NULL) {
+        vrmr_debug(HIGH, "d_node == NULL, calling vrmr_list_prepend.");
 
-        return(vrmr_list_prepend(debuglvl, list, data));
+        return(vrmr_list_prepend(list, data));
     }
 
 
@@ -429,17 +407,12 @@ vrmr_list_insert_before(const int debuglvl, struct vrmr_list *list, struct vrmr_
     new_node->prev = d_node->prev;
 
     /* top of the list */
-    if(new_node->prev == NULL)
-    {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "new node is the list top.");
+    if (new_node->prev == NULL) {
+        vrmr_debug(HIGH, "new node is the list top.");
 
         list->top = new_node;
-    }
-    else
-    {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "new node is NOT the list top.");
+    } else {
+        vrmr_debug(HIGH, "new node is NOT the list top.");
 
         new_node->prev->next = new_node;
     }
@@ -457,7 +430,7 @@ vrmr_list_insert_before(const int debuglvl, struct vrmr_list *list, struct vrmr_
 
 
 int
-vrmr_list_node_is_top(const int debuglvl, struct vrmr_list_node *d_node)
+vrmr_list_node_is_top(struct vrmr_list_node *d_node)
 {
     /* safety */
     if(!d_node)
@@ -476,7 +449,7 @@ vrmr_list_node_is_top(const int debuglvl, struct vrmr_list_node *d_node)
 
 
 int
-vrmr_list_node_is_bot(const int debuglvl, struct vrmr_list_node *d_node)
+vrmr_list_node_is_bot(struct vrmr_list_node *d_node)
 {
     /* safety */
     if(!d_node)
@@ -495,7 +468,7 @@ vrmr_list_node_is_bot(const int debuglvl, struct vrmr_list_node *d_node)
 
 
 int
-vrmr_list_cleanup(const int debuglvl, struct vrmr_list *list)
+vrmr_list_cleanup(struct vrmr_list *list)
 {
     /* safety */
     if(!list)
@@ -508,7 +481,7 @@ vrmr_list_cleanup(const int debuglvl, struct vrmr_list *list)
     /* remove the top while list len > 0 */
     for(;list->len;)
     {
-        if(vrmr_list_remove_top(debuglvl, list) < 0)
+        if(vrmr_list_remove_top(list) < 0)
         {
             vrmr_error(-1, "Error", "could not remove node (in: %s:%d).",
                     __FUNC__, __LINE__);

@@ -21,7 +21,7 @@
 #include "vuurmuur_script.h"
 
 int
-script_rename(const int debuglvl, VuurmuurScript *vr_script)
+script_rename(VuurmuurScript *vr_script)
 {
     char    found = FALSE;
 
@@ -31,7 +31,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     if( vr_script->type == VRMR_TYPE_ZONE || vr_script->type == VRMR_TYPE_NETWORK ||
         vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
-        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type && strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -55,7 +55,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        while(vr_script->vctx.sf->list(debuglvl, vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
+        while(vr_script->vctx.sf->list(vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -71,7 +71,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        while(vr_script->vctx.af->list(debuglvl, vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
+        while(vr_script->vctx.af->list(vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -87,7 +87,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        while(vr_script->vctx.rf->list(debuglvl, vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
+        while(vr_script->vctx.rf->list(vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -110,7 +110,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
         vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
         /* validate and split the new name */
-        if(vrmr_validate_zonename(debuglvl, vr_script->set, 1, NULL, NULL, NULL, vr_script->vctx.reg.zonename, VRMR_VERBOSE) != 0)
+        if(vrmr_validate_zonename(vr_script->set, 1, NULL, NULL, NULL, vr_script->vctx.reg.zonename, VRMR_VERBOSE) != 0)
         {
             if(vr_script->type == VRMR_TYPE_ZONE)
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid zone name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
@@ -126,7 +126,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        if(vrmr_validate_servicename(debuglvl, vr_script->set, vr_script->vctx.reg.servicename, VRMR_QUIET) != 0)
+        if(vrmr_validate_servicename(vr_script->set, vr_script->vctx.reg.servicename, VRMR_QUIET) != 0)
         {
             vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid service name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
             return(VRS_ERR_COMMANDLINE);
@@ -134,7 +134,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        if(vrmr_validate_interfacename(debuglvl, vr_script->set, vr_script->vctx.reg.interfacename) != 0)
+        if(vrmr_validate_interfacename(vr_script->set, vr_script->vctx.reg.interfacename) != 0)
         {
             vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid interface name '%s' (in: %s:%d).", vr_script->set, __FUNC__, __LINE__);
             return(VRS_ERR_COMMANDLINE);
@@ -162,7 +162,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     if( vr_script->type == VRMR_TYPE_ZONE || vr_script->type == VRMR_TYPE_NETWORK ||
         vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
-        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type && strcmp(vr_script->bdat,vr_script->set) == 0)
             {
@@ -186,7 +186,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        while(vr_script->vctx.sf->list(debuglvl, vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
+        while(vr_script->vctx.sf->list(vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->set) == 0)
             {
@@ -202,7 +202,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        while(vr_script->vctx.af->list(debuglvl, vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
+        while(vr_script->vctx.af->list(vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->set) == 0)
             {
@@ -218,7 +218,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        while(vr_script->vctx.rf->list(debuglvl, vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
+        while(vr_script->vctx.rf->list(vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->set) == 0)
             {
@@ -237,7 +237,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     /* do the actual rename */
     if(vr_script->type == VRMR_TYPE_ZONE)
     {
-        if(vr_script->vctx.zf->rename(debuglvl, vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_ZONE) < 0)
+        if(vr_script->vctx.zf->rename(vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_ZONE) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -247,7 +247,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
-        if(vr_script->vctx.zf->rename(debuglvl, vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_NETWORK) < 0)
+        if(vr_script->vctx.zf->rename(vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_NETWORK) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -257,7 +257,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_HOST)
     {
-        if(vr_script->vctx.zf->rename(debuglvl, vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_HOST) < 0)
+        if(vr_script->vctx.zf->rename(vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_HOST) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -267,7 +267,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_GROUP)
     {
-        if(vr_script->vctx.zf->rename(debuglvl, vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_GROUP) < 0)
+        if(vr_script->vctx.zf->rename(vr_script->vctx.zone_backend, vr_script->name, vr_script->set, VRMR_TYPE_GROUP) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -277,7 +277,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        if(vr_script->vctx.sf->rename(debuglvl, vr_script->vctx.serv_backend, vr_script->name, vr_script->set, VRMR_TYPE_SERVICE) < 0)
+        if(vr_script->vctx.sf->rename(vr_script->vctx.serv_backend, vr_script->name, vr_script->set, VRMR_TYPE_SERVICE) < 0)
         {
             vrmr_error(-VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -287,7 +287,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        if(vr_script->vctx.af->rename(debuglvl, vr_script->vctx.ifac_backend, vr_script->name, vr_script->set, VRMR_TYPE_INTERFACE) < 0)
+        if(vr_script->vctx.af->rename(vr_script->vctx.ifac_backend, vr_script->name, vr_script->set, VRMR_TYPE_INTERFACE) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -297,7 +297,7 @@ script_rename(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        if(vr_script->vctx.rf->rename(debuglvl, vr_script->vctx.rule_backend, vr_script->name, vr_script->set, VRMR_TYPE_RULE) < 0)
+        if(vr_script->vctx.rf->rename(vr_script->vctx.rule_backend, vr_script->name, vr_script->set, VRMR_TYPE_RULE) < 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "renaming ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);

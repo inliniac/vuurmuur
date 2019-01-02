@@ -148,7 +148,7 @@ struct
 } HostSec;
 
 static void
-edit_zone_host_init(const int debuglvl, struct vrmr_ctx *vctx, char *name, int height, int width, int starty, int startx, struct vrmr_zone *zone_ptr)
+edit_zone_host_init(struct vrmr_ctx *vctx, char *name, int height, int width, int starty, int startx, struct vrmr_zone *zone_ptr)
 {
     int     rows,
             cols,
@@ -167,45 +167,45 @@ edit_zone_host_init(const int debuglvl, struct vrmr_ctx *vctx, char *name, int h
 
     /* preload the active field */
     HostSec.activelabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 2, 0, 0, 0));
-    set_field_buffer_wrap(debuglvl, HostSec.activelabelfld, 0, STR_CACTIVE);
+    set_field_buffer_wrap(HostSec.activelabelfld, 0, STR_CACTIVE);
     field_opts_off(HostSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     HostSec.activefld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 3, 3, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, HostSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
+    set_field_buffer_wrap(HostSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
     HostSec.ipaddresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 2, 8, 0, 0));
-    set_field_buffer_wrap(debuglvl, HostSec.ipaddresslabelfld, 0, STR_IPADDRESS);
+    set_field_buffer_wrap(HostSec.ipaddresslabelfld, 0, STR_IPADDRESS);
     field_opts_off(HostSec.ipaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     HostSec.ipaddressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 3, 9, 0, 0));
     set_field_type(HostSec.ipaddressfld, TYPE_IPV4);
-    set_field_buffer_wrap(debuglvl, HostSec.ipaddressfld, 0, zone_ptr->ipv4.ipaddress);
+    set_field_buffer_wrap(HostSec.ipaddressfld, 0, zone_ptr->ipv4.ipaddress);
     field_opts_on(HostSec.ipaddressfld, O_BLANK);
 
     HostSec.ip6addresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 4, 8, 0, 0));
 #ifdef IPV6_ENABLED
-    set_field_buffer_wrap(debuglvl, HostSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
+    set_field_buffer_wrap(HostSec.ip6addresslabelfld, 0, STR_IP6ADDRESS);
 #endif
     field_opts_off(HostSec.ip6addresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     HostSec.ip6addressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, VRMR_MAX_IPV6_ADDR_LEN, 5, 9, 0, 0));
     //set_field_type(HostSec.ipaddressfld, TYPE_IPV4);
 #ifdef IPV6_ENABLED
-    set_field_buffer_wrap(debuglvl, HostSec.ip6addressfld, 0, zone_ptr->ipv6.ip6);
+    set_field_buffer_wrap(HostSec.ip6addressfld, 0, zone_ptr->ipv6.ip6);
 #endif
     field_opts_on(HostSec.ip6addressfld, O_BLANK);
 
     HostSec.macaddresslabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 6, 8, 0, 0));
-    set_field_buffer_wrap(debuglvl, HostSec.macaddresslabelfld, 0, STR_MACADDRESS);
+    set_field_buffer_wrap(HostSec.macaddresslabelfld, 0, STR_MACADDRESS);
     field_opts_off(HostSec.macaddresslabelfld, O_AUTOSKIP | O_ACTIVE);
 
     HostSec.macaddressfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 19, 7, 9, 0, 0));
-    set_field_buffer_wrap(debuglvl, HostSec.macaddressfld, 0, zone_ptr->mac);
+    set_field_buffer_wrap(HostSec.macaddressfld, 0, zone_ptr->mac);
     field_opts_on(HostSec.macaddressfld, O_BLANK);
 
     /* comment label */
     HostSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 10, 0, 0, 0));
-    set_field_buffer_wrap(debuglvl, HostSec.commentlabelfld, 0, gettext("Comment"));
+    set_field_buffer_wrap(HostSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(HostSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     /* comment field size */
@@ -215,10 +215,10 @@ edit_zone_host_init(const int debuglvl, struct vrmr_ctx *vctx, char *name, int h
     HostSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 11, 1, 0, 0));
 
     /* load the comment from the backend */
-    if (vctx->zf->ask(debuglvl, vctx->zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_HOST, 0) < 0)
+    if (vctx->zf->ask(vctx->zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_HOST, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
-    set_field_buffer_wrap(debuglvl, HostSec.commentfld, 0, ZonesSection.comment);
+    set_field_buffer_wrap(HostSec.commentfld, 0, ZonesSection.comment);
 
 
     HostSec.warningfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 48, 15, 1, 0, 0));
@@ -303,7 +303,7 @@ edit_zone_host_destroy(void)
 
 
 static int
-edit_zone_host_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *zone_ptr, struct vrmr_regex *reg)
+edit_zone_host_save(struct vrmr_ctx *vctx, struct vrmr_zone *zone_ptr, struct vrmr_regex *reg)
 {
     int     active = 0;
     char    ipaddress[16] = "",
@@ -336,7 +336,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone 
                 zone_ptr->active = 0;
 
             /* save to the backend */
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_HOST) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_HOST) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -371,10 +371,10 @@ edit_zone_host_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone 
              */
             if( zone_ptr->network_parent->ipv4.network[0] == '\0' ||
                     zone_ptr->network_parent->ipv4.netmask[0] == '\0' ||
-                    vrmr_check_ipv4address(debuglvl, zone_ptr->network_parent->ipv4.network,
+                    vrmr_check_ipv4address(zone_ptr->network_parent->ipv4.network,
                         zone_ptr->network_parent->ipv4.netmask, zone_ptr->ipv4.ipaddress, 0))
             {
-                if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "IPADDRESS", zone_ptr->ipv4.ipaddress, 1, VRMR_TYPE_HOST) < 0)
+                if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "IPADDRESS", zone_ptr->ipv4.ipaddress, 1, VRMR_TYPE_HOST) < 0)
                 {
                     vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -413,7 +413,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone 
                     field_buffer(ZonesSection.EditZone.fields[i], 0),
                     sizeof(zone_ptr->ipv6.ip6));
 
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "IPV6ADDRESS", zone_ptr->ipv6.ip6, 1, VRMR_TYPE_HOST) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "IPV6ADDRESS", zone_ptr->ipv6.ip6, 1, VRMR_TYPE_HOST) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -453,7 +453,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone 
             }
 
             /* save to backend */
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "MAC", zone_ptr->mac, 1, VRMR_TYPE_HOST) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "MAC", zone_ptr->mac, 1, VRMR_TYPE_HOST) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -470,7 +470,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone 
         /* comment field */
         else if(ZonesSection.EditZone.fields[i] == HostSec.commentfld)
         {
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_HOST) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_HOST) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -502,7 +502,7 @@ edit_zone_host_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone 
         -1: error
 */
 static void
-edit_zone_host(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones, char *name, struct vrmr_regex *reg)
+edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones, char *name, struct vrmr_regex *reg)
 {
     int                 ch,
                         not_defined = 0,
@@ -533,23 +533,23 @@ edit_zone_host(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
     VrWinGetOffset(-1, -1, height, width, ZonesSection.h_yle + 1, ZonesSection.n_xre + 1, &starty, &startx);
 
     /* search the host in memory */
-    zone_ptr = vrmr_search_zonedata(debuglvl, zones, name);
+    zone_ptr = vrmr_search_zonedata(zones, name);
     vrmr_fatal_if_null(zone_ptr);
 
     /* init */
-    edit_zone_host_init(debuglvl, vctx, name, height, width, starty, startx, zone_ptr);
+    edit_zone_host_init(vctx, name, height, width, starty, startx, zone_ptr);
 
     cur = current_field(ZonesSection.EditZone.form);
     vrmr_fatal_if_null(cur);
 
-    if(zone_ptr->active == TRUE && vrmr_zones_active(debuglvl, zone_ptr) == 0)
+    if(zone_ptr->active == TRUE && vrmr_zones_active(zone_ptr) == 0)
     {
-        set_field_buffer_wrap(debuglvl, HostSec.warningfld, 0, gettext("Note: parent zone/network is inactive."));
+        set_field_buffer_wrap(HostSec.warningfld, 0, gettext("Note: parent zone/network is inactive."));
         field_opts_on(HostSec.warningfld, O_VISIBLE);
         set_field_status(HostSec.warningfld, FALSE);
     }
 
-    draw_top_menu(debuglvl, top_win, gettext("Edit Host"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Edit Host"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     update_panels();
     doupdate();
@@ -568,19 +568,19 @@ edit_zone_host(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
 
         if(cur == HostSec.commentfld)
         {
-            if(nav_field_comment(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+            if(nav_field_comment(ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == HostSec.activefld)
         {
-            if(nav_field_yesno(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+            if(nav_field_yesno(ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == HostSec.ipaddressfld ||
                 cur == HostSec.ip6addressfld ||
                 cur == HostSec.macaddressfld)
         {
-            if(nav_field_simpletext(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+            if(nav_field_simpletext(ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -611,7 +611,7 @@ edit_zone_host(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
                 case 'Q':
 
                     /* save changes */
-                    if (edit_zone_host_save(debuglvl, vctx, zone_ptr, reg) < 0)
+                    if (edit_zone_host_save(vctx, zone_ptr, reg) < 0)
                     {
                         if(confirm( gettext("saving host failed."),
                                     gettext("Look at the host again?"),
@@ -630,7 +630,7 @@ edit_zone_host(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:ZONES:HOST:EDIT]:");
+                    print_help(":[VUURMUUR:ZONES:HOST:EDIT]:");
                     break;
             }
         }
@@ -652,9 +652,9 @@ edit_zone_host(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
 
         /* check against the current 'active' value */
         if(strncasecmp(field_buffer(HostSec.activefld, 0), STR_YES, StrLen(STR_YES)) == 0 &&
-            vrmr_zones_active(debuglvl, zone_ptr) == 0)
+            vrmr_zones_active(zone_ptr) == 0)
         {
-            set_field_buffer_wrap(debuglvl, HostSec.warningfld, 0, gettext("Note: parent zone/network is inactive."));
+            set_field_buffer_wrap(HostSec.warningfld, 0, gettext("Note: parent zone/network is inactive."));
             field_opts_on(HostSec.warningfld, O_VISIBLE);
             set_field_status(HostSec.warningfld, FALSE);
         }
@@ -679,7 +679,7 @@ edit_zone_host(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
 
 
 static void
-zones_section_menu_hosts_init(const int debuglvl, struct vrmr_ctx *vctx,
+zones_section_menu_hosts_init(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, char *zonename, char *networkname)
 {
     struct vrmr_zone    *zone_ptr = NULL;
@@ -850,7 +850,7 @@ zones_section_menu_hosts_destroy(void)
 
 /* rename a host or a group */
 static int
-zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx,
+zones_rename_host_group(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, struct vrmr_rules *rules,
         struct vrmr_blocklist *blocklist, char *cur_name_ptr,
         char *new_name_ptr, int type, struct vrmr_regex *reg)
@@ -882,28 +882,26 @@ zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx,
     vrmr_fatal_if(type != VRMR_TYPE_HOST && type != VRMR_TYPE_GROUP);
 
     /* validate and split the new name */
-    if(vrmr_validate_zonename(debuglvl, new_name_ptr, 0, vrmr_new_zone, new_net, new_host, reg->zonename, VRMR_VERBOSE) != 0)
+    if(vrmr_validate_zonename(new_name_ptr, 0, vrmr_new_zone, new_net, new_host, reg->zonename, VRMR_VERBOSE) != 0)
     {
         vrmr_error(-1, VR_ERR, "invalid name '%s'", new_name_ptr);
         return(-1);
     }
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "new_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", new_name_ptr, new_host, new_net, vrmr_new_zone);
+    vrmr_debug(HIGH, "new_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", new_name_ptr, new_host, new_net, vrmr_new_zone);
 
     /* store the old name */
     (void)strlcpy(old_host_name, cur_name_ptr, sizeof(old_host_name));
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "going to rename host/group old_host_name:'%s' to new_name_ptr:'%s'.", old_host_name, new_name_ptr);
+    vrmr_debug(HIGH, "going to rename host/group old_host_name:'%s' to new_name_ptr:'%s'.", old_host_name, new_name_ptr);
 
     /* rename in the backend */
-    result = vctx->zf->rename(debuglvl, vctx->zone_backend, old_host_name, new_name_ptr, type);
+    result = vctx->zf->rename(vctx->zone_backend, old_host_name, new_name_ptr, type);
     if(result != 0)
     {
         return(-1);
     }
 
     /* search the zone in the list */
-    zone_ptr = vrmr_search_zonedata(debuglvl, zones, old_host_name);
+    zone_ptr = vrmr_search_zonedata(zones, old_host_name);
     vrmr_fatal_if_null(zone_ptr);
 
     (void)strlcpy(zone_ptr->name, new_name_ptr, sizeof(zone_ptr->name));
@@ -915,14 +913,12 @@ zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx,
     {
         vrmr_fatal_if_null(d_node->data);
         rule_ptr = d_node->data;
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "from: '%s', to: '%s'.", rule_ptr->from, rule_ptr->to);
+        vrmr_debug(HIGH, "from: '%s', to: '%s'.", rule_ptr->from, rule_ptr->to);
 
         /* check the fromname */
         if(strcmp(rule_ptr->from, old_host_name) == 0)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "found in a rule (was looking for old_host_name:'%s', found rule_ptr->from:'%s').", old_host_name, rule_ptr->from);
+            vrmr_debug(HIGH, "found in a rule (was looking for old_host_name:'%s', found rule_ptr->from:'%s').", old_host_name, rule_ptr->from);
 
             /* set the new name to the rules */
             (void)strlcpy(rule_ptr->from, new_name_ptr,
@@ -932,8 +928,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx,
         /* do the same thing for to */
         if(strcmp(rule_ptr->to, old_host_name) == 0)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "found in a rule (was looking for old_host_name:'%s', found rule_ptr->to:'%s').", old_host_name, rule_ptr->to);
+            vrmr_debug(HIGH, "found in a rule (was looking for old_host_name:'%s', found rule_ptr->to:'%s').", old_host_name, rule_ptr->to);
 
             /* set the new name to the rules */
             (void)strlcpy(rule_ptr->to, new_name_ptr,
@@ -944,7 +939,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx,
     /* if we have made changes we write the rulesfile */
     if(rules_changed == 1)
     {
-        if(vrmr_rules_save_list(debuglvl, vctx, rules, &vctx->conf) < 0)
+        if(vrmr_rules_save_list(vctx, rules, &vctx->conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
@@ -976,7 +971,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx,
     /* if we have made changes we write the blocklistfile */
     if(blocklist_changed == 1)
     {
-        if(vrmr_blocklist_save_list(debuglvl, vctx, &vctx->conf, blocklist) < 0)
+        if(vrmr_blocklist_save_list(vctx, &vctx->conf, blocklist) < 0)
             return(-1);
     }
 
@@ -1013,7 +1008,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx,
             /* if the groups is changed, save it */
             if(group_changed == 1)
             {
-                if (vrmr_zones_group_save_members(debuglvl, vctx, zone_ptr) < 0)
+                if (vrmr_zones_group_save_members(vctx, zone_ptr) < 0)
                 {
                     vrmr_error(-1, VR_ERR, gettext("saving changed group to backend failed."));
                     return(-1);
@@ -1031,7 +1026,7 @@ zones_rename_host_group(const int debuglvl, struct vrmr_ctx *vctx,
 
 
 static int
-zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
+zones_section_menu_hosts(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, struct vrmr_rules *rules, struct vrmr_blocklist *blocklist, char *zonename, char *networkname, struct vrmr_regex *reg)
 {
     int                 ch = 0,
@@ -1071,9 +1066,9 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(blocklist);
 
     /* setup */
-    zones_section_menu_hosts_init(debuglvl, vctx, zones, zonename, networkname);
+    zones_section_menu_hosts_init(vctx, zones, zonename, networkname);
 
-    draw_top_menu(debuglvl, top_win, gettext("Hosts"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Hosts"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     /* enter the loop */
     while(quit == 0)
@@ -1084,7 +1079,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
             /* first destroy */
             zones_section_menu_hosts_destroy();
             /* and setup again */
-            zones_section_menu_hosts_init(debuglvl, vctx, zones, zonename, networkname);
+            zones_section_menu_hosts_init(vctx, zones, zonename, networkname);
             /* we are done with reloading */
             reload = 0;
         }
@@ -1140,7 +1135,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                         vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Host"), gettext("Enter the new name of the host"));
                         if(vrmr_new_zone_ptr != NULL)
                         {
-                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
+                            if(vrmr_validate_zonename(vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                             {
                                 vrmr_warning(VR_WARN, gettext("invalid hostname '%s'."), vrmr_new_zone_ptr);
                             }
@@ -1160,13 +1155,13 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                                 (void)strlcat(temp_ptr, ".", size);
                                 (void)strlcat(temp_ptr, zonename, size);
 
-                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
+                                if(vrmr_validate_zonename(temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
                                 {
                                     vrmr_warning(VR_WARN, gettext("invalid hostname '%s'."), temp_ptr);
                                 }
                                 else
                                 {
-                                    if (zones_rename_host_group(debuglvl, vctx, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_HOST, reg) == 0)
+                                    if (zones_rename_host_group(vctx, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_HOST, reg) == 0)
                                     {
                                         /* we have a new host, so reload the menu */
                                         reload = 1;
@@ -1190,7 +1185,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                     vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("New Host"), gettext("Enter the name of the new host"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
-                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
+                        if(vrmr_validate_zonename(vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                         {
                             vrmr_warning(VR_WARN, gettext("invalid hostname '%s'."), vrmr_new_zone_ptr);
                         }
@@ -1210,18 +1205,18 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                             (void)strlcat(temp_ptr, ".", size);
                             (void)strlcat(temp_ptr, zonename, size);
 
-                            if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
+                            if(vrmr_validate_zonename(temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
                             {
                                 vrmr_warning(VR_WARN, gettext("invalid hostname '%s'."), temp_ptr);
                             }
                             else
                             {
-                                if (vrmr_new_zone(debuglvl, vctx, zones, temp_ptr, VRMR_TYPE_HOST) >= 0)
+                                if (vrmr_new_zone(vctx, zones, temp_ptr, VRMR_TYPE_HOST) >= 0)
                                 {
                                     vrmr_audit("%s '%s' %s.", STR_HOST, temp_ptr, STR_HAS_BEEN_CREATED);
 
-                                    (void)edit_zone_host(debuglvl, vctx, zones, temp_ptr, reg);
-                                    draw_top_menu(debuglvl, top_win, gettext("Hosts"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                                    (void)edit_zone_host(vctx, zones, temp_ptr, reg);
+                                    draw_top_menu(top_win, gettext("Hosts"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                                 }
 
                                 /* we have a new host, so reload the menu */
@@ -1260,7 +1255,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                         (void)strlcat(temp_ptr, ".", size);
                         (void)strlcat(temp_ptr, zonename, size);
 
-                        zone_ptr = vrmr_search_zonedata(debuglvl, zones, temp_ptr);
+                        zone_ptr = vrmr_search_zonedata(zones, temp_ptr);
                         vrmr_fatal_if_null(zone_ptr);
 
                         /* check the refernce counters */
@@ -1276,7 +1271,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                         }
                         else
                         {
-                            if (vrmr_delete_zone(debuglvl, vctx, zones, temp_ptr, zone_ptr->type) < 0)
+                            if (vrmr_delete_zone(vctx, zones, temp_ptr, zone_ptr->type) < 0)
                             {
                                 vrmr_error(result, VR_ERR, gettext("deleting zone failed."));
                             }
@@ -1338,12 +1333,12 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                         (void)strlcat(temp_ptr, ".", size);
                         (void)strlcat(temp_ptr, zonename, size);
 
-                        zone_ptr = vrmr_search_zonedata(debuglvl, zones, temp_ptr);
+                        zone_ptr = vrmr_search_zonedata(zones, temp_ptr);
                         vrmr_fatal_if_null(zone_ptr);
                         vrmr_fatal_if(zone_ptr->type != VRMR_TYPE_HOST);
 
-                        (void)edit_zone_host(debuglvl, vctx, zones, zone_ptr->name, reg);
-                        draw_top_menu(debuglvl, top_win, gettext("Hosts"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        (void)edit_zone_host(vctx, zones, zone_ptr->name, reg);
+                        draw_top_menu(top_win, gettext("Hosts"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
                         free(temp_ptr);
                         reload = 1;
@@ -1355,7 +1350,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'H':
                 case '?':
 
-                    print_help(debuglvl, ":[VUURMUUR:ZONES:HOSTS]:");
+                    print_help(":[VUURMUUR:ZONES:HOSTS]:");
                     break;
             }
         }
@@ -1371,7 +1366,7 @@ zones_section_menu_hosts(const int debuglvl, struct vrmr_ctx *vctx,
 
 
 static void
-edit_zone_group_members_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones, struct vrmr_zone *group_ptr)
+edit_zone_group_members_init(struct vrmr_ctx *vctx, struct vrmr_zones *zones, struct vrmr_zone *group_ptr)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_zone    *member_ptr = NULL;
@@ -1510,14 +1505,14 @@ edit_zone_group_members_destroy(void)
     the group 'group_ptr'.
 */
 static void
-edit_zone_group_members_delmem(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *group_ptr, char *member_name)
+edit_zone_group_members_delmem(struct vrmr_ctx *vctx, struct vrmr_zone *group_ptr, char *member_name)
 {
     int     result = 0;
     char    logname[VRMR_VRMR_MAX_HOST_NET_ZONE] = "";
 
     snprintf(logname, sizeof(logname), "%s.%s.%s", member_name, group_ptr->network_name, group_ptr->zone_name);
 
-    result = vrmr_zones_group_rem_member(debuglvl, vctx, group_ptr, member_name);
+    result = vrmr_zones_group_rem_member(vctx, group_ptr, member_name);
     if(result == 0)
     {
         vrmr_audit("%s '%s' %s: %s: '%s'.",
@@ -1533,7 +1528,7 @@ edit_zone_group_members_delmem(const int debuglvl, struct vrmr_ctx *vctx, struct
     group 'group_ptr'.
 */
 static void
-edit_zone_group_members_newmem(const int debuglvl, struct vrmr_ctx *vctx,
+edit_zone_group_members_newmem(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, struct vrmr_zone *group_ptr)
 {
     struct vrmr_list_node         *d_node = NULL;
@@ -1616,7 +1611,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_ctx *vctx,
     free(choice_ptr);
 
     /* add the member */
-    result = vrmr_zones_group_add_member(debuglvl, vctx, zones, group_ptr, search_name);
+    result = vrmr_zones_group_add_member(vctx, zones, group_ptr, search_name);
     if(result == 0)
     {
         vrmr_audit("%s '%s' %s: %s: %s.",
@@ -1636,7 +1631,7 @@ edit_zone_group_members_newmem(const int debuglvl, struct vrmr_ctx *vctx,
         -1: error
 */
 static void
-edit_zone_group_members(const int debuglvl, struct vrmr_ctx *vctx,
+edit_zone_group_members(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, struct vrmr_zone *zone_ptr)
 {
     int     quit = 0,
@@ -1649,7 +1644,7 @@ edit_zone_group_members(const int debuglvl, struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(zones);
 
     /* setup the win */
-    edit_zone_group_members_init(debuglvl, vctx, zones, zone_ptr);
+    edit_zone_group_members_init(vctx, zones, zone_ptr);
 
     while(quit == 0)
     {
@@ -1658,7 +1653,7 @@ edit_zone_group_members(const int debuglvl, struct vrmr_ctx *vctx,
             /* first destroy */
             edit_zone_group_members_destroy();
             /* then init again */
-            edit_zone_group_members_init(debuglvl, vctx, zones, zone_ptr);
+            edit_zone_group_members_init(vctx, zones, zone_ptr);
             /* refresh screen */
             update_panels();
             doupdate();
@@ -1699,7 +1694,7 @@ edit_zone_group_members(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'i':
                 case 'I':
 
-                    edit_zone_group_members_newmem(debuglvl, vctx, zones, zone_ptr);
+                    edit_zone_group_members_newmem(vctx, zones, zone_ptr);
                     reload = 1;
                     break;
 
@@ -1710,7 +1705,7 @@ edit_zone_group_members(const int debuglvl, struct vrmr_ctx *vctx,
                     cur = current_item(ZonesSection.EditZoneGrp.menu);
                     if (cur) {
                         char *n = (char *)item_name(cur);
-                        edit_zone_group_members_delmem(debuglvl, vctx, zone_ptr, n);
+                        edit_zone_group_members_delmem(vctx, zone_ptr, n);
                         reload = 1;
                     }
                     break;
@@ -1762,7 +1757,7 @@ struct
 } GroupSec;
 
 static void
-edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones, char *name, struct vrmr_zone *zone_ptr)
+edit_zone_group_init(struct vrmr_ctx *vctx, struct vrmr_zones *zones, char *name, struct vrmr_zone *zone_ptr)
 {
     int                 rows,
                         cols,
@@ -1795,15 +1790,15 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
 
     /* preload the active field */
     GroupSec.activelabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 2, 0, 0, 0));
-    set_field_buffer_wrap(debuglvl, GroupSec.activelabelfld, 0, gettext("Active"));
+    set_field_buffer_wrap(GroupSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(GroupSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     GroupSec.activefld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 3, 3, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, GroupSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
+    set_field_buffer_wrap(GroupSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
     /* comment label */
     GroupSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 5, 0, 0, 0));
-    set_field_buffer_wrap(debuglvl, GroupSec.commentlabelfld, 0, gettext("Comment"));
+    set_field_buffer_wrap(GroupSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(GroupSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     /* comment field size */
@@ -1813,10 +1808,10 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
     GroupSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 6, 1, 0, 0));
 
     /* load the comment from the backend */
-    if (vctx->zf->ask(debuglvl, vctx->zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_GROUP, 0) < 0)
+    if (vctx->zf->ask(vctx->zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_GROUP, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
-    set_field_buffer_wrap(debuglvl, GroupSec.commentfld, 0, ZonesSection.comment);
+    set_field_buffer_wrap(GroupSec.commentfld, 0, ZonesSection.comment);
 
     /* comment label */
     GroupSec.warningfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 48, 11, 1, 0, 0));
@@ -1868,7 +1863,7 @@ edit_zone_group_init(int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zon
 }
 
 static int
-edit_zone_group_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *group_ptr)
+edit_zone_group_save(struct vrmr_ctx *vctx, struct vrmr_zone *group_ptr)
 {
     int     retval = 0,
             active = 0;
@@ -1903,7 +1898,7 @@ edit_zone_group_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone
                 group_ptr->active = -1;
             }
 
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, group_ptr->name, "ACTIVE", group_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_GROUP) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, group_ptr->name, "ACTIVE", group_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_GROUP) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 retval = -1;
@@ -1917,7 +1912,7 @@ edit_zone_group_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone
         }
         else if(ZonesSection.EditZone.fields[i] == GroupSec.commentfld)
         {
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, group_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_GROUP) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, group_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_GROUP) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 retval = -1;
@@ -1970,7 +1965,7 @@ edit_zone_group_destroy(void)
         -1: error
 */
 static int
-edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
+edit_zone_group(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, char *name)
 {
     int                 ch,
@@ -1995,24 +1990,24 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(zones);
 
     /* search the group in mem */
-    zone_ptr = vrmr_search_zonedata(debuglvl, zones, name);
+    zone_ptr = vrmr_search_zonedata(zones, name);
     vrmr_fatal_if_null(zone_ptr);
 
     /* loop through to get user requests */
     while(quit == 0)
     {
         /* init */
-        edit_zone_group_init(debuglvl, vctx, zones, name, zone_ptr);
+        edit_zone_group_init(vctx, zones, name, zone_ptr);
 
         /* print (or not) initial warning about the group being empty. */
         if(zone_ptr->GroupList.len == 0)
         {
-            set_field_buffer_wrap(debuglvl, GroupSec.warningfld, 0, gettext("Warning: no members!"));
+            set_field_buffer_wrap(GroupSec.warningfld, 0, gettext("Warning: no members!"));
             field_opts_on(GroupSec.warningfld, O_VISIBLE);
         }
-        else if(zone_ptr->active == TRUE && vrmr_zones_active(debuglvl, zone_ptr) == 0)
+        else if(zone_ptr->active == TRUE && vrmr_zones_active(zone_ptr) == 0)
         {
-            set_field_buffer_wrap(debuglvl, GroupSec.warningfld, 0, gettext("Note: parent zone/network is inactive."));
+            set_field_buffer_wrap(GroupSec.warningfld, 0, gettext("Note: parent zone/network is inactive."));
             field_opts_on(GroupSec.warningfld, O_VISIBLE);
             set_field_status(GroupSec.warningfld, FALSE);
         }
@@ -2023,7 +2018,7 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
         pos_form_cursor(ZonesSection.EditZone.form);
         cur = current_field(ZonesSection.EditZone.form);
 
-        draw_top_menu(debuglvl, top_win, gettext("Edit Group"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+        draw_top_menu(top_win, gettext("Edit Group"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
         wrefresh(ZonesSection.EditZone.win);
         update_panels();
@@ -2041,12 +2036,12 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
             /* handle input */
             if(cur == GroupSec.commentfld)
             {
-                if(nav_field_comment(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+                if(nav_field_comment(ZonesSection.EditZone.form, ch) < 0)
                     not_defined = 1;
             }
             else if(cur == GroupSec.activefld)
             {
-                if(nav_field_yesno(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+                if(nav_field_yesno(ZonesSection.EditZone.form, ch) < 0)
                     not_defined = 1;
             }
             else
@@ -2062,9 +2057,9 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
                     case 'E':
 
                         /* edit the members */
-                        edit_zone_group_members(debuglvl, vctx, zones, zone_ptr);
+                        edit_zone_group_members(vctx, zones, zone_ptr);
 
-                        draw_top_menu(debuglvl, top_win, gettext("Edit Group"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        draw_top_menu(top_win, gettext("Edit Group"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                         break;
 
                     case 27:
@@ -2094,7 +2089,7 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
                     case 'H':
                     case '?':
 
-                        print_help(debuglvl, ":[VUURMUUR:ZONES:GROUP:EDIT]:");
+                        print_help(":[VUURMUUR:ZONES:GROUP:EDIT]:");
                         break;
                 }
             }
@@ -2106,14 +2101,14 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
             /* draw empty group warning */
             if(zone_ptr->GroupList.len == 0)
             {
-                set_field_buffer_wrap(debuglvl, GroupSec.warningfld, 0, gettext("Warning: no members!"));
+                set_field_buffer_wrap(GroupSec.warningfld, 0, gettext("Warning: no members!"));
                 field_opts_on(GroupSec.warningfld, O_VISIBLE);
                 set_field_status(GroupSec.warningfld, FALSE);
             }
             else if(strncasecmp(field_buffer(GroupSec.activefld, 0), STR_YES, StrLen(STR_YES)) == 0 &&
-                vrmr_zones_active(debuglvl, zone_ptr) == 0)
+                vrmr_zones_active(zone_ptr) == 0)
             {
-                set_field_buffer_wrap(debuglvl, GroupSec.warningfld, 0, gettext("Note: parent zone/network is inactive."));
+                set_field_buffer_wrap(GroupSec.warningfld, 0, gettext("Note: parent zone/network is inactive."));
                 field_opts_on(GroupSec.warningfld, O_VISIBLE);
                 set_field_status(GroupSec.warningfld, FALSE);
             }
@@ -2132,7 +2127,7 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
     }
 
     /* save to backend */
-    if(edit_zone_group_save(debuglvl, vctx, zone_ptr) < 0)
+    if(edit_zone_group_save(vctx, zone_ptr) < 0)
         retval = -1;
 
     /* cleanup */
@@ -2147,7 +2142,7 @@ edit_zone_group(const int debuglvl, struct vrmr_ctx *vctx,
 
 
 static void
-zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, char *zonename, char *networkname)
+zones_section_menu_groups_init(struct vrmr_zones *zones, char *zonename, char *networkname)
 {
     size_t              i = 0;
     struct vrmr_zone    *zone_ptr = NULL;
@@ -2186,7 +2181,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
         }
     }
 
-    vrmr_list_setup(debuglvl, &ZonesSection.group_desc_list, free);
+    vrmr_list_setup(&ZonesSection.group_desc_list, free);
 
     i = ZonesSection.host_n - 1;
 
@@ -2208,7 +2203,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
                 desc_ptr = strdup(temp);
                 vrmr_fatal_alloc("strdup", desc_ptr);
 
-                vrmr_fatal_if(vrmr_list_append(debuglvl, &ZonesSection.group_desc_list, desc_ptr) == NULL);
+                vrmr_fatal_if(vrmr_list_append(&ZonesSection.group_desc_list, desc_ptr) == NULL);
 
                 ZonesSection.hostitems[i] = new_item(zone_ptr->host_name, desc_ptr);
                 vrmr_fatal_if_null(ZonesSection.hostitems[i]);
@@ -2295,7 +2290,7 @@ zones_section_menu_groups_init(const int debuglvl, struct vrmr_zones *zones, cha
 }
 
 static void
-zones_section_menu_groups_destroy(const int debuglvl)
+zones_section_menu_groups_destroy(void)
 {
     size_t  i = 0;
 
@@ -2303,7 +2298,7 @@ zones_section_menu_groups_destroy(const int debuglvl)
     free_menu(ZonesSection.h_menu);
     for(i = 0; i < ZonesSection.host_n; ++i)
         free_item(ZonesSection.hostitems[i]);
-    vrmr_list_cleanup(debuglvl, &ZonesSection.group_desc_list);
+    vrmr_list_cleanup(&ZonesSection.group_desc_list);
     free(ZonesSection.hostitems);
     del_panel(ZonesSection.h_panel[0]);
     destroy_win(ZonesSection.h_win);
@@ -2314,7 +2309,7 @@ zones_section_menu_groups_destroy(const int debuglvl)
 }
 
 static void
-zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
+zones_section_menu_groups(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, struct vrmr_rules *rules, struct vrmr_blocklist *blocklist, char *zonename, char *networkname, struct vrmr_regex *reg)
 {
     int                 ch = 0,
@@ -2353,18 +2348,18 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(blocklist);
 
     /* setup */
-    zones_section_menu_groups_init(debuglvl, zones, zonename, networkname);
+    zones_section_menu_groups_init(zones, zonename, networkname);
 
-    draw_top_menu(debuglvl, top_win, gettext("Groups"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Groups"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     while(quit == 0)
     {
         if(reload == 1)
         {
             /* first destroy */
-            zones_section_menu_groups_destroy(debuglvl);
+            zones_section_menu_groups_destroy();
             /* and setup again */
-            zones_section_menu_groups_init(debuglvl, zones, zonename, networkname);
+            zones_section_menu_groups_init(zones, zonename, networkname);
             /* we are done with reloading */
             reload = 0;
         }
@@ -2417,7 +2412,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
                         vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Group"), gettext("Enter the new name of the group"));
                         if(vrmr_new_zone_ptr != NULL)
                         {
-                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
+                            if(vrmr_validate_zonename(vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                             {
                                 vrmr_warning(VR_WARN, gettext("invalid groupname '%s'."), vrmr_new_zone_ptr);
                             }
@@ -2437,13 +2432,13 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
                                 (void)strlcat(temp_ptr, ".", size);
                                 (void)strlcat(temp_ptr, zonename, size);
 
-                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
+                                if(vrmr_validate_zonename(temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == -1)
                                 {
                                     vrmr_warning(VR_WARN, gettext("invalid groupname '%s'."), temp_ptr);
                                 }
                                 else
                                 {
-                                    if (zones_rename_host_group(debuglvl, vctx, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_GROUP, reg) == 0)
+                                    if (zones_rename_host_group(vctx, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_GROUP, reg) == 0)
                                     {
                                         /* we have a new host, so reload the menu */
                                         reload = 1;
@@ -2465,7 +2460,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
                     vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("New Group"), gettext("Enter the name of the new group"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
-                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
+                        if(vrmr_validate_zonename(vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->host_part, VRMR_VERBOSE) == -1)
                         {
                             vrmr_warning(VR_WARN, gettext("invalid groupname '%s'."), vrmr_new_zone_ptr);
                         }
@@ -2481,14 +2476,14 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
                             (void)strlcat(temp_ptr, ".", size);
                             (void)strlcat(temp_ptr, zonename, size);
 
-                            if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
+                            if(vrmr_validate_zonename(temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
                             {
-                                if (vrmr_new_zone(debuglvl, vctx, zones, temp_ptr, VRMR_TYPE_GROUP) >= 0)
+                                if (vrmr_new_zone(vctx, zones, temp_ptr, VRMR_TYPE_GROUP) >= 0)
                                 {
                                     vrmr_audit("%s '%s' %s.", STR_GROUP, temp_ptr, STR_HAS_BEEN_CREATED);
 
-                                    (void)edit_zone_group(debuglvl, vctx, zones, temp_ptr);
-                                    draw_top_menu(debuglvl, top_win, gettext("Groups"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                                    (void)edit_zone_group(vctx, zones, temp_ptr);
+                                    draw_top_menu(top_win, gettext("Groups"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                                 }
                                 else
                                 {
@@ -2528,7 +2523,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
                         (void)strlcat(temp_ptr, zonename, size);
 
                         /* search the zone */
-                        zone_ptr = vrmr_search_zonedata(debuglvl, zones, temp_ptr);
+                        zone_ptr = vrmr_search_zonedata(zones, temp_ptr);
                         vrmr_fatal_if_null(zone_ptr);
 
                         if(zone_ptr->refcnt_blocklist > 0)
@@ -2539,7 +2534,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
                         else
                         {
                             /* delete, the memory is freed by vrmr_delete_zone(). */
-                            if (vrmr_delete_zone(debuglvl, vctx, zones, temp_ptr, zone_ptr->type) < 0)
+                            if (vrmr_delete_zone(vctx, zones, temp_ptr, zone_ptr->type) < 0)
                             {
                                 vrmr_error(-1, VR_ERR, gettext("deleting group failed."));
                             }
@@ -2597,11 +2592,11 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
                         (void)strlcat(temp_ptr, ".", size);
                         (void)strlcat(temp_ptr, zonename, size);
 
-                        zone_ptr = vrmr_search_zonedata(debuglvl, zones, temp_ptr);
+                        zone_ptr = vrmr_search_zonedata(zones, temp_ptr);
                         vrmr_fatal_if_null(zone_ptr);
 
-                        (void)edit_zone_group(debuglvl, vctx, zones, zone_ptr->name);
-                        draw_top_menu(debuglvl, top_win, gettext("Groups"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        (void)edit_zone_group(vctx, zones, zone_ptr->name);
+                        draw_top_menu(top_win, gettext("Groups"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                         reload = 1;
 
                         free(temp_ptr);
@@ -2613,13 +2608,13 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'H':
                 case '?':
 
-                    print_help(debuglvl, ":[VUURMUUR:ZONES:GROUPS]:");
+                    print_help(":[VUURMUUR:ZONES:GROUPS]:");
                     break;
             }
         }
     }
 
-    zones_section_menu_groups_destroy(debuglvl);
+    zones_section_menu_groups_destroy();
 
     update_panels();
     doupdate();
@@ -2630,7 +2625,7 @@ zones_section_menu_groups(const int debuglvl, struct vrmr_ctx *vctx,
 
 /* rename a network or a zone */
 static int
-zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones, struct vrmr_rules *rules, struct vrmr_blocklist *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct vrmr_regex *reg)
+zones_rename_network_zone(struct vrmr_ctx *vctx, struct vrmr_zones *zones, struct vrmr_rules *rules, struct vrmr_blocklist *blocklist, char *cur_name_ptr, char *new_name_ptr, int type, struct vrmr_regex *reg)
 {
     int                 result = 0;
     struct vrmr_zone    *zone_ptr = NULL;
@@ -2663,37 +2658,34 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
     vrmr_fatal_if(type != VRMR_TYPE_NETWORK && type != VRMR_TYPE_ZONE);
 
     /* validate and split the new name */
-    if(vrmr_validate_zonename(debuglvl, new_name_ptr, 0, vrmr_new_zone, new_net, new_host, reg->zonename, VRMR_VERBOSE) != 0)
+    if(vrmr_validate_zonename(new_name_ptr, 0, vrmr_new_zone, new_net, new_host, reg->zonename, VRMR_VERBOSE) != 0)
     {
         vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", new_name_ptr, __FUNC__, __LINE__);
         return(-1);
     }
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "new_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", new_name_ptr, new_host, new_net, vrmr_new_zone);
+    vrmr_debug(HIGH, "new_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", new_name_ptr, new_host, new_net, vrmr_new_zone);
 
     /* validate and split the old name */
-    if(vrmr_validate_zonename(debuglvl, cur_name_ptr, 0, old_zone, old_net, old_host, reg->zonename, VRMR_VERBOSE) != 0)
+    if(vrmr_validate_zonename(cur_name_ptr, 0, old_zone, old_net, old_host, reg->zonename, VRMR_VERBOSE) != 0)
     {
         vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", cur_name_ptr, __FUNC__, __LINE__);
         return(-1);
     }
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "cur_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", cur_name_ptr, old_host, old_net, old_zone);
+    vrmr_debug(HIGH, "cur_name_ptr: '%s': host/group '%s', net '%s', zone '%s'.", cur_name_ptr, old_host, old_net, old_zone);
 
     /* store the old name */
     (void)strlcpy(old_name, cur_name_ptr, sizeof(old_name));
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "going to rename network/zone old_name:'%s' to new_name_ptr:'%s'.", old_name, new_name_ptr);
+    vrmr_debug(HIGH, "going to rename network/zone old_name:'%s' to new_name_ptr:'%s'.", old_name, new_name_ptr);
 
     /* rename in the backend */
-    result = vctx->zf->rename(debuglvl, vctx->zone_backend, old_name, new_name_ptr, type);
+    result = vctx->zf->rename(vctx->zone_backend, old_name, new_name_ptr, type);
     if(result != 0)
     {
         return(-1);
     }
 
     /* search the zone in the list */
-    zone_ptr = vrmr_search_zonedata(debuglvl, zones, old_name);
+    zone_ptr = vrmr_search_zonedata(zones, old_name);
     vrmr_fatal_if_null(zone_ptr);
 
     (void)strlcpy(zone_ptr->name, new_name_ptr, sizeof(zone_ptr->name));
@@ -2712,10 +2704,10 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
         blocklist_item = d_node->data;
 
         /* call vrmr_check_ipv4address with the quiet flag */
-        if(vrmr_check_ipv4address(debuglvl, NULL, NULL, blocklist_item, 1) != 1)
+        if(vrmr_check_ipv4address(NULL, NULL, blocklist_item, 1) != 1)
         {
             /* search for the name in the zones list */
-            if((zone_ptr = vrmr_search_zonedata(debuglvl, zones, blocklist_item)))
+            if((zone_ptr = vrmr_search_zonedata(zones, blocklist_item)))
             {
                 if( (type == VRMR_TYPE_NETWORK && strcmp(zone_ptr->network_name, old_net) == 0) ||
                     (type == VRMR_TYPE_ZONE && strcmp(zone_ptr->zone_name, old_zone) == 0))
@@ -2749,7 +2741,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
     /* if we have made changes we write the blocklistfile */
     if(blocklist_changed == 1)
     {
-        if(vrmr_blocklist_save_list(debuglvl, vctx, &vctx->conf, blocklist) < 0)
+        if(vrmr_blocklist_save_list(vctx, &vctx->conf, blocklist) < 0)
             return(-1);
     }
 
@@ -2796,20 +2788,18 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
     {
         vrmr_fatal_if_null(d_node->data);
         rule_ptr = d_node->data;
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "from: '%s', to: '%s'.", rule_ptr->from, rule_ptr->to);
+        vrmr_debug(HIGH, "from: '%s', to: '%s'.", rule_ptr->from, rule_ptr->to);
 
         /* check for firewall and empty field */
         if(strncasecmp(rule_ptr->from, "firewall", 8) != 0 && strcmp(rule_ptr->from, "") != 0)
         {
             /* check the fromname */
-            if(vrmr_validate_zonename(debuglvl, rule_ptr->from, 0, rule_zone, rule_net, rule_host, reg->zonename, VRMR_VERBOSE) != 0)
+            if(vrmr_validate_zonename(rule_ptr->from, 0, rule_zone, rule_net, rule_host, reg->zonename, VRMR_VERBOSE) != 0)
             {
                 vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", rule_ptr->from, __FUNC__, __LINE__);
                 return(-1);
             }
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "rule_ptr->from: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->from, rule_host, rule_net, rule_zone);
+            vrmr_debug(HIGH, "rule_ptr->from: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->from, rule_host, rule_net, rule_zone);
 
             if( (type == VRMR_TYPE_NETWORK && strcmp(rule_net, old_net) == 0 && strcmp(rule_zone, old_zone) == 0) ||
                 (type == VRMR_TYPE_ZONE && strcmp(rule_zone, old_zone) == 0))
@@ -2839,13 +2829,12 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
         if(strncasecmp(rule_ptr->to, "firewall", 8) != 0 && strcmp(rule_ptr->to, "") != 0)
         {
             /* check the toname */
-            if(vrmr_validate_zonename(debuglvl, rule_ptr->to, 0, rule_zone, rule_net, rule_host, reg->zonename, VRMR_VERBOSE) != 0)
+            if(vrmr_validate_zonename(rule_ptr->to, 0, rule_zone, rule_net, rule_host, reg->zonename, VRMR_VERBOSE) != 0)
             {
                 vrmr_error(-1, VR_INTERR, "invalid name '%s' (in: %s:%d).", rule_ptr->to, __FUNC__, __LINE__);
                 return(-1);
             }
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "rule_ptr->to: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->to, rule_host, rule_net, rule_zone);
+            vrmr_debug(HIGH, "rule_ptr->to: '%s': host/group '%s', net '%s', zone '%s'.", rule_ptr->to, rule_host, rule_net, rule_zone);
 
             if( (type == VRMR_TYPE_NETWORK && strcmp(rule_net, old_net) == 0 && strcmp(rule_zone, old_zone) == 0) ||
                 (type == VRMR_TYPE_ZONE && strcmp(rule_zone, old_zone) == 0))
@@ -2873,7 +2862,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
     }
     /* if we have made changes we write the rulesfile */
     if(rules_changed == 1) {
-        if(vrmr_rules_save_list(debuglvl, vctx, rules, &vctx->conf) < 0)
+        if(vrmr_rules_save_list(vctx, rules, &vctx->conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
@@ -2889,7 +2878,7 @@ zones_rename_network_zone(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr
 }
 
 static int
-edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_ctx *vctx,
+edit_zone_network_interfaces_newiface(struct vrmr_ctx *vctx,
         struct vrmr_interfaces *interfaces, struct vrmr_zone *zone_ptr)
 {
     struct vrmr_list_node   *d_node = NULL;
@@ -2936,7 +2925,7 @@ edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_ctx *vctx,
     free(choices);
 
     /* add the int */
-    result = vrmr_zones_network_add_iface(debuglvl, interfaces, zone_ptr, choice_ptr);
+    result = vrmr_zones_network_add_iface(interfaces, zone_ptr, choice_ptr);
     if(result < 0)
     {
         free(choice_ptr);
@@ -2944,7 +2933,7 @@ edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_ctx *vctx,
     }
 
     /* save the new interface list */
-    if (vrmr_zones_network_save_interfaces(debuglvl, vctx, zone_ptr) < 0)
+    if (vrmr_zones_network_save_interfaces(vctx, zone_ptr) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("saving the interfaces failed."));
         return(-1);
@@ -2960,7 +2949,7 @@ edit_zone_network_interfaces_newiface(const int debuglvl, struct vrmr_ctx *vctx,
 
 
 static void
-edit_zone_network_interfaces_init(const int debuglvl, struct vrmr_zone *zone_ptr)
+edit_zone_network_interfaces_init(struct vrmr_zone *zone_ptr)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -3080,7 +3069,7 @@ edit_zone_network_interfaces_destroy(void)
 }
 
 static void
-edit_zone_network_interfaces(const int debuglvl, struct vrmr_ctx *vctx,
+edit_zone_network_interfaces(struct vrmr_ctx *vctx,
         struct vrmr_interfaces *interfaces, struct vrmr_zone *zone_ptr)
 {
     int     quit = 0,
@@ -3093,14 +3082,14 @@ edit_zone_network_interfaces(const int debuglvl, struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(zone_ptr);
     vrmr_fatal_if_null(interfaces);
 
-    edit_zone_network_interfaces_init(debuglvl, zone_ptr);
+    edit_zone_network_interfaces_init(zone_ptr);
 
     while(quit == 0)
     {
         if(reload == 1)
         {
             edit_zone_network_interfaces_destroy();
-            edit_zone_network_interfaces_init(debuglvl, zone_ptr);
+            edit_zone_network_interfaces_init(zone_ptr);
             reload = 0;
         }
 
@@ -3137,7 +3126,7 @@ edit_zone_network_interfaces(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'i':
                 case 'I':
 
-                    (void)edit_zone_network_interfaces_newiface(debuglvl, vctx, interfaces, zone_ptr);
+                    (void)edit_zone_network_interfaces_newiface(vctx, interfaces, zone_ptr);
                     reload = 1;
                     break;
 
@@ -3149,7 +3138,7 @@ edit_zone_network_interfaces(const int debuglvl, struct vrmr_ctx *vctx,
                     if (cur) {
                         (void)strlcpy(save_iface, (char *)item_name(cur), sizeof(save_iface));
 
-                        if (vrmr_zones_network_rem_iface(debuglvl, vctx, zone_ptr, (char *)item_name(cur)) < 0)
+                        if (vrmr_zones_network_rem_iface(vctx, zone_ptr, (char *)item_name(cur)) < 0)
                         {
                             quit = 1;
                         }
@@ -3284,7 +3273,7 @@ struct
         -1: error
 */
 static int
-zones_network_save_protectrules(const int debuglvl, struct vrmr_ctx *vctx,
+zones_network_save_protectrules(struct vrmr_ctx *vctx,
         struct vrmr_zone *network_ptr)
 {
     struct vrmr_list_node *d_node = NULL;
@@ -3298,7 +3287,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_ctx *vctx,
     if(network_ptr->ProtectList.len == 0)
     {
         /* clear */
-        if (vctx->zf->tell(debuglvl, vctx->zone_backend, network_ptr->name, "RULE", "", 1, VRMR_TYPE_NETWORK) < 0)
+        if (vctx->zf->tell(vctx->zone_backend, network_ptr->name, "RULE", "", 1, VRMR_TYPE_NETWORK) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
             return(-1);
@@ -3321,7 +3310,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_ctx *vctx,
             if(d_node == network_ptr->ProtectList.top)
             {
                 /* save to backend */
-                if (vctx->zf->tell(debuglvl, vctx->zone_backend, network_ptr->name, "RULE", rule_str, 1, VRMR_TYPE_NETWORK) < 0)
+                if (vctx->zf->tell(vctx->zone_backend, network_ptr->name, "RULE", rule_str, 1, VRMR_TYPE_NETWORK) < 0)
                 {
                     vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -3330,7 +3319,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_ctx *vctx,
             else
             {
                 /* save to backend */
-                if (vctx->zf->tell(debuglvl, vctx->zone_backend, network_ptr->name, "RULE", rule_str, 0, VRMR_TYPE_NETWORK) < 0)
+                if (vctx->zf->tell(vctx->zone_backend, network_ptr->name, "RULE", rule_str, 0, VRMR_TYPE_NETWORK) < 0)
                 {
                     vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -3348,7 +3337,7 @@ zones_network_save_protectrules(const int debuglvl, struct vrmr_ctx *vctx,
          0: ok
 */
 static int
-edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *network_ptr)
+edit_zone_network_save_protectrules(struct vrmr_ctx *vctx, struct vrmr_zone *network_ptr)
 {
     struct vrmr_rule    *rule_ptr = NULL;
 
@@ -3356,101 +3345,101 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_ctx *vctx, s
     vrmr_fatal_if_null(network_ptr);
 
     /* cleanup the existing list */
-    vrmr_list_cleanup(debuglvl, &network_ptr->ProtectList);
+    vrmr_list_cleanup(&network_ptr->ProtectList);
 
     if(field_buffer(NetworkSec.dhcpsrvfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "accept", NULL, "dhcp-server", NULL);
+        rule_ptr = rules_create_protect_rule("accept", NULL, "dhcp-server", NULL);
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.dhcpclifld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "accept", NULL, "dhcp-client", NULL);
+        rule_ptr = rules_create_protect_rule("accept", NULL, "dhcp-client", NULL);
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.loopbackfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "loopback");
+        rule_ptr = rules_create_protect_rule("protect", network_ptr->name, "spoofing", "loopback");
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.classafld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "class-a");
+        rule_ptr = rules_create_protect_rule("protect", network_ptr->name, "spoofing", "class-a");
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.classbfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "class-b");
+        rule_ptr = rules_create_protect_rule("protect", network_ptr->name, "spoofing", "class-b");
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.classcfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "class-c");
+        rule_ptr = rules_create_protect_rule("protect", network_ptr->name, "spoofing", "class-c");
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.classdfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "class-d");
+        rule_ptr = rules_create_protect_rule("protect", network_ptr->name, "spoofing", "class-d");
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.classefld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "class-e");
+        rule_ptr = rules_create_protect_rule("protect", network_ptr->name, "spoofing", "class-e");
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.testnetfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "test-net");
+        rule_ptr = rules_create_protect_rule("protect", network_ptr->name, "spoofing", "test-net");
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.lnklocnetfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "lnk-loc-net");
+        rule_ptr = rules_create_protect_rule("protect", network_ptr->name, "spoofing", "lnk-loc-net");
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.iana08fld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "iana-0/8");
+        rule_ptr = rules_create_protect_rule("protect", network_ptr->name, "spoofing", "iana-0/8");
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.brdsrcfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "brdcst-src");
+        rule_ptr = rules_create_protect_rule("protect", network_ptr->name, "spoofing", "brdcst-src");
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     if(field_buffer(NetworkSec.brddstfld, 0)[0] == 'X')
     {
-        rule_ptr = rules_create_protect_rule(debuglvl, "protect", network_ptr->name, "spoofing", "brdcst-dst");
+        rule_ptr = rules_create_protect_rule("protect", network_ptr->name, "spoofing", "brdcst-dst");
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &network_ptr->ProtectList, rule_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&network_ptr->ProtectList, rule_ptr) == NULL);
     }
 
     /* now let try to write this to the backend */
-    if (zones_network_save_protectrules(debuglvl, vctx, network_ptr) < 0)
+    if (zones_network_save_protectrules(vctx, network_ptr) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
         return(-1);
@@ -3460,7 +3449,7 @@ edit_zone_network_save_protectrules(const int debuglvl, struct vrmr_ctx *vctx, s
 }
 
 static void
-edit_zone_network_init(const int debuglvl, struct vrmr_ctx *vctx,
+edit_zone_network_init(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, char *name, int height, int width, int starty, int startx, struct vrmr_zone *zone_ptr)
 {
     int     rows,
@@ -3482,53 +3471,53 @@ edit_zone_network_init(const int debuglvl, struct vrmr_ctx *vctx,
     /* active toggle */
     NetworkSec.activelabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 2, 0, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.activelabelfld, 0, gettext("Active"));
+    set_field_buffer_wrap(NetworkSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(NetworkSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.activefld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 3, 1, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
+    set_field_buffer_wrap(NetworkSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
     /* network */
     NetworkSec.networklabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 8, 5, 0, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.networklabelfld, 0, gettext("Network"));
+    set_field_buffer_wrap(NetworkSec.networklabelfld, 0, gettext("Network"));
     field_opts_off(NetworkSec.networklabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.networkfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 6, 1, 0, 0));
     set_field_type(NetworkSec.networkfld, TYPE_IPV4);
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.networkfld, 0, zone_ptr->ipv4.network);
+    set_field_buffer_wrap(NetworkSec.networkfld, 0, zone_ptr->ipv4.network);
 
     /* network */
     NetworkSec.netmasklabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 8, 7, 0, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.netmasklabelfld, 0, gettext("Netmask"));
+    set_field_buffer_wrap(NetworkSec.netmasklabelfld, 0, gettext("Netmask"));
     field_opts_off(NetworkSec.netmasklabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.netmaskfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 8, 1, 0, 0));
     set_field_type(NetworkSec.netmaskfld, TYPE_IPV4);
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.netmaskfld, 0, zone_ptr->ipv4.netmask);
+    set_field_buffer_wrap(NetworkSec.netmaskfld, 0, zone_ptr->ipv4.netmask);
 
     /* network */
     NetworkSec.network6labelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 12, 9, 0, 0, 0));
     field_num++;
 #ifdef IPV6_ENABLED
-    set_field_buffer_wrap(debuglvl, NetworkSec.network6labelfld, 0, gettext("IPv6 Network"));
+    set_field_buffer_wrap(NetworkSec.network6labelfld, 0, gettext("IPv6 Network"));
 #endif
     field_opts_off(NetworkSec.network6labelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.network6fld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, VRMR_MAX_IPV6_ADDR_LEN, 10, 1, 0, 0));
     //set_field_type(NetworkSec.networkfld, TYPE_IPV4);
 #ifdef IPV6_ENABLED
-    set_field_buffer_wrap(debuglvl, NetworkSec.network6fld, 0, zone_ptr->ipv6.net6);
+    set_field_buffer_wrap(NetworkSec.network6fld, 0, zone_ptr->ipv6.net6);
 #endif
 
     /* cidr */
     NetworkSec.cidr6labelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 9, 11, 0, 0, 0));
 #ifdef IPV6_ENABLED
-    set_field_buffer_wrap(debuglvl, NetworkSec.cidr6labelfld, 0, gettext("IPv6 CIDR"));
+    set_field_buffer_wrap(NetworkSec.cidr6labelfld, 0, gettext("IPv6 CIDR"));
 #endif
     field_opts_off(NetworkSec.cidr6labelfld, O_AUTOSKIP | O_ACTIVE);
 
@@ -3536,203 +3525,203 @@ edit_zone_network_init(const int debuglvl, struct vrmr_ctx *vctx,
 #ifdef IPV6_ENABLED
     char cidr[3] = "";
     snprintf(cidr, sizeof(cidr), "%d", zone_ptr->ipv6.cidr6);
-    set_field_buffer_wrap(debuglvl, NetworkSec.cidr6fld, 0, cidr);
+    set_field_buffer_wrap(NetworkSec.cidr6fld, 0, cidr);
 #endif
 
     /* anti-spoof loopback */
     NetworkSec.loopbacklabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 8, 4, 20, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.loopbacklabelfld, 0, gettext("Loopback"));
+    set_field_buffer_wrap(NetworkSec.loopbacklabelfld, 0, gettext("Loopback"));
     field_opts_off(NetworkSec.loopbacklabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.loopbackbracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 4, 32, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.loopbackbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.loopbackbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.loopbackbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.loopbackfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 4, 33, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.loopbackfld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "protect", "spoofing", "loopback") ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.loopbackfld, 0, protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing", "loopback") ? "X" : " ");
 
     /* anti-spoof class-a */
     NetworkSec.classalabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 8, 5, 20, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classalabelfld, 0, gettext("Class A"));
+    set_field_buffer_wrap(NetworkSec.classalabelfld, 0, gettext("Class A"));
     field_opts_off(NetworkSec.classalabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classabracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 5, 32, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classabracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.classabracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classabracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classafld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 5, 33, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classafld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "protect", "spoofing", "class-a") ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.classafld, 0, protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing", "class-a") ? "X" : " ");
 
     /* anti-spoof class-b */
     NetworkSec.classblabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 8, 6, 20, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classblabelfld, 0, gettext("Class B"));
+    set_field_buffer_wrap(NetworkSec.classblabelfld, 0, gettext("Class B"));
     field_opts_off(NetworkSec.classblabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classbbracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 6, 32, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classbbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.classbbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classbbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classbfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 6, 33, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classbfld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "protect", "spoofing", "class-b") ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.classbfld, 0, protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing", "class-b") ? "X" : " ");
 
     /* anti-spoof class-c */
     NetworkSec.classclabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 8, 7, 20, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classclabelfld, 0, gettext("Class C"));
+    set_field_buffer_wrap(NetworkSec.classclabelfld, 0, gettext("Class C"));
     field_opts_off(NetworkSec.classclabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classcbracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 7, 32, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classcbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.classcbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classcbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classcfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 7, 33, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classcfld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "protect", "spoofing", "class-c") ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.classcfld, 0, protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing", "class-c") ? "X" : " ");
 
     /* anti-spoof class-d */
     NetworkSec.classdlabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 8, 8, 20, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classdlabelfld, 0, gettext("Class D"));
+    set_field_buffer_wrap(NetworkSec.classdlabelfld, 0, gettext("Class D"));
     field_opts_off(NetworkSec.classdlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classdbracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 8, 32, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classdbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.classdbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classdbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classdfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 8, 33, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classdfld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "protect", "spoofing", "class-d") ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.classdfld, 0, protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing", "class-d") ? "X" : " ");
 
     /* anti-spoof class-e */
     NetworkSec.classelabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 8, 9, 20, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classelabelfld, 0, gettext("Class E"));
+    set_field_buffer_wrap(NetworkSec.classelabelfld, 0, gettext("Class E"));
     field_opts_off(NetworkSec.classelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classebracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 9, 32, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classebracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.classebracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.classebracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.classefld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 9, 33, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.classefld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "protect", "spoofing", "class-e") ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.classefld, 0, protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing", "class-e") ? "X" : " ");
 
     /* anti-spoof testnet */
     NetworkSec.testnetlabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 14, 4, 37, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.testnetlabelfld, 0, gettext("Test-net"));
+    set_field_buffer_wrap(NetworkSec.testnetlabelfld, 0, gettext("Test-net"));
     field_opts_off(NetworkSec.testnetlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.testnetbracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 4, 52, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.testnetbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.testnetbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.testnetbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.testnetfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 4, 53, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.testnetfld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "protect", "spoofing", "test-net") ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.testnetfld, 0, protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing", "test-net") ? "X" : " ");
 
     /* anti-spoof link local net */
     NetworkSec.lnklocnetlabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 14, 5, 37, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.lnklocnetlabelfld, 0, gettext("Link local net"));
+    set_field_buffer_wrap(NetworkSec.lnklocnetlabelfld, 0, gettext("Link local net"));
     field_opts_off(NetworkSec.lnklocnetlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.lnklocnetbracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 5, 52, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.lnklocnetbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.lnklocnetbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.lnklocnetbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.lnklocnetfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 5, 53, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.lnklocnetfld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "protect", "spoofing", "lnk-loc-net") ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.lnklocnetfld, 0, protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing", "lnk-loc-net") ? "X" : " ");
 
     /* anti-spoof link local net */
     NetworkSec.iana08labelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 14, 6, 37, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.iana08labelfld, 0, gettext("0.0.0.0/8 res."));
+    set_field_buffer_wrap(NetworkSec.iana08labelfld, 0, gettext("0.0.0.0/8 res."));
     field_opts_off(NetworkSec.iana08labelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.iana08bracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 6, 52, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.iana08bracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.iana08bracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.iana08bracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.iana08fld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 6, 53, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.iana08fld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "protect", "spoofing", "iana-0/8") ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.iana08fld, 0, protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing", "iana-0/8") ? "X" : " ");
 
     /* anti-spoof link local net */
     NetworkSec.brdsrclabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 14, 7, 37, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.brdsrclabelfld, 0, gettext("Broadcast src."));
+    set_field_buffer_wrap(NetworkSec.brdsrclabelfld, 0, gettext("Broadcast src."));
     field_opts_off(NetworkSec.brdsrclabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.brdsrcbracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 7, 52, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.brdsrcbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.brdsrcbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.brdsrcbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.brdsrcfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 7, 53, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.brdsrcfld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "protect", "spoofing", "brdcst-src") ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.brdsrcfld, 0, protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing", "brdcst-src") ? "X" : " ");
 
     /* anti-spoof link local net */
     NetworkSec.brddstlabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 14, 8, 37, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.brddstlabelfld, 0, gettext("Broadcast dst."));
+    set_field_buffer_wrap(NetworkSec.brddstlabelfld, 0, gettext("Broadcast dst."));
     field_opts_off(NetworkSec.brddstlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.brddstbracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 8, 52, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.brddstbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.brddstbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.brddstbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.brddstfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 8, 53, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.brddstfld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "protect", "spoofing", "brdcst-dst") ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.brddstfld, 0, protectrule_loaded(&zone_ptr->ProtectList, "protect", "spoofing", "brdcst-dst") ? "X" : " ");
 
     /* DHCP Server */
     NetworkSec.dhcpsrvlabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 14, 4, 57, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.dhcpsrvlabelfld, 0, gettext("DHCP Server"));
+    set_field_buffer_wrap(NetworkSec.dhcpsrvlabelfld, 0, gettext("DHCP Server"));
     field_opts_off(NetworkSec.dhcpsrvlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.dhcpsrvbracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 4, 71, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.dhcpsrvbracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.dhcpsrvbracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.dhcpsrvbracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.dhcpsrvfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 4, 72, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.dhcpsrvfld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "accept", "dhcp-server", NULL) ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.dhcpsrvfld, 0, protectrule_loaded(&zone_ptr->ProtectList, "accept", "dhcp-server", NULL) ? "X" : " ");
 
     /* DHCP Client */
     NetworkSec.dhcpclilabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 14, 5, 57, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.dhcpclilabelfld, 0, gettext("DHCP Client"));
+    set_field_buffer_wrap(NetworkSec.dhcpclilabelfld, 0, gettext("DHCP Client"));
     field_opts_off(NetworkSec.dhcpclilabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.dhcpclibracketsfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 3, 5, 71, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.dhcpclibracketsfld, 0, "[ ]");
+    set_field_buffer_wrap(NetworkSec.dhcpclibracketsfld, 0, "[ ]");
     field_opts_off(NetworkSec.dhcpclibracketsfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.dhcpclifld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 1, 5, 72, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.dhcpclifld, 0, protectrule_loaded(debuglvl, &zone_ptr->ProtectList, "accept", "dhcp-client", NULL) ? "X" : " ");
+    set_field_buffer_wrap(NetworkSec.dhcpclifld, 0, protectrule_loaded(&zone_ptr->ProtectList, "accept", "dhcp-client", NULL) ? "X" : " ");
 
 
     /* comment field */
@@ -3742,7 +3731,7 @@ edit_zone_network_init(const int debuglvl, struct vrmr_ctx *vctx,
     /* comment */
     NetworkSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num] = new_field(1, 16, 13, 0, 0, 0));
     field_num++;
-    set_field_buffer_wrap(debuglvl, NetworkSec.commentlabelfld, 0, gettext("Comment"));
+    set_field_buffer_wrap(NetworkSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(NetworkSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     NetworkSec.commentfld = (ZonesSection.EditZone.fields[field_num] = new_field(comment_y, comment_x, 14, 1, 0, 0));
@@ -3759,10 +3748,10 @@ edit_zone_network_init(const int debuglvl, struct vrmr_ctx *vctx,
     vrmr_fatal_if(ZonesSection.EditZone.n_fields != field_num);
 
     /* read the comment from backend */
-    if (vctx->zf->ask(debuglvl, vctx->zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_NETWORK, 0) < 0)
+    if (vctx->zf->ask(vctx->zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_NETWORK, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
-    set_field_buffer_wrap(debuglvl, NetworkSec.commentfld, 0, ZonesSection.comment);
+    set_field_buffer_wrap(NetworkSec.commentfld, 0, ZonesSection.comment);
 
     /* create window and panel */
     ZonesSection.EditZone.win = create_newwin(height, width, starty, startx, gettext("Edit Zone: Network"), vccnf.color_win);
@@ -3824,9 +3813,9 @@ edit_zone_network_init(const int debuglvl, struct vrmr_ctx *vctx,
 //    mvwprintw(ZonesSection.EditZone.win, 14, 54, "this network.");
 
     mvwprintw(ZonesSection.EditZone.win, 12, 62, "%s", gettext("Hosts"));
-    mvwprintw(ZonesSection.EditZone.win, 12, 70, "%4d", vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, zone_ptr->network_name, zone_ptr->zone_name));
+    mvwprintw(ZonesSection.EditZone.win, 12, 70, "%4d", vrmr_count_zones(zones, VRMR_TYPE_HOST, zone_ptr->network_name, zone_ptr->zone_name));
     mvwprintw(ZonesSection.EditZone.win, 13, 62, "%s", gettext("Groups"));
-    mvwprintw(ZonesSection.EditZone.win, 13, 70, "%4d", vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, zone_ptr->network_name, zone_ptr->zone_name));
+    mvwprintw(ZonesSection.EditZone.win, 13, 70, "%4d", vrmr_count_zones(zones, VRMR_TYPE_GROUP, zone_ptr->network_name, zone_ptr->zone_name));
 
     wrefresh(ZonesSection.EditZone.win);
 }
@@ -3839,7 +3828,7 @@ edit_zone_network_init(const int debuglvl, struct vrmr_ctx *vctx,
         -1: error
 */
 static int
-edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *zone_ptr)
+edit_zone_network_save(struct vrmr_ctx *vctx, struct vrmr_zone *zone_ptr)
 {
     int                 retval = 0;
     char                network[16] = "",
@@ -3874,7 +3863,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zo
                 zone_ptr->active = 0;
             }
 
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_NETWORK) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_NETWORK) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -3897,7 +3886,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zo
                     field_buffer(ZonesSection.EditZone.fields[i], 0),
                     sizeof(zone_ptr->ipv4.network));
 
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "NETWORK", zone_ptr->ipv4.network, 1, VRMR_TYPE_NETWORK) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "NETWORK", zone_ptr->ipv4.network, 1, VRMR_TYPE_NETWORK) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -3920,7 +3909,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zo
                     field_buffer(ZonesSection.EditZone.fields[i], 0),
                     sizeof(zone_ptr->ipv4.netmask));
 
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "NETMASK", zone_ptr->ipv4.netmask, 1, VRMR_TYPE_NETWORK) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "NETMASK", zone_ptr->ipv4.netmask, 1, VRMR_TYPE_NETWORK) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -3946,7 +3935,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zo
                     field_buffer(ZonesSection.EditZone.fields[i], 0),
                     sizeof(zone_ptr->ipv6.net6));
 
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "IPV6NETWORK", zone_ptr->ipv6.net6, 1, VRMR_TYPE_NETWORK) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "IPV6NETWORK", zone_ptr->ipv6.net6, 1, VRMR_TYPE_NETWORK) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -3972,7 +3961,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zo
                     field_buffer(ZonesSection.EditZone.fields[i], 0),
                     sizeof(cidrstr));
 
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "IPV6CIDR", cidrstr, 1, VRMR_TYPE_NETWORK) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "IPV6CIDR", cidrstr, 1, VRMR_TYPE_NETWORK) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -3988,7 +3977,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zo
         /* save the comment to the backend */
         else if(ZonesSection.EditZone.fields[i] == NetworkSec.commentfld)
         {
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_NETWORK) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_NETWORK) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -4014,7 +4003,7 @@ edit_zone_network_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zo
                 ZonesSection.EditZone.fields[i] == NetworkSec.dhcpsrvfld    ||
                 ZonesSection.EditZone.fields[i] == NetworkSec.dhcpclifld)
         {
-            if (edit_zone_network_save_protectrules(debuglvl, vctx, zone_ptr) < 0)
+            if (edit_zone_network_save_protectrules(vctx, zone_ptr) < 0)
             {
                 return(-1);
             }
@@ -4088,7 +4077,7 @@ edit_zone_network_destroy(void)
         -1: error
 */
 static int
-edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
+edit_zone_network(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, char *name)
 {
     int                 ch = 0,
@@ -4120,22 +4109,22 @@ edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
     width = 78;
     VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.n_xre + 1, &starty, &startx);
 
-    zone_ptr = vrmr_search_zonedata(debuglvl, zones, name);
+    zone_ptr = vrmr_search_zonedata(zones, name);
     vrmr_fatal_if_null(zone_ptr);
 
-    edit_zone_network_init(debuglvl, vctx, zones, name, height, width, starty, startx, zone_ptr);
+    edit_zone_network_init(vctx, zones, name, height, width, starty, startx, zone_ptr);
 
     /* print warning if no interfaces have been assigned to this network */
     if(zone_ptr->InterfaceList.len == 0)
     {
         /* show no int warning */
-        set_field_buffer_wrap(debuglvl, NetworkSec.warningfld, 0, gettext("Warning: no interfaces attached!"));
+        set_field_buffer_wrap(NetworkSec.warningfld, 0, gettext("Warning: no interfaces attached!"));
         field_opts_on(NetworkSec.warningfld, O_VISIBLE);
         set_field_status(NetworkSec.warningfld, FALSE);
     }
-    else if(zone_ptr->active == TRUE && vrmr_zones_active(debuglvl, zone_ptr) == 0)
+    else if(zone_ptr->active == TRUE && vrmr_zones_active(zone_ptr) == 0)
     {
-        set_field_buffer_wrap(debuglvl, NetworkSec.warningfld, 0, gettext("Note: parent zone is inactive."));
+        set_field_buffer_wrap(NetworkSec.warningfld, 0, gettext("Note: parent zone is inactive."));
         field_opts_on(NetworkSec.warningfld, O_VISIBLE);
         set_field_status(NetworkSec.warningfld, FALSE);
     }
@@ -4144,7 +4133,7 @@ edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
     cur = current_field(ZonesSection.EditZone.form);
     pos_form_cursor(ZonesSection.EditZone.form);
 
-    draw_top_menu(debuglvl, top_win, gettext("Network"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Network"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     update_panels();
     doupdate();
@@ -4166,18 +4155,18 @@ edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
 
         if(cur == NetworkSec.commentfld)
         {
-            if(nav_field_comment(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+            if(nav_field_comment(ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == NetworkSec.activefld)
         {
-            if(nav_field_yesno(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+            if(nav_field_yesno(ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == NetworkSec.networkfld || cur == NetworkSec.network6fld ||
             cur == NetworkSec.netmaskfld || cur == NetworkSec.cidr6fld)
         {
-            if(nav_field_simpletext(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+            if(nav_field_simpletext(ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
         }
         /* this one needs to be last */
@@ -4195,7 +4184,7 @@ edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
             cur == NetworkSec.dhcpsrvfld        ||
             cur == NetworkSec.dhcpclifld)
         {
-            if(nav_field_toggleX(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+            if(nav_field_toggleX(ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -4210,9 +4199,9 @@ edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'e':
                 case 'E':
 
-                    edit_zone_network_interfaces(debuglvl, vctx, interfaces, zone_ptr);
+                    edit_zone_network_interfaces(vctx, interfaces, zone_ptr);
 
-                    draw_top_menu(debuglvl, top_win, gettext("Networks"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                    draw_top_menu(top_win, gettext("Networks"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     break;
 
                 case KEY_DOWN:
@@ -4242,7 +4231,7 @@ edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'H':
                 case '?':
 
-                    print_help(debuglvl, ":[VUURMUUR:ZONES:NETWORK:EDIT]:");
+                    print_help(":[VUURMUUR:ZONES:NETWORK:EDIT]:");
                     break;
             }
         }
@@ -4251,15 +4240,15 @@ edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
         if(zone_ptr->InterfaceList.len == 0)
         {
             /* show no int warning */
-            set_field_buffer_wrap(debuglvl, NetworkSec.warningfld, 0, gettext("Warning: no interfaces attached!"));
+            set_field_buffer_wrap(NetworkSec.warningfld, 0, gettext("Warning: no interfaces attached!"));
             field_opts_on(NetworkSec.warningfld, O_VISIBLE);
             set_field_status(NetworkSec.warningfld, FALSE);
         }
         /* check against the current 'active' value */
         else if(strncasecmp(field_buffer(NetworkSec.activefld, 0), STR_YES, StrLen(STR_YES)) == 0 &&
-            vrmr_zones_active(debuglvl, zone_ptr) == 0)
+            vrmr_zones_active(zone_ptr) == 0)
         {
-            set_field_buffer_wrap(debuglvl, NetworkSec.warningfld, 0, gettext("Note: parent zone is inactive."));
+            set_field_buffer_wrap(NetworkSec.warningfld, 0, gettext("Note: parent zone is inactive."));
             field_opts_on(NetworkSec.warningfld, O_VISIBLE);
             set_field_status(NetworkSec.warningfld, FALSE);
         }
@@ -4276,7 +4265,7 @@ edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
     }
 
     /* save */
-    if (edit_zone_network_save(debuglvl, vctx, zone_ptr) < 0)
+    if (edit_zone_network_save(vctx, zone_ptr) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
         retval = -1;
@@ -4293,7 +4282,7 @@ edit_zone_network(const int debuglvl, struct vrmr_ctx *vctx,
 }
 
 static void
-zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, char *zonename)
+zones_section_menu_networks_init(struct vrmr_zones *zones, char *zonename)
 {
     struct vrmr_zone    *zone_ptr = NULL;
     int                 height,
@@ -4327,7 +4316,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
             ZonesSection.network_n++;
     }
 
-    vrmr_list_setup(debuglvl, &ZonesSection.network_desc_list, free);
+    vrmr_list_setup(&ZonesSection.network_desc_list, free);
 
     i = ZonesSection.network_n - 1;
 
@@ -4351,7 +4340,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
             desc_ptr = strdup(temp);
             vrmr_fatal_alloc("strdup", desc_ptr);
 
-            vrmr_fatal_if(vrmr_list_append(debuglvl, &ZonesSection.network_desc_list, desc_ptr) == NULL);
+            vrmr_fatal_if(vrmr_list_append(&ZonesSection.network_desc_list, desc_ptr) == NULL);
 
             ZonesSection.networkitems[i] = new_item(zone_ptr->network_name, desc_ptr);
             vrmr_fatal_if_null(ZonesSection.networkitems[i]);
@@ -4441,7 +4430,7 @@ zones_section_menu_networks_init(const int debuglvl, struct vrmr_zones *zones, c
 }
 
 static void
-zones_section_menu_networks_destroy(const int debuglvl)
+zones_section_menu_networks_destroy(void)
 {
     size_t  i = 0;
 
@@ -4456,7 +4445,7 @@ zones_section_menu_networks_destroy(const int debuglvl)
     del_panel(ZonesSection.n_panel[0]);
     destroy_win(ZonesSection.n_win);
 
-    vrmr_list_cleanup(debuglvl, &ZonesSection.network_desc_list);
+    vrmr_list_cleanup(&ZonesSection.network_desc_list);
 
     del_panel(ZonesSection.n_panel_top[0]);
     destroy_win(ZonesSection.n_win_top);
@@ -4466,7 +4455,7 @@ zones_section_menu_networks_destroy(const int debuglvl)
 
 
 static void
-zones_section_menu_networks(const int debuglvl,
+zones_section_menu_networks(
         struct vrmr_ctx *vctx,
         struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces,
@@ -4516,16 +4505,16 @@ zones_section_menu_networks(const int debuglvl,
     vrmr_fatal_if_null(rules);
     vrmr_fatal_if_null(blocklist);
 
-    zones_section_menu_networks_init(debuglvl, zones, zonename);
+    zones_section_menu_networks_init(zones, zonename);
 
-    draw_top_menu(debuglvl, top_win, gettext("Networks"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Networks"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     while(quit == 0)
     {
         if(reload == 1)
         {
-            zones_section_menu_networks_destroy(debuglvl);
-            zones_section_menu_networks_init(debuglvl, zones, zonename);
+            zones_section_menu_networks_destroy();
+            zones_section_menu_networks_init(zones, zonename);
             reload = 0;
         }
 
@@ -4578,7 +4567,7 @@ zones_section_menu_networks(const int debuglvl,
                         vrmr_new_zone_ptr = input_box(VRMR_MAX_HOST, gettext("Rename Network"), gettext("Enter the new name of the network"));
                         if(vrmr_new_zone_ptr != NULL)
                         {
-                            if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VRMR_VERBOSE) == -1)
+                            if(vrmr_validate_zonename(vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VRMR_VERBOSE) == -1)
                             {
                                 vrmr_warning(VR_WARN, gettext("invalid networkname '%s'."), vrmr_new_zone_ptr);
                             }
@@ -4596,9 +4585,9 @@ zones_section_menu_networks(const int debuglvl,
                                 (void)strlcat(temp_ptr, ".", size);
                                 (void)strlcat(temp_ptr, zonename, size);
 
-                                if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
+                                if(vrmr_validate_zonename(temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
                                 {
-                                    if (zones_rename_network_zone(debuglvl, vctx, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_NETWORK, reg) < 0)
+                                    if (zones_rename_network_zone(vctx, zones, rules, blocklist, cur_zonename_ptr, temp_ptr, VRMR_TYPE_NETWORK, reg) < 0)
                                     {
                                         vrmr_error(-1, VR_ERR, gettext("renaming network failed."));
                                     }
@@ -4627,7 +4616,7 @@ zones_section_menu_networks(const int debuglvl,
                     vrmr_new_zone_ptr = input_box(VRMR_MAX_NETWORK, gettext("New Network"), gettext("Enter the name of the new network"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
-                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VRMR_VERBOSE) == -1)
+                        if(vrmr_validate_zonename(vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->network_part, VRMR_VERBOSE) == -1)
                         {
                             vrmr_warning(VR_WARN, gettext("invalid networkname '%s'."), vrmr_new_zone_ptr);
                         }
@@ -4641,9 +4630,9 @@ zones_section_menu_networks(const int debuglvl,
                             (void)strlcat(temp_ptr, ".", size);
                             (void)strlcat(temp_ptr, zonename, size);
 
-                            if(vrmr_validate_zonename(debuglvl, temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
+                            if(vrmr_validate_zonename(temp_ptr, 1, NULL, NULL, NULL, reg->zonename, VRMR_VERBOSE) == 0)
                             {
-                                if (vrmr_new_zone(debuglvl, vctx, zones, temp_ptr, VRMR_TYPE_NETWORK) < 0)
+                                if (vrmr_new_zone(vctx, zones, temp_ptr, VRMR_TYPE_NETWORK) < 0)
                                 {
                                     vrmr_error(-1, VR_ERR, gettext("adding network failed."));
                                 }
@@ -4653,7 +4642,7 @@ zones_section_menu_networks(const int debuglvl,
                                             STR_NETWORK, temp_ptr,
                                             STR_HAS_BEEN_CREATED);
 
-                                    (void)edit_zone_network(debuglvl, vctx, zones, interfaces, temp_ptr);
+                                    (void)edit_zone_network(vctx, zones, interfaces, temp_ptr);
                                     reload = 1;
                                 }
                             }
@@ -4673,8 +4662,8 @@ zones_section_menu_networks(const int debuglvl,
 
                     cur = current_item(ZonesSection.n_menu);
                     if (cur) {
-                        if (vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, (char *)item_name(cur), zonename) <= 0   &&
-                                vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, (char *)item_name(cur), zonename) <= 0)
+                        if (vrmr_count_zones(zones, VRMR_TYPE_HOST, (char *)item_name(cur), zonename) <= 0   &&
+                                vrmr_count_zones(zones, VRMR_TYPE_GROUP, (char *)item_name(cur), zonename) <= 0)
                         {
                             if (confirm(gettext("Delete"), gettext("This network?"),
                                         vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
@@ -4686,7 +4675,7 @@ zones_section_menu_networks(const int debuglvl,
                                 (void)strlcat(zonename_ptr, ".", size);
                                 (void)strlcat(zonename_ptr, zonename, size);
 
-                                result = vrmr_delete_zone(debuglvl, vctx, zones, zonename_ptr, VRMR_TYPE_NETWORK);
+                                result = vrmr_delete_zone(vctx, zones, zonename_ptr, VRMR_TYPE_NETWORK);
                                 if(result < 0)
                                     vrmr_error(result, VR_ERR, gettext("deleting network failed."));
                                 else
@@ -4741,11 +4730,11 @@ zones_section_menu_networks(const int debuglvl,
                     {
                         if(strcmp(choice_ptr, gettext("Hosts")) == 0)
                         {
-                            (void)zones_section_menu_hosts(debuglvl, vctx, zones, rules, blocklist, zonename, (char *)item_name(cur), reg);
+                            (void)zones_section_menu_hosts(vctx, zones, rules, blocklist, zonename, (char *)item_name(cur), reg);
                         }
                         else if(strcmp(choice_ptr, gettext("Groups")) == 0)
                         {
-                            zones_section_menu_groups(debuglvl, vctx, zones, rules, blocklist, zonename, (char *)item_name(cur), reg);
+                            zones_section_menu_groups(vctx, zones, rules, blocklist, zonename, (char *)item_name(cur), reg);
                         }
                         else
                         {
@@ -4760,7 +4749,7 @@ zones_section_menu_networks(const int debuglvl,
                             /*  edit the network. We don't care about the result.
                                 If there is an error, its up to the user to decide
                                 what to do. */
-                            if(edit_zone_network(debuglvl, vctx, zones, interfaces, zonename_ptr) == 1)
+                            if(edit_zone_network(vctx, zones, interfaces, zonename_ptr) == 1)
                                 reload = 1;
 
                             free(zonename_ptr);
@@ -4768,7 +4757,7 @@ zones_section_menu_networks(const int debuglvl,
                         free(choice_ptr);
                     }
 
-                    draw_top_menu(debuglvl, top_win, gettext("Networks"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                    draw_top_menu(top_win, gettext("Networks"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     break;
 
                 case 'g':   /* group quick key */
@@ -4776,7 +4765,7 @@ zones_section_menu_networks(const int debuglvl,
 
                     cur = current_item(ZonesSection.n_menu);
                     if (cur) {
-                        zones_section_menu_groups(debuglvl, vctx, zones,
+                        zones_section_menu_groups(vctx, zones,
                                 rules, blocklist, zonename,
                                 (char *)item_name(cur), reg);
                     }
@@ -4787,7 +4776,7 @@ zones_section_menu_networks(const int debuglvl,
 
                     cur = current_item(ZonesSection.n_menu);
                     if (cur) {
-                        (void)zones_section_menu_hosts(debuglvl, vctx,
+                        (void)zones_section_menu_hosts(vctx,
                                 zones, rules, blocklist, zonename,
                                 (char *)item_name(cur), reg);
                     }
@@ -4810,7 +4799,7 @@ zones_section_menu_networks(const int debuglvl,
                         /*  edit the network. We don't care about the result.
                             If there is an error, its up to the user to decide
                             what to do. */
-                        if(edit_zone_network(debuglvl, vctx, zones, interfaces, zonename_ptr) == 1)
+                        if(edit_zone_network(vctx, zones, interfaces, zonename_ptr) == 1)
                             reload = 1;
 
                         free(zonename_ptr);
@@ -4819,14 +4808,14 @@ zones_section_menu_networks(const int debuglvl,
 
                 case '?':
                 case KEY_F(12):
-                    print_help(debuglvl, ":[VUURMUUR:ZONES:NETWORKS]:");
+                    print_help(":[VUURMUUR:ZONES:NETWORKS]:");
                     break;
 
             }
         }
     }
 
-    zones_section_menu_networks_destroy(debuglvl);
+    zones_section_menu_networks_destroy();
 
     update_panels();
     doupdate();
@@ -4844,7 +4833,7 @@ struct
 } ZoneSec;
 
 static void
-edit_zone_zone_init(const int debuglvl, struct vrmr_ctx *vctx,
+edit_zone_zone_init(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, char *name,
         int height, int width, int starty, int startx, struct vrmr_zone *zone_ptr)
 {
@@ -4867,14 +4856,14 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_ctx *vctx,
     vrmr_fatal_alloc("calloc", ZonesSection.EditZone.fields);
 
     ZoneSec.activelabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 2, 0, 0, 0));
-    set_field_buffer_wrap(debuglvl, ZoneSec.activelabelfld, 0, gettext("Active"));
+    set_field_buffer_wrap(ZoneSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(ZoneSec.activelabelfld, O_AUTOSKIP | O_ACTIVE);
 
     ZoneSec.activefld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 3, 3, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, ZoneSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
+    set_field_buffer_wrap(ZoneSec.activefld, 0, zone_ptr->active ? STR_YES : STR_NO);
 
     ZoneSec.commentlabelfld = (ZonesSection.EditZone.fields[field_num++] = new_field(1, 16, 5, 0, 0, 0));
-    set_field_buffer_wrap(debuglvl, ZoneSec.commentlabelfld, 0, gettext("Comment"));
+    set_field_buffer_wrap(ZoneSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(ZoneSec.commentlabelfld, O_AUTOSKIP | O_ACTIVE);
 
     /* comment field size */
@@ -4883,10 +4872,10 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_ctx *vctx,
     /* create and label the comment field */
     ZoneSec.commentfld = (ZonesSection.EditZone.fields[field_num++] = new_field(comment_y, comment_x, 6, 1, 0, 0));
     /* load the comment from the backend */
-    if (vctx->zf->ask(debuglvl, vctx->zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_ZONE, 0) < 0)
+    if (vctx->zf->ask(vctx->zone_backend, zone_ptr->name, "COMMENT", ZonesSection.comment, sizeof(ZonesSection.comment), VRMR_TYPE_ZONE, 0) < 0)
         vrmr_error(-1, "Error", "error while loading the comment.");
 
-    set_field_buffer_wrap(debuglvl, ZoneSec.commentfld, 0, ZonesSection.comment);
+    set_field_buffer_wrap(ZoneSec.commentfld, 0, ZonesSection.comment);
 
     vrmr_fatal_if (field_num != ZonesSection.EditZone.n_fields);
     ZonesSection.EditZone.fields[ZonesSection.EditZone.n_fields] = NULL;
@@ -4920,11 +4909,11 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_ctx *vctx,
     mvwprintw(ZonesSection.EditZone.win, 1, 2, "%s: %s", gettext("Name"), zone_ptr->name);
 
     mvwprintw(ZonesSection.EditZone.win, 3, 35, "%s",  gettext("Networks"));
-    mvwprintw(ZonesSection.EditZone.win, 3, 45, "%4d", vrmr_count_zones(debuglvl, zones, VRMR_TYPE_NETWORK, NULL, zone_ptr->name));
+    mvwprintw(ZonesSection.EditZone.win, 3, 45, "%4d", vrmr_count_zones(zones, VRMR_TYPE_NETWORK, NULL, zone_ptr->name));
     mvwprintw(ZonesSection.EditZone.win, 4, 35, "%s",  gettext("Hosts"));
-    mvwprintw(ZonesSection.EditZone.win, 4, 45, "%4d", vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, NULL, zone_ptr->name));
+    mvwprintw(ZonesSection.EditZone.win, 4, 45, "%4d", vrmr_count_zones(zones, VRMR_TYPE_HOST, NULL, zone_ptr->name));
     mvwprintw(ZonesSection.EditZone.win, 5, 35, "%s",  gettext("Groups"));
-    mvwprintw(ZonesSection.EditZone.win, 5, 45, "%4d", vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, NULL, zone_ptr->name));
+    mvwprintw(ZonesSection.EditZone.win, 5, 45, "%4d", vrmr_count_zones(zones, VRMR_TYPE_GROUP, NULL, zone_ptr->name));
 
     /* draw and set cursor */
     wrefresh(ZonesSection.EditZone.win);
@@ -4935,7 +4924,7 @@ edit_zone_zone_init(const int debuglvl, struct vrmr_ctx *vctx,
 }
 
 static int
-edit_zone_zone_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone *zone_ptr)
+edit_zone_zone_save(struct vrmr_ctx *vctx, struct vrmr_zone *zone_ptr)
 {
     int     retval = 0,
             active = 0;
@@ -4968,7 +4957,7 @@ edit_zone_zone_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone 
             }
 
             /* save to backend */
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_ZONE) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "ACTIVE", zone_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_ZONE) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 retval = -1;
@@ -4984,7 +4973,7 @@ edit_zone_zone_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zone 
         else if(ZonesSection.EditZone.fields[i] == ZoneSec.commentfld)
         {
             /* save the comment field to the backend */
-            if (vctx->zf->tell(debuglvl, vctx->zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_ZONE) < 0)
+            if (vctx->zf->tell(vctx->zone_backend, zone_ptr->name, "COMMENT", field_buffer(ZonesSection.EditZone.fields[i], 0), 1, VRMR_TYPE_ZONE) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 retval = -1;
@@ -5026,7 +5015,7 @@ edit_zone_zone_destroy(void)
         -1: error
 */
 static int
-edit_zone_zone(const int debuglvl, struct vrmr_ctx *vctx,
+edit_zone_zone(struct vrmr_ctx *vctx,
         struct vrmr_zones *zones, char *name)
 {
     int                 ch, /* for the keys */
@@ -5057,16 +5046,16 @@ edit_zone_zone(const int debuglvl, struct vrmr_ctx *vctx,
     VrWinGetOffset(-1, -1, height, width, 4, ZonesSection.z_xre + 1, &starty, &startx);
 
     /* look for the zone in the list */
-    zone_ptr = vrmr_search_zonedata(debuglvl, zones, name);
+    zone_ptr = vrmr_search_zonedata(zones, name);
     vrmr_fatal_if_null(zone_ptr);
 
     /* setup the window and fields */
-    edit_zone_zone_init(debuglvl, vctx, zones, name,
+    edit_zone_zone_init(vctx, zones, name,
                 height, width, starty, startx, zone_ptr);
 
     cur = current_field(ZonesSection.EditZone.form);
 
-    draw_top_menu(debuglvl, top_win, gettext("Edit Zone"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Edit Zone"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     update_panels();
     doupdate();
@@ -5086,13 +5075,13 @@ edit_zone_zone(const int debuglvl, struct vrmr_ctx *vctx,
         /* comment */
         if(cur == ZoneSec.commentfld)
         {
-            if(nav_field_comment(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+            if(nav_field_comment(ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
         }
         /* active */
         else if(cur == ZoneSec.activefld)
         {
-            if(nav_field_yesno(debuglvl, ZonesSection.EditZone.form, ch) < 0)
+            if(nav_field_yesno(ZonesSection.EditZone.form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -5127,7 +5116,7 @@ edit_zone_zone(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:ZONES:ZONE:EDIT]:");
+                    print_help(":[VUURMUUR:ZONES:ZONE:EDIT]:");
                     break;
             }
         }
@@ -5142,7 +5131,7 @@ edit_zone_zone(const int debuglvl, struct vrmr_ctx *vctx,
     }
 
     /* save changes (if any) */
-    if (edit_zone_zone_save(debuglvl, vctx, zone_ptr) < 0)
+    if (edit_zone_zone_save(vctx, zone_ptr) < 0)
         retval = -1;
 
     /* cleanup */
@@ -5155,7 +5144,7 @@ edit_zone_zone(const int debuglvl, struct vrmr_ctx *vctx,
 }
 
 static void
-zones_section_init(const int debuglvl, struct vrmr_zones *zones)
+zones_section_init(struct vrmr_zones *zones)
 {
     size_t              i = 0;
     struct vrmr_zone    *zone_ptr = NULL;
@@ -5298,7 +5287,7 @@ zones_section_destroy(void)
 
 
 int
-zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones,
+zones_section(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces, struct vrmr_rules *rules,
         struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
@@ -5334,16 +5323,16 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
     vrmr_fatal_if_null(interfaces);
     vrmr_fatal_if_null(zones);
 
-    zones_section_init(debuglvl, zones);
+    zones_section_init(zones);
 
-    draw_top_menu(debuglvl, top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     while(quit == 0)
     {
         if(reload == 1)
         {
             zones_section_destroy();
-            zones_section_init(debuglvl, zones);
+            zones_section_init(zones);
             reload = 0;
         }
 
@@ -5386,11 +5375,11 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                                 gettext("Enter the new name of the zone"));
                         if (vrmr_new_zone_ptr != NULL)
                         {
-                            if (vrmr_validate_zonename(debuglvl,
+                            if (vrmr_validate_zonename(
                                         vrmr_new_zone_ptr, 1, NULL, NULL, NULL,
                                         reg->zone_part, VRMR_VERBOSE) == 0)
                             {
-                                if (zones_rename_network_zone(debuglvl, vctx,
+                                if (zones_rename_network_zone(vctx,
                                             zones, rules, blocklist,
                                             (char *)item_name(cur),
                                             vrmr_new_zone_ptr, VRMR_TYPE_ZONE, reg) == 0)
@@ -5412,9 +5401,9 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                     vrmr_new_zone_ptr = input_box(VRMR_MAX_ZONE, gettext("New Zone"), gettext("Enter the name of the new zone"));
                     if(vrmr_new_zone_ptr != NULL)
                     {
-                        if(vrmr_validate_zonename(debuglvl, vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VRMR_VERBOSE) == 0)
+                        if(vrmr_validate_zonename(vrmr_new_zone_ptr, 1, NULL, NULL, NULL, reg->zone_part, VRMR_VERBOSE) == 0)
                         {
-                            if (vrmr_new_zone(debuglvl, vctx, zones, vrmr_new_zone_ptr, VRMR_TYPE_ZONE) < 0)
+                            if (vrmr_new_zone(vctx, zones, vrmr_new_zone_ptr, VRMR_TYPE_ZONE) < 0)
                             {
                                 vrmr_error(result, VR_ERR, "adding zone failed (in: %s:%d).", __FUNC__, __LINE__);
                             }
@@ -5424,13 +5413,13 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                                     STR_ZONE, vrmr_new_zone_ptr,
                                     STR_HAS_BEEN_CREATED);
 
-                                if (edit_zone_zone(debuglvl, vctx, zones, vrmr_new_zone_ptr) < 0)
+                                if (edit_zone_zone(vctx, zones, vrmr_new_zone_ptr) < 0)
                                 {
                                     retval = -1;
                                     quit = 1;
                                 }
 
-                                draw_top_menu(debuglvl, top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                                draw_top_menu(top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                             }
                         }
                         free(vrmr_new_zone_ptr);
@@ -5444,9 +5433,9 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
 
                     cur = current_item(ZonesSection.menu);
                     if (cur) {
-                        if(vrmr_count_zones(debuglvl, zones, VRMR_TYPE_NETWORK, NULL, (char *)item_name(cur)) <= 0   &&
-                                vrmr_count_zones(debuglvl, zones, VRMR_TYPE_HOST, NULL, (char *)item_name(cur)) <= 0   &&
-                                vrmr_count_zones(debuglvl, zones, VRMR_TYPE_GROUP, NULL, (char *)item_name(cur)) <= 0)
+                        if(vrmr_count_zones(zones, VRMR_TYPE_NETWORK, NULL, (char *)item_name(cur)) <= 0   &&
+                                vrmr_count_zones(zones, VRMR_TYPE_HOST, NULL, (char *)item_name(cur)) <= 0   &&
+                                vrmr_count_zones(zones, VRMR_TYPE_GROUP, NULL, (char *)item_name(cur)) <= 0)
                         {
                             if (confirm(gettext("Delete"), gettext("This zone?"),
                                         vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1)
@@ -5454,7 +5443,7 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                                 /* for logging */
                                 (void)strlcpy(save_zone_name, (char *)item_name(cur), sizeof(save_zone_name));
 
-                                result = vrmr_delete_zone(debuglvl, vctx, zones, (char *)item_name(cur), VRMR_TYPE_ZONE);
+                                result = vrmr_delete_zone(vctx, zones, (char *)item_name(cur), VRMR_TYPE_ZONE);
                                 if(result < 0)
                                 {
                                     vrmr_error(result, VR_ERR, gettext("deleting zone failed (in: %s:%d)."), __FUNC__, __LINE__);
@@ -5505,12 +5494,12 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
 
                     cur = current_item(ZonesSection.menu);
                     if (cur) {
-                        if (edit_zone_zone(debuglvl, vctx, zones, (char *)item_name(cur)) < 0) {
+                        if (edit_zone_zone(vctx, zones, (char *)item_name(cur)) < 0) {
                             retval = -1;
                             quit = 1;
                         }
 
-                        draw_top_menu(debuglvl, top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        draw_top_menu(top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     }
                     break;
 
@@ -5523,9 +5512,9 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                     if (cur) {
                         char *n = (char *)item_name(cur);
 
-                        zones_section_menu_networks(debuglvl, vctx, zones, interfaces, rules, blocklist, n, reg);
+                        zones_section_menu_networks(vctx, zones, interfaces, rules, blocklist, n, reg);
 
-                        draw_top_menu(debuglvl, top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        draw_top_menu(top_win, gettext("Zones"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     }
                     break;
 
@@ -5533,7 +5522,7 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:ZONES:ZONES]:");
+                    print_help(":[VUURMUUR:ZONES:ZONES]:");
                     break;
             }
         }
@@ -5549,7 +5538,7 @@ zones_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zone
 }
 
 static void
-zones_blocklist_init(const int debuglvl, struct vrmr_blocklist *blocklist)
+zones_blocklist_init(struct vrmr_blocklist *blocklist)
 {
     int         i = 0,
                 result = 0;
@@ -5685,7 +5674,7 @@ zones_blocklist_destroy(void)
 }
 
 int
-zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, struct vrmr_zones *zones)
+zones_blocklist_add_one(struct vrmr_blocklist *blocklist, struct vrmr_zones *zones)
 {
     char                *new_ipaddress = NULL,
                         *choices[] = {  gettext("IPAddress"),
@@ -5713,7 +5702,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
             if(new_ipaddress != NULL)
             {
                 /* validate ip */
-                if(vrmr_check_ipv4address(debuglvl, NULL, NULL, new_ipaddress, 1) != 1)
+                if(vrmr_check_ipv4address(NULL, NULL, new_ipaddress, 1) != 1)
                 {
                     vrmr_warning(VR_WARN, gettext("'%s' is not a valid ipaddress."), new_ipaddress);
 
@@ -5723,7 +5712,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
                 else
                 {
                     /* add to list */
-                    if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, new_ipaddress) < 0)
+                    if(vrmr_blocklist_add_one(zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, new_ipaddress) < 0)
                     {
                         vrmr_error(-1, VR_INTERR, "blocklist_add_one() failed (in: %s:%d).", __FUNC__, __LINE__);
                         return(-1);
@@ -5741,7 +5730,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
         }
         else if(strcasecmp(choice_ptr, gettext("Host")) == 0 || strcasecmp(choice_ptr, gettext("Group")) == 0)
         {
-            (void)vrmr_list_setup(debuglvl, &ZonesSection.group_desc_list, free);
+            (void)vrmr_list_setup(&ZonesSection.group_desc_list, free);
 
             /* get the type */
             if(strcasecmp(choice_ptr, gettext("Host")) == 0)
@@ -5787,7 +5776,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
             if((hostgroup = selectbox(gettext("Select"), gettext("Select a host or group to block"), i, zone_choices, 2, NULL)))
             {
                 /* add to list */
-                if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, hostgroup) < 0)
+                if(vrmr_blocklist_add_one(zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE, hostgroup) < 0)
                 {
                     vrmr_error(-1, VR_ERR, gettext("adding host/group to list failed (in: %s:%d)."), __FUNC__, __LINE__);
                     return(-1);
@@ -5816,7 +5805,7 @@ zones_blocklist_add_one(const int debuglvl, struct vrmr_blocklist *blocklist, st
 }
 
 int
-zones_blocklist(const int debuglvl, struct vrmr_ctx *vctx,
+zones_blocklist(struct vrmr_ctx *vctx,
         struct vrmr_blocklist *blocklist, struct vrmr_zones *zones, struct vrmr_regex *reg)
 {
     int     ch = 0,
@@ -5846,8 +5835,8 @@ zones_blocklist(const int debuglvl, struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(reg);
 
     /* setup */
-    zones_blocklist_init(debuglvl, blocklist);
-    draw_top_menu(debuglvl, top_win, gettext("BlockList"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    zones_blocklist_init(blocklist);
+    draw_top_menu(top_win, gettext("BlockList"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     /* enter the loop */
     while(quit == 0)
@@ -5858,7 +5847,7 @@ zones_blocklist(const int debuglvl, struct vrmr_ctx *vctx,
             /* first destroy */
             zones_blocklist_destroy();
             /* and setup again */
-            zones_blocklist_init(debuglvl, blocklist);
+            zones_blocklist_init(blocklist);
             /* we are done with reloading */
             reload = 0;
         }
@@ -5899,7 +5888,7 @@ zones_blocklist(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'i':
                 case 'I':
 
-                    if(zones_blocklist_add_one(debuglvl, blocklist, zones) == 1)
+                    if(zones_blocklist_add_one(blocklist, zones) == 1)
                     {
                         changes = 1;
                         reload = 1;
@@ -5926,13 +5915,12 @@ zones_blocklist(const int debuglvl, struct vrmr_ctx *vctx,
                             itemname = (char *)item_name(cur);
                             vrmr_fatal_if_null(itemname);
 
-                            if(debuglvl >= HIGH)
-                                vrmr_debug(__FUNC__, "itemname to remove: '%s'.", itemname);
+                            vrmr_debug(HIGH, "itemname to remove: '%s'.", itemname);
 
                             /* save the name */
                             (void)strlcpy(saveitemname, itemname, sizeof(saveitemname));
 
-                            if(vrmr_blocklist_rem_one(debuglvl, zones, blocklist, itemname) == 0)
+                            if(vrmr_blocklist_rem_one(zones, blocklist, itemname) == 0)
                             {
                                 vrmr_audit("'%s' %s.",
                                     saveitemname,
@@ -5976,7 +5964,7 @@ zones_blocklist(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:BLOCKLIST]:");
+                    print_help(":[VUURMUUR:BLOCKLIST]:");
                     break;
             }
         }
@@ -5984,10 +5972,9 @@ zones_blocklist(const int debuglvl, struct vrmr_ctx *vctx,
 
     if(changes)
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "changes and retval == 0 so save the list to disk.");
+        vrmr_debug(HIGH, "changes and retval == 0 so save the list to disk.");
 
-        if (vrmr_blocklist_save_list(debuglvl, vctx, &vctx->conf, blocklist) < 0)
+        if (vrmr_blocklist_save_list(vctx, &vctx->conf, blocklist) < 0)
             retval = -1;
     }
 

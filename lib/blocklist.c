@@ -27,7 +27,7 @@
         -1: error
 */
 static int
-blocklist_add_ip_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, const char *ip)
+blocklist_add_ip_to_list(struct vrmr_blocklist *blocklist, const char *ip)
 {
     size_t  len = 0;
     char    *ipaddress = NULL;
@@ -58,7 +58,7 @@ blocklist_add_ip_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, c
     }
 
     /* append to list */
-    if(vrmr_list_append(debuglvl, &blocklist->list, ipaddress) == NULL)
+    if(vrmr_list_append(&blocklist->list, ipaddress) == NULL)
     {
         vrmr_error(-1, "Internal Error", "appending into the "
             "list failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -71,7 +71,7 @@ blocklist_add_ip_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, c
 
 
 static int
-blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklist, const char *str)
+blocklist_add_string_to_list(struct vrmr_blocklist *blocklist, const char *str)
 {
     char    *string = NULL;
 
@@ -92,7 +92,7 @@ blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklis
     }
 
     /* append to list */
-    if(vrmr_list_append(debuglvl, &blocklist->list, string) == NULL)
+    if(vrmr_list_append(&blocklist->list, string) == NULL)
     {
         vrmr_error(-1, "Internal Error", "appending into the "
             "list failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -109,7 +109,7 @@ blocklist_add_string_to_list(const int debuglvl, struct vrmr_blocklist *blocklis
     we reload in vuurmuur.
 */
 int
-vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt, const char *line)
+vrmr_blocklist_add_one(struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt, const char *line)
 {
     struct vrmr_zone    *zone_ptr = NULL,
                 *member_ptr = NULL;
@@ -124,10 +124,10 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
     }
 
     /* call vrmr_check_ipv4address with the quiet flag */
-    if(vrmr_check_ipv4address(debuglvl, NULL, NULL, line, 1) != 1)
+    if(vrmr_check_ipv4address(NULL, NULL, line, 1) != 1)
     {
         /* search for the name in the zones list */
-        if((zone_ptr = vrmr_search_zonedata(debuglvl, zones, line)))
+        if((zone_ptr = vrmr_search_zonedata(zones, line)))
         {
             if(zone_ptr->type != VRMR_TYPE_HOST && zone_ptr->type != VRMR_TYPE_GROUP)
             {
@@ -151,7 +151,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
                     if(!load_ips)
                     {
                         /* add the string */
-                        if(blocklist_add_string_to_list(debuglvl, blocklist, line) < 0)
+                        if(blocklist_add_string_to_list(blocklist, line) < 0)
                         {
                             vrmr_error(-1, "Internal Error", "adding string to blocklist failed (in: %s:%d).", __FUNC__, __LINE__);
                             return(-1);
@@ -180,7 +180,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
                         if(!load_ips)
                         {
                             /* add the string */
-                            if(blocklist_add_string_to_list(debuglvl, blocklist, line) < 0)
+                            if(blocklist_add_string_to_list(blocklist, line) < 0)
                             {
                                 vrmr_error(-1, "Internal Error", "adding string to blocklist failed (in: %s:%d).", __FUNC__, __LINE__);
                                 return(-1);
@@ -189,7 +189,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
                         else
                         {
                             /* add the hosts ipaddress */
-                            if(blocklist_add_ip_to_list(debuglvl, blocklist, zone_ptr->ipv4.ipaddress) < 0)
+                            if(blocklist_add_ip_to_list(blocklist, zone_ptr->ipv4.ipaddress) < 0)
                             {
                                 vrmr_error(-1, "Internal Error", "adding ipaddress to blocklist failed (in: %s:%d).", __FUNC__, __LINE__);
                                 return(-1);
@@ -202,7 +202,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
                         if(!load_ips)
                         {
                             /* add the string */
-                            if(blocklist_add_string_to_list(debuglvl, blocklist, line) < 0)
+                            if(blocklist_add_string_to_list(blocklist, line) < 0)
                             {
                                 vrmr_error(-1, "Internal Error", "adding string to blocklist failed (in: %s:%d).", __FUNC__, __LINE__);
                                 return(-1);
@@ -225,7 +225,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
                                 else
                                 {
                                     /* add the groupmembers ipaddress */
-                                    if(blocklist_add_ip_to_list(debuglvl, blocklist, member_ptr->ipv4.ipaddress) < 0)
+                                    if(blocklist_add_ip_to_list(blocklist, member_ptr->ipv4.ipaddress) < 0)
                                     {
                                         vrmr_error(-1, "Internal Error", "adding ipaddress to blocklist failed (in: %s:%d).", __FUNC__, __LINE__);
                                         return(-1);
@@ -242,7 +242,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
             if(!load_ips)
             {
                 /* add the string */
-                if(blocklist_add_string_to_list(debuglvl, blocklist, line) < 0)
+                if(blocklist_add_string_to_list(blocklist, line) < 0)
                 {
                     vrmr_error(-1, "Internal Error", "adding string to blocklist failed (in: %s:%d).", __FUNC__, __LINE__);
                     return(-1);
@@ -259,7 +259,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
         if(!load_ips)
         {
             /* add the string */
-            if(blocklist_add_string_to_list(debuglvl, blocklist, line) < 0)
+            if(blocklist_add_string_to_list(blocklist, line) < 0)
             {
                 vrmr_error(-1, "Internal Error", "adding string to blocklist failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
@@ -268,7 +268,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
         else
         {
             /* valid ip, so add to the block list */
-            if(blocklist_add_ip_to_list(debuglvl, blocklist, line) < 0)
+            if(blocklist_add_ip_to_list(blocklist, line) < 0)
             {
                 vrmr_error(-1, "Internal Error", "adding ipaddress to blocklist failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
@@ -281,7 +281,7 @@ vrmr_blocklist_add_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
 
 
 int
-vrmr_blocklist_rem_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char *itemname)
+vrmr_blocklist_rem_one(struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char *itemname)
 {
     char                *listitemname = NULL;
     struct vrmr_list_node         *d_node = NULL;
@@ -306,10 +306,10 @@ vrmr_blocklist_rem_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
         if(strcmp(listitemname, itemname) == 0)
         {
             /* call vrmr_check_ipv4address with the quiet flag */
-            if(vrmr_check_ipv4address(debuglvl, NULL, NULL, itemname, 1) != 1)
+            if(vrmr_check_ipv4address(NULL, NULL, itemname, 1) != 1)
             {
                 /* search for the name in the zones list */
-                if((zone_ptr = vrmr_search_zonedata(debuglvl, zones, itemname)))
+                if((zone_ptr = vrmr_search_zonedata(zones, itemname)))
                 {
                     /* decrease refcnt */
                     if(zone_ptr->refcnt_blocklist > 0)
@@ -324,7 +324,7 @@ vrmr_blocklist_rem_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
             }
 
             /* this one needs to be removed */
-            if(vrmr_list_remove_node(debuglvl, &blocklist->list, d_node) < 0)
+            if(vrmr_list_remove_node(&blocklist->list, d_node) < 0)
             {
                 vrmr_error(-1, "Internal Error", "removing item from list failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
@@ -349,7 +349,7 @@ vrmr_blocklist_rem_one(const int debuglvl, struct vrmr_zones *zones, struct vrmr
     be loaded, otherwise just the name in the file
 */
 static int
-blocklist_read_file(const int debuglvl, struct vrmr_config *cfg,
+blocklist_read_file(struct vrmr_config *cfg,
         struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt)
 {
     FILE        *fp = NULL;
@@ -365,11 +365,10 @@ blocklist_read_file(const int debuglvl, struct vrmr_config *cfg,
         return(-1);
     }
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "load_ips: %c, no_refcnt: %c.", load_ips, no_refcnt);
+    vrmr_debug(HIGH, "load_ips: %c, no_refcnt: %c.", load_ips, no_refcnt);
 
 	/* open the blocklist-file */
-	if(!(fp = vuurmuur_fopen(debuglvl, cfg, cfg->blocklist_location, "r")))
+	if(!(fp = vuurmuur_fopen(cfg, cfg->blocklist_location, "r")))
 	{
 		vrmr_error(-1, "Error", "opening blockfile '%s' failed: %s (in: %s:%d).",
 							cfg->blocklist_location,
@@ -390,7 +389,7 @@ blocklist_read_file(const int debuglvl, struct vrmr_config *cfg,
                 line[len - 1] = '\0';
 
             /* add it to the list */
-            if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, load_ips, no_refcnt, line) < 0)
+            if(vrmr_blocklist_add_one(zones, blocklist, load_ips, no_refcnt, line) < 0)
             {
                 vrmr_error(-1, "Error", "adding to the blocklist failed (in: %s:%d).", __FUNC__, __LINE__);
 
@@ -418,7 +417,7 @@ blocklist_read_file(const int debuglvl, struct vrmr_config *cfg,
 
 
 int
-vrmr_blocklist_init_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cfg,
+vrmr_blocklist_init_list(struct vrmr_ctx *vctx, struct vrmr_config *cfg,
         struct vrmr_zones *zones, struct vrmr_blocklist *blocklist, char load_ips, char no_refcnt)
 {
     FILE        *fp = NULL;
@@ -437,43 +436,38 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
                     __FUNC__, __LINE__);
         return(-1);
     }
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "start");
+    vrmr_debug(HIGH, "start");
 
     /* init */
     memset(blocklist, 0, sizeof(struct vrmr_blocklist));
 
     /* setup the blocklist */
-    vrmr_list_setup(debuglvl, &blocklist->list, free);
+    vrmr_list_setup(&blocklist->list, free);
 
     /* open the blocklist-file */
     if((fp = fopen(cfg->blocklist_location, "r")))
     {
         (void)fclose(fp);
 
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "old_blocklistfile_used == TRUE");
+        vrmr_debug(MEDIUM, "old_blocklistfile_used == TRUE");
 
         blocklist->old_blocklistfile_used = TRUE;
 
-        result = blocklist_read_file(debuglvl, cfg, zones, blocklist, load_ips, no_refcnt);
+        result = blocklist_read_file(cfg, zones, blocklist, load_ips, no_refcnt);
         if(result < 0)
             return(-1);
     }
     else
     {
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "old_blocklistfile_used == FALSE");
+        vrmr_debug(MEDIUM, "old_blocklistfile_used == FALSE");
 
         blocklist->old_blocklistfile_used = FALSE;
 
         /* see if the blocklist already exists in the backend */
-        while (vctx->rf->list(debuglvl, vctx->rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
+        while (vctx->rf->list(vctx->rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
         {
-            if(debuglvl >= MEDIUM)
-                vrmr_debug(__FUNC__, "loading rules: '%s', type: %d",
-                        rule_name, type);
+            vrmr_debug(MEDIUM, "loading rules: '%s', type: %d",
+                    rule_name, type);
 
             if(strcmp(rule_name, "blocklist") == 0)
                 blocklist_found = TRUE;
@@ -481,7 +475,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
 
         if(blocklist_found == FALSE)
         {
-            if (vctx->rf->add(debuglvl, vctx->rule_backend, "blocklist", VRMR_TYPE_RULE) < 0)
+            if (vctx->rf->add(vctx->rule_backend, "blocklist", VRMR_TYPE_RULE) < 0)
             {
                 vrmr_error(-1, "Internal Error", "rf->add() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
@@ -489,7 +483,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
             }
         }
 
-        while ((vctx->rf->ask(debuglvl, vctx->rule_backend, "blocklist", "RULE", line, sizeof(line), VRMR_TYPE_RULE, 1)) == 1)
+        while ((vctx->rf->ask(vctx->rule_backend, "blocklist", "RULE", line, sizeof(line), VRMR_TYPE_RULE, 1)) == 1)
         {
             len = strlen(line);
             if (len == 0 || line[0] == '#')
@@ -505,7 +499,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
                 if(strlen(value) > 0)
                 {
                     /* add it to the list */
-                    if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, load_ips, no_refcnt, value) < 0)
+                    if(vrmr_blocklist_add_one(zones, blocklist, load_ips, no_refcnt, value) < 0)
                     {
                         vrmr_error(-1, "Error", "adding to the blocklist failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
@@ -521,7 +515,7 @@ vrmr_blocklist_init_list(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
 
 
 static int
-blocklist_write_file(const int debuglvl, struct vrmr_config *cfg, struct vrmr_list *block_list)
+blocklist_write_file(struct vrmr_config *cfg, struct vrmr_list *block_list)
 {
     struct vrmr_list_node *d_node   = NULL;
     char        *itemname = NULL;
@@ -567,7 +561,7 @@ blocklist_write_file(const int debuglvl, struct vrmr_config *cfg, struct vrmr_li
 
 
 int
-vrmr_blocklist_save_list(const int debuglvl, struct vrmr_ctx *vctx,
+vrmr_blocklist_save_list(struct vrmr_ctx *vctx,
         struct vrmr_config *cfg, struct vrmr_blocklist *blocklist)
 {
     int         result = 0;
@@ -586,7 +580,7 @@ vrmr_blocklist_save_list(const int debuglvl, struct vrmr_ctx *vctx,
 
     if(blocklist->old_blocklistfile_used == TRUE)
     {
-        result = blocklist_write_file(debuglvl, cfg, &blocklist->list);
+        result = blocklist_write_file(cfg, &blocklist->list);
         if(result < 0)
             return(-1);
     }
@@ -595,7 +589,7 @@ vrmr_blocklist_save_list(const int debuglvl, struct vrmr_ctx *vctx,
         /* empty list, so clear all */
         if(blocklist->list.len == 0)
         {
-            if (vctx->rf->tell(debuglvl, vctx->rule_backend, "blocklist", "RULE", "", 1, VRMR_TYPE_RULE) < 0)
+            if (vctx->rf->tell(vctx->rule_backend, "blocklist", "RULE", "", 1, VRMR_TYPE_RULE) < 0)
             {
                 vrmr_error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
                         __FUNC__, __LINE__);
@@ -622,7 +616,7 @@ vrmr_blocklist_save_list(const int debuglvl, struct vrmr_ctx *vctx,
                 snprintf(rule_str, sizeof(rule_str), "block %s", line);
 
                 /* write to the backend */
-                if (vctx->rf->tell(debuglvl, vctx->rule_backend, "blocklist", "RULE", rule_str, overwrite, VRMR_TYPE_RULE) < 0)
+                if (vctx->rf->tell(vctx->rule_backend, "blocklist", "RULE", rule_str, overwrite, VRMR_TYPE_RULE) < 0)
                 {
                     vrmr_error(-1, "Internal Error", "rf->tell() failed (in: %s:%d).",
                             __FUNC__, __LINE__);

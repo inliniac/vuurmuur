@@ -39,12 +39,12 @@
     The path and mode parameters are identical to the fopen(3) libc function.
 */
 FILE *
-vuurmuur_fopen(const int debuglvl, const struct vrmr_config *cnf, const char *path, const char *mode)
+vuurmuur_fopen(const struct vrmr_config *cnf, const char *path, const char *mode)
 {
     FILE        *fp=NULL;
 
     /* Stat the file */
-    if (!vrmr_stat_ok(debuglvl, cnf, path, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_ALLOW_NOTFOUND))
+    if (!vrmr_stat_ok(cnf, path, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_ALLOW_NOTFOUND))
         /* File not OK? Don't open it. vrmr_stat_ok will have printed an error message already. */
         return NULL;
 
@@ -61,9 +61,9 @@ vuurmuur_fopen(const int debuglvl, const struct vrmr_config *cnf, const char *pa
 
 /* open dir if it exist, don't print errors if it doesn't */
 DIR *
-vuurmuur_tryopendir(const int debuglvl, const struct vrmr_config *cnf, const char *name)
+vuurmuur_tryopendir(const struct vrmr_config *cnf, const char *name)
 {
-    if (!(vrmr_stat_ok(debuglvl, cnf, name, VRMR_STATOK_WANT_DIR,
+    if (!(vrmr_stat_ok(cnf, name, VRMR_STATOK_WANT_DIR,
                     VRMR_STATOK_VERBOSE, VRMR_STATOK_ALLOW_NOTFOUND)))
         return(NULL);
 
@@ -72,11 +72,11 @@ vuurmuur_tryopendir(const int debuglvl, const struct vrmr_config *cnf, const cha
 }
 
 DIR *
-vuurmuur_opendir(const int debuglvl, const struct vrmr_config *cnf, const char *name)
+vuurmuur_opendir(const struct vrmr_config *cnf, const char *name)
 {
     DIR *dir_p = NULL;
 
-    if(!(vrmr_stat_ok(debuglvl, cnf, name, VRMR_STATOK_WANT_DIR, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(cnf, name, VRMR_STATOK_WANT_DIR, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
         return(NULL);
 
     /* finally try to open */
@@ -112,7 +112,7 @@ vuurmuur_opendir(const int debuglvl, const struct vrmr_config *cnf, const char *
         0: file not ok
 */
 int
-vrmr_stat_ok(const int debuglvl, const struct vrmr_config *cnf, const char *file_loc, char type, char output, char must_exist)
+vrmr_stat_ok(const struct vrmr_config *cnf, const char *file_loc, char type, char output, char must_exist)
 {
     struct stat stat_buf;
     mode_t max, perm;
@@ -317,7 +317,7 @@ vrmr_remove_pidfile(char *pidfile_location)
     Returns the pointer to the file, or NULL if failed.
 */
 FILE *
-vrmr_rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const char *path, const char *mode, int caller)
+vrmr_rules_file_open(const struct vrmr_config *cnf, const char *path, const char *mode, int caller)
 {
     FILE    *lock_fp = NULL,
             *fp = NULL;
@@ -407,7 +407,7 @@ vrmr_rules_file_open(const int debuglvl, const struct vrmr_config *cnf, const ch
     fclose(lock_fp);
     free(lock_path);
 
-    fp = vuurmuur_fopen(debuglvl, cnf, path, mode);
+    fp = vuurmuur_fopen(cnf, path, mode);
     return(fp);
 }
 
@@ -496,7 +496,7 @@ vrmr_rules_file_close(FILE *file, const char *path)
         -1: error
  */
 int
-vrmr_pipe_command(const int debuglvl, struct vrmr_config *cnf, char *command,
+vrmr_pipe_command(struct vrmr_config *cnf, char *command,
         char ignore_error)
 {
     int     retval=0;
@@ -510,12 +510,9 @@ vrmr_pipe_command(const int debuglvl, struct vrmr_config *cnf, char *command,
         return(-1);
     }
 
-    if(debuglvl >= MEDIUM)
-    {
-        vrmr_debug(__FUNC__, "command: %s", command);
-        vrmr_debug(__FUNC__, "strlen(command) = %d, max = %d",
-                strlen(command), VRMR_MAX_PIPE_COMMAND);
-    }
+    vrmr_debug(MEDIUM, "command: %s", command);
+    vrmr_debug(MEDIUM, "strlen(command) = %d, max = %d",
+            (int)strlen(command), VRMR_MAX_PIPE_COMMAND);
 
     if(strlen(command) > VRMR_MAX_PIPE_COMMAND)
     {
@@ -537,25 +534,17 @@ vrmr_pipe_command(const int debuglvl, struct vrmr_config *cnf, char *command,
         vrmr_error(-1, "Error", "opening pipe to '%s' failed.", command);
         return(-1);
     }
-
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "pipe opened succesfully.");
+    vrmr_debug(MEDIUM, "pipe opened succesfully.");
 
     int r = pclose(p);
-    if(r != 0)
-    {
-        if(!ignore_error)
-        {
+    if (r != 0) {
+        if (!ignore_error) {
             vrmr_error(-1, "Error", "command '%s' failed.",
                     command);
         }
-
         retval = -1;
-    }
-    else
-    {
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "pipe closed!");
+    } else {
+        vrmr_debug(MEDIUM, "pipe closed!");
     }
 
     return(retval);
@@ -572,20 +561,18 @@ vrmr_pipe_command(const int debuglvl, struct vrmr_config *cnf, char *command,
  *              otherwise the return code of the command.
  */
 int
-libvuurmuur_exec_command(const int debuglvl, struct vrmr_config *cnf, char *path, char *argv[], char *output[])
+libvuurmuur_exec_command(struct vrmr_config *cnf, char *path, char *argv[], char *output[])
 {
     int retval = 0;
     FILE *fp = NULL;
     char dev_null[] = "/dev/null";
     char *output_path = NULL;
 
-    if (debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "starting, path %s", path);
+    vrmr_debug(MEDIUM, "starting, path %s", path);
 
     pid_t pid = fork();
     if (pid == 0) {
-        if (debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "(child) started");
+        vrmr_debug(MEDIUM, "(child) started");
 
         /* close stdout so we don't see the output of the
          * command we execute */
@@ -627,8 +614,7 @@ libvuurmuur_exec_command(const int debuglvl, struct vrmr_config *cnf, char *path
          * so kill the child */
         exit(127);
     }
-    if (debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "child pid is %u", pid);
+    vrmr_debug(MEDIUM, "child pid is %u", pid);
 
     int status;
     pid_t rpid;
@@ -637,20 +623,18 @@ libvuurmuur_exec_command(const int debuglvl, struct vrmr_config *cnf, char *path
     } while (rpid == -1 && errno == EINTR);
 
     if (pid != -1 && WIFEXITED(status) && WEXITSTATUS(status)) {
-        if (debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "WEXITSTATUS(status) %d", WEXITSTATUS(status));
+        vrmr_debug(MEDIUM, "WEXITSTATUS(status) %d", WEXITSTATUS(status));
         retval = WEXITSTATUS(status);
     }
     else if (rpid == -1)
         retval = -1;
 
-    if (debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "(%s) retval %d", path, retval);
+    vrmr_debug(MEDIUM, "(%s) retval %d", path, retval);
     return retval;
 }
 
 void
-vrmr_shm_update_progress(const int debuglvl, int semid, int *shm_progress, int set_percent)
+vrmr_shm_update_progress(int semid, int *shm_progress, int set_percent)
 {
     if(vrmr_lock(semid))
     {
@@ -659,8 +643,7 @@ vrmr_shm_update_progress(const int debuglvl, int semid, int *shm_progress, int s
         vrmr_unlock(semid);
     }
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "set_percent %d.", set_percent);
+    vrmr_debug(HIGH, "set_percent %d.", set_percent);
 }
 
 
@@ -716,7 +699,7 @@ get_vuurmuur_pid(char *vuurmuur_pidfile_location, int *shmid)
     vuurmuur-XXXXXX becomes something like: vuurmuur-uTXhQZ
 */
 int
-vrmr_create_tempfile(const int debuglvl, char *pathname)
+vrmr_create_tempfile(char *pathname)
 {
     int fd = -1;
 
@@ -747,7 +730,7 @@ vrmr_create_tempfile(const int debuglvl, char *pathname)
 
 
 void
-vrmr_sanitize_path(const int debuglvl, char *path, size_t size)
+vrmr_sanitize_path(char *path, size_t size)
 {
     size_t  i = 0;
 

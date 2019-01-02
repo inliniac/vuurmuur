@@ -20,8 +20,7 @@
 
 #include "main.h"
 
-void
-send_hup_to_vuurmuurlog(const int debuglvl)
+void send_hup_to_vuurmuurlog(void)
 {
     int     i = 0;
     pid_t   vuurmuur_pid;
@@ -48,34 +47,34 @@ send_hup_to_vuurmuurlog(const int debuglvl)
     return;
 }
 
-void cmdline_override_config(const int debuglvl, struct vrmr_config *conf) {
+void cmdline_override_config(struct vrmr_config *conf) {
     if (cmdline.vrmr_check_iptcaps_set == TRUE) {
         conf->vrmr_check_iptcaps = cmdline.vrmr_check_iptcaps;
-        vrmr_debug(__FUNC__, "overriding vrmr_check_iptcaps from commandline to %s.",
+        vrmr_debug(NONE, "overriding vrmr_check_iptcaps from commandline to %s.",
             conf->vrmr_check_iptcaps ? "TRUE" : "FALSE");
     }
 
     if (cmdline.verbose_out_set == TRUE) {
         conf->verbose_out = cmdline.verbose_out;
-        vrmr_debug(__FUNC__, "overriding verbose_out from commandline to %s.",
+        vrmr_debug(NONE, "overriding verbose_out from commandline to %s.",
             conf->verbose_out ? "TRUE" : "FALSE");
     }
 
     if (cmdline.configfile_set == TRUE) {
         strlcpy(conf->configfile, cmdline.configfile, sizeof(conf->configfile));
-        vrmr_debug(__FUNC__, "overriding configfile from commandline to %s.",
+        vrmr_debug(NONE, "overriding configfile from commandline to %s.",
             conf->configfile);
     }
 
     if (cmdline.loglevel_set == TRUE) {
         strlcpy(cmdline.loglevel, conf->loglevel, sizeof(cmdline.loglevel));
         conf->loglevel_cmdline = TRUE;
-        vrmr_debug(__FUNC__, "overriding verbose_out from loglevel to %s.",
+        vrmr_debug(NONE, "overriding verbose_out from loglevel to %s.",
             conf->loglevel);
     }
 }
 
-int sysctl_exec(const int debuglvl, struct vrmr_config *cnf, char *key, char *value, int bash_out) {
+int sysctl_exec(struct vrmr_config *cnf, char *key, char *value, int bash_out) {
     if (bash_out) {
         fprintf(stdout, "%s -w %s=%s\n", cnf->sysctl_location, key, value);
         return 0;
@@ -85,7 +84,7 @@ int sysctl_exec(const int debuglvl, struct vrmr_config *cnf, char *key, char *va
     snprintf(line, sizeof(line), "%s=%s", key, value);
 
     char *args[] = { cnf->sysctl_location, "-w", line, NULL };
-    int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->sysctl_location, args, NULL);
+    int result = libvuurmuur_exec_command(cnf, cnf->sysctl_location, args, NULL);
     if (result != 0) {
         //vrmr_error(result, "Error", "sysctl %s=%s failed", key, value);
         return -1;

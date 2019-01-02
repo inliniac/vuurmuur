@@ -46,7 +46,7 @@ copy_name(char *dst, char *src, size_t size)
  *  \param acct print accounting is enabled
  */
 static int
-print_connection(const int debuglvl, WINDOW *local_win,
+print_connection(WINDOW *local_win,
             struct vrmr_conntrack_entry *cd_ptr,
             struct vrmr_conntrack_request *connreq,
             int max_onscreen, int cnt,
@@ -471,7 +471,7 @@ update_draw_size_do(int *s, int sr, int sm, char *str, size_t strsize) {
 }
 
 static void
-update_draw_size(const int debuglvl, struct vrmr_conntrack_request *connreq, int width, int ser, int from, int to)
+update_draw_size(struct vrmr_conntrack_request *connreq, int width, int ser, int from, int to)
 {
     /* max: cnt sp ser sp from sp arrow sp to sp stat sp dir
      *        5  1   15 1   46  1     2  1 46  1    5  1   4 = 129 */
@@ -499,26 +499,26 @@ update_draw_size(const int debuglvl, struct vrmr_conntrack_request *connreq, int
 }
 
 void
-conn_free_ct(const int debuglvl, Conntrack **ct, struct vrmr_zones *zones)
+conn_free_ct(Conntrack **ct, struct vrmr_zones *zones)
 {
     /* zones may be NULL if we have multiple ct's */
     if (zones != NULL) {
         /*  remove the interfaces inserted as VRMR_TYPE_FIREWALL's into the zonelist
             this also removes zones added by vrmr_add_broadcasts_zonelist()
         */
-        vrmr_fatal_if(vrmr_rem_iface_from_zonelist(debuglvl, &zones->list) < 0);
+        vrmr_fatal_if(vrmr_rem_iface_from_zonelist(&zones->list) < 0);
     }
 
     /* cleanup */
-    vrmr_list_cleanup(debuglvl, &(*ct)->network_list);
+    vrmr_list_cleanup(&(*ct)->network_list);
     /* destroy hashtables */
-    vrmr_hash_cleanup(debuglvl, &(*ct)->zone_hash);
-    vrmr_hash_cleanup(debuglvl, &(*ct)->service_hash);
+    vrmr_hash_cleanup(&(*ct)->zone_hash);
+    vrmr_hash_cleanup(&(*ct)->service_hash);
     free(*ct);
 }
 
 Conntrack * ATTR_RETURNS_NONNULL
-conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+conn_init_ct(struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
             struct vrmr_services *services, struct vrmr_blocklist *blocklist )
 {
     Conntrack *ct = calloc(1, sizeof(Conntrack));
@@ -526,25 +526,25 @@ conn_init_ct(const int debuglvl, struct vrmr_zones *zones, struct vrmr_interface
 
     /*  insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist
         as 'firewall', so this appears in to the connections */
-    vrmr_fatal_if(vrmr_ins_iface_into_zonelist(debuglvl, &interfaces->list, &zones->list) < 0);
+    vrmr_fatal_if(vrmr_ins_iface_into_zonelist(&interfaces->list, &zones->list) < 0);
 
     /*  do the same for broadcasts. These are removed by:
         vrmr_rem_iface_from_zonelist() (see below) */
-    vrmr_fatal_if(vrmr_add_broadcasts_zonelist(debuglvl, zones) < 0);
+    vrmr_fatal_if(vrmr_add_broadcasts_zonelist(zones) < 0);
 
     /* create hashtables */
-    vrmr_fatal_if(vrmr_init_zonedata_hashtable(debuglvl, zones->list.len * 3, &zones->list,
+    vrmr_fatal_if(vrmr_init_zonedata_hashtable(zones->list.len * 3, &zones->list,
         vrmr_hash_ipaddress, vrmr_compare_ipaddress, &ct->zone_hash) < 0);
 
     /*  the hashtable size may seem very big, but some services have
         really a lot items. e.g. 137->1024:65535 */
-    vrmr_fatal_if(vrmr_init_services_hashtable(debuglvl, services->list.len * 500,
+    vrmr_fatal_if(vrmr_init_services_hashtable(services->list.len * 500,
         &services->list, vrmr_hash_port, vrmr_compare_ports, &ct->service_hash) < 0);
 
     /*  initialize this list with destroy is null, because it only
         points to zonedatalist nodes */
-    vrmr_list_setup(debuglvl, &ct->network_list, NULL);
-    vrmr_zonelist_to_networklist(debuglvl, zones, &ct->network_list);
+    vrmr_list_setup(&ct->network_list, NULL);
+    vrmr_zonelist_to_networklist(zones, &ct->network_list);
 
     /* initialize the prev size because it is used in get_connections */
     ct->prev_list_size = 500;
@@ -565,18 +565,18 @@ conn_sort_by_cnt(const void *a, const void *b)
 }
 
 int
-conn_ct_get_connections(const int debuglvl, struct vrmr_config *cnf, Conntrack *ct, struct vrmr_conntrack_request *req)
+conn_ct_get_connections(struct vrmr_config *cnf, Conntrack *ct, struct vrmr_conntrack_request *req)
 {
     ct->conn_stats.fromname_max = ct->conn_stats.toname_max = ct->conn_stats.sername_max = 0;
 
-    vrmr_list_setup(debuglvl, &ct->conn_list, NULL);
+    vrmr_list_setup(&ct->conn_list, NULL);
 
 #ifdef IPV6_ENABLED
     req->ipv6 = 1;
 #endif
 
     /* get the connections from the proc */
-    if(vrmr_conn_get_connections(debuglvl, cnf, ct->prev_list_size,
+    if(vrmr_conn_get_connections(cnf, ct->prev_list_size,
             &ct->service_hash, &ct->zone_hash,
             &ct->conn_list, &ct->network_list,
             req, &ct->conn_stats) < 0)
@@ -608,18 +608,18 @@ conn_ct_get_connections(const int debuglvl, struct vrmr_config *cnf, Conntrack *
 }
 
 void
-conn_ct_clear_connections(const int debuglvl, Conntrack *ct)
+conn_ct_clear_connections(Conntrack *ct)
 {
     /* store prev list size */
     ct->prev_list_size = ct->conn_list.len;
 
-    vrmr_conn_list_cleanup(debuglvl, &ct->conn_list);
+    vrmr_conn_list_cleanup(&ct->conn_list);
     free(ct->conn_array);
     ct->conn_array = NULL;
 }
 
 int
-connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cnf,
+connections_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
             struct vrmr_services *services, struct vrmr_blocklist *blocklist)
 {
@@ -694,7 +694,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
     int                 print_accounting = 0;
 
     /* init filter */
-    vrmr_connreq_setup(debuglvl, &connreq);
+    vrmr_connreq_setup(&connreq);
     connreq.group_conns = TRUE;
     connreq.unknown_ip_as_net = TRUE;
     /* sorting, relevant for grouping */
@@ -716,10 +716,10 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
     /* dont display the cursor */
     curs_set(0);
 
-    ct = conn_init_ct(debuglvl, zones, interfaces, services, blocklist);
+    ct = conn_init_ct(zones, interfaces, services, blocklist);
     vrmr_fatal_if_null(ct);
 
-    draw_top_menu(debuglvl, top_win, gettext("Connections"),
+    draw_top_menu(top_win, gettext("Connections"),
             key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     /* the main loop */
@@ -735,21 +735,20 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
         /* check if we have slept long enough */
         if(slept_so_far >= update_interval && !control.pause)
         {
-            if(debuglvl >= LOW)
-                vrmr_debug(__FUNC__, "now update: slept_so_far '%d'.", slept_so_far);
+            vrmr_debug(LOW, "now update: slept_so_far '%d'.", slept_so_far);
 
             /* reset the wait counter */
             slept_so_far = 0;
 
             /* TODO retval */
-            conn_ct_get_connections(debuglvl, cnf, ct, &connreq);
+            conn_ct_get_connections(cnf, ct, &connreq);
 
             if (ct->conn_stats.accounting == 1)
                 print_accounting = 1;
             else
                 print_accounting = 0;
 
-            update_draw_size(debuglvl, &connreq, max_width-2,
+            update_draw_size(&connreq, max_width-2,
                     ct->conn_stats.sername_max+1, ct->conn_stats.fromname_max+1,
                     ct->conn_stats.toname_max+1);
 
@@ -797,7 +796,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                         {
                             if(connecting < max_connecting)
                             {
-                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                if (print_connection(conn_win, cd_ptr,
                                             &connreq, max_onscreen, connecting,
                                             max_width-2, print_accounting) == 1)
                                 {
@@ -810,7 +809,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                         {
                             if(disconnecting < max_disconnecting)
                             {
-                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                if (print_connection(conn_win, cd_ptr,
                                             &connreq, max_onscreen, disconnecting,
                                             max_width-2, print_accounting) == 1)
                                 {
@@ -823,7 +822,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                         {
                             if(connected < max_connected)
                             {
-                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                if (print_connection(conn_win, cd_ptr,
                                             &connreq, max_onscreen, connected,
                                             max_width-2, print_accounting) == 1)
                                 {
@@ -847,7 +846,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                         {
                             if(incoming < max_incoming)
                             {
-                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                if (print_connection(conn_win, cd_ptr,
                                             &connreq, max_onscreen, incoming,
                                             max_width-2, print_accounting) == 1)
                                 {
@@ -860,7 +859,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                         {
                             if(outgoing < max_outgoing)
                             {
-                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                if (print_connection(conn_win, cd_ptr,
                                             &connreq, max_onscreen, outgoing,
                                             max_width-2, print_accounting) == 1)
                                 {
@@ -873,7 +872,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                         {
                             if(forwarding < max_forwarding)
                             {
-                                if (print_connection(debuglvl, conn_win, cd_ptr,
+                                if (print_connection(conn_win, cd_ptr,
                                             &connreq, max_onscreen, forwarding,
                                             max_width-2, print_accounting) == 1)
                                 {
@@ -893,7 +892,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                     }
                     else
                     {
-                        if (print_connection(debuglvl, conn_win, cd_ptr,
+                        if (print_connection(conn_win, cd_ptr,
                                     &connreq, max_onscreen, printed,
                                     max_width-2, print_accounting) == 1)
                         {
@@ -991,7 +990,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
                 wrefresh(conn_win);
             }
 
-            conn_ct_clear_connections(debuglvl, ct);
+            conn_ct_clear_connections(ct);
         }
 
 
@@ -1092,9 +1091,9 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
             case 10:
 
                 if(ch != 10) {
-                    filter_input_box(debuglvl, &connreq.filter);
+                    filter_input_box(&connreq.filter);
                 } else {
-                    vrmr_filter_cleanup(debuglvl, &connreq.filter);
+                    vrmr_filter_cleanup(&connreq.filter);
                 }
 
                 if(connreq.filter.reg_active == TRUE)
@@ -1115,11 +1114,11 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
             case 'M':
             case 'k':
 
-                conn_ct_get_connections(debuglvl, cnf, ct, &connreq);
-                statevent(debuglvl, vctx, cnf, STATEVENTTYPE_CONN, &ct->conn_list, ct, &connreq, zones, blocklist, interfaces, services);
-                conn_ct_clear_connections(debuglvl, ct);
+                conn_ct_get_connections(cnf, ct, &connreq);
+                statevent(vctx, cnf, STATEVENTTYPE_CONN, &ct->conn_list, ct, &connreq, zones, blocklist, interfaces, services);
+                conn_ct_clear_connections(ct);
 
-                draw_top_menu(debuglvl, top_win, gettext("Connections"), key_choices_n,
+                draw_top_menu(top_win, gettext("Connections"), key_choices_n,
                         key_choices, cmd_choices_n, cmd_choices);
                 break;
 
@@ -1127,7 +1126,7 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
             case 'h':
             case 'H':
             case '?':
-                print_help(debuglvl, ":[VUURMUUR:CONNECTIONS]:");
+                print_help(":[VUURMUUR:CONNECTIONS]:");
                 break;
         }
 
@@ -1143,15 +1142,14 @@ connections_section(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_confi
         {
             slept_so_far = update_interval;
 
-            if(debuglvl >= LOW)
-                vrmr_debug(__FUNC__, "control.sleep = 0: set slept_so_far to update_interval.");
+            vrmr_debug(LOW, "control.sleep = 0: set slept_so_far to update_interval.");
         }
     }
 
-    conn_free_ct(debuglvl, &ct, zones);
+    conn_free_ct(&ct, zones);
 
     /* filter clean up */
-    vrmr_connreq_cleanup(debuglvl, &connreq);
+    vrmr_connreq_cleanup(&connreq);
 
     nodelay(conn_win, FALSE);
     del_panel(my_panels[0]);
@@ -1175,7 +1173,7 @@ enum {
 
 /* TODO move to lib */
 int
-kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int proto, int sp, int dp)
+kill_connection(char *cmd, char *srcip, char *dstip, int proto, int sp, int dp)
 {
     char cmd_sp_str[6] = "";
     char cmd_dp_str[6] = "";
@@ -1193,7 +1191,7 @@ kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int pro
                          "--orig-port-src", cmd_sp_str,
                          "--orig-port-dst", cmd_dp_str,
                         NULL };
-        result = libvuurmuur_exec_command(debuglvl, NULL, cmd, args, NULL);
+        result = libvuurmuur_exec_command(NULL, cmd, args, NULL);
     }
     else if(proto == VR_PROTO_UDP)
     {
@@ -1204,7 +1202,7 @@ kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int pro
                          "--orig-port-src", cmd_sp_str,
                          "--orig-port-dst", cmd_dp_str,
                         NULL };
-        result = libvuurmuur_exec_command(debuglvl, NULL, cmd, args, NULL);
+        result = libvuurmuur_exec_command(NULL, cmd, args, NULL);
     }
     else
     {
@@ -1218,7 +1216,7 @@ kill_connection(const int debuglvl, char *cmd, char *srcip, char *dstip, int pro
 }
 
 int
-kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf,
+kill_connections_by_name(struct vrmr_config *cnf,
                 Conntrack *ct, char *srcname, char *dstname,
                 char *sername, char connect_status)
 {
@@ -1244,8 +1242,7 @@ kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf,
         vrmr_fatal_if_null(d_node->data);
         cd_ptr = d_node->data;
 
-        if (debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "ct: s:%s d:%s s:%s (%d)",
+        vrmr_debug(LOW, "ct: s:%s d:%s s:%s (%d)",
                 cd_ptr->fromname, cd_ptr->toname,
                 cd_ptr->sername, cd_ptr->cnt);
 
@@ -1261,7 +1258,7 @@ kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf,
                 if(sername == NULL || strcmp(sername, cd_ptr->sername) == 0)
                 {
                     if(connect_status == VRMR_CONN_UNUSED || connect_status == cd_ptr->connect_status) {
-                            if(kill_connection(debuglvl, cnf->conntrack_location,
+                            if(kill_connection(cnf->conntrack_location,
                             cd_ptr->src_ip,  dip,
                             cd_ptr->protocol, cd_ptr->src_port,
                             cd_ptr->dst_port) == -1)
@@ -1292,7 +1289,7 @@ kill_connections_by_name(const int debuglvl, struct vrmr_config *cnf,
 }
 
 int
-kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf,
+kill_connections_by_ip(struct vrmr_config *cnf,
             Conntrack *ct, char *srcip, char *dstip, char *sername,
             char connect_status)
 {
@@ -1332,7 +1329,7 @@ kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf,
                 if(sername == NULL || strcmp(sername, cd_ptr->sername) == 0)
                 {
                     if(connect_status == VRMR_CONN_UNUSED || connect_status == cd_ptr->connect_status) {
-                        if(kill_connection(debuglvl, cnf->conntrack_location,
+                        if(kill_connection(cnf->conntrack_location,
                             cd_ptr->src_ip, dip, cd_ptr->protocol,
                             cd_ptr->src_port, cd_ptr->dst_port) == -1)
                         {
@@ -1373,14 +1370,14 @@ kill_connections_by_ip(const int debuglvl, struct vrmr_config *cnf,
     new connections to be established.
 */
 int
-block_and_kill(const int debuglvl, struct vrmr_ctx *vctx, Conntrack *ct, struct vrmr_zones *zones,
+block_and_kill(struct vrmr_ctx *vctx, Conntrack *ct, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces, char *ip)
 {
     struct vrmr_interface   *iface_ptr = NULL;
 
     VrBusyWinShow();
 
-    iface_ptr = vrmr_search_interface_by_ip(debuglvl, interfaces, ip);
+    iface_ptr = vrmr_search_interface_by_ip(interfaces, ip);
     if(iface_ptr != NULL)
     {
         vrmr_error(-1, VR_ERR, gettext("ipaddress belongs to "
@@ -1391,7 +1388,7 @@ block_and_kill(const int debuglvl, struct vrmr_ctx *vctx, Conntrack *ct, struct 
     }
 
     /* add to list */
-    if(vrmr_blocklist_add_one(debuglvl, zones, blocklist, /*load_ips*/FALSE,
+    if(vrmr_blocklist_add_one(zones, blocklist, /*load_ips*/FALSE,
         /*no_refcnt*/FALSE, ip) < 0)
     {
         vrmr_error(-1, VR_INTERR, "blocklist_add_one() "
@@ -1401,7 +1398,7 @@ block_and_kill(const int debuglvl, struct vrmr_ctx *vctx, Conntrack *ct, struct 
     }
 
     /* save the list */
-    if(vrmr_blocklist_save_list(debuglvl, vctx, &vctx->conf, blocklist) < 0)
+    if(vrmr_blocklist_save_list(vctx, &vctx->conf, blocklist) < 0)
     {
         vrmr_error(-1, VR_INTERR, "blocklist_save_list() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -1414,15 +1411,15 @@ block_and_kill(const int debuglvl, struct vrmr_ctx *vctx, Conntrack *ct, struct 
         STR_IPADDRESS, ip, STR_HAS_BEEN_ADDED_TO_THE_BLOCKLIST);
 
     /* apply the changes */
-    vc_apply_changes(debuglvl, vctx);
+    vc_apply_changes(vctx);
 
     /*  if we don't support killing connections we are happy with
         only blocking as well */
     if(vctx->conf.conntrack_location[0] != '\0')
     {
         /* kill all connections for this ip */
-        kill_connections_by_ip(debuglvl, &vctx->conf, ct, NULL, ip, NULL, VRMR_CONN_UNUSED);
-        kill_connections_by_ip(debuglvl, &vctx->conf, ct, ip, NULL, NULL, VRMR_CONN_UNUSED);
+        kill_connections_by_ip(&vctx->conf, ct, NULL, ip, NULL, VRMR_CONN_UNUSED);
+        kill_connections_by_ip(&vctx->conf, ct, ip, NULL, NULL, VRMR_CONN_UNUSED);
     }
 
     VrBusyWinHide();

@@ -31,7 +31,6 @@
 
 #include "conntrack.h"
 
-static int g_debuglvl = 0; //TODO
 static struct mnl_socket *nl = NULL;
 extern struct vrmr_hash_table zone_htbl;
 extern struct vrmr_hash_table service_htbl;
@@ -80,9 +79,9 @@ static int process_connrecord(struct vrmr_log_record *lr) {
     char line[1024] = "";
     FILE *fp;
 
-    int result = vrmr_log_record_get_names(g_debuglvl, lr, &zone_htbl, &service_htbl);
+    int result = vrmr_log_record_get_names(lr, &zone_htbl, &service_htbl);
     if (result < 0) {
-        vrmr_debug(__FUNC__, "vrmr_log_record_get_names returned %d", result);
+        vrmr_debug(NONE, "vrmr_log_record_get_names returned %d", result);
         exit(EXIT_FAILURE);
     }
 
@@ -96,7 +95,7 @@ static int process_connrecord(struct vrmr_log_record *lr) {
 
     if (sscanf (s, "%3s %2d %2d:%2d:%2d", lr->month, &lr->day,
         &lr->hour, &lr->minute, &lr->second) != 5) {
-        vrmr_debug(__FUNC__, "did not find properly formatted timestamp");
+        vrmr_debug(NONE, "did not find properly formatted timestamp");
         return -1;
     }
 

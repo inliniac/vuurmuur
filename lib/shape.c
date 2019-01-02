@@ -22,7 +22,7 @@
 #include "vuurmuur.h"
 
 int
-vrmr_is_shape_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt) {
+vrmr_is_shape_rule(/*@null@*/struct vrmr_rule_options *opt) {
     if (opt != NULL &&
         (opt->bw_in_min > 0 ||
         opt->bw_in_max > 0 ||
@@ -37,7 +37,7 @@ vrmr_is_shape_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt) 
 }
 
 int
-vrmr_is_shape_incoming_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt) {
+vrmr_is_shape_incoming_rule(/*@null@*/struct vrmr_rule_options *opt) {
     if (opt != NULL &&
         (opt->bw_in_min > 0 ||
         opt->bw_in_max > 0 ||
@@ -50,7 +50,7 @@ vrmr_is_shape_incoming_rule(const int debuglvl, /*@null@*/struct vrmr_rule_optio
 }
 
 int
-vrmr_is_shape_outgoing_rule(const int debuglvl, /*@null@*/struct vrmr_rule_options *opt) {
+vrmr_is_shape_outgoing_rule(/*@null@*/struct vrmr_rule_options *opt) {
     if (opt != NULL &&
         (opt->bw_out_min > 0 ||
         opt->bw_out_max > 0 ||
@@ -63,7 +63,7 @@ vrmr_is_shape_outgoing_rule(const int debuglvl, /*@null@*/struct vrmr_rule_optio
 }
 
 int
-vrmr_is_shape_interface(const int debuglvl, /*@null@*/struct vrmr_interface *iface_ptr) {
+vrmr_is_shape_interface(/*@null@*/struct vrmr_interface *iface_ptr) {
     if (iface_ptr != NULL &&
         iface_ptr->shape == TRUE &&
         iface_ptr->device_virtual == FALSE &&

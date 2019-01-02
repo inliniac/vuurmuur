@@ -22,7 +22,7 @@
 #include "vuurmuur.h"
 
 void
-vrmr_filter_setup(const int debuglvl, struct vrmr_filter *filter)
+vrmr_filter_setup(struct vrmr_filter *filter)
 {
     /* safety */
     if(filter == NULL)
@@ -37,7 +37,7 @@ vrmr_filter_setup(const int debuglvl, struct vrmr_filter *filter)
 
 
 void
-vrmr_filter_cleanup(const int debuglvl, struct vrmr_filter *filter)
+vrmr_filter_cleanup(struct vrmr_filter *filter)
 {
     /* safety */
     if(filter == NULL)

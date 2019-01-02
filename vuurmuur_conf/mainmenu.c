@@ -26,11 +26,11 @@ static char last_vuurmuur_log_result = 1;
 static char rules_convert_question_asked = FALSE;
 static char blocklist_convert_question_asked = FALSE;
 
-static void mm_check_status_zones(const int, /*@null@*/ struct vrmr_list *, struct vrmr_zones *);
-static void mm_check_status_services(const int, /*@null@*/ struct vrmr_list *, struct vrmr_services *);
+static void mm_check_status_zones(/*@null@*/ struct vrmr_list *, struct vrmr_zones *);
+static void mm_check_status_services(/*@null@*/ struct vrmr_list *, struct vrmr_services *);
 
 static int
-convert_rulesfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
+convert_rulesfile_to_backend(struct vrmr_ctx *vctx,
         struct vrmr_rules *rules, struct vrmr_config *cnf)
 {
     char    path[96] = "";
@@ -45,10 +45,9 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
 
     /* before we can save, we might need to add the rulesfile to the backend, before
        this we check if the rulesfile exists in the backend */
-    while (vctx->rf->list(debuglvl, vctx->rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
+    while (vctx->rf->list(vctx->rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
     {
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "loading rules: '%s', type: %d", rule_name, type);
+        vrmr_debug(MEDIUM, "loading rules: '%s', type: %d", rule_name, type);
 
         if(strcmp(rule_name, "rules") == 0)
             rules_found = TRUE;
@@ -56,7 +55,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
 
     if(rules_found == FALSE)
     {
-        if (vctx->rf->add(debuglvl, vctx->rule_backend, "rules", VRMR_TYPE_RULE) < 0)
+        if (vctx->rf->add(vctx->rule_backend, "rules", VRMR_TYPE_RULE) < 0)
         {
             vrmr_error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -65,7 +64,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
     }
 
     /* call vrmr_rules_save_list */
-    if(vrmr_rules_save_list(debuglvl, vctx, rules, cnf) < 0)
+    if(vrmr_rules_save_list(vctx, rules, cnf) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("saving rules failed"));
         return(-1);
@@ -78,12 +77,12 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
         return(-1);
     }
 
-    vrmr_debug(__FUNC__, "cnf->rules_location = '%s'", cnf->rules_location);
+    vrmr_debug(NONE, "cnf->rules_location = '%s'", cnf->rules_location);
 
     /* now that we filled the backend, we can rename the old rulesfile to rules.conf.bak */
     snprintf(path, sizeof(path), "%s.convert-bak", cnf->rules_location);
 
-    vrmr_debug(__FUNC__, "path = '%s'", path);
+    vrmr_debug(NONE, "path = '%s'", path);
 
     /* rename the file now */
     result = rename(cnf->rules_location, path);
@@ -98,7 +97,7 @@ convert_rulesfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
 }
 
 static int
-convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
+convert_blocklistfile_to_backend(struct vrmr_ctx *vctx,
         struct vrmr_blocklist *blocklist, struct vrmr_config *cnf)
 {
     char    path[96] = "";
@@ -113,10 +112,9 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
 
     /* before we can save, we might need to add the rulesfile to the backend, before
        this we check if the rulesfile exists in the backend */
-    while (vctx->rf->list(debuglvl, vctx->rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
+    while (vctx->rf->list(vctx->rule_backend, rule_name, &type, VRMR_BT_RULES) != NULL)
     {
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "loading rules: '%s', type: %d", rule_name, type);
+        vrmr_debug(MEDIUM, "loading rules: '%s', type: %d", rule_name, type);
 
         if(strcmp(rule_name, "blocklist") == 0)
             blocklist_found = TRUE;
@@ -124,7 +122,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
 
     if(blocklist_found == FALSE)
     {
-        if (vctx->rf->add(debuglvl, vctx->rule_backend, "blocklist", VRMR_TYPE_RULE) < 0)
+        if (vctx->rf->add(vctx->rule_backend, "blocklist", VRMR_TYPE_RULE) < 0)
         {
             vrmr_error(-1, VR_INTERR, "rf->add() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -133,7 +131,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
     }
 
     /* call vrmr_rules_save_list */
-    if (vrmr_blocklist_save_list(debuglvl, vctx, cnf, blocklist) < 0)
+    if (vrmr_blocklist_save_list(vctx, cnf, blocklist) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("saving blocklist failed"));
         return(-1);
@@ -146,12 +144,12 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
         return(-1);
     }
 
-    vrmr_debug(__FUNC__, "cnf->blocklist_location = '%s'", cnf->blocklist_location);
+    vrmr_debug(NONE, "cnf->blocklist_location = '%s'", cnf->blocklist_location);
 
     /* now that we filled the backend, we can rename the old rulesfile to rules.conf.bak */
     snprintf(path, sizeof(path), "%s.convert-bak", cnf->blocklist_location);
 
-    vrmr_debug(__FUNC__, "path = '%s'", path);
+    vrmr_debug(NONE, "path = '%s'", path);
 
     /* rename the file now */
     result = rename(cnf->blocklist_location, path);
@@ -166,7 +164,7 @@ convert_blocklistfile_to_backend(const int debuglvl, struct vrmr_ctx *vctx,
 }
 
 static int
-mm_select_logfile(const int debuglvl, struct vrmr_ctx *vctx,
+mm_select_logfile(struct vrmr_ctx *vctx,
         struct vrmr_config *cnf, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services)
@@ -248,7 +246,7 @@ mm_select_logfile(const int debuglvl, struct vrmr_ctx *vctx,
 
     // welcome message
     mvwprintw(mainmenu_win, 3, 6, gettext("Select a log to view."));
-    draw_top_menu(debuglvl, top_win, gettext("Logview"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Logview"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
     update_panels();
     doupdate();
 
@@ -291,37 +289,37 @@ mm_select_logfile(const int debuglvl, struct vrmr_ctx *vctx,
 
             if(strncasecmp(choice_ptr, "traffic.log", 11) == 0)
             {
-                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "traffic.log");
+                logview_section(vctx, cnf, zones, blocklist, interfaces, services, "traffic.log");
             }
             else if(strncasecmp(choice_ptr, "connections.log", 15) == 0)
             {
-                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "connections.log");
+                logview_section(vctx, cnf, zones, blocklist, interfaces, services, "connections.log");
             }
             else if(strncasecmp(choice_ptr, "connnew.log", 11) == 0)
             {
-                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "connnew.log");
+                logview_section(vctx, cnf, zones, blocklist, interfaces, services, "connnew.log");
             }
             else if(strncasecmp(choice_ptr, "error.log", 9) == 0)
             {
-                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "error.log");
+                logview_section(vctx, cnf, zones, blocklist, interfaces, services, "error.log");
             }
             else if(strncasecmp(choice_ptr, "audit.log", 9) == 0)
             {
-                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "audit.log");
+                logview_section(vctx, cnf, zones, blocklist, interfaces, services, "audit.log");
             }
             else if(strncasecmp(choice_ptr, "vuurmuur.log", 12) == 0)
             {
-                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "vuurmuur.log");
+                logview_section(vctx, cnf, zones, blocklist, interfaces, services, "vuurmuur.log");
             }
             else if(strncasecmp(choice_ptr, "debug.log", 9) == 0)
             {
-                logview_section(debuglvl, vctx, cnf, zones, blocklist, interfaces, services, "debug.log");
+                logview_section(vctx, cnf, zones, blocklist, interfaces, services, "debug.log");
             }
             else if(strncasecmp(choice_ptr, gettext("Back"), StrLen(gettext("Back"))) == 0)
             {
                 quit = 1;
             }
-            draw_top_menu(debuglvl, top_win, gettext("Logview"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+            draw_top_menu(top_win, gettext("Logview"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
             free(choice_ptr);
             choice_ptr = NULL;
@@ -342,7 +340,7 @@ mm_select_logfile(const int debuglvl, struct vrmr_ctx *vctx,
 
 #if 0
 static void
-set_colors(const int debuglvl, vc_cnf *cnf)
+set_colors(vc_cnf *cnf)
 {
     if(!cnf)
         return;
@@ -360,7 +358,7 @@ set_colors(const int debuglvl, vc_cnf *cnf)
 #endif
 
 static void
-mm_shm_connect_vuurmuur(const int debuglvl)
+mm_shm_connect_vuurmuur(void)
 {
     /* first try to detach */
     if(vuurmuur_shmp != NULL)
@@ -405,7 +403,7 @@ mm_shm_connect_vuurmuur(const int debuglvl)
 }
 
 static void
-mm_shm_connect_vuurmuurlog(const int debuglvl)
+mm_shm_connect_vuurmuurlog(void)
 {
     /* first try to detach */
     if(vuurmuurlog_shmp != NULL)
@@ -448,7 +446,7 @@ mm_shm_connect_vuurmuurlog(const int debuglvl)
 }
 
 static void
-queue_status_msg(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, int status, char *fmt, ...)
+queue_status_msg(/*@null@*/ struct vrmr_list *status_list, int status, char *fmt, ...)
 {
     char    line[512] = "";
     va_list ap;
@@ -460,23 +458,23 @@ queue_status_msg(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, i
     vsnprintf(line, sizeof(line), fmt, ap);
     va_end(ap);
 
-    (void)read_helpline(debuglvl, status_list, line);
+    (void)read_helpline(status_list, line);
     if(status == -1)
-        (void)read_helpline(debuglvl, status_list, gettext("(fail).\n"));
+        (void)read_helpline(status_list, gettext("(fail).\n"));
     else if(status == 0)
-        (void)read_helpline(debuglvl, status_list, gettext("(warn).\n"));
+        (void)read_helpline(status_list, gettext("(warn).\n"));
     else
-        (void)read_helpline(debuglvl, status_list, ".\n");
+        (void)read_helpline(status_list, ".\n");
 
     /* one final newline */
-    (void)read_helpline(debuglvl, status_list, "\n");
+    (void)read_helpline(status_list, "\n");
 }
 
 /*
  * TODO: check search script
  */
 static void
-mm_check_status_settings(const int debuglvl, /*@null@*/ struct vrmr_list *status_list)
+mm_check_status_settings(/*@null@*/ struct vrmr_list *status_list)
 {
     FILE    *fp = NULL;
 
@@ -485,11 +483,11 @@ mm_check_status_settings(const int debuglvl, /*@null@*/ struct vrmr_list *status
 
     if(strcmp(vccnf.helpfile_location, "") == 0) {
         VuurmuurStatus.settings = 0;
-        queue_status_msg(debuglvl, status_list, VuurmuurStatus.settings, gettext("- The path to the Vuurmuur helpfile was not specified, please do so in the Vuurmuur_conf Settings\n"));
+        queue_status_msg(status_list, VuurmuurStatus.settings, gettext("- The path to the Vuurmuur helpfile was not specified, please do so in the Vuurmuur_conf Settings\n"));
     } else {
         if(!(fp = fopen(vccnf.helpfile_location, "r"))) {
             VuurmuurStatus.settings = 0;
-            queue_status_msg(debuglvl, status_list, VuurmuurStatus.settings, gettext("- Opening the helpfile failed. Please check the file\n"));
+            queue_status_msg(status_list, VuurmuurStatus.settings, gettext("- Opening the helpfile failed. Please check the file\n"));
         } else {
             fclose(fp);
         }
@@ -497,7 +495,7 @@ mm_check_status_settings(const int debuglvl, /*@null@*/ struct vrmr_list *status
 }
 
 static void
-mm_check_status_shm(const int debuglvl, /*@null@*/ struct vrmr_list *status_list)
+mm_check_status_shm(/*@null@*/ struct vrmr_list *status_list)
 {
     /* asume ok */
     VuurmuurStatus.vuurmuur = 1;
@@ -506,12 +504,12 @@ mm_check_status_shm(const int debuglvl, /*@null@*/ struct vrmr_list *status_list
     if(last_vuurmuur_result == 0)
     {
         VuurmuurStatus.vuurmuur = 0;
-        queue_status_msg(debuglvl, status_list, VuurmuurStatus.vuurmuur, gettext("- The last time the changes were applied, applying the changes failed for Vuurmuur. Please check the Error.log\n"));
+        queue_status_msg(status_list, VuurmuurStatus.vuurmuur, gettext("- The last time the changes were applied, applying the changes failed for Vuurmuur. Please check the Error.log\n"));
     }
     if(last_vuurmuur_log_result == 0)
     {
         VuurmuurStatus.vuurmuur_log = 0;
-        queue_status_msg(debuglvl, status_list, VuurmuurStatus.vuurmuur_log, gettext("- The last time the changes were applied, applying the changes failed for Vuurmuur_log. Please check the Error.log\n"));
+        queue_status_msg(status_list, VuurmuurStatus.vuurmuur_log, gettext("- The last time the changes were applied, applying the changes failed for Vuurmuur_log. Please check the Error.log\n"));
     }
 
 
@@ -519,14 +517,14 @@ mm_check_status_shm(const int debuglvl, /*@null@*/ struct vrmr_list *status_list
     if(!vuurmuur_shmp)
     {
         VuurmuurStatus.vuurmuur = -1;
-        queue_status_msg(debuglvl, status_list, VuurmuurStatus.vuurmuur, gettext("- No connection could be established with Vuurmuur. Please make sure that it is running\n"));
+        queue_status_msg(status_list, VuurmuurStatus.vuurmuur, gettext("- No connection could be established with Vuurmuur. Please make sure that it is running\n"));
     }
     else
     {
         if(!(vrmr_lock(vuurmuur_semid)))
         {
             VuurmuurStatus.vuurmuur = -1;
-            queue_status_msg(debuglvl, status_list, VuurmuurStatus.vuurmuur, gettext("- The connection with Vuurmuur seems to be lost. Please make sure that it is running\n"));
+            queue_status_msg(status_list, VuurmuurStatus.vuurmuur, gettext("- The connection with Vuurmuur seems to be lost. Please make sure that it is running\n"));
         }
         else
             vrmr_unlock(vuurmuur_semid);
@@ -536,14 +534,14 @@ mm_check_status_shm(const int debuglvl, /*@null@*/ struct vrmr_list *status_list
     if(!vuurmuurlog_shmp)
     {
         VuurmuurStatus.vuurmuur_log = 0;
-        queue_status_msg(debuglvl, status_list, VuurmuurStatus.vuurmuur_log, gettext("- No connection could be established with Vuurmuur_log. Please make sure that it is running\n"));
+        queue_status_msg(status_list, VuurmuurStatus.vuurmuur_log, gettext("- No connection could be established with Vuurmuur_log. Please make sure that it is running\n"));
     }
     else
     {
         if(!(vrmr_lock(vuurmuurlog_semid)))
         {
             VuurmuurStatus.vuurmuur_log = 0;
-            queue_status_msg(debuglvl, status_list, VuurmuurStatus.vuurmuur_log, gettext("- The connection with Vuurmuur_log seems to be lost. Please make sure that it is running\n"));
+            queue_status_msg(status_list, VuurmuurStatus.vuurmuur_log, gettext("- The connection with Vuurmuur_log seems to be lost. Please make sure that it is running\n"));
         }
         else
             vrmr_unlock(vuurmuurlog_semid);
@@ -555,7 +553,7 @@ mm_check_status_shm(const int debuglvl, /*@null@*/ struct vrmr_list *status_list
         check if scripts dir exists
 */
 static void
-mm_check_status_config(const int debuglvl, struct vrmr_config *conf, /*@null@*/ struct vrmr_list *status_list)
+mm_check_status_config(struct vrmr_config *conf, /*@null@*/ struct vrmr_list *status_list)
 {
     /* asume ok when we start */
     VuurmuurStatus.config = 1;
@@ -563,14 +561,14 @@ mm_check_status_config(const int debuglvl, struct vrmr_config *conf, /*@null@*/ 
     if(strcmp(conf->iptables_location, "") == 0)
     {
         VuurmuurStatus.config = -1;
-        queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
+        queue_status_msg(status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
     }
     else
     {
-        if(!vrmr_check_iptables_command(debuglvl, conf, conf->iptables_location, VRMR_IPTCHK_QUIET))
+        if(!vrmr_check_iptables_command(conf, conf->iptables_location, VRMR_IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
-            queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
+            queue_status_msg(status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
         }
     }
 
@@ -579,14 +577,14 @@ mm_check_status_config(const int debuglvl, struct vrmr_config *conf, /*@null@*/ 
         if(strcmp(conf->iptablesrestore_location, "") == 0)
         {
             VuurmuurStatus.config = -1;
-            queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables-restore'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
+            queue_status_msg(status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables-restore'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
         }
         else
         {
-            if(!vrmr_check_iptablesrestore_command(debuglvl, conf, conf->iptablesrestore_location, VRMR_IPTCHK_QUIET))
+            if(!vrmr_check_iptablesrestore_command(conf, conf->iptablesrestore_location, VRMR_IPTCHK_QUIET))
             {
                 VuurmuurStatus.config = -1;
-                queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
+                queue_status_msg(status_list, VuurmuurStatus.config, gettext("- The path to the 'iptables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
             }
         }
     }
@@ -595,14 +593,14 @@ mm_check_status_config(const int debuglvl, struct vrmr_config *conf, /*@null@*/ 
     if (strcmp(conf->ip6tables_location, "") == 0)
     {
         VuurmuurStatus.config = -1;
-        queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
+        queue_status_msg(status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
     }
     else
     {
-        if(!vrmr_check_ip6tables_command(debuglvl, conf, conf->ip6tables_location, VRMR_IPTCHK_QUIET))
+        if(!vrmr_check_ip6tables_command(conf, conf->ip6tables_location, VRMR_IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
-            queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
+            queue_status_msg(status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
         }
     }
 
@@ -611,14 +609,14 @@ mm_check_status_config(const int debuglvl, struct vrmr_config *conf, /*@null@*/ 
         if(strcmp(conf->ip6tablesrestore_location, "") == 0)
         {
             VuurmuurStatus.config = -1;
-            queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables-restore'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
+            queue_status_msg(status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables-restore'-command is not yet specified. Please do so in the 'Vuurmuur Config' section\n"));
         }
         else
         {
-            if(!vrmr_check_ip6tablesrestore_command(debuglvl, conf, conf->ip6tablesrestore_location, VRMR_IPTCHK_QUIET))
+            if(!vrmr_check_ip6tablesrestore_command(conf, conf->ip6tablesrestore_location, VRMR_IPTCHK_QUIET))
             {
                 VuurmuurStatus.config = -1;
-                queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
+                queue_status_msg(status_list, VuurmuurStatus.config, gettext("- The path to the 'ip6tables-restore'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
             }
         }
     }
@@ -626,10 +624,10 @@ mm_check_status_config(const int debuglvl, struct vrmr_config *conf, /*@null@*/ 
 
     if(strcmp(conf->tc_location, "") != 0)
     {
-        if(!vrmr_check_tc_command(debuglvl, conf, conf->tc_location, VRMR_IPTCHK_QUIET))
+        if(!vrmr_check_tc_command(conf, conf->tc_location, VRMR_IPTCHK_QUIET))
         {
             VuurmuurStatus.config = -1;
-            queue_status_msg(debuglvl, status_list, VuurmuurStatus.config, gettext("- The path to the 'tc'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
+            queue_status_msg(status_list, VuurmuurStatus.config, gettext("- The path to the 'tc'-command seems to be wrong. There was an error while testing it. Please check it in your system and correct it in the 'Vuurmuur Config' section\n"));
         }
     }
 }
@@ -637,7 +635,7 @@ mm_check_status_config(const int debuglvl, struct vrmr_config *conf, /*@null@*/ 
 /*
 */
 static void
-mm_check_status_services(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, struct vrmr_services *services)
+mm_check_status_services(/*@null@*/ struct vrmr_list *status_list, struct vrmr_services *services)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_service *ser_ptr = NULL;
@@ -655,7 +653,7 @@ mm_check_status_services(const int debuglvl, /*@null@*/ struct vrmr_list *status
         if(ser_ptr->PortrangeList.len == 0) {
             VuurmuurStatus.services = 0;
 
-            queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.services,
+            queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.services,
                 gettext("- No portranges/protocols defined in service '%s'\n"),
                 ser_ptr->name);
         }
@@ -665,7 +663,7 @@ mm_check_status_services(const int debuglvl, /*@null@*/ struct vrmr_list *status
 /*
 */
 static void
-mm_check_status_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/ struct vrmr_list *status_list, struct vrmr_rules *rules)
+mm_check_status_rules(struct vrmr_config *conf, /*@null@*/ struct vrmr_list *status_list, struct vrmr_rules *rules)
 {
     struct vrmr_list_node      *d_node = NULL;
     struct vrmr_rule *rule_ptr = NULL;
@@ -685,9 +683,9 @@ mm_check_status_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/ s
         vrmr_fatal_if_null(d_node->data);
         rule_ptr = d_node->data;
 
-        if (vrmr_is_shape_rule(debuglvl,rule_ptr->opt) == 1 && rule_ptr->active == TRUE) {
+        if (vrmr_is_shape_rule(rule_ptr->opt) == 1 && rule_ptr->active == TRUE) {
             if (tc_location_not_set == TRUE) {
-                queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.rules,
+                queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.rules,
                         gettext("- Shaping rules present while the 'tc'-location is not set. Please set the 'tc'-location\n"));
                 VuurmuurStatus.rules = -1;
             }
@@ -701,7 +699,7 @@ mm_check_status_rules(const int debuglvl, struct vrmr_config *conf, /*@null@*/ s
 
 */
 static void
-mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, struct vrmr_interfaces *interfaces)
+mm_check_status_interfaces(/*@null@*/ struct vrmr_list *status_list, struct vrmr_interfaces *interfaces)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
@@ -718,7 +716,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
 
     if (interfaces->list.len == 0) {
         VuurmuurStatus.interfaces = 0;
-        queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.interfaces,
+        queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.interfaces,
             gettext("- No interfaces are defined. Please define one or more interfaces\n"));
     }
 
@@ -733,14 +731,14 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
         if (iface_ptr->device[0] == '\0') {
             VuurmuurStatus.interfaces = 0;
 
-            queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.interfaces,
+            queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.interfaces,
                 gettext("- The interface '%s' does not have a device. Please enter a device in the Interfaces Section\n"),
                 iface_ptr->name);
         }
 
         if (iface_ptr->dynamic == TRUE) {
             /* now try to get the dynamic ipaddress */
-            ipresult = vrmr_get_dynamic_ip(debuglvl, iface_ptr->device, iface_ptr->ipv4.ipaddress, sizeof(iface_ptr->ipv4.ipaddress));
+            ipresult = vrmr_get_dynamic_ip(iface_ptr->device, iface_ptr->ipv4.ipaddress, sizeof(iface_ptr->ipv4.ipaddress));
             if (ipresult == 0) {
                 /* set iface to down */
                 iface_ptr->up = FALSE;
@@ -756,10 +754,10 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
 
         /* check the ip if we have one */
         if (iface_ptr->ipv4.ipaddress[0] != '\0') {
-            if(vrmr_check_ipv4address(debuglvl, NULL, NULL, iface_ptr->ipv4.ipaddress, 1) != 1) {
+            if(vrmr_check_ipv4address(NULL, NULL, iface_ptr->ipv4.ipaddress, 1) != 1) {
                 VuurmuurStatus.interfaces = 0;
 
-                queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.interfaces,
+                queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.interfaces,
                                 gettext("- The ipaddress '%s' of interface '%s' is invalid\n"),
                                 iface_ptr->ipv4.ipaddress, iface_ptr->name);
             }
@@ -770,7 +768,7 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
             iface_ptr->active == TRUE   &&
             iface_ptr->device_virtual == FALSE)
         {
-            ipresult = vrmr_get_dynamic_ip(debuglvl, iface_ptr->device, ipaddress, sizeof(ipaddress));
+            ipresult = vrmr_get_dynamic_ip(iface_ptr->device, ipaddress, sizeof(ipaddress));
             if(ipresult < 0) {
                 vrmr_error(-1, "Internal Error", "vrmr_get_dynamic_ip() failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
@@ -779,13 +777,12 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
                 /* down after all */
                 iface_ptr->up = FALSE;
 
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "interface '%s' is down after all.", iface_ptr->name);
+                vrmr_debug(MEDIUM, "interface '%s' is down after all.", iface_ptr->name);
             } else {
                 if (strcmp(ipaddress, iface_ptr->ipv4.ipaddress) != 0) {
                     VuurmuurStatus.interfaces = 0;
 
-                    queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.interfaces,
+                    queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.interfaces,
                                     gettext("- The ipaddress '%s' of interface '%s' (%s) does not match the ipaddress of the actual interface (%s)\n"),
                                     iface_ptr->ipv4.ipaddress, iface_ptr->name, iface_ptr->device, ipaddress);
                 }
@@ -797,34 +794,31 @@ mm_check_status_interfaces(const int debuglvl, /*@null@*/ struct vrmr_list *stat
         }
     }
 
-    if (debuglvl >= LOW) {
-        vrmr_debug(__FUNC__, "VuurmuurStatus.have_shape_ifaces: %s.",
-                VuurmuurStatus.have_shape_ifaces ? "Yes" : "No");
-        vrmr_debug(__FUNC__, "VuurmuurStatus.have_shape_rules: %s.",
-                VuurmuurStatus.have_shape_rules ? "Yes" : "No");
-    }
+    vrmr_debug(LOW, "VuurmuurStatus.have_shape_ifaces: %s.",
+            VuurmuurStatus.have_shape_ifaces ? "Yes" : "No");
+    vrmr_debug(LOW, "VuurmuurStatus.have_shape_rules: %s.",
+            VuurmuurStatus.have_shape_rules ? "Yes" : "No");
 
     if (VuurmuurStatus.have_shape_ifaces == FALSE &&
         VuurmuurStatus.have_shape_rules == TRUE)
     {
         VuurmuurStatus.interfaces = 0;
-        queue_status_msg(debuglvl, status_list, VuurmuurStatus.interfaces, gettext("- No interfaces have shaping enabled. Please make sure that at least one of the interfaces has shaping enabled\n"));
+        queue_status_msg(status_list, VuurmuurStatus.interfaces, gettext("- No interfaces have shaping enabled. Please make sure that at least one of the interfaces has shaping enabled\n"));
     }
 
     if(at_least_one_active == FALSE)
     {
         VuurmuurStatus.interfaces = 0;
-        queue_status_msg(debuglvl, status_list, VuurmuurStatus.interfaces, gettext("- No interfaces are active. Please make sure that at least one of the interfaces is active\n"));
+        queue_status_msg(status_list, VuurmuurStatus.interfaces, gettext("- No interfaces are active. Please make sure that at least one of the interfaces is active\n"));
     }
 
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "at_least_one_active: %s.", at_least_one_active ? "Yes" : "No");
+    vrmr_debug(LOW, "at_least_one_active: %s.", at_least_one_active ? "Yes" : "No");
 }
 
 /*
 */
 static void
-mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_list, struct vrmr_zones *zones)
+mm_check_status_zones(/*@null@*/ struct vrmr_list *status_list, struct vrmr_zones *zones)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_zone *zone_ptr = NULL;
@@ -840,7 +834,7 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
     /* we need zones */
     if (zones->list.len == 0) {
         VuurmuurStatus.zones = 0;
-        queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.zones,
+        queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.zones,
             gettext("- No zones are defined. Please define one or more zones, and at least one network\n"));
     }
 
@@ -859,7 +853,7 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
             if (zone_ptr->ipv4.ipaddress[0] == '\0') {
                 VuurmuurStatus.zones = 0;
 
-                queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.zones,
+                queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.zones,
                     gettext("- The host '%s' does not have an IPAddress\n"),
                     zone_ptr->name);
             } else {
@@ -867,20 +861,20 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
                 if (zone_ptr->network_parent->ipv4.network[0] != '\0' &&
                     zone_ptr->network_parent->ipv4.netmask[0] != '\0')
                 {
-                    result = vrmr_check_ipv4address(debuglvl, zone_ptr->network_parent->ipv4.network,
+                    result = vrmr_check_ipv4address(zone_ptr->network_parent->ipv4.network,
                                         zone_ptr->network_parent->ipv4.netmask,
                                         zone_ptr->ipv4.ipaddress, 1);
                     if(result < 0) {
                         VuurmuurStatus.zones = 0;
 
-                        queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.zones,
+                        queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.zones,
                             gettext("- The IPAddress '%s' of host '%s' is invalid\n"),
                             zone_ptr->ipv4.ipaddress, zone_ptr->name);
                     } else if(result == 0) {
                         /* check ip told us that the ip didn't belong to the network */
                         VuurmuurStatus.zones = 0;
 
-                        queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.zones,
+                        queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.zones,
                             gettext("- The IPAddress '%s' of host '%s' does not belong to network '%s' with netmask '%s'\n"),
                             zone_ptr->ipv4.ipaddress, zone_ptr->name,
                             zone_ptr->network_parent->ipv4.network, zone_ptr->network_parent->ipv4.netmask);
@@ -891,7 +885,7 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
             if (zone_ptr->InterfaceList.len == 0) {
                 VuurmuurStatus.zones = 0;
 
-                queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.zones,
+                queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.zones,
                     gettext("- The network '%s' has no interfaces attached to it. Please attach one or more interfaces to it in the Zones Section\n"),
                     zone_ptr->name);
             }
@@ -899,16 +893,16 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
             if (zone_ptr->ipv4.network[0] == '\0') {
                 VuurmuurStatus.zones = 0;
 
-                queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.zones,
+                queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.zones,
                     gettext("- The network address for network '%s' is missing. See the Zones Section\n"),
                     zone_ptr->name);
             } else {
                 /* check the ip */
-                result = vrmr_check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.network, 1);
+                result = vrmr_check_ipv4address(NULL, NULL, zone_ptr->ipv4.network, 1);
                 if (result < 0) {
                     VuurmuurStatus.zones = 0;
     
-                    queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.zones,
+                    queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.zones,
                         gettext("- The network address '%s' of network '%s' is invalid."),
                         zone_ptr->ipv4.network, zone_ptr->name);
                 }
@@ -917,16 +911,16 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
             if (zone_ptr->ipv4.netmask[0] == '\0') {
                 VuurmuurStatus.zones = 0;
 
-                queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.zones,
+                queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.zones,
                     gettext("- The netmask for network '%s' is missing. See the Zones Section\n"),
                     zone_ptr->name);
             } else {
                 /* check the ip */
-                result = vrmr_check_ipv4address(debuglvl,NULL, NULL, zone_ptr->ipv4.netmask, 1);
+                result = vrmr_check_ipv4address(NULL, NULL, zone_ptr->ipv4.netmask, 1);
                 if (result < 0) {
                     VuurmuurStatus.zones = 0;
 
-                    queue_status_msg(debuglvl, &VuurmuurStatus.StatusList, VuurmuurStatus.zones,
+                    queue_status_msg(&VuurmuurStatus.StatusList, VuurmuurStatus.zones,
                         gettext("- The netmask '%s' of network '%s' is invalid. See the Zones Section\n"),
                         zone_ptr->ipv4.netmask, zone_ptr->name);
                 }
@@ -936,17 +930,17 @@ mm_check_status_zones(const int debuglvl, /*@null@*/ struct vrmr_list *status_li
 
     if (at_least_one_network == FALSE) {
         VuurmuurStatus.zones = 0;
-        queue_status_msg(debuglvl, status_list, VuurmuurStatus.zones,
+        queue_status_msg(status_list, VuurmuurStatus.zones,
                 gettext("- No networks are defined. Please make sure that you define at least one network. See the Zones Section\n"));
     } else if(at_least_one_active_network == FALSE) {
         VuurmuurStatus.zones = 0;
-        queue_status_msg(debuglvl, status_list, VuurmuurStatus.zones,
+        queue_status_msg(status_list, VuurmuurStatus.zones,
                 gettext("- No networks are active. Please make sure that at least one of the networks is active. See the Zones Section\n"));
     }
 }
 
 static void
-mm_update_overall_status(const int debuglvl)
+mm_update_overall_status(void)
 {
     /* asume all ok */
     VuurmuurStatus.shm     = 1;
@@ -1005,12 +999,11 @@ mm_update_overall_status(const int debuglvl)
         VuurmuurStatus.overall = -1;
     }
 
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "VuurmuurStatus.all: %d.", VuurmuurStatus.overall);
+    vrmr_debug(LOW, "VuurmuurStatus.all: %d.", VuurmuurStatus.overall);
 }
 
 static int
-mm_reload_shm(const int debuglvl, struct vrmr_ctx *vctx)
+mm_reload_shm(struct vrmr_ctx *vctx)
 {
     #define SHM_REL_NOT_CONN    gettext("Not connected")
     #define SHM_REL_SUCCESS     gettext("Success")
@@ -1054,10 +1047,10 @@ mm_reload_shm(const int debuglvl, struct vrmr_ctx *vctx)
 
     /* overall */
     vuurmuurfld = (fields[0] = new_field(1, 3, 3, 20, 0, 0));
-    set_field_buffer_wrap(debuglvl, vuurmuurfld, 0, "  0");
+    set_field_buffer_wrap(vuurmuurfld, 0, "  0");
     set_field_back(vuurmuurfld, vccnf.color_win);
     vuurmuurlogfld  = (fields[1] = new_field(1, 3, 4, 20, 0, 0));
-    set_field_buffer_wrap(debuglvl, vuurmuurlogfld, 0, "  0");
+    set_field_buffer_wrap(vuurmuurlogfld, 0, "  0");
     set_field_back(vuurmuurlogfld, vccnf.color_win);
     /* terminate */
     fields[n_fields] = NULL;
@@ -1092,7 +1085,7 @@ mm_reload_shm(const int debuglvl, struct vrmr_ctx *vctx)
         vuurmuur_progress = 100;
 
         (void)snprintf(str, sizeof(str), " - ");
-        set_field_buffer_wrap(debuglvl, vuurmuurfld, 0, str);
+        set_field_buffer_wrap(vuurmuurfld, 0, str);
     }
     if(vuurmuurlog_semid != -1) {
         if(vrmr_lock(vuurmuurlog_semid)) {
@@ -1109,7 +1102,7 @@ mm_reload_shm(const int debuglvl, struct vrmr_ctx *vctx)
         vuurmuurlog_progress = 100;
 
         (void)snprintf(str, sizeof(str), " - ");
-        set_field_buffer_wrap(debuglvl, vuurmuurlogfld, 0, str);
+        set_field_buffer_wrap(vuurmuurlogfld, 0, str);
     }
 
     /* wait max 60 seconds */
@@ -1127,7 +1120,7 @@ mm_reload_shm(const int debuglvl, struct vrmr_ctx *vctx)
             }
 
             (void)snprintf(str, sizeof(str), "%3d", vuurmuur_progress);
-            set_field_buffer_wrap(debuglvl, vuurmuurfld, 0, str);
+            set_field_buffer_wrap(vuurmuurfld, 0, str);
         }
 
         if(vuurmuur_progress == 100) {
@@ -1168,7 +1161,7 @@ mm_reload_shm(const int debuglvl, struct vrmr_ctx *vctx)
             }
 
             (void)snprintf(str, sizeof(str), "%3d", vuurmuurlog_progress);
-            set_field_buffer_wrap(debuglvl, vuurmuurlogfld, 0, str);
+            set_field_buffer_wrap(vuurmuurlogfld, 0, str);
         }
 
         if(vuurmuurlog_progress == 100) {
@@ -1275,76 +1268,75 @@ struct
     doesn't work on the first field.
 */
 static void
-mm_set_status_field(const int debuglvl, int status, FIELD *fld)
+mm_set_status_field(int status, FIELD *fld)
 {
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "status: %d.", status);
+    vrmr_debug(HIGH, "status: %d.", status);
 
     if(status == 1) /* OK */
     {
         /* TRANSLATORS: max 6 characters */
-        set_field_buffer_wrap(debuglvl, fld, 0, gettext("  OK  "));
+        set_field_buffer_wrap(fld, 0, gettext("  OK  "));
         set_field_back(fld, vccnf.color_win_green);
     }
     else if(status == 0) /* Attention */
     {
         /* TRANSLATORS: max 6 characters */
-        set_field_buffer_wrap(debuglvl, fld, 0, gettext(" Warn "));
+        set_field_buffer_wrap(fld, 0, gettext(" Warn "));
         set_field_back(fld, vccnf.color_win_yellow|A_BOLD);
     }
     else /* Warning */
     {
         /* TRANSLATORS: max 6 characters */
-        set_field_buffer_wrap(debuglvl, fld, 0, gettext(" Fail "));
+        set_field_buffer_wrap(fld, 0, gettext(" Fail "));
         set_field_back(fld, vccnf.color_win_red|A_BOLD);
     }
 }
 
 static void
-mm_update_status_fields(const int debuglvl)
+mm_update_status_fields(void)
 {
     if(vccnf.draw_status == FALSE)
         return;
     
-    mm_set_status_field(debuglvl, VuurmuurStatus.overall, StatusFlds.overallfld);
-    mm_set_status_field(debuglvl, VuurmuurStatus.backend, StatusFlds.backendfld);
-    mm_set_status_field(debuglvl, VuurmuurStatus.config, StatusFlds.configfld);
-    mm_set_status_field(debuglvl, VuurmuurStatus.settings, StatusFlds.settingsfld);
-    mm_set_status_field(debuglvl, VuurmuurStatus.shm, StatusFlds.shmfld);
-    mm_set_status_field(debuglvl, VuurmuurStatus.system, StatusFlds.systemfld);
+    mm_set_status_field(VuurmuurStatus.overall, StatusFlds.overallfld);
+    mm_set_status_field(VuurmuurStatus.backend, StatusFlds.backendfld);
+    mm_set_status_field(VuurmuurStatus.config, StatusFlds.configfld);
+    mm_set_status_field(VuurmuurStatus.settings, StatusFlds.settingsfld);
+    mm_set_status_field(VuurmuurStatus.shm, StatusFlds.shmfld);
+    mm_set_status_field(VuurmuurStatus.system, StatusFlds.systemfld);
 }
 
 int
-vc_apply_changes(const int debuglvl, struct vrmr_ctx *vctx)
+vc_apply_changes(struct vrmr_ctx *vctx)
 {
     int reload_result = 0;
 
     /* check shm one last time, and don't write to status list */
-    mm_check_status_shm(debuglvl, NULL);
+    mm_check_status_shm(NULL);
     /* hmm vuurmuur not connected, try to do that now */
     if(VuurmuurStatus.vuurmuur != 1)
     {
-        mm_shm_connect_vuurmuur(debuglvl);
-        mm_check_status_shm(debuglvl, NULL);
+        mm_shm_connect_vuurmuur();
+        mm_check_status_shm(NULL);
     }
     /* hmm vuurmuur_log not connected, try to do that now */
     if(VuurmuurStatus.vuurmuur_log != 1)
     {
-        mm_shm_connect_vuurmuurlog(debuglvl);
-        mm_check_status_shm(debuglvl, NULL);
+        mm_shm_connect_vuurmuurlog();
+        mm_check_status_shm(NULL);
     }
     /* update the status */
-    mm_update_overall_status(debuglvl);
+    mm_update_overall_status();
 
     /* now see if we can apply */
     if(VuurmuurStatus.overall == 1)
     {
         /* reload the shm */
-        reload_result = mm_reload_shm(debuglvl, vctx);
+        reload_result = mm_reload_shm(vctx);
         /* update the vuurmuurlognames because the logs might
            have moved after applying the changes because of
            configuration changes made by the user */
-        (void)vrmr_config_set_log_names(debuglvl, &vctx->conf);
+        (void)vrmr_config_set_log_names(&vctx->conf);
     }
     else if(VuurmuurStatus.vuurmuur != 1)
     {
@@ -1358,11 +1350,11 @@ vc_apply_changes(const int debuglvl, struct vrmr_ctx *vctx)
             vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0) == 1))
         {
             /* reload the shm */
-            reload_result = mm_reload_shm(debuglvl, vctx);
+            reload_result = mm_reload_shm(vctx);
             /* update the vuurmuurlognames because the logs might
                have moved after applying the changes because of
                configuration changes made by the user */
-            (void)vrmr_config_set_log_names(debuglvl, &vctx->conf);
+            (void)vrmr_config_set_log_names(&vctx->conf);
         }
     }
     else
@@ -1373,8 +1365,8 @@ vc_apply_changes(const int debuglvl, struct vrmr_ctx *vctx)
 
     if(reload_result < 0)
     {
-        mm_check_status_shm(debuglvl, NULL);
-        mm_update_overall_status(debuglvl);
+        mm_check_status_shm(NULL);
+        mm_update_overall_status();
     }
 
     return(0);
@@ -1384,7 +1376,7 @@ vc_apply_changes(const int debuglvl, struct vrmr_ctx *vctx)
     the main menu, here you choose between rules, zones, config, logview, etc.
 */
 int
-main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
+main_menu(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services, struct vrmr_blocklist *blocklist, struct vrmr_regex *reg)
 {
@@ -1476,7 +1468,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     int     rows = 0;
 
     /* update the status */
-    mm_update_overall_status(debuglvl);
+    mm_update_overall_status();
 
     /* main menu width */
     if(vccnf.draw_status)   x = 74;
@@ -1541,7 +1533,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         /* terminate */
         StatusFlds.fields[field_num] = NULL;
 
-        mm_update_status_fields(debuglvl);
+        mm_update_status_fields();
 
         /* Create the form and post it */
         StatusFlds.form = new_form(StatusFlds.fields);
@@ -1600,7 +1592,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         /* show the menu, it might be hidden */
         show_panel(mm_panels[0]);
 
-        draw_top_menu(debuglvl, top_win, gettext("Main"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+        draw_top_menu(top_win, gettext("Main"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
         /* rules conversion */
         if(rules->old_rulesfile_used == TRUE && rules_convert_question_asked == FALSE)
@@ -1609,7 +1601,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         gettext("Convert the rules to the new format (recommended)?"),
                         vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1))
             {
-                if(convert_rulesfile_to_backend(debuglvl, vctx, rules, &vctx->conf) < 0)
+                if(convert_rulesfile_to_backend(vctx, rules, &vctx->conf) < 0)
                 {
                     vrmr_warning(VR_WARN, gettext("converting rules failed."));
                 }
@@ -1634,7 +1626,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         gettext("Convert the BlockList to the new format (recommended)?"),
                         vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1))
             {
-                if (convert_blocklistfile_to_backend(debuglvl, vctx, blocklist, &vctx->conf) < 0)
+                if (convert_blocklistfile_to_backend(vctx, blocklist, &vctx->conf) < 0)
                 {
                     vrmr_warning(VR_WARN, gettext("converting BlockList failed."));
                 }
@@ -1655,7 +1647,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         /* get user input */
         ch = wgetch(mainmenu_win);
 
-        if(debuglvl >= LOW)
+        if(vrmr_debug_level >= LOW)
             status_print(status_win, "ch: %d", ch);
 
         switch(ch)
@@ -1800,7 +1792,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 if(vccnf.win_fore > 0)
                     vccnf.win_fore--;
 
-                set_colors(debuglvl, &vccnf);
+                set_colors(&vccnf);
                 break;
 
             case KEY_F(2):
@@ -1810,7 +1802,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 if(vccnf.win_fore < 7)
                     vccnf.win_fore++;
 
-                set_colors(debuglvl, &vccnf);
+                set_colors(&vccnf);
                 break;
 
             case KEY_F(3):
@@ -1820,7 +1812,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 if(vccnf.win_back > 0)
                     vccnf.win_back--;
 
-                set_colors(debuglvl, &vccnf);
+                set_colors(&vccnf);
                 break;
 
             case KEY_F(4):
@@ -1830,7 +1822,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 if(vccnf.win_back < 7)
                     vccnf.win_back++;
 
-                set_colors(debuglvl, &vccnf);
+                set_colors(&vccnf);
                 break;
 #endif
         }
@@ -1842,85 +1834,85 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
             if(strcmp(choice_ptr, MM_ITEM_RULES) == 0)
             {
-                rules_form(debuglvl, vctx, rules, zones, interfaces, services, reg);
+                rules_form(vctx, rules, zones, interfaces, services, reg);
 
-                mm_check_status_rules(debuglvl, &vctx->conf, NULL, rules);
-                mm_check_status_interfaces(debuglvl, NULL, interfaces);
+                mm_check_status_rules(&vctx->conf, NULL, rules);
+                mm_check_status_interfaces(NULL, interfaces);
             }
             else if(strcmp(choice_ptr, MM_ITEM_ZONES) == 0)
             {
-                zones_section(debuglvl, vctx, zones, interfaces, rules, blocklist, reg);
+                zones_section(vctx, zones, interfaces, rules, blocklist, reg);
 
                 /* check for active interfaces */
-                mm_check_status_zones(debuglvl, NULL, zones);
+                mm_check_status_zones(NULL, zones);
             }
             else if(strcmp(choice_ptr, MM_ITEM_INTERFACES) == 0)
             {
-                interfaces_section(debuglvl, vctx, interfaces, zones, rules, reg);
+                interfaces_section(vctx, interfaces, zones, rules, reg);
 
                 /* check for active networks */
-                mm_check_status_interfaces(debuglvl, NULL, interfaces);
+                mm_check_status_interfaces(NULL, interfaces);
             }
             else if(strcmp(choice_ptr, MM_ITEM_SERVICES) == 0)
             {
-                services_section(debuglvl, vctx, services, rules, reg);
+                services_section(vctx, services, rules, reg);
 
-                mm_check_status_services(debuglvl, NULL, services);
+                mm_check_status_services(NULL, services);
             }
             else if(strcmp(choice_ptr, MM_ITEM_VRCONFIG) == 0)
             {
-                config_menu(debuglvl, &vctx->conf);
+                config_menu(&vctx->conf);
 
-                mm_check_status_config(debuglvl, &vctx->conf, NULL);
-                mm_check_status_rules(debuglvl, &vctx->conf, NULL, rules);
+                mm_check_status_config(&vctx->conf, NULL);
+                mm_check_status_rules(&vctx->conf, NULL, rules);
             }
             else if(strcmp(choice_ptr, "traffic") == 0)
             {
-                logview_section(debuglvl, vctx, &vctx->conf, zones, blocklist, interfaces, services, NULL);
+                logview_section(vctx, &vctx->conf, zones, blocklist, interfaces, services, NULL);
             }
             else if(strcmp(choice_ptr, MM_ITEM_LOGVIEW) == 0)
             {
-                mm_select_logfile(debuglvl, vctx, &vctx->conf, zones, blocklist, interfaces, services);
+                mm_select_logfile(vctx, &vctx->conf, zones, blocklist, interfaces, services);
             }
             else if(strcmp(choice_ptr, MM_ITEM_STATUS) == 0)
             {
-                status_section(debuglvl, &vctx->conf, zones, interfaces, services);
+                status_section(&vctx->conf, zones, interfaces, services);
             }
             else if(strcmp(choice_ptr, MM_ITEM_CONNECTIONS) == 0)
             {
-                connections_section(debuglvl, vctx, &vctx->conf, zones, interfaces, services, blocklist);
+                connections_section(vctx, &vctx->conf, zones, interfaces, services, blocklist);
             }
             else if(strcmp(choice_ptr, MM_ITEM_BLOCKLIST) == 0)
             {
-                zones_blocklist(debuglvl, vctx, blocklist, zones, reg);
+                zones_blocklist(vctx, blocklist, zones, reg);
             }
             else if(strcmp(choice_ptr, MM_ITEM_TRAFVOL) == 0)
             {
-                trafvol_section(debuglvl, &vctx->conf, zones, interfaces, services);
+                trafvol_section(&vctx->conf, zones, interfaces, services);
             }
             else if(strcmp(choice_ptr, MM_ITEM_SETTINGS) == 0)
             {
-                edit_vcconfig(debuglvl);
-                mm_check_status_settings(debuglvl, NULL);
+                edit_vcconfig();
+                mm_check_status_settings(NULL);
                 retval = 1;
                 quit = 1;
             }
             else if(strcmp(choice_ptr, MM_ITEM_ABOUT) == 0)
             {
-                print_about(debuglvl);
+                print_about();
             }
             else if(strcmp(choice_ptr, "printstatus") == 0)
             {
-                mm_status_checkall(debuglvl, vctx, &VuurmuurStatus.StatusList, rules, zones, interfaces, services);
-                print_status(debuglvl);
+                mm_status_checkall(vctx, &VuurmuurStatus.StatusList, rules, zones, interfaces, services);
+                print_status();
             }
             else if(strncasecmp(choice_ptr, "showhelp", 8) == 0)
             {
-                print_help(debuglvl, ":[VUURMUUR:GENERAL]:");
+                print_help(":[VUURMUUR:GENERAL]:");
             }
             else if(strcmp(choice_ptr, MM_ITEM_APPLYCHANGES) == 0)
             {
-                vc_apply_changes(debuglvl, vctx);
+                vc_apply_changes(vctx);
             }
             else if(strcmp(choice_ptr, MM_ITEM_QUIT) == 0)
             {
@@ -1931,22 +1923,22 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             choice_ptr = NULL;
 
             /* status checks */
-            mm_check_status_shm(debuglvl, NULL);
+            mm_check_status_shm(NULL);
             if(VuurmuurStatus.vuurmuur != 1)
             {
-                mm_shm_connect_vuurmuur(debuglvl);
-                mm_check_status_shm(debuglvl, NULL);
+                mm_shm_connect_vuurmuur();
+                mm_check_status_shm(NULL);
             }
             if(VuurmuurStatus.vuurmuur_log != 1)
             {
-                mm_shm_connect_vuurmuurlog(debuglvl);
-                mm_check_status_shm(debuglvl, NULL);
+                mm_shm_connect_vuurmuurlog();
+                mm_check_status_shm(NULL);
             }
 
-            mm_update_overall_status(debuglvl);
+            mm_update_overall_status();
 
             if(draw_status == TRUE)
-                mm_update_status_fields(debuglvl);
+                mm_update_status_fields();
         }
     }
 
@@ -1982,7 +1974,7 @@ main_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     check all the statusses
 */
 void
-mm_status_checkall(const int debuglvl, struct vrmr_ctx *vctx,
+mm_status_checkall(struct vrmr_ctx *vctx,
         /*@null@*/ struct vrmr_list *status_list, struct vrmr_rules *rules,
         struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services)
@@ -1992,35 +1984,35 @@ mm_status_checkall(const int debuglvl, struct vrmr_ctx *vctx,
     /* if we have one, manage the list */
     if(status_list != NULL)
     {
-        vrmr_list_cleanup(debuglvl, status_list);
+        vrmr_list_cleanup(status_list);
         /* send a status of '1', so no status is printed */
-        queue_status_msg(debuglvl, status_list, 1, gettext("One or more problems were detected in your current setup. Below is a list\n"));
+        queue_status_msg(status_list, 1, gettext("One or more problems were detected in your current setup. Below is a list\n"));
         /* store the list length so we can check for changes after all the check functions */
         list_len = status_list->len;
     }
 
     /* check the services */
-    mm_check_status_services(debuglvl, status_list, services);
+    mm_check_status_services(status_list, services);
 
-    mm_check_status_rules(debuglvl, &vctx->conf, status_list, rules);
+    mm_check_status_rules(&vctx->conf, status_list, rules);
 
     /* check for (active) interfaces */
-    mm_check_status_interfaces(debuglvl, status_list, interfaces);
+    mm_check_status_interfaces(status_list, interfaces);
 
     /* check for (active) networks */
-    mm_check_status_zones(debuglvl, status_list, zones);
+    mm_check_status_zones(status_list, zones);
 
     /* check config */
-    mm_check_status_config(debuglvl, &vctx->conf, status_list);
+    mm_check_status_config(&vctx->conf, status_list);
 
     /* check settings */
-    mm_check_status_settings(debuglvl, status_list);
+    mm_check_status_settings(status_list);
 
     /* shm connections */
-    mm_check_status_shm(debuglvl, status_list);
+    mm_check_status_shm(status_list);
 
     /* update the status */
-    mm_update_overall_status(debuglvl);
+    mm_update_overall_status();
 
 
     /* check for changes to the list */
@@ -2030,9 +2022,9 @@ mm_status_checkall(const int debuglvl, struct vrmr_ctx *vctx,
         if(status_list->len == list_len)
         {
             /* nothing was added to the list */
-            vrmr_list_cleanup(debuglvl, status_list);
+            vrmr_list_cleanup(status_list);
             /* send a status of '1', so no status is printed */
-            queue_status_msg(debuglvl, status_list, 1, gettext("No problems were detected in your setup\n"));
+            queue_status_msg(status_list, 1, gettext("No problems were detected in your setup\n"));
         }
     }
 }

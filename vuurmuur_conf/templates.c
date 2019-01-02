@@ -731,7 +731,7 @@ status_print(WINDOW *local_win, char *fmt, ...)
     wrapper around set_field_buffer so we always send only 'printable' characters.
 */
 void
-set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *value)
+set_field_buffer_wrap(FIELD *field, int bufnum, const char *value)
 {
     char    buffer[512] = "";
     int     field_rows = 0,
@@ -749,8 +749,7 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
     vrmr_fatal_if_null(field);
     vrmr_fatal_if_null(value);
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "value: '%s'.", value);
+    vrmr_debug(HIGH, "value: '%s'.", value);
 
     /* get info about the field */
     result = field_info(field, &field_rows, &field_cols, &i, &i, &i, &i);
@@ -759,11 +758,11 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
         vrmr_error(-1, VR_INTERR, "field_info failed, see debug.log.");
 
         if(result == E_SYSTEM_ERROR)
-            vrmr_debug(__FUNC__, "field_info: E_SYSTEM_ERROR: %s.", strerror(errno));
+            vrmr_debug(NONE, "field_info: E_SYSTEM_ERROR: %s.", strerror(errno));
         else if(result == E_BAD_ARGUMENT)
-            vrmr_debug(__FUNC__, "field_info: E_BAD_ARGUMENT");
+            vrmr_debug(NONE, "field_info: E_BAD_ARGUMENT");
         else
-            vrmr_debug(__FUNC__, "field_info: unknown returncode %d", result);
+            vrmr_debug(NONE, "field_info: unknown returncode %d", result);
 
         return;
     }
@@ -773,8 +772,7 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
     if (field_size >= (int)sizeof(buffer))
         field_size = (int)sizeof(buffer) - 1;
 
-    if (debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "field_size: '%d', field_rows: '%d', field_cols: '%d'.", field_size, field_rows, field_cols);
+    vrmr_debug(HIGH, "field_size: '%d', field_rows: '%d', field_cols: '%d'.", field_size, field_rows, field_cols);
 
 #ifdef USE_WIDEC
     mbstowcs(wbuffer, value, wsizeof(wbuffer));
@@ -789,14 +787,12 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
     /* get the size of the string */
     value_size = StrLen(value);
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "value_size: '%d'.", value_size);
+    vrmr_debug(HIGH, "value_size: '%d'.", (int)value_size);
 
     /* copy the string into the new buffer */
     (void)strlcpy(buffer, value, sizeof(buffer));
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "buffer: '%s'.", buffer);
+    vrmr_debug(HIGH, "buffer: '%s'.", buffer);
 
     /* clear the remaining buffer with whitespaces */
     for(i = (int)value_size; i < field_size; i++)
@@ -812,18 +808,18 @@ set_field_buffer_wrap(const int debuglvl, FIELD *field, int bufnum, const char *
         vrmr_error(-1, VR_INTERR, "set_field_buffer failed, see debug.log.");
 
         if(result == E_SYSTEM_ERROR)
-            vrmr_debug(__FUNC__, "set_field_buffer: E_SYSTEM_ERROR: %s.", strerror(errno));
+            vrmr_debug(NONE, "set_field_buffer: E_SYSTEM_ERROR: %s.", strerror(errno));
         else if(result == E_BAD_ARGUMENT)
         {
-            vrmr_debug(__FUNC__, "set_field_buffer: E_BAD_ARGUMENT");
+            vrmr_debug(NONE, "set_field_buffer: E_BAD_ARGUMENT");
 
             for(x = 0; x < (int)sizeof(buffer) && buffer[x] != '\0' && buffer[x] != '\n'; x++)
             {
-                vrmr_debug(__FUNC__, "set_field_buffer: '%c' is %s", buffer[x], isprint(buffer[x]) ? "printable" : "NOT printable");
+                vrmr_debug(NONE, "set_field_buffer: '%c' is %s", buffer[x], isprint(buffer[x]) ? "printable" : "NOT printable");
             }
         }
         else
-            vrmr_debug(__FUNC__, "set_field_buffer: unknown returncode %d", result);
+            vrmr_debug(NONE, "set_field_buffer: unknown returncode %d", result);
     }
 }
 

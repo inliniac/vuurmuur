@@ -149,17 +149,17 @@ typedef struct VuurmuurScript_
 
 void logchange(VuurmuurScript *,char *fmt, ...);
 
-int script_print(const int, VuurmuurScript *);
-int script_list(const int, VuurmuurScript *);
-int script_add(const int, VuurmuurScript *);
-int script_delete(const int, VuurmuurScript *);
-int script_modify(const int, VuurmuurScript *);
-int script_rename(const int, VuurmuurScript *);
-int script_apply(const int debuglvl, VuurmuurScript *vr_script);
-int script_unblock(const int debuglvl, VuurmuurScript *vr_script);
-int script_list_devices(const int);
+int script_print(VuurmuurScript *);
+int script_list(VuurmuurScript *);
+int script_add(VuurmuurScript *);
+int script_delete(VuurmuurScript *);
+int script_modify(VuurmuurScript *);
+int script_rename(VuurmuurScript *);
+int script_apply(VuurmuurScript *vr_script);
+int script_unblock(VuurmuurScript *vr_script);
+int script_list_devices(void);
 
-int backend_check(const int, int, char *, char *, char, struct vrmr_regex *);
+int backend_check(int, char *, char *, char, struct vrmr_regex *);
 
 char * remove_leading_part(char *input);
 

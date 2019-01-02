@@ -21,14 +21,14 @@
 #include "main.h"
 
 static void
-menunameprint(const int debuglvl, WINDOW *win, const char *menuname)
+menunameprint(WINDOW *win, const char *menuname)
 {
     if (menuname != NULL)
         mvwprintw(win, 0, 2, " %s ", menuname);
 }
 
 static int
-keyprint(const int debuglvl, WINDOW *win, int y, int x, const char *keystr, const char *fmt, ...)
+keyprint(WINDOW *win, int y, int x, const char *keystr, const char *fmt, ...)
 {
     int res = 0,
         printlen = 0;
@@ -79,7 +79,7 @@ setup_topmenu(WINDOW *local_win)
 }
 
 void
-draw_top_menu(const int debuglvl, WINDOW *local_win, char *title, int key_n, char **keys, int cmd_n, char **cmds)
+draw_top_menu(WINDOW *local_win, char *title, int key_n, char **keys, int cmd_n, char **cmds)
 {
     int pos = 2,
         i = 0;
@@ -91,11 +91,11 @@ draw_top_menu(const int debuglvl, WINDOW *local_win, char *title, int key_n, cha
     /* draw the box and the title */
     wattron(local_win, vccnf.color_bgd);
     box(local_win, 0 , 0);
-    menunameprint(debuglvl, local_win, title);
+    menunameprint(local_win, title);
     wattroff(local_win, vccnf.color_bgd);
 
     for (i = 0; i < key_n; i++) {
-        pos = keyprint(debuglvl, local_win, 1, pos, keys[i], cmds[i]);
+        pos = keyprint(local_win, 1, pos, keys[i], cmds[i]);
         if(pos <= 0)
             break;
     }

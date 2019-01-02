@@ -32,8 +32,8 @@ int
 main(int argc, char *argv[])
 {
     int             retval = 0,
-                    result = 0,
-                    debuglvl = 0;
+                    result = 0;
+    int debug_level = NONE;
     VuurmuurScript  vr_script;
     struct vrmr_user user_data;
 
@@ -100,7 +100,7 @@ main(int argc, char *argv[])
     vr_script.overwrite = TRUE;
 
     /*  exit if the user is not root. */
-    vrmr_user_get_info(debuglvl, &user_data);
+    vrmr_user_get_info(&user_data);
     if(user_data.user > 0 || user_data.group > 0)
     {
         fprintf(stdout, "Error: you are not root! Exitting.\n");
@@ -134,7 +134,7 @@ main(int argc, char *argv[])
     /* handle commandline options that don't require a config so they can be
      * used by the wizard. */
     if (argc > 1 && strcmp(argv[1], "--list-devices") == 0) {
-        script_list_devices(debuglvl);
+        script_list_devices();
         exit(EXIT_SUCCESS);
     }
 
@@ -271,14 +271,15 @@ main(int argc, char *argv[])
                 fprintf(stdout, "vuurmuur: debugging enabled.\n");
 
                 /* convert the debug string and check the result */
-                debuglvl = atoi(optarg);
-                if(debuglvl < 0 || debuglvl > HIGH)
+                debug_level = atoi(optarg);
+                if(debug_level < 0 || debug_level > HIGH)
                 {
-                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "illegal debug level: %d (max: %d)", debuglvl, HIGH);
+                    vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "illegal debug level: %d (max: %d)", HIGH);
                     exit(VRS_ERR_COMMANDLINE);
                 }
+                vrmr_debug_level = debug_level;
 
-                fprintf(stdout, "vuurmuur: debug level: %d\n", debuglvl);
+                fprintf(stdout, "vuurmuur: debug level: %d\n", debug_level);
                 break;
 
 
@@ -637,7 +638,7 @@ main(int argc, char *argv[])
             vr_script.type == VRMR_TYPE_HOST || vr_script.type == VRMR_TYPE_GROUP)
         {
             /* validate and split the new name */
-            if(vrmr_validate_zonename(debuglvl, vr_script.name, 0, vr_script.name_zone, vr_script.name_net, vr_script.name_host, vr_script.vctx.reg.zonename, VRMR_VERBOSE) != 0)
+            if(vrmr_validate_zonename(vr_script.name, 0, vr_script.name_zone, vr_script.name_net, vr_script.name_host, vr_script.vctx.reg.zonename, VRMR_VERBOSE) != 0)
             {
                 if(vr_script.type == VRMR_TYPE_ZONE)
                     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid zone name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
@@ -650,14 +651,13 @@ main(int argc, char *argv[])
                 
                 exit(VRS_ERR_COMMANDLINE);
             }
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "name: '%s': host/group '%s', net '%s', zone '%s'.",
-                                        vr_script.name, vr_script.name_host,
-                                        vr_script.name_net, vr_script.name_zone);
+            vrmr_debug(HIGH, "name: '%s': host/group '%s', net '%s', zone '%s'.",
+                    vr_script.name, vr_script.name_host,
+                    vr_script.name_net, vr_script.name_zone);
         }
         else if(vr_script.type == VRMR_TYPE_SERVICE)
         {
-            if(vrmr_validate_servicename(debuglvl, vr_script.name, vr_script.vctx.reg.servicename, VRMR_QUIET) != 0)
+            if(vrmr_validate_servicename(vr_script.name, vr_script.vctx.reg.servicename, VRMR_QUIET) != 0)
             {
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid service name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 exit(VRS_ERR_COMMANDLINE);
@@ -665,7 +665,7 @@ main(int argc, char *argv[])
         }
         else if(vr_script.type == VRMR_TYPE_INTERFACE)
         {
-            if(vrmr_validate_interfacename(debuglvl, vr_script.name, vr_script.vctx.reg.interfacename) != 0)
+            if(vrmr_validate_interfacename(vr_script.name, vr_script.vctx.reg.interfacename) != 0)
             {
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "invalid interface name '%s' (in: %s:%d).", vr_script.name, __FUNC__, __LINE__);
                 exit(VRS_ERR_COMMANDLINE);
@@ -702,14 +702,12 @@ main(int argc, char *argv[])
         vr_script.print_rule_numbers = TRUE;
 
     /* initialize the config from the config file */
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "initializing config... calling vrmr_init_config()");
+    vrmr_debug(MEDIUM, "initializing config... calling vrmr_init_config()");
 
-    result = vrmr_init_config(debuglvl, &vr_script.vctx.conf);
+    result = vrmr_init_config(&vr_script.vctx.conf);
     if(result >= VRMR_CNF_OK)
     {
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "initializing config complete and succesful.");
+        vrmr_debug(MEDIUM, "initializing config complete and succesful.");
     }
     else
     {
@@ -743,7 +741,7 @@ main(int argc, char *argv[])
 
 
     /* load the backends */
-    result = vrmr_backends_load(debuglvl, &vr_script.vctx.conf, &vr_script.vctx);
+    result = vrmr_backends_load(&vr_script.vctx.conf, &vr_script.vctx);
     if(result < 0)
     {
         fprintf(stdout, "Error: loading backends failed\n");
@@ -753,7 +751,7 @@ main(int argc, char *argv[])
     /* main part: handle the different commands */
     if(vr_script.cmd == CMD_LST)
     {
-        retval = script_list(debuglvl, &vr_script);
+        retval = script_list(&vr_script);
     }
     else if(vr_script.cmd == CMD_PRT)
     {
@@ -764,7 +762,7 @@ main(int argc, char *argv[])
         }
         else
         {
-            retval = script_print(debuglvl, &vr_script);
+            retval = script_print(&vr_script);
         }
     }
     else if(vr_script.cmd == CMD_ADD)
@@ -776,7 +774,7 @@ main(int argc, char *argv[])
         }
         else
         {
-            retval = script_add(debuglvl, &vr_script);
+            retval = script_add(&vr_script);
         }
     }
     else if(vr_script.cmd == CMD_DEL)
@@ -788,7 +786,7 @@ main(int argc, char *argv[])
         }
         else
         {
-            retval = script_delete(debuglvl, &vr_script);
+            retval = script_delete(&vr_script);
         }
     }
     else if(vr_script.cmd == CMD_MOD || vr_script.cmd == CMD_BLK)
@@ -797,7 +795,7 @@ main(int argc, char *argv[])
          * append into an empty list then using --block */
         if (vr_script.cmd == CMD_BLK) {
             /* append or overwrite mode (fix ticket #49) */
-            if ((vr_script.vctx.rf->ask(debuglvl, vr_script.vctx.rule_backend, "blocklist", "RULE",
+            if ((vr_script.vctx.rf->ask(vr_script.vctx.rule_backend, "blocklist", "RULE",
                             vr_script.bdat, sizeof(vr_script.bdat), VRMR_TYPE_RULE, 1) == 1))
             {
                 /* we got a rule from the backend so we have to append */
@@ -829,7 +827,7 @@ main(int argc, char *argv[])
         }
         else
         {
-            retval = script_modify(debuglvl, &vr_script);
+            retval = script_modify(&vr_script);
         }
     }
     else if(vr_script.cmd == CMD_REN)
@@ -856,18 +854,18 @@ main(int argc, char *argv[])
         }
         else
         {
-            retval = script_rename(debuglvl, &vr_script);
+            retval = script_rename(&vr_script);
         }
     }
     else if(vr_script.cmd == CMD_UBL)
     {
-        retval = script_unblock(debuglvl, &vr_script);
+        retval = script_unblock(&vr_script);
     }
     else if(vr_script.cmd == CMD_LBL)
     {
-        while ((result = vr_script.vctx.rf->ask(debuglvl, vr_script.vctx.rule_backend, "blocklist", "RULE", vr_script.bdat, sizeof(vr_script.bdat), VRMR_TYPE_RULE, 1)) == 1)
+        while ((result = vr_script.vctx.rf->ask(vr_script.vctx.rule_backend, "blocklist", "RULE", vr_script.bdat, sizeof(vr_script.bdat), VRMR_TYPE_RULE, 1)) == 1)
         {
-            vrmr_rules_encode_rule(debuglvl, vr_script.bdat, sizeof(vr_script.bdat));
+            vrmr_rules_encode_rule(vr_script.bdat, sizeof(vr_script.bdat));
             str = remove_leading_part(vr_script.bdat);
             printf("%s\n", str);
             free(str);
@@ -891,11 +889,11 @@ main(int argc, char *argv[])
     /* if all went well (retval == 0) we can apply now */
     if(vr_script.apply == TRUE && retval == VRS_SUCCESS)
     {
-        retval = script_apply(debuglvl, &vr_script);
+        retval = script_apply(&vr_script);
     }
 
     /* unload the backends */
-    result = vrmr_backends_unload(debuglvl, &vr_script.vctx.conf, &vr_script.vctx);
+    result = vrmr_backends_unload(&vr_script.vctx.conf, &vr_script.vctx);
     if(result < 0)
     {
         fprintf(stdout, "Error: unloading backends failed.\n");
@@ -907,10 +905,7 @@ main(int argc, char *argv[])
     */
 
     vrmr_deinit(&vr_script.vctx);
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "** end **, return = %d", retval);
-
+    vrmr_debug(HIGH, "** end **, return = %d", retval);
     return(retval);
 }
 

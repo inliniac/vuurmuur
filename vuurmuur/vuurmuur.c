@@ -77,7 +77,7 @@ main(int argc, char *argv[])
     int             retval = 0,
                     optch,
                     result = 0,
-                    debuglvl = 0;
+                    debug_level = 0;
 
     unsigned int    dynamic_wait_time = 0;  /* for checking the dynamic ipaddresses */
     unsigned int    wait_time = 0;          /* time in seconds we have waited for an VRMR_RR_RESULT_ACK when using SHM-IPC */
@@ -149,7 +149,7 @@ main(int argc, char *argv[])
                 break;
 
             case 'K' :
-                vrmr_debug(__FUNC__, "%s asked to stop", SVCNAME);
+                vrmr_debug(NONE, "%s asked to stop", SVCNAME);
                 if (vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
                 {
                     printf ("%s is running. Killing process %u because of -k\n", SVCNAME, pid);
@@ -164,14 +164,15 @@ main(int argc, char *argv[])
                 fprintf(stdout, "vuurmuur: debugging enabled.\n");
 
                 /* convert the debug string and check the result */
-                debuglvl = atoi(optarg);
-                if(debuglvl < 0 || debuglvl > HIGH)
+                debug_level = atoi(optarg);
+                if(debug_level < 0 || debug_level > HIGH)
                 {
-                    fprintf(stdout, "Error: illegal debug level: %d (max: %d).\n", debuglvl, HIGH);
+                    fprintf(stdout, "Error: illegal debug level: %d (max: %d).\n", debug_level, HIGH);
                     exit(EXIT_FAILURE);
                 }
+                vrmr_debug_level = debug_level;
 
-                fprintf(stdout, "vuurmuur: debug level: %d\n", debuglvl);
+                fprintf(stdout, "vuurmuur: debug level: %d\n", debug_level);
                 break;
 
             case 'L' :
@@ -293,14 +294,12 @@ main(int argc, char *argv[])
     }
 
     /* init the config */
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "initializing config... calling vrmr_init_config()");
+    vrmr_debug(MEDIUM, "initializing config... calling vrmr_init_config()");
 
-    result = vrmr_init_config(debuglvl, &vctx.conf);
+    result = vrmr_init_config(&vctx.conf);
     if(result >= VRMR_CNF_OK)
     {
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "initializing config complete and succesful.");
+        vrmr_debug(MEDIUM, "initializing config complete and succesful.");
     }
     else
     {
@@ -326,18 +325,18 @@ main(int argc, char *argv[])
     vrprint.audit = vrmr_logprint_audit;
 
     /* commandline vars overriding the config */
-    cmdline_override_config(debuglvl, &vctx.conf);
+    cmdline_override_config(&vctx.conf);
 
     /* dont check in bash mode */
     if(vctx.conf.bash_out == FALSE)
     {
         /* check the iptables command */
-        if(!vrmr_check_iptables_command(debuglvl, &vctx.conf, vctx.conf.iptables_location, VRMR_IPTCHK_VERBOSE))
+        if(!vrmr_check_iptables_command(&vctx.conf, vctx.conf.iptables_location, VRMR_IPTCHK_VERBOSE))
         {
             exit(EXIT_FAILURE);
         }
 #ifdef IPV6_ENABLED
-        if (!vrmr_check_ip6tables_command(debuglvl, &vctx.conf, vctx.conf.ip6tables_location, VRMR_IPTCHK_VERBOSE))
+        if (!vrmr_check_ip6tables_command(&vctx.conf, vctx.conf.ip6tables_location, VRMR_IPTCHK_VERBOSE))
         {
             exit(EXIT_FAILURE);
         }
@@ -345,12 +344,12 @@ main(int argc, char *argv[])
         /* if we are going to use the iptables-restore command, check it */
         if(vctx.conf.old_rulecreation_method == FALSE)
         {
-            if(!vrmr_check_iptablesrestore_command(debuglvl, &vctx.conf, vctx.conf.iptablesrestore_location, VRMR_IPTCHK_VERBOSE))
+            if(!vrmr_check_iptablesrestore_command(&vctx.conf, vctx.conf.iptablesrestore_location, VRMR_IPTCHK_VERBOSE))
             {
                 exit(EXIT_FAILURE);
             }
 #ifdef IPV6_ENABLED
-            if(!vrmr_check_ip6tablesrestore_command(debuglvl, &vctx.conf, vctx.conf.ip6tablesrestore_location, VRMR_IPTCHK_VERBOSE))
+            if(!vrmr_check_ip6tablesrestore_command(&vctx.conf, vctx.conf.ip6tablesrestore_location, VRMR_IPTCHK_VERBOSE))
             {
                 exit(EXIT_FAILURE);
             }
@@ -359,14 +358,14 @@ main(int argc, char *argv[])
     }
 
 
-    create_loglevel_string(debuglvl, &vctx.conf, loglevel, sizeof(loglevel));
+    create_loglevel_string(&vctx.conf, loglevel, sizeof(loglevel));
     /* tcp options */
-    create_logtcpoptions_string(debuglvl, &vctx.conf, log_tcp_options, sizeof(log_tcp_options));
+    create_logtcpoptions_string(&vctx.conf, log_tcp_options, sizeof(log_tcp_options));
 
     /* after the config we can remove the rules if we need to */
     if (clear_vuurmuur_rules == TRUE)
     {
-        if (clear_vuurmuur_iptables_rules(debuglvl, &vctx.conf) < 0)
+        if (clear_vuurmuur_iptables_rules(&vctx.conf) < 0)
         {
             fprintf(stdout, "Error: clearing vuumuur iptables rules failed.\n");
             exit(EXIT_FAILURE);
@@ -377,7 +376,7 @@ main(int argc, char *argv[])
 
     if (clear_all_rules == TRUE)
     {
-        if (clear_all_iptables_rules(debuglvl, &vctx.conf) < 0)
+        if (clear_all_iptables_rules(&vctx.conf) < 0)
         {
             fprintf(stdout, "Error: clearing all iptables rules failed.\n");
             exit(EXIT_FAILURE);
@@ -389,13 +388,13 @@ main(int argc, char *argv[])
     /* check capabilities */
     if(vctx.conf.vrmr_check_iptcaps == TRUE)
     {
-        if(vrmr_check_iptcaps(debuglvl, &vctx.conf, &vctx.iptcaps, vctx.conf.load_modules) < 0)
+        if(vrmr_check_iptcaps(&vctx.conf, &vctx.iptcaps, vctx.conf.load_modules) < 0)
         {
             fprintf(stdout, "Error: checking for iptables-capabilities failed. Please see error.log.\n");
             exit(EXIT_FAILURE);
         }
 #ifdef IPV6_ENABLED
-        if(vrmr_check_ip6tcaps(debuglvl, &vctx.conf, &vctx.iptcaps, vctx.conf.load_modules) < 0)
+        if(vrmr_check_ip6tcaps(&vctx.conf, &vctx.iptcaps, vctx.conf.load_modules) < 0)
         {
             if (vctx.conf.check_ipv6 == TRUE)
             {
@@ -412,7 +411,7 @@ main(int argc, char *argv[])
     }
 
     /* load the backends */
-    result = vrmr_backends_load(debuglvl, &vctx.conf, &vctx);
+    result = vrmr_backends_load(&vctx.conf, &vctx);
     if(result < 0)
     {
         fprintf(stdout, "Error: loading backends failed\n");
@@ -427,12 +426,12 @@ main(int argc, char *argv[])
     ipt_rulecount = 0;
 
     /* load the services into memory */
-    result = vrmr_services_load(debuglvl, &vctx, &vctx.services, &vctx.reg);
+    result = vrmr_services_load(&vctx, &vctx.services, &vctx.reg);
     if(result == -1)
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
-    result = vrmr_interfaces_load(debuglvl, &vctx, &vctx.interfaces);
+    result = vrmr_interfaces_load(&vctx, &vctx.interfaces);
     if(result == -1)
         exit(EXIT_FAILURE);
     if (vctx.conf.bash_out) {
@@ -440,14 +439,14 @@ main(int argc, char *argv[])
     }
 
     /* load the zonedata into memory */
-    result = vrmr_zones_load(debuglvl, &vctx, &vctx.zones, &vctx.interfaces, &vctx.reg);
+    result = vrmr_zones_load(&vctx, &vctx.zones, &vctx.interfaces, &vctx.reg);
     if(result == -1)
         exit(EXIT_FAILURE);
 
 
     /* load the blockfile if any */
     /* call it with load_ips == TRUE */
-    if (vrmr_blocklist_init_list(debuglvl, &vctx, &vctx.conf, &vctx.zones,
+    if (vrmr_blocklist_init_list(&vctx, &vctx.conf, &vctx.zones,
                 &vctx.blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0)
     {
         vrmr_error(-1, "Error", "blocklist_read_file failed.");
@@ -456,7 +455,7 @@ main(int argc, char *argv[])
 
     /* load the rulesfile into memory */
     vrmr_info("Info", "Loading rulesfile...");
-    result = vrmr_rules_init_list(debuglvl, &vctx, &vctx.conf, &vctx.rules, &vctx.reg);
+    result = vrmr_rules_init_list(&vctx, &vctx.conf, &vctx.rules, &vctx.reg);
     if(result == 0)
     {
         vrmr_info("Info", "Loading rulesfile succesfull.");
@@ -477,20 +476,20 @@ main(int argc, char *argv[])
     }
 
     /* analyzing the rules */
-    if(analyze_all_rules(debuglvl, &vctx, &vctx.rules) != 0)
+    if(analyze_all_rules(&vctx, &vctx.rules) != 0)
     {
         vrmr_error(-1, "Error", "analizing the rules failed.");
         exit(EXIT_FAILURE);
     }
 
-    if(debuglvl >= LOW)
+    if(vrmr_debug_level >= LOW)
         vrmr_rules_print_list(&vctx.rules);
 
     /* now create the rules */
     if(vctx.conf.old_rulecreation_method == TRUE || vctx.conf.bash_out == TRUE)
     {
         /* call with create_prerules == 1 */
-        if(create_all_rules(debuglvl, &vctx, 1) != 0)
+        if(create_all_rules(&vctx, 1) != 0)
         {
             vrmr_error(-1, "Error", "creating rules failed.");
             exit(EXIT_FAILURE);
@@ -498,7 +497,7 @@ main(int argc, char *argv[])
     }
     else
     {
-        if(load_ruleset(debuglvl, &vctx) < 0)
+        if(load_ruleset(&vctx) < 0)
         {
             vrmr_error(-1, "Error", "creating rules failed.");
             exit(EXIT_FAILURE);
@@ -660,10 +659,9 @@ main(int argc, char *argv[])
 
                     if(dynamic_wait_time >= vctx.conf.dynamic_changes_interval)
                     {
-                        if(debuglvl >= LOW)
-                            vrmr_debug(__FUNC__, "check the dynamic ipaddresses.");
+                        vrmr_debug(LOW, "check the dynamic ipaddresses.");
 
-                        if(check_for_changed_dynamic_ips(debuglvl, &vctx.interfaces))
+                        if(check_for_changed_dynamic_ips(&vctx.interfaces))
                         {
                             reload_dyn = TRUE;
                         }
@@ -678,7 +676,7 @@ main(int argc, char *argv[])
                 if(sighup_count > 0 || reload_shm == TRUE || reload_dyn == TRUE)
                 {
                     /* apply changes */
-                    result = apply_changes(debuglvl, &vctx, &vctx.reg);
+                    result = apply_changes(&vctx, &vctx.reg);
                     if(result < 0)
                     {
                         vrmr_error(-1, "Error", "applying changes failed.");
@@ -754,7 +752,7 @@ main(int argc, char *argv[])
                     if(reload_dyn == TRUE)
                     {
                         /* notify vuurmuur_log */
-                        send_hup_to_vuurmuurlog(debuglvl);
+                        send_hup_to_vuurmuurlog();
                     }
 
                     /* reset */
@@ -767,7 +765,7 @@ main(int argc, char *argv[])
             }
 
             if (sigint_count || sigterm_count)
-                vrmr_debug(__FUNC__, "killed by INT or TERM");
+                vrmr_debug(NONE, "killed by INT or TERM");
 
             vrmr_info("Info", "Destroying shared memory...");
             if(shmctl(shm_id, IPC_RMID, NULL) < 0)
@@ -777,8 +775,7 @@ main(int argc, char *argv[])
             }
             else
             {
-                if(debuglvl >= LOW)
-                    vrmr_debug(__FUNC__, "shared memory destroyed.");
+                vrmr_debug(MEDIUM, "shared memory destroyed.");
             }
 
             /* destroy semaphore */
@@ -804,7 +801,7 @@ main(int argc, char *argv[])
     }
 
     /* unload the backends */
-    result = vrmr_backends_unload(debuglvl, &vctx.conf, &vctx);
+    result = vrmr_backends_unload(&vctx.conf, &vctx);
     if(result < 0)
     {
         fprintf(stdout, "Error: unloading backends failed.\n");
@@ -817,25 +814,23 @@ main(int argc, char *argv[])
     */
 
     /* destroy the ServicesList */
-    vrmr_destroy_serviceslist(debuglvl, &vctx.services);
+    vrmr_destroy_serviceslist(&vctx.services);
 
     /* destroy the ZonedataList */
-    vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
+    vrmr_destroy_zonedatalist(&vctx.zones);
 
     /* destroy the InterfacesList */
-    vrmr_destroy_interfaceslist(debuglvl, &vctx.interfaces);
+    vrmr_destroy_interfaceslist(&vctx.interfaces);
 
     /* destroy the QuerydataList */
-    if(vrmr_rules_cleanup_list(debuglvl, &vctx.rules) < 0)
+    if(vrmr_rules_cleanup_list(&vctx.rules) < 0)
         retval = -1;
 
-    vrmr_list_cleanup(debuglvl, &vctx.blocklist.list);
+    vrmr_list_cleanup(&vctx.blocklist.list);
 
     vrmr_deinit(&vctx);
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "** end **, return = %d", retval);
-
+    vrmr_debug(MEDIUM, "** end **, return = %d", retval);
     return(retval);
 }
 

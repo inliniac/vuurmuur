@@ -92,7 +92,7 @@ remove_leading_part(char *input)
   
  */
 int
-script_unblock(const int debuglvl, VuurmuurScript *vr_script)
+script_unblock(VuurmuurScript *vr_script)
 {
     char        removed = FALSE;    /* used to track if we really removed the
                                        object */
@@ -102,20 +102,20 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
     char        *str = NULL;
 
 
-    vrmr_list_setup(debuglvl, &blocklist.list, free);
+    vrmr_list_setup(&blocklist.list, free);
     blocklist.old_blocklistfile_used = FALSE;
 
-    while(vr_script->vctx.rf->ask(debuglvl, vr_script->vctx.rule_backend, "blocklist", "RULE",
+    while(vr_script->vctx.rf->ask(vr_script->vctx.rule_backend, "blocklist", "RULE",
                 vr_script->bdat, sizeof(vr_script->bdat), VRMR_TYPE_RULE, 1) == 1)
     {
-        vrmr_rules_encode_rule(debuglvl, vr_script->bdat, sizeof(vr_script->bdat));
+        vrmr_rules_encode_rule(vr_script->bdat, sizeof(vr_script->bdat));
 
         str = remove_leading_part(vr_script->bdat);
 
         if(strcmp(vr_script->set, str))
         {
             /* ok, no match; keep it in the list */
-            if(vrmr_list_append(debuglvl, &blocklist.list,
+            if(vrmr_list_append(&blocklist.list,
                     remove_leading_part(vr_script->bdat)) == NULL)
             {
                 vrmr_error(VRS_ERR_INTERNAL, VR_ERR,
@@ -137,7 +137,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
 
     if(removed == TRUE)
     {
-        if(vrmr_blocklist_save_list(debuglvl, &vr_script->vctx, &vr_script->vctx.conf, &blocklist) != 0)
+        if(vrmr_blocklist_save_list(&vr_script->vctx, &vr_script->vctx.conf, &blocklist) != 0)
         {
             vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
                 "could not save updated blocklist (in: %s:%d).",
@@ -154,7 +154,7 @@ script_unblock(const int debuglvl, VuurmuurScript *vr_script)
         retval = VRS_ERR_COMMANDLINE;
     }
 
-    vrmr_list_cleanup(debuglvl, &blocklist.list);
+    vrmr_list_cleanup(&blocklist.list);
 
     return(retval);
 }

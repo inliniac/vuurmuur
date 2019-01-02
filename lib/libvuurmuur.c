@@ -21,6 +21,8 @@
 #include "config.h"
 #include "vuurmuur.h"
 
+int vrmr_debug_level = 0;
+
 /*  vrmr_rule_malloc
 
     Allocates memory for a rule, and inits all variables.
@@ -47,7 +49,7 @@ vrmr_rule_malloc(void)
 
 
 void *
-vrmr_rule_option_malloc(const int debuglvl)
+vrmr_rule_option_malloc()
 {
     struct vrmr_rule_options  *opt_ptr = NULL;
 
@@ -61,15 +63,15 @@ vrmr_rule_option_malloc(const int debuglvl)
     memset(opt_ptr, 0, sizeof(struct vrmr_rule_options));
 
     /* setup the lists */
-    vrmr_list_setup(debuglvl, &opt_ptr->RemoteportList, NULL);
-    vrmr_list_setup(debuglvl, &opt_ptr->ListenportList, NULL);
+    vrmr_list_setup(&opt_ptr->RemoteportList, NULL);
+    vrmr_list_setup(&opt_ptr->ListenportList, NULL);
 
     return(opt_ptr);
 }
 
 
 void *
-vrmr_zone_malloc(const int debuglvl)
+vrmr_zone_malloc()
 {
     struct vrmr_zone *zone_ptr = NULL;
 
@@ -84,9 +86,9 @@ vrmr_zone_malloc(const int debuglvl)
 
     zone_ptr->ipv6.cidr6 = -1;
 
-    vrmr_list_setup(debuglvl, &zone_ptr->GroupList, NULL);
-    vrmr_list_setup(debuglvl, &zone_ptr->InterfaceList, NULL);
-    vrmr_list_setup(debuglvl, &zone_ptr->ProtectList, free);
+    vrmr_list_setup(&zone_ptr->GroupList, NULL);
+    vrmr_list_setup(&zone_ptr->InterfaceList, NULL);
+    vrmr_list_setup(&zone_ptr->ProtectList, free);
 
     zone_ptr->type = VRMR_TYPE_UNSET;
 
@@ -96,18 +98,18 @@ vrmr_zone_malloc(const int debuglvl)
 
 
 void
-vrmr_zone_free(const int debuglvl, struct vrmr_zone *zone_ptr)
+vrmr_zone_free(struct vrmr_zone *zone_ptr)
 {
     if(!zone_ptr)
         return;
 
     if(zone_ptr->type == VRMR_TYPE_GROUP)
-        (void)vrmr_list_cleanup(debuglvl, &zone_ptr->GroupList);
+        (void)vrmr_list_cleanup(&zone_ptr->GroupList);
 
     if(zone_ptr->type == VRMR_TYPE_NETWORK)
     {
-        (void)vrmr_list_cleanup(debuglvl, &zone_ptr->InterfaceList);
-        (void)vrmr_list_cleanup(debuglvl, &zone_ptr->ProtectList);
+        (void)vrmr_list_cleanup(&zone_ptr->InterfaceList);
+        (void)vrmr_list_cleanup(&zone_ptr->ProtectList);
     }
 
     free(zone_ptr);
@@ -137,7 +139,7 @@ vrmr_service_malloc(void)
 
 /* returns a initialized interface memory area */
 void *
-vrmr_interface_malloc(const int debuglvl)
+vrmr_interface_malloc()
 {
     struct vrmr_interface *iface_ptr = NULL;
 
@@ -153,7 +155,7 @@ vrmr_interface_malloc(const int debuglvl)
 
     iface_ptr->active = TRUE;
 
-    vrmr_list_setup(debuglvl, &iface_ptr->ProtectList, free);
+    vrmr_list_setup(&iface_ptr->ProtectList, free);
 
     iface_ptr->cnt = NULL;
 

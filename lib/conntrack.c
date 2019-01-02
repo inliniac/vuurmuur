@@ -59,7 +59,7 @@ struct ConntrackLine
         In case of error we return 0.
 */
 static int
-filtered_connection(const int debuglvl, struct vrmr_conntrack_entry *cd_ptr, struct vrmr_filter *filter)
+filtered_connection(struct vrmr_conntrack_entry *cd_ptr, struct vrmr_filter *filter)
 {
     char    line[512] = "";
 
@@ -152,8 +152,7 @@ vrmr_conn_print_dlist(const struct vrmr_list *dlist)
         -1: (serious) error
 */
 static int
-conn_line_to_data(  const int debuglvl,
-                    struct ConntrackLine *connline_ptr,
+conn_line_to_data(  struct ConntrackLine *connline_ptr,
                     struct vrmr_conntrack_entry *conndata_ptr,
                     struct vrmr_hash_table *serhash,
                     struct vrmr_hash_table *zonehash,
@@ -182,7 +181,7 @@ conn_line_to_data(  const int debuglvl,
     conndata_ptr->ipv6 = connline_ptr->ipv6;
 
     /* first the service name */
-    conndata_ptr->service = vrmr_search_service_in_hash(debuglvl,
+    conndata_ptr->service = vrmr_search_service_in_hash(
                                     connline_ptr->src_port,
                                     connline_ptr->dst_port,
                                     connline_ptr->protocol, serhash);
@@ -191,7 +190,7 @@ conn_line_to_data(  const int debuglvl,
         /* do a reverse lookup. This will prevent connections that
          * have been picked up by conntrack midstream to look
          * unrecognized  */
-        if((conndata_ptr->service = vrmr_search_service_in_hash(debuglvl,
+        if((conndata_ptr->service = vrmr_search_service_in_hash(
             connline_ptr->dst_port, connline_ptr->src_port,
             connline_ptr->protocol, serhash)) == NULL)
         {
@@ -243,13 +242,12 @@ conn_line_to_data(  const int debuglvl,
 
     /* then the from name */
     if (!(conndata_ptr->ipv6))
-        conndata_ptr->from = vrmr_search_zone_in_hash_with_ipv4(debuglvl,
+        conndata_ptr->from = vrmr_search_zone_in_hash_with_ipv4(
                 connline_ptr->src_ip, zonehash);
     if(conndata_ptr->from == NULL)
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "unknown ip: '%s'.",
-                    connline_ptr->src_ip);
+        vrmr_debug(HIGH, "unknown ip: '%s'.",
+                connline_ptr->src_ip);
 
         if(req->unknown_ip_as_net == FALSE)
         {
@@ -263,7 +261,7 @@ conn_line_to_data(  const int debuglvl,
         }
         else
         {
-            if(!(zone_name_ptr = vrmr_get_network_for_ipv4(debuglvl, connline_ptr->src_ip, zonelist)))
+            if(!(zone_name_ptr = vrmr_get_network_for_ipv4(connline_ptr->src_ip, zonelist)))
             {
                 if(!(conndata_ptr->fromname = strdup(connline_ptr->src_ip)))
                 {
@@ -297,7 +295,7 @@ conn_line_to_data(  const int debuglvl,
        sizeof(conndata_ptr->orig_dst_ip));
     /* then the to name */
     if (!(conndata_ptr->ipv6))
-        conndata_ptr->to = vrmr_search_zone_in_hash_with_ipv4(debuglvl, connline_ptr->dst_ip, zonehash);
+        conndata_ptr->to = vrmr_search_zone_in_hash_with_ipv4(connline_ptr->dst_ip, zonehash);
     if(conndata_ptr->to == NULL)
     {
         if(req->unknown_ip_as_net == FALSE)
@@ -310,7 +308,7 @@ conn_line_to_data(  const int debuglvl,
         }
         else
         {
-            if(!(zone_name_ptr = vrmr_get_network_for_ipv4(debuglvl, connline_ptr->dst_ip, zonelist)))
+            if(!(zone_name_ptr = vrmr_get_network_for_ipv4(connline_ptr->dst_ip, zonelist)))
             {
                 if(!(conndata_ptr->toname = strdup(connline_ptr->dst_ip)))
                 {
@@ -380,7 +378,7 @@ conn_line_to_data(  const int debuglvl,
 /* tcp      6 431999 ESTABLISHED src=192.168.1.2 dst=192.168.1.16 sport=51359 dport=22 packets=80969 bytes=7950474 src=192.168.1.16 dst=192.168.1.2 sport=22 dport=51359 packets=117783 bytes=123061993 [ASSURED] mark=0 use=1*/
 /* tcp      6 118 SYN_SENT src=192.168.1.4 dst=92.122.217.72 sport=36549 dport=80 packets=1 bytes=60 [UNREPLIED] src=92.122.217.72 dst=192.168.1.4 sport=80 dport=36549 packets=0 bytes=0 mark=0 secmark=0 */
 static int
-parse_tcp_line(const int debuglvl, const char *line,
+parse_tcp_line(const char *line,
         struct ConntrackLine *connline_ptr)
 {
     int     result = 0;
@@ -440,17 +438,16 @@ parse_tcp_line(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 17)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
-                    connline_ptr->to_dst_packets_str,
-                    connline_ptr->to_dst_bytes_str,
-                    connline_ptr->to_src_packets_str,
-                    connline_ptr->to_src_bytes_str);
+        vrmr_debug(LOW, "to dst: %sP %sB to src: %sP %sB",
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
     }
     else
     {
@@ -489,7 +486,7 @@ parse_tcp_line(const int debuglvl, const char *line,
                             alt_dest_port);
             if(result != 13)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -516,7 +513,7 @@ parse_tcp_line(const int debuglvl, const char *line,
 
 /* tcp      6 57 CLOSE_WAIT src=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx dst=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx sport=37424 dport=443 src=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx dst=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx sport=443 dport=37424 [ASSURED] mark=0 zone=0 use=2 */
 static int
-parse_tcp_line_ipv6(const int debuglvl, const char *line,
+parse_tcp_line_ipv6(const char *line,
         struct ConntrackLine *connline_ptr)
 {
     int     result = 0;
@@ -576,17 +573,16 @@ parse_tcp_line_ipv6(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 17)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
-                    connline_ptr->to_dst_packets_str,
-                    connline_ptr->to_dst_bytes_str,
-                    connline_ptr->to_src_packets_str,
-                    connline_ptr->to_src_bytes_str);
+        vrmr_debug(LOW, "to dst: %sP %sB to src: %sP %sB",
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
     }
     else
     {
@@ -625,7 +621,7 @@ parse_tcp_line_ipv6(const int debuglvl, const char *line,
                             alt_dest_port);
             if(result != 13)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -655,7 +651,7 @@ parse_tcp_line_ipv6(const int debuglvl, const char *line,
 /* udp      17 12 src=192.168.1.2 dst=192.168.1.255 sport=137 dport=137 [UNREPLIED] src=192.168.1.255 dst=192.168.1.2 sport=137 dport=137 use=1*/
 /* udp      17 29 src=192.168.1.4 dst=192.168.1.1 sport=57902 dport=53 packets=1 bytes=69 [UNREPLIED] src=192.168.1.1 dst=192.168.1.4 sport=53 dport=57902 packets=0 bytes=0 mark=0 secmark=0 use=2 */
 static int
-parse_udp_line(const int debuglvl, const char *line,
+parse_udp_line(const char *line,
         struct ConntrackLine *connline_ptr)
 {
     int     result = 0;
@@ -713,7 +709,7 @@ parse_udp_line(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 16)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s', result %d", line, result);
+                vrmr_debug(NONE, "parse error: '%s', result %d", line, result);
                 return(-1);
             }
         }
@@ -721,12 +717,11 @@ parse_udp_line(const int debuglvl, const char *line,
         strlcpy(connline_ptr->status, "UDP_ESTABLISHED",
                 sizeof(connline_ptr->status));
 
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
-                    connline_ptr->to_dst_packets_str,
-                    connline_ptr->to_dst_bytes_str,
-                    connline_ptr->to_src_packets_str,
-                    connline_ptr->to_src_bytes_str);
+        vrmr_debug(LOW, "to dst: %sP %sB to src: %sP %sB",
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
     }
     else
     {
@@ -764,7 +759,7 @@ parse_udp_line(const int debuglvl, const char *line,
                             alt_dest_port);
             if(result != 12)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -793,7 +788,7 @@ parse_udp_line(const int debuglvl, const char *line,
 }
 
 static int
-parse_udp_line_ipv6(const int debuglvl, const char *line,
+parse_udp_line_ipv6(const char *line,
         struct ConntrackLine *connline_ptr)
 {
     int     result = 0;
@@ -851,7 +846,7 @@ parse_udp_line_ipv6(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 16)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s', result %d", line, result);
+                vrmr_debug(NONE, "parse error: '%s', result %d", line, result);
                 return(-1);
             }
         }
@@ -859,12 +854,11 @@ parse_udp_line_ipv6(const int debuglvl, const char *line,
         strlcpy(connline_ptr->status, "UDP_ESTABLISHED",
                 sizeof(connline_ptr->status));
 
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
-                    connline_ptr->to_dst_packets_str,
-                    connline_ptr->to_dst_bytes_str,
-                    connline_ptr->to_src_packets_str,
-                    connline_ptr->to_src_bytes_str);
+        vrmr_debug(LOW, "to dst: %sP %sB to src: %sP %sB",
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
     }
     else
     {
@@ -902,7 +896,7 @@ parse_udp_line_ipv6(const int debuglvl, const char *line,
                             alt_dest_port);
             if(result != 12)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -934,7 +928,7 @@ parse_udp_line_ipv6(const int debuglvl, const char *line,
 //icmp     1 30 src=192.168.1.2 dst=192.168.1.64 type=8 code=0 id=64811 packets=1 bytes=84 [UNREPLIED] src=192.168.1.64 dst=192.168.1.2 type=0 code=0 id=64811 packets=0 bytes=0 mark=0 use=1
 //icmp     1 4 src=xx.xx.xx.xx dst=194.109.21.51 type=8 code=0 id=28193 packets=1 bytes=84 src=194.109.21.51 dst=xx.xx.xx.xx type=0 code=0 id=28193 packets=1 bytes=84 mark=0 secmark=0 use=2
 static int
-parse_icmp_line(const int debuglvl, const char *line,
+parse_icmp_line(const char *line,
         struct ConntrackLine *connline_ptr)
 {
     int     result = 0;
@@ -993,17 +987,16 @@ parse_icmp_line(const int debuglvl, const char *line,
                     connline_ptr->to_src_bytes_str);
             if(result != 17)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
-        if (debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
-                    connline_ptr->to_dst_packets_str,
-                    connline_ptr->to_dst_bytes_str,
-                    connline_ptr->to_src_packets_str,
-                    connline_ptr->to_src_bytes_str);
+        vrmr_debug(LOW, "to dst: %sP %sB to src: %sP %sB",
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
     }
     else
     {
@@ -1023,7 +1016,7 @@ parse_icmp_line(const int debuglvl, const char *line,
                         connline_ptr->alt_dst_ip);
         if(result != 11)
         {
-            vrmr_debug(__FUNC__, "parse error: '%s'", line);
+            vrmr_debug(NONE, "parse error: '%s'", line);
             return(-1);
         }
     }
@@ -1040,7 +1033,7 @@ parse_icmp_line(const int debuglvl, const char *line,
 }
 
 static int
-parse_icmp_line_ipv6(const int debuglvl, const char *line,
+parse_icmp_line_ipv6(const char *line,
         struct ConntrackLine *connline_ptr)
 {
     int     result = 0;
@@ -1099,17 +1092,16 @@ parse_icmp_line_ipv6(const int debuglvl, const char *line,
                     connline_ptr->to_src_bytes_str);
             if(result != 17)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
-        if (debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
-                    connline_ptr->to_dst_packets_str,
-                    connline_ptr->to_dst_bytes_str,
-                    connline_ptr->to_src_packets_str,
-                    connline_ptr->to_src_bytes_str);
+        vrmr_debug(LOW, "to dst: %sP %sB to src: %sP %sB",
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
     }
     else
     {
@@ -1143,7 +1135,7 @@ parse_icmp_line_ipv6(const int debuglvl, const char *line,
                     connline_ptr->alt_dst_ip);
             if(result != 10)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -1167,7 +1159,7 @@ parse_icmp_line_ipv6(const int debuglvl, const char *line,
         unknown 41 575 src=<ip> dst=<ip> packets=6 bytes=600 [UNREPLIED] src=<ip> dst=<ip> packets=0 bytes=0 mark=0 use=1
 */
 static int
-parse_unknown_line(const int debuglvl, const char *line,
+parse_unknown_line(const char *line,
         struct ConntrackLine *connline_ptr)
 {
     int     result = 0;
@@ -1208,17 +1200,16 @@ parse_unknown_line(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 12)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
-                    connline_ptr->to_dst_packets_str,
-                    connline_ptr->to_dst_bytes_str,
-                    connline_ptr->to_src_packets_str,
-                    connline_ptr->to_src_bytes_str);
+        vrmr_debug(LOW, "to dst: %sP %sB to src: %sP %sB",
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
     }
     else
     {
@@ -1245,7 +1236,7 @@ parse_unknown_line(const int debuglvl, const char *line,
                             connline_ptr->alt_dst_ip);
             if (result != 8)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -1259,7 +1250,7 @@ parse_unknown_line(const int debuglvl, const char *line,
 }
 
 static int
-parse_unknown_line_ipv6(const int debuglvl, const char *line,
+parse_unknown_line_ipv6(const char *line,
         struct ConntrackLine *connline_ptr)
 {
     int     result = 0;
@@ -1300,17 +1291,16 @@ parse_unknown_line_ipv6(const int debuglvl, const char *line,
                             connline_ptr->to_src_bytes_str);
             if(result != 12)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
 
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "to dst: %sP %sB to src: %sP %sB",
-                    connline_ptr->to_dst_packets_str,
-                    connline_ptr->to_dst_bytes_str,
-                    connline_ptr->to_src_packets_str,
-                    connline_ptr->to_src_bytes_str);
+        vrmr_debug(LOW, "to dst: %sP %sB to src: %sP %sB",
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
     }
     else
     {
@@ -1337,7 +1327,7 @@ parse_unknown_line_ipv6(const int debuglvl, const char *line,
                             connline_ptr->alt_dst_ip);
             if (result != 8)
             {
-                vrmr_debug(__FUNC__, "parse error: '%s'", line);
+                vrmr_debug(NONE, "parse error: '%s'", line);
                 return(-1);
             }
         }
@@ -1353,7 +1343,7 @@ parse_unknown_line_ipv6(const int debuglvl, const char *line,
 
 /*  process one line from the conntrack file */
 static int
-conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
+conn_process_one_conntrack_line_ipv6(const char *line,
                                 struct ConntrackLine *connline_ptr)
 {
     char    protocol[16] = "";
@@ -1368,27 +1358,26 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
 
     /* first determine protocol */
     sscanf(line, "%s", protocol);
-    if (debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "protocol %s", protocol);
+    vrmr_debug(LOW, "protocol %s", protocol);
 
     if(strcmp(protocol, "tcp") == 0)
     {
-        if (parse_tcp_line_ipv6(debuglvl, line, connline_ptr) < 0)
+        if (parse_tcp_line_ipv6(line, connline_ptr) < 0)
             return(0);
     }
     else if(strcmp(protocol, "udp") == 0)
     {
-        if (parse_udp_line_ipv6(debuglvl, line, connline_ptr) < 0)
+        if (parse_udp_line_ipv6(line, connline_ptr) < 0)
             return(0);
     }
     else if(strcmp(protocol, "icmpv6") == 0)
     {
-        if (parse_icmp_line_ipv6(debuglvl, line, connline_ptr) < 0)
+        if (parse_icmp_line_ipv6(line, connline_ptr) < 0)
             return(0);
     }
     else if(strcmp(protocol, "unknown") == 0)
     {
-        if (parse_unknown_line_ipv6(debuglvl, line, connline_ptr) < 0)
+        if (parse_unknown_line_ipv6(line, connline_ptr) < 0)
             return(0);
     }
     else
@@ -1415,8 +1404,8 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
                     >= sizeof(connline_ptr->orig_dst_ip))
         {
             vrmr_error(-1, "Internal Error",
-            "string overflow (in: %s:%d).",
-            __FUNC__, __LINE__);
+                    "string overflow (in: %s:%d).",
+                    __FUNC__, __LINE__);
             return(-1);
         }
         /* DNAT, we use alt_source_ip as dest */
@@ -1439,8 +1428,8 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
                     >= sizeof(connline_ptr->orig_dst_ip))
         {
             vrmr_error(-1, "Internal Error",
-            "string overflow (in: %s:%d).",
-            __FUNC__, __LINE__);
+                    "string overflow (in: %s:%d).",
+                    __FUNC__, __LINE__);
             return(-1);
         }
         /* DNAT, we use alt_source_ip as dest */
@@ -1534,7 +1523,7 @@ conn_process_one_conntrack_line_ipv6(const int debuglvl, const char *line,
 
 /*  process one line from the conntrack file */
 static int
-conn_process_one_conntrack_line(const int debuglvl, const char *line,
+conn_process_one_conntrack_line(const char *line,
                                 struct ConntrackLine *connline_ptr)
 {
     char    protocol[16] = "";
@@ -1547,27 +1536,26 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
 
     /* first determine protocol */
     sscanf(line, "%s", protocol);
-    if (debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "protocol %s", protocol);
+    vrmr_debug(LOW, "protocol %s", protocol);
 
     if(strcmp(protocol, "tcp") == 0)
     {
-        if (parse_tcp_line(debuglvl, line, connline_ptr) < 0)
+        if (parse_tcp_line(line, connline_ptr) < 0)
             return(0);
     }
     else if(strcmp(protocol, "udp") == 0)
     {
-        if (parse_udp_line(debuglvl, line, connline_ptr) < 0)
+        if (parse_udp_line(line, connline_ptr) < 0)
             return(0);
     }
     else if(strcmp(protocol, "icmp") == 0)
     {
-        if (parse_icmp_line(debuglvl, line, connline_ptr) < 0)
+        if (parse_icmp_line(line, connline_ptr) < 0)
             return(0);
     }
     else if(strcmp(protocol, "unknown") == 0)
     {
-        if (parse_unknown_line(debuglvl, line, connline_ptr) < 0)
+        if (parse_unknown_line(line, connline_ptr) < 0)
             return(0);
     }
     else if(strcmp(protocol, "ipv4") == 0)
@@ -1587,7 +1575,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
         /* set ptr past the nf_conntrack prepend */
         ptr += i;
 
-        return(conn_process_one_conntrack_line(debuglvl, ptr, connline_ptr));
+        return(conn_process_one_conntrack_line(ptr, connline_ptr));
     }
     else if(strcmp(protocol, "ipv6") == 0)
     {
@@ -1606,7 +1594,7 @@ conn_process_one_conntrack_line(const int debuglvl, const char *line,
         /* set ptr past the nf_conntrack prepend */
         ptr += i;
 
-        return(conn_process_one_conntrack_line_ipv6(debuglvl, ptr, connline_ptr));
+        return(conn_process_one_conntrack_line_ipv6(ptr, connline_ptr));
     }
     else
     {
@@ -1884,7 +1872,7 @@ conn_match_conntrackdata(const void *check, const void *hash)
     Destroys the list.
 */
 void
-vrmr_conn_list_cleanup(int debuglvl, struct vrmr_list *conn_dlist)
+vrmr_conn_list_cleanup(struct vrmr_list *conn_dlist)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_conntrack_entry    *cd_ptr = NULL;
@@ -1903,7 +1891,7 @@ vrmr_conn_list_cleanup(int debuglvl, struct vrmr_list *conn_dlist)
         free(cd_ptr);
     }
 
-    vrmr_list_cleanup(debuglvl, conn_dlist);
+    vrmr_list_cleanup(conn_dlist);
 }
 
 
@@ -1927,7 +1915,7 @@ vrmr_conn_list_cleanup(int debuglvl, struct vrmr_list *conn_dlist)
     cd struct
 */
 static int
-vrmr_conn_get_connections_do(const int debuglvl,
+vrmr_conn_get_connections_do(
                         struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
@@ -1967,7 +1955,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         hashtbl_size = prev_conn_cnt;
 
     /* initialize the hash */
-    if(vrmr_hash_setup(debuglvl, &conn_hash, hashtbl_size,
+    if(vrmr_hash_setup(&conn_hash, hashtbl_size,
             conn_hash_conntrackdata, conn_match_conntrackdata) != 0)
     {
         vrmr_error(-1, "Internal Error", "vrmr_hash_setup() failed "
@@ -1979,7 +1967,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         conntrack_cmd = 1;
 
         /* create the tempfile */
-        int fd = vrmr_create_tempfile(debuglvl, tmpfile);
+        int fd = vrmr_create_tempfile(tmpfile);
         if(fd == -1)
             return(-1);
         else
@@ -1989,7 +1977,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         if (ipver == VRMR_IPV4) {
             char *args[] = { cnf->conntrack_location,
                 "-L", "-f", "ipv4", NULL };
-            int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->conntrack_location, args, outputs);
+            int result = libvuurmuur_exec_command(cnf, cnf->conntrack_location, args, outputs);
             if (result == -1) {
                 vrmr_error(-1, "Error", "unable to execute "
                         "conntrack: %s (in: %s:%d).", strerror(errno),
@@ -1999,7 +1987,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         } else {
             char *args[] = { cnf->conntrack_location,
                 "-L", "-f", "ipv6", NULL };
-            int result = libvuurmuur_exec_command(debuglvl, cnf, cnf->conntrack_location, args, outputs);
+            int result = libvuurmuur_exec_command(cnf, cnf->conntrack_location, args, outputs);
             if (result == -1) {
                 vrmr_error(-1, "Error", "unable to execute "
                         "conntrack: %s (in: %s:%d).", strerror(errno),
@@ -2061,9 +2049,9 @@ vrmr_conn_get_connections_do(const int debuglvl,
         /* parse the line */
         int r;
         if (ipver == 0 || ipver == VRMR_IPV4)
-            r = conn_process_one_conntrack_line(debuglvl, line, &cl);
+            r = conn_process_one_conntrack_line(line, &cl);
         else
-            r = conn_process_one_conntrack_line_ipv6(debuglvl, line, &cl);
+            r = conn_process_one_conntrack_line_ipv6(line, &cl);
         if (r < 0) {
             vrmr_error(-1, "Internal Error",
                     "conn_process_one_conntrack_line() failed "
@@ -2088,7 +2076,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         memset(cd_ptr, 0, sizeof(struct vrmr_conntrack_entry));
 
         /* analyse it */
-        if(conn_line_to_data(debuglvl, &cl, cd_ptr, serv_hash,
+        if(conn_line_to_data(&cl, cd_ptr, serv_hash,
                 zone_hash, zone_list, req) < 0)
         {
             vrmr_error(-1, "Error", "conn_line_to_data() "
@@ -2110,7 +2098,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
         if((strncmp(cd_ptr->fromname, "127.", 4) == 0 ||
             strncmp(cd_ptr->toname,   "127.", 4) == 0 ||
             (req->use_filter == TRUE &&
-            filtered_connection(debuglvl, cd_ptr, &req->filter) == 1)))
+            filtered_connection(cd_ptr, &req->filter) == 1)))
         {
             if(cd_ptr->from == NULL)
                 free(cd_ptr->fromname);
@@ -2156,7 +2144,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
 
             /* now check if the cd is already in the list */
             if (req->group_conns == TRUE &&
-                (cd_ptr = vrmr_hash_search(debuglvl, &conn_hash, (void *)cd_ptr)) != NULL)
+                (cd_ptr = vrmr_hash_search(&conn_hash, (void *)cd_ptr)) != NULL)
             {
                 /*  FOUND in the hash
 
@@ -2190,7 +2178,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
                 cd_ptr = old_cd_ptr;
 
                 /* append the new cd to the list */
-                cd_ptr->d_node = vrmr_list_append(debuglvl, conn_dlist, cd_ptr);
+                cd_ptr->d_node = vrmr_list_append(conn_dlist, cd_ptr);
                 if(!cd_ptr->d_node)
                 {
                     vrmr_error(-1, "Internal Error", "unable to append into list (in: vrmr_conn_get_connections).");
@@ -2199,7 +2187,7 @@ vrmr_conn_get_connections_do(const int debuglvl,
                 }
 
                 /* and insert it into the hash */
-                if(vrmr_hash_insert(debuglvl, &conn_hash, cd_ptr) != 0)
+                if(vrmr_hash_insert(&conn_hash, cd_ptr) != 0)
                 {
                     vrmr_error(-1, "Internal Error", "unable to insert into hash (in: vrmr_conn_get_connections).");
                     retval = -1;
@@ -2230,13 +2218,13 @@ end:
     }
 
     /* cleanup */
-    vrmr_hash_cleanup(debuglvl, &conn_hash);
+    vrmr_hash_cleanup(&conn_hash);
 
     return(retval);
 }
 
 static int
-vrmr_conn_get_connections_cmd (const int debuglvl,
+vrmr_conn_get_connections_cmd (
                         struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
@@ -2248,13 +2236,13 @@ vrmr_conn_get_connections_cmd (const int debuglvl,
                         int ipver
                     )
 {
-    return vrmr_conn_get_connections_do(debuglvl, cnf, prev_conn_cnt,
+    return vrmr_conn_get_connections_do(cnf, prev_conn_cnt,
             serv_hash, zone_hash, conn_dlist, zone_list,
             req, connstat_ptr, ipver);
 }
 
 static int
-vrmr_conn_get_connections_proc (const int debuglvl,
+vrmr_conn_get_connections_proc (
                         struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
@@ -2265,13 +2253,13 @@ vrmr_conn_get_connections_proc (const int debuglvl,
                         struct vrmr_conntrack_stats *connstat_ptr
                     )
 {
-    return vrmr_conn_get_connections_do(debuglvl, cnf, prev_conn_cnt,
+    return vrmr_conn_get_connections_do(cnf, prev_conn_cnt,
             serv_hash, zone_hash, conn_dlist, zone_list,
             req, connstat_ptr, 0);
 }
 
 int
-vrmr_conn_get_connections(   const int debuglvl,
+vrmr_conn_get_connections(
                         struct vrmr_config *cnf,
                         const unsigned int prev_conn_cnt,
                         struct vrmr_hash_table *serv_hash,
@@ -2298,16 +2286,16 @@ vrmr_conn_get_connections(   const int debuglvl,
     connstat_ptr->accounting = 0;
 
     if (strlen(cnf->conntrack_location) > 0) {
-        retval = vrmr_conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
+        retval = vrmr_conn_get_connections_cmd(cnf, prev_conn_cnt,
                 serv_hash, zone_hash, conn_dlist, zone_list,
                 req, connstat_ptr, VRMR_IPV4);
         if (retval == 0 && req->ipv6) {
-            retval = vrmr_conn_get_connections_cmd(debuglvl, cnf, prev_conn_cnt,
+            retval = vrmr_conn_get_connections_cmd(cnf, prev_conn_cnt,
                     serv_hash, zone_hash, conn_dlist, zone_list,
                     req, connstat_ptr, VRMR_IPV6);
         }
     } else {
-        retval = vrmr_conn_get_connections_proc(debuglvl, cnf, prev_conn_cnt,
+        retval = vrmr_conn_get_connections_proc(cnf, prev_conn_cnt,
                 serv_hash, zone_hash, conn_dlist, zone_list,
                 req, connstat_ptr);
     }
@@ -2316,7 +2304,7 @@ vrmr_conn_get_connections(   const int debuglvl,
 }
 
 void
-vrmr_connreq_setup(const int debuglvl, struct vrmr_conntrack_request *connreq)
+vrmr_connreq_setup(struct vrmr_conntrack_request *connreq)
 {
     /* safety */
     if(connreq == NULL)
@@ -2326,14 +2314,14 @@ vrmr_connreq_setup(const int debuglvl, struct vrmr_conntrack_request *connreq)
         return;
     }
 
-    vrmr_filter_setup(debuglvl, &connreq->filter);
+    vrmr_filter_setup(&connreq->filter);
 
     memset(connreq, 0, sizeof(struct vrmr_conntrack_request));
 }
 
 
 void
-vrmr_connreq_cleanup(const int debuglvl, struct vrmr_conntrack_request *connreq)
+vrmr_connreq_cleanup(struct vrmr_conntrack_request *connreq)
 {
     /* safety */
     if(connreq == NULL)
@@ -2343,7 +2331,7 @@ vrmr_connreq_cleanup(const int debuglvl, struct vrmr_conntrack_request *connreq)
         return;
     }
 
-    vrmr_filter_cleanup(debuglvl, &connreq->filter);
+    vrmr_filter_cleanup(&connreq->filter);
 
     memset(connreq, 0, sizeof(struct vrmr_conntrack_request));
 }

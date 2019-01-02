@@ -44,7 +44,7 @@ struct ChainRef
         -1: error
 */
 static int
-ruleset_setup(const int debuglvl, RuleSet *ruleset)
+ruleset_setup(RuleSet *ruleset)
 {
     /* safety */
     if(ruleset == NULL)
@@ -60,50 +60,50 @@ ruleset_setup(const int debuglvl, RuleSet *ruleset)
     /* init the lists */
 
     /* raw */
-    vrmr_list_setup(debuglvl, &ruleset->raw_preroute, free);
+    vrmr_list_setup(&ruleset->raw_preroute, free);
 
     /* mangle */
-    vrmr_list_setup(debuglvl, &ruleset->mangle_preroute, free);
-    vrmr_list_setup(debuglvl, &ruleset->mangle_input, free);
-    vrmr_list_setup(debuglvl, &ruleset->mangle_forward, free);
-    vrmr_list_setup(debuglvl, &ruleset->mangle_output, free);
-    vrmr_list_setup(debuglvl, &ruleset->mangle_postroute, free);
+    vrmr_list_setup(&ruleset->mangle_preroute, free);
+    vrmr_list_setup(&ruleset->mangle_input, free);
+    vrmr_list_setup(&ruleset->mangle_forward, free);
+    vrmr_list_setup(&ruleset->mangle_output, free);
+    vrmr_list_setup(&ruleset->mangle_postroute, free);
 
-    vrmr_list_setup(debuglvl, &ruleset->mangle_shape_in, free);
-    vrmr_list_setup(debuglvl, &ruleset->mangle_shape_out, free);
-    vrmr_list_setup(debuglvl, &ruleset->mangle_shape_fw, free);
+    vrmr_list_setup(&ruleset->mangle_shape_in, free);
+    vrmr_list_setup(&ruleset->mangle_shape_out, free);
+    vrmr_list_setup(&ruleset->mangle_shape_fw, free);
 
     /* nat */
-    vrmr_list_setup(debuglvl, &ruleset->nat_preroute, free);
-    vrmr_list_setup(debuglvl, &ruleset->nat_postroute, free);
-    vrmr_list_setup(debuglvl, &ruleset->nat_output, free);
+    vrmr_list_setup(&ruleset->nat_preroute, free);
+    vrmr_list_setup(&ruleset->nat_postroute, free);
+    vrmr_list_setup(&ruleset->nat_output, free);
 
     /* filter */
-    vrmr_list_setup(debuglvl, &ruleset->filter_input, free);
-    vrmr_list_setup(debuglvl, &ruleset->filter_forward, free);
-    vrmr_list_setup(debuglvl, &ruleset->filter_output, free);
+    vrmr_list_setup(&ruleset->filter_input, free);
+    vrmr_list_setup(&ruleset->filter_forward, free);
+    vrmr_list_setup(&ruleset->filter_output, free);
 
-    vrmr_list_setup(debuglvl, &ruleset->filter_antispoof, free);
-    vrmr_list_setup(debuglvl, &ruleset->filter_blocklist, free);
-    vrmr_list_setup(debuglvl, &ruleset->filter_blocktarget, free);
-    vrmr_list_setup(debuglvl, &ruleset->filter_badtcp, free);
-    vrmr_list_setup(debuglvl, &ruleset->filter_synlimittarget, free);
-    vrmr_list_setup(debuglvl, &ruleset->filter_udplimittarget, free);
-    vrmr_list_setup(debuglvl, &ruleset->filter_newaccepttarget, free);
+    vrmr_list_setup(&ruleset->filter_antispoof, free);
+    vrmr_list_setup(&ruleset->filter_blocklist, free);
+    vrmr_list_setup(&ruleset->filter_blocktarget, free);
+    vrmr_list_setup(&ruleset->filter_badtcp, free);
+    vrmr_list_setup(&ruleset->filter_synlimittarget, free);
+    vrmr_list_setup(&ruleset->filter_udplimittarget, free);
+    vrmr_list_setup(&ruleset->filter_newaccepttarget, free);
     /* NFQueue state */
-    vrmr_list_setup(debuglvl, &ruleset->filter_newnfqueuetarget, free);
-    vrmr_list_setup(debuglvl, &ruleset->filter_estrelnfqueuetarget, free);
+    vrmr_list_setup(&ruleset->filter_newnfqueuetarget, free);
+    vrmr_list_setup(&ruleset->filter_estrelnfqueuetarget, free);
     /* NFLog state */
-    vrmr_list_setup(debuglvl, &ruleset->filter_newnflogtarget, free);
-    vrmr_list_setup(debuglvl, &ruleset->filter_estrelnflogtarget, free);
+    vrmr_list_setup(&ruleset->filter_newnflogtarget, free);
+    vrmr_list_setup(&ruleset->filter_estrelnflogtarget, free);
     /* tcp reset */
-    vrmr_list_setup(debuglvl, &ruleset->filter_tcpresettarget, free);
+    vrmr_list_setup(&ruleset->filter_tcpresettarget, free);
     /* accounting */
-    vrmr_list_setup(debuglvl, &ruleset->filter_accounting, free);
-    vrmr_list_setup(debuglvl, &accounting_chain_names, free);
+    vrmr_list_setup(&ruleset->filter_accounting, free);
+    vrmr_list_setup(&accounting_chain_names, free);
 
     /* shaping */
-    vrmr_list_setup(debuglvl, &ruleset->tc_rules, free);
+    vrmr_list_setup(&ruleset->tc_rules, free);
     return(0);
 }
 
@@ -116,7 +116,7 @@ ruleset_setup(const int debuglvl, RuleSet *ruleset)
         nothing, void function
 */
 static void
-ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
+ruleset_cleanup(RuleSet *ruleset)
 {
     /* safety */
     if(ruleset == NULL)
@@ -127,46 +127,46 @@ ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
     }
 
     /* raw */
-    vrmr_list_cleanup(debuglvl, &ruleset->raw_preroute);
+    vrmr_list_cleanup(&ruleset->raw_preroute);
 
     /* mangle */
-    vrmr_list_cleanup(debuglvl, &ruleset->mangle_preroute);
-    vrmr_list_cleanup(debuglvl, &ruleset->mangle_input);
-    vrmr_list_cleanup(debuglvl, &ruleset->mangle_forward);
-    vrmr_list_cleanup(debuglvl, &ruleset->mangle_output);
-    vrmr_list_cleanup(debuglvl, &ruleset->mangle_postroute);
+    vrmr_list_cleanup(&ruleset->mangle_preroute);
+    vrmr_list_cleanup(&ruleset->mangle_input);
+    vrmr_list_cleanup(&ruleset->mangle_forward);
+    vrmr_list_cleanup(&ruleset->mangle_output);
+    vrmr_list_cleanup(&ruleset->mangle_postroute);
 
-    vrmr_list_cleanup(debuglvl, &ruleset->mangle_shape_in);
-    vrmr_list_cleanup(debuglvl, &ruleset->mangle_shape_out);
-    vrmr_list_cleanup(debuglvl, &ruleset->mangle_shape_fw);
+    vrmr_list_cleanup(&ruleset->mangle_shape_in);
+    vrmr_list_cleanup(&ruleset->mangle_shape_out);
+    vrmr_list_cleanup(&ruleset->mangle_shape_fw);
 
     /* nat */
-    vrmr_list_cleanup(debuglvl, &ruleset->nat_preroute);
-    vrmr_list_cleanup(debuglvl, &ruleset->nat_postroute);
-    vrmr_list_cleanup(debuglvl, &ruleset->nat_output);
+    vrmr_list_cleanup(&ruleset->nat_preroute);
+    vrmr_list_cleanup(&ruleset->nat_postroute);
+    vrmr_list_cleanup(&ruleset->nat_output);
 
     /* filter */
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_input);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_forward);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_output);
+    vrmr_list_cleanup(&ruleset->filter_input);
+    vrmr_list_cleanup(&ruleset->filter_forward);
+    vrmr_list_cleanup(&ruleset->filter_output);
 
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_antispoof);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_blocklist);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_blocktarget);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_badtcp);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_synlimittarget);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_udplimittarget);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_newaccepttarget);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_estrelnfqueuetarget);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_newnfqueuetarget);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_estrelnflogtarget);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_newnflogtarget);
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_tcpresettarget);
+    vrmr_list_cleanup(&ruleset->filter_antispoof);
+    vrmr_list_cleanup(&ruleset->filter_blocklist);
+    vrmr_list_cleanup(&ruleset->filter_blocktarget);
+    vrmr_list_cleanup(&ruleset->filter_badtcp);
+    vrmr_list_cleanup(&ruleset->filter_synlimittarget);
+    vrmr_list_cleanup(&ruleset->filter_udplimittarget);
+    vrmr_list_cleanup(&ruleset->filter_newaccepttarget);
+    vrmr_list_cleanup(&ruleset->filter_estrelnfqueuetarget);
+    vrmr_list_cleanup(&ruleset->filter_newnfqueuetarget);
+    vrmr_list_cleanup(&ruleset->filter_estrelnflogtarget);
+    vrmr_list_cleanup(&ruleset->filter_newnflogtarget);
+    vrmr_list_cleanup(&ruleset->filter_tcpresettarget);
 
-    vrmr_list_cleanup(debuglvl, &ruleset->filter_accounting);
-    vrmr_list_cleanup(debuglvl, &accounting_chain_names);
+    vrmr_list_cleanup(&ruleset->filter_accounting);
+    vrmr_list_cleanup(&accounting_chain_names);
 
-    vrmr_list_cleanup(debuglvl, &ruleset->tc_rules);
+    vrmr_list_cleanup(&ruleset->tc_rules);
 
     /* clear all memory */
     memset(ruleset, 0, sizeof(RuleSet));
@@ -181,7 +181,7 @@ ruleset_cleanup(const int debuglvl, RuleSet *ruleset)
         -1: error
 */
 static int
-ruleset_check_accounting(const int debuglvl, char *chain)
+ruleset_check_accounting(char *chain)
 {
     struct vrmr_list_node     *d_node = NULL;
     char            chain_found = 0;
@@ -201,11 +201,8 @@ ruleset_check_accounting(const int debuglvl, char *chain)
     {
         /* strip chain from -A */
         sscanf(chain, "%2s %32s", commandline_switch, stripped_chain);
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "chain: '%s', commandline_switch: '%s', stripped_chain '%s'.",
-                                chain,
-                                commandline_switch,
-                                stripped_chain);
+        vrmr_debug(HIGH, "chain: '%s', commandline_switch: '%s', stripped_chain '%s'.",
+                chain, commandline_switch, stripped_chain);
 
         /*  okay, this is a accounting rule. Accounting rules have
             dynamic chain names, so lets see if we already know this chain.
@@ -220,8 +217,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
 
             if(strcmp(chainref_ptr->chain, stripped_chain) == 0)
             {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "chain '%s' already in the list.", chainref_ptr->chain);
+                vrmr_debug(HIGH, "chain '%s' already in the list.", chainref_ptr->chain);
 
                 chain_found = 1;
                 break;
@@ -230,8 +226,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
 
         if(!chain_found)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "going to add chain '%s' to the list.", stripped_chain);
+            vrmr_debug(HIGH, "going to add chain '%s' to the list.", stripped_chain);
 
             /* okay, lets add the chain name to the list */
             //size = strlen(stripped_chain) + 1;
@@ -247,11 +242,10 @@ ruleset_check_accounting(const int debuglvl, char *chain)
             (void)strlcpy(chainref_ptr->chain, stripped_chain, sizeof(chainref_ptr->chain));
             chainref_ptr->refcnt = 1;
 
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "appending chain '%s' to the list.", chainref_ptr->chain);
+            vrmr_debug(HIGH, "appending chain '%s' to the list.", chainref_ptr->chain);
 
             /* append to the list */
-            if(vrmr_list_append(debuglvl, &accounting_chain_names, chainref_ptr) == NULL)
+            if(vrmr_list_append(&accounting_chain_names, chainref_ptr) == NULL)
             {
                 vrmr_error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).", __FUNC__, __LINE__);
                 return(-1);
@@ -261,9 +255,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
         {
             if(chainref_ptr->refcnt > 1)
             {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "already 2 rules created in '%s'.", chainref_ptr->chain);
-
+                vrmr_debug(HIGH, "already 2 rules created in '%s'.", chainref_ptr->chain);
                 return(0);
             }
             else
@@ -289,7 +281,7 @@ ruleset_check_accounting(const int debuglvl, char *chain)
         -1: error
 */
 int
-ruleset_add_rule_to_set(const int debuglvl, struct vrmr_list *list, char *chain, char *rule, unsigned long long packets, unsigned long long bytes)
+ruleset_add_rule_to_set(struct vrmr_list *list, char *chain, char *rule, unsigned long long packets, unsigned long long bytes)
 {
     size_t  size = 0,
             numbers_size = 0;
@@ -305,7 +297,7 @@ ruleset_add_rule_to_set(const int debuglvl, struct vrmr_list *list, char *chain,
     }
 
     /* HACK: check for accounting special cases */
-    result = ruleset_check_accounting(debuglvl, chain);
+    result = ruleset_check_accounting(chain);
     if(result == -1)
         return(-1);
     else if(result == 0)
@@ -343,7 +335,7 @@ ruleset_add_rule_to_set(const int debuglvl, struct vrmr_list *list, char *chain,
     }
 
     /* append to the list */
-    if(vrmr_list_append(debuglvl, list, line) == NULL)
+    if(vrmr_list_append(list, line) == NULL)
     {
         vrmr_error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).", __FUNC__, __LINE__);
         free(line);
@@ -367,7 +359,7 @@ ruleset_writeprint(const int fd, const char *line)
 
 /* Create the shaping script file */
 static int
-ruleset_fill_shaping_file(const int debuglvl, RuleSet *ruleset, int fd) {
+ruleset_fill_shaping_file(RuleSet *ruleset, int fd) {
     struct vrmr_list_node *d_node = NULL;
     char        *ptr = NULL;
     char        cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -394,7 +386,7 @@ ruleset_fill_shaping_file(const int debuglvl, RuleSet *ruleset, int fd) {
  *  \retval -1 error
  */
 static int
-ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
+ruleset_fill_file(struct vrmr_ctx *vctx, RuleSet *ruleset,
         int ruleset_fd, int ipver)
 {
     struct vrmr_list_node *d_node = NULL;
@@ -411,7 +403,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
     }
 
     /* get the current chains */
-    (void)vrmr_rules_get_system_chains(debuglvl, &vctx->rules, &vctx->conf, ipver);
+    (void)vrmr_rules_get_system_chains(&vctx->rules, &vctx->conf, ipver);
 
     snprintf(cmd, sizeof(cmd), "# Generated by Vuurmuur %s (c) 2002-2012 Victor Julien\n", version_string);
     ruleset_writeprint(ruleset_fd, cmd);
@@ -473,27 +465,27 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
 
         /* mangle table uses {PREROUTING,INPUT,FORWARD,POSTROUTING,OUTPUT} hooks */
 
-        if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_mangle, "PRE-VRMR-PREROUTING"))
+        if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_mangle, "PRE-VRMR-PREROUTING"))
         {
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-PREROUTING\n");
             ruleset_writeprint(ruleset_fd, cmd);
         }
-        if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_mangle, "PRE-VRMR-INPUT"))
+        if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_mangle, "PRE-VRMR-INPUT"))
         {
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-INPUT\n");
             ruleset_writeprint(ruleset_fd, cmd);
         }
-        if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_mangle, "PRE-VRMR-FORWARD"))
+        if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_mangle, "PRE-VRMR-FORWARD"))
         {
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-FORWARD\n");
             ruleset_writeprint(ruleset_fd, cmd);
         }
-        if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_mangle, "PRE-VRMR-POSTROUTING"))
+        if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_mangle, "PRE-VRMR-POSTROUTING"))
         {
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-POSTROUTING\n");
             ruleset_writeprint(ruleset_fd, cmd);
         }
-        if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_mangle, "PRE-VRMR-OUTPUT"))
+        if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_mangle, "PRE-VRMR-OUTPUT"))
         {
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-OUTPUT\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -514,7 +506,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
 
         if (ipver == VRMR_IPV4) {
             /* SHAPE IN */
-            if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_mangle, "SHAPEIN"))
+            if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_mangle, "SHAPEIN"))
             {
                 snprintf(cmd, sizeof(cmd), "--flush SHAPEIN\n");
                 ruleset_writeprint(ruleset_fd, cmd);
@@ -525,7 +517,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
             ruleset_writeprint(ruleset_fd, cmd);
 
             /* SHAPE OUT */
-            if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_mangle, "SHAPEOUT"))
+            if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_mangle, "SHAPEOUT"))
             {
                 snprintf(cmd, sizeof(cmd), "--flush SHAPEOUT\n");
                 ruleset_writeprint(ruleset_fd, cmd);
@@ -536,7 +528,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
             ruleset_writeprint(ruleset_fd, cmd);
 
             /* SHAPE FW */
-            if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_mangle, "SHAPEFW"))
+            if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_mangle, "SHAPEFW"))
             {
                 snprintf(cmd, sizeof(cmd), "--flush SHAPEFW\n");
                 ruleset_writeprint(ruleset_fd, cmd);
@@ -675,17 +667,17 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
 
         /* nat table uses {PREROUTING,POSTROUTING,OUTPUT} hooks */
 
-        if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_nat, "PRE-VRMR-PREROUTING"))
+        if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_nat, "PRE-VRMR-PREROUTING"))
         {
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-PREROUTING\n");
             ruleset_writeprint(ruleset_fd, cmd);
         }
-        if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_nat, "PRE-VRMR-POSTROUTING"))
+        if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_nat, "PRE-VRMR-POSTROUTING"))
         {
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-POSTROUTING\n");
             ruleset_writeprint(ruleset_fd, cmd);
         }
-        if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_nat, "PRE-VRMR-OUTPUT"))
+        if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_nat, "PRE-VRMR-OUTPUT"))
         {
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-OUTPUT\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -771,17 +763,17 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
 
         /* filter table uses {INPUT,FORWARD,OUTPUT} hooks */
 
-        if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "PRE-VRMR-INPUT"))
+        if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "PRE-VRMR-INPUT"))
         {
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-INPUT\n");
             ruleset_writeprint(ruleset_fd, cmd);
         }
-        if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "PRE-VRMR-FORWARD"))
+        if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "PRE-VRMR-FORWARD"))
         {
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-FORWARD\n");
             ruleset_writeprint(ruleset_fd, cmd);
         }
-        if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "PRE-VRMR-OUTPUT"))
+        if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "PRE-VRMR-OUTPUT"))
         {
             snprintf(cmd, sizeof(cmd), "--new PRE-VRMR-OUTPUT\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -799,14 +791,14 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
                 return(-1);
             }
 
-            if(!vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, cname))
+            if(!vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, cname))
             {
                 snprintf(cmd, sizeof(cmd), "--new %s\n", cname);
                 ruleset_writeprint(ruleset_fd, cmd);
             }
         }
 
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "ANTISPOOF"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "ANTISPOOF"))
         {
             snprintf(cmd, sizeof(cmd), "--flush ANTISPOOF\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -816,7 +808,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         snprintf(cmd, sizeof(cmd), "--new ANTISPOOF\n");
         ruleset_writeprint(ruleset_fd, cmd);
 
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "BLOCKLIST"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "BLOCKLIST"))
         {
             snprintf(cmd, sizeof(cmd), "--flush BLOCKLIST\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -826,7 +818,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         snprintf(cmd, sizeof(cmd), "--new BLOCKLIST\n");
         ruleset_writeprint(ruleset_fd, cmd);
 
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "BLOCK"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "BLOCK"))
         {
             snprintf(cmd, sizeof(cmd), "--flush BLOCK\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -837,7 +829,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         ruleset_writeprint(ruleset_fd, cmd);
 
         /* do NEWACCEPT and NEWQUEUE before SYNLIMIT and UDPLIMIT */
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "NEWACCEPT"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "NEWACCEPT"))
         {
             snprintf(cmd, sizeof(cmd), "--flush NEWACCEPT\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -847,7 +839,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         snprintf(cmd, sizeof(cmd), "--new NEWACCEPT\n");
         ruleset_writeprint(ruleset_fd, cmd);
 
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "NEWQUEUE"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "NEWQUEUE"))
         {
             snprintf(cmd, sizeof(cmd), "--flush NEWQUEUE\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -859,7 +851,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
 
         /* Do this before NEWNFQUEUE because it references
          * to it. */
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "ESTRELNFQUEUE"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "ESTRELNFQUEUE"))
         {
             snprintf(cmd, sizeof(cmd), "--flush ESTRELNFQUEUE\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -869,7 +861,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         snprintf(cmd, sizeof(cmd), "--new ESTRELNFQUEUE\n");
         ruleset_writeprint(ruleset_fd, cmd);
 
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "NEWNFQUEUE"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "NEWNFQUEUE"))
         {
             snprintf(cmd, sizeof(cmd), "--flush NEWNFQUEUE\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -881,7 +873,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
 
         /* Do this before NEWNFLOG because it references
          * to it. */
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "ESTRELNFLOG"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "ESTRELNFLOG"))
         {
             snprintf(cmd, sizeof(cmd), "--flush ESTRELNFLOG\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -891,7 +883,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         snprintf(cmd, sizeof(cmd), "--new ESTRELNFLOG\n");
         ruleset_writeprint(ruleset_fd, cmd);
 
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "NEWNFLOG"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "NEWNFLOG"))
         {
             snprintf(cmd, sizeof(cmd), "--flush NEWNFLOG\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -901,7 +893,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         snprintf(cmd, sizeof(cmd), "--new NEWNFLOG\n");
         ruleset_writeprint(ruleset_fd, cmd);
 
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "SYNLIMIT"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "SYNLIMIT"))
         {
             snprintf(cmd, sizeof(cmd), "--flush SYNLIMIT\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -911,7 +903,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         snprintf(cmd, sizeof(cmd), "--new SYNLIMIT\n");
         ruleset_writeprint(ruleset_fd, cmd);
 
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "UDPLIMIT"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "UDPLIMIT"))
         {
             snprintf(cmd, sizeof(cmd), "--flush UDPLIMIT\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -921,7 +913,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
         snprintf(cmd, sizeof(cmd), "--new UDPLIMIT\n");
         ruleset_writeprint(ruleset_fd, cmd);
 
-        if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, "TCPRESET"))
+        if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, "TCPRESET"))
         {
             snprintf(cmd, sizeof(cmd), "--flush TCPRESET\n");
             ruleset_writeprint(ruleset_fd, cmd);
@@ -940,7 +932,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
                 return(-1);
             }
 
-            if(vrmr_rules_chain_in_list(debuglvl, &vctx->rules.system_chain_filter, cname))
+            if(vrmr_rules_chain_in_list(&vctx->rules.system_chain_filter, cname))
             {
                 snprintf(cmd, sizeof(cmd), "--flush %s\n", cname);
                 ruleset_writeprint(ruleset_fd, cmd);
@@ -1145,10 +1137,10 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
     ruleset_writeprint(ruleset_fd, cmd);
 
     /* list of chains in the system */
-    vrmr_list_cleanup(debuglvl, &vctx->rules.system_chain_filter);
-    vrmr_list_cleanup(debuglvl, &vctx->rules.system_chain_mangle);
-    vrmr_list_cleanup(debuglvl, &vctx->rules.system_chain_nat);
-    //vrmr_list_cleanup(debuglvl, &rules->system_chain_raw);
+    vrmr_list_cleanup(&vctx->rules.system_chain_filter);
+    vrmr_list_cleanup(&vctx->rules.system_chain_mangle);
+    vrmr_list_cleanup(&vctx->rules.system_chain_nat);
+    //vrmr_list_cleanup(&rules->system_chain_raw);
 
     return(0);
 }
@@ -1162,7 +1154,7 @@ ruleset_fill_file(const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset,
 */
 #if 0
 static int
-ruleset_exists(const int debuglvl, char *path_to_ruleset)
+ruleset_exists(char *path_to_ruleset)
 {
     FILE    *fp = NULL;
 
@@ -1191,7 +1183,7 @@ ruleset_exists(const int debuglvl, char *path_to_ruleset)
          0: ok
 */
 static int
-ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_resultfile, struct vrmr_config *cnf, int ipver)
+ruleset_load_ruleset(char *path_to_ruleset, char *path_to_resultfile, struct vrmr_config *cnf, int ipver)
 {
     char cmd[256] = "";
 
@@ -1207,7 +1199,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
     */
 
     /* vrmr_stat_ok */
-    if(!(vrmr_stat_ok(debuglvl, cnf, path_to_ruleset, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(cnf, path_to_ruleset, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
     {
         vrmr_error(-1, "Error", "serious file problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1238,7 +1230,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
     }
 
     /* all good so far, lets load the ruleset */
-    if(vrmr_pipe_command(debuglvl, cnf, cmd, VRMR_PIPE_VERBOSE) < 0)
+    if(vrmr_pipe_command(cnf, cmd, VRMR_PIPE_VERBOSE) < 0)
     {
         vrmr_error(-1, "Error", "loading the ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1256,7 +1248,7 @@ ruleset_load_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_re
          0: ok
 */
 static int
-ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path_to_resultfile, struct vrmr_config *cnf)
+ruleset_load_shape_ruleset(char *path_to_ruleset, char *path_to_resultfile, struct vrmr_config *cnf)
 {
     char    cmd[256] = "";
 
@@ -1272,7 +1264,7 @@ ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path
     */
 
     /* vrmr_stat_ok */
-    if(!(vrmr_stat_ok(debuglvl, cnf, path_to_ruleset, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(cnf, path_to_ruleset, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
     {
         vrmr_error(-1, "Error", "serious file problem (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1291,7 +1283,7 @@ ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path
     }
 
     /* all good so far, lets load the ruleset */
-    if(vrmr_pipe_command(debuglvl, cnf, cmd, VRMR_PIPE_VERBOSE) < 0)
+    if(vrmr_pipe_command(cnf, cmd, VRMR_PIPE_VERBOSE) < 0)
     {
         vrmr_error(-1, "Error", "loading the shape ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1310,23 +1302,23 @@ ruleset_load_shape_ruleset(const int debuglvl, char *path_to_ruleset, char *path
         -1: error
 */
 static int
-ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *ruleset)
+ruleset_create_ruleset( struct vrmr_ctx *vctx, RuleSet *ruleset)
 {
     int     result = 0;
     char    forward_rules = 0;
 
     /* create shaping setup */
-    if(shaping_clear_interfaces(debuglvl, &vctx->conf, &vctx->interfaces, ruleset) < 0)
+    if(shaping_clear_interfaces(&vctx->conf, &vctx->interfaces, ruleset) < 0)
     {
         vrmr_error(-1, "Error", "setting up interface shaping clearing failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    if(shaping_setup_roots(debuglvl, &vctx->conf, &vctx->interfaces, ruleset) < 0)
+    if(shaping_setup_roots(&vctx->conf, &vctx->interfaces, ruleset) < 0)
     {
         vrmr_error(-1, "Error", "setting up interface shaping roots failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
-    if(shaping_create_default_rules(debuglvl, &vctx->conf, &vctx->interfaces, ruleset) < 0)
+    if(shaping_create_default_rules(&vctx->conf, &vctx->interfaces, ruleset) < 0)
     {
         vrmr_error(-1, "Error", "setting up interface default rules failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1336,7 +1328,7 @@ ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *rule
     vrmr_info("Info", "Creating the rules... (rules to create: %d)", vctx->rules.list.len);
 
     /* create the prerules if were called with it */
-    result = pre_rules(debuglvl, &vctx->conf, ruleset, &vctx->interfaces, &vctx->iptcaps);
+    result = pre_rules(&vctx->conf, ruleset, &vctx->interfaces, &vctx->iptcaps);
     if(result < 0)
     {
         vrmr_error(-1, "Error", "create pre-rules failed.");
@@ -1344,56 +1336,56 @@ ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *rule
     }
 
     /* create NEWNFQUEUE target */
-    if(create_newnfqueue_rules(debuglvl, &vctx->conf, ruleset, &vctx->rules, &vctx->iptcaps, ruleset->ipv) < 0)
+    if(create_newnfqueue_rules(&vctx->conf, ruleset, &vctx->rules, &vctx->iptcaps, ruleset->ipv) < 0)
     {
         vrmr_error(-1, "Error", "create newnfqueue failed.");
     }
     /* NFQUEUE related established */
-    if(create_estrelnfqueue_rules(debuglvl, &vctx->conf, ruleset, &vctx->rules, &vctx->iptcaps, ruleset->ipv) < 0)
+    if(create_estrelnfqueue_rules(&vctx->conf, ruleset, &vctx->rules, &vctx->iptcaps, ruleset->ipv) < 0)
     {
         vrmr_error(-1, "Error", "create estrelnfqueue failed.");
     }
 
     /* create NEWNFLOG target */
-    if(create_newnflog_rules(debuglvl, &vctx->conf, ruleset, &vctx->rules, &vctx->iptcaps, ruleset->ipv) < 0)
+    if(create_newnflog_rules(&vctx->conf, ruleset, &vctx->rules, &vctx->iptcaps, ruleset->ipv) < 0)
     {
         vrmr_error(-1, "Error", "create newnflog failed.");
     }
     /* NFLOG related established */
-    if(create_estrelnflog_rules(debuglvl, &vctx->conf, ruleset, &vctx->rules, &vctx->iptcaps, ruleset->ipv) < 0)
+    if(create_estrelnflog_rules(&vctx->conf, ruleset, &vctx->rules, &vctx->iptcaps, ruleset->ipv) < 0)
     {
         vrmr_error(-1, "Error", "create estrelnflog failed.");
     }
 
     /* create the blocklist */
-    if(create_block_rules(debuglvl, &vctx->conf, ruleset, &vctx->blocklist) < 0)
+    if(create_block_rules(&vctx->conf, ruleset, &vctx->blocklist) < 0)
     {
         vrmr_error(-1, "Error", "create blocklist failed.");
     }
 
     /* create the interface rules */
-    if(create_interface_rules(debuglvl, &vctx->conf, ruleset, &vctx->iptcaps, &vctx->interfaces) < 0)
+    if(create_interface_rules(&vctx->conf, ruleset, &vctx->iptcaps, &vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* create the network protect rules (anti-spoofing) */
-    if(create_network_protect_rules(debuglvl, &vctx->conf, ruleset, &vctx->zones, &vctx->iptcaps) < 0)
+    if(create_network_protect_rules(&vctx->conf, ruleset, &vctx->zones, &vctx->iptcaps) < 0)
     {
         vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* system protect rules (proc) */
-    if(create_system_protectrules(debuglvl, &vctx->conf) < 0)
+    if(create_system_protectrules(&vctx->conf) < 0)
     {
         vrmr_error(-1, "Error", "create protectrules failed.");
     }
     /* normal rules, ruleset == NULL */
-    if(create_normal_rules(debuglvl, vctx, ruleset, &forward_rules) < 0)
+    if(create_normal_rules(vctx, ruleset, &forward_rules) < 0)
     {
         vrmr_error(-1, "Error", "create normal rules failed.");
     }
 
     /* post rules: enable logging */
-    if(post_rules(debuglvl, &vctx->conf, ruleset, &vctx->iptcaps, forward_rules, ruleset->ipv) < 0)
+    if(post_rules(&vctx->conf, ruleset, &vctx->iptcaps, forward_rules, ruleset->ipv) < 0)
         return(-1);
 
     vrmr_info("Info", "Creating rules finished.");
@@ -1402,7 +1394,7 @@ ruleset_create_ruleset( const int debuglvl, struct vrmr_ctx *vctx, RuleSet *rule
 
 
 static int
-ruleset_save_interface_counters(const int debuglvl, struct vrmr_config *cfg, struct vrmr_interfaces *interfaces)
+ruleset_save_interface_counters(struct vrmr_config *cfg, struct vrmr_interfaces *interfaces)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -1440,49 +1432,42 @@ ruleset_save_interface_counters(const int debuglvl, struct vrmr_config *cfg, str
             memset(iface_ptr->cnt, 0, sizeof(struct vrmr_interface_counters));
 
             /* get the real counters from iptables */
-            vrmr_get_iface_stats_from_ipt(debuglvl, cfg, iface_ptr->device, "INPUT",
+            vrmr_get_iface_stats_from_ipt(cfg, iface_ptr->device, "INPUT",
                                         &iface_ptr->cnt->input_packets,
                                         &iface_ptr->cnt->input_bytes,
                                         &tmp_ull, &tmp_ull);
-            vrmr_get_iface_stats_from_ipt(debuglvl, cfg, iface_ptr->device, "OUTPUT",
+            vrmr_get_iface_stats_from_ipt(cfg, iface_ptr->device, "OUTPUT",
                                         &tmp_ull, &tmp_ull,
                                         &iface_ptr->cnt->output_packets,
                                         &iface_ptr->cnt->output_bytes);
-            vrmr_get_iface_stats_from_ipt(debuglvl, cfg, iface_ptr->device, "FORWARD",
+            vrmr_get_iface_stats_from_ipt(cfg, iface_ptr->device, "FORWARD",
                                         &iface_ptr->cnt->forwardin_packets,
                                         &iface_ptr->cnt->forwardin_bytes,
                                         &iface_ptr->cnt->forwardout_packets,
                                         &iface_ptr->cnt->forwardout_bytes);
 
-            if(debuglvl >= HIGH)
-            {
-                vrmr_debug(__FUNC__, "iface_ptr->cnt->input_packets: %llu, iface_ptr->cnt->input_bytes: %llu.",
-                                    iface_ptr->cnt->input_packets,
-                                    iface_ptr->cnt->input_bytes);
-                vrmr_debug(__FUNC__, "iface_ptr->cnt->output_packets: %llu, iface_ptr->cnt->output_bytes: %llu.",
-                                    iface_ptr->cnt->output_packets,
-                                    iface_ptr->cnt->output_bytes);
-            }
+            vrmr_debug(HIGH, "iface_ptr->cnt->input_packets: %llu, iface_ptr->cnt->input_bytes: %llu.",
+                    iface_ptr->cnt->input_packets,
+                    iface_ptr->cnt->input_bytes);
+            vrmr_debug(HIGH, "iface_ptr->cnt->output_packets: %llu, iface_ptr->cnt->output_bytes: %llu.",
+                    iface_ptr->cnt->output_packets,
+                    iface_ptr->cnt->output_bytes);
 
             /* assemble the chain-name */
             snprintf(acc_chain, sizeof(acc_chain), "ACC-%s", iface_ptr->device);
 
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "acc_chain '%s'.", acc_chain);
+            vrmr_debug(HIGH, "acc_chain '%s'.", acc_chain);
 
             /* get the accounting chains numbers */
-            vrmr_get_iface_stats_from_ipt(debuglvl, cfg, iface_ptr->device, acc_chain,
+            vrmr_get_iface_stats_from_ipt(cfg, iface_ptr->device, acc_chain,
                                         &iface_ptr->cnt->acc_in_packets,
                                         &iface_ptr->cnt->acc_in_bytes,
                                         &iface_ptr->cnt->acc_out_packets,
                                         &iface_ptr->cnt->acc_out_bytes);
 
-            if(debuglvl >= HIGH)
-            {
-                vrmr_debug(__FUNC__, "iface_ptr->cnt->acc_in_bytes: %llu, iface_ptr->cnt->acc_out_bytes: %llu.",
-                                    iface_ptr->cnt->acc_in_bytes,
-                                    iface_ptr->cnt->acc_out_bytes);
-            }
+            vrmr_debug(HIGH, "iface_ptr->cnt->acc_in_bytes: %llu, iface_ptr->cnt->acc_out_bytes: %llu.",
+                    iface_ptr->cnt->acc_in_bytes,
+                    iface_ptr->cnt->acc_out_bytes);
         }
     }
 
@@ -1491,7 +1476,7 @@ ruleset_save_interface_counters(const int debuglvl, struct vrmr_config *cfg, str
 
 
 static int
-ruleset_clear_interface_counters(const int debuglvl, struct vrmr_interfaces *interfaces)
+ruleset_clear_interface_counters(struct vrmr_interfaces *interfaces)
 {
     struct vrmr_list_node             *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
@@ -1524,7 +1509,7 @@ ruleset_clear_interface_counters(const int debuglvl, struct vrmr_interfaces *int
 
 
 static int
-ruleset_store_failed_set(const int debuglvl, const char *file)
+ruleset_store_failed_set(const char *file)
 {
     char    failed_ruleset_path[32] = "";
     int     result = 0;
@@ -1566,7 +1551,7 @@ ruleset_store_failed_set(const int debuglvl, const char *file)
 
 
 static int
-ruleset_log_resultfile(const int debuglvl, char *path)
+ruleset_log_resultfile(char *path)
 {
     char    line[256] = "";
     FILE    *fp = NULL;
@@ -1620,14 +1605,13 @@ static void load_ruleset_free_fds(int ruleset_fd, int result_fd, int shape_fd)
  *
  *  \brief load the ipv4 ruleset
  *
- *  \param debuglvl current debug level
  *  \param vctx Vuurmuur context
  *
  *  \retval 0 ok
  *  \retval -1 error
  */
 static int
-load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
+load_ruleset_ipv4(struct vrmr_ctx *vctx)
 {
     RuleSet ruleset;
     char    cur_ruleset_path[] = "/tmp/vuurmuur-XXXXXX";
@@ -1638,7 +1622,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
             shape_fd = 0;
 
     /* setup the ruleset */
-    if(ruleset_setup(debuglvl, &ruleset) != 0)
+    if(ruleset_setup(&ruleset) != 0)
     {
         vrmr_error(-1, "Internal Error", "setting up ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1647,14 +1631,14 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     ruleset.ipv = VRMR_IPV4;
 
     /* store counters */
-    if(ruleset_save_interface_counters(debuglvl, &vctx->conf, &vctx->interfaces) < 0)
+    if(ruleset_save_interface_counters(&vctx->conf, &vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "saving interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* create the ruleset */
-    if(ruleset_create_ruleset(debuglvl, vctx, &ruleset) < 0)
+    if(ruleset_create_ruleset(vctx, &ruleset) < 0)
     {
         vrmr_error(-1, "Error", "creating ruleset failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
@@ -1662,48 +1646,48 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
     }
 
     /* clear the counters again */
-    if(ruleset_clear_interface_counters(debuglvl, &vctx->interfaces) < 0)
+    if(ruleset_clear_interface_counters(&vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "clearing interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* create the tempfile */
-    ruleset_fd = vrmr_create_tempfile(debuglvl, cur_ruleset_path);
+    ruleset_fd = vrmr_create_tempfile(cur_ruleset_path);
     if(ruleset_fd == -1)
     {
         vrmr_error(-1, "Error", "creating rulesetfile failed (in: %s:%d).", __FUNC__, __LINE__);
 
-        ruleset_cleanup(debuglvl, &ruleset);
+        ruleset_cleanup(&ruleset);
         return(-1);
     }
 
     /* create the tempfile */
-    result_fd = vrmr_create_tempfile(debuglvl, cur_result_path);
+    result_fd = vrmr_create_tempfile(cur_result_path);
     if(result_fd == -1)
     {
         vrmr_error(-1, "Error", "creating resultfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
-        ruleset_cleanup(debuglvl, &ruleset);
+        ruleset_cleanup(&ruleset);
         load_ruleset_free_fds(ruleset_fd, result_fd, shape_fd);
         return(-1);
     }
 
     /* create the tempfile */
-    shape_fd = vrmr_create_tempfile(debuglvl, cur_shape_path);
+    shape_fd = vrmr_create_tempfile(cur_shape_path);
     if(shape_fd == -1)
     {
         vrmr_error(-1, "Error", "creating shape script file failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
-        ruleset_cleanup(debuglvl, &ruleset);
+        ruleset_cleanup(&ruleset);
         load_ruleset_free_fds(ruleset_fd, result_fd, shape_fd);
         return(-1);
     }
 
     /* get the custom chains we have to create */
-    if(vrmr_rules_get_custom_chains(debuglvl, &vctx->rules) < 0)
+    if(vrmr_rules_get_custom_chains(&vctx->rules) < 0)
     {
         vrmr_error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -1711,59 +1695,59 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
         return(-1);
     }
     /* now create the currentrulesetfile */
-    if(ruleset_fill_file(debuglvl, vctx, &ruleset, ruleset_fd, VRMR_IPV4) < 0)
+    if(ruleset_fill_file(vctx, &ruleset, ruleset_fd, VRMR_IPV4) < 0)
     {
         vrmr_error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
-        ruleset_cleanup(debuglvl, &ruleset);
+        ruleset_cleanup(&ruleset);
         load_ruleset_free_fds(ruleset_fd, result_fd, shape_fd);
-        (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
+        (void)ruleset_store_failed_set(cur_ruleset_path);
         return(-1);
     }
     /* cleanup */
-    vrmr_list_cleanup(debuglvl, &vctx->rules.custom_chain_list);
+    vrmr_list_cleanup(&vctx->rules.custom_chain_list);
 
     /* now create the shape file */
-    if(ruleset_fill_shaping_file(debuglvl, &ruleset, shape_fd) < 0)
+    if(ruleset_fill_shaping_file(&ruleset, shape_fd) < 0)
     {
         vrmr_error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
-        ruleset_cleanup(debuglvl, &ruleset);
+        ruleset_cleanup(&ruleset);
         load_ruleset_free_fds(ruleset_fd, result_fd, shape_fd);
-        (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
+        (void)ruleset_store_failed_set(cur_ruleset_path);
         return(-1);
     }
 
-    if(debuglvl >= HIGH)
+    if (vrmr_debug_level >= HIGH)
     {
-        vrmr_debug(__FUNC__, "sleeping so you can look into the tmpfile.");
+        vrmr_debug(HIGH, "sleeping so you can look into the tmpfile.");
         sleep(15);
     }
 
     /* load the shaping rules */
-    if(ruleset_load_shape_ruleset(debuglvl, cur_shape_path, cur_result_path, &vctx->conf) != 0)
+    if(ruleset_load_shape_ruleset(cur_shape_path, cur_result_path, &vctx->conf) != 0)
     {
         /* oops, something went wrong */
         vrmr_error(-1, "Error", "shape rulesetfile will be stored as '%s.failed' (in: %s:%d).",
                                     cur_shape_path, __FUNC__, __LINE__);
-        (void)ruleset_store_failed_set(debuglvl, cur_shape_path);
-        (void)ruleset_log_resultfile(debuglvl, cur_result_path);
+        (void)ruleset_store_failed_set(cur_shape_path);
+        (void)ruleset_log_resultfile(cur_result_path);
         load_ruleset_free_fds(ruleset_fd, result_fd, shape_fd);
-        ruleset_cleanup(debuglvl, &ruleset);
+        ruleset_cleanup(&ruleset);
         return(-1);
     }
     /* now load the iptables ruleset */
-    if(ruleset_load_ruleset(debuglvl, cur_ruleset_path, cur_result_path, &vctx->conf, VRMR_IPV4) != 0)
+    if(ruleset_load_ruleset(cur_ruleset_path, cur_result_path, &vctx->conf, VRMR_IPV4) != 0)
     {
         /* oops, something went wrong */
         vrmr_error(-1, "Error", "rulesetfile will be stored as '%s.failed' (in: %s:%d).",
                                     cur_ruleset_path, __FUNC__, __LINE__);
-        (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
-        (void)ruleset_log_resultfile(debuglvl, cur_result_path);
+        (void)ruleset_store_failed_set(cur_ruleset_path);
+        (void)ruleset_log_resultfile(cur_result_path);
         load_ruleset_free_fds(ruleset_fd, result_fd, shape_fd);
-        ruleset_cleanup(debuglvl, &ruleset);
+        ruleset_cleanup(&ruleset);
         return(-1);
     }
     load_ruleset_free_fds(ruleset_fd, result_fd, shape_fd);
@@ -1777,7 +1761,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
 
-            ruleset_cleanup(debuglvl, &ruleset);
+            ruleset_cleanup(&ruleset);
             return(-1);
         }
 
@@ -1788,7 +1772,7 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
 
-            ruleset_cleanup(debuglvl, &ruleset);
+            ruleset_cleanup(&ruleset);
             return(-1);
         }
 
@@ -1799,13 +1783,13 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
 
-            ruleset_cleanup(debuglvl, &ruleset);
+            ruleset_cleanup(&ruleset);
             return(-1);
         }
     }
 
     /* finaly clean up the mess */
-    ruleset_cleanup(debuglvl, &ruleset);
+    ruleset_cleanup(&ruleset);
 
     vrmr_info("Info", "ruleset loading completed successfully.");
     return(0);
@@ -1816,14 +1800,13 @@ load_ruleset_ipv4(const int debuglvl, struct vrmr_ctx *vctx)
  *
  *  \brief load the ipv6 ruleset
  *
- *  \param debuglvl current debug level
  *  \param vctx Vuurmuur context
  *
  *  \retval 0 ok
  *  \retval -1 error
  */
 static int
-load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
+load_ruleset_ipv6(struct vrmr_ctx *vctx)
 {
     RuleSet ruleset;
     char    cur_ruleset_path[] = "/tmp/vuurmuur-XXXXXX";
@@ -1832,7 +1815,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
             result_fd = 0;
 
     /* setup the ruleset */
-    if(ruleset_setup(debuglvl, &ruleset) != 0)
+    if(ruleset_setup(&ruleset) != 0)
     {
         vrmr_error(-1, "Internal Error", "setting up ruleset failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
@@ -1841,14 +1824,14 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     ruleset.ipv = VRMR_IPV6;
 
     /* store counters */
-    if(ruleset_save_interface_counters(debuglvl, &vctx->conf, &vctx->interfaces) < 0)
+    if(ruleset_save_interface_counters(&vctx->conf, &vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "saving interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* create the ruleset */
-    if(ruleset_create_ruleset(debuglvl, vctx, &ruleset) < 0)
+    if(ruleset_create_ruleset(vctx, &ruleset) < 0)
     {
         vrmr_error(-1, "Error", "creating ruleset failed "
                 "(in: %s:%d).", __FUNC__, __LINE__);
@@ -1856,36 +1839,36 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
     }
 
     /* clear the counters again */
-    if(ruleset_clear_interface_counters(debuglvl, &vctx->interfaces) < 0)
+    if(ruleset_clear_interface_counters(&vctx->interfaces) < 0)
     {
         vrmr_error(-1, "Error", "clearing interface counters failed (in: %s:%d).", __FUNC__, __LINE__);
         return(-1);
     }
 
     /* create the tempfile */
-    ruleset_fd = vrmr_create_tempfile(debuglvl, cur_ruleset_path);
+    ruleset_fd = vrmr_create_tempfile(cur_ruleset_path);
     if(ruleset_fd == -1)
     {
         vrmr_error(-1, "Error", "creating rulesetfile failed (in: %s:%d).", __FUNC__, __LINE__);
 
-        ruleset_cleanup(debuglvl, &ruleset);
+        ruleset_cleanup(&ruleset);
         return(-1);
     }
 
     /* create the tempfile */
-    result_fd = vrmr_create_tempfile(debuglvl, cur_result_path);
+    result_fd = vrmr_create_tempfile(cur_result_path);
     if(result_fd == -1)
     {
         vrmr_error(-1, "Error", "creating resultfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
-        ruleset_cleanup(debuglvl, &ruleset);
+        ruleset_cleanup(&ruleset);
         load_ruleset_free_fds(ruleset_fd, result_fd, 0);
         return(-1);
     }
 
     /* get the custom chains we have to create */
-    if(vrmr_rules_get_custom_chains(debuglvl, &vctx->rules) < 0)
+    if(vrmr_rules_get_custom_chains(&vctx->rules) < 0)
     {
         vrmr_error(-1, "Internal Error", "rules_get_chains() failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
@@ -1893,35 +1876,35 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
         return(-1);
     }
     /* now create the currentrulesetfile */
-    if(ruleset_fill_file(debuglvl, vctx, &ruleset, ruleset_fd, VRMR_IPV6) < 0)
+    if(ruleset_fill_file(vctx, &ruleset, ruleset_fd, VRMR_IPV6) < 0)
     {
         vrmr_error(-1, "Error", "filling rulesetfile failed (in: %s:%d).",
                                     __FUNC__, __LINE__);
 
-        ruleset_cleanup(debuglvl, &ruleset);
+        ruleset_cleanup(&ruleset);
         load_ruleset_free_fds(ruleset_fd, result_fd, 0);
-        (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
+        (void)ruleset_store_failed_set(cur_ruleset_path);
         return(-1);
     }
     /* cleanup */
-    vrmr_list_cleanup(debuglvl, &vctx->rules.custom_chain_list);
+    vrmr_list_cleanup(&vctx->rules.custom_chain_list);
 
-    if(debuglvl >= HIGH)
+    if (vrmr_debug_level >= HIGH)
     {
-        vrmr_debug(__FUNC__, "sleeping so you can look into the tmpfile.");
+        vrmr_debug(HIGH, "sleeping so you can look into the tmpfile.");
         sleep(15);
     }
 
     /* now load the iptables ruleset */
-    if(ruleset_load_ruleset(debuglvl, cur_ruleset_path, cur_result_path, &vctx->conf, VRMR_IPV6) != 0)
+    if(ruleset_load_ruleset(cur_ruleset_path, cur_result_path, &vctx->conf, VRMR_IPV6) != 0)
     {
         /* oops, something went wrong */
         vrmr_error(-1, "Error", "rulesetfile will be stored as '%s.failed' (in: %s:%d).",
                                     cur_ruleset_path, __FUNC__, __LINE__);
-        (void)ruleset_store_failed_set(debuglvl, cur_ruleset_path);
-        (void)ruleset_log_resultfile(debuglvl, cur_result_path);
+        (void)ruleset_store_failed_set(cur_ruleset_path);
+        (void)ruleset_log_resultfile(cur_result_path);
         load_ruleset_free_fds(ruleset_fd, result_fd, 0);
-        ruleset_cleanup(debuglvl, &ruleset);
+        ruleset_cleanup(&ruleset);
         return(-1);
     }
     load_ruleset_free_fds(ruleset_fd, result_fd, 0);
@@ -1935,7 +1918,7 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
 
-            ruleset_cleanup(debuglvl, &ruleset);
+            ruleset_cleanup(&ruleset);
             return(-1);
         }
 
@@ -1946,13 +1929,13 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
                     "failed: %s (in: %s:%d).",
                     strerror(errno), __FUNC__, __LINE__);
 
-            ruleset_cleanup(debuglvl, &ruleset);
+            ruleset_cleanup(&ruleset);
             return(-1);
         }
     }
 
     /* finaly clean up the mess */
-    ruleset_cleanup(debuglvl, &ruleset);
+    ruleset_cleanup(&ruleset);
 
     vrmr_info("Info", "ruleset loading completed successfully.");
     return(0);
@@ -1960,16 +1943,16 @@ load_ruleset_ipv6(const int debuglvl, struct vrmr_ctx *vctx)
 #endif
 
 int
-load_ruleset(const int debuglvl, struct vrmr_ctx *vctx)
+load_ruleset(struct vrmr_ctx *vctx)
 {
-    int r = load_ruleset_ipv4(debuglvl, vctx);
+    int r = load_ruleset_ipv4(vctx);
     if (r == -1) {
         return(-1);
     }
 
 #ifdef IPV6_ENABLED
     vrmr_info("Info", "loading ipv6 ruleset");
-    r = load_ruleset_ipv6(debuglvl, vctx);
+    r = load_ruleset_ipv6(vctx);
     if (r == -1) {
         return(-1);
     }

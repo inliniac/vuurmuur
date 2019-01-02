@@ -68,7 +68,7 @@ SetupVMIPC (int *shm_id, struct vrmr_shm_table **shm_table)
     }
     else
     {
-        vrmr_debug(__FUNC__, "Creating shared memory successfull: shm_id: %d.", *shm_id);
+        vrmr_debug(NONE, "Creating shared memory successfull: shm_id: %d.", *shm_id);
     }
 
     /* now attach to the shared mem */
@@ -126,7 +126,7 @@ SetupVMIPC (int *shm_id, struct vrmr_shm_table **shm_table)
 }
 
 int
-ClearVMIPC (const int debuglvl, int shm_id)
+ClearVMIPC (int shm_id)
 {
     /* destroy shm */
     vrmr_info("Info", "Destroying shared memory...");
@@ -137,8 +137,7 @@ ClearVMIPC (const int debuglvl, int shm_id)
         return (-1);
     }
 
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "shared memory destroyed.");
+    vrmr_debug(LOW, "shared memory destroyed.");
 
     /* destroy semaphore */
     if(semctl(sem_id, 0, IPC_RMID, semarg) == -1)
@@ -155,7 +154,7 @@ ClearVMIPC (const int debuglvl, int shm_id)
  *  \retval 0 don't reload
  */
 int
-CheckVMIPC (const int debuglvl, struct vrmr_shm_table *shm_table)
+CheckVMIPC (struct vrmr_shm_table *shm_table)
 {
     int retval = 0;
 

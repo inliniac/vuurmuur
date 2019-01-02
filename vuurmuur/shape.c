@@ -23,10 +23,10 @@
 #include "main.h"
 
 static u_int32_t
-shaping_convert_rate(const int debuglvl, u_int32_t rate, char *unit) {
+shaping_convert_rate(u_int32_t rate, char *unit) {
     u_int32_t kbit_rate = 0;
 
-    vrmr_debug(__FUNC__, "rate %u, unit %s", rate, unit);
+    vrmr_debug(NONE, "rate %u, unit %s", rate, unit);
 
     if (strcmp(unit,"kbit") == 0) {
         kbit_rate = rate;
@@ -58,7 +58,7 @@ typedef struct
 
 /*  compare two shaping rules and return 1 if they match, 0 otherwise */
 static int
-shaping_rulecmp(const int debuglvl, ShapeRule *r1, ShapeRule *r2)
+shaping_rulecmp(ShapeRule *r1, ShapeRule *r2)
 {
     if(r1 == NULL || r2 == NULL)
     {
@@ -81,7 +81,7 @@ shaping_rulecmp(const int debuglvl, ShapeRule *r1, ShapeRule *r2)
 /*  insert a new shape rule into the list, but first check if it is not
     a duplicate. If it is a dup, just drop it. */
 static int
-shaping_ruleinsert(const int debuglvl, struct RuleCreateData_ *rule, ShapeRule *shape_rule)
+shaping_ruleinsert(struct RuleCreateData_ *rule, ShapeRule *shape_rule)
 {
     struct vrmr_list_node *d_node = NULL;
     ShapeRule   *listrule = NULL;
@@ -97,14 +97,14 @@ shaping_ruleinsert(const int debuglvl, struct RuleCreateData_ *rule, ShapeRule *
     {
         listrule = d_node->data;
 
-        if(shaping_rulecmp(debuglvl, listrule, shape_rule) == 1)
+        if(shaping_rulecmp(listrule, shape_rule) == 1)
         {
             free(shape_rule);
             return(0);
         }
     }
 
-    if(vrmr_list_append(debuglvl, &rule->shaperulelist, shape_rule) == NULL)
+    if(vrmr_list_append(&rule->shaperulelist, shape_rule) == NULL)
     {
         vrmr_error(-1, "Internal Error", "vrmr_list_append() "
             "failed (in: %s:%d).", __FUNC__, __LINE__);
@@ -123,7 +123,7 @@ shaping_ruleinsert(const int debuglvl, struct RuleCreateData_ *rule, ShapeRule *
     function: shaping_shape_create_rule
     */
 static int
-shaping_queue_rule(const int debuglvl, struct RuleCreateData_ *rule,
+shaping_queue_rule(struct RuleCreateData_ *rule,
         /*@null@*/RuleSet *ruleset, u_int16_t handle, u_int16_t class, char *device, char *cmd)
 {
     ShapeRule *shape_rule = NULL;
@@ -149,13 +149,13 @@ shaping_queue_rule(const int debuglvl, struct RuleCreateData_ *rule,
     strlcpy(shape_rule->cmd, cmd, sizeof(shape_rule->cmd));
     strlcpy(shape_rule->device, device, sizeof(shape_rule->device));
 
-    if(shaping_ruleinsert(debuglvl, rule, shape_rule) < 0)
+    if(shaping_ruleinsert(rule, shape_rule) < 0)
         return(-1);
 
     return(0);
 }
 static int
-shaping_process_rule (const int debuglvl, struct vrmr_config *cnf, /*@null@*/RuleSet *ruleset, char *cmd) {
+shaping_process_rule (struct vrmr_config *cnf, /*@null@*/RuleSet *ruleset, char *cmd) {
     char *buf = NULL;
 
     if (ruleset != NULL) {
@@ -166,14 +166,14 @@ shaping_process_rule (const int debuglvl, struct vrmr_config *cnf, /*@null@*/Rul
             return(-1);
         }
 
-        if (vrmr_list_append(debuglvl, &ruleset->tc_rules, buf) == NULL) {
+        if (vrmr_list_append(&ruleset->tc_rules, buf) == NULL) {
             vrmr_error(-1, "Internal Error", "appending rule to list failed (in: %s:%d).",
                 __FUNC__, __LINE__);
             free(buf);
             return(-1);
         }
     } else {
-        if(vrmr_pipe_command(debuglvl, cnf, cmd, VRMR_PIPE_VERBOSE) < 0)
+        if(vrmr_pipe_command(cnf, cmd, VRMR_PIPE_VERBOSE) < 0)
             return (-1);
     }
 
@@ -184,7 +184,7 @@ shaping_process_rule (const int debuglvl, struct vrmr_config *cnf, /*@null@*/Rul
     filled with tc rules, none of which are duplicate. This function
     passes them to process_rule */
 int
-shaping_process_queued_rules(const int debuglvl, struct vrmr_config *cnf, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule)
+shaping_process_queued_rules(struct vrmr_config *cnf, /*@null@*/RuleSet *ruleset, struct RuleCreateData_ *rule)
 {
     struct vrmr_list_node *d_node = NULL;
     ShapeRule   *r = NULL;
@@ -200,7 +200,7 @@ shaping_process_queued_rules(const int debuglvl, struct vrmr_config *cnf, /*@nul
     {
         r = d_node->data;
 
-        if(shaping_process_rule(debuglvl, cnf, ruleset, r->cmd) < 0)
+        if(shaping_process_rule(cnf, ruleset, r->cmd) < 0)
         {
             return(-1);
         }
@@ -215,7 +215,7 @@ shaping_process_queued_rules(const int debuglvl, struct vrmr_config *cnf, /*@nul
  * Returns 0: ok -1: error
  */
 int
-shaping_clear_interfaces (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
+shaping_clear_interfaces (struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char            cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -235,9 +235,9 @@ shaping_clear_interfaces (const int debuglvl, struct vrmr_config *cnf, struct vr
             snprintf(cmd, sizeof(cmd), "%s qdisc del dev %s root 2> /dev/null > /dev/null",
                 cnf->tc_location, iface_ptr->device);
 
-            vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
+            vrmr_debug(NONE, "cmd \"%s\"", cmd);
 
-            if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
+            if (shaping_process_rule(cnf, ruleset, cmd) < 0)
                 return(-1);
         }
     }
@@ -247,7 +247,7 @@ shaping_clear_interfaces (const int debuglvl, struct vrmr_config *cnf, struct vr
      * an error code. So we add the 'true' command so it won't fail.
      */
     if (ruleset) {
-        if (shaping_process_rule(debuglvl, cnf, ruleset, "true") < 0)
+        if (shaping_process_rule(cnf, ruleset, "true") < 0)
             return(-1);
     }
 
@@ -255,7 +255,7 @@ shaping_clear_interfaces (const int debuglvl, struct vrmr_config *cnf, struct vr
 }
 
 static int
-shaping_setup_interface_classes (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, struct vrmr_interface *iface_ptr, /*@null@*/RuleSet *ruleset) {
+shaping_setup_interface_classes (struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, struct vrmr_interface *iface_ptr, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *inner_iface_ptr = NULL;
     char            cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -264,16 +264,16 @@ shaping_setup_interface_classes (const int debuglvl, struct vrmr_config *cnf, st
 
     /* create this interface's class */
 
-    iface_rate = shaping_convert_rate(debuglvl, iface_ptr->bw_out, iface_ptr->bw_out_unit);
+    iface_rate = shaping_convert_rate(iface_ptr->bw_out, iface_ptr->bw_out_unit);
 
     /* tc class add dev ppp0 parent 1: classid 1:1 htb rate 512kbit */
     snprintf(cmd, sizeof(cmd), "%s class add dev %s parent %u: classid %u:1 htb rate %ukbit",
         cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle,
         iface_ptr->shape_handle, iface_rate);
 
-    vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
+    vrmr_debug(NONE, "cmd \"%s\"", cmd);
 
-    if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
+    if (shaping_process_rule(cnf, ruleset, cmd) < 0)
         return(-1);
 
     /* create classes for the other interfaces */
@@ -281,9 +281,9 @@ shaping_setup_interface_classes (const int debuglvl, struct vrmr_config *cnf, st
         inner_iface_ptr = d_node->data;
 
         if (iface_ptr != inner_iface_ptr && /* don't add a class for yourself */
-            vrmr_is_shape_interface(debuglvl, inner_iface_ptr) == 1)
+            vrmr_is_shape_interface(inner_iface_ptr) == 1)
         {
-            rate = shaping_convert_rate(debuglvl, inner_iface_ptr->bw_in, inner_iface_ptr->bw_in_unit);
+            rate = shaping_convert_rate(inner_iface_ptr->bw_in, inner_iface_ptr->bw_in_unit);
             if (iface_rate < rate)
                 rate = iface_rate;
 
@@ -292,9 +292,9 @@ shaping_setup_interface_classes (const int debuglvl, struct vrmr_config *cnf, st
                 cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle,
                 iface_ptr->shape_handle, inner_iface_ptr->shape_handle, rate);
 
-            vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
+            vrmr_debug(NONE, "cmd \"%s\"", cmd);
 
-            if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
+            if (shaping_process_rule(cnf, ruleset, cmd) < 0)
                 return(-1);
         }
     }
@@ -303,7 +303,7 @@ shaping_setup_interface_classes (const int debuglvl, struct vrmr_config *cnf, st
 }
 
 int
-shaping_setup_roots (const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
+shaping_setup_roots (struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char            cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -316,9 +316,9 @@ shaping_setup_roots (const int debuglvl, struct vrmr_config *cnf, struct vrmr_in
     /* assign handle id's */
     for (d_node = interfaces->list.top; d_node != NULL; d_node = d_node->next) {
         iface_ptr = d_node->data;
-        vrmr_debug(__FUNC__, "interface %s", iface_ptr->name);
+        vrmr_debug(NONE, "interface %s", iface_ptr->name);
 
-        if (vrmr_is_shape_interface(debuglvl, iface_ptr) == 1)
+        if (vrmr_is_shape_interface(iface_ptr) == 1)
         {
             iface_ptr->shape_handle = handle;
             handle++;
@@ -329,21 +329,21 @@ shaping_setup_roots (const int debuglvl, struct vrmr_config *cnf, struct vrmr_in
     /* setup the roots and interface classes */
     for (d_node = interfaces->list.top; d_node != NULL; d_node = d_node->next) {
         iface_ptr = d_node->data;
-        vrmr_debug(__FUNC__, "interface %s", iface_ptr->name);
+        vrmr_debug(NONE, "interface %s", iface_ptr->name);
 
-        if (vrmr_is_shape_interface(debuglvl, iface_ptr) == 1)
+        if (vrmr_is_shape_interface(iface_ptr) == 1)
         {
             snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s root handle %u: htb default %u",
                 cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle, handle);
 
-            vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
+            vrmr_debug(NONE, "cmd \"%s\"", cmd);
 
-            if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
+            if (shaping_process_rule(cnf, ruleset, cmd) < 0)
                 return(-1);
 
             handle++;
 
-            if (shaping_setup_interface_classes(debuglvl, cnf, interfaces, iface_ptr, ruleset) < 0)
+            if (shaping_setup_interface_classes(cnf, interfaces, iface_ptr, ruleset) < 0)
                 return (-1);
         }
     }
@@ -353,14 +353,14 @@ shaping_setup_roots (const int debuglvl, struct vrmr_config *cnf, struct vrmr_in
 
 /* add a rate to the iface. If the rate is 0 use the default rate */
 static int
-shaping_add_rate_to_iface(const int debuglvl, struct vrmr_interface *iface_ptr, u_int32_t rate, char *unit) {
+shaping_add_rate_to_iface(struct vrmr_interface *iface_ptr, u_int32_t rate, char *unit) {
     u_int32_t   kbit_rate = 0;
 
-    vrmr_debug(__FUNC__, "rate %u, unit %s", rate, unit);
+    vrmr_debug(NONE, "rate %u, unit %s", rate, unit);
 
-    kbit_rate = shaping_convert_rate(debuglvl, rate, unit);
+    kbit_rate = shaping_convert_rate(rate, unit);
 
-    vrmr_debug(__FUNC__, "kbit rate %u", kbit_rate);
+    vrmr_debug(NONE, "kbit rate %u", kbit_rate);
 
     if (kbit_rate > 0) {
         iface_ptr->total_shape_rate += kbit_rate;
@@ -385,7 +385,7 @@ shaping_add_rate_to_iface(const int debuglvl, struct vrmr_interface *iface_ptr, 
 
  * call after analyzing the rules */
 int
-shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfaces *interfaces, struct vrmr_rules *rules) {
+shaping_determine_minimal_default_rates(struct vrmr_interfaces *interfaces, struct vrmr_rules *rules) {
     struct vrmr_list_node         *d_node = NULL,
                         *d_node_iface = NULL;
     struct vrmr_rule    *rule_ptr = NULL;
@@ -417,10 +417,9 @@ shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfac
                 if (d_node_iface != NULL) {
                     for (; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
                         iface_ptr = d_node_iface->data;
+                        vrmr_debug(NONE, "FROM iface_ptr->name %s, rate %u %s", iface_ptr->name, rule_ptr->opt->bw_in_min, rule_ptr->opt->bw_in_min_unit);
 
-                        vrmr_debug(__FUNC__, "FROM iface_ptr->name %s, rate %u %s", iface_ptr->name, rule_ptr->opt->bw_in_min, rule_ptr->opt->bw_in_min_unit);
-
-                        if (shaping_add_rate_to_iface(debuglvl, iface_ptr, rule_ptr->opt->bw_in_min, rule_ptr->opt->bw_in_min_unit) < 0)
+                        if (shaping_add_rate_to_iface(iface_ptr, rule_ptr->opt->bw_in_min, rule_ptr->opt->bw_in_min_unit) < 0)
                             return(-1);
                     }
                 }
@@ -440,10 +439,9 @@ shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfac
                 if (d_node_iface != NULL) {
                     for (; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
                         iface_ptr = d_node_iface->data;
+                        vrmr_debug(NONE, "TO iface_ptr->name %s, rate %u %s", iface_ptr->name, rule_ptr->opt->bw_out_min, rule_ptr->opt->bw_out_min_unit);
 
-                        vrmr_debug(__FUNC__, "TO iface_ptr->name %s, rate %u %s", iface_ptr->name, rule_ptr->opt->bw_out_min, rule_ptr->opt->bw_out_min_unit);
-
-                        if (shaping_add_rate_to_iface(debuglvl, iface_ptr, rule_ptr->opt->bw_out_min, rule_ptr->opt->bw_out_min_unit) < 0)
+                        if (shaping_add_rate_to_iface(iface_ptr, rule_ptr->opt->bw_out_min, rule_ptr->opt->bw_out_min_unit) < 0)
                             return(-1);
                     }
                 }
@@ -456,11 +454,11 @@ shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfac
     for (d_node_iface = interfaces->list.top; d_node_iface != NULL; d_node_iface = d_node_iface->next) {
         iface_ptr = d_node_iface->data;
 
-        if (vrmr_is_shape_interface(debuglvl, iface_ptr) == 1)
+        if (vrmr_is_shape_interface(iface_ptr) == 1)
         {
-            rate = shaping_convert_rate(debuglvl, iface_ptr->bw_out, iface_ptr->bw_out_unit);
+            rate = shaping_convert_rate(iface_ptr->bw_out, iface_ptr->bw_out_unit);
 
-            vrmr_debug(__FUNC__, "total rate %u, total rules %u, rules using default rate %u",
+            vrmr_debug(NONE, "total rate %u, total rules %u, rules using default rate %u",
                 iface_ptr->total_shape_rate, iface_ptr->total_shape_rules, iface_ptr->total_default_shape_rules);
 
             /* over commit */
@@ -479,7 +477,7 @@ shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfac
                 iface_ptr->shape_default_rate = (rate - iface_ptr->total_shape_rate) / iface_ptr->total_default_shape_rules;
             }
 
-            vrmr_debug(__FUNC__, "default rate on %s is %ukbit", iface_ptr->name, iface_ptr->shape_default_rate);
+            vrmr_debug(NONE, "default rate on %s is %ukbit", iface_ptr->name, iface_ptr->shape_default_rate);
         }
     }
 
@@ -489,7 +487,7 @@ shaping_determine_minimal_default_rates(const int debuglvl, struct vrmr_interfac
 /* create the default rule per interface. This rule will be used when
  * no class is picked. */
 int
-shaping_create_default_rules(const int debuglvl, struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
+shaping_create_default_rules(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces, /*@null@*/RuleSet *ruleset) {
     struct vrmr_list_node     *d_node = NULL;
     struct vrmr_interface   *iface_ptr = NULL;
     char            cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -501,9 +499,9 @@ shaping_create_default_rules(const int debuglvl, struct vrmr_config *cnf, struct
     for (d_node = interfaces->list.top; d_node != NULL; d_node = d_node->next) {
         iface_ptr = d_node->data;
 
-        if (vrmr_is_shape_interface(debuglvl, iface_ptr) == 1)
+        if (vrmr_is_shape_interface(iface_ptr) == 1)
         {
-            rate = shaping_convert_rate(debuglvl, iface_ptr->bw_out, iface_ptr->bw_out_unit);
+            rate = shaping_convert_rate(iface_ptr->bw_out, iface_ptr->bw_out_unit);
 
             /* tc class add dev ppp0 parent 1:1 classid 1:100 htb rate 15kbit ceil 512kbit prio 3
              * tc qdisc add dev ppp0 parent 1:100 handle 100: sfq perturb 10 */
@@ -512,17 +510,17 @@ shaping_create_default_rules(const int debuglvl, struct vrmr_config *cnf, struct
                 iface_ptr->shape_handle, handle, iface_ptr->shape_default_rate,
                 rate);
 
-            vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
+            vrmr_debug(NONE, "cmd \"%s\"", cmd);
 
-            if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
+            if (shaping_process_rule(cnf, ruleset, cmd) < 0)
                 return(-1);
         
             snprintf(cmd, sizeof(cmd), "%s qdisc add dev %s parent %u:%u handle %u: sfq perturb 10",
                 cnf->tc_location, iface_ptr->device, iface_ptr->shape_handle, handle, handle);
 
-            vrmr_debug(__FUNC__, "cmd \"%s\"", cmd);
+            vrmr_debug(NONE, "cmd \"%s\"", cmd);
 
-            if (shaping_process_rule(debuglvl, cnf, ruleset, cmd) < 0)
+            if (shaping_process_rule(cnf, ruleset, cmd) < 0)
                 return(-1);
 
             handle++;
@@ -535,7 +533,7 @@ shaping_create_default_rules(const int debuglvl, struct vrmr_config *cnf, struct
 }
 
 int
-shaping_shape_create_rule(const int debuglvl, struct vrmr_config *cnf,
+shaping_shape_create_rule(struct vrmr_config *cnf,
     struct vrmr_interfaces *interfaces, struct RuleCreateData_ *rule, /*@null@*/RuleSet *ruleset,
     struct vrmr_interface *shape_iface_ptr, struct vrmr_interface *class_iface_ptr,
     u_int16_t class, u_int32_t rate, char *rate_unit, u_int32_t ceil,
@@ -547,28 +545,28 @@ shaping_shape_create_rule(const int debuglvl, struct vrmr_config *cnf,
     if (strcmp(cnf->tc_location,"") == 0)
         return(0);
 
-    if (vrmr_is_shape_interface(debuglvl, shape_iface_ptr) == 0)
+    if (vrmr_is_shape_interface(shape_iface_ptr) == 0)
         return(0);
 
-    vrmr_debug(__FUNC__, "shape on interface %s (handle %u)",
+    vrmr_debug(NONE, "shape on interface %s (handle %u)",
         shape_iface_ptr->name, shape_iface_ptr->shape_handle);
 
-    if (vrmr_is_shape_interface(debuglvl, class_iface_ptr) == 1) {
+    if (vrmr_is_shape_interface(class_iface_ptr) == 1) {
         class_handle = class_iface_ptr->shape_handle;
 
-        vrmr_debug(__FUNC__, "class of interface %s (handle %u)",
+        vrmr_debug(NONE, "class of interface %s (handle %u)",
             class_iface_ptr->name, class_iface_ptr->shape_handle);
     }
 
     /* convert rates to kbit */
-    rate = shaping_convert_rate(debuglvl, rate, rate_unit);
-    ceil = shaping_convert_rate(debuglvl, ceil, ceil_unit);
-    vrmr_debug(__FUNC__, "rate %u, ceil %u", rate, ceil);
+    rate = shaping_convert_rate(rate, rate_unit);
+    ceil = shaping_convert_rate(ceil, ceil_unit);
+    vrmr_debug(NONE, "rate %u, ceil %u", rate, ceil);
 
     /* use defaults for unused settings */
     if (prio == 0) prio = 3;
     if (rate == 0) rate = shape_iface_ptr->shape_default_rate;
-    if (ceil == 0) ceil = shaping_convert_rate(debuglvl, shape_iface_ptr->bw_out, shape_iface_ptr->bw_out_unit);
+    if (ceil == 0) ceil = shaping_convert_rate(shape_iface_ptr->bw_out, shape_iface_ptr->bw_out_unit);
 
     /* in some cases class_iface_ptr and shape_iface_ptr are the same
      * in that case use :1 */
@@ -583,9 +581,9 @@ shaping_shape_create_rule(const int debuglvl, struct vrmr_config *cnf,
         class_handle, shape_iface_ptr->shape_handle,
         class, rate, ceil, prio);
 
-    vrmr_debug(__FUNC__, "cmd %s", cmd);
+    vrmr_debug(NONE, "cmd %s", cmd);
 
-    if (shaping_queue_rule(debuglvl, rule, ruleset, shape_iface_ptr->shape_handle,
+    if (shaping_queue_rule(rule, ruleset, shape_iface_ptr->shape_handle,
             class, shape_iface_ptr->device, cmd) < 0)
         return(-1);
 
@@ -593,9 +591,9 @@ shaping_shape_create_rule(const int debuglvl, struct vrmr_config *cnf,
         cnf->tc_location, shape_iface_ptr->device, shape_iface_ptr->shape_handle,
         class, class);
 
-    vrmr_debug(__FUNC__, "cmd %s", cmd);
+    vrmr_debug(NONE, "cmd %s", cmd);
 
-    if (shaping_queue_rule(debuglvl, rule, ruleset, class, 0,
+    if (shaping_queue_rule(rule, ruleset, class, 0,
             shape_iface_ptr->device, cmd) < 0)
         return(-1);
 

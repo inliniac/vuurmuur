@@ -28,7 +28,7 @@
 #include <netinet/ip.h>
 #include <libnetfilter_log/libnetfilter_log.h>
 
-int subscribe_nflog (const int, const struct vrmr_config *,struct vrmr_log_record *logrule);
+int subscribe_nflog (const struct vrmr_config *,struct vrmr_log_record *logrule);
 int readnflog (void);
 
 #endif /* HAVE_LIBNETFILTER_LOG */

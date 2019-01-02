@@ -34,15 +34,15 @@ struct file_mon
 
 int search_in_ipt_line(char *, size_t, char *, size_t *, size_t *);
 int check_ipt_line(char *);
-int parse_ipt_logline(const int, char *, size_t, char *, struct vrmr_log_record *, struct Counters_ *);
-FILE *open_logfile(const int, const struct vrmr_config *, const char *, const char *);
+int parse_ipt_logline(char *, size_t, char *, struct vrmr_log_record *, struct Counters_ *);
+FILE *open_logfile(const struct vrmr_config *, const char *, const char *);
 
-int open_syslog(const int, const struct vrmr_config *, FILE **);
-int reopen_syslog(const int, const struct vrmr_config *, FILE **);
+int open_syslog(const struct vrmr_config *, FILE **);
+int reopen_syslog(const struct vrmr_config *, FILE **);
 
-int open_vuurmuurlog(const int, const struct vrmr_config *, FILE **);
-int reopen_vuurmuurlog(const int, const struct vrmr_config *, FILE **);
+int open_vuurmuurlog(const struct vrmr_config *, FILE **);
+int reopen_vuurmuurlog(const struct vrmr_config *, FILE **);
 
-int reopen_logfiles(const int, FILE **, FILE **);
+int reopen_logfiles(FILE **, FILE **);
 
 #endif

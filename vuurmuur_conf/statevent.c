@@ -92,12 +92,12 @@ typedef struct StatEventCtl_
     void *data;
 
     /* "object" functions */
-    char * (*print2str )(const int, StatEventGen *, size_t);
+    char * (*print2str )(StatEventGen *, size_t);
     void   (*remove    )(void *data);
 
-    char   (*convert   )(const int debuglvl, struct StatEventCtl_ *);
+    char   (*convert   )(struct StatEventCtl_ *);
     /* ptr to interactive menu function */
-    void   (*menu      )(const int debuglvl, struct vrmr_ctx *, struct vrmr_config *,
+    void   (*menu      )(struct vrmr_ctx *, struct vrmr_config *,
             struct StatEventCtl_ *, Conntrack *, struct vrmr_conntrack_request *,
             struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *,
             struct vrmr_services *, StatEventGen *);
@@ -123,7 +123,7 @@ typedef struct StatEventCtl_
 */
 
 static StatEventConn * ATTR_RETURNS_NONNULL
-statevent_init_conn(const int debuglvl)
+statevent_init_conn(void)
 {
     StatEventConn *conn = malloc(sizeof(StatEventConn));
     vrmr_fatal_alloc("malloc", conn);
@@ -134,7 +134,7 @@ statevent_init_conn(const int debuglvl)
 }
 
 static StatEventLog * ATTR_RETURNS_NONNULL
-statevent_init_log(const int debuglvl)
+statevent_init_log(void)
 {
     StatEventLog *log = malloc(sizeof(StatEventLog));
     vrmr_fatal_alloc("malloc", log);
@@ -145,7 +145,7 @@ statevent_init_log(const int debuglvl)
 }
 
 static char *
-statevent_print2str_log(const int debuglvl, StatEventGen *evt, size_t len)
+statevent_print2str_log(StatEventGen *evt, size_t len)
 {
     StatEventLog *log = (StatEventLog *) evt;
 
@@ -159,7 +159,7 @@ statevent_print2str_log(const int debuglvl, StatEventGen *evt, size_t len)
 }
 
 static char *
-statevent_print2str_conn(const int debuglvl, StatEventGen *evt, size_t len)
+statevent_print2str_conn(StatEventGen *evt, size_t len)
 {
     StatEventConn   *conn = (StatEventConn *) evt;
     char            src[64] = "",
@@ -192,7 +192,7 @@ statevent_print2str_conn(const int debuglvl, StatEventGen *evt, size_t len)
 
 /* convert struct vrmr_conntrack_entry to StatEventConn */
 static char
-statevent_convert_conn(const int debuglvl, StatEventCtl *ctl)
+statevent_convert_conn(StatEventCtl *ctl)
 {
     Conntrack *ct = ctl->data;
 
@@ -201,7 +201,7 @@ statevent_convert_conn(const int debuglvl, StatEventCtl *ctl)
     for (x = 0; x < array_size; x++)
     {
         struct vrmr_conntrack_entry *cd_ptr = ct->conn_array[x];
-        StatEventConn *conn = statevent_init_conn(debuglvl);
+        StatEventConn *conn = statevent_init_conn();
         vrmr_fatal_if_null(conn);
 
         strlcpy(conn->ser, cd_ptr->sername, sizeof(conn->ser));
@@ -214,18 +214,17 @@ statevent_convert_conn(const int debuglvl, StatEventCtl *ctl)
         conn->dst_port = cd_ptr->dst_port;
         conn->cnt = cd_ptr->cnt;
 
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &ctl->list, conn) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&ctl->list, conn) == NULL);
     }
 
     return(TRUE);
 }
 
 static char
-parse_log_srcdst(const int debuglvl, const char *str_in, char *ret_ip, size_t ip_size,
+parse_log_srcdst(const char *str_in, char *ret_ip, size_t ip_size,
             char *ret_mac, size_t mac_size, int *ret_port)
 {
-    if (debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "str_in '%s'", str_in);
+    vrmr_debug(MEDIUM, "str_in '%s'", str_in);
 
     char str[256];
     strlcpy(str, str_in, sizeof(str));
@@ -259,7 +258,7 @@ parse_log_srcdst(const int debuglvl, const char *str_in, char *ret_ip, size_t ip
 /* convert struct LogRule to StatEventLog
 */
 static char
-statevent_convert_log(const int debuglvl, StatEventCtl *ctl)
+statevent_convert_log(StatEventCtl *ctl)
 {
     struct vrmr_list_node     *d_node = NULL;
     LogRule         *log_record = NULL;
@@ -277,7 +276,7 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl)
         vrmr_fatal_if_null(d_node->data);
         log_record = d_node->data;
 
-        log = statevent_init_log(debuglvl);
+        log = statevent_init_log();
         vrmr_fatal_if_null(log);
 
         strlcpy(log->ser, log_record->service, sizeof(log->ser));
@@ -368,11 +367,11 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl)
         */
         char mac[18] = "";
 
-        parse_log_srcdst(debuglvl, src, log->src_ip,
+        parse_log_srcdst(src, log->src_ip,
                 sizeof(log->src_ip), mac, sizeof(mac),
                 &log->src_port);
 
-        parse_log_srcdst(debuglvl, dst, log->dst_ip,
+        parse_log_srcdst(dst, log->dst_ip,
                 sizeof(log->dst_ip), mac, sizeof(mac),
                 &log->dst_port);
 
@@ -398,20 +397,20 @@ statevent_convert_log(const int debuglvl, StatEventCtl *ctl)
 
         //vrprint.debug(__FUNC__, "x = %d, y = %d, z = %d", x,y,z);
 
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &ctl->list, log) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&ctl->list, log) == NULL);
     }
 
     return(TRUE);
 }
 
 /* wrapper around ip and name killing */
-static int kill_connections(const int debuglvl, struct vrmr_config *cnf,
+static int kill_connections(struct vrmr_config *cnf,
         struct vrmr_conntrack_request *connreq, Conntrack *ct, StatEventConn *conn) {
     if (connreq->unknown_ip_as_net) {
-        return (kill_connections_by_name(debuglvl, cnf, ct, conn->src,
+        return (kill_connections_by_name(cnf, ct, conn->src,
             conn->dst, conn->ser, conn->connect_status));
     } else {
-        return (kill_connections_by_ip(debuglvl, cnf, ct, conn->src_ip,
+        return (kill_connections_by_ip(cnf, ct, conn->src_ip,
             conn->dst_ip, conn->ser, conn->connect_status));
     }
 }
@@ -422,7 +421,7 @@ static int kill_connections(const int debuglvl, struct vrmr_config *cnf,
 
 */
 static void
-statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cnf,
+statevent_interactivemenu_conn( struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                                 StatEventCtl *ctl, Conntrack *ct,
                                 struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones,
                                 struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
@@ -452,11 +451,11 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
         ungroup_conns = TRUE; /* we are ungrouping the list */
         connreq->group_conns = FALSE;
 
-        privct = conn_init_ct(debuglvl, zones, interfaces,
+        privct = conn_init_ct(zones, interfaces,
             services, blocklist);
         vrmr_fatal_if_null(privct);
 
-        conn_ct_get_connections(debuglvl, cnf, privct, connreq);
+        conn_ct_get_connections(cnf, privct, connreq);
         ct = privct;
     }
 
@@ -468,36 +467,36 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
     menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win_rev);
     vrmr_fatal_if_null(menu);
     VrMenuSetDescFreeFunc(menu, free);
-    VrMenuSetupNameList(debuglvl, menu);
-    VrMenuSetupDescList(debuglvl, menu);
+    VrMenuSetupNameList(menu);
+    VrMenuSetupDescList(menu);
 
     /* setup menu items */
     if(con->cnt == 1)   str = vrmr_get_string(gettext("Kill this connection"));
     else                str = vrmr_get_string(gettext("Kill all connections with this service/source/destination"),con->cnt);
-    VrMenuAddItem(debuglvl, menu, "1", str);
+    VrMenuAddItem(menu, "1", str);
 
     str = vrmr_get_string("--- %s ---", gettext("Kill options"));
-    VrMenuAddSepItem(debuglvl, menu, str);
+    VrMenuAddSepItem(menu, str);
     str = vrmr_get_string(gettext("Kill all connections with source %s"), con->src_ip);
-    VrMenuAddItem(debuglvl, menu, "2", str);
+    VrMenuAddItem(menu, "2", str);
     str = vrmr_get_string(gettext("Kill all connections with destination %s"), con->dst_ip);
-    VrMenuAddItem(debuglvl, menu, "3", str);
+    VrMenuAddItem(menu, "3", str);
     str = vrmr_get_string(gettext("Kill all connections of %s"), con->src_ip);
-    VrMenuAddItem(debuglvl, menu, "4", str);
+    VrMenuAddItem(menu, "4", str);
     str = vrmr_get_string(gettext("Kill all connections of %s"), con->dst_ip);
-    VrMenuAddItem(debuglvl, menu, "5", str);
+    VrMenuAddItem(menu, "5", str);
     str = vrmr_get_string("--- %s ---", gettext("BlockList options"));
-    VrMenuAddSepItem(debuglvl, menu, str);
+    VrMenuAddSepItem(menu, str);
     str = vrmr_get_string(gettext("Add source %s to BlockList"), con->src_ip);
-    VrMenuAddItem(debuglvl, menu, "6", str);
+    VrMenuAddItem(menu, "6", str);
     str = vrmr_get_string(gettext("Add destination %s to BlockList"), con->dst_ip);
-    VrMenuAddItem(debuglvl, menu, "7", str);
+    VrMenuAddItem(menu, "7", str);
     str = vrmr_get_string(gettext("Add both source and destination to BlockList"));
-    VrMenuAddItem(debuglvl, menu, "8", str);
-    VrMenuConnectToWin(debuglvl, menu, win);
-    VrMenuPost(debuglvl, menu);
+    VrMenuAddItem(menu, "8", str);
+    VrMenuConnectToWin(menu, win);
+    VrMenuPost(menu);
 
-    draw_top_menu(debuglvl, top_win, title, key_choices_n,
+    draw_top_menu(top_win, title, key_choices_n,
             key_choices, cmd_choices_n, cmd_choices);
     update_panels();
     doupdate();
@@ -536,7 +535,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                                 if(confirm(gettext("Kill connection"),gettext("Are you sure?"),
                                             vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                                 {
-                                    kill_connection(debuglvl, cnf->conntrack_location,
+                                    kill_connection(cnf->conntrack_location,
                                             con->src_ip, con->dst_ip, con->protocol,
                                             con->src_port, con->dst_port);
                                 }
@@ -550,7 +549,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                                 if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                             vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                                 {
-                                    kill_connections(debuglvl, cnf, connreq, ct, con);
+                                    kill_connections(cnf, connreq, ct, con);
                                 }
                             }
                             break;
@@ -565,7 +564,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                         else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            kill_connections_by_ip(debuglvl, cnf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
@@ -578,7 +577,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                         else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            kill_connections_by_ip(debuglvl, cnf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
@@ -591,8 +590,8 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                         else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            kill_connections_by_ip(debuglvl, cnf, ct, NULL, con->src_ip, NULL, VRMR_CONN_UNUSED);
-                            kill_connections_by_ip(debuglvl, cnf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ct, NULL, con->src_ip, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
@@ -605,8 +604,8 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                         else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            kill_connections_by_ip(debuglvl, cnf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
-                            kill_connections_by_ip(debuglvl, cnf, ct, con->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ct, con->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
@@ -615,7 +614,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                         if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            block_and_kill(debuglvl, vctx, ct, zones, blocklist, interfaces, con->src_ip);
+                            block_and_kill(vctx, ct, zones, blocklist, interfaces, con->src_ip);
                         }
                         break;
 
@@ -623,7 +622,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                         if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            block_and_kill(debuglvl, vctx, ct, zones, blocklist, interfaces, con->dst_ip);
+                            block_and_kill(vctx, ct, zones, blocklist, interfaces, con->dst_ip);
                         }
                         break;
 
@@ -631,8 +630,8 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
                         if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            block_and_kill(debuglvl, vctx, ct, zones, blocklist, interfaces, con->src_ip);
-                            block_and_kill(debuglvl, vctx, ct, zones, blocklist, interfaces, con->dst_ip);
+                            block_and_kill(vctx, ct, zones, blocklist, interfaces, con->src_ip);
+                            block_and_kill(vctx, ct, zones, blocklist, interfaces, con->dst_ip);
                         }
                         break;
 
@@ -645,16 +644,16 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
             case 'h':
             case 'H':
             case '?':
-                print_help(debuglvl, ctl->help_actions);
+                print_help(ctl->help_actions);
                 break;
 
             default:
-                (void)VrMenuDefaultNavigation(debuglvl, menu, ch);
+                (void)VrMenuDefaultNavigation(menu, ch);
                 break;
         }
     }
 
-    VrDelMenu(debuglvl, menu);
+    VrDelMenu(menu);
     VrDelWin(win);
     update_panels();
     doupdate();
@@ -662,8 +661,8 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
     /* we have ungrouped the list, clean up here. */
     if(ungroup_conns == TRUE) {
         connreq->group_conns = TRUE;
-        conn_ct_clear_connections(debuglvl, privct);
-        conn_free_ct(debuglvl, &privct, NULL);
+        conn_ct_clear_connections(privct);
+        conn_free_ct(&privct, NULL);
     }
 }
 
@@ -672,7 +671,7 @@ statevent_interactivemenu_conn( const int debuglvl, struct vrmr_ctx *vctx, struc
 
 */
 static void
-statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cnf,
+statevent_interactivemenu_log(  struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                                 StatEventCtl *ctl, Conntrack *ct,
                                 struct vrmr_conntrack_request *connreqnull, struct vrmr_zones *zones,
                                 struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
@@ -705,7 +704,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
     VrBusyWinShow();
 
     /* init filter */
-    vrmr_connreq_setup(debuglvl, &connreq);
+    vrmr_connreq_setup(&connreq);
     connreq.group_conns = TRUE;
     connreq.unknown_ip_as_net = TRUE;
     /* sorting, relevant for grouping */
@@ -716,8 +715,8 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
     connreq.draw_details = TRUE;
 
     /* get the connections for killing them later if the user chooses to */
-    ctr = conn_init_ct(debuglvl, zones, interfaces, services, blocklist);
-    conn_ct_get_connections(debuglvl, cnf, ctr, &connreq);
+    ctr = conn_init_ct(zones, interfaces, services, blocklist);
+    conn_ct_get_connections(cnf, ctr, &connreq);
 
     action = vrmr_rules_actiontoi(log->action);
     if(action == VRMR_AT_DROP || action == VRMR_AT_REJECT)
@@ -731,36 +730,36 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
     menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win_rev);
     vrmr_fatal_if_null(menu);
     VrMenuSetDescFreeFunc(menu, free);
-    VrMenuSetupNameList(debuglvl, menu);
-    VrMenuSetupDescList(debuglvl, menu);
+    VrMenuSetupNameList(menu);
+    VrMenuSetupDescList(menu);
 
     if (action != VRMR_AT_DROP && action != VRMR_AT_REJECT) {
         /* setup menu items */
         str = vrmr_get_string(gettext("Kill this connection"));
-        VrMenuAddItem(debuglvl, menu, nums[n], str); n++;
+        VrMenuAddItem(menu, nums[n], str); n++;
     }
     str = vrmr_get_string("--- %s ---", gettext("Kill options"));
-    VrMenuAddSepItem(debuglvl, menu, str);
+    VrMenuAddSepItem(menu, str);
     str = vrmr_get_string(gettext("Kill all connections with source %s"), log->src_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n++], str);
+    VrMenuAddItem(menu, nums[n++], str);
     str = vrmr_get_string(gettext("Kill all connections with destination %s"), log->dst_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n++], str);
+    VrMenuAddItem(menu, nums[n++], str);
     str = vrmr_get_string(gettext("Kill all connections of %s"), log->src_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n++], str);
+    VrMenuAddItem(menu, nums[n++], str);
     str = vrmr_get_string(gettext("Kill all connections of %s"), log->dst_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n++], str);
+    VrMenuAddItem(menu, nums[n++], str);
     str = vrmr_get_string("--- %s ---", gettext("BlockList options"));
-    VrMenuAddSepItem(debuglvl, menu, str);
+    VrMenuAddSepItem(menu, str);
     str = vrmr_get_string(gettext("Add source %s to BlockList"), log->src_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n++], str);
+    VrMenuAddItem(menu, nums[n++], str);
     str = vrmr_get_string(gettext("Add destination %s to BlockList"), log->dst_ip);
-    VrMenuAddItem(debuglvl, menu, nums[n++], str);
+    VrMenuAddItem(menu, nums[n++], str);
     str = vrmr_get_string(gettext("Add both source and destination to BlockList"));
-    VrMenuAddItem(debuglvl, menu, nums[n], str); /* n != n++ */
-    VrMenuConnectToWin(debuglvl, menu, win);
-    VrMenuPost(debuglvl, menu);
+    VrMenuAddItem(menu, nums[n], str); /* n != n++ */
+    VrMenuConnectToWin(menu, win);
+    VrMenuPost(menu);
 
-    draw_top_menu(debuglvl, top_win, title, key_choices_n,
+    draw_top_menu(top_win, title, key_choices_n,
             key_choices, cmd_choices_n, cmd_choices);
     update_panels();
     doupdate();
@@ -799,7 +798,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                                 if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                             vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                                 {
-                                    kill_connections_by_ip(debuglvl, cnf, ctr,
+                                    kill_connections_by_ip(cnf, ctr,
                                             log->src_ip, log->dst_ip, log->ser, VRMR_CONN_UNUSED);
                                 }
                             }
@@ -815,7 +814,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                         else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            kill_connections_by_ip(debuglvl, cnf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
@@ -828,7 +827,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                         else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            kill_connections_by_ip(debuglvl, cnf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
@@ -841,8 +840,8 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                         else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            kill_connections_by_ip(debuglvl, cnf, ctr, NULL, log->src_ip, NULL, VRMR_CONN_UNUSED);
-                            kill_connections_by_ip(debuglvl, cnf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ctr, NULL, log->src_ip, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
@@ -855,8 +854,8 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                         else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            kill_connections_by_ip(debuglvl, cnf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
-                            kill_connections_by_ip(debuglvl, cnf, ctr, log->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ctr, log->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
@@ -865,7 +864,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                         if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            block_and_kill(debuglvl, vctx, ctr, zones, blocklist, interfaces, log->src_ip);
+                            block_and_kill(vctx, ctr, zones, blocklist, interfaces, log->src_ip);
                         }
                         break;
 
@@ -873,7 +872,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                         if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            block_and_kill(debuglvl, vctx, ctr, zones, blocklist, interfaces, log->dst_ip);
+                            block_and_kill(vctx, ctr, zones, blocklist, interfaces, log->dst_ip);
                         }
                         break;
 
@@ -881,8 +880,8 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
                         if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
                                     vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
                         {
-                            block_and_kill(debuglvl, vctx, ctr, zones, blocklist, interfaces, log->src_ip);
-                            block_and_kill(debuglvl, vctx, ctr, zones, blocklist, interfaces, log->dst_ip);
+                            block_and_kill(vctx, ctr, zones, blocklist, interfaces, log->src_ip);
+                            block_and_kill(vctx, ctr, zones, blocklist, interfaces, log->dst_ip);
                         }
                         break;
 
@@ -895,19 +894,19 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
             case 'h':
             case 'H':
             case '?':
-                print_help(debuglvl, ctl->help_actions);
+                print_help(ctl->help_actions);
                 break;
 
             default:
-                (void)VrMenuDefaultNavigation(debuglvl, menu, ch);
+                (void)VrMenuDefaultNavigation(menu, ch);
                 break;
         }
     }
 
-    conn_ct_clear_connections(debuglvl, ctr);
-    conn_free_ct(debuglvl, &ctr, zones);
+    conn_ct_clear_connections(ctr);
+    conn_free_ct(&ctr, zones);
 
-    VrDelMenu(debuglvl, menu);
+    VrDelMenu(menu);
     VrDelWin(win);
     update_panels();
     doupdate();
@@ -915,7 +914,7 @@ statevent_interactivemenu_log(  const int debuglvl, struct vrmr_ctx *vctx, struc
 
 
 static StatEventCtl * ATTR_RETURNS_NONNULL
-statevent_init_ctl(const int debuglvl, int type)
+statevent_init_ctl(int type)
 {
     StatEventCtl *ctl = malloc(sizeof(StatEventCtl));
     vrmr_fatal_alloc("malloc", ctl);
@@ -945,21 +944,21 @@ statevent_init_ctl(const int debuglvl, int type)
         ctl->help_actions     = ":[VUURMUUR:LOGVIEW:ACTIONS]:";
     }
 
-    vrmr_list_setup(debuglvl, &ctl->list, ctl->remove);
+    vrmr_list_setup(&ctl->list, ctl->remove);
     return(ctl);
 }
 
 static void
-statevent_free_ctl(const int debuglvl, StatEventCtl **ctl)
+statevent_free_ctl(StatEventCtl **ctl)
 {
-    vrmr_list_cleanup(debuglvl, &(*ctl)->list);
+    vrmr_list_cleanup(&(*ctl)->list);
     memset(*ctl, 0, sizeof(StatEventCtl));
     free(*ctl);
     *ctl = NULL;
 }
 
 static int
-statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
+statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
         StatEventCtl *ctl, Conntrack *ct,
         struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
         struct vrmr_interfaces *interfaces, struct vrmr_services *services)
@@ -990,7 +989,7 @@ statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cn
     win = VrNewWin(LINES - 6,COLS - 2,3,1,vccnf.color_win_rev);
     vrmr_fatal_if_null(win);
     VrWinSetTitle(win, ctl->title_str);
-    draw_top_menu(debuglvl, top_win, ctl->title_str, key_choices_n,
+    draw_top_menu(top_win, ctl->title_str, key_choices_n,
             key_choices, cmd_choices_n, cmd_choices);
 
     menu = VrNewMenu(LINES - 8,COLS - 4,1,1,ctl->list.len,
@@ -998,8 +997,8 @@ statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cn
     vrmr_fatal_if_null(menu);
     VrMenuSetNameFreeFunc(menu, free);
     VrMenuSetDescFreeFunc(menu, free);
-    VrMenuSetupNameList(debuglvl, menu);
-    VrMenuSetupDescList(debuglvl, menu);
+    VrMenuSetupNameList(menu);
+    VrMenuSetupDescList(menu);
 
     unsigned int num = 1;
     for (d_node = ctl->list.top; d_node; d_node = d_node->next)
@@ -1007,9 +1006,8 @@ statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cn
         vrmr_fatal_if_null(d_node->data);
         gen_ptr = d_node->data;
 
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "gen_ptr->filtered %d",
-                    gen_ptr->filtered);
+        vrmr_debug(MEDIUM, "gen_ptr->filtered %d",
+                gen_ptr->filtered);
 
         if (gen_ptr->filtered == 0) {
             char    *desc_str = NULL;
@@ -1040,28 +1038,28 @@ statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cn
 
             /* get the str that will form the desc */
             desc_len = win->width - 2 - name_len;
-            desc_str = ctl->print2str(debuglvl, gen_ptr, desc_len);
+            desc_str = ctl->print2str(gen_ptr, desc_len);
             vrmr_fatal_if_null(desc_str);
 
             num++;
 
             /* add the item to the menu */
-            VrMenuAddItem(debuglvl, menu, name_str, desc_str);
+            VrMenuAddItem(menu, name_str, desc_str);
         }
     }
     /* check if we didn't add any item (if all was filtered) */
     if(num == 1)
     {
         vrmr_warning(VR_WARN, ctl->warn_no_data_str);
-        VrDelMenu(debuglvl, menu);
+        VrDelMenu(menu);
         VrDelWin(win);
         update_panels();
         doupdate();
         return(0);
     }
 
-    VrMenuConnectToWin(debuglvl, menu, win);
-    VrMenuPost(debuglvl, menu);
+    VrMenuConnectToWin(menu, win);
+    VrMenuPost(menu);
     VrBusyWinHide();
     update_panels();
     doupdate();
@@ -1110,13 +1108,13 @@ statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cn
                 if (gen_ptr != NULL) {
                     /* call the interactive menu
                        function */
-                    ctl->menu(debuglvl, vctx, cnf, ctl, ct,
+                    ctl->menu(vctx, cnf, ctl, ct,
                             connreq, zones, blocklist, interfaces,
                             services, gen_ptr);
 
                     /* when done, restore the title
                        and options */
-                    draw_top_menu(debuglvl, top_win,
+                    draw_top_menu(top_win,
                             ctl->title_str,
                             key_choices_n,
                             key_choices,
@@ -1129,16 +1127,16 @@ statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cn
             case 'h':
             case 'H':
             case '?':
-                print_help(debuglvl, ctl->help_overview);
+                print_help(ctl->help_overview);
                 break;
 
             default:
-                (void)VrMenuDefaultNavigation(debuglvl, menu, ch);
+                (void)VrMenuDefaultNavigation(menu, ch);
                 break;
         }
     }
 
-    VrDelMenu(debuglvl, menu);
+    VrDelMenu(menu);
     VrDelWin(win);
     update_panels();
     doupdate();
@@ -1147,7 +1145,7 @@ statevent_menu(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cn
 }
 
 void
-statevent(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
+statevent(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
         struct vrmr_list *list, Conntrack *ct,
         struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
@@ -1156,7 +1154,7 @@ statevent(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cnf, in
 
     VrBusyWinShow();
 
-    StatEventCtl *ctl = statevent_init_ctl(debuglvl, type);
+    StatEventCtl *ctl = statevent_init_ctl(type);
     vrmr_fatal_if_null(ctl);
     if (ctl->type == STATEVENTTYPE_CONN)
         ctl->data = ct;
@@ -1164,14 +1162,14 @@ statevent(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_config *cnf, in
         ctl->data = list;
 
     /* convert datatypes list to our own type */
-    if(ctl->convert(debuglvl, ctl) == FALSE) {
+    if(ctl->convert(ctl) == FALSE) {
         vrmr_error(-1, VR_ERR, "loading data failed.");
     }
 
-    statevent_menu(debuglvl, vctx, cnf, type, ctl, ct, connreq,
+    statevent_menu(vctx, cnf, type, ctl, ct, connreq,
             zones, blocklist, interfaces, services);
 
-    statevent_free_ctl(debuglvl, &ctl);
+    statevent_free_ctl(&ctl);
 
     // hide if not already hidden
     VrBusyWinHide();

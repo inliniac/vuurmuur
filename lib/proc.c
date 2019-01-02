@@ -22,7 +22,7 @@
 #include "vuurmuur.h"
 
 int
-vrmr_read_proc_entry(const int debuglvl, char *proc_entry, int *value)
+vrmr_read_proc_entry(char *proc_entry, int *value)
 {
     int     retval = 0,
             result = 0;
@@ -31,8 +31,7 @@ vrmr_read_proc_entry(const int debuglvl, char *proc_entry, int *value)
             i = 0,
             j = 0;
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "** start **");
+    vrmr_debug(HIGH, "** start **");
 
     entry_length = strlen(proc_entry);
     if(entry_length >= VRMR_MAX_PROC_ENTRY_LENGHT)
@@ -79,7 +78,7 @@ vrmr_read_proc_entry(const int debuglvl, char *proc_entry, int *value)
 }
 
 int
-vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entry, int proc_set, char *who)
+vrmr_set_proc_entry(struct vrmr_config *cnf, char *proc_entry, int proc_set, char *who)
 {
     size_t  i = 0,
             j = 0,
@@ -92,8 +91,7 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
             total_entry[VRMR_MAX_PROC_ENTRY_LENGHT*2];
     int     proc_int = 0;
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "** start **");
+    vrmr_debug(HIGH, "** start **");
 
     /* safety */
     if(!cnf)
@@ -151,8 +149,7 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
             {
 /* TODO: returncode */
                 fputc(proc_set+48, fp);
-                if(debuglvl >= MEDIUM)
-                    vrmr_debug(__FUNC__, "setting '%d' to proc entry '%s' succesfull.", proc_set, total_entry);
+                vrmr_debug(MEDIUM, "setting '%d' to proc entry '%s' succesfull.", proc_set, total_entry);
 
                 fclose(fp);
             }
@@ -177,8 +174,7 @@ vrmr_set_proc_entry(const int debuglvl, struct vrmr_config *cnf, char *proc_entr
             {
 /* TODO: returncode */
                 fputc(proc_set+48, fp);
-                if(debuglvl >= MEDIUM)
-                    vrmr_info("Info", "Setting '%d' to proc entry '%s' succesfull.", proc_set, proc_entry);
+                vrmr_info("Info", "Setting '%d' to proc entry '%s' succesfull.", proc_set, proc_entry);
 
                 fclose(fp);
             }

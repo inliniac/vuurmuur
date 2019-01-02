@@ -27,7 +27,7 @@
 
 */
 int
-backend_vrmr_check_active(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_vrmr_check_active(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -50,7 +50,7 @@ backend_vrmr_check_active(const int debuglvl, char *value, struct vrmr_regex *re
 
 */
 int
-backend_check_comment(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_comment(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -73,7 +73,7 @@ backend_check_comment(const int debuglvl, char *value, struct vrmr_regex *reg)
 
 */
 int
-backend_check_host_ipaddress(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_host_ipaddress(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -84,7 +84,7 @@ backend_check_host_ipaddress(const int debuglvl, char *value, struct vrmr_regex 
     }
 
     /* check */
-    if(vrmr_check_ipv4address(debuglvl, NULL, NULL, value, 0) == 1)
+    if(vrmr_check_ipv4address(NULL, NULL, value, 0) == 1)
         return(0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'IPADDRESS' (in: %s:%d).", value, __FUNC__, __LINE__);
@@ -96,7 +96,7 @@ backend_check_host_ipaddress(const int debuglvl, char *value, struct vrmr_regex 
 
 */
 int
-backend_check_host_macaddress(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_host_macaddress(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -123,7 +123,7 @@ backend_check_host_macaddress(const int debuglvl, char *value, struct vrmr_regex
 
 */
 int
-backend_check_group_member(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_group_member(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -150,7 +150,7 @@ backend_check_group_member(const int debuglvl, char *value, struct vrmr_regex *r
 
 */
 int
-backend_check_network_network(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_network_network(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -161,7 +161,7 @@ backend_check_network_network(const int debuglvl, char *value, struct vrmr_regex
     }
 
     /* check */
-    if(vrmr_check_ipv4address(debuglvl, NULL, NULL, value, 0) == 1)
+    if(vrmr_check_ipv4address(NULL, NULL, value, 0) == 1)
         return(0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'NETWORK' (in: %s:%d).", value, __FUNC__, __LINE__);
@@ -173,7 +173,7 @@ backend_check_network_network(const int debuglvl, char *value, struct vrmr_regex
 
 */
 int
-backend_check_network_netmask(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_network_netmask(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -184,7 +184,7 @@ backend_check_network_netmask(const int debuglvl, char *value, struct vrmr_regex
     }
 
     /* check */
-    if(vrmr_check_ipv4address(debuglvl, NULL, NULL, value, 0) == 1)
+    if(vrmr_check_ipv4address(NULL, NULL, value, 0) == 1)
         return(0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'NETMASK' (in: %s:%d).", value, __FUNC__, __LINE__);
@@ -196,7 +196,7 @@ backend_check_network_netmask(const int debuglvl, char *value, struct vrmr_regex
 
 */
 int
-backend_check_network_interface(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_network_interface(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -223,7 +223,7 @@ backend_check_network_interface(const int debuglvl, char *value, struct vrmr_reg
 
 */
 int
-backend_check_network_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_network_rule(char *value, struct vrmr_regex *reg)
 {
     char                line[1024] = "";
     struct vrmr_rule    rule;
@@ -248,14 +248,14 @@ backend_check_network_rule(const int debuglvl, char *value, struct vrmr_regex *r
         return(VRS_ERR_COMMANDLINE);
     }
 
-    if(vrmr_rules_decode_rule(debuglvl, line, sizeof(line)) < 0)
+    if(vrmr_rules_decode_rule(line, sizeof(line)) < 0)
     {
         vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_COMMANDLINE);
     }
 
-    if(vrmr_zones_network_rule_parse_line(debuglvl, line, &rule) < 0)
+    if(vrmr_zones_network_rule_parse_line(line, &rule) < 0)
     {
         vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
@@ -270,7 +270,7 @@ backend_check_network_rule(const int debuglvl, char *value, struct vrmr_regex *r
 
 */
 int
-backend_check_interface_ipaddress(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_interface_ipaddress(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -283,7 +283,7 @@ backend_check_interface_ipaddress(const int debuglvl, char *value, struct vrmr_r
     /* check */
     if(strcasecmp(value, "dynamic") == 0)
         return(0);
-    else if(vrmr_check_ipv4address(debuglvl, NULL, NULL, value, 0) == 1)
+    else if(vrmr_check_ipv4address(NULL, NULL, value, 0) == 1)
         return(0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'IPADDRESS' (in: %s:%d).", value, __FUNC__, __LINE__);
@@ -295,7 +295,7 @@ backend_check_interface_ipaddress(const int debuglvl, char *value, struct vrmr_r
 
 */
 int
-backend_check_interface_device(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_interface_device(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_interface   interface;
 
@@ -324,7 +324,7 @@ backend_check_interface_device(const int debuglvl, char *value, struct vrmr_rege
 
 */
 int
-backend_check_interface_virtual(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_interface_virtual(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -347,7 +347,7 @@ backend_check_interface_virtual(const int debuglvl, char *value, struct vrmr_reg
 
 */
 int
-backend_check_interface_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_interface_rule(char *value, struct vrmr_regex *reg)
 {
     char                line[1024] = "";
     struct vrmr_rule    rule;
@@ -372,14 +372,14 @@ backend_check_interface_rule(const int debuglvl, char *value, struct vrmr_regex 
         return(VRS_ERR_COMMANDLINE);
     }
 
-    if(vrmr_rules_decode_rule(debuglvl, line, sizeof(line)) < 0)
+    if(vrmr_rules_decode_rule(line, sizeof(line)) < 0)
     {
         vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
         return(VRS_ERR_COMMANDLINE);
     }
 
-    if(vrmr_interfaces_rule_parse_line(debuglvl, line, &rule) < 0)
+    if(vrmr_interfaces_rule_parse_line(line, &rule) < 0)
     {
         vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
@@ -393,7 +393,7 @@ backend_check_interface_rule(const int debuglvl, char *value, struct vrmr_regex 
 
 */
 int
-backend_check_interface_shape(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_interface_shape(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -421,7 +421,7 @@ backend_check_interface_shape(const int debuglvl, char *value, struct vrmr_regex
 
 */
 int
-backend_check_interface_bw(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_interface_bw(char *value, struct vrmr_regex *reg)
 {
     size_t i = 0;
 
@@ -462,7 +462,7 @@ backend_check_interface_bw(const int debuglvl, char *value, struct vrmr_regex *r
 
 */
 int
-backend_check_interface_bw_unit(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_interface_bw_unit(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -490,7 +490,7 @@ backend_check_interface_bw_unit(const int debuglvl, char *value, struct vrmr_reg
 
 */
 int
-backend_check_interface_tcpmss(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_interface_tcpmss(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -517,7 +517,7 @@ backend_check_interface_tcpmss(const int debuglvl, char *value, struct vrmr_rege
 
 */
 int
-backend_check_service_broadcast(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_service_broadcast(char *value, struct vrmr_regex *reg)
 {
     /* safety */
     if(value == NULL || reg == NULL)
@@ -540,7 +540,7 @@ backend_check_service_broadcast(const int debuglvl, char *value, struct vrmr_reg
 
 */
 int
-backend_check_service_helper(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_service_helper(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service    service;
 
@@ -569,7 +569,7 @@ backend_check_service_helper(const int debuglvl, char *value, struct vrmr_regex 
 
 */
 int
-backend_check_service_tcp(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_service_tcp(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service    service;
 
@@ -586,7 +586,7 @@ backend_check_service_tcp(const int debuglvl, char *value, struct vrmr_regex *re
         return(0);
 
     /* check */
-    if(vrmr_process_portrange(debuglvl, "TCP", value, &service) == 0)
+    if(vrmr_process_portrange("TCP", value, &service) == 0)
         return(0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'TCP' (in: %s:%d).", value, __FUNC__, __LINE__);
@@ -598,7 +598,7 @@ backend_check_service_tcp(const int debuglvl, char *value, struct vrmr_regex *re
 
 */
 int
-backend_check_service_udp(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_service_udp(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service    service;
 
@@ -615,7 +615,7 @@ backend_check_service_udp(const int debuglvl, char *value, struct vrmr_regex *re
         return(0);
 
     /* check */
-    if(vrmr_process_portrange(debuglvl, "UDP", value, &service) == 0)
+    if(vrmr_process_portrange("UDP", value, &service) == 0)
         return(0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'UDP' (in: %s:%d).", value, __FUNC__, __LINE__);
@@ -627,7 +627,7 @@ backend_check_service_udp(const int debuglvl, char *value, struct vrmr_regex *re
 
 */
 int
-backend_check_service_icmp(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_service_icmp(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service    service;
 
@@ -644,7 +644,7 @@ backend_check_service_icmp(const int debuglvl, char *value, struct vrmr_regex *r
         return(0);
 
     /* check */
-    if(vrmr_process_portrange(debuglvl, "ICMP", value, &service) == 0)
+    if(vrmr_process_portrange("ICMP", value, &service) == 0)
         return(0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'ICMP' (in: %s:%d).", value, __FUNC__, __LINE__);
@@ -656,7 +656,7 @@ backend_check_service_icmp(const int debuglvl, char *value, struct vrmr_regex *r
 
 */
 int
-backend_check_service_gre(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_service_gre(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service    service;
 
@@ -673,7 +673,7 @@ backend_check_service_gre(const int debuglvl, char *value, struct vrmr_regex *re
         return(0);
 
     /* check */
-    if(vrmr_process_portrange(debuglvl, "GRE", value, &service) == 0)
+    if(vrmr_process_portrange("GRE", value, &service) == 0)
         return(0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'GRE' (in: %s:%d).", value, __FUNC__, __LINE__);
@@ -685,7 +685,7 @@ backend_check_service_gre(const int debuglvl, char *value, struct vrmr_regex *re
 
 */
 int
-backend_check_service_ah(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_service_ah(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service    service;
 
@@ -702,7 +702,7 @@ backend_check_service_ah(const int debuglvl, char *value, struct vrmr_regex *reg
         return(0);
 
     /* check */
-    if(vrmr_process_portrange(debuglvl, "AH", value, &service) == 0)
+    if(vrmr_process_portrange("AH", value, &service) == 0)
         return(0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'AH' (in: %s:%d).", value, __FUNC__, __LINE__);
@@ -714,7 +714,7 @@ backend_check_service_ah(const int debuglvl, char *value, struct vrmr_regex *reg
 
 */
 int
-backend_check_service_esp(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_service_esp(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service    service;
 
@@ -731,7 +731,7 @@ backend_check_service_esp(const int debuglvl, char *value, struct vrmr_regex *re
         return(0);
 
     /* check */
-    if(vrmr_process_portrange(debuglvl, "ESP", value, &service) == 0)
+    if(vrmr_process_portrange("ESP", value, &service) == 0)
         return(0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'ESP' (in: %s:%d).", value, __FUNC__, __LINE__);
@@ -743,7 +743,7 @@ backend_check_service_esp(const int debuglvl, char *value, struct vrmr_regex *re
 
 */
 int
-backend_check_service_proto41(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_service_proto41(char *value, struct vrmr_regex *reg)
 {
     struct vrmr_service    service;
 
@@ -760,7 +760,7 @@ backend_check_service_proto41(const int debuglvl, char *value, struct vrmr_regex
         return(0);
 
     /* check */
-    if(vrmr_process_portrange(debuglvl, "PROTO_41", value, &service) == 0)
+    if(vrmr_process_portrange("PROTO_41", value, &service) == 0)
         return(0);
 
     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "'%s' is not a valid value for variable 'PROTO_41' (in: %s:%d).", value, __FUNC__, __LINE__);
@@ -769,7 +769,7 @@ backend_check_service_proto41(const int debuglvl, char *value, struct vrmr_regex
 
 
 static int
-backend_check_blocklist_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_blocklist_rule(char *value, struct vrmr_regex *reg)
 {
 //    char                line[1024] = "";
 //    char                action[32] = "";
@@ -796,7 +796,7 @@ backend_check_blocklist_rule(const int debuglvl, char *value, struct vrmr_regex 
 
 */
 int
-backend_check_rule_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
+backend_check_rule_rule(char *value, struct vrmr_regex *reg)
 {
     char                line[1024] = "";
     char                action[32] = "";
@@ -822,7 +822,7 @@ backend_check_rule_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
         return(VRS_ERR_COMMANDLINE);
     }
 
-    if(vrmr_rules_decode_rule(debuglvl, line, sizeof(line)) < 0)
+    if(vrmr_rules_decode_rule(line, sizeof(line)) < 0)
     {
         vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "decoding 'RULE' failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
@@ -832,11 +832,11 @@ backend_check_rule_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
     sscanf(line, "%s", action);
     if(strcasecmp(action, "block") == 0)
     {
-        return(backend_check_blocklist_rule(debuglvl, value, reg));
+        return(backend_check_blocklist_rule(value, reg));
     }
     else
     {
-        if(vrmr_rules_parse_line(debuglvl, line, &rule, reg) < 0)
+        if(vrmr_rules_parse_line(line, &rule, reg) < 0)
         {
             vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR, "parsing rule failed (in: %s:%d).",
                                         __FUNC__, __LINE__);
@@ -849,7 +849,7 @@ backend_check_rule_rule(const int debuglvl, char *value, struct vrmr_regex *reg)
 
 
 int
-backend_check(const int debuglvl, int type, char *var, char *val, char overwrite, struct vrmr_regex *reg)
+backend_check(int type, char *var, char *val, char overwrite, struct vrmr_regex *reg)
 {
     int i = 0;
 
@@ -873,7 +873,7 @@ backend_check(const int debuglvl, int type, char *var, char *val, char overwrite
                 return(VRS_ERR_INTERNAL);
             }
 
-            return(backend_vars[i].chk(debuglvl, val, reg));
+            return(backend_vars[i].chk(val, reg));
         }
     }
 

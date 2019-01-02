@@ -36,7 +36,7 @@ print_commandline_args(void)
 }
 
 static int
-exec_wizard(const int debuglvl, char *path)
+exec_wizard(char *path)
 {
     int retval = 0;
     char *args[2] = {path,NULL};
@@ -157,7 +157,7 @@ main(int argc, char *argv[])
     };
     int     longopt_index = 0;
 
-    int         debuglvl = 0;
+    int debug_level = NONE;
     PANEL       *main_panels[5];
     char        *s = NULL;
 
@@ -232,15 +232,16 @@ main(int argc, char *argv[])
             case 'd' :
 
                 /* convert the debug string and check the result */
-                debuglvl = atoi(optarg);
-                if(debuglvl < 0 || debuglvl > HIGH)
+                debug_level = atoi(optarg);
+                if(debug_level < 0 || debug_level > HIGH)
                 {
                     vrmr_error(EXIT_FAILURE, VR_ERR, gettext("commandline debuglevel out of range."));
                     exit(EXIT_FAILURE);
                 }
+                vrmr_debug_level = debug_level;
 
                 fprintf(stdout, "vuurmuur_conf: debugging enabled.\n");
-                fprintf(stdout, "vuurmuur_conf: debug level: %d\n", debuglvl);
+                fprintf(stdout, "vuurmuur_conf: debug level: %d\n", debug_level);
                 break;
 
             case 'V' :
@@ -255,7 +256,7 @@ main(int argc, char *argv[])
                 char wizard_path[512] = "";
                 snprintf(wizard_path, sizeof(wizard_path), "%s/scripts/vuurmuur-wizard.sh", vctx.conf.datadir);
                 printf("Running %s...\n", wizard_path);
-                exec_wizard(debuglvl, wizard_path);
+                exec_wizard(wizard_path);
                 exit(EXIT_SUCCESS);
             }
             default:
@@ -271,7 +272,7 @@ main(int argc, char *argv[])
     close(STDERR_FILENO);
 
     /* init vuurmuur_conf config already to get background */
-    (void)init_vcconfig(debuglvl, &vctx.conf, vccnf.configfile_location, &vccnf);
+    (void)init_vcconfig(&vctx.conf, vccnf.configfile_location, &vccnf);
 
     /* Initialize curses */
     (void)initscr();
@@ -321,13 +322,13 @@ main(int argc, char *argv[])
         exit(EXIT_FAILURE);
 
     /* setup the global busywin */
-    VrBusyWinCreate(debuglvl);
+    VrBusyWinCreate();
     VrBusyWinHide();
 
-    //form_test(debuglvl);
+    //form_test();
 
     /* startup_screen inits the config, loads the zones, rules, etc */
-    if (startup_screen(debuglvl, &vctx, &vctx.rules, &vctx.zones,
+    if (startup_screen(&vctx, &vctx.rules, &vctx.zones,
                 &vctx.services, &vctx.interfaces, &vctx.blocklist, &vctx.reg) < 0)
     {
         /* failure! Lets quit. */
@@ -351,15 +352,15 @@ main(int argc, char *argv[])
     }
 
     /* setup statuslist */
-    (void)setup_statuslist(debuglvl);
+    (void)setup_statuslist();
 
     status_print(status_win, STR_READY);
 
-    mm_status_checkall(debuglvl, &vctx, NULL, &vctx.rules, &vctx.zones, &vctx.interfaces, &vctx.services);
+    mm_status_checkall(&vctx, NULL, &vctx.rules, &vctx.zones, &vctx.interfaces, &vctx.services);
     /* main menu loop */
-    while(main_menu(debuglvl, &vctx, &vctx.rules, &vctx.zones, &vctx.interfaces, &vctx.services, &vctx.blocklist, &vctx.reg) == 1);
+    while(main_menu(&vctx, &vctx.rules, &vctx.zones, &vctx.interfaces, &vctx.services, &vctx.blocklist, &vctx.reg) == 1);
     /* clean up the status list */
-    vrmr_list_cleanup(debuglvl, &VuurmuurStatus.StatusList);
+    vrmr_list_cleanup(&VuurmuurStatus.StatusList);
 
     /* detach from shared memory, if we were attached */
     if(vuurmuur_shmp != NULL && vuurmuur_shmp != (char *)(-1) && vuurmuur_shmtable != 0)
@@ -382,7 +383,7 @@ main(int argc, char *argv[])
     }
 
     /* destroy the global busywin */
-    VrBusyWinDelete(debuglvl);
+    VrBusyWinDelete();
 
     /* delete panels and windows */
     (void)del_panel(main_panels[0]);
@@ -410,18 +411,18 @@ main(int argc, char *argv[])
     vrprint.audit = vrmr_stdoutprint_audit;
 
     /* unload the backends */
-    if(vrmr_backends_unload(debuglvl, &vctx.conf, &vctx) < 0)
+    if(vrmr_backends_unload(&vctx.conf, &vctx) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("unloading the backends failed (in: %s:%d)."), __func__, __LINE__);
         retval=-1;
     }
 
     /* cleanup the datastructures */
-    (void)vrmr_list_cleanup(debuglvl, &vctx.blocklist.list);
-    (void)vrmr_destroy_serviceslist(debuglvl, &vctx.services);
-    (void)vrmr_destroy_zonedatalist(debuglvl, &vctx.zones);
-    (void)vrmr_rules_cleanup_list(debuglvl, &vctx.rules);
-    (void)vrmr_destroy_interfaceslist(debuglvl, &vctx.interfaces);
+    (void)vrmr_list_cleanup(&vctx.blocklist.list);
+    (void)vrmr_destroy_serviceslist(&vctx.services);
+    (void)vrmr_destroy_zonedatalist(&vctx.zones);
+    (void)vrmr_rules_cleanup_list(&vctx.rules);
+    (void)vrmr_destroy_interfaceslist(&vctx.interfaces);
     vrmr_deinit(&vctx);
     return(retval);
 }
@@ -533,7 +534,7 @@ destroy_win(WINDOW *local_win)
         -1: error
 */
 int
-startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
+startup_screen(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         struct vrmr_zones *zones, struct vrmr_services *services,
         struct vrmr_interfaces *interfaces, struct vrmr_blocklist *blocklist,
         struct vrmr_regex *reg)
@@ -583,10 +584,10 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* initialize the vuurmuur conf config */
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_VUURMUUR_CONF_SETTINGS); update_panels(); doupdate();
-    if(debuglvl > LOW) sleep(1);
+    if(vrmr_debug_level > LOW) sleep(1);
     while(!config_done)
     {
-        result = init_vcconfig(debuglvl, &vctx->conf, vccnf.configfile_location, &vccnf);
+        result = init_vcconfig(&vctx->conf, vccnf.configfile_location, &vccnf);
         if(result == VRMR_CNF_E_UNKNOWN_ERR || result == VRMR_CNF_E_PARAMETER)
             return(-1);
         else if(result == VRMR_CNF_E_FILE_PERMISSION)
@@ -596,7 +597,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
         /* missing file? use defaults */
         else if(result == VRMR_CNF_E_FILE_MISSING)
         {
-            vcconfig_use_defaults(debuglvl, &vccnf);
+            vcconfig_use_defaults(&vccnf);
 
             werase(startup_print_win); wprintw(startup_print_win, "%s... %s", STR_LOAD_VUURMUUR_CONF_SETTINGS, STR_COK); update_panels(); doupdate();
             config_done = 1;
@@ -611,7 +612,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1))
             {
                 /* this prompt the user with the config menu */
-                cnfresult = edit_vcconfig(debuglvl);
+                cnfresult = edit_vcconfig();
                 if(cnfresult < 0)
                     return(-1);
             }
@@ -649,10 +650,10 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* initialize the config */
     config_done = 0;
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_VUURMUUR_CONFIG); update_panels(); doupdate();
-    if(debuglvl > LOW) sleep(1);
+    if(vrmr_debug_level > LOW) sleep(1);
     while(!config_done)
     {
-        result = vrmr_init_config(debuglvl, &vctx->conf);
+        result = vrmr_init_config(&vctx->conf);
         if(result == VRMR_CNF_E_UNKNOWN_ERR || result == VRMR_CNF_E_PARAMETER)
             return(-1);
         else if(result == VRMR_CNF_E_FILE_PERMISSION)
@@ -670,7 +671,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
                 vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1))
             {
                 /* this prompt the user with the config menu */
-                cnfresult = config_menu(debuglvl, &vctx->conf);
+                cnfresult = config_menu(&vctx->conf);
                 if(cnfresult < 0)
                     return(-1);
             }
@@ -706,7 +707,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     }
 
     /* config done, so now we can use logprinting */
-    if(debuglvl >= LOW)
+    if(vrmr_debug_level >= LOW)
         vrprint.info = vuumuurconf_print_info;
     else
         vrprint.info = vrmr_logprint_info;
@@ -721,8 +722,8 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
 
     /* now load the backends */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_LOAD_PLUGINS); update_panels(); doupdate();
-    if(debuglvl > LOW) sleep(1);
-    result = vrmr_backends_load(debuglvl, &vctx->conf, vctx);
+    if(vrmr_debug_level > LOW) sleep(1);
+    result = vrmr_backends_load(&vctx->conf, vctx);
     if(result < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("loading the plugins failed."));
@@ -734,8 +735,8 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* init services */
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_SERVICES); update_panels(); doupdate();
-    if(debuglvl > LOW) sleep(1);
-    result = vrmr_init_services(debuglvl, vctx, services, reg);
+    if(vrmr_debug_level > LOW) sleep(1);
+    result = vrmr_init_services(vctx, services, reg);
     if(result < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("intializing the services failed."));
@@ -747,8 +748,8 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* init interfaces */
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_INTERFACES); update_panels(); doupdate();
-    if(debuglvl > LOW) sleep(1);
-    result = vrmr_init_interfaces(debuglvl, vctx, interfaces);
+    if(vrmr_debug_level > LOW) sleep(1);
+    result = vrmr_init_interfaces(vctx, interfaces);
     if(result < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("intializing the interfaces failed."));
@@ -760,8 +761,8 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* init zones */
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_ZONES); update_panels(); doupdate();
-    if(debuglvl > LOW) sleep(1);
-    result = vrmr_init_zonedata(debuglvl, vctx, zones, interfaces, reg);
+    if(vrmr_debug_level > LOW) sleep(1);
+    result = vrmr_init_zonedata(vctx, zones, interfaces, reg);
     if(result < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("intializing the zones failed."));
@@ -773,8 +774,8 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* init rules */
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_RULES); update_panels(); doupdate();
-    if(debuglvl > LOW) sleep(1);
-    result = vrmr_rules_init_list(debuglvl, vctx, &vctx->conf, rules, reg);
+    if(vrmr_debug_level > LOW) sleep(1);
+    result = vrmr_rules_init_list(vctx, &vctx->conf, rules, reg);
     if(result < 0)
     {
         /* TRANSLATORS: max 40 characters */
@@ -789,8 +790,8 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
     /* load the blockfile */
     /* TRANSLATORS: max 40 characters */
     werase(startup_print_win); wprintw(startup_print_win, "%s...", STR_INIT_BLOCKLIST); update_panels(); doupdate();
-    if(debuglvl > LOW) sleep(1);
-    result = vrmr_blocklist_init_list(debuglvl, vctx, &vctx->conf, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE);
+    if(vrmr_debug_level > LOW) sleep(1);
+    result = vrmr_blocklist_init_list(vctx, &vctx->conf, zones, blocklist, /*load_ips*/FALSE, /*no_refcnt*/FALSE);
     if(result < 0)
     {
         /* TRANSLATORS: max 40 characters */
@@ -871,8 +872,7 @@ startup_screen(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rul
             vuurmuurlog_shmtable = (struct vrmr_shm_table *)vuurmuurlog_shmp;
             vuurmuurlog_semid = vuurmuurlog_shmtable->sem_id;
 
-            if(debuglvl >= LOW)
-                vrmr_debug(__FUNC__, "vuurmuur_log: sem_id: %d.", vuurmuurlog_semid);
+            vrmr_debug(LOW, "vuurmuur_log: sem_id: %d.", vuurmuurlog_semid);
 
             /* now try to connect to the shared memory */
             if(vrmr_lock(vuurmuurlog_semid))

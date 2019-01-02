@@ -21,7 +21,7 @@
 #include "vuurmuur_script.h"
 
 int
-script_add(const int debuglvl, VuurmuurScript *vr_script)
+script_add(VuurmuurScript *vr_script)
 {
     char    found = FALSE;
 
@@ -31,7 +31,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     if( vr_script->type == VRMR_TYPE_ZONE || vr_script->type == VRMR_TYPE_NETWORK ||
         vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
-        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type && strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -55,7 +55,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        while(vr_script->vctx.sf->list(debuglvl, vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
+        while(vr_script->vctx.sf->list(vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -71,7 +71,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        while(vr_script->vctx.af->list(debuglvl, vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
+        while(vr_script->vctx.af->list(vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -87,7 +87,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        while(vr_script->vctx.rf->list(debuglvl, vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
+        while(vr_script->vctx.rf->list(vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
         {
             if(strcmp(vr_script->bdat,vr_script->name) == 0)
             {
@@ -107,7 +107,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     */
     if(vr_script->type == VRMR_TYPE_ZONE)
     {
-        if(vr_script->vctx.zf->add(debuglvl, vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_ZONE) < 0)
+        if(vr_script->vctx.zf->add(vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_ZONE) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -117,7 +117,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
-        if(vr_script->vctx.zf->add(debuglvl, vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_NETWORK) < 0)
+        if(vr_script->vctx.zf->add(vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_NETWORK) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -127,7 +127,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_HOST)
     {
-        if(vr_script->vctx.zf->add(debuglvl, vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_HOST) < 0)
+        if(vr_script->vctx.zf->add(vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_HOST) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -137,7 +137,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_GROUP)
     {
-        if(vr_script->vctx.zf->add(debuglvl, vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_GROUP) < 0)
+        if(vr_script->vctx.zf->add(vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_GROUP) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -147,7 +147,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        if(vr_script->vctx.sf->add(debuglvl, vr_script->vctx.serv_backend, vr_script->name, VRMR_TYPE_SERVICE) < 0)
+        if(vr_script->vctx.sf->add(vr_script->vctx.serv_backend, vr_script->name, VRMR_TYPE_SERVICE) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -157,7 +157,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        if(vr_script->vctx.af->add(debuglvl, vr_script->vctx.ifac_backend, vr_script->name, VRMR_TYPE_INTERFACE) < 0)
+        if(vr_script->vctx.af->add(vr_script->vctx.ifac_backend, vr_script->name, VRMR_TYPE_INTERFACE) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);
@@ -167,7 +167,7 @@ script_add(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        if(vr_script->vctx.rf->add(debuglvl, vr_script->vctx.rule_backend, vr_script->name, VRMR_TYPE_RULE) < 0)
+        if(vr_script->vctx.rf->add(vr_script->vctx.rule_backend, vr_script->name, VRMR_TYPE_RULE) < 0)
         {
             vrmr_error(-1, VR_ERR, "adding ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
             return(VRS_ERR_COMMAND_FAILED);

@@ -78,7 +78,7 @@ struct ServicesSection_
         -1: error
 */
 static int
-edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
+edit_serv_portranges_new_validate(struct vrmr_ctx *vctx,
         struct vrmr_service *ser_ptr, const struct vrmr_portdata *in_port_ptr)
 {
     struct vrmr_list_node *d_node = NULL;
@@ -181,10 +181,9 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
 
         if(!insert_now)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "don't insert at this run.");
+            vrmr_debug(HIGH, "don't insert at this run.");
 
-            if(vrmr_list_node_is_bot(debuglvl, d_node)) {
+            if(vrmr_list_node_is_bot(d_node)) {
                 /* if we reach the bot, insert now */
                 insert_now = 1;
                 insert_append = 1;
@@ -204,16 +203,16 @@ edit_serv_portranges_new_validate(const int debuglvl, struct vrmr_ctx *vctx,
             insert at the bot.
         */
         if (!insert_append) {
-            vrmr_fatal_if(vrmr_list_insert_before(debuglvl, &ser_ptr->PortrangeList, d_node, port_ptr) == NULL);
+            vrmr_fatal_if(vrmr_list_insert_before(&ser_ptr->PortrangeList, d_node, port_ptr) == NULL);
         } else {
-            vrmr_fatal_if(vrmr_list_append(debuglvl, &ser_ptr->PortrangeList, port_ptr) == NULL);
+            vrmr_fatal_if(vrmr_list_append(&ser_ptr->PortrangeList, port_ptr) == NULL);
         }
         port_ptr = NULL; /* now owned by ser_ptr->PortrangeList */
 
         ser_ptr->status = VRMR_ST_CHANGED;
 
         /* save the portranges */
-        if (vrmr_services_save_portranges(debuglvl, vctx, ser_ptr) < 0)
+        if (vrmr_services_save_portranges(vctx, ser_ptr) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving the portranges failed (in: %s:%d)."), __FUNC__, __LINE__);
             return(-1);
@@ -231,7 +230,7 @@ struct {
 } TCPUDPSec;
 
 static void
-edit_tcpudp(const int debuglvl, struct vrmr_portdata *port_ptr)
+edit_tcpudp(struct vrmr_portdata *port_ptr)
 {
     WINDOW  *new_portrange_win;
     PANEL   *my_panels[1];
@@ -285,28 +284,28 @@ edit_tcpudp(const int debuglvl, struct vrmr_portdata *port_ptr)
     if(port_ptr->src_low > 0 && port_ptr->src_low <= 65535)
     {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->src_low);
-        set_field_buffer_wrap(debuglvl, TCPUDPSec.src_lo_fld, 0, port_str);
+        set_field_buffer_wrap(TCPUDPSec.src_lo_fld, 0, port_str);
     }
 
     TCPUDPSec.src_hi_fld = (fields[field_num++] = new_field(1, 5, 3, 11, 0, 0));
     if(port_ptr->src_high > 0 && port_ptr->src_high <= 65535)
     {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->src_high);
-        set_field_buffer_wrap(debuglvl, TCPUDPSec.src_hi_fld, 0, port_str);
+        set_field_buffer_wrap(TCPUDPSec.src_hi_fld, 0, port_str);
     }
 
     TCPUDPSec.dst_lo_fld = (fields[field_num++] = new_field(1, 5, 3, 24, 0, 0));
     if(port_ptr->dst_low > 0 && port_ptr->dst_low <= 65535)
     {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->dst_low);
-        set_field_buffer_wrap(debuglvl, TCPUDPSec.dst_lo_fld, 0, port_str);
+        set_field_buffer_wrap(TCPUDPSec.dst_lo_fld, 0, port_str);
     }
 
     TCPUDPSec.dst_hi_fld = (fields[field_num++] = new_field(1, 5, 3, 32, 0, 0));
     if(port_ptr->dst_high > 0 && port_ptr->dst_high <= 65535)
     {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->dst_high);
-        set_field_buffer_wrap(debuglvl, TCPUDPSec.dst_hi_fld, 0, port_str);
+        set_field_buffer_wrap(TCPUDPSec.dst_hi_fld, 0, port_str);
     }
 
     vrmr_fatal_if (field_num != 4);
@@ -362,7 +361,7 @@ edit_tcpudp(const int debuglvl, struct vrmr_portdata *port_ptr)
 
         not_defined = 0;
 
-        if(nav_field_simpletext(debuglvl, my_form, ch) < 0)
+        if(nav_field_simpletext(my_form, ch) < 0)
             not_defined = 1;
 
         if(not_defined)
@@ -407,7 +406,7 @@ edit_tcpudp(const int debuglvl, struct vrmr_portdata *port_ptr)
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:SERVICE:EDIT:PORTRANGE:TCPUDP]:");
+                    print_help(":[VUURMUUR:SERVICE:EDIT:PORTRANGE:TCPUDP]:");
                     break;
 
                 default:
@@ -782,7 +781,7 @@ struct {
 } ICMPSec;
 
 static void
-edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
+edit_icmp(struct vrmr_portdata *port_ptr)
 {
     WINDOW  *new_portrange_win;
     PANEL   *my_panels[1];
@@ -831,14 +830,14 @@ edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
     if(port_ptr->dst_low >= 0 && port_ptr->dst_low <= 255)
     {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->dst_low);
-        set_field_buffer_wrap(debuglvl, ICMPSec.typefld, 0, port_str);
+        set_field_buffer_wrap(ICMPSec.typefld, 0, port_str);
     }
 
     ICMPSec.codefld = (fields[1] = new_field(1, 3, 2, 12, 0, 0));
     if(port_ptr->dst_high >= 0 && port_ptr->dst_high <= 16)
     {
         snprintf(port_str, sizeof(port_str), "%d", port_ptr->dst_high);
-        set_field_buffer_wrap(debuglvl, ICMPSec.codefld, 0, port_str);
+        set_field_buffer_wrap(ICMPSec.codefld, 0, port_str);
     }
 
     for(i = 0; i < 2; i++)
@@ -884,7 +883,7 @@ edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
                     if(result >= 0)
                     {
                         (void)snprintf(icmp_type, sizeof(icmp_type), "%d", result);
-                        set_field_buffer_wrap(debuglvl, cur_field, 0, icmp_type);
+                        set_field_buffer_wrap(cur_field, 0, icmp_type);
                     }
                 }
                 else
@@ -895,7 +894,7 @@ edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
                     if(result >= 0)
                     {
                         (void)snprintf(icmp_code, sizeof(icmp_code), "%d", (uint8_t)result);
-                        set_field_buffer_wrap(debuglvl, cur_field, 0, icmp_code);
+                        set_field_buffer_wrap(cur_field, 0, icmp_code);
                     }
                 }
                 break;
@@ -938,7 +937,7 @@ edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
             case 'h':
             case 'H':
             case '?':
-                print_help(debuglvl, ":[VUURMUUR:SERVICE:EDIT:PORTRANGE:ICMP]:");
+                print_help(":[VUURMUUR:SERVICE:EDIT:PORTRANGE:ICMP]:");
                 break;
 
             default:
@@ -980,7 +979,7 @@ edit_icmp(const int debuglvl, struct vrmr_portdata *port_ptr)
 }
 
 static void
-create_portrange_string(const int debuglvl, struct vrmr_portdata *portrange_ptr, char *buf, size_t size)
+create_portrange_string(struct vrmr_portdata *portrange_ptr, char *buf, size_t size)
 {
     char    proto[5] = "",
             src[12] = "",
@@ -1038,7 +1037,7 @@ create_portrange_string(const int debuglvl, struct vrmr_portdata *portrange_ptr,
 }
 
 static int
-edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
+edit_serv_portranges_new(struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
 {
     int             retval=0;
     char            str[64] = "";
@@ -1067,7 +1066,7 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
         portrange_ptr->dst_low  = 0;
         portrange_ptr->dst_high = 0;
 
-        edit_tcpudp(debuglvl, portrange_ptr);
+        edit_tcpudp(portrange_ptr);
     }
     else if(strncmp(choice_ptr, "UDP", 3) == 0)
     {
@@ -1077,7 +1076,7 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
         portrange_ptr->dst_low  = 0;
         portrange_ptr->dst_high = 0;
 
-        edit_tcpudp(debuglvl, portrange_ptr);
+        edit_tcpudp(portrange_ptr);
     }
     else if(strncmp(choice_ptr, "ICMP", 4) == 0)
     {
@@ -1087,7 +1086,7 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
         portrange_ptr->dst_low  = 0;
         portrange_ptr->dst_high = 0;
 
-        edit_icmp(debuglvl, portrange_ptr);
+        edit_icmp(portrange_ptr);
     }
     else if(strncmp(choice_ptr, "GRE", 3) == 0)
     {
@@ -1143,7 +1142,7 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
 
     if(retval == 0)
     {
-        if (edit_serv_portranges_new_validate(debuglvl, vctx, ser_ptr, portrange_ptr) < 0) {
+        if (edit_serv_portranges_new_validate(vctx, ser_ptr, portrange_ptr) < 0) {
             retval = -1;
         } else {
             retval = 1;
@@ -1152,7 +1151,7 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
 
     if(retval == 1)
     {
-        create_portrange_string(debuglvl, portrange_ptr, str, sizeof(str));
+        create_portrange_string(portrange_ptr, str, sizeof(str));
 
         /* example: "service 'X-5' has been changed: portrange 'TCP: 1024:65535 -> 6005' was added." */
         vrmr_audit("%s '%s' %s: %s '%s' %s.",
@@ -1174,7 +1173,7 @@ edit_serv_portranges_new(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_
          1: ok, editted 
 */
 static int
-edit_serv_portranges_edit(const int debuglvl, int place, struct vrmr_service *ser_ptr)
+edit_serv_portranges_edit(int place, struct vrmr_service *ser_ptr)
 {
     int i = 0;
     struct vrmr_list_node *d_node = NULL;
@@ -1194,13 +1193,13 @@ edit_serv_portranges_edit(const int debuglvl, int place, struct vrmr_service *se
 
         if(port_ptr->protocol == 6 || port_ptr->protocol == 17)
         {
-            edit_tcpudp(debuglvl, port_ptr);
+            edit_tcpudp(port_ptr);
             /* return 1 so the caller knows we editted it! */
             return(1);
         }
         else if(port_ptr->protocol == 1)
         {
-            edit_icmp(debuglvl, port_ptr);
+            edit_icmp(port_ptr);
             /* return 1 so the caller knows we editted it! */
             return(1);
         }
@@ -1233,7 +1232,7 @@ edit_serv_portranges_edit(const int debuglvl, int place, struct vrmr_service *se
          1: removed
 */
 static int
-edit_serv_portranges_del(const int debuglvl, struct vrmr_ctx *vctx, int place, struct vrmr_service *ser_ptr)
+edit_serv_portranges_del(struct vrmr_ctx *vctx, int place, struct vrmr_service *ser_ptr)
 {
     int             i = 0;
     struct vrmr_list_node     *d_node = NULL;
@@ -1258,13 +1257,13 @@ edit_serv_portranges_del(const int debuglvl, struct vrmr_ctx *vctx, int place, s
         vrmr_fatal_if_null(d_node->data);
         portrange_ptr = d_node->data;
 
-        create_portrange_string(debuglvl, portrange_ptr, str, sizeof(str));
+        create_portrange_string(portrange_ptr, str, sizeof(str));
 
         /* remove */
-        vrmr_fatal_if(vrmr_list_remove_node(debuglvl, &ser_ptr->PortrangeList, d_node) < 0);
+        vrmr_fatal_if(vrmr_list_remove_node(&ser_ptr->PortrangeList, d_node) < 0);
 
         /* save */
-        if (vrmr_services_save_portranges(debuglvl, vctx, ser_ptr) < 0)
+        if (vrmr_services_save_portranges(vctx, ser_ptr) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving the portranges failed (in: %s:%d)."), __FUNC__, __LINE__);
             return(-1);
@@ -1282,7 +1281,7 @@ edit_serv_portranges_del(const int debuglvl, struct vrmr_ctx *vctx, int place, s
 }
 
 static void
-edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
+edit_serv_portranges_init(struct vrmr_service *ser_ptr)
 {
     struct vrmr_list_node *d_node = NULL;
     int             i=0;
@@ -1321,9 +1320,9 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
     VrWinGetOffset(-1, -1, height, width, 4, ServicesSection.EditService.se_xre + 1, &starty, &startx);
 
     // string item list
-    vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_list, free);
+    vrmr_list_setup(&ServicesSection.EditServicePrt.item_list, free);
     // number item list
-    vrmr_list_setup(debuglvl, &ServicesSection.EditServicePrt.item_number_list, free);
+    vrmr_list_setup(&ServicesSection.EditServicePrt.item_number_list, free);
 
     for (i = 0, d_node = ser_ptr->PortrangeList.top; d_node ; d_node = d_node->next, i++)
     {
@@ -1384,8 +1383,8 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
         vrmr_fatal_if_null(ServicesSection.EditServicePrt.items[i]);
 
         /* store in list */
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &ServicesSection.EditServicePrt.item_list, port_string_ptr) == NULL);
-        vrmr_fatal_if(vrmr_list_append(debuglvl, &ServicesSection.EditServicePrt.item_number_list, item_number_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&ServicesSection.EditServicePrt.item_list, port_string_ptr) == NULL);
+        vrmr_fatal_if(vrmr_list_append(&ServicesSection.EditServicePrt.item_number_list, item_number_ptr) == NULL);
     }
     ServicesSection.EditServicePrt.items[ServicesSection.EditServicePrt.n_items] = (ITEM *)NULL;
 
@@ -1448,7 +1447,7 @@ edit_serv_portranges_init(const int debuglvl, struct vrmr_service *ser_ptr)
 }
 
 static void
-edit_serv_portranges_destroy(const int debuglvl)
+edit_serv_portranges_destroy(void)
 {
     size_t  i = 0;
 
@@ -1465,14 +1464,14 @@ edit_serv_portranges_destroy(const int debuglvl)
     destroy_win(ServicesSection.EditServicePrt.win_top);
     del_panel(ServicesSection.EditServicePrt.panel_bot[0]);
     destroy_win(ServicesSection.EditServicePrt.win_bot);
-    vrmr_list_cleanup(debuglvl, &ServicesSection.EditServicePrt.item_list);
-    vrmr_list_cleanup(debuglvl, &ServicesSection.EditServicePrt.item_number_list);
+    vrmr_list_cleanup(&ServicesSection.EditServicePrt.item_list);
+    vrmr_list_cleanup(&ServicesSection.EditServicePrt.item_number_list);
     update_panels();
     doupdate();
 }
 
 static void
-edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
+edit_serv_portranges(struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
 {
     int     quit = 0,
             reload = 0,
@@ -1495,16 +1494,16 @@ edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_serv
     /* safety */
     vrmr_fatal_if_null(ser_ptr);
 
-    edit_serv_portranges_init(debuglvl, ser_ptr);
+    edit_serv_portranges_init(ser_ptr);
 
-    draw_top_menu(debuglvl, top_win, gettext("Edit Portrange"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Edit Portrange"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     while(quit == 0)
     {
         if(reload == 1)
         {
-            edit_serv_portranges_destroy(debuglvl);
-            edit_serv_portranges_init(debuglvl, ser_ptr);
+            edit_serv_portranges_destroy();
+            edit_serv_portranges_init(ser_ptr);
             reload = 0;
         }
 
@@ -1540,10 +1539,10 @@ edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_serv
                 case 'i':
                 case 'I':
 
-                    if (edit_serv_portranges_new(debuglvl, vctx, ser_ptr) == 1) {
+                    if (edit_serv_portranges_new(vctx, ser_ptr) == 1) {
                         reload = 1;
 
-                        draw_top_menu(debuglvl, top_win, gettext("Edit Portrange"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        draw_top_menu(top_win, gettext("Edit Portrange"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     }
                     break;
 
@@ -1553,7 +1552,7 @@ edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_serv
                 {
                     cur = current_item(ServicesSection.EditServicePrt.menu);
                     if (cur) {
-                        edit_serv_portranges_del(debuglvl, vctx, atoi((char *)item_name(cur)), ser_ptr);
+                        edit_serv_portranges_del(vctx, atoi((char *)item_name(cur)), ser_ptr);
                         reload = 1;
                     }
                     break;
@@ -1565,9 +1564,9 @@ edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_serv
                 {
                     cur = current_item(ServicesSection.EditServicePrt.menu);
                     if (cur) {
-                        edit_serv_portranges_edit(debuglvl, atoi((char *)item_name(cur)), ser_ptr);
+                        edit_serv_portranges_edit(atoi((char *)item_name(cur)), ser_ptr);
                         reload = 1;
-                        draw_top_menu(debuglvl, top_win, gettext("Edit Portrange"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        draw_top_menu(top_win, gettext("Edit Portrange"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     }
                     break;
                 }
@@ -1601,13 +1600,13 @@ edit_serv_portranges(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_serv
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:SERVICE:EDIT:PORTRANGE]:");
+                    print_help(":[VUURMUUR:SERVICE:EDIT:PORTRANGE]:");
                     break;
             }
         }
     }
 
-    edit_serv_portranges_destroy(debuglvl);
+    edit_serv_portranges_destroy();
 }
 
 struct
@@ -1626,7 +1625,7 @@ struct
 } ServiceSec;
 
 static int
-edit_service_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
+edit_service_save(struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
 {
     int     retval=0,
             result = 0,
@@ -1656,7 +1655,7 @@ edit_service_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
                 ser_ptr->active = 0;
             }
 
-            result = vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "ACTIVE", ser_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
+            result = vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "ACTIVE", ser_ptr->active ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
@@ -1685,7 +1684,7 @@ edit_service_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
                 ser_ptr->broadcast = 0;
             }
 
-            result = vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
+            result = vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "BROADCAST", ser_ptr->broadcast ? "Yes" : "No", 1, VRMR_TYPE_SERVICE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
@@ -1707,7 +1706,7 @@ edit_service_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
                     field_buffer(ServicesSection.EditService.fields[i], 0),
                     sizeof(ser_ptr->helper));
 
-            if (vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "HELPER", ser_ptr->helper, 1, VRMR_TYPE_SERVICE) < 0)
+            if (vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "HELPER", ser_ptr->helper, 1, VRMR_TYPE_SERVICE) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
                 return(-1);
@@ -1722,7 +1721,7 @@ edit_service_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
         /* comment */
         else if(ServicesSection.EditService.fields[i] == ServiceSec.commentfld)
         {
-            result = vctx->sf->tell(debuglvl, vctx->serv_backend, ser_ptr->name, "COMMENT", field_buffer(ServicesSection.EditService.fields[i], 0), 1, VRMR_TYPE_SERVICE);
+            result = vctx->sf->tell(vctx->serv_backend, ser_ptr->name, "COMMENT", field_buffer(ServicesSection.EditService.fields[i], 0), 1, VRMR_TYPE_SERVICE);
             if(result < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("saving to backend failed (in: %s:%d)."), __FUNC__, __LINE__);
@@ -1741,7 +1740,7 @@ edit_service_save(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
 #define MAX_RANGES 4
 
 static void
-edit_service_update_portrangesfld(const int debuglvl, struct vrmr_ctx *vctx,
+edit_service_update_portrangesfld(struct vrmr_ctx *vctx,
         struct vrmr_service *ser_ptr)
 {
     struct vrmr_portdata *portrange_ptr = NULL;
@@ -1836,11 +1835,11 @@ edit_service_update_portrangesfld(const int debuglvl, struct vrmr_ctx *vctx,
         if (i == MAX_RANGES)
             break;
     }
-    set_field_buffer_wrap(debuglvl, ServiceSec.portrangesfld, 0, buffer);
+    set_field_buffer_wrap(ServiceSec.portrangesfld, 0, buffer);
 }
 
 static void
-edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
+edit_service_init(struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
 {
     int             rows,
                     cols,
@@ -1880,44 +1879,44 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
 
     /* active */
     ServiceSec.activelabelfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 10, 2, 0, 0, 0));
-    set_field_buffer_wrap(debuglvl, ServiceSec.activelabelfld, 0, gettext("Active"));
+    set_field_buffer_wrap(ServiceSec.activelabelfld, 0, gettext("Active"));
     field_opts_off(ServiceSec.activelabelfld, O_ACTIVE);
 
     ServiceSec.activefld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 3, 3, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, ServiceSec.activefld, 0, ser_ptr->active ? STR_YES : STR_NO);
+    set_field_buffer_wrap(ServiceSec.activefld, 0, ser_ptr->active ? STR_YES : STR_NO);
 
     /* broadcast */
     ServiceSec.broadcastlabelfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 16, 5, 0, 0, 0));
-    set_field_buffer_wrap(debuglvl, ServiceSec.broadcastlabelfld, 0, gettext("Broadcast"));
+    set_field_buffer_wrap(ServiceSec.broadcastlabelfld, 0, gettext("Broadcast"));
     field_opts_off(ServiceSec.broadcastlabelfld, O_ACTIVE);
 
     ServiceSec.broadcastfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 3, 6, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, ServiceSec.broadcastfld, 0, ser_ptr->broadcast ? STR_YES : STR_NO);
+    set_field_buffer_wrap(ServiceSec.broadcastfld, 0, ser_ptr->broadcast ? STR_YES : STR_NO);
 
     /* helper */
     ServiceSec.helperlabelfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 16, 2, 16, 0, 0));
-    set_field_buffer_wrap(debuglvl, ServiceSec.helperlabelfld, 0, gettext("Protocol helper"));
+    set_field_buffer_wrap(ServiceSec.helperlabelfld, 0, gettext("Protocol helper"));
     field_opts_off(ServiceSec.helperlabelfld, O_ACTIVE);
 
     ServiceSec.helperfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 32, 3, 17, 0, 0));
-    set_field_buffer_wrap(debuglvl, ServiceSec.helperfld, 0, ser_ptr->helper);
+    set_field_buffer_wrap(ServiceSec.helperfld, 0, ser_ptr->helper);
 
     ServiceSec.commentlabelfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 16, 8, 0, 0, 0));
-    set_field_buffer_wrap(debuglvl, ServiceSec.commentlabelfld, 0, gettext("Comment"));
+    set_field_buffer_wrap(ServiceSec.commentlabelfld, 0, gettext("Comment"));
     field_opts_off(ServiceSec.commentlabelfld, O_ACTIVE);
 
     /* comment field size */
     comment_y = 5;
     comment_x = 48;
     /* load the comment from the backend */
-    if (vctx->sf->ask(debuglvl, vctx->serv_backend, ser_ptr->name, "COMMENT", ServicesSection.comment, sizeof(ServicesSection.comment), VRMR_TYPE_SERVICE, 0) < 0)
+    if (vctx->sf->ask(vctx->serv_backend, ser_ptr->name, "COMMENT", ServicesSection.comment, sizeof(ServicesSection.comment), VRMR_TYPE_SERVICE, 0) < 0)
         vrmr_error(-1, VR_ERR, gettext("error while loading the comment."));
 
     ServiceSec.commentfld = (ServicesSection.EditService.fields[field_num++] = new_field(comment_y, comment_x, 9, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, ServiceSec.commentfld, 0, ServicesSection.comment);
+    set_field_buffer_wrap(ServiceSec.commentfld, 0, ServicesSection.comment);
 
     ServiceSec.norangewarningfld = (ServicesSection.EditService.fields[field_num++] = new_field(1, 48, 14, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, ServiceSec.norangewarningfld, 0, gettext("Warning: no port(range)s defined!"));
+    set_field_buffer_wrap(ServiceSec.norangewarningfld, 0, gettext("Warning: no port(range)s defined!"));
     field_opts_off(ServiceSec.norangewarningfld, O_VISIBLE|O_ACTIVE);
     set_field_just(ServiceSec.norangewarningfld, JUSTIFY_CENTER);
 
@@ -1962,14 +1961,14 @@ edit_service_init(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_service
     mvwprintw(ServicesSection.EditService.win, 1, 2,  "%s: %s", gettext("Name"), ser_ptr->name);
     mvwprintw(ServicesSection.EditService.win, 16, 1, gettext("Press <F6> to manage the portranges of this service."));
 
-    edit_service_update_portrangesfld(debuglvl, vctx, ser_ptr);
+    edit_service_update_portrangesfld(vctx, ser_ptr);
 
     /* position the cursor in the active field */
     pos_form_cursor(ServicesSection.EditService.form);
 }
 
 static void
-edit_service_destroy(const int debuglvl)
+edit_service_destroy(void)
 {
     size_t i;
 
@@ -1994,7 +1993,7 @@ edit_service_destroy(const int debuglvl)
 }
 
 static int
-edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services, const char *name)
+edit_service(struct vrmr_ctx *vctx, struct vrmr_services *services, const char *name)
 {
     int                     ch, /* for recording keystrokes */
                             quit = 0,
@@ -2021,7 +2020,7 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
     }
     
     /* search the service */
-    if(!(ser_ptr = vrmr_search_service(debuglvl, services, (char *)name)))
+    if(!(ser_ptr = vrmr_search_service(services, (char *)name)))
     {
         vrmr_error(-1, VR_INTERR, "service '%s' was not found in memory (in: %s:%d).", name, __FUNC__, __LINE__);
         return(-1);
@@ -2033,7 +2032,7 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
         draw_field_active_mark(cur, prev, ServicesSection.EditService.win, ServicesSection.EditService.form, vccnf.color_win_mark|A_BOLD);
 
         /* init */
-        edit_service_init(debuglvl, vctx, ser_ptr);
+        edit_service_init(vctx, ser_ptr);
 
         /* show (or hide) initial warning about the group being empty. */
         if(ser_ptr->PortrangeList.len == 0) {
@@ -2043,7 +2042,7 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
         pos_form_cursor(ServicesSection.EditService.form);
         cur = current_field(ServicesSection.EditService.form);
 
-        draw_top_menu(debuglvl, top_win, gettext("Edit Service"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+        draw_top_menu(top_win, gettext("Edit Service"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
         wrefresh(ServicesSection.EditService.win);
         update_panels();
@@ -2057,18 +2056,18 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
 
             if(cur == ServiceSec.commentfld)
             {
-                if(nav_field_comment(debuglvl, ServicesSection.EditService.form, ch) < 0)
+                if(nav_field_comment(ServicesSection.EditService.form, ch) < 0)
                     not_defined = 1;
             }
             else if(cur == ServiceSec.helperfld)
             {
-                if(nav_field_simpletext(debuglvl, ServicesSection.EditService.form, ch) < 0)
+                if(nav_field_simpletext(ServicesSection.EditService.form, ch) < 0)
                     not_defined = 1;
             }
             else if(cur == ServiceSec.activefld ||
                 cur == ServiceSec.broadcastfld)
             {
-                if(nav_field_yesno(debuglvl, ServicesSection.EditService.form, ch) < 0)
+                if(nav_field_yesno(ServicesSection.EditService.form, ch) < 0)
                     not_defined = 1;
             }
             else
@@ -2084,10 +2083,10 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
                     case 'e':
                     case 'E':
                         /* open portranges window */
-                        edit_serv_portranges(debuglvl, vctx, ser_ptr);
-                        edit_service_update_portrangesfld(debuglvl, vctx, ser_ptr);
+                        edit_serv_portranges(vctx, ser_ptr);
+                        edit_service_update_portrangesfld(vctx, ser_ptr);
 
-                        draw_top_menu(debuglvl, top_win, gettext("Edit Service"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        draw_top_menu(top_win, gettext("Edit Service"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                         break;
 
                     case 27:
@@ -2115,7 +2114,7 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
                     case 'h':
                     case 'H':
                     case '?':
-                        print_help(debuglvl, ":[VUURMUUR:SERVICE:EDIT]:");
+                        print_help(":[VUURMUUR:SERVICE:EDIT]:");
                         break;
                 }
             }
@@ -2139,26 +2138,26 @@ edit_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *se
     /* save */
 
     /* save the service */
-    if (edit_service_save(debuglvl, vctx, ser_ptr) < 0)
+    if (edit_service_save(vctx, ser_ptr) < 0)
     {
         vrmr_error(-1, "Error", "saving the service failed (in: %s).", __FUNC__);
         retval = -1;
     }
 
     /* save the portranges */
-    if (vrmr_services_save_portranges(debuglvl, vctx, ser_ptr) < 0)
+    if (vrmr_services_save_portranges(vctx, ser_ptr) < 0)
     {
         vrmr_error(-1, "Error", "saving the portranges failed (in: %s).", __FUNC__);
         retval = -1;
     }
 
     /* cleanup */
-    edit_service_destroy(debuglvl);
+    edit_service_destroy();
     return(retval);
 }
 
 static int
-rename_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *services,
+rename_service(struct vrmr_ctx *vctx, struct vrmr_services *services,
         struct vrmr_rules *rules, char *cur_name_ptr, char *new_name_ptr)
 {
     int                     result = 0;
@@ -2176,16 +2175,15 @@ rename_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *
 
     (void)strlcpy(old_ser_name, cur_name_ptr, sizeof(old_ser_name));
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "going to rename service old_ser_name:'%s' to new_name_ptr:'%s'.", old_ser_name, new_name_ptr);
+    vrmr_debug(HIGH, "going to rename service old_ser_name:'%s' to new_name_ptr:'%s'.", old_ser_name, new_name_ptr);
 
-    result = vctx->sf->rename(debuglvl, vctx->serv_backend, old_ser_name, new_name_ptr, VRMR_TYPE_SERVICE);
+    result = vctx->sf->rename(vctx->serv_backend, old_ser_name, new_name_ptr, VRMR_TYPE_SERVICE);
     if(result != 0)
     {
         return(-1);
     }
 
-    ser_ptr = vrmr_search_service(debuglvl, services, old_ser_name);
+    ser_ptr = vrmr_search_service(services, old_ser_name);
     vrmr_fatal_if_null(ser_ptr);
     (void)strlcpy(ser_ptr->name, new_name_ptr, sizeof(ser_ptr->name));
     ser_ptr = NULL;
@@ -2195,14 +2193,12 @@ rename_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *
     {
         vrmr_fatal_if_null(d_node->data);
         rule_ptr = d_node->data;
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "service: '%s'.", rule_ptr->service);
+        vrmr_debug(HIGH, "service: '%s'.", rule_ptr->service);
 
         /* check the servicename */
         if(strcmp(rule_ptr->service, old_ser_name) == 0)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "found in a rule (was looking for old_ser_name:'%s', found rule_ptr->service:'%s').", old_ser_name, rule_ptr->service);
+            vrmr_debug(HIGH, "found in a rule (was looking for old_ser_name:'%s', found rule_ptr->service:'%s').", old_ser_name, rule_ptr->service);
 
             /* set the new name to the rules */
             strlcpy(rule_ptr->service, new_name_ptr, sizeof(rule_ptr->service));
@@ -2213,7 +2209,7 @@ rename_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *
     /* if we have made changes we write the rulesfile */
     if (changed == 1)
     {
-        if (vrmr_rules_save_list(debuglvl, vctx, rules, &vctx->conf) < 0)
+        if (vrmr_rules_save_list(vctx, rules, &vctx->conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("saving rules failed."));
             return(-1);
@@ -2226,7 +2222,7 @@ rename_service(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_services *
 }
 
 static void
-vrmr_init_services_section(const int debuglvl, struct vrmr_services *services, int height, int width, int starty, int startx)
+vrmr_init_services_section(struct vrmr_services *services, int height, int width, int starty, int startx)
 {
     int i = 0;
     struct vrmr_service *ser_ptr = NULL;
@@ -2316,7 +2312,7 @@ destroy_services_section(void)
 }
 
 void
-services_section(const int debuglvl, struct vrmr_ctx *vctx,
+services_section(struct vrmr_ctx *vctx,
         struct vrmr_services *services, struct vrmr_rules *rules, struct vrmr_regex *reg)
 {
     int     result = 0,
@@ -2358,8 +2354,8 @@ services_section(const int debuglvl, struct vrmr_ctx *vctx,
     ServicesSection.sl_xre = startx + width;
     ServicesSection.sl_yle = starty + height;
 
-    vrmr_init_services_section(debuglvl, services, height, width, starty, startx);
-    draw_top_menu(debuglvl, top_win, gettext("Services"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    vrmr_init_services_section(services, height, width, starty, startx);
+    draw_top_menu(top_win, gettext("Services"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
     update_panels();
     doupdate();
 
@@ -2368,7 +2364,7 @@ services_section(const int debuglvl, struct vrmr_ctx *vctx,
         if(reload == 1)
         {
             destroy_services_section();
-            vrmr_init_services_section(debuglvl, services, height, width, starty, startx);
+            vrmr_init_services_section(services, height, width, starty, startx);
             reload = 0;
         }
 
@@ -2408,11 +2404,11 @@ services_section(const int debuglvl, struct vrmr_ctx *vctx,
                     new_name_ptr = input_box(32, gettext("Rename Service"), STR_PLEASE_ENTER_THE_NAME);
                     if(cur && new_name_ptr != NULL)
                     {
-                        if(vrmr_validate_servicename(debuglvl, new_name_ptr, reg->servicename, VRMR_VERBOSE) == 0)
+                        if(vrmr_validate_servicename(new_name_ptr, reg->servicename, VRMR_VERBOSE) == 0)
                         {
                             char *n = (char *)item_name(cur);
 
-                            result = rename_service(debuglvl, vctx, services, rules, n, new_name_ptr);
+                            result = rename_service(vctx, services, rules, n, new_name_ptr);
                             if (result == 0) {
                                 reload = 1;
                             } else {
@@ -2430,24 +2426,24 @@ services_section(const int debuglvl, struct vrmr_ctx *vctx,
                     new_name_ptr = input_box(32, gettext("New Service"), gettext("Please enter the name of the new service"));
                     if(new_name_ptr != NULL)
                     {
-                        if(vrmr_validate_servicename(debuglvl, new_name_ptr, reg->servicename, VRMR_QUIET) == 0)
+                        if(vrmr_validate_servicename(new_name_ptr, reg->servicename, VRMR_QUIET) == 0)
                         {
-                            if((vrmr_search_service(debuglvl, services, new_name_ptr) != NULL))
+                            if((vrmr_search_service(services, new_name_ptr) != NULL))
                             {
                                 vrmr_error(-1, VR_ERR, gettext("service %s already exists."), new_name_ptr);
                             }
                             else
                             {
-                                result = vrmr_new_service(debuglvl, vctx, services, new_name_ptr, VRMR_TYPE_SERVICE);
+                                result = vrmr_new_service(vctx, services, new_name_ptr, VRMR_TYPE_SERVICE);
                                 if(result == 0)
                                 {
                                     /* example: "service 'X-5' has been created" */
                                     vrmr_audit("%s '%s' %s.", STR_SERVICE, new_name_ptr, STR_HAS_BEEN_CREATED);
                                     reload = 1;
 
-                                    edit_service(debuglvl, vctx, services, new_name_ptr);
+                                    edit_service(vctx, services, new_name_ptr);
 
-                                    draw_top_menu(debuglvl, top_win, gettext("Services"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                                    draw_top_menu(top_win, gettext("Services"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                                 }
                                 else
                                 {
@@ -2473,7 +2469,7 @@ services_section(const int debuglvl, struct vrmr_ctx *vctx,
                     {
                         (void)strlcpy(save_ser_name, (char *)item_name(cur), sizeof(save_ser_name));
 
-                        result = vrmr_delete_service(debuglvl, vctx, services, (char *)item_name(cur), VRMR_TYPE_SERVICE);
+                        result = vrmr_delete_service(vctx, services, (char *)item_name(cur), VRMR_TYPE_SERVICE);
                         if(result < 0) {
                             vrmr_error(-1, VR_ERR, "%s.", STR_DELETE_FAILED);
                         } else {
@@ -2516,9 +2512,9 @@ services_section(const int debuglvl, struct vrmr_ctx *vctx,
 
                     cur = current_item(ServicesSection.menu);
                     if (cur) {
-                        (void)edit_service(debuglvl, vctx, services, (char *)item_name(cur));
+                        (void)edit_service(vctx, services, (char *)item_name(cur));
 
-                        draw_top_menu(debuglvl, top_win, gettext("Services"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                        draw_top_menu(top_win, gettext("Services"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                     }
                     break;
 
@@ -2527,7 +2523,7 @@ services_section(const int debuglvl, struct vrmr_ctx *vctx,
                 case 'H':
                 case '?':
 
-                    print_help(debuglvl, ":[VUURMUUR:SERVICES]:");
+                    print_help(":[VUURMUUR:SERVICES]:");
                     break;
             }
         }

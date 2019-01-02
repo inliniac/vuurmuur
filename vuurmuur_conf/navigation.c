@@ -30,7 +30,7 @@
     F5,F6,F10,F12 or ESC make the function return -1, all others return 0.
 */
 int
-nav_field_comment(const int debuglvl, FORM *form, int key)
+nav_field_comment(FORM *form, int key)
 {
     switch(key)
     {
@@ -118,7 +118,7 @@ nav_field_comment(const int debuglvl, FORM *form, int key)
 
 
 int
-nav_field_simpletext(const int debuglvl, FORM *form, int key)
+nav_field_simpletext(FORM *form, int key)
 {
 //    int ch = 0;
 
@@ -236,7 +236,7 @@ nav_field_simpletext(const int debuglvl, FORM *form, int key)
 
 */
 int
-nav_field_yesno(const int debuglvl, FORM *form, int key)
+nav_field_yesno(FORM *form, int key)
 {
     switch(key)
     {
@@ -247,11 +247,11 @@ nav_field_yesno(const int debuglvl, FORM *form, int key)
 
             if(strncasecmp(field_buffer(cur, 0), STR_YES, StrLen(STR_YES)) == 0)
             {
-                set_field_buffer_wrap(debuglvl, cur, 0, STR_NO);
+                set_field_buffer_wrap(cur, 0, STR_NO);
             }
             else
             {
-                set_field_buffer_wrap(debuglvl, cur, 0, STR_YES);
+                set_field_buffer_wrap(cur, 0, STR_YES);
             }
             break;
         }
@@ -262,7 +262,7 @@ nav_field_yesno(const int debuglvl, FORM *form, int key)
 
             if(strncasecmp(field_buffer(cur, 0), STR_NO, StrLen(STR_NO)) == 0)
             {
-                set_field_buffer_wrap(debuglvl, cur, 0, STR_YES);
+                set_field_buffer_wrap(cur, 0, STR_YES);
             }
             break;
         }
@@ -273,7 +273,7 @@ nav_field_yesno(const int debuglvl, FORM *form, int key)
 
             if(strncasecmp(field_buffer(cur, 0), STR_YES, StrLen(STR_YES)) == 0)
             {
-                set_field_buffer_wrap(debuglvl, cur, 0, STR_NO);
+                set_field_buffer_wrap(cur, 0, STR_NO);
             }
             break;
         }
@@ -285,7 +285,7 @@ nav_field_yesno(const int debuglvl, FORM *form, int key)
 
 
 int
-nav_field_toggleX(const int debuglvl, FORM *form, int key)
+nav_field_toggleX(FORM *form, int key)
 {
     FIELD   *cur = NULL;
     
@@ -301,11 +301,11 @@ nav_field_toggleX(const int debuglvl, FORM *form, int key)
         {
             if(strncasecmp(field_buffer(cur, 0), "X", 1) == 0)
             {
-                set_field_buffer_wrap(debuglvl, cur, 0, " ");
+                set_field_buffer_wrap(cur, 0, " ");
             }
             else
             {
-                set_field_buffer_wrap(debuglvl, cur, 0, "X");
+                set_field_buffer_wrap(cur, 0, "X");
             }
 
             break;
@@ -314,7 +314,7 @@ nav_field_toggleX(const int debuglvl, FORM *form, int key)
         {
             if(strncasecmp(field_buffer(cur, 0), " ", 1) == 0)
             {
-                set_field_buffer_wrap(debuglvl, cur, 0, "X");
+                set_field_buffer_wrap(cur, 0, "X");
             }
 
             break;
@@ -323,7 +323,7 @@ nav_field_toggleX(const int debuglvl, FORM *form, int key)
         {
             if(strncasecmp(field_buffer(cur, 0), "X", 1) == 0)
             {
-                set_field_buffer_wrap(debuglvl, cur, 0, " ");
+                set_field_buffer_wrap(cur, 0, " ");
             }
 
             break;
@@ -337,7 +337,7 @@ nav_field_toggleX(const int debuglvl, FORM *form, int key)
 
 
 int
-validate_commentfield(const int debuglvl, char *fieldbuffer, regex_t *reg_ex)
+validate_commentfield(char *fieldbuffer, regex_t *reg_ex)
 {
     size_t  i = 0;
 

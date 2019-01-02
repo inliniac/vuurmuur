@@ -21,7 +21,7 @@
 #include "vuurmuur_script.h"
 
 int
-script_apply(const int debuglvl, VuurmuurScript *vr_script)
+script_apply(VuurmuurScript *vr_script)
 {
     /* vuurmuur */
     int                 vuurmuur_shmid = 0;

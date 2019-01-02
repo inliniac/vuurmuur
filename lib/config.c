@@ -22,7 +22,7 @@
 #include "vuurmuur.h"
 
 static int
-check_logfile(const int debuglvl, const char *logloc)
+check_logfile(const char *logloc)
 {
     int fd;
 
@@ -56,8 +56,7 @@ check_logfile(const int debuglvl, const char *logloc)
         }
     }
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "logfile '%s' ok.", logloc);
+    vrmr_debug(MEDIUM, "logfile '%s' ok.", logloc);
 
     return(0);
 }
@@ -72,7 +71,7 @@ check_logfile(const int debuglvl, const char *logloc)
         -1: error
 */
 int
-vrmr_config_check_logdir(const int debuglvl, const char *logdir)
+vrmr_config_check_logdir(const char *logdir)
 {
     DIR *dir_p = NULL;
 
@@ -96,9 +95,8 @@ vrmr_config_check_logdir(const int debuglvl, const char *logdir)
                 return(-1);
             }
 
-            if(debuglvl >= MEDIUM)
-                vrmr_debug(__FUNC__, "logdir '%s' created.",
-                        logdir);
+            vrmr_debug(MEDIUM, "logdir '%s' created.",
+                    logdir);
         }
         else
         {
@@ -118,8 +116,7 @@ vrmr_config_check_logdir(const int debuglvl, const char *logdir)
     }
 
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "logdir '%s' ok.", logdir);
+    vrmr_debug(MEDIUM, "logdir '%s' ok.", logdir);
 
     return(0);
 }
@@ -129,7 +126,7 @@ vrmr_config_check_logdir(const int debuglvl, const char *logdir)
    this functions uses vuurmuur_opendir which repairs permissions if needed.
 */
 int
-vrmr_config_check_vuurmuurdir(const int debuglvl, const struct vrmr_config *cnf, const char *logdir)
+vrmr_config_check_vuurmuurdir(const struct vrmr_config *cnf, const char *logdir)
 {
     DIR *dir_p = NULL;
 
@@ -174,7 +171,7 @@ vrmr_config_check_vuurmuurdir(const int debuglvl, const struct vrmr_config *cnf,
     }
 
     /* try to open, error reporting is done by others */
-    if(!(dir_p = vuurmuur_opendir(debuglvl, cnf, logdir)))
+    if(!(dir_p = vuurmuur_opendir(cnf, logdir)))
     {
         return(-1);
     }
@@ -184,8 +181,7 @@ vrmr_config_check_vuurmuurdir(const int debuglvl, const struct vrmr_config *cnf,
         return(-1);
     }
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "logdir '%s' ok.", logdir);
+    vrmr_debug(MEDIUM, "logdir '%s' ok.", logdir);
 
     return(0);
 }
@@ -194,7 +190,7 @@ vrmr_config_check_vuurmuurdir(const int debuglvl, const struct vrmr_config *cnf,
 /*
 */
 int
-vrmr_check_iptables_command(const int debuglvl, struct vrmr_config *cnf, char *iptables_location, char quiet)
+vrmr_check_iptables_command(struct vrmr_config *cnf, char *iptables_location, char quiet)
 {
     /* safety */
     if(cnf == NULL || iptables_location == NULL)
@@ -215,7 +211,7 @@ vrmr_check_iptables_command(const int debuglvl, struct vrmr_config *cnf, char *i
     {
         /* now check the command */
         char *args[] = { iptables_location, "--version", NULL };
-        int r = libvuurmuur_exec_command(debuglvl, cnf, iptables_location, args, NULL);
+        int r = libvuurmuur_exec_command(cnf, iptables_location, args, NULL);
         if (r != 0)
         {
             if(quiet == VRMR_IPTCHK_VERBOSE)
@@ -232,7 +228,7 @@ vrmr_check_iptables_command(const int debuglvl, struct vrmr_config *cnf, char *i
 /*
 */
 int
-vrmr_check_iptablesrestore_command(const int debuglvl, struct vrmr_config *cnf, char *iptablesrestore_location, char quiet)
+vrmr_check_iptablesrestore_command(struct vrmr_config *cnf, char *iptablesrestore_location, char quiet)
 {
     /* safety */
     if(cnf == NULL || iptablesrestore_location == NULL)
@@ -253,7 +249,7 @@ vrmr_check_iptablesrestore_command(const int debuglvl, struct vrmr_config *cnf, 
     {
         /* now check the command */
         char *args[] = { iptablesrestore_location, "-h", NULL };
-        int r = libvuurmuur_exec_command(debuglvl, cnf, iptablesrestore_location, args, NULL);
+        int r = libvuurmuur_exec_command(cnf, iptablesrestore_location, args, NULL);
         if (r != 1)
         {
             if(quiet == VRMR_IPTCHK_VERBOSE)
@@ -267,7 +263,6 @@ vrmr_check_iptablesrestore_command(const int debuglvl, struct vrmr_config *cnf, 
 }
 
 /**
- \param[in] debuglvl The debug level that should be used
  \param[in] cnf
  \param[in] ip6tables_location A pointer to the buffer that contains the
     location of the ip6tables command
@@ -277,7 +272,7 @@ vrmr_check_iptablesrestore_command(const int debuglvl, struct vrmr_config *cnf, 
  \retval 1 The location seems to be correct
 */
 int
-vrmr_check_ip6tables_command(const int debuglvl, struct vrmr_config *cnf, char *ip6tables_location, char quiet)
+vrmr_check_ip6tables_command(struct vrmr_config *cnf, char *ip6tables_location, char quiet)
 {
     /* safety */
     if(cnf == NULL || ip6tables_location == NULL)
@@ -298,7 +293,7 @@ vrmr_check_ip6tables_command(const int debuglvl, struct vrmr_config *cnf, char *
     {
         /* now check the command */
         char *args[] = { ip6tables_location, "--version", NULL };
-        int r = libvuurmuur_exec_command(debuglvl, cnf, ip6tables_location, args, NULL);
+        int r = libvuurmuur_exec_command(cnf, ip6tables_location, args, NULL);
         if (r != 0)
         {
             if(quiet == FALSE)
@@ -312,7 +307,7 @@ vrmr_check_ip6tables_command(const int debuglvl, struct vrmr_config *cnf, char *
 }
 
 int
-vrmr_check_ip6tablesrestore_command(const int debuglvl, struct vrmr_config *cnf, char *ip6tablesrestore_location, char quiet)
+vrmr_check_ip6tablesrestore_command(struct vrmr_config *cnf, char *ip6tablesrestore_location, char quiet)
 {
     /* safety */
     if(cnf == NULL || ip6tablesrestore_location == NULL)
@@ -333,7 +328,7 @@ vrmr_check_ip6tablesrestore_command(const int debuglvl, struct vrmr_config *cnf,
     {
         /* now check the command */
         char *args[] = { ip6tablesrestore_location, "-h", NULL };
-        int r = libvuurmuur_exec_command(debuglvl, cnf, ip6tablesrestore_location, args, NULL);
+        int r = libvuurmuur_exec_command(cnf, ip6tablesrestore_location, args, NULL);
         if (r != 1)
         {
             if(quiet == FALSE)
@@ -349,7 +344,7 @@ vrmr_check_ip6tablesrestore_command(const int debuglvl, struct vrmr_config *cnf,
 /*
 */
 int
-vrmr_check_tc_command(const int debuglvl, struct vrmr_config *cnf, char *tc_location, char quiet)
+vrmr_check_tc_command(struct vrmr_config *cnf, char *tc_location, char quiet)
 {
     /* safety */
     if(cnf == NULL || tc_location == NULL)
@@ -369,7 +364,7 @@ vrmr_check_tc_command(const int debuglvl, struct vrmr_config *cnf, char *tc_loca
     else
     {
         char *args[] = { tc_location, "-V", NULL };
-        int r = libvuurmuur_exec_command(debuglvl, cnf, tc_location, args, NULL);
+        int r = libvuurmuur_exec_command(cnf, tc_location, args, NULL);
         if (r != 0)
         {
             if(quiet == VRMR_IPTCHK_VERBOSE)
@@ -386,7 +381,7 @@ vrmr_check_tc_command(const int debuglvl, struct vrmr_config *cnf, char *tc_loca
 /* updates the logdirlocations in the cnf struct based on cnf->vuurmuur_log_dir,
  * also updates vrprint. */
 int
-vrmr_config_set_log_names(const int debuglvl, struct vrmr_config *cnf)
+vrmr_config_set_log_names(struct vrmr_config *cnf)
 {
     int retval = 0;
 
@@ -448,7 +443,6 @@ vrmr_config_set_log_names(const int debuglvl, struct vrmr_config *cnf)
 
 
 /**
- \param[in] debuglvl The debug level that should be used
  \param[in,out] cnf A pointer to the #vuurmuur_config structure that will be
     filled with extra information from the config files
 
@@ -457,14 +451,14 @@ vrmr_config_set_log_names(const int debuglvl, struct vrmr_config *cnf)
     are only known after this function! (unless cnf->verbose_out == 1)
 */
 int
-vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
+vrmr_init_config(struct vrmr_config *cnf)
 {
     int     retval = VRMR_CNF_OK,
             result = 0;
     char    answer[32] = "";
     FILE    *fp = NULL;
     char    tmpbuf[512] = "";
-    int     askconfig_debuglvl = 0;
+    int     debug_level = 0;
 
     /* safety first */
     if(cnf == NULL)
@@ -472,13 +466,11 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
     /* only print debug if we are in verbose mode, since at this moment debug
        still goes to the stdout, because we have yet to initialize our logs */
-    askconfig_debuglvl = debuglvl * (int)cnf->verbose_out;
+    debug_level = vrmr_debug_level * (int)cnf->verbose_out;
 
-
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "etc-dir: '%s/vuurmuur', config-file: '%s'.",
-                cnf->etcdir,
-                cnf->configfile);
+    vrmr_debug(LOW, "etc-dir: '%s/vuurmuur', config-file: '%s'.",
+            cnf->etcdir,
+            cnf->configfile);
 
     /* check the file */
     if(!(fp = fopen(cnf->configfile, "r")))
@@ -498,7 +490,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
      * load the MAX_PERMISSION value. init_pre_config sets max_permission to
      * VRMR_ANY_PERMISSION, so no permission checks occur before here.
      */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "MAX_PERMISSION", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "MAX_PERMISSION", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         char *endptr;
@@ -525,11 +517,11 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
     /* Now that we know the maximum permission a config file can have,
      * check if we like the configfile */
-    if(!(vrmr_stat_ok(debuglvl, cnf, cnf->configfile, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(cnf, cnf->configfile, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
         return(VRMR_CNF_E_FILE_PERMISSION);
 
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "SERVICES_BACKEND", cnf->serv_backend_name, cnf->configfile, sizeof(cnf->serv_backend_name));
+    result = vrmr_ask_configfile(cnf, "SERVICES_BACKEND", cnf->serv_backend_name, cnf->configfile, sizeof(cnf->serv_backend_name));
     if(result == 1)
     {
         /* ok */
@@ -554,7 +546,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "ZONES_BACKEND", cnf->zone_backend_name, cnf->configfile, sizeof(cnf->zone_backend_name));
+    result = vrmr_ask_configfile(cnf, "ZONES_BACKEND", cnf->zone_backend_name, cnf->configfile, sizeof(cnf->zone_backend_name));
     if(result == 1)
     {
         /* ok */
@@ -579,7 +571,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "INTERFACES_BACKEND", cnf->ifac_backend_name, cnf->configfile, sizeof(cnf->ifac_backend_name));
+    result = vrmr_ask_configfile(cnf, "INTERFACES_BACKEND", cnf->ifac_backend_name, cnf->configfile, sizeof(cnf->ifac_backend_name));
     if(result == 1)
     {
         /* ok */
@@ -604,7 +596,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "RULES_BACKEND", cnf->rule_backend_name, cnf->configfile, sizeof(cnf->rule_backend_name));
+    result = vrmr_ask_configfile(cnf, "RULES_BACKEND", cnf->rule_backend_name, cnf->configfile, sizeof(cnf->rule_backend_name));
     if(result == 1)
     {
         /* ok */
@@ -629,7 +621,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "RULESFILE", cnf->rules_location, cnf->configfile, sizeof(cnf->rules_location));
+    result = vrmr_ask_configfile(cnf, "RULESFILE", cnf->rules_location, cnf->configfile, sizeof(cnf->rules_location));
     if(result == 1)
     {
         if(cnf->rules_location[0] == '\0')
@@ -675,9 +667,9 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->rules_location, sizeof(cnf->rules_location));
+    vrmr_sanitize_path(cnf->rules_location, sizeof(cnf->rules_location));
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "BLOCKLISTFILE", cnf->blocklist_location, cnf->configfile, sizeof(cnf->blocklist_location));
+    result = vrmr_ask_configfile(cnf, "BLOCKLISTFILE", cnf->blocklist_location, cnf->configfile, sizeof(cnf->blocklist_location));
     if(result == 1)
     {
         /* ok, found */
@@ -724,13 +716,13 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->blocklist_location, sizeof(cnf->blocklist_location));
+    vrmr_sanitize_path(cnf->blocklist_location, sizeof(cnf->blocklist_location));
 
     /* old create */
     cnf->old_rulecreation_method = FALSE;
 
     /* DYN_INT_CHECK */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "DYN_INT_CHECK", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "DYN_INT_CHECK", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -759,7 +751,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* LOG_POLICY_LIMIT */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "DYN_INT_INTERVAL", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "DYN_INT_INTERVAL", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -784,7 +776,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
     /* DROP_INVALID */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "DROP_INVALID", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "DROP_INVALID", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -814,7 +806,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* LOG_BLOCKLIST */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "LOG_BLOCKLIST", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "LOG_BLOCKLIST", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -844,7 +836,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* LOG_INVALID */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "LOG_INVALID", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "LOG_INVALID", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -874,7 +866,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* LOG_NO_SYN */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "LOG_NO_SYN", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "LOG_NO_SYN", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -904,7 +896,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* LOG_PROBES */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "LOG_PROBES", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "LOG_PROBES", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -934,7 +926,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* LOG_FRAG */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "LOG_FRAG", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "LOG_FRAG", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -964,7 +956,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* USE_SYN_LIMIT */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "USE_SYN_LIMIT", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "USE_SYN_LIMIT", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -993,7 +985,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
     /* SYN_LIMIT */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "SYN_LIMIT", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "SYN_LIMIT", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1029,7 +1021,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* SYN_LIMIT_BURST */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "SYN_LIMIT_BURST", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "SYN_LIMIT_BURST", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1065,7 +1057,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* USE_UDP_LIMIT */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "USE_UDP_LIMIT", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "USE_UDP_LIMIT", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1094,7 +1086,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
     /* UDP_LIMIT */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "UDP_LIMIT", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "UDP_LIMIT", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1130,7 +1122,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* UDP_LIMIT_BURST */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "UDP_LIMIT_BURST", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "UDP_LIMIT_BURST", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1166,7 +1158,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* LOG_POLICY */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "LOG_POLICY", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "LOG_POLICY", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1198,7 +1190,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* RULE_NFLOG */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "RULE_NFLOG", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "RULE_NFLOG", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1230,7 +1222,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* NFGRP */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "NFGRP", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "NFGRP", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1260,7 +1252,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* LOG_POLICY_LIMIT */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "LOG_POLICY_LIMIT", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "LOG_POLICY_LIMIT", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1293,7 +1285,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* LOG_TCP_OPTIONS */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "LOG_TCP_OPTIONS", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "LOG_TCP_OPTIONS", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1323,7 +1315,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* PROTECT_SYNCOOKIES */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "PROTECT_SYNCOOKIE", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "PROTECT_SYNCOOKIE", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1355,7 +1347,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* PROTECT_ECHOBROADCAST */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "PROTECT_ECHOBROADCAST", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "PROTECT_ECHOBROADCAST", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1385,7 +1377,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "SYSCTL", cnf->sysctl_location, cnf->configfile, sizeof(cnf->sysctl_location));
+    result = vrmr_ask_configfile(cnf, "SYSCTL", cnf->sysctl_location, cnf->configfile, sizeof(cnf->sysctl_location));
     if(result == 1)
     {
         /* ok */
@@ -1406,10 +1398,10 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->sysctl_location, sizeof(cnf->sysctl_location));
+    vrmr_sanitize_path(cnf->sysctl_location, sizeof(cnf->sysctl_location));
 
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "IPTABLES", cnf->iptables_location, cnf->configfile, sizeof(cnf->iptables_location));
+    result = vrmr_ask_configfile(cnf, "IPTABLES", cnf->iptables_location, cnf->configfile, sizeof(cnf->iptables_location));
     if(result == 1)
     {
         /* ok */
@@ -1430,9 +1422,9 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->iptables_location, sizeof(cnf->iptables_location));
+    vrmr_sanitize_path(cnf->iptables_location, sizeof(cnf->iptables_location));
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "IPTABLES_RESTORE", cnf->iptablesrestore_location, cnf->configfile, sizeof(cnf->iptablesrestore_location));
+    result = vrmr_ask_configfile(cnf, "IPTABLES_RESTORE", cnf->iptablesrestore_location, cnf->configfile, sizeof(cnf->iptablesrestore_location));
     if(result == 1)
     {
         /* ok */
@@ -1453,9 +1445,9 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->iptablesrestore_location, sizeof(cnf->iptablesrestore_location));
+    vrmr_sanitize_path(cnf->iptablesrestore_location, sizeof(cnf->iptablesrestore_location));
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "IP6TABLES", cnf->ip6tables_location, cnf->configfile, sizeof(cnf->ip6tables_location));
+    result = vrmr_ask_configfile(cnf, "IP6TABLES", cnf->ip6tables_location, cnf->configfile, sizeof(cnf->ip6tables_location));
     if(result == 1)
     {
         /* ok */
@@ -1476,10 +1468,10 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->ip6tables_location, sizeof(cnf->ip6tables_location));
+    vrmr_sanitize_path(cnf->ip6tables_location, sizeof(cnf->ip6tables_location));
 
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "IP6TABLES_RESTORE", cnf->ip6tablesrestore_location, cnf->configfile, sizeof(cnf->ip6tablesrestore_location));
+    result = vrmr_ask_configfile(cnf, "IP6TABLES_RESTORE", cnf->ip6tablesrestore_location, cnf->configfile, sizeof(cnf->ip6tablesrestore_location));
     if(result == 1)
     {
         /* ok */
@@ -1500,9 +1492,9 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->ip6tablesrestore_location, sizeof(cnf->ip6tablesrestore_location));
+    vrmr_sanitize_path(cnf->ip6tablesrestore_location, sizeof(cnf->ip6tablesrestore_location));
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "CONNTRACK", cnf->conntrack_location, cnf->configfile, sizeof(cnf->conntrack_location));
+    result = vrmr_ask_configfile(cnf, "CONNTRACK", cnf->conntrack_location, cnf->configfile, sizeof(cnf->conntrack_location));
     if(result == 1)
     {
         /* ok */
@@ -1524,10 +1516,10 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->conntrack_location, sizeof(cnf->conntrack_location));
+    vrmr_sanitize_path(cnf->conntrack_location, sizeof(cnf->conntrack_location));
 
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "TC", cnf->tc_location, cnf->configfile, sizeof(cnf->tc_location));
+    result = vrmr_ask_configfile(cnf, "TC", cnf->tc_location, cnf->configfile, sizeof(cnf->tc_location));
     if(result == 1)
     {
         /* ok */
@@ -1549,10 +1541,10 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->tc_location, sizeof(cnf->tc_location));
+    vrmr_sanitize_path(cnf->tc_location, sizeof(cnf->tc_location));
 
 
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "MODPROBE", cnf->modprobe_location, cnf->configfile, sizeof(cnf->modprobe_location));
+    result = vrmr_ask_configfile(cnf, "MODPROBE", cnf->modprobe_location, cnf->configfile, sizeof(cnf->modprobe_location));
     if(result == 1)
     {
         /* ok */
@@ -1570,11 +1562,11 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->modprobe_location, sizeof(cnf->modprobe_location));
+    vrmr_sanitize_path(cnf->modprobe_location, sizeof(cnf->modprobe_location));
 
 
     /* LOAD_MODULES */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "LOAD_MODULES", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "LOAD_MODULES", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1602,7 +1594,7 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* MODULES_WAIT_TIME */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "MODULES_WAIT_TIME", answer, cnf->configfile, sizeof(answer));
+    result = vrmr_ask_configfile(cnf, "MODULES_WAIT_TIME", answer, cnf->configfile, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -1632,11 +1624,11 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     /* check if the configfile value is overridden by the commandline */
     if(cnf->loglevel_cmdline == FALSE)
     {
-        result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "LOGLEVEL", cnf->loglevel, cnf->configfile, sizeof(cnf->loglevel));
+        result = vrmr_ask_configfile(cnf, "LOGLEVEL", cnf->loglevel, cnf->configfile, sizeof(cnf->loglevel));
         if(result == 1)
         {
             // ok
-            if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
+            if(cnf->verbose_out == TRUE && debug_level >= LOW)
                 vrmr_info("Info", "Loglevel is '%s'.", cnf->loglevel);
         }
         else if(result == 0)
@@ -1651,11 +1643,11 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
 
 
     /* systemlog */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "SYSTEMLOG", cnf->systemlog_location, cnf->configfile, sizeof(cnf->systemlog_location));
+    result = vrmr_ask_configfile(cnf, "SYSTEMLOG", cnf->systemlog_location, cnf->configfile, sizeof(cnf->systemlog_location));
     if (result == 1 )
     {
         /* ok */
-        if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
+        if(cnf->verbose_out == TRUE && debug_level >= LOW)
             vrmr_info("Info", "Using '%s' as systemlogfile.", cnf->systemlog_location);
     }
     else if(result == 0)
@@ -1675,14 +1667,14 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->systemlog_location, sizeof(cnf->systemlog_location));
+    vrmr_sanitize_path(cnf->systemlog_location, sizeof(cnf->systemlog_location));
 
 
     /* get the logfile dir */
-    result = vrmr_ask_configfile(askconfig_debuglvl, cnf, "LOGDIR", cnf->vuurmuur_logdir_location, cnf->configfile, sizeof(cnf->vuurmuur_logdir_location));
+    result = vrmr_ask_configfile(cnf, "LOGDIR", cnf->vuurmuur_logdir_location, cnf->configfile, sizeof(cnf->vuurmuur_logdir_location));
     if(result == 1)
     {
-        if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
+        if(cnf->verbose_out == TRUE && debug_level >= LOW)
             vrmr_info("Info", "Using '%s' as normal logdir.", cnf->vuurmuur_logdir_location);
     }
     else if(result == 0)
@@ -1704,72 +1696,72 @@ vrmr_init_config(const int debuglvl, struct vrmr_config *cnf)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
 
-    vrmr_sanitize_path(debuglvl, cnf->vuurmuur_logdir_location, sizeof(cnf->vuurmuur_logdir_location));
+    vrmr_sanitize_path(cnf->vuurmuur_logdir_location, sizeof(cnf->vuurmuur_logdir_location));
 
 
     /* check if we can open the logdir */
-    if(vrmr_config_check_logdir(debuglvl, cnf->vuurmuur_logdir_location) < 0)
+    if(vrmr_config_check_logdir(cnf->vuurmuur_logdir_location) < 0)
         return(VRMR_CNF_W_ILLEGAL_VAR);
 
 
     /* set/update the lognames */
-    if(vrmr_config_set_log_names(debuglvl, cnf) < 0)
+    if(vrmr_config_set_log_names(cnf) < 0)
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
 
     /* vuurmuur.log */
-    if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
+    if(cnf->verbose_out == TRUE && debug_level >= LOW)
         vrmr_info("Info", "Using '%s' as vuurmuur.log.", cnf->vuurmuurlog_location);
 
-    if(check_logfile(debuglvl, cnf->vuurmuurlog_location) < 0)
+    if(check_logfile(cnf->vuurmuurlog_location) < 0)
     {
         retval = VRMR_CNF_E_ILLEGAL_VAR;
     }
 
 
     /* error.log */
-    if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
+    if(cnf->verbose_out == TRUE && debug_level >= LOW)
         vrmr_info("Info", "Using '%s' as error.log.", cnf->errorlog_location);
 
-    if(check_logfile(debuglvl, cnf->errorlog_location) < 0)
+    if(check_logfile(cnf->errorlog_location) < 0)
     {
         retval = VRMR_CNF_E_ILLEGAL_VAR;
     }
 
 
     /* debug.log */
-    if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
+    if(cnf->verbose_out == TRUE && debug_level >= LOW)
         vrmr_info("Info", "Using '%s' as debug.log.", cnf->debuglog_location);
 
-    if(check_logfile(debuglvl, cnf->debuglog_location) < 0)
+    if(check_logfile(cnf->debuglog_location) < 0)
     {
         retval = VRMR_CNF_E_ILLEGAL_VAR;
     }
 
 
     /* traffic.log */
-    if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
+    if(cnf->verbose_out == TRUE && debug_level >= LOW)
         vrmr_info("Info", "Using '%s' as traffic.log.", cnf->trafficlog_location);
 
-    if(check_logfile(debuglvl, cnf->trafficlog_location) < 0)
+    if(check_logfile(cnf->trafficlog_location) < 0)
     {
         retval = VRMR_CNF_E_ILLEGAL_VAR;
     }
 
     /* connnew.log */
-    if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
+    if(cnf->verbose_out == TRUE && debug_level >= LOW)
         vrmr_info("Info", "Using '%s' as connnew.log.", cnf->connnewlog_location);
 
-    if(check_logfile(debuglvl, cnf->connnewlog_location) < 0)
+    if(check_logfile(cnf->connnewlog_location) < 0)
     {
         retval = VRMR_CNF_E_ILLEGAL_VAR;
     }
 
     /* connections.log */
-    if(cnf->verbose_out == TRUE && askconfig_debuglvl >= LOW)
+    if(cnf->verbose_out == TRUE && debug_level >= LOW)
         vrmr_info("Info", "Using '%s' as connections.log.", cnf->connlog_location);
 
-    if(check_logfile(debuglvl, cnf->connlog_location) < 0)
+    if(check_logfile(cnf->connlog_location) < 0)
     {
         retval = VRMR_CNF_E_ILLEGAL_VAR;
     }
@@ -1837,7 +1829,7 @@ vrmr_pre_init_config(struct vrmr_config *cnf)
 
 
 int
-vrmr_reload_config(const int debuglvl, struct vrmr_config *old_cnf)
+vrmr_reload_config(struct vrmr_config *old_cnf)
 {
     struct vrmr_config new_cnf;
     int retval = VRMR_CNF_OK;
@@ -1873,7 +1865,7 @@ vrmr_reload_config(const int debuglvl, struct vrmr_config *old_cnf)
     }
 
     /* reload the configfile */
-    if((retval = vrmr_init_config(debuglvl, &new_cnf)) >= VRMR_CNF_OK)
+    if((retval = vrmr_init_config(&new_cnf)) >= VRMR_CNF_OK)
     {
         /* rule creation method is not allowed to change */
         new_cnf.old_rulecreation_method = old_cnf->old_rulecreation_method;
@@ -1908,7 +1900,7 @@ vrmr_reload_config(const int debuglvl, struct vrmr_config *old_cnf)
     -1: error
 */
 int
-vrmr_ask_configfile(const int debuglvl, const struct vrmr_config *cnf, char *question, char *answer_ptr, char *file_location, size_t size)
+vrmr_ask_configfile(const struct vrmr_config *cnf, char *question, char *answer_ptr, char *file_location, size_t size)
 {
     int     retval = 0;
     size_t  i = 0,
@@ -1922,7 +1914,7 @@ vrmr_ask_configfile(const int debuglvl, const struct vrmr_config *cnf, char *que
     if(!question || !file_location || size == 0)
         return(-1);
 
-    if(!(fp = vuurmuur_fopen(debuglvl, cnf, file_location,"r")))
+    if(!(fp = vuurmuur_fopen(cnf, file_location,"r")))
     {
         vrmr_error(-1, "Error", "unable to open configfile '%s': %s (in: vrmr_ask_configfile).", file_location, strerror(errno));
         return(-1);
@@ -1947,8 +1939,7 @@ vrmr_ask_configfile(const int debuglvl, const struct vrmr_config *cnf, char *que
             }
             variable[j]='\0';
 
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "question '%s' variable '%s' (%d)", question, variable, size);
+            vrmr_debug(HIGH, "question '%s' variable '%s' (%d)", question, variable, (int)size);
 
             /* value */
             j=0;
@@ -1980,13 +1971,11 @@ vrmr_ask_configfile(const int debuglvl, const struct vrmr_config *cnf, char *que
             else
                 value[j] = '\0';
 
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "question '%s' value '%s' (%u)", question, value, size);
+            vrmr_debug(HIGH, "question '%s' value '%s' (%u)", question, value, (int)size);
 
             if(strcmp(question, variable) == 0)
             {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "question '%s' matched, value: '%s'", question, value);
+                vrmr_debug(HIGH, "question '%s' matched, value: '%s'", question, value);
 
                 if(strlcpy(answer_ptr, value, size) >= size)
                 {
@@ -2019,7 +2008,7 @@ vrmr_ask_configfile(const int debuglvl, const struct vrmr_config *cnf, char *que
     Writes the config to disk.
 */
 int
-vrmr_write_configfile(const int debuglvl, char *file_location, struct vrmr_config *cfg)
+vrmr_write_configfile(char *file_location, struct vrmr_config *cfg)
 {
     FILE *fp = NULL;
 
@@ -2158,7 +2147,7 @@ vrmr_write_configfile(const int debuglvl, char *file_location, struct vrmr_confi
 }
 
 int vrmr_init(struct vrmr_ctx *ctx, char *toolname) {
-    int debuglvl = 0;
+    vrmr_debug_level = 0;
 
     vrprint.logger = toolname;
     vrprint.error = vrmr_stdoutprint_error;
@@ -2170,11 +2159,11 @@ int vrmr_init(struct vrmr_ctx *ctx, char *toolname) {
     if (vrmr_pre_init_config(&ctx->conf) < 0)
         return(-1);
 
-    vrmr_user_get_info(debuglvl, &ctx->user_data);
+    vrmr_user_get_info(&ctx->user_data);
     vrprint.username = ctx->user_data.realusername;
 
     /* init plugin list */
-    vrmr_list_setup(debuglvl, &vrmr_plugin_list, free);
+    vrmr_list_setup(&vrmr_plugin_list, free);
 
     /* setup regexes */
     if (vrmr_regex_setup(1, &ctx->reg) < 0)
@@ -2198,10 +2187,10 @@ void vrmr_enable_logprint(struct vrmr_config *cnf) {
     vrprint.audit = vrmr_logprint_audit;
 }
 
-int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx) {
+int vrmr_load(struct vrmr_ctx *vctx) {
     int result;
 
-    result = vrmr_init_config(debuglvl, &vctx->conf);
+    result = vrmr_init_config(&vctx->conf);
     if (result < VRMR_CNF_OK) {
         vrmr_error(-1, "Error", "initializing config failed");
         return -1;
@@ -2209,38 +2198,38 @@ int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx) {
     /* now we know the logfile locations, so init the log functions */
     vrmr_enable_logprint(&vctx->conf);
 
-    result = vrmr_backends_load(debuglvl, &vctx->conf, vctx);
+    result = vrmr_backends_load(&vctx->conf, vctx);
     if(result < 0)
     {
         vrmr_error(-1, "Error", "loading backends failed");
         return -1;
     }
 
-    result = vrmr_interfaces_load(debuglvl, vctx, &vctx->interfaces);
+    result = vrmr_interfaces_load(vctx, &vctx->interfaces);
     if (result < -1) {
         vrmr_error(-1, "Error", "initializing interfaces failed");
         return -1;
     }
 
-    result = vrmr_zones_load(debuglvl, vctx, &vctx->zones, &vctx->interfaces, &vctx->reg);
+    result = vrmr_zones_load(vctx, &vctx->zones, &vctx->interfaces, &vctx->reg);
     if (result == -1) {
         vrmr_error(-1, "Error", "initializing zones failed");
         return -1;
     }
 
-    result = vrmr_services_load(debuglvl, vctx, &vctx->services, &vctx->reg);
+    result = vrmr_services_load(vctx, &vctx->services, &vctx->reg);
     if (result == -1) {
         vrmr_error(-1, "Error", "initializing services failed");
         return -1;
     }
 
-    result = vrmr_rules_init_list(debuglvl, vctx, &vctx->conf, &vctx->rules, &vctx->reg);
+    result = vrmr_rules_init_list(vctx, &vctx->conf, &vctx->rules, &vctx->reg);
     if (result < 0) {
         vrmr_error(-1, "Error", "initializing the rules failed");
         return -1;
     }
 
-    if (vrmr_blocklist_init_list(debuglvl, vctx, &vctx->conf, &vctx->zones,
+    if (vrmr_blocklist_init_list(vctx, &vctx->conf, &vctx->zones,
                 &vctx->blocklist, /*load_ips*/TRUE, /*no_refcnt*/FALSE) < 0) {
         vrmr_error(-1, "Error", "initializing the blocklist failed");
         return -1;
@@ -2249,29 +2238,29 @@ int vrmr_load(const int debuglvl, struct vrmr_ctx *vctx) {
     return 0;
 }
 
-int vrmr_create_log_hash(const int debuglvl, struct vrmr_ctx *vctx,
+int vrmr_create_log_hash(struct vrmr_ctx *vctx,
         struct vrmr_hash_table *service_hash, struct vrmr_hash_table *zone_hash)
 {
     /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall',
      * so this appears in to log as 'firewall(interface)' */
-    if (vrmr_ins_iface_into_zonelist(debuglvl, &vctx->interfaces.list, &vctx->zones.list) < 0) {
+    if (vrmr_ins_iface_into_zonelist(&vctx->interfaces.list, &vctx->zones.list) < 0) {
         vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
         return(-1);
     }
 
     /* these are removed by: vrmr_rem_iface_from_zonelist() (see below) */
-    if (vrmr_add_broadcasts_zonelist(debuglvl, &vctx->zones) < 0) {
+    if (vrmr_add_broadcasts_zonelist(&vctx->zones) < 0) {
         vrmr_error(-1, "Error", "unable to add broadcasts to list.");
         return(-1);
     }
 
-    if (vrmr_init_zonedata_hashtable(debuglvl, vctx->zones.list.len * 3,
+    if (vrmr_init_zonedata_hashtable(vctx->zones.list.len * 3,
                 &vctx->zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, zone_hash) < 0) {
         vrmr_error(-1, "Error", "vrmr_init_zonedata_hashtable failed.");
         return(-1);
     }
 
-    if (vrmr_init_services_hashtable(debuglvl, vctx->services.list.len * 500, &vctx->services.list,
+    if (vrmr_init_services_hashtable(vctx->services.list.len * 500, &vctx->services.list,
                 vrmr_hash_port, vrmr_compare_ports, service_hash) < 0) {
         vrmr_error(-1, "Error", "vrmr_init_services_hashtable failed.");
         return(-1);

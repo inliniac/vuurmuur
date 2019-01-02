@@ -23,7 +23,7 @@
 
 
 int
-vrmr_get_ip_info(const int debuglvl, struct vrmr_ctx *vctx, char *name, struct vrmr_zone *answer_ptr, struct vrmr_regex *reg)
+vrmr_get_ip_info(struct vrmr_ctx *vctx, char *name, struct vrmr_zone *answer_ptr, struct vrmr_regex *reg)
 {
     int retval = 0,
         result = 0;
@@ -35,15 +35,14 @@ vrmr_get_ip_info(const int debuglvl, struct vrmr_ctx *vctx, char *name, struct v
         return(-1);
     }
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "determining info for '%s'.", name);
+    vrmr_debug(MEDIUM, "determining info for '%s'.", name);
 
     switch(answer_ptr->type)
     {
         case VRMR_TYPE_HOST:
 
             /* ask the ipaddress for this host */
-            result = vctx->zf->ask(debuglvl, vctx->zone_backend, name, "IPADDRESS", answer_ptr->ipv4.ipaddress, sizeof(answer_ptr->ipv4.ipaddress), VRMR_TYPE_HOST, 0);
+            result = vctx->zf->ask(vctx->zone_backend, name, "IPADDRESS", answer_ptr->ipv4.ipaddress, sizeof(answer_ptr->ipv4.ipaddress), VRMR_TYPE_HOST, 0);
             if(result < 0)
             {
                 vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -52,16 +51,15 @@ vrmr_get_ip_info(const int debuglvl, struct vrmr_ctx *vctx, char *name, struct v
             }
 
             /* get the mac-address */
-            answer_ptr->has_mac = vrmr_get_mac_address(debuglvl, vctx, name, answer_ptr->mac, sizeof(answer_ptr->mac), reg->macaddr);
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "has_mac: %d", answer_ptr->has_mac);
+            answer_ptr->has_mac = vrmr_get_mac_address(vctx, name, answer_ptr->mac, sizeof(answer_ptr->mac), reg->macaddr);
+            vrmr_debug(MEDIUM, "has_mac: %d", answer_ptr->has_mac);
 
             /*  for iptables, the netmask of a single host is always 255.255.255.255,
                 we do this after check_ip because otherwise check_ip would not work */
             strcpy(answer_ptr->ipv4.netmask, "255.255.255.255");
 
             /* ask the ipaddress for this host */
-            result = vctx->zf->ask(debuglvl, vctx->zone_backend, name, "IPV6ADDRESS", answer_ptr->ipv6.ip6, sizeof(answer_ptr->ipv6.ip6), VRMR_TYPE_HOST, 0);
+            result = vctx->zf->ask(vctx->zone_backend, name, "IPV6ADDRESS", answer_ptr->ipv6.ip6, sizeof(answer_ptr->ipv6.ip6), VRMR_TYPE_HOST, 0);
             if(result < 0)
             {
                 vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -81,10 +79,9 @@ vrmr_get_ip_info(const int debuglvl, struct vrmr_ctx *vctx, char *name, struct v
             /*
                 get the network address
             */
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "get network_ip for '%s', max_size: %d.", name, sizeof(answer_ptr->ipv4.network));
+            vrmr_debug(HIGH, "get network_ip for '%s', max_size: %d.", name, (int)sizeof(answer_ptr->ipv4.network));
 
-            result = vctx->zf->ask(debuglvl, vctx->zone_backend, name, "NETWORK", answer_ptr->ipv4.network, sizeof(answer_ptr->ipv4.network), VRMR_TYPE_NETWORK, 0);
+            result = vctx->zf->ask(vctx->zone_backend, name, "NETWORK", answer_ptr->ipv4.network, sizeof(answer_ptr->ipv4.network), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
                 vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -95,7 +92,7 @@ vrmr_get_ip_info(const int debuglvl, struct vrmr_ctx *vctx, char *name, struct v
             /*
                 netmask
             */
-            result = vctx->zf->ask(debuglvl, vctx->zone_backend, name, "NETMASK", answer_ptr->ipv4.netmask, sizeof(answer_ptr->ipv4.netmask), VRMR_TYPE_NETWORK, 0);
+            result = vctx->zf->ask(vctx->zone_backend, name, "NETMASK", answer_ptr->ipv4.netmask, sizeof(answer_ptr->ipv4.netmask), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
                 vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -106,7 +103,7 @@ vrmr_get_ip_info(const int debuglvl, struct vrmr_ctx *vctx, char *name, struct v
             /* get the broadcast address for this network/netmask combination */
             if(strcmp(answer_ptr->ipv4.network, "") != 0 && strcmp(answer_ptr->ipv4.netmask, "") != 0)
             {
-                result = vrmr_create_broadcast_ip(debuglvl, answer_ptr->ipv4.network, answer_ptr->ipv4.netmask, answer_ptr->ipv4.broadcast, sizeof(answer_ptr->ipv4.broadcast));
+                result = vrmr_create_broadcast_ip(answer_ptr->ipv4.network, answer_ptr->ipv4.netmask, answer_ptr->ipv4.broadcast, sizeof(answer_ptr->ipv4.broadcast));
                 if(result != 0)
                 {
                     vrmr_error(-1, "Error", "creating broadcast ip for zone '%s' failed.", answer_ptr->name);
@@ -114,7 +111,7 @@ vrmr_get_ip_info(const int debuglvl, struct vrmr_ctx *vctx, char *name, struct v
                 }
             }
 
-            result = vctx->zf->ask(debuglvl, vctx->zone_backend, name, "IPV6NETWORK", answer_ptr->ipv6.net6, sizeof(answer_ptr->ipv6.net6), VRMR_TYPE_NETWORK, 0);
+            result = vctx->zf->ask(vctx->zone_backend, name, "IPV6NETWORK", answer_ptr->ipv6.net6, sizeof(answer_ptr->ipv6.net6), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
                 vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -123,7 +120,7 @@ vrmr_get_ip_info(const int debuglvl, struct vrmr_ctx *vctx, char *name, struct v
             }
 
             char cidrstr[4] = "";
-            result = vctx->zf->ask(debuglvl, vctx->zone_backend, name, "IPV6CIDR", cidrstr, sizeof(cidrstr), VRMR_TYPE_NETWORK, 0);
+            result = vctx->zf->ask(vctx->zone_backend, name, "IPV6CIDR", cidrstr, sizeof(cidrstr), VRMR_TYPE_NETWORK, 0);
             if(result < 0)
             {
                 vrmr_error(-1, "Internal Error", "zf->ask() failed (in: %s:%d).",
@@ -162,7 +159,7 @@ vrmr_get_ip_info(const int debuglvl, struct vrmr_ctx *vctx, char *name, struct v
     -1: error
 */
 int
-vrmr_create_broadcast_ip(const int debuglvl, char *network, char *netmask, char *broadcast_ip, size_t size)
+vrmr_create_broadcast_ip(char *network, char *netmask, char *broadcast_ip, size_t size)
 {
     int retval=0;
 
@@ -173,8 +170,7 @@ vrmr_create_broadcast_ip(const int debuglvl, char *network, char *netmask, char 
     unsigned long int netmaskvalue=0;
     //unsigned long int networkvalue=0;
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "network: %s, netmask: %s", network, netmask);
+    vrmr_debug(MEDIUM, "network: %s, netmask: %s", network, netmask);
 
     if(inet_aton(netmask, &mask) == 0)
     {
@@ -185,8 +181,7 @@ vrmr_create_broadcast_ip(const int debuglvl, char *network, char *netmask, char 
     {
         netmaskvalue=ntohl(mask.s_addr);
 
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "netmask = %s", inet_ntoa(mask));
+        vrmr_debug(HIGH, "netmask = %s", inet_ntoa(mask));
     }
 
     if(inet_aton(network, &net) == 0)
@@ -198,8 +193,7 @@ vrmr_create_broadcast_ip(const int debuglvl, char *network, char *netmask, char 
     {
         //networkvalue=ntohl(net.s_addr);
 
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "network = %s", inet_ntoa(net));
+        vrmr_debug(HIGH, "network = %s", inet_ntoa(net));
     }
 
     broad=net;
@@ -212,8 +206,7 @@ vrmr_create_broadcast_ip(const int debuglvl, char *network, char *netmask, char 
         return(-1);
     }
 
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "broadcast-address for network %s with netmask %s is %s.", network, netmask, broadcast_ip);
+    vrmr_debug(LOW, "broadcast-address for network %s with netmask %s is %s.", network, netmask, broadcast_ip);
 
     return(retval);
 }
@@ -227,7 +220,7 @@ vrmr_create_broadcast_ip(const int debuglvl, char *network, char *netmask, char 
         -1: error
  */
 int
-vrmr_get_group_info(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones *zones, char *groupname, struct vrmr_zone *answer_ptr)
+vrmr_get_group_info(struct vrmr_ctx *vctx, struct vrmr_zones *zones, char *groupname, struct vrmr_zone *answer_ptr)
 {
     int                 result = 0;
     char                total_zone[VRMR_VRMR_MAX_HOST_NET_ZONE] = "",
@@ -250,20 +243,20 @@ vrmr_get_group_info(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones
     }
 
     /* setup the list (allready done in vrmr_zone_malloc?) */
-    vrmr_list_setup(debuglvl, &answer_ptr->GroupList, NULL);
+    vrmr_list_setup(&answer_ptr->GroupList, NULL);
     answer_ptr->group_member_count = 0;
 
     /* get the members */
-    while((result = vctx->zf->ask(debuglvl, vctx->zone_backend, groupname, "MEMBER", cur_mem, sizeof(cur_mem), VRMR_TYPE_GROUP, 1)) == 1)
+    while((result = vctx->zf->ask(vctx->zone_backend, groupname, "MEMBER", cur_mem, sizeof(cur_mem), VRMR_TYPE_GROUP, 1)) == 1)
     {
         answer_ptr->group_member_count++;
 
         snprintf(total_zone, sizeof(total_zone), "%s.%s.%s", cur_mem, answer_ptr->network_name, answer_ptr->zone_name);
 
-        zone_ptr = vrmr_search_zonedata(debuglvl, zones, total_zone);
+        zone_ptr = vrmr_search_zonedata(zones, total_zone);
         if(zone_ptr == NULL)
         {
-            vrmr_debug(__FUNC__, "the member '%s' of group '%s' was not found in memory.",
+            vrmr_debug(NONE, "the member '%s' of group '%s' was not found in memory.",
                     total_zone, groupname);
             answer_ptr->group_member_count--;
         }
@@ -271,7 +264,7 @@ vrmr_get_group_info(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones
         {
             if(zone_ptr->type == VRMR_TYPE_GROUP)
             {
-                vrmr_debug(__FUNC__, "only hosts can be groupmembers. Member '%s' of '%s' is a group.",
+                vrmr_debug(NONE, "only hosts can be groupmembers. Member '%s' of '%s' is a group.",
                         zone_ptr->name, groupname);
                 answer_ptr->group_member_count--;
             }
@@ -280,21 +273,18 @@ vrmr_get_group_info(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones
                 /* increase the refcnt of the host */
                 zone_ptr->refcnt_group++;
 
-                if(zone_ptr->active == 0)
-                {
-                    if(debuglvl >= LOW)
-                        vrmr_debug(__FUNC__, "member %s is not active", zone_ptr->name);
+                if (zone_ptr->active == 0) {
+                    vrmr_debug(LOW, "member %s is not active", zone_ptr->name);
                 }
 
-                if(vrmr_list_append(debuglvl, &answer_ptr->GroupList, zone_ptr) == NULL)
+                if(vrmr_list_append(&answer_ptr->GroupList, zone_ptr) == NULL)
                 {
                     vrmr_error(-1, "Internal Error", "vrmr_list_append() failed (in: %s:%d).",
                             __FUNC__, __LINE__);
                     return(-1);
                 }
 
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "refcnt_group of host '%s' is now '%u'.", zone_ptr->name, zone_ptr->refcnt_group);
+                vrmr_debug(HIGH, "refcnt_group of host '%s' is now '%u'.", zone_ptr->name, zone_ptr->refcnt_group);
             }
         }
     }
@@ -316,7 +306,7 @@ vrmr_get_group_info(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_zones
     returns NULL on error
 */
 char *
-vrmr_list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/char *option_name)
+vrmr_list_to_portopts(struct vrmr_list *dlist, /*@null@*/char *option_name)
 {
     struct vrmr_list_node     *d_node = NULL;
     char            options[VRMR_MAX_OPTIONS_LENGTH] = "",
@@ -379,14 +369,13 @@ vrmr_list_to_portopts(const int debuglvl, struct vrmr_list *dlist, /*@null@*/cha
         return(NULL);
     }
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "options: '%s'.", return_ptr);
+    vrmr_debug(MEDIUM, "options: '%s'.", return_ptr);
 
     return(return_ptr);
 }
 
 int
-vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dlist)
+vrmr_portopts_to_list(const char *opt, struct vrmr_list *dlist)
 {
     int             done=0,
                     range=0,
@@ -395,15 +384,12 @@ vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dli
     char            option_string[VRMR_MAX_OPTIONS_LENGTH] = "";
     struct vrmr_portdata *portrange_ptr = NULL;
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "opt: '%s'", opt);
+    vrmr_debug(MEDIUM, "opt: '%s'", opt);
 
     /* if the first char is a whitespace, bail out */
-    if(opt[0] == ' ')
+    if (opt[0] == ' ')
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "first char of 'opt' is a whitespace, so we bail out quietly (and without error).");
-
+        vrmr_debug(HIGH, "first char of 'opt' is a whitespace, so we bail out quietly (and without error).");
         return(0);
     }
 
@@ -433,8 +419,7 @@ vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dli
 
             if(done == 1)
             {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "now trying to insert: %s", option_string);
+                vrmr_debug(HIGH, "now trying to insert: %s", option_string);
 
                 if(!(portrange_ptr = malloc(sizeof(struct vrmr_portdata))))
                 {
@@ -471,12 +456,11 @@ vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dli
                     if(portrange_ptr->dst_high == 0)
                         portrange_ptr->dst_high = -1;
 
-                    if(debuglvl >= HIGH)
-                        vrmr_debug(__FUNC__, "listen: %d, %d", portrange_ptr->dst_low, portrange_ptr->dst_high);
+                    vrmr_debug(HIGH, "listen: %d, %d", portrange_ptr->dst_low, portrange_ptr->dst_high);
                 }
 
                 /* append to the list */
-                if(vrmr_list_append(debuglvl, dlist, portrange_ptr) == NULL)
+                if(vrmr_list_append(dlist, portrange_ptr) == NULL)
                 {
                     vrmr_error(-1, "Internal Error", "appending to list failed (in: %s:%d).", __FUNC__, __LINE__);
 
@@ -503,7 +487,7 @@ vrmr_portopts_to_list(const int debuglvl, const char *opt, struct vrmr_list *dli
      1: active
  */
 int
-vrmr_check_active(const int debuglvl, struct vrmr_ctx *vctx, char *name, int type)
+vrmr_check_active(struct vrmr_ctx *vctx, char *name, int type)
 {
     int     result = 0;
     char    active[4] = "";
@@ -516,8 +500,7 @@ vrmr_check_active(const int debuglvl, struct vrmr_ctx *vctx, char *name, int typ
         return(-1);
     }
 
-    if(debuglvl >= MEDIUM)
-        vrmr_debug(__FUNC__, "type: %d, name = '%s'.", type, name);
+    vrmr_debug(MEDIUM, "type: %d, name = '%s'.", type, name);
 
     if(type >= VRMR_TYPE_TOO_BIG)
     {
@@ -529,26 +512,24 @@ vrmr_check_active(const int debuglvl, struct vrmr_ctx *vctx, char *name, int typ
     /* fw active */
     if(strcasecmp(name, "firewall") == 0 || strncasecmp(name, "firewall", 8) == 0)
     {
-        if(debuglvl >= MEDIUM)
-            vrmr_debug(__FUNC__, "'firewall' is always active.");
-
+        vrmr_debug(MEDIUM, "'firewall' is always active.");
         return(1);
     }
 
     /* service */
     if(type == VRMR_TYPE_SERVICE || type == VRMR_VRMR_TYPE_SERVICEGRP)
     {
-        result = vctx->sf->ask(debuglvl, vctx->serv_backend, name, "ACTIVE", active, sizeof(active), type, 0);
+        result = vctx->sf->ask(vctx->serv_backend, name, "ACTIVE", active, sizeof(active), type, 0);
     }
     /* interface */
     else if(type == VRMR_TYPE_INTERFACE)
     {
-        result = vctx->af->ask(debuglvl, vctx->ifac_backend, name, "ACTIVE", active, sizeof(active), type, 0);
+        result = vctx->af->ask(vctx->ifac_backend, name, "ACTIVE", active, sizeof(active), type, 0);
     }
     /* zone, network, host, group */
     else if(type == VRMR_TYPE_ZONE || type == VRMR_TYPE_NETWORK || type == VRMR_TYPE_HOST || type == VRMR_TYPE_GROUP)
     {
-        result = vctx->zf->ask(debuglvl, vctx->zone_backend, name, "ACTIVE", active, sizeof(active), type, 0);
+        result = vctx->zf->ask(vctx->zone_backend, name, "ACTIVE", active, sizeof(active), type, 0);
     }
     else
     {
@@ -557,32 +538,25 @@ vrmr_check_active(const int debuglvl, struct vrmr_ctx *vctx, char *name, int typ
         return(-1);
     }
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "'%s' (result: %d).", active, result);
+    vrmr_debug(HIGH, "'%s' (result: %d).", active, result);
 
     /* if we have an anwser, check it out */
     if(result == 1)
     {
         if(strncasecmp(active, "yes", 3) == 0)
         {
-            if(debuglvl >= MEDIUM)
-                vrmr_debug(__FUNC__, "'%s' is active.", name);
-
+            vrmr_debug(LOW, "'%s' is active.", name);
             return(1);
         }
         else
         {
-            if(debuglvl >= LOW)
-                vrmr_debug(__FUNC__, "'%s' is not active.", name);
-
+            vrmr_debug(LOW, "'%s' is not active.", name);
             return(0);
         }
     }
     else if(result == 0)
     {
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "keyword ACTIVE not found in '%s', assuming inactive.", name);
-
+        vrmr_debug(LOW, "keyword ACTIVE not found in '%s', assuming inactive.", name);
         return(0);
     }
     else
@@ -604,7 +578,7 @@ vrmr_check_active(const int debuglvl, struct vrmr_ctx *vctx, char *name, int typ
         -1: error
  */
 int
-vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t size)
+vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size)
 {
     int                 numreqs = 30;
     struct ifconf       ifc;
@@ -667,8 +641,7 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
     ifr_ptr = ifc.ifc_req;
     for(n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq))
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
+        vrmr_debug(HIGH, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
 
         if(strcmp(device, ifr_ptr->ifr_name) == 0)
         {
@@ -699,8 +672,7 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
                     return(-1);
                 }
 
-                if(debuglvl >= LOW)
-                    vrmr_debug(__FUNC__, ", device: '%s', ipaddress: '%s'.", device, ipaddress);
+                vrmr_debug(LOW, ", device: '%s', ipaddress: '%s'.", device, ipaddress);
 
                 /* copy back to the caller */
                 if(strlcpy(answer_ptr, ipaddress, size) >= size)
@@ -722,8 +694,7 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
     }
 
     /* not found */
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "device '%s' not found.", device);
+    vrmr_debug(LOW, "device '%s' not found.", device);
 
     close(sockfd);
     free(ifc.ifc_buf);
@@ -748,7 +719,7 @@ vrmr_get_dynamic_ip(const int debuglvl, char *device, char *answer_ptr, size_t s
         -1: error: no valid ip/net/mask
 */
 int
-vrmr_check_ipv4address(const int debuglvl, const char *network, const char *netmask, const char *ipaddress, char quiet)
+vrmr_check_ipv4address(const char *network, const char *netmask, const char *ipaddress, char quiet)
 {
     int                 retval = 0;
 
@@ -758,8 +729,6 @@ vrmr_check_ipv4address(const int debuglvl, const char *network, const char *netm
     struct in_addr      broad;   /* the broadcast address of this network */
 
     unsigned long int   netmaskvalue = 0;
-    //unsigned long int   ipaddressvalue = 0;
-    //unsigned long int   networkvalue = 0;
 
     unsigned long int   high;
     unsigned long int   low;
@@ -785,10 +754,7 @@ vrmr_check_ipv4address(const int debuglvl, const char *network, const char *netm
     }
     else
     {
-        //ipaddressvalue = ntohl(ip.s_addr);
-
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "ipaddress = %s", inet_ntoa(ip));
+        vrmr_debug(HIGH, "ipaddress = %s", inet_ntoa(ip));
 
         /* if were only checking ipaddress we are happy now. */
         if(!network && !netmask)
@@ -801,13 +767,7 @@ vrmr_check_ipv4address(const int debuglvl, const char *network, const char *netm
         vrmr_error(-1, "Error", "invalid network: '%s' (in: %s).", network, __FUNC__);
         return(-1);
     }
-    else
-    {
-        //networkvalue = ntohl(net.s_addr);
-
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "network = %s", inet_ntoa(net));
-    }
+    vrmr_debug(HIGH, "network = %s", inet_ntoa(net));
 
     /* check if the netmask is valid */
     if(inet_aton(netmask, &mask) == 0)
@@ -815,19 +775,12 @@ vrmr_check_ipv4address(const int debuglvl, const char *network, const char *netm
         vrmr_error(-1, "Error", "invalid netmask: '%s' (in: %s).", netmask, __FUNC__);
         return(-1);
     }
-    else
-    {
-        netmaskvalue = ntohl(mask.s_addr);
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "netmask = %s", inet_ntoa(mask));
-    }
-
+    netmaskvalue = ntohl(mask.s_addr);
+    vrmr_debug(HIGH, "netmask = %s", inet_ntoa(mask));
 
     broad = net;
     broad.s_addr|=~ntohl(netmaskvalue);
-
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "broad = %s", inet_ntoa(broad));
+    vrmr_debug(HIGH, "broad = %s", inet_ntoa(broad));
 
     /* get the lowest possible ip in this network/netmask combi */
     low = ntohl(net.s_addr);
@@ -839,9 +792,7 @@ vrmr_check_ipv4address(const int debuglvl, const char *network, const char *netm
     /* finally check if the ipaddress fits in the range */
     if(current > low && current < high)
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "ipaddress %s belongs to network %s with netmask %s", ipaddress, network, netmask);
-
+        vrmr_debug(HIGH, "ipaddress %s belongs to network %s with netmask %s", ipaddress, network, netmask);
         retval = 1;
     }
 
@@ -858,7 +809,7 @@ vrmr_check_ipv4address(const int debuglvl, const char *network, const char *netm
         -1: error
 */
 int
-vrmr_get_mac_address(const int debuglvl, struct vrmr_ctx *vctx, char *hostname, char *answer_ptr, size_t size, regex_t *mac_rgx)
+vrmr_get_mac_address(struct vrmr_ctx *vctx, char *hostname, char *answer_ptr, size_t size, regex_t *mac_rgx)
 {
     int retval = 0,
         result = 0;
@@ -871,11 +822,10 @@ vrmr_get_mac_address(const int debuglvl, struct vrmr_ctx *vctx, char *hostname, 
     }
 
     /* ask the backend */
-    result = vctx->zf->ask(debuglvl, vctx->zone_backend, hostname, "MAC", answer_ptr, size, VRMR_TYPE_HOST, 0);
+    result = vctx->zf->ask(vctx->zone_backend, hostname, "MAC", answer_ptr, size, VRMR_TYPE_HOST, 0);
     if(result == 1)
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "found!");
+        vrmr_debug(HIGH, "found!");
 
         retval = 1;
 
@@ -895,8 +845,7 @@ vrmr_get_mac_address(const int debuglvl, struct vrmr_ctx *vctx, char *hostname, 
     }
     else if(result == 0)
     {
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "not found");
+        vrmr_debug(HIGH, "not found");
     }
     else
     {
@@ -915,7 +864,7 @@ vrmr_get_mac_address(const int debuglvl, struct vrmr_ctx *vctx, char *hostname, 
         -1: error
 */
 int
-vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr_danger_info *danger_struct)
+vrmr_get_danger_info(char *danger, char *source, struct vrmr_danger_info *danger_struct)
 {
     /* safety */
     if(danger == NULL || source == NULL || danger_struct == NULL)
@@ -1105,7 +1054,7 @@ vrmr_get_danger_info(const int debuglvl, char *danger, char *source, struct vrmr
     A solution is providing a list of only networks...
 */
 char
-*vrmr_get_network_for_ipv4(const int debuglvl, const char *ipaddress, struct vrmr_list *zonelist)
+*vrmr_get_network_for_ipv4(const char *ipaddress, struct vrmr_list *zonelist)
 {
     struct in_addr      ip;      /* the ipaddress we want to check */
     struct in_addr      net;     /* the network address against we want to check */
@@ -1213,13 +1162,12 @@ char
 
 /**
  * 
- * @param debuglvl 
  * @param user - pointer to user data
  * @return  0: ok
  *          -1: error
  */
 int
-vrmr_user_get_info(const int debuglvl, struct vrmr_user *user)
+vrmr_user_get_info(struct vrmr_user *user)
 {
     char            *proc_self_fd_0 = "/proc/self/fd/0",
                     term_path[256] = "";

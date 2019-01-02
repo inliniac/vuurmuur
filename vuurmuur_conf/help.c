@@ -54,7 +54,7 @@ free_helpword(void *ptr)
 
 /* parse a line from the helpfile */
 int
-read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
+read_helpline(struct vrmr_list *help_list, char *line)
 {
     char        oneword[512] = "";
     size_t      i = 0;
@@ -81,7 +81,7 @@ read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
                 hw->word = strdup(oneword);
                 vrmr_fatal_alloc("strdup", hw->word);
 
-                vrmr_fatal_if(vrmr_list_append(debuglvl, help_list, hw) == NULL);
+                vrmr_fatal_if(vrmr_list_append(help_list, hw) == NULL);
             }
 
             /* the newline is a special word */
@@ -99,7 +99,7 @@ read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
                 hw->newline = 1;
                 hw->line_num = 0;
 
-                vrmr_fatal_if(vrmr_list_append(debuglvl, help_list, hw) == NULL);
+                vrmr_fatal_if(vrmr_list_append(help_list, hw) == NULL);
             }
         }
         else
@@ -115,7 +115,7 @@ read_helpline(const int debuglvl, struct vrmr_list *help_list, char *line)
 #ifdef USE_WIDEC
 /* parse a line from the UTF-8 helpfile */
 int
-read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *line)
+read_wide_helpline(struct vrmr_list *help_list, wchar_t *line)
 {
     wchar_t     oneword[512] = L"";
     size_t      i = 0;
@@ -142,7 +142,7 @@ read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *lin
                 vrmr_fatal_alloc("calloc", hw->word);
                 wcsncpy(hw->word, oneword, wcslen(oneword) + 1);
 
-                vrmr_fatal_if(vrmr_list_append(debuglvl, help_list, hw) == NULL);
+                vrmr_fatal_if(vrmr_list_append(help_list, hw) == NULL);
             }
 
             /* the newline is a special word */
@@ -160,7 +160,7 @@ read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *lin
                 hw->newline = 1;
                 hw->line_num = 0;
 
-                vrmr_fatal_if(vrmr_list_append(debuglvl, help_list, hw) == NULL);
+                vrmr_fatal_if(vrmr_list_append(help_list, hw) == NULL);
             }
         }
         else
@@ -175,7 +175,7 @@ read_wide_helpline(const int debuglvl, struct vrmr_list *help_list, wchar_t *lin
 #endif /* USE_WIDEC */
 
 static int
-read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
+read_helpfile(struct vrmr_list *help_list, char *part)
 {
     char    line[128] = "";
     FILE    *fp = NULL;
@@ -187,7 +187,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
     vrmr_fatal_if_null(part);
 
     /* setup the list */
-    vrmr_list_setup(debuglvl, help_list, free_helpword);
+    vrmr_list_setup(help_list, free_helpword);
 
     /* TRANSLATORS: translate this to you language code: so for
        'ru' use 'vuurmuur-ru.hlp', for 'pt_BR' use
@@ -197,13 +197,13 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
             vccnf.helpfile_location,
             gettext("vuurmuur.hlp")) >= (int)sizeof(helpfile))
         return(-1);
-    vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+    vrmr_sanitize_path(helpfile, sizeof(helpfile));
 
     /* open the file */
     fp = fopen(helpfile, "r");
     if (fp == NULL)
     {
-        vrmr_debug(__FUNC__, "opening '%s' failed: %s, "
+        vrmr_debug(NONE, "opening '%s' failed: %s, "
                 "falling back to default.",
                 helpfile, strerror(errno));
 
@@ -211,7 +211,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
         if (snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
                 vccnf.helpfile_location) >= (int)sizeof(helpfile))
             return(-1);
-        vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+        vrmr_sanitize_path(helpfile, sizeof(helpfile));
 
         if(!(fp = fopen(helpfile, "r")))
         {
@@ -233,7 +233,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
         }
 
         if(inrange) {
-            if (read_helpline(debuglvl, help_list, line) < 0) {
+            if (read_helpline(help_list, line) < 0) {
                 fclose(fp);
                 return(-1);
             }
@@ -249,7 +249,7 @@ read_helpfile(const int debuglvl, struct vrmr_list *help_list, char *part)
 
 #ifdef USE_WIDEC
 int
-read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *part)
+read_wide_helpfile(struct vrmr_list *help_list, wchar_t *part)
 {
     wchar_t line[128] = L"";
     FILE    *fp = NULL;
@@ -261,7 +261,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
     vrmr_fatal_if_null(part);
 
     /* setup the list */
-    vrmr_list_setup(debuglvl, help_list, free_helpword);
+    vrmr_list_setup(help_list, free_helpword);
 
     if (utf8_mode == 1) {
         /* TRANSLATORS: translate this to you language code: so for
@@ -271,7 +271,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
         snprintf(helpfile, sizeof(helpfile), "%s/%s",
                 vccnf.helpfile_location,
                 gettext("vuurmuur.UTF-8.hlp"));
-        vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+        vrmr_sanitize_path(helpfile, sizeof(helpfile));
 
         /* open the file */
         fp = fopen(helpfile, "r");
@@ -279,7 +279,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
 
     if (fp == NULL) {
         if (utf8_mode == 1)
-            vrmr_debug(__FUNC__, "opening '%s' failed: "
+            vrmr_debug(NONE, "opening '%s' failed: "
                 "%s, falling back to non UTF-8 language file.",
                 helpfile, strerror(errno));
 
@@ -293,19 +293,19 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
         snprintf(helpfile, sizeof(helpfile), "%s/%s",
                 vccnf.helpfile_location,
                 gettext("vuurmuur.hlp"));
-        vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+        vrmr_sanitize_path(helpfile, sizeof(helpfile));
 
         /* open the file */
         fp = fopen(helpfile, "r");
         if (fp == NULL) {
-            vrmr_debug(__FUNC__, "opening '%s' failed: %s, "
+            vrmr_debug(NONE, "opening '%s' failed: %s, "
                     "falling back to default.",
                     helpfile, strerror(errno));
 
             /* language helpfile does not exist, try to fall back to default */
             snprintf(helpfile, sizeof(helpfile), "%s/vuurmuur.hlp",
                     vccnf.helpfile_location);
-            vrmr_sanitize_path(debuglvl, helpfile, sizeof(helpfile));
+            vrmr_sanitize_path(helpfile, sizeof(helpfile));
 
             if(!(fp = fopen(helpfile, "r"))) {
                 vrmr_error(-1, VR_ERR, "%s %s: %s",
@@ -326,7 +326,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
         }
 
         if(inrange) {
-            if (read_wide_helpline(debuglvl, help_list, line) < 0) {
+            if (read_wide_helpline(help_list, line) < 0) {
                 fclose(fp);
                 return(-1);
             }
@@ -342,7 +342,7 @@ read_wide_helpfile(const int debuglvl, struct vrmr_list *help_list, wchar_t *par
 #endif /* USE_WIDEC */
 
 static void
-set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
+set_lines(struct vrmr_list *help_list, size_t width)
 {
     size_t      line_width = 0,
                 line_num = 1,
@@ -435,7 +435,7 @@ set_lines(const int debuglvl, struct vrmr_list *help_list, size_t width)
 
 #ifdef USE_WIDEC
 static void
-set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
+set_wide_lines(struct vrmr_list *help_list, int width)
 {
     int         line_width = 0,
                 line_num = 1,
@@ -524,7 +524,7 @@ set_wide_lines(const int debuglvl, struct vrmr_list *help_list, int width)
 #endif /* USE_WIDEC */
 
 static void
-do_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
+do_print(WINDOW *printwin, struct vrmr_list *list,
         size_t start_print, size_t end_print)
 {
     helpword    *hw = NULL,
@@ -582,7 +582,7 @@ do_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
 
 #ifdef USE_WIDEC
 static void
-do_wide_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
+do_wide_print(WINDOW *printwin, struct vrmr_list *list,
         int start_print, int end_print)
 {
     whelpword   *hw = NULL,
@@ -640,7 +640,7 @@ do_wide_print(const int debuglvl, WINDOW *printwin, struct vrmr_list *list,
 #endif /* USE_WIDEC */
 
 static void
-print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
+print_list(struct vrmr_list *list, char *title, int height,
         int width, int starty, int startx, char utf8)
 {
     WINDOW      *boxwin = NULL,
@@ -682,11 +682,11 @@ print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
 
 #ifdef USE_WIDEC
         if(utf8 == UTF8_TRUE)
-            do_wide_print(debuglvl, printwin, list, start_print,
+            do_wide_print(printwin, list, start_print,
                     end_print);
         else
 #endif /* USE_WIDEC */
-            do_print(debuglvl, printwin, list, start_print,
+            do_print(printwin, list, start_print,
                     end_print);
         update_panels();
         doupdate();
@@ -767,7 +767,7 @@ print_list(const int debuglvl, struct vrmr_list *list, char *title, int height,
 
 
 void
-print_help(const int debuglvl, char *part)
+print_help(char *part)
 {
     struct vrmr_list  HelpList;
     int     max_height = 0,
@@ -792,33 +792,32 @@ print_help(const int debuglvl, char *part)
     {
 #endif /* USE_WIDEC */
         /* read the helpfile */
-        if(read_helpfile(debuglvl, &HelpList, part) < 0)
+        if(read_helpfile(&HelpList, part) < 0)
             return;
-        set_lines(debuglvl, &HelpList, (size_t)(width - 4));
-        print_list(debuglvl, &HelpList, gettext("Help"), height, width, starty, startx, UTF8_FALSE);
-        vrmr_list_cleanup(debuglvl, &HelpList);
+        set_lines(&HelpList, (size_t)(width - 4));
+        print_list(&HelpList, gettext("Help"), height, width, starty, startx, UTF8_FALSE);
+        vrmr_list_cleanup(&HelpList);
 #ifdef USE_WIDEC
     }
     else
     {
         /* convert the part name to a wchar_t string */
         mbstowcs(wpart, part, wsizeof(wpart));
-        if(debuglvl >= LOW)
-            vrmr_debug(__FUNC__, "part: %s, wpart %ls, %u",
-                        part, wpart, wsizeof(wpart));
+        vrmr_debug(LOW, "part: %s, wpart %ls, %u",
+                part, wpart, wsizeof(wpart));
 
         /* read the helpfile */
-        if(read_wide_helpfile(debuglvl, &HelpList, wpart) < 0)
+        if(read_wide_helpfile(&HelpList, wpart) < 0)
             return;
-        set_wide_lines(debuglvl, &HelpList, width - 4);
-        print_list(debuglvl, &HelpList, gettext("Help"), height, width, starty, startx, UTF8_TRUE);
-        vrmr_list_cleanup(debuglvl, &HelpList);
+        set_wide_lines(&HelpList, width - 4);
+        print_list(&HelpList, gettext("Help"), height, width, starty, startx, UTF8_TRUE);
+        vrmr_list_cleanup(&HelpList);
     }
 #endif /* USE_WIDEC */
 }
 
 void
-print_status(const int debuglvl)
+print_status(void)
 {
     int     max_height = 0,
             max_width = 0,
@@ -836,16 +835,16 @@ print_status(const int debuglvl)
 
     /* should not happen */
     if(VuurmuurStatus.StatusList.len == 0) {
-        (void)read_helpline(debuglvl, &VuurmuurStatus.StatusList, gettext("No problems were detected in the current setup.\n"));
+        (void)read_helpline(&VuurmuurStatus.StatusList, gettext("No problems were detected in the current setup.\n"));
     }
 
-    set_lines(debuglvl, &VuurmuurStatus.StatusList, (size_t)(width - 4));
+    set_lines(&VuurmuurStatus.StatusList, (size_t)(width - 4));
     /* print the status list */
-    print_list(debuglvl, &VuurmuurStatus.StatusList, gettext("Status"), height, width, starty, startx, UTF8_FALSE);
+    print_list(&VuurmuurStatus.StatusList, gettext("Status"), height, width, starty, startx, UTF8_FALSE);
 }
 
 void
-setup_statuslist(const int debuglvl)
+setup_statuslist(void)
 {
     /* initialize */
     memset(&VuurmuurStatus, 0, sizeof(VuurmuurStatus));
@@ -866,11 +865,11 @@ setup_statuslist(const int debuglvl)
     VuurmuurStatus.system = 1;
 
     /* setup the status list */
-    vrmr_list_setup(debuglvl, &VuurmuurStatus.StatusList, free_helpword);
+    vrmr_list_setup(&VuurmuurStatus.StatusList, free_helpword);
 }
 
 void
-print_about(const int debuglvl)
+print_about(void)
 {
     int     max_height = 0,
             max_width = 0,
@@ -898,62 +897,62 @@ print_about(const int debuglvl)
     startx = (max_width - width) / 2;
     starty = 4;
 
-    vrmr_list_setup(debuglvl, &about_list, free_helpword);
+    vrmr_list_setup(&about_list, free_helpword);
 
     char copyright[64];
     snprintf(copyright, sizeof(copyright), "%s.\n", VUURMUUR_COPYRIGHT);
-    (void)read_helpline(debuglvl, &about_list, "Vuurmuur_conf\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "=============\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, about_version_string);
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, copyright);
-    (void)read_helpline(debuglvl, &about_list, "This program is distributed under the terms of the GPL2+.\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
+    (void)read_helpline(&about_list, "Vuurmuur_conf\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "=============\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, about_version_string);
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, copyright);
+    (void)read_helpline(&about_list, "This program is distributed under the terms of the GPL2+.\n");
+    (void)read_helpline(&about_list, "\n");
 
-    (void)read_helpline(debuglvl, &about_list, "Support\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "=======\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "Website: http://www.vuurmuur.org/\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "Mailinglist: http://sourceforge.net/mail/?group_id=114382\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "Forum: http://sourceforge.net/forum/?group_id=114382\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "IRC: irc://irc.freenode.net/vuurmuur\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
+    (void)read_helpline(&about_list, "Support\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "=======\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "Website: http://www.vuurmuur.org/\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "Mailinglist: http://sourceforge.net/mail/?group_id=114382\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "Forum: http://sourceforge.net/forum/?group_id=114382\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "IRC: irc://irc.freenode.net/vuurmuur\n");
+    (void)read_helpline(&about_list, "\n");
 
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "Thanks to\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "=========\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "Philippe Baumgart (documentation).\n");
-    (void)read_helpline(debuglvl, &about_list, "Michiel Bodewes (website development).\n");
-    (void)read_helpline(debuglvl, &about_list, "Nicolas Dejardin <zephura(at)free(dot)fr> (French translation).\n");
-    (void)read_helpline(debuglvl, &about_list, "Adi Kriegisch (coding, documentation, Debian packages).\n");
-    (void)read_helpline(debuglvl, &about_list, "Sebastian Marten (documentation).\n");
-    (void)read_helpline(debuglvl, &about_list, "Holger Ohmacht (German translation).\n");
-    (void)read_helpline(debuglvl, &about_list, "Hugo Ribeiro (Brazilian Portuguese translation).\n");
-    (void)read_helpline(debuglvl, &about_list, "Aleksandr Shubnik <alshu(at)tut(dot)by> (rpm development, Russian translation).\n");
-    (void)read_helpline(debuglvl, &about_list, "Per Olav Siggerud (Norwegian translation).\n");
-    (void)read_helpline(debuglvl, &about_list, "Alexandre Simon (coding).\n");
-    (void)read_helpline(debuglvl, &about_list, "Stefan Ubbink (Gentoo ebuilds, coding).\n");
-    (void)read_helpline(debuglvl, &about_list, "Rob de Wit (wiki hosting).\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
-    (void)read_helpline(debuglvl, &about_list, "See: http://www.vuurmuur.org/trac/wiki/Credits for the latest information.\n");
-    (void)read_helpline(debuglvl, &about_list, "\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "Thanks to\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "=========\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "Philippe Baumgart (documentation).\n");
+    (void)read_helpline(&about_list, "Michiel Bodewes (website development).\n");
+    (void)read_helpline(&about_list, "Nicolas Dejardin <zephura(at)free(dot)fr> (French translation).\n");
+    (void)read_helpline(&about_list, "Adi Kriegisch (coding, documentation, Debian packages).\n");
+    (void)read_helpline(&about_list, "Sebastian Marten (documentation).\n");
+    (void)read_helpline(&about_list, "Holger Ohmacht (German translation).\n");
+    (void)read_helpline(&about_list, "Hugo Ribeiro (Brazilian Portuguese translation).\n");
+    (void)read_helpline(&about_list, "Aleksandr Shubnik <alshu(at)tut(dot)by> (rpm development, Russian translation).\n");
+    (void)read_helpline(&about_list, "Per Olav Siggerud (Norwegian translation).\n");
+    (void)read_helpline(&about_list, "Alexandre Simon (coding).\n");
+    (void)read_helpline(&about_list, "Stefan Ubbink (Gentoo ebuilds, coding).\n");
+    (void)read_helpline(&about_list, "Rob de Wit (wiki hosting).\n");
+    (void)read_helpline(&about_list, "\n");
+    (void)read_helpline(&about_list, "See: http://www.vuurmuur.org/trac/wiki/Credits for the latest information.\n");
+    (void)read_helpline(&about_list, "\n");
 
-    set_lines(debuglvl, &about_list, (size_t)(width - 4));
+    set_lines(&about_list, (size_t)(width - 4));
 
-    draw_top_menu(debuglvl, top_win, gettext("About"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("About"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
     /* print the status list */
-    print_list(debuglvl, &about_list, gettext("About"), height, width, starty, startx, UTF8_FALSE);
+    print_list(&about_list, gettext("About"), height, width, starty, startx, UTF8_FALSE);
 
-    vrmr_list_cleanup(debuglvl, &about_list);
+    vrmr_list_cleanup(&about_list);
 }

@@ -76,7 +76,7 @@ struct {
 } GenConfig;
 
 static void
-edit_genconfig_init(const int debuglvl, struct vrmr_config *conf, int height, int width, int starty, int startx)
+edit_genconfig_init(struct vrmr_config *conf, int height, int width, int starty, int startx)
 {
     int     rows = 0,
             cols = 0;
@@ -105,17 +105,17 @@ edit_genconfig_init(const int debuglvl, struct vrmr_config *conf, int height, in
     ConfigSection.panel[0] = new_panel(ConfigSection.win);
 
     /* set buffers - first the visible, then the label */
-    set_field_buffer_wrap(debuglvl, GenConfig.iptableslocfld, 0, conf->iptables_location);
-    set_field_buffer_wrap(debuglvl, GenConfig.iptablesrestorelocfld, 0, conf->iptablesrestore_location);
+    set_field_buffer_wrap(GenConfig.iptableslocfld, 0, conf->iptables_location);
+    set_field_buffer_wrap(GenConfig.iptablesrestorelocfld, 0, conf->iptablesrestore_location);
 #ifdef IPV6_ENABLED
-    set_field_buffer_wrap(debuglvl, GenConfig.ip6tableslocfld, 0, conf->ip6tables_location);
-    set_field_buffer_wrap(debuglvl, GenConfig.ip6tablesrestorelocfld, 0, conf->ip6tablesrestore_location);
+    set_field_buffer_wrap(GenConfig.ip6tableslocfld, 0, conf->ip6tables_location);
+    set_field_buffer_wrap(GenConfig.ip6tablesrestorelocfld, 0, conf->ip6tablesrestore_location);
 #endif
-    set_field_buffer_wrap(debuglvl, GenConfig.conntracklocfld, 0, conf->conntrack_location);
-    set_field_buffer_wrap(debuglvl, GenConfig.tclocfld, 0, conf->tc_location);
+    set_field_buffer_wrap(GenConfig.conntracklocfld, 0, conf->conntrack_location);
+    set_field_buffer_wrap(GenConfig.tclocfld, 0, conf->tc_location);
     (void)snprintf(number, sizeof(number), "%o", conf->max_permission);
-    set_field_buffer_wrap(debuglvl, GenConfig.max_permission, 0, number);
-    set_field_buffer_wrap(debuglvl, GenConfig.sysctllocfld, 0, conf->sysctl_location);
+    set_field_buffer_wrap(GenConfig.max_permission, 0, number);
+    set_field_buffer_wrap(GenConfig.sysctllocfld, 0, conf->sysctl_location);
 
     for (i = 0; i < ConfigSection.n_fields; i++) {
         set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
@@ -157,7 +157,7 @@ edit_genconfig_init(const int debuglvl, struct vrmr_config *conf, int height, in
 
 
 static void
-edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
+edit_genconfig_save(struct vrmr_config *conf)
 {
     size_t  i = 0;
 
@@ -175,7 +175,7 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
                     field_buffer(ConfigSection.fields[i], 0),
                     sizeof(conf->iptables_location));
 
-            vrmr_sanitize_path(debuglvl, conf->iptables_location,
+            vrmr_sanitize_path(conf->iptables_location,
                     StrLen(conf->iptables_location));
 
             vrmr_audit("'iptables location' %s '%s'.",
@@ -188,7 +188,7 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
                     field_buffer(ConfigSection.fields[i], 0),
                     sizeof(conf->iptablesrestore_location));
 
-            vrmr_sanitize_path(debuglvl, conf->iptablesrestore_location,
+            vrmr_sanitize_path(conf->iptablesrestore_location,
                     StrLen(conf->iptablesrestore_location));
 
             vrmr_audit("'iptables-restore location' %s '%s'.",
@@ -202,7 +202,7 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
                     field_buffer(ConfigSection.fields[i], 0),
                     sizeof(conf->ip6tables_location));
 
-            vrmr_sanitize_path(debuglvl, conf->ip6tables_location,
+            vrmr_sanitize_path(conf->ip6tables_location,
                     StrLen(conf->ip6tables_location));
 
             vrmr_audit("'ip6tables location' %s '%s'.",
@@ -215,7 +215,7 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
                     field_buffer(ConfigSection.fields[i], 0),
                     sizeof(conf->ip6tablesrestore_location));
 
-            vrmr_sanitize_path(debuglvl, conf->ip6tablesrestore_location,
+            vrmr_sanitize_path(conf->ip6tablesrestore_location,
                     StrLen(conf->ip6tablesrestore_location));
 
             vrmr_audit("'ip6tables-restore location' %s '%s'.",
@@ -229,7 +229,7 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
                     field_buffer(ConfigSection.fields[i], 0),
                     sizeof(conf->conntrack_location));
 
-            vrmr_sanitize_path(debuglvl, conf->conntrack_location,
+            vrmr_sanitize_path(conf->conntrack_location,
                     StrLen(conf->conntrack_location));
 
             vrmr_audit("'conntrack location' %s '%s'.",
@@ -242,7 +242,7 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
                     field_buffer(ConfigSection.fields[i], 0),
                     sizeof(conf->tc_location));
 
-            vrmr_sanitize_path(debuglvl, conf->tc_location,
+            vrmr_sanitize_path(conf->tc_location,
                     StrLen(conf->tc_location));
 
             vrmr_audit("'tc location' %s '%s'.",
@@ -278,7 +278,7 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
                     field_buffer(ConfigSection.fields[i], 0),
                     sizeof(conf->sysctl_location));
 
-            vrmr_sanitize_path(debuglvl, conf->sysctl_location,
+            vrmr_sanitize_path(conf->sysctl_location,
                     StrLen(conf->sysctl_location));
 
             vrmr_audit("'sysctl location' %s '%s'.",
@@ -291,7 +291,7 @@ edit_genconfig_save(const int debuglvl, struct vrmr_config *conf)
 }
 
 int
-edit_genconfig(const int debuglvl, struct vrmr_config *conf)
+edit_genconfig(struct vrmr_config *conf)
 {
     int     ch,
             retval = 0,
@@ -312,7 +312,7 @@ edit_genconfig(const int debuglvl, struct vrmr_config *conf)
     startx = (max_width - width)/2;
     starty = (max_height - height)/2;
 
-    edit_genconfig_init(debuglvl, conf, height, width, starty, startx);
+    edit_genconfig_init(conf, height, width, starty, startx);
     update_panels();
     doupdate();
 
@@ -338,7 +338,7 @@ edit_genconfig(const int debuglvl, struct vrmr_config *conf)
             cur == GenConfig.conntracklocfld ||
             cur == GenConfig.max_permission)
         {
-            if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
+            if(nav_field_simpletext(ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -355,7 +355,7 @@ edit_genconfig(const int debuglvl, struct vrmr_config *conf)
                 case 'q':
                 case 'Q':
 
-                    edit_genconfig_save(debuglvl, conf);
+                    edit_genconfig_save(conf);
                     quit = 1;
                     break;
 
@@ -390,7 +390,7 @@ edit_genconfig(const int debuglvl, struct vrmr_config *conf)
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:CONFIG:GENERAL]:");
+                    print_help(":[VUURMUUR:CONFIG:GENERAL]:");
                     break;
 
                 default:
@@ -405,7 +405,7 @@ edit_genconfig(const int debuglvl, struct vrmr_config *conf)
     }
 
     /* write configfile */
-    if (vrmr_write_configfile(debuglvl, conf->configfile, conf) < 0)
+    if (vrmr_write_configfile(conf->configfile, conf) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
         retval = -1;
@@ -423,7 +423,7 @@ struct {
 } IntConfig;
 
 static void
-edit_intconfig_init(const int debuglvl, struct vrmr_config *conf, int height, int width, int starty, int startx)
+edit_intconfig_init(struct vrmr_config *conf, int height, int width, int starty, int startx)
 {
     int     rows = 0,
             cols = 0;
@@ -442,10 +442,10 @@ edit_intconfig_init(const int debuglvl, struct vrmr_config *conf, int height, in
     ConfigSection.panel[0] = new_panel(ConfigSection.win);
 
     /* set buffers - first the visible, then the label */
-    set_field_buffer_wrap(debuglvl, IntConfig.dynchkfld, 0, conf->dynamic_changes_check ? "X" : " ");
+    set_field_buffer_wrap(IntConfig.dynchkfld, 0, conf->dynamic_changes_check ? "X" : " ");
     (void)snprintf(IntConfig.number, sizeof(IntConfig.number), "%u",
             conf->dynamic_changes_interval);
-    set_field_buffer_wrap(debuglvl, IntConfig.dynchkintfld, 0, IntConfig.number);
+    set_field_buffer_wrap(IntConfig.dynchkintfld, 0, IntConfig.number);
 
     for (i = 0; i < ConfigSection.n_fields; i++) {
         set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
@@ -475,7 +475,7 @@ edit_intconfig_init(const int debuglvl, struct vrmr_config *conf, int height, in
 }
 
 static void
-edit_intconfig_save(const int debuglvl, struct vrmr_config *conf)
+edit_intconfig_save(struct vrmr_config *conf)
 {
     int interval = 0;
     size_t i = 0;
@@ -521,7 +521,7 @@ edit_intconfig_save(const int debuglvl, struct vrmr_config *conf)
 }
 
 static int
-edit_intconfig(const int debuglvl, struct vrmr_config *conf)
+edit_intconfig(struct vrmr_config *conf)
 {
     int     ch,
             retval=0,
@@ -541,7 +541,7 @@ edit_intconfig(const int debuglvl, struct vrmr_config *conf)
     width = 76;
     startx = (max_width - width)/2;
     starty = (max_height - height)/2;
-    edit_intconfig_init(debuglvl, conf, height, width, starty, startx);
+    edit_intconfig_init(conf, height, width, starty, startx);
     cur = current_field(ConfigSection.form);
     update_panels();
     doupdate();
@@ -557,12 +557,12 @@ edit_intconfig(const int debuglvl, struct vrmr_config *conf)
 
         if(cur == IntConfig.dynchkintfld)
         {
-            if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
+            if(nav_field_simpletext(ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == IntConfig.dynchkfld)
         {
-            if(nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0)
+            if(nav_field_toggleX(ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -580,7 +580,7 @@ edit_intconfig(const int debuglvl, struct vrmr_config *conf)
                 case 'Q':
 
                     /* save the field to the conf struct */
-                    edit_intconfig_save(debuglvl, conf);
+                    edit_intconfig_save(conf);
                     quit = 1;
                     break;
 
@@ -615,7 +615,7 @@ edit_intconfig(const int debuglvl, struct vrmr_config *conf)
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:CONFIG:INTERFACES]:");
+                    print_help(":[VUURMUUR:CONFIG:INTERFACES]:");
                     break;
 
                 default:
@@ -630,7 +630,7 @@ edit_intconfig(const int debuglvl, struct vrmr_config *conf)
     }
 
     /* write configfile */
-    if (vrmr_write_configfile(debuglvl, conf->configfile, conf) < 0)
+    if (vrmr_write_configfile(conf->configfile, conf) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
         retval = -1;
@@ -649,7 +649,7 @@ struct {
 } ModConfig;
 
 static void
-edit_modconfig_init(const int debuglvl, struct vrmr_config *conf, int height, int width, int starty, int startx)
+edit_modconfig_init(struct vrmr_config *conf, int height, int width, int starty, int startx)
 {
     int     rows = 0,
             cols = 0;
@@ -670,12 +670,12 @@ edit_modconfig_init(const int debuglvl, struct vrmr_config *conf, int height, in
     ConfigSection.panel[0] = new_panel(ConfigSection.win);
 
     /* set buffers - first the visible, then the label */
-    set_field_buffer_wrap(debuglvl, ModConfig.modprobefld, 0, conf->modprobe_location);
-    set_field_buffer_wrap(debuglvl, ModConfig.loadmodulesfld, 0, conf->load_modules ? "X" : " ");
+    set_field_buffer_wrap(ModConfig.modprobefld, 0, conf->modprobe_location);
+    set_field_buffer_wrap(ModConfig.loadmodulesfld, 0, conf->load_modules ? "X" : " ");
 
     (void)snprintf(ModConfig.number, sizeof(ModConfig.number), "%u",
             conf->modules_wait_time);
-    set_field_buffer_wrap(debuglvl, ModConfig.waittimefld, 0, ModConfig.number);
+    set_field_buffer_wrap(ModConfig.waittimefld, 0, ModConfig.number);
 
     for (i = 0; i < ConfigSection.n_fields; i++) {
         set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
@@ -704,7 +704,7 @@ edit_modconfig_init(const int debuglvl, struct vrmr_config *conf, int height, in
 }
 
 static void
-edit_modconfig_save(const int debuglvl, struct vrmr_config *conf)
+edit_modconfig_save(struct vrmr_config *conf)
 {
     int     interval = 0;
     size_t  i = 0;
@@ -722,7 +722,7 @@ edit_modconfig_save(const int debuglvl, struct vrmr_config *conf)
                     field_buffer(ConfigSection.fields[i], 0),
                     sizeof(conf->modprobe_location));
 
-            vrmr_sanitize_path(debuglvl, conf->modprobe_location,
+            vrmr_sanitize_path(conf->modprobe_location,
                     StrLen(conf->modprobe_location));
 
             vrmr_audit("'modprobe location' %s '%s'.",
@@ -762,7 +762,7 @@ edit_modconfig_save(const int debuglvl, struct vrmr_config *conf)
 }
 
 static int
-edit_modconfig(const int debuglvl, struct vrmr_config *conf)
+edit_modconfig(struct vrmr_config *conf)
 {
     int     ch,
             retval=0,
@@ -782,7 +782,7 @@ edit_modconfig(const int debuglvl, struct vrmr_config *conf)
     width = 76;
     startx = (max_width - width)/2;
     starty = (max_height - height)/2;
-    edit_modconfig_init(debuglvl, conf, height, width, starty, startx);
+    edit_modconfig_init(conf, height, width, starty, startx);
     cur = current_field(ConfigSection.form);
     update_panels();
     doupdate();
@@ -799,12 +799,12 @@ edit_modconfig(const int debuglvl, struct vrmr_config *conf)
         if(cur == ModConfig.modprobefld ||
            cur == ModConfig.waittimefld)
         {
-            if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
+            if(nav_field_simpletext(ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == ModConfig.loadmodulesfld)
         {
-            if(nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0)
+            if(nav_field_toggleX(ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -821,7 +821,7 @@ edit_modconfig(const int debuglvl, struct vrmr_config *conf)
                 case 'q':
                 case 'Q':
 
-                    edit_modconfig_save(debuglvl, conf);
+                    edit_modconfig_save(conf);
                     quit = 1;
                     break;
 
@@ -856,7 +856,7 @@ edit_modconfig(const int debuglvl, struct vrmr_config *conf)
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:CONFIG:MODULES]:");
+                    print_help(":[VUURMUUR:CONFIG:MODULES]:");
                     break;
 
                 default:
@@ -871,7 +871,7 @@ edit_modconfig(const int debuglvl, struct vrmr_config *conf)
     }
 
     /* write configfile */
-    if (vrmr_write_configfile(debuglvl, conf->configfile, conf) < 0)
+    if (vrmr_write_configfile(conf->configfile, conf) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
         retval = -1;
@@ -890,7 +890,7 @@ struct {
 } PlugConfig;
 
 static void
-edit_plugconfig_init(const int debuglvl, struct vrmr_config *conf, int height, int width, int starty, int startx)
+edit_plugconfig_init(struct vrmr_config *conf, int height, int width, int starty, int startx)
 {
     int     rows = 0,
             cols = 0;
@@ -910,10 +910,10 @@ edit_plugconfig_init(const int debuglvl, struct vrmr_config *conf, int height, i
     ConfigSection.win = create_newwin(height, width, starty, startx, gettext("Edit Config: Plugins"), vccnf.color_win);
     ConfigSection.panel[0] = new_panel(ConfigSection.win);
     /* set buffers - first the visible, then the label */
-    set_field_buffer_wrap(debuglvl, PlugConfig.servbackfld, 0, conf->serv_backend_name);
-    set_field_buffer_wrap(debuglvl, PlugConfig.zonebackfld, 0, conf->zone_backend_name);
-    set_field_buffer_wrap(debuglvl, PlugConfig.ifacbackfld, 0, conf->ifac_backend_name);
-    set_field_buffer_wrap(debuglvl, PlugConfig.rulebackfld, 0, conf->rule_backend_name);
+    set_field_buffer_wrap(PlugConfig.servbackfld, 0, conf->serv_backend_name);
+    set_field_buffer_wrap(PlugConfig.zonebackfld, 0, conf->zone_backend_name);
+    set_field_buffer_wrap(PlugConfig.ifacbackfld, 0, conf->ifac_backend_name);
+    set_field_buffer_wrap(PlugConfig.rulebackfld, 0, conf->rule_backend_name);
 
     for (i = 0; i < ConfigSection.n_fields; i++) {
         set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
@@ -940,7 +940,7 @@ edit_plugconfig_init(const int debuglvl, struct vrmr_config *conf, int height, i
 }
 
 static void
-edit_plugconfig_save(const int debuglvl, struct vrmr_config *conf)
+edit_plugconfig_save(struct vrmr_config *conf)
 {
     size_t  i = 0;
 
@@ -998,7 +998,7 @@ edit_plugconfig_save(const int debuglvl, struct vrmr_config *conf)
 }
 
 static int
-edit_plugconfig(const int debuglvl, struct vrmr_config *conf)
+edit_plugconfig(struct vrmr_config *conf)
 {
     int     ch,
             retval=0,
@@ -1018,7 +1018,7 @@ edit_plugconfig(const int debuglvl, struct vrmr_config *conf)
     width = 76;
     startx = (max_width - width)/2;
     starty = (max_height - height)/2;
-    edit_plugconfig_init(debuglvl, conf, height, width, starty, startx);
+    edit_plugconfig_init(conf, height, width, starty, startx);
     cur = current_field(ConfigSection.form);
     update_panels();
     doupdate();
@@ -1037,7 +1037,7 @@ edit_plugconfig(const int debuglvl, struct vrmr_config *conf)
             cur == PlugConfig.ifacbackfld ||
             cur == PlugConfig.rulebackfld)
         {
-            if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
+            if(nav_field_simpletext(ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -1054,7 +1054,7 @@ edit_plugconfig(const int debuglvl, struct vrmr_config *conf)
                 case 'q':
                 case 'Q':
 
-                    edit_plugconfig_save(debuglvl, conf);
+                    edit_plugconfig_save(conf);
                     quit = 1;
                     break;
 
@@ -1089,7 +1089,7 @@ edit_plugconfig(const int debuglvl, struct vrmr_config *conf)
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:CONFIG:PLUGINS]:");
+                    print_help(":[VUURMUUR:CONFIG:PLUGINS]:");
                     break;
 
                 default:
@@ -1104,7 +1104,7 @@ edit_plugconfig(const int debuglvl, struct vrmr_config *conf)
     }
 
     /* write configfile */
-    if (vrmr_write_configfile(debuglvl, conf->configfile, conf) < 0)
+    if (vrmr_write_configfile(conf->configfile, conf) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
         retval = -1;
@@ -1126,7 +1126,7 @@ struct {
 } ConConfig;
 
 static void
-edit_conconfig_init(const int debuglvl, struct vrmr_config *conf, int height, int width, int starty, int startx)
+edit_conconfig_init(struct vrmr_config *conf, int height, int width, int starty, int startx)
 {
     int     rows = 0,
             cols = 0;
@@ -1155,22 +1155,22 @@ edit_conconfig_init(const int debuglvl, struct vrmr_config *conf, int height, in
     /* set fields */
     (void)snprintf(ConConfig.number, sizeof(ConConfig.number), "%u",
             conf->syn_limit);
-    set_field_buffer_wrap(debuglvl, ConConfig.synlimitfld, 0, ConConfig.number);
+    set_field_buffer_wrap(ConConfig.synlimitfld, 0, ConConfig.number);
 
     (void)snprintf(ConConfig.number, sizeof(ConConfig.number), "%u",
             conf->syn_limit_burst);
-    set_field_buffer_wrap(debuglvl, ConConfig.synburstfld, 0, ConConfig.number);
+    set_field_buffer_wrap(ConConfig.synburstfld, 0, ConConfig.number);
 
     (void)snprintf(ConConfig.number, sizeof(ConConfig.number), "%u",
             conf->udp_limit);
-    set_field_buffer_wrap(debuglvl, ConConfig.udplimitfld, 0, ConConfig.number);
+    set_field_buffer_wrap(ConConfig.udplimitfld, 0, ConConfig.number);
 
     (void)snprintf(ConConfig.number, sizeof(ConConfig.number), "%u",
             conf->udp_limit_burst);
-    set_field_buffer_wrap(debuglvl, ConConfig.udpburstfld, 0, ConConfig.number);
+    set_field_buffer_wrap(ConConfig.udpburstfld, 0, ConConfig.number);
 
-    set_field_buffer_wrap(debuglvl, ConConfig.usesynlimitfld, 0, conf->use_syn_limit ? "X" : " ");
-    set_field_buffer_wrap(debuglvl, ConConfig.useudplimitfld, 0, conf->use_udp_limit ? "X" : " ");
+    set_field_buffer_wrap(ConConfig.usesynlimitfld, 0, conf->use_syn_limit ? "X" : " ");
+    set_field_buffer_wrap(ConConfig.useudplimitfld, 0, conf->use_udp_limit ? "X" : " ");
 
     for (i = 0; i < ConfigSection.n_fields; i++) {
         set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
@@ -1314,7 +1314,7 @@ edit_conconfig_save(struct vrmr_config *conf)
 }
 
 static int
-edit_conconfig(const int debuglvl, struct vrmr_config *conf)
+edit_conconfig(struct vrmr_config *conf)
 {
     int     ch,
             retval = 0,
@@ -1337,7 +1337,7 @@ edit_conconfig(const int debuglvl, struct vrmr_config *conf)
     starty = (max_height - height)/2;
 
     /* setup */
-    edit_conconfig_init(debuglvl, conf, height, width, starty, startx);
+    edit_conconfig_init(conf, height, width, starty, startx);
     cur = current_field(ConfigSection.form);
     update_panels();
     doupdate();
@@ -1376,13 +1376,13 @@ edit_conconfig(const int debuglvl, struct vrmr_config *conf)
            cur == ConConfig.udplimitfld ||
            cur == ConConfig.udpburstfld)
         {
-            if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
+            if(nav_field_simpletext(ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == ConConfig.usesynlimitfld ||
             cur == ConConfig.useudplimitfld)
         {
-            if(nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0)
+            if(nav_field_toggleX(ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -1432,7 +1432,7 @@ edit_conconfig(const int debuglvl, struct vrmr_config *conf)
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:CONFIG:CONNECTIONS]:");
+                    print_help(":[VUURMUUR:CONFIG:CONNECTIONS]:");
                     break;
 
                 default:
@@ -1447,7 +1447,7 @@ edit_conconfig(const int debuglvl, struct vrmr_config *conf)
     }
 
     edit_conconfig_save(conf);
-    if (vrmr_write_configfile(debuglvl, conf->configfile, conf) < 0)
+    if (vrmr_write_configfile(conf->configfile, conf) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
         retval=-1;
@@ -1470,7 +1470,7 @@ struct {
 } VcConfig;
 
 static void
-edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int startx)
+edit_vcconfig_init(int height, int width, int starty, int startx)
 {
     size_t  i = 0;
     int     rows = 0,
@@ -1496,20 +1496,20 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
     vrmr_fatal_if_null(ConfigSection.panel[0]);
 
     /* set fields */
-    set_field_buffer_wrap(debuglvl, VcConfig.newrule_logfld, 0, vccnf.newrule_log ? "X" : " ");
+    set_field_buffer_wrap(VcConfig.newrule_logfld, 0, vccnf.newrule_log ? "X" : " ");
 
     (void)snprintf(VcConfig.number, sizeof(VcConfig.number), "%u",
             vccnf.newrule_loglimit);
-    set_field_buffer_wrap(debuglvl, VcConfig.newrule_loglimitfld, 0, VcConfig.number);
+    set_field_buffer_wrap(VcConfig.newrule_loglimitfld, 0, VcConfig.number);
 
     (void)snprintf(VcConfig.number, sizeof(VcConfig.number), "%u",
             vccnf.logview_bufsize);
-    set_field_buffer_wrap(debuglvl, VcConfig.logview_bufsizefld, 0, VcConfig.number);
+    set_field_buffer_wrap(VcConfig.logview_bufsizefld, 0, VcConfig.number);
 
-    set_field_buffer_wrap(debuglvl, VcConfig.advancedmodefld, 0, vccnf.advanced_mode ? "X" : " ");
-    set_field_buffer_wrap(debuglvl, VcConfig.mainmenu_statusfld, 0, vccnf.draw_status ? "X" : " ");
-    set_field_buffer_wrap(debuglvl, VcConfig.backgroundfld, 0, vccnf.background ? "X" : " ");
-    set_field_buffer_wrap(debuglvl, VcConfig.iptrafvollocfld, 0, vccnf.iptrafvol_location);
+    set_field_buffer_wrap(VcConfig.advancedmodefld, 0, vccnf.advanced_mode ? "X" : " ");
+    set_field_buffer_wrap(VcConfig.mainmenu_statusfld, 0, vccnf.draw_status ? "X" : " ");
+    set_field_buffer_wrap(VcConfig.backgroundfld, 0, vccnf.background ? "X" : " ");
+    set_field_buffer_wrap(VcConfig.iptrafvollocfld, 0, vccnf.iptrafvol_location);
 
     for (i = 0; i < ConfigSection.n_fields; i++) {
         set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
@@ -1559,7 +1559,7 @@ edit_vcconfig_init(const int debuglvl, int height, int width, int starty, int st
 
 
 static void
-edit_vcconfig_save(const int debuglvl)
+edit_vcconfig_save(void)
 {
     size_t  i = 0;
     int     syn = 0;
@@ -1631,7 +1631,7 @@ edit_vcconfig_save(const int debuglvl)
                     field_buffer(ConfigSection.fields[i], 0),
                     sizeof(vccnf.iptrafvol_location));
 
-            vrmr_sanitize_path(debuglvl, vccnf.iptrafvol_location,
+            vrmr_sanitize_path(vccnf.iptrafvol_location,
                     StrLen(vccnf.iptrafvol_location));
         }
         else {
@@ -1641,7 +1641,7 @@ edit_vcconfig_save(const int debuglvl)
 }
 
 int
-edit_vcconfig(const int debuglvl)
+edit_vcconfig(void)
 {
     int     ch,
             retval = 0,
@@ -1672,9 +1672,9 @@ edit_vcconfig(const int debuglvl)
     startx = (max_width - width)/2;
     starty = (max_height - height)/2;
     /* setup */
-    edit_vcconfig_init(debuglvl, height, width, starty, startx);
+    edit_vcconfig_init(height, width, starty, startx);
     cur = current_field(ConfigSection.form);
-    draw_top_menu(debuglvl, top_win, gettext("Vuurmuur_conf Settings"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Vuurmuur_conf Settings"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
     update_panels();
     doupdate();
 
@@ -1693,7 +1693,7 @@ edit_vcconfig(const int debuglvl)
            cur == VcConfig.logview_bufsizefld ||
            cur == VcConfig.iptrafvollocfld)
         {
-            if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
+            if(nav_field_simpletext(ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == VcConfig.newrule_logfld ||
@@ -1701,7 +1701,7 @@ edit_vcconfig(const int debuglvl)
             cur == VcConfig.mainmenu_statusfld ||
             cur == VcConfig.backgroundfld)
         {
-            if (nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0) {
+            if (nav_field_toggleX(ConfigSection.form, ch) < 0) {
                 not_defined = 1;
             } else {
                 /* hack to make color setting available instantly */
@@ -1761,7 +1761,7 @@ edit_vcconfig(const int debuglvl)
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUURCONF:SETTINGS]:");
+                    print_help(":[VUURMUURCONF:SETTINGS]:");
                     break;
 
                 default:
@@ -1775,8 +1775,8 @@ edit_vcconfig(const int debuglvl)
         cur = current_field(ConfigSection.form);
     }
 
-    edit_vcconfig_save(debuglvl);
-    if(write_vcconfigfile(debuglvl, vccnf.configfile_location, &vccnf) < 0)
+    edit_vcconfig_save();
+    if(write_vcconfigfile(vccnf.configfile_location, &vccnf) < 0)
     {
         vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
         retval=-1;
@@ -1807,7 +1807,7 @@ struct {
 } LogConfig;
 
 static void
-edit_logconfig_init(const int debuglvl, struct vrmr_config *conf, int height, int width, int starty, int startx)
+edit_logconfig_init(struct vrmr_config *conf, int height, int width, int starty, int startx)
 {
     size_t  i = 0;
     int     rows = 0,
@@ -1844,29 +1844,29 @@ edit_logconfig_init(const int debuglvl, struct vrmr_config *conf, int height, in
     vrmr_fatal_if_null(ConfigSection.panel[0]);
 
     /* fill the fields */
-    set_field_buffer_wrap(debuglvl, LogConfig.rule_nflogfld,  0, conf->rule_nflog ? "X" : " ");
+    set_field_buffer_wrap(LogConfig.rule_nflogfld,  0, conf->rule_nflog ? "X" : " ");
     if (conf->nfgrp > 0)
     {
         (void)snprintf(limit_string, sizeof(limit_string), "%u",
                 conf->nfgrp);
-        set_field_buffer_wrap(debuglvl, LogConfig.nfgrpfld, 0, limit_string);
+        set_field_buffer_wrap(LogConfig.nfgrpfld, 0, limit_string);
     }
-    set_field_buffer_wrap(debuglvl, LogConfig.logdirfld, 0, conf->vuurmuur_logdir_location);
-    set_field_buffer_wrap(debuglvl, LogConfig.loglevelfld, 0, conf->loglevel);
-    set_field_buffer_wrap(debuglvl, LogConfig.systemlogfld, 0, conf->systemlog_location);
-    set_field_buffer_wrap(debuglvl, LogConfig.logpolicyfld, 0, conf->log_policy ? "X" : " ");
+    set_field_buffer_wrap(LogConfig.logdirfld, 0, conf->vuurmuur_logdir_location);
+    set_field_buffer_wrap(LogConfig.loglevelfld, 0, conf->loglevel);
+    set_field_buffer_wrap(LogConfig.systemlogfld, 0, conf->systemlog_location);
+    set_field_buffer_wrap(LogConfig.logpolicyfld, 0, conf->log_policy ? "X" : " ");
     if(conf->log_policy_limit > 0)
     {
         (void)snprintf(limit_string, sizeof(limit_string), "%u",
                 conf->log_policy_limit);
-        set_field_buffer_wrap(debuglvl, LogConfig.logpolicylimitfld, 0, limit_string);
+        set_field_buffer_wrap(LogConfig.logpolicylimitfld, 0, limit_string);
     }
-    set_field_buffer_wrap(debuglvl, LogConfig.logtcpoptionsfld, 0, conf->log_tcp_options ? "X" : " ");
-    set_field_buffer_wrap(debuglvl, LogConfig.logblocklistfld,  0, conf->log_blocklist ? "X" : " ");
-    set_field_buffer_wrap(debuglvl, LogConfig.loginvalidfld,  0, conf->log_invalid ? "X" : " ");
-    set_field_buffer_wrap(debuglvl, LogConfig.lognosynfld,  0, conf->log_no_syn ? "X" : " ");
-    set_field_buffer_wrap(debuglvl, LogConfig.logprobesfld,  0, conf->log_probes ? "X" : " ");
-    set_field_buffer_wrap(debuglvl, LogConfig.logfragfld,  0, conf->log_frag ? "X" : " ");
+    set_field_buffer_wrap(LogConfig.logtcpoptionsfld, 0, conf->log_tcp_options ? "X" : " ");
+    set_field_buffer_wrap(LogConfig.logblocklistfld,  0, conf->log_blocklist ? "X" : " ");
+    set_field_buffer_wrap(LogConfig.loginvalidfld,  0, conf->log_invalid ? "X" : " ");
+    set_field_buffer_wrap(LogConfig.lognosynfld,  0, conf->log_no_syn ? "X" : " ");
+    set_field_buffer_wrap(LogConfig.logprobesfld,  0, conf->log_probes ? "X" : " ");
+    set_field_buffer_wrap(LogConfig.logfragfld,  0, conf->log_frag ? "X" : " ");
 
     for (i = 0; i < ConfigSection.n_fields; i++) {
         set_field_back(ConfigSection.fields[i], vccnf.color_win_rev | A_BOLD);
@@ -1940,7 +1940,7 @@ edit_logconfig_init(const int debuglvl, struct vrmr_config *conf, int height, in
 }
 
 static int
-edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
+edit_logconfig_save(struct vrmr_config *conf)
 {
     int     retval = 0;
     size_t  i = 0;
@@ -1968,10 +1968,10 @@ edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
                     conf->vuurmuur_logdir_location[StrMemLen(conf->vuurmuur_logdir_location)-1] = '\0';
             }
 
-            vrmr_sanitize_path(debuglvl, conf->vuurmuur_logdir_location,
+            vrmr_sanitize_path(conf->vuurmuur_logdir_location,
                     StrLen(conf->vuurmuur_logdir_location));
 
-            if(vrmr_config_check_logdir(debuglvl, conf->vuurmuur_logdir_location) < 0)
+            if(vrmr_config_check_logdir(conf->vuurmuur_logdir_location) < 0)
             {
                 retval = -1;
             }
@@ -2001,7 +2001,7 @@ edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
                     field_buffer(ConfigSection.fields[i], 0),
                     sizeof(conf->systemlog_location));
 
-            vrmr_sanitize_path(debuglvl, conf->systemlog_location,
+            vrmr_sanitize_path(conf->systemlog_location,
                     StrLen(conf->systemlog_location));
 
             vrmr_audit("'systemlog location' %s '%s'.",
@@ -2035,7 +2035,7 @@ edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
                 {
                     (void)snprintf(limit_string, sizeof(limit_string), "%u",
                             conf->nfgrp);
-                    set_field_buffer_wrap(debuglvl, LogConfig.nfgrpfld, 0, limit_string);
+                    set_field_buffer_wrap(LogConfig.nfgrpfld, 0, limit_string);
                 }
             }
             else
@@ -2074,7 +2074,7 @@ edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
                 {
                     (void)snprintf(limit_string, sizeof(limit_string), "%u",
                             conf->log_policy_limit);
-                    set_field_buffer_wrap(debuglvl, LogConfig.logpolicylimitfld, 0, limit_string);
+                    set_field_buffer_wrap(LogConfig.logpolicylimitfld, 0, limit_string);
                 }
             }
             else
@@ -2160,7 +2160,7 @@ edit_logconfig_save(const int debuglvl, struct vrmr_config *conf)
 }
 
 int
-edit_logconfig(const int debuglvl, struct vrmr_config *conf)
+edit_logconfig(struct vrmr_config *conf)
 {
     int     ch,
             retval = 0,
@@ -2182,7 +2182,7 @@ edit_logconfig(const int debuglvl, struct vrmr_config *conf)
     startx = (max_width - width)/2;
     starty = (max_height - height)/2;
     // setup
-    edit_logconfig_init(debuglvl, conf, height, width, starty, startx);
+    edit_logconfig_init(conf, height, width, starty, startx);
     cur = current_field(ConfigSection.form);
     update_panels();
     doupdate();
@@ -2204,7 +2204,7 @@ edit_logconfig(const int debuglvl, struct vrmr_config *conf)
            cur == LogConfig.logpolicylimitfld ||
            cur == LogConfig.nfgrpfld)
         {
-            if(nav_field_simpletext(debuglvl, ConfigSection.form, ch) < 0)
+            if(nav_field_simpletext(ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == LogConfig.logpolicyfld ||
@@ -2216,7 +2216,7 @@ edit_logconfig(const int debuglvl, struct vrmr_config *conf)
             cur == LogConfig.logfragfld ||
             cur == LogConfig.rule_nflogfld)
         {
-            if(nav_field_toggleX(debuglvl, ConfigSection.form, ch) < 0)
+            if(nav_field_toggleX(ConfigSection.form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -2268,7 +2268,7 @@ edit_logconfig(const int debuglvl, struct vrmr_config *conf)
                 case 'H':
                 case '?':
 
-                    print_help(debuglvl, ":[VUURMUUR:CONFIG:LOGGING]:");
+                    print_help(":[VUURMUUR:CONFIG:LOGGING]:");
                     break;
 
                 default:
@@ -2283,10 +2283,10 @@ edit_logconfig(const int debuglvl, struct vrmr_config *conf)
     }
 
     /* write configfile */
-    retval = edit_logconfig_save(debuglvl, conf);
+    retval = edit_logconfig_save(conf);
     if(retval == 0)
     {
-        if (vrmr_write_configfile(debuglvl, conf->configfile, conf) < 0)
+        if (vrmr_write_configfile(conf->configfile, conf) < 0)
         {
             vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
             retval = -1;
@@ -2306,7 +2306,7 @@ struct VrEditConntrackCnf_ {
 };
 
 static int
-VrEditConntrackSetup(const int debuglvl, struct VrEditConntrackCnf_ *c, struct vrmr_config *conf) {
+VrEditConntrackSetup(struct VrEditConntrackCnf_ *c, struct vrmr_config *conf) {
     vrmr_fatal_if_null(c);
 
     c->invalid_drop_enabled = conf->invalid_drop_enabled;
@@ -2315,7 +2315,7 @@ VrEditConntrackSetup(const int debuglvl, struct VrEditConntrackCnf_ *c, struct v
 }
 
 static int
-VrEditConntrackSave(const int debuglvl, void *ctx, char *name, char *value)
+VrEditConntrackSave(void *ctx, char *name, char *value)
 {
     struct VrEditConntrackCnf_ *c = (struct VrEditConntrackCnf_ *)ctx;
     int retval = 0;
@@ -2335,7 +2335,7 @@ VrEditConntrackSave(const int debuglvl, void *ctx, char *name, char *value)
             vrmr_audit("'drop INVALID packet flag' %s '%s'.",
                     STR_IS_NOW_SET_TO, c->conf->invalid_drop_enabled ? STR_YES : STR_NO);
 
-            if (vrmr_write_configfile(debuglvl, c->conf->configfile, c->conf) < 0)
+            if (vrmr_write_configfile(c->conf->configfile, c->conf) < 0)
             {
                 vrmr_error(-1, VR_ERR, gettext("writing configfile failed."));
                 retval=-1;
@@ -2346,26 +2346,26 @@ VrEditConntrackSave(const int debuglvl, void *ctx, char *name, char *value)
     return(retval);
 }
 
-static void VrEditConntrack(const int debuglvl, struct vrmr_config *conf) {
+static void VrEditConntrack(struct vrmr_config *conf) {
     VrWin   *win = NULL;
     VrForm  *form = NULL;
     int     ch = 0, result = 0;
     struct VrEditConntrackCnf_ config;
 
-    vrmr_fatal_if (VrEditConntrackSetup(debuglvl, &config, conf) < 0);
+    vrmr_fatal_if (VrEditConntrackSetup(&config, conf) < 0);
 
     /* create the window and put it in the middle of the screen */
     win = VrNewWin(11,51,0,0,vccnf.color_win);
     vrmr_fatal_if_null(win);
     VrWinSetTitle(win, gettext("Conntrack"));
     form = VrNewForm(9, 58, 1, 1, vccnf.color_win, vccnf.color_win_rev | A_BOLD);
-    VrFormSetSaveFunc(debuglvl, form, VrEditConntrackSave, &config);
+    VrFormSetSaveFunc(form, VrEditConntrackSave, &config);
 
-    VrFormAddLabelField(debuglvl,   form, 1, 35, 1, 1,  vccnf.color_win, gettext("Enable dropping INVALID packets"));
-    VrFormAddCheckboxField(debuglvl,form,        1, 38, vccnf.color_win, "S", config.invalid_drop_enabled);
+    VrFormAddLabelField(  form, 1, 35, 1, 1,  vccnf.color_win, gettext("Enable dropping INVALID packets"));
+    VrFormAddCheckboxField(form,        1, 38, vccnf.color_win, "S", config.invalid_drop_enabled);
 
-    VrFormConnectToWin(debuglvl, form, win);
-    VrFormPost(debuglvl, form);
+    VrFormConnectToWin(form, win);
+    VrFormPost(form);
     update_panels();
     doupdate();
 
@@ -2373,17 +2373,17 @@ static void VrEditConntrack(const int debuglvl, struct vrmr_config *conf) {
     char quit = FALSE;
     while(quit == FALSE)
     {
-        VrFormDrawMarker(debuglvl, win, form);
+        VrFormDrawMarker(win, form);
 
         ch = VrWinGetch(win);
 
         /* check OK/Cancel buttons */
-        result = VrFormCheckOKCancel(debuglvl, form, ch);
+        result = VrFormCheckOKCancel(form, ch);
         if (result == -1 || result == 1) {
             break;
         }
 
-        if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
+        if (VrFormDefaultNavigation(form, ch) == FALSE) {
             switch(ch)
             {
                 case KEY_DOWN:
@@ -2401,14 +2401,14 @@ static void VrEditConntrack(const int debuglvl, struct vrmr_config *conf) {
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:CONFIG:CONNTRACK]:");
+                    print_help(":[VUURMUUR:CONFIG:CONNTRACK]:");
                     break;
             }
         }
     }
 
-    VrFormUnPost(debuglvl, form);
-    VrDelForm(debuglvl, form);
+    VrFormUnPost(form);
+    VrDelForm(form);
     VrDelWin(win);
     update_panels();
     doupdate();
@@ -2488,7 +2488,7 @@ view_caps_init(int height, int width, int starty, int startx, struct vrmr_iptcap
 
 
 static int
-view_caps(const int debuglvl, struct vrmr_config *conf)
+view_caps(struct vrmr_config *conf)
 {
     int     ch,
             retval = 0,
@@ -2521,26 +2521,24 @@ view_caps(const int debuglvl, struct vrmr_config *conf)
     startx = (max_width  - width) /2;
     starty = (max_height - height)/2;
 
-    draw_top_menu(debuglvl, top_win, gettext("Capabilities"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Capabilities"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     /* load iptcaps */
-    result = vrmr_load_iptcaps(debuglvl, conf, &iptcap, 0);
+    result = vrmr_load_iptcaps(conf, &iptcap, 0);
     if(result == -1)
     {
         vrmr_error(-1, VR_ERR, gettext("checking capabilities failed."));
         return(-1);
     }
 
-    if (debuglvl >= LOW) {
-        vrmr_debug(__FUNC__, "iptcap.proc_net_names %d "
+    vrmr_debug(LOW, "iptcap.proc_net_names %d "
             "iptcap.proc_net_matches %d iptcap.proc_net_targets %d "
             "iptcap.table_filter %d iptcap.conntrack %d "
             "iptcap.match_tcp %d iptcap.match_udp %d iptcap.match_icmp %d "
-                    "iptcap.match_state %d", iptcap.proc_net_names,
+            "iptcap.match_state %d", iptcap.proc_net_names,
             iptcap.proc_net_matches, iptcap.proc_net_targets,
-                    iptcap.table_filter, iptcap.conntrack, iptcap.match_tcp,
+            iptcap.table_filter, iptcap.conntrack, iptcap.match_tcp,
             iptcap.match_udp, iptcap.match_icmp, iptcap.match_state);
-    }
 
     /* setup */
     view_caps_init(height, width, starty, startx, &iptcap);
@@ -2569,7 +2567,7 @@ view_caps(const int debuglvl, struct vrmr_config *conf)
                             gettext("Try to determine capabities? Warning: this may load iptables modules!"),
                             vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0))
                 {
-                    result = vrmr_load_iptcaps(debuglvl, conf, &iptcap, 1);
+                    result = vrmr_load_iptcaps(conf, &iptcap, 1);
                     if(result == -1)
                     {
                         vrmr_error(-1, VR_ERR, gettext("checking capabilities failed."));
@@ -2585,7 +2583,7 @@ view_caps(const int debuglvl, struct vrmr_config *conf)
             case 'H':
             case '?':
 
-                print_help(debuglvl, ":[VUURMUUR:CONFIG:CAPABILITIES]:");
+                print_help(":[VUURMUUR:CONFIG:CAPABILITIES]:");
                 break;
 
         }
@@ -2598,7 +2596,7 @@ view_caps(const int debuglvl, struct vrmr_config *conf)
     doupdate();
 
     if (reload == 1)
-        return(view_caps(debuglvl, conf));
+        return(view_caps(conf));
 
     return(retval);
 }
@@ -2680,7 +2678,7 @@ view_ip6_caps_init(int height, int width, int starty, int startx, struct vrmr_ip
 }
 
 static int
-view_ip6_caps(const int debuglvl, struct vrmr_config *conf)
+view_ip6_caps(struct vrmr_config *conf)
 {
     int     ch,
             retval = 0,
@@ -2712,19 +2710,18 @@ view_ip6_caps(const int debuglvl, struct vrmr_config *conf)
     startx = (max_width  - width) /2;
     starty = (max_height - height)/2;
 
-    draw_top_menu(debuglvl, top_win, gettext("IPv6 Capabilities"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("IPv6 Capabilities"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     /* load iptcaps */
     memset(&iptcap, 0, sizeof(iptcap));
-    result = vrmr_load_ip6tcaps(debuglvl, conf, &iptcap, 0);
+    result = vrmr_load_ip6tcaps(conf, &iptcap, 0);
     if(result == -1)
     {
         vrmr_error(-1, VR_ERR, gettext("checking capabilities failed."));
         return(-1);
     }
 
-    if (debuglvl >= LOW) {
-        vrmr_debug(__FUNC__, "iptcap.proc_net_ip6_names %d "
+    vrmr_debug(LOW, "iptcap.proc_net_ip6_names %d "
             "iptcap.proc_net_ip6_matches %d iptcap.proc_net_ip6_targets %d "
             "iptcap.table_ip6_filter %d iptcap.match_tcp6 %d "
             "iptcap.match_udp6 %d iptcap.match_icmp6 %d "
@@ -2732,7 +2729,6 @@ view_ip6_caps(const int debuglvl, struct vrmr_config *conf)
             iptcap.proc_net_ip6_matches, iptcap.proc_net_ip6_targets,
             iptcap.table_ip6_filter, iptcap.match_ip6_tcp, iptcap.match_ip6_udp,
             iptcap.match_icmp6, iptcap.match_ip6_mark );
-    }
 
     /* setup */
     view_ip6_caps_init(height, width, starty, startx, &iptcap);
@@ -2760,7 +2756,7 @@ view_ip6_caps(const int debuglvl, struct vrmr_config *conf)
                             gettext("Try to determine capabities? Warning: this may load iptables modules!"),
                             vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 0))
                 {
-                    result = vrmr_load_ip6tcaps(debuglvl, conf, &iptcap, 1);
+                    result = vrmr_load_ip6tcaps(conf, &iptcap, 1);
                     if(result == -1)
                     {
                         vrmr_error(-1, VR_ERR, gettext("checking capabilities failed."));
@@ -2776,7 +2772,7 @@ view_ip6_caps(const int debuglvl, struct vrmr_config *conf)
             case 'H':
             case '?':
 
-                print_help(debuglvl, ":[VUURMUUR:CONFIG:CAPABILITIES]:");
+                print_help(":[VUURMUUR:CONFIG:CAPABILITIES]:");
                 break;
 
         }
@@ -2789,14 +2785,14 @@ view_ip6_caps(const int debuglvl, struct vrmr_config *conf)
     doupdate();
 
     if (reload == 1)
-        return(view_ip6_caps(debuglvl, conf));
+        return(view_ip6_caps(conf));
 
     return(retval);
 }
 #endif
 
 int
-config_menu(const int debuglvl, struct vrmr_config *conf)
+config_menu(struct vrmr_config *conf)
 {
 #ifdef IPV6_ENABLED
     size_t  n_choices = 11;
@@ -2891,7 +2887,7 @@ config_menu(const int debuglvl, struct vrmr_config *conf)
     // welcome message
     mvwprintw(mainmenu_win, 3, 6, gettext("Select a section."));
 
-    draw_top_menu(debuglvl, top_win, gettext("Vuurmuur Config"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Vuurmuur Config"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     update_panels();
     doupdate();
@@ -2936,44 +2932,44 @@ config_menu(const int debuglvl, struct vrmr_config *conf)
 
             if(strcmp(choice_ptr, VROPT_GENERAL) == 0)
             {
-                edit_genconfig(debuglvl, conf);
+                edit_genconfig(conf);
             }
             else if(strcmp(choice_ptr, VROPT_CONNECTIONS) == 0)
             {
-                edit_conconfig(debuglvl, conf);
+                edit_conconfig(conf);
             }
             else if(strcmp(choice_ptr, VROPT_INTERFACES) == 0)
             {
-                edit_intconfig(debuglvl, conf);
+                edit_intconfig(conf);
             }
             else if(strcmp(choice_ptr, VROPT_SYSPROT) == 0)
             {
-                edit_sysopt(debuglvl, conf);
+                edit_sysopt(conf);
             }
             else if(strcmp(choice_ptr, VROPT_CONNTRACK) == 0)
             {
-                VrEditConntrack(debuglvl, conf);
+                VrEditConntrack(conf);
             }
             else if(strcmp(choice_ptr, VROPT_LOGGING) == 0)
             {
-                edit_logconfig(debuglvl, conf);
+                edit_logconfig(conf);
             }
             else if(strcmp(choice_ptr, VROPT_MODULES) == 0)
             {
-                edit_modconfig(debuglvl, conf);
+                edit_modconfig(conf);
             }
             else if(strcmp(choice_ptr, VROPT_PLUGINS) == 0)
             {
-                edit_plugconfig(debuglvl, conf);
+                edit_plugconfig(conf);
             }
             else if(strcmp(choice_ptr, VROPT_CAPS) == 0)
             {
-                view_caps(debuglvl, conf);
+                view_caps(conf);
             }
 #ifdef IPV6_ENABLED
             else if(strcmp(choice_ptr, VROPT_IP6_CAPS) == 0)
             {
-                view_ip6_caps(debuglvl, conf);
+                view_ip6_caps(conf);
             }
 #endif
             else if(strncmp(choice_ptr, gettext("Back"), StrLen(gettext("Back"))) == 0)

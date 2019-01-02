@@ -22,7 +22,7 @@
 
 
 char *
-VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
+VrShapeUnitMenu(char *unit, int y, int x, char bps) {
     VrWin           *win = NULL;
     VrMenu          *menu = NULL;
     int             ch = 0;
@@ -43,19 +43,19 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
     }
 
     VrMenuSetDescFreeFunc(menu, NULL);
-    VrMenuSetupNameList(debuglvl, menu);
-    //VrMenuSetupDescList(debuglvl, menu);
+    VrMenuSetupNameList(menu);
+    //VrMenuSetupDescList(menu);
 
     /* setup menu items */
-    VrMenuAddItem(debuglvl, menu, "kbit", NULL);
-    VrMenuAddItem(debuglvl, menu, "mbit", NULL);
+    VrMenuAddItem(menu, "kbit", NULL);
+    VrMenuAddItem(menu, "mbit", NULL);
     if (bps) {
-        VrMenuAddItem(debuglvl, menu, "kbps", NULL);
-        VrMenuAddItem(debuglvl, menu, "mbps", NULL);
+        VrMenuAddItem(menu, "kbps", NULL);
+        VrMenuAddItem(menu, "mbps", NULL);
     }
 
-    VrMenuConnectToWin(debuglvl, menu, win);
-    VrMenuPost(debuglvl, menu);
+    VrMenuConnectToWin(menu, win);
+    VrMenuPost(menu);
 
     update_panels();
     doupdate();
@@ -94,16 +94,16 @@ VrShapeUnitMenu(const int debuglvl, char *unit, int y, int x, char bps) {
             case 'h':
             case 'H':
             case '?':
-                //print_help(debuglvl, ctl->help_actions);
+                //print_help(ctl->help_actions);
                 break;
 
             default:
-                (void)VrMenuDefaultNavigation(debuglvl, menu, ch);
+                (void)VrMenuDefaultNavigation(menu, ch);
                 break;
         }
     }
 
-    VrDelMenu(debuglvl, menu);
+    VrDelMenu(menu);
     VrDelWin(win);
     update_panels();
     doupdate();
@@ -120,7 +120,7 @@ struct ShapeRuleCnf_ {
 };
 
 static void
-VrShapeRuleSetup(const int debuglvl, struct ShapeRuleCnf_ *c, struct vrmr_rule_options *opt) {
+VrShapeRuleSetup(struct ShapeRuleCnf_ *c, struct vrmr_rule_options *opt) {
     vrmr_fatal_if_null(c);
     vrmr_fatal_if_null(opt);
 
@@ -156,11 +156,11 @@ VrShapeRuleSetup(const int debuglvl, struct ShapeRuleCnf_ *c, struct vrmr_rule_o
 }
 
 static int
-VrShapeRuleSave(const int debuglvl, void *ctx, char *name, char *value)
+VrShapeRuleSave(void *ctx, char *name, char *value)
 {
     struct ShapeRuleCnf_ *c = (struct ShapeRuleCnf_ *)ctx;
 
-    vrmr_debug(__FUNC__, "%s:%s", name, value);
+    vrmr_debug(NONE, "%s:%s", name, value);
 
     if (strcmp(name,"in_min") == 0) {
         c->opt->bw_in_min = atoi(value);
@@ -185,13 +185,13 @@ VrShapeRuleSave(const int debuglvl, void *ctx, char *name, char *value)
     return(0);
 }
 
-void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
+void VrShapeRule(struct vrmr_rule_options *opt) {
     VrWin   *win = NULL;
     VrForm  *form = NULL;
     int     ch = 0, result = 0;
     struct ShapeRuleCnf_ config;
 
-    VrShapeRuleSetup(debuglvl, &config, opt);
+    VrShapeRuleSetup(&config, opt);
 
     /* create the window and put it in the middle of the screen */
     win = VrNewWin(16,51,0,0,vccnf.color_win);
@@ -202,27 +202,27 @@ void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
 
     form = VrNewForm(14, 58, 1, 1, vccnf.color_win, vccnf.color_win | A_BOLD);
 
-    VrFormSetSaveFunc(debuglvl, form, VrShapeRuleSave, &config);
+    VrFormSetSaveFunc(form, VrShapeRuleSave, &config);
 
-    VrFormAddLabelField(debuglvl, form, 1, 25, 1, 1,  vccnf.color_win, gettext("Incoming guaranteed rate"));
-    VrFormAddTextField(debuglvl, form,  1, 10, 1, 28, vccnf.color_win_rev | A_BOLD, "in_min", config.in_min);
-    VrFormAddTextField(debuglvl, form,  1,  5, 1, 41, vccnf.color_win_rev | A_BOLD, "unit1", config.in_min_unit);
-    VrFormAddLabelField(debuglvl, form, 1, 25, 3, 1,  vccnf.color_win, gettext("Incoming maximum rate"));
-    VrFormAddTextField(debuglvl, form,  1, 10, 3, 28, vccnf.color_win_rev | A_BOLD, "in_max", config.in_max);
-    VrFormAddTextField(debuglvl, form,  1,  5, 3, 41, vccnf.color_win_rev | A_BOLD, "unit2", config.in_max_unit);
+    VrFormAddLabelField(form, 1, 25, 1, 1,  vccnf.color_win, gettext("Incoming guaranteed rate"));
+    VrFormAddTextField(form,  1, 10, 1, 28, vccnf.color_win_rev | A_BOLD, "in_min", config.in_min);
+    VrFormAddTextField(form,  1,  5, 1, 41, vccnf.color_win_rev | A_BOLD, "unit1", config.in_min_unit);
+    VrFormAddLabelField(form, 1, 25, 3, 1,  vccnf.color_win, gettext("Incoming maximum rate"));
+    VrFormAddTextField(form,  1, 10, 3, 28, vccnf.color_win_rev | A_BOLD, "in_max", config.in_max);
+    VrFormAddTextField(form,  1,  5, 3, 41, vccnf.color_win_rev | A_BOLD, "unit2", config.in_max_unit);
 
-    VrFormAddLabelField(debuglvl, form, 1, 25, 5, 1,  vccnf.color_win, gettext("Outgoing guaranteed rate"));
-    VrFormAddTextField(debuglvl, form,  1, 10, 5, 28, vccnf.color_win_rev | A_BOLD, "out_min", config.out_min);
-    VrFormAddTextField(debuglvl, form,  1,  5, 5, 41, vccnf.color_win_rev | A_BOLD, "unit3", config.out_min_unit);
-    VrFormAddLabelField(debuglvl, form, 1, 25, 7, 1,  vccnf.color_win, gettext("Outgoing maximum rate"));
-    VrFormAddTextField(debuglvl, form,  1, 10, 7, 28, vccnf.color_win_rev | A_BOLD, "out_max", config.out_max);
-    VrFormAddTextField(debuglvl, form,  1,  5, 7, 41, vccnf.color_win_rev | A_BOLD, "unit4", config.out_max_unit);
+    VrFormAddLabelField(form, 1, 25, 5, 1,  vccnf.color_win, gettext("Outgoing guaranteed rate"));
+    VrFormAddTextField(form,  1, 10, 5, 28, vccnf.color_win_rev | A_BOLD, "out_min", config.out_min);
+    VrFormAddTextField(form,  1,  5, 5, 41, vccnf.color_win_rev | A_BOLD, "unit3", config.out_min_unit);
+    VrFormAddLabelField(form, 1, 25, 7, 1,  vccnf.color_win, gettext("Outgoing maximum rate"));
+    VrFormAddTextField(form,  1, 10, 7, 28, vccnf.color_win_rev | A_BOLD, "out_max", config.out_max);
+    VrFormAddTextField(form,  1,  5, 7, 41, vccnf.color_win_rev | A_BOLD, "unit4", config.out_max_unit);
 
-    VrFormAddLabelField(debuglvl, form, 1, 25, 9, 1,  vccnf.color_win, gettext("Priority"));
-    VrFormAddTextField(debuglvl, form,  1,  5, 9, 28, vccnf.color_win_rev | A_BOLD, "prio", config.prio);
+    VrFormAddLabelField(form, 1, 25, 9, 1,  vccnf.color_win, gettext("Priority"));
+    VrFormAddTextField(form,  1,  5, 9, 28, vccnf.color_win_rev | A_BOLD, "prio", config.prio);
 
-    VrFormConnectToWin(debuglvl, form, win);
-    VrFormPost(debuglvl, form);
+    VrFormConnectToWin(form, win);
+    VrFormPost(form);
     update_panels();
     doupdate();
 
@@ -230,12 +230,12 @@ void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
     char quit = FALSE;
     while(quit == FALSE)
     {
-        VrFormDrawMarker(debuglvl, win, form);
+        VrFormDrawMarker(win, form);
 
         ch = VrWinGetch(win);
 
         /* check OK/Cancel buttons */
-        result = VrFormCheckOKCancel(debuglvl, form, ch);
+        result = VrFormCheckOKCancel(form, ch);
         if (result == -1 || result == 1) {
             break;
         }
@@ -248,13 +248,13 @@ void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
             int h,w,i;
             field_info(form->cur, &i,&i,&h,&w,&i,&i);
 
-            char *u = VrShapeUnitMenu(debuglvl, field_buffer(form->cur, 0), h+2+win->y, w-1+win->x, /* draw bps */1);
-            vrmr_debug(__FUNC__, "u %s", u);
+            char *u = VrShapeUnitMenu(field_buffer(form->cur, 0), h+2+win->y, w-1+win->x, /* draw bps */1);
+            vrmr_debug(NONE, "u %s", u);
             if (u) {
-                set_field_buffer_wrap(debuglvl, form->cur, 0, u);
+                set_field_buffer_wrap(form->cur, 0, u);
                 free(u);
             }
-        } else if (VrFormDefaultNavigation(debuglvl, form, ch) == FALSE) {
+        } else if (VrFormDefaultNavigation(form, ch) == FALSE) {
             switch(ch)
             {
                 case KEY_DOWN:
@@ -272,14 +272,14 @@ void VrShapeRule(const int debuglvl, struct vrmr_rule_options *opt) {
                 case 'h':
                 case 'H':
                 case '?':
-                    print_help(debuglvl, ":[VUURMUUR:RULES:SHAPE]:");
+                    print_help(":[VUURMUUR:RULES:SHAPE]:");
                     break;
             }
         }
     }
 
-    VrFormUnPost(debuglvl, form);
-    VrDelForm(debuglvl, form);
+    VrFormUnPost(form);
+    VrDelForm(form);
     VrDelWin(win);
     update_panels();
     doupdate();
@@ -363,20 +363,20 @@ struct RuleBarForm_
 };
 
 
-static void SetupRuleBarForm(const int, struct RuleBarForm_ *, unsigned int, struct vrmr_rules *, int);
-static void move_rule(const int, struct vrmr_rules *, unsigned int, unsigned int);
-static int delete_rule(const int, struct vrmr_rules *, unsigned int, int);
+static void SetupRuleBarForm( struct RuleBarForm_ *, unsigned int, struct vrmr_rules *, int);
+static void move_rule( struct vrmr_rules *, unsigned int, unsigned int);
+static int delete_rule( struct vrmr_rules *, unsigned int, int);
 static bool rules_match_filter(const struct vrmr_rule *rule_ptr, /*@null@*/regex_t *reg,
         bool only_ingress, bool only_egress, bool only_forward);
-static void Toggle_RuleBar(const int debuglvl, struct rulebar *bar, struct vrmr_rules *rules);
-static void draw_rules(const int, struct vrmr_rules *, struct RuleBarForm_ *);
-static int Enter_RuleBar(const int, struct rulebar *, struct vrmr_config *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
-static int edit_rule_separator(const int, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *, unsigned int, struct vrmr_regex *);
-static void insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num, const char *action);
+static void Toggle_RuleBar(struct rulebar *bar, struct vrmr_rules *rules);
+static void draw_rules( struct vrmr_rules *, struct RuleBarForm_ *);
+static int Enter_RuleBar( struct rulebar *, struct vrmr_config *, struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_regex *);
+static int edit_rule_separator( struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *, unsigned int, struct vrmr_regex *);
+static void insert_new_rule(struct vrmr_rules *rules, unsigned int rule_num, const char *action);
 
 
 static void
-SetupRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, unsigned int max_bars_on_screen, struct vrmr_rules *rules, int screen_width)
+SetupRuleBarForm(struct RuleBarForm_ *rbform, unsigned int max_bars_on_screen, struct vrmr_rules *rules, int screen_width)
 {
     size_t  sum = 0,
             i = 0;
@@ -401,7 +401,7 @@ SetupRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, unsigned int m
     rbform->show_only_forward = 0;
 
     /* setup list */
-    vrmr_list_setup(debuglvl, &rbform->RuleBar_list, free);
+    vrmr_list_setup(&rbform->RuleBar_list, free);
 
     /* calculate field sizes */
     rbform->active_size    = MIN_ACTIVE;
@@ -436,14 +436,12 @@ SetupRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, unsigned int m
         }
     }
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "success.");
-
+    vrmr_debug(HIGH, "success.");
     return;
 }
 
 static void
-move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
+move_rule(struct vrmr_rules *rules, unsigned int rule_num,
         unsigned int new_place)
 {
     int i = 0;
@@ -460,22 +458,20 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
         new_place = 1;
     }
 
-    rule_ptr = vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1);
+    rule_ptr = vrmr_rules_remove_rule_from_list(rules, rule_num, 1);
     if (rule_ptr == NULL) {
         vrmr_fatal("vrmr_rules_remove_rule_from_list failed");
     }
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "rule_ptr found: i: %d (rule_ptr: %s %s %s %s)", i, vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service, rule_ptr->from, rule_ptr->to);
+    vrmr_debug(HIGH, "rule_ptr found: i: %d (rule_ptr: %s %s %s %s)", i, vrmr_rules_itoaction(rule_ptr->action), rule_ptr->service, rule_ptr->from, rule_ptr->to);
 
     rule_ptr->number = new_place;
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "new_place: %d, rule_ptr->number: %d", new_place, rule_ptr->number);
+    vrmr_debug(HIGH, "new_place: %d, rule_ptr->number: %d", new_place, rule_ptr->number);
 
-    vrmr_rules_insert_list(debuglvl, rules, new_place, rule_ptr);
+    vrmr_rules_insert_list(rules, new_place, rule_ptr);
 
-    if(debuglvl >= LOW)
+    if(vrmr_debug_level >= LOW)
         vrmr_rules_print_list(rules);
     return;
 }
@@ -485,7 +481,7 @@ move_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     display a screen TODO
 */
 static void
-MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, struct vrmr_rules *rules, unsigned int cur_rule)
+MoveRuleBarForm(struct RuleBarForm_ *rbform, struct vrmr_rules *rules, unsigned int cur_rule)
 {
     int     ch,
             quit=0;
@@ -524,8 +520,7 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, struct vrmr_rul
     mvwprintw(move_win, 2, 2, gettext("Enter the new rule number:"));
     mvwprintw(move_win, 4, 2, gettext("Cur: %d, Min: 1, Max: %d"), cur_rule, rules->list.len);
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "cur_rule: %d, rules->list.len: %d.", cur_rule, rules->list.len);
+    vrmr_debug(HIGH, "cur_rule: %d, rules->list.len: %d.", cur_rule, rules->list.len);
 
     update_panels();
     doupdate();
@@ -540,7 +535,7 @@ MoveRuleBarForm(const int debuglvl, struct RuleBarForm_ *rbform, struct vrmr_rul
             case 10: // enter
                 form_driver(form, REQ_VALIDATION);
 
-                move_rule(debuglvl, rules, cur_rule, (unsigned int)atoi(field_buffer(fields[0], 0)));
+                move_rule(rules, cur_rule, (unsigned int)atoi(field_buffer(fields[0], 0)));
 
                 quit = 1;
                 break;
@@ -719,7 +714,7 @@ HighlightRuleBar(struct rulebar *bar)
         -1: error
 */
 static int
-Enter_RuleBar(const int debuglvl, struct rulebar *bar, struct vrmr_config *conf, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_regex *reg)
+Enter_RuleBar(struct rulebar *bar, struct vrmr_config *conf, struct vrmr_rules *rules, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services, struct vrmr_regex *reg)
 {
     unsigned int        rule_num = 0;
     int                 result = 0,
@@ -731,20 +726,19 @@ Enter_RuleBar(const int debuglvl, struct rulebar *bar, struct vrmr_config *conf,
     vrmr_fatal_if_null(rules);
     vrmr_fatal_if_null(reg);
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "field_buffer = '%s'.", field_buffer(bar->num_field, 0));
+    vrmr_debug(HIGH, "field_buffer = '%s'.", field_buffer(bar->num_field, 0));
 
     rule_num = (unsigned int)atoi(field_buffer(bar->num_field, 0));
     if (rule_num <= 0) /* empty rule form */
         return 0;
 
-    result = edit_rule(debuglvl, conf, rules, zones, interfaces, services, rule_num, reg);
+    result = edit_rule(conf, rules, zones, interfaces, services, rule_num, reg);
     if(result < 0)
     {
         /* editting failed so remove the rule again */
-        rule_ptr = vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1);
+        rule_ptr = vrmr_rules_remove_rule_from_list(rules, rule_num, 1);
         vrmr_fatal_if_null(rule_ptr);
-        vrmr_rules_free_options(debuglvl, rule_ptr->opt);
+        vrmr_rules_free_options(rule_ptr->opt);
         rule_ptr->opt = NULL;
         free(rule_ptr);
         rule_ptr = NULL;
@@ -760,7 +754,7 @@ Enter_RuleBar(const int debuglvl, struct rulebar *bar, struct vrmr_config *conf,
 }
 
 static void
-rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_rule *org_rule_ptr, struct vrmr_regex *reg)
+rules_duplicate_rule(struct vrmr_rules *rules, struct vrmr_rule *org_rule_ptr, struct vrmr_regex *reg)
 {
     char                *rule_str = NULL;
     struct vrmr_rule    *new_rule_ptr = NULL;
@@ -771,7 +765,7 @@ rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_r
     vrmr_fatal_if_null(reg);
 
     /* get the rulestring */
-    rule_str = vrmr_rules_assemble_rule(debuglvl, org_rule_ptr);
+    rule_str = vrmr_rules_assemble_rule(org_rule_ptr);
     vrmr_fatal_if_null(rule_str);
 
     /* claim memory for the new rule*/
@@ -779,7 +773,7 @@ rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_r
     vrmr_fatal_alloc("vrmr_rule_malloc", new_rule_ptr);
 
     /* parse the line */
-    vrmr_fatal_if(vrmr_rules_parse_line(debuglvl, rule_str, new_rule_ptr, reg) != 0);
+    vrmr_fatal_if(vrmr_rules_parse_line(rule_str, new_rule_ptr, reg) != 0);
 
     free(rule_str);
     rule_str = NULL;
@@ -788,7 +782,7 @@ rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_r
     new_rule_ptr->number = org_rule_ptr->number + 1;
 
     /* insert the new rule into the list */
-    vrmr_fatal_if(vrmr_rules_insert_list(debuglvl, rules, new_rule_ptr->number, new_rule_ptr));
+    vrmr_fatal_if(vrmr_rules_insert_list(rules, new_rule_ptr->number, new_rule_ptr));
 }
 
 
@@ -797,7 +791,7 @@ rules_duplicate_rule(const int debuglvl, struct vrmr_rules *rules, struct vrmr_r
     the new rule will get number orig_rule_num + 1
 */
 static void
-rulebar_copy_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int orig_rule_num, struct vrmr_regex *reg)
+rulebar_copy_rule(struct vrmr_rules *rules, unsigned int orig_rule_num, struct vrmr_regex *reg)
 {
     struct vrmr_rule    *rule_ptr = NULL;
     struct vrmr_list_node         *d_node = NULL;
@@ -816,22 +810,21 @@ rulebar_copy_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int ori
     }
     vrmr_fatal_if_null(rule_ptr);
 
-    rules_duplicate_rule(debuglvl, rules, rule_ptr, reg);
+    rules_duplicate_rule(rules, rule_ptr, reg);
 }
 
 
 /*
 */
 static void
-Toggle_RuleBar(const int debuglvl, struct rulebar *bar, struct vrmr_rules *rules)
+Toggle_RuleBar(struct rulebar *bar, struct vrmr_rules *rules)
 {
     int                 rule_num = 0;
     int                 i = 0;
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_rule *rule_ptr = NULL;
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "'%s'.", field_buffer(bar->num_field, 0));
+    vrmr_debug(HIGH, "'%s'.", field_buffer(bar->num_field, 0));
 
     rule_num = atoi(field_buffer(bar->num_field, 0));
     vrmr_fatal_if(rule_num <= 0);
@@ -850,10 +843,9 @@ Toggle_RuleBar(const int debuglvl, struct rulebar *bar, struct vrmr_rules *rules
         d_node = d_node->next;
     }
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "active: %s (%s %s %s %s)",
-                rule_ptr->active ? "Yes" : "No", vrmr_rules_itoaction(rule_ptr->action),
-                rule_ptr->service, rule_ptr->from, rule_ptr->to);
+    vrmr_debug(HIGH, "active: %s (%s %s %s %s)",
+            rule_ptr->active ? "Yes" : "No", vrmr_rules_itoaction(rule_ptr->action),
+            rule_ptr->service, rule_ptr->from, rule_ptr->to);
 
     /* set the active */
     if(rule_ptr->active == 1)
@@ -870,7 +862,7 @@ Toggle_RuleBar(const int debuglvl, struct rulebar *bar, struct vrmr_rules *rules
     Sets the rulebar to the position 'pos'.
 */
 static void
-Set_RuleBar(const int debuglvl, struct RuleBarForm_ *rbform, FORM *form,
+Set_RuleBar(struct RuleBarForm_ *rbform, FORM *form,
         unsigned int pos)
 {
     struct vrmr_list_node     *d_node = NULL;
@@ -885,21 +877,20 @@ Set_RuleBar(const int debuglvl, struct RuleBarForm_ *rbform, FORM *form,
 
         if(i == pos)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "field found");
+            vrmr_debug(HIGH, "field found");
 
             result = set_current_field(form, cur_bar->active);
 
-            if(debuglvl >= HIGH)
+            if (vrmr_debug_level >= HIGH)
             {
                 if(result == E_OK)
-                    vrmr_debug(__FUNC__, "field found: E_OK");
+                    vrmr_debug(NONE, "field found: E_OK");
                 else if(result == E_SYSTEM_ERROR)
-                    vrmr_debug(__FUNC__, "field found: E_SYSTEM_ERROR: %s", strerror(errno));
+                    vrmr_debug(NONE, "field found: E_SYSTEM_ERROR: %s", strerror(errno));
                 else if(result == E_BAD_ARGUMENT)
-                    vrmr_debug(__FUNC__, "field found: E_BAD_ARGUMENT");
+                    vrmr_debug(NONE, "field found: E_BAD_ARGUMENT");
                 else
-                    vrmr_debug(__FUNC__, "field found: unknown result %d", result);
+                    vrmr_debug(NONE, "field found: unknown result %d", result);
             }
         }
     }
@@ -907,8 +898,7 @@ Set_RuleBar(const int debuglvl, struct RuleBarForm_ *rbform, FORM *form,
 
 
 static void
-Insert_RuleBar( const int debuglvl,
-                struct RuleBarForm_ *rbform,
+Insert_RuleBar( struct RuleBarForm_ *rbform,
                 FIELD *active,
                 FIELD *num_field,
                 FIELD *action,
@@ -934,15 +924,14 @@ Insert_RuleBar( const int debuglvl,
     bar->separator = separator;
 
     /* insert the bar into the list */
-    if(!(vrmr_list_append(debuglvl, &rbform->RuleBar_list, bar))) {
+    if(!(vrmr_list_append(&rbform->RuleBar_list, bar))) {
         vrmr_fatal("vrmr_list_append");
     }
 
     rbform->bars++;
     bar->bar_num = rbform->bars;
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "success at %p (bars: %d, bar->num: %d).", bar, rbform->bars, bar->bar_num);
+    vrmr_debug(HIGH, "success at %p (bars: %d, bar->num: %d).", bar, rbform->bars, bar->bar_num);
     return;
 }
 
@@ -996,7 +985,7 @@ rules_match_filter(const struct vrmr_rule *rule_ptr, /*@null@*/regex_t *reg,
 
 
 static void
-draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
+draw_rules(struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
 {
     struct vrmr_rule    *rule_ptr = NULL;
     struct rulebar             *cur_bar = NULL;
@@ -1037,7 +1026,7 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
 
         /*  if the last item in the list is visible, we will hide
             the (more) panel below */
-        if(vrmr_list_node_is_bot(debuglvl, dl_node))
+        if(vrmr_list_node_is_bot(dl_node))
             bot_visible = TRUE;
 
         if(rule_ptr->action == VRMR_AT_SEPARATOR)
@@ -1079,7 +1068,7 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
                     strlcpy(from, rule_ptr->from, rbform->from_size);
                     strlcpy(to, rule_ptr->to, rbform->to_size);
 
-                    if(!(option_str = vrmr_rules_assemble_options_string(debuglvl, rule_ptr->opt, vrmr_rules_itoaction(rule_ptr->action))))
+                    if(!(option_str = vrmr_rules_assemble_options_string(rule_ptr->opt, vrmr_rules_itoaction(rule_ptr->action))))
                         strcpy(options, "-");
                     else
                     {
@@ -1093,12 +1082,12 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
                     }
 
                     /* set the bufers */
-                    set_field_buffer_wrap(debuglvl, cur_bar->active, 0, active);
-                    set_field_buffer_wrap(debuglvl, cur_bar->action, 0, action);
-                    set_field_buffer_wrap(debuglvl, cur_bar->service, 0, service);
-                    set_field_buffer_wrap(debuglvl, cur_bar->from, 0, from);
-                    set_field_buffer_wrap(debuglvl, cur_bar->to, 0, to);
-                    set_field_buffer_wrap(debuglvl, cur_bar->options, 0, options);
+                    set_field_buffer_wrap(cur_bar->active, 0, active);
+                    set_field_buffer_wrap(cur_bar->action, 0, action);
+                    set_field_buffer_wrap(cur_bar->service, 0, service);
+                    set_field_buffer_wrap(cur_bar->from, 0, from);
+                    set_field_buffer_wrap(cur_bar->to, 0, to);
+                    set_field_buffer_wrap(cur_bar->options, 0, options);
                 }
                 /* separator */
                 else
@@ -1138,11 +1127,11 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
                         /* convert back to multi byte */
                         wcstombs(separator_str, wstr, sizeof(separator_str));
 
-                        set_field_buffer_wrap(debuglvl, cur_bar->separator, 0, separator_str);
+                        set_field_buffer_wrap(cur_bar->separator, 0, separator_str);
                     }
                     else
                     {
-                        set_field_buffer_wrap(debuglvl, cur_bar->separator, 0, separator_str);
+                        set_field_buffer_wrap(cur_bar->separator, 0, separator_str);
                     }
 #else /* USE_WIDEC */
                     if(rule_ptr->opt != NULL && rule_ptr->opt->comment[0] != '\0')
@@ -1163,20 +1152,20 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
                         separator_str[i] = ' ';
                         separator_str[i+1] = ']';
 
-                        set_field_buffer_wrap(debuglvl, cur_bar->separator, 0, separator_str);
+                        set_field_buffer_wrap(cur_bar->separator, 0, separator_str);
                     }
                     else
                     {
-                        set_field_buffer_wrap(debuglvl, cur_bar->separator, 0, separator_str);
+                        set_field_buffer_wrap(cur_bar->separator, 0, separator_str);
                     }
 #endif /* USE_WIDEC */
                     /* clear */
                     memset(active, 0, rbform->active_size);
-                    set_field_buffer_wrap(debuglvl, cur_bar->active, 0, active);
+                    set_field_buffer_wrap(cur_bar->active, 0, active);
                 }
 
                 snprintf(number, rbform->num_field_size, "%2u", printable_lines + filtered_rules);
-                set_field_buffer_wrap(debuglvl, cur_bar->num_field, 0, number);
+                set_field_buffer_wrap(cur_bar->num_field, 0, number);
 
                 draw_count++;
 
@@ -1204,14 +1193,14 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
         vrmr_fatal_if_null(d_node->data);
         cur_bar = d_node->data;
 
-        set_field_buffer_wrap(debuglvl, cur_bar->active, 0, "");
-        set_field_buffer_wrap(debuglvl, cur_bar->num_field, 0, "");
-        set_field_buffer_wrap(debuglvl, cur_bar->action, 0, "");
-        set_field_buffer_wrap(debuglvl, cur_bar->service, 0, "");
-        set_field_buffer_wrap(debuglvl, cur_bar->from, 0, "");
-        set_field_buffer_wrap(debuglvl, cur_bar->to, 0, "");
-        set_field_buffer_wrap(debuglvl, cur_bar->options, 0, "");
-        set_field_buffer_wrap(debuglvl, cur_bar->separator, 0, "");
+        set_field_buffer_wrap(cur_bar->active, 0, "");
+        set_field_buffer_wrap(cur_bar->num_field, 0, "");
+        set_field_buffer_wrap(cur_bar->action, 0, "");
+        set_field_buffer_wrap(cur_bar->service, 0, "");
+        set_field_buffer_wrap(cur_bar->from, 0, "");
+        set_field_buffer_wrap(cur_bar->to, 0, "");
+        set_field_buffer_wrap(cur_bar->options, 0, "");
+        set_field_buffer_wrap(cur_bar->separator, 0, "");
 
         rulebar_setcolor(cur_bar->num_field, cur_bar->active, cur_bar->action,
                 cur_bar->service, cur_bar->from, cur_bar->to, cur_bar->options,
@@ -1232,7 +1221,7 @@ draw_rules(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rb
 
 
 static void
-rules_update_filter(const int debuglvl, struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
+rules_update_filter(struct vrmr_rules *rules, struct RuleBarForm_ *rbform)
 {
     struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
@@ -1293,7 +1282,7 @@ rules_update_filter(const int debuglvl, struct vrmr_rules *rules, struct RuleBar
         -1: error
 */
 int
-rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
+rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services, struct vrmr_regex *reg)
 {
@@ -1386,7 +1375,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     vrmr_fatal_alloc("malloc", rbform);
 
     /* now set it up */
-    SetupRuleBarForm(debuglvl, rbform, bars, rules, width-4);
+    SetupRuleBarForm(rbform, bars, rules, width-4);
 
     /* create the (more) win+pan */
     rbform->more_win = newwin(1, 6, starty + height - 1, 2);
@@ -1462,7 +1451,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         }
 
         /* create & insert bar */
-        Insert_RuleBar(debuglvl, rbform, fields[field_bar_num-x+1], /* active */
+        Insert_RuleBar(rbform, fields[field_bar_num-x+1], /* active */
                             fields[field_bar_num-x+1+1], /* num */
                             fields[field_bar_num-x+2+1], /* action */
                             fields[field_bar_num-x+3+1], /* service */
@@ -1509,7 +1498,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     /* horizontal bar below the labels */
     mvwhline(rules_win,  2, 1, ACS_HLINE, width-2);
 
-    draw_top_menu(debuglvl, top_win, gettext("Rules"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Rules"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     update_panels();
     doupdate();
@@ -1522,25 +1511,19 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
         if(update_filter == 1)
         {
             /* count the number of lines that are filtered */
-            (void)rules_update_filter(debuglvl, rules, rbform);
-
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "filtered_rules: %d", rbform->filtered_rules);
-
+            (void)rules_update_filter(rules, rbform);
+            vrmr_debug(HIGH, "filtered_rules: %d", rbform->filtered_rules);
             update_filter = 0;
         }
 
         /* calculate the number of printable rules */
         rbform->printable_rules = rules->list.len - rbform->filtered_rules;
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "printable_rules: %d (current_bar_num: %d)", rbform->printable_rules, current_bar_num);
+        vrmr_debug(HIGH, "printable_rules: %d (current_bar_num: %d)", rbform->printable_rules, current_bar_num);
 
         /* get current bar num */
         cur_bar = CurrentBar(rbform, form);
         current_bar_num = cur_bar->bar_num;
-
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "current_bar_num: %d", current_bar_num);
+        vrmr_debug(HIGH, "current_bar_num: %d", current_bar_num);
 
         /* if we filter, position the bar at the top of the list if needed */
         if( rbform->use_filter ||
@@ -1548,15 +1531,13 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             rbform->show_only_input ||
             rbform->show_only_output)
         {
-            if(debuglvl >= HIGH)
-                vrmr_debug(__FUNC__, "see if the bar fits the number of rules");
+            vrmr_debug(HIGH, "see if the bar fits the number of rules");
 
             if(current_bar_num > rbform->printable_rules)
             {
-                if(debuglvl >= HIGH)
-                    vrmr_debug(__FUNC__, "no, adjusting");
+                vrmr_debug(HIGH, "no, adjusting");
 
-                Set_RuleBar(debuglvl, rbform, form, rbform->printable_rules);
+                Set_RuleBar(rbform, form, rbform->printable_rules);
                 rbform->scroll_offset = 0;
 
                 /* we changed the position of the bar */
@@ -1569,15 +1550,14 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
             this will also hide or show the (more) panel
         */
-        draw_rules(debuglvl, rules, rbform);
+        draw_rules(rules, rbform);
 
         /* highlight the current bar */
         HighlightRuleBar(cur_bar);
 
         /* get user input */
         ch = wgetch(rules_win);
-        if(debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "user pressed (ch): %d", ch);
+        vrmr_debug(HIGH, "user pressed (ch): %d", ch);
 
         /* now handle it */
         switch(ch)
@@ -1586,19 +1566,15 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             case 360: /* end */
                 if(rbform->printable_rules > rbform->max_bars_on_screen)
                 {
-                    if(debuglvl >= HIGH)
-                        vrmr_debug(__FUNC__, "360 (end): rbform->printable_rules > rbform->max_bars_on_screen (%d > %d).", rbform->printable_rules, rbform->max_bars_on_screen);
-
+                    vrmr_debug(HIGH, "360 (end): rbform->printable_rules > rbform->max_bars_on_screen (%d > %d).", rbform->printable_rules, rbform->max_bars_on_screen);
                     rbform->scroll_offset = rbform->printable_rules - rbform->max_bars_on_screen;
-                    Set_RuleBar(debuglvl, rbform, form, rbform->max_bars_on_screen);
+                    Set_RuleBar(rbform, form, rbform->max_bars_on_screen);
                 }
                 else
                 {
-                    if(debuglvl >= HIGH)
-                        vrmr_debug(__FUNC__, "360 (end): rbform->printable_rules <= rbform->max_bars_on_screen (%d <= %d).", rbform->printable_rules, rbform->max_bars_on_screen);
-
+                    vrmr_debug(HIGH, "360 (end): rbform->printable_rules <= rbform->max_bars_on_screen (%d <= %d).", rbform->printable_rules, rbform->max_bars_on_screen);
                     rbform->scroll_offset = 0;
-                    Set_RuleBar(debuglvl, rbform, form, rbform->printable_rules);
+                    Set_RuleBar(rbform, form, rbform->printable_rules);
                 }
                 break;
 
@@ -1606,7 +1582,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             case 262: /* home key */
                 rbform->scroll_offset = 0;
 
-                Set_RuleBar(debuglvl, rbform, form, 1);
+                Set_RuleBar(rbform, form, 1);
                 break;
 
             /* half a page up */
@@ -1633,8 +1609,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
                 for(i=0; i < (rbform->max_bars_on_screen); i++)
                 {
-                    if(debuglvl >= HIGH)
-                        vrmr_debug(__FUNC__, "338 (pgdn): current_bar_num : %d, rbform->max_bars_on_screen: %d, rbform->printable_rules: %d, rbform->scroll_offset: %d, atoi(field_buffer(cur_bar->num_field,0)): %d, pgdn_offset: %d.", current_bar_num, rbform->max_bars_on_screen, rbform->printable_rules, rbform->scroll_offset, atoi(field_buffer(cur_bar->num_field,0)), pgdn_offset);
+                    vrmr_debug(HIGH, "338 (pgdn): current_bar_num : %d, rbform->max_bars_on_screen: %d, rbform->printable_rules: %d, rbform->scroll_offset: %d, atoi(field_buffer(cur_bar->num_field,0)): %d, pgdn_offset: %d.", current_bar_num, rbform->max_bars_on_screen, rbform->printable_rules, rbform->scroll_offset, atoi(field_buffer(cur_bar->num_field,0)), pgdn_offset);
 
                     /* make sure we dont move to the next field if we:
                         1. scroll
@@ -1643,11 +1618,8 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                     if( current_bar_num < rbform->max_bars_on_screen &&
                         ((unsigned int)atoi(field_buffer(cur_bar->num_field,0)) + pgdn_offset) < rbform->printable_rules)
                     {
-                        if(debuglvl >= HIGH)
-                        {
-                            vrmr_debug(__FUNC__, "338 (pgdn): current_bar_num < rbform->max_bars_on_screen (%d < %d).", current_bar_num, rbform->max_bars_on_screen);
-                            vrmr_debug(__FUNC__, "338 (pgdn): current_bar_num < printable_rules (%d < %d).", current_bar_num, rbform->printable_rules);
-                        }
+                        vrmr_debug(HIGH, "338 (pgdn): current_bar_num < rbform->max_bars_on_screen (%d < %d).", current_bar_num, rbform->max_bars_on_screen);
+                        vrmr_debug(HIGH, "338 (pgdn): current_bar_num < printable_rules (%d < %d).", current_bar_num, rbform->printable_rules);
 
                         form_driver(form, REQ_NEXT_FIELD);
                         current_bar_num++;
@@ -1657,16 +1629,12 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                     else if(current_bar_num == rbform->printable_rules || current_bar_num + rbform->scroll_offset == rbform->printable_rules)
                     {
                         // just do'in nothin'
-                        if(debuglvl >= HIGH)
-                        {
-                            vrmr_debug(__FUNC__, "338 (pgdn): current_bar_num == rbform->printable_rules (%d == %d), OR", current_bar_num, rbform->printable_rules);
-                            vrmr_debug(__FUNC__, "338 (pgdn): atoi(field_buffer(cur_bar->num_field,0)) + pgdn_offset == rbform->printable_rules (%d + %d == %d).", atoi(field_buffer(cur_bar->num_field,0)), pgdn_offset, rbform->printable_rules);
-                        }
+                        vrmr_debug(HIGH, "338 (pgdn): current_bar_num == rbform->printable_rules (%d == %d), OR", current_bar_num, rbform->printable_rules);
+                        vrmr_debug(HIGH, "338 (pgdn): atoi(field_buffer(cur_bar->num_field,0)) + pgdn_offset == rbform->printable_rules (%d + %d == %d).", atoi(field_buffer(cur_bar->num_field,0)), pgdn_offset, rbform->printable_rules);
                     }
                     else
                     {
-                        if(debuglvl >= HIGH)
-                            vrmr_debug(__FUNC__, "338 (pgdn): rbform->scroll_offset: %d.", rbform->scroll_offset);
+                        vrmr_debug(HIGH, "338 (pgdn): rbform->scroll_offset: %d.", rbform->scroll_offset);
 
                         rbform->scroll_offset++;
                     }
@@ -1695,11 +1663,8 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 */
                 if(current_bar_num < rbform->max_bars_on_screen && current_bar_num < rbform->printable_rules)
                 {
-                    if(debuglvl >= HIGH)
-                    {
-                        vrmr_debug(__FUNC__, "KEY_DOWN: current_bar_num < rbform->max_bars_on_screen (%d < %d).", current_bar_num, rbform->max_bars_on_screen);
-                        vrmr_debug(__FUNC__, "KEY_DOWN: current_bar_num < printable_rules (%d < %d).", current_bar_num, rbform->printable_rules);
-                    }
+                    vrmr_debug(HIGH, "KEY_DOWN: current_bar_num < rbform->max_bars_on_screen (%d < %d).", current_bar_num, rbform->max_bars_on_screen);
+                    vrmr_debug(HIGH, "KEY_DOWN: current_bar_num < printable_rules (%d < %d).", current_bar_num, rbform->printable_rules);
 
                     form_driver(form, REQ_NEXT_FIELD);
                 }
@@ -1707,19 +1672,13 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                     (unsigned int)atoi(field_buffer(cur_bar->num_field,0)) == rbform->printable_rules)
                 {
                     /* do nothing, just sit here */
-                    if(debuglvl >= HIGH)
-                    {
-                        vrmr_debug(__FUNC__, "KEY_DOWN: current_bar_num == printable_rules (%d == %d), OR", current_bar_num, rbform->printable_rules);
-                        vrmr_debug(__FUNC__, "KEY_DOWN: atoi(field_buffer(cur_bar->num_field,0)) == rbform->printable_rules (%d == %d)", atoi(field_buffer(cur_bar->num_field,0)), rbform->printable_rules);
-                    }
+                    vrmr_debug(HIGH, "KEY_DOWN: current_bar_num == printable_rules (%d == %d), OR", current_bar_num, rbform->printable_rules);
+                    vrmr_debug(HIGH, "KEY_DOWN: atoi(field_buffer(cur_bar->num_field,0)) == rbform->printable_rules (%d == %d)", atoi(field_buffer(cur_bar->num_field,0)), rbform->printable_rules);
                 }
                 else
                 {
-                    if(debuglvl >= HIGH)
-                    {
-                        vrmr_debug(__FUNC__, "KEY_DOWN: current_bar_num >= rbform->max_bars_on_screen (%d >= %d).", current_bar_num, rbform->max_bars_on_screen);
-                        vrmr_debug(__FUNC__, "KEY_DOWN: current_bar_num >= printable_rules (%d >= %d).", current_bar_num, rbform->printable_rules);
-                    }
+                    vrmr_debug(HIGH, "KEY_DOWN: current_bar_num >= rbform->max_bars_on_screen (%d >= %d).", current_bar_num, rbform->max_bars_on_screen);
+                    vrmr_debug(HIGH, "KEY_DOWN: current_bar_num >= printable_rules (%d >= %d).", current_bar_num, rbform->printable_rules);
 
                     rbform->scroll_offset++;
                 }
@@ -1732,7 +1691,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 cur_rule_num = (unsigned int)atoi(field_buffer(cur_bar->num_field, 0));
                 if(cur_rule_num > 0)
                 {
-                    Toggle_RuleBar(debuglvl, cur_bar, rules);
+                    Toggle_RuleBar(cur_bar, rules);
                     rules_changed = 1;
                 }
                 break;
@@ -1743,7 +1702,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             case 'e':
             case 'E':
 
-                result = Enter_RuleBar(debuglvl, cur_bar, &vctx->conf, rules, zones, interfaces, services, reg);
+                result = Enter_RuleBar(cur_bar, &vctx->conf, rules, zones, interfaces, services, reg);
                 if(result == 1)
                 {
                     rules_changed = 1;
@@ -1761,19 +1720,17 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         the last rule, otherwise we can scroll of the screen */
                     if(current_bar_num > rbform->printable_rules - 1)
                     {
-                        if(debuglvl >= HIGH)
-                            vrmr_debug(__FUNC__, "edit: current_bar_num > printable_rules - 1 (%d > %d).", current_bar_num, rbform->printable_rules - 1);
+                        vrmr_debug(HIGH, "edit: current_bar_num > printable_rules - 1 (%d > %d).", current_bar_num, rbform->printable_rules - 1);
 
                         form_driver(form, REQ_PREV_FIELD);
                     }
                     else
                     {
-                        if(debuglvl >= HIGH)
-                            vrmr_debug(__FUNC__, "edit: current_bar_num <= printable_rules - 1 (%d <= %d).", current_bar_num, rbform->printable_rules - 1);
+                        vrmr_debug(HIGH, "edit: current_bar_num <= printable_rules - 1 (%d <= %d).", current_bar_num, rbform->printable_rules - 1);
                     }
                 }
 
-                draw_top_menu(debuglvl, top_win, gettext("Rules"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                draw_top_menu(top_win, gettext("Rules"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                 break;
 
             case KEY_DC: /* delete key */
@@ -1784,7 +1741,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 cur_rule_num = (unsigned int)atoi(field_buffer(cur_bar->num_field, 0));
                 if(cur_rule_num > 0)
                 {
-                    result = delete_rule(debuglvl, rules, cur_rule_num, 1);
+                    result = delete_rule(rules, cur_rule_num, 1);
                     if (result == 0) {
                         status_print(status_win, gettext("Delete rule cancelled."));
                     } else {
@@ -1796,34 +1753,24 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                         /* decrease the scroll_offset so we don't scroll of the list */
                         if(rbform->scroll_offset > 0)
                         {
-                            if(debuglvl >= HIGH)
-                            {
-                                vrmr_debug(__FUNC__, "KEY_DC: scroll_offset > 0 (%d) decreasing.", rbform->scroll_offset);
-                            }
+                            vrmr_debug(HIGH, "KEY_DC: scroll_offset > 0 (%d) decreasing.", rbform->scroll_offset);
                             rbform->scroll_offset--;
                         }
                         else
                         {
-                            if(debuglvl >= HIGH)
-                            {
-                                vrmr_debug(__FUNC__, "KEY_DC: scroll_offset <= 0 (%d) doing nothing.", rbform->scroll_offset);
-                            }
+                            vrmr_debug(HIGH, "KEY_DC: scroll_offset <= 0 (%d) doing nothing.", rbform->scroll_offset);
                         }
 
                         /*  if we remove the last rule in a none scrolling list make sure the bar is set to
                             the last rule */
                         if(current_bar_num > rbform->printable_rules - 1)
                         {
-                            if(debuglvl >= HIGH)
-                            {
-                                vrmr_debug(__FUNC__, "KEY_DC: current_bar_num > printable_rules - 1 (%d > %d).", current_bar_num, rbform->printable_rules - 1);
-                            }
+                            vrmr_debug(HIGH, "KEY_DC: current_bar_num > printable_rules - 1 (%d > %d).", current_bar_num, rbform->printable_rules - 1);
                             form_driver(form, REQ_PREV_FIELD);
                         }
                         else
                         {
-                            if(debuglvl >= HIGH)
-                                vrmr_debug(__FUNC__, "KEY_DC: current_bar_num <= printable_rules - 1 (%d <= %d).", current_bar_num, rbform->printable_rules - 1);
+                            vrmr_debug(HIGH, "KEY_DC: current_bar_num <= printable_rules - 1 (%d <= %d).", current_bar_num, rbform->printable_rules - 1);
                         }
                     }
                 }
@@ -1839,7 +1786,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 if(insert_rule_num == 0)
                     insert_rule_num = 1;
 
-                insert_new_rule(debuglvl, rules, insert_rule_num, "Separator");
+                insert_new_rule(rules, insert_rule_num, "Separator");
 
                 rules_changed = 1;
                 update_filter = 1;
@@ -1856,15 +1803,15 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 if (insert_rule_num == 0)
                     insert_rule_num = 1;
 
-                insert_new_rule(debuglvl, rules, insert_rule_num, "Drop");
+                insert_new_rule(rules, insert_rule_num, "Drop");
 
                 /* now edit the rule */
-                if(edit_rule(debuglvl, &vctx->conf, rules, zones, interfaces, services, insert_rule_num, reg) < 0)
+                if(edit_rule(&vctx->conf, rules, zones, interfaces, services, insert_rule_num, reg) < 0)
                 {
                     /* editting failed so remove the rule again */
-                    rule_ptr = vrmr_rules_remove_rule_from_list(debuglvl, rules, insert_rule_num, 1);
+                    rule_ptr = vrmr_rules_remove_rule_from_list(rules, insert_rule_num, 1);
                     vrmr_fatal_if_null(rule_ptr);
-                    vrmr_rules_free_options(debuglvl, rule_ptr->opt);
+                    vrmr_rules_free_options(rule_ptr->opt);
                     rule_ptr->opt = NULL;
                     free(rule_ptr);
                     rule_ptr = NULL;
@@ -1876,7 +1823,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                     update_filter = 1;
                 }
 
-                draw_top_menu(debuglvl, top_win, gettext("Rules"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+                draw_top_menu(top_win, gettext("Rules"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
                 break;
 
             /* copy (duplicate) rule */
@@ -1886,7 +1833,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 cur_rule_num = (unsigned int)atoi(field_buffer(cur_bar->num_field, 0));
                 if(cur_rule_num > 0)
                 {
-                    rulebar_copy_rule(debuglvl, rules, cur_rule_num, reg);
+                    rulebar_copy_rule(rules, cur_rule_num, reg);
                     rules_changed = 1;
                     update_filter = 1;
                 }
@@ -1900,7 +1847,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 cur_rule_num = (unsigned int)atoi(field_buffer(cur_bar->num_field, 0));
                 if(cur_rule_num > 0)
                 {
-                    MoveRuleBarForm(debuglvl, rbform, rules, cur_rule_num);
+                    MoveRuleBarForm(rbform, rules, cur_rule_num);
 
                     rules_changed = 1;
                     update_filter = 1;
@@ -1915,7 +1862,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 cur_rule_num = (unsigned int)atoi(field_buffer(cur_bar->num_field, 0));
                 if(cur_rule_num > 1)
                 {
-                    move_rule(debuglvl, rules, cur_rule_num, cur_rule_num - 1);
+                    move_rule(rules, cur_rule_num, cur_rule_num - 1);
 
                     if(current_bar_num > 1) {
                         form_driver(form, REQ_PREV_FIELD);
@@ -1939,7 +1886,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 cur_rule_num = (unsigned int)atoi(field_buffer(cur_bar->num_field, 0));
                 if(cur_rule_num < rules->list.len)
                 {
-                    move_rule(debuglvl, rules, cur_rule_num, cur_rule_num + 1);
+                    move_rule(rules, cur_rule_num, cur_rule_num + 1);
                     /* make sure we dont move to the next field if we:
                        1. scroll
                        2. are at the end of a list that is shorter than the number of bars on screen
@@ -2086,7 +2033,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             case 'H':
             case '?':
 
-                print_help(debuglvl, ":[VUURMUUR:RULES]:");
+                print_help(":[VUURMUUR:RULES]:");
                 break;
         }
     }
@@ -2094,7 +2041,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     /* if the rules are changed, save the changes. */
     if(rules_changed)
     {
-        vrmr_fatal_if(vrmr_rules_save_list(debuglvl, vctx, rules, &vctx->conf) < 0);
+        vrmr_fatal_if(vrmr_rules_save_list(vctx, rules, &vctx->conf) < 0);
 
         /* audit log */
         vrmr_audit("%s: %s: %d (%s).",
@@ -2116,7 +2063,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             }
             else
             {
-                str = vrmr_rules_assemble_rule(debuglvl, rule_ptr);
+                str = vrmr_rules_assemble_rule(rule_ptr);
                 if(str[StrMemLen(str)-1] == '\n')
                     str[StrMemLen(str)-1] = '\0';
                 vrmr_audit("%2d: %s", i, str);
@@ -2128,7 +2075,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
     del_panel(rbform->more_pan[0]);
     destroy_win(rbform->more_win);
 
-    vrmr_list_cleanup(debuglvl, &rbform->RuleBar_list);
+    vrmr_list_cleanup(&rbform->RuleBar_list);
     free(rbform);
 
     unpost_form(form);
@@ -2146,7 +2093,7 @@ rules_form(const int debuglvl, struct vrmr_ctx *vctx, struct vrmr_rules *rules,
 
 
 static int
-delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
+delete_rule(struct vrmr_rules *rules, unsigned int rule_num,
         int call_confirm)
 {
     int                 remove_rule=0;
@@ -2172,10 +2119,10 @@ delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
     if(remove_rule == 1)
     {
         /* editting failed so remove the rule again */
-        rule_ptr = vrmr_rules_remove_rule_from_list(debuglvl, rules, rule_num, 1);
+        rule_ptr = vrmr_rules_remove_rule_from_list(rules, rule_num, 1);
         vrmr_fatal_if_null(rule_ptr);
 
-        vrmr_rules_free_options(debuglvl, rule_ptr->opt);
+        vrmr_rules_free_options(rule_ptr->opt);
         rule_ptr->opt = NULL;
         free(rule_ptr);
         rule_ptr = NULL;
@@ -2183,14 +2130,14 @@ delete_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
         retval = 1;
     }
 
-    if(debuglvl >= LOW)
+    if(vrmr_debug_level >= LOW)
         vrmr_rules_print_list(rules);
 
     return(retval);
 }
 
 static void
-insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_num,
+insert_new_rule(struct vrmr_rules *rules, unsigned int rule_num,
             const char *action)
 {
     struct vrmr_rule *rule_ptr = NULL;
@@ -2198,8 +2145,7 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
     /* safety */
     vrmr_fatal_if_null(rules);
 
-    if (debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "rule_num: %d", rule_num);
+    vrmr_debug(LOW, "rule_num: %d", rule_num);
 
     /* inserting into an empty rules list */
     if (rule_num == 0)
@@ -2219,7 +2165,7 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
 
     /* only setup the options if we are going to change one or more */
     if (vccnf.newrule_log || vccnf.newrule_loglimit) {
-        rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+        rule_ptr->opt = vrmr_rule_option_malloc();
         vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
 
         /* default log and limit the log */
@@ -2233,17 +2179,16 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
         /* insert at 1 of course */
         rule_ptr->number = 1;
 
-        if (debuglvl >= HIGH)
-            vrmr_debug(__FUNC__, "rule_num: %d, rule_ptr->number: %d", rule_num, rule_ptr->number);
+        vrmr_debug(HIGH, "rule_num: %d, rule_ptr->number: %d", rule_num, rule_ptr->number);
 
-        vrmr_fatal_if(vrmr_rules_insert_list(debuglvl, rules, rule_ptr->number, rule_ptr) < 0);
+        vrmr_fatal_if(vrmr_rules_insert_list(rules, rule_ptr->number, rule_ptr) < 0);
     }
     /* handle in a non-empty list */
     else {
-        vrmr_fatal_if(vrmr_rules_insert_list(debuglvl, rules, rule_num, rule_ptr) < 0);
+        vrmr_fatal_if(vrmr_rules_insert_list(rules, rule_num, rule_ptr) < 0);
     }
 
-    if(debuglvl >= LOW)
+    if (vrmr_debug_level >= LOW)
         vrmr_rules_print_list(rules);
 
     vrmr_info(VR_INFO, gettext("new rule inserted."));
@@ -2252,7 +2197,7 @@ insert_new_rule(const int debuglvl, struct vrmr_rules *rules, unsigned int rule_
 
 // returns 0: no change, or 1: change
 int
-edit_rule(const int debuglvl, struct vrmr_config *conf, struct vrmr_rules *rules, struct vrmr_zones *zones,
+edit_rule(struct vrmr_config *conf, struct vrmr_rules *rules, struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces, struct vrmr_services *services,
         unsigned int rule_num, struct vrmr_regex *reg)
 {
@@ -2264,8 +2209,7 @@ edit_rule(const int debuglvl, struct vrmr_config *conf, struct vrmr_rules *rules
     vrmr_fatal_if_null(reg);
     vrmr_fatal_if_null(interfaces);
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "called with rule_num = %d", rule_num);
+    vrmr_debug(HIGH, "called with rule_num = %d", rule_num);
 
     if(rule_num == 0)
         rule_num = 1;
@@ -2302,11 +2246,11 @@ edit_rule(const int debuglvl, struct vrmr_config *conf, struct vrmr_rules *rules
         }
         else if(rule_ptr->action == VRMR_AT_SEPARATOR)
         {
-            retval = edit_rule_separator(debuglvl, zones, interfaces, services, rule_ptr, rule_num, reg);
+            retval = edit_rule_separator(zones, interfaces, services, rule_ptr, rule_num, reg);
         }
         else
         {
-            retval = edit_rule_normal(debuglvl, conf, zones, interfaces, services, rule_ptr, rule_num, reg);
+            retval = edit_rule_normal(conf, zones, interfaces, services, rule_ptr, rule_num, reg);
         }
     }
     else
@@ -2315,9 +2259,7 @@ edit_rule(const int debuglvl, struct vrmr_config *conf, struct vrmr_rules *rules
         retval = -1;
     }
 
-    if(debuglvl >= HIGH)
-        vrmr_debug(__FUNC__, "returning retval = %d.", retval);
-
+    vrmr_debug(HIGH, "returning retval = %d.", retval);
     return(retval);
 }
 
@@ -2401,7 +2343,7 @@ struct RuleFlds_
         -1: error
 */
 static int
-edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, struct vrmr_rule *rule_ptr, struct vrmr_regex *reg)
+edit_rule_fields_to_rule(FIELD **fields, size_t n_fields, struct vrmr_rule *rule_ptr, struct vrmr_regex *reg)
 {
     int     z = 0,
             retval = 0;
@@ -2465,7 +2407,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 /* option rejecttype */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2484,7 +2426,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 /* option redirect port */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2506,7 +2448,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 /* option redirect port */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2520,13 +2462,13 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             else if(fields[i] == RuleFlds.listen_fld_ptr)
             {
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
                 /* first clear the list */
                 if(rule_ptr->opt->listenport == 1 && rule_ptr->opt->ListenportList.len > 0)
-                    vrmr_list_cleanup(debuglvl, &rule_ptr->opt->ListenportList);
+                    vrmr_list_cleanup(&rule_ptr->opt->ListenportList);
 
                 /* if the first char is a whitespace, we asume the field is empty */
                 if(field_buffer(fields[i], 0)[0] == ' ')
@@ -2536,7 +2478,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 else
                 {
                     /* add the ports to the list */
-                    if(vrmr_portopts_to_list(debuglvl, field_buffer(fields[i], 0), &rule_ptr->opt->ListenportList) < 0)
+                    if(vrmr_portopts_to_list(field_buffer(fields[i], 0), &rule_ptr->opt->ListenportList) < 0)
                         rule_ptr->opt->listenport = 0;
                     else
                     {
@@ -2552,13 +2494,13 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             else if(fields[i] == RuleFlds.remote_fld_ptr)
             {
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
                 /* first clear the list */
                 if(rule_ptr->opt->remoteport == 1 && rule_ptr->opt->RemoteportList.len > 0)
-                    vrmr_list_cleanup(debuglvl, &rule_ptr->opt->RemoteportList);
+                    vrmr_list_cleanup(&rule_ptr->opt->RemoteportList);
 
                 /* if the first char is a whitespace, we asume the field is empty */
                 if(field_buffer(fields[i], 0)[0] == ' ')
@@ -2568,7 +2510,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 else
                 {
                     /* add the ports to the list */
-                    if(vrmr_portopts_to_list(debuglvl, field_buffer(fields[i], 0), &rule_ptr->opt->RemoteportList) < 0)
+                    if(vrmr_portopts_to_list(field_buffer(fields[i], 0), &rule_ptr->opt->RemoteportList) < 0)
                         rule_ptr->opt->remoteport = 0;
                     else
                     {
@@ -2593,7 +2535,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
                 {
                     /* options */
                     if(rule_ptr->opt == NULL) {
-                        rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                        rule_ptr->opt = vrmr_rule_option_malloc();
                         vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                     }
 
@@ -2618,11 +2560,11 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             else if(fields[i] == RuleFlds.comment_fld_ptr)
             {
                 /* first check if the commentfield is valid */
-                if(validate_commentfield(debuglvl, field_buffer(fields[i], 0), reg->comment) == 0)
+                if(validate_commentfield(field_buffer(fields[i], 0), reg->comment) == 0)
                 {
                     /* options */
                     if(rule_ptr->opt == NULL) {
-                        rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                        rule_ptr->opt = vrmr_rule_option_malloc();
                         vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                     }
 
@@ -2653,7 +2595,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 /* option redirect port */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2675,7 +2617,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 /* log */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2692,7 +2634,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
                 /* if needed alloc the opt struct */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2710,7 +2652,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
                 /* if needed alloc the opt struct */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2728,7 +2670,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
 
                 /* if needed alloc the opt struct */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2743,7 +2685,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 /* option interface */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2756,7 +2698,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 /* option interface */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2769,7 +2711,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 /* option interface */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2782,7 +2724,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             {
                 /* option interface */
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2794,7 +2736,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             else if(fields[i] == RuleFlds.limit_fld_ptr)
             {
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2814,7 +2756,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             else if(fields[i] == RuleFlds.limit_unit_fld_ptr)
             {
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2826,7 +2768,7 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
             else if(fields[i] == RuleFlds.burst_fld_ptr)
             {
                 if(rule_ptr->opt == NULL) {
-                    rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                    rule_ptr->opt = vrmr_rule_option_malloc();
                     vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                 }
 
@@ -2846,15 +2788,13 @@ edit_rule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, st
         }
     }
 
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "returning retval = %d.", retval);
-
+    vrmr_debug(HIGH, "returning retval = %d.", retval);
     return(retval);
 }
 
 
 static int
-edit_rule_simple_check(const int debuglvl, struct vrmr_rule *rule_ptr)
+edit_rule_simple_check(struct vrmr_rule *rule_ptr)
 {
     if( rule_ptr->service[0] == '\0' ||
         rule_ptr->from[0] == '\0' ||
@@ -2868,7 +2808,7 @@ edit_rule_simple_check(const int debuglvl, struct vrmr_rule *rule_ptr)
 
 
 static int
-edit_rule_check_action_opts(const int debuglvl, struct vrmr_rule *rule_ptr)
+edit_rule_check_action_opts(struct vrmr_rule *rule_ptr)
 {
     if(rule_ptr->action == VRMR_AT_BOUNCE)
     {
@@ -2902,7 +2842,7 @@ edit_rule_check_action_opts(const int debuglvl, struct vrmr_rule *rule_ptr)
     TODO: split this beast up
 */
 int
-edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
+edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces,
             struct vrmr_services *services, struct vrmr_rule *rule_ptr,
             unsigned int rule_num, struct vrmr_regex *reg)
 {
@@ -3025,7 +2965,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* action label */
     RuleFlds.action_label_fld_ptr = (fields[field_num] = new_field(1, 8, 1, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.action_label_fld_ptr, 0, gettext("Action"));
+    set_field_buffer_wrap(RuleFlds.action_label_fld_ptr, 0, gettext("Action"));
     field_opts_off(RuleFlds.action_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.action_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.action_label_fld_ptr, vccnf.color_win);
@@ -3033,7 +2973,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* action */
     RuleFlds.action_fld_ptr = (fields[field_num] = new_field(1, 16, 1, 10, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.action_fld_ptr, 0, vrmr_rules_itoaction(rule_ptr->action));
+    set_field_buffer_wrap(RuleFlds.action_fld_ptr, 0, vrmr_rules_itoaction(rule_ptr->action));
     set_field_back(RuleFlds.action_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.action_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
@@ -3041,14 +2981,14 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* random */
     RuleFlds.random_label_fld_ptr = (fields[field_num] = new_field(1, 7, 3, 10, 0, 0));
     /* TRANSLATORS: max 7 chars */
-    set_field_buffer_wrap(debuglvl, RuleFlds.random_label_fld_ptr, 0, gettext("Random"));
+    set_field_buffer_wrap(RuleFlds.random_label_fld_ptr, 0, gettext("Random"));
     field_opts_off(RuleFlds.random_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.random_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.random_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     RuleFlds.random_brackets_fld_ptr = (fields[field_num] = new_field(1, 3, 3, 17, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.random_brackets_fld_ptr, 0, "[ ]");
+    set_field_buffer_wrap(RuleFlds.random_brackets_fld_ptr, 0, "[ ]");
     field_opts_off(RuleFlds.random_brackets_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.random_brackets_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.random_brackets_fld_ptr, vccnf.color_win);
@@ -3062,7 +3002,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* enable */
     if(rule_ptr->opt != NULL && rule_ptr->opt->random == 1)
-        set_field_buffer_wrap(debuglvl, RuleFlds.random_fld_ptr, 0, "X");
+        set_field_buffer_wrap(RuleFlds.random_fld_ptr, 0, "X");
 
     /* queue starts disabled */
     field_opts_off(RuleFlds.random_fld_ptr, O_VISIBLE);
@@ -3072,7 +3012,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* nfqueuenum label */
     RuleFlds.nfqueuenum_label_fld_ptr = (fields[field_num] = new_field(1, 18, 5, 10, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.nfqueuenum_label_fld_ptr, 0, gettext("Queue number"));
+    set_field_buffer_wrap(RuleFlds.nfqueuenum_label_fld_ptr, 0, gettext("Queue number"));
     field_opts_off(RuleFlds.nfqueuenum_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.nfqueuenum_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.nfqueuenum_label_fld_ptr, vccnf.color_win);
@@ -3088,7 +3028,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     if(rule_ptr->opt != NULL)
         snprintf(nfqueuenum_string, sizeof(nfqueuenum_string), "%u", rule_ptr->opt->nfqueue_num);
 
-    set_field_buffer_wrap(debuglvl, RuleFlds.nfqueuenum_fld_ptr, 0, nfqueuenum_string);
+    set_field_buffer_wrap(RuleFlds.nfqueuenum_fld_ptr, 0, nfqueuenum_string);
 
     /* start disabled  */
     field_opts_off(RuleFlds.nfqueuenum_fld_ptr, O_VISIBLE);
@@ -3097,7 +3037,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* nflognum label */
     RuleFlds.nflognum_label_fld_ptr = (fields[field_num] = new_field(1, 18, 5, 10, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.nflognum_label_fld_ptr, 0, gettext("NFLog number"));
+    set_field_buffer_wrap(RuleFlds.nflognum_label_fld_ptr, 0, gettext("NFLog number"));
     field_opts_off(RuleFlds.nflognum_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.nflognum_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.nflognum_label_fld_ptr, vccnf.color_win);
@@ -3113,7 +3053,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     if(rule_ptr->opt != NULL)
         snprintf(nflognum_string, sizeof(nflognum_string), "%u", rule_ptr->opt->nflog_num);
 
-    set_field_buffer_wrap(debuglvl, RuleFlds.nflognum_fld_ptr, 0, nflognum_string);
+    set_field_buffer_wrap(RuleFlds.nflognum_fld_ptr, 0, nflognum_string);
 
     /* start disabled  */
     field_opts_off(RuleFlds.nflognum_fld_ptr, O_VISIBLE);
@@ -3122,7 +3062,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* service label */
     RuleFlds.service_label_fld_ptr = (fields[field_num] = new_field(1, 8, 7, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.service_label_fld_ptr, 0, gettext("Service"));
+    set_field_buffer_wrap(RuleFlds.service_label_fld_ptr, 0, gettext("Service"));
     field_opts_off(RuleFlds.service_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.service_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.service_label_fld_ptr, vccnf.color_win);
@@ -3130,7 +3070,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* service */
     RuleFlds.service_fld_ptr = (fields[field_num] = new_field(1, 32, 7, 10, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.service_fld_ptr, 0, rule_ptr->service);
+    set_field_buffer_wrap(RuleFlds.service_fld_ptr, 0, rule_ptr->service);
     set_field_back(RuleFlds.service_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.service_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
@@ -3139,7 +3079,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* nfmark label */
     RuleFlds.nfmark_label_fld_ptr = (fields[field_num] = new_field(1, 7, 9, 10, 0, 0));
     /* TRANSLATORS: max 7 chars */
-    set_field_buffer_wrap(debuglvl, RuleFlds.nfmark_label_fld_ptr, 0, gettext("Mark"));
+    set_field_buffer_wrap(RuleFlds.nfmark_label_fld_ptr, 0, gettext("Mark"));
     field_opts_off(RuleFlds.nfmark_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.nfmark_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.nfmark_label_fld_ptr, vccnf.color_win);
@@ -3154,7 +3094,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     if(rule_ptr->opt != NULL && rule_ptr->opt->nfmark > 0)
     {
         snprintf(nfmark_string, sizeof(nfmark_string), "%lu", rule_ptr->opt->nfmark);
-        set_field_buffer_wrap(debuglvl, RuleFlds.nfmark_fld_ptr, 0, nfmark_string);
+        set_field_buffer_wrap(RuleFlds.nfmark_fld_ptr, 0, nfmark_string);
     }
 
     /* start disabled  */
@@ -3164,7 +3104,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* from zone label */
     RuleFlds.fromzone_label_fld_ptr = (fields[field_num] = new_field(1, 8, 11, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.fromzone_label_fld_ptr, 0, gettext("From"));
+    set_field_buffer_wrap(RuleFlds.fromzone_label_fld_ptr, 0, gettext("From"));
     field_opts_off(RuleFlds.fromzone_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.fromzone_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.fromzone_label_fld_ptr, vccnf.color_win);
@@ -3172,7 +3112,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* from zone */
     RuleFlds.fromzone_fld_ptr = (fields[field_num] = new_field(1, 48, 11, 10, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.fromzone_fld_ptr, 0, rule_ptr->from);
+    set_field_buffer_wrap(RuleFlds.fromzone_fld_ptr, 0, rule_ptr->from);
     set_field_back(RuleFlds.fromzone_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.fromzone_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
@@ -3180,7 +3120,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* in_int interface label */
     RuleFlds.in_int_label_fld_ptr = (fields[field_num] = new_field(1, 24, 12, 10, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.in_int_label_fld_ptr, 0, gettext("Listen Interface"));
+    set_field_buffer_wrap(RuleFlds.in_int_label_fld_ptr, 0, gettext("Listen Interface"));
     field_opts_off(RuleFlds.in_int_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.in_int_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.in_int_label_fld_ptr, vccnf.color_win);
@@ -3189,7 +3129,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* in_int interface */
     RuleFlds.in_int_fld_ptr = (fields[field_num] = new_field(1, VRMR_MAX_INTERFACE, 12, 36, 0, 0));
     if(rule_ptr->opt != NULL)
-        set_field_buffer_wrap(debuglvl, RuleFlds.in_int_fld_ptr, 0, rule_ptr->opt->in_int);
+        set_field_buffer_wrap(RuleFlds.in_int_fld_ptr, 0, rule_ptr->opt->in_int);
 
     set_field_back(RuleFlds.in_int_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.in_int_fld_ptr, vccnf.color_win_rev|A_BOLD);
@@ -3202,7 +3142,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* to zone label */
     RuleFlds.tozone_label_fld_ptr = (fields[field_num] = new_field(1, 8, 14, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.tozone_label_fld_ptr, 0, gettext("To"));
+    set_field_buffer_wrap(RuleFlds.tozone_label_fld_ptr, 0, gettext("To"));
     field_opts_off(RuleFlds.tozone_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.tozone_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.tozone_label_fld_ptr, vccnf.color_win);
@@ -3210,7 +3150,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* to zone */
     RuleFlds.tozone_fld_ptr = (fields[field_num] = new_field(1, 48, 14, 10, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.tozone_fld_ptr, 0, rule_ptr->to);
+    set_field_buffer_wrap(RuleFlds.tozone_fld_ptr, 0, rule_ptr->to);
     set_field_back(RuleFlds.tozone_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.tozone_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
@@ -3218,7 +3158,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* out_int interface label */
     RuleFlds.out_int_label_fld_ptr = (fields[field_num] = new_field(1, 24, 15, 10, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.out_int_label_fld_ptr, 0, gettext("Outgoing Interface"));
+    set_field_buffer_wrap(RuleFlds.out_int_label_fld_ptr, 0, gettext("Outgoing Interface"));
     field_opts_off(RuleFlds.out_int_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.out_int_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.out_int_label_fld_ptr, vccnf.color_win);
@@ -3227,7 +3167,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* out_int interface */
     RuleFlds.out_int_fld_ptr = (fields[field_num] = new_field(1, VRMR_MAX_INTERFACE, 15, 36, 0, 0));
     if(rule_ptr->opt != NULL)
-        set_field_buffer_wrap(debuglvl, RuleFlds.out_int_fld_ptr, 0, rule_ptr->opt->out_int);
+        set_field_buffer_wrap(RuleFlds.out_int_fld_ptr, 0, rule_ptr->opt->out_int);
 
     set_field_back(RuleFlds.out_int_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.out_int_fld_ptr, vccnf.color_win_rev|A_BOLD);
@@ -3241,7 +3181,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* comment label */
     /* TRANSLATORS: max 7 chars */
     RuleFlds.comment_label_fld_ptr = (fields[field_num] = new_field(1, 8, 17, 1, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.comment_label_fld_ptr, 0, gettext("Comment"));
+    set_field_buffer_wrap(RuleFlds.comment_label_fld_ptr, 0, gettext("Comment"));
     field_opts_off(RuleFlds.comment_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.comment_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.comment_label_fld_ptr, vccnf.color_win);
@@ -3250,7 +3190,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* comment */
     RuleFlds.comment_fld_ptr = (fields[field_num] = new_field(1, 63, 17, 10, 0, 0));
     if(rule_ptr->opt != NULL && rule_ptr->opt->rule_comment == 1)
-        set_field_buffer_wrap(debuglvl, RuleFlds.comment_fld_ptr, 0, rule_ptr->opt->comment);
+        set_field_buffer_wrap(RuleFlds.comment_fld_ptr, 0, rule_ptr->opt->comment);
     set_field_back(RuleFlds.comment_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.comment_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
@@ -3259,14 +3199,14 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* log label */
     /* TRANSLATORS: max 4 chars */
     RuleFlds.log_label_fld_ptr = (fields[field_num] = new_field(1, 4, 1, 29, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.log_label_fld_ptr, 0, gettext("Log"));
+    set_field_buffer_wrap(RuleFlds.log_label_fld_ptr, 0, gettext("Log"));
     field_opts_off(RuleFlds.log_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.log_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.log_label_fld_ptr, vccnf.color_win);
     field_num++;
 
     RuleFlds.log_brackets_fld_ptr = (fields[field_num] = new_field(1, 3, 1, 34, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.log_brackets_fld_ptr, 0, "[ ]");
+    set_field_buffer_wrap(RuleFlds.log_brackets_fld_ptr, 0, "[ ]");
     field_opts_off(RuleFlds.log_brackets_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.log_brackets_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.log_brackets_fld_ptr, vccnf.color_win);
@@ -3277,7 +3217,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* enable */
     if(rule_ptr->opt != NULL && rule_ptr->opt->rule_log == 1)
-        set_field_buffer_wrap(debuglvl, RuleFlds.log_fld_ptr, 0, "X");
+        set_field_buffer_wrap(RuleFlds.log_fld_ptr, 0, "X");
 
     set_field_back(RuleFlds.log_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.log_fld_ptr, vccnf.color_win);
@@ -3287,7 +3227,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* log prefix label */
     /* TRANSLATORS: max 7 chars */
     RuleFlds.logprefix_label_fld_ptr = (fields[field_num] = new_field(1, 8, 1, 39, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.logprefix_label_fld_ptr, 0, gettext("Prefix"));
+    set_field_buffer_wrap(RuleFlds.logprefix_label_fld_ptr, 0, gettext("Prefix"));
     field_opts_off(RuleFlds.logprefix_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.logprefix_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.logprefix_label_fld_ptr, vccnf.color_win);
@@ -3296,7 +3236,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* log prefix */
     RuleFlds.logprefix_fld_ptr = (fields[field_num] = new_field(1, 12, 1, 48, 0, 0));
     if(rule_ptr->opt != NULL)
-        set_field_buffer_wrap(debuglvl, RuleFlds.logprefix_fld_ptr, 0, rule_ptr->opt->logprefix);
+        set_field_buffer_wrap(RuleFlds.logprefix_fld_ptr, 0, rule_ptr->opt->logprefix);
     set_field_back(RuleFlds.logprefix_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.logprefix_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_num++;
@@ -3304,7 +3244,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* limit label */
     /* TRANSLATORS: max 6 chars */
     RuleFlds.loglimit_label_fld_ptr = (fields[field_num] = new_field(1, 8, 1, 62, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.loglimit_label_fld_ptr, 0, gettext("Limit"));
+    set_field_buffer_wrap(RuleFlds.loglimit_label_fld_ptr, 0, gettext("Limit"));
     field_opts_off(RuleFlds.loglimit_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.loglimit_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.loglimit_label_fld_ptr, vccnf.color_win);
@@ -3317,7 +3257,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
         if(rule_ptr->opt->loglimit > 0)
         {
             snprintf(loglimit_string, sizeof(loglimit_string), "%u", rule_ptr->opt->loglimit);
-            set_field_buffer_wrap(debuglvl, RuleFlds.loglimit_fld_ptr, 0, loglimit_string);
+            set_field_buffer_wrap(RuleFlds.loglimit_fld_ptr, 0, loglimit_string);
         }
     }
     set_field_back(RuleFlds.loglimit_fld_ptr, vccnf.color_win_rev);
@@ -3328,7 +3268,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* log prefix label */
     /* TRANSLATORS: max 7 chars */
     RuleFlds.limit_label_fld_ptr = (fields[field_num] = new_field(1, 12, 3, 29, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.limit_label_fld_ptr, 0, gettext("Rule Limit"));
+    set_field_buffer_wrap(RuleFlds.limit_label_fld_ptr, 0, gettext("Rule Limit"));
     field_opts_off(RuleFlds.limit_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.limit_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.limit_label_fld_ptr, vccnf.color_win);
@@ -3341,7 +3281,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
         if(rule_ptr->opt->limit > 0)
         {
             snprintf(loglimit_string, sizeof(loglimit_string), "%u", rule_ptr->opt->limit);
-            set_field_buffer_wrap(debuglvl, RuleFlds.limit_fld_ptr, 0, loglimit_string);
+            set_field_buffer_wrap(RuleFlds.limit_fld_ptr, 0, loglimit_string);
         }
     }
     set_field_back(RuleFlds.limit_fld_ptr, vccnf.color_win_rev);
@@ -3354,7 +3294,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* Limit Unit Label */
     RuleFlds.limit_unit_label_fld_ptr = (fields[field_num] = new_field(1, 1, 3, 48, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.limit_unit_label_fld_ptr, 0, "/");
+    set_field_buffer_wrap(RuleFlds.limit_unit_label_fld_ptr, 0, "/");
     field_opts_off(RuleFlds.limit_unit_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.limit_unit_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.limit_unit_label_fld_ptr, vccnf.color_win);
@@ -3364,7 +3304,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     RuleFlds.limit_unit_fld_ptr = (fields[field_num] = new_field(1, 4, 3, 51, 0, 0));
     if(rule_ptr->opt != NULL)
     {
-        set_field_buffer_wrap(debuglvl, RuleFlds.limit_unit_fld_ptr, 0,
+        set_field_buffer_wrap(RuleFlds.limit_unit_fld_ptr, 0,
             rule_ptr->opt->limit_unit);
     }
     set_field_back(RuleFlds.limit_unit_fld_ptr, vccnf.color_win_rev);
@@ -3378,7 +3318,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* burst label */
     /* TRANSLATORS: max 6 chars */
     RuleFlds.burst_label_fld_ptr = (fields[field_num] = new_field(1, 8, 3, 60, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.burst_label_fld_ptr, 0, gettext("Burst"));
+    set_field_buffer_wrap(RuleFlds.burst_label_fld_ptr, 0, gettext("Burst"));
     field_opts_off(RuleFlds.burst_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.burst_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.burst_label_fld_ptr, vccnf.color_win);
@@ -3391,7 +3331,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
         if(rule_ptr->opt->burst > 0)
         {
             snprintf(loglimit_string, sizeof(loglimit_string), "%u", rule_ptr->opt->burst);
-            set_field_buffer_wrap(debuglvl, RuleFlds.burst_fld_ptr, 0, loglimit_string);
+            set_field_buffer_wrap(RuleFlds.burst_fld_ptr, 0, loglimit_string);
         }
     }
     set_field_back(RuleFlds.burst_fld_ptr, vccnf.color_win_rev);
@@ -3405,7 +3345,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* chain label */
     RuleFlds.chain_label_fld_ptr = (fields[field_num] = new_field(1, 9, 5, 29, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.chain_label_fld_ptr, 0, gettext("Chain"));
+    set_field_buffer_wrap(RuleFlds.chain_label_fld_ptr, 0, gettext("Chain"));
     field_opts_off(RuleFlds.chain_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.chain_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.chain_label_fld_ptr, vccnf.color_win);
@@ -3414,7 +3354,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* chain */
     RuleFlds.chain_fld_ptr = (fields[field_num] = new_field(1, 32, 5, 40, 0, 0));
     if(rule_ptr->opt != NULL)
-        set_field_buffer_wrap(debuglvl, RuleFlds.chain_fld_ptr, 0, rule_ptr->opt->chain);
+        set_field_buffer_wrap(RuleFlds.chain_fld_ptr, 0, rule_ptr->opt->chain);
 
     set_field_back(RuleFlds.chain_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.chain_fld_ptr, vccnf.color_win_rev|A_BOLD);
@@ -3427,7 +3367,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* via label */
     RuleFlds.via_int_label_fld_ptr = (fields[field_num] = new_field(1, 9, 5, 29, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.via_int_label_fld_ptr, 0, gettext("Via"));
+    set_field_buffer_wrap(RuleFlds.via_int_label_fld_ptr, 0, gettext("Via"));
     field_opts_off(RuleFlds.via_int_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.via_int_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.via_int_label_fld_ptr, vccnf.color_win);
@@ -3436,7 +3376,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* chain */
     RuleFlds.via_int_fld_ptr = (fields[field_num] = new_field(1, 32, 5, 40, 0, 0));
     if(rule_ptr->opt != NULL)
-        set_field_buffer_wrap(debuglvl, RuleFlds.via_int_fld_ptr, 0, rule_ptr->opt->via_int);
+        set_field_buffer_wrap(RuleFlds.via_int_fld_ptr, 0, rule_ptr->opt->via_int);
 
     set_field_back(RuleFlds.via_int_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.via_int_fld_ptr, vccnf.color_win_rev|A_BOLD);
@@ -3449,7 +3389,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* Reject type label */
     RuleFlds.reject_label_fld_ptr = (fields[field_num] = new_field(1, 12, 5, 29, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.reject_label_fld_ptr, 0, gettext("Reject type"));
+    set_field_buffer_wrap(RuleFlds.reject_label_fld_ptr, 0, gettext("Reject type"));
     field_opts_off(RuleFlds.reject_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.reject_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.reject_label_fld_ptr, vccnf.color_win);
@@ -3459,7 +3399,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     RuleFlds.reject_fld_ptr = (fields[field_num] = new_field(1, 23, 5, 48, 0, 0));
 
     if(rule_ptr->opt != NULL && rule_ptr->opt->reject_option == 1)
-        set_field_buffer_wrap(debuglvl, RuleFlds.reject_fld_ptr, 0, rule_ptr->opt->reject_type);
+        set_field_buffer_wrap(RuleFlds.reject_fld_ptr, 0, rule_ptr->opt->reject_type);
 
     set_field_back(RuleFlds.reject_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.reject_fld_ptr, vccnf.color_win_rev|A_BOLD);
@@ -3472,7 +3412,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* Redirectport label */
     RuleFlds.redirect_label_fld_ptr = (fields[field_num] = new_field(1, 14, 7, 45, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.redirect_label_fld_ptr, 0, gettext("Redirect port"));
+    set_field_buffer_wrap(RuleFlds.redirect_label_fld_ptr, 0, gettext("Redirect port"));
     field_opts_off(RuleFlds.redirect_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.redirect_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.redirect_label_fld_ptr, vccnf.color_win);
@@ -3483,7 +3423,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     if(rule_ptr->opt != NULL && (rule_ptr->opt->redirectport > 0 && rule_ptr->opt->redirectport <= 65535))
     {
         snprintf(redirect_port, sizeof(redirect_port), "%d", rule_ptr->opt->redirectport);
-        set_field_buffer_wrap(debuglvl, RuleFlds.redirect_fld_ptr, 0, redirect_port);
+        set_field_buffer_wrap(RuleFlds.redirect_fld_ptr, 0, redirect_port);
     }
     set_field_back(RuleFlds.redirect_fld_ptr, vccnf.color_win_rev);
     set_field_fore(RuleFlds.redirect_fld_ptr, vccnf.color_win_rev|A_BOLD);
@@ -3497,7 +3437,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     /* listenport (portfw) label */
     /* TRANSLATORS: max 11 chars */
     RuleFlds.listen_label_fld_ptr = (fields[field_num] = new_field(1, 12, 7, 45, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.listen_label_fld_ptr, 0, gettext("Listen port"));
+    set_field_buffer_wrap(RuleFlds.listen_label_fld_ptr, 0, gettext("Listen port"));
     field_opts_off(RuleFlds.listen_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.listen_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.listen_label_fld_ptr, vccnf.color_win);
@@ -3515,13 +3455,13 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* this is needed after declaring the field dynamic */
     if(rule_ptr->opt != NULL && rule_ptr->opt->listenport == 1)
-        set_field_buffer_wrap(debuglvl, RuleFlds.listen_fld_ptr, 0, vrmr_list_to_portopts(debuglvl, &rule_ptr->opt->ListenportList, NULL));
+        set_field_buffer_wrap(RuleFlds.listen_fld_ptr, 0, vrmr_list_to_portopts(&rule_ptr->opt->ListenportList, NULL));
 
 
     /* remoteport (portfw) label */
     /* TRANSLATORS: max 11 chars */
     RuleFlds.remote_label_fld_ptr = (fields[field_num] = new_field(1, 12, 9, 45, 0, 0));
-    set_field_buffer_wrap(debuglvl, RuleFlds.remote_label_fld_ptr, 0, gettext("Remote port"));
+    set_field_buffer_wrap(RuleFlds.remote_label_fld_ptr, 0, gettext("Remote port"));
     field_opts_off(RuleFlds.remote_label_fld_ptr, O_ACTIVE);
     set_field_back(RuleFlds.remote_label_fld_ptr, vccnf.color_win);
     set_field_fore(RuleFlds.remote_label_fld_ptr, vccnf.color_win);
@@ -3539,7 +3479,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     /* this is needed after declaring the field dynamic */
     if(rule_ptr->opt != NULL && rule_ptr->opt->remoteport == 1)
-        set_field_buffer_wrap(debuglvl, RuleFlds.remote_fld_ptr, 0, vrmr_list_to_portopts(debuglvl, &rule_ptr->opt->RemoteportList, NULL));
+        set_field_buffer_wrap(RuleFlds.remote_fld_ptr, 0, vrmr_list_to_portopts(&rule_ptr->opt->RemoteportList, NULL));
 
     /* terminate the fields-array */
     fields[n_fields] = NULL;
@@ -3560,7 +3500,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
     set_form_sub(form, derwin(edit_win, rows, cols, 1, 2));
     post_form(form);
 
-    draw_top_menu(debuglvl, top_win, gettext("Edit Rule"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("Edit Rule"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
 
     /* set cursor position */
     pos_form_cursor(form);
@@ -3867,13 +3807,13 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
             cur == RuleFlds.nflognum_fld_ptr ||
             cur == RuleFlds.burst_fld_ptr)
         {
-            if(nav_field_simpletext(debuglvl, form, ch) < 0)
+            if(nav_field_simpletext(form, ch) < 0)
                 not_defined = 1;
         }
         else if(cur == RuleFlds.random_fld_ptr        ||
                 cur == RuleFlds.log_fld_ptr)
         {
-            if(nav_field_toggleX(debuglvl, form, ch) < 0)
+            if(nav_field_toggleX(form, ch) < 0)
                 not_defined = 1;
         }
         else
@@ -3890,10 +3830,10 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                 case 's':
                     if(rule_ptr->opt == NULL)
                     {
-                        rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                        rule_ptr->opt = vrmr_rule_option_malloc();
                         vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
                     }
-                    VrShapeRule(debuglvl, rule_ptr->opt);
+                    VrShapeRule(rule_ptr->opt);
                     break;
                 case KEY_DOWN:
                 case 10:    // enter
@@ -3925,14 +3865,14 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                                     1,
                                                     select_choice)))
                         {
-                            set_field_buffer_wrap(debuglvl, cur, 0, action_ptr);
+                            set_field_buffer_wrap(cur, 0, action_ptr);
                             rule_ptr->action = vrmr_rules_actiontoi(action_ptr);
                             free(action_ptr);
 
                             /* if action is LOG, disable the log option. */
                             if(rule_ptr->action == VRMR_AT_LOG)
                             {
-                                set_field_buffer_wrap(debuglvl, RuleFlds.log_fld_ptr, 0, " ");
+                                set_field_buffer_wrap(RuleFlds.log_fld_ptr, 0, " ");
                             }
                         }
                     }
@@ -3989,7 +3929,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         /* get the zone */
                         if((choice_ptr = selectbox(gettext("Select"), gettext("Select a host, group or network"), zone_choices_n, zone_choices, 2, select_choice)))
                         {
-                            set_field_buffer_wrap(debuglvl, cur, 0, choice_ptr);
+                            set_field_buffer_wrap(cur, 0, choice_ptr);
                             free(choice_ptr);
                             choice_ptr = NULL;
                         }
@@ -4020,7 +3960,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         /* get the service */
                         if((choice_ptr = selectbox(gettext("Select"), gettext("Select a service"), service_choices_n, service_choices, 3, select_choice)))
                         {
-                            set_field_buffer_wrap(debuglvl, cur, 0, choice_ptr);
+                            set_field_buffer_wrap(cur, 0, choice_ptr);
                             free(choice_ptr);
                             choice_ptr = NULL;
                         }
@@ -4036,7 +3976,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
                         if((reject_ptr = selectbox(gettext("Reject type"), gettext("Select reject type"), reject_types_n, reject_types, 1, select_choice)))
                         {
-                            set_field_buffer_wrap(debuglvl, cur, 0, reject_ptr);
+                            set_field_buffer_wrap(cur, 0, reject_ptr);
                             free(reject_ptr);
                         }
                     }
@@ -4065,7 +4005,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                                     sizeof(zonename));
 
                                 /* get the zone */
-                                if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, zonename)))
+                                if(!(zone_ptr = vrmr_search_zonedata(zones, zonename)))
                                 {
                                     vrmr_error(-1, VR_INTERR, "zone '%s' not found (in: %s:%d).", zonename, __FUNC__, __LINE__);
                                 }
@@ -4120,9 +4060,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                 {
                                     /* any means empty the field */
                                     if(strcmp(choice_ptr, gettext("Any")) == 0)
-                                        set_field_buffer_wrap(debuglvl, RuleFlds.in_int_fld_ptr, 0, "");
+                                        set_field_buffer_wrap(RuleFlds.in_int_fld_ptr, 0, "");
                                     else
-                                        set_field_buffer_wrap(debuglvl, RuleFlds.in_int_fld_ptr, 0, choice_ptr);
+                                        set_field_buffer_wrap(RuleFlds.in_int_fld_ptr, 0, choice_ptr);
 
                                     free(choice_ptr);
                                 }
@@ -4156,7 +4096,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                                     field_buffer(RuleFlds.tozone_fld_ptr, 0),
                                                     sizeof(zonename));
                                 /* get the zone */
-                                if(!(zone_ptr = vrmr_search_zonedata(debuglvl, zones, zonename)))
+                                if(!(zone_ptr = vrmr_search_zonedata(zones, zonename)))
                                 {
                                     vrmr_error(-1, VR_INTERR, "zone '%s' not found (in: %s:%d).",
                                         zonename, __FUNC__, __LINE__);
@@ -4210,9 +4150,9 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                 {
                                     /* any means empty the field */
                                     if(strcmp(choice_ptr, gettext("Any")) == 0)
-                                        set_field_buffer_wrap(debuglvl, RuleFlds.out_int_fld_ptr, 0, "");
+                                        set_field_buffer_wrap(RuleFlds.out_int_fld_ptr, 0, "");
                                     else
-                                        set_field_buffer_wrap(debuglvl, RuleFlds.out_int_fld_ptr, 0, choice_ptr);
+                                        set_field_buffer_wrap(RuleFlds.out_int_fld_ptr, 0, choice_ptr);
 
                                     free(choice_ptr);
                                 }
@@ -4255,7 +4195,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                             }
                             else
                             {
-                                set_field_buffer_wrap(debuglvl, RuleFlds.via_int_fld_ptr, 0, choice_ptr);
+                                set_field_buffer_wrap(RuleFlds.via_int_fld_ptr, 0, choice_ptr);
                                 free(choice_ptr);
                             }
 
@@ -4282,7 +4222,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                                                         1, /* 1 column */
                                                         select_choice)))
                         {
-                            set_field_buffer_wrap(debuglvl, cur, 0, limit_unit_ptr);
+                            set_field_buffer_wrap(cur, 0, limit_unit_ptr);
                             free(limit_unit_ptr);
                         }
                     }
@@ -4297,11 +4237,11 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                 case 'Q':
                 case KEY_F(10):
 
-                    result = edit_rule_fields_to_rule(debuglvl, fields, n_fields, rule_ptr, reg);
+                    result = edit_rule_fields_to_rule(fields, n_fields, rule_ptr, reg);
                     if(result == 1)
                     {
-                        if (edit_rule_simple_check(debuglvl, rule_ptr) == 0 ||
-                            edit_rule_check_action_opts(debuglvl, rule_ptr) == 0)
+                        if (edit_rule_simple_check(rule_ptr) == 0 ||
+                            edit_rule_check_action_opts(rule_ptr) == 0)
                         {
                             if(!(confirm(gettext("Not all required fields are filled in"),
                                     gettext("Do you want to look at the rule again? (no will delete the rule)"),
@@ -4314,7 +4254,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                         else
                         {
                             /* check */
-                            if(vrmr_rules_analyze_rule(debuglvl, rule_ptr, &tmp_ruledata, services, zones, interfaces, conf) < 0)
+                            if(vrmr_rules_analyze_rule(rule_ptr, &tmp_ruledata, services, zones, interfaces, conf) < 0)
                             {
                                 /* clear tmp_ruledata for the next use */
                                 bzero(&tmp_ruledata, sizeof(tmp_ruledata));
@@ -4359,7 +4299,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
                 case 'H':
                 case '?':
 
-                    print_help(debuglvl, ":[VUURMUUR:RULES:EDIT]:");
+                    print_help(":[VUURMUUR:RULES:EDIT]:");
                     break;
 
                 /* enable advanced mode */
@@ -4390,9 +4330,7 @@ edit_rule_normal(const int debuglvl, struct vrmr_config *conf, struct vrmr_zones
 
     status_print(status_win, gettext("Ready."));
 
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "returning retval = %d.", retval);
-
+    vrmr_debug(HIGH, "returning retval = %d.", retval);
     return(retval);
 }
 
@@ -4411,7 +4349,7 @@ struct SepRuleFlds_
          0: no changes
 */
 static int
-edit_seprule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields, struct vrmr_rule *rule_ptr, struct vrmr_regex *reg)
+edit_seprule_fields_to_rule(FIELD **fields, size_t n_fields, struct vrmr_rule *rule_ptr, struct vrmr_regex *reg)
 {
     int     z = 0,
             retval = 0;
@@ -4433,12 +4371,12 @@ edit_seprule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields,
         int last_char = 0;
 
         /* first check if the commentfield is valid */
-        if(validate_commentfield(debuglvl, field_buffer(fields[i], 0), reg->comment) == 0)
+        if(validate_commentfield(field_buffer(fields[i], 0), reg->comment) == 0)
         {
             /* options */
             if(rule_ptr->opt == NULL)
             {
-                rule_ptr->opt = vrmr_rule_option_malloc(debuglvl);
+                rule_ptr->opt = vrmr_rule_option_malloc();
                 vrmr_fatal_alloc("vrmr_rule_option_malloc", rule_ptr->opt);
             }
 
@@ -4477,8 +4415,7 @@ edit_seprule_fields_to_rule(const int debuglvl, FIELD **fields, size_t n_fields,
     TODO: split this beast up
 */
 int
-edit_rule_separator(const int debuglvl,
-                    struct vrmr_zones *zones,
+edit_rule_separator(struct vrmr_zones *zones,
                     struct vrmr_interfaces *interfaces,
                     struct vrmr_services *services,
                     struct vrmr_rule *rule_ptr,
@@ -4544,7 +4481,7 @@ edit_rule_separator(const int debuglvl,
     /* comment */
     SepRuleFlds.comment_fld_ptr = (fields[field_num] = new_field(1, 63, 1, 2, 0, 0));
     if(rule_ptr->opt != NULL && rule_ptr->opt->rule_comment == 1)
-        set_field_buffer_wrap(debuglvl, SepRuleFlds.comment_fld_ptr, 0, rule_ptr->opt->comment);
+        set_field_buffer_wrap(SepRuleFlds.comment_fld_ptr, 0, rule_ptr->opt->comment);
     set_field_back(SepRuleFlds.comment_fld_ptr, vccnf.color_win_rev);
     set_field_fore(SepRuleFlds.comment_fld_ptr, vccnf.color_win_rev|A_BOLD);
     field_opts_off(SepRuleFlds.comment_fld_ptr, O_AUTOSKIP);
@@ -4589,7 +4526,7 @@ edit_rule_separator(const int debuglvl,
         ch = wgetch(edit_win);
 
         char not_defined = 0;
-        if (nav_field_simpletext(debuglvl, form, ch) < 0)
+        if (nav_field_simpletext(form, ch) < 0)
             not_defined = 1;
 
         if (not_defined == 1) {
@@ -4601,7 +4538,7 @@ edit_rule_separator(const int debuglvl,
 
                     form_driver(form, REQ_NEXT_FIELD); /* this is to make sure the field is saved */
 
-                    result = edit_seprule_fields_to_rule(debuglvl, fields, n_fields, rule_ptr, reg);
+                    result = edit_seprule_fields_to_rule(fields, n_fields, rule_ptr, reg);
                     if (result == 1) {
                         quit = 1;
                         retval = 1;

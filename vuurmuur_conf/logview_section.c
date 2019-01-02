@@ -103,7 +103,7 @@ logline2plainlogrule(char *logline, struct PlainLogRule_ *logrule)
         1: filtered
 */
 static int
-logrule_filtered(const int debuglvl, struct LogRule_ *log_record, struct vrmr_filter *filter)
+logrule_filtered(struct LogRule_ *log_record, struct vrmr_filter *filter)
 {
     char    line[1024];
 
@@ -145,7 +145,7 @@ logrule_filtered(const int debuglvl, struct LogRule_ *log_record, struct vrmr_fi
         1: filtered
 */
 static int
-plainlogrule_filtered(const int debuglvl, char *line, struct vrmr_filter *filter)
+plainlogrule_filtered(char *line, struct vrmr_filter *filter)
 {
     vrmr_fatal_if_null(line);
     vrmr_fatal_if_null(filter);
@@ -196,7 +196,7 @@ draw_search(PANEL *pan, WINDOW *win, char *search)
 }
 
 static int
-check_search_script(const int debuglvl, const char *script)
+check_search_script(const char *script)
 {
     struct stat stat_buf;
 
@@ -525,7 +525,7 @@ print_plainlogrule(WINDOW *log_win, char *line,
 }
 
 static void
-sanitize_search_str(const int debuglvl, char *str, size_t size)
+sanitize_search_str(char *str, size_t size)
 {
     size_t  i = 0;
 
@@ -541,7 +541,7 @@ sanitize_search_str(const int debuglvl, char *str, size_t size)
 #define READLINE_LEN    512
 
 int
-logview_section(const int debuglvl, struct vrmr_ctx *vctx,
+logview_section(struct vrmr_ctx *vctx,
         struct vrmr_config *cnf, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services, /*@null@*/ char *logname)
@@ -692,7 +692,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(blocklist);
 
     /* init filter */
-    vrmr_filter_setup(debuglvl, &vfilter);
+    vrmr_filter_setup(&vfilter);
 
     /* if no logfile is supplied, we assume trafficlog */
     if (!logname) {
@@ -737,7 +737,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     }
 
     /* setup the buffer */
-    vrmr_list_setup(debuglvl, &LogBufferList, free);
+    vrmr_list_setup(&LogBufferList, free);
     /* point the buffer pointer to the LogBufferList */
     buffer_ptr = &LogBufferList;
 
@@ -745,14 +745,13 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     traffic_fp = fopen(logfile, "r");
     if (traffic_fp == NULL) {
         vrmr_error(-1, VR_ERR, gettext("opening logfile '%s' failed: %s."), logfile, strerror(errno));
-        vrmr_list_cleanup(debuglvl, buffer_ptr);
+        vrmr_list_cleanup(buffer_ptr);
         return(-1);
     }
     /* point it to the fp */
     fp = traffic_fp;
 
-    if(debuglvl >= LOW)
-        vrmr_debug(__FUNC__, "opening '%s' successful.", vctx->conf.trafficlog_location);
+    vrmr_debug(LOW, "opening '%s' successful.", vctx->conf.trafficlog_location);
 
     /* set up the logwin */
     getmaxyx(stdscr, max_height, max_width);
@@ -766,7 +765,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
         fseek. If so, ask less. */
     if (stat(logfile, &stat_buf) == -1) {
         vrmr_error(-1, VR_ERR, gettext("could not examine the logfile: %s."), strerror(errno));
-        vrmr_list_cleanup(debuglvl, buffer_ptr);
+        vrmr_list_cleanup(buffer_ptr);
         fclose(fp);
         return(-1);
     }
@@ -779,7 +778,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     /* listen at the logfile_fseek_offset point in the file, so we start with a populated buffer */
     if (fseek(fp, logfile_fseek_offset, SEEK_END) < 0) {
         vrmr_error(-1, VR_ERR, gettext("fseek failed: %s."), strerror(errno));
-        vrmr_list_cleanup(debuglvl, buffer_ptr);
+        vrmr_list_cleanup(buffer_ptr);
         fclose(fp);
         return(-1);
     }
@@ -793,9 +792,9 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
     /* print the topmenu options: the nt_ functions are for non-trafficlog use */
     if (traffic_log == 1) {
-        draw_top_menu(debuglvl, top_win, gettext("Logview"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+        draw_top_menu(top_win, gettext("Logview"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
     } else {
-        draw_top_menu(debuglvl, top_win, gettext("Logview"), nt_key_choices_n, nt_key_choices, nt_cmd_choices_n, nt_cmd_choices);
+        draw_top_menu(top_win, gettext("Logview"), nt_key_choices_n, nt_key_choices, nt_cmd_choices_n, nt_cmd_choices);
     }
     mvwprintw(wait_win, 2, 4, gettext("Loading log ..."));
     update_panels();
@@ -849,11 +848,11 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             logline2logrule(line, log_record);
 
             /* now insert the rule */
-            vrmr_fatal_if(vrmr_list_append(debuglvl, buffer_ptr, log_record) == NULL);
+            vrmr_fatal_if(vrmr_list_append(buffer_ptr, log_record) == NULL);
 
             /* if the bufferlist is full, remove the oldest item from it */
             if(buffer_ptr->len > max_buffer_size) {
-                vrmr_fatal_if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0);
+                vrmr_fatal_if(vrmr_list_remove_top(buffer_ptr) < 0);
             }
 
             log_record = NULL;
@@ -870,11 +869,11 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             logline2plainlogrule(line, plainlog_record);
 
             /* now insert the rule */
-            vrmr_fatal_if(vrmr_list_append(debuglvl, buffer_ptr, plainlog_record) == NULL);
+            vrmr_fatal_if(vrmr_list_append(buffer_ptr, plainlog_record) == NULL);
 
             /* if the bufferlist is full, remove the oldest item from it */
             if (buffer_ptr->len > max_buffer_size) {
-                vrmr_fatal_if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0);
+                vrmr_fatal_if(vrmr_list_remove_top(buffer_ptr) < 0);
             }
 
             plainlog_record = NULL;
@@ -973,15 +972,15 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
                     /* if we have a filter check it now */
                     if (use_filter) {
-                        log_record->filtered = logrule_filtered(debuglvl, log_record, &vfilter);
+                        log_record->filtered = logrule_filtered(log_record, &vfilter);
                     }
 
                     /* now really insert the rule into the buffer */
-                    vrmr_fatal_if(vrmr_list_append(debuglvl, buffer_ptr, log_record) == NULL);
+                    vrmr_fatal_if(vrmr_list_append(buffer_ptr, log_record) == NULL);
 
                     /* if the bufferlist is full, remove the oldest item from it */
                     if (buffer_ptr->len > max_buffer_size) {
-                        vrmr_fatal_if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0);
+                        vrmr_fatal_if(vrmr_list_remove_top(buffer_ptr) < 0);
                     }
 
                     control.queue++;
@@ -1000,15 +999,15 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
 
                     /* if we have a filter check it now */
                     if(use_filter) {
-                        plainlog_record->filtered = plainlogrule_filtered(debuglvl, plainlog_record->line, &vfilter);
+                        plainlog_record->filtered = plainlogrule_filtered(plainlog_record->line, &vfilter);
                     }
 
                     /* now insert the rule */
-                    vrmr_fatal_if(vrmr_list_append(debuglvl, buffer_ptr, plainlog_record) == NULL);
+                    vrmr_fatal_if(vrmr_list_append(buffer_ptr, plainlog_record) == NULL);
 
                     /* if the bufferlist is full, remove the oldest item from it */
                     if (buffer_ptr->len > max_buffer_size) {
-                        vrmr_fatal_if(vrmr_list_remove_top(debuglvl, buffer_ptr) < 0);
+                        vrmr_fatal_if(vrmr_list_remove_top(buffer_ptr) < 0);
                     }
 
                     plainlog_record = NULL;
@@ -1147,9 +1146,9 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             case 10:
 
                 if (ch != 10) {
-                    filter_input_box(debuglvl, &vfilter);
+                    filter_input_box(&vfilter);
                 } else {
-                    vrmr_filter_cleanup(debuglvl, &vfilter);
+                    vrmr_filter_cleanup(&vfilter);
                 }
 
                 if(vfilter.reg_active == TRUE)
@@ -1189,7 +1188,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                         log_record = d_node->data;
 
                         if (use_filter) {
-                            log_record->filtered = logrule_filtered(debuglvl, log_record, &vfilter);
+                            log_record->filtered = logrule_filtered(log_record, &vfilter);
                         } else {
                             log_record->filtered = 0;
                         }
@@ -1198,7 +1197,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                         plainlog_record = d_node->data;
 
                         if(use_filter) {
-                            plainlog_record->filtered = plainlogrule_filtered(debuglvl, plainlog_record->line, &vfilter);
+                            plainlog_record->filtered = plainlogrule_filtered(plainlog_record->line, &vfilter);
                         } else {
                             plainlog_record->filtered = 0;
                         }
@@ -1216,8 +1215,8 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             case 'c':
 
                 werase(log_win);
-                vrmr_fatal_if(vrmr_list_cleanup(debuglvl, buffer_ptr) < 0);
-                vrmr_list_setup(debuglvl, buffer_ptr, free);
+                vrmr_fatal_if(vrmr_list_cleanup(buffer_ptr) < 0);
+                vrmr_list_setup(buffer_ptr, free);
                 control.print = 1;
                 break;
 
@@ -1246,7 +1245,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                     /* here we do the final cleanup for the search mode. */
                     if(search_completed) {
                         /* cleanup the buffer */
-                        vrmr_fatal_if(vrmr_list_cleanup(debuglvl, buffer_ptr) < 0);
+                        vrmr_fatal_if(vrmr_list_cleanup(buffer_ptr) < 0);
 
                         /* restore buffer pointer */
                         buffer_ptr = &LogBufferList;
@@ -1402,7 +1401,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                             vrmr_error(-1, VR_ERR, gettext("opening pipe failed: %s."), strerror(errno));
                             return(-1);
                         }
-                        if(check_search_script(debuglvl, search_string) != 1) {
+                        if(check_search_script(search_string) != 1) {
                             search_script_ok = 0;
                         } else {
                             search_script_ok = 1;
@@ -1415,10 +1414,10 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                         if((search_ptr = input_box(32, gettext("Search"), gettext("What do you want to search for?"))))
                         {
                             /* regex check the search-string */
-                            sanitize_search_str(debuglvl, search_ptr, strlen(search_ptr));
+                            sanitize_search_str(search_ptr, strlen(search_ptr));
 
                             /* setup the search-buffer */
-                            vrmr_list_setup(debuglvl, &SearchBufferList, free);
+                            vrmr_list_setup(&SearchBufferList, free);
 
                             /* point the buffer-pointer to the SearchBufferList */
                             buffer_ptr = &SearchBufferList;
@@ -1433,7 +1432,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
                                 vrmr_error(-1, VR_ERR, gettext("opening pipe failed: %s."), strerror(errno));
                                 return(-1);
                             }
-                            vrmr_debug(__FUNC__, "search_string: '%s'.", search_string);
+                            vrmr_debug(NONE, "search_string: '%s'.", search_string);
 
                             /* open the pipe */
                             if(!(search_pipe = popen(search_string, "r")))
@@ -1476,20 +1475,20 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             case 'b':
             case 'B':
 
-                (void)zones_blocklist_add_one(debuglvl, blocklist, zones);
-                (void)vrmr_blocklist_save_list(debuglvl, vctx, &vctx->conf, blocklist);
+                (void)zones_blocklist_add_one(blocklist, zones);
+                (void)vrmr_blocklist_save_list(vctx, &vctx->conf, blocklist);
                 break;
 
             case 'm':
             case 'M': {
                 if (buffer_ptr) {
-                    statevent(debuglvl, vctx, cnf, STATEVENTTYPE_LOG,
+                    statevent(vctx, cnf, STATEVENTTYPE_LOG,
                         buffer_ptr, /* no ct */NULL,
                         /* no connreq*/NULL,
                         zones, blocklist, interfaces,
                         services);
 
-                    draw_top_menu(debuglvl, top_win,
+                    draw_top_menu(top_win,
                         gettext("Logview"), key_choices_n,
                         key_choices, cmd_choices_n,
                         cmd_choices);
@@ -1501,7 +1500,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             case 'H':
             case '?':
 
-                print_help(debuglvl, ":[VUURMUUR:LOGVIEW]:");
+                print_help(":[VUURMUUR:LOGVIEW]:");
                 break;
 
         } /* end switch(ch) */
@@ -1519,7 +1518,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             else
                 start_print = buffer_size - max_onscreen - offset;
 
-            if(debuglvl >= HIGH)
+            if(vrmr_debug_level >= HIGH)
                 status_print(status_win, "buf_size: %u, max_onscr: %d, start: %d, o: %u, p: %d, q: %d, s: %d", buffer_size, max_onscreen, start_print, offset, control.print, control.queue, control.sleep);
         }
         /* if we're filtered, check for each line if it will be printed */
@@ -1558,7 +1557,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             if (delta < max_onscreen)
                 offset = 0;
 
-            if(debuglvl >= HIGH)
+            if(vrmr_debug_level >= HIGH)
                 status_print(status_win, "filter :st: %d, max: %d, buf: %u, del: %d, fil: %d, run: %d, fir: %d, offset: %u", start_print, max_onscreen, buffer_size, delta, filtered_lines, run_count, first_draw, offset);
         }
 
@@ -1567,7 +1566,7 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
             control.print = 1;
 
         /* display counters for debuging */
-        if(debuglvl >= LOW)
+        if(vrmr_debug_level >= LOW)
             status_print(status_win, "buf_size: %u, max_onscr: %d, start: %d, o: %u, p: %d, q: %d, s: %d", buffer_size, max_onscreen, start_print, offset, control.print, control.queue, control.sleep);
 
         /* print the list to the screen */
@@ -1643,9 +1642,9 @@ logview_section(const int debuglvl, struct vrmr_ctx *vctx,
     */
 
     /* filter clean up */
-    vrmr_filter_cleanup(debuglvl, &vfilter);
+    vrmr_filter_cleanup(&vfilter);
     nodelay(log_win, FALSE);
-    vrmr_fatal_if(vrmr_list_cleanup(debuglvl, buffer_ptr) < 0);
+    vrmr_fatal_if(vrmr_list_cleanup(buffer_ptr) < 0);
     (void)fclose(fp);
 
     /* info bar stuff */

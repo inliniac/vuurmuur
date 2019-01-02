@@ -75,17 +75,17 @@ struct TextdirBackend_
 };
 
 
-char *get_filelocation(const int debuglvl, void *backend, char *name, const int type);
-int ask_textdir(const int debuglvl, void *backend, char *name, char *question, char *answer, size_t max_answer, int type, int multi);
-int tell_textdir(const int debuglvl, void *backend, char *name, char *question, char *answer, int overwrite, int type);
-int open_textdir(int debuglvl, void *backend, int mode, int type);
-int close_textdir(int debuglvl, void *backend, int type);
-char *list_textdir(int debuglvl, void *backend, char *name, int *zonetype, int type);
-int init_textdir(int debuglvl, void *backend, int type);
-int add_textdir(const int debuglvl, void *backend, char *name, int type);
-int del_textdir(const int debuglvl, void *backend, char *name, int type, int recurs);
-int rename_textdir(const int debuglvl, void *backend, char *name, char *newname, int type);
-int conf_textdir(const int debuglvl, void *backend);
-int setup_textdir(int debuglvl, const struct vrmr_config *vuurmuur_config, void **backend);
+char *get_filelocation(void *backend, char *name, const int type);
+int ask_textdir(void *backend, char *name, char *question, char *answer, size_t max_answer, int type, int multi);
+int tell_textdir(void *backend, char *name, char *question, char *answer, int overwrite, int type);
+int open_textdir(void *backend, int mode, int type);
+int close_textdir(void *backend, int type);
+char *list_textdir(void *backend, char *name, int *zonetype, int type);
+int init_textdir(void *backend, int type);
+int add_textdir(void *backend, char *name, int type);
+int del_textdir(void *backend, char *name, int type, int recurs);
+int rename_textdir(void *backend, char *name, char *newname, int type);
+int conf_textdir(void *backend);
+int setup_textdir(const struct vrmr_config *vuurmuur_config, void **backend);
 
 #endif

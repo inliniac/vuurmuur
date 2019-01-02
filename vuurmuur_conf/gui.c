@@ -25,7 +25,7 @@
 #include "main.h"
 
 void
-VrBusyWinCreate(const int debuglvl)
+VrBusyWinCreate(void)
 {
     int width = 20,
         height = 5;
@@ -56,7 +56,7 @@ VrBusyWinHide(void)
 }
 
 void
-VrBusyWinDelete(const int debuglvl)
+VrBusyWinDelete(void)
 {
     VrDelWin(vr_busywin);
 }
@@ -242,16 +242,16 @@ VrNewMenu(int h, int w, int y, int x, unsigned int n, chtype bg, chtype fg)
 }
 
 void
-VrMenuSetupNameList(const int debuglvl, VrMenu *menu)
+VrMenuSetupNameList(VrMenu *menu)
 {
-    vrmr_list_setup(debuglvl, &menu->name, menu->free_name);
+    vrmr_list_setup(&menu->name, menu->free_name);
     menu->use_namelist = TRUE;
 }
 
 void
-VrMenuSetupDescList(const int debuglvl, VrMenu *menu)
+VrMenuSetupDescList(VrMenu *menu)
 {
-    vrmr_list_setup(debuglvl, &menu->desc, menu->free_desc);
+    vrmr_list_setup(&menu->desc, menu->free_desc);
     menu->use_desclist = TRUE;
 }
 
@@ -268,7 +268,7 @@ VrMenuSetDescFreeFunc(VrMenu *menu, void (*free_func)(void *ptr))
 }
 
 void
-VrDelMenu(const int debuglvl, VrMenu *menu)
+VrDelMenu(VrMenu *menu)
 {
     size_t i = 0;
 
@@ -289,16 +289,16 @@ VrDelMenu(const int debuglvl, VrMenu *menu)
 
     /* clear the lists if used */
     if(menu->use_namelist == TRUE)
-        vrmr_list_cleanup(debuglvl, &menu->name);
+        vrmr_list_cleanup(&menu->name);
     if(menu->use_desclist == TRUE)
-        vrmr_list_cleanup(debuglvl, &menu->desc);
+        vrmr_list_cleanup(&menu->desc);
 
     /* free memory */
     free(menu);
 }
 
 int
-VrMenuAddItem(const int debuglvl, VrMenu *menu, char *name, char *desc)
+VrMenuAddItem(VrMenu *menu, char *name, char *desc)
 {
     if(menu->cur_item >= menu->nitems)
     {
@@ -308,7 +308,7 @@ VrMenuAddItem(const int debuglvl, VrMenu *menu, char *name, char *desc)
 
     if(menu->use_namelist == TRUE)
     {
-        if(vrmr_list_append(debuglvl, &menu->name, name) == NULL)
+        if(vrmr_list_append(&menu->name, name) == NULL)
         {
             vrmr_error(-1, VR_ERR, "vrmr_list_append failed");
             return(-1);
@@ -316,7 +316,7 @@ VrMenuAddItem(const int debuglvl, VrMenu *menu, char *name, char *desc)
     }
     if(menu->use_desclist == TRUE)
     {
-        if(vrmr_list_append(debuglvl, &menu->desc, desc) == NULL)
+        if(vrmr_list_append(&menu->desc, desc) == NULL)
         {
             vrmr_error(-1, VR_ERR, "vrmr_list_append failed");
             return(-1);
@@ -335,7 +335,7 @@ VrMenuAddItem(const int debuglvl, VrMenu *menu, char *name, char *desc)
 }
 
 int
-VrMenuAddSepItem(const int debuglvl, VrMenu *menu, char *desc)
+VrMenuAddSepItem(VrMenu *menu, char *desc)
 {
     if(menu->cur_item >= menu->nitems)
     {
@@ -345,7 +345,7 @@ VrMenuAddSepItem(const int debuglvl, VrMenu *menu, char *desc)
 
     if(menu->use_desclist == TRUE)
     {
-        if(vrmr_list_append(debuglvl, &menu->desc, desc) == NULL)
+        if(vrmr_list_append(&menu->desc, desc) == NULL)
         {
             vrmr_error(-1, VR_ERR, "vrmr_list_append failed");
             return(-1);
@@ -365,7 +365,7 @@ VrMenuAddSepItem(const int debuglvl, VrMenu *menu, char *desc)
 }
 
 void
-VrMenuConnectToWin(const int debuglvl, VrMenu *menu, VrWin *win)
+VrMenuConnectToWin(VrMenu *menu, VrWin *win)
 {
     int result;
 
@@ -403,7 +403,7 @@ VrMenuConnectToWin(const int debuglvl, VrMenu *menu, VrWin *win)
     returns TRUE if the key matched, false if not
 */
 char
-VrMenuDefaultNavigation(const int debuglvl, VrMenu *menu, int key)
+VrMenuDefaultNavigation(VrMenu *menu, int key)
 {
     char    match = FALSE;
 
@@ -450,14 +450,14 @@ VrMenuDefaultNavigation(const int debuglvl, VrMenu *menu, int key)
 
 
 void
-VrMenuPost(const int debuglvl, VrMenu *menu)
+VrMenuPost(VrMenu *menu)
 {
     int result = post_menu(menu->m);
     vrmr_fatal_if(result != E_OK);
 }
 
 void
-VrMenuUnPost(const int debuglvl, VrMenu *menu)
+VrMenuUnPost(VrMenu *menu)
 {
     int result = unpost_menu(menu->m);
     vrmr_fatal_if(result != E_OK);
@@ -479,12 +479,12 @@ VrNewForm(int h, int w, int y, int x, chtype bg, chtype fg)
     form->save = NULL;
     form->save_ctx = NULL;
 
-    vrmr_list_setup(0, &form->list, free);
+    vrmr_list_setup(&form->list, free);
     return(form);
 }
 
 void
-VrDelForm(const int debuglvl, VrForm *form)
+VrDelForm(VrForm *form)
 {
     size_t i = 0;
 
@@ -503,27 +503,27 @@ VrDelForm(const int debuglvl, VrForm *form)
     if(form->fields != NULL)
         free(form->fields);
 
-    vrmr_list_cleanup(debuglvl, &form->list);
+    vrmr_list_cleanup(&form->list);
 
     /* free memory */
     free(form);
 }
 
 void
-VrFormPost(const int debuglvl, VrForm *form)
+VrFormPost(VrForm *form)
 {
     int result = post_form(form->f);
     vrmr_fatal_if(result != E_OK);
 }
 
 void
-VrFormUnPost(const int debuglvl, VrForm *form)
+VrFormUnPost(VrForm *form)
 {
     int result = unpost_form(form->f);
     vrmr_fatal_if(result != E_OK);
 }
 
-static void VrFormStoreField (const int debuglvl, VrForm *form,
+static void VrFormStoreField (VrForm *form,
         enum vrmr_gui_form_field_types type, chtype cp,
         int h, int w, int toprow, int leftcol,
         const char *name, char *value_str, int value_bool)
@@ -549,33 +549,33 @@ static void VrFormStoreField (const int debuglvl, VrForm *form,
             break;
     }
 
-    vrmr_fatal_if(vrmr_list_append(debuglvl, &form->list, fld) == NULL);
+    vrmr_fatal_if(vrmr_list_append(&form->list, fld) == NULL);
 }
 
 void
-VrFormAddTextField(const int debuglvl, VrForm *form, int height, int width, int toprow, int leftcol, chtype cp, char *name, char *value)
+VrFormAddTextField(VrForm *form, int height, int width, int toprow, int leftcol, chtype cp, char *name, char *value)
 {
     vrmr_fatal_if((int)StrLen(name) > width);
-    VrFormStoreField(debuglvl, form, VRMR_GUI_FORM_FIELD_TYPE_TEXT, cp, height, width, toprow, leftcol, name, value, 0);
+    VrFormStoreField(form, VRMR_GUI_FORM_FIELD_TYPE_TEXT, cp, height, width, toprow, leftcol, name, value, 0);
 }
 
 void
-VrFormAddLabelField(const int debuglvl, VrForm *form, int height, int width, int toprow, int leftcol, chtype cp, char *value)
+VrFormAddLabelField(VrForm *form, int height, int width, int toprow, int leftcol, chtype cp, char *value)
 {
-    VrFormStoreField(debuglvl, form, VRMR_GUI_FORM_FIELD_TYPE_LABEL, cp, height, width, toprow, leftcol, NULL, value, 0);
+    VrFormStoreField(form, VRMR_GUI_FORM_FIELD_TYPE_LABEL, cp, height, width, toprow, leftcol, NULL, value, 0);
 }
 
 void
-VrFormAddCheckboxField(const int debuglvl, VrForm *form, int toprow, int leftcol, chtype cp, char *name, char enabled)
+VrFormAddCheckboxField(VrForm *form, int toprow, int leftcol, chtype cp, char *name, char enabled)
 {
     int height = 1;
     int width = 1;
 
     vrmr_fatal_if((int)StrLen(name) > width);
-    VrFormStoreField(debuglvl, form, VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX, cp, height, width, toprow, leftcol, name, NULL, (int)enabled);
+    VrFormStoreField(form, VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX, cp, height, width, toprow, leftcol, name, NULL, (int)enabled);
 }
 
-static void VrFormCreateField(const int debuglvl, VrForm *form, struct vrmr_gui_form_field *fld) {
+static void VrFormCreateField(VrForm *form, struct vrmr_gui_form_field *fld) {
     int result = 0;
 
     vrmr_fatal_if (form->cur_field >= form->nfields);
@@ -590,19 +590,19 @@ static void VrFormCreateField(const int debuglvl, VrForm *form, struct vrmr_gui_
     vrmr_fatal_if_null(form->fields[form->cur_field]);
 
     if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_TEXT) {
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, fld->v.value_str);
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, fld->name);
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "txt");
+        set_field_buffer_wrap(form->fields[form->cur_field], 0, fld->v.value_str);
+        set_field_buffer_wrap(form->fields[form->cur_field], 1, fld->name);
+        set_field_buffer_wrap(form->fields[form->cur_field], 2, "txt");
     } else if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_LABEL) {
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, fld->v.value_str);
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "lbl");
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "lbl");
+        set_field_buffer_wrap(form->fields[form->cur_field], 0, fld->v.value_str);
+        set_field_buffer_wrap(form->fields[form->cur_field], 1, "lbl");
+        set_field_buffer_wrap(form->fields[form->cur_field], 2, "lbl");
         field_opts_off(form->fields[form->cur_field], O_ACTIVE);
     } else if (fld->type == VRMR_GUI_FORM_FIELD_TYPE_CHECKBOX) {
         char *value = fld->v.value_bool ? "X" : " ";
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, value);
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, fld->name);
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "C");
+        set_field_buffer_wrap(form->fields[form->cur_field], 0, value);
+        set_field_buffer_wrap(form->fields[form->cur_field], 1, fld->name);
+        set_field_buffer_wrap(form->fields[form->cur_field], 2, "C");
     }
 
     result = set_field_back(form->fields[form->cur_field], fld->cp);
@@ -616,9 +616,9 @@ static void VrFormCreateField(const int debuglvl, VrForm *form, struct vrmr_gui_
         form->fields[form->cur_field] = new_field_wrap(fld->h, 3, fld->toprow, fld->leftcol, 0, 2);
         vrmr_fatal_if_null(form->fields[form->cur_field]);
 
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, "[ ]");
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "lbl");
-        set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "lbl");
+        set_field_buffer_wrap(form->fields[form->cur_field], 0, "[ ]");
+        set_field_buffer_wrap(form->fields[form->cur_field], 1, "lbl");
+        set_field_buffer_wrap(form->fields[form->cur_field], 2, "lbl");
         field_opts_off(form->fields[form->cur_field], O_EDIT);
         field_opts_off(form->fields[form->cur_field], O_ACTIVE);
 
@@ -629,7 +629,7 @@ static void VrFormCreateField(const int debuglvl, VrForm *form, struct vrmr_gui_
 }
 
 static void
-VrFormAddOKCancel(const int debuglvl, VrForm *form) {
+VrFormAddOKCancel(VrForm *form) {
     int result;
 
     /* +1 because we create two fields */
@@ -638,9 +638,9 @@ VrFormAddOKCancel(const int debuglvl, VrForm *form) {
     form->fields[form->cur_field] = new_field_wrap(1, 10, form->h - 2, 2, 0, 2);
     vrmr_fatal_if_null(form->fields[form->cur_field]);
 
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, gettext("    OK"));
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "save");
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "btn");
+    set_field_buffer_wrap(form->fields[form->cur_field], 0, gettext("    OK"));
+    set_field_buffer_wrap(form->fields[form->cur_field], 1, "save");
+    set_field_buffer_wrap(form->fields[form->cur_field], 2, "btn");
 
     result = set_field_back(form->fields[form->cur_field], vccnf.color_win_green_rev | A_BOLD);
     vrmr_fatal_if(result != E_OK);
@@ -651,9 +651,9 @@ VrFormAddOKCancel(const int debuglvl, VrForm *form) {
     form->fields[form->cur_field] = new_field_wrap(1, 10, form->h - 2, 16, 0, 2);
     vrmr_fatal_if_null(form->fields[form->cur_field]);
 
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 0, gettext("  Cancel"));
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 1, "nosave");
-    set_field_buffer_wrap(debuglvl, form->fields[form->cur_field], 2, "btn");
+    set_field_buffer_wrap(form->fields[form->cur_field], 0, gettext("  Cancel"));
+    set_field_buffer_wrap(form->fields[form->cur_field], 1, "nosave");
+    set_field_buffer_wrap(form->fields[form->cur_field], 2, "btn");
 
     result = set_field_back(form->fields[form->cur_field], vccnf.color_win_red_rev | A_BOLD);
     vrmr_fatal_if(result != E_OK);
@@ -663,7 +663,7 @@ VrFormAddOKCancel(const int debuglvl, VrForm *form) {
 }
 
 void
-VrFormConnectToWin(const int debuglvl, VrForm *form, VrWin *win)
+VrFormConnectToWin(VrForm *form, VrWin *win)
 {
     int result;
     int rows, cols;
@@ -693,11 +693,11 @@ VrFormConnectToWin(const int debuglvl, VrForm *form, VrWin *win)
 
     for (node = form->list.top; node; node = node->next) {
         fld = node->data;
-        VrFormCreateField(debuglvl, form, fld);
+        VrFormCreateField(form, fld);
     }
 
     /* add OK and Cancel fields */
-    VrFormAddOKCancel(debuglvl, form);
+    VrFormAddOKCancel(form);
 
     /* we are done adding fields, so reset counter */
     form->cur_field = 0;
@@ -719,7 +719,7 @@ VrFormConnectToWin(const int debuglvl, VrForm *form, VrWin *win)
 }
 
 static char
-VrFormTextNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
+VrFormTextNavigation(VrForm *form, FIELD *fld, int key)
 {
     char    match = FALSE;
 
@@ -793,7 +793,7 @@ VrFormTextNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
 }
 
 static char
-VrFormCheckboxNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
+VrFormCheckboxNavigation(VrForm *form, FIELD *fld, int key)
 {
     char    match = FALSE;
 
@@ -829,9 +829,9 @@ VrFormCheckboxNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
         {
             char *buf = field_buffer(fld, 0);
             if (strncmp(buf, "X", 1) == 0) {
-                set_field_buffer_wrap(debuglvl, fld, 0, " ");
+                set_field_buffer_wrap(fld, 0, " ");
             } else {
-                set_field_buffer_wrap(debuglvl, fld, 0, "X");
+                set_field_buffer_wrap(fld, 0, "X");
             }
 
             match = TRUE;
@@ -853,7 +853,7 @@ VrFormCheckboxNavigation(const int debuglvl, VrForm *form, FIELD *fld, int key)
     returns TRUE if the key matched, false if not
 */
 char
-VrFormDefaultNavigation(const int debuglvl, VrForm *form, int key)
+VrFormDefaultNavigation(VrForm *form, int key)
 {
     char    match = FALSE;
     FIELD   *fld = NULL;
@@ -870,9 +870,9 @@ VrFormDefaultNavigation(const int debuglvl, VrForm *form, int key)
         return(FALSE);
 
     if (strncmp(buf, "txt", 3) == 0)
-        return(VrFormTextNavigation(debuglvl, form, fld, key));
+        return(VrFormTextNavigation(form, fld, key));
     else if (strncmp(buf, "C", 1) == 0)
-        return(VrFormCheckboxNavigation(debuglvl, form, fld, key));
+        return(VrFormCheckboxNavigation(form, fld, key));
 
     switch(key)
     {
@@ -925,7 +925,7 @@ VrFormDefaultNavigation(const int debuglvl, VrForm *form, int key)
 }
 
 static int
-VrFormGetFields(const int debuglvl, VrForm *form, char *name, size_t nlen, char *value, size_t vlen)
+VrFormGetFields(VrForm *form, char *name, size_t nlen, char *value, size_t vlen)
 {
     FIELD *field = NULL;
     char *n = NULL, *v = NULL;
@@ -967,7 +967,7 @@ VrFormGetFields(const int debuglvl, VrForm *form, char *name, size_t nlen, char 
 }
 
 int
-VrFormCheckOKCancel(const int debuglvl, VrForm *form, int key)
+VrFormCheckOKCancel(VrForm *form, int key)
 {
     FIELD *fld = NULL;
     char *buf = NULL;
@@ -988,8 +988,8 @@ VrFormCheckOKCancel(const int debuglvl, VrForm *form, int key)
             char name[32] = "", value[32] = "";
 
             /* save */
-            while((VrFormGetFields(debuglvl, form, name, sizeof(name), value, sizeof(value)) == 1)) {
-                form->save(debuglvl, form->save_ctx, name, value);
+            while((VrFormGetFields(form, name, sizeof(name), value, sizeof(value)) == 1)) {
+                form->save(form->save_ctx, name, value);
             }
         }
         return(1);
@@ -1004,7 +1004,7 @@ VrFormCheckOKCancel(const int debuglvl, VrForm *form, int key)
 }
 
 void
-VrFormDrawMarker(const int debuglvl, VrWin *win, VrForm *form) {
+VrFormDrawMarker(VrWin *win, VrForm *form) {
     int pos_x,
         pos_y,
         x,
@@ -1042,7 +1042,7 @@ VrFormDrawMarker(const int debuglvl, VrWin *win, VrForm *form) {
 }
 
 int
-VrFormSetSaveFunc(const int debuglvl, VrForm *form, int (*save)(const int debuglvl, void *ctx, char *name, char *value), void *ctx) {
+VrFormSetSaveFunc(VrForm *form, int (*save)(void *ctx, char *name, char *value), void *ctx) {
     form->save_ctx = ctx;
     form->save = save;
     return(0);

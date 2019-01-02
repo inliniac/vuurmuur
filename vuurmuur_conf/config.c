@@ -21,7 +21,7 @@
 #include "main.h"
 
 void
-vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf)
+vcconfig_use_defaults(vc_cnf *cnf)
 {
     vrmr_fatal_if_null(cnf);
 
@@ -38,7 +38,7 @@ vcconfig_use_defaults(const int debuglvl, vc_cnf *cnf)
 }
 
 int
-init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_location, vc_cnf *cnf)
+init_vcconfig(struct vrmr_config *conf, char *configfile_location, vc_cnf *cnf)
 {
     int     retval = VRMR_CNF_OK,
             result = 0;
@@ -51,12 +51,12 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
 
     /* now, based on this, the helpdir location */
     snprintf(cnf->helpfile_location, sizeof(cnf->helpfile_location), "%s/help", conf->datadir);
-    vrmr_sanitize_path(debuglvl, cnf->helpfile_location,
+    vrmr_sanitize_path(cnf->helpfile_location,
             sizeof(cnf->helpfile_location));
 
     /* now, based on this, the scriptsdir location */
     snprintf(cnf->scripts_location, sizeof(cnf->scripts_location), "%s/scripts", conf->datadir);
-    vrmr_sanitize_path(debuglvl, cnf->scripts_location,
+    vrmr_sanitize_path(cnf->scripts_location,
             sizeof(cnf->scripts_location));
 
     if(!(fp = fopen(configfile_location, "r")))
@@ -81,12 +81,12 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
 
 
     /* check if we like the configfile */
-    if(!(vrmr_stat_ok(debuglvl, conf, configfile_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
+    if(!(vrmr_stat_ok(conf, configfile_location, VRMR_STATOK_WANT_FILE, VRMR_STATOK_VERBOSE, VRMR_STATOK_MUST_EXIST)))
         return(VRMR_CNF_E_FILE_PERMISSION);
 
 
     /* ADVANCED_MODE */
-    result = vrmr_ask_configfile(debuglvl, conf, "ADVANCED_MODE", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(conf, "ADVANCED_MODE", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -95,18 +95,16 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
         } else if(strcasecmp(answer, "no") == 0) {
             cnf->advanced_mode = 0;
         } else {
-            vrmr_debug(__FUNC__, "Not sure what to make of ADVANCED_MODE '%s', using default (%s).",
-                            answer,
-                            VRMR_DEFAULT_ADVANCED_MODE ? "Yes": "No");
+            vrmr_debug(NONE, "Not sure what to make of ADVANCED_MODE '%s', using default (%s).",
+                    answer, VRMR_DEFAULT_ADVANCED_MODE ? "Yes": "No");
 
             cnf->advanced_mode = VRMR_DEFAULT_ADVANCED_MODE;
         }
     }
     else if(result == 0)
     {
-        vrmr_debug(__FUNC__, "Variable ADVANCED_MODE not found in '%s'. Using default (%s).",
-                        configfile_location,
-                        VRMR_DEFAULT_ADVANCED_MODE ? "Yes" : "No");
+        vrmr_debug(NONE, "Variable ADVANCED_MODE not found in '%s'. Using default (%s).",
+                configfile_location, VRMR_DEFAULT_ADVANCED_MODE ? "Yes" : "No");
 
         cnf->advanced_mode = VRMR_DEFAULT_ADVANCED_MODE;
     }
@@ -115,7 +113,7 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
 
 
     /* MAINMENU_STATUS */
-    result = vrmr_ask_configfile(debuglvl, conf, "MAINMENU_STATUS", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(conf, "MAINMENU_STATUS", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -124,18 +122,16 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
         } else if(strcasecmp(answer, "no") == 0) {
             cnf->draw_status = 0;
         } else {
-            vrmr_debug(__FUNC__, "Not sure what to make of MAINMENU_STATUS '%s', using default (%s).",
-                            answer,
-                            VRMR_DEFAULT_MAINMENU_STATUS ? "Yes": "No");
+            vrmr_debug(NONE, "Not sure what to make of MAINMENU_STATUS '%s', using default (%s).",
+                    answer, VRMR_DEFAULT_MAINMENU_STATUS ? "Yes": "No");
 
             cnf->draw_status = VRMR_DEFAULT_MAINMENU_STATUS;
         }
     }
     else if(result == 0)
     {
-        vrmr_debug(__FUNC__, "Variable MAINMENU_STATUS not found in '%s'. Using default (%s).",
-                        configfile_location,
-                        VRMR_DEFAULT_MAINMENU_STATUS ? "Yes" : "No");
+        vrmr_debug(NONE, "Variable MAINMENU_STATUS not found in '%s'. Using default (%s).",
+                configfile_location, VRMR_DEFAULT_MAINMENU_STATUS ? "Yes" : "No");
 
         cnf->draw_status = VRMR_DEFAULT_MAINMENU_STATUS;
     }
@@ -144,16 +140,15 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
 
 
     /* IPTRAFVOL */
-    result = vrmr_ask_configfile(debuglvl, conf, "IPTRAFVOL", cnf->iptrafvol_location, configfile_location, sizeof(cnf->iptrafvol_location));
+    result = vrmr_ask_configfile(conf, "IPTRAFVOL", cnf->iptrafvol_location, configfile_location, sizeof(cnf->iptrafvol_location));
     if(result == 1)
     {
         /* ok */
     }
     else if(result == 0)
     {
-        vrmr_debug(__FUNC__, "Variable IPTRAFVOL not found in '%s', using default value: %s",
-                        configfile_location,
-                        VRMR_DEFAULT_IPTRAFVOL_LOCATION);
+        vrmr_debug(NONE, "Variable IPTRAFVOL not found in '%s', using default value: %s",
+                configfile_location, VRMR_DEFAULT_IPTRAFVOL_LOCATION);
 
         (void)strlcpy(cnf->iptrafvol_location, VRMR_DEFAULT_IPTRAFVOL_LOCATION,
             sizeof(cnf->iptrafvol_location));
@@ -161,12 +156,12 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
     else
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
-    vrmr_sanitize_path(debuglvl, cnf->iptrafvol_location,
+    vrmr_sanitize_path(cnf->iptrafvol_location,
             sizeof(cnf->iptrafvol_location));
 
 
     /* NEWRULE_LOG */
-    result = vrmr_ask_configfile(debuglvl, conf, "NEWRULE_LOG", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(conf, "NEWRULE_LOG", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -175,18 +170,16 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
         } else if(strcasecmp(answer, "no") == 0) {
             cnf->newrule_log = 0;
         } else {
-            vrmr_debug(__FUNC__, "Not sure what to make of NEWRULE_LOG '%s', using default (%s).",
-                            answer,
-                            VRMR_DEFAULT_NEWRULE_LOG ? "Yes": "No");
+            vrmr_debug(NONE, "Not sure what to make of NEWRULE_LOG '%s', using default (%s).",
+                    answer, VRMR_DEFAULT_NEWRULE_LOG ? "Yes": "No");
 
             cnf->newrule_log = VRMR_DEFAULT_NEWRULE_LOG;
         }
     }
     else if(result == 0)
     {
-        vrmr_debug(__FUNC__, "Variable NEWRULE_LOG not found in '%s'. Using default (%s).",
-                        configfile_location,
-                        VRMR_DEFAULT_NEWRULE_LOG ? "Yes" : "No");
+        vrmr_debug(NONE, "Variable NEWRULE_LOG not found in '%s'. Using default (%s).",
+                configfile_location, VRMR_DEFAULT_NEWRULE_LOG ? "Yes" : "No");
 
         cnf->newrule_log = VRMR_DEFAULT_NEWRULE_LOG;
     }
@@ -195,16 +188,15 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
 
 
     /* NEWRULE_LOGLIMIT */
-    result = vrmr_ask_configfile(debuglvl, conf, "NEWRULE_LOGLIMIT", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(conf, "NEWRULE_LOGLIMIT", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
         result = atoi(answer);
         if(result < 0)
         {
-            vrmr_debug(__FUNC__, "A negative LOG-limit (%d) can not be used, using default (%d).",
-                                result,
-                                VRMR_DEFAULT_NEWRULE_LOGLIMIT);
+            vrmr_debug(NONE, "A negative LOG-limit (%d) can not be used, using default (%d).",
+                    result, VRMR_DEFAULT_NEWRULE_LOGLIMIT);
 
             cnf->newrule_loglimit = (unsigned int)VRMR_DEFAULT_NEWRULE_LOGLIMIT;
             cnf->newrule_logburst = (unsigned int)(cnf->newrule_loglimit * 2);
@@ -217,9 +209,8 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
     }
     else if(result == 0)
     {
-        vrmr_debug(__FUNC__, "Variable NEWRULE_LOGLIMIT not found in '%s'. Using default (%d).",
-                            configfile_location,
-                            VRMR_DEFAULT_NEWRULE_LOGLIMIT);
+        vrmr_debug(NONE, "Variable NEWRULE_LOGLIMIT not found in '%s'. Using default (%d).",
+                configfile_location, VRMR_DEFAULT_NEWRULE_LOGLIMIT);
 
         cnf->newrule_loglimit = (unsigned int)VRMR_DEFAULT_NEWRULE_LOGLIMIT;
         cnf->newrule_logburst = (unsigned int)(cnf->newrule_loglimit * 2);
@@ -229,16 +220,15 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
 
 
     /* LOGVIEW_BUFSIZE */
-    result = vrmr_ask_configfile(debuglvl, conf, "LOGVIEW_BUFSIZE", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(conf, "LOGVIEW_BUFSIZE", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
         result = atoi(answer);
         if(result < 0)
         {
-            vrmr_debug(__FUNC__, "A negative buffersize (%d) can not be used, using default (%d).",
-                                result,
-                                VRMR_DEFAULT_LOGVIEW_BUFFERSIZE);
+            vrmr_debug(NONE, "A negative buffersize (%d) can not be used, using default (%d).",
+                    result, VRMR_DEFAULT_LOGVIEW_BUFFERSIZE);
 
             cnf->logview_bufsize = (unsigned int)VRMR_DEFAULT_LOGVIEW_BUFFERSIZE;
         }
@@ -249,9 +239,8 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
     }
     else if(result == 0)
     {
-        vrmr_debug(__FUNC__, "Variable LOGVIEW_BUFSIZE not found in '%s'. Using default (%d).",
-                            configfile_location,
-                            VRMR_DEFAULT_LOGVIEW_BUFFERSIZE);
+        vrmr_debug(NONE, "Variable LOGVIEW_BUFSIZE not found in '%s'. Using default (%d).",
+                configfile_location, VRMR_DEFAULT_LOGVIEW_BUFFERSIZE);
 
         cnf->logview_bufsize = (unsigned int)VRMR_DEFAULT_LOGVIEW_BUFFERSIZE;
     }
@@ -259,7 +248,7 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
         return(VRMR_CNF_E_UNKNOWN_ERR);
 
     /* BACKGROUND */
-    result = vrmr_ask_configfile(debuglvl, conf, "BACKGROUND", answer, configfile_location, sizeof(answer));
+    result = vrmr_ask_configfile(conf, "BACKGROUND", answer, configfile_location, sizeof(answer));
     if(result == 1)
     {
         /* ok, found */
@@ -278,7 +267,7 @@ init_vcconfig(const int debuglvl, struct vrmr_config *conf, char *configfile_loc
     Writes the config to disk.
 */
 int
-write_vcconfigfile(const int debuglvl, char *file_location, vc_cnf *cnf)
+write_vcconfigfile(char *file_location, vc_cnf *cnf)
 {
     FILE *fp = NULL;
 

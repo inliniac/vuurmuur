@@ -21,7 +21,7 @@
 #include "vuurmuur_script.h"
 
 int
-script_list(const int debuglvl, VuurmuurScript *vr_script)
+script_list(VuurmuurScript *vr_script)
 {
     char    back_zone[VRMR_MAX_ZONE] = "",
             back_net[VRMR_MAX_NETWORK] = "",
@@ -29,7 +29,7 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
 
     if(vr_script->type == VRMR_TYPE_ZONE)
     {
-        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type)
             {
@@ -39,21 +39,20 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_NETWORK)
     {
-        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type)
             {
                 if(strcmp(vr_script->name,"any") != 0)
                 {
                     /* validate and split the new name */
-                    if(vrmr_validate_zonename(debuglvl, vr_script->bdat, 0, back_zone, back_net, back_host, vr_script->vctx.reg.zonename, VRMR_VERBOSE) != 0)
+                    if(vrmr_validate_zonename(vr_script->bdat, 0, back_zone, back_net, back_host, vr_script->vctx.reg.zonename, VRMR_VERBOSE) != 0)
                     {
                         vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "invalid name '%s' returned from backend (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
                         return(VRS_ERR_INTERNAL);
                     }
-                    if(debuglvl >= HIGH)
-                        vrmr_debug(__FUNC__, "name: '%s': host/group '%s', net '%s', zone '%s'.",
-                                                vr_script->bdat, back_host, back_net, back_zone);
+                    vrmr_debug(HIGH, "name: '%s': host/group '%s', net '%s', zone '%s'.",
+                            vr_script->bdat, back_host, back_net, back_zone);
 
                     if(strcmp(back_zone, vr_script->name_zone) == 0)
                     {
@@ -69,21 +68,20 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
     {
-        while(vr_script->vctx.zf->list(debuglvl, vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
+        while(vr_script->vctx.zf->list(vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
         {
             if(vr_script->zonetype == vr_script->type)
             {
                 if(strcmp(vr_script->name,"any") != 0)
                 {
                     /* validate and split the new name */
-                    if(vrmr_validate_zonename(debuglvl, vr_script->bdat, 0, back_zone, back_net, back_host, vr_script->vctx.reg.zonename, VRMR_VERBOSE) != 0)
+                    if(vrmr_validate_zonename(vr_script->bdat, 0, back_zone, back_net, back_host, vr_script->vctx.reg.zonename, VRMR_VERBOSE) != 0)
                     {
                         vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "invalid name '%s' returned from backend (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
                         return(VRS_ERR_INTERNAL);
                     }
-                    if(debuglvl >= HIGH)
-                        vrmr_debug(__FUNC__, "name: '%s': host/group '%s', net '%s', zone '%s'.",
-                                                vr_script->bdat, back_host, back_net, back_zone);
+                    vrmr_debug(HIGH, "name: '%s': host/group '%s', net '%s', zone '%s'.",
+                            vr_script->bdat, back_host, back_net, back_zone);
 
                     if( strcmp(back_zone, vr_script->name_zone) == 0 &&
                         (vr_script->name_net[0] == '\0' || strcmp(back_net, vr_script->name_net) == 0))
@@ -100,21 +98,21 @@ script_list(const int debuglvl, VuurmuurScript *vr_script)
     }
     else if(vr_script->type == VRMR_TYPE_SERVICE)
     {
-        while(vr_script->vctx.sf->list(debuglvl, vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
+        while(vr_script->vctx.sf->list(vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
         {
             printf("%s\n", vr_script->bdat);
         }
     }
     else if(vr_script->type == VRMR_TYPE_INTERFACE)
     {
-        while(vr_script->vctx.af->list(debuglvl, vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
+        while(vr_script->vctx.af->list(vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
         {
             printf("%s\n", vr_script->bdat);
         }
     }
     else if(vr_script->type == VRMR_TYPE_RULE)
     {
-        while(vr_script->vctx.rf->list(debuglvl, vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
+        while(vr_script->vctx.rf->list(vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
         {
             printf("%s\n", vr_script->bdat);
         }
