@@ -141,8 +141,8 @@ struct rule_scratch {
         to, so we can check for double rules. */
     struct vrmr_list shaperulelist;
 
-    u_int16_t shape_class_out;
-    u_int16_t shape_class_in;
+    uint16_t shape_class_out;
+    uint16_t shape_class_in;
 
     char random[9]; /* --random */
 
@@ -410,8 +410,8 @@ int shaping_shape_create_rule(struct vrmr_config *cnf,
         struct vrmr_interfaces *interfaces, struct rule_scratch *rule,
         /*@null@*/ struct rule_set *ruleset,
         struct vrmr_interface *shape_iface_ptr,
-        struct vrmr_interface *class_iface_ptr, u_int16_t class, u_int32_t rate,
-        char *rate_unit, u_int32_t ceil, char *ceil_unit, u_int8_t prio);
+        struct vrmr_interface *class_iface_ptr, uint16_t class, uint32_t rate,
+        char *rate_unit, uint32_t ceil, char *ceil_unit, uint8_t prio);
 int shaping_determine_minimal_default_rates(
         struct vrmr_interfaces *interfaces, struct vrmr_rules *rules);
 int shaping_create_default_rules(struct vrmr_config *cnf,

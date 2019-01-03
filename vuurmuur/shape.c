@@ -22,9 +22,9 @@
 
 #include "main.h"
 
-static u_int32_t shaping_convert_rate(u_int32_t rate, char *unit)
+static uint32_t shaping_convert_rate(uint32_t rate, char *unit)
 {
-    u_int32_t kbit_rate = 0;
+    uint32_t kbit_rate = 0;
 
     vrmr_debug(NONE, "rate %u, unit %s", rate, unit);
 
@@ -49,8 +49,8 @@ static u_int32_t shaping_convert_rate(u_int32_t rate, char *unit)
  * 8192kbit ceil 9216kbit prio 1
  */
 struct shape_rule {
-    u_int16_t handle;
-    u_int16_t class;
+    uint16_t handle;
+    uint16_t class;
     char cmd[VRMR_MAX_PIPE_COMMAND];
     char device[16];
 };
@@ -118,7 +118,7 @@ static int shaping_ruleinsert(
     function: shaping_shape_create_rule
     */
 static int shaping_queue_rule(struct rule_scratch *rule,
-        /*@null@*/ struct rule_set *ruleset, u_int16_t handle, u_int16_t class,
+        /*@null@*/ struct rule_set *ruleset, uint16_t handle, uint16_t class,
         char *device, char *cmd)
 {
     struct shape_rule *shape_rule = NULL;
@@ -260,8 +260,8 @@ static int shaping_setup_interface_classes(struct vrmr_config *cnf,
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *inner_iface_ptr = NULL;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
-    u_int32_t rate = 0;
-    u_int32_t iface_rate = 0;
+    uint32_t rate = 0;
+    uint32_t iface_rate = 0;
 
     /* create this interface's class */
 
@@ -314,7 +314,7 @@ int shaping_setup_roots(struct vrmr_config *cnf,
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
-    u_int16_t handle = 2; /* start at 2 so the parents can be parent:current */
+    uint16_t handle = 2; /* start at 2 so the parents can be parent:current */
 
     /* if have no tc, no shaping is possible */
     if (strcmp(cnf->tc_location, "") == 0)
@@ -361,9 +361,9 @@ int shaping_setup_roots(struct vrmr_config *cnf,
 
 /* add a rate to the iface. If the rate is 0 use the default rate */
 static int shaping_add_rate_to_iface(
-        struct vrmr_interface *iface_ptr, u_int32_t rate, char *unit)
+        struct vrmr_interface *iface_ptr, uint32_t rate, char *unit)
 {
-    u_int32_t kbit_rate = 0;
+    uint32_t kbit_rate = 0;
 
     vrmr_debug(NONE, "rate %u, unit %s", rate, unit);
 
@@ -399,7 +399,7 @@ int shaping_determine_minimal_default_rates(
     struct vrmr_list_node *d_node = NULL, *d_node_iface = NULL;
     struct vrmr_rule *rule_ptr = NULL;
     struct vrmr_interface *iface_ptr = NULL;
-    u_int32_t rate = 0;
+    uint32_t rate = 0;
 
     for (d_node_iface = interfaces->list.top; d_node_iface != NULL;
             d_node_iface = d_node_iface->next) {
@@ -524,8 +524,8 @@ int shaping_create_default_rules(struct vrmr_config *cnf,
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_interface *iface_ptr = NULL;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
-    u_int16_t handle = 0;
-    u_int32_t rate = 0;
+    uint16_t handle = 0;
+    uint32_t rate = 0;
 
     handle = interfaces->shape_handle;
 
@@ -576,11 +576,11 @@ int shaping_shape_create_rule(struct vrmr_config *cnf,
         struct vrmr_interfaces *interfaces, struct rule_scratch *rule,
         /*@null@*/ struct rule_set *ruleset,
         struct vrmr_interface *shape_iface_ptr,
-        struct vrmr_interface *class_iface_ptr, u_int16_t class, u_int32_t rate,
-        char *rate_unit, u_int32_t ceil, char *ceil_unit, u_int8_t prio)
+        struct vrmr_interface *class_iface_ptr, uint16_t class, uint32_t rate,
+        char *rate_unit, uint32_t ceil, char *ceil_unit, uint8_t prio)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
-    u_int16_t class_handle = 1;
+    uint16_t class_handle = 1;
 
     if (strcmp(cnf->tc_location, "") == 0)
         return (0);

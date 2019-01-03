@@ -206,7 +206,7 @@ static void VrShapeIfaceSetup(
 static int VrShapeIfaceSave(void *ctx, char *name, char *value)
 {
     struct shape_iface_cnf *c = (struct shape_iface_cnf *)ctx;
-    u_int32_t oldrate = 0;
+    uint32_t oldrate = 0;
     int result = 0;
 
     // vrmr_debug(__FUNC__, "%s:%s", name, value);

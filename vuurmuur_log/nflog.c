@@ -82,8 +82,8 @@ static int createlogrule_callback(struct nflog_g_handle *gh,
     struct nfulnl_msg_packet_hdr *ph;
     char *hwhdr;
     char macstr[20];
-    u_int32_t indev;
-    u_int32_t outdev;
+    uint32_t indev;
+    uint32_t outdev;
     void *protoh;
     struct tcphdr *tcph;
     struct udphdr *udph;

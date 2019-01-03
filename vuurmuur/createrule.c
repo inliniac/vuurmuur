@@ -5913,7 +5913,7 @@ int create_estrelnfqueue_rules(struct vrmr_config *conf,
     struct vrmr_list_node *d_node = NULL;
     int retval = 0;
     struct vrmr_rule *rule_ptr = NULL;
-    u_int16_t queue_num = 0;
+    uint16_t queue_num = 0;
     char queues[65536 / 8];
 
     /* safety */
@@ -5997,7 +5997,7 @@ int create_newnfqueue_rules(struct vrmr_config *conf,
     struct vrmr_list_node *d_node = NULL;
     int retval = 0;
     struct vrmr_rule *rule_ptr = NULL;
-    u_int16_t queue_num = 0;
+    uint16_t queue_num = 0;
     char queues[65536 / 8];
 
     /* safety */
@@ -6084,7 +6084,7 @@ int create_estrelnflog_rules(struct vrmr_config *conf,
     struct vrmr_list_node *d_node = NULL;
     int retval = 0;
     struct vrmr_rule *rule_ptr = NULL;
-    u_int16_t nflog_num = 0;
+    uint16_t nflog_num = 0;
     char queues[65536 / 8];
 
     /* safety */
@@ -6190,7 +6190,7 @@ int create_newnflog_rules(struct vrmr_config *conf,
     struct vrmr_list_node *d_node = NULL;
     int retval = 0;
     struct vrmr_rule *rule_ptr = NULL;
-    u_int16_t nflog_num = 0;
+    uint16_t nflog_num = 0;
     char queues[65536 / 8];
 
     /* safety */
