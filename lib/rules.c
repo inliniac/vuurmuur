@@ -407,17 +407,14 @@ int vrmr_rules_analyze_rule(struct vrmr_rule *rule_ptr,
         if (create->ruletype == VRMR_RT_ERROR) {
             vrmr_error(-1, "Error",
                     "could not determine "
-                    "ruletype (in: %s:d).",
-                    __FUNC__, __LINE__);
+                    "ruletype");
             return (-1);
         }
 
         if (rule_ptr->action == VRMR_AT_CHAIN &&
                 (rule_ptr->opt == NULL || rule_ptr->opt->chain[0] == '\0')) {
             vrmr_error(-1, "Error",
-                    "the CHAIN target needs option 'chain' to be set (in: "
-                    "%s:%d).",
-                    __FUNC__, __LINE__);
+                    "the CHAIN target needs option 'chain' to be set");
             return (-1);
         }
 
@@ -1386,16 +1383,14 @@ static int rules_write_file(const struct vrmr_config *cnf,
     /* loop trough the list */
     for (d_node = rules->list.top; d_node; d_node = d_node->next) {
         if (!(rule_ptr = d_node->data)) {
-            vrmr_error(-1, "Internal Error", "NULL pointer (in: %s:%d).",
-                    __FUNC__);
+            vrmr_error(-1, "Internal Error", "NULL pointer");
 
             (void)vrmr_rules_file_close(fp, rulesfile_location);
             return (-1);
         }
 
         if (!(line = vrmr_rules_assemble_rule(rule_ptr))) {
-            vrmr_error(-1, "Internal Error",
-                    "assembling rule failed (in: %s:%d).", __FUNC__);
+            vrmr_error(-1, "Internal Error", "assembling rule failed");
 
             (void)vrmr_rules_file_close(fp, rulesfile_location);
             return (-1);

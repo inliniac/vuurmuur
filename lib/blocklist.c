@@ -46,17 +46,14 @@ static int blocklist_add_ip_to_list(
     if (len <= 0 || len > 15) {
         vrmr_error(-1, "Internal Error",
                 "weird ipaddress "
-                "size %u (in: %s:%d).",
-                len, __FUNC__, __LINE__);
+                "size %u",
+                (unsigned int)len);
         return (-1);
     }
 
     /* alloc the mem */
     if (!(ipaddress = strdup(ip))) {
-        vrmr_error(-1, "Error",
-                "strdup failed: %s "
-                "(in: %s:%d).",
-                strerror(errno), __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "strdup failed: %s", strerror(errno));
         return (-1);
     }
 
@@ -64,8 +61,7 @@ static int blocklist_add_ip_to_list(
     if (vrmr_list_append(&blocklist->list, ipaddress) == NULL) {
         vrmr_error(-1, "Internal Error",
                 "appending into the "
-                "list failed (in: %s:%d).",
-                __FUNC__, __LINE__);
+                "list failed");
         free(ipaddress);
         return (-1);
     }

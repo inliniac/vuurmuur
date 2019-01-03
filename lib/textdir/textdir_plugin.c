@@ -38,14 +38,14 @@ char *get_filelocation(void *backend, char *name, const int type)
 
     /* better safe than sorry */
     if (!backend || !name) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", HIGH);
+        vrmr_error(-1, "Internal Error", "parameter problem");
         return (NULL);
     }
     tb = (struct textdir_backend *)backend;
 
     /* check if backend is open */
     if (!tb->backend_open) {
-        vrmr_error(-1, "Error", "backend not opened yet (in: %s).", HIGH);
+        vrmr_error(-1, "Error", "backend not opened yet");
         return (NULL);
     }
 
@@ -59,7 +59,7 @@ char *get_filelocation(void *backend, char *name, const int type)
         /* validate the name */
         if (vrmr_validate_zonename(name, 0, zonename, networkname, hostname,
                     tb->zonename_reg, VRMR_VERBOSE) != 0) {
-            vrmr_error(-1, "Error", "zonename '%s' is not valid.", name);
+            vrmr_error(-1, "Error", "zonename '%s' is not valid", name);
             return (NULL);
         }
 
@@ -79,8 +79,7 @@ char *get_filelocation(void *backend, char *name, const int type)
                             "%s/zones/%s/networks/%s/hosts/%s.host",
                             tb->textdirlocation, zonename, networkname,
                             hostname) >= (int)sizeof(file_location)) {
-                    vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).",
-                            HIGH, __LINE__);
+                    vrmr_error(-1, "Error", "buffer overflow");
                     return (NULL);
                 }
 
@@ -100,8 +99,7 @@ char *get_filelocation(void *backend, char *name, const int type)
                             "%s/zones/%s/networks/%s/groups/%s.group",
                             tb->textdirlocation, zonename, networkname,
                             hostname) >= (int)sizeof(file_location)) {
-                    vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).",
-                            HIGH, __LINE__);
+                    vrmr_error(-1, "Error", "buffer overflow");
                     return (NULL);
                 }
 
@@ -121,8 +119,7 @@ char *get_filelocation(void *backend, char *name, const int type)
                             "%s/zones/%s/networks/%s/network.config",
                             tb->textdirlocation, zonename,
                             networkname) >= (int)sizeof(file_location)) {
-                    vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).",
-                            HIGH, __LINE__);
+                    vrmr_error(-1, "Error", "buffer overflow");
                     return (NULL);
                 }
 
@@ -140,8 +137,7 @@ char *get_filelocation(void *backend, char *name, const int type)
                 if (snprintf(file_location, sizeof(file_location),
                             "%s/zones/%s/zone.config", tb->textdirlocation,
                             zonename) >= (int)sizeof(file_location)) {
-                    vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).",
-                            HIGH, __LINE__);
+                    vrmr_error(-1, "Error", "buffer overflow");
                     return (NULL);
                 }
 
@@ -166,8 +162,7 @@ char *get_filelocation(void *backend, char *name, const int type)
         /* assemble the filestring, and make sure we dont overflow */
         if (snprintf(file_location, sizeof(file_location), "%s/services/%s",
                     tb->textdirlocation, name) >= (int)sizeof(file_location)) {
-            vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", HIGH,
-                    __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow");
             return (NULL);
         }
 
@@ -191,8 +186,7 @@ char *get_filelocation(void *backend, char *name, const int type)
         if (snprintf(file_location, sizeof(file_location),
                     "%s/interfaces/%s.conf", tb->textdirlocation,
                     name) >= (int)sizeof(file_location)) {
-            vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", HIGH,
-                    __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow");
             return (NULL);
         }
 
@@ -201,8 +195,7 @@ char *get_filelocation(void *backend, char *name, const int type)
         /* assemble the filestring, and make sure we dont overflow */
         if (snprintf(file_location, sizeof(file_location), "%s/rules/%s.conf",
                     tb->textdirlocation, name) >= (int)sizeof(file_location)) {
-            vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", HIGH,
-                    __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow");
             return (NULL);
         }
 
@@ -211,15 +204,13 @@ char *get_filelocation(void *backend, char *name, const int type)
 
     /* well, this should not happen, right? */
     else {
-        vrmr_error(-1, "Internal Error",
-                "unknown type of question '%d' (in: %s).", type, HIGH);
+        vrmr_error(-1, "Internal Error", "unknown type of question '%d'", type);
         return (NULL);
     }
 
     /* now allocate some memory */
     if (!(fileloc_ptr = strdup(file_location))) {
-        vrmr_error(-1, "Error", "strdup failed: %s (in: %s).", strerror(errno),
-                HIGH);
+        vrmr_error(-1, "Error", "strdup failed: %s", strerror(errno));
         return (NULL);
     }
 
@@ -232,18 +223,15 @@ char *get_filelocation(void *backend, char *name, const int type)
 */
 int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
 {
-    struct textdir_backend *tb = NULL;
     char dir_location[PATH_MAX] = "";
     DIR *dir_p = NULL;
 
     if (backend == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", HIGH,
-                __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem");
         return (-1);
     }
 
-    /* check if the backend is opened */
-    tb = (struct textdir_backend *)backend;
+    struct textdir_backend *tb = (struct textdir_backend *)backend;
 
     /* see if we like the permissions of the textdirroot */
     if (!(vrmr_stat_ok(tb->cfg, tb->textdirlocation, VRMR_STATOK_WANT_DIR,
@@ -251,9 +239,8 @@ int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
         return (-1);
 
     if (tb->backend_open == 1) {
-        vrmr_error(-1, "Internal Error",
-                "opening textdir failed: already open (in: %s:%d).", HIGH,
-                __LINE__);
+        vrmr_error(
+                -1, "Internal Error", "opening textdir failed: already open");
         return (-1);
     } else {
         vrmr_debug(HIGH, "setting backed_open to 1");
@@ -266,8 +253,8 @@ int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
     if (type == VRMR_BT_ZONES) {
         /* regex setup */
         if (!(tb->zonename_reg = malloc(sizeof(regex_t)))) {
-            vrmr_error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-                    strerror(errno), HIGH, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "malloc failed: %s", strerror(errno));
 
             /* set the backend to closed again */
             tb->backend_open = 0;
@@ -276,8 +263,7 @@ int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
 
         /* this regex is defined in libvuurmuur -> vuurmuur.h */
         if (regcomp(tb->zonename_reg, VRMR_ZONE_REGEX, REG_EXTENDED) != 0) {
-            vrmr_error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-                    HIGH, __LINE__);
+            vrmr_error(-1, "Internal Error", "regcomp() failed");
             /* set the backend to closed again */
             tb->backend_open = 0;
 
@@ -295,8 +281,8 @@ int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
     } else if (type == VRMR_BT_SERVICES) {
         /* regex setup */
         if (!(tb->servicename_reg = malloc(sizeof(regex_t)))) {
-            vrmr_error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-                    strerror(errno), HIGH, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "malloc failed: %s", strerror(errno));
 
             /* set the backend to closed again */
             tb->backend_open = 0;
@@ -305,8 +291,7 @@ int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
 
         /* this regex is defined in libvuurmuur -> vuurmuur.h */
         if (regcomp(tb->servicename_reg, VRMR_SERV_REGEX, REG_EXTENDED) != 0) {
-            vrmr_error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-                    HIGH, __LINE__);
+            vrmr_error(-1, "Internal Error", "regcomp() failed");
             /* set the backend to closed again */
             tb->backend_open = 0;
 
@@ -324,8 +309,8 @@ int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
     } else if (type == VRMR_BT_INTERFACES) {
         /* regex setup */
         if (!(tb->interfacename_reg = malloc(sizeof(regex_t)))) {
-            vrmr_error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
-                    strerror(errno), HIGH, __LINE__);
+            vrmr_error(
+                    -1, "Internal Error", "malloc failed: %s", strerror(errno));
 
             /* set the backend to closed again */
             tb->backend_open = 0;
@@ -335,8 +320,7 @@ int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
         /* this regex is defined in libvuurmuur -> vuurmuur.h */
         if (regcomp(tb->interfacename_reg, VRMR_IFAC_REGEX, REG_EXTENDED) !=
                 0) {
-            vrmr_error(-1, "Internal Error", "regcomp() failed (in: %s:%d).",
-                    HIGH, __LINE__);
+            vrmr_error(-1, "Internal Error", "regcomp() failed");
             /* set the backend to closed again */
             tb->backend_open = 0;
 
@@ -356,8 +340,7 @@ int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
         snprintf(dir_location, sizeof(dir_location), "%s/rules",
                 tb->textdirlocation);
     } else {
-        vrmr_error(-1, "Internal Error", "unknown type %d (in: %s:%d).", type,
-                HIGH, __LINE__);
+        vrmr_error(-1, "Internal Error", "unknown type %d", type);
         return (-1);
     }
 
@@ -365,15 +348,13 @@ int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
     if (!(dir_p = opendir(dir_location))) {
         if (errno == ENOENT) {
             if (mkdir(dir_location, 0700) < 0) {
-                vrmr_error(-1, "Error",
-                        "creating directory '%s' failed: %s (in %s:%d).",
-                        dir_location, strerror(errno), HIGH, __LINE__);
+                vrmr_error(-1, "Error", "creating directory '%s' failed: %s",
+                        dir_location, strerror(errno));
                 return (-1);
             }
         } else {
-            vrmr_error(-1, "Error",
-                    "opening directory '%s' failed: %s (in %s:%d).",
-                    dir_location, strerror(errno), HIGH, __LINE__);
+            vrmr_error(-1, "Error", "opening directory '%s' failed: %s",
+                    dir_location, strerror(errno));
             return (-1);
         }
     } else {
@@ -395,15 +376,12 @@ int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
 
 int close_textdir(void *backend, int type)
 {
-    struct textdir_backend *tb = NULL;
-
     if (backend == NULL) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).", HIGH,
-                __LINE__);
+        vrmr_error(-1, "Internal Error", "parameter problem");
         return (-1);
     }
-    tb = (struct textdir_backend *)backend;
 
+    struct textdir_backend *tb = (struct textdir_backend *)backend;
     if (tb->backend_open == 1) {
         vrmr_debug(HIGH, "closing: setting backend_open to 0");
 
@@ -432,8 +410,7 @@ int close_textdir(void *backend, int type)
     } else if (type == VRMR_BT_RULES) {
         /* nothing yet */
     } else {
-        vrmr_error(-1, "Internal Error", "unknown type %d (in: %s:%d).", type,
-                HIGH, __LINE__);
+        vrmr_error(-1, "Internal Error", "unknown type %d", type);
         return (-1);
     }
 
@@ -475,15 +452,14 @@ int add_textdir(void *backend, char *name, int type)
 
     /* safety */
     if (!backend || !name) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", HIGH);
+        vrmr_error(-1, "Internal Error", "parameter problem");
         return (-1);
     }
 
     /* check if the backend is open */
     tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
-        vrmr_error(-1, "Error", "Backend not opened yet (in: %s:%d).", HIGH,
-                __LINE__);
+        vrmr_error(-1, "Error", "Backend not opened yet");
         return (-1);
     }
 
@@ -755,14 +731,14 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
 
     /* safety */
     if (!backend || !name) {
-        vrmr_error(-1, "Error", "parameter problem (in: %s).", HIGH);
+        vrmr_error(-1, "Error", "parameter problem");
         return (-1);
     }
 
     /* check if the backend was properly openend */
     tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
-        vrmr_error(-1, "Error", "backend not opened yet (in: %s).", HIGH);
+        vrmr_error(-1, "Error", "backend not opened yet");
         return (-1);
     }
 
@@ -774,7 +750,7 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
         // split up the name
         if (vrmr_validate_zonename(name, 0, zonename, networkname, hostname,
                     tb->zonename_reg, VRMR_VERBOSE) != 0) {
-            vrmr_error(-1, "Error", "Zonename '%s' is not valid.", name);
+            vrmr_error(-1, "Error", "Zonename '%s' is not valid", name);
             return (-1);
         }
     }
@@ -820,9 +796,7 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
                     "%s/zones/%s/networks/%s/hosts", tb->textdirlocation,
                     zonename, networkname) >= (int)sizeof(dir_location)) {
             vrmr_error(-1, "Internal Error",
-                    "overflow while determining the location to remove (in: "
-                    "%s:%d).",
-                    HIGH, __LINE__);
+                    "overflow while determining the location to remove");
 
             free(file_location);
             return (-1);
@@ -842,9 +816,7 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
                     "%s/zones/%s/networks/%s/groups", tb->textdirlocation,
                     zonename, networkname) >= (int)sizeof(dir_location)) {
             vrmr_error(-1, "Internal Error",
-                    "overflow while determining the location to remove (in: "
-                    "%s:%d).",
-                    HIGH, __LINE__);
+                    "overflow while determining the location to remove");
 
             free(file_location);
             return (-1);
@@ -860,9 +832,7 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
                         "%s/zones/%s/networks/%s/hosts", tb->textdirlocation,
                         zonename, networkname) >= (int)sizeof(dir_location)) {
                 vrmr_error(-1, "Internal Error",
-                        "overflow while determining the location to remove "
-                        "(in: %s:%d).",
-                        HIGH, __LINE__);
+                        "overflow while determining the location to remove");
 
                 free(file_location);
                 return (-1);
@@ -883,7 +853,7 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
 
         /* the network.config file */
         if (remove(file_location) < 0) {
-            vrmr_error(-1, "Error", "deleting network.config: %s.",
+            vrmr_error(-1, "Error", "deleting network.config: %s",
                     strerror(errno));
 
             free(file_location);
@@ -895,16 +865,14 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
                     "%s/zones/%s/networks/%s", tb->textdirlocation, zonename,
                     networkname) >= (int)sizeof(dir_location)) {
             vrmr_error(-1, "Internal Error",
-                    "overflow while determining the location to remove (in: "
-                    "%s:%d).",
-                    HIGH, __LINE__);
+                    "overflow while determining the location to remove");
 
             free(file_location);
             return (-1);
         }
         if (rmdir(dir_location) < 0) {
             vrmr_error(
-                    -1, "Error", "deleting network dir: %s.", strerror(errno));
+                    -1, "Error", "deleting network dir: %s", strerror(errno));
 
             free(file_location);
             return (-1);
@@ -916,9 +884,7 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
         if (snprintf(dir_location, sizeof(dir_location), "%s/zones/%s/networks",
                     tb->textdirlocation, name) >= (int)sizeof(dir_location)) {
             vrmr_error(-1, "Internal Error",
-                    "overflow while determining the location to remove (in: "
-                    "%s:%d).",
-                    HIGH, __LINE__);
+                    "overflow while determining the location to remove");
 
             free(file_location);
             return (-1);
@@ -933,7 +899,7 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
 
         /* the zone.config file */
         if (remove(file_location) < 0) {
-            vrmr_error(-1, "Error", "deleting zone.config failed: %s.",
+            vrmr_error(-1, "Error", "deleting zone.config failed: %s",
                     strerror(errno));
 
             free(file_location);
@@ -943,9 +909,7 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
         if (snprintf(dir_location, sizeof(dir_location), "%s/zones/%s",
                     tb->textdirlocation, name) >= (int)sizeof(dir_location)) {
             vrmr_error(-1, "Internal Error",
-                    "overflow while determining the location to remove (in: "
-                    "%s:%d).",
-                    HIGH, __LINE__);
+                    "overflow while determining the location to remove");
 
             free(file_location);
             return (-1);
@@ -959,7 +923,7 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
         }
     } else if (type == VRMR_TYPE_SERVICE) {
         if (remove(file_location) < 0) {
-            vrmr_error(-1, "Error", "deleting service %s: %s (%s).", name,
+            vrmr_error(-1, "Error", "deleting service %s: %s (%s)", name,
                     strerror(errno), file_location);
 
             free(file_location);
@@ -967,7 +931,7 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
         }
     } else if (type == VRMR_TYPE_INTERFACE) {
         if (remove(file_location) < 0) {
-            vrmr_error(-1, "Error", "deleting interface %s: %s (%s).", name,
+            vrmr_error(-1, "Error", "deleting interface %s: %s (%s)", name,
                     strerror(errno), file_location);
 
             free(file_location);
@@ -976,8 +940,7 @@ int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
     }
     /* handle unknown */
     else {
-        vrmr_error(-1, "Internal Error", "unknown type: %d (in: del_textdir).",
-                type);
+        vrmr_error(-1, "Internal Error", "unknown type: %d", type);
         free(file_location);
         return (-1);
     }
@@ -1007,19 +970,18 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
          new_net_name[VRMR_MAX_NETWORK] = "", new_host_name[VRMR_MAX_HOST] = "";
     char old_zone_name[VRMR_MAX_ZONE] = "", old_net_name[VRMR_MAX_NETWORK] = "",
          old_host_name[VRMR_MAX_HOST] = "";
-    struct textdir_backend *tb = NULL;
     char new_file_location[256] = "", old_file_location[256] = "";
 
     /* safety */
     if (!backend || !name || !newname) {
-        vrmr_error(-1, "Error", "parameter problem (in: %s).", HIGH);
+        vrmr_error(-1, "Error", "parameter problem");
         return (-1);
     }
 
+    struct textdir_backend *tb = (struct textdir_backend *)backend;
     /* check if the backend was properly openend */
-    tb = (struct textdir_backend *)backend;
     if (!tb->backend_open) {
-        vrmr_error(-1, "Error", "backend not opened yet (in: %s).", HIGH);
+        vrmr_error(-1, "Error", "backend not opened yet");
         return (-1);
     }
 
@@ -1032,14 +994,14 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
         /* validate the name */
         if (vrmr_validate_zonename(name, 0, old_zone_name, old_net_name,
                     old_host_name, tb->zonename_reg, VRMR_VERBOSE) != 0) {
-            vrmr_error(-1, "Error", "zonename '%s' is not valid.", newname);
+            vrmr_error(-1, "Error", "zonename '%s' is not valid", newname);
             return (-1);
         }
 
         /* validate the name */
         if (vrmr_validate_zonename(newname, 0, vrmr_new_zone_name, new_net_name,
                     new_host_name, tb->zonename_reg, VRMR_VERBOSE) != 0) {
-            vrmr_error(-1, "Error", "zonename '%s' is not valid.", newname);
+            vrmr_error(-1, "Error", "zonename '%s' is not valid", newname);
             return (-1);
         }
     }
@@ -1051,8 +1013,7 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
         if (snprintf(old_file_location, sizeof(old_file_location),
                     "%s/zones/%s", tb->textdirlocation,
                     old_zone_name) >= (int)sizeof(old_file_location)) {
-            vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", HIGH,
-                    __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow");
             return (-1);
         }
 
@@ -1062,16 +1023,14 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
         if (snprintf(new_file_location, sizeof(new_file_location),
                     "%s/zones/%s", tb->textdirlocation,
                     vrmr_new_zone_name) >= (int)sizeof(new_file_location)) {
-            vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", HIGH,
-                    __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow");
             return (-1);
         }
 
         result = rename(old_file_location, new_file_location);
         if (result != 0) {
-            vrmr_error(-1, "Error",
-                    "renaming '%s' to '%s' failed: %s (in: %s:%d).", name,
-                    newname, strerror(errno), HIGH, __LINE__);
+            vrmr_error(-1, "Error", "renaming '%s' to '%s' failed: %s", name,
+                    newname, strerror(errno));
             return (-1);
         }
     } else if (type == VRMR_TYPE_NETWORK) {
@@ -1082,8 +1041,7 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
                     "%s/zones/%s/networks/%s", tb->textdirlocation,
                     old_zone_name,
                     old_net_name) >= (int)sizeof(old_file_location)) {
-            vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", HIGH,
-                    __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow");
             return (-1);
         }
 
@@ -1094,31 +1052,27 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
                     "%s/zones/%s/networks/%s", tb->textdirlocation,
                     vrmr_new_zone_name,
                     new_net_name) >= (int)sizeof(new_file_location)) {
-            vrmr_error(-1, "Error", "buffer overflow (in: %s:%d).", HIGH,
-                    __LINE__);
+            vrmr_error(-1, "Error", "buffer overflow");
             return (-1);
         }
 
         result = rename(old_file_location, new_file_location);
         if (result != 0) {
-            vrmr_error(-1, "Error",
-                    "renaming '%s' to '%s' failed: %s (in: %s:%d).", name,
-                    newname, strerror(errno), HIGH, __LINE__);
+            vrmr_error(-1, "Error", "renaming '%s' to '%s' failed: %s", name,
+                    newname, strerror(errno));
             return (-1);
         }
     } else if (type == VRMR_TYPE_HOST || type == VRMR_TYPE_GROUP) {
         /* determine the location of the file */
         if (!(oldpath = get_filelocation(backend, name, type))) {
-            vrmr_error(-1, "Error", "getting path for '%s' failed (in: %s:%d).",
-                    name, HIGH, __LINE__);
+            vrmr_error(-1, "Error", "getting path for '%s' failed", name);
             return (-1);
         }
         vrmr_debug(HIGH, "oldpath: '%s'.", oldpath);
 
         /* determine the location of the new file */
         if (!(newpath = get_filelocation(backend, newname, type))) {
-            vrmr_error(-1, "Error", "getting path for '%s' failed (in: %s:%d).",
-                    newname, HIGH, __LINE__);
+            vrmr_error(-1, "Error", "getting path for '%s' failed", newname);
             free(oldpath);
             return (-1);
         }
@@ -1130,23 +1084,20 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
         free(newpath);
         /* then analyse result */
         if (result != 0) {
-            vrmr_error(-1, "Error",
-                    "renaming '%s' to '%s' failed: %s (in: %s:%d).", name,
-                    newname, strerror(errno), HIGH, __LINE__);
+            vrmr_error(-1, "Error", "renaming '%s' to '%s' failed: %s", name,
+                    newname, strerror(errno));
             return (-1);
         }
     } else if (type == VRMR_TYPE_SERVICE || type == VRMR_TYPE_INTERFACE) {
         /* determine the location of the file */
         if (!(oldpath = get_filelocation(backend, name, type))) {
-            vrmr_error(-1, "Error", "getting path for '%s' failed (in: %s:%d).",
-                    name, HIGH, __LINE__);
+            vrmr_error(-1, "Error", "getting path for '%s' failed", name);
             return (-1);
         }
 
         /* determine the location of the new file */
         if (!(newpath = get_filelocation(backend, newname, type))) {
-            vrmr_error(-1, "Error", "getting path for '%s' failed (in: %s:%d).",
-                    newname, HIGH, __LINE__);
+            vrmr_error(-1, "Error", "getting path for '%s' failed", newname);
             free(oldpath);
             return (-1);
         }
@@ -1157,14 +1108,12 @@ int rename_textdir(void *backend, char *name, char *newname, int type)
         free(newpath);
         /* then analyse result */
         if (result != 0) {
-            vrmr_error(-1, "Error",
-                    "renaming '%s' to '%s' failed: %s (in: %s:%d).", name,
-                    newname, strerror(errno), HIGH, __LINE__);
+            vrmr_error(-1, "Error", "renaming '%s' to '%s' failed: %s", name,
+                    newname, strerror(errno));
             return (-1);
         }
     } else {
-        vrmr_error(-1, "Internal Error", "unknown type '%d' (in: %s:%d).", type,
-                HIGH, __LINE__);
+        vrmr_error(-1, "Internal Error", "unknown type '%d'", type);
         return (-1);
     }
 
@@ -1187,7 +1136,7 @@ int conf_textdir(void *backend)
 
     /* safety first */
     if (!backend) {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", HIGH);
+        vrmr_error(-1, "Internal Error", "parameter problem");
         return (-1);
     }
     tb = (struct textdir_backend *)backend;
@@ -1198,8 +1147,7 @@ int conf_textdir(void *backend)
                 tb->cfg->etcdir) >= (int)sizeof(configfile_location)) {
         vrmr_error(-1, "Internal Error",
                 "could not determine configfile location: locationstring "
-                "overflow (in: %s).",
-                HIGH);
+                "overflow");
         return (-1);
     }
 
@@ -1209,14 +1157,13 @@ int conf_textdir(void *backend)
     if (result < 0) {
         vrmr_error(-1, "Error",
                 "failed to get the textdir-root from: %s. Please make sure "
-                "LOCATION is set (in: %s).",
-                configfile_location, HIGH);
+                "LOCATION is set",
+                configfile_location);
         retval = -1;
     } else if (result == 0) {
         vrmr_error(-1, "Error",
-                "no information about the location of the backend in '%s' (in: "
-                "%s).",
-                configfile_location, HIGH);
+                "no information about the location of the backend in '%s'",
+                configfile_location);
         retval = -1;
     } else {
         vrmr_debug(MEDIUM, "textdir location: LOCATION = %s.",
@@ -1231,8 +1178,7 @@ int setup_textdir(const struct vrmr_config *cfg, void **backend)
     struct textdir_backend *tb = NULL;
 
     if (!(tb = malloc(sizeof(struct textdir_backend)))) {
-        vrmr_error(-1, "Error", "malloc failed: %s (in: %s:%d).",
-                strerror(errno), HIGH, __LINE__);
+        vrmr_error(-1, "Error", "malloc failed: %s", strerror(errno));
         return (-1);
     }
 

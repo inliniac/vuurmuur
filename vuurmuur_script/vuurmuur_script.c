@@ -268,7 +268,8 @@ int main(int argc, char *argv[])
                 debug_level = atoi(optarg);
                 if (debug_level < 0 || debug_level > HIGH) {
                     vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
-                            "illegal debug level: %d (max: %d)", HIGH);
+                            "illegal debug level: %d, max: %d", debug_level,
+                            HIGH);
                     exit(VRS_ERR_COMMANDLINE);
                 }
                 vrmr_debug_level = debug_level;

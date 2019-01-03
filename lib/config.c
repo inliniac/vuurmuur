@@ -176,8 +176,7 @@ int vrmr_check_iptables_command(
     if (strcmp(iptables_location, "") == 0) {
         if (quiet == VRMR_IPTCHK_VERBOSE)
             vrmr_error(0, "Error",
-                    "The path to the 'iptables'-command was not set.",
-                    iptables_location);
+                    "The path to the 'iptables'-command was not set");
 
         return (0);
     } else {
@@ -214,9 +213,7 @@ int vrmr_check_iptablesrestore_command(
     if (strcmp(iptablesrestore_location, "") == 0) {
         if (quiet == VRMR_IPTCHK_VERBOSE)
             vrmr_error(0, "Error",
-                    "The path to the 'iptables-restore'-command was not set.",
-                    iptablesrestore_location);
-
+                    "The path to the 'iptables-restore'-command was not set");
         return (0);
     } else {
         /* now check the command */
@@ -260,8 +257,7 @@ int vrmr_check_ip6tables_command(
     if (strcmp(ip6tables_location, "") == 0) {
         if (quiet == FALSE)
             vrmr_error(0, "Error",
-                    "The path to the 'ip6tables'-command was not set.",
-                    ip6tables_location);
+                    "The path to the 'ip6tables'-command was not set");
 
         return (0);
     } else {
@@ -272,7 +268,7 @@ int vrmr_check_ip6tables_command(
             if (quiet == FALSE)
                 vrmr_error(0, "Error",
                         "The path '%s' to the 'ip6tables'-command seems to be "
-                        "wrong.",
+                        "wrong",
                         ip6tables_location);
 
             return (0);
@@ -296,8 +292,7 @@ int vrmr_check_ip6tablesrestore_command(
     if (strcmp(ip6tablesrestore_location, "") == 0) {
         if (quiet == FALSE)
             vrmr_error(0, "Error",
-                    "The path to the 'ip6tables-restore'-command was not set.",
-                    ip6tablesrestore_location);
+                    "The path to the 'ip6tables-restore'-command was not set");
 
         return (0);
     } else {
@@ -334,8 +329,7 @@ int vrmr_check_tc_command(
     /* first check if there even is a value */
     if (strcmp(tc_location, "") == 0) {
         if (quiet == VRMR_IPTCHK_VERBOSE)
-            vrmr_error(0, "Error", "The path to the 'tc'-command was not set.",
-                    tc_location);
+            vrmr_error(0, "Error", "The path to the 'tc'-command was not set");
 
         return (0);
     } else {

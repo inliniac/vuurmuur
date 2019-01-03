@@ -31,9 +31,8 @@ int vrmr_read_proc_entry(char *proc_entry, int *value)
 
     entry_length = strlen(proc_entry);
     if (entry_length >= VRMR_MAX_PROC_ENTRY_LENGHT) {
-        vrmr_error(-1, "Error",
-                "proc_entry is too long (%d, max: %d) (in: %s).", entry_length,
-                VRMR_MAX_PROC_ENTRY_LENGHT, __FUNC__);
+        vrmr_error(-1, "Error", "proc_entry is too long (%d, max: %d)",
+                (int)entry_length, VRMR_MAX_PROC_ENTRY_LENGHT);
         return (-1);
     }
 
@@ -90,10 +89,8 @@ int vrmr_set_proc_entry(
     /* first check if we have an '*' in the proc_entry */
     entry_length = strlen(proc_entry);
     if (entry_length >= VRMR_MAX_PROC_ENTRY_LENGHT) {
-        vrmr_error(-1, "Error",
-                "proc_entry is too long (%d, max: %d) (in: "
-                "vrmr_set_proc_entry).",
-                entry_length, VRMR_MAX_PROC_ENTRY_LENGHT);
+        vrmr_error(-1, "Error", "proc_entry is too long (%d, max: %d)",
+                (int)entry_length, VRMR_MAX_PROC_ENTRY_LENGHT);
         return (-1);
     }
 

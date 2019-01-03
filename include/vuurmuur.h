@@ -420,7 +420,6 @@ struct vrprint_ {
 extern int vrmr_debug_level;
 
 struct vrprint_ vrprint;
-#define vrmr_error (void)vrprint.error
 #define vrmr_warning (void)vrprint.warning
 #define vrmr_info (void)vrprint.info
 #define vrmr_audit (void)vrprint.audit
@@ -436,6 +435,18 @@ struct vrprint_ vrprint;
                     __LINE__, __func__);                                       \
             (void)vrprint.debug(_vrmr_loc, _vrmr_msg);                         \
         }                                                                      \
+    } while (0)
+
+#define vrmr_error(code, title, ...)                                           \
+    do {                                                                       \
+        char _vrmr_msg[2048];                                                  \
+        char _vrmr_loc[512];                                                   \
+                                                                               \
+        snprintf(_vrmr_msg, 2048, __VA_ARGS__);                                \
+        snprintf(_vrmr_loc, sizeof(_vrmr_loc), "%s:%d:%s", __FILE__, __LINE__, \
+                __func__);                                                     \
+        (void)vrprint.error(                                                   \
+                (code), (title), "%s (in: %s)", _vrmr_msg, _vrmr_loc);         \
     } while (0)
 
 /* configuration */

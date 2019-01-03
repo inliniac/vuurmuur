@@ -509,7 +509,7 @@ int vrmr_pipe_command(struct vrmr_config *cnf, char *command, char ignore_error)
         vrmr_error(-1, "Internal Error",
                 "Command to pipe too "
                 "long! (%d, while max is: %d).",
-                strlen(command), VRMR_MAX_PIPE_COMMAND);
+                (int)strlen(command), VRMR_MAX_PIPE_COMMAND);
         return (-1);
     }
 

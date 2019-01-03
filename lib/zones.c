@@ -1537,8 +1537,8 @@ int vrmr_zones_network_get_interfaces(struct vrmr_ctx *vctx,
     /* check if the zone is a network */
     if (zone_ptr->type != VRMR_TYPE_NETWORK) {
         vrmr_error(-1, "Internal Error",
-                "zone '%s' is not a network, but a '%d' (in: %s:%d).",
-                zone_ptr->name, zone_ptr->type, __FUNC__);
+                "zone '%s' is not a network, but a '%d'", zone_ptr->name,
+                zone_ptr->type);
         return (-1);
     }
 
@@ -1579,8 +1579,8 @@ int vrmr_zones_network_save_interfaces(
     /* check if the zone is a network */
     if (network_ptr->type != VRMR_TYPE_NETWORK) {
         vrmr_error(-1, "Internal Error",
-                "zone '%s' is not a network, but a '%d' (in: %s:%d).",
-                network_ptr->name, network_ptr->type, __FUNC__);
+                "zone '%s' is not a network, but a '%d'", network_ptr->name,
+                network_ptr->type);
         return (-1);
     }
 

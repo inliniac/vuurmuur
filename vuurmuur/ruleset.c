@@ -318,9 +318,8 @@ int ruleset_add_rule_to_set(struct vrmr_list *list, char *chain, char *rule,
     /* create the string */
     result = snprintf(line, size, "%s%s %s", numbers, chain, rule);
     if (result >= (int)size) {
-        vrmr_error(-1, "Error",
-                "ruleset string overflow (%d >= %d, %s) (in: %s:%d).", result,
-                size, rule, __FUNC__, __LINE__);
+        vrmr_error(-1, "Error", "ruleset string overflow (%d >= %d, %s)",
+                result, (int)size, rule);
         free(line);
         return (-1);
     }

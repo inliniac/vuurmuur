@@ -94,8 +94,8 @@ int ask_textdir(void *backend, char *name, char *question, char *answer,
         line_length = strlen(line);
         if (line_length > MAX_LINE_LENGTH) {
             vrmr_error(-1, "Error",
-                    "line is longer than allowed (line: %d, max: %d) (in: %s).",
-                    line_length, MAX_LINE_LENGTH, __FUNC__);
+                    "line is longer than allowed (line: %d, max: %d)",
+                    (int)line_length, MAX_LINE_LENGTH);
 
             free(file_location);
             fclose(tb->file);
@@ -172,9 +172,8 @@ int ask_textdir(void *backend, char *name, char *question, char *answer,
         if (len >= max_answer) {
             vrmr_error(-1, "Error",
                     "buffer overrun when reading file '%s', question '%s': len "
-                    "%u, max: %u (in: %s:%d).",
-                    file_location, question, len, max_answer, __FUNC__,
-                    __LINE__);
+                    "%u, max: %u",
+                    file_location, question, (int)len, (int)max_answer);
 
             free(file_location);
             fclose(tb->file);
