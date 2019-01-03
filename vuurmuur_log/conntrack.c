@@ -39,26 +39,26 @@ extern FILE *g_conn_new_log_fp;
 
 static void bytes2str(const uint64_t bytes, char *str, size_t size)
 {
-    if(bytes == 0)
+    if (bytes == 0)
         snprintf(str, size, "0b");
     /* 1 byte - 999 bytes */
-    else if(bytes > 0 && bytes < 1000)
+    else if (bytes > 0 && bytes < 1000)
         snprintf(str, size, "%ub", (unsigned int)bytes);
     /* 1kb - 999kb */
-    else if(bytes >= 1000 && bytes < 1000000)
-        snprintf(str, size, "%.1fk", (float)bytes/1024);
+    else if (bytes >= 1000 && bytes < 1000000)
+        snprintf(str, size, "%.1fk", (float)bytes / 1024);
     /* 1mb - 10mb */
-    else if(bytes >= 1000000 && bytes < 10000000)
-        snprintf(str, size, "%1.1fM", (float)bytes/(1024*1024));
+    else if (bytes >= 1000000 && bytes < 10000000)
+        snprintf(str, size, "%1.1fM", (float)bytes / (1024 * 1024));
     /* 10mb - 1000mb */
-    else if(bytes >= 10000000 && bytes < 1000000000)
-        snprintf(str, size, "%.0fM", (float)bytes/(1024*1024));
-    else if(bytes >= 1000000000 && bytes < 10000000000ULL)
-        snprintf(str, size, "%1.1fG", (float)bytes/(1024*1024*1024));
-    else if(bytes >= 10000000000ULL && bytes < 100000000000ULL)
-        snprintf(str, size, "%.0fG", (float)bytes/(1024*1024*1024));
+    else if (bytes >= 10000000 && bytes < 1000000000)
+        snprintf(str, size, "%.0fM", (float)bytes / (1024 * 1024));
+    else if (bytes >= 1000000000 && bytes < 10000000000ULL)
+        snprintf(str, size, "%1.1fG", (float)bytes / (1024 * 1024 * 1024));
+    else if (bytes >= 10000000000ULL && bytes < 100000000000ULL)
+        snprintf(str, size, "%.0fG", (float)bytes / (1024 * 1024 * 1024));
     else
-        snprintf(str, size, "%.0fG", (float)bytes/(1024*1024*1024));
+        snprintf(str, size, "%.0fG", (float)bytes / (1024 * 1024 * 1024));
 }
 
 static void mark2str(const uint32_t mark, char *str, size_t size)
@@ -68,14 +68,16 @@ static void mark2str(const uint32_t mark, char *str, size_t size)
     } else if (mark >= 3 && mark < 65536) {
         snprintf(str, size, "NFQUEUE(%u)", mark - 3);
     } else if (mark > 65536) {
-        snprintf(str, size, "NFLOG(%u)", mark - (65536 + 3)); // see vuurmuur/main.h
+        snprintf(str, size, "NFLOG(%u)",
+                mark - (65536 + 3)); // see vuurmuur/main.h
     } else {
         strlcpy(str, "COMPLETE", size);
     }
 }
 
 /* process one record */
-static int process_connrecord(struct vrmr_log_record *lr) {
+static int process_connrecord(struct vrmr_log_record *lr)
+{
     char line[1024] = "";
     FILE *fp;
 
@@ -88,13 +90,13 @@ static int process_connrecord(struct vrmr_log_record *lr) {
     char s[256];
     struct timeval tv;
     memset(&tv, 0, sizeof(tv));
-    gettimeofday (&tv, NULL);
+    gettimeofday(&tv, NULL);
     time_t when = tv.tv_sec;
     struct tm *tm = localtime(&when);
-    strftime (s, 256, "%b %d %T", tm);
+    strftime(s, 256, "%b %d %T", tm);
 
-    if (sscanf (s, "%3s %2d %2d:%2d:%2d", lr->month, &lr->day,
-        &lr->hour, &lr->minute, &lr->second) != 5) {
+    if (sscanf(s, "%3s %2d %2d:%2d:%2d", lr->month, &lr->day, &lr->hour,
+                &lr->minute, &lr->second) != 5) {
         vrmr_debug(NONE, "did not find properly formatted timestamp");
         return -1;
     }
@@ -105,9 +107,10 @@ static int process_connrecord(struct vrmr_log_record *lr) {
     else
         strlcpy(action, "NEW", sizeof(action));
 
-    snprintf(line, sizeof(line), "%s %2d %02d:%02d:%02d: %s service %s from %s to %s (",
-            lr->month, lr->day, lr->hour, lr->minute, lr->second,
-            action, lr->ser_name, lr->from_name, lr->to_name);
+    snprintf(line, sizeof(line),
+            "%s %2d %02d:%02d:%02d: %s service %s from %s to %s (", lr->month,
+            lr->day, lr->hour, lr->minute, lr->second, action, lr->ser_name,
+            lr->from_name, lr->to_name);
 
     if (lr->conn_rec.type == VRMR_LOG_CONN_COMPLETED) {
         char ts[64];
@@ -117,21 +120,21 @@ static int process_connrecord(struct vrmr_log_record *lr) {
         bytes2str(lr->conn_rec.toclient_bytes, tc, sizeof(tc));
 
         char extra[1024];
-        snprintf(extra, sizeof(extra), "%us %s><%s ",
-                lr->conn_rec.age_s, ts, tc);
+        snprintf(extra, sizeof(extra), "%us %s><%s ", lr->conn_rec.age_s, ts,
+                tc);
         strlcat(line, extra, sizeof(line));
     }
 
     if (lr->protocol == IPPROTO_TCP || lr->protocol == IPPROTO_UDP) {
         char addrports[256];
-        snprintf(addrports, sizeof(addrports), "%s:%u -> %s:%u %s",
-                lr->src_ip, lr->src_port, lr->dst_ip, lr->dst_port,
+        snprintf(addrports, sizeof(addrports), "%s:%u -> %s:%u %s", lr->src_ip,
+                lr->src_port, lr->dst_ip, lr->dst_port,
                 lr->protocol == IPPROTO_TCP ? "TCP" : "UDP");
         strlcat(line, addrports, sizeof(line));
     } else {
         char addr[256];
-        snprintf(addr, sizeof(addr), "%s -> %s PROTO %u",
-                lr->src_ip, lr->dst_ip, lr->protocol);
+        snprintf(addr, sizeof(addr), "%s -> %s PROTO %u", lr->src_ip,
+                lr->dst_ip, lr->protocol);
         strlcat(line, addr, sizeof(line));
     }
 
@@ -212,7 +215,7 @@ static int record_cb(const struct nlmsghdr *nlh, void *data)
 
     switch (nlh->nlmsg_type & 0xFF) {
         case IPCTNL_MSG_CT_NEW:
-            if (nlh->nlmsg_flags & (NLM_F_CREATE|NLM_F_EXCL))
+            if (nlh->nlmsg_flags & (NLM_F_CREATE | NLM_F_EXCL))
                 type = NFCT_T_NEW;
             else
                 type = NFCT_T_UPDATE;
@@ -236,8 +239,7 @@ static int record_cb(const struct nlmsghdr *nlh, void *data)
         case NFCT_T_NEW:
             lr->conn_rec.type = VRMR_LOG_CONN_NEW;
             break;
-        case NFCT_T_DESTROY:
-        {
+        case NFCT_T_DESTROY: {
             lr->conn_rec.type = VRMR_LOG_CONN_COMPLETED;
 
             uint64_t ts_start = nfct_get_attr_u64(ct, ATTR_TIMESTAMP_START);
@@ -247,7 +249,7 @@ static int record_cb(const struct nlmsghdr *nlh, void *data)
 
             lr->conn_rec.age_s = ts_delta_sec;
 
-            struct nfct_attr_grp_ctrs ctrs = { 0, 0 };
+            struct nfct_attr_grp_ctrs ctrs = {0, 0};
 
             nfct_get_attr_grp(ct, ATTR_GRP_ORIG_COUNTERS, &ctrs);
             lr->conn_rec.toserver_packets = ctrs.packets;
@@ -262,13 +264,12 @@ static int record_cb(const struct nlmsghdr *nlh, void *data)
 
     uint8_t ipv = nfct_get_attr_u8(ct, ATTR_L3PROTO);
     switch (ipv) {
-        case AF_INET:
-        {
+        case AF_INET: {
             uint32_t src_ip = nfct_get_attr_u32(ct, ATTR_IPV4_SRC);
             uint32_t dst_ip = nfct_get_attr_u32(ct, ATTR_IPV4_DST);
 
             uint32_t repl_src_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_SRC);
-            //uint32_t repl_dst_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_DST);
+            // uint32_t repl_dst_ip = nfct_get_attr_u32(ct, ATTR_REPL_IPV4_DST);
 
             inet_ntop(AF_INET, &src_ip, lr->src_ip, sizeof(lr->src_ip));
 
@@ -281,8 +282,7 @@ static int record_cb(const struct nlmsghdr *nlh, void *data)
                 goto skip;
             break;
         }
-        case AF_INET6:
-        {
+        case AF_INET6: {
             lr->ipv6 = TRUE;
 
             struct nfct_attr_grp_ipv6 addrs;
@@ -300,8 +300,7 @@ static int record_cb(const struct nlmsghdr *nlh, void *data)
     lr->protocol = nfct_get_attr_u8(ct, ATTR_L4PROTO);
     switch (lr->protocol) {
         case IPPROTO_TCP:
-        case IPPROTO_UDP:
-        {
+        case IPPROTO_UDP: {
             lr->src_port = ntohs(nfct_get_attr_u16(ct, ATTR_PORT_SRC));
             lr->dst_port = ntohs(nfct_get_attr_u16(ct, ATTR_PORT_DST));
             break;
@@ -331,15 +330,13 @@ int conntrack_subscribe(struct vrmr_log_record *lr)
 
     nl = mnl_socket_open(NETLINK_NETFILTER);
     if (nl == NULL) {
-        vrmr_error(-1, "Error", "mnl_socket_open failed: %s",
-            strerror(errno));
+        vrmr_error(-1, "Error", "mnl_socket_open failed: %s", strerror(errno));
         return -1;
     }
-    if (mnl_socket_bind(nl, NF_NETLINK_CONNTRACK_NEW |
-                NF_NETLINK_CONNTRACK_DESTROY,
+    if (mnl_socket_bind(nl,
+                NF_NETLINK_CONNTRACK_NEW | NF_NETLINK_CONNTRACK_DESTROY,
                 MNL_SOCKET_AUTOPID) < 0) {
-        vrmr_error(-1, "Error", "mnl_socket_bind failed: %s",
-            strerror(errno));
+        vrmr_error(-1, "Error", "mnl_socket_bind failed: %s", strerror(errno));
         mnl_socket_close(nl);
         return -1;
     }
@@ -351,16 +348,20 @@ int conntrack_subscribe(struct vrmr_log_record *lr)
     timev.tv_usec = 1000;
 
     if (mnl_socket_setsockopt(nl, SO_RCVTIMEO, &timev, sizeof(timev)) == -1) {
-        vrmr_warning(__FUNC__,  "can't set mnl socket "
-                "timeout: %s", strerror(errno));
+        vrmr_warning(__FUNC__,
+                "can't set mnl socket "
+                "timeout: %s",
+                strerror(errno));
     }
 
     /* set timeout on the socket itself as well. W/o it it would still
      * block on reads. */
     int fd = mnl_socket_get_fd(nl);
     if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timev, sizeof(timev)) == -1) {
-        vrmr_warning(__FUNC__,  "can't set raw socket "
-                "timeout: %s", strerror(errno));
+        vrmr_warning(__FUNC__,
+                "can't set raw socket "
+                "timeout: %s",
+                strerror(errno));
     }
     return 0;
 }
@@ -377,7 +378,7 @@ int conntrack_read(struct vrmr_log_record *lr)
     assert(nl);
     assert(lr);
 
-    //vrmr_debug(__FUNC__, "calling mnl_socket_recvfrom()");
+    // vrmr_debug(__FUNC__, "calling mnl_socket_recvfrom()");
 
     errno = 0;
     char buf[MNL_SOCKET_BUFFER_SIZE];
@@ -386,15 +387,14 @@ int conntrack_read(struct vrmr_log_record *lr)
         if (errno == EAGAIN) {
             return 0;
         }
-        vrmr_warning("Warning", "mnl_socket_recvfrom failed: %s",
-                strerror(errno));
+        vrmr_warning(
+                "Warning", "mnl_socket_recvfrom failed: %s", strerror(errno));
         return -1;
     }
 
     ret = mnl_cb_run(buf, ret, 0, 0, record_cb, (void *)lr);
     if (ret == -1) {
-        vrmr_warning("Warning", "mnl_cb_run failed: %s",
-                strerror(errno));
+        vrmr_warning("Warning", "mnl_cb_run failed: %s", strerror(errno));
         return -1;
     }
     return 0;

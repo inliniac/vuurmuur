@@ -36,12 +36,21 @@
 struct vrmr_shm_table *shm_table = 0;
 struct vrmr_hash_table zone_htbl;
 struct vrmr_hash_table service_htbl;
-static struct Counters_ Counters =
-{
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0,
+static struct Counters_ Counters = {
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
 
-    0, 0, 0, 0,
+        0,
+        0,
+        0,
+        0,
 };
 static FILE *g_traffic_log = NULL;
 FILE *g_conn_new_log_fp = NULL;
@@ -54,64 +63,54 @@ static int sigint_count = 0;
 static int sighup_count = 0;
 static int sigterm_count = 0;
 
-
-static void
-handle_sigint(int sig)
+static void handle_sigint(int sig)
 {
     sigint_count = 1;
 }
 
-
-static void
-handle_sigterm(int sig)
+static void handle_sigterm(int sig)
 {
     sigterm_count = 1;
 }
 
-
-static void
-handle_sighup(int sig)
+static void handle_sighup(int sig)
 {
     sighup_count = 1;
 }
 
-
-static void
-setup_signal_handler(int sig, void (*handler)(int))
+static void setup_signal_handler(int sig, void (*handler)(int))
 {
     struct sigaction action;
 
     action.sa_handler = handler;
     sigemptyset(&(action.sa_mask));
-    sigaddset(&(action.sa_mask),sig);
+    sigaddset(&(action.sa_mask), sig);
     action.sa_flags = 0;
     sigaction(sig, &action, 0);
 }
 
-static char *
-assemble_logline_sscanf_string(struct vrmr_log_record *log_record)
+static char *assemble_logline_sscanf_string(struct vrmr_log_record *log_record)
 {
-    char    *string,
-            temp_buf[256] = "";
+    char *string, temp_buf[256] = "";
 
     //"%s %2d %2d:%2d:%2d %s";
     snprintf(temp_buf, sizeof(temp_buf), "%%%ds %%2d %%2d:%%2d:%%2d %%%ds",
-            (int)sizeof(log_record->month)-1,
-            (int)sizeof(log_record->hostname)-1);
+            (int)sizeof(log_record->month) - 1,
+            (int)sizeof(log_record->hostname) - 1);
 
-    vrmr_debug(HIGH, "assemble_logline_sscanf_string: string: '%s'. (len: %d)", temp_buf, (int)strlen(temp_buf));
+    vrmr_debug(HIGH, "assemble_logline_sscanf_string: string: '%s'. (len: %d)",
+            temp_buf, (int)strlen(temp_buf));
 
     string = strdup(temp_buf);
     if (string == NULL) {
         vrmr_error(-1, "Error", "strdup failed: %s.", strerror(errno));
-        return(NULL);
+        return (NULL);
     }
 
-    return(string);
+    return (string);
 }
 
-static void
-print_help(void)
+static void print_help(void)
 {
     fprintf(stdout, "Usage: vuurmuur_log [OPTIONS]\n");
     fprintf(stdout, "\n");
@@ -128,12 +127,13 @@ print_help(void)
 }
 
 /* process one line/record */
-int process_logrecord(struct vrmr_log_record *log_record) {
+int process_logrecord(struct vrmr_log_record *log_record)
+{
     char line_out[1024] = "";
 
-    int result = vrmr_log_record_get_names(log_record, &zone_htbl, &service_htbl);
-    switch (result)
-    {
+    int result =
+            vrmr_log_record_get_names(log_record, &zone_htbl, &service_htbl);
+    switch (result) {
         case -1:
             vrmr_debug(NONE, "vrmr_log_record_get_names returned -1");
             exit(EXIT_FAILURE);
@@ -142,13 +142,13 @@ int process_logrecord(struct vrmr_log_record *log_record) {
             Counters.invalid_loglines++;
             break;
         default:
-            if (vrmr_log_record_build_line (log_record, line_out, sizeof(line_out)) < 0)
-            {
+            if (vrmr_log_record_build_line(
+                        log_record, line_out, sizeof(line_out)) < 0) {
                 vrmr_debug(NONE, "Could not build output line");
             } else {
                 upd_action_ctrs(log_record->action, &Counters);
 
-                fprintf (g_traffic_log, "%s", line_out);
+                fprintf(g_traffic_log, "%s", line_out);
                 fflush(g_traffic_log);
             }
             break;
@@ -170,71 +170,68 @@ static int conntrack_open_logs(struct vrmr_config *cnf)
     if (g_conn_new_log_fp == NULL) {
         vrmr_error(-1, "Error", "fopen() %s failed: %s",
                 cnf->connnewlog_location, strerror(errno));
-        return(-1);
+        return (-1);
     }
 
     if (g_connections_log_fp != NULL)
         fclose(g_connections_log_fp);
     g_connections_log_fp = fopen(cnf->connlog_location, "a");
     if (g_connections_log_fp == NULL) {
-        vrmr_error(-1, "Error", "fopen() %s failed: %s",
-                cnf->connlog_location, strerror(errno));
-        return(-1);
+        vrmr_error(-1, "Error", "fopen() %s failed: %s", cnf->connlog_location,
+                strerror(errno));
+        return (-1);
     }
 
-    return(0);
+    return (0);
 }
 #endif /* HAVE_LIBNETFILTER_CONNTRACK */
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     struct vrmr_ctx vctx;
-    FILE        *system_log = NULL;
-    char        line_in[1024] = "";
-    char        line_out[1024] = "";
-    size_t      line_in_len = 0;
+    FILE *system_log = NULL;
+    char line_in[1024] = "";
+    char line_out[1024] = "";
+    size_t line_in_len = 0;
 
-    int         result,
+    int result,
 
-                /*  variable for counting how long we are waiting
-                    for the next line in 1/10th of a second.
-                */
-                waiting = 0;
-    pid_t       pid;
-    int         optch;
+            /*  variable for counting how long we are waiting
+                for the next line in 1/10th of a second.
+            */
+            waiting = 0;
+    pid_t pid;
+    int optch;
     static char optstring[] = "hc:vnd:VsKN";
-    int         verbose = 0,
-                nodaemon = 0,
-                syslog = 1;
-    struct option prog_opts[] =
-    {
-        { "help", no_argument, NULL, 'h' },
-        { "verbose", no_argument, &verbose, 1 },
-        { "nodaemon", no_argument, &nodaemon, 1 },
-        { "configfile", required_argument, NULL, 'c' },
-        { "debug", required_argument, NULL, 'd' },
-        { "killme", required_argument, NULL, 'K' },
-        { "version", no_argument, NULL, 'V' },
-        { 0, 0, 0, 0 },
+    int verbose = 0, nodaemon = 0, syslog = 1;
+    struct option prog_opts[] = {
+            {"help", no_argument, NULL, 'h'},
+            {"verbose", no_argument, &verbose, 1},
+            {"nodaemon", no_argument, &nodaemon, 1},
+            {"configfile", required_argument, NULL, 'c'},
+            {"debug", required_argument, NULL, 'd'},
+            {"killme", required_argument, NULL, 'K'},
+            {"version", no_argument, NULL, 'V'},
+            {0, 0, 0, 0},
     };
-    int                         option_index = 0;
-    char                        *sscanf_str = NULL;
+    int option_index = 0;
+    char *sscanf_str = NULL;
 
-    struct vrmr_log_record      logrule;
+    struct vrmr_log_record logrule;
 #ifdef HAVE_LIBNETFILTER_CONNTRACK
-    struct vrmr_log_record      logconn;
+    struct vrmr_log_record logconn;
 #endif
     int debug_level = NONE;
 
     /* shm, sem stuff */
-    int             shm_id;
-    int             reload = 0;
+    int shm_id;
+    int reload = 0;
 
-    char        quit = 0;
+    char quit = 0;
 
-    snprintf(version_string, sizeof(version_string), "%s (using libvuurmuur %s)",
-            VUURMUUR_VERSION, libvuurmuur_get_version());
+    snprintf(version_string, sizeof(version_string),
+            "%s (using libvuurmuur %s)", VUURMUUR_VERSION,
+            libvuurmuur_get_version());
 
     vrmr_init(&vctx, "vuurmuur_log");
 
@@ -244,48 +241,51 @@ main(int argc, char *argv[])
     setup_signal_handler(SIGHUP, handle_sighup);
 
     /* process the options */
-    while((optch = getopt_long(argc, argv, optstring, prog_opts,
-                    &option_index)) != -1 )
-    {
-        switch(optch)
-        {
-            case 0 :
+    while ((optch = getopt_long(
+                    argc, argv, optstring, prog_opts, &option_index)) != -1) {
+        switch (optch) {
+            case 0:
                 /* This is used for the flags long options */
                 break;
 
-            case 'h' :
+            case 'h':
                 print_help();
                 break;
 
-            case 'v' :
+            case 'v':
                 verbose = 1;
                 break;
 
-            case 'n' :
+            case 'n':
                 nodaemon = 1;
                 break;
 
-            case 'c' :
+            case 'c':
                 /* config file */
-                if(vctx.conf.verbose_out == TRUE)
+                if (vctx.conf.verbose_out == TRUE)
                     fprintf(stdout, "Using this configfile: %s\n", optarg);
 
-                if(strlcpy(vctx.conf.configfile, optarg, sizeof(vctx.conf.configfile)) >= sizeof(vctx.conf.configfile))
-                {
-                    fprintf(stderr, "Error: configfile (-c): argument too long (max: %d).\n", (int)sizeof(vctx.conf.configfile)-1);
+                if (strlcpy(vctx.conf.configfile, optarg,
+                            sizeof(vctx.conf.configfile)) >=
+                        sizeof(vctx.conf.configfile)) {
+                    fprintf(stderr,
+                            "Error: configfile (-c): argument too long (max: "
+                            "%d).\n",
+                            (int)sizeof(vctx.conf.configfile) - 1);
                     exit(EXIT_FAILURE);
                 }
                 break;
 
-            case 'd' :
+            case 'd':
                 /* debugging */
                 fprintf(stdout, "vuurmuur: debugging enabled.\n");
 
                 /* convert the debug string and check the result */
                 debug_level = atoi(optarg);
-                if(debug_level < 0 || debug_level > HIGH)
-                {
-                    fprintf(stdout, "Error: illegal debug level: %d (max: %d).\n", debug_level, HIGH);
+                if (debug_level < 0 || debug_level > HIGH) {
+                    fprintf(stdout,
+                            "Error: illegal debug level: %d (max: %d).\n",
+                            debug_level, HIGH);
                     exit(EXIT_FAILURE);
                 }
                 vrmr_debug_level = debug_level;
@@ -293,17 +293,16 @@ main(int argc, char *argv[])
                 fprintf(stdout, "vuurmuur-log: debug level: %d\n", debug_level);
                 break;
 
-            case 'K' :
-                if (vrmr_check_pidfile (PIDFILE, SVCNAME, &pid) == -1)
-                {
+            case 'K':
+                if (vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1) {
                     vrmr_debug(NONE, "Terminating %u", pid);
-                    kill (pid, 15);
-                    exit (EXIT_SUCCESS);
+                    kill(pid, 15);
+                    exit(EXIT_SUCCESS);
                 }
-                exit (EXIT_FAILURE);
+                exit(EXIT_FAILURE);
                 break;
 
-            case 'V' :
+            case 'V':
                 /* print version */
                 fprintf(stdout, "Vuurmuur_log %s\n", version_string);
                 fprintf(stdout, "%s\n", VUURMUUR_COPYRIGHT);
@@ -313,11 +312,11 @@ main(int argc, char *argv[])
     }
 
     /* check if the pidfile already exists */
-    if(vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
+    if (vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
         exit(EXIT_FAILURE);
 
     /* init the config file */
-    if(vrmr_init_config(&vctx.conf) < VRMR_CNF_OK) {
+    if (vrmr_init_config(&vctx.conf) < VRMR_CNF_OK) {
         vrmr_error(-1, "Error", "initializing the config failed.");
         exit(EXIT_FAILURE);
     }
@@ -328,17 +327,19 @@ main(int argc, char *argv[])
         syslog = 1;
     }
 
-    /* set up the sscanf parser string if we're using the legacy syslog parsing */
-    if(syslog && !(sscanf_str = assemble_logline_sscanf_string(&logrule))) {
-        vrmr_error(-1, "Error", "could not set up parse string for legacy syslog parsing.");
+    /* set up the sscanf parser string if we're using the legacy syslog parsing
+     */
+    if (syslog && !(sscanf_str = assemble_logline_sscanf_string(&logrule))) {
+        vrmr_error(-1, "Error",
+                "could not set up parse string for legacy syslog parsing.");
         exit(EXIT_FAILURE);
     }
 
-    if(verbose)
+    if (verbose)
         vrmr_info("Info", "Vuurmuur_log %s", version_string);
 
     /* now setup the print function */
-    if(verbose)
+    if (verbose)
         vrprint.error = vrmr_stdoutprint_error;
     else
         vrprint.error = vrmr_logprint_error;
@@ -349,33 +350,34 @@ main(int argc, char *argv[])
     vrprint.audit = vrmr_logprint_audit;
 
     /* get the current user */
-    vrmr_audit("Vuurmuur_log %s %s started by user %s.",
-            version_string, (syslog) ? "" :"(nflog mode)",
-            vctx.user_data.realusername);
+    vrmr_audit("Vuurmuur_log %s %s started by user %s.", version_string,
+            (syslog) ? "" : "(nflog mode)", vctx.user_data.realusername);
 
 #ifdef HAVE_LIBNETFILTER_LOG
-    /* Setup nflog after vrmr_init_config as and logging as we need &conf in subscribe_nflog() */
+    /* Setup nflog after vrmr_init_config as and logging as we need &conf in
+     * subscribe_nflog() */
     if (!syslog) {
         vrmr_debug(NONE, "Setting up nflog");
         if (subscribe_nflog(&vctx.conf, &logrule) < 0) {
             vrmr_error(-1, "Error", "could not set up nflog subscription");
-            exit (EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 #ifdef HAVE_LIBNETFILTER_CONNTRACK
         if (conntrack_subscribe(&logconn) < 0) {
             vrmr_error(-1, "Error", "could not set up conntrack subscription");
-            exit (EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
         if (conntrack_open_logs(&vctx.conf) != 0) {
             vrmr_error(-1, "Error", "could not open connection log files");
-            exit (EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 #endif
     }
 #else
     if (!syslog) {
-        vrmr_error(-1, "Error", "syslog mode disabled but no other modes available.");
-        exit (EXIT_FAILURE);
+        vrmr_error(-1, "Error",
+                "syslog mode disabled but no other modes available.");
+        exit(EXIT_FAILURE);
     }
 #endif /* HAVE_LIBNETFILTER_LOG */
 
@@ -385,18 +387,18 @@ main(int argc, char *argv[])
     }
 
     /* open the logs */
-    if(syslog && open_syslog(&vctx.conf, &system_log) < 0) {
+    if (syslog && open_syslog(&vctx.conf, &system_log) < 0) {
         vrmr_error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
     }
 
-    if (open_vuurmuurlog (&vctx.conf, &g_traffic_log) < 0) {
+    if (open_vuurmuurlog(&vctx.conf, &g_traffic_log) < 0) {
         vrmr_error(-1, "Error", "opening logfiles failed.");
         exit(EXIT_FAILURE);
     }
 
     /* load the services into memory */
-    if (vrmr_services_load(&vctx, &vctx.services, &vctx.reg)== -1)
+    if (vrmr_services_load(&vctx, &vctx.services, &vctx.reg) == -1)
         exit(EXIT_FAILURE);
 
     /* load the interfaces into memory */
@@ -407,73 +409,67 @@ main(int argc, char *argv[])
     if (vrmr_zones_load(&vctx, &vctx.zones, &vctx.interfaces, &vctx.reg) == -1)
         exit(EXIT_FAILURE);
 
-
-    /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
-    if(vrmr_ins_iface_into_zonelist(&vctx.interfaces.list, &vctx.zones.list) < 0)
-    {
+    /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as
+     * 'firewall', so this appears in to log as 'firewall(interface)' */
+    if (vrmr_ins_iface_into_zonelist(&vctx.interfaces.list, &vctx.zones.list) <
+            0) {
         vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
         exit(EXIT_FAILURE);
     }
 
     /* these are removed by: vrmr_rem_iface_from_zonelist() (see below) */
-    if(vrmr_add_broadcasts_zonelist(&vctx.zones) < 0)
-    {
+    if (vrmr_add_broadcasts_zonelist(&vctx.zones) < 0) {
         vrmr_error(-1, "Error", "unable to add broadcasts to list.");
         exit(EXIT_FAILURE);
     }
 
     vrmr_info("Info", "Creating hash-table for the zones...");
-    if(vrmr_init_zonedata_hashtable(vctx.zones.list.len * 3, &vctx.zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, &zone_htbl) < 0)
-    {
+    if (vrmr_init_zonedata_hashtable(vctx.zones.list.len * 3, &vctx.zones.list,
+                vrmr_hash_ipaddress, vrmr_compare_ipaddress, &zone_htbl) < 0) {
         vrmr_error(-1, "Error", "vrmr_init_zonedata_hashtable failed.");
         exit(EXIT_FAILURE);
     }
 
     vrmr_info("Info", "Creating hash-table for the services...");
-    if(vrmr_init_services_hashtable(vctx.services.list.len * 500, &vctx.services.list, vrmr_hash_port, vrmr_compare_ports, &service_htbl) < 0)
-    {
+    if (vrmr_init_services_hashtable(vctx.services.list.len * 500,
+                &vctx.services.list, vrmr_hash_port, vrmr_compare_ports,
+                &service_htbl) < 0) {
         vrmr_error(-1, "Error", "vrmr_init_services_hashtable failed.");
         exit(EXIT_FAILURE);
     }
 
     if (nodaemon == 0) {
-        if (daemon(1,1) != 0) {
-            vrmr_error(-1, "Error", "daemon() failed: %s",
-                    strerror(errno));
+        if (daemon(1, 1) != 0) {
+            vrmr_error(-1, "Error", "daemon() failed: %s", strerror(errno));
             exit(EXIT_FAILURE);
         }
     }
 
     if (SetupVMIPC(&shm_id, &shm_table) == -1)
-        exit (EXIT_FAILURE);
-
-    if(vrmr_create_pidfile(PIDFILE, shm_id) < 0)
         exit(EXIT_FAILURE);
 
-    if(sigint_count || sigterm_count)
+    if (vrmr_create_pidfile(PIDFILE, shm_id) < 0)
+        exit(EXIT_FAILURE);
+
+    if (sigint_count || sigterm_count)
         quit = 1;
 
     /* enter the main loop */
-    while(quit == 0)
-    {
-        reload = CheckVMIPC (shm_table);
-        if (reload == 0)
-        {
+    while (quit == 0) {
+        reload = CheckVMIPC(shm_table);
+        if (reload == 0) {
             if (syslog) {
                 if (fgets(line_in, (int)sizeof(line_in), system_log) != NULL) {
                     waiting = 0;
 
                     line_in_len = strlen(line_in);
-                    if ((line_in_len < sizeof(line_in)-1) && line_in[line_in_len - 1] != '\n')
-                    {
-                        fseek(system_log, (int)line_in_len*-1, SEEK_CUR);
-                    }
-                    else
-                    {
-                        if (check_ipt_line(line_in))
-                        {
-                            switch (parse_ipt_logline(line_in, line_in_len, sscanf_str, &logrule, &Counters))
-                            {
+                    if ((line_in_len < sizeof(line_in) - 1) &&
+                            line_in[line_in_len - 1] != '\n') {
+                        fseek(system_log, (int)line_in_len * -1, SEEK_CUR);
+                    } else {
+                        if (check_ipt_line(line_in)) {
+                            switch (parse_ipt_logline(line_in, line_in_len,
+                                    sscanf_str, &logrule, &Counters)) {
                                 case -1:
                                     exit(EXIT_FAILURE);
                                     break;
@@ -481,9 +477,9 @@ main(int argc, char *argv[])
                                     Counters.invalid_loglines++;
                                     break;
                                 default:
-                                    result = vrmr_log_record_get_names(&logrule, &zone_htbl, &service_htbl);
-                                    switch (result)
-                                    {
+                                    result = vrmr_log_record_get_names(&logrule,
+                                            &zone_htbl, &service_htbl);
+                                    switch (result) {
                                         case -1:
                                             exit(EXIT_FAILURE);
                                             break;
@@ -491,10 +487,15 @@ main(int argc, char *argv[])
                                             Counters.invalid_loglines++;
                                             break;
                                         default:
-                                            if (vrmr_log_record_build_line (&logrule, line_out, sizeof(line_out)) < 0) {
-                                                vrmr_error(-1, "Error", "could not build output line");
+                                            if (vrmr_log_record_build_line(
+                                                        &logrule, line_out,
+                                                        sizeof(line_out)) < 0) {
+                                                vrmr_error(-1, "Error",
+                                                        "could not build "
+                                                        "output line");
                                             } else {
-                                                fprintf(g_traffic_log, "%s", line_out);
+                                                fprintf(g_traffic_log, "%s",
+                                                        line_out);
                                                 fflush(g_traffic_log);
                                             }
                                             break;
@@ -513,17 +514,23 @@ main(int argc, char *argv[])
                     waiting++;
 
                     /* see the definition of MAX_WAIT_TIME for details. */
-                    if(waiting >= MAX_WAIT_TIME) {
-                        vrmr_debug(MEDIUM, "didn't get a logline for %d seconds, closing and reopening the logfiles.", waiting / 10);
+                    if (waiting >= MAX_WAIT_TIME) {
+                        vrmr_debug(MEDIUM,
+                                "didn't get a logline for %d seconds, closing "
+                                "and reopening the logfiles.",
+                                waiting / 10);
 
                         /* re-open the logs */
-                        if(reopen_syslog(&vctx.conf, &system_log) < 0) {
-                            vrmr_error(-1, "Error", "re-opening syslog failed.");
+                        if (reopen_syslog(&vctx.conf, &system_log) < 0) {
+                            vrmr_error(
+                                    -1, "Error", "re-opening syslog failed.");
                             exit(EXIT_FAILURE);
                         }
 
-                        if(reopen_vuurmuurlog(&vctx.conf, &g_traffic_log) < 0) {
-                            vrmr_error(-1, "Error", "re-opening vuurmuur traffic log failed.");
+                        if (reopen_vuurmuurlog(&vctx.conf, &g_traffic_log) <
+                                0) {
+                            vrmr_error(-1, "Error",
+                                    "re-opening vuurmuur traffic log failed.");
                             exit(EXIT_FAILURE);
                         }
 
@@ -531,10 +538,10 @@ main(int argc, char *argv[])
                         waiting = 0;
                     } else {
                         /* sleep so we don't use all system resources */
-                        usleep(100000);  /* this should be 1/10th of a second */
+                        usleep(100000); /* this should be 1/10th of a second */
                     }
                 }
-            /* not using syslog so must be using nflog here */
+                /* not using syslog so must be using nflog here */
             } else {
 #ifdef HAVE_LIBNETFILTER_CONNTRACK
                 switch (conntrack_read(&logconn)) {
@@ -548,21 +555,20 @@ main(int argc, char *argv[])
                 switch (readnflog()) {
                     case -1:
                         vrmr_error(-1, "Error", "could not read from nflog");
-                        exit (EXIT_FAILURE);
+                        exit(EXIT_FAILURE);
                         break;
                     case 0:
-                        usleep (100000);
+                        usleep(100000);
                         break;
                 }
-#endif /* HAVE_LIBNETFILTER_LOG */
+#endif        /* HAVE_LIBNETFILTER_LOG */
             } /* if syslog */
-        } /* if reload == 0 */
+        }     /* if reload == 0 */
 
         /*
             hey! we received a sighup. We will reload the data.
         */
-        if(sighup_count || reload)
-        {
+        if (sighup_count || reload) {
             sighup_count = 0;
 
             /*
@@ -582,8 +588,7 @@ main(int argc, char *argv[])
 
             /* close backend */
             result = vrmr_backends_unload(&vctx.conf, &vctx);
-            if(result < 0)
-            {
+            if (result < 0) {
                 vrmr_error(-1, "Error", "unloading backends failed.");
                 exit(EXIT_FAILURE);
             }
@@ -594,17 +599,16 @@ main(int argc, char *argv[])
 
                if it fails it's no big deal, we just keep using the old config.
             */
-            if(vrmr_reload_config(&vctx.conf) < VRMR_CNF_OK)
-            {
-                vrmr_warning("Warning", "reloading config failed, using old config.");
+            if (vrmr_reload_config(&vctx.conf) < VRMR_CNF_OK) {
+                vrmr_warning("Warning",
+                        "reloading config failed, using old config.");
             }
 
             vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 20);
 
             /* open backends */
             result = vrmr_backends_load(&vctx.conf, &vctx);
-            if(result < 0)
-            {
+            if (result < 0) {
                 vrmr_error(-1, "Error", "re-opening backends failed.");
                 exit(EXIT_FAILURE);
             }
@@ -613,8 +617,7 @@ main(int argc, char *argv[])
 
             /* re-initialize the data */
             vrmr_info("Info", "Initializing interfaces...");
-            if (vrmr_init_interfaces(&vctx, &vctx.interfaces) < 0)
-            {
+            if (vrmr_init_interfaces(&vctx, &vctx.interfaces) < 0) {
                 vrmr_error(-1, "Error", "initializing interfaces failed.");
                 exit(EXIT_FAILURE);
             }
@@ -622,8 +625,8 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 40);
 
             vrmr_info("Info", "Initializing zones...");
-            if (vrmr_init_zonedata(&vctx, &vctx.zones, &vctx.interfaces, &vctx.reg) < 0)
-            {
+            if (vrmr_init_zonedata(
+                        &vctx, &vctx.zones, &vctx.interfaces, &vctx.reg) < 0) {
                 vrmr_error(-1, "Error", "initializing zones failed.");
                 exit(EXIT_FAILURE);
             }
@@ -631,63 +634,69 @@ main(int argc, char *argv[])
             vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 50);
 
             vrmr_info("Info", "Initializing services...");
-            if (vrmr_init_services(&vctx, &vctx.services, &vctx.reg) < 0)
-            {
+            if (vrmr_init_services(&vctx, &vctx.services, &vctx.reg) < 0) {
                 vrmr_error(-1, "Error", "initializing services failed.");
                 exit(EXIT_FAILURE);
             }
 
             vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 60);
 
-            /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist as 'firewall', so this appears in to log as 'firewall(interface)' */
-            if(vrmr_ins_iface_into_zonelist(&vctx.interfaces.list, &vctx.zones.list) < 0)
-            {
-                vrmr_error(-1, "Error", "iface_into_zonelist failed (in: main).");
+            /* insert the interfaces as VRMR_TYPE_FIREWALL's into the zonelist
+             * as 'firewall', so this appears in to log as 'firewall(interface)'
+             */
+            if (vrmr_ins_iface_into_zonelist(
+                        &vctx.interfaces.list, &vctx.zones.list) < 0) {
+                vrmr_error(
+                        -1, "Error", "iface_into_zonelist failed (in: main).");
                 exit(EXIT_FAILURE);
             }
 
-            /* these are removed by: vrmr_rem_iface_from_zonelist() (see below) */
-            if(vrmr_add_broadcasts_zonelist(&vctx.zones) < 0)
-            {
+            /* these are removed by: vrmr_rem_iface_from_zonelist() (see below)
+             */
+            if (vrmr_add_broadcasts_zonelist(&vctx.zones) < 0) {
                 vrmr_error(-1, "Error", "unable to add broadcasts to list.");
                 exit(EXIT_FAILURE);
             }
             vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 70);
 
             vrmr_info("Info", "Creating hash-table for the zones...");
-            if(vrmr_init_zonedata_hashtable(vctx.zones.list.len * 3, &vctx.zones.list, vrmr_hash_ipaddress, vrmr_compare_ipaddress, &zone_htbl) < 0)
-            {
-                vrmr_error(result, "Error", "vrmr_init_zonedata_hashtable failed.");
+            if (vrmr_init_zonedata_hashtable(vctx.zones.list.len * 3,
+                        &vctx.zones.list, vrmr_hash_ipaddress,
+                        vrmr_compare_ipaddress, &zone_htbl) < 0) {
+                vrmr_error(result, "Error",
+                        "vrmr_init_zonedata_hashtable failed.");
                 exit(EXIT_FAILURE);
             }
             vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 80);
 
             vrmr_info("Info", "Creating hash-table for the services...");
-            if(vrmr_init_services_hashtable(vctx.services.list.len * 500, &vctx.services.list, vrmr_hash_port, vrmr_compare_ports, &service_htbl) < 0)
-            {
-                vrmr_error(result, "Error", "vrmr_init_services_hashtable failed.");
+            if (vrmr_init_services_hashtable(vctx.services.list.len * 500,
+                        &vctx.services.list, vrmr_hash_port, vrmr_compare_ports,
+                        &service_htbl) < 0) {
+                vrmr_error(result, "Error",
+                        "vrmr_init_services_hashtable failed.");
                 exit(EXIT_FAILURE);
             }
             vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 90);
 
             /* re-open the logs */
-            if(syslog && reopen_syslog(&vctx.conf, &system_log) < 0)
-            {
+            if (syslog && reopen_syslog(&vctx.conf, &system_log) < 0) {
                 vrmr_error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
             }
 
-            if(reopen_vuurmuurlog(&vctx.conf, &g_traffic_log) < 0)
-            {
+            if (reopen_vuurmuurlog(&vctx.conf, &g_traffic_log) < 0) {
                 vrmr_error(-1, "Error", "re-opening logfiles failed.");
                 exit(EXIT_FAILURE);
             }
 #ifdef HAVE_LIBNETFILTER_CONNTRACK
             if (!syslog) {
-                vrmr_shm_update_progress(sem_id, &shm_table->reload_progress, 92);
+                vrmr_shm_update_progress(
+                        sem_id, &shm_table->reload_progress, 92);
                 if (conntrack_open_logs(&vctx.conf) != 0) {
-                    vrmr_error(-1, "Error", "could not re-open connection log files");
-                    exit (EXIT_FAILURE);
+                    vrmr_error(-1, "Error",
+                            "could not re-open connection log files");
+                    exit(EXIT_FAILURE);
                 }
             }
 #endif /* HAVE_LIBNETFILTER_CONNTRACK */
@@ -696,23 +705,21 @@ main(int argc, char *argv[])
             /* only ok now */
             result = 0;
 
-            /* if we are reloading because of an IPC command, we need to communicate with the caller */
-            if(reload == 1)
-                WaitVMIPCACK (30, &result, shm_table, &reload);
+            /* if we are reloading because of an IPC command, we need to
+             * communicate with the caller */
+            if (reload == 1)
+                WaitVMIPCACK(30, &result, shm_table, &reload);
         }
 
         /* check for a signal */
-        if(sigint_count || sigterm_count)
+        if (sigint_count || sigterm_count)
             quit = 1;
-
     }
-
 
     /*
         cleanup
     */
-    if (ClearVMIPC (shm_id) == -1)
-    {
+    if (ClearVMIPC(shm_id) == -1) {
         vrmr_error(-1, "Error", "Detach from VM IPC failed.");
         /* fall through */
     }
@@ -747,18 +754,17 @@ main(int argc, char *argv[])
     /* destroy the InterfacesList */
     vrmr_destroy_interfaceslist(&vctx.interfaces);
 
-    if(nodaemon)
-        show_stats (&Counters);
+    if (nodaemon)
+        show_stats(&Counters);
 
-    if(vrmr_backends_unload(&vctx.conf, &vctx) < 0)
-    {
+    if (vrmr_backends_unload(&vctx.conf, &vctx) < 0) {
         vrmr_error(-1, "Error", "unloading backends failed.");
     }
 
     /* remove the pidfile */
-    if(vrmr_remove_pidfile(PIDFILE) < 0)
-    {
-        vrmr_error(-1, "Error", "unable to remove pidfile: %s.", strerror(errno));
+    if (vrmr_remove_pidfile(PIDFILE) < 0) {
+        vrmr_error(
+                -1, "Error", "unable to remove pidfile: %s.", strerror(errno));
     }
 
     exit(EXIT_SUCCESS);

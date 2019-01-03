@@ -35,20 +35,19 @@
     NONE,
 */
 
-char *conn_status[] =
-{
-    "UNDEFINED",
-    "TCP_ESTABLISHED",
-    "UDP_ESTABLISHED",
-    "SYN_SENT",
-    "SYN_RECV",
-    "FIN_WAIT",
-    "TIME_WAIT",
-    "CLOSE",
-    "CLOSE_WAIT",
-    "UNREPLIED",
-    "NONE",
-    "ERROR",
+char *conn_status[] = {
+        "UNDEFINED",
+        "TCP_ESTABLISHED",
+        "UDP_ESTABLISHED",
+        "SYN_SENT",
+        "SYN_RECV",
+        "FIN_WAIT",
+        "TIME_WAIT",
+        "CLOSE",
+        "CLOSE_WAIT",
+        "UNREPLIED",
+        "NONE",
+        "ERROR",
 };
 
 #endif

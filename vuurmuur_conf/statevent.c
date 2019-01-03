@@ -20,15 +20,13 @@
 
 #include "main.h"
 
-typedef struct StatEventGen_
-{
+typedef struct StatEventGen_ {
     int type;
     int filtered;
 
 } StatEventGen;
 
-typedef struct StatEventLog_
-{
+typedef struct StatEventLog_ {
     int type;
     int filtered;
 
@@ -38,9 +36,9 @@ typedef struct StatEventLog_
 
     char src_ip[46];
     char dst_ip[46];
-    int  protocol;
-    int  dst_port;
-    int  src_port;
+    int protocol;
+    int dst_port;
+    int src_port;
 
     /* specifics for logging */
 
@@ -51,8 +49,7 @@ typedef struct StatEventLog_
     char details[128];
 } StatEventLog;
 
-typedef struct StatEventConn_
-{
+typedef struct StatEventConn_ {
     int type;
     int filtered;
 
@@ -62,122 +59,116 @@ typedef struct StatEventConn_
 
     char src_ip[46];
     char dst_ip[46];
-    int  protocol;
-    int  dst_port;
-    int  src_port;
+    int protocol;
+    int dst_port;
+    int src_port;
 
     /* specifics for connections */
 
     /* counter */
-    int                     cnt;
+    int cnt;
 
     /* connection status - 0 for unused */
-    int                     connect_status;
+    int connect_status;
     /* do we use connect_status */
-    int                     direction_status;
+    int direction_status;
 
     /* accounting data */
-    char                    use_acc;
-    unsigned long long      to_src_packets;
-    unsigned long long      to_src_bytes;
-    unsigned long long      to_dst_packets;
-    unsigned long long      to_dst_bytes;
+    char use_acc;
+    unsigned long long to_src_packets;
+    unsigned long long to_src_bytes;
+    unsigned long long to_dst_packets;
+    unsigned long long to_dst_bytes;
 
 } StatEventConn;
 
-typedef struct StatEventCtl_
-{
+typedef struct StatEventCtl_ {
     int type;
 
     void *data;
 
     /* "object" functions */
-    char * (*print2str )(StatEventGen *, size_t);
-    void   (*remove    )(void *data);
+    char *(*print2str)(StatEventGen *, size_t);
+    void (*remove)(void *data);
 
-    char   (*convert   )(struct StatEventCtl_ *);
+    char (*convert)(struct StatEventCtl_ *);
     /* ptr to interactive menu function */
-    void   (*menu      )(struct vrmr_ctx *, struct vrmr_config *,
-            struct StatEventCtl_ *, Conntrack *, struct vrmr_conntrack_request *,
-            struct vrmr_zones *, struct vrmr_blocklist *, struct vrmr_interfaces *,
+    void (*menu)(struct vrmr_ctx *, struct vrmr_config *,
+            struct StatEventCtl_ *, Conntrack *,
+            struct vrmr_conntrack_request *, struct vrmr_zones *,
+            struct vrmr_blocklist *, struct vrmr_interfaces *,
             struct vrmr_services *, StatEventGen *);
-    //build menu func?
+    // build menu func?
 
     /* GUI names and texts */
-    char    *title_str;
-    char    *options_str;
-    char    *warn_no_data_str;
+    char *title_str;
+    char *options_str;
+    char *warn_no_data_str;
 
     /* GUI helpfiles */
-    char    *help_overview; /* menu with connections/logs overview */
-    char    *help_actions;  /* actions menu */
+    char *help_overview; /* menu with connections/logs overview */
+    char *help_actions;  /* actions menu */
 
     /* data storage */
-    struct vrmr_list  list;
+    struct vrmr_list list;
 
 } StatEventCtl;
-
 
 /*
     functions
 */
 
-static StatEventConn * ATTR_RETURNS_NONNULL
-statevent_init_conn(void)
+static StatEventConn *ATTR_RETURNS_NONNULL statevent_init_conn(void)
 {
     StatEventConn *conn = malloc(sizeof(StatEventConn));
     vrmr_fatal_alloc("malloc", conn);
     memset(conn, 0, sizeof(StatEventConn));
 
     conn->type = STATEVENTTYPE_CONN;
-    return(conn);
+    return (conn);
 }
 
-static StatEventLog * ATTR_RETURNS_NONNULL
-statevent_init_log(void)
+static StatEventLog *ATTR_RETURNS_NONNULL statevent_init_log(void)
 {
     StatEventLog *log = malloc(sizeof(StatEventLog));
     vrmr_fatal_alloc("malloc", log);
     memset(log, 0, sizeof(StatEventLog));
 
     log->type = STATEVENTTYPE_LOG;
-    return(log);
+    return (log);
 }
 
-static char *
-statevent_print2str_log(StatEventGen *evt, size_t len)
+static char *statevent_print2str_log(StatEventGen *evt, size_t len)
 {
-    StatEventLog *log = (StatEventLog *) evt;
+    StatEventLog *log = (StatEventLog *)evt;
 
     vrmr_fatal_if_null(evt);
     vrmr_fatal_if(evt->type != STATEVENTTYPE_LOG);
 
-    char *str = vrmr_get_len_string(len, "%s %s %s %s -> %s %s",
-        log->timedate_str, log->action, log->ser, log->src, log->dst,
-        log->details);
-    return(str);
+    char *str =
+            vrmr_get_len_string(len, "%s %s %s %s -> %s %s", log->timedate_str,
+                    log->action, log->ser, log->src, log->dst, log->details);
+    return (str);
 }
 
-static char *
-statevent_print2str_conn(StatEventGen *evt, size_t len)
+static char *statevent_print2str_conn(StatEventGen *evt, size_t len)
 {
-    StatEventConn   *conn = (StatEventConn *) evt;
-    char            src[64] = "",
-                    dst[64] = "";
-    char            *str = NULL;
+    StatEventConn *conn = (StatEventConn *)evt;
+    char src[64] = "", dst[64] = "";
+    char *str = NULL;
 
     vrmr_fatal_if_null(evt);
     vrmr_fatal_if(evt->type != STATEVENTTYPE_CONN);
 
     /* non TCP and UDP */
-    if(conn->src_port == 0 && conn->dst_port == 0) {
+    if (conn->src_port == 0 && conn->dst_port == 0) {
         snprintf(src, sizeof(src), "%s", conn->src_ip);
         snprintf(dst, sizeof(dst), "%s", conn->dst_ip);
-    /* group on dst port */
+        /* group on dst port */
     } else if (conn->cnt > 1) {
         snprintf(src, sizeof(src), "%s", conn->src_ip);
         snprintf(dst, sizeof(dst), "%s:%u", conn->dst_ip, conn->dst_port);
-    /* single TCP or UDP */
+        /* single TCP or UDP */
     } else {
         snprintf(src, sizeof(src), "%s:%u", conn->src_ip, conn->src_port);
         snprintf(dst, sizeof(dst), "%s:%u", conn->dst_ip, conn->dst_port);
@@ -185,21 +176,19 @@ statevent_print2str_conn(StatEventGen *evt, size_t len)
 
     /* get the string */
     str = vrmr_get_len_string(len, "[%3u] %s  %s -> %s  %s -> %s (%u)",
-        conn->cnt, conn->ser, conn->src, conn->dst,
-        src, dst, conn->protocol);
-    return(str);
+            conn->cnt, conn->ser, conn->src, conn->dst, src, dst,
+            conn->protocol);
+    return (str);
 }
 
 /* convert struct vrmr_conntrack_entry to StatEventConn */
-static char
-statevent_convert_conn(StatEventCtl *ctl)
+static char statevent_convert_conn(StatEventCtl *ctl)
 {
     Conntrack *ct = ctl->data;
 
     unsigned int x;
     unsigned int array_size = ct->conn_list.len;
-    for (x = 0; x < array_size; x++)
-    {
+    for (x = 0; x < array_size; x++) {
         struct vrmr_conntrack_entry *cd_ptr = ct->conn_array[x];
         StatEventConn *conn = statevent_init_conn();
         vrmr_fatal_if_null(conn);
@@ -217,12 +206,11 @@ statevent_convert_conn(StatEventCtl *ctl)
         vrmr_fatal_if(vrmr_list_append(&ctl->list, conn) == NULL);
     }
 
-    return(TRUE);
+    return (TRUE);
 }
 
-static char
-parse_log_srcdst(const char *str_in, char *ret_ip, size_t ip_size,
-            char *ret_mac, size_t mac_size, int *ret_port)
+static char parse_log_srcdst(const char *str_in, char *ret_ip, size_t ip_size,
+        char *ret_mac, size_t mac_size, int *ret_port)
 {
     vrmr_debug(MEDIUM, "str_in '%s'", str_in);
 
@@ -256,13 +244,12 @@ parse_log_srcdst(const char *str_in, char *ret_ip, size_t ip_size,
 }
 
 /* convert struct LogRule to StatEventLog
-*/
-static char
-statevent_convert_log(StatEventCtl *ctl)
+ */
+static char statevent_convert_log(StatEventCtl *ctl)
 {
-    struct vrmr_list_node     *d_node = NULL;
-    LogRule         *log_record = NULL;
-    StatEventLog    *log = NULL;
+    struct vrmr_list_node *d_node = NULL;
+    LogRule *log_record = NULL;
+    StatEventLog *log = NULL;
     struct vrmr_list *loglist = ctl->data;
 
     char *s = NULL;
@@ -271,8 +258,7 @@ statevent_convert_log(StatEventCtl *ctl)
     char store[MAX_TOK][128];
     int x = 0, y = 0, z = 0;
 
-    for(d_node = loglist->top; d_node; d_node = d_node->next)
-    {
+    for (d_node = loglist->top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
         log_record = d_node->data;
 
@@ -287,30 +273,30 @@ statevent_convert_log(StatEventCtl *ctl)
         strlcpy(log->prefix, log_record->prefix, sizeof(log->prefix));
 
         snprintf(log->timedate_str, sizeof(log->timedate_str), "%s %s %s",
-            log_record->month, log_record->date, log_record->time);
+                log_record->month, log_record->date, log_record->time);
 
         log->filtered = log_record->filtered;
-        //vrmr_debug(__FUNC__, "filtered %d, %s", log->filtered, log->ser);
+        // vrmr_debug(__FUNC__, "filtered %d, %s", log->filtered, log->ser);
 
         /* parse the details :-S */
-        //vrprint.error(-1, "Details", "%s", log_record->details);
+        // vrprint.error(-1, "Details", "%s", log_record->details);
 
         /*  TCP, UDP, ICMP, GRE examples
 
             (in: eth1 192.168.2.1:138 -> 192.168.2.255:138 UDP len:211 ttl:64)
-            (in: eth0 out: ppp0 192.168.1.2:41719 -> 64.156.11.200:80 TCP flags: ****S* len:60 ttl:63)
-            (in: eth0 out: ppp0 192.168.1.2 -> 194.109.21.51 ICMP type 8 code 0 len:84 ttl:63)
-            (in: ppp0 out: eth0 194.109.5.241 -> 192.168.1.64 (41) len:76 ttl:26)
+            (in: eth0 out: ppp0 192.168.1.2:41719 -> 64.156.11.200:80 TCP flags:
+           ****S* len:60 ttl:63) (in: eth0 out: ppp0 192.168.1.2 ->
+           194.109.21.51 ICMP type 8 code 0 len:84 ttl:63) (in: ppp0 out: eth0
+           194.109.5.241 -> 192.168.1.64 (41) len:76 ttl:26)
         */
         s = log_record->details;
 
         /* split the tokens */
-        for (x = 0, y = 0, z = 0; x < (int)strlen(s); x++)
-        {
+        for (x = 0, y = 0, z = 0; x < (int)strlen(s); x++) {
             /* copy char */
             store[y][z] = s[x];
 
-            if(store[y][z] == ' ') {
+            if (store[y][z] == ' ') {
                 store[y][z] = '\0';
 
                 y++;
@@ -325,33 +311,33 @@ statevent_convert_log(StatEventCtl *ctl)
 
         int next = 0;
 
-        if (strcmp(store[0],"(in:") == 0) {
-            //vrprint.debug(__FUNC__, "in = %s", store[1]);
+        if (strcmp(store[0], "(in:") == 0) {
+            // vrprint.debug(__FUNC__, "in = %s", store[1]);
             next = 2;
-        } else if(strcmp(store[0],"(out:") == 0) {
-            //vrprint.debug(__FUNC__, "out = %s", store[1]);
+        } else if (strcmp(store[0], "(out:") == 0) {
+            // vrprint.debug(__FUNC__, "out = %s", store[1]);
             next = 2;
         }
-        if(strcmp(store[next],"out:") == 0) {
-            //vrprint.debug(__FUNC__, "out = %s", store[3]);
-            next +=2;
+        if (strcmp(store[next], "out:") == 0) {
+            // vrprint.debug(__FUNC__, "out = %s", store[3]);
+            next += 2;
         }
 
         /* ip or ip+port */
-        //vrprint.debug(__FUNC__, "src ip/ip+port %s", store[next]);
+        // vrprint.debug(__FUNC__, "src ip/ip+port %s", store[next]);
         char *src = store[next];
         next++;
 
         /* arrow */
-        //vrprint.debug(__FUNC__, "arrow %s", store[next]);
+        // vrprint.debug(__FUNC__, "arrow %s", store[next]);
         next++;
 
         /* ip or ip+port */
-        //vrprint.debug(__FUNC__, "dst ip/ip+port %s", store[next]);
+        // vrprint.debug(__FUNC__, "dst ip/ip+port %s", store[next]);
         char *dst = store[next];
         next++;
 
-        //vrprint.debug(__FUNC__, "store[next] %s", store[next]);
+        // vrprint.debug(__FUNC__, "store[next] %s", store[next]);
 
         /*  parse src and dst
 
@@ -367,92 +353,86 @@ statevent_convert_log(StatEventCtl *ctl)
         */
         char mac[18] = "";
 
-        parse_log_srcdst(src, log->src_ip,
-                sizeof(log->src_ip), mac, sizeof(mac),
-                &log->src_port);
+        parse_log_srcdst(src, log->src_ip, sizeof(log->src_ip), mac,
+                sizeof(mac), &log->src_port);
 
-        parse_log_srcdst(dst, log->dst_ip,
-                sizeof(log->dst_ip), mac, sizeof(mac),
-                &log->dst_port);
+        parse_log_srcdst(dst, log->dst_ip, sizeof(log->dst_ip), mac,
+                sizeof(mac), &log->dst_port);
 
-        if(strcmp(store[next],"TCP") == 0) {
+        if (strcmp(store[next], "TCP") == 0) {
             log->protocol = 6;
-        } else if (strcmp(store[next],"UDP") == 0) {
+        } else if (strcmp(store[next], "UDP") == 0) {
             log->protocol = 17;
-        } else if (strcmp(store[next],"ICMP") == 0) {
+        } else if (strcmp(store[next], "ICMP") == 0) {
             log->protocol = 1;
-        } else if (strcmp(store[next],"GRE") == 0) {
+        } else if (strcmp(store[next], "GRE") == 0) {
             log->protocol = 47;
-        } else if (strcmp(store[next],"ESP") == 0) {
+        } else if (strcmp(store[next], "ESP") == 0) {
             log->protocol = 50;
-        } else if (strcmp(store[next],"AH") == 0) {
+        } else if (strcmp(store[next], "AH") == 0) {
             log->protocol = 51;
-        } else if (strcmp(store[next],"PROTO") == 0) {
-            log->protocol = atoi(store[next+1]);
+        } else if (strcmp(store[next], "PROTO") == 0) {
+            log->protocol = atoi(store[next + 1]);
             next++;
         } else {
             vrprint.debug(__FUNC__, "no match '%s'", store[next]);
         }
-        //vrmr_debug(__FUNC__, "log->protocol %d", log->protocol);
+        // vrmr_debug(__FUNC__, "log->protocol %d", log->protocol);
 
-        //vrprint.debug(__FUNC__, "x = %d, y = %d, z = %d", x,y,z);
+        // vrprint.debug(__FUNC__, "x = %d, y = %d, z = %d", x,y,z);
 
         vrmr_fatal_if(vrmr_list_append(&ctl->list, log) == NULL);
     }
 
-    return(TRUE);
+    return (TRUE);
 }
 
 /* wrapper around ip and name killing */
 static int kill_connections(struct vrmr_config *cnf,
-        struct vrmr_conntrack_request *connreq, Conntrack *ct, StatEventConn *conn) {
+        struct vrmr_conntrack_request *connreq, Conntrack *ct,
+        StatEventConn *conn)
+{
     if (connreq->unknown_ip_as_net) {
-        return (kill_connections_by_name(cnf, ct, conn->src,
-            conn->dst, conn->ser, conn->connect_status));
+        return (kill_connections_by_name(cnf, ct, conn->src, conn->dst,
+                conn->ser, conn->connect_status));
     } else {
-        return (kill_connections_by_ip(cnf, ct, conn->src_ip,
-            conn->dst_ip, conn->ser, conn->connect_status));
+        return (kill_connections_by_ip(cnf, ct, conn->src_ip, conn->dst_ip,
+                conn->ser, conn->connect_status));
     }
 }
-
 
 /*  Display the menu that allows the user to act
     on a connection.
 
 */
-static void
-statevent_interactivemenu_conn( struct vrmr_ctx *vctx, struct vrmr_config *cnf,
-                                StatEventCtl *ctl, Conntrack *ct,
-                                struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones,
-                                struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
-                                struct vrmr_services *services, StatEventGen *gen_ptr)
+static void statevent_interactivemenu_conn(struct vrmr_ctx *vctx,
+        struct vrmr_config *cnf, StatEventCtl *ctl, Conntrack *ct,
+        struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones,
+        struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
+        struct vrmr_services *services, StatEventGen *gen_ptr)
 {
-    VrWin           *win = NULL;
-    VrMenu          *menu = NULL;
-    int             ch = 0;
-    int             menu_items = 10;
-    char            *str = NULL;
-    const int       width = 70;
+    VrWin *win = NULL;
+    VrMenu *menu = NULL;
+    int ch = 0;
+    int menu_items = 10;
+    char *str = NULL;
+    const int width = 70;
     /* top menu */
-    char            *key_choices[] =    {   "F12",
-                                            "F10"};
-    int             key_choices_n = 2;
-    char            *cmd_choices[] =    {   gettext("help"),
-                                            gettext("back")};
-    int             cmd_choices_n = 2;
-    StatEventConn   *con = (StatEventConn *)gen_ptr;
-    Conntrack       *privct = NULL;
-    char            ungroup_conns = FALSE;
-    char            *title = gettext("Manage Connection");
+    char *key_choices[] = {"F12", "F10"};
+    int key_choices_n = 2;
+    char *cmd_choices[] = {gettext("help"), gettext("back")};
+    int cmd_choices_n = 2;
+    StatEventConn *con = (StatEventConn *)gen_ptr;
+    Conntrack *privct = NULL;
+    char ungroup_conns = FALSE;
+    char *title = gettext("Manage Connection");
 
     /* if needed get our own private ungrouped ct */
-    if (connreq->group_conns == TRUE)
-    {
+    if (connreq->group_conns == TRUE) {
         ungroup_conns = TRUE; /* we are ungrouping the list */
         connreq->group_conns = FALSE;
 
-        privct = conn_init_ct(zones, interfaces,
-            services, blocklist);
+        privct = conn_init_ct(zones, interfaces, services, blocklist);
         vrmr_fatal_if_null(privct);
 
         conn_ct_get_connections(cnf, privct, connreq);
@@ -460,26 +440,33 @@ statevent_interactivemenu_conn( struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     }
 
     /* create the window and put it in the middle of the screen */
-    win = VrNewWin(menu_items + 2,width,0,0,vccnf.color_win);
+    win = VrNewWin(menu_items + 2, width, 0, 0, vccnf.color_win);
     vrmr_fatal_if_null(win);
     VrWinSetTitle(win, title);
 
-    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win_rev);
+    menu = VrNewMenu(menu_items, width - 2, 1, 1, menu_items, vccnf.color_win,
+            vccnf.color_win_rev);
     vrmr_fatal_if_null(menu);
     VrMenuSetDescFreeFunc(menu, free);
     VrMenuSetupNameList(menu);
     VrMenuSetupDescList(menu);
 
     /* setup menu items */
-    if(con->cnt == 1)   str = vrmr_get_string(gettext("Kill this connection"));
-    else                str = vrmr_get_string(gettext("Kill all connections with this service/source/destination"),con->cnt);
+    if (con->cnt == 1)
+        str = vrmr_get_string(gettext("Kill this connection"));
+    else
+        str = vrmr_get_string(gettext("Kill all connections with this "
+                                      "service/source/destination"),
+                con->cnt);
     VrMenuAddItem(menu, "1", str);
 
     str = vrmr_get_string("--- %s ---", gettext("Kill options"));
     VrMenuAddSepItem(menu, str);
-    str = vrmr_get_string(gettext("Kill all connections with source %s"), con->src_ip);
+    str = vrmr_get_string(
+            gettext("Kill all connections with source %s"), con->src_ip);
     VrMenuAddItem(menu, "2", str);
-    str = vrmr_get_string(gettext("Kill all connections with destination %s"), con->dst_ip);
+    str = vrmr_get_string(
+            gettext("Kill all connections with destination %s"), con->dst_ip);
     VrMenuAddItem(menu, "3", str);
     str = vrmr_get_string(gettext("Kill all connections of %s"), con->src_ip);
     VrMenuAddItem(menu, "4", str);
@@ -489,26 +476,26 @@ statevent_interactivemenu_conn( struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     VrMenuAddSepItem(menu, str);
     str = vrmr_get_string(gettext("Add source %s to BlockList"), con->src_ip);
     VrMenuAddItem(menu, "6", str);
-    str = vrmr_get_string(gettext("Add destination %s to BlockList"), con->dst_ip);
+    str = vrmr_get_string(
+            gettext("Add destination %s to BlockList"), con->dst_ip);
     VrMenuAddItem(menu, "7", str);
-    str = vrmr_get_string(gettext("Add both source and destination to BlockList"));
+    str = vrmr_get_string(
+            gettext("Add both source and destination to BlockList"));
     VrMenuAddItem(menu, "8", str);
     VrMenuConnectToWin(menu, win);
     VrMenuPost(menu);
 
-    draw_top_menu(top_win, title, key_choices_n,
-            key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, title, key_choices_n, key_choices, cmd_choices_n,
+            cmd_choices);
     update_panels();
     doupdate();
 
     /* user input */
     char quit = FALSE;
-    while(quit == FALSE)
-    {
+    while (quit == FALSE) {
         ch = VrWinGetch(win);
 
-        switch(ch)
-        {
+        switch (ch) {
             case 27:
             case 'q':
             case 'Q':
@@ -516,122 +503,139 @@ statevent_interactivemenu_conn( struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                 quit = TRUE;
                 break;
 
-            case 10:
-            {
+            case 10: {
                 ITEM *cur = current_item(menu->m);
                 vrmr_fatal_if_null(cur);
                 int act = atoi((char *)item_name(cur));
-                switch(act)
-                {
+                switch (act) {
                     case 1: /* kill */
-                        {
-                            /* check if the conntrack tool is set */
-                            if(cnf->conntrack_location[0] == '\0')
-                            {
-                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                    {
+                        /* check if the conntrack tool is set */
+                        if (cnf->conntrack_location[0] == '\0') {
+                            vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                        } else if (con->cnt == 1) {
+                            if (confirm(gettext("Kill connection"),
+                                        gettext("Are you sure?"),
+                                        vccnf.color_win_note,
+                                        vccnf.color_win_note_rev | A_BOLD,
+                                        1) == 1) {
+                                kill_connection(cnf->conntrack_location,
+                                        con->src_ip, con->dst_ip, con->protocol,
+                                        con->src_port, con->dst_port);
                             }
-                            else if(con->cnt == 1)
-                            {
-                                if(confirm(gettext("Kill connection"),gettext("Are you sure?"),
-                                            vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                                {
-                                    kill_connection(cnf->conntrack_location,
-                                            con->src_ip, con->dst_ip, con->protocol,
-                                            con->src_port, con->dst_port);
-                                }
-                            }
-                            else
-                            {
-                                vrprint.debug(__FUNC__, "cnt %u, src %s srcip %s dst %s dstip %s ser %s",
-                                        con->cnt, con->src, con->src_ip, con->dst,
-                                        con->dst_ip, con->ser);
+                        } else {
+                            vrprint.debug(__FUNC__,
+                                    "cnt %u, src %s srcip %s dst %s dstip %s "
+                                    "ser %s",
+                                    con->cnt, con->src, con->src_ip, con->dst,
+                                    con->dst_ip, con->ser);
 
-                                if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                            vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                                {
-                                    kill_connections(cnf, connreq, ct, con);
-                                }
+                            if (confirm(gettext("Kill connections"),
+                                        gettext("Are you sure?"),
+                                        vccnf.color_win_note,
+                                        vccnf.color_win_note_rev | A_BOLD,
+                                        1) == 1) {
+                                kill_connections(cnf, connreq, ct, con);
                             }
-                            break;
                         }
+                        break;
+                    }
 
                     case 2: /* kill all src ip */
                         /* check if the conntrack tool is set */
-                        if(cnf->conntrack_location[0] == '\0')
-                        {
+                        if (cnf->conntrack_location[0] == '\0') {
                             vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
-                        }
-                        else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            kill_connections_by_ip(cnf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                        } else if (confirm(gettext("Kill connections"),
+                                           gettext("Are you sure?"),
+                                           vccnf.color_win_note,
+                                           vccnf.color_win_note_rev | A_BOLD,
+                                           1) == 1) {
+                            kill_connections_by_ip(cnf, ct, con->src_ip, NULL,
+                                    NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
                     case 3: /* kill all dst ip */
                         /* check if the conntrack tool is set */
-                        if(cnf->conntrack_location[0] == '\0')
-                        {
+                        if (cnf->conntrack_location[0] == '\0') {
                             vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
-                        }
-                        else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            kill_connections_by_ip(cnf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
+                        } else if (confirm(gettext("Kill connections"),
+                                           gettext("Are you sure?"),
+                                           vccnf.color_win_note,
+                                           vccnf.color_win_note_rev | A_BOLD,
+                                           1) == 1) {
+                            kill_connections_by_ip(cnf, ct, NULL, con->dst_ip,
+                                    NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
                     case 4:
                         /* check if the conntrack tool is set */
-                        if(cnf->conntrack_location[0] == '\0')
-                        {
+                        if (cnf->conntrack_location[0] == '\0') {
                             vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
-                        }
-                        else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            kill_connections_by_ip(cnf, ct, NULL, con->src_ip, NULL, VRMR_CONN_UNUSED);
-                            kill_connections_by_ip(cnf, ct, con->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                        } else if (confirm(gettext("Kill connections"),
+                                           gettext("Are you sure?"),
+                                           vccnf.color_win_note,
+                                           vccnf.color_win_note_rev | A_BOLD,
+                                           1) == 1) {
+                            kill_connections_by_ip(cnf, ct, NULL, con->src_ip,
+                                    NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ct, con->src_ip, NULL,
+                                    NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
                     case 5:
                         /* check if the conntrack tool is set */
-                        if(cnf->conntrack_location[0] == '\0')
-                        {
+                        if (cnf->conntrack_location[0] == '\0') {
                             vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
-                        }
-                        else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            kill_connections_by_ip(cnf, ct, NULL, con->dst_ip, NULL, VRMR_CONN_UNUSED);
-                            kill_connections_by_ip(cnf, ct, con->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                        } else if (confirm(gettext("Kill connections"),
+                                           gettext("Are you sure?"),
+                                           vccnf.color_win_note,
+                                           vccnf.color_win_note_rev | A_BOLD,
+                                           1) == 1) {
+                            kill_connections_by_ip(cnf, ct, NULL, con->dst_ip,
+                                    NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ct, con->dst_ip, NULL,
+                                    NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
-
                     case 6:
-                        if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            block_and_kill(vctx, ct, zones, blocklist, interfaces, con->src_ip);
+                        if (confirm(gettext("Add to BlockList and Apply "
+                                            "Changes"),
+                                    gettext("Are you sure?"),
+                                    vccnf.color_win_note,
+                                    vccnf.color_win_note_rev | A_BOLD,
+                                    1) == 1) {
+                            block_and_kill(vctx, ct, zones, blocklist,
+                                    interfaces, con->src_ip);
                         }
                         break;
 
                     case 7:
-                        if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            block_and_kill(vctx, ct, zones, blocklist, interfaces, con->dst_ip);
+                        if (confirm(gettext("Add to BlockList and Apply "
+                                            "Changes"),
+                                    gettext("Are you sure?"),
+                                    vccnf.color_win_note,
+                                    vccnf.color_win_note_rev | A_BOLD,
+                                    1) == 1) {
+                            block_and_kill(vctx, ct, zones, blocklist,
+                                    interfaces, con->dst_ip);
                         }
                         break;
 
                     case 8:
-                        if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            block_and_kill(vctx, ct, zones, blocklist, interfaces, con->src_ip);
-                            block_and_kill(vctx, ct, zones, blocklist, interfaces, con->dst_ip);
+                        if (confirm(gettext("Add to BlockList and Apply "
+                                            "Changes"),
+                                    gettext("Are you sure?"),
+                                    vccnf.color_win_note,
+                                    vccnf.color_win_note_rev | A_BOLD,
+                                    1) == 1) {
+                            block_and_kill(vctx, ct, zones, blocklist,
+                                    interfaces, con->src_ip);
+                            block_and_kill(vctx, ct, zones, blocklist,
+                                    interfaces, con->dst_ip);
                         }
                         break;
 
@@ -659,7 +663,7 @@ statevent_interactivemenu_conn( struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     doupdate();
 
     /* we have ungrouped the list, clean up here. */
-    if(ungroup_conns == TRUE) {
+    if (ungroup_conns == TRUE) {
         connreq->group_conns = TRUE;
         conn_ct_clear_connections(privct);
         conn_free_ct(&privct, NULL);
@@ -670,34 +674,31 @@ statevent_interactivemenu_conn( struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     on a connection.
 
 */
-static void
-statevent_interactivemenu_log(  struct vrmr_ctx *vctx, struct vrmr_config *cnf,
-                                StatEventCtl *ctl, Conntrack *ct,
-                                struct vrmr_conntrack_request *connreqnull, struct vrmr_zones *zones,
-                                struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
-                                struct vrmr_services *services, StatEventGen *gen_ptr)
+static void statevent_interactivemenu_log(struct vrmr_ctx *vctx,
+        struct vrmr_config *cnf, StatEventCtl *ctl, Conntrack *ct,
+        struct vrmr_conntrack_request *connreqnull, struct vrmr_zones *zones,
+        struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
+        struct vrmr_services *services, StatEventGen *gen_ptr)
 {
-    VrWin               *win = NULL;
-    VrMenu              *menu = NULL;
-    int                 ch = 0;
-    int                 menu_items = 10;
-    char                *str = NULL;
-    const int           width = 70;
+    VrWin *win = NULL;
+    VrMenu *menu = NULL;
+    int ch = 0;
+    int menu_items = 10;
+    char *str = NULL;
+    const int width = 70;
     /* top menu */
-    char                *key_choices[] =    {   "F12",
-                                                "F10"};
-    int                 key_choices_n = 2;
-    char                *cmd_choices[] =    {   gettext("help"),
-                                                gettext("back")};
-    int                 cmd_choices_n = 2;
-    StatEventLog        *log = (StatEventLog *)gen_ptr;
+    char *key_choices[] = {"F12", "F10"};
+    int key_choices_n = 2;
+    char *cmd_choices[] = {gettext("help"), gettext("back")};
+    int cmd_choices_n = 2;
+    StatEventLog *log = (StatEventLog *)gen_ptr;
 
-    Conntrack           *ctr = NULL;
+    Conntrack *ctr = NULL;
     struct vrmr_conntrack_request connreq;
-    char                *title = gettext("Manage Log");
+    char *title = gettext("Manage Log");
 
     /* number labels */
-    char *nums[9] = { "1", "2", "3", "4", "5", "6", "7", "8", NULL };
+    char *nums[9] = {"1", "2", "3", "4", "5", "6", "7", "8", NULL};
     int n = 0;
     int action = 0;
 
@@ -719,15 +720,16 @@ statevent_interactivemenu_log(  struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     conn_ct_get_connections(cnf, ctr, &connreq);
 
     action = vrmr_rules_actiontoi(log->action);
-    if(action == VRMR_AT_DROP || action == VRMR_AT_REJECT)
+    if (action == VRMR_AT_DROP || action == VRMR_AT_REJECT)
         menu_items--;
 
     /* create the window and put it in the middle of the screen */
-    win = VrNewWin(menu_items + 2,width,0,0,vccnf.color_win);
+    win = VrNewWin(menu_items + 2, width, 0, 0, vccnf.color_win);
     vrmr_fatal_if_null(win);
     VrWinSetTitle(win, title);
 
-    menu = VrNewMenu(menu_items, width - 2, 1,1, menu_items,vccnf.color_win,vccnf.color_win_rev);
+    menu = VrNewMenu(menu_items, width - 2, 1, 1, menu_items, vccnf.color_win,
+            vccnf.color_win_rev);
     vrmr_fatal_if_null(menu);
     VrMenuSetDescFreeFunc(menu, free);
     VrMenuSetupNameList(menu);
@@ -736,13 +738,16 @@ statevent_interactivemenu_log(  struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     if (action != VRMR_AT_DROP && action != VRMR_AT_REJECT) {
         /* setup menu items */
         str = vrmr_get_string(gettext("Kill this connection"));
-        VrMenuAddItem(menu, nums[n], str); n++;
+        VrMenuAddItem(menu, nums[n], str);
+        n++;
     }
     str = vrmr_get_string("--- %s ---", gettext("Kill options"));
     VrMenuAddSepItem(menu, str);
-    str = vrmr_get_string(gettext("Kill all connections with source %s"), log->src_ip);
+    str = vrmr_get_string(
+            gettext("Kill all connections with source %s"), log->src_ip);
     VrMenuAddItem(menu, nums[n++], str);
-    str = vrmr_get_string(gettext("Kill all connections with destination %s"), log->dst_ip);
+    str = vrmr_get_string(
+            gettext("Kill all connections with destination %s"), log->dst_ip);
     VrMenuAddItem(menu, nums[n++], str);
     str = vrmr_get_string(gettext("Kill all connections of %s"), log->src_ip);
     VrMenuAddItem(menu, nums[n++], str);
@@ -752,26 +757,26 @@ statevent_interactivemenu_log(  struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     VrMenuAddSepItem(menu, str);
     str = vrmr_get_string(gettext("Add source %s to BlockList"), log->src_ip);
     VrMenuAddItem(menu, nums[n++], str);
-    str = vrmr_get_string(gettext("Add destination %s to BlockList"), log->dst_ip);
+    str = vrmr_get_string(
+            gettext("Add destination %s to BlockList"), log->dst_ip);
     VrMenuAddItem(menu, nums[n++], str);
-    str = vrmr_get_string(gettext("Add both source and destination to BlockList"));
+    str = vrmr_get_string(
+            gettext("Add both source and destination to BlockList"));
     VrMenuAddItem(menu, nums[n], str); /* n != n++ */
     VrMenuConnectToWin(menu, win);
     VrMenuPost(menu);
 
-    draw_top_menu(top_win, title, key_choices_n,
-            key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, title, key_choices_n, key_choices, cmd_choices_n,
+            cmd_choices);
     update_panels();
     doupdate();
     VrBusyWinHide();
 
     /* user input */
     char quit = FALSE;
-    while(quit == FALSE)
-    {
+    while (quit == FALSE) {
         ch = VrWinGetch(win);
-        switch(ch)
-        {
+        switch (ch) {
             case 27:
             case 'q':
             case 'Q':
@@ -779,109 +784,125 @@ statevent_interactivemenu_log(  struct vrmr_ctx *vctx, struct vrmr_config *cnf,
                 quit = TRUE;
                 break;
 
-            case 10:
-            {
+            case 10: {
                 ITEM *cur = current_item(menu->m);
                 vrmr_fatal_if_null(cur);
                 int act = atoi((char *)item_name(cur));
-                switch(act)
-                {
+                switch (act) {
                     case 1: /* kill */
-                        {
-                            /* check if the conntrack tool is set */
-                            if(cnf->conntrack_location[0] == '\0')
-                            {
-                                vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                    {
+                        /* check if the conntrack tool is set */
+                        if (cnf->conntrack_location[0] == '\0') {
+                            vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
+                        } else {
+                            if (confirm(gettext("Kill connections"),
+                                        gettext("Are you sure?"),
+                                        vccnf.color_win_note,
+                                        vccnf.color_win_note_rev | A_BOLD,
+                                        1) == 1) {
+                                kill_connections_by_ip(cnf, ctr, log->src_ip,
+                                        log->dst_ip, log->ser,
+                                        VRMR_CONN_UNUSED);
                             }
-                            else
-                            {
-                                if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                            vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                                {
-                                    kill_connections_by_ip(cnf, ctr,
-                                            log->src_ip, log->dst_ip, log->ser, VRMR_CONN_UNUSED);
-                                }
-                            }
-                            break;
                         }
+                        break;
+                    }
 
                     case 2: /* kill all src ip */
                         /* check if the conntrack tool is set */
-                        if(cnf->conntrack_location[0] == '\0')
-                        {
+                        if (cnf->conntrack_location[0] == '\0') {
                             vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
-                        }
-                        else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            kill_connections_by_ip(cnf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                        } else if (confirm(gettext("Kill connections"),
+                                           gettext("Are you sure?"),
+                                           vccnf.color_win_note,
+                                           vccnf.color_win_note_rev | A_BOLD,
+                                           1) == 1) {
+                            kill_connections_by_ip(cnf, ctr, log->src_ip, NULL,
+                                    NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
                     case 3: /* kill all dst ip */
                         /* check if the conntrack tool is set */
-                        if(cnf->conntrack_location[0] == '\0')
-                        {
+                        if (cnf->conntrack_location[0] == '\0') {
                             vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
-                        }
-                        else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            kill_connections_by_ip(cnf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
+                        } else if (confirm(gettext("Kill connections"),
+                                           gettext("Are you sure?"),
+                                           vccnf.color_win_note,
+                                           vccnf.color_win_note_rev | A_BOLD,
+                                           1) == 1) {
+                            kill_connections_by_ip(cnf, ctr, NULL, log->dst_ip,
+                                    NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
                     case 4:
                         /* check if the conntrack tool is set */
-                        if(cnf->conntrack_location[0] == '\0')
-                        {
+                        if (cnf->conntrack_location[0] == '\0') {
                             vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
-                        }
-                        else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            kill_connections_by_ip(cnf, ctr, NULL, log->src_ip, NULL, VRMR_CONN_UNUSED);
-                            kill_connections_by_ip(cnf, ctr, log->src_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                        } else if (confirm(gettext("Kill connections"),
+                                           gettext("Are you sure?"),
+                                           vccnf.color_win_note,
+                                           vccnf.color_win_note_rev | A_BOLD,
+                                           1) == 1) {
+                            kill_connections_by_ip(cnf, ctr, NULL, log->src_ip,
+                                    NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ctr, log->src_ip, NULL,
+                                    NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
                     case 5:
                         /* check if the conntrack tool is set */
-                        if(cnf->conntrack_location[0] == '\0')
-                        {
+                        if (cnf->conntrack_location[0] == '\0') {
                             vrmr_error(-1, VR_ERR, STR_CONNTRACK_LOC_NOT_SET);
-                        }
-                        else if(confirm(gettext("Kill connections"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            kill_connections_by_ip(cnf, ctr, NULL, log->dst_ip, NULL, VRMR_CONN_UNUSED);
-                            kill_connections_by_ip(cnf, ctr, log->dst_ip, NULL, NULL, VRMR_CONN_UNUSED);
+                        } else if (confirm(gettext("Kill connections"),
+                                           gettext("Are you sure?"),
+                                           vccnf.color_win_note,
+                                           vccnf.color_win_note_rev | A_BOLD,
+                                           1) == 1) {
+                            kill_connections_by_ip(cnf, ctr, NULL, log->dst_ip,
+                                    NULL, VRMR_CONN_UNUSED);
+                            kill_connections_by_ip(cnf, ctr, log->dst_ip, NULL,
+                                    NULL, VRMR_CONN_UNUSED);
                         }
                         break;
 
-
                     case 6:
-                        if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            block_and_kill(vctx, ctr, zones, blocklist, interfaces, log->src_ip);
+                        if (confirm(gettext("Add to BlockList and Apply "
+                                            "Changes"),
+                                    gettext("Are you sure?"),
+                                    vccnf.color_win_note,
+                                    vccnf.color_win_note_rev | A_BOLD,
+                                    1) == 1) {
+                            block_and_kill(vctx, ctr, zones, blocklist,
+                                    interfaces, log->src_ip);
                         }
                         break;
 
                     case 7:
-                        if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            block_and_kill(vctx, ctr, zones, blocklist, interfaces, log->dst_ip);
+                        if (confirm(gettext("Add to BlockList and Apply "
+                                            "Changes"),
+                                    gettext("Are you sure?"),
+                                    vccnf.color_win_note,
+                                    vccnf.color_win_note_rev | A_BOLD,
+                                    1) == 1) {
+                            block_and_kill(vctx, ctr, zones, blocklist,
+                                    interfaces, log->dst_ip);
                         }
                         break;
 
                     case 8:
-                        if(confirm(gettext("Add to BlockList and Apply Changes"),gettext("Are you sure?"),
-                                    vccnf.color_win_note, vccnf.color_win_note_rev|A_BOLD, 1) == 1)
-                        {
-                            block_and_kill(vctx, ctr, zones, blocklist, interfaces, log->src_ip);
-                            block_and_kill(vctx, ctr, zones, blocklist, interfaces, log->dst_ip);
+                        if (confirm(gettext("Add to BlockList and Apply "
+                                            "Changes"),
+                                    gettext("Are you sure?"),
+                                    vccnf.color_win_note,
+                                    vccnf.color_win_note_rev | A_BOLD,
+                                    1) == 1) {
+                            block_and_kill(vctx, ctr, zones, blocklist,
+                                    interfaces, log->src_ip);
+                            block_and_kill(vctx, ctr, zones, blocklist,
+                                    interfaces, log->dst_ip);
                         }
                         break;
 
@@ -912,9 +933,7 @@ statevent_interactivemenu_log(  struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     doupdate();
 }
 
-
-static StatEventCtl * ATTR_RETURNS_NONNULL
-statevent_init_ctl(int type)
+static StatEventCtl *ATTR_RETURNS_NONNULL statevent_init_ctl(int type)
 {
     StatEventCtl *ctl = malloc(sizeof(StatEventCtl));
     vrmr_fatal_alloc("malloc", ctl);
@@ -923,33 +942,32 @@ statevent_init_ctl(int type)
     ctl->type = type;
 
     if (ctl->type == STATEVENTTYPE_CONN) {
-        ctl->print2str        = statevent_print2str_conn;
-        ctl->remove           = free;
-        ctl->menu             = statevent_interactivemenu_conn;
-        ctl->convert          = statevent_convert_conn;
-        ctl->title_str        = gettext("Manage Connections");
-        ctl->options_str      = gettext("connection actions");
+        ctl->print2str = statevent_print2str_conn;
+        ctl->remove = free;
+        ctl->menu = statevent_interactivemenu_conn;
+        ctl->convert = statevent_convert_conn;
+        ctl->title_str = gettext("Manage Connections");
+        ctl->options_str = gettext("connection actions");
         ctl->warn_no_data_str = gettext("No connections to act on.");
-        ctl->help_overview    = ":[VUURMUUR:CONNECTIONS:MANAGE]:";
-        ctl->help_actions     = ":[VUURMUUR:CONNECTIONS:ACTIONS]:";
+        ctl->help_overview = ":[VUURMUUR:CONNECTIONS:MANAGE]:";
+        ctl->help_actions = ":[VUURMUUR:CONNECTIONS:ACTIONS]:";
     } else if (ctl->type == STATEVENTTYPE_LOG) {
-        ctl->print2str        = statevent_print2str_log;
-        ctl->remove           = free;
-        ctl->menu             = statevent_interactivemenu_log;
-        ctl->convert          = statevent_convert_log;
-        ctl->title_str        = gettext("Manage Logging");
-        ctl->options_str      = gettext("logging actions");
+        ctl->print2str = statevent_print2str_log;
+        ctl->remove = free;
+        ctl->menu = statevent_interactivemenu_log;
+        ctl->convert = statevent_convert_log;
+        ctl->title_str = gettext("Manage Logging");
+        ctl->options_str = gettext("logging actions");
         ctl->warn_no_data_str = gettext("No logs to act on.");
-        ctl->help_overview    = ":[VUURMUUR:LOGVIEW:MANAGE]:";
-        ctl->help_actions     = ":[VUURMUUR:LOGVIEW:ACTIONS]:";
+        ctl->help_overview = ":[VUURMUUR:LOGVIEW:MANAGE]:";
+        ctl->help_actions = ":[VUURMUUR:LOGVIEW:ACTIONS]:";
     }
 
     vrmr_list_setup(&ctl->list, ctl->remove);
-    return(ctl);
+    return (ctl);
 }
 
-static void
-statevent_free_ctl(StatEventCtl **ctl)
+static void statevent_free_ctl(StatEventCtl **ctl)
 {
     vrmr_list_cleanup(&(*ctl)->list);
     memset(*ctl, 0, sizeof(StatEventCtl));
@@ -957,43 +975,38 @@ statevent_free_ctl(StatEventCtl **ctl)
     *ctl = NULL;
 }
 
-static int
-statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
-        StatEventCtl *ctl, Conntrack *ct,
-        struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
-        struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+static int statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
+        int type, StatEventCtl *ctl, Conntrack *ct,
+        struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones,
+        struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
+        struct vrmr_services *services)
 {
-    VrWin           *win = NULL;
-    VrMenu          *menu = NULL;
-    int             ch = 0;
-    struct vrmr_list_node     *d_node = NULL;
-    StatEventGen    *gen_ptr = NULL;
+    VrWin *win = NULL;
+    VrMenu *menu = NULL;
+    int ch = 0;
+    struct vrmr_list_node *d_node = NULL;
+    StatEventGen *gen_ptr = NULL;
 
     /* top menu */
-    char            *key_choices[] =    {   "F12",
-                                            "enter",
-                                            "F10"};
-    int             key_choices_n = 3;
-    char            *cmd_choices[] =    {   gettext("help"),
-                                            ctl->options_str,
-                                            gettext("back")};
-    int             cmd_choices_n = 3;
+    char *key_choices[] = {"F12", "enter", "F10"};
+    int key_choices_n = 3;
+    char *cmd_choices[] = {gettext("help"), ctl->options_str, gettext("back")};
+    int cmd_choices_n = 3;
 
     /* print a warning if we have no data */
-    if(ctl->list.len == 0)
-    {
+    if (ctl->list.len == 0) {
         vrmr_warning(VR_WARN, ctl->warn_no_data_str);
-        return(0);
+        return (0);
     }
 
-    win = VrNewWin(LINES - 6,COLS - 2,3,1,vccnf.color_win_rev);
+    win = VrNewWin(LINES - 6, COLS - 2, 3, 1, vccnf.color_win_rev);
     vrmr_fatal_if_null(win);
     VrWinSetTitle(win, ctl->title_str);
-    draw_top_menu(top_win, ctl->title_str, key_choices_n,
-            key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, ctl->title_str, key_choices_n, key_choices,
+            cmd_choices_n, cmd_choices);
 
-    menu = VrNewMenu(LINES - 8,COLS - 4,1,1,ctl->list.len,
-            vccnf.color_win_rev,vccnf.color_win);
+    menu = VrNewMenu(LINES - 8, COLS - 4, 1, 1, ctl->list.len,
+            vccnf.color_win_rev, vccnf.color_win);
     vrmr_fatal_if_null(menu);
     VrMenuSetNameFreeFunc(menu, free);
     VrMenuSetDescFreeFunc(menu, free);
@@ -1001,32 +1014,29 @@ statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
     VrMenuSetupDescList(menu);
 
     unsigned int num = 1;
-    for (d_node = ctl->list.top; d_node; d_node = d_node->next)
-    {
+    for (d_node = ctl->list.top; d_node; d_node = d_node->next) {
         vrmr_fatal_if_null(d_node->data);
         gen_ptr = d_node->data;
 
-        vrmr_debug(MEDIUM, "gen_ptr->filtered %d",
-                gen_ptr->filtered);
+        vrmr_debug(MEDIUM, "gen_ptr->filtered %d", gen_ptr->filtered);
 
         if (gen_ptr->filtered == 0) {
-            char    *desc_str = NULL;
-            char    *name_str = NULL;
-            char    strtmp[512] = "";
-            size_t  name_len = 0,
-                    desc_len = 0;
+            char *desc_str = NULL;
+            char *name_str = NULL;
+            char strtmp[512] = "";
+            size_t name_len = 0, desc_len = 0;
 
-            if(ctl->list.len <= 9)
+            if (ctl->list.len <= 9)
                 snprintf(strtmp, sizeof(strtmp), "%u", num);
-            else if(ctl->list.len <= 99)
+            else if (ctl->list.len <= 99)
                 snprintf(strtmp, sizeof(strtmp), "%2u", num);
-            else if(ctl->list.len <= 999)
+            else if (ctl->list.len <= 999)
                 snprintf(strtmp, sizeof(strtmp), "%3u", num);
-            else if(ctl->list.len <= 9999)
+            else if (ctl->list.len <= 9999)
                 snprintf(strtmp, sizeof(strtmp), "%4u", num);
-            else if(ctl->list.len <= 99999)
+            else if (ctl->list.len <= 99999)
                 snprintf(strtmp, sizeof(strtmp), "%5u", num);
-            else if(ctl->list.len <= 999999)
+            else if (ctl->list.len <= 999999)
                 snprintf(strtmp, sizeof(strtmp), "%6u", num);
             else
                 snprintf(strtmp, sizeof(strtmp), "%10u", num);
@@ -1048,14 +1058,13 @@ statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
         }
     }
     /* check if we didn't add any item (if all was filtered) */
-    if(num == 1)
-    {
+    if (num == 1) {
         vrmr_warning(VR_WARN, ctl->warn_no_data_str);
         VrDelMenu(menu);
         VrDelWin(win);
         update_panels();
         doupdate();
-        return(0);
+        return (0);
     }
 
     VrMenuConnectToWin(menu, win);
@@ -1066,12 +1075,10 @@ statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
 
     /* user input */
     char quit = FALSE;
-    while(quit == FALSE)
-    {
+    while (quit == FALSE) {
         ch = VrWinGetch(win);
 
-        switch(ch)
-        {
+        switch (ch) {
             case 27:
             case 'q':
             case 'Q':
@@ -1079,8 +1086,7 @@ statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
                 quit = TRUE;
                 break;
 
-            case 10:
-            {
+            case 10: {
                 ITEM *cur = current_item(menu->m);
                 vrmr_fatal_if_null(cur);
                 int i = atoi((char *)item_name(cur));
@@ -1090,14 +1096,13 @@ statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
                 /* get the current event: handle
                  * filtered events as well
                  */
-                for(d_node = ctl->list.top; d_node;
-                        d_node = d_node->next, u++)
-                {
+                for (d_node = ctl->list.top; d_node;
+                        d_node = d_node->next, u++) {
                     vrmr_fatal_if_null(d_node->data);
                     gen_ptr = d_node->data;
 
-                    if(!gen_ptr->filtered) {
-                        if(u == (unsigned int)i)
+                    if (!gen_ptr->filtered) {
+                        if (u == (unsigned int)i)
                             break;
                     } else {
                         u--;
@@ -1108,18 +1113,13 @@ statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
                 if (gen_ptr != NULL) {
                     /* call the interactive menu
                        function */
-                    ctl->menu(vctx, cnf, ctl, ct,
-                            connreq, zones, blocklist, interfaces,
-                            services, gen_ptr);
+                    ctl->menu(vctx, cnf, ctl, ct, connreq, zones, blocklist,
+                            interfaces, services, gen_ptr);
 
                     /* when done, restore the title
                        and options */
-                    draw_top_menu(top_win,
-                            ctl->title_str,
-                            key_choices_n,
-                            key_choices,
-                            cmd_choices_n,
-                            cmd_choices);
+                    draw_top_menu(top_win, ctl->title_str, key_choices_n,
+                            key_choices, cmd_choices_n, cmd_choices);
                 }
                 break;
             }
@@ -1141,11 +1141,10 @@ statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
     update_panels();
     doupdate();
 
-    return(0);
+    return (0);
 }
 
-void
-statevent(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
+void statevent(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
         struct vrmr_list *list, Conntrack *ct,
         struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
@@ -1162,12 +1161,12 @@ statevent(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
         ctl->data = list;
 
     /* convert datatypes list to our own type */
-    if(ctl->convert(ctl) == FALSE) {
+    if (ctl->convert(ctl) == FALSE) {
         vrmr_error(-1, VR_ERR, "loading data failed.");
     }
 
-    statevent_menu(vctx, cnf, type, ctl, ct, connreq,
-            zones, blocklist, interfaces, services);
+    statevent_menu(vctx, cnf, type, ctl, ct, connreq, zones, blocklist,
+            interfaces, services);
 
     statevent_free_ctl(&ctl);
 

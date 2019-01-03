@@ -20,11 +20,9 @@
 
 #include "main.h"
 
-
 /* LogRule moved to main.h */
 
-struct PlainLogRule_
-{
+struct PlainLogRule_ {
     int filtered;
     char line[512];
 };
@@ -34,28 +32,28 @@ struct PlainLogRule_
     Load a string 'logline' into the 'logrule' struct. We do this for
     pretty printing.
 */
-static void
-logline2logrule(const char *logline, struct LogRule_ *logrule)
+static void logline2logrule(const char *logline, struct LogRule_ *logrule)
 {
     vrmr_fatal_if_null(logline);
     vrmr_fatal_if_null(logrule);
 
-    /* scan the line. Note: 'time' has a ':' as last char, and 'to' has a comma as last char. */
-    sscanf(logline, "%3s %2s %9s %s service %s from %s to %s",
-            logrule->month, logrule->date, logrule->time,
-            logrule->action, logrule->service, logrule->from, logrule->to);
+    /* scan the line. Note: 'time' has a ':' as last char, and 'to' has a comma
+     * as last char. */
+    sscanf(logline, "%3s %2s %9s %s service %s from %s to %s", logrule->month,
+            logrule->date, logrule->time, logrule->action, logrule->service,
+            logrule->from, logrule->to);
 
     /* remove the semicolon from time */
-    logrule->time[StrMemLen(logrule->time)-1] = '\0';
+    logrule->time[StrMemLen(logrule->time) - 1] = '\0';
 
     /* remove the comma from 'to' */
-    if (logrule->to[StrMemLen(logrule->to)-1] == ',')
-        logrule->to[StrMemLen(logrule->to)-1] = '\0';
+    if (logrule->to[StrMemLen(logrule->to) - 1] == ',')
+        logrule->to[StrMemLen(logrule->to) - 1] = '\0';
 
     char *details_start;
     char *prefix_start = strstr(logline, "prefix: \"");
     if (prefix_start && strlen(prefix_start) > 9) {
-        char *prefix_end = strchr(prefix_start+9, '"');
+        char *prefix_end = strchr(prefix_start + 9, '"');
         if (prefix_end == NULL)
             return;
 
@@ -64,11 +62,12 @@ logline2logrule(const char *logline, struct LogRule_ *logrule)
             return;
         if ((prefix_end - prefix_start) >= (int)sizeof(logrule->prefix))
             return;
-        size_t copy = MIN((prefix_end - prefix_start), (int)sizeof(logrule->prefix));
+        size_t copy =
+                MIN((prefix_end - prefix_start), (int)sizeof(logrule->prefix));
         strlcpy(logrule->prefix, prefix_start, copy);
 
         /* terminate the string. If the last char is a white-space remove it. */
-        if(copy && logrule->prefix[copy - 1] == ' ')
+        if (copy && logrule->prefix[copy - 1] == ' ')
             logrule->prefix[copy - 1] = '\0';
         else
             logrule->prefix[copy] = '\0';
@@ -87,8 +86,7 @@ logline2logrule(const char *logline, struct LogRule_ *logrule)
         logrule->details[details_len - 1] = '\0';
 }
 
-static void
-logline2plainlogrule(char *logline, struct PlainLogRule_ *logrule)
+static void logline2plainlogrule(char *logline, struct PlainLogRule_ *logrule)
 {
     vrmr_fatal_if_null(logline);
     vrmr_fatal_if_null(logrule);
@@ -102,25 +100,19 @@ logline2plainlogrule(char *logline, struct PlainLogRule_ *logrule)
         0: not filtered
         1: filtered
 */
-static int
-logrule_filtered(struct LogRule_ *log_record, struct vrmr_filter *filter)
+static int logrule_filtered(
+        struct LogRule_ *log_record, struct vrmr_filter *filter)
 {
-    char    line[1024];
+    char line[1024];
 
     vrmr_fatal_if_null(log_record);
     vrmr_fatal_if_null(filter);
 
     /*                            mo da ti  ac se fr to   pr  de */
     snprintf(line, sizeof(line), "%s %s %s: %s %s %s %s, '%s' %s",
-                    log_record->month,
-                    log_record->date,
-                    log_record->time,
-                    log_record->action,
-                    log_record->service,
-                    log_record->from,
-                    log_record->to,
-                    log_record->prefix,
-                    log_record->details);
+            log_record->month, log_record->date, log_record->time,
+            log_record->action, log_record->service, log_record->from,
+            log_record->to, log_record->prefix, log_record->details);
 
     /*  check the regex
 
@@ -128,14 +120,14 @@ logrule_filtered(struct LogRule_ *log_record, struct vrmr_filter *filter)
     */
     if (regexec(&filter->reg, line, 0, NULL, 0) == 0) {
         if (filter->neg == FALSE)
-            return(0);
+            return (0);
         else
-            return(1);
+            return (1);
     } else {
         if (filter->neg == FALSE)
-            return(1);
+            return (1);
         else
-            return(0);
+            return (0);
     }
 }
 
@@ -144,8 +136,7 @@ logrule_filtered(struct LogRule_ *log_record, struct vrmr_filter *filter)
         0: not filtered
         1: filtered
 */
-static int
-plainlogrule_filtered(char *line, struct vrmr_filter *filter)
+static int plainlogrule_filtered(char *line, struct vrmr_filter *filter)
 {
     vrmr_fatal_if_null(line);
     vrmr_fatal_if_null(filter);
@@ -154,23 +145,22 @@ plainlogrule_filtered(char *line, struct vrmr_filter *filter)
 
         If the regex matches, the line is not filtered, so we return 0.
     */
-    if(regexec(&filter->reg, line, 0, NULL, 0) == 0) {
-        if(filter->neg == FALSE)
-            return(0);
+    if (regexec(&filter->reg, line, 0, NULL, 0) == 0) {
+        if (filter->neg == FALSE)
+            return (0);
         else
-            return(1);
+            return (1);
     } else {
-        if(filter->neg == FALSE)
-            return(1);
+        if (filter->neg == FALSE)
+            return (1);
         else
-            return(0);
+            return (0);
     }
 }
 
-static void
-draw_filter(PANEL *pan, WINDOW *win, char *filter)
+static void draw_filter(PANEL *pan, WINDOW *win, char *filter)
 {
-    if(strcmp(filter, "none") == 0) {
+    if (strcmp(filter, "none") == 0) {
         hide_panel(pan);
     } else {
         show_panel(pan);
@@ -181,10 +171,9 @@ draw_filter(PANEL *pan, WINDOW *win, char *filter)
     doupdate();
 }
 
-static void
-draw_search(PANEL *pan, WINDOW *win, char *search)
+static void draw_search(PANEL *pan, WINDOW *win, char *search)
 {
-    if(strcmp(search, "none") == 0) {
+    if (strcmp(search, "none") == 0) {
         hide_panel(pan);
     } else {
         show_panel(pan);
@@ -195,259 +184,257 @@ draw_search(PANEL *pan, WINDOW *win, char *search)
     doupdate();
 }
 
-static int
-check_search_script(const char *script)
+static int check_search_script(const char *script)
 {
     struct stat stat_buf;
 
     vrmr_fatal_if_null(script);
 
-    if(lstat(script, &stat_buf) == -1)
-    {
-        vrmr_error(-1, VR_ERR,  gettext("checking failed for '%s': %s."), script, strerror(errno));
-        return(0);
+    if (lstat(script, &stat_buf) == -1) {
+        vrmr_error(-1, VR_ERR, gettext("checking failed for '%s': %s."), script,
+                strerror(errno));
+        return (0);
     }
 
     /* we wont open symbolic links */
-    if(S_ISLNK(stat_buf.st_mode) == 1)
-    {
-        vrmr_error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not allow following symbolic-links."), script);
-        return(0);
+    if (S_ISLNK(stat_buf.st_mode) == 1) {
+        vrmr_error(-1, VR_ERR,
+                gettext("opening file '%s': For security reasons Vuurmuur will "
+                        "not allow following symbolic-links."),
+                script);
+        return (0);
     }
 
     /* only allow files and dirs */
-    if(!S_ISREG(stat_buf.st_mode) && !S_ISDIR(stat_buf.st_mode))
-    {
-        vrmr_error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not allow opening anything other than a file or a directory."), script);
-        return(0);
+    if (!S_ISREG(stat_buf.st_mode) && !S_ISDIR(stat_buf.st_mode)) {
+        vrmr_error(-1, VR_ERR,
+                gettext("opening file '%s': For security reasons Vuurmuur will "
+                        "not allow opening anything other than a file or a "
+                        "directory."),
+                script);
+        return (0);
     }
 
     /* if a file is writable by someone other than root, we refuse to open it */
-    if(stat_buf.st_mode & S_IWGRP || stat_buf.st_mode & S_IWOTH)
-    {
-        vrmr_error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not open files that are writable by 'group' or 'other'. Check the file content & permissions."), script);
-        return(0);
+    if (stat_buf.st_mode & S_IWGRP || stat_buf.st_mode & S_IWOTH) {
+        vrmr_error(-1, VR_ERR,
+                gettext("opening file '%s': For security reasons Vuurmuur will "
+                        "not open files that are writable by 'group' or "
+                        "'other'. Check the file content & permissions."),
+                script);
+        return (0);
     }
 
     /* we demand that all files are owned by root */
-    if(stat_buf.st_uid != 0)
-    {
-        vrmr_error(-1, VR_ERR, gettext("opening file '%s': For security reasons Vuurmuur will not open files that are not owned by root."), script);
-        return(0);
+    if (stat_buf.st_uid != 0) {
+        vrmr_error(-1, VR_ERR,
+                gettext("opening file '%s': For security reasons Vuurmuur will "
+                        "not open files that are not owned by root."),
+                script);
+        return (0);
     }
 
-    return(1);
+    return (1);
 }
 
-static void
-print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
-        size_t max_logrule_length, size_t cur_logrule_length,
-        char hide_date, char hide_action, char hide_service,
-        char hide_from, char hide_to, char hide_prefix,
-        char hide_details)
+static void print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
+        size_t max_logrule_length, size_t cur_logrule_length, char hide_date,
+        char hide_action, char hide_service, char hide_from, char hide_to,
+        char hide_prefix, char hide_details)
 {
-    size_t  tmpstr_i = 0;
-    char    print_str[256] = "";
+    size_t tmpstr_i = 0;
+    char print_str[256] = "";
 
-    if(!hide_date)
-    {
+    if (!hide_date) {
         /* DATE/TIME */
-        tmpstr_i = StrLen(log_record->month)+1+2+1+StrLen(log_record->time)+1+1; // month, space, day, space, time, semicolon, space, nul
-        if(cur_logrule_length + tmpstr_i >= max_logrule_length)
+        tmpstr_i = StrLen(log_record->month) + 1 + 2 + 1 +
+                   StrLen(log_record->time) + 1 +
+                   1; // month, space, day, space, time, semicolon, space, nul
+        if (cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
-        if(tmpstr_i > sizeof(print_str))
+        if (tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
 
-        snprintf(print_str, tmpstr_i, "%s %2s %s:", log_record->month, log_record->date, log_record->time);
+        snprintf(print_str, tmpstr_i, "%s %2s %s:", log_record->month,
+                log_record->date, log_record->time);
         wprintw(log_win, "%s", print_str);
 
-        cur_logrule_length = cur_logrule_length + tmpstr_i-1;
+        cur_logrule_length = cur_logrule_length + tmpstr_i - 1;
 
         // 1 SPACE
-        if((cur_logrule_length + 1) < max_logrule_length)
-        {
+        if ((cur_logrule_length + 1) < max_logrule_length) {
             wprintw(log_win, " ");
             cur_logrule_length = cur_logrule_length + 1;
         }
     }
 
-    if(!hide_action)
-    {
+    if (!hide_action) {
         /* ACTION */
-        if(strcmp(log_record->action, "DROP") == 0)
+        if (strcmp(log_record->action, "DROP") == 0)
             wattron(log_win, vccnf.color_bgd_red | A_BOLD);
-        else if(strcmp(log_record->action, "REJECT") == 0)
+        else if (strcmp(log_record->action, "REJECT") == 0)
             wattron(log_win, vccnf.color_bgd_red | A_BOLD);
-        else if(strcmp(log_record->action, "ACCEPT") == 0)
+        else if (strcmp(log_record->action, "ACCEPT") == 0)
             wattron(log_win, vccnf.color_bgd_green | A_BOLD);
-        else if(strcmp(log_record->action, "LOG") == 0)
+        else if (strcmp(log_record->action, "LOG") == 0)
             wattron(log_win, vccnf.color_bgd | A_BOLD);
-        else if(strcmp(log_record->action, "SNAT") == 0)
+        else if (strcmp(log_record->action, "SNAT") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "MASQ") == 0)
+        else if (strcmp(log_record->action, "MASQ") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "DNAT") == 0)
+        else if (strcmp(log_record->action, "DNAT") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "BOUNCE") == 0)
+        else if (strcmp(log_record->action, "BOUNCE") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "PORTFW") == 0)
+        else if (strcmp(log_record->action, "PORTFW") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "REDIRECT") == 0)
+        else if (strcmp(log_record->action, "REDIRECT") == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
             wattron(log_win, vccnf.color_bgd | A_BOLD);
 
-        tmpstr_i = StrLen(log_record->action)+1;//1 nul, action
-        if(tmpstr_i < 8)
+        tmpstr_i = StrLen(log_record->action) + 1; // 1 nul, action
+        if (tmpstr_i < 8)
             tmpstr_i = 8; /* min 8 because of the %-6s below */
-        if(cur_logrule_length + tmpstr_i >= max_logrule_length)
+        if (cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
-        if(tmpstr_i > sizeof(print_str))
+        if (tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
 
         snprintf(print_str, tmpstr_i, "%s", log_record->action);
         wprintw(log_win, "%-4s", print_str);
 
-        cur_logrule_length = cur_logrule_length + tmpstr_i-1;
+        cur_logrule_length = cur_logrule_length + tmpstr_i - 1;
 
-        if(strcmp(log_record->action, "DROP") == 0)
+        if (strcmp(log_record->action, "DROP") == 0)
             wattroff(log_win, vccnf.color_bgd_red | A_BOLD);
-        else if(strcmp(log_record->action, "REJECT") == 0)
+        else if (strcmp(log_record->action, "REJECT") == 0)
             wattroff(log_win, vccnf.color_bgd_red | A_BOLD);
-        else if(strcmp(log_record->action, "ACCEPT") == 0)
+        else if (strcmp(log_record->action, "ACCEPT") == 0)
             wattroff(log_win, vccnf.color_bgd_green | A_BOLD);
-        else if(strcmp(log_record->action, "LOG") == 0)
+        else if (strcmp(log_record->action, "LOG") == 0)
             wattroff(log_win, vccnf.color_bgd | A_BOLD);
-        else if(strcmp(log_record->action, "SNAT") == 0)
+        else if (strcmp(log_record->action, "SNAT") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "MASQ") == 0)
+        else if (strcmp(log_record->action, "MASQ") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "DNAT") == 0)
+        else if (strcmp(log_record->action, "DNAT") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "BOUNCE") == 0)
+        else if (strcmp(log_record->action, "BOUNCE") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "PORTFW") == 0)
+        else if (strcmp(log_record->action, "PORTFW") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
-        else if(strcmp(log_record->action, "REDIRECT") == 0)
+        else if (strcmp(log_record->action, "REDIRECT") == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
             wattroff(log_win, vccnf.color_bgd | A_BOLD);
 
         // 1 SPACE
-        if((cur_logrule_length + 1) < max_logrule_length)
-        {
+        if ((cur_logrule_length + 1) < max_logrule_length) {
             wprintw(log_win, " ");
             cur_logrule_length = cur_logrule_length + 1;
         }
     }
 
-    if(!hide_service)
-    {
+    if (!hide_service) {
         /* SERVICE */
-        wattron(log_win, vccnf.color_bgd_cyan|A_BOLD);
+        wattron(log_win, vccnf.color_bgd_cyan | A_BOLD);
 
-        tmpstr_i = StrLen(log_record->service)+1;//1 nul, service
-        if(cur_logrule_length + tmpstr_i >= max_logrule_length)
+        tmpstr_i = StrLen(log_record->service) + 1; // 1 nul, service
+        if (cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
-        if(tmpstr_i > sizeof(print_str))
+        if (tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
 
         snprintf(print_str, tmpstr_i, "%s", log_record->service);
         wprintw(log_win, "%s", print_str);
 
-        cur_logrule_length = cur_logrule_length + tmpstr_i-1;
+        cur_logrule_length = cur_logrule_length + tmpstr_i - 1;
 
-        wattroff(log_win, vccnf.color_bgd_cyan|A_BOLD);
+        wattroff(log_win, vccnf.color_bgd_cyan | A_BOLD);
 
         /* 2 SPACES */
-        if((cur_logrule_length + 2) < max_logrule_length)
-        {
+        if ((cur_logrule_length + 2) < max_logrule_length) {
             wprintw(log_win, "  ");
             cur_logrule_length = cur_logrule_length + 2;
         }
     }
 
-    if(!hide_from)
-    {
+    if (!hide_from) {
         /* FROM */
-        if(strncmp(log_record->from, "firewall", 8) == 0)
+        if (strncmp(log_record->from, "firewall", 8) == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
             wattron(log_win, vccnf.color_bgd | A_BOLD);
 
-        tmpstr_i = StrLen(log_record->from)+1;//1 nul, from
-        if(cur_logrule_length + tmpstr_i >= max_logrule_length)
+        tmpstr_i = StrLen(log_record->from) + 1; // 1 nul, from
+        if (cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
-        if(tmpstr_i > sizeof(print_str))
+        if (tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
 
         snprintf(print_str, tmpstr_i, "%s", log_record->from);
         wprintw(log_win, "%s", print_str);
 
-        cur_logrule_length = cur_logrule_length + tmpstr_i-1;
+        cur_logrule_length = cur_logrule_length + tmpstr_i - 1;
 
-        if(strncmp(log_record->from, "firewall", 8) == 0)
+        if (strncmp(log_record->from, "firewall", 8) == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
             wattroff(log_win, vccnf.color_bgd | A_BOLD);
     }
 
-    if(!hide_from && !hide_to)
-    {
+    if (!hide_from && !hide_to) {
         /* 2 SPACES AND AN ARROW */
-        if((cur_logrule_length + 4) < max_logrule_length)
-        {
+        if ((cur_logrule_length + 4) < max_logrule_length) {
             wprintw(log_win, " -> ");
             cur_logrule_length = cur_logrule_length + 4;
         }
     }
 
-    if(!hide_to)
-    {
+    if (!hide_to) {
         /* TO */
-        if(strncmp(log_record->to, "firewall", 8) == 0)
+        if (strncmp(log_record->to, "firewall", 8) == 0)
             wattron(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
             wattron(log_win, vccnf.color_bgd | A_BOLD);
 
-        tmpstr_i = StrLen(log_record->to)+1;//1 nul, from
-        if(cur_logrule_length + tmpstr_i >= max_logrule_length)
+        tmpstr_i = StrLen(log_record->to) + 1; // 1 nul, from
+        if (cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
-        if(tmpstr_i > sizeof(print_str))
+        if (tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
 
         snprintf(print_str, tmpstr_i, "%s", log_record->to);
         wprintw(log_win, "%s", print_str);
 
-        cur_logrule_length = cur_logrule_length + tmpstr_i-1;
+        cur_logrule_length = cur_logrule_length + tmpstr_i - 1;
 
-        if(strncmp(log_record->to, "firewall", 8) == 0)
+        if (strncmp(log_record->to, "firewall", 8) == 0)
             wattroff(log_win, vccnf.color_bgd_yellow | A_BOLD);
         else
             wattroff(log_win, vccnf.color_bgd | A_BOLD);
     }
 
-    if(!hide_to || (hide_to && !hide_from))
-    {
+    if (!hide_to || (hide_to && !hide_from)) {
         /* 2 SPACES */
-        if((cur_logrule_length + 2) < max_logrule_length)
-        {
+        if ((cur_logrule_length + 2) < max_logrule_length) {
             wprintw(log_win, "  ");
             cur_logrule_length = cur_logrule_length + 2;
         }
     }
 
-    if(!hide_prefix)
-    {
+    if (!hide_prefix) {
         /* PREFIX */
-        if(strcmp(log_record->prefix, "none") != 0 && strlen(log_record->prefix) > 0)
-        {
+        if (strcmp(log_record->prefix, "none") != 0 &&
+                strlen(log_record->prefix) > 0) {
             wattron(log_win, vccnf.color_bgd_green);
 
-            tmpstr_i = StrLen(log_record->prefix) + 2 + 1;//1 nul, prefix, 2 quotes
-            if(cur_logrule_length + tmpstr_i >= max_logrule_length)
+            tmpstr_i = StrLen(log_record->prefix) + 2 +
+                       1; // 1 nul, prefix, 2 quotes
+            if (cur_logrule_length + tmpstr_i >= max_logrule_length)
                 tmpstr_i = max_logrule_length - cur_logrule_length;
-            if(tmpstr_i > sizeof(print_str))
+            if (tmpstr_i > sizeof(print_str))
                 tmpstr_i = sizeof(print_str);
 
             snprintf(print_str, tmpstr_i, "'%s'", log_record->prefix);
@@ -458,39 +445,37 @@ print_logrule(WINDOW *log_win, struct LogRule_ *log_record,
             wattroff(log_win, vccnf.color_bgd_green);
 
             // 1 SPACE (only if we have a prefix)
-            if((cur_logrule_length + 1) < max_logrule_length)
-            {
+            if ((cur_logrule_length + 1) < max_logrule_length) {
                 wprintw(log_win, " ");
                 cur_logrule_length = cur_logrule_length + 1;
             }
         }
     }
 
-    if(!hide_details)
-    {
+    if (!hide_details) {
         /* DETAILS */
-        tmpstr_i = StrLen(log_record->details)+1+1; //1 nul, details, newline
-        if(cur_logrule_length + tmpstr_i >= max_logrule_length)
+        tmpstr_i =
+                StrLen(log_record->details) + 1 + 1; // 1 nul, details, newline
+        if (cur_logrule_length + tmpstr_i >= max_logrule_length)
             tmpstr_i = max_logrule_length - cur_logrule_length;
-        if(tmpstr_i > sizeof(print_str))
+        if (tmpstr_i > sizeof(print_str))
             tmpstr_i = sizeof(print_str);
 
         snprintf(print_str, tmpstr_i, "%s", log_record->details);
         wprintw(log_win, "%s", print_str);
 
-        //cur_logrule_length = cur_logrule_length + tmpstr_i-1;
+        // cur_logrule_length = cur_logrule_length + tmpstr_i-1;
     }
 
     wprintw(log_win, "\n");
 }
 
-static void
-print_plainlogrule(WINDOW *log_win, char *line,
-            size_t max_logrule_length, size_t cur_logrule_length)
+static void print_plainlogrule(WINDOW *log_win, char *line,
+        size_t max_logrule_length, size_t cur_logrule_length)
 {
-    size_t memlen = StrMemLen(line)+2;
+    size_t memlen = StrMemLen(line) + 2;
 #ifdef USE_WIDEC
-    size_t  scrlen = StrLen(line)+2;
+    size_t scrlen = StrLen(line) + 2;
     if (memlen != scrlen) { /* this only happens with utf-8 strings */
         wchar_t wprint_str[scrlen];
 
@@ -500,12 +485,11 @@ print_plainlogrule(WINDOW *log_win, char *line,
             scrlen = sizeof(wprint_str);
 
         mbstowcs(wprint_str, line, scrlen - 1);
-        if (wprint_str[wcslen(wprint_str)-1] == L'\n') {
-            wprint_str[wcslen(wprint_str)-1] = L'\0';
+        if (wprint_str[wcslen(wprint_str) - 1] == L'\n') {
+            wprint_str[wcslen(wprint_str) - 1] = L'\0';
         }
         wprintw(log_win, "%ls\n", wprint_str);
-    }
-    else
+    } else
 #endif /* USE_WIDEC */
     {
         char print_str[512];
@@ -516,176 +500,125 @@ print_plainlogrule(WINDOW *log_win, char *line,
             memlen = sizeof(print_str);
 
         snprintf(print_str, memlen, "%s", line);
-        if (print_str[StrMemLen(print_str)-1] == '\n') {
-            print_str[StrMemLen(print_str)-1] = '\0';
+        if (print_str[StrMemLen(print_str) - 1] == '\n') {
+            print_str[StrMemLen(print_str) - 1] = '\0';
         }
 
         wprintw(log_win, "%s\n", print_str);
     }
 }
 
-static void
-sanitize_search_str(char *str, size_t size)
+static void sanitize_search_str(char *str, size_t size)
 {
-    size_t  i = 0;
+    size_t i = 0;
 
-    for(i = 0; i < size; i++)
-    {
-        if(str[i] == '\'')
+    for (i = 0; i < size; i++) {
+        if (str[i] == '\'')
             str[i] = '_';
-        else if(str[i] == '\"')
+        else if (str[i] == '\"')
             str[i] = '_';
     }
 }
 
-#define READLINE_LEN    512
+#define READLINE_LEN 512
 
-int
-logview_section(struct vrmr_ctx *vctx,
-        struct vrmr_config *cnf, struct vrmr_zones *zones,
-        struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
-        struct vrmr_services *services, /*@null@*/ char *logname)
+int logview_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
+        struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
+        struct vrmr_interfaces *interfaces, struct vrmr_services *services,
+        /*@null@*/ char *logname)
 {
-    WINDOW          *log_win = NULL,
-                    *wait_win = NULL,
-                    *filter_ib_win = NULL,
-                    *search_ib_win = NULL;
+    WINDOW *log_win = NULL, *wait_win = NULL, *filter_ib_win = NULL,
+           *search_ib_win = NULL;
 
-    PANEL           *my_panels[1],
-                    *wait_panels[1],
-                    *info_bar_panels[2];
+    PANEL *my_panels[1], *wait_panels[1], *info_bar_panels[2];
 
-    struct vrmr_list          LogBufferList,
-                    SearchBufferList,
-                    *buffer_ptr = NULL;
-    unsigned int    max_buffer_size = vccnf.logview_bufsize; // default
+    struct vrmr_list LogBufferList, SearchBufferList, *buffer_ptr = NULL;
+    unsigned int max_buffer_size = vccnf.logview_bufsize; // default
 
-    unsigned int    i = 0;
-    int             quit = 0,
-                    ch = 0;
+    unsigned int i = 0;
+    int quit = 0, ch = 0;
 
-    FILE            *fp = NULL,
-                    *traffic_fp = NULL,
-                    *search_pipe = NULL;
+    FILE *fp = NULL, *traffic_fp = NULL, *search_pipe = NULL;
 
-    size_t          linelen = 0;
-    char            *line = NULL,
+    size_t linelen = 0;
+    char *line = NULL,
 
-                    *logfile = NULL,
+         *logfile = NULL,
 
-                    /* infobar stuff */
-                    search[32] = "none";
+         /* infobar stuff */
+            search[32] = "none";
 
-    char            use_filter = FALSE;
+    char use_filter = FALSE;
 
-    struct vrmr_list_node     *d_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
 
-    int             max_onscreen=0;
-    unsigned int    offset=0,
-                    buffer_size=0,
-                    start_print=0,
-                    page=0;
-    int             max_height = 0,
-                    max_width = 0;
+    int max_onscreen = 0;
+    unsigned int offset = 0, buffer_size = 0, start_print = 0, page = 0;
+    int max_height = 0, max_width = 0;
 
-    char            hide_date = 0,
-                    hide_action = 0,
-                    hide_service = 0,
-                    hide_from = 0,
-                    hide_to = 0,
-                    hide_prefix = 0,
-                    hide_details = 0;
+    char hide_date = 0, hide_action = 0, hide_service = 0, hide_from = 0,
+         hide_to = 0, hide_prefix = 0, hide_details = 0;
 
-    struct
-    {
+    struct {
         int print; // do we print to screen this run?
         int sleep; // do we sleep this run
         int queue; // do we queue this one
         int pause;
-    }  control =
-    {
-        0,
-        0,
-        0,
-        0,
+    } control = {
+            0,
+            0,
+            0,
+            0,
     };
 
-    struct LogRule_         *log_record = NULL;
-    struct PlainLogRule_    *plainlog_record = NULL;
+    struct LogRule_ *log_record = NULL;
+    struct PlainLogRule_ *plainlog_record = NULL;
 
-    size_t                  max_logrule_length=0,
-                            cur_logrule_length=0;
+    size_t max_logrule_length = 0, cur_logrule_length = 0;
 
-    struct vrmr_filter      vfilter;
+    struct vrmr_filter vfilter;
 
-    int                     done = 0,
-                            first_logline_done = 0,
-                            filtered_lines = 0;
+    int done = 0, first_logline_done = 0, filtered_lines = 0;
 
-    unsigned int            run_count = 0;
-    int                     delta = 0;
-    unsigned int            first_draw = 0;
-    int                     drawn_lines = 0;
+    unsigned int run_count = 0;
+    int delta = 0;
+    unsigned int first_draw = 0;
+    int drawn_lines = 0;
 
-    off_t                   logfile_size = 0;
-    long                    logfile_fseek_offset = 0;
+    off_t logfile_size = 0;
+    long logfile_fseek_offset = 0;
 
     /* search */
-    char                    search_mode = 0;
-    char                    search_stop = 0,
-                            search_completed = 0,
-                            search_error = 0;
-    unsigned long           search_results = 0;
+    char search_mode = 0;
+    char search_stop = 0, search_completed = 0, search_error = 0;
+    unsigned long search_results = 0;
 
-    char                    *search_ptr = NULL,
-                            search_string[PATH_MAX] = "";
+    char *search_ptr = NULL, search_string[PATH_MAX] = "";
 
-    char                    search_script_checked = 0,
-                            search_script_ok = 0;
+    char search_script_checked = 0, search_script_ok = 0;
 
     /* is the current log the trafficlog? */
-    char                    traffic_log = FALSE;
+    char traffic_log = FALSE;
 
     /* top menu */
-    char                    *key_choices[] =    {   "F12",
-                                                    "m",
-                                                    "s",
-                                                    "f",
-                                                    "p",
-                                                    "c",
-                                                    "1-7",
-                                                    "F10"};
-    int                     key_choices_n = 8;
-    char                    *cmd_choices[] =    {   gettext("help"),
-                                                    gettext("manage"),
-                                                    gettext("search"),
-                                                    gettext("filter"),
-                                                    gettext("pause"),
-                                                    gettext("clear"),
-                                                    gettext("hide"),
-                                                    gettext("back")};
-    int                     cmd_choices_n = 8;
+    char *key_choices[] = {"F12", "m", "s", "f", "p", "c", "1-7", "F10"};
+    int key_choices_n = 8;
+    char *cmd_choices[] = {gettext("help"), gettext("manage"),
+            gettext("search"), gettext("filter"), gettext("pause"),
+            gettext("clear"), gettext("hide"), gettext("back")};
+    int cmd_choices_n = 8;
 
     /* nt = no trafficlog: hide "1-7 hide" and manage options for
      * non-trafficlogs */
-    char                    *nt_key_choices[] =     {   "F12",
-                                                        "s",
-                                                        "f",
-                                                        "p",
-                                                        "c",
-                                                        "F10"};
-    int                     nt_key_choices_n = 6;
-    char                    *nt_cmd_choices[] =     {   gettext("help"),
-                                                        gettext("search"),
-                                                        gettext("filter"),
-                                                        gettext("pause"),
-                                                        gettext("clear"),
-                                                        gettext("back")};
-    int                     nt_cmd_choices_n = 6;
+    char *nt_key_choices[] = {"F12", "s", "f", "p", "c", "F10"};
+    int nt_key_choices_n = 6;
+    char *nt_cmd_choices[] = {gettext("help"), gettext("search"),
+            gettext("filter"), gettext("pause"), gettext("clear"),
+            gettext("back")};
+    int nt_cmd_choices_n = 6;
 
     /* stat buffer, for checking the file size of the traffic-log */
-    struct stat             stat_buf;
-
+    struct stat stat_buf;
 
     /* safety */
     vrmr_fatal_if_null(zones);
@@ -700,38 +633,24 @@ logview_section(struct vrmr_ctx *vctx,
         logfile = vctx->conf.trafficlog_location;
         logname = "traffic.log";
     } else {
-        if(strcmp(logname, "error.log") == 0)
-        {
+        if (strcmp(logname, "error.log") == 0) {
             logfile = vctx->conf.errorlog_location;
-        }
-        else if(strcmp(logname, "vuurmuur.log") == 0)
-        {
+        } else if (strcmp(logname, "vuurmuur.log") == 0) {
             logfile = vctx->conf.vuurmuurlog_location;
-        }
-        else if(strcmp(logname, "audit.log") == 0)
-        {
+        } else if (strcmp(logname, "audit.log") == 0) {
             logfile = vctx->conf.auditlog_location;
-        }
-        else if(strcmp(logname, "debug.log") == 0)
-        {
+        } else if (strcmp(logname, "debug.log") == 0) {
             logfile = vctx->conf.debuglog_location;
-        }
-        else if(strcmp(logname, "traffic.log") == 0)
-        {
+        } else if (strcmp(logname, "traffic.log") == 0) {
             traffic_log = 1;
             logfile = vctx->conf.trafficlog_location;
-        }
-        else if(strcmp(logname, "connections.log") == 0)
-        {
+        } else if (strcmp(logname, "connections.log") == 0) {
             traffic_log = 1;
             logfile = vctx->conf.connlog_location;
-        }
-        else if(strcmp(logname, "connnew.log") == 0)
-        {
+        } else if (strcmp(logname, "connnew.log") == 0) {
             traffic_log = 1;
             logfile = vctx->conf.connnewlog_location;
-        }
-        else {
+        } else {
             vrmr_fatal("unknown logfile '%s'", logname);
         }
     }
@@ -744,9 +663,10 @@ logview_section(struct vrmr_ctx *vctx,
     /* begin with the selected log file */
     traffic_fp = fopen(logfile, "r");
     if (traffic_fp == NULL) {
-        vrmr_error(-1, VR_ERR, gettext("opening logfile '%s' failed: %s."), logfile, strerror(errno));
+        vrmr_error(-1, VR_ERR, gettext("opening logfile '%s' failed: %s."),
+                logfile, strerror(errno));
         vrmr_list_cleanup(buffer_ptr);
-        return(-1);
+        return (-1);
     }
     /* point it to the fp */
     fp = traffic_fp;
@@ -764,10 +684,11 @@ logview_section(struct vrmr_ctx *vctx,
     /*  get the size of the logfile and check if were asking to much of
         fseek. If so, ask less. */
     if (stat(logfile, &stat_buf) == -1) {
-        vrmr_error(-1, VR_ERR, gettext("could not examine the logfile: %s."), strerror(errno));
+        vrmr_error(-1, VR_ERR, gettext("could not examine the logfile: %s."),
+                strerror(errno));
         vrmr_list_cleanup(buffer_ptr);
         fclose(fp);
-        return(-1);
+        return (-1);
     }
 
     logfile_size = stat_buf.st_size;
@@ -775,26 +696,33 @@ logview_section(struct vrmr_ctx *vctx,
     if (logfile_fseek_offset < (logfile_size * -1))
         logfile_fseek_offset = logfile_size * -1;
 
-    /* listen at the logfile_fseek_offset point in the file, so we start with a populated buffer */
+    /* listen at the logfile_fseek_offset point in the file, so we start with a
+     * populated buffer */
     if (fseek(fp, logfile_fseek_offset, SEEK_END) < 0) {
         vrmr_error(-1, VR_ERR, gettext("fseek failed: %s."), strerror(errno));
         vrmr_list_cleanup(buffer_ptr);
         fclose(fp);
-        return(-1);
+        return (-1);
     }
-    status_print(status_win, gettext("Loading loglines into memory (trying to load %u lines)..."), max_buffer_size);
+    status_print(status_win,
+            gettext("Loading loglines into memory (trying to load %u "
+                    "lines)..."),
+            max_buffer_size);
 
     /* create a little wait dialog */
-    wait_win = create_newwin(5, 40, (max_height-5)/2, (max_width-40)/2,
+    wait_win = create_newwin(5, 40, (max_height - 5) / 2, (max_width - 40) / 2,
             gettext("One moment please..."), vccnf.color_win);
     vrmr_fatal_if_null(wait_win);
     wait_panels[0] = new_panel(wait_win);
 
-    /* print the topmenu options: the nt_ functions are for non-trafficlog use */
+    /* print the topmenu options: the nt_ functions are for non-trafficlog use
+     */
     if (traffic_log == 1) {
-        draw_top_menu(top_win, gettext("Logview"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+        draw_top_menu(top_win, gettext("Logview"), key_choices_n, key_choices,
+                cmd_choices_n, cmd_choices);
     } else {
-        draw_top_menu(top_win, gettext("Logview"), nt_key_choices_n, nt_key_choices, nt_cmd_choices_n, nt_cmd_choices);
+        draw_top_menu(top_win, gettext("Logview"), nt_key_choices_n,
+                nt_key_choices, nt_cmd_choices_n, nt_cmd_choices);
     }
     mvwprintw(wait_win, 2, 4, gettext("Loading log ..."));
     update_panels();
@@ -803,8 +731,7 @@ logview_section(struct vrmr_ctx *vctx,
     /*
         load the initial lines
     */
-    while (!done)
-    {
+    while (!done) {
         /* read line from log */
         line = malloc(READLINE_LEN);
         vrmr_fatal_alloc("malloc", line);
@@ -815,8 +742,8 @@ logview_section(struct vrmr_ctx *vctx,
             break;
         }
 
-        /*  ignore the first line we read for it shall almost certainly be broken
-            because of fseek. */
+        /*  ignore the first line we read for it shall almost certainly be
+           broken because of fseek. */
         if (!first_logline_done) {
             first_logline_done = 1;
             free(line);
@@ -824,13 +751,15 @@ logview_section(struct vrmr_ctx *vctx,
         }
 
         /*
-           if the line doesn't end with a newline character we rewind and try again.
+           if the line doesn't end with a newline character we rewind and try
+           again.
          */
         linelen = StrMemLen(line);
-        if (linelen < READLINE_LEN-1 && line[linelen - 1] != '\n') {
-            (void)fseek(fp, (long)(StrMemLen(line)*-1), SEEK_CUR);
+        if (linelen < READLINE_LEN - 1 && line[linelen - 1] != '\n') {
+            (void)fseek(fp, (long)(StrMemLen(line) * -1), SEEK_CUR);
             free(line);
-            /* done because we reached the end of the file which does not have a newline */
+            /* done because we reached the end of the file which does not have a
+             * newline */
             break;
         }
 
@@ -851,7 +780,7 @@ logview_section(struct vrmr_ctx *vctx,
             vrmr_fatal_if(vrmr_list_append(buffer_ptr, log_record) == NULL);
 
             /* if the bufferlist is full, remove the oldest item from it */
-            if(buffer_ptr->len > max_buffer_size) {
+            if (buffer_ptr->len > max_buffer_size) {
                 vrmr_fatal_if(vrmr_list_remove_top(buffer_ptr) < 0);
             }
 
@@ -869,7 +798,8 @@ logview_section(struct vrmr_ctx *vctx,
             logline2plainlogrule(line, plainlog_record);
 
             /* now insert the rule */
-            vrmr_fatal_if(vrmr_list_append(buffer_ptr, plainlog_record) == NULL);
+            vrmr_fatal_if(
+                    vrmr_list_append(buffer_ptr, plainlog_record) == NULL);
 
             /* if the bufferlist is full, remove the oldest item from it */
             if (buffer_ptr->len > max_buffer_size) {
@@ -883,7 +813,9 @@ logview_section(struct vrmr_ctx *vctx,
         /* free the line string, we don't need it anymore */
         free(line);
     }
-    status_print(status_win, gettext("Loading loglines into memory... loaded %d lines."), buffer_ptr->len);
+    status_print(status_win,
+            gettext("Loading loglines into memory... loaded %d lines."),
+            buffer_ptr->len);
 
     /*
         destroy the wait dialog
@@ -899,14 +831,14 @@ logview_section(struct vrmr_ctx *vctx,
     hide_panel(info_bar_panels[0]);
 
     /* create the info bar window, start hidden */
-    search_ib_win = newwin(1, 32, 3, max_width-32-2); /* 32 + filter: */
+    search_ib_win = newwin(1, 32, 3, max_width - 32 - 2); /* 32 + filter: */
     vrmr_fatal_if_null(search_ib_win);
     wbkgd(search_ib_win, vccnf.color_win);
     info_bar_panels[1] = new_panel(search_ib_win);
     hide_panel(info_bar_panels[1]);
 
     /* create the log window */
-    log_win = newwin(max_height-8, max_width-2, 4, 1);
+    log_win = newwin(max_height - 8, max_width - 2, 4, 1);
     vrmr_fatal_if_null(log_win);
     wbkgd(log_win, vccnf.color_bgd);
     my_panels[0] = new_panel(log_win);
@@ -921,29 +853,28 @@ logview_section(struct vrmr_ctx *vctx,
     doupdate();
 
     /* the main loop */
-    while(quit == 0)
-    {
+    while (quit == 0) {
         /* read line from log */
         line = malloc(READLINE_LEN);
         vrmr_fatal_alloc("malloc", line);
 
         /* read a line if we are not in pause mode */
-        if(!control.pause && fgets(line, READLINE_LEN, fp) != NULL)
-        {
+        if (!control.pause && fgets(line, READLINE_LEN, fp) != NULL) {
             linelen = StrMemLen(line);
 
-            /* if the line doesn't end with a newline character we rewind and try again the next run. */
-            if(linelen < READLINE_LEN-1 && line[linelen - 1] != '\n') {
+            /* if the line doesn't end with a newline character we rewind and
+             * try again the next run. */
+            if (linelen < READLINE_LEN - 1 && line[linelen - 1] != '\n') {
                 (void)fseek(fp, (long)(linelen * -1), SEEK_CUR);
                 free(line);
                 line = NULL;
-            } else if(search_mode) {
+            } else if (search_mode) {
                 if (strncmp(line, "SL:EOF:", 7) == 0) {
                     search_completed = 1;
-                } else if(strncmp(line, "SL:ERROR:", 9) == 0) {
+                } else if (strncmp(line, "SL:ERROR:", 9) == 0) {
                     search_error = 1;
                     search_completed = 1;
-                    line[StrMemLen(line)-2] = '\0';
+                    line[StrMemLen(line) - 2] = '\0';
                     vrmr_error(-1, VR_ERR, "%s", line);
                 } else {
                     search_results++;
@@ -972,22 +903,23 @@ logview_section(struct vrmr_ctx *vctx,
 
                     /* if we have a filter check it now */
                     if (use_filter) {
-                        log_record->filtered = logrule_filtered(log_record, &vfilter);
+                        log_record->filtered =
+                                logrule_filtered(log_record, &vfilter);
                     }
 
                     /* now really insert the rule into the buffer */
-                    vrmr_fatal_if(vrmr_list_append(buffer_ptr, log_record) == NULL);
+                    vrmr_fatal_if(
+                            vrmr_list_append(buffer_ptr, log_record) == NULL);
 
-                    /* if the bufferlist is full, remove the oldest item from it */
+                    /* if the bufferlist is full, remove the oldest item from it
+                     */
                     if (buffer_ptr->len > max_buffer_size) {
                         vrmr_fatal_if(vrmr_list_remove_top(buffer_ptr) < 0);
                     }
 
                     control.queue++;
                     log_record = NULL;
-                }
-                else
-                {
+                } else {
                     /* here we can analyse the rule */
                     plainlog_record = malloc(sizeof(struct PlainLogRule_));
                     vrmr_fatal_alloc("malloc", plainlog_record);
@@ -998,14 +930,17 @@ logview_section(struct vrmr_ctx *vctx,
                     logline2plainlogrule(line, plainlog_record);
 
                     /* if we have a filter check it now */
-                    if(use_filter) {
-                        plainlog_record->filtered = plainlogrule_filtered(plainlog_record->line, &vfilter);
+                    if (use_filter) {
+                        plainlog_record->filtered = plainlogrule_filtered(
+                                plainlog_record->line, &vfilter);
                     }
 
                     /* now insert the rule */
-                    vrmr_fatal_if(vrmr_list_append(buffer_ptr, plainlog_record) == NULL);
+                    vrmr_fatal_if(vrmr_list_append(
+                                          buffer_ptr, plainlog_record) == NULL);
 
-                    /* if the bufferlist is full, remove the oldest item from it */
+                    /* if the bufferlist is full, remove the oldest item from it
+                     */
                     if (buffer_ptr->len > max_buffer_size) {
                         vrmr_fatal_if(vrmr_list_remove_top(buffer_ptr) < 0);
                     }
@@ -1037,7 +972,7 @@ logview_section(struct vrmr_ctx *vctx,
         /* handle the search mode */
         if (search_mode) {
             /* emergengy search stop */
-            if(search_stop) {
+            if (search_stop) {
                 search_completed = 1;
             }
 
@@ -1052,11 +987,12 @@ logview_section(struct vrmr_ctx *vctx,
                 The reason for this is that we want to be able to scroll
                 through the search results.
             */
-            if(search_completed) {
+            if (search_completed) {
                 /* close the pipe */
-                if(pclose(search_pipe) < 0)
-                {
-                    vrmr_error(-1, VR_ERR, gettext("closing search pipe failed: %s."), strerror(errno));
+                if (pclose(search_pipe) < 0) {
+                    vrmr_error(-1, VR_ERR,
+                            gettext("closing search pipe failed: %s."),
+                            strerror(errno));
                 }
 
                 /* restore file pointer */
@@ -1066,19 +1002,21 @@ logview_section(struct vrmr_ctx *vctx,
                 search_mode = 0;
 
                 /* print the result */
-                if(search_stop)
-                {
-                    status_print(status_win, gettext("Search canceled. Press SPACE to return to normal logging."));
+                if (search_stop) {
+                    status_print(status_win,
+                            gettext("Search canceled. Press SPACE to return to "
+                                    "normal logging."));
                     search_stop = 0;
-                }
-                else if(search_error)
-                {
-                    status_print(status_win, gettext("Search ERROR. Press SPACE to return to normal logging."));
+                } else if (search_error) {
+                    status_print(
+                            status_win, gettext("Search ERROR. Press SPACE to "
+                                                "return to normal logging."));
                     search_error = 0;
-                }
-                else
-                {
-                    status_print(status_win, gettext("Search done: %lu matches. Press SPACE to return to normal logging."), search_results);
+                } else {
+                    status_print(status_win,
+                            gettext("Search done: %lu matches. Press SPACE to "
+                                    "return to normal logging."),
+                            search_results);
                 }
 
                 /* pause to leave the results on screen */
@@ -1099,11 +1037,9 @@ logview_section(struct vrmr_ctx *vctx,
             }
         }
 
-
         /* get the users input */
         ch = wgetch(log_win);
-        switch(ch)
-        {
+        switch (ch) {
             /* scrolling */
             case KEY_UP:
                 offset++;
@@ -1111,7 +1047,7 @@ logview_section(struct vrmr_ctx *vctx,
                 break;
 
             case KEY_DOWN:
-                if(offset)
+                if (offset)
                     offset--;
                 control.print = 1;
                 break;
@@ -1123,7 +1059,7 @@ logview_section(struct vrmr_ctx *vctx,
 
             case KEY_NPAGE:
                 page = max_onscreen - 1;
-                if(page > offset)
+                if (page > offset)
                     offset = 0;
                 else
                     offset = offset - page;
@@ -1151,44 +1087,44 @@ logview_section(struct vrmr_ctx *vctx,
                     vrmr_filter_cleanup(&vfilter);
                 }
 
-                if(vfilter.reg_active == TRUE)
-                {
-                    status_print(status_win, gettext("Active filter: '%s' (press 'enter' to clear)."), vfilter.str);
+                if (vfilter.reg_active == TRUE) {
+                    status_print(status_win,
+                            gettext("Active filter: '%s' (press 'enter' to "
+                                    "clear)."),
+                            vfilter.str);
                     use_filter = TRUE;
-                }
-                else if(use_filter == TRUE && vfilter.reg_active == FALSE)
-                {
+                } else if (use_filter == TRUE && vfilter.reg_active == FALSE) {
                     status_print(status_win, gettext("Filter removed."));
                     use_filter = FALSE;
                 }
 
-                if(use_filter == TRUE)
-                {
+                if (use_filter == TRUE) {
                     /* draw (or hide) the filter panel */
                     draw_filter(info_bar_panels[0], filter_ib_win, vfilter.str);
-                }
-                else
-                {
+                } else {
                     /* draw (or hide) the filter panel */
                     draw_filter(info_bar_panels[0], filter_ib_win, "none");
                 }
 
                 /* create a little wait dialog */
-                wait_win = create_newwin(5, 40, (max_height-5)/2, (max_width-40)/2, gettext("One moment please..."), vccnf.color_win);
+                wait_win = create_newwin(5, 40, (max_height - 5) / 2,
+                        (max_width - 40) / 2, gettext("One moment please..."),
+                        vccnf.color_win);
                 vrmr_fatal_if_null(wait_win);
                 wait_panels[0] = new_panel(wait_win);
-                mvwprintw(wait_win, 2, 2, gettext("Applying changed filter..."));
+                mvwprintw(
+                        wait_win, 2, 2, gettext("Applying changed filter..."));
                 update_panels();
                 doupdate();
 
-                for (d_node = buffer_ptr->top; d_node; d_node = d_node->next)
-                {
+                for (d_node = buffer_ptr->top; d_node; d_node = d_node->next) {
                     if (traffic_log) {
                         vrmr_fatal_if_null(d_node->data);
                         log_record = d_node->data;
 
                         if (use_filter) {
-                            log_record->filtered = logrule_filtered(log_record, &vfilter);
+                            log_record->filtered =
+                                    logrule_filtered(log_record, &vfilter);
                         } else {
                             log_record->filtered = 0;
                         }
@@ -1196,8 +1132,9 @@ logview_section(struct vrmr_ctx *vctx,
                         vrmr_fatal_if_null(d_node->data);
                         plainlog_record = d_node->data;
 
-                        if(use_filter) {
-                            plainlog_record->filtered = plainlogrule_filtered(plainlog_record->line, &vfilter);
+                        if (use_filter) {
+                            plainlog_record->filtered = plainlogrule_filtered(
+                                    plainlog_record->line, &vfilter);
                         } else {
                             plainlog_record->filtered = 0;
                         }
@@ -1226,11 +1163,15 @@ logview_section(struct vrmr_ctx *vctx,
             case 'Q':
             case KEY_F(10):
 
-                if(search_mode) {
-                    status_print(status_win, gettext("Search in progress. Press 'S' to stop current search."));
+                if (search_mode) {
+                    status_print(
+                            status_win, gettext("Search in progress. Press 'S' "
+                                                "to stop current search."));
                     usleep(600000);
-                } else if(search_completed) {
-                    status_print(status_win, gettext("Please first close the current search by pressing SPACE."));
+                } else if (search_completed) {
+                    status_print(status_win,
+                            gettext("Please first close the current search by "
+                                    "pressing SPACE."));
                     usleep(600000);
                 } else {
                     quit = 1;
@@ -1243,7 +1184,7 @@ logview_section(struct vrmr_ctx *vctx,
 
                 if (control.pause == 1) {
                     /* here we do the final cleanup for the search mode. */
-                    if(search_completed) {
+                    if (search_completed) {
                         /* cleanup the buffer */
                         vrmr_fatal_if(vrmr_list_cleanup(buffer_ptr) < 0);
 
@@ -1254,22 +1195,24 @@ logview_section(struct vrmr_ctx *vctx,
                         control.pause = 0;
                     }
 
-                    if(!search_mode)
-                        status_print(status_win, gettext("Continue viewing the log."));
+                    if (!search_mode)
+                        status_print(status_win,
+                                gettext("Continue viewing the log."));
                     else
-                        status_print(status_win, gettext("Continue searching."));
+                        status_print(
+                                status_win, gettext("Continue searching."));
 
                     control.pause = 0;
-                }
-                else
-                {
+                } else {
                     control.pause = 1;
                     control.sleep = 1;
 
                     /* search_mode has it's own way of letting the user know
                        that a search is paused. */
-                    if(!search_mode)
-                        status_print(status_win, gettext("*** PAUSED *** (press 'p' to continue)"));
+                    if (!search_mode)
+                        status_print(
+                                status_win, gettext("*** PAUSED *** (press 'p' "
+                                                    "to continue)"));
                 }
                 break;
 
@@ -1280,8 +1223,7 @@ logview_section(struct vrmr_ctx *vctx,
                     else
                         hide_date = 0;
 
-                    status_print(status_win, "%s: %s.",
-                            STR_THE_DATE_IS_NOW,
+                    status_print(status_win, "%s: %s.", STR_THE_DATE_IS_NOW,
                             hide_date ? gettext("hidden") : gettext("visible"));
                     control.print = 1;
                 } else {
@@ -1296,9 +1238,9 @@ logview_section(struct vrmr_ctx *vctx,
                     else
                         hide_action = 0;
 
-                    status_print(status_win, "%s: %s.",
-                            STR_THE_ACTION_IS_NOW,
-                            hide_action ? gettext("hidden") : gettext("visible"));
+                    status_print(status_win, "%s: %s.", STR_THE_ACTION_IS_NOW,
+                            hide_action ? gettext("hidden")
+                                        : gettext("visible"));
                     control.print = 1;
                 } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
@@ -1306,15 +1248,15 @@ logview_section(struct vrmr_ctx *vctx,
                 break;
 
             case '3':
-                if(traffic_log == 1) {
+                if (traffic_log == 1) {
                     if (hide_service == 0)
                         hide_service = 1;
                     else
                         hide_service = 0;
 
-                    status_print(status_win, "%s: %s.",
-                            STR_THE_SERVICE_IS_NOW,
-                            hide_service ? gettext("hidden") : gettext("visible"));
+                    status_print(status_win, "%s: %s.", STR_THE_SERVICE_IS_NOW,
+                            hide_service ? gettext("hidden")
+                                         : gettext("visible"));
                     control.print = 1;
                 } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
@@ -1328,8 +1270,7 @@ logview_section(struct vrmr_ctx *vctx,
                     else
                         hide_from = 0;
 
-                    status_print(status_win, "%s: %s.",
-                            STR_THE_SOURCE_IS_NOW,
+                    status_print(status_win, "%s: %s.", STR_THE_SOURCE_IS_NOW,
                             hide_from ? gettext("hidden") : gettext("visible"));
                     control.print = 1;
                 } else {
@@ -1360,9 +1301,9 @@ logview_section(struct vrmr_ctx *vctx,
                     else
                         hide_prefix = 0;
 
-                    status_print(status_win, "%s: %s.",
-                            STR_THE_PREFIX_IS_NOW,
-                            hide_prefix ? gettext("hidden") : gettext("visible"));
+                    status_print(status_win, "%s: %s.", STR_THE_PREFIX_IS_NOW,
+                            hide_prefix ? gettext("hidden")
+                                        : gettext("visible"));
                     control.print = 1;
                 } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
@@ -1376,9 +1317,9 @@ logview_section(struct vrmr_ctx *vctx,
                     else
                         hide_details = 0;
 
-                    status_print(status_win, "%s: %s.",
-                            STR_THE_DETAILS_ARE_NOW,
-                            hide_details ? gettext("hidden") : gettext("visible"));
+                    status_print(status_win, "%s: %s.", STR_THE_DETAILS_ARE_NOW,
+                            hide_details ? gettext("hidden")
+                                         : gettext("visible"));
                     control.print = 1;
                 } else {
                     vrmr_warning(VR_WARN, STR_LOGGING_OPTS_NOT_AVAIL);
@@ -1389,19 +1330,28 @@ logview_section(struct vrmr_ctx *vctx,
             case 's':
 
                 if (search_mode) {
-                    status_print(status_win, gettext("Already searching. Press 'S' to stop current search."));
+                    status_print(
+                            status_win, gettext("Already searching. Press 'S' "
+                                                "to stop current search."));
                     usleep(600000);
-                } else if(search_completed) {
-                    status_print(status_win, gettext("Please first close the current search by pressing SPACE."));
+                } else if (search_completed) {
+                    status_print(status_win,
+                            gettext("Please first close the current search by "
+                                    "pressing SPACE."));
                     usleep(600000);
                 } else {
-                    if(!search_script_checked) {
+                    if (!search_script_checked) {
                         /* check if the search script exists */
-                        if (snprintf(search_string, sizeof(search_string), "%s/vuurmuur-searchlog.sh", vccnf.scripts_location) >= (int)sizeof(search_string)) {
-                            vrmr_error(-1, VR_ERR, gettext("opening pipe failed: %s."), strerror(errno));
-                            return(-1);
+                        if (snprintf(search_string, sizeof(search_string),
+                                    "%s/vuurmuur-searchlog.sh",
+                                    vccnf.scripts_location) >=
+                                (int)sizeof(search_string)) {
+                            vrmr_error(-1, VR_ERR,
+                                    gettext("opening pipe failed: %s."),
+                                    strerror(errno));
+                            return (-1);
                         }
-                        if(check_search_script(search_string) != 1) {
+                        if (check_search_script(search_string) != 1) {
                             search_script_ok = 0;
                         } else {
                             search_script_ok = 1;
@@ -1410,35 +1360,45 @@ logview_section(struct vrmr_ctx *vctx,
                     }
 
                     /* search already checked */
-                    if(search_script_ok) {
-                        if((search_ptr = input_box(32, gettext("Search"), gettext("What do you want to search for?"))))
-                        {
+                    if (search_script_ok) {
+                        if ((search_ptr = input_box(32, gettext("Search"),
+                                     gettext("What do you want to search "
+                                             "for?")))) {
                             /* regex check the search-string */
                             sanitize_search_str(search_ptr, strlen(search_ptr));
 
                             /* setup the search-buffer */
                             vrmr_list_setup(&SearchBufferList, free);
 
-                            /* point the buffer-pointer to the SearchBufferList */
+                            /* point the buffer-pointer to the SearchBufferList
+                             */
                             buffer_ptr = &SearchBufferList;
 
                             /* temp store the traffic pointer */
                             traffic_fp = fp;
 
-                            /* assemble search string => ignore stderr because it messes up the screen */
-                            if (snprintf(search_string, sizeof(search_string), "/bin/bash %s/vuurmuur-searchlog.sh %s %s/ '%s' 2>/dev/null",
-                                        vccnf.scripts_location, logname, vctx->conf.vuurmuur_logdir_location, search_ptr) >= (int)sizeof(search_string))
-                            {
-                                vrmr_error(-1, VR_ERR, gettext("opening pipe failed: %s."), strerror(errno));
-                                return(-1);
+                            /* assemble search string => ignore stderr because
+                             * it messes up the screen */
+                            if (snprintf(search_string, sizeof(search_string),
+                                        "/bin/bash %s/vuurmuur-searchlog.sh %s "
+                                        "%s/ '%s' 2>/dev/null",
+                                        vccnf.scripts_location, logname,
+                                        vctx->conf.vuurmuur_logdir_location,
+                                        search_ptr) >= (int)sizeof(search_string)) {
+                                vrmr_error(-1, VR_ERR,
+                                        gettext("opening pipe failed: %s."),
+                                        strerror(errno));
+                                return (-1);
                             }
-                            vrmr_debug(NONE, "search_string: '%s'.", search_string);
+                            vrmr_debug(NONE, "search_string: '%s'.",
+                                    search_string);
 
                             /* open the pipe */
-                            if(!(search_pipe = popen(search_string, "r")))
-                            {
-                                vrmr_error(-1, VR_ERR, gettext("opening pipe failed: %s."), strerror(errno));
-                                return(-1);
+                            if (!(search_pipe = popen(search_string, "r"))) {
+                                vrmr_error(-1, VR_ERR,
+                                        gettext("opening pipe failed: %s."),
+                                        strerror(errno));
+                                return (-1);
                             }
 
                             /* set the file pointer to the search_pipe */
@@ -1447,17 +1407,22 @@ logview_section(struct vrmr_ctx *vctx,
                             /* we are in search-mode */
                             search_mode = 1;
 
-                            status_print(status_win, gettext("Search started. Press 'S' to stop searching."));
+                            status_print(status_win,
+                                    gettext("Search started. Press 'S' to stop "
+                                            "searching."));
                             control.print = 1;
 
                             /* copy the search term for the infobar */
                             (void)strlcpy(search, search_ptr, sizeof(search));
 
                             /* draw the search panel */
-                            draw_search(info_bar_panels[1], search_ib_win, search);
+                            draw_search(
+                                    info_bar_panels[1], search_ib_win, search);
                         }
                     } else {
-                        vrmr_error(-1, VR_ERR, gettext("search script was not ok, search is disabled."));
+                        vrmr_error(-1, VR_ERR,
+                                gettext("search script was not ok, search is "
+                                        "disabled."));
                     }
                 }
                 break;
@@ -1482,16 +1447,13 @@ logview_section(struct vrmr_ctx *vctx,
             case 'm':
             case 'M': {
                 if (buffer_ptr) {
-                    statevent(vctx, cnf, STATEVENTTYPE_LOG,
-                        buffer_ptr, /* no ct */NULL,
-                        /* no connreq*/NULL,
-                        zones, blocklist, interfaces,
-                        services);
+                    statevent(vctx, cnf, STATEVENTTYPE_LOG, buffer_ptr,
+                            /* no ct */ NULL,
+                            /* no connreq*/ NULL, zones, blocklist, interfaces,
+                            services);
 
-                    draw_top_menu(top_win,
-                        gettext("Logview"), key_choices_n,
-                        key_choices, cmd_choices_n,
-                        cmd_choices);
+                    draw_top_menu(top_win, gettext("Logview"), key_choices_n,
+                            key_choices, cmd_choices_n, cmd_choices);
                 }
                 break;
             }
@@ -1508,7 +1470,8 @@ logview_section(struct vrmr_ctx *vctx,
         /* update buffer size */
         buffer_size = buffer_ptr->len;
 
-        /* offset cannot be smaller than 0, or bigger than buffer_size - max_onscreen */
+        /* offset cannot be smaller than 0, or bigger than buffer_size -
+         * max_onscreen */
         if (!use_filter) {
             if (offset != 0 && offset > (buffer_size - max_onscreen))
                 offset = buffer_size - max_onscreen;
@@ -1518,15 +1481,19 @@ logview_section(struct vrmr_ctx *vctx,
             else
                 start_print = buffer_size - max_onscreen - offset;
 
-            if(vrmr_debug_level >= HIGH)
-                status_print(status_win, "buf_size: %u, max_onscr: %d, start: %d, o: %u, p: %d, q: %d, s: %d", buffer_size, max_onscreen, start_print, offset, control.print, control.queue, control.sleep);
+            if (vrmr_debug_level >= HIGH)
+                status_print(status_win,
+                        "buf_size: %u, max_onscr: %d, start: %d, o: %u, p: %d, "
+                        "q: %d, s: %d",
+                        buffer_size, max_onscreen, start_print, offset,
+                        control.print, control.queue, control.sleep);
         }
         /* if we're filtered, check for each line if it will be printed */
         else {
-            for (d_node = buffer_ptr->bot, run_count = 0, delta = 0, filtered_lines = 0;
-                 run_count < buffer_size;
-                 d_node = d_node->prev, run_count++)
-            {
+            for (d_node = buffer_ptr->bot, run_count = 0, delta = 0,
+                filtered_lines = 0;
+                    run_count < buffer_size;
+                    d_node = d_node->prev, run_count++) {
                 if (traffic_log) {
                     vrmr_fatal_if_null(d_node->data);
                     log_record = d_node->data;
@@ -1549,7 +1516,7 @@ logview_section(struct vrmr_ctx *vctx,
                     }
                 }
 
-                if(delta == (int)(max_onscreen + offset)) {
+                if (delta == (int)(max_onscreen + offset)) {
                     break;
                 }
             }
@@ -1557,58 +1524,78 @@ logview_section(struct vrmr_ctx *vctx,
             if (delta < max_onscreen)
                 offset = 0;
 
-            if(vrmr_debug_level >= HIGH)
-                status_print(status_win, "filter :st: %d, max: %d, buf: %u, del: %d, fil: %d, run: %d, fir: %d, offset: %u", start_print, max_onscreen, buffer_size, delta, filtered_lines, run_count, first_draw, offset);
+            if (vrmr_debug_level >= HIGH)
+                status_print(status_win,
+                        "filter :st: %d, max: %d, buf: %u, del: %d, fil: %d, "
+                        "run: %d, fir: %d, offset: %u",
+                        start_print, max_onscreen, buffer_size, delta,
+                        filtered_lines, run_count, first_draw, offset);
         }
 
         /* if the queue is getting too full, print */
-        if (control.queue > (max_onscreen/3))
+        if (control.queue > (max_onscreen / 3))
             control.print = 1;
 
         /* display counters for debuging */
-        if(vrmr_debug_level >= LOW)
-            status_print(status_win, "buf_size: %u, max_onscr: %d, start: %d, o: %u, p: %d, q: %d, s: %d", buffer_size, max_onscreen, start_print, offset, control.print, control.queue, control.sleep);
+        if (vrmr_debug_level >= LOW)
+            status_print(status_win,
+                    "buf_size: %u, max_onscr: %d, start: %d, o: %u, p: %d, q: "
+                    "%d, s: %d",
+                    buffer_size, max_onscreen, start_print, offset,
+                    control.print, control.queue, control.sleep);
 
         /* print the list to the screen */
         if (control.print) {
-            /* update the results printer if in search_mode - we do this here because we come here less often because of
-               the queue. */
+            /* update the results printer if in search_mode - we do this here
+               because we come here less often because of the queue. */
             if (search_mode) {
-                if(!control.pause)
-                    status_print(status_win, gettext("Search in progress: %lu matches so far. SPACE to pause, 'S' to stop."), search_results);
+                if (!control.pause)
+                    status_print(status_win,
+                            gettext("Search in progress: %lu matches so far. "
+                                    "SPACE to pause, 'S' to stop."),
+                            search_results);
                 else
-                    status_print(status_win, gettext("Search PAUSED: %lu matches so far. SPACE to continue, 'S' to stop."), search_results);
+                    status_print(status_win,
+                            gettext("Search PAUSED: %lu matches so far. SPACE "
+                                    "to continue, 'S' to stop."),
+                            search_results);
             }
             /* clear the screen */
             werase(log_win);
 
             /* start the loop */
-            for (i = 0, d_node = buffer_ptr->top, drawn_lines = 0; d_node ; d_node = d_node->next, i++)
-            {
-                if(i >= start_print && drawn_lines < max_onscreen) {
+            for (i = 0, d_node = buffer_ptr->top, drawn_lines = 0; d_node;
+                    d_node = d_node->next, i++) {
+                if (i >= start_print && drawn_lines < max_onscreen) {
                     cur_logrule_length = 0;
                     if (traffic_log) {
                         vrmr_fatal_if_null(d_node->data);
                         log_record = d_node->data;
 
-                        if (!use_filter || (use_filter && !log_record->filtered)) {
+                        if (!use_filter ||
+                                (use_filter && !log_record->filtered)) {
                             drawn_lines++;
-                            print_logrule(log_win, log_record, max_logrule_length, cur_logrule_length, hide_date, hide_action, hide_service, hide_from, hide_to, hide_prefix, hide_details);
+                            print_logrule(log_win, log_record,
+                                    max_logrule_length, cur_logrule_length,
+                                    hide_date, hide_action, hide_service,
+                                    hide_from, hide_to, hide_prefix,
+                                    hide_details);
                         }
                     } else {
                         vrmr_fatal_if_null(d_node->data);
                         plainlog_record = d_node->data;
 
-                        if (!use_filter || (use_filter && !plainlog_record->filtered)) {
+                        if (!use_filter ||
+                                (use_filter && !plainlog_record->filtered)) {
                             drawn_lines++;
-                            print_plainlogrule(log_win, plainlog_record->line, max_logrule_length, cur_logrule_length);
+                            print_plainlogrule(log_win, plainlog_record->line,
+                                    max_logrule_length, cur_logrule_length);
                         }
                     }
                 }
                 /*  when we have drawn the entire screen, there is no
                     use in keep running through the loop. So break out. */
-                else if(drawn_lines >= max_onscreen)
-                {
+                else if (drawn_lines >= max_onscreen) {
                     break;
                 }
             }
@@ -1621,11 +1608,13 @@ logview_section(struct vrmr_ctx *vctx,
             control.queue = 0;
             control.sleep = 0;
 
-            /* if we are in search mode, there is no need to keep up with the log in real-time.
-               So we take some time to draw the screen. It will slow down the printing and thereby
-               the searching, but it will keep the log better readable
+            /* if we are in search mode, there is no need to keep up with the
+               log in real-time. So we take some time to draw the screen. It
+               will slow down the printing and thereby the searching, but it
+               will keep the log better readable
 
-               furthermore it will decrease the load on the system during a search */
+               furthermore it will decrease the load on the system during a
+               search */
             if (search_mode)
                 usleep(90000);
         }
@@ -1661,6 +1650,5 @@ logview_section(struct vrmr_ctx *vctx,
     update_panels();
     doupdate();
     status_print(status_win, gettext("Ready."));
-    return(0);
+    return (0);
 }
-

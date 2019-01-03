@@ -34,7 +34,8 @@
 #ifndef HAVE_STRLCPY
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: strlcpy.c,v 1.4 1999/05/01 18:56:41 millert Exp $";
+static char *rcsid =
+        "$OpenBSD: strlcpy.c,v 1.4 1999/05/01 18:56:41 millert Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/types.h>
@@ -69,6 +70,6 @@ size_t strlcpy(char *dst, const char *src, size_t siz)
             ;
     }
 
-    return(s - src - 1); /* count does not include NUL */
+    return (s - src - 1); /* count does not include NUL */
 }
 #endif

@@ -24,4 +24,3 @@
 void textdir_init(void);
 
 #endif /* __TEXTDIR_H__ */
-

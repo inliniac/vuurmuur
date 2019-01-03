@@ -21,7 +21,8 @@
 #define __VUURMUUR_SCRIPT_H__
 
 /*****************************************************************************************************************\
- ********************************* INCLUDES **********************************************************************
+ ********************************* INCLUDES
+**********************************************************************
 \*****************************************************************************************************************/
 
 #ifdef HAVE_CONFIG_H
@@ -32,12 +33,12 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <libgen.h>     /* for basename */
+#include <libgen.h> /* for basename */
 #include <unistd.h>
 #include <sys/types.h>
-#include <signal.h>     /* for catching signals */
-#include <time.h>       /* included for logging */
-#include <errno.h>      /* error handling */
+#include <signal.h> /* for catching signals */
+#include <time.h>   /* included for logging */
+#include <errno.h>  /* error handling */
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
@@ -52,24 +53,25 @@
 #include <vuurmuur.h>
 
 /*****************************************************************************************************************\
- ********************************* DEFINES ***********************************************************************
+ ********************************* DEFINES
+***********************************************************************
 \*****************************************************************************************************************/
 
-#define YES                 1
-#define NO                  0
+#define YES 1
+#define NO 0
 
 /* define these here so converting to gettext will be easier */
-#define VR_ERR              "Error"
-#define VR_INTERR           "Internal Error"
-#define VR_INFO             "Info"
-#define VR_WARN             "Warning"
+#define VR_ERR "Error"
+#define VR_INTERR "Internal Error"
+#define VR_INFO "Info"
+#define VR_WARN "Warning"
 
-#define EXIT_SUCCESS            0
-#define EXIT_COMMANDLINE_ERROR  1
-
+#define EXIT_SUCCESS 0
+#define EXIT_COMMANDLINE_ERROR 1
 
 /*************************************************************************************************************************\
- ******************************************************* DATATYPES *******************************************************
+ ******************************************************* DATATYPES
+*******************************************************
 \*************************************************************************************************************************/
 
 /*@null@*/
@@ -113,41 +115,39 @@ enum
 
 char version_string[128];
 
-typedef struct VuurmuurScript_
-{
-    int         cmd,
-                type;
+typedef struct VuurmuurScript_ {
+    int cmd, type;
 
-    char        name[VRMR_VRMR_MAX_HOST_NET_ZONE],
+    char name[VRMR_VRMR_MAX_HOST_NET_ZONE],
 
-                name_zone[VRMR_MAX_ZONE],
-                name_net[VRMR_MAX_NETWORK],
-                name_host[VRMR_MAX_HOST];
+            name_zone[VRMR_MAX_ZONE], name_net[VRMR_MAX_NETWORK],
+            name_host[VRMR_MAX_HOST];
 
-    char        var[32];
-    char        set[1024];
+    char var[32];
+    char set[1024];
 
-    char        overwrite;
+    char overwrite;
 
     /* some data used by most function */
-    int         zonetype;
-    char        bdat[1024];
+    int zonetype;
+    char bdat[1024];
 
     /* try to instruct vuurmuur and vuurmuur_log to reload? */
-    char        apply;
+    char apply;
 
     /* print rule numbers? */
-    char        print_rule_numbers;
+    char print_rule_numbers;
 
     /* library ctx */
     struct vrmr_ctx vctx;
 } VuurmuurScript;
 
 /*************************************************************************************************************************\
- ******************************************************* FUNCTIONS *******************************************************
+ ******************************************************* FUNCTIONS
+*******************************************************
 \*************************************************************************************************************************/
 
-void logchange(VuurmuurScript *,char *fmt, ...);
+void logchange(VuurmuurScript *, char *fmt, ...);
 
 int script_print(VuurmuurScript *);
 int script_list(VuurmuurScript *);
@@ -161,6 +161,6 @@ int script_list_devices(void);
 
 int backend_check(int, char *, char *, char, struct vrmr_regex *);
 
-char * remove_leading_part(char *input);
+char *remove_leading_part(char *input);
 
 #endif

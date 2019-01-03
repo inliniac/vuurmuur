@@ -21,29 +21,27 @@
 #ifndef __STATS_H__
 #define __STATS_H__
 
-struct Counters_
-{
-    unsigned int    drop;
-    unsigned int    accept;
-    unsigned int    reject;
-    unsigned int    queue;
-    unsigned int    other_match;
+struct Counters_ {
+    unsigned int drop;
+    unsigned int accept;
+    unsigned int reject;
+    unsigned int queue;
+    unsigned int other_match;
 
-    unsigned int    tcp;
-    unsigned int    udp;
-    unsigned int    icmp;
-    unsigned int    other_proto;
+    unsigned int tcp;
+    unsigned int udp;
+    unsigned int icmp;
+    unsigned int other_proto;
 
-    unsigned int    totalvuurmuur;
+    unsigned int totalvuurmuur;
 
-    unsigned int    noipt;
-    unsigned int    invalid_loglines;
+    unsigned int noipt;
+    unsigned int invalid_loglines;
 
-    unsigned int    total;
+    unsigned int total;
 };
 
-void show_stats (struct Counters_ *);
-void upd_action_ctrs (char *action, struct Counters_ *c);
+void show_stats(struct Counters_ *);
+void upd_action_ctrs(char *action, struct Counters_ *c);
 
 #endif /* __STATS_H__ */
-

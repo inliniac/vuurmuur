@@ -20,108 +20,104 @@
 
 #include "vuurmuur_script.h"
 
-int
-script_list(VuurmuurScript *vr_script)
+int script_list(VuurmuurScript *vr_script)
 {
-    char    back_zone[VRMR_MAX_ZONE] = "",
-            back_net[VRMR_MAX_NETWORK] = "",
-            back_host[VRMR_MAX_HOST] = "";
+    char back_zone[VRMR_MAX_ZONE] = "", back_net[VRMR_MAX_NETWORK] = "",
+         back_host[VRMR_MAX_HOST] = "";
 
-    if(vr_script->type == VRMR_TYPE_ZONE)
-    {
-        while(vr_script->vctx.zf->list(vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
-        {
-            if(vr_script->zonetype == vr_script->type)
-            {
+    if (vr_script->type == VRMR_TYPE_ZONE) {
+        while (vr_script->vctx.zf->list(vr_script->vctx.zone_backend,
+                       vr_script->bdat, &vr_script->zonetype,
+                       VRMR_BT_ZONES) != NULL) {
+            if (vr_script->zonetype == vr_script->type) {
                 printf("%s\n", vr_script->bdat);
             }
         }
-    }
-    else if(vr_script->type == VRMR_TYPE_NETWORK)
-    {
-        while(vr_script->vctx.zf->list(vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
-        {
-            if(vr_script->zonetype == vr_script->type)
-            {
-                if(strcmp(vr_script->name,"any") != 0)
-                {
+    } else if (vr_script->type == VRMR_TYPE_NETWORK) {
+        while (vr_script->vctx.zf->list(vr_script->vctx.zone_backend,
+                       vr_script->bdat, &vr_script->zonetype,
+                       VRMR_BT_ZONES) != NULL) {
+            if (vr_script->zonetype == vr_script->type) {
+                if (strcmp(vr_script->name, "any") != 0) {
                     /* validate and split the new name */
-                    if(vrmr_validate_zonename(vr_script->bdat, 0, back_zone, back_net, back_host, vr_script->vctx.reg.zonename, VRMR_VERBOSE) != 0)
-                    {
-                        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "invalid name '%s' returned from backend (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
-                        return(VRS_ERR_INTERNAL);
+                    if (vrmr_validate_zonename(vr_script->bdat, 0, back_zone,
+                                back_net, back_host,
+                                vr_script->vctx.reg.zonename,
+                                VRMR_VERBOSE) != 0) {
+                        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
+                                "invalid name '%s' returned from backend (in: "
+                                "%s:%d).",
+                                vr_script->name, __FUNC__, __LINE__);
+                        return (VRS_ERR_INTERNAL);
                     }
-                    vrmr_debug(HIGH, "name: '%s': host/group '%s', net '%s', zone '%s'.",
+                    vrmr_debug(HIGH,
+                            "name: '%s': host/group '%s', net '%s', zone '%s'.",
                             vr_script->bdat, back_host, back_net, back_zone);
 
-                    if(strcmp(back_zone, vr_script->name_zone) == 0)
-                    {
+                    if (strcmp(back_zone, vr_script->name_zone) == 0) {
                         printf("%s\n", vr_script->bdat);
                     }
-                }
-                else
-                {
+                } else {
                     printf("%s\n", vr_script->bdat);
                 }
             }
         }
-    }
-    else if(vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
-    {
-        while(vr_script->vctx.zf->list(vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
-        {
-            if(vr_script->zonetype == vr_script->type)
-            {
-                if(strcmp(vr_script->name,"any") != 0)
-                {
+    } else if (vr_script->type == VRMR_TYPE_HOST ||
+               vr_script->type == VRMR_TYPE_GROUP) {
+        while (vr_script->vctx.zf->list(vr_script->vctx.zone_backend,
+                       vr_script->bdat, &vr_script->zonetype,
+                       VRMR_BT_ZONES) != NULL) {
+            if (vr_script->zonetype == vr_script->type) {
+                if (strcmp(vr_script->name, "any") != 0) {
                     /* validate and split the new name */
-                    if(vrmr_validate_zonename(vr_script->bdat, 0, back_zone, back_net, back_host, vr_script->vctx.reg.zonename, VRMR_VERBOSE) != 0)
-                    {
-                        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "invalid name '%s' returned from backend (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
-                        return(VRS_ERR_INTERNAL);
+                    if (vrmr_validate_zonename(vr_script->bdat, 0, back_zone,
+                                back_net, back_host,
+                                vr_script->vctx.reg.zonename,
+                                VRMR_VERBOSE) != 0) {
+                        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR,
+                                "invalid name '%s' returned from backend (in: "
+                                "%s:%d).",
+                                vr_script->name, __FUNC__, __LINE__);
+                        return (VRS_ERR_INTERNAL);
                     }
-                    vrmr_debug(HIGH, "name: '%s': host/group '%s', net '%s', zone '%s'.",
+                    vrmr_debug(HIGH,
+                            "name: '%s': host/group '%s', net '%s', zone '%s'.",
                             vr_script->bdat, back_host, back_net, back_zone);
 
-                    if( strcmp(back_zone, vr_script->name_zone) == 0 &&
-                        (vr_script->name_net[0] == '\0' || strcmp(back_net, vr_script->name_net) == 0))
-                    {
+                    if (strcmp(back_zone, vr_script->name_zone) == 0 &&
+                            (vr_script->name_net[0] == '\0' ||
+                                    strcmp(back_net, vr_script->name_net) ==
+                                            0)) {
                         printf("%s\n", vr_script->bdat);
                     }
-                }
-                else
-                {
+                } else {
                     printf("%s\n", vr_script->bdat);
                 }
             }
         }
-    }
-    else if(vr_script->type == VRMR_TYPE_SERVICE)
-    {
-        while(vr_script->vctx.sf->list(vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
-        {
+    } else if (vr_script->type == VRMR_TYPE_SERVICE) {
+        while (vr_script->vctx.sf->list(vr_script->vctx.serv_backend,
+                       vr_script->bdat, &vr_script->zonetype,
+                       VRMR_BT_SERVICES) != NULL) {
             printf("%s\n", vr_script->bdat);
         }
-    }
-    else if(vr_script->type == VRMR_TYPE_INTERFACE)
-    {
-        while(vr_script->vctx.af->list(vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
-        {
+    } else if (vr_script->type == VRMR_TYPE_INTERFACE) {
+        while (vr_script->vctx.af->list(vr_script->vctx.ifac_backend,
+                       vr_script->bdat, &vr_script->zonetype,
+                       VRMR_BT_INTERFACES) != NULL) {
             printf("%s\n", vr_script->bdat);
         }
-    }
-    else if(vr_script->type == VRMR_TYPE_RULE)
-    {
-        while(vr_script->vctx.rf->list(vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
-        {
+    } else if (vr_script->type == VRMR_TYPE_RULE) {
+        while (vr_script->vctx.rf->list(vr_script->vctx.rule_backend,
+                       vr_script->bdat, &vr_script->zonetype,
+                       VRMR_BT_RULES) != NULL) {
             printf("%s\n", vr_script->bdat);
         }
-    }
-    else
-    {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d.", vr_script->type);
-        return(VRS_ERR_INTERNAL);
+    } else {
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d.",
+                vr_script->type);
+        return (VRS_ERR_INTERNAL);
     }
 
-    return(0);
+    return (0);
 }

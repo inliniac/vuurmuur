@@ -19,9 +19,8 @@
  ***************************************************************************/
 
 #include "vuurmuur_script.h"
-#include <net/if.h>     /* used for getting interface info from the system */
-#include <sys/ioctl.h>  /* used for getting interface info from the system */
-
+#include <net/if.h>    /* used for getting interface info from the system */
+#include <sys/ioctl.h> /* used for getting interface info from the system */
 
 /* vrmr_create_broadcast_ip
 
@@ -32,34 +31,36 @@
      0: ok
     -1: error
 */
-static int
-create_network_ip(char *ipaddress, char *netmask, char *network_ip, size_t size)
+static int create_network_ip(
+        char *ipaddress, char *netmask, char *network_ip, size_t size)
 {
-    int retval=0;
+    int retval = 0;
 
     struct in_addr ip;
-    struct in_addr net;     /* the network address against we want to check */
-    struct in_addr mask;    /* the netmask of the network */
-//    struct in_addr broad;   /* the broadcast address of this network */
+    struct in_addr net;  /* the network address against we want to check */
+    struct in_addr mask; /* the netmask of the network */
+    //    struct in_addr broad;   /* the broadcast address of this network */
 
-    unsigned long int netmaskvalue=0;
-//    unsigned long int networkvalue=0;
+    unsigned long int netmaskvalue = 0;
+    //    unsigned long int networkvalue=0;
 
-    if(inet_aton(netmask, &mask) == 0)
-    {
-        vrmr_error(-1, "Error", "invalid netmask: '%s' "
-            "(in: %s:%d).", netmask, __FUNC__, __LINE__);
-        return(-1);
+    if (inet_aton(netmask, &mask) == 0) {
+        vrmr_error(-1, "Error",
+                "invalid netmask: '%s' "
+                "(in: %s:%d).",
+                netmask, __FUNC__, __LINE__);
+        return (-1);
     }
 
     netmaskvalue = ntohl(mask.s_addr);
     vrmr_debug(HIGH, "netmask = %s", inet_ntoa(mask));
 
-    if(inet_aton(ipaddress, &ip) == 0)
-    {
-        vrmr_error(-1, "Error", "invalid ipaddress: '%s' "
-            "(in: %s:%d).", netmask, __FUNC__, __LINE__);
-        return(-1);
+    if (inet_aton(ipaddress, &ip) == 0) {
+        vrmr_error(-1, "Error",
+                "invalid ipaddress: '%s' "
+                "(in: %s:%d).",
+                netmask, __FUNC__, __LINE__);
+        return (-1);
     }
     vrmr_debug(HIGH, "ipaddress = %s", inet_ntoa(ip));
 
@@ -67,16 +68,16 @@ create_network_ip(char *ipaddress, char *netmask, char *network_ip, size_t size)
     net.s_addr &= ntohl(netmaskvalue);
     vrmr_debug(HIGH, "network = %s", inet_ntoa(net));
 
-    if(strlcpy(network_ip, inet_ntoa(net), size) >= size)
-    {
-        vrmr_error(-1, "Internal Error", "string overflow "
-            "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
+    if (strlcpy(network_ip, inet_ntoa(net), size) >= size) {
+        vrmr_error(-1, "Internal Error",
+                "string overflow "
+                "(in: %s:%d).",
+                __FUNC__, __LINE__);
+        return (-1);
     }
 
-    return(retval);
+    return (retval);
 }
-
 
 /*  vrmr_get_dynamic_ip
 
@@ -88,60 +89,55 @@ create_network_ip(char *ipaddress, char *netmask, char *network_ip, size_t size)
         0: not found
         -1: error
  */
-int
-script_list_devices(void)
+int script_list_devices(void)
 {
-    int                 numreqs = 30;
-    struct ifconf       ifc;
-    struct ifreq        *ifr_ptr = NULL,
-                        ifr_struct;
-    int                 n;
-    int                 sockfd = 0;
-    char                ipaddress[16] = "",
-                        netmask[16] = "",
-                        broadcast[16] = "",
-                        network[16] = "";
-    struct sockaddr     *sa = NULL;
-    struct sockaddr_in  *sin = NULL;
+    int numreqs = 30;
+    struct ifconf ifc;
+    struct ifreq *ifr_ptr = NULL, ifr_struct;
+    int n;
+    int sockfd = 0;
+    char ipaddress[16] = "", netmask[16] = "", broadcast[16] = "",
+         network[16] = "";
+    struct sockaddr *sa = NULL;
+    struct sockaddr_in *sin = NULL;
 
     /* open a socket for ioctl */
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if(sockfd == -1)
-    {
-        vrmr_error(-1, "Error", "couldn't open socket: %s "
-            "(in: %s:%d).", strerror(errno), __FUNC__, __LINE__);
-        return(-1);
+    if (sockfd == -1) {
+        vrmr_error(-1, "Error",
+                "couldn't open socket: %s "
+                "(in: %s:%d).",
+                strerror(errno), __FUNC__, __LINE__);
+        return (-1);
     }
 
     /* initialize the buf otherwise realloc will freak out (read segv) */
     ifc.ifc_buf = NULL;
-    for (;;)
-    {
+    for (;;) {
         ifc.ifc_len = (int)(sizeof(struct ifreq) * numreqs);
         /* get some mem */
-        if(!(ifc.ifc_buf = realloc(ifc.ifc_buf, (size_t)ifc.ifc_len)))
-        {
-            vrmr_error(-1, "Error", "realloc failed: %s "
-                "(in: %s:%d).", strerror(errno),
-                __FUNC__, __LINE__);
+        if (!(ifc.ifc_buf = realloc(ifc.ifc_buf, (size_t)ifc.ifc_len))) {
+            vrmr_error(-1, "Error",
+                    "realloc failed: %s "
+                    "(in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
             (void)close(sockfd);
 
-            return(-1);
+            return (-1);
         }
 
         /* get the interfaces from the system */
-        if(ioctl(sockfd, SIOCGIFCONF, &ifc) < 0)
-        {
-            vrmr_error(-1, "Error", "ioctl(SIOCGIFCONF) "
-                "failed: %s (in: %s:%d).", strerror(errno),
-                __FUNC__, __LINE__);
+        if (ioctl(sockfd, SIOCGIFCONF, &ifc) < 0) {
+            vrmr_error(-1, "Error",
+                    "ioctl(SIOCGIFCONF) "
+                    "failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
             free(ifc.ifc_buf);
             (void)close(sockfd);
 
-            return(-1);
+            return (-1);
         }
-        if(ifc.ifc_len == (int)(sizeof(struct ifreq) * numreqs))
-        {
+        if (ifc.ifc_len == (int)(sizeof(struct ifreq) * numreqs)) {
             /* assume it overflowed and try again */
             numreqs += 10;
             continue;
@@ -150,17 +146,19 @@ script_list_devices(void)
     }
 
     ifr_ptr = ifc.ifc_req;
-    for(n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq))
-    {
+    for (n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq)) {
         vrmr_debug(HIGH, "ifr_ptr->ifr_name: '%s'.", ifr_ptr->ifr_name);
 
-        if(strlcpy(ifr_struct.ifr_name, ifr_ptr->ifr_name, sizeof(ifr_struct.ifr_name)) >= sizeof(ifr_struct.ifr_name))
-        {
-            vrmr_error(-1, "Error", "buffer overflow "
-                "(in: %s:%d).", __FUNC__, __LINE__);
+        if (strlcpy(ifr_struct.ifr_name, ifr_ptr->ifr_name,
+                    sizeof(ifr_struct.ifr_name)) >=
+                sizeof(ifr_struct.ifr_name)) {
+            vrmr_error(-1, "Error",
+                    "buffer overflow "
+                    "(in: %s:%d).",
+                    __FUNC__, __LINE__);
             (void)close(sockfd);
             free(ifc.ifc_buf);
-            return(-1);
+            return (-1);
         }
 
         printf("%s ", ifr_ptr->ifr_name);
@@ -172,97 +170,89 @@ script_list_devices(void)
         sa = &ifr_struct.ifr_addr;
 
         /* get the ipaddress */
-        if(ioctl(sockfd, SIOCGIFADDR, &ifr_struct) == 0)
-        {
+        if (ioctl(sockfd, SIOCGIFADDR, &ifr_struct) == 0) {
             sin = (struct sockaddr_in *)sa;
 
             /* get the ipaddress into a string */
-            if(inet_ntop(AF_INET, &sin->sin_addr, ipaddress, (socklen_t)sizeof(ipaddress)) == NULL)
-            {
-                vrmr_error(-1, "Error", "getting "
-                    "ipaddress for device '%s' failed: %s "
-                    "(in: %s:%d).", ifr_ptr->ifr_name,
-                    strerror(errno), __FUNC__, __LINE__);
+            if (inet_ntop(AF_INET, &sin->sin_addr, ipaddress,
+                        (socklen_t)sizeof(ipaddress)) == NULL) {
+                vrmr_error(-1, "Error",
+                        "getting "
+                        "ipaddress for device '%s' failed: %s "
+                        "(in: %s:%d).",
+                        ifr_ptr->ifr_name, strerror(errno), __FUNC__, __LINE__);
 
                 (void)close(sockfd);
                 free(ifc.ifc_buf);
 
-                return(-1);
+                return (-1);
             }
 
             /* print to the screen */
             printf("%s ", ipaddress);
-        }
-        else
-        {
+        } else {
             /* print to the screen */
             printf("error ");
         }
 
         /* netmask */
-        if(ioctl(sockfd, SIOCGIFNETMASK, &ifr_struct) == 0)
-        {
+        if (ioctl(sockfd, SIOCGIFNETMASK, &ifr_struct) == 0) {
             sin = (struct sockaddr_in *)sa;
 
             /* get the ipaddress into a string */
-            if(inet_ntop(AF_INET, &sin->sin_addr, netmask, (socklen_t)sizeof(ipaddress)) == NULL)
-            {
-                vrmr_error(-1, "Error", "getting "
-                    "ipaddress for device '%s' failed: %s "
-                    "(in: %s:%d).", ifr_ptr->ifr_name,
-                    strerror(errno), __FUNC__, __LINE__);
+            if (inet_ntop(AF_INET, &sin->sin_addr, netmask,
+                        (socklen_t)sizeof(ipaddress)) == NULL) {
+                vrmr_error(-1, "Error",
+                        "getting "
+                        "ipaddress for device '%s' failed: %s "
+                        "(in: %s:%d).",
+                        ifr_ptr->ifr_name, strerror(errno), __FUNC__, __LINE__);
 
                 (void)close(sockfd);
                 free(ifc.ifc_buf);
 
-                return(-1);
+                return (-1);
             }
 
             /* print to the screen */
             printf("%s ", netmask);
-        }
-        else
-        {
+        } else {
             /* print to the screen */
             printf("error ");
         }
 
         /* network address */
-        if(create_network_ip(ipaddress, netmask, network, sizeof(network)) == 0)
-        {
+        if (create_network_ip(ipaddress, netmask, network, sizeof(network)) ==
+                0) {
             /* print to the screen */
             printf("%s ", network);
-        }
-        else
-        {
+        } else {
             /* print to the screen */
             printf("error ");
         }
 
         /* broadcast */
-        if(ioctl(sockfd, SIOCGIFBRDADDR, &ifr_struct) == 0)
-        {
+        if (ioctl(sockfd, SIOCGIFBRDADDR, &ifr_struct) == 0) {
             sin = (struct sockaddr_in *)sa;
 
             /* get the ipaddress into a string */
-            if(inet_ntop(AF_INET, &sin->sin_addr, broadcast, (socklen_t)sizeof(ipaddress)) == NULL)
-            {
-                vrmr_error(-1, "Error", "getting "
-                    "broadcast for device '%s' failed: %s "
-                    "(in: %s:%d).", ifr_ptr->ifr_name,
-                    strerror(errno), __FUNC__, __LINE__);
+            if (inet_ntop(AF_INET, &sin->sin_addr, broadcast,
+                        (socklen_t)sizeof(ipaddress)) == NULL) {
+                vrmr_error(-1, "Error",
+                        "getting "
+                        "broadcast for device '%s' failed: %s "
+                        "(in: %s:%d).",
+                        ifr_ptr->ifr_name, strerror(errno), __FUNC__, __LINE__);
 
                 (void)close(sockfd);
                 free(ifc.ifc_buf);
 
-                return(-1);
+                return (-1);
             }
 
             /* print to the screen */
             printf("%s ", broadcast);
-        }
-        else
-        {
+        } else {
             /* print to the screen */
             printf("error ");
         }
@@ -275,5 +265,5 @@ script_list_devices(void)
 
     (void)close(sockfd);
     free(ifc.ifc_buf);
-    return(0);
+    return (0);
 }

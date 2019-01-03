@@ -31,214 +31,227 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <time.h>       /* for logging */
+#include <time.h> /* for logging */
 #include <stdarg.h>
-#include <arpa/inet.h>  /* included for check_ip function */
-#include <sys/ipc.h>    /* inter process communication */
-#include <sys/sem.h>    /* semaphore */
-#include <sys/shm.h>    /* shared memory */
-#include <dlfcn.h>      /* for the dynamic plugin loader */
-#include <regex.h>      /* for input validation */
-#include <net/if.h>     /* used for getting interface info from the system */
-#include <sys/ioctl.h>  /* used for getting interface info from the system */
-#include <pwd.h>        /* used for getting user information */
-#include <ctype.h>      /* for isdigit, isalpha, etc */
+#include <arpa/inet.h> /* included for check_ip function */
+#include <sys/ipc.h>   /* inter process communication */
+#include <sys/sem.h>   /* semaphore */
+#include <sys/shm.h>   /* shared memory */
+#include <dlfcn.h>     /* for the dynamic plugin loader */
+#include <regex.h>     /* for input validation */
+#include <net/if.h>    /* used for getting interface info from the system */
+#include <sys/ioctl.h> /* used for getting interface info from the system */
+#include <pwd.h>       /* used for getting user information */
+#include <ctype.h>     /* for isdigit, isalpha, etc */
 #include <assert.h>
 
-/* this is to prevent some compiler warning when feeding the function name directly
-   to vrprint.debug */
-#define __FUNC__        (char *)__func__
+/* this is to prevent some compiler warning when feeding the function name
+   directly to vrprint.debug */
+#define __FUNC__ (char *)__func__
 
 /* our version */
-#define VUURMUUR_VERSION	"0.8rc5"
+#define VUURMUUR_VERSION "0.8rc5"
 
-#define VUURMUUR_COPYRIGHT  "Copyright (C) 2002-2017 Victor Julien et al"
+#define VUURMUUR_COPYRIGHT "Copyright (C) 2002-2017 Victor Julien et al"
 
-/* we need this to stringify the VUURMUUR_CONFIGDIR which is supplied at compiletime see:
-   http://gcc.gnu.org/onlinedocs/gcc-3.4.1/cpp/Stringification.html#Stringification */
+/* we need this to stringify the VUURMUUR_CONFIGDIR which is supplied at
+   compiletime see:
+   http://gcc.gnu.org/onlinedocs/gcc-3.4.1/cpp/Stringification.html#Stringification
+ */
 #define xstr(s) str(s)
 #define str(s) #s
 
 /* debuglevels */
-#define HIGH            3
-#define MEDIUM          2
-#define LOW             1
-#define NONE            0
+#define HIGH 3
+#define MEDIUM 2
+#define LOW 1
+#define NONE 0
 
 /* These are also defined in ncruses.h */
 #ifndef TRUE
-#define TRUE            (char)1
+#define TRUE (char)1
 #endif
 #ifndef FALSE
-#define FALSE           (char)0
+#define FALSE (char)0
 #endif
 
-#define VRMR_LOG_PATH_SIZE          96
+#define VRMR_LOG_PATH_SIZE 96
 
 /*
-    Max length of a host, network or zone. WARNING: if you change this, you also need to change it in the VRMR_ZONE_REGEX!!!
+    Max length of a host, network or zone. WARNING: if you change this, you also
+   need to change it in the VRMR_ZONE_REGEX!!!
 */
-#define VRMR_MAX_OPTIONS_LENGTH      256
-#define VRMR_MAX_RULE_LENGTH         512
+#define VRMR_MAX_OPTIONS_LENGTH 256
+#define VRMR_MAX_RULE_LENGTH 512
 
-#define VRMR_MAX_INTERFACE           32
+#define VRMR_MAX_INTERFACE 32
 
-#define VRMR_MAX_SERVICE             32
+#define VRMR_MAX_SERVICE 32
 
-#define VRMR_MAX_HOST                32
-#define VRMR_MAX_NETWORK             32
-#define VRMR_MAX_BROADCAST           (VRMR_MAX_NETWORK + 11) /* network(broadcast) */
-#define VRMR_MAX_ZONE                32
+#define VRMR_MAX_HOST 32
+#define VRMR_MAX_NETWORK 32
+#define VRMR_MAX_BROADCAST (VRMR_MAX_NETWORK + 11) /* network(broadcast) */
+#define VRMR_MAX_ZONE 32
 
-#define VRMR_MAX_NET_ZONE            (VRMR_MAX_BROADCAST + VRMR_MAX_ZONE)
-#define VRMR_VRMR_MAX_HOST_NET_ZONE  (VRMR_MAX_HOST + VRMR_MAX_BROADCAST + VRMR_MAX_ZONE)
+#define VRMR_MAX_NET_ZONE (VRMR_MAX_BROADCAST + VRMR_MAX_ZONE)
+#define VRMR_VRMR_MAX_HOST_NET_ZONE                                            \
+    (VRMR_MAX_HOST + VRMR_MAX_BROADCAST + VRMR_MAX_ZONE)
 
-#define VRMR_MAX_PROC_ENTRY_LENGHT   64
+#define VRMR_MAX_PROC_ENTRY_LENGHT 64
 
-#define VRMR_PIPE_VERBOSE            (char)0
-#define VRMR_PIPE_QUIET              (char)1
+#define VRMR_PIPE_VERBOSE (char)0
+#define VRMR_PIPE_QUIET (char)1
 
+#define VRMR_STATOK_WANT_BOTH (char)0
+#define VRMR_STATOK_WANT_FILE (char)1
+#define VRMR_STATOK_WANT_DIR (char)2
 
-#define VRMR_STATOK_WANT_BOTH        (char)0
-#define VRMR_STATOK_WANT_FILE        (char)1
-#define VRMR_STATOK_WANT_DIR         (char)2
+#define VRMR_STATOK_VERBOSE (char)0
+#define VRMR_STATOK_QUIET (char)1
 
-#define VRMR_STATOK_VERBOSE          (char)0
-#define VRMR_STATOK_QUIET            (char)1
+#define VRMR_STATOK_ALLOW_NOTFOUND (char)0
+#define VRMR_STATOK_MUST_EXIST (char)1
 
-#define VRMR_STATOK_ALLOW_NOTFOUND   (char)0
-#define VRMR_STATOK_MUST_EXIST       (char)1
-
-#define VRMR_IPTCHK_VERBOSE          (char)0
-#define VRMR_IPTCHK_QUIET            (char)1
-
+#define VRMR_IPTCHK_VERBOSE (char)0
+#define VRMR_IPTCHK_QUIET (char)1
 
 /*
     default locations of files
 */
-#define VRMR_DEFAULT_SYSCTL_LOCATION            "/sbin/sysctl"
-#define VRMR_DEFAULT_IPTABLES_LOCATION          "/sbin/iptables"
-#define VRMR_DEFAULT_IPTABLES_REST_LOCATION     "/sbin/iptables-restore"
-#define VRMR_DEFAULT_IP6TABLES_LOCATION         "/sbin/ip6tables"
-#define VRMR_DEFAULT_IP6TABLES_REST_LOCATION    "/sbin/ip6tables-restore"
-#define VRMR_DEFAULT_RULES_LOCATION             "rules.conf"
-#define VRMR_DEFAULT_LOGDIR_LOCATION            "/var/log/vuurmuur"
-#define VRMR_DEFAULT_SYSTEMLOG_LOCATION         "/var/log/messages"
-#define VRMR_DEFAULT_MODPROBE_LOCATION          "/sbin/modprobe"
-#define VRMR_DEFAULT_CONNTRACK_LOCATION         "/usr/sbin/conntrack"
-#define VRMR_DEFAULT_TC_LOCATION                "/sbin/tc"
+#define VRMR_DEFAULT_SYSCTL_LOCATION "/sbin/sysctl"
+#define VRMR_DEFAULT_IPTABLES_LOCATION "/sbin/iptables"
+#define VRMR_DEFAULT_IPTABLES_REST_LOCATION "/sbin/iptables-restore"
+#define VRMR_DEFAULT_IP6TABLES_LOCATION "/sbin/ip6tables"
+#define VRMR_DEFAULT_IP6TABLES_REST_LOCATION "/sbin/ip6tables-restore"
+#define VRMR_DEFAULT_RULES_LOCATION "rules.conf"
+#define VRMR_DEFAULT_LOGDIR_LOCATION "/var/log/vuurmuur"
+#define VRMR_DEFAULT_SYSTEMLOG_LOCATION "/var/log/messages"
+#define VRMR_DEFAULT_MODPROBE_LOCATION "/sbin/modprobe"
+#define VRMR_DEFAULT_CONNTRACK_LOCATION "/usr/sbin/conntrack"
+#define VRMR_DEFAULT_TC_LOCATION "/sbin/tc"
 
-#define VRMR_DEFAULT_BACKEND                    "textdir"
+#define VRMR_DEFAULT_BACKEND "textdir"
 
-#define VRMR_DEFAULT_DYN_INT_CHECK          FALSE
-#define VRMR_DEFAULT_DYN_INT_INTERVAL       (unsigned int)30
+#define VRMR_DEFAULT_DYN_INT_CHECK FALSE
+#define VRMR_DEFAULT_DYN_INT_INTERVAL (unsigned int)30
 
-#define VRMR_DEFAULT_USE_SYN_LIMIT          TRUE
-#define VRMR_DEFAULT_SYN_LIMIT              (unsigned int)10
-#define VRMR_DEFAULT_SYN_LIMIT_BURST        (unsigned int)20
+#define VRMR_DEFAULT_USE_SYN_LIMIT TRUE
+#define VRMR_DEFAULT_SYN_LIMIT (unsigned int)10
+#define VRMR_DEFAULT_SYN_LIMIT_BURST (unsigned int)20
 
-#define VRMR_DEFAULT_USE_UDP_LIMIT          TRUE
-#define VRMR_DEFAULT_UDP_LIMIT              (unsigned int)15
-#define VRMR_DEFAULT_UDP_LIMIT_BURST        (unsigned int)45
+#define VRMR_DEFAULT_USE_UDP_LIMIT TRUE
+#define VRMR_DEFAULT_UDP_LIMIT (unsigned int)15
+#define VRMR_DEFAULT_UDP_LIMIT_BURST (unsigned int)45
 
-#define VRMR_DEFAULT_RULE_NFLOG             TRUE
-#define VRMR_DEFAULT_NFGRP                  8
+#define VRMR_DEFAULT_RULE_NFLOG TRUE
+#define VRMR_DEFAULT_NFGRP 8
 
-#define VRMR_DEFAULT_LOG_POLICY             TRUE                /* default we log the default policy */
-#define VRMR_DEFAULT_LOG_POLICY_LIMIT       (unsigned int)30    /* default limit for logging the default policy */
-#define VRMR_DEFAULT_LOG_TCP_OPTIONS        FALSE               /* default we don't log TCP options */
-#define VRMR_DEFAULT_LOG_BLOCKLIST          TRUE                /* default we log blocklist violations */
-#define VRMR_DEFAULT_LOG_INVALID            TRUE                /* default we log INVALID traffic */
-#define VRMR_DEFAULT_LOG_NO_SYN             TRUE                /* default we log new TCP but no SYN */
-#define VRMR_DEFAULT_LOG_PROBES             TRUE                /* default we log probes like XMAS */
-#define VRMR_DEFAULT_LOG_FRAG               TRUE                /* default we log FRAGMENTED traffic */
+#define VRMR_DEFAULT_LOG_POLICY TRUE /* default we log the default policy */
+#define VRMR_DEFAULT_LOG_POLICY_LIMIT                                          \
+    (unsigned int)30 /* default limit for logging the default policy */
+#define VRMR_DEFAULT_LOG_TCP_OPTIONS                                           \
+    FALSE /* default we don't log TCP options */
+#define VRMR_DEFAULT_LOG_BLOCKLIST                                             \
+    TRUE                              /* default we log blocklist violations */
+#define VRMR_DEFAULT_LOG_INVALID TRUE /* default we log INVALID traffic */
+#define VRMR_DEFAULT_LOG_NO_SYN TRUE  /* default we log new TCP but no SYN */
+#define VRMR_DEFAULT_LOG_PROBES TRUE  /* default we log probes like XMAS */
+#define VRMR_DEFAULT_LOG_FRAG TRUE    /* default we log FRAGMENTED traffic */
 
-#define VRMR_DEFAULT_DROP_INVALID           TRUE                /* default we drop INVALID traffic */
+#define VRMR_DEFAULT_DROP_INVALID TRUE /* default we drop INVALID traffic */
 
-#define VRMR_DEFAULT_PROTECT_SYNCOOKIE      TRUE                /* default we protect against syn-flooding */
-#define VRMR_DEFAULT_PROTECT_ECHOBROADCAST  TRUE                /* default we protect against echo-broadcasting */
+#define VRMR_DEFAULT_PROTECT_SYNCOOKIE                                         \
+    TRUE /* default we protect against syn-flooding */
+#define VRMR_DEFAULT_PROTECT_ECHOBROADCAST                                     \
+    TRUE /* default we protect against echo-broadcasting */
 
-#define VRMR_DEFAULT_OLD_CREATE_METHOD      FALSE               /* default we use new method */
+#define VRMR_DEFAULT_OLD_CREATE_METHOD FALSE /* default we use new method */
 
-#define VRMR_DEFAULT_LOAD_MODULES           TRUE                /* default we load modules */
-#define VRMR_DEFAULT_MODULES_WAITTIME       0                   /* default we don't wait */
+#define VRMR_DEFAULT_LOAD_MODULES TRUE  /* default we load modules */
+#define VRMR_DEFAULT_MODULES_WAITTIME 0 /* default we don't wait */
 
-#define VRMR_DEFAULT_MAX_PERMISSION         0700                /* default only allow user rwx */
+#define VRMR_DEFAULT_MAX_PERMISSION 0700 /* default only allow user rwx */
 
-#define VRMR_MAX_LOGRULE_SIZE               512
-#define VRMR_MAX_PIPE_COMMAND               512                 /* maximum lenght of the pipe command */
-#define VRMR_MAX_RULECOMMENT_LEN            64                  /* length in characters (for widec) */
+#define VRMR_MAX_LOGRULE_SIZE 512
+#define VRMR_MAX_PIPE_COMMAND 512   /* maximum lenght of the pipe command */
+#define VRMR_MAX_RULECOMMENT_LEN 64 /* length in characters (for widec) */
 
-#define VRMR_PROC_IPCONNTRACK               "/proc/net/ip_conntrack"
-#define VRMR_PROC_NFCONNTRACK               "/proc/net/nf_conntrack"
+#define VRMR_PROC_IPCONNTRACK "/proc/net/ip_conntrack"
+#define VRMR_PROC_NFCONNTRACK "/proc/net/nf_conntrack"
 
-#define VRMR_MAX_BASH_DESC                  512
+#define VRMR_MAX_BASH_DESC 512
 
 /* Special permission value, meaning don't check permissions. The value
  * is simply all ones. */
-#define VRMR_ANY_PERMISSION                  (~((mode_t)0))
+#define VRMR_ANY_PERMISSION (~((mode_t)0))
 
 /*
     regexes
 */
 
 /* zone name */
-#define VRMR_ZONE_REGEX              "^([a-zA-Z0-9_-]{1,32})(([.])([a-zA-Z0-9_-]{1,32})(([.])([a-zA-Z0-9_-]{1,32}))?)?$"
+#define VRMR_ZONE_REGEX                                                        \
+    "^([a-zA-Z0-9_-]{1,32})(([.])([a-zA-Z0-9_-]{1,32})(([.])([a-zA-Z0-9_-]{1," \
+    "32}))?)?$"
 
-#define VRMR_VRMR_ZONE_REGEX_ZONEPART     "^([a-zA-Z0-9_-]{1,32})$"
-#define VRMR_VRMR_ZONE_REGEX_NETWORKPART  "^([a-zA-Z0-9_-]{1,32})$"
-#define VRMR_VRMR_ZONE_REGEX_HOSTPART     "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_VRMR_ZONE_REGEX_ZONEPART "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_VRMR_ZONE_REGEX_NETWORKPART "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_VRMR_ZONE_REGEX_HOSTPART "^([a-zA-Z0-9_-]{1,32})$"
 
 /* service */
-#define VRMR_SERV_REGEX              "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_SERV_REGEX "^([a-zA-Z0-9_-]{1,32})$"
 
 /* interface name */
-#define VRMR_IFAC_REGEX              "^([a-zA-Z0-9_-]{1,32})$"
+#define VRMR_IFAC_REGEX "^([a-zA-Z0-9_-]{1,32})$"
 
 /* mac address */
-#define VRMR_MAC_REGEX               "^[a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}$"
+#define VRMR_MAC_REGEX                                                         \
+    "^[a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-zA-Z0-9]{2}[:][a-" \
+    "zA-Z0-9]{2}[:][a-zA-Z0-9]{2}$"
 
 /* config line */
-#define VRMR_CONFIG_REGEX            "^[A-Z]+[=]\".*\"$"
+#define VRMR_CONFIG_REGEX "^[A-Z]+[=]\".*\"$"
 
 /* Some defines for character buffers we define in this file */
-#define VRMR_MAX_IPV6_ADDR_LEN       40 /* 39 + null */
+#define VRMR_MAX_IPV6_ADDR_LEN 40 /* 39 + null */
 
-#define VRMR_IPV4                   4
-#define VRMR_IPV6                   6
+#define VRMR_IPV4 4
+#define VRMR_IPV6 6
 
-#define VRMR_VERBOSE                0
-#define VRMR_QUIET                  1
+#define VRMR_VERBOSE 0
+#define VRMR_QUIET 1
 
 /* wrapper for __attribute__((returns_nonnull)) for
  * gcc and clang versions known to support it */
-#if defined(__clang__) && defined(__clang_major__) && defined(__clang_minor__) && defined(__clang_patchlevel__)
-    #if (__clang_major__ * 10000 +  __clang_minor__ * 100 + __clang_patchlevel__) >= 30800
-        #define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
-    #else
-        #define ATTR_RETURNS_NONNULL
-    #endif
-#elif defined (__GNUC__)
-    #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-    #if GCC_VERSION >= 50400
-        #define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
-    #else
-        #define ATTR_RETURNS_NONNULL
-    #endif
+#if defined(__clang__) && defined(__clang_major__) &&                          \
+        defined(__clang_minor__) && defined(__clang_patchlevel__)
+#if (__clang_major__ * 10000 + __clang_minor__ * 100 +                         \
+        __clang_patchlevel__) >= 30800
+#define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
 #else
-    #warn "unknown or very old compiler"
-    #define ATTR_RETURNS_NONNULL
+#define ATTR_RETURNS_NONNULL
+#endif
+#elif defined(__GNUC__)
+#define GCC_VERSION                                                            \
+    (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#if GCC_VERSION >= 50400
+#define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
+#else
+#define ATTR_RETURNS_NONNULL
+#endif
+#else
+#warn "unknown or very old compiler"
+#define ATTR_RETURNS_NONNULL
 #endif
 
-#if defined (__GNU_LIBRARY__) && !defined (_SEM_SEMUN_UNDEFINED)
-    /* use semun from sys/sem.h */
+#if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)
+/* use semun from sys/sem.h */
 #else
-union semun
-{
-    int                 val;
-    struct semid_ds     *buf;
-    unsigned short int  *array;
-    struct seminfo      *__buf;
+union semun {
+    int val;
+    struct semid_ds *buf;
+    unsigned short int *array;
+    struct seminfo *__buf;
 };
 #endif
 
@@ -253,7 +266,6 @@ struct vrmr_list_node {
     void *data;
 };
 
-
 /* the list, containing the metadata */
 struct vrmr_list {
     unsigned int len;
@@ -261,7 +273,7 @@ struct vrmr_list {
     struct vrmr_list_node *top;
     struct vrmr_list_node *bot;
 
-    void(*remove)(void *data);
+    void (*remove)(void *data);
 };
 
 /*
@@ -275,8 +287,8 @@ struct vrmr_hash_table {
     unsigned int rows;
 
     /* the functions for hashing, comparing the data */
-    unsigned int (*hash_func)    (const void *data);
-    int          (*compare_func) (const void *table_data, const void *search_data);
+    unsigned int (*hash_func)(const void *data);
+    int (*compare_func)(const void *table_data, const void *search_data);
 
     /* the number of cells in the table */
     unsigned int cells;
@@ -314,24 +326,26 @@ struct vrmr_regex {
 
 /* structure portdata. Here we store a portrange
 
-    Normally we use src_low and dst_low for an uncomplicated portrange (eg. src: 1045 dst: 22), both 'high' variables are 0.
-    If the portrange is more complicated we use both (eg. src_low 1024 src_high: 65535)
+    Normally we use src_low and dst_low for an uncomplicated portrange (eg. src:
+   1045 dst: 22), both 'high' variables are 0. If the portrange is more
+   complicated we use both (eg. src_low 1024 src_high: 65535)
 
-    With icmp the dst_low is the icmp type (eg. 0 for echo reply) while dst_high is the icmp code.
-    If dst_high is -1, code is not used. With icmp we don't use src, make sure they are 0.
+    With icmp the dst_low is the icmp type (eg. 0 for echo reply) while dst_high
+   is the icmp code. If dst_high is -1, code is not used. With icmp we don't use
+   src, make sure they are 0.
 */
 struct vrmr_portdata {
-    int protocol;   /* 6 for tcp, 17 for udp, 47 for gre, 1 for icmp, etc */
+    int protocol; /* 6 for tcp, 17 for udp, 47 for gre, 1 for icmp, etc */
 
-    int src_low;    /* lower end of the portrange */
-    int src_high;   /* higher-end, or if no portrange, the normal port */
+    int src_low;  /* lower end of the portrange */
+    int src_high; /* higher-end, or if no portrange, the normal port */
 
     int dst_low;
     int dst_high;
 };
 
-#define vrmr_lock(x) vrmr_shm_lock(1,(x))
-#define vrmr_unlock(x) vrmr_shm_lock(0,(x))
+#define vrmr_lock(x) vrmr_shm_lock(1, (x))
+#define vrmr_unlock(x) vrmr_shm_lock(0, (x))
 
 /* shared memory */
 struct vrmr_shm_table {
@@ -359,7 +373,8 @@ struct vrmr_shm_table {
     it is used for the IPC with SHM between Vuurmuur,
     Vuurmuur_log and Vuurmuur_conf
 */
-enum vrmr_reload_result {
+enum vrmr_reload_result
+{
     VRMR_RR_ERROR = -1,
     VRMR_RR_NO_RESULT_YET = 0,
     VRMR_RR_READY,
@@ -374,26 +389,26 @@ struct vrprint_ {
     const char *logger;
 
     /* print error. Head may be null. */
-    int(*error)(int errorcode, char *head, char *fmt, ...);
+    int (*error)(int errorcode, char *head, char *fmt, ...);
     char errorlog[VRMR_LOG_PATH_SIZE];
 
     /* print warning */
-    int(*warning)(char *head, char *fmt, ...);
+    int (*warning)(char *head, char *fmt, ...);
     /* no location, warning is put in info and error */
 
     /* print info */
-    int(*info)(char *head, char *fmt, ...);
+    int (*info)(char *head, char *fmt, ...);
     char infolog[VRMR_LOG_PATH_SIZE];
 
     /* print debug */
-    int(*debug)(char *head, char *fmt, ...);
+    int (*debug)(char *head, char *fmt, ...);
     char debuglog[VRMR_LOG_PATH_SIZE];
 
     /* the username used in the auditlog */
     const char *username;
 
     /* auditlog */
-    int(*audit)(char *fmt, ...);
+    int (*audit)(char *fmt, ...);
     char auditlog[VRMR_LOG_PATH_SIZE];
 };
 
@@ -405,167 +420,170 @@ struct vrprint_ vrprint;
 #define vrmr_info (void)vrprint.info
 #define vrmr_audit (void)vrprint.audit
 
-#define vrmr_debug(lvl, ...)                                        \
-    do {                                                            \
-        if (vrmr_debug_level >= (lvl)) {                            \
-            char _vrmr_msg[2048];                                   \
-            char _vrmr_loc[512];                                    \
-                                                                    \
-            snprintf(_vrmr_msg, 2048, __VA_ARGS__);                 \
-            snprintf(_vrmr_loc, sizeof(_vrmr_loc),                  \
-                 "[%s:%d:%s]", __FILE__, __LINE__, __func__);       \
-            (void)vrprint.debug(_vrmr_loc, _vrmr_msg);              \
-        }                                                           \
-    } while(0)
+#define vrmr_debug(lvl, ...)                                                   \
+    do {                                                                       \
+        if (vrmr_debug_level >= (lvl)) {                                       \
+            char _vrmr_msg[2048];                                              \
+            char _vrmr_loc[512];                                               \
+                                                                               \
+            snprintf(_vrmr_msg, 2048, __VA_ARGS__);                            \
+            snprintf(_vrmr_loc, sizeof(_vrmr_loc), "[%s:%d:%s]", __FILE__,     \
+                    __LINE__, __func__);                                       \
+            (void)vrprint.debug(_vrmr_loc, _vrmr_msg);                         \
+        }                                                                      \
+    } while (0)
 
 /* configuration */
 struct vrmr_config {
     /* etcdir */
-    char            etcdir[256];
+    char etcdir[256];
     /* datadir */
-    char            datadir[256];
+    char datadir[256];
     /* libdir */
-    char            plugdir[256];
+    char plugdir[256];
     /* configfile */
-    char            configfile[256];
+    char configfile[256];
 
     /* program locations */
-    char            sysctl_location[128];
-    char            iptables_location[128];
-    char            iptablesrestore_location[128];
+    char sysctl_location[128];
+    char iptables_location[128];
+    char iptablesrestore_location[128];
 
-    char            ip6tables_location[128];
-    char            ip6tablesrestore_location[128];
+    char ip6tables_location[128];
+    char ip6tablesrestore_location[128];
     /** Fail when there is an error with IPv6 configuration, when set to TRUE */
-    char            check_ipv6;
+    char check_ipv6;
 
-    char            conntrack_location[128];
-    char            tc_location[128];
+    char conntrack_location[128];
+    char tc_location[128];
 
-    char            blocklist_location[64];
-    char            log_blocklist;
+    char blocklist_location[64];
+    char log_blocklist;
 
-    char            rules_location[64];
+    char rules_location[64];
 
-    char            rule_nflog;
-    char            nfgrp;
+    char rule_nflog;
+    char nfgrp;
 
     /* logfile locations */
-    char            vuurmuur_logdir_location[64];
+    char vuurmuur_logdir_location[64];
 
-    char            debuglog_location[VRMR_LOG_PATH_SIZE];
-    char            vuurmuurlog_location[VRMR_LOG_PATH_SIZE];
-    char            auditlog_location[VRMR_LOG_PATH_SIZE];
-    char            errorlog_location[VRMR_LOG_PATH_SIZE];
-    char            trafficlog_location[VRMR_LOG_PATH_SIZE];
-    char            connnewlog_location[VRMR_LOG_PATH_SIZE];
-    char            connlog_location[VRMR_LOG_PATH_SIZE];
+    char debuglog_location[VRMR_LOG_PATH_SIZE];
+    char vuurmuurlog_location[VRMR_LOG_PATH_SIZE];
+    char auditlog_location[VRMR_LOG_PATH_SIZE];
+    char errorlog_location[VRMR_LOG_PATH_SIZE];
+    char trafficlog_location[VRMR_LOG_PATH_SIZE];
+    char connnewlog_location[VRMR_LOG_PATH_SIZE];
+    char connlog_location[VRMR_LOG_PATH_SIZE];
 
-    char            systemlog_location[64]; /* location to the log where syslog puts the iptables messages */
+    char systemlog_location[64]; /* location to the log where syslog puts the
+                                    iptables messages */
 
-    char            loglevel_cmdline;       /* was the loglevel set by the command line? 0: no, 1: yes */
-    char            loglevel[8];            /* 'warning' is the maximum */
+    char loglevel_cmdline; /* was the loglevel set by the command line? 0: no,
+                              1: yes */
+    char loglevel[8];      /* 'warning' is the maximum */
 
     /* backend */
-    char            serv_backend_name[32];
-    char            zone_backend_name[32];
-    char            ifac_backend_name[32];
-    char            rule_backend_name[32];
+    char serv_backend_name[32];
+    char zone_backend_name[32];
+    char ifac_backend_name[32];
+    char rule_backend_name[32];
 
     /* synflood protection */
-    char            use_syn_limit;
-    unsigned int    syn_limit;          /* the maximum number of SYN packets per second. */
-    unsigned int    syn_limit_burst;    /* burst limit */
+    char use_syn_limit;
+    unsigned int syn_limit; /* the maximum number of SYN packets per second. */
+    unsigned int syn_limit_burst; /* burst limit */
 
     /* udpflood protection */
-    char            use_udp_limit;
-    unsigned int    udp_limit;          /* the maximum number new udp connections per second */
-    unsigned int    udp_limit_burst;    /* burst limit */
+    char use_udp_limit;
+    unsigned int
+            udp_limit; /* the maximum number new udp connections per second */
+    unsigned int udp_limit_burst; /* burst limit */
 
-    char            protect_syncookie;
-    char            protect_echobroadcast;
+    char protect_syncookie;
+    char protect_echobroadcast;
 
     /* policy */
-    char            log_policy;
-    unsigned int    log_policy_limit;
-    unsigned int    log_policy_burst;
+    char log_policy;
+    unsigned int log_policy_limit;
+    unsigned int log_policy_burst;
 
-    char            log_tcp_options;    /* log tcp options for PSAD */
+    char log_tcp_options; /* log tcp options for PSAD */
 
-    char            log_invalid;        /* log invalid */
-    char            log_no_syn;         /* log no syn */
-    char            log_probes;         /* log probes */
-    char            log_frag;           /* log frag */
+    char log_invalid; /* log invalid */
+    char log_no_syn;  /* log no syn */
+    char log_probes;  /* log probes */
+    char log_frag;    /* log frag */
 
+    char dynamic_changes_check; /* 0: off, 1: on: check for changed ip's on
+                                   dynamic interfaces */
+    unsigned int dynamic_changes_interval; /* check every x seconds for changes
+                                              in the dynamic interfaces */
 
-    char            dynamic_changes_check;  /* 0: off, 1: on: check for changed ip's on dynamic interfaces */
-    unsigned int    dynamic_changes_interval;   /* check every x seconds for changes in the dynamic interfaces */
+    char old_rulecreation_method; /* 0: off, 1: on: if on we use iptables else
+                                     iptables-restore */
 
-    char            old_rulecreation_method;    /* 0: off, 1: on: if on we use iptables else iptables-restore */
+    char load_modules;              /* load modules if needed? 1: yes, 0: no */
+    unsigned int modules_wait_time; /* time to wait in 1/10 th of a second */
 
-    char            load_modules;           /* load modules if needed? 1: yes, 0: no */
-    unsigned int    modules_wait_time;      /* time to wait in 1/10 th of a second */
+    char modprobe_location[128]; /* location of the 'modprobe' command */
 
-    char            modprobe_location[128]; /* location of the 'modprobe' command */
-
-
-    char            vrmr_check_iptcaps;          /* 0: no, 1: yes */
+    char vrmr_check_iptcaps; /* 0: no, 1: yes */
 
     /* run-time options */
-    char            bash_out;
-    char            verbose_out;
-    char            test_mode;
-
+    char bash_out;
+    char verbose_out;
+    char test_mode;
 
     /* this is detected at runtime */
-    char            use_ipconntrack;
+    char use_ipconntrack;
 
-	/* Maximum permissions for files and directories used by vuurmuur
-	   (config & log files). This should include x bits, which are
-	   filtered out for files. */
-	mode_t          max_permission;
+    /* Maximum permissions for files and directories used by vuurmuur
+       (config & log files). This should include x bits, which are
+       filtered out for files. */
+    mode_t max_permission;
 
     /* conntrack options */
-    char            invalid_drop_enabled;
+    char invalid_drop_enabled;
 };
 
 /* DATA STRUCTURES */
 struct vrmr_interfaces {
     /* the list with interfaces */
-    struct vrmr_list      list;
+    struct vrmr_list list;
 
     /* is at least one of the interfaces active? */
-    char        active_interfaces;
+    char active_interfaces;
 
     /* is at least one of the interfaces dynamic? */
-    char        dynamic_interfaces;
+    char dynamic_interfaces;
 
-    uint16_t   shape_handle;
+    uint16_t shape_handle;
 };
 
 struct vrmr_services {
     /* the list with services */
-    struct vrmr_list  list;
+    struct vrmr_list list;
 };
 
 struct vrmr_zones {
     /* the list with zones */
-    struct vrmr_list  list;
+    struct vrmr_list list;
 };
 
 struct vrmr_rules {
     /* the list with rules */
-    struct vrmr_list  list;
+    struct vrmr_list list;
 
-    char    old_rulesfile_used;
+    char old_rulesfile_used;
 
     /* list of chain names that are defined by the rules */
-    struct vrmr_list  custom_chain_list;
+    struct vrmr_list custom_chain_list;
     /* list of chains currently in the system */
-    struct vrmr_list  system_chain_filter;
-    struct vrmr_list  system_chain_mangle;
-    struct vrmr_list  system_chain_nat;
-    struct vrmr_list  system_chain_raw;
+    struct vrmr_list system_chain_filter;
+    struct vrmr_list system_chain_mangle;
+    struct vrmr_list system_chain_nat;
+    struct vrmr_list system_chain_raw;
 };
 
 struct vrmr_blocklist {
@@ -573,89 +591,89 @@ struct vrmr_blocklist {
     struct vrmr_list list;
 
     char old_blocklistfile_used;
-
 };
 
 struct vrmr_ipv4_data {
-    char ipaddress[16];            //16 should be enough for an ipaddress.
+    char ipaddress[16]; // 16 should be enough for an ipaddress.
     char network[16];
     char netmask[16];
-    char broadcast[16];            //16 should be enough for a netmask
+    char broadcast[16]; // 16 should be enough for a netmask
 };
 
 struct vrmr_ipv6_data {
-    char ip6[VRMR_MAX_IPV6_ADDR_LEN];    /* host ip-address */
-    char net6[VRMR_MAX_IPV6_ADDR_LEN];   /* network address string */
-    int cidr6;                      /* CIDR: -1 unitialized, 0-128 are valid masks */
+    char ip6[VRMR_MAX_IPV6_ADDR_LEN];  /* host ip-address */
+    char net6[VRMR_MAX_IPV6_ADDR_LEN]; /* network address string */
+    int cidr6; /* CIDR: -1 unitialized, 0-128 are valid masks */
 };
 
 /* rule options */
 struct vrmr_rule_options {
-    char            rule_log;       /* 0 = don't log rule, 1 = log this rule */
+    char rule_log; /* 0 = don't log rule, 1 = log this rule */
 
-    char            logprefix[32];  /* 29 is max of iptables, we use 32: 29 iptables, 2 trema's and a '\0'. */
-    char            rule_logprefix; /* 0 = don't use logprefix, 1 = use logprefix */
+    char logprefix[32];  /* 29 is max of iptables, we use 32: 29 iptables, 2
+                            trema's and a '\0'. */
+    char rule_logprefix; /* 0 = don't use logprefix, 1 = use logprefix */
 
-    unsigned int    loglimit;       /* 0 = no limit, > 0 = use limit and the value */
-    unsigned int    logburst;       /* burst value */
+    unsigned int loglimit; /* 0 = no limit, > 0 = use limit and the value */
+    unsigned int logburst; /* burst value */
 
-    char            comment[128];
-    char            rule_comment;   /* 0 = rule has no comment, 1 = rule has a comment */
+    char comment[128];
+    char rule_comment; /* 0 = rule has no comment, 1 = rule has a comment */
 
     /* Port forwarding */
-    char            remoteport;     /* 0 = don't use remoteport, 1 = use remote port */
+    char remoteport; /* 0 = don't use remoteport, 1 = use remote port */
     struct vrmr_list RemoteportList;
 
-    char            listenport;
+    char listenport;
     struct vrmr_list ListenportList;
 
     /* redirect */
-    int             redirectport;
+    int redirectport;
 
     /* portfw and redirect: create only a firewall rule for this interface. */
-    char            in_int[VRMR_MAX_INTERFACE];
+    char in_int[VRMR_MAX_INTERFACE];
     /* snat: select an outgoing interface */
-    char            out_int[VRMR_MAX_INTERFACE];
+    char out_int[VRMR_MAX_INTERFACE];
     /* bounce: via interface */
-    char            via_int[VRMR_MAX_INTERFACE];
+    char via_int[VRMR_MAX_INTERFACE];
 
     /* reject */
-    char            reject_option;      /* 0 = don't use reject_type, 1 = use reject_type */
-    char            reject_type[23];    /* icmp-proto-unreachable = 22 + 1 */
+    char reject_option;   /* 0 = don't use reject_type, 1 = use reject_type */
+    char reject_type[23]; /* icmp-proto-unreachable = 22 + 1 */
 
-    unsigned long   nfmark;             /* netfilter mark to set */
+    unsigned long nfmark; /* netfilter mark to set */
 
     /* custom chain, for use with the chain action */
-    char            chain[32];
+    char chain[32];
 
     /* limit for this rule */
-    unsigned int    limit;
-    char            limit_unit[5];      /* sec, min, hour, day */
-    unsigned int    burst;
+    unsigned int limit;
+    char limit_unit[5]; /* sec, min, hour, day */
+    unsigned int burst;
 
     /* queue num for the NFQUEUE action. There can be 65536: 0-65535 */
-    uint16_t        nfqueue_num;
+    uint16_t nfqueue_num;
     /* queue num for the NFLOG action. There can be 65536: 0-65535 */
-    uint16_t        nflog_num;
+    uint16_t nflog_num;
 
     /* shaping */
-    uint32_t        bw_in_max;          /* ceil from dst to src */
-    char            bw_in_max_unit[5];  /* kbit, mbit, kbps, mbps */
-    uint32_t        bw_in_min;          /* rate from dst to src */
-    char            bw_in_min_unit[5];  /* kbit, mbit, kbps, mbps */
-    uint32_t        bw_out_max;         /* ceil from src to dst */
-    char            bw_out_max_unit[5]; /* kbit, mbit, kbps, mbps */
-    uint32_t        bw_out_min;         /* rate from src to dst */
-    char            bw_out_min_unit[5]; /* kbit, mbit, kbps, mbps */
-    uint8_t         prio;               /* priority */
+    uint32_t bw_in_max;      /* ceil from dst to src */
+    char bw_in_max_unit[5];  /* kbit, mbit, kbps, mbps */
+    uint32_t bw_in_min;      /* rate from dst to src */
+    char bw_in_min_unit[5];  /* kbit, mbit, kbps, mbps */
+    uint32_t bw_out_max;     /* ceil from src to dst */
+    char bw_out_max_unit[5]; /* kbit, mbit, kbps, mbps */
+    uint32_t bw_out_min;     /* rate from src to dst */
+    char bw_out_min_unit[5]; /* kbit, mbit, kbps, mbps */
+    uint8_t prio;            /* priority */
 
-    char            random; /* adds --random to the DNAT/SNAT/??? target */
+    char random; /* adds --random to the DNAT/SNAT/??? target */
 };
 
 struct vrmr_danger_info {
-    int solution;                 // 1 = iptables, 2 = change proc
+    int solution; // 1 = iptables, 2 = change proc
 
-    char proc_entry[VRMR_MAX_PROC_ENTRY_LENGHT];          // line with the proc dir
+    char proc_entry[VRMR_MAX_PROC_ENTRY_LENGHT]; // line with the proc dir
     int proc_set_on;
     int proc_set_off;
 
@@ -666,47 +684,47 @@ struct vrmr_danger_info {
 };
 
 struct vrmr_interface_counters {
-    unsigned long long  input_packets;
-    unsigned long long  input_bytes;
+    unsigned long long input_packets;
+    unsigned long long input_bytes;
 
-    unsigned long long  output_packets;
-    unsigned long long  output_bytes;
+    unsigned long long output_packets;
+    unsigned long long output_bytes;
 
-    unsigned long long  forwardin_packets;
-    unsigned long long  forwardin_bytes;
+    unsigned long long forwardin_packets;
+    unsigned long long forwardin_bytes;
 
-    unsigned long long  forwardout_packets;
-    unsigned long long  forwardout_bytes;
+    unsigned long long forwardout_packets;
+    unsigned long long forwardout_bytes;
 
     /* for the accounting rules for IPTrafVol */
-    unsigned long long  acc_in_packets;
-    unsigned long long  acc_in_bytes;
-    unsigned long long  acc_out_packets;
-    unsigned long long  acc_out_bytes;
+    unsigned long long acc_in_packets;
+    unsigned long long acc_in_bytes;
+    unsigned long long acc_out_packets;
+    unsigned long long acc_out_bytes;
 };
 
 struct vrmr_interface {
     /* this should always be on top */
-    int             type;
+    int type;
 
-    char            name[VRMR_MAX_INTERFACE];
+    char name[VRMR_MAX_INTERFACE];
 
-    char            active;
-    int             status;
+    char active;
+    int status;
 
     /* is the interface up? 0: no, 1: yes */
-    char            up;
+    char up;
 
     /* the system device */
-    char            device[16];
+    char device[16];
 
     /*  is the device virtual?
         0: no
         1: yes
     */
-    char            device_virtual;
+    char device_virtual;
     /* old style (eth0:0) */
-    char            device_virtual_oldstyle;
+    char device_virtual_oldstyle;
 
     /* the ipaddress */
     struct vrmr_ipv4_data ipv4;
@@ -716,7 +734,7 @@ struct vrmr_interface {
         0: no
         1: yes
     */
-    char            dynamic;
+    char dynamic;
 
     /* protect rules for the interface */
     struct vrmr_list ProtectList;
@@ -725,101 +743,102 @@ struct vrmr_interface {
     struct vrmr_interface_counters *cnt;
 
     /* reference counters */
-    unsigned int    refcnt_network;
+    unsigned int refcnt_network;
 
     /* traffic shaping */
-    char            shape;              /* shape on this interface? 1: yes, 0: no */
-    uint32_t        bw_in;              /* maximal bw in "unit" (download) */
-    uint32_t        bw_out;             /* maximal bw in "unit" (upload) */
-    char            bw_in_unit[5];      /* kbit or mbit */
-    char            bw_out_unit[5];     /* kbit or mbit */
-    uint32_t        min_bw_in;          /* minimal per rule rate in kbits (download) */
-    uint32_t        min_bw_out;         /* minimal per rule rate in kbits (upload) */
+    char shape;          /* shape on this interface? 1: yes, 0: no */
+    uint32_t bw_in;      /* maximal bw in "unit" (download) */
+    uint32_t bw_out;     /* maximal bw in "unit" (upload) */
+    char bw_in_unit[5];  /* kbit or mbit */
+    char bw_out_unit[5]; /* kbit or mbit */
+    uint32_t min_bw_in;  /* minimal per rule rate in kbits (download) */
+    uint32_t min_bw_out; /* minimal per rule rate in kbits (upload) */
 
-    uint16_t        shape_handle;       /* tc handle */
-    uint32_t        shape_default_rate; /* rate used by default rule and shaping rules
-                                         * w/o an explicit rate */
+    uint16_t shape_handle;       /* tc handle */
+    uint32_t shape_default_rate; /* rate used by default rule and shaping rules
+                                  * w/o an explicit rate */
 
-    uint32_t        total_shape_rate;
-    uint32_t        total_shape_rules;
-    uint32_t        total_default_shape_rules;
+    uint32_t total_shape_rate;
+    uint32_t total_shape_rules;
+    uint32_t total_default_shape_rules;
 
     /* tcpmss clamping */
-    char            tcpmss_clamp;
+    char tcpmss_clamp;
 };
 
 /* this is our structure for the zone data */
 struct vrmr_zone {
-    int                 type;   /* this should always be on top */
+    int type; /* this should always be on top */
 
     /* basic vars */
-    char                name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char name[VRMR_VRMR_MAX_HOST_NET_ZONE];
 
-    char                active; // 0 no, 1 yes
-    int                 status;
+    char active; // 0 no, 1 yes
+    int status;
 
     /* group stuff */
-    unsigned int        group_member_count;
-    struct vrmr_list              GroupList;
+    unsigned int group_member_count;
+    struct vrmr_list GroupList;
 
     /* for names */
-    char                host_name[VRMR_MAX_HOST];
-    char                network_name[VRMR_MAX_NETWORK];
-    char                broadcast_name[VRMR_MAX_NET_ZONE]; /* network.zone(broadcast) */
-    char                zone_name[VRMR_MAX_ZONE];
+    char host_name[VRMR_MAX_HOST];
+    char network_name[VRMR_MAX_NETWORK];
+    char broadcast_name[VRMR_MAX_NET_ZONE]; /* network.zone(broadcast) */
+    char zone_name[VRMR_MAX_ZONE];
 
     /* pointers to parent zone and network (NULL if zone/network) */
-    struct vrmr_zone    *zone_parent;
-    struct vrmr_zone    *network_parent;
+    struct vrmr_zone *zone_parent;
+    struct vrmr_zone *network_parent;
 
     struct vrmr_ipv4_data ipv4;
     struct vrmr_ipv6_data ipv6;
 
     /* TODO: 18 is enough: 00:20:1b:10:1D:0F = 17 + '\0' = 18. */
-    char                mac[19];
-    int                 has_mac;
+    char mac[19];
+    int has_mac;
 
     /* the list with interfaces: for networks */
-    int                 active_interfaces;
-    struct vrmr_list    InterfaceList;
+    int active_interfaces;
+    struct vrmr_list InterfaceList;
 
     /* protect rules for the network */
-    struct vrmr_list    ProtectList;
+    struct vrmr_list ProtectList;
 
     /* reference counters */
-    unsigned int        refcnt_group;
-    unsigned int        refcnt_rule;
-    unsigned int        refcnt_blocklist;
+    unsigned int refcnt_group;
+    unsigned int refcnt_rule;
+    unsigned int refcnt_blocklist;
 };
 
 /*
     this is our structure for the services data
 */
 struct vrmr_service {
-    int     type;               /* this should always be on top */
+    int type; /* this should always be on top */
 
-    char    name[VRMR_MAX_SERVICE];
+    char name[VRMR_MAX_SERVICE];
 
-    char    active;                    // 0 no, 1 yes
-    int     status;                    // 0 = not touched, -1 = remove, 1 = keep unchanged, 2 = changed, 3 = new
+    char active; // 0 no, 1 yes
+    int status;  // 0 = not touched, -1 = remove, 1 = keep unchanged, 2 =
+                 // changed, 3 = new
 
-    char    helper[32];
+    char helper[32];
 
-    int     vrmr_hash_port;
+    int vrmr_hash_port;
 
     struct vrmr_list PortrangeList;
 
-    char    broadcast;          /* 1: broadcasting service, 0: not */
+    char broadcast; /* 1: broadcasting service, 0: not */
 };
 
 struct vrmr_rules_chaincount {
-    int input;              /* number of input rules for this rule */
+    int input; /* number of input rules for this rule */
     int output;
     int forward;
     int preroute;
     int postroute;
 
-    int start_input;        /* where to insert this rule */
+    int start_input; /* where to insert this rule */
     int start_output;
     int start_forward;
     int start_preroute;
@@ -828,93 +847,98 @@ struct vrmr_rules_chaincount {
 
 /* here we assemble the data for creating the actual rule */
 struct vrmr_rule_cache {
-    char                active;
+    char active;
 
-    char                from_firewall;      /* from network is: 0 a network, 1 a firewall */
-    char                from_firewall_any;  /* firewall(any) */
+    char from_firewall;     /* from network is: 0 a network, 1 a firewall */
+    char from_firewall_any; /* firewall(any) */
 
-    char                to_firewall;        /* to   network is: 0 a network, 1 a firewall */
-    char                to_firewall_any;    /* firewall(any) */
+    char to_firewall;     /* to   network is: 0 a network, 1 a firewall */
+    char to_firewall_any; /* firewall(any) */
 
-    char                from_any;           /* from is 'any' */
-    char                to_any;             /* to is 'any' */
-    char                to_broadcast;
-    char                service_any;        /* service is 'any' */
+    char from_any; /* from is 'any' */
+    char to_any;   /* to is 'any' */
+    char to_broadcast;
+    char service_any; /* service is 'any' */
 
-    struct vrmr_zone            *from;              /* from data */
-    struct vrmr_zone            *to;                /* to data */
+    struct vrmr_zone *from; /* from data */
+    struct vrmr_zone *to;   /* to data */
 
-    struct vrmr_zone            *who;               /* for protect */
-    struct vrmr_interface       *who_int;           /* for protect */
+    struct vrmr_zone *who;          /* for protect */
+    struct vrmr_interface *who_int; /* for protect */
 
-    struct vrmr_interface       *via_int;           /* for bounce rules */
+    struct vrmr_interface *via_int; /* for bounce rules */
 
-    struct vrmr_rules_chaincount iptcount;           /* the counters */
+    struct vrmr_rules_chaincount iptcount; /* the counters */
 
-    char                action[128];        /* max: REJECT --reject-with icmp-proto-unreachable (42)
-                                                LOG --log-prefix 12345678901234567890123456789 (45)
-                                                LOG --log-ip-options --log-tcp-options --log-tcp-sequence --log-level 123 --log-prefix 12345678901234567890123456789 (116)
-                                                LOG --log-ip-options --log-tcp-options --log-tcp-sequence --log-level warning --log-prefix 12345678901234567890123456789 (121)
-                                                */
+    char action[128]; /* max: REJECT --reject-with icmp-proto-unreachable (42)
+                          LOG --log-prefix 12345678901234567890123456789 (45)
+                          LOG --log-ip-options --log-tcp-options
+                         --log-tcp-sequence --log-level 123 --log-prefix
+                         12345678901234567890123456789 (116) LOG
+                         --log-ip-options --log-tcp-options --log-tcp-sequence
+                         --log-level warning --log-prefix
+                         12345678901234567890123456789 (121)
+                          */
 
-    int                 ruletype;           /* type of rule: input, output, forward, masq etc. */
-    int                 ruleaction;         /* type of action: append, insert */
+    int ruletype;   /* type of rule: input, output, forward, masq etc. */
+    int ruleaction; /* type of action: append, insert */
 
     struct vrmr_danger_info danger;
 
-    struct vrmr_service *service;           /* pointer to the service in the services-linked-list */
+    struct vrmr_service
+            *service; /* pointer to the service in the services-linked-list */
 
     struct vrmr_rule_options option;
 
-    char                *description;       /* only used for bash_out, and maybe later for vuurmuur-conf */
+    char *description; /* only used for bash_out, and maybe later for
+                          vuurmuur-conf */
 };
 
 struct vrmr_rule {
-    int                 type;       /* this should always be on top */
+    int type; /* this should always be on top */
 
-    char                error;
+    char error;
 
-    char                active;     /* is the rule active? */
+    char active; /* is the rule active? */
 
-    int                 action;     /* the action of the rule */
+    int action; /* the action of the rule */
 
-    unsigned int        number;
-    int                 status;
+    unsigned int number;
+    int status;
 
     /* normal rules */
-    char                service[VRMR_MAX_SERVICE];
-    char                from[VRMR_VRMR_MAX_HOST_NET_ZONE];
-    char                to[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char service[VRMR_MAX_SERVICE];
+    char from[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char to[VRMR_VRMR_MAX_HOST_NET_ZONE];
 
     /* protect rules */
-    char                who[VRMR_VRMR_MAX_HOST_NET_ZONE];
-    char                danger[64];
-//TODO size right?
-    char                source[32];
+    char who[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char danger[64];
+    // TODO size right?
+    char source[32];
 
     struct vrmr_rule_options *opt;
 
     struct vrmr_rule_cache rulecache;
 
-    char                filtered;       /* used by vuurmuur_conf */
+    char filtered; /* used by vuurmuur_conf */
 };
 
 struct vrmr_filter {
-    char        str[32];
+    char str[32];
 
     /* are we matching the string or only _not_
        the string? */
-    char        neg;
+    char neg;
 
-    char        reg_active;
-    regex_t     reg;
-
+    char reg_active;
+    regex_t reg;
 };
 
-
 /* connection status from conntrack */
-enum vrmr_tcp_states {
-    VRMR_STATE_UNDEFINED=0,
+enum vrmr_tcp_states
+{
+    VRMR_STATE_UNDEFINED = 0,
     VRMR_STATE_TCP_ESTABLISHED,
     VRMR_STATE_UDP_ESTABLISHED,
     VRMR_STATE_SYN_SENT,
@@ -931,7 +955,7 @@ enum vrmr_tcp_states {
 /* simplified connection status in vuurmuur */
 enum
 {
-    VRMR_CONN_UNUSED=0,
+    VRMR_CONN_UNUSED = 0,
     VRMR_CONN_CONNECTING,
     VRMR_CONN_CONNECTED,
     VRMR_CONN_DISCONNECTING,
@@ -941,53 +965,53 @@ enum
 };
 
 struct vrmr_conntrack_entry {
-    int                     protocol;
-    int                     ipv6;
+    int protocol;
+    int ipv6;
 
     /*  the service
 
         sername is a pointer to service->name unless service is NULL
     */
-    char                    *sername;
-    struct vrmr_service     *service;
+    char *sername;
+    struct vrmr_service *service;
 
     /*  this is for hashing the service. It is also supplied in
         struct vrmr_service, but we need it also for undefined
         services, so we suppy it here. We only hash on protocol and
         dst_port, because the src_port is almost always different.
     */
-    int                     dst_port;
+    int dst_port;
 
     /* src port is not needed for anything, we only use it for detailed info
        in the connection section from Vuurmuur_conf */
-    int                     src_port;
+    int src_port;
 
     /* from/source */
-    char                    *fromname;
-    struct vrmr_zone        *from;
-    char                    src_ip[46];
+    char *fromname;
+    struct vrmr_zone *from;
+    char src_ip[46];
 
     /* to/destination */
-    char                    *toname;
-    struct vrmr_zone        *to;
-    char                    dst_ip[46];
-    char                    orig_dst_ip[46]; /* ip before nat correction */
+    char *toname;
+    struct vrmr_zone *to;
+    char dst_ip[46];
+    char orig_dst_ip[46]; /* ip before nat correction */
 
     /* counter */
-    int                     cnt;
+    int cnt;
 
-    struct vrmr_list_node   *d_node;
+    struct vrmr_list_node *d_node;
 
     /* connection status - 0 for unused */
-    int                     connect_status;
+    int connect_status;
     /* do we use connect_status */
-    int                     direction_status;
+    int direction_status;
 
-    char                    use_acc;
-    unsigned long long      to_src_packets;
-    unsigned long long      to_src_bytes;
-    unsigned long long      to_dst_packets;
-    unsigned long long      to_dst_bytes;
+    char use_acc;
+    unsigned long long to_src_packets;
+    unsigned long long to_src_bytes;
+    unsigned long long to_dst_packets;
+    unsigned long long to_dst_bytes;
 };
 
 struct vrmr_conntrack_stats {
@@ -1018,119 +1042,122 @@ struct vrmr_conntrack_stats {
 
 struct vrmr_conntrack_request {
     struct vrmr_filter filter;
-    char        use_filter;
+    char use_filter;
 
-    char        group_conns;
-    char        unknown_ip_as_net;
+    char group_conns;
+    char unknown_ip_as_net;
 
     /* sorting, relevant for grouping */
-    char        sort_in_out_fwd;
-    char        sort_conn_status;
+    char sort_in_out_fwd;
+    char sort_conn_status;
 
-    char        draw_acc_data;
-    char        draw_details;
-    char        ipv6;
+    char draw_acc_data;
+    char draw_details;
+    char ipv6;
 };
 
 /*
     Iptables Capabilities
 */
 struct vrmr_iptcaps {
-    char    proc_net_names;
-    char    proc_net_matches;
-    char    proc_net_targets;
+    char proc_net_names;
+    char proc_net_matches;
+    char proc_net_targets;
 
-    char    conntrack;
+    char conntrack;
 
     /* names */
-    char    table_filter;
-    char    table_mangle;
-    char    table_nat;
-    char    table_raw;
+    char table_filter;
+    char table_mangle;
+    char table_nat;
+    char table_raw;
 
     /* targets */
-    char    target_snat;
-    char    target_dnat;
+    char target_snat;
+    char target_dnat;
 
-    char    target_reject;
-    char    target_log;
-    char    target_nflog;
-    char    target_redirect;
-    char    target_mark;
-    char    target_masquerade;
-    char    target_classify;
+    char target_reject;
+    char target_log;
+    char target_nflog;
+    char target_redirect;
+    char target_mark;
+    char target_masquerade;
+    char target_classify;
 
-    char    target_nfqueue;
-    char    target_connmark;
-    char    proc_net_netfilter_nfnetlink_queue;
+    char target_nfqueue;
+    char target_connmark;
+    char proc_net_netfilter_nfnetlink_queue;
 
-    char    target_tcpmss;
+    char target_tcpmss;
 
     /* matches */
-    char    match_tcp;
-    char    match_udp;
-    char    match_icmp;
+    char match_tcp;
+    char match_udp;
+    char match_icmp;
 
-    char    match_mark;
-    char    match_state;
-    char    match_helper;
-    char    match_length;
-    char    match_limit;
-    char    match_mac;
-    char    match_connmark;
-    char    match_conntrack;
-    char    match_rpfilter;
+    char match_mark;
+    char match_state;
+    char match_helper;
+    char match_length;
+    char match_limit;
+    char match_mac;
+    char match_connmark;
+    char match_conntrack;
+    char match_rpfilter;
 
-    char    target_nat_random;
+    char target_nat_random;
 
     /* IPv6 */
-    char    proc_net_ip6_names;
-    char    proc_net_ip6_matches;
-    char    proc_net_ip6_targets;
+    char proc_net_ip6_names;
+    char proc_net_ip6_matches;
+    char proc_net_ip6_targets;
 
     /* char conntrack; */
 
     /* IPv6 names */
-    char    table_ip6_filter;
-    char    table_ip6_mangle;
+    char table_ip6_filter;
+    char table_ip6_mangle;
     /* there is no NAT table available for IPv6 */
-    char    table_ip6_raw;
+    char table_ip6_raw;
 
     /* IPv6 targets */
     /* No snat, dnat, redirect or masquerade available for IPv6 */
-    char    target_ip6_reject;
-    char    target_ip6_log;
-    char    target_ip6_mark;
-    char    target_ip6_classify;
+    char target_ip6_reject;
+    char target_ip6_log;
+    char target_ip6_mark;
+    char target_ip6_classify;
 
-    char    target_ip6_nfqueue;
-    char    target_ip6_connmark;
-    char    proc_net_netfilter_nfnetlink_ip6_queue;
+    char target_ip6_nfqueue;
+    char target_ip6_connmark;
+    char proc_net_netfilter_nfnetlink_ip6_queue;
 
-    char    target_ip6_tcpmss;
+    char target_ip6_tcpmss;
 
     /* IPv6 matches */
-    char    match_ip6_tcp;
-    char    match_ip6_udp;
-    char    match_icmp6;
+    char match_ip6_tcp;
+    char match_ip6_udp;
+    char match_icmp6;
 
-    char    match_ip6_mark;
-    char    match_ip6_state;
-    char    match_ip6_helper;
-    char    match_ip6_length;
-    char    match_ip6_limit;
-    char    match_ip6_mac;
+    char match_ip6_mark;
+    char match_ip6_state;
+    char match_ip6_helper;
+    char match_ip6_length;
+    char match_ip6_limit;
+    char match_ip6_mac;
 
-    char    match_ip6_connmark;
-    char    match_ip6_conntrack;
-    char    match_ip6_rpfilter;
+    char match_ip6_connmark;
+    char match_ip6_conntrack;
+    char match_ip6_rpfilter;
 };
 
-/*  These functions are to be used for modifing the backend, reading from it, etc. */
+/*  These functions are to be used for modifing the backend, reading from it,
+ * etc. */
 struct vrmr_plugin_data {
     /* asking from and telling to the backend */
-    int (*ask)(void *backend, char *name, char *question, char *answer, size_t max_answer, int type, int multi);
-    int (*tell)(void *backend, char *name, char *question, char *answer, int overwrite, int type);
+    int (*ask)(void *backend, char *name, char *question, char *answer,
+            size_t max_answer, int type, int multi);
+    int (*tell)(void *backend, char *name, char *question, char *answer,
+            int overwrite, int type);
 
     /* opening and closing the backend */
     int (*open)(void *backend, int mode, int type);
@@ -1162,24 +1189,24 @@ struct vrmr_plugin_data {
 };
 
 struct vrmr_plugin {
-    char                        name[32];
-    int                         ref_cnt;
+    char name[32];
+    int ref_cnt;
 
-    struct vrmr_plugin_data     *f;
+    struct vrmr_plugin_data *f;
 
     /* version */
-    char                        *version;
+    char *version;
 };
 
 struct vrmr_user {
-    uid_t   user;
-    char    username[32];
+    uid_t user;
+    char username[32];
 
-    gid_t   group;
-    char    groupname[32];
+    gid_t group;
+    char groupname[32];
 
-    uid_t   realuser;
-    char    realusername[32];
+    uid_t realuser;
+    char realusername[32];
 };
 
 struct vrmr_ctx {
@@ -1194,19 +1221,20 @@ struct vrmr_ctx {
     struct vrmr_user user_data;
 
     struct vrmr_plugin_data *zf;
-    /*@null@*/void *zone_backend;
+    /*@null@*/ void *zone_backend;
 
     struct vrmr_plugin_data *sf;
-    /*@null@*/void *serv_backend;
+    /*@null@*/ void *serv_backend;
 
     struct vrmr_plugin_data *af;
-    /*@null@*/void *ifac_backend;
+    /*@null@*/ void *ifac_backend;
 
     struct vrmr_plugin_data *rf;
-    /*@null@*/void *rule_backend;
+    /*@null@*/ void *rule_backend;
 };
 
-enum vrmr_objectstatus {
+enum vrmr_objectstatus
+{
     VRMR_ST_REMOVED = -1,
     VRMR_ST_UNTOUCHED,
     VRMR_ST_KEEP,
@@ -1216,9 +1244,9 @@ enum vrmr_objectstatus {
     VRMR_ST_DEACTIVATED
 };
 
-
 /* a value like: 'dnsserver.dmz.internet' can be a: */
-enum vrmr_objecttypes {
+enum vrmr_objecttypes
+{
     VRMR_TYPE_ERROR = -1,
     VRMR_TYPE_UNSET = 0,
 
@@ -1235,18 +1263,18 @@ enum vrmr_objecttypes {
     VRMR_TYPE_TOO_BIG
 };
 
-
 /* protect rule types */
-enum vrmr_protecttypes {
+enum vrmr_protecttypes
+{
     VRMR_PROT_NO_PROT = 0,
     VRMR_PROT_IPTABLES,
     VRMR_PROT_PROC_SYS,
     VRMR_PROT_PROC_INT
 };
 
-
 /* normal rule types */
-enum vrmr_ruletype {
+enum vrmr_ruletype
+{
     VRMR_RT_ERROR = -1,
     VRMR_RT_NOTSET = 0,
     VRMR_RT_INPUT,
@@ -1260,18 +1288,18 @@ enum vrmr_ruletype {
     VRMR_RT_BOUNCE,
 };
 
-
 /* general datatypes */
-enum vrmr_backend_types {
+enum vrmr_backend_types
+{
     VRMR_BT_ZONES,
     VRMR_BT_SERVICES,
     VRMR_BT_INTERFACES,
     VRMR_BT_RULES
 };
 
-
 /* posible results for initializing the config */
-enum vrmr_conf_return_codes {
+enum vrmr_conf_return_codes
+{
     VRMR_CNF_E_UNKNOWN_ERR = -6,
 
     /* function was called wrong */
@@ -1300,26 +1328,26 @@ enum vrmr_conf_return_codes {
 
 };
 
-
 /*  Valid actions are: "Accept", "Drop", "Reject", "Log",
     "Portfw", "Redirect", "Snat", "Masq", "Chain",
     "NFQueue", "NFlog"
 */
-enum vrmr_actiontypes {
+enum vrmr_actiontypes
+{
     VRMR_AT_ERROR = -1,
-    VRMR_AT_ACCEPT,      /* ACCEPT */
-    VRMR_AT_DROP,        /* DROP */
-    VRMR_AT_REJECT,      /* REJECT */
-    VRMR_AT_LOG,         /* LOG */
-    VRMR_AT_PORTFW,      /* DNAT+ACCEPT( or QUEUE) */
-    VRMR_AT_REDIRECT,    /* REDIRECT+ACCEPT( or QUEUE) */
-    VRMR_AT_SNAT,        /* SNAT */
-    VRMR_AT_MASQ,        /* MASQUERADE */
-    VRMR_AT_CHAIN,       /* custom chain */
-    VRMR_AT_DNAT,        /* DNAT */
-    VRMR_AT_BOUNCE,      /* DNAT+SNAT */
-    VRMR_AT_NFQUEUE,     /* NFQUEUE */
-    VRMR_AT_NFLOG,       /* NFLOG */
+    VRMR_AT_ACCEPT,   /* ACCEPT */
+    VRMR_AT_DROP,     /* DROP */
+    VRMR_AT_REJECT,   /* REJECT */
+    VRMR_AT_LOG,      /* LOG */
+    VRMR_AT_PORTFW,   /* DNAT+ACCEPT( or QUEUE) */
+    VRMR_AT_REDIRECT, /* REDIRECT+ACCEPT( or QUEUE) */
+    VRMR_AT_SNAT,     /* SNAT */
+    VRMR_AT_MASQ,     /* MASQUERADE */
+    VRMR_AT_CHAIN,    /* custom chain */
+    VRMR_AT_DNAT,     /* DNAT */
+    VRMR_AT_BOUNCE,   /* DNAT+SNAT */
+    VRMR_AT_NFQUEUE,  /* NFQUEUE */
+    VRMR_AT_NFLOG,    /* NFLOG */
 
     /* special for networks and interfaces */
     VRMR_AT_PROTECT,
@@ -1331,17 +1359,17 @@ enum vrmr_actiontypes {
     VRMR_AT_TOO_BIG,
 };
 
-enum vrmr_log_conn_type {
+enum vrmr_log_conn_type
+{
     VRMR_LOG_CONN_NEW,
     VRMR_LOG_CONN_COMPLETED,
 };
 
 /* connection log */
-struct vrmr_log_conn_record
-{
+struct vrmr_log_conn_record {
     enum vrmr_log_conn_type type;
 
-    uint32_t age_s;                 /**< age in seconds */
+    uint32_t age_s; /**< age in seconds */
     uint32_t mark;
     uint8_t tcp_state;
     uint8_t tcp_flags_ts;
@@ -1354,56 +1382,55 @@ struct vrmr_log_conn_record
     uint64_t toclient_bytes;
 };
 
-struct vrmr_log_record
-{
-    char            month[4];
-    int             day;
+struct vrmr_log_record {
+    char month[4];
+    int day;
 
-    int             hour;
-    int             minute;
-    int             second;
+    int hour;
+    int minute;
+    int second;
 
-    char            hostname[HOST_NAME_MAX];
-    char            logger[32];
+    char hostname[HOST_NAME_MAX];
+    char logger[32];
 
-    char            action[16];
+    char action[16];
 
-    char            logprefix[32];
+    char logprefix[32];
 
-    char            interface_in[16];
-    char            interface_out[16];
+    char interface_in[16];
+    char interface_out[16];
 
-    char            src_ip[46];
-    char            dst_ip[46];
-    int             ipv6;
+    char src_ip[46];
+    char dst_ip[46];
+    int ipv6;
 
-    int             protocol;
-    int             src_port;
-    int             dst_port;
-    int             icmp_type;
-    int             icmp_code;
+    int protocol;
+    int src_port;
+    int dst_port;
+    int icmp_type;
+    int icmp_code;
 
-    char            src_mac[20]; /* 17 for mac addr, 2 for brackets, 1 for \0 */
-    char            dst_mac[20];
+    char src_mac[20]; /* 17 for mac addr, 2 for brackets, 1 for \0 */
+    char dst_mac[20];
 
-    unsigned int    packet_len; /* length of the logged packet */
+    unsigned int packet_len; /* length of the logged packet */
 
-    char            syn;        /* is syn-bit set? 0: no, 1: yes */
-    char            fin;        /* is fin-bit set? 0: no, 1: yes */
-    char            rst;        /* is rst-bit set? 0: no, 1: yes */
-    char            ack;        /* is ack-bit set? 0: no, 1: yes */
-    char            psh;        /* is psh-bit set? 0: no, 1: yes */
-    char            urg;        /* is urg-bit set? 0: no, 1: yes */
+    char syn; /* is syn-bit set? 0: no, 1: yes */
+    char fin; /* is fin-bit set? 0: no, 1: yes */
+    char rst; /* is rst-bit set? 0: no, 1: yes */
+    char ack; /* is ack-bit set? 0: no, 1: yes */
+    char psh; /* is psh-bit set? 0: no, 1: yes */
+    char urg; /* is urg-bit set? 0: no, 1: yes */
 
-    unsigned int    ttl;
+    unsigned int ttl;
 
-    char            from_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
-    char            to_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
-    char            ser_name[VRMR_MAX_SERVICE];
-    char            from_int[VRMR_MAX_INTERFACE+5];  /* 'in: ' */
-    char            to_int[VRMR_MAX_INTERFACE+6];    /* 'out: ' */
+    char from_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char to_name[VRMR_VRMR_MAX_HOST_NET_ZONE];
+    char ser_name[VRMR_MAX_SERVICE];
+    char from_int[VRMR_MAX_INTERFACE + 5]; /* 'in: ' */
+    char to_int[VRMR_MAX_INTERFACE + 6];   /* 'out: ' */
 
-    char            tcpflags[7];
+    char tcpflags[7];
 
     /* type specfic things go here. TODO: move (nf)log stuff into this */
     union {
@@ -1430,14 +1457,17 @@ int vrmr_shm_lock(int, int);
 char *libvuurmuur_get_version(void);
 int vrmr_regex_setup(int action, struct vrmr_regex *reg);
 
-int range_strcpy(char *dest, const char *src, const size_t start, const size_t end, size_t size);
+int range_strcpy(char *dest, const char *src, const size_t start,
+        const size_t end, size_t size);
 size_t strlcat(char *dst, const char *src, size_t size);
 size_t strlcpy(char *dst, const char *src, size_t size);
 
 /*
     hash table
 */
-int vrmr_hash_setup(struct vrmr_hash_table *hash_table, unsigned int rows, unsigned int (*hash_func)(const void *data), int (*compare_func)(const void *table_data, const void *search_data));
+int vrmr_hash_setup(struct vrmr_hash_table *hash_table, unsigned int rows,
+        unsigned int (*hash_func)(const void *data),
+        int (*compare_func)(const void *table_data, const void *search_data));
 int vrmr_hash_cleanup(struct vrmr_hash_table *hash_table);
 int vrmr_hash_insert(struct vrmr_hash_table *hash_table, const void *data);
 int vrmr_hash_remove(struct vrmr_hash_table *hash_table, void *data);
@@ -1451,57 +1481,77 @@ unsigned int vrmr_hash_ipaddress(const void *key);
 unsigned int vrmr_hash_string(const void *key);
 
 void vrmr_print_table_service(const struct vrmr_hash_table *hash_table);
-int vrmr_init_zonedata_hashtable(unsigned int n_rows, struct vrmr_list *, unsigned int (*hash)(const void *key), int (*match)(const void *string1, const void *string2), struct vrmr_hash_table *hash_table);
-int vrmr_init_services_hashtable(unsigned int n_rows, struct vrmr_list *, unsigned int (*hash)(const void *key), int (*match)(const void *string1, const void *string2), struct vrmr_hash_table *hash_table);
-void *vrmr_search_service_in_hash(const int src, const int dst, const int protocol, const struct vrmr_hash_table *serhash);
-void *vrmr_search_zone_in_hash_with_ipv4(const char *ipaddress, const struct vrmr_hash_table *zonehash);
+int vrmr_init_zonedata_hashtable(unsigned int n_rows, struct vrmr_list *,
+        unsigned int (*hash)(const void *key),
+        int (*match)(const void *string1, const void *string2),
+        struct vrmr_hash_table *hash_table);
+int vrmr_init_services_hashtable(unsigned int n_rows, struct vrmr_list *,
+        unsigned int (*hash)(const void *key),
+        int (*match)(const void *string1, const void *string2),
+        struct vrmr_hash_table *hash_table);
+void *vrmr_search_service_in_hash(const int src, const int dst,
+        const int protocol, const struct vrmr_hash_table *serhash);
+void *vrmr_search_zone_in_hash_with_ipv4(
+        const char *ipaddress, const struct vrmr_hash_table *zonehash);
 
 /*
     query.c
 */
-struct vrmr_rule *vrmr_rules_remove_rule_from_list( struct vrmr_rules *, unsigned int, int);
-void vrmr_rules_update_numbers( struct vrmr_rules *, unsigned int place, int);
+struct vrmr_rule *vrmr_rules_remove_rule_from_list(
+        struct vrmr_rules *, unsigned int, int);
+void vrmr_rules_update_numbers(struct vrmr_rules *, unsigned int place, int);
 void vrmr_rules_print_list(const struct vrmr_rules *);
 void vrmr_rules_free_options(struct vrmr_rule_options *opt);
 
 /*
     zones.c
 */
-int vrmr_insert_zonedata_list( struct vrmr_zones *, const struct vrmr_zone *);
+int vrmr_insert_zonedata_list(struct vrmr_zones *, const struct vrmr_zone *);
 void vrmr_zonedata_print_list(const struct vrmr_zones *);
-int vrmr_init_zonedata( struct vrmr_ctx *, /*@out@*/ struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
-int vrmr_insert_zonedata( struct vrmr_ctx *, struct vrmr_zones *, struct vrmr_interfaces *, char *, int, struct vrmr_regex *);
-int vrmr_read_zonedata( struct vrmr_ctx *, struct vrmr_zones *, struct vrmr_interfaces *, char *, int, struct vrmr_zone *, struct vrmr_regex *);
-void *vrmr_search_zonedata( const struct vrmr_zones *, const char *);
-void vrmr_destroy_zonedatalist( struct vrmr_zones *);
-int vrmr_count_zones( struct vrmr_zones *, int, char *, char *);
-int vrmr_new_zone( struct vrmr_ctx *, struct vrmr_zones *, char *, int);
-int vrmr_delete_zone( struct vrmr_ctx *, struct vrmr_zones *, char *, int);
-int vrmr_zonelist_to_networklist( struct vrmr_zones *, struct vrmr_list *);
-int vrmr_add_broadcasts_zonelist( struct vrmr_zones *);
-int vrmr_validate_zonename( const char *, int, char *, char *, char *, regex_t *, char);
-int vrmr_zones_group_save_members( struct vrmr_ctx *, struct vrmr_zone *);
-int vrmr_zones_network_add_iface( struct vrmr_interfaces *, struct vrmr_zone *, char *);
-int vrmr_zones_network_rem_iface( struct vrmr_ctx *, struct vrmr_zone *, char *);
-int vrmr_zones_network_get_interfaces( struct vrmr_ctx *, struct vrmr_zone *, struct vrmr_interfaces *);
-int vrmr_zones_network_save_interfaces( struct vrmr_ctx *, struct vrmr_zone *);
-int vrmr_zones_network_get_protectrules( struct vrmr_ctx *, struct vrmr_zone *);
-int vrmr_zones_group_rem_member( struct vrmr_ctx *, struct vrmr_zone *, char *);
-int vrmr_zones_group_add_member( struct vrmr_ctx *, struct vrmr_zones *, struct vrmr_zone *, char *);
-int vrmr_zones_active( struct vrmr_zone *);
-int vrmr_zones_check_host( struct vrmr_zone *);
-int vrmr_zones_check_group( struct vrmr_zone *);
-int vrmr_zones_check_network( struct vrmr_zone *);
-int vrmr_zones_load( struct vrmr_ctx *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_regex *);
-int vrmr_zones_network_analyze_rule( struct vrmr_rule *, struct vrmr_rule_cache *, struct vrmr_zones *, struct vrmr_config *);
-int vrmr_zones_network_rule_parse_line( const char *, struct vrmr_rule *);
-int vrmr_zones_host_ipv6_enabled( struct vrmr_zone *);
-int vrmr_zones_network_ipv6_enabled( struct vrmr_zone *);
+int vrmr_init_zonedata(struct vrmr_ctx *, /*@out@*/ struct vrmr_zones *,
+        struct vrmr_interfaces *, struct vrmr_regex *);
+int vrmr_insert_zonedata(struct vrmr_ctx *, struct vrmr_zones *,
+        struct vrmr_interfaces *, char *, int, struct vrmr_regex *);
+int vrmr_read_zonedata(struct vrmr_ctx *, struct vrmr_zones *,
+        struct vrmr_interfaces *, char *, int, struct vrmr_zone *,
+        struct vrmr_regex *);
+void *vrmr_search_zonedata(const struct vrmr_zones *, const char *);
+void vrmr_destroy_zonedatalist(struct vrmr_zones *);
+int vrmr_count_zones(struct vrmr_zones *, int, char *, char *);
+int vrmr_new_zone(struct vrmr_ctx *, struct vrmr_zones *, char *, int);
+int vrmr_delete_zone(struct vrmr_ctx *, struct vrmr_zones *, char *, int);
+int vrmr_zonelist_to_networklist(struct vrmr_zones *, struct vrmr_list *);
+int vrmr_add_broadcasts_zonelist(struct vrmr_zones *);
+int vrmr_validate_zonename(
+        const char *, int, char *, char *, char *, regex_t *, char);
+int vrmr_zones_group_save_members(struct vrmr_ctx *, struct vrmr_zone *);
+int vrmr_zones_network_add_iface(
+        struct vrmr_interfaces *, struct vrmr_zone *, char *);
+int vrmr_zones_network_rem_iface(struct vrmr_ctx *, struct vrmr_zone *, char *);
+int vrmr_zones_network_get_interfaces(
+        struct vrmr_ctx *, struct vrmr_zone *, struct vrmr_interfaces *);
+int vrmr_zones_network_save_interfaces(struct vrmr_ctx *, struct vrmr_zone *);
+int vrmr_zones_network_get_protectrules(struct vrmr_ctx *, struct vrmr_zone *);
+int vrmr_zones_group_rem_member(struct vrmr_ctx *, struct vrmr_zone *, char *);
+int vrmr_zones_group_add_member(
+        struct vrmr_ctx *, struct vrmr_zones *, struct vrmr_zone *, char *);
+int vrmr_zones_active(struct vrmr_zone *);
+int vrmr_zones_check_host(struct vrmr_zone *);
+int vrmr_zones_check_group(struct vrmr_zone *);
+int vrmr_zones_check_network(struct vrmr_zone *);
+int vrmr_zones_load(struct vrmr_ctx *, struct vrmr_zones *,
+        struct vrmr_interfaces *, struct vrmr_regex *);
+int vrmr_zones_network_analyze_rule(struct vrmr_rule *,
+        struct vrmr_rule_cache *, struct vrmr_zones *, struct vrmr_config *);
+int vrmr_zones_network_rule_parse_line(const char *, struct vrmr_rule *);
+int vrmr_zones_host_ipv6_enabled(struct vrmr_zone *);
+int vrmr_zones_network_ipv6_enabled(struct vrmr_zone *);
 
 /*
     services.c
 */
-int vrmr_init_services(struct vrmr_ctx *, /*@out@*/ struct vrmr_services *, struct vrmr_regex *);
+int vrmr_init_services(struct vrmr_ctx *, /*@out@*/ struct vrmr_services *,
+        struct vrmr_regex *);
 int vrmr_insert_service(struct vrmr_ctx *, struct vrmr_services *, char *);
 void *vrmr_search_service(const struct vrmr_services *, char *);
 int vrmr_read_service(struct vrmr_ctx *, char *, struct vrmr_service *);
@@ -1516,51 +1566,69 @@ int vrmr_validate_servicename(const char *, regex_t *, char);
 int vrmr_services_save_portranges(struct vrmr_ctx *, struct vrmr_service *);
 int vrmr_valid_tcpudp_port(int);
 int vrmr_services_check(struct vrmr_service *);
-int vrmr_services_load(struct vrmr_ctx *, struct vrmr_services *, struct vrmr_regex *);
+int vrmr_services_load(
+        struct vrmr_ctx *, struct vrmr_services *, struct vrmr_regex *);
 
 /*
     info.c
 */
-int vrmr_get_ip_info(struct vrmr_ctx *, char *name, struct vrmr_zone *answer_ptr, struct vrmr_regex *reg);
-int vrmr_create_broadcast_ip(char *network, char *netmask, char *broadcast_ip, size_t size);
-int vrmr_get_group_info( struct vrmr_ctx *, struct vrmr_zones *, char *, struct vrmr_zone *);
-char *vrmr_list_to_portopts( struct vrmr_list *, /*@null@*/char *);
+int vrmr_get_ip_info(struct vrmr_ctx *, char *name,
+        struct vrmr_zone *answer_ptr, struct vrmr_regex *reg);
+int vrmr_create_broadcast_ip(
+        char *network, char *netmask, char *broadcast_ip, size_t size);
+int vrmr_get_group_info(
+        struct vrmr_ctx *, struct vrmr_zones *, char *, struct vrmr_zone *);
+char *vrmr_list_to_portopts(struct vrmr_list *, /*@null@*/ char *);
 int vrmr_portopts_to_list(const char *opt, struct vrmr_list *);
 int vrmr_check_active(struct vrmr_ctx *, char *data, int type);
 int vrmr_get_dynamic_ip(char *device, char *answer_ptr, size_t size);
-int vrmr_check_ipv4address(const char *network, const char *netmask, const char *ipaddress, char quiet);
-int vrmr_get_mac_address(struct vrmr_ctx *, char *hostname, char *answer_ptr, size_t size, regex_t *mac_rgx);
-int vrmr_get_danger_info(char *danger, char *source, struct vrmr_danger_info *danger_struct);
-char *vrmr_get_network_for_ipv4(const char *ipaddress, struct vrmr_list *zonelist);
-int vrmr_user_get_info( struct vrmr_user *);
+int vrmr_check_ipv4address(const char *network, const char *netmask,
+        const char *ipaddress, char quiet);
+int vrmr_get_mac_address(struct vrmr_ctx *, char *hostname, char *answer_ptr,
+        size_t size, regex_t *mac_rgx);
+int vrmr_get_danger_info(
+        char *danger, char *source, struct vrmr_danger_info *danger_struct);
+char *vrmr_get_network_for_ipv4(
+        const char *ipaddress, struct vrmr_list *zonelist);
+int vrmr_user_get_info(struct vrmr_user *);
 
 /*
     proc.c
 */
 int vrmr_read_proc_entry(char *proc_entry, int *value);
-int vrmr_set_proc_entry(struct vrmr_config *, char *proc_entry, int proc_set, char *who);
+int vrmr_set_proc_entry(
+        struct vrmr_config *, char *proc_entry, int proc_set, char *who);
 
 /*
     rules.c
 */
-int vrmr_rules_analyze_rule( struct vrmr_rule *, struct vrmr_rule_cache *, struct vrmr_services *, struct vrmr_zones *, struct vrmr_interfaces *, struct vrmr_config *);
-int vrmr_rules_parse_line( char *, struct vrmr_rule *, struct vrmr_regex *);
-int vrmr_rules_init_list( struct vrmr_ctx *, struct vrmr_config *cfg, /*@out@*/ struct vrmr_rules *, struct vrmr_regex *);
-int vrmr_rules_cleanup_list( struct vrmr_rules *);
-int vrmr_rules_insert_list( struct vrmr_rules *, unsigned int, struct vrmr_rule *);
-char *vrmr_rules_assemble_options_string( struct vrmr_rule_options *, const char *);
-int vrmr_rules_compare_options( struct vrmr_rule_options *, struct vrmr_rule_options *, char *);
-void *vrmr_search_rule( struct vrmr_rules *, struct vrmr_rule *);
-int vrmr_rules_read_options( const char *, struct vrmr_rule_options *);
-struct vrmr_rule *rules_create_protect_rule( char *, /*@null@*/ char *, char *, /*@null@*/char *);
-char *vrmr_rules_assemble_rule( struct vrmr_rule *);
-int vrmr_rules_save_list( struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_config *);
-int vrmr_rules_get_custom_chains( struct vrmr_rules *);
-int vrmr_rules_chain_in_list( struct vrmr_list *, char *);
-int vrmr_rules_get_system_chains( struct vrmr_rules *, struct vrmr_config *, int);
-int vrmr_rules_encode_rule( char *, size_t);
-int vrmr_rules_decode_rule( char *, size_t);
-int vrmr_rules_determine_ruletype( struct vrmr_rule *);
+int vrmr_rules_analyze_rule(struct vrmr_rule *, struct vrmr_rule_cache *,
+        struct vrmr_services *, struct vrmr_zones *, struct vrmr_interfaces *,
+        struct vrmr_config *);
+int vrmr_rules_parse_line(char *, struct vrmr_rule *, struct vrmr_regex *);
+int vrmr_rules_init_list(struct vrmr_ctx *, struct vrmr_config *cfg,
+        /*@out@*/ struct vrmr_rules *, struct vrmr_regex *);
+int vrmr_rules_cleanup_list(struct vrmr_rules *);
+int vrmr_rules_insert_list(
+        struct vrmr_rules *, unsigned int, struct vrmr_rule *);
+char *vrmr_rules_assemble_options_string(
+        struct vrmr_rule_options *, const char *);
+int vrmr_rules_compare_options(
+        struct vrmr_rule_options *, struct vrmr_rule_options *, char *);
+void *vrmr_search_rule(struct vrmr_rules *, struct vrmr_rule *);
+int vrmr_rules_read_options(const char *, struct vrmr_rule_options *);
+struct vrmr_rule *rules_create_protect_rule(
+        char *, /*@null@*/ char *, char *, /*@null@*/ char *);
+char *vrmr_rules_assemble_rule(struct vrmr_rule *);
+int vrmr_rules_save_list(
+        struct vrmr_ctx *, struct vrmr_rules *, struct vrmr_config *);
+int vrmr_rules_get_custom_chains(struct vrmr_rules *);
+int vrmr_rules_chain_in_list(struct vrmr_list *, char *);
+int vrmr_rules_get_system_chains(
+        struct vrmr_rules *, struct vrmr_config *, int);
+int vrmr_rules_encode_rule(char *, size_t);
+int vrmr_rules_decode_rule(char *, size_t);
+int vrmr_rules_determine_ruletype(struct vrmr_rule *);
 
 /* action */
 int vrmr_rules_actiontoi(const char *);
@@ -1570,10 +1638,14 @@ char *vrmr_rules_itoaction_cap(const int);
 /*
     blocklist
 */
-int vrmr_blocklist_add_one( struct vrmr_zones *, struct vrmr_blocklist *, char, char, const char *);
-int vrmr_blocklist_rem_one( struct vrmr_zones *, struct vrmr_blocklist *, char *);
-int vrmr_blocklist_init_list( struct vrmr_ctx *, struct vrmr_config *cfg, struct vrmr_zones *, struct vrmr_blocklist *, char, char);
-int vrmr_blocklist_save_list( struct vrmr_ctx *, struct vrmr_config *cfg, struct vrmr_blocklist *);
+int vrmr_blocklist_add_one(
+        struct vrmr_zones *, struct vrmr_blocklist *, char, char, const char *);
+int vrmr_blocklist_rem_one(
+        struct vrmr_zones *, struct vrmr_blocklist *, char *);
+int vrmr_blocklist_init_list(struct vrmr_ctx *, struct vrmr_config *cfg,
+        struct vrmr_zones *, struct vrmr_blocklist *, char, char);
+int vrmr_blocklist_save_list(
+        struct vrmr_ctx *, struct vrmr_config *cfg, struct vrmr_blocklist *);
 
 /*
     log.c
@@ -1595,22 +1667,27 @@ int vrmr_logstdoutprint_audit(char *fmt, ...);
 int vrmr_logstdoutprint_warning(char *head, char *fmt, ...);
 int vrmr_logstdoutprint_error(int errorlevel, char *head, char *fmt, ...);
 
-int vrmr_log_record_build_line(struct vrmr_log_record *log_record, char *outline, size_t size);
+int vrmr_log_record_build_line(
+        struct vrmr_log_record *log_record, char *outline, size_t size);
 int vrmr_log_record_get_names(struct vrmr_log_record *log_record,
-        struct vrmr_hash_table *zone_hash, struct vrmr_hash_table *service_hash);
-void vrmr_log_record_parse_prefix(struct vrmr_log_record *log_record, char *prefix);
+        struct vrmr_hash_table *zone_hash,
+        struct vrmr_hash_table *service_hash);
+void vrmr_log_record_parse_prefix(
+        struct vrmr_log_record *log_record, char *prefix);
 
 /*
     io.c
 */
-FILE *vuurmuur_fopen(const struct vrmr_config *, const char *path, const char *mode);
+FILE *vuurmuur_fopen(
+        const struct vrmr_config *, const char *path, const char *mode);
 DIR *vuurmuur_tryopendir(const struct vrmr_config *cnf, const char *name);
 DIR *vuurmuur_opendir(const struct vrmr_config *, const char *);
 int vrmr_stat_ok(const struct vrmr_config *, const char *, char, char, char);
 int vrmr_check_pidfile(char *pidfile_location, char *service, pid_t *thepid);
 int vrmr_create_pidfile(char *pidfile_location, int shm_id);
 int vrmr_remove_pidfile(char *pidfile_location);
-FILE * vrmr_rules_file_open(const struct vrmr_config *cnf, const char *path, const char *mode, int caller);
+FILE *vrmr_rules_file_open(const struct vrmr_config *cnf, const char *path,
+        const char *mode, int caller);
 int vrmr_rules_file_close(FILE *file, const char *path);
 int vrmr_pipe_command(struct vrmr_config *, char *, char);
 int libvuurmuur_exec_command(struct vrmr_config *, char *, char **, char **);
@@ -1624,23 +1701,25 @@ void vrmr_sanitize_path(char *, size_t);
 */
 int vrmr_config_set_log_names(struct vrmr_config *cnf);
 int vrmr_config_check_logdir(const char *logdir);
-int vrmr_config_check_vuurmuurdir(const struct vrmr_config *, const char *logdir);
-int vrmr_check_iptables_command( struct vrmr_config *, char *, char);
-int vrmr_check_iptablesrestore_command( struct vrmr_config *, char *, char);
-int vrmr_check_ip6tables_command( struct vrmr_config *, char *, char);
-int vrmr_check_ip6tablesrestore_command( struct vrmr_config *, char *, char);
-int vrmr_check_tc_command( struct vrmr_config *, char *, char);
-int vrmr_init_config( struct vrmr_config *cnf);
-int vrmr_reload_config( struct vrmr_config *);
-int vrmr_ask_configfile(const struct vrmr_config *, char *question, char *answer_ptr, char *file_location, size_t size);
+int vrmr_config_check_vuurmuurdir(
+        const struct vrmr_config *, const char *logdir);
+int vrmr_check_iptables_command(struct vrmr_config *, char *, char);
+int vrmr_check_iptablesrestore_command(struct vrmr_config *, char *, char);
+int vrmr_check_ip6tables_command(struct vrmr_config *, char *, char);
+int vrmr_check_ip6tablesrestore_command(struct vrmr_config *, char *, char);
+int vrmr_check_tc_command(struct vrmr_config *, char *, char);
+int vrmr_init_config(struct vrmr_config *cnf);
+int vrmr_reload_config(struct vrmr_config *);
+int vrmr_ask_configfile(const struct vrmr_config *, char *question,
+        char *answer_ptr, char *file_location, size_t size);
 int vrmr_write_configfile(char *file_location, struct vrmr_config *cfg);
 
 int vrmr_init(struct vrmr_ctx *, char *toolname);
 void vrmr_deinit(struct vrmr_ctx *);
 void vrmr_enable_logprint(struct vrmr_config *cnf);
 int vrmr_load(struct vrmr_ctx *vctx);
-int vrmr_create_log_hash( struct vrmr_ctx *, struct vrmr_hash_table *, struct vrmr_hash_table *);
-
+int vrmr_create_log_hash(
+        struct vrmr_ctx *, struct vrmr_hash_table *, struct vrmr_hash_table *);
 
 /*
     backendapi.c
@@ -1655,23 +1734,33 @@ int vrmr_backends_unload(struct vrmr_config *cfg, struct vrmr_ctx *ctx);
 void *vrmr_search_interface(const struct vrmr_interfaces *, const char *);
 void *vrmr_search_interface_by_ip(struct vrmr_interfaces *, const char *);
 void vrmr_interfaces_print_list(const struct vrmr_interfaces *interfaces);
-int vrmr_read_interface_info(struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
-int vrmr_insert_interface(struct vrmr_ctx *, struct vrmr_interfaces *interfaces, char *name);
-int vrmr_init_interfaces(struct vrmr_ctx *, /*@out@*/ struct vrmr_interfaces *interfaces);
+int vrmr_read_interface_info(
+        struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
+int vrmr_insert_interface(
+        struct vrmr_ctx *, struct vrmr_interfaces *interfaces, char *name);
+int vrmr_init_interfaces(
+        struct vrmr_ctx *, /*@out@*/ struct vrmr_interfaces *interfaces);
 int vrmr_new_interface(struct vrmr_ctx *, struct vrmr_interfaces *, char *);
 int vrmr_delete_interface(struct vrmr_ctx *, struct vrmr_interfaces *, char *);
-int vrmr_ins_iface_into_zonelist(struct vrmr_list *ifacelist, struct vrmr_list *zonelist);
+int vrmr_ins_iface_into_zonelist(
+        struct vrmr_list *ifacelist, struct vrmr_list *zonelist);
 int vrmr_rem_iface_from_zonelist(struct vrmr_list *zonelist);
-int vrmr_get_iface_stats(const char *, unsigned long *, unsigned long *, unsigned long *, unsigned long *);
-int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg, const char *iface_name, const char *chain, unsigned long long *recv_packets, unsigned long long *recv_bytes, unsigned long long *trans_packets, unsigned long long *trans_bytes);
+int vrmr_get_iface_stats(const char *, unsigned long *, unsigned long *,
+        unsigned long *, unsigned long *);
+int vrmr_get_iface_stats_from_ipt(struct vrmr_config *cfg,
+        const char *iface_name, const char *chain,
+        unsigned long long *recv_packets, unsigned long long *recv_bytes,
+        unsigned long long *trans_packets, unsigned long long *trans_bytes);
 int vrmr_validate_interfacename(const char *, regex_t *);
 void vrmr_destroy_interfaceslist(struct vrmr_interfaces *interfaces);
-int vrmr_interfaces_get_rules(struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
+int vrmr_interfaces_get_rules(
+        struct vrmr_ctx *, struct vrmr_interface *iface_ptr);
 int vrmr_interfaces_save_rules(struct vrmr_ctx *, struct vrmr_interface *);
 int vrmr_interfaces_check(struct vrmr_interface *);
 int vrmr_interfaces_load(struct vrmr_ctx *, struct vrmr_interfaces *);
 int vrmr_interfaces_iface_up(struct vrmr_interface *);
-int vrmr_interfaces_analyze_rule(struct vrmr_rule *, struct vrmr_rule_cache *, struct vrmr_interfaces *, struct vrmr_config *);
+int vrmr_interfaces_analyze_rule(struct vrmr_rule *, struct vrmr_rule_cache *,
+        struct vrmr_interfaces *, struct vrmr_config *);
 int vrmr_interfaces_rule_parse_line(const char *, struct vrmr_rule *);
 int vrmr_interface_check_devicename(char *);
 int vrmr_interface_ipv6_enabled(struct vrmr_interface *);
@@ -1679,7 +1768,8 @@ int vrmr_interface_ipv6_enabled(struct vrmr_interface *);
 /*
     icmp.c
 */
-int vrmr_get_icmp_name_short(int type, int code, char *name, size_t size, int only_code);
+int vrmr_get_icmp_name_short(
+        int type, int code, char *name, size_t size, int only_code);
 int vrmr_list_icmp_types(int *type, int *has_code, int *number);
 int vrmr_list_icmp_codes(int type, int *code, int *number);
 
@@ -1689,7 +1779,10 @@ int vrmr_list_icmp_codes(int type, int *code, int *number);
 unsigned int vrmr_conn_hash_name(const void *key);
 int vrmr_conn_match_name(const void *ser1, const void *ser2);
 void vrmr_conn_list_print(const struct vrmr_list *conn_list);
-int vrmr_conn_get_connections( struct vrmr_config *, unsigned int, struct vrmr_hash_table *, struct vrmr_hash_table *, struct vrmr_list *, struct vrmr_list *, struct vrmr_conntrack_request *, struct vrmr_conntrack_stats *);
+int vrmr_conn_get_connections(struct vrmr_config *, unsigned int,
+        struct vrmr_hash_table *, struct vrmr_hash_table *, struct vrmr_list *,
+        struct vrmr_list *, struct vrmr_conntrack_request *,
+        struct vrmr_conntrack_stats *);
 void vrmr_conn_print_dlist(const struct vrmr_list *);
 void vrmr_conn_list_cleanup(struct vrmr_list *conn_dlist);
 void vrmr_connreq_setup(struct vrmr_conntrack_request *connreq);
@@ -1698,14 +1791,17 @@ void vrmr_connreq_cleanup(struct vrmr_conntrack_request *connreq);
 /*
     linked list
 */
-void vrmr_list_setup(/*@out@*/ struct vrmr_list *, /*@null@*/ void (*remove)(void *data));
+void vrmr_list_setup(
+        /*@out@*/ struct vrmr_list *, /*@null@*/ void (*remove)(void *data));
 int vrmr_list_remove_node(struct vrmr_list *, struct vrmr_list_node *d_node);
 int vrmr_list_remove_top(struct vrmr_list *);
 int vrmr_list_remove_bot(struct vrmr_list *);
 struct vrmr_list_node *vrmr_list_append(struct vrmr_list *, const void *data);
 struct vrmr_list_node *vrmr_list_prepend(struct vrmr_list *, const void *data);
-struct vrmr_list_node *vrmr_list_insert_after(struct vrmr_list *, struct vrmr_list_node *d_node, const void *data);
-struct vrmr_list_node *vrmr_list_insert_before(struct vrmr_list *, struct vrmr_list_node *d_node, const void *data);
+struct vrmr_list_node *vrmr_list_insert_after(
+        struct vrmr_list *, struct vrmr_list_node *d_node, const void *data);
+struct vrmr_list_node *vrmr_list_insert_before(
+        struct vrmr_list *, struct vrmr_list_node *d_node, const void *data);
 int vrmr_list_node_is_top(struct vrmr_list_node *d_node);
 int vrmr_list_node_is_bot(struct vrmr_list_node *d_node);
 int vrmr_list_cleanup(struct vrmr_list *);
@@ -1713,10 +1809,12 @@ int vrmr_list_cleanup(struct vrmr_list *);
 /*
     iptcap.c
 */
-int vrmr_load_iptcaps( struct vrmr_config *, struct vrmr_iptcaps *, char);
-int vrmr_check_iptcaps( struct vrmr_config *, /*@out@*/ struct vrmr_iptcaps *, char);
-int vrmr_load_ip6tcaps( struct vrmr_config *, struct vrmr_iptcaps *, char);
-int vrmr_check_ip6tcaps( struct vrmr_config *, /*@out@*/ struct vrmr_iptcaps *, char);
+int vrmr_load_iptcaps(struct vrmr_config *, struct vrmr_iptcaps *, char);
+int vrmr_check_iptcaps(
+        struct vrmr_config *, /*@out@*/ struct vrmr_iptcaps *, char);
+int vrmr_load_ip6tcaps(struct vrmr_config *, struct vrmr_iptcaps *, char);
+int vrmr_check_ip6tcaps(
+        struct vrmr_config *, /*@out@*/ struct vrmr_iptcaps *, char);
 
 /*
     filter
@@ -1727,19 +1825,18 @@ void vrmr_filter_cleanup(struct vrmr_filter *filter);
 /*
     util.c
 */
-char *vrmr_get_string( char *fmt, ... );
+char *vrmr_get_string(char *fmt, ...);
 char *vrmr_get_len_string(size_t max, char *fmt, ...);
 
 /*
  * shape.c
  */
-int vrmr_is_shape_rule( /*@null@*/struct vrmr_rule_options *);
-int vrmr_is_shape_incoming_rule( /*@null@*/struct vrmr_rule_options *);
-int vrmr_is_shape_outgoing_rule( /*@null@*/struct vrmr_rule_options *);
-int vrmr_is_shape_interface( /*@null@*/struct vrmr_interface *);
+int vrmr_is_shape_rule(/*@null@*/ struct vrmr_rule_options *);
+int vrmr_is_shape_incoming_rule(/*@null@*/ struct vrmr_rule_options *);
+int vrmr_is_shape_outgoing_rule(/*@null@*/ struct vrmr_rule_options *);
+int vrmr_is_shape_interface(/*@null@*/ struct vrmr_interface *);
 
 /* global var */
 struct vrmr_list vrmr_plugin_list;
 
 #endif
-

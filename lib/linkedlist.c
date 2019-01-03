@@ -21,7 +21,6 @@
 #include "config.h"
 #include "vuurmuur.h"
 
-
 /*  vrmr_list_setup
 
     Sets up a struct vrmr_list.
@@ -32,8 +31,7 @@
 
     This function can only fail due to a programming error.
 */
-void
-vrmr_list_setup(struct vrmr_list *list, void (*remove)(void *data))
+void vrmr_list_setup(struct vrmr_list *list, void (*remove)(void *data))
 {
     assert(list);
 
@@ -46,29 +44,27 @@ vrmr_list_setup(struct vrmr_list *list, void (*remove)(void *data))
     return;
 }
 
-
 /*  vrmr_list_remove_node
 
     d_node is the node to remove
 */
-int
-vrmr_list_remove_node(struct vrmr_list *list, struct vrmr_list_node *d_node)
+int vrmr_list_remove_node(struct vrmr_list *list, struct vrmr_list_node *d_node)
 {
     /* safety first */
-    if(!list || !d_node)
-    {
-        vrmr_error(-1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
-        return(-1);
+    if (!list || !d_node) {
+        vrmr_error(
+                -1, "Internal Error", "parameter problem (in: %s).", __FUNC__);
+        return (-1);
     }
 
     /* we cannot remove from an empty list */
-    if(list->len == 0)
-    {
+    if (list->len == 0) {
         assert(list->top == NULL);
         assert(list->bot == NULL);
 
-        vrmr_error(-1, "Internal Error", "cannot remove from an empty list (in: %s).", __FUNC__);
-        return(-1);
+        vrmr_error(-1, "Internal Error",
+                "cannot remove from an empty list (in: %s).", __FUNC__);
+        return (-1);
     }
 
     assert(list->top);
@@ -105,7 +101,7 @@ vrmr_list_remove_node(struct vrmr_list *list, struct vrmr_list_node *d_node)
 
     /* adjust the length */
     list->len--;
-    return(0);
+    return (0);
 }
 
 /** \brief shortcut for removing list head
@@ -113,8 +109,7 @@ vrmr_list_remove_node(struct vrmr_list *list, struct vrmr_list_node *d_node)
  *        no double free is happening. Apparently it doesn't
  *        properly keep track of list->top.
  */
-int
-vrmr_list_remove_top(struct vrmr_list *list)
+int vrmr_list_remove_top(struct vrmr_list *list)
 {
     assert(list);
 #ifdef CPPCHECK
@@ -132,12 +127,11 @@ vrmr_list_remove_top(struct vrmr_list *list)
 /** \brief shortcut for removing list tail
  *  \note see vrmr_list_remove_top()
  */
-int
-vrmr_list_remove_bot(struct vrmr_list *list)
+int vrmr_list_remove_bot(struct vrmr_list *list)
 {
     assert(list);
 #ifdef CPPCHECK
-    return(vrmr_list_remove_node(list, list->bot));
+    return (vrmr_list_remove_node(list, list->bot));
 #else
     struct vrmr_list_node *old_bot = list->bot;
     int result = vrmr_list_remove_node(list, old_bot);
@@ -154,8 +148,8 @@ vrmr_list_remove_bot(struct vrmr_list *list)
          0: ok
         -1: error
 */
-struct vrmr_list_node *
-vrmr_list_append(struct vrmr_list *list, const void *data)
+struct vrmr_list_node *vrmr_list_append(
+        struct vrmr_list *list, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
     struct vrmr_list_node *prev_node = NULL;
@@ -165,21 +159,19 @@ vrmr_list_append(struct vrmr_list *list, const void *data)
     /*
         safety first
     */
-    if(!list)
-    {
+    if (!list) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
-        return(NULL);
+        return (NULL);
     }
 
     /*
         alloc the new node
     */
-    if(!(new_node = malloc(sizeof(struct vrmr_list_node))))
-    {
+    if (!(new_node = malloc(sizeof(struct vrmr_list_node)))) {
         vrmr_error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
                 strerror(errno), __FUNC__, __LINE__);
-        return(NULL);
+        return (NULL);
     }
 
     /*
@@ -224,12 +216,11 @@ vrmr_list_append(struct vrmr_list *list, const void *data)
     */
     list->len++;
 
-    return(new_node);
+    return (new_node);
 }
 
-
-struct vrmr_list_node *
-vrmr_list_prepend(struct vrmr_list *list, const void *data)
+struct vrmr_list_node *vrmr_list_prepend(
+        struct vrmr_list *list, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
     struct vrmr_list_node *next_node = NULL;
@@ -237,21 +228,19 @@ vrmr_list_prepend(struct vrmr_list *list, const void *data)
     /*
         safety first
     */
-    if(!list)
-    {
+    if (!list) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
-        return(NULL);
+        return (NULL);
     }
 
     /*
         alloc the new node
     */
-    if(!(new_node = malloc(sizeof(struct vrmr_list_node))))
-    {
+    if (!(new_node = malloc(sizeof(struct vrmr_list_node)))) {
         vrmr_error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
                 strerror(errno), __FUNC__, __LINE__);
-        return(NULL);
+        return (NULL);
     }
 
     /*
@@ -293,12 +282,11 @@ vrmr_list_prepend(struct vrmr_list *list, const void *data)
     */
     list->len++;
 
-    return(new_node);
+    return (new_node);
 }
 
-
-struct vrmr_list_node *
-vrmr_list_insert_after(struct vrmr_list *list, struct vrmr_list_node *d_node, const void *data)
+struct vrmr_list_node *vrmr_list_insert_after(
+        struct vrmr_list *list, struct vrmr_list_node *d_node, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
 
@@ -310,7 +298,7 @@ vrmr_list_insert_after(struct vrmr_list *list, struct vrmr_list_node *d_node, co
     if (!list) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
-        return(NULL);
+        return (NULL);
     }
 
     /*
@@ -318,18 +306,16 @@ vrmr_list_insert_after(struct vrmr_list *list, struct vrmr_list_node *d_node, co
     */
     if (d_node == NULL) {
         vrmr_debug(HIGH, "d_node == NULL, calling vrmr_list_append.");
-        return(vrmr_list_append(list, data));
+        return (vrmr_list_append(list, data));
     }
-
 
     /*
         alloc the new node
     */
-    if(!(new_node = malloc(sizeof(struct vrmr_list_node))))
-    {
+    if (!(new_node = malloc(sizeof(struct vrmr_list_node)))) {
         vrmr_error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
                 strerror(errno), __FUNC__, __LINE__);
-        return(NULL);
+        return (NULL);
     }
 
     /*
@@ -366,38 +352,33 @@ vrmr_list_insert_after(struct vrmr_list *list, struct vrmr_list_node *d_node, co
     */
     list->len++;
 
-    return(new_node);
+    return (new_node);
 }
 
-
-struct vrmr_list_node *
-vrmr_list_insert_before(struct vrmr_list *list, struct vrmr_list_node *d_node, const void *data)
+struct vrmr_list_node *vrmr_list_insert_before(
+        struct vrmr_list *list, struct vrmr_list_node *d_node, const void *data)
 {
     struct vrmr_list_node *new_node = NULL;
 
-
     /* safety first */
-    if(!list)
-    {
+    if (!list) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
-        return(NULL);
+        return (NULL);
     }
 
     /* if d_node is NULL we pass over to the vrmr_list_prepend fuction */
     if (d_node == NULL) {
         vrmr_debug(HIGH, "d_node == NULL, calling vrmr_list_prepend.");
 
-        return(vrmr_list_prepend(list, data));
+        return (vrmr_list_prepend(list, data));
     }
 
-
     /* alloc the new node */
-    if(!(new_node = malloc(sizeof(struct vrmr_list_node))))
-    {
+    if (!(new_node = malloc(sizeof(struct vrmr_list_node)))) {
         vrmr_error(-1, "Internal Error", "malloc failed: %s (in: %s:%d).",
                 strerror(errno), __FUNC__, __LINE__);
-        return(NULL);
+        return (NULL);
     }
 
     /* set the data */
@@ -425,68 +406,57 @@ vrmr_list_insert_before(struct vrmr_list *list, struct vrmr_list_node *d_node, c
     list->len++;
 
     /* return the new node */
-    return(new_node);
+    return (new_node);
 }
 
-
-int
-vrmr_list_node_is_top(struct vrmr_list_node *d_node)
+int vrmr_list_node_is_top(struct vrmr_list_node *d_node)
 {
     /* safety */
-    if(!d_node)
-    {
+    if (!d_node) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
-        return(-1);
+        return (-1);
     }
 
     /* see if we have a prev-node */
-    if(d_node->prev == NULL)
-        return(1);
+    if (d_node->prev == NULL)
+        return (1);
     else
-        return(0);
+        return (0);
 }
 
-
-int
-vrmr_list_node_is_bot(struct vrmr_list_node *d_node)
+int vrmr_list_node_is_bot(struct vrmr_list_node *d_node)
 {
     /* safety */
-    if(!d_node)
-    {
+    if (!d_node) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
-        return(-1);
+        return (-1);
     }
 
     /* see if we have a next-node */
-    if(d_node->next == NULL)
-        return(1);
+    if (d_node->next == NULL)
+        return (1);
     else
-        return(0);
+        return (0);
 }
 
-
-int
-vrmr_list_cleanup(struct vrmr_list *list)
+int vrmr_list_cleanup(struct vrmr_list *list)
 {
     /* safety */
-    if(!list)
-    {
+    if (!list) {
         vrmr_error(-1, "Internal Error", "parameter problem (in: %s:%d).",
                 __FUNC__, __LINE__);
-        return(-1);
+        return (-1);
     }
 
     /* remove the top while list len > 0 */
-    for(;list->len;)
-    {
-        if(vrmr_list_remove_top(list) < 0)
-        {
+    for (; list->len;) {
+        if (vrmr_list_remove_top(list) < 0) {
             vrmr_error(-1, "Error", "could not remove node (in: %s:%d).",
                     __FUNC__, __LINE__);
-            return(-1);
+            return (-1);
         }
     }
-    return(0);
+    return (0);
 }

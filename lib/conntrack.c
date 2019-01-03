@@ -22,33 +22,31 @@
 #include "conntrack.h"
 #include "vuurmuur.h"
 
-struct ConntrackLine
-{
-    int                 protocol;
-    int                 ipv6;
-    int                 ttl;
-    int                 state;
-    char                src_ip[46];
-    char                dst_ip[46];
-    char                alt_src_ip[46];
-    char                alt_dst_ip[46];
-    char                orig_dst_ip[46];
-    int                 src_port;
-    int                 dst_port;
-    int                 alt_src_port;
-    int                 alt_dst_port;
-    unsigned long long  to_src_packets;
-    unsigned long long  to_src_bytes;
-    unsigned long long  to_dst_packets;
-    unsigned long long  to_dst_bytes;
-    char                to_src_packets_str[16];
-    char                to_src_bytes_str[16];
-    char                to_dst_packets_str[16];
-    char                to_dst_bytes_str[16];
-    char                status[16];
-    char                use_acc;
+struct ConntrackLine {
+    int protocol;
+    int ipv6;
+    int ttl;
+    int state;
+    char src_ip[46];
+    char dst_ip[46];
+    char alt_src_ip[46];
+    char alt_dst_ip[46];
+    char orig_dst_ip[46];
+    int src_port;
+    int dst_port;
+    int alt_src_port;
+    int alt_dst_port;
+    unsigned long long to_src_packets;
+    unsigned long long to_src_bytes;
+    unsigned long long to_dst_packets;
+    unsigned long long to_dst_bytes;
+    char to_src_packets_str[16];
+    char to_src_bytes_str[16];
+    char to_dst_packets_str[16];
+    char to_dst_bytes_str[16];
+    char status[16];
+    char use_acc;
 };
-
 
 /*
 
@@ -58,88 +56,76 @@ struct ConntrackLine
 
         In case of error we return 0.
 */
-static int
-filtered_connection(struct vrmr_conntrack_entry *cd_ptr, struct vrmr_filter *filter)
+static int filtered_connection(
+        struct vrmr_conntrack_entry *cd_ptr, struct vrmr_filter *filter)
 {
-    char    line[512] = "";
+    char line[512] = "";
 
-    if(cd_ptr == NULL || filter == NULL)
-        return(0);
+    if (cd_ptr == NULL || filter == NULL)
+        return (0);
 
-    snprintf(line, sizeof(line), "%d %s %s %s %d %d %d %s %s",
-                    cd_ptr->cnt,
-                    cd_ptr->sername,
-                    cd_ptr->fromname,
-                    cd_ptr->toname,
-                    cd_ptr->src_port,
-                    cd_ptr->dst_port,
-                    cd_ptr->protocol,
-                    cd_ptr->src_ip,
-                    cd_ptr->dst_ip);
+    snprintf(line, sizeof(line), "%d %s %s %s %d %d %d %s %s", cd_ptr->cnt,
+            cd_ptr->sername, cd_ptr->fromname, cd_ptr->toname, cd_ptr->src_port,
+            cd_ptr->dst_port, cd_ptr->protocol, cd_ptr->src_ip, cd_ptr->dst_ip);
 
     /*  check the regex
 
         If the regex matches, the line is not filtered, so we return 0.
     */
-    if(regexec(&filter->reg, line, 0, NULL, 0) == 0)
-    {
-        if(filter->neg == FALSE)
-            return(0);
+    if (regexec(&filter->reg, line, 0, NULL, 0) == 0) {
+        if (filter->neg == FALSE)
+            return (0);
         else
-            return(1);
-    }
-    else
-    {
-        if(filter->neg == FALSE)
-            return(1);
+            return (1);
+    } else {
+        if (filter->neg == FALSE)
+            return (1);
         else
-            return(0);
+            return (0);
     }
 }
 
-
 //- print_dlist
-void
-vrmr_conn_print_dlist(const struct vrmr_list *dlist)
+void vrmr_conn_print_dlist(const struct vrmr_list *dlist)
 {
-    struct vrmr_list_node             *d_node = NULL;
-    struct vrmr_conntrack_entry    *cd_ptr = NULL;
-    char                    status[16] = "";
-    char                    direction[16] = "";
+    struct vrmr_list_node *d_node = NULL;
+    struct vrmr_conntrack_entry *cd_ptr = NULL;
+    char status[16] = "";
+    char direction[16] = "";
 
-    if(!dlist)
+    if (!dlist)
         return;
 
-    for(d_node = dlist->top; d_node; d_node = d_node->next)
-    {
+    for (d_node = dlist->top; d_node; d_node = d_node->next) {
         cd_ptr = d_node->data;
 
-        if(cd_ptr->connect_status == VRMR_CONN_UNUSED)
+        if (cd_ptr->connect_status == VRMR_CONN_UNUSED)
             strcpy(status, "");
-        else if(cd_ptr->connect_status == VRMR_CONN_CONNECTING)
+        else if (cd_ptr->connect_status == VRMR_CONN_CONNECTING)
             strcpy(status, "CONNECTING");
-        else if(cd_ptr->connect_status == VRMR_CONN_CONNECTED)
+        else if (cd_ptr->connect_status == VRMR_CONN_CONNECTED)
             strcpy(status, "CONNECTED");
-        else if(cd_ptr->connect_status == VRMR_CONN_DISCONNECTING)
+        else if (cd_ptr->connect_status == VRMR_CONN_DISCONNECTING)
             strcpy(status, "DISCONNECTING");
         else
             strcpy(status, "UNKNOWN");
 
-        if(cd_ptr->direction_status == VRMR_CONN_UNUSED)
+        if (cd_ptr->direction_status == VRMR_CONN_UNUSED)
             strcpy(direction, "");
-        else if(cd_ptr->direction_status == VRMR_CONN_IN)
+        else if (cd_ptr->direction_status == VRMR_CONN_IN)
             strcpy(direction, "INCOMING");
-        else if(cd_ptr->direction_status == VRMR_CONN_OUT)
+        else if (cd_ptr->direction_status == VRMR_CONN_OUT)
             strcpy(direction, "OUTGOING");
-        else if(cd_ptr->direction_status == VRMR_CONN_FW)
+        else if (cd_ptr->direction_status == VRMR_CONN_FW)
             strcpy(direction, "FORWARDING");
 
-        fprintf(stdout, "%4d: service %s from %s to %s %s %s\n", cd_ptr->cnt, cd_ptr->sername, cd_ptr->fromname, cd_ptr->toname, status, direction);
+        fprintf(stdout, "%4d: service %s from %s to %s %s %s\n", cd_ptr->cnt,
+                cd_ptr->sername, cd_ptr->fromname, cd_ptr->toname, status,
+                direction);
     }
 
     return;
 }
-
 
 /*  conntrack_line_to_data
 
@@ -151,49 +137,42 @@ vrmr_conn_print_dlist(const struct vrmr_list *dlist)
          0: ok
         -1: (serious) error
 */
-static int
-conn_line_to_data(  struct ConntrackLine *connline_ptr,
-                    struct vrmr_conntrack_entry *conndata_ptr,
-                    struct vrmr_hash_table *serhash,
-                    struct vrmr_hash_table *zonehash,
-                    struct vrmr_list *zonelist,
-                    struct vrmr_conntrack_request *req
-                )
+static int conn_line_to_data(struct ConntrackLine *connline_ptr,
+        struct vrmr_conntrack_entry *conndata_ptr,
+        struct vrmr_hash_table *serhash, struct vrmr_hash_table *zonehash,
+        struct vrmr_list *zonelist, struct vrmr_conntrack_request *req)
 {
-    char    service_name[VRMR_MAX_SERVICE] = "",
-            *zone_name_ptr = NULL;
+    char service_name[VRMR_MAX_SERVICE] = "", *zone_name_ptr = NULL;
 
     /* safety */
-    if( connline_ptr == NULL || conndata_ptr == NULL ||
-        serhash == NULL || zonehash == NULL)
-    {
-        vrmr_error(-1, "Internal Error", "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
+    if (connline_ptr == NULL || conndata_ptr == NULL || serhash == NULL ||
+            zonehash == NULL) {
+        vrmr_error(-1, "Internal Error",
+                "parameter problem "
+                "(in: %s:%d).",
+                __FUNC__, __LINE__);
+        return (-1);
     }
-    if(req->unknown_ip_as_net && zonelist == NULL)
-    {
-        vrmr_error(-1, "Internal Error", "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
+    if (req->unknown_ip_as_net && zonelist == NULL) {
+        vrmr_error(-1, "Internal Error",
+                "parameter problem "
+                "(in: %s:%d).",
+                __FUNC__, __LINE__);
+        return (-1);
     }
 
     conndata_ptr->ipv6 = connline_ptr->ipv6;
 
     /* first the service name */
-    conndata_ptr->service = vrmr_search_service_in_hash(
-                                    connline_ptr->src_port,
-                                    connline_ptr->dst_port,
-                                    connline_ptr->protocol, serhash);
-    if(conndata_ptr->service == NULL)
-    {
+    conndata_ptr->service = vrmr_search_service_in_hash(connline_ptr->src_port,
+            connline_ptr->dst_port, connline_ptr->protocol, serhash);
+    if (conndata_ptr->service == NULL) {
         /* do a reverse lookup. This will prevent connections that
          * have been picked up by conntrack midstream to look
          * unrecognized  */
-        if((conndata_ptr->service = vrmr_search_service_in_hash(
-            connline_ptr->dst_port, connline_ptr->src_port,
-            connline_ptr->protocol, serhash)) == NULL)
-        {
+        if ((conndata_ptr->service = vrmr_search_service_in_hash(
+                     connline_ptr->dst_port, connline_ptr->src_port,
+                     connline_ptr->protocol, serhash)) == NULL) {
             if (connline_ptr->protocol == 6 || connline_ptr->protocol == 17)
                 snprintf(service_name, sizeof(service_name), "%d -> %d",
                         connline_ptr->src_port, connline_ptr->dst_port);
@@ -204,12 +183,12 @@ conn_line_to_data(  struct ConntrackLine *connline_ptr,
                 snprintf(service_name, sizeof(service_name), "proto %d",
                         connline_ptr->protocol);
 
-            if(!(conndata_ptr->sername = strdup(service_name)))
-            {
-                vrmr_error(-1, "Error", "strdup() failed: %s "
-                        "(in: %s:%d).", strerror(errno),
-                        __FUNC__, __LINE__);
-                return(-1);
+            if (!(conndata_ptr->sername = strdup(service_name))) {
+                vrmr_error(-1, "Error",
+                        "strdup() failed: %s "
+                        "(in: %s:%d).",
+                        strerror(errno), __FUNC__, __LINE__);
+                return (-1);
             }
         } else {
             /* found! */
@@ -223,7 +202,7 @@ conn_line_to_data(  struct ConntrackLine *connline_ptr,
 
     /* if the dst port and alt_dst_port don't match, it is
         a portfw rule with the remoteport option set. */
-    if(connline_ptr->dst_port == connline_ptr->alt_src_port)
+    if (connline_ptr->dst_port == connline_ptr->alt_src_port)
         conndata_ptr->dst_port = connline_ptr->dst_port;
     else
         conndata_ptr->dst_port = connline_ptr->alt_src_port;
@@ -232,58 +211,52 @@ conn_line_to_data(  struct ConntrackLine *connline_ptr,
     conndata_ptr->src_port = connline_ptr->src_port;
 
     /* src ip */
-    if(strlcpy(conndata_ptr->src_ip, connline_ptr->src_ip,
-            sizeof(conndata_ptr->src_ip)) >= sizeof(conndata_ptr->src_ip))
-    {
-        vrmr_error(-1, "Internal Error", "string overflow "
-            "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
+    if (strlcpy(conndata_ptr->src_ip, connline_ptr->src_ip,
+                sizeof(conndata_ptr->src_ip)) >= sizeof(conndata_ptr->src_ip)) {
+        vrmr_error(-1, "Internal Error",
+                "string overflow "
+                "(in: %s:%d).",
+                __FUNC__, __LINE__);
+        return (-1);
     }
 
     /* then the from name */
     if (!(conndata_ptr->ipv6))
         conndata_ptr->from = vrmr_search_zone_in_hash_with_ipv4(
                 connline_ptr->src_ip, zonehash);
-    if(conndata_ptr->from == NULL)
-    {
-        vrmr_debug(HIGH, "unknown ip: '%s'.",
-                connline_ptr->src_ip);
+    if (conndata_ptr->from == NULL) {
+        vrmr_debug(HIGH, "unknown ip: '%s'.", connline_ptr->src_ip);
 
-        if(req->unknown_ip_as_net == FALSE)
-        {
-            if(!(conndata_ptr->fromname = strdup(connline_ptr->src_ip)))
-            {
-                vrmr_error(-1, "Error", "strdup() "
+        if (req->unknown_ip_as_net == FALSE) {
+            if (!(conndata_ptr->fromname = strdup(connline_ptr->src_ip))) {
+                vrmr_error(-1, "Error",
+                        "strdup() "
                         "failed: %s (in: %s:%d).",
                         strerror(errno), __FUNC__, __LINE__);
-                return(-1);
+                return (-1);
             }
-        }
-        else
-        {
-            if(!(zone_name_ptr = vrmr_get_network_for_ipv4(connline_ptr->src_ip, zonelist)))
-            {
-                if(!(conndata_ptr->fromname = strdup(connline_ptr->src_ip)))
-                {
-                    vrmr_error(-1, "Internal Error", "malloc failed: %s (in: conntrack_line_to_data).", strerror(errno));
-                    return(-1);
+        } else {
+            if (!(zone_name_ptr = vrmr_get_network_for_ipv4(
+                          connline_ptr->src_ip, zonelist))) {
+                if (!(conndata_ptr->fromname = strdup(connline_ptr->src_ip))) {
+                    vrmr_error(-1, "Internal Error",
+                            "malloc failed: %s (in: conntrack_line_to_data).",
+                            strerror(errno));
+                    return (-1);
                 }
-            }
-            else
-            {
-                if(!(conndata_ptr->fromname = strdup(zone_name_ptr)))
-                {
-                    vrmr_error(-1, "Internal Error", "strdup failed: %s (in: conntrack_line_to_data).", strerror(errno));
+            } else {
+                if (!(conndata_ptr->fromname = strdup(zone_name_ptr))) {
+                    vrmr_error(-1, "Internal Error",
+                            "strdup failed: %s (in: conntrack_line_to_data).",
+                            strerror(errno));
                     free(zone_name_ptr);
-                    return(-1);
+                    return (-1);
                 }
 
                 free(zone_name_ptr);
             }
         }
-    }
-    else
-    {
+    } else {
         conndata_ptr->fromname = conndata_ptr->from->name;
     }
 
@@ -292,46 +265,42 @@ conn_line_to_data(  struct ConntrackLine *connline_ptr,
             sizeof(conndata_ptr->dst_ip));
     /* dst ip */
     strlcpy(conndata_ptr->orig_dst_ip, connline_ptr->orig_dst_ip,
-       sizeof(conndata_ptr->orig_dst_ip));
+            sizeof(conndata_ptr->orig_dst_ip));
     /* then the to name */
     if (!(conndata_ptr->ipv6))
-        conndata_ptr->to = vrmr_search_zone_in_hash_with_ipv4(connline_ptr->dst_ip, zonehash);
-    if(conndata_ptr->to == NULL)
-    {
-        if(req->unknown_ip_as_net == FALSE)
-        {
-            if(!(conndata_ptr->toname = strdup(connline_ptr->dst_ip)))
-            {
-                vrmr_error(-1, "Internal Error", "strdup failed: %s (in: conntrack_line_to_data).", strerror(errno));
-                return(-1);
+        conndata_ptr->to = vrmr_search_zone_in_hash_with_ipv4(
+                connline_ptr->dst_ip, zonehash);
+    if (conndata_ptr->to == NULL) {
+        if (req->unknown_ip_as_net == FALSE) {
+            if (!(conndata_ptr->toname = strdup(connline_ptr->dst_ip))) {
+                vrmr_error(-1, "Internal Error",
+                        "strdup failed: %s (in: conntrack_line_to_data).",
+                        strerror(errno));
+                return (-1);
             }
-        }
-        else
-        {
-            if(!(zone_name_ptr = vrmr_get_network_for_ipv4(connline_ptr->dst_ip, zonelist)))
-            {
-                if(!(conndata_ptr->toname = strdup(connline_ptr->dst_ip)))
-                {
-                    vrmr_error(-1, "Internal Error", "strdup failed: %s (in: conntrack_line_to_data).", strerror(errno));
-                    return(-1);
+        } else {
+            if (!(zone_name_ptr = vrmr_get_network_for_ipv4(
+                          connline_ptr->dst_ip, zonelist))) {
+                if (!(conndata_ptr->toname = strdup(connline_ptr->dst_ip))) {
+                    vrmr_error(-1, "Internal Error",
+                            "strdup failed: %s (in: conntrack_line_to_data).",
+                            strerror(errno));
+                    return (-1);
                 }
-            }
-            else
-            {
-                if(!(conndata_ptr->toname = strdup(zone_name_ptr)))
-                {
-                    vrmr_error(-1, "Internal Error", "strdup failed: %s (in: conntrack_line_to_data).", strerror(errno));
+            } else {
+                if (!(conndata_ptr->toname = strdup(zone_name_ptr))) {
+                    vrmr_error(-1, "Internal Error",
+                            "strdup failed: %s (in: conntrack_line_to_data).",
+                            strerror(errno));
 
                     free(zone_name_ptr);
-                    return(-1);
+                    return (-1);
                 }
 
                 free(zone_name_ptr);
             }
         }
-    }
-    else
-    {
+    } else {
         conndata_ptr->toname = conndata_ptr->to->name;
     }
 
@@ -357,9 +326,11 @@ conn_line_to_data(  struct ConntrackLine *connline_ptr,
             break;
     }
 
-    if(conndata_ptr->from != NULL && conndata_ptr->from->type == VRMR_TYPE_FIREWALL)
+    if (conndata_ptr->from != NULL &&
+            conndata_ptr->from->type == VRMR_TYPE_FIREWALL)
         conndata_ptr->direction_status = VRMR_CONN_OUT;
-    else if(conndata_ptr->to != NULL && conndata_ptr->to->type == VRMR_TYPE_FIREWALL)
+    else if (conndata_ptr->to != NULL &&
+             conndata_ptr->to->type == VRMR_TYPE_FIREWALL)
         conndata_ptr->direction_status = VRMR_CONN_IN;
     else
         conndata_ptr->direction_status = VRMR_CONN_FW;
@@ -371,75 +342,55 @@ conn_line_to_data(  struct ConntrackLine *connline_ptr,
     conndata_ptr->to_dst_packets = connline_ptr->to_dst_packets;
     conndata_ptr->to_dst_bytes = connline_ptr->to_dst_bytes;
 
-    return(0);
+    return (0);
 }
 
-
-/* tcp      6 431999 ESTABLISHED src=192.168.1.2 dst=192.168.1.16 sport=51359 dport=22 packets=80969 bytes=7950474 src=192.168.1.16 dst=192.168.1.2 sport=22 dport=51359 packets=117783 bytes=123061993 [ASSURED] mark=0 use=1*/
-/* tcp      6 118 SYN_SENT src=192.168.1.4 dst=92.122.217.72 sport=36549 dport=80 packets=1 bytes=60 [UNREPLIED] src=92.122.217.72 dst=192.168.1.4 sport=80 dport=36549 packets=0 bytes=0 mark=0 secmark=0 */
-static int
-parse_tcp_line(const char *line,
-        struct ConntrackLine *connline_ptr)
+/* tcp      6 431999 ESTABLISHED src=192.168.1.2 dst=192.168.1.16 sport=51359
+ * dport=22 packets=80969 bytes=7950474 src=192.168.1.16 dst=192.168.1.2
+ * sport=22 dport=51359 packets=117783 bytes=123061993 [ASSURED] mark=0 use=1*/
+/* tcp      6 118 SYN_SENT src=192.168.1.4 dst=92.122.217.72 sport=36549
+ * dport=80 packets=1 bytes=60 [UNREPLIED] src=92.122.217.72 dst=192.168.1.4
+ * sport=80 dport=36549 packets=0 bytes=0 mark=0 secmark=0 */
+static int parse_tcp_line(const char *line, struct ConntrackLine *connline_ptr)
 {
-    int     result = 0;
-    char    source_port[16] = "",
-            dest_port[16] = "",
-            alt_source_port[16] = "",
-            alt_dest_port[16] = "",
-            tmp[16] = "";
+    int result = 0;
+    char source_port[16] = "", dest_port[16] = "", alt_source_port[16] = "",
+         alt_dest_port[16] = "", tmp[16] = "";
 
-    if(connline_ptr->use_acc == TRUE)
-    {
-        result = sscanf(line,   "%15s %d %d %15s src=%15s dst=%15s "
-                                "sport=%15s dport=%15s packets=%15s "
-                                "bytes=%15s src=%15s dst=%15s "
-                                "sport=%15s dport=%15s packets=%15s "
-                                "bytes=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->status,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        connline_ptr->to_dst_packets_str,
-                        connline_ptr->to_dst_bytes_str,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        alt_source_port,
-                        alt_dest_port,
-                        connline_ptr->to_src_packets_str,
-                        connline_ptr->to_src_bytes_str);
-        if(result != 16)
-        {
+    if (connline_ptr->use_acc == TRUE) {
+        result = sscanf(line,
+                "%15s %d %d %15s src=%15s dst=%15s "
+                "sport=%15s dport=%15s packets=%15s "
+                "bytes=%15s src=%15s dst=%15s "
+                "sport=%15s dport=%15s packets=%15s "
+                "bytes=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->status, connline_ptr->src_ip,
+                connline_ptr->dst_ip, source_port, dest_port,
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str, connline_ptr->alt_src_ip,
+                connline_ptr->alt_dst_ip, alt_source_port, alt_dest_port,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
+        if (result != 16) {
             /* unreplied */
-            result = sscanf(line,   "%15s %d %d %15s src=%15s dst=%15s "
-                                    "sport=%15s dport=%15s packets=%15s "
-                                    "bytes=%15s %15s src=%15s dst=%15s "
-                                    "sport=%15s dport=%15s packets=%15s "
-                                    "bytes=%15s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->status,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            source_port,
-                            dest_port,
-                            tmp,
-                            connline_ptr->to_dst_packets_str,
-                            connline_ptr->to_dst_bytes_str,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip,
-                            alt_source_port,
-                            alt_dest_port,
-                            connline_ptr->to_src_packets_str,
-                            connline_ptr->to_src_bytes_str);
-            if(result != 17)
-            {
+            result = sscanf(line,
+                    "%15s %d %d %15s src=%15s dst=%15s "
+                    "sport=%15s dport=%15s packets=%15s "
+                    "bytes=%15s %15s src=%15s dst=%15s "
+                    "sport=%15s dport=%15s packets=%15s "
+                    "bytes=%15s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->status, connline_ptr->src_ip,
+                    connline_ptr->dst_ip, source_port, dest_port, tmp,
+                    connline_ptr->to_dst_packets_str,
+                    connline_ptr->to_dst_bytes_str, connline_ptr->alt_src_ip,
+                    connline_ptr->alt_dst_ip, alt_source_port, alt_dest_port,
+                    connline_ptr->to_src_packets_str,
+                    connline_ptr->to_src_bytes_str);
+            if (result != 17) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
 
@@ -448,133 +399,98 @@ parse_tcp_line(const char *line,
                 connline_ptr->to_dst_bytes_str,
                 connline_ptr->to_src_packets_str,
                 connline_ptr->to_src_bytes_str);
-    }
-    else
-    {
-        result = sscanf(line,   "%15s %d %d %15s src=%15s dst=%15s "
-                                "sport=%15s dport=%15s src=%15s "
-                                "dst=%15s sport=%15s dport=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->status,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        alt_source_port,
-                        alt_dest_port);
-        if(result != 12)
-        {
-            result = sscanf(line,   "%15s %d %d %15s src=%15s dst=%15s "
-                                    "sport=%15s dport=%15s %15s src=%15s "
-                                    "dst=%15s sport=%15s dport=%15s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->status,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            source_port,
-                            dest_port,
-                            tmp,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip,
-                            alt_source_port,
-                            alt_dest_port);
-            if(result != 13)
-            {
+    } else {
+        result = sscanf(line,
+                "%15s %d %d %15s src=%15s dst=%15s "
+                "sport=%15s dport=%15s src=%15s "
+                "dst=%15s sport=%15s dport=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->status, connline_ptr->src_ip,
+                connline_ptr->dst_ip, source_port, dest_port,
+                connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip,
+                alt_source_port, alt_dest_port);
+        if (result != 12) {
+            result = sscanf(line,
+                    "%15s %d %d %15s src=%15s dst=%15s "
+                    "sport=%15s dport=%15s %15s src=%15s "
+                    "dst=%15s sport=%15s dport=%15s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->status, connline_ptr->src_ip,
+                    connline_ptr->dst_ip, source_port, dest_port, tmp,
+                    connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip,
+                    alt_source_port, alt_dest_port);
+            if (result != 13) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
     }
 
     connline_ptr->src_port = atoi(source_port);
-    if(connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
+    if (connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
         connline_ptr->src_port = 0;
 
     connline_ptr->dst_port = atoi(dest_port);
-    if(connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
+    if (connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
         connline_ptr->dst_port = 0;
 
     connline_ptr->alt_src_port = atoi(alt_source_port);
-    if(connline_ptr->alt_src_port <= 0 || connline_ptr->alt_src_port > 65535)
+    if (connline_ptr->alt_src_port <= 0 || connline_ptr->alt_src_port > 65535)
         connline_ptr->alt_src_port = 0;
 
     connline_ptr->alt_dst_port = atoi(alt_dest_port);
-    if(connline_ptr->alt_dst_port <= 0 || connline_ptr->alt_dst_port > 65535)
+    if (connline_ptr->alt_dst_port <= 0 || connline_ptr->alt_dst_port > 65535)
         connline_ptr->alt_dst_port = 0;
 
-    return(0);
+    return (0);
 }
 
-/* tcp      6 57 CLOSE_WAIT src=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx dst=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx sport=37424 dport=443 src=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx dst=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx sport=443 dport=37424 [ASSURED] mark=0 zone=0 use=2 */
-static int
-parse_tcp_line_ipv6(const char *line,
-        struct ConntrackLine *connline_ptr)
+/* tcp      6 57 CLOSE_WAIT src=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx
+ * dst=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx sport=37424 dport=443
+ * src=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx
+ * dst=xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx sport=443 dport=37424 [ASSURED]
+ * mark=0 zone=0 use=2 */
+static int parse_tcp_line_ipv6(
+        const char *line, struct ConntrackLine *connline_ptr)
 {
-    int     result = 0;
-    char    source_port[16] = "",
-            dest_port[16] = "",
-            alt_source_port[16] = "",
-            alt_dest_port[16] = "",
-            tmp[16] = "";
+    int result = 0;
+    char source_port[16] = "", dest_port[16] = "", alt_source_port[16] = "",
+         alt_dest_port[16] = "", tmp[16] = "";
 
-    if(connline_ptr->use_acc == TRUE)
-    {
-        result = sscanf(line,   "%15s %d %d %15s src=%45s dst=%45s "
-                                "sport=%15s dport=%15s packets=%15s "
-                                "bytes=%15s src=%45s dst=%45s "
-                                "sport=%15s dport=%15s packets=%15s "
-                                "bytes=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->status,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        connline_ptr->to_dst_packets_str,
-                        connline_ptr->to_dst_bytes_str,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        alt_source_port,
-                        alt_dest_port,
-                        connline_ptr->to_src_packets_str,
-                        connline_ptr->to_src_bytes_str);
-        if(result != 16)
-        {
+    if (connline_ptr->use_acc == TRUE) {
+        result = sscanf(line,
+                "%15s %d %d %15s src=%45s dst=%45s "
+                "sport=%15s dport=%15s packets=%15s "
+                "bytes=%15s src=%45s dst=%45s "
+                "sport=%15s dport=%15s packets=%15s "
+                "bytes=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->status, connline_ptr->src_ip,
+                connline_ptr->dst_ip, source_port, dest_port,
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str, connline_ptr->alt_src_ip,
+                connline_ptr->alt_dst_ip, alt_source_port, alt_dest_port,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
+        if (result != 16) {
             /* unreplied */
-            result = sscanf(line,   "%15s %d %d %15s src=%45s dst=%45s "
-                                    "sport=%15s dport=%15s packets=%15s "
-                                    "bytes=%15s %15s src=%45s dst=%45s "
-                                    "sport=%15s dport=%15s packets=%15s "
-                                    "bytes=%15s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->status,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            source_port,
-                            dest_port,
-                            tmp,
-                            connline_ptr->to_dst_packets_str,
-                            connline_ptr->to_dst_bytes_str,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip,
-                            alt_source_port,
-                            alt_dest_port,
-                            connline_ptr->to_src_packets_str,
-                            connline_ptr->to_src_bytes_str);
-            if(result != 17)
-            {
+            result = sscanf(line,
+                    "%15s %d %d %15s src=%45s dst=%45s "
+                    "sport=%15s dport=%15s packets=%15s "
+                    "bytes=%15s %15s src=%45s dst=%45s "
+                    "sport=%15s dport=%15s packets=%15s "
+                    "bytes=%15s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->status, connline_ptr->src_ip,
+                    connline_ptr->dst_ip, source_port, dest_port, tmp,
+                    connline_ptr->to_dst_packets_str,
+                    connline_ptr->to_dst_bytes_str, connline_ptr->alt_src_ip,
+                    connline_ptr->alt_dst_ip, alt_source_port, alt_dest_port,
+                    connline_ptr->to_src_packets_str,
+                    connline_ptr->to_src_bytes_str);
+            if (result != 17) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
 
@@ -583,134 +499,99 @@ parse_tcp_line_ipv6(const char *line,
                 connline_ptr->to_dst_bytes_str,
                 connline_ptr->to_src_packets_str,
                 connline_ptr->to_src_bytes_str);
-    }
-    else
-    {
-        result = sscanf(line,   "%15s %d %d %15s src=%45s dst=%45s "
-                                "sport=%15s dport=%15s src=%45s "
-                                "dst=%45s sport=%15s dport=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->status,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        alt_source_port,
-                        alt_dest_port);
-        if(result != 12)
-        {
-            result = sscanf(line,   "%15s %d %d %15s src=%45s dst=%45s "
-                                    "sport=%15s dport=%15s %15s src=%45s "
-                                    "dst=%45s sport=%15s dport=%15s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->status,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            source_port,
-                            dest_port,
-                            tmp,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip,
-                            alt_source_port,
-                            alt_dest_port);
-            if(result != 13)
-            {
+    } else {
+        result = sscanf(line,
+                "%15s %d %d %15s src=%45s dst=%45s "
+                "sport=%15s dport=%15s src=%45s "
+                "dst=%45s sport=%15s dport=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->status, connline_ptr->src_ip,
+                connline_ptr->dst_ip, source_port, dest_port,
+                connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip,
+                alt_source_port, alt_dest_port);
+        if (result != 12) {
+            result = sscanf(line,
+                    "%15s %d %d %15s src=%45s dst=%45s "
+                    "sport=%15s dport=%15s %15s src=%45s "
+                    "dst=%45s sport=%15s dport=%15s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->status, connline_ptr->src_ip,
+                    connline_ptr->dst_ip, source_port, dest_port, tmp,
+                    connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip,
+                    alt_source_port, alt_dest_port);
+            if (result != 13) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
     }
 
     connline_ptr->src_port = atoi(source_port);
-    if(connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
+    if (connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
         connline_ptr->src_port = 0;
 
     connline_ptr->dst_port = atoi(dest_port);
-    if(connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
+    if (connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
         connline_ptr->dst_port = 0;
 
     connline_ptr->alt_src_port = atoi(alt_source_port);
-    if(connline_ptr->alt_src_port <= 0 || connline_ptr->alt_src_port > 65535)
+    if (connline_ptr->alt_src_port <= 0 || connline_ptr->alt_src_port > 65535)
         connline_ptr->alt_src_port = 0;
 
     connline_ptr->alt_dst_port = atoi(alt_dest_port);
-    if(connline_ptr->alt_dst_port <= 0 || connline_ptr->alt_dst_port > 65535)
+    if (connline_ptr->alt_dst_port <= 0 || connline_ptr->alt_dst_port > 65535)
         connline_ptr->alt_dst_port = 0;
 
-    return(0);
+    return (0);
 }
 
-
-/* udp      17 23 src=192.168.1.2 dst=192.168.1.1 sport=38009 dport=53 packets=20 bytes=1329 src=192.168.1.1 dst=192.168.1.2 sport=53 dport=38009 packets=20 bytes=3987 [ASSURED] mark=0 use=1 */
-/* udp      17 12 src=192.168.1.2 dst=192.168.1.255 sport=137 dport=137 [UNREPLIED] src=192.168.1.255 dst=192.168.1.2 sport=137 dport=137 use=1*/
-/* udp      17 29 src=192.168.1.4 dst=192.168.1.1 sport=57902 dport=53 packets=1 bytes=69 [UNREPLIED] src=192.168.1.1 dst=192.168.1.4 sport=53 dport=57902 packets=0 bytes=0 mark=0 secmark=0 use=2 */
-static int
-parse_udp_line(const char *line,
-        struct ConntrackLine *connline_ptr)
+/* udp      17 23 src=192.168.1.2 dst=192.168.1.1 sport=38009 dport=53
+ * packets=20 bytes=1329 src=192.168.1.1 dst=192.168.1.2 sport=53 dport=38009
+ * packets=20 bytes=3987 [ASSURED] mark=0 use=1 */
+/* udp      17 12 src=192.168.1.2 dst=192.168.1.255 sport=137 dport=137
+ * [UNREPLIED] src=192.168.1.255 dst=192.168.1.2 sport=137 dport=137 use=1*/
+/* udp      17 29 src=192.168.1.4 dst=192.168.1.1 sport=57902 dport=53 packets=1
+ * bytes=69 [UNREPLIED] src=192.168.1.1 dst=192.168.1.4 sport=53 dport=57902
+ * packets=0 bytes=0 mark=0 secmark=0 use=2 */
+static int parse_udp_line(const char *line, struct ConntrackLine *connline_ptr)
 {
-    int     result = 0;
-    char    source_port[16] = "",
-            dest_port[16] = "",
-            alt_source_port[16] = "",
-            alt_dest_port[16] = "",
-            tmp[16] = "";
+    int result = 0;
+    char source_port[16] = "", dest_port[16] = "", alt_source_port[16] = "",
+         alt_dest_port[16] = "", tmp[16] = "";
 
-    if(connline_ptr->use_acc == TRUE)
-    {
-        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
-                                "sport=%15s dport=%15s packets=%15s "
-                                "bytes=%15s src=%15s dst=%15s "
-                                "sport=%15s dport=%15s packets=%15s "
-                                "bytes=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        connline_ptr->to_dst_packets_str,
-                        connline_ptr->to_dst_bytes_str,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        alt_source_port,
-                        alt_dest_port,
-                        connline_ptr->to_src_packets_str,
-                        connline_ptr->to_src_bytes_str);
+    if (connline_ptr->use_acc == TRUE) {
+        result = sscanf(line,
+                "%15s %d %d src=%15s dst=%15s "
+                "sport=%15s dport=%15s packets=%15s "
+                "bytes=%15s src=%15s dst=%15s "
+                "sport=%15s dport=%15s packets=%15s "
+                "bytes=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                dest_port, connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str, connline_ptr->alt_src_ip,
+                connline_ptr->alt_dst_ip, alt_source_port, alt_dest_port,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
 
-        if(result != 15)
-        {
-            result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
-                                    "sport=%15s dport=%15s packets=%15s "
-                                    "bytes=%15s %15s src=%15s dst=%15s "
-                                    "sport=%15s dport=%15s packets=%15s "
-                                    "bytes=%15s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            source_port,
-                            dest_port,
-                            connline_ptr->to_dst_packets_str,
-                            connline_ptr->to_dst_bytes_str,
-                            connline_ptr->status,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip,
-                            alt_source_port,
-                            alt_dest_port,
-                            connline_ptr->to_src_packets_str,
-                            connline_ptr->to_src_bytes_str);
-            if(result != 16)
-            {
+        if (result != 15) {
+            result = sscanf(line,
+                    "%15s %d %d src=%15s dst=%15s "
+                    "sport=%15s dport=%15s packets=%15s "
+                    "bytes=%15s %15s src=%15s dst=%15s "
+                    "sport=%15s dport=%15s packets=%15s "
+                    "bytes=%15s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                    dest_port, connline_ptr->to_dst_packets_str,
+                    connline_ptr->to_dst_bytes_str, connline_ptr->status,
+                    connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip,
+                    alt_source_port, alt_dest_port,
+                    connline_ptr->to_src_packets_str,
+                    connline_ptr->to_src_bytes_str);
+            if (result != 16) {
                 vrmr_debug(NONE, "parse error: '%s', result %d", line, result);
-                return(-1);
+                return (-1);
             }
         }
 
@@ -722,45 +603,28 @@ parse_udp_line(const char *line,
                 connline_ptr->to_dst_bytes_str,
                 connline_ptr->to_src_packets_str,
                 connline_ptr->to_src_bytes_str);
-    }
-    else
-    {
-        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
-                                "sport=%15s dport=%15s src=%15s "
-                                "dst=%15s sport=%15s dport=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        alt_source_port,
-                        alt_dest_port);
-        if(result != 11)
-        {
-            result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
-                                    "sport=%15s dport=%15s %15s "
-                                    "src=%15s dst=%15s "
-                                    "sport=%15s dport=%15s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            source_port,
-                            dest_port,
-                            connline_ptr->status,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip,
-                            alt_source_port,
-                            alt_dest_port);
-            if(result != 12)
-            {
+    } else {
+        result = sscanf(line,
+                "%15s %d %d src=%15s dst=%15s "
+                "sport=%15s dport=%15s src=%15s "
+                "dst=%15s sport=%15s dport=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                dest_port, connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip,
+                alt_source_port, alt_dest_port);
+        if (result != 11) {
+            result = sscanf(line,
+                    "%15s %d %d src=%15s dst=%15s "
+                    "sport=%15s dport=%15s %15s "
+                    "src=%15s dst=%15s "
+                    "sport=%15s dport=%15s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                    dest_port, connline_ptr->status, connline_ptr->alt_src_ip,
+                    connline_ptr->alt_dst_ip, alt_source_port, alt_dest_port);
+            if (result != 12) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
 
@@ -769,85 +633,64 @@ parse_udp_line(const char *line,
     }
 
     connline_ptr->src_port = atoi(source_port);
-    if(connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
+    if (connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
         connline_ptr->src_port = 0;
 
     connline_ptr->dst_port = atoi(dest_port);
-    if(connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
+    if (connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
         connline_ptr->dst_port = 0;
 
     connline_ptr->alt_src_port = atoi(alt_source_port);
-    if(connline_ptr->alt_src_port <= 0 || connline_ptr->alt_src_port > 65535)
+    if (connline_ptr->alt_src_port <= 0 || connline_ptr->alt_src_port > 65535)
         connline_ptr->alt_src_port = 0;
 
     connline_ptr->alt_dst_port = atoi(alt_dest_port);
-    if(connline_ptr->alt_dst_port <= 0 || connline_ptr->alt_dst_port > 65535)
+    if (connline_ptr->alt_dst_port <= 0 || connline_ptr->alt_dst_port > 65535)
         connline_ptr->alt_dst_port = 0;
 
-    return(0);
+    return (0);
 }
 
-static int
-parse_udp_line_ipv6(const char *line,
-        struct ConntrackLine *connline_ptr)
+static int parse_udp_line_ipv6(
+        const char *line, struct ConntrackLine *connline_ptr)
 {
-    int     result = 0;
-    char    source_port[16] = "",
-            dest_port[16] = "",
-            alt_source_port[16] = "",
-            alt_dest_port[16] = "",
-            tmp[16] = "";
+    int result = 0;
+    char source_port[16] = "", dest_port[16] = "", alt_source_port[16] = "",
+         alt_dest_port[16] = "", tmp[16] = "";
 
-    if(connline_ptr->use_acc == TRUE)
-    {
-        result = sscanf(line,   "%15s %d %d src=%46s dst=%46s "
-                                "sport=%15s dport=%15s packets=%15s "
-                                "bytes=%15s src=%46s dst=%46s "
-                                "sport=%15s dport=%15s packets=%15s "
-                                "bytes=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        connline_ptr->to_dst_packets_str,
-                        connline_ptr->to_dst_bytes_str,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        alt_source_port,
-                        alt_dest_port,
-                        connline_ptr->to_src_packets_str,
-                        connline_ptr->to_src_bytes_str);
+    if (connline_ptr->use_acc == TRUE) {
+        result = sscanf(line,
+                "%15s %d %d src=%46s dst=%46s "
+                "sport=%15s dport=%15s packets=%15s "
+                "bytes=%15s src=%46s dst=%46s "
+                "sport=%15s dport=%15s packets=%15s "
+                "bytes=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                dest_port, connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str, connline_ptr->alt_src_ip,
+                connline_ptr->alt_dst_ip, alt_source_port, alt_dest_port,
+                connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
 
-        if(result != 15)
-        {
-            result = sscanf(line,   "%15s %d %d src=%46s dst=%46s "
-                                    "sport=%15s dport=%15s packets=%15s "
-                                    "bytes=%15s %15s src=%46s dst=%46s "
-                                    "sport=%15s dport=%15s packets=%15s "
-                                    "bytes=%15s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            source_port,
-                            dest_port,
-                            connline_ptr->to_dst_packets_str,
-                            connline_ptr->to_dst_bytes_str,
-                            connline_ptr->status,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip,
-                            alt_source_port,
-                            alt_dest_port,
-                            connline_ptr->to_src_packets_str,
-                            connline_ptr->to_src_bytes_str);
-            if(result != 16)
-            {
+        if (result != 15) {
+            result = sscanf(line,
+                    "%15s %d %d src=%46s dst=%46s "
+                    "sport=%15s dport=%15s packets=%15s "
+                    "bytes=%15s %15s src=%46s dst=%46s "
+                    "sport=%15s dport=%15s packets=%15s "
+                    "bytes=%15s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                    dest_port, connline_ptr->to_dst_packets_str,
+                    connline_ptr->to_dst_bytes_str, connline_ptr->status,
+                    connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip,
+                    alt_source_port, alt_dest_port,
+                    connline_ptr->to_src_packets_str,
+                    connline_ptr->to_src_bytes_str);
+            if (result != 16) {
                 vrmr_debug(NONE, "parse error: '%s', result %d", line, result);
-                return(-1);
+                return (-1);
             }
         }
 
@@ -859,45 +702,28 @@ parse_udp_line_ipv6(const char *line,
                 connline_ptr->to_dst_bytes_str,
                 connline_ptr->to_src_packets_str,
                 connline_ptr->to_src_bytes_str);
-    }
-    else
-    {
-        result = sscanf(line,   "%15s %d %d src=%46s dst=%46s "
-                                "sport=%15s dport=%15s src=%46s "
-                                "dst=%46s sport=%15s dport=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        alt_source_port,
-                        alt_dest_port);
-        if(result != 11)
-        {
-            result = sscanf(line,   "%15s %d %d src=%46s dst=%46s "
-                                    "sport=%15s dport=%15s %15s "
-                                    "src=%46s dst=%46s "
-                                    "sport=%15s dport=%15s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            source_port,
-                            dest_port,
-                            connline_ptr->status,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip,
-                            alt_source_port,
-                            alt_dest_port);
-            if(result != 12)
-            {
+    } else {
+        result = sscanf(line,
+                "%15s %d %d src=%46s dst=%46s "
+                "sport=%15s dport=%15s src=%46s "
+                "dst=%46s sport=%15s dport=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                dest_port, connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip,
+                alt_source_port, alt_dest_port);
+        if (result != 11) {
+            result = sscanf(line,
+                    "%15s %d %d src=%46s dst=%46s "
+                    "sport=%15s dport=%15s %15s "
+                    "src=%46s dst=%46s "
+                    "sport=%15s dport=%15s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                    dest_port, connline_ptr->status, connline_ptr->alt_src_ip,
+                    connline_ptr->alt_dst_ip, alt_source_port, alt_dest_port);
+            if (result != 12) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
 
@@ -906,89 +732,67 @@ parse_udp_line_ipv6(const char *line,
     }
 
     connline_ptr->src_port = atoi(source_port);
-    if(connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
+    if (connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
         connline_ptr->src_port = 0;
 
     connline_ptr->dst_port = atoi(dest_port);
-    if(connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
+    if (connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
         connline_ptr->dst_port = 0;
 
     connline_ptr->alt_src_port = atoi(alt_source_port);
-    if(connline_ptr->alt_src_port <= 0 || connline_ptr->alt_src_port > 65535)
+    if (connline_ptr->alt_src_port <= 0 || connline_ptr->alt_src_port > 65535)
         connline_ptr->alt_src_port = 0;
 
     connline_ptr->alt_dst_port = atoi(alt_dest_port);
-    if(connline_ptr->alt_dst_port <= 0 || connline_ptr->alt_dst_port > 65535)
+    if (connline_ptr->alt_dst_port <= 0 || connline_ptr->alt_dst_port > 65535)
         connline_ptr->alt_dst_port = 0;
 
-    return(0);
+    return (0);
 }
 
-//icmp     1 29 src=192.168.0.2 dst=194.109.6.11 type=8 code=0 id=57376 [UNREPLIED] src=194.109.6.11 dst=192.168.0.2 type=0 code=0 id=57376 use=1
-//icmp     1 30 src=192.168.1.2 dst=192.168.1.64 type=8 code=0 id=64811 packets=1 bytes=84 [UNREPLIED] src=192.168.1.64 dst=192.168.1.2 type=0 code=0 id=64811 packets=0 bytes=0 mark=0 use=1
-//icmp     1 4 src=xx.xx.xx.xx dst=194.109.21.51 type=8 code=0 id=28193 packets=1 bytes=84 src=194.109.21.51 dst=xx.xx.xx.xx type=0 code=0 id=28193 packets=1 bytes=84 mark=0 secmark=0 use=2
-static int
-parse_icmp_line(const char *line,
-        struct ConntrackLine *connline_ptr)
+// icmp     1 29 src=192.168.0.2 dst=194.109.6.11 type=8 code=0 id=57376
+// [UNREPLIED] src=194.109.6.11 dst=192.168.0.2 type=0 code=0 id=57376 use=1
+// icmp 1 30 src=192.168.1.2 dst=192.168.1.64 type=8 code=0 id=64811 packets=1
+// bytes=84 [UNREPLIED] src=192.168.1.64 dst=192.168.1.2 type=0 code=0 id=64811
+// packets=0 bytes=0 mark=0 use=1 icmp     1 4 src=xx.xx.xx.xx dst=194.109.21.51
+// type=8 code=0 id=28193 packets=1 bytes=84 src=194.109.21.51 dst=xx.xx.xx.xx
+// type=0 code=0 id=28193 packets=1 bytes=84 mark=0 secmark=0 use=2
+static int parse_icmp_line(const char *line, struct ConntrackLine *connline_ptr)
 {
-    int     result = 0;
-    char    source_port[16] = "",
-            dest_port[16] = "",
-            tmp[16] = "";
+    int result = 0;
+    char source_port[16] = "", dest_port[16] = "", tmp[16] = "";
 
-    if(connline_ptr->use_acc == TRUE)
-    {
-        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
-                                "type=%15s code=%15s id=%15s "
-                                "packets=%15s bytes=%15s %15s src=%15s "
-                                "dst=%15s type=%15s code=%15s id=%15s "
-                                "packets=%15s bytes=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        tmp,
-                        connline_ptr->to_dst_packets_str,
-                        connline_ptr->to_dst_bytes_str,
-                        connline_ptr->status,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        tmp,
-                        tmp,
-                        tmp,
-                        connline_ptr->to_src_packets_str,
-                        connline_ptr->to_src_bytes_str);
-        if(result != 18)
-        {
-            result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
+    if (connline_ptr->use_acc == TRUE) {
+        result = sscanf(line,
+                "%15s %d %d src=%15s dst=%15s "
+                "type=%15s code=%15s id=%15s "
+                "packets=%15s bytes=%15s %15s src=%15s "
+                "dst=%15s type=%15s code=%15s id=%15s "
+                "packets=%15s bytes=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                dest_port, tmp, connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str, connline_ptr->status,
+                connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip, tmp, tmp,
+                tmp, connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
+        if (result != 18) {
+            result = sscanf(line,
+                    "%15s %d %d src=%15s dst=%15s "
                     "type=%15s code=%15s id=%15s "
                     "packets=%15s bytes=%15s src=%15s "
                     "dst=%15s type=%15s code=%15s id=%15s "
                     "packets=%15s bytes=%15s",
-                    tmp,
-                    &connline_ptr->protocol,
-                    &connline_ptr->ttl,
-                    connline_ptr->src_ip,
-                    connline_ptr->dst_ip,
-                    source_port,
-                    dest_port,
-                    tmp,
-                    connline_ptr->to_dst_packets_str,
-                    connline_ptr->to_dst_bytes_str,
-                    connline_ptr->alt_src_ip,
-                    connline_ptr->alt_dst_ip,
-                    tmp,
-                    tmp,
-                    tmp,
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                    dest_port, tmp, connline_ptr->to_dst_packets_str,
+                    connline_ptr->to_dst_bytes_str, connline_ptr->alt_src_ip,
+                    connline_ptr->alt_dst_ip, tmp, tmp, tmp,
                     connline_ptr->to_src_packets_str,
                     connline_ptr->to_src_bytes_str);
-            if(result != 17)
-            {
+            if (result != 17) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
 
@@ -997,103 +801,69 @@ parse_icmp_line(const char *line,
                 connline_ptr->to_dst_bytes_str,
                 connline_ptr->to_src_packets_str,
                 connline_ptr->to_src_bytes_str);
-    }
-    else
-    {
-        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
-                                "type=%15s code=%15s id=%15s %15s "
-                                "src=%15s dst=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        tmp,
-                        connline_ptr->status,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip);
-        if(result != 11)
-        {
+    } else {
+        result = sscanf(line,
+                "%15s %d %d src=%15s dst=%15s "
+                "type=%15s code=%15s id=%15s %15s "
+                "src=%15s dst=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                dest_port, tmp, connline_ptr->status, connline_ptr->alt_src_ip,
+                connline_ptr->alt_dst_ip);
+        if (result != 11) {
             vrmr_debug(NONE, "parse error: '%s'", line);
-            return(-1);
+            return (-1);
         }
     }
 
     connline_ptr->src_port = atoi(source_port);
-    if(connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
+    if (connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
         connline_ptr->src_port = 0;
 
     connline_ptr->dst_port = atoi(dest_port);
-    if(connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
+    if (connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
         connline_ptr->dst_port = 0;
 
-    return(0);
+    return (0);
 }
 
-static int
-parse_icmp_line_ipv6(const char *line,
-        struct ConntrackLine *connline_ptr)
+static int parse_icmp_line_ipv6(
+        const char *line, struct ConntrackLine *connline_ptr)
 {
-    int     result = 0;
-    char    source_port[16] = "",
-            dest_port[16] = "",
-            tmp[16] = "";
+    int result = 0;
+    char source_port[16] = "", dest_port[16] = "", tmp[16] = "";
 
-    if(connline_ptr->use_acc == TRUE)
-    {
-        result = sscanf(line,   "%15s %d %d src=%46s dst=%46s "
-                                "type=%15s code=%15s id=%15s "
-                                "packets=%15s bytes=%15s %15s src=%46s "
-                                "dst=%46s type=%15s code=%15s id=%15s "
-                                "packets=%15s bytes=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        tmp,
-                        connline_ptr->to_dst_packets_str,
-                        connline_ptr->to_dst_bytes_str,
-                        connline_ptr->status,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        tmp,
-                        tmp,
-                        tmp,
-                        connline_ptr->to_src_packets_str,
-                        connline_ptr->to_src_bytes_str);
-        if(result != 18)
-        {
-            result = sscanf(line,   "%15s %d %d src=%46s dst=%46s "
+    if (connline_ptr->use_acc == TRUE) {
+        result = sscanf(line,
+                "%15s %d %d src=%46s dst=%46s "
+                "type=%15s code=%15s id=%15s "
+                "packets=%15s bytes=%15s %15s src=%46s "
+                "dst=%46s type=%15s code=%15s id=%15s "
+                "packets=%15s bytes=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                dest_port, tmp, connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str, connline_ptr->status,
+                connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip, tmp, tmp,
+                tmp, connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
+        if (result != 18) {
+            result = sscanf(line,
+                    "%15s %d %d src=%46s dst=%46s "
                     "type=%15s code=%15s id=%15s "
                     "packets=%15s bytes=%15s src=%46s "
                     "dst=%46s type=%15s code=%15s id=%15s "
                     "packets=%15s bytes=%15s",
-                    tmp,
-                    &connline_ptr->protocol,
-                    &connline_ptr->ttl,
-                    connline_ptr->src_ip,
-                    connline_ptr->dst_ip,
-                    source_port,
-                    dest_port,
-                    tmp,
-                    connline_ptr->to_dst_packets_str,
-                    connline_ptr->to_dst_bytes_str,
-                    connline_ptr->alt_src_ip,
-                    connline_ptr->alt_dst_ip,
-                    tmp,
-                    tmp,
-                    tmp,
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                    dest_port, tmp, connline_ptr->to_dst_packets_str,
+                    connline_ptr->to_dst_bytes_str, connline_ptr->alt_src_ip,
+                    connline_ptr->alt_dst_ip, tmp, tmp, tmp,
                     connline_ptr->to_src_packets_str,
                     connline_ptr->to_src_bytes_str);
-            if(result != 17)
-            {
+            if (result != 17) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
 
@@ -1102,106 +872,79 @@ parse_icmp_line_ipv6(const char *line,
                 connline_ptr->to_dst_bytes_str,
                 connline_ptr->to_src_packets_str,
                 connline_ptr->to_src_bytes_str);
-    }
-    else
-    {
-        result = sscanf(line,   "%15s %d %d src=%46s dst=%46s "
-                                "type=%15s code=%15s id=%15s %15s "
-                                "src=%46s dst=%46s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        source_port,
-                        dest_port,
-                        tmp,
-                        connline_ptr->status,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip);
-        if(result != 11)
-        {
-            result = sscanf(line,   "%15s %d %d src=%46s dst=%46s "
+    } else {
+        result = sscanf(line,
+                "%15s %d %d src=%46s dst=%46s "
+                "type=%15s code=%15s id=%15s %15s "
+                "src=%46s dst=%46s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                dest_port, tmp, connline_ptr->status, connline_ptr->alt_src_ip,
+                connline_ptr->alt_dst_ip);
+        if (result != 11) {
+            result = sscanf(line,
+                    "%15s %d %d src=%46s dst=%46s "
                     "type=%15s code=%15s id=%15s src=%46s dst=%46s",
-                    tmp,
-                    &connline_ptr->protocol,
-                    &connline_ptr->ttl,
-                    connline_ptr->src_ip,
-                    connline_ptr->dst_ip,
-                    source_port,
-                    dest_port,
-                    tmp,
-                    connline_ptr->alt_src_ip,
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->src_ip, connline_ptr->dst_ip, source_port,
+                    dest_port, tmp, connline_ptr->alt_src_ip,
                     connline_ptr->alt_dst_ip);
-            if(result != 10)
-            {
+            if (result != 10) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
     }
 
     connline_ptr->src_port = atoi(source_port);
-    if(connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
+    if (connline_ptr->src_port <= 0 || connline_ptr->src_port > 65535)
         connline_ptr->src_port = 0;
 
     connline_ptr->dst_port = atoi(dest_port);
-    if(connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
+    if (connline_ptr->dst_port <= 0 || connline_ptr->dst_port > 65535)
         connline_ptr->dst_port = 0;
 
-    return(0);
+    return (0);
 }
-
 
 /*
     unknown  41 585 src=<ip> dst=<ip> src=<ip> dst=<ip> use=1
     unknown  47 599 src=<ip> dst=<ip> src=<ip> dst=<ip> use=1
-        unknown 41 575 src=<ip> dst=<ip> packets=6 bytes=600 [UNREPLIED] src=<ip> dst=<ip> packets=0 bytes=0 mark=0 use=1
+        unknown 41 575 src=<ip> dst=<ip> packets=6 bytes=600 [UNREPLIED]
+   src=<ip> dst=<ip> packets=0 bytes=0 mark=0 use=1
 */
-static int
-parse_unknown_line(const char *line,
-        struct ConntrackLine *connline_ptr)
+static int parse_unknown_line(
+        const char *line, struct ConntrackLine *connline_ptr)
 {
-    int     result = 0;
-    char    tmp[16] = "";
+    int result = 0;
+    char tmp[16] = "";
 
-    if(connline_ptr->use_acc == TRUE)
-    {
-        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
-                                "packets=%15s bytes=%15s src=%15s "
-                                "dst=%15s packets=%15s bytes=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        connline_ptr->to_dst_packets_str,
-                        connline_ptr->to_dst_bytes_str,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        connline_ptr->to_src_packets_str,
-                        connline_ptr->to_src_bytes_str);
-        if(result != 11)
-        {
-            result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
-                                    "packets=%15s bytes=%15s %15s src=%15s "
-                                    "dst=%15s packets=%15s bytes=%15s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            connline_ptr->to_dst_packets_str,
-                            connline_ptr->to_dst_bytes_str,
-                            connline_ptr->status,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip,
-                            connline_ptr->to_src_packets_str,
-                            connline_ptr->to_src_bytes_str);
-            if(result != 12)
-            {
+    if (connline_ptr->use_acc == TRUE) {
+        result = sscanf(line,
+                "%15s %d %d src=%15s dst=%15s "
+                "packets=%15s bytes=%15s src=%15s "
+                "dst=%15s packets=%15s bytes=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip,
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str, connline_ptr->alt_src_ip,
+                connline_ptr->alt_dst_ip, connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
+        if (result != 11) {
+            result = sscanf(line,
+                    "%15s %d %d src=%15s dst=%15s "
+                    "packets=%15s bytes=%15s %15s src=%15s "
+                    "dst=%15s packets=%15s bytes=%15s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->src_ip, connline_ptr->dst_ip,
+                    connline_ptr->to_dst_packets_str,
+                    connline_ptr->to_dst_bytes_str, connline_ptr->status,
+                    connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip,
+                    connline_ptr->to_src_packets_str,
+                    connline_ptr->to_src_bytes_str);
+            if (result != 12) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
 
@@ -1210,34 +953,24 @@ parse_unknown_line(const char *line,
                 connline_ptr->to_dst_bytes_str,
                 connline_ptr->to_src_packets_str,
                 connline_ptr->to_src_bytes_str);
-    }
-    else
-    {
-        result = sscanf(line,   "%15s %d %d src=%15s dst=%15s "
-                                "src=%15s dst=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip);
-        if(result != 7)
-        {
-            result = sscanf(line,   "%15s %d %d src=%15s dst=%15s %15s "
-                                    "src=%15s dst=%15s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            connline_ptr->status,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip);
-            if (result != 8)
-            {
+    } else {
+        result = sscanf(line,
+                "%15s %d %d src=%15s dst=%15s "
+                "src=%15s dst=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip,
+                connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip);
+        if (result != 7) {
+            result = sscanf(line,
+                    "%15s %d %d src=%15s dst=%15s %15s "
+                    "src=%15s dst=%15s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->src_ip, connline_ptr->dst_ip,
+                    connline_ptr->status, connline_ptr->alt_src_ip,
+                    connline_ptr->alt_dst_ip);
+            if (result != 8) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
     }
@@ -1246,53 +979,41 @@ parse_unknown_line(const char *line,
     connline_ptr->src_port = 0;
     connline_ptr->dst_port = 0;
 
-    return(0);
+    return (0);
 }
 
-static int
-parse_unknown_line_ipv6(const char *line,
-        struct ConntrackLine *connline_ptr)
+static int parse_unknown_line_ipv6(
+        const char *line, struct ConntrackLine *connline_ptr)
 {
-    int     result = 0;
-    char    tmp[16] = "";
+    int result = 0;
+    char tmp[16] = "";
 
-    if(connline_ptr->use_acc == TRUE)
-    {
-        result = sscanf(line,   "%15s %d %d src=%46s dst=%46s "
-                                "packets=%15s bytes=%15s src=%46s "
-                                "dst=%46s packets=%15s bytes=%15s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        connline_ptr->to_dst_packets_str,
-                        connline_ptr->to_dst_bytes_str,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip,
-                        connline_ptr->to_src_packets_str,
-                        connline_ptr->to_src_bytes_str);
-        if(result != 11)
-        {
-            result = sscanf(line,   "%15s %d %d src=%46s dst=%46s "
-                                    "packets=%15s bytes=%15s %15s src=%46s "
-                                    "dst=%46s packets=%15s bytes=%15s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            connline_ptr->to_dst_packets_str,
-                            connline_ptr->to_dst_bytes_str,
-                            connline_ptr->status,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip,
-                            connline_ptr->to_src_packets_str,
-                            connline_ptr->to_src_bytes_str);
-            if(result != 12)
-            {
+    if (connline_ptr->use_acc == TRUE) {
+        result = sscanf(line,
+                "%15s %d %d src=%46s dst=%46s "
+                "packets=%15s bytes=%15s src=%46s "
+                "dst=%46s packets=%15s bytes=%15s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip,
+                connline_ptr->to_dst_packets_str,
+                connline_ptr->to_dst_bytes_str, connline_ptr->alt_src_ip,
+                connline_ptr->alt_dst_ip, connline_ptr->to_src_packets_str,
+                connline_ptr->to_src_bytes_str);
+        if (result != 11) {
+            result = sscanf(line,
+                    "%15s %d %d src=%46s dst=%46s "
+                    "packets=%15s bytes=%15s %15s src=%46s "
+                    "dst=%46s packets=%15s bytes=%15s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->src_ip, connline_ptr->dst_ip,
+                    connline_ptr->to_dst_packets_str,
+                    connline_ptr->to_dst_bytes_str, connline_ptr->status,
+                    connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip,
+                    connline_ptr->to_src_packets_str,
+                    connline_ptr->to_src_bytes_str);
+            if (result != 12) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
 
@@ -1301,34 +1022,24 @@ parse_unknown_line_ipv6(const char *line,
                 connline_ptr->to_dst_bytes_str,
                 connline_ptr->to_src_packets_str,
                 connline_ptr->to_src_bytes_str);
-    }
-    else
-    {
-        result = sscanf(line,   "%15s %d %d src=%46s dst=%46s "
-                                "src=%46s dst=%46s",
-                        tmp,
-                        &connline_ptr->protocol,
-                        &connline_ptr->ttl,
-                        connline_ptr->src_ip,
-                        connline_ptr->dst_ip,
-                        connline_ptr->alt_src_ip,
-                        connline_ptr->alt_dst_ip);
-        if(result != 7)
-        {
-            result = sscanf(line,   "%15s %d %d src=%46s dst=%46s %15s "
-                                    "src=%46s dst=%46s",
-                            tmp,
-                            &connline_ptr->protocol,
-                            &connline_ptr->ttl,
-                            connline_ptr->src_ip,
-                            connline_ptr->dst_ip,
-                            connline_ptr->status,
-                            connline_ptr->alt_src_ip,
-                            connline_ptr->alt_dst_ip);
-            if (result != 8)
-            {
+    } else {
+        result = sscanf(line,
+                "%15s %d %d src=%46s dst=%46s "
+                "src=%46s dst=%46s",
+                tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                connline_ptr->src_ip, connline_ptr->dst_ip,
+                connline_ptr->alt_src_ip, connline_ptr->alt_dst_ip);
+        if (result != 7) {
+            result = sscanf(line,
+                    "%15s %d %d src=%46s dst=%46s %15s "
+                    "src=%46s dst=%46s",
+                    tmp, &connline_ptr->protocol, &connline_ptr->ttl,
+                    connline_ptr->src_ip, connline_ptr->dst_ip,
+                    connline_ptr->status, connline_ptr->alt_src_ip,
+                    connline_ptr->alt_dst_ip);
+            if (result != 8) {
                 vrmr_debug(NONE, "parse error: '%s'", line);
-                return(-1);
+                return (-1);
             }
         }
     }
@@ -1337,19 +1048,17 @@ parse_unknown_line_ipv6(const char *line,
     connline_ptr->src_port = 0;
     connline_ptr->dst_port = 0;
 
-    return(0);
+    return (0);
 }
-
 
 /*  process one line from the conntrack file */
-static int
-conn_process_one_conntrack_line_ipv6(const char *line,
-                                struct ConntrackLine *connline_ptr)
+static int conn_process_one_conntrack_line_ipv6(
+        const char *line, struct ConntrackLine *connline_ptr)
 {
-    char    protocol[16] = "";
+    char protocol[16] = "";
 
     /* check if we need to read packets as well */
-    if(strstr(line,"packets"))
+    if (strstr(line, "packets"))
         connline_ptr->use_acc = TRUE;
     else
         connline_ptr->use_acc = FALSE;
@@ -1360,28 +1069,19 @@ conn_process_one_conntrack_line_ipv6(const char *line,
     sscanf(line, "%s", protocol);
     vrmr_debug(LOW, "protocol %s", protocol);
 
-    if(strcmp(protocol, "tcp") == 0)
-    {
+    if (strcmp(protocol, "tcp") == 0) {
         if (parse_tcp_line_ipv6(line, connline_ptr) < 0)
-            return(0);
-    }
-    else if(strcmp(protocol, "udp") == 0)
-    {
+            return (0);
+    } else if (strcmp(protocol, "udp") == 0) {
         if (parse_udp_line_ipv6(line, connline_ptr) < 0)
-            return(0);
-    }
-    else if(strcmp(protocol, "icmpv6") == 0)
-    {
+            return (0);
+    } else if (strcmp(protocol, "icmpv6") == 0) {
         if (parse_icmp_line_ipv6(line, connline_ptr) < 0)
-            return(0);
-    }
-    else if(strcmp(protocol, "unknown") == 0)
-    {
+            return (0);
+    } else if (strcmp(protocol, "unknown") == 0) {
         if (parse_unknown_line_ipv6(line, connline_ptr) < 0)
-            return(0);
-    }
-    else
-    {
+            return (0);
+    } else {
         strcpy(connline_ptr->status, "none");
         connline_ptr->protocol = 0;
         strcpy(connline_ptr->src_ip, "PARSE-ERROR");
@@ -1391,56 +1091,43 @@ conn_process_one_conntrack_line_ipv6(const char *line,
     }
 
     /* now, for snat and dnat some magic is required */
-    if( strcmp(connline_ptr->src_ip,connline_ptr->alt_dst_ip) == 0 &&
-        strcmp(connline_ptr->dst_ip,connline_ptr->alt_src_ip) == 0)
-    {
+    if (strcmp(connline_ptr->src_ip, connline_ptr->alt_dst_ip) == 0 &&
+            strcmp(connline_ptr->dst_ip, connline_ptr->alt_src_ip) == 0) {
         /* normal line */
-    }
-    else if(strcmp(connline_ptr->src_ip,connline_ptr->alt_dst_ip) == 0)
-    {
+    } else if (strcmp(connline_ptr->src_ip, connline_ptr->alt_dst_ip) == 0) {
         /* store the original dst_ip as orig_dst_ip */
-        if(strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
-                sizeof(connline_ptr->orig_dst_ip))
-                    >= sizeof(connline_ptr->orig_dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-                    "string overflow (in: %s:%d).",
+        if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
+                    sizeof(connline_ptr->orig_dst_ip)) >=
+                sizeof(connline_ptr->orig_dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
-            return(-1);
+            return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
-        if(strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
-                sizeof(connline_ptr->dst_ip))
-                    >= sizeof(connline_ptr->dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-                    "string overflow (in: %s:%d).",
+        if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
+                    sizeof(connline_ptr->dst_ip)) >=
+                sizeof(connline_ptr->dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
-            return(-1);
+            return (-1);
         }
-    }
-    else if(strcmp(connline_ptr->src_ip,connline_ptr->alt_src_ip) != 0 &&
-        strcmp(connline_ptr->dst_ip,connline_ptr->alt_dst_ip) != 0)
-    {
+    } else if (strcmp(connline_ptr->src_ip, connline_ptr->alt_src_ip) != 0 &&
+               strcmp(connline_ptr->dst_ip, connline_ptr->alt_dst_ip) != 0) {
         /* store the original dst_ip as orig_dst_ip */
-        if(strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
-                sizeof(connline_ptr->orig_dst_ip))
-                    >= sizeof(connline_ptr->orig_dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-                    "string overflow (in: %s:%d).",
+        if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
+                    sizeof(connline_ptr->orig_dst_ip)) >=
+                sizeof(connline_ptr->orig_dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
-            return(-1);
+            return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
-        if(strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
-                sizeof(connline_ptr->dst_ip))
-                    >= sizeof(connline_ptr->dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-                    "string overflow (in: %s:%d).",
+        if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
+                    sizeof(connline_ptr->dst_ip)) >=
+                sizeof(connline_ptr->dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
-            return(-1);
+            return (-1);
         }
     }
     /*
@@ -1459,77 +1146,74 @@ conn_process_one_conntrack_line_ipv6(const char *line,
 
         We see that dst = alt_dst and src != alt_src.
     */
-    else if(strcmp(connline_ptr->src_ip,connline_ptr->alt_src_ip) != 0 &&
-        strcmp(connline_ptr->dst_ip,connline_ptr->alt_dst_ip) == 0)
-    {
+    else if (strcmp(connline_ptr->src_ip, connline_ptr->alt_src_ip) != 0 &&
+             strcmp(connline_ptr->dst_ip, connline_ptr->alt_dst_ip) == 0) {
         /* store the original dst_ip as orig_dst_ip */
-        if(strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
-           sizeof(connline_ptr->orig_dst_ip))
-                >= sizeof(connline_ptr->orig_dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-            "string overflow (in: %s:%d).",
-            __FUNC__, __LINE__);
-            return(-1);
+        if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
+                    sizeof(connline_ptr->orig_dst_ip)) >=
+                sizeof(connline_ptr->orig_dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
-        if(strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
-                sizeof(connline_ptr->dst_ip))
-                    >= sizeof(connline_ptr->dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-                    "string overflow (in: %s:%d).",
+        if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
+                    sizeof(connline_ptr->dst_ip)) >=
+                sizeof(connline_ptr->dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
-            return(-1);
+            return (-1);
         }
     }
 
     /* process status */
-    if(strcmp(connline_ptr->status, "none") == 0)
+    if (strcmp(connline_ptr->status, "none") == 0)
         connline_ptr->state = VRMR_STATE_NONE;
-    else if(strcmp(connline_ptr->status, "ESTABLISHED") == 0)
+    else if (strcmp(connline_ptr->status, "ESTABLISHED") == 0)
         connline_ptr->state = VRMR_STATE_TCP_ESTABLISHED;
-    else if(strcmp(connline_ptr->status, "UDP_ESTABLISHED") == 0)
+    else if (strcmp(connline_ptr->status, "UDP_ESTABLISHED") == 0)
         connline_ptr->state = VRMR_STATE_UDP_ESTABLISHED;
-    else if(strcmp(connline_ptr->status, "SYN_SENT") == 0)
+    else if (strcmp(connline_ptr->status, "SYN_SENT") == 0)
         connline_ptr->state = VRMR_STATE_SYN_SENT;
-    else if(strcmp(connline_ptr->status, "SYN_RECV") == 0)
+    else if (strcmp(connline_ptr->status, "SYN_RECV") == 0)
         connline_ptr->state = VRMR_STATE_SYN_RECV;
-    else if(strcmp(connline_ptr->status, "FIN_WAIT") == 0)
+    else if (strcmp(connline_ptr->status, "FIN_WAIT") == 0)
         connline_ptr->state = VRMR_STATE_FIN_WAIT;
-    else if(strcmp(connline_ptr->status, "TIME_WAIT") == 0)
+    else if (strcmp(connline_ptr->status, "TIME_WAIT") == 0)
         connline_ptr->state = VRMR_STATE_TIME_WAIT;
-    else if(strcmp(connline_ptr->status, "CLOSE") == 0)
+    else if (strcmp(connline_ptr->status, "CLOSE") == 0)
         connline_ptr->state = VRMR_STATE_CLOSE;
-    else if(strcmp(connline_ptr->status, "CLOSE_WAIT") == 0)
+    else if (strcmp(connline_ptr->status, "CLOSE_WAIT") == 0)
         connline_ptr->state = VRMR_STATE_CLOSE_WAIT;
-    else if(strcmp(connline_ptr->status, "LAST_ACK") == 0)
+    else if (strcmp(connline_ptr->status, "LAST_ACK") == 0)
         connline_ptr->state = VRMR_STATE_LAST_ACK;
-    else if(strcmp(connline_ptr->status, "[UNREPLIED]") == 0)
+    else if (strcmp(connline_ptr->status, "[UNREPLIED]") == 0)
         connline_ptr->state = VRMR_STATE_UNREPLIED;
     else
         connline_ptr->state = VRMR_STATE_UNDEFINED;
 
-    if(connline_ptr->use_acc == TRUE)
-    {
-        connline_ptr->to_src_packets = strtoull(connline_ptr->to_src_packets_str, NULL, 10);
-        connline_ptr->to_src_bytes = strtoull(connline_ptr->to_src_bytes_str, NULL, 10);
-        connline_ptr->to_dst_packets = strtoull(connline_ptr->to_dst_packets_str, NULL, 10);
-        connline_ptr->to_dst_bytes = strtoull(connline_ptr->to_dst_bytes_str, NULL, 10);
+    if (connline_ptr->use_acc == TRUE) {
+        connline_ptr->to_src_packets =
+                strtoull(connline_ptr->to_src_packets_str, NULL, 10);
+        connline_ptr->to_src_bytes =
+                strtoull(connline_ptr->to_src_bytes_str, NULL, 10);
+        connline_ptr->to_dst_packets =
+                strtoull(connline_ptr->to_dst_packets_str, NULL, 10);
+        connline_ptr->to_dst_bytes =
+                strtoull(connline_ptr->to_dst_bytes_str, NULL, 10);
     }
 
-    return(1);
+    return (1);
 }
 
 /*  process one line from the conntrack file */
-static int
-conn_process_one_conntrack_line(const char *line,
-                                struct ConntrackLine *connline_ptr)
+static int conn_process_one_conntrack_line(
+        const char *line, struct ConntrackLine *connline_ptr)
 {
-    char    protocol[16] = "";
+    char protocol[16] = "";
 
     /* check if we need to read packets as well */
-    if(strstr(line,"packets"))
+    if (strstr(line, "packets"))
         connline_ptr->use_acc = TRUE;
     else
         connline_ptr->use_acc = FALSE;
@@ -1538,28 +1222,19 @@ conn_process_one_conntrack_line(const char *line,
     sscanf(line, "%s", protocol);
     vrmr_debug(LOW, "protocol %s", protocol);
 
-    if(strcmp(protocol, "tcp") == 0)
-    {
+    if (strcmp(protocol, "tcp") == 0) {
         if (parse_tcp_line(line, connline_ptr) < 0)
-            return(0);
-    }
-    else if(strcmp(protocol, "udp") == 0)
-    {
+            return (0);
+    } else if (strcmp(protocol, "udp") == 0) {
         if (parse_udp_line(line, connline_ptr) < 0)
-            return(0);
-    }
-    else if(strcmp(protocol, "icmp") == 0)
-    {
+            return (0);
+    } else if (strcmp(protocol, "icmp") == 0) {
         if (parse_icmp_line(line, connline_ptr) < 0)
-            return(0);
-    }
-    else if(strcmp(protocol, "unknown") == 0)
-    {
+            return (0);
+    } else if (strcmp(protocol, "unknown") == 0) {
         if (parse_unknown_line(line, connline_ptr) < 0)
-            return(0);
-    }
-    else if(strcmp(protocol, "ipv4") == 0)
-    {
+            return (0);
+    } else if (strcmp(protocol, "ipv4") == 0) {
         /* with nf_conntrack in some configurations we have
          * to deal with lines starting with 'ipv4    2'
          * Here we get a pointer, point it beyond that, and
@@ -1570,15 +1245,14 @@ conn_process_one_conntrack_line(const char *line,
         char *ptr = (char *)line + 4; /* set past 'ipv4'*/
 
         /* look for next alpha char since we expect 'tcp', 'udp', etc */
-        while ((!isalpha(ptr[i]) && i < strlen(ptr))) i++;
+        while ((!isalpha(ptr[i]) && i < strlen(ptr)))
+            i++;
 
         /* set ptr past the nf_conntrack prepend */
         ptr += i;
 
-        return(conn_process_one_conntrack_line(ptr, connline_ptr));
-    }
-    else if(strcmp(protocol, "ipv6") == 0)
-    {
+        return (conn_process_one_conntrack_line(ptr, connline_ptr));
+    } else if (strcmp(protocol, "ipv6") == 0) {
         /* with nf_conntrack in some configurations we have
          * to deal with lines starting with 'ipv4    2'
          * Here we get a pointer, point it beyond that, and
@@ -1589,15 +1263,14 @@ conn_process_one_conntrack_line(const char *line,
         char *ptr = (char *)line + 4; /* set past 'ipv4'*/
 
         /* look for next alpha char since we expect 'tcp', 'udp', etc */
-        while ((!isalpha(ptr[i]) && i < strlen(ptr))) i++;
+        while ((!isalpha(ptr[i]) && i < strlen(ptr)))
+            i++;
 
         /* set ptr past the nf_conntrack prepend */
         ptr += i;
 
-        return(conn_process_one_conntrack_line_ipv6(ptr, connline_ptr));
-    }
-    else
-    {
+        return (conn_process_one_conntrack_line_ipv6(ptr, connline_ptr));
+    } else {
         strcpy(connline_ptr->status, "none");
         connline_ptr->protocol = 0;
         strcpy(connline_ptr->src_ip, "PARSE-ERROR");
@@ -1607,56 +1280,43 @@ conn_process_one_conntrack_line(const char *line,
     }
 
     /* now, for snat and dnat some magic is required */
-    if( strcmp(connline_ptr->src_ip,connline_ptr->alt_dst_ip) == 0 &&
-        strcmp(connline_ptr->dst_ip,connline_ptr->alt_src_ip) == 0)
-    {
+    if (strcmp(connline_ptr->src_ip, connline_ptr->alt_dst_ip) == 0 &&
+            strcmp(connline_ptr->dst_ip, connline_ptr->alt_src_ip) == 0) {
         /* normal line */
-    }
-    else if(strcmp(connline_ptr->src_ip,connline_ptr->alt_dst_ip) == 0)
-    {
+    } else if (strcmp(connline_ptr->src_ip, connline_ptr->alt_dst_ip) == 0) {
         /* store the original dst_ip as orig_dst_ip */
-        if(strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
-                sizeof(connline_ptr->orig_dst_ip))
-                    >= sizeof(connline_ptr->orig_dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-            "string overflow (in: %s:%d).",
-            __FUNC__, __LINE__);
-            return(-1);
+        if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
+                    sizeof(connline_ptr->orig_dst_ip)) >=
+                sizeof(connline_ptr->orig_dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
-        if(strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
-                sizeof(connline_ptr->dst_ip))
-                    >= sizeof(connline_ptr->dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-                    "string overflow (in: %s:%d).",
+        if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
+                    sizeof(connline_ptr->dst_ip)) >=
+                sizeof(connline_ptr->dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
-            return(-1);
+            return (-1);
         }
-    }
-    else if(strcmp(connline_ptr->src_ip,connline_ptr->alt_src_ip) != 0 &&
-        strcmp(connline_ptr->dst_ip,connline_ptr->alt_dst_ip) != 0)
-    {
+    } else if (strcmp(connline_ptr->src_ip, connline_ptr->alt_src_ip) != 0 &&
+               strcmp(connline_ptr->dst_ip, connline_ptr->alt_dst_ip) != 0) {
         /* store the original dst_ip as orig_dst_ip */
-        if(strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
-                sizeof(connline_ptr->orig_dst_ip))
-                    >= sizeof(connline_ptr->orig_dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-            "string overflow (in: %s:%d).",
-            __FUNC__, __LINE__);
-            return(-1);
+        if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
+                    sizeof(connline_ptr->orig_dst_ip)) >=
+                sizeof(connline_ptr->orig_dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
-        if(strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
-                sizeof(connline_ptr->dst_ip))
-                    >= sizeof(connline_ptr->dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-                    "string overflow (in: %s:%d).",
+        if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
+                    sizeof(connline_ptr->dst_ip)) >=
+                sizeof(connline_ptr->dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
-            return(-1);
+            return (-1);
         }
     }
     /*
@@ -1675,130 +1335,121 @@ conn_process_one_conntrack_line(const char *line,
 
         We see that dst = alt_dst and src != alt_src.
     */
-    else if(strcmp(connline_ptr->src_ip,connline_ptr->alt_src_ip) != 0 &&
-        strcmp(connline_ptr->dst_ip,connline_ptr->alt_dst_ip) == 0)
-    {
+    else if (strcmp(connline_ptr->src_ip, connline_ptr->alt_src_ip) != 0 &&
+             strcmp(connline_ptr->dst_ip, connline_ptr->alt_dst_ip) == 0) {
         /* store the original dst_ip as orig_dst_ip */
-        if(strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
-           sizeof(connline_ptr->orig_dst_ip))
-                >= sizeof(connline_ptr->orig_dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-            "string overflow (in: %s:%d).",
-            __FUNC__, __LINE__);
-            return(-1);
+        if (strlcpy(connline_ptr->orig_dst_ip, connline_ptr->dst_ip,
+                    sizeof(connline_ptr->orig_dst_ip)) >=
+                sizeof(connline_ptr->orig_dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
+                    __FUNC__, __LINE__);
+            return (-1);
         }
         /* DNAT, we use alt_source_ip as dest */
-        if(strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
-                sizeof(connline_ptr->dst_ip))
-                    >= sizeof(connline_ptr->dst_ip))
-        {
-            vrmr_error(-1, "Internal Error",
-                    "string overflow (in: %s:%d).",
+        if (strlcpy(connline_ptr->dst_ip, connline_ptr->alt_src_ip,
+                    sizeof(connline_ptr->dst_ip)) >=
+                sizeof(connline_ptr->dst_ip)) {
+            vrmr_error(-1, "Internal Error", "string overflow (in: %s:%d).",
                     __FUNC__, __LINE__);
-            return(-1);
+            return (-1);
         }
     }
 
     /* process status */
-    if(strcmp(connline_ptr->status, "none") == 0)
+    if (strcmp(connline_ptr->status, "none") == 0)
         connline_ptr->state = VRMR_STATE_NONE;
-    else if(strcmp(connline_ptr->status, "ESTABLISHED") == 0)
+    else if (strcmp(connline_ptr->status, "ESTABLISHED") == 0)
         connline_ptr->state = VRMR_STATE_TCP_ESTABLISHED;
-    else if(strcmp(connline_ptr->status, "UDP_ESTABLISHED") == 0)
+    else if (strcmp(connline_ptr->status, "UDP_ESTABLISHED") == 0)
         connline_ptr->state = VRMR_STATE_UDP_ESTABLISHED;
-    else if(strcmp(connline_ptr->status, "SYN_SENT") == 0)
+    else if (strcmp(connline_ptr->status, "SYN_SENT") == 0)
         connline_ptr->state = VRMR_STATE_SYN_SENT;
-    else if(strcmp(connline_ptr->status, "SYN_RECV") == 0)
+    else if (strcmp(connline_ptr->status, "SYN_RECV") == 0)
         connline_ptr->state = VRMR_STATE_SYN_RECV;
-    else if(strcmp(connline_ptr->status, "FIN_WAIT") == 0)
+    else if (strcmp(connline_ptr->status, "FIN_WAIT") == 0)
         connline_ptr->state = VRMR_STATE_FIN_WAIT;
-    else if(strcmp(connline_ptr->status, "TIME_WAIT") == 0)
+    else if (strcmp(connline_ptr->status, "TIME_WAIT") == 0)
         connline_ptr->state = VRMR_STATE_TIME_WAIT;
-    else if(strcmp(connline_ptr->status, "CLOSE") == 0)
+    else if (strcmp(connline_ptr->status, "CLOSE") == 0)
         connline_ptr->state = VRMR_STATE_CLOSE;
-    else if(strcmp(connline_ptr->status, "CLOSE_WAIT") == 0)
+    else if (strcmp(connline_ptr->status, "CLOSE_WAIT") == 0)
         connline_ptr->state = VRMR_STATE_CLOSE_WAIT;
-    else if(strcmp(connline_ptr->status, "LAST_ACK") == 0)
+    else if (strcmp(connline_ptr->status, "LAST_ACK") == 0)
         connline_ptr->state = VRMR_STATE_LAST_ACK;
-    else if(strcmp(connline_ptr->status, "[UNREPLIED]") == 0)
+    else if (strcmp(connline_ptr->status, "[UNREPLIED]") == 0)
         connline_ptr->state = VRMR_STATE_UNREPLIED;
     else
         connline_ptr->state = VRMR_STATE_UNDEFINED;
 
-    if(connline_ptr->use_acc == TRUE)
-    {
-        connline_ptr->to_src_packets = strtoull(connline_ptr->to_src_packets_str, NULL, 10);
-        connline_ptr->to_src_bytes = strtoull(connline_ptr->to_src_bytes_str, NULL, 10);
-        connline_ptr->to_dst_packets = strtoull(connline_ptr->to_dst_packets_str, NULL, 10);
-        connline_ptr->to_dst_bytes = strtoull(connline_ptr->to_dst_bytes_str, NULL, 10);
+    if (connline_ptr->use_acc == TRUE) {
+        connline_ptr->to_src_packets =
+                strtoull(connline_ptr->to_src_packets_str, NULL, 10);
+        connline_ptr->to_src_bytes =
+                strtoull(connline_ptr->to_src_bytes_str, NULL, 10);
+        connline_ptr->to_dst_packets =
+                strtoull(connline_ptr->to_dst_packets_str, NULL, 10);
+        connline_ptr->to_dst_bytes =
+                strtoull(connline_ptr->to_dst_bytes_str, NULL, 10);
     }
 
-    return(1);
+    return (1);
 }
-
 
 /*  vrmr_conn_hash_name
 
     Very simple string hashing function. It just adds up
     all chars.
 */
-unsigned int
-vrmr_conn_hash_name(const void *key)
+unsigned int vrmr_conn_hash_name(const void *key)
 {
-    size_t          len = 0;
-    unsigned int    hash = 0;
-    char            *name = NULL;
+    size_t len = 0;
+    unsigned int hash = 0;
+    char *name = NULL;
 
-    if(!key)
-        return(1);
+    if (!key)
+        return (1);
 
     name = (char *)key;
 
     len = strlen(name);
-    while(len)
-    {
+    while (len) {
         hash = hash + name[len];
         len--;
     }
 
-    return(hash);
+    return (hash);
 }
 
-
-//TODO silly names
-int
-vrmr_conn_match_name(const void *ser1, const void *ser2)
+// TODO silly names
+int vrmr_conn_match_name(const void *ser1, const void *ser2)
 {
-    if(!ser1 || !ser2)
-        return(0);
+    if (!ser1 || !ser2)
+        return (0);
 
-    if(strcmp((char *)ser1, (char *)ser2) == 0)
+    if (strcmp((char *)ser1, (char *)ser2) == 0)
         return 1;
     else
         return 0;
 }
 
 //- print_list -
-void
-vrmr_conn_list_print(const struct vrmr_list *conn_list)
+void vrmr_conn_list_print(const struct vrmr_list *conn_list)
 {
-    struct vrmr_list_node             *d_node = NULL;
-    struct vrmr_conntrack_entry    *item_ptr = NULL;
+    struct vrmr_list_node *d_node = NULL;
+    struct vrmr_conntrack_entry *item_ptr = NULL;
 
     // Display the linked list.
     fprintf(stdout, "List len is %u\n", conn_list->len);
 
-    for(d_node = conn_list->top; d_node ; d_node = d_node->next)
-    {
+    for (d_node = conn_list->top; d_node; d_node = d_node->next) {
         item_ptr = d_node->data;
 
-        fprintf(stdout, "sername: %s, fromname: %s, toname: %s\n", item_ptr->sername, item_ptr->fromname, item_ptr->toname);
+        fprintf(stdout, "sername: %s, fromname: %s, toname: %s\n",
+                item_ptr->sername, item_ptr->fromname, item_ptr->toname);
     }
 
     return;
 }
-
 
 /*  hash_conntrackdata
 
@@ -1807,14 +1458,13 @@ vrmr_conn_list_print(const struct vrmr_list *conn_list)
 
     Returns the hash.
 */
-static unsigned int
-conn_hash_conntrackdata(const void *key)
+static unsigned int conn_hash_conntrackdata(const void *key)
 {
-    unsigned int            retval = 0;
-    struct vrmr_conntrack_entry    *cd_ptr = NULL;
+    unsigned int retval = 0;
+    struct vrmr_conntrack_entry *cd_ptr = NULL;
 
-    if(!key)
-        return(1);
+    if (!key)
+        return (1);
 
     cd_ptr = (struct vrmr_conntrack_entry *)key;
 
@@ -1825,67 +1475,59 @@ conn_hash_conntrackdata(const void *key)
     retval = retval + vrmr_conn_hash_name(cd_ptr->fromname) / 2;
     retval = retval + vrmr_conn_hash_name(cd_ptr->toname) / 3;
 
-    return(retval);
+    return (retval);
 }
-
 
 /*  match_conntrackdata
 
 */
-static int
-conn_match_conntrackdata(const void *check, const void *hash)
+static int conn_match_conntrackdata(const void *check, const void *hash)
 {
-    struct vrmr_conntrack_entry    *check_cd = NULL,
-                            *hash_cd = NULL;
+    struct vrmr_conntrack_entry *check_cd = NULL, *hash_cd = NULL;
 
     /* safety */
-    if(!check || !hash)
-        return(0);
+    if (!check || !hash)
+        return (0);
 
     check_cd = (struct vrmr_conntrack_entry *)check;
-    hash_cd  = (struct vrmr_conntrack_entry *)hash;
+    hash_cd = (struct vrmr_conntrack_entry *)hash;
 
-    if(strncmp(check_cd->sername, hash_cd->sername, VRMR_MAX_SERVICE) == 0)
-    {
+    if (strncmp(check_cd->sername, hash_cd->sername, VRMR_MAX_SERVICE) == 0) {
         // service matches
-        if(strncmp(check_cd->fromname, hash_cd->fromname, VRMR_VRMR_MAX_HOST_NET_ZONE) == 0)
-        {
+        if (strncmp(check_cd->fromname, hash_cd->fromname,
+                    VRMR_VRMR_MAX_HOST_NET_ZONE) == 0) {
             // from host also matches
-            if(strncmp(check_cd->toname, hash_cd->toname, VRMR_VRMR_MAX_HOST_NET_ZONE) == 0)
-            {
-                if(check_cd->connect_status == hash_cd->connect_status)
-                {
+            if (strncmp(check_cd->toname, hash_cd->toname,
+                        VRMR_VRMR_MAX_HOST_NET_ZONE) == 0) {
+                if (check_cd->connect_status == hash_cd->connect_status) {
                     // they all match-> return 1
-                    return(1);
+                    return (1);
                 }
             }
         }
     }
 
     // sorry, no match
-    return(0);
+    return (0);
 }
-
 
 /*  conn_dlist_destroy
 
     Destroys the list.
 */
-void
-vrmr_conn_list_cleanup(struct vrmr_list *conn_dlist)
+void vrmr_conn_list_cleanup(struct vrmr_list *conn_dlist)
 {
-    struct vrmr_list_node             *d_node = NULL;
-    struct vrmr_conntrack_entry    *cd_ptr = NULL;
+    struct vrmr_list_node *d_node = NULL;
+    struct vrmr_conntrack_entry *cd_ptr = NULL;
 
-    for(d_node = conn_dlist->top; d_node; d_node = d_node->next)
-    {
+    for (d_node = conn_dlist->top; d_node; d_node = d_node->next) {
         cd_ptr = d_node->data;
 
-        if(cd_ptr->from == NULL)
+        if (cd_ptr->from == NULL)
             free(cd_ptr->fromname);
-        if(cd_ptr->to == NULL)
+        if (cd_ptr->to == NULL)
             free(cd_ptr->toname);
-        if(cd_ptr->service == NULL)
+        if (cd_ptr->service == NULL)
             free(cd_ptr->sername);
 
         free(cd_ptr);
@@ -1893,7 +1535,6 @@ vrmr_conn_list_cleanup(struct vrmr_list *conn_dlist)
 
     vrmr_list_cleanup(conn_dlist);
 }
-
 
 /*  vrmr_conn_get_connections
 
@@ -1914,53 +1555,48 @@ vrmr_conn_list_cleanup(struct vrmr_list *conn_dlist)
     Do this by the way we create a hash, so set the options into the
     cd struct
 */
-static int
-vrmr_conn_get_connections_do(
-                        struct vrmr_config *cnf,
-                        const unsigned int prev_conn_cnt,
-                        struct vrmr_hash_table *serv_hash,
-                        struct vrmr_hash_table *zone_hash,
-                        struct vrmr_list *conn_dlist,
-                        struct vrmr_list *zone_list,
-                        struct vrmr_conntrack_request *req,
-                        struct vrmr_conntrack_stats *connstat_ptr,
-                        int ipver
-                    )
+static int vrmr_conn_get_connections_do(struct vrmr_config *cnf,
+        const unsigned int prev_conn_cnt, struct vrmr_hash_table *serv_hash,
+        struct vrmr_hash_table *zone_hash, struct vrmr_list *conn_dlist,
+        struct vrmr_list *zone_list, struct vrmr_conntrack_request *req,
+        struct vrmr_conntrack_stats *connstat_ptr, int ipver)
 {
-    int                     retval = 0;
+    int retval = 0;
 
-    char                    line[1024] = "";
-    FILE                    *fp = NULL;
-    struct ConntrackLine    cl;
+    char line[1024] = "";
+    FILE *fp = NULL;
+    struct ConntrackLine cl;
     struct vrmr_conntrack_entry *cd_ptr = NULL;
     struct vrmr_conntrack_entry *old_cd_ptr = NULL;
 
     /* default hashtable size */
-    unsigned int            hashtbl_size = 256;
-    struct vrmr_hash_table  conn_hash;
-    char                    tmpfile[] = "/tmp/vuurmuur-conntrack-XXXXXX";
-    int                     conntrack_cmd = 0;
+    unsigned int hashtbl_size = 256;
+    struct vrmr_hash_table conn_hash;
+    char tmpfile[] = "/tmp/vuurmuur-conntrack-XXXXXX";
+    int conntrack_cmd = 0;
 
     /* safety */
-    if(serv_hash == NULL || zone_hash == NULL || cnf == NULL)
-    {
-        vrmr_error(-1, "Internal Error", "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
+    if (serv_hash == NULL || zone_hash == NULL || cnf == NULL) {
+        vrmr_error(-1, "Internal Error",
+                "parameter problem "
+                "(in: %s:%d).",
+                __FUNC__, __LINE__);
+        return (-1);
     }
 
     /* if the prev_conn_cnt supplied by the user is bigger than 0,
        use it. */
-    if(prev_conn_cnt > 0)
+    if (prev_conn_cnt > 0)
         hashtbl_size = prev_conn_cnt;
 
     /* initialize the hash */
-    if(vrmr_hash_setup(&conn_hash, hashtbl_size,
-            conn_hash_conntrackdata, conn_match_conntrackdata) != 0)
-    {
-        vrmr_error(-1, "Internal Error", "vrmr_hash_setup() failed "
-                "(in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
+    if (vrmr_hash_setup(&conn_hash, hashtbl_size, conn_hash_conntrackdata,
+                conn_match_conntrackdata) != 0) {
+        vrmr_error(-1, "Internal Error",
+                "vrmr_hash_setup() failed "
+                "(in: %s:%d).",
+                __FUNC__, __LINE__);
+        return (-1);
     }
 
     if (ipver != 0) {
@@ -1968,40 +1604,43 @@ vrmr_conn_get_connections_do(
 
         /* create the tempfile */
         int fd = vrmr_create_tempfile(tmpfile);
-        if(fd == -1)
-            return(-1);
+        if (fd == -1)
+            return (-1);
         else
             close(fd);
 
-        char *outputs[] = { tmpfile, "/dev/null", NULL };
+        char *outputs[] = {tmpfile, "/dev/null", NULL};
         if (ipver == VRMR_IPV4) {
-            char *args[] = { cnf->conntrack_location,
-                "-L", "-f", "ipv4", NULL };
-            int result = libvuurmuur_exec_command(cnf, cnf->conntrack_location, args, outputs);
+            char *args[] = {cnf->conntrack_location, "-L", "-f", "ipv4", NULL};
+            int result = libvuurmuur_exec_command(
+                    cnf, cnf->conntrack_location, args, outputs);
             if (result == -1) {
-                vrmr_error(-1, "Error", "unable to execute "
-                        "conntrack: %s (in: %s:%d).", strerror(errno),
-                        __FUNC__, __LINE__);
-                return(-1);
+                vrmr_error(-1, "Error",
+                        "unable to execute "
+                        "conntrack: %s (in: %s:%d).",
+                        strerror(errno), __FUNC__, __LINE__);
+                return (-1);
             }
         } else {
-            char *args[] = { cnf->conntrack_location,
-                "-L", "-f", "ipv6", NULL };
-            int result = libvuurmuur_exec_command(cnf, cnf->conntrack_location, args, outputs);
+            char *args[] = {cnf->conntrack_location, "-L", "-f", "ipv6", NULL};
+            int result = libvuurmuur_exec_command(
+                    cnf, cnf->conntrack_location, args, outputs);
             if (result == -1) {
-                vrmr_error(-1, "Error", "unable to execute "
-                        "conntrack: %s (in: %s:%d).", strerror(errno),
-                        __FUNC__, __LINE__);
-                return(-1);
+                vrmr_error(-1, "Error",
+                        "unable to execute "
+                        "conntrack: %s (in: %s:%d).",
+                        strerror(errno), __FUNC__, __LINE__);
+                return (-1);
             }
         }
 
         fp = fopen(tmpfile, "r");
         if (fp == NULL) {
-            vrmr_error(-1, "Error", "unable to open proc "
-                    "conntrack: %s (in: %s:%d).", strerror(errno),
-                    __FUNC__, __LINE__);
-            return(-1);
+            vrmr_error(-1, "Error",
+                    "unable to open proc "
+                    "conntrack: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+            return (-1);
         }
     }
     /* open conntrack file (fopen)... default to nf_conntrack */
@@ -2021,10 +1660,11 @@ vrmr_conn_get_connections_do(
         }
     }
     if (fp == NULL) {
-        vrmr_error(-1, "Error", "unable to open proc "
-                "conntrack: %s (in: %s:%d).", strerror(errno),
-                __FUNC__, __LINE__);
-        return(-1);
+        vrmr_error(-1, "Error",
+                "unable to open proc "
+                "conntrack: %s (in: %s:%d).",
+                strerror(errno), __FUNC__, __LINE__);
+        return (-1);
     }
 
     /*  now read the file, interpret the line and trough hash_look up
@@ -2041,8 +1681,7 @@ vrmr_conn_get_connections_do(
         The result will be reasonably good sorted list, at almost
         no speed penalty.
     */
-    while((fgets(line, (int)sizeof(line), fp) != NULL))
-    {
+    while ((fgets(line, (int)sizeof(line), fp) != NULL)) {
         /* start with a clean slate */
         memset(&cl, 0, sizeof(cl));
 
@@ -2055,7 +1694,8 @@ vrmr_conn_get_connections_do(
         if (r < 0) {
             vrmr_error(-1, "Internal Error",
                     "conn_process_one_conntrack_line() failed "
-                    "(in: %s:%d).", __FUNC__, __LINE__);
+                    "(in: %s:%d).",
+                    __FUNC__, __LINE__);
             retval = -1;
             goto end;
         } else if (r == 0) {
@@ -2064,11 +1704,12 @@ vrmr_conn_get_connections_do(
         }
 
         /* allocate memory for the data */
-        if(!(cd_ptr = (struct vrmr_conntrack_entry *)malloc(sizeof(struct vrmr_conntrack_entry))))
-        {
-            vrmr_error(-1, "Error", "malloc() failed: %s "
-                    "(in: %s:%d).", strerror(errno),
-                    __FUNC__, __LINE__);
+        if (!(cd_ptr = (struct vrmr_conntrack_entry *)malloc(
+                      sizeof(struct vrmr_conntrack_entry)))) {
+            vrmr_error(-1, "Error",
+                    "malloc() failed: %s "
+                    "(in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
             retval = -1;
             goto end;
         }
@@ -2076,10 +1717,10 @@ vrmr_conn_get_connections_do(
         memset(cd_ptr, 0, sizeof(struct vrmr_conntrack_entry));
 
         /* analyse it */
-        if(conn_line_to_data(&cl, cd_ptr, serv_hash,
-                zone_hash, zone_list, req) < 0)
-        {
-            vrmr_error(-1, "Error", "conn_line_to_data() "
+        if (conn_line_to_data(
+                    &cl, cd_ptr, serv_hash, zone_hash, zone_list, req) < 0) {
+            vrmr_error(-1, "Error",
+                    "conn_line_to_data() "
                     "failed: (in: %s:%d).",
                     __FUNC__, __LINE__);
             free(cd_ptr);
@@ -2095,39 +1736,38 @@ vrmr_conn_get_connections_do(
             we ignore the local loopback connections
             and connections that are filtered
          */
-        if((strncmp(cd_ptr->fromname, "127.", 4) == 0 ||
-            strncmp(cd_ptr->toname,   "127.", 4) == 0 ||
-            (req->use_filter == TRUE &&
-            filtered_connection(cd_ptr, &req->filter) == 1)))
-        {
-            if(cd_ptr->from == NULL)
+        if ((strncmp(cd_ptr->fromname, "127.", 4) == 0 ||
+                    strncmp(cd_ptr->toname, "127.", 4) == 0 ||
+                    (req->use_filter == TRUE &&
+                            filtered_connection(cd_ptr, &req->filter) == 1))) {
+            if (cd_ptr->from == NULL)
                 free(cd_ptr->fromname);
-            if(cd_ptr->to == NULL)
+            if (cd_ptr->to == NULL)
                 free(cd_ptr->toname);
-            if(cd_ptr->service == NULL)
+            if (cd_ptr->service == NULL)
                 free(cd_ptr->sername);
 
             free(cd_ptr);
             cd_ptr = NULL;
             old_cd_ptr = NULL;
-        }
-        else
-        {
+        } else {
             /* update counters */
             connstat_ptr->conn_total++;
 
-            if(cd_ptr->from != NULL && cd_ptr->from->type == VRMR_TYPE_FIREWALL)
+            if (cd_ptr->from != NULL &&
+                    cd_ptr->from->type == VRMR_TYPE_FIREWALL)
                 connstat_ptr->conn_out++;
-            else if(cd_ptr->to != NULL && cd_ptr->to->type == VRMR_TYPE_FIREWALL)
+            else if (cd_ptr->to != NULL &&
+                     cd_ptr->to->type == VRMR_TYPE_FIREWALL)
                 connstat_ptr->conn_in++;
             else
                 connstat_ptr->conn_fw++;
 
-            if(cd_ptr->connect_status == VRMR_CONN_CONNECTING)
+            if (cd_ptr->connect_status == VRMR_CONN_CONNECTING)
                 connstat_ptr->stat_connect++;
-            else if(cd_ptr->connect_status == VRMR_CONN_DISCONNECTING)
+            else if (cd_ptr->connect_status == VRMR_CONN_DISCONNECTING)
                 connstat_ptr->stat_closing++;
-            else if(cd_ptr->connect_status == VRMR_CONN_CONNECTED)
+            else if (cd_ptr->connect_status == VRMR_CONN_CONNECTED)
                 connstat_ptr->stat_estab++;
             else
                 connstat_ptr->stat_other++;
@@ -2144,23 +1784,27 @@ vrmr_conn_get_connections_do(
 
             /* now check if the cd is already in the list */
             if (req->group_conns == TRUE &&
-                (cd_ptr = vrmr_hash_search(&conn_hash, (void *)cd_ptr)) != NULL)
-            {
+                    (cd_ptr = vrmr_hash_search(&conn_hash, (void *)cd_ptr)) !=
+                            NULL) {
                 /*  FOUND in the hash
 
                     transfer the acc data */
-                cd_ptr->to_src_packets = cd_ptr->to_src_packets + old_cd_ptr->to_src_packets;
-                cd_ptr->to_src_bytes = cd_ptr->to_src_bytes + old_cd_ptr->to_src_bytes;
-                cd_ptr->to_dst_packets = cd_ptr->to_dst_packets + old_cd_ptr->to_dst_packets;
-                cd_ptr->to_dst_bytes = cd_ptr->to_dst_bytes + old_cd_ptr->to_dst_bytes;
+                cd_ptr->to_src_packets =
+                        cd_ptr->to_src_packets + old_cd_ptr->to_src_packets;
+                cd_ptr->to_src_bytes =
+                        cd_ptr->to_src_bytes + old_cd_ptr->to_src_bytes;
+                cd_ptr->to_dst_packets =
+                        cd_ptr->to_dst_packets + old_cd_ptr->to_dst_packets;
+                cd_ptr->to_dst_bytes =
+                        cd_ptr->to_dst_bytes + old_cd_ptr->to_dst_bytes;
 
                 /*  free the memory in the old_cd_ptr,
                     we dont need it no more */
-                if(old_cd_ptr->from == NULL)
+                if (old_cd_ptr->from == NULL)
                     free(old_cd_ptr->fromname);
-                if(old_cd_ptr->to == NULL)
+                if (old_cd_ptr->to == NULL)
                     free(old_cd_ptr->toname);
-                if(old_cd_ptr->service == NULL)
+                if (old_cd_ptr->service == NULL)
                     free(old_cd_ptr->sername);
 
                 free(old_cd_ptr);
@@ -2168,28 +1812,29 @@ vrmr_conn_get_connections_do(
 
                 /* now increment the counter */
                 cd_ptr->cnt++;
-            }
-            else
-            {
+            } else {
                 /*  NOT found in the hash
 
-                    set cd_ptr to old_cd_ptr because cd_ptr is NULL after the failed hash search
+                    set cd_ptr to old_cd_ptr because cd_ptr is NULL after the
+                   failed hash search
                 */
                 cd_ptr = old_cd_ptr;
 
                 /* append the new cd to the list */
                 cd_ptr->d_node = vrmr_list_append(conn_dlist, cd_ptr);
-                if(!cd_ptr->d_node)
-                {
-                    vrmr_error(-1, "Internal Error", "unable to append into list (in: vrmr_conn_get_connections).");
+                if (!cd_ptr->d_node) {
+                    vrmr_error(-1, "Internal Error",
+                            "unable to append into list (in: "
+                            "vrmr_conn_get_connections).");
                     retval = -1;
                     goto end;
                 }
 
                 /* and insert it into the hash */
-                if(vrmr_hash_insert(&conn_hash, cd_ptr) != 0)
-                {
-                    vrmr_error(-1, "Internal Error", "unable to insert into hash (in: vrmr_conn_get_connections).");
+                if (vrmr_hash_insert(&conn_hash, cd_ptr) != 0) {
+                    vrmr_error(-1, "Internal Error",
+                            "unable to insert into hash (in: "
+                            "vrmr_conn_get_connections).");
                     retval = -1;
                     goto end;
                 }
@@ -2202,115 +1847,86 @@ vrmr_conn_get_connections_do(
 
 end:
     /* close the file */
-    if(fclose(fp) < 0)
+    if (fclose(fp) < 0)
         retval = -1;
 
     if (conntrack_cmd) {
         /* remove the file */
-        if(unlink(tmpfile) == -1)
-        {
+        if (unlink(tmpfile) == -1) {
             vrmr_error(-1, "Error",
-                    "removing '%s' failed (unlink): %s (in: %s:%d).",
-                    tmpfile, strerror(errno), __FUNC__, __LINE__);
+                    "removing '%s' failed (unlink): %s (in: %s:%d).", tmpfile,
+                    strerror(errno), __FUNC__, __LINE__);
             retval = -1;
         }
-
     }
 
     /* cleanup */
     vrmr_hash_cleanup(&conn_hash);
 
-    return(retval);
+    return (retval);
 }
 
-static int
-vrmr_conn_get_connections_cmd (
-                        struct vrmr_config *cnf,
-                        const unsigned int prev_conn_cnt,
-                        struct vrmr_hash_table *serv_hash,
-                        struct vrmr_hash_table *zone_hash,
-                        struct vrmr_list *conn_dlist,
-                        struct vrmr_list *zone_list,
-                        struct vrmr_conntrack_request *req,
-                        struct vrmr_conntrack_stats *connstat_ptr,
-                        int ipver
-                    )
+static int vrmr_conn_get_connections_cmd(struct vrmr_config *cnf,
+        const unsigned int prev_conn_cnt, struct vrmr_hash_table *serv_hash,
+        struct vrmr_hash_table *zone_hash, struct vrmr_list *conn_dlist,
+        struct vrmr_list *zone_list, struct vrmr_conntrack_request *req,
+        struct vrmr_conntrack_stats *connstat_ptr, int ipver)
 {
-    return vrmr_conn_get_connections_do(cnf, prev_conn_cnt,
-            serv_hash, zone_hash, conn_dlist, zone_list,
-            req, connstat_ptr, ipver);
+    return vrmr_conn_get_connections_do(cnf, prev_conn_cnt, serv_hash,
+            zone_hash, conn_dlist, zone_list, req, connstat_ptr, ipver);
 }
 
-static int
-vrmr_conn_get_connections_proc (
-                        struct vrmr_config *cnf,
-                        const unsigned int prev_conn_cnt,
-                        struct vrmr_hash_table *serv_hash,
-                        struct vrmr_hash_table *zone_hash,
-                        struct vrmr_list *conn_dlist,
-                        struct vrmr_list *zone_list,
-                        struct vrmr_conntrack_request *req,
-                        struct vrmr_conntrack_stats *connstat_ptr
-                    )
+static int vrmr_conn_get_connections_proc(struct vrmr_config *cnf,
+        const unsigned int prev_conn_cnt, struct vrmr_hash_table *serv_hash,
+        struct vrmr_hash_table *zone_hash, struct vrmr_list *conn_dlist,
+        struct vrmr_list *zone_list, struct vrmr_conntrack_request *req,
+        struct vrmr_conntrack_stats *connstat_ptr)
 {
-    return vrmr_conn_get_connections_do(cnf, prev_conn_cnt,
-            serv_hash, zone_hash, conn_dlist, zone_list,
-            req, connstat_ptr, 0);
+    return vrmr_conn_get_connections_do(cnf, prev_conn_cnt, serv_hash,
+            zone_hash, conn_dlist, zone_list, req, connstat_ptr, 0);
 }
 
-int
-vrmr_conn_get_connections(
-                        struct vrmr_config *cnf,
-                        const unsigned int prev_conn_cnt,
-                        struct vrmr_hash_table *serv_hash,
-                        struct vrmr_hash_table *zone_hash,
-                        struct vrmr_list *conn_dlist,
-                        struct vrmr_list *zone_list,
-                        struct vrmr_conntrack_request *req,
-                        struct vrmr_conntrack_stats *connstat_ptr
-                    )
+int vrmr_conn_get_connections(struct vrmr_config *cnf,
+        const unsigned int prev_conn_cnt, struct vrmr_hash_table *serv_hash,
+        struct vrmr_hash_table *zone_hash, struct vrmr_list *conn_dlist,
+        struct vrmr_list *zone_list, struct vrmr_conntrack_request *req,
+        struct vrmr_conntrack_stats *connstat_ptr)
 {
     int retval = 0;
 
     /* set stat counters to zero */
-    connstat_ptr->conn_total = 0,
-    connstat_ptr->conn_in = 0,
-    connstat_ptr->conn_out = 0,
-    connstat_ptr->conn_fw = 0;
+    connstat_ptr->conn_total = 0, connstat_ptr->conn_in = 0,
+    connstat_ptr->conn_out = 0, connstat_ptr->conn_fw = 0;
 
-    connstat_ptr->stat_connect = 0,
-    connstat_ptr->stat_estab = 0,
-    connstat_ptr->stat_closing = 0,
-    connstat_ptr->stat_other = 0;
+    connstat_ptr->stat_connect = 0, connstat_ptr->stat_estab = 0,
+    connstat_ptr->stat_closing = 0, connstat_ptr->stat_other = 0;
 
     connstat_ptr->accounting = 0;
 
     if (strlen(cnf->conntrack_location) > 0) {
-        retval = vrmr_conn_get_connections_cmd(cnf, prev_conn_cnt,
-                serv_hash, zone_hash, conn_dlist, zone_list,
-                req, connstat_ptr, VRMR_IPV4);
+        retval = vrmr_conn_get_connections_cmd(cnf, prev_conn_cnt, serv_hash,
+                zone_hash, conn_dlist, zone_list, req, connstat_ptr, VRMR_IPV4);
         if (retval == 0 && req->ipv6) {
             retval = vrmr_conn_get_connections_cmd(cnf, prev_conn_cnt,
-                    serv_hash, zone_hash, conn_dlist, zone_list,
-                    req, connstat_ptr, VRMR_IPV6);
+                    serv_hash, zone_hash, conn_dlist, zone_list, req,
+                    connstat_ptr, VRMR_IPV6);
         }
     } else {
-        retval = vrmr_conn_get_connections_proc(cnf, prev_conn_cnt,
-                serv_hash, zone_hash, conn_dlist, zone_list,
-                req, connstat_ptr);
+        retval = vrmr_conn_get_connections_proc(cnf, prev_conn_cnt, serv_hash,
+                zone_hash, conn_dlist, zone_list, req, connstat_ptr);
     }
 
-    return(retval);
+    return (retval);
 }
 
-void
-vrmr_connreq_setup(struct vrmr_conntrack_request *connreq)
+void vrmr_connreq_setup(struct vrmr_conntrack_request *connreq)
 {
     /* safety */
-    if(connreq == NULL)
-    {
-        vrmr_error(-1, "Internal Error", "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
+    if (connreq == NULL) {
+        vrmr_error(-1, "Internal Error",
+                "parameter problem "
+                "(in: %s:%d).",
+                __FUNC__, __LINE__);
         return;
     }
 
@@ -2319,15 +1935,14 @@ vrmr_connreq_setup(struct vrmr_conntrack_request *connreq)
     memset(connreq, 0, sizeof(struct vrmr_conntrack_request));
 }
 
-
-void
-vrmr_connreq_cleanup(struct vrmr_conntrack_request *connreq)
+void vrmr_connreq_cleanup(struct vrmr_conntrack_request *connreq)
 {
     /* safety */
-    if(connreq == NULL)
-    {
-        vrmr_error(-1, "Internal Error", "parameter problem "
-                "(in: %s:%d).", __FUNC__, __LINE__);
+    if (connreq == NULL) {
+        vrmr_error(-1, "Internal Error",
+                "parameter problem "
+                "(in: %s:%d).",
+                __FUNC__, __LINE__);
         return;
     }
 

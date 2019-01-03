@@ -20,166 +20,158 @@
 
 #include "vuurmuur_script.h"
 
-int
-script_delete(VuurmuurScript *vr_script)
+int script_delete(VuurmuurScript *vr_script)
 {
-    char    found = FALSE;
+    char found = FALSE;
 
     /*
         first check if the object exists
     */
-    if( vr_script->type == VRMR_TYPE_ZONE || vr_script->type == VRMR_TYPE_NETWORK ||
-        vr_script->type == VRMR_TYPE_HOST || vr_script->type == VRMR_TYPE_GROUP)
-    {
-        while(vr_script->vctx.zf->list(vr_script->vctx.zone_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_ZONES) != NULL)
-        {
-            if(vr_script->zonetype == vr_script->type && strcmp(vr_script->bdat,vr_script->name) == 0)
-            {
+    if (vr_script->type == VRMR_TYPE_ZONE ||
+            vr_script->type == VRMR_TYPE_NETWORK ||
+            vr_script->type == VRMR_TYPE_HOST ||
+            vr_script->type == VRMR_TYPE_GROUP) {
+        while (vr_script->vctx.zf->list(vr_script->vctx.zone_backend,
+                       vr_script->bdat, &vr_script->zonetype,
+                       VRMR_BT_ZONES) != NULL) {
+            if (vr_script->zonetype == vr_script->type &&
+                    strcmp(vr_script->bdat, vr_script->name) == 0) {
                 found = TRUE;
             }
         }
 
-        if(found == FALSE)
-        {
-            if(vr_script->type == VRMR_TYPE_ZONE)
-                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "zone '%s' doesn't exist.", vr_script->name);
-            else if(vr_script->type == VRMR_TYPE_NETWORK)
-                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "network '%s' doesn't exist.", vr_script->name);
-            else if(vr_script->type == VRMR_TYPE_HOST)
-                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "host '%s' doesn't exist.", vr_script->name);
-            else if(vr_script->type == VRMR_TYPE_GROUP)
-                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "group '%s' doesn't exist.", vr_script->name);
+        if (found == FALSE) {
+            if (vr_script->type == VRMR_TYPE_ZONE)
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR,
+                        "zone '%s' doesn't exist.", vr_script->name);
+            else if (vr_script->type == VRMR_TYPE_NETWORK)
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR,
+                        "network '%s' doesn't exist.", vr_script->name);
+            else if (vr_script->type == VRMR_TYPE_HOST)
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR,
+                        "host '%s' doesn't exist.", vr_script->name);
+            else if (vr_script->type == VRMR_TYPE_GROUP)
+                vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR,
+                        "group '%s' doesn't exist.", vr_script->name);
 
-            return(VRS_ERR_NOT_FOUND);
+            return (VRS_ERR_NOT_FOUND);
         }
-    }
-    else if(vr_script->type == VRMR_TYPE_SERVICE)
-    {
-        while(vr_script->vctx.sf->list(vr_script->vctx.serv_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_SERVICES) != NULL)
-        {
-            if(strcmp(vr_script->bdat,vr_script->name) == 0)
-            {
+    } else if (vr_script->type == VRMR_TYPE_SERVICE) {
+        while (vr_script->vctx.sf->list(vr_script->vctx.serv_backend,
+                       vr_script->bdat, &vr_script->zonetype,
+                       VRMR_BT_SERVICES) != NULL) {
+            if (strcmp(vr_script->bdat, vr_script->name) == 0) {
                 found = TRUE;
             }
         }
 
-        if(found == FALSE)
-        {
-            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "service '%s' doesn't exist.", vr_script->name);
-            return(VRS_ERR_NOT_FOUND);
+        if (found == FALSE) {
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "service '%s' doesn't exist.",
+                    vr_script->name);
+            return (VRS_ERR_NOT_FOUND);
         }
-    }
-    else if(vr_script->type == VRMR_TYPE_INTERFACE)
-    {
-        while(vr_script->vctx.af->list(vr_script->vctx.ifac_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_INTERFACES) != NULL)
-        {
-            if(strcmp(vr_script->bdat,vr_script->name) == 0)
-            {
+    } else if (vr_script->type == VRMR_TYPE_INTERFACE) {
+        while (vr_script->vctx.af->list(vr_script->vctx.ifac_backend,
+                       vr_script->bdat, &vr_script->zonetype,
+                       VRMR_BT_INTERFACES) != NULL) {
+            if (strcmp(vr_script->bdat, vr_script->name) == 0) {
                 found = TRUE;
             }
         }
 
-        if(found == FALSE)
-        {
-            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "interface '%s' doesn't exist.", vr_script->name);
-            return(VRS_ERR_NOT_FOUND);
+        if (found == FALSE) {
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR,
+                    "interface '%s' doesn't exist.", vr_script->name);
+            return (VRS_ERR_NOT_FOUND);
         }
-    }
-    else if(vr_script->type == VRMR_TYPE_RULE)
-    {
-        while(vr_script->vctx.rf->list(vr_script->vctx.rule_backend, vr_script->bdat, &vr_script->zonetype, VRMR_BT_RULES) != NULL)
-        {
-            if(strcmp(vr_script->bdat,vr_script->name) == 0)
-            {
+    } else if (vr_script->type == VRMR_TYPE_RULE) {
+        while (vr_script->vctx.rf->list(vr_script->vctx.rule_backend,
+                       vr_script->bdat, &vr_script->zonetype,
+                       VRMR_BT_RULES) != NULL) {
+            if (strcmp(vr_script->bdat, vr_script->name) == 0) {
                 found = TRUE;
             }
         }
 
-        if(found == FALSE)
-        {
-            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "ruleset '%s' doesn't exist.", vr_script->name);
-            return(VRS_ERR_NOT_FOUND);
+        if (found == FALSE) {
+            vrmr_error(VRS_ERR_NOT_FOUND, VR_ERR, "ruleset '%s' doesn't exist.",
+                    vr_script->name);
+            return (VRS_ERR_NOT_FOUND);
         }
     }
 
     /*
         now remove it
     */
-    if(vr_script->type == VRMR_TYPE_ZONE)
-    {
-        if(vr_script->vctx.zf->del(vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_ZONE, 0) < 0)
-        {
-            vrmr_error(-1, VR_ERR, "removing zone '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
-            return(VRS_ERR_COMMAND_FAILED);
+    if (vr_script->type == VRMR_TYPE_ZONE) {
+        if (vr_script->vctx.zf->del(vr_script->vctx.zone_backend,
+                    vr_script->name, VRMR_TYPE_ZONE, 0) < 0) {
+            vrmr_error(-1, VR_ERR, "removing zone '%s' failed (in: %s:%d).",
+                    vr_script->name, __FUNC__, __LINE__);
+            return (VRS_ERR_COMMAND_FAILED);
         }
 
         logchange(vr_script, "zone '%s' removed.", vr_script->name);
-    }
-    else if(vr_script->type == VRMR_TYPE_NETWORK)
-    {
-        if(vr_script->vctx.zf->del(vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_NETWORK, 0) < 0)
-        {
-            vrmr_error(-1, VR_ERR, "removing network '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
-            return(VRS_ERR_COMMAND_FAILED);
+    } else if (vr_script->type == VRMR_TYPE_NETWORK) {
+        if (vr_script->vctx.zf->del(vr_script->vctx.zone_backend,
+                    vr_script->name, VRMR_TYPE_NETWORK, 0) < 0) {
+            vrmr_error(-1, VR_ERR, "removing network '%s' failed (in: %s:%d).",
+                    vr_script->name, __FUNC__, __LINE__);
+            return (VRS_ERR_COMMAND_FAILED);
         }
 
         logchange(vr_script, "network '%s' removed.", vr_script->name);
-    }
-    else if(vr_script->type == VRMR_TYPE_HOST)
-    {
-        if(vr_script->vctx.zf->del(vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_HOST, 0) < 0)
-        {
-            vrmr_error(-1, VR_ERR, "removing host '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
-            return(VRS_ERR_COMMAND_FAILED);
+    } else if (vr_script->type == VRMR_TYPE_HOST) {
+        if (vr_script->vctx.zf->del(vr_script->vctx.zone_backend,
+                    vr_script->name, VRMR_TYPE_HOST, 0) < 0) {
+            vrmr_error(-1, VR_ERR, "removing host '%s' failed (in: %s:%d).",
+                    vr_script->name, __FUNC__, __LINE__);
+            return (VRS_ERR_COMMAND_FAILED);
         }
 
         logchange(vr_script, "host '%s' removed.", vr_script->name);
-    }
-    else if(vr_script->type == VRMR_TYPE_GROUP)
-    {
-        if(vr_script->vctx.zf->del(vr_script->vctx.zone_backend, vr_script->name, VRMR_TYPE_GROUP, 0) < 0)
-        {
-            vrmr_error(-1, VR_ERR, "removing group '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
-            return(VRS_ERR_COMMAND_FAILED);
+    } else if (vr_script->type == VRMR_TYPE_GROUP) {
+        if (vr_script->vctx.zf->del(vr_script->vctx.zone_backend,
+                    vr_script->name, VRMR_TYPE_GROUP, 0) < 0) {
+            vrmr_error(-1, VR_ERR, "removing group '%s' failed (in: %s:%d).",
+                    vr_script->name, __FUNC__, __LINE__);
+            return (VRS_ERR_COMMAND_FAILED);
         }
 
         logchange(vr_script, "group '%s' removed.", vr_script->name);
-    }
-    else if(vr_script->type == VRMR_TYPE_SERVICE)
-    {
-        if(vr_script->vctx.sf->del(vr_script->vctx.serv_backend, vr_script->name, VRMR_TYPE_SERVICE, 0) < 0)
-        {
-            vrmr_error(-1, VR_ERR, "removing service '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
-            return(VRS_ERR_COMMAND_FAILED);
+    } else if (vr_script->type == VRMR_TYPE_SERVICE) {
+        if (vr_script->vctx.sf->del(vr_script->vctx.serv_backend,
+                    vr_script->name, VRMR_TYPE_SERVICE, 0) < 0) {
+            vrmr_error(-1, VR_ERR, "removing service '%s' failed (in: %s:%d).",
+                    vr_script->name, __FUNC__, __LINE__);
+            return (VRS_ERR_COMMAND_FAILED);
         }
 
         logchange(vr_script, "service '%s' removed.", vr_script->name);
-    }
-    else if(vr_script->type == VRMR_TYPE_INTERFACE)
-    {
-        if(vr_script->vctx.af->del(vr_script->vctx.ifac_backend, vr_script->name, VRMR_TYPE_INTERFACE, 0) < 0)
-        {
-            vrmr_error(-1, VR_ERR, "removing interface '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
-            return(VRS_ERR_COMMAND_FAILED);
+    } else if (vr_script->type == VRMR_TYPE_INTERFACE) {
+        if (vr_script->vctx.af->del(vr_script->vctx.ifac_backend,
+                    vr_script->name, VRMR_TYPE_INTERFACE, 0) < 0) {
+            vrmr_error(-1, VR_ERR,
+                    "removing interface '%s' failed (in: %s:%d).",
+                    vr_script->name, __FUNC__, __LINE__);
+            return (VRS_ERR_COMMAND_FAILED);
         }
 
         logchange(vr_script, "interface '%s' removed.", vr_script->name);
-    }
-    else if(vr_script->type == VRMR_TYPE_RULE)
-    {
-        if(vr_script->vctx.rf->del(vr_script->vctx.rule_backend, vr_script->name, VRMR_TYPE_RULE, 0) < 0)
-        {
-            vrmr_error(-1, VR_ERR, "removing ruleset '%s' failed (in: %s:%d).", vr_script->name, __FUNC__, __LINE__);
-            return(VRS_ERR_COMMAND_FAILED);
+    } else if (vr_script->type == VRMR_TYPE_RULE) {
+        if (vr_script->vctx.rf->del(vr_script->vctx.rule_backend,
+                    vr_script->name, VRMR_TYPE_RULE, 0) < 0) {
+            vrmr_error(-1, VR_ERR, "removing ruleset '%s' failed (in: %s:%d).",
+                    vr_script->name, __FUNC__, __LINE__);
+            return (VRS_ERR_COMMAND_FAILED);
         }
 
         logchange(vr_script, "ruleset '%s' removed.", vr_script->name);
-    }
-    else
-    {
-        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d.", vr_script->type);
-        return(VRS_ERR_INTERNAL);
+    } else {
+        vrmr_error(VRS_ERR_INTERNAL, VR_INTERR, "unknown type %d.",
+                vr_script->type);
+        return (VRS_ERR_INTERNAL);
     }
 
-    return(0);
+    return (0);
 }

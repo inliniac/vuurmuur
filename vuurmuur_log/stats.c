@@ -24,12 +24,13 @@
 #include "vuurmuur_log.h"
 #include "stats.h"
 
-void
-show_stats (struct Counters_ *c)
+void show_stats(struct Counters_ *c)
 {
     fprintf(stdout, "\nStatistics:\n");
 
-    fprintf(stdout, "Total logrules: %u (vuurmuur: %u, other: %u, invalid: %u)\n", c->total, c->totalvuurmuur, c->noipt, c->invalid_loglines);
+    fprintf(stdout,
+            "Total logrules: %u (vuurmuur: %u, other: %u, invalid: %u)\n",
+            c->total, c->totalvuurmuur, c->noipt, c->invalid_loglines);
 
     fprintf(stdout, "\nMatches:\n");
     fprintf(stdout, "Accepted    : %u\n", c->accept);
@@ -46,20 +47,17 @@ show_stats (struct Counters_ *c)
     return;
 }
 
-void
-upd_action_ctrs (char *action, struct Counters_ *c)
+void upd_action_ctrs(char *action, struct Counters_ *c)
 {
     /* ACTION counters */
-    if(strcmp(action, "DROP") == 0)
+    if (strcmp(action, "DROP") == 0)
         c->drop++;
-    else if(strcmp(action, "ACCEPT") == 0)
+    else if (strcmp(action, "ACCEPT") == 0)
         c->accept++;
-    else if(strcmp(action, "REJECT") == 0)
+    else if (strcmp(action, "REJECT") == 0)
         c->reject++;
-    else if(strcmp(action, "QUEUE") == 0 ||
-            strcmp(action, "NFQUEUE") == 0)
+    else if (strcmp(action, "QUEUE") == 0 || strcmp(action, "NFQUEUE") == 0)
         c->queue++;
     else
         c->other_match++;
 }
-

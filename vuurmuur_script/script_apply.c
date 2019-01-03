@@ -20,155 +20,134 @@
 
 #include "vuurmuur_script.h"
 
-int
-script_apply(VuurmuurScript *vr_script)
+int script_apply(VuurmuurScript *vr_script)
 {
     /* vuurmuur */
-    int                 vuurmuur_shmid = 0;
-    int                 vuurmuur_semid = -1;
+    int vuurmuur_shmid = 0;
+    int vuurmuur_semid = -1;
     /*@null@*/
-    struct vrmr_shm_table    *vuurmuur_shmtable = NULL;
-    char                *vuurmuur_shmp = NULL;
+    struct vrmr_shm_table *vuurmuur_shmtable = NULL;
+    char *vuurmuur_shmp = NULL;
 
     /* vuurmuur_log */
-    int                 vuurmuurlog_shmid = 0;
-    int                 vuurmuurlog_semid = -1;
-    char                *vuurmuurlog_shmp = NULL;
+    int vuurmuurlog_shmid = 0;
+    int vuurmuurlog_semid = -1;
+    char *vuurmuurlog_shmp = NULL;
     /*@null@*/
-    struct vrmr_shm_table    *vuurmuurlog_shmtable = NULL;
-    int                 vuurmuur_result = 0,
-                        vuurmuurlog_result = 0;
-    int                 waittime = 0;
-    
-    int                 vuurmuur_progress = 0,
-                        vuurmuurlog_progress = 0;
+    struct vrmr_shm_table *vuurmuurlog_shmtable = NULL;
+    int vuurmuur_result = 0, vuurmuurlog_result = 0;
+    int waittime = 0;
 
-    char                failed = FALSE;
-    int                 retval = 0;
+    int vuurmuur_progress = 0, vuurmuurlog_progress = 0;
+
+    char failed = FALSE;
+    int retval = 0;
 
     /* try to connect to vuurmuur trough shm */
     vuurmuur_shmtable = NULL;
     get_vuurmuur_pid("/var/run/vuurmuur.pid", &vuurmuur_shmid);
-    if(vuurmuur_shmid > 0)
-    {
+    if (vuurmuur_shmid > 0) {
         /* attach to shared memory */
         vuurmuur_shmp = shmat(vuurmuur_shmid, 0, 0);
-        if(vuurmuur_shmp == (char *)(-1))
-        {
-            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "attaching to shared memory failed: %s (in: %s:%d).",
-                                            strerror(errno), __FUNC__, __LINE__);
-        }
-        else
-        {
+        if (vuurmuur_shmp == (char *)(-1)) {
+            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
+                    "attaching to shared memory failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+        } else {
             vuurmuur_shmtable = (struct vrmr_shm_table *)vuurmuur_shmp;
             vuurmuur_semid = vuurmuur_shmtable->sem_id;
 
             /* now try to connect to the shared memory */
-            if(vrmr_lock(vuurmuur_semid))
-            {
+            if (vrmr_lock(vuurmuur_semid)) {
                 vuurmuur_shmtable->configtool.connected = 1;
                 (void)strlcpy(vuurmuur_shmtable->configtool.username,
                         vr_script->vctx.user_data.realusername,
                         sizeof(vuurmuur_shmtable->configtool.username));
                 snprintf(vuurmuur_shmtable->configtool.name,
                         sizeof(vuurmuur_shmtable->configtool.name),
-                        "Vuurmuur_script %s (user: %s)",
-                        version_string, vr_script->vctx.user_data.realusername);
+                        "Vuurmuur_script %s (user: %s)", version_string,
+                        vr_script->vctx.user_data.realusername);
                 vrmr_unlock(vuurmuur_semid);
-            }
-            else
-            {
-                vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "connecting to Vuurmuur failed: could not lock semid.");
+            } else {
+                vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
+                        "connecting to Vuurmuur failed: could not lock semid.");
                 vuurmuur_shmp = NULL;
             }
         }
-    }
-    else
-    {
-        vrmr_warning(VR_WARN, "vuurmuur not notified: connecting failed: no shmid.");
+    } else {
+        vrmr_warning(
+                VR_WARN, "vuurmuur not notified: connecting failed: no shmid.");
         vuurmuur_shmp = NULL;
     }
 
     /* try to connect to vuurmuur trough shm */
     vuurmuurlog_shmtable = NULL;
     get_vuurmuur_pid("/var/run/vuurmuur_log.pid", &vuurmuurlog_shmid);
-    if(vuurmuurlog_shmid > 0)
-    {
+    if (vuurmuurlog_shmid > 0) {
         /* attach to shared memory */
         vuurmuurlog_shmp = shmat(vuurmuurlog_shmid, 0, 0);
-        if(vuurmuurlog_shmp == (char *)(-1))
-        {
-            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "attaching to shared memory failed: %s (in: %s:%d).",
-                                            strerror(errno), __FUNC__, __LINE__);
-        }
-        else
-        {
+        if (vuurmuurlog_shmp == (char *)(-1)) {
+            vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
+                    "attaching to shared memory failed: %s (in: %s:%d).",
+                    strerror(errno), __FUNC__, __LINE__);
+        } else {
             vuurmuurlog_shmtable = (struct vrmr_shm_table *)vuurmuurlog_shmp;
             vuurmuurlog_semid = vuurmuurlog_shmtable->sem_id;
 
             /* now try to connect to the shared memory */
-            if(vrmr_lock(vuurmuurlog_semid))
-            {
+            if (vrmr_lock(vuurmuurlog_semid)) {
                 vuurmuurlog_shmtable->configtool.connected = 1;
                 (void)strlcpy(vuurmuurlog_shmtable->configtool.username,
                         vr_script->vctx.user_data.realusername,
                         sizeof(vuurmuurlog_shmtable->configtool.username));
                 snprintf(vuurmuurlog_shmtable->configtool.name,
                         sizeof(vuurmuurlog_shmtable->configtool.name),
-                        "Vuurmuur_script %s (user: %s)",
-                        version_string, vr_script->vctx.user_data.realusername);
+                        "Vuurmuur_script %s (user: %s)", version_string,
+                        vr_script->vctx.user_data.realusername);
                 vrmr_unlock(vuurmuurlog_semid);
-            }
-            else
-            {
-                vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR, "connecting to Vuurmuur_log failed: could not lock semid.");
+            } else {
+                vrmr_error(VRS_ERR_COMMAND_FAILED, VR_ERR,
+                        "connecting to Vuurmuur_log failed: could not lock "
+                        "semid.");
                 vuurmuurlog_shmp = NULL;
             }
         }
-    }
-    else
-    {
-        vrmr_warning(VR_WARN, "vuurmuur_log not notified: connecting failed: no shmid.");
+    } else {
+        vrmr_warning(VR_WARN,
+                "vuurmuur_log not notified: connecting failed: no shmid.");
         vuurmuurlog_shmp = NULL;
     }
 
     /* handle no vuurmuur connection */
-    if(vuurmuur_shmtable != NULL && vuurmuur_semid != -1)
-    {
-        if(vrmr_lock(vuurmuur_semid))
-        {
+    if (vuurmuur_shmtable != NULL && vuurmuur_semid != -1) {
+        if (vrmr_lock(vuurmuur_semid)) {
             vuurmuur_shmtable->backend_changed = 1;
             vrmr_unlock(vuurmuur_semid);
 
             vuurmuur_result = VRMR_RR_NO_RESULT_YET;
         }
-    }
-    else
-    {
+    } else {
         vuurmuur_result = VRMR_RR_READY;
     }
 
     /* handle no vuurmuur_log connection */
-    if(vuurmuurlog_shmtable != NULL && vuurmuurlog_semid != -1)
-    {
-        if(vrmr_lock(vuurmuurlog_semid))
-        {
+    if (vuurmuurlog_shmtable != NULL && vuurmuurlog_semid != -1) {
+        if (vrmr_lock(vuurmuurlog_semid)) {
             vuurmuurlog_shmtable->backend_changed = 1;
             vrmr_unlock(vuurmuurlog_semid);
 
             vuurmuurlog_result = VRMR_RR_NO_RESULT_YET;
         }
-    }
-    else
-    {
+    } else {
         vuurmuurlog_result = VRMR_RR_READY;
     }
 
     /* wait max 60 seconds */
-    while (((vuurmuur_result == VRMR_RR_NO_RESULT_YET || vuurmuur_result == VRMR_RR_RESULT_ACK) ||
-            (vuurmuurlog_result == VRMR_RR_NO_RESULT_YET || vuurmuurlog_result == VRMR_RR_RESULT_ACK))
-            && waittime < 60000000)
-    {
+    while (((vuurmuur_result == VRMR_RR_NO_RESULT_YET ||
+                    vuurmuur_result == VRMR_RR_RESULT_ACK) ||
+                   (vuurmuurlog_result == VRMR_RR_NO_RESULT_YET ||
+                           vuurmuurlog_result == VRMR_RR_RESULT_ACK)) &&
+            waittime < 60000000) {
         if (vuurmuur_shmtable != NULL && vuurmuur_semid != -1) {
             if (vuurmuur_progress < 100) {
                 if (vrmr_lock(vuurmuur_semid)) {
@@ -181,11 +160,12 @@ script_apply(VuurmuurScript *vr_script)
             }
 
             if (vuurmuur_progress == 100) {
-                if(vrmr_lock(vuurmuur_semid)) {
+                if (vrmr_lock(vuurmuur_semid)) {
                     vuurmuur_shmtable->reload_result = VRMR_RR_RESULT_ACK;
                     vrmr_unlock(vuurmuur_semid);
 
-                    if (vuurmuur_result != VRMR_RR_SUCCES && vuurmuur_result != VRMR_RR_NOCHANGES) {
+                    if (vuurmuur_result != VRMR_RR_SUCCES &&
+                            vuurmuur_result != VRMR_RR_NOCHANGES) {
                         vuurmuur_result = VRMR_RR_READY;
                         failed = 1;
                     }
@@ -197,22 +177,25 @@ script_apply(VuurmuurScript *vr_script)
         }
 
         if (vuurmuurlog_shmtable != NULL && vuurmuurlog_semid != -1) {
-            if(vuurmuurlog_progress < 100) {
-                if(vrmr_lock(vuurmuurlog_semid)) {
+            if (vuurmuurlog_progress < 100) {
+                if (vrmr_lock(vuurmuurlog_semid)) {
                     if (vuurmuurlog_shmtable->reload_result != VRMR_RR_READY) {
-                        vuurmuurlog_result = vuurmuurlog_shmtable->reload_result;
+                        vuurmuurlog_result =
+                                vuurmuurlog_shmtable->reload_result;
                     }
-                    vuurmuurlog_progress = vuurmuurlog_shmtable->reload_progress;
+                    vuurmuurlog_progress =
+                            vuurmuurlog_shmtable->reload_progress;
                     vrmr_unlock(vuurmuurlog_semid);
                 }
             }
 
-            if(vuurmuurlog_progress == 100) {
-                if(vrmr_lock(vuurmuurlog_semid)) {
+            if (vuurmuurlog_progress == 100) {
+                if (vrmr_lock(vuurmuurlog_semid)) {
                     vuurmuurlog_shmtable->reload_result = VRMR_RR_RESULT_ACK;
                     vrmr_unlock(vuurmuurlog_semid);
 
-                    if (vuurmuurlog_result != VRMR_RR_SUCCES && vuurmuurlog_result != VRMR_RR_NOCHANGES) {
+                    if (vuurmuurlog_result != VRMR_RR_SUCCES &&
+                            vuurmuurlog_result != VRMR_RR_NOCHANGES) {
                         vuurmuurlog_result = VRMR_RR_READY;
                         failed = 1;
                     }
@@ -223,10 +206,12 @@ script_apply(VuurmuurScript *vr_script)
             }
         }
 
-        /* no result yet, sleep 1 sec, or if the server didn't have a chance to do anything */
-        if( (vuurmuur_result    == VRMR_RR_NO_RESULT_YET || vuurmuur_result    == VRMR_RR_RESULT_ACK) ||
-            (vuurmuurlog_result == VRMR_RR_NO_RESULT_YET || vuurmuurlog_result == VRMR_RR_RESULT_ACK))
-        {
+        /* no result yet, sleep 1 sec, or if the server didn't have a chance to
+         * do anything */
+        if ((vuurmuur_result == VRMR_RR_NO_RESULT_YET ||
+                    vuurmuur_result == VRMR_RR_RESULT_ACK) ||
+                (vuurmuurlog_result == VRMR_RR_NO_RESULT_YET ||
+                        vuurmuurlog_result == VRMR_RR_RESULT_ACK)) {
             waittime += 1000;
             usleep(1000);
         }
@@ -243,27 +228,25 @@ script_apply(VuurmuurScript *vr_script)
     }
 
     /* detach from shared memory, if we were attached */
-    if(vuurmuur_shmp != NULL && vuurmuur_shmp != (char *)(-1) && vuurmuur_shmtable != 0)
-    {
-        if(vrmr_lock(vuurmuur_semid))
-        {
+    if (vuurmuur_shmp != NULL && vuurmuur_shmp != (char *)(-1) &&
+            vuurmuur_shmtable != 0) {
+        if (vrmr_lock(vuurmuur_semid)) {
             vuurmuur_shmtable->configtool.connected = 3;
             vrmr_unlock(vuurmuur_semid);
         }
         (void)shmdt(vuurmuur_shmp);
     }
-    if(vuurmuurlog_shmp != NULL && vuurmuurlog_shmp != (char *)(-1) && vuurmuurlog_shmtable != 0)
-    {
-        if(vrmr_lock(vuurmuurlog_semid))
-        {
+    if (vuurmuurlog_shmp != NULL && vuurmuurlog_shmp != (char *)(-1) &&
+            vuurmuurlog_shmtable != 0) {
+        if (vrmr_lock(vuurmuurlog_semid)) {
             vuurmuurlog_shmtable->configtool.connected = 3;
             vrmr_unlock(vuurmuurlog_semid);
         }
         (void)shmdt(vuurmuurlog_shmp);
     }
 
-    if(failed == TRUE)
+    if (failed == TRUE)
         retval = VRS_ERR_COMMAND_FAILED;
 
-    return(retval);
+    return (retval);
 }

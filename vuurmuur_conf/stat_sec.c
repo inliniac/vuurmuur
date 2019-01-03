@@ -20,16 +20,13 @@
 
 #include "main.h"
 
-
-struct StatusSection_
-{
-    PANEL   *panel[1];
-    WINDOW  *win;
-    FIELD   **fields;
-    FORM    *form;
-    size_t  n_fields;
+struct StatusSection_ {
+    PANEL *panel[1];
+    WINDOW *win;
+    FIELD **fields;
+    FORM *form;
+    size_t n_fields;
 } StatusSection;
-
 
 /*  get_sys_load
 
@@ -46,22 +43,21 @@ static int get_sys_load(float *load_s, float *load_m, float *load_l)
     char line[512] = "";
 
     if (!(fp = fopen(proc_loadavg, "r")))
-        return(-1);
+        return (-1);
 
-    if (fgets(line, (int)sizeof(line), fp) != NULL)
-    {
+    if (fgets(line, (int)sizeof(line), fp) != NULL) {
         if (sscanf(line, "%f %f %f", load_s, load_m, load_l) == 0) {
             fclose(fp);
-            return(-1);
+            return (-1);
         }
     } else {
         fclose(fp);
-        return(-1);
+        return (-1);
     }
 
     if (fclose(fp) < 0)
-        return(-1);
-    return(0);
+        return (-1);
+    return (0);
 }
 #if 0
 static int count_host_tcp_conn(int *tcp_count, int *tcp_list_count)
@@ -150,26 +146,22 @@ static int count_host_udp_conn(int *udp_count, int *udp_list_count)
 #endif
 
 static int count_conntrack_conn(struct vrmr_config *cnf, int *conntrack_count,
-            int *tcp_count, int *udp_count, int *other_count)
+        int *tcp_count, int *udp_count, int *other_count)
 {
-    FILE    *fp=NULL;
-    char    line[512];
-    int     i=0,
-            tcp=0,
-            udp=0,
-            other=0;
+    FILE *fp = NULL;
+    char line[512];
+    int i = 0, tcp = 0, udp = 0, other = 0;
 
-    if(cnf->use_ipconntrack == TRUE || (!(fp = fopen(VRMR_PROC_NFCONNTRACK, "r"))))
-    {
+    if (cnf->use_ipconntrack == TRUE ||
+            (!(fp = fopen(VRMR_PROC_NFCONNTRACK, "r")))) {
         if (!(fp = fopen(VRMR_PROC_IPCONNTRACK, "r")))
-            return(-1);
+            return (-1);
     }
 
-    while(fgets(line, (int)sizeof(line), fp) != NULL)
-    {
-        if(strncmp(line, "tcp", 3) == 0)
+    while (fgets(line, (int)sizeof(line), fp) != NULL) {
+        if (strncmp(line, "tcp", 3) == 0)
             tcp++;
-        else if(strncmp(line, "udp", 3) == 0)
+        else if (strncmp(line, "udp", 3) == 0)
             udp++;
         else
             other++;
@@ -182,23 +174,23 @@ static int count_conntrack_conn(struct vrmr_config *cnf, int *conntrack_count,
     *udp_count = udp;
     *other_count = other;
 
-    if(fclose(fp) < 0)
-        return(-1);
+    if (fclose(fp) < 0)
+        return (-1);
 
-    return(0);
+    return (0);
 }
 
 static int get_conntrack_max(int *conntrack_max)
 {
-    FILE    *fp = NULL;
-    char    proc_ip_conntrack_max[] = "/proc/sys/net/ipv4/ip_conntrack_max",
-            proc_nf_conntrack_max[] = "/proc/sys/net/nf_conntrack_max",
-            line[16] = "";
+    FILE *fp = NULL;
+    char proc_ip_conntrack_max[] = "/proc/sys/net/ipv4/ip_conntrack_max",
+         proc_nf_conntrack_max[] = "/proc/sys/net/nf_conntrack_max",
+         line[16] = "";
 
     /* try to open the conntrack max file */
     if (!(fp = fopen(proc_ip_conntrack_max, "r"))) {
         if (!(fp = fopen(proc_nf_conntrack_max, "r"))) {
-            return(-1);
+            return (-1);
         }
     }
 
@@ -210,7 +202,7 @@ static int get_conntrack_max(int *conntrack_max)
     }
 
     (void)fclose(fp);
-    return(0);
+    return (0);
 }
 
 /*  get_meminfo
@@ -221,71 +213,61 @@ static int get_conntrack_max(int *conntrack_max)
          0: ok
         -1: error
 */
-static int get_meminfo(int *mem_total, int *mem_free, int *mem_cached, int *mem_buffers)
+static int get_meminfo(
+        int *mem_total, int *mem_free, int *mem_cached, int *mem_buffers)
 {
-    FILE    *fp=NULL;
-    char    proc_meminfo[] = "/proc/meminfo",
-            line[128],
-            variable[64],
-            value[64];
+    FILE *fp = NULL;
+    char proc_meminfo[] = "/proc/meminfo", line[128], variable[64], value[64];
 
     // open the proc entry
-    if(!(fp = fopen(proc_meminfo, "r")))
-    {
+    if (!(fp = fopen(proc_meminfo, "r"))) {
         vrmr_error(-1, VR_ERR, gettext("opening '%s' failed: %s (in: %s:%d)."),
-                                proc_meminfo,
-                                strerror(errno),
-                                __FUNC__, __LINE__);
-        return(-1);
+                proc_meminfo, strerror(errno), __FUNC__, __LINE__);
+        return (-1);
     }
 
     // loop trough the file and get the info
-    while(fgets(line, (int)sizeof(line), fp) != NULL)
-    {
+    while (fgets(line, (int)sizeof(line), fp) != NULL) {
         sscanf(line, "%63s %63s", variable, value);
 
-        if(strcmp(variable, "MemTotal:") == 0)
+        if (strcmp(variable, "MemTotal:") == 0)
             *mem_total = atoi(value);
-        else if(strcmp(variable, "MemFree:") == 0)
+        else if (strcmp(variable, "MemFree:") == 0)
             *mem_free = atoi(value);
-        else if(strcmp(variable, "Buffers:") == 0)
+        else if (strcmp(variable, "Buffers:") == 0)
             *mem_buffers = atoi(value);
-        else if(strcmp(variable, "Cached:") == 0)
+        else if (strcmp(variable, "Cached:") == 0)
             *mem_cached = atoi(value);
     }
 
-    if(fclose(fp) < 0)
-        return(-1);
+    if (fclose(fp) < 0)
+        return (-1);
 
-    return(0);
+    return (0);
 }
 
-static int get_system_uptime(char *s_day, char *s_hour, char *s_minute, char *s_second)
+static int get_system_uptime(
+        char *s_day, char *s_hour, char *s_minute, char *s_second)
 {
-    FILE    *fp=NULL;
-    char    proc_uptime[] = "/proc/uptime",
-            line[512];
-    int     upt_i=0,
-            day=0,
-            hour=0,
-            min=0,
-            sec=0;
+    FILE *fp = NULL;
+    char proc_uptime[] = "/proc/uptime", line[512];
+    int upt_i = 0, day = 0, hour = 0, min = 0, sec = 0;
 
-// param check
+    // param check
 
-    if(!(fp = fopen(proc_uptime, "r")))
-        return(-1);
+    if (!(fp = fopen(proc_uptime, "r")))
+        return (-1);
 
-    if(fgets(line, (int)sizeof(line), fp) != NULL)
+    if (fgets(line, (int)sizeof(line), fp) != NULL)
         sscanf(line, "%d", &upt_i);
 
     day = upt_i / 86400;
     hour = (upt_i - (day * 86400)) / 3600;
-    min =  (upt_i - (day * 86400) - (hour * 3600))/60;
-    sec =  (upt_i - (day * 86400) - (hour * 3600) - (min * 60));
+    min = (upt_i - (day * 86400) - (hour * 3600)) / 60;
+    sec = (upt_i - (day * 86400) - (hour * 3600) - (min * 60));
 
-    if(fclose(fp) < 0)
-        return(-1);
+    if (fclose(fp) < 0)
+        return (-1);
 
     if (day < 0)
         day = 0;
@@ -304,7 +286,7 @@ static int get_system_uptime(char *s_day, char *s_hour, char *s_minute, char *s_
     snprintf(s_minute, 3, "%02d", min);
     snprintf(s_second, 3, "%02d", sec);
 
-    return(0);
+    return (0);
 }
 
 /*  status_section_init
@@ -316,32 +298,29 @@ static int get_system_uptime(char *s_day, char *s_hour, char *s_minute, char *s_
          0: ok
         -1: error
 */
-static int
-status_section_init(int height, int width, int starty, int startx, unsigned int ifac_num)
+static int status_section_init(
+        int height, int width, int starty, int startx, unsigned int ifac_num)
 {
-    int             rows,
-                    cols,
-                    max_width;
-    unsigned int    ifac_fields=0,
-                    ifacs=0,
-                    ifac_start=12;
-    size_t          i = 0;
+    int rows, cols, max_width;
+    unsigned int ifac_fields = 0, ifacs = 0, ifac_start = 12;
+    size_t i = 0;
 
     /* get and check the screen dimentions */
     max_width = getmaxx(stdscr);
-    if(width > max_width)
-        return(-1);
-    if((int)ifac_num > height - 15)
+    if (width > max_width)
+        return (-1);
+    if ((int)ifac_num > height - 15)
         ifac_num = (unsigned int)height - 15;
 
     /* set the number of fields */
     StatusSection.n_fields = (size_t)(16 + (6 * ifac_num));
 
     /* alloc the needed memory */
-    if(!(StatusSection.fields = (FIELD **)calloc(StatusSection.n_fields + 1, sizeof(FIELD *))))
-    {
-        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."), strerror(errno), __FUNC__, __LINE__);
-        return(-1);
+    if (!(StatusSection.fields = (FIELD **)calloc(
+                  StatusSection.n_fields + 1, sizeof(FIELD *)))) {
+        vrmr_error(-1, VR_ERR, gettext("calloc failed: %s (in: %s:%d)."),
+                strerror(errno), __FUNC__, __LINE__);
+        return (-1);
     }
 
     /* create the fields */
@@ -370,7 +349,6 @@ status_section_init(int height, int width, int starty, int startx, unsigned int 
     StatusSection.fields[10] = new_field(1, 2, 1, 72, 0, 1);
     set_field_buffer_wrap(StatusSection.fields[10], 1, "us");
 
-
     StatusSection.fields[11] = new_field(1, 6, 6, 23, 0, 1);
     set_field_buffer_wrap(StatusSection.fields[11], 1, "con_t");
     StatusSection.fields[12] = new_field(1, 6, 7, 23, 0, 1);
@@ -384,29 +362,34 @@ status_section_init(int height, int width, int starty, int startx, unsigned int 
     set_field_buffer_wrap(StatusSection.fields[15], 1, "con_m");
 
     /* create iface stats fields */
-    for(ifacs = 0, ifac_fields = 16; ifacs < ifac_num; ifacs++)
-    {
-        StatusSection.fields[ifac_fields] = new_field(1, 8, (int)(ifac_start+ifacs), 13, 0, 1);
+    for (ifacs = 0, ifac_fields = 16; ifacs < ifac_num; ifacs++) {
+        StatusSection.fields[ifac_fields] =
+                new_field(1, 8, (int)(ifac_start + ifacs), 13, 0, 1);
         set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "recv_s");
         ifac_fields++;
 
-        StatusSection.fields[ifac_fields] = new_field(1, 8, (int)(ifac_start+ifacs), 22, 0, 1);
+        StatusSection.fields[ifac_fields] =
+                new_field(1, 8, (int)(ifac_start + ifacs), 22, 0, 1);
         set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "send_s");
         ifac_fields++;
 
-        StatusSection.fields[ifac_fields] = new_field(1, 10, (int)(ifac_start+ifacs), 31, 0, 1);
+        StatusSection.fields[ifac_fields] =
+                new_field(1, 10, (int)(ifac_start + ifacs), 31, 0, 1);
         set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "rcv_ti");
         ifac_fields++;
 
-        StatusSection.fields[ifac_fields] = new_field(1, 10, (int)(ifac_start+ifacs), 42, 0, 1);
+        StatusSection.fields[ifac_fields] =
+                new_field(1, 10, (int)(ifac_start + ifacs), 42, 0, 1);
         set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "snd_to");
         ifac_fields++;
 
-        StatusSection.fields[ifac_fields] = new_field(1, 10, (int)(ifac_start+ifacs), 53, 0, 1);
+        StatusSection.fields[ifac_fields] =
+                new_field(1, 10, (int)(ifac_start + ifacs), 53, 0, 1);
         set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "rcv_tf");
         ifac_fields++;
 
-        StatusSection.fields[ifac_fields] = new_field(1, 10, (int)(ifac_start+ifacs), 64, 0, 1);
+        StatusSection.fields[ifac_fields] =
+                new_field(1, 10, (int)(ifac_start + ifacs), 64, 0, 1);
         set_field_buffer_wrap(StatusSection.fields[ifac_fields], 1, "snd_tf");
         ifac_fields++;
     }
@@ -415,21 +398,21 @@ status_section_init(int height, int width, int starty, int startx, unsigned int 
     StatusSection.fields[StatusSection.n_fields] = NULL;
 
     /* create the window and the panel */
-    if(!(StatusSection.win = create_newwin(height, width, starty, startx, gettext("Status Section"), vccnf.color_win)))
-    {
-        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
+    if (!(StatusSection.win = create_newwin(height, width, starty, startx,
+                  gettext("Status Section"), vccnf.color_win))) {
+        vrmr_error(-1, VR_INTERR, "create_newwin() failed (in: %s:%d).",
+                __FUNC__, __LINE__);
+        return (-1);
     }
-    if(!(StatusSection.panel[0] = new_panel(StatusSection.win)))
-    {
-        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
+    if (!(StatusSection.panel[0] = new_panel(StatusSection.win))) {
+        vrmr_error(-1, VR_INTERR, "new_panel() failed (in: %s:%d).", __FUNC__,
+                __LINE__);
+        return (-1);
     }
 
     /* field options */
-    for(i = 0; i < StatusSection.n_fields; i++)
-    {
-        if(vrmr_debug_level >= LOW)
+    for (i = 0; i < StatusSection.n_fields; i++) {
+        if (vrmr_debug_level >= LOW)
             set_field_back(StatusSection.fields[i], vccnf.color_win_rev);
         else
             set_field_back(StatusSection.fields[i], vccnf.color_win);
@@ -440,67 +423,68 @@ status_section_init(int height, int width, int starty, int startx, unsigned int 
     }
 
     /* Create the form and post it */
-    if(!(StatusSection.form = new_form(StatusSection.fields)))
-    {
-        vrmr_error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
+    if (!(StatusSection.form = new_form(StatusSection.fields))) {
+        vrmr_error(-1, VR_INTERR, "new_form() failed (in: %s:%d).", __FUNC__,
+                __LINE__);
+        return (-1);
     }
     /* Calculate the area required for the form */
     scale_form(StatusSection.form, &rows, &cols);
     keypad(StatusSection.win, TRUE);
     /* Set main window and sub window */
     set_form_win(StatusSection.form, StatusSection.win);
-    set_form_sub(StatusSection.form, derwin(StatusSection.win, rows, cols, 1, 2));
+    set_form_sub(
+            StatusSection.form, derwin(StatusSection.win, rows, cols, 1, 2));
 
-    if(post_form(StatusSection.form) != E_OK)
-    {
-        vrmr_error(-1, VR_INTERR, "post_form() failed (in: %s:%d).", __FUNC__, __LINE__);
-        return(-1);
+    if (post_form(StatusSection.form) != E_OK) {
+        vrmr_error(-1, VR_INTERR, "post_form() failed (in: %s:%d).", __FUNC__,
+                __LINE__);
+        return (-1);
     }
 
     /* print the field labels */
 
     /* TRANSLATORS: max 11 chars. */
-    mvwprintw(StatusSection.win, 1, 2,  gettext("Hostname"));
-    mvwprintw(StatusSection.win, 2, 2,  "Kernel");
+    mvwprintw(StatusSection.win, 1, 2, gettext("Hostname"));
+    mvwprintw(StatusSection.win, 2, 2, "Kernel");
 
     /* TRANSLATORS: max 3 chars. */
-    mvwprintw(StatusSection.win, 1, 64,  gettext("day"));
+    mvwprintw(StatusSection.win, 1, 64, gettext("day"));
     /* TRANSLATORS: this must be exactly the same regarding positions. */
-    mvwprintw(StatusSection.win, 1, 68,  gettext("h  m  s"));
-    mvwprintw(StatusSection.win, 2, 70,  ":");
-    mvwprintw(StatusSection.win, 2, 73,  ":");
+    mvwprintw(StatusSection.win, 1, 68, gettext("h  m  s"));
+    mvwprintw(StatusSection.win, 2, 70, ":");
+    mvwprintw(StatusSection.win, 2, 73, ":");
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 2, 55,  gettext("Uptime"));
+    mvwprintw(StatusSection.win, 2, 55, gettext("Uptime"));
 
-    mvwprintw(StatusSection.win, 4, 15,  "1m    5m    15m");
+    mvwprintw(StatusSection.win, 4, 15, "1m    5m    15m");
 
     /* TRANSLATORS: max 10 chars. */
-    mvwprintw(StatusSection.win, 5, 2,   gettext("Load"));
+    mvwprintw(StatusSection.win, 5, 2, gettext("Load"));
     /* TRANSLATORS: max 5 chars. */
-    mvwprintw(StatusSection.win, 4, 46,  gettext("Total"));
+    mvwprintw(StatusSection.win, 4, 46, gettext("Total"));
     /* TRANSLATORS: max 5 chars. */
-    mvwprintw(StatusSection.win, 4, 54,  gettext("Free"));
+    mvwprintw(StatusSection.win, 4, 54, gettext("Free"));
     /* TRANSLATORS: max 5 chars. */
-    mvwprintw(StatusSection.win, 4, 62,  gettext("Cache"));
+    mvwprintw(StatusSection.win, 4, 62, gettext("Cache"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 4, 70,  gettext("Buffer"));
+    mvwprintw(StatusSection.win, 4, 70, gettext("Buffer"));
     /* TRANSLATORS: max 9 chars. */
-    mvwprintw(StatusSection.win, 5, 34,  gettext("Memory(MB)"));
+    mvwprintw(StatusSection.win, 5, 34, gettext("Memory(MB)"));
 
     /* TRANSLATORS: max 11 chars. */
-    mvwprintw(StatusSection.win, 8, 2,  gettext("Connections"));
+    mvwprintw(StatusSection.win, 8, 2, gettext("Connections"));
 
-    mvwprintw(StatusSection.win, 7, 16,  "Tcp");
-    mvwprintw(StatusSection.win, 8, 16,  "Udp");
-
-    /* TRANSLATORS: max 7 chars. */
-    mvwprintw(StatusSection.win, 7, 34,  gettext("Other"));
+    mvwprintw(StatusSection.win, 7, 16, "Tcp");
+    mvwprintw(StatusSection.win, 8, 16, "Udp");
 
     /* TRANSLATORS: max 7 chars. */
-    mvwprintw(StatusSection.win, 7, 52,  gettext("Current"));
+    mvwprintw(StatusSection.win, 7, 34, gettext("Other"));
+
     /* TRANSLATORS: max 7 chars. */
-    mvwprintw(StatusSection.win, 8, 52,  gettext("Maximal"));
+    mvwprintw(StatusSection.win, 7, 52, gettext("Current"));
+    /* TRANSLATORS: max 7 chars. */
+    mvwprintw(StatusSection.win, 8, 52, gettext("Maximal"));
 
     /* TRANSLATORS: max 11 chars. */
     mvwprintw(StatusSection.win, 10, 15, gettext("Speed/s"));
@@ -510,138 +494,145 @@ status_section_init(int height, int width, int starty, int startx, unsigned int 
     mvwprintw(StatusSection.win, 10, 55, gettext("Forwarded"));
 
     /* TRANSLATORS: max 11 chars. */
-    mvwprintw(StatusSection.win, 11, 2,  gettext("Interfaces"));
-       
+    mvwprintw(StatusSection.win, 11, 2, gettext("Interfaces"));
+
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 15,  gettext("Down"));
+    mvwprintw(StatusSection.win, 11, 15, gettext("Down"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 24,  gettext("Up"));
+    mvwprintw(StatusSection.win, 11, 24, gettext("Up"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 33,  gettext("In"));
+    mvwprintw(StatusSection.win, 11, 33, gettext("In"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 44,  gettext("Out"));
+    mvwprintw(StatusSection.win, 11, 44, gettext("Out"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 55,  gettext("Recv"));
+    mvwprintw(StatusSection.win, 11, 55, gettext("Recv"));
     /* TRANSLATORS: max 6 chars. */
-    mvwprintw(StatusSection.win, 11, 66,  gettext("Send"));
+    mvwprintw(StatusSection.win, 11, 66, gettext("Send"));
 
     /*
         DRAW THE LINES
     */
 
     /* kernel and domainname */
-    mvwvline(StatusSection.win,  1, 14, ACS_VLINE, 2);
-    mvwvline(StatusSection.win,  1, 53, ACS_VLINE, 2);
-    mvwvline(StatusSection.win,  1, 62, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 1, 14, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 1, 53, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 1, 62, ACS_VLINE, 2);
 
     /* T-pieces on top */
-    mvwaddch(StatusSection.win,  0, 14, ACS_TTEE);
-    mvwaddch(StatusSection.win,  0, 53, ACS_TTEE);
-    mvwaddch(StatusSection.win,  0, 62, ACS_TTEE);
+    mvwaddch(StatusSection.win, 0, 14, ACS_TTEE);
+    mvwaddch(StatusSection.win, 0, 53, ACS_TTEE);
+    mvwaddch(StatusSection.win, 0, 62, ACS_TTEE);
 
-    mvwhline(StatusSection.win,  3, 1,  ACS_HLINE, 76);
-    mvwaddch(StatusSection.win,  3, 0,  ACS_LTEE);
-    mvwaddch(StatusSection.win,  3, 77, ACS_RTEE);
+    mvwhline(StatusSection.win, 3, 1, ACS_HLINE, 76);
+    mvwaddch(StatusSection.win, 3, 0, ACS_LTEE);
+    mvwaddch(StatusSection.win, 3, 77, ACS_RTEE);
 
-    mvwaddch(StatusSection.win,  3, 14, ACS_PLUS);
-    mvwaddch(StatusSection.win,  3, 20, ACS_TTEE);
-    mvwaddch(StatusSection.win,  3, 26, ACS_TTEE);
-    mvwaddch(StatusSection.win,  3, 32, ACS_TTEE);
-    mvwaddch(StatusSection.win,  3, 44, ACS_TTEE);
-    mvwaddch(StatusSection.win,  3, 52, ACS_TTEE);
-    mvwaddch(StatusSection.win,  3, 53, ACS_BTEE);
-    mvwaddch(StatusSection.win,  3, 60, ACS_TTEE);
-    mvwaddch(StatusSection.win,  3, 62, ACS_BTEE);
-    mvwaddch(StatusSection.win,  3, 68, ACS_TTEE);
+    mvwaddch(StatusSection.win, 3, 14, ACS_PLUS);
+    mvwaddch(StatusSection.win, 3, 20, ACS_TTEE);
+    mvwaddch(StatusSection.win, 3, 26, ACS_TTEE);
+    mvwaddch(StatusSection.win, 3, 32, ACS_TTEE);
+    mvwaddch(StatusSection.win, 3, 44, ACS_TTEE);
+    mvwaddch(StatusSection.win, 3, 52, ACS_TTEE);
+    mvwaddch(StatusSection.win, 3, 53, ACS_BTEE);
+    mvwaddch(StatusSection.win, 3, 60, ACS_TTEE);
+    mvwaddch(StatusSection.win, 3, 62, ACS_BTEE);
+    mvwaddch(StatusSection.win, 3, 68, ACS_TTEE);
 
     /* load fields */
-    mvwvline(StatusSection.win,  4, 14, ACS_VLINE, 2);
-    mvwvline(StatusSection.win,  4, 20, ACS_VLINE, 2);
-    mvwvline(StatusSection.win,  4, 26, ACS_VLINE, 2);
-    mvwvline(StatusSection.win,  4, 32, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 4, 14, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 4, 20, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 4, 26, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 4, 32, ACS_VLINE, 2);
 
     /* memory */
-    mvwvline(StatusSection.win,  4, 44, ACS_VLINE, 2);
-    mvwvline(StatusSection.win,  4, 52, ACS_VLINE, 2);
-    mvwvline(StatusSection.win,  4, 60, ACS_VLINE, 2);
-    mvwvline(StatusSection.win,  4, 68, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 4, 44, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 4, 52, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 4, 60, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 4, 68, ACS_VLINE, 2);
 
-    mvwhline(StatusSection.win,  6, 1,  ACS_HLINE, 76);
-    mvwaddch(StatusSection.win,  6, 0,  ACS_LTEE);
-    mvwaddch(StatusSection.win,  6, 77, ACS_RTEE);
+    mvwhline(StatusSection.win, 6, 1, ACS_HLINE, 76);
+    mvwaddch(StatusSection.win, 6, 0, ACS_LTEE);
+    mvwaddch(StatusSection.win, 6, 77, ACS_RTEE);
 
-    mvwaddch(StatusSection.win,  6, 14, ACS_PLUS);
+    mvwaddch(StatusSection.win, 6, 14, ACS_PLUS);
 
-    mvwaddch(StatusSection.win,  6, 20, ACS_BTEE);
-    mvwaddch(StatusSection.win,  6, 26, ACS_BTEE);
-    mvwaddch(StatusSection.win,  6, 32, ACS_PLUS);
-    mvwaddch(StatusSection.win,  6, 44, ACS_BTEE);
-    mvwaddch(StatusSection.win,  6, 50, ACS_TTEE);
-    mvwaddch(StatusSection.win,  6, 52, ACS_BTEE);
+    mvwaddch(StatusSection.win, 6, 20, ACS_BTEE);
+    mvwaddch(StatusSection.win, 6, 26, ACS_BTEE);
+    mvwaddch(StatusSection.win, 6, 32, ACS_PLUS);
+    mvwaddch(StatusSection.win, 6, 44, ACS_BTEE);
+    mvwaddch(StatusSection.win, 6, 50, ACS_TTEE);
+    mvwaddch(StatusSection.win, 6, 52, ACS_BTEE);
 
-    mvwaddch(StatusSection.win,  6, 60, ACS_BTEE);
-    mvwaddch(StatusSection.win,  6, 68, ACS_PLUS);
+    mvwaddch(StatusSection.win, 6, 60, ACS_BTEE);
+    mvwaddch(StatusSection.win, 6, 68, ACS_PLUS);
 
     /* uptime fields */
-    mvwvline(StatusSection.win,  7, 14, ACS_VLINE, 2);
-    mvwvline(StatusSection.win,  7, 32, ACS_VLINE, 2);
-    mvwvline(StatusSection.win,  7, 50, ACS_VLINE, 2);
-    mvwvline(StatusSection.win,  7, 68, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 7, 14, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 7, 32, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 7, 50, ACS_VLINE, 2);
+    mvwvline(StatusSection.win, 7, 68, ACS_VLINE, 2);
 
     /* connection fields */
-    mvwhline(StatusSection.win,  9, 1, ACS_HLINE, 76);
-    mvwaddch(StatusSection.win,  9, 0,  ACS_LTEE);
-    mvwaddch(StatusSection.win,  9, 77, ACS_RTEE);
+    mvwhline(StatusSection.win, 9, 1, ACS_HLINE, 76);
+    mvwaddch(StatusSection.win, 9, 0, ACS_LTEE);
+    mvwaddch(StatusSection.win, 9, 77, ACS_RTEE);
 
     mvwvline(StatusSection.win, 10, 14, ACS_VLINE, 2);
     mvwvline(StatusSection.win, 10, 32, ACS_VLINE, 2);
     mvwvline(StatusSection.win, 10, 54, ACS_VLINE, 2);
-    //mvwvline(StatusSection.win, 10, 68, ACS_VLINE, 2);
+    // mvwvline(StatusSection.win, 10, 68, ACS_VLINE, 2);
 
-    mvwaddch(StatusSection.win,  9, 14, ACS_PLUS);
-    mvwaddch(StatusSection.win,  9, 32, ACS_PLUS);
-    mvwaddch(StatusSection.win,  9, 50, ACS_BTEE);
-    mvwaddch(StatusSection.win,  9, 54, ACS_TTEE);
-    mvwaddch(StatusSection.win,  9, 68, ACS_BTEE);
+    mvwaddch(StatusSection.win, 9, 14, ACS_PLUS);
+    mvwaddch(StatusSection.win, 9, 32, ACS_PLUS);
+    mvwaddch(StatusSection.win, 9, 50, ACS_BTEE);
+    mvwaddch(StatusSection.win, 9, 54, ACS_TTEE);
+    mvwaddch(StatusSection.win, 9, 68, ACS_BTEE);
 
     /* interface fields */
     mvwhline(StatusSection.win, (int)ifac_start, 14, ACS_HLINE, 63);
     mvwaddch(StatusSection.win, (int)ifac_start, 77, ACS_RTEE);
-    mvwhline(StatusSection.win, (int)(ifac_start+ifac_num+1), 1, ACS_HLINE, 76);
-    mvwaddch(StatusSection.win, (int)(ifac_start+ifac_num+1), 0,  ACS_LTEE);
-    mvwaddch(StatusSection.win, (int)(ifac_start+ifac_num+1), 77, ACS_RTEE);
+    mvwhline(StatusSection.win, (int)(ifac_start + ifac_num + 1), 1, ACS_HLINE,
+            76);
+    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 0, ACS_LTEE);
+    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 77, ACS_RTEE);
 
     mvwaddch(StatusSection.win, (int)ifac_start, 14, ACS_LTEE);
-    //mvwaddch(StatusSection.win, ifac_start, 68, ACS_RTEE);
+    // mvwaddch(StatusSection.win, ifac_start, 68, ACS_RTEE);
 
-    mvwaddch(StatusSection.win, (int)(ifac_start+ifac_num+1), 14, ACS_BTEE);
-    //mvwaddch(StatusSection.win, ifac_start+ifac_num+1, 68, ACS_BTEE);
+    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 14, ACS_BTEE);
+    // mvwaddch(StatusSection.win, ifac_start+ifac_num+1, 68, ACS_BTEE);
 
-    mvwvline(StatusSection.win, (int)(ifac_start+1), 14, ACS_VLINE, (int)ifac_num);
+    mvwvline(StatusSection.win, (int)(ifac_start + 1), 14, ACS_VLINE,
+            (int)ifac_num);
 
     mvwaddch(StatusSection.win, (int)ifac_start, 23, ACS_TTEE);
-    mvwvline(StatusSection.win, (int)(ifac_start+1), 23, ACS_VLINE, (int)ifac_num);
-    mvwaddch(StatusSection.win, (int)(ifac_start+ifac_num+1), 23, ACS_BTEE);
+    mvwvline(StatusSection.win, (int)(ifac_start + 1), 23, ACS_VLINE,
+            (int)ifac_num);
+    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 23, ACS_BTEE);
 
     mvwaddch(StatusSection.win, (int)ifac_start, 32, ACS_PLUS);
-    mvwvline(StatusSection.win, (int)(ifac_start+1), 32, ACS_VLINE, (int)ifac_num);
-    mvwaddch(StatusSection.win, (int)(ifac_start+ifac_num+1), 32, ACS_BTEE);
+    mvwvline(StatusSection.win, (int)(ifac_start + 1), 32, ACS_VLINE,
+            (int)ifac_num);
+    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 32, ACS_BTEE);
 
     mvwaddch(StatusSection.win, (int)ifac_start, 43, ACS_TTEE);
-    mvwvline(StatusSection.win, (int)(ifac_start+1), 43, ACS_VLINE, (int)ifac_num);
-    mvwaddch(StatusSection.win, (int)(ifac_start+ifac_num+1), 43, ACS_BTEE);
+    mvwvline(StatusSection.win, (int)(ifac_start + 1), 43, ACS_VLINE,
+            (int)ifac_num);
+    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 43, ACS_BTEE);
 
     mvwaddch(StatusSection.win, (int)ifac_start, 54, ACS_PLUS);
-    mvwvline(StatusSection.win, (int)(ifac_start+1), 54, ACS_VLINE, (int)ifac_num);
-    mvwaddch(StatusSection.win, (int)(ifac_start+ifac_num+1), 54, ACS_BTEE);
+    mvwvline(StatusSection.win, (int)(ifac_start + 1), 54, ACS_VLINE,
+            (int)ifac_num);
+    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 54, ACS_BTEE);
 
     mvwaddch(StatusSection.win, (int)ifac_start, 65, ACS_TTEE);
-    mvwvline(StatusSection.win, (int)(ifac_start+1), 65, ACS_VLINE, (int)ifac_num);
-    mvwaddch(StatusSection.win, (int)(ifac_start+ifac_num+1), 65, ACS_BTEE);
+    mvwvline(StatusSection.win, (int)(ifac_start + 1), 65, ACS_VLINE,
+            (int)ifac_num);
+    mvwaddch(StatusSection.win, (int)(ifac_start + ifac_num + 1), 65, ACS_BTEE);
 
-    //mvwvline(StatusSection.win, ifac_start+1, 68, ACS_VLINE, ifac_num);
+    // mvwvline(StatusSection.win, ifac_start+1, 68, ACS_VLINE, ifac_num);
 
-    return(0);
+    return (0);
 }
 
 static int status_section_destroy(void)
@@ -652,8 +643,7 @@ static int status_section_destroy(void)
     unpost_form(StatusSection.form);
     free_form(StatusSection.form);
 
-    for(i = 0; i < StatusSection.n_fields; i++)
-    {
+    for (i = 0; i < StatusSection.n_fields; i++) {
         free_field(StatusSection.fields[i]);
     }
     free(StatusSection.fields);
@@ -661,149 +651,122 @@ static int status_section_destroy(void)
     del_panel(StatusSection.panel[0]);
     destroy_win(StatusSection.win);
 
-    return(0);
+    return (0);
 }
 
 /*  status_section
 
     This section shows information about the system.
-    
+
     Returncodes:
         0: ok
         -1: error
 */
-int
-status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+int status_section(struct vrmr_config *cnf, struct vrmr_zones *zones,
+        struct vrmr_interfaces *interfaces, struct vrmr_services *services)
 {
-    FIELD   *cur = NULL;
-    int     retval = 0;
-    int     quit = 0,
-            ch = 0;
+    FIELD *cur = NULL;
+    int retval = 0;
+    int quit = 0, ch = 0;
 
-    int     y=0;
+    int y = 0;
 
-    unsigned int    i = 0,
-                    cur_interface = 0;
+    unsigned int i = 0, cur_interface = 0;
 
-    int     max_height = 0,
+    int max_height = 0,
 
-            conntrack_conn_max = 0,
+        conntrack_conn_max = 0,
 
-            conntrack_conn_total = 0,
-            conntrack_conn_tcp = 0,
-            conntrack_conn_udp = 0,
-            conntrack_conn_other = 0,
+        conntrack_conn_total = 0, conntrack_conn_tcp = 0,
+        conntrack_conn_udp = 0, conntrack_conn_other = 0,
 
-            mem_total=0,
-            mem_free=0,
-            mem_cached=0,
-            mem_bufferd=0;
+        mem_total = 0, mem_free = 0, mem_cached = 0, mem_bufferd = 0;
 
-    char    hostname[60] = "",
-            load_str[6] = "",
-            mem_str[7] = "",
-            interfacename[32] = "",
+    char hostname[60] = "", load_str[6] = "", mem_str[7] = "",
+         interfacename[32] = "",
 
-            upt_day[5] = "",
-            upt_hour[3] = "",
-            upt_minute[3] = "",
-            upt_second[3] = "",
+         upt_day[5] = "", upt_hour[3] = "", upt_minute[3] = "",
+         upt_second[3] = "",
 
-            conn_max[7] = "",
-            conn_total[7] = "",
-            conn_tcp[7] = "",
-            conn_udp[7] = "",
-            conn_other[7] = "",
+         conn_max[7] = "", conn_total[7] = "", conn_tcp[7] = "",
+         conn_udp[7] = "", conn_other[7] = "",
 
-            recv_host[11] = "",
-            send_host[11] = "",
+         recv_host[11] = "", send_host[11] = "",
 
-            recv_net[11] = "",
-            send_net[11] = "",
+         recv_net[11] = "", send_net[11] = "",
 
-            recv_speed[9] = "",
-            send_speed[9] = "";
+         recv_speed[9] = "", send_speed[9] = "";
 
     /* uname struct, for gettig the kernel version */
-    struct utsname  uts_name;
+    struct utsname uts_name;
 
     /* the byte counters */
-    unsigned long   recv_bytes=0,
-                    trans_bytes=0,
-                    delta_bytes=0,
-                    speed_bytes=0;
+    unsigned long recv_bytes = 0, trans_bytes = 0, delta_bytes = 0,
+                  speed_bytes = 0;
 
     /* load */
-    float   load_s = 0, // 1 min
+    float load_s = 0,   // 1 min
             load_m = 0, // 5 min
             load_l = 0; // 15 min
 
     /* structure for storing byte counters per interface */
-    struct shadow_ifac_
-    {
-        char            calc;
+    struct shadow_ifac_ {
+        char calc;
 
-        unsigned long   prev_recv_bytes;
-        unsigned long   prev_send_bytes;
+        unsigned long prev_recv_bytes;
+        unsigned long prev_send_bytes;
 
-        unsigned long   prev_recv_packets;
-        unsigned long   prev_send_packets;
+        unsigned long prev_recv_packets;
+        unsigned long prev_send_packets;
 
-        unsigned long   cur_recv_bytes;
-        unsigned long   cur_send_bytes;
+        unsigned long cur_recv_bytes;
+        unsigned long cur_send_bytes;
 
-        unsigned long   cur_recv_packets;
-        unsigned long   cur_send_packets;
+        unsigned long cur_recv_packets;
+        unsigned long cur_send_packets;
 
-        unsigned long long  send_host,
-                            recv_host,
+        unsigned long long send_host, recv_host,
 
-                            send_host_packets,
-                            recv_host_packets,
+                send_host_packets, recv_host_packets,
 
-                            send_net,
-                            recv_net,
+                send_net, recv_net,
 
-                            send_net_packets,
-                            recv_net_packets;
+                send_net_packets, recv_net_packets;
 
         /* for the correction of the speed */
-        struct timeval      begin_tv;
-        struct timeval      end_tv;
+        struct timeval begin_tv;
+        struct timeval end_tv;
     };
 
-    struct shadow_ifac_     *shadow_ptr=NULL;
-    struct vrmr_interface   *iface_ptr=NULL;
+    struct shadow_ifac_ *shadow_ptr = NULL;
+    struct vrmr_interface *iface_ptr = NULL;
 
-    struct vrmr_list_node             *d_node = NULL;
-    struct vrmr_list_node             *shadow_node = NULL;
+    struct vrmr_list_node *d_node = NULL;
+    struct vrmr_list_node *shadow_node = NULL;
 
     // list which will hold the structs analog to the interfaces list
-    struct vrmr_list                  shadow_list;
+    struct vrmr_list shadow_list;
 
     // we correct the speed with the time it takes to get all stats
-    double                  elapse = 0;
-    float                   correction = 0;
+    double elapse = 0;
+    float correction = 0;
 
-    int                     update_interval = 1000000; /* weird, in pratice this seems to be two sec */
-    int                     slept_so_far    = 1000000; /* time slept since last update */
+    int update_interval =
+            1000000;            /* weird, in pratice this seems to be two sec */
+    int slept_so_far = 1000000; /* time slept since last update */
 
     /* top menu */
-    char                    *key_choices[] =    {   "F12",
-                                                    "F10"};
-    int                     key_choices_n = 2;
-    char                    *cmd_choices[] =    {   gettext("help"),
-                                                    gettext("back")};
-    int                     cmd_choices_n = 2;
-
+    char *key_choices[] = {"F12", "F10"};
+    int key_choices_n = 2;
+    char *cmd_choices[] = {gettext("help"), gettext("back")};
+    int cmd_choices_n = 2;
 
     // first create our shadow list
     vrmr_list_setup(&shadow_list, free);
 
-    for(i=0; i < interfaces->list.len; i++)
-    {
-        if(!(shadow_ptr = malloc(sizeof(struct shadow_ifac_))))
-            return(-1);
+    for (i = 0; i < interfaces->list.len; i++) {
+        if (!(shadow_ptr = malloc(sizeof(struct shadow_ifac_))))
+            return (-1);
 
         shadow_ptr->calc = 1;
 
@@ -815,8 +778,8 @@ status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_in
         gettimeofday(&shadow_ptr->begin_tv, 0);
 
         /* append to the list */
-        if(vrmr_list_append(&shadow_list, shadow_ptr)  == NULL)
-            return(-1);
+        if (vrmr_list_append(&shadow_list, shadow_ptr) == NULL)
+            return (-1);
     }
 
     /* create the service and zone hash for conn_get_stats */
@@ -829,8 +792,8 @@ status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_in
     /*
         init
     */
-    if(status_section_init(max_height-8, 78, 4, 1, interfaces->list.len) < 0)
-        return(-1);
+    if (status_section_init(max_height - 8, 78, 4, 1, interfaces->list.len) < 0)
+        return (-1);
 
     /*
         make sure wgetch doesn't block
@@ -841,7 +804,7 @@ status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_in
     /*
         get the hostname of the system, or set to error on failure
     */
-    if(gethostname(hostname, sizeof(hostname)) < 0)
+    if (gethostname(hostname, sizeof(hostname)) < 0)
         (void)strlcpy(hostname, gettext("error"), sizeof(hostname));
 
     mvwprintw(StatusSection.win, 1, 15, "%s", hostname);
@@ -849,64 +812,67 @@ status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_in
     /*
         uname - get some system information
     */
-    if(uname(&uts_name) < 0)
+    if (uname(&uts_name) < 0)
         vrmr_error(-1, VR_ERR, "uname() failed.");
 
-    mvwprintw(StatusSection.win, 2, 15, "%s %s", uts_name.sysname, uts_name.release);
+    mvwprintw(StatusSection.win, 2, 15, "%s %s", uts_name.sysname,
+            uts_name.release);
 
     /*
         get the maximum connections
     */
-    if(get_conntrack_max(&conntrack_conn_max) < 0)
+    if (get_conntrack_max(&conntrack_conn_max) < 0)
         (void)snprintf(conn_max, sizeof(conn_max), gettext("error"));
     else
         (void)snprintf(conn_max, sizeof(conn_max), "%6d", conntrack_conn_max);
 
-    draw_top_menu(top_win, gettext("System Status"), key_choices_n, key_choices, cmd_choices_n, cmd_choices);
+    draw_top_menu(top_win, gettext("System Status"), key_choices_n, key_choices,
+            cmd_choices_n, cmd_choices);
 
     update_panels();
     doupdate();
 
     /* the main loop */
-    while(quit == 0 && retval == 0)
-    {
-        vrmr_debug(LOW, "slept_so_far: %d, update_interval: %d.", slept_so_far, update_interval);
+    while (quit == 0 && retval == 0) {
+        vrmr_debug(LOW, "slept_so_far: %d, update_interval: %d.", slept_so_far,
+                update_interval);
 
         /* check if we have slept long enough */
-        if(slept_so_far >= update_interval)
-        {
+        if (slept_so_far >= update_interval) {
             vrmr_debug(HIGH, "slept_so_far: %d -> now print.", slept_so_far);
 
             slept_so_far = 0;
 
             /*  update the information */
-            if(get_sys_load(&load_s, &load_m, &load_l) < 0)
-            {
-                vrmr_error(-1, VR_INTERR, "get_sys_load() failed (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
+            if (get_sys_load(&load_s, &load_m, &load_l) < 0) {
+                vrmr_error(-1, VR_INTERR, "get_sys_load() failed (in: %s:%d).",
+                        __FUNC__, __LINE__);
+                return (-1);
             }
 
-            if(get_meminfo(&mem_total, &mem_free, &mem_cached, &mem_bufferd) < 0)
-            {
-                vrmr_error(-1, VR_INTERR, "get_meminfo() failed (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
+            if (get_meminfo(&mem_total, &mem_free, &mem_cached, &mem_bufferd) <
+                    0) {
+                vrmr_error(-1, VR_INTERR, "get_meminfo() failed (in: %s:%d).",
+                        __FUNC__, __LINE__);
+                return (-1);
             }
 
-            if(get_system_uptime(upt_day, upt_hour, upt_minute, upt_second) < 0)
-            {
-                vrmr_error(-1, VR_INTERR, "get_system_uptime() failed (in: %s:%d).", __FUNC__, __LINE__);
-                return(-1);
+            if (get_system_uptime(upt_day, upt_hour, upt_minute, upt_second) <
+                    0) {
+                vrmr_error(-1, VR_INTERR,
+                        "get_system_uptime() failed (in: %s:%d).", __FUNC__,
+                        __LINE__);
+                return (-1);
             }
 
-            if(count_conntrack_conn(cnf, &conntrack_conn_total, &conntrack_conn_tcp, &conntrack_conn_udp, &conntrack_conn_other) < 0)
-            {
+            if (count_conntrack_conn(cnf, &conntrack_conn_total,
+                        &conntrack_conn_tcp, &conntrack_conn_udp,
+                        &conntrack_conn_other) < 0) {
                 snprintf(conn_total, sizeof(conn_total), gettext("error"));
-                snprintf(conn_tcp,   sizeof(conn_tcp),   gettext("error"));
-                snprintf(conn_udp,   sizeof(conn_udp),   gettext("error"));
+                snprintf(conn_tcp, sizeof(conn_tcp), gettext("error"));
+                snprintf(conn_udp, sizeof(conn_udp), gettext("error"));
                 snprintf(conn_other, sizeof(conn_other), gettext("error"));
-            }
-            else
-            {
+            } else {
                 if (conntrack_conn_total > 999999)
                     conntrack_conn_total = 999999;
                 if (conntrack_conn_tcp > 999999)
@@ -916,166 +882,161 @@ status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_in
                 if (conntrack_conn_other > 999999)
                     conntrack_conn_other = 999999;
 
-                snprintf(conn_total, sizeof(conn_total), "%6d", conntrack_conn_total);
-                snprintf(conn_tcp,   sizeof(conn_tcp),   "%6d", conntrack_conn_tcp);
-                snprintf(conn_udp,   sizeof(conn_udp),   "%6d", conntrack_conn_udp);
-                snprintf(conn_other, sizeof(conn_other), "%6d", conntrack_conn_other);
+                snprintf(conn_total, sizeof(conn_total), "%6d",
+                        conntrack_conn_total);
+                snprintf(conn_tcp, sizeof(conn_tcp), "%6d", conntrack_conn_tcp);
+                snprintf(conn_udp, sizeof(conn_udp), "%6d", conntrack_conn_udp);
+                snprintf(conn_other, sizeof(conn_other), "%6d",
+                        conntrack_conn_other);
             }
 
             /* loop trough the fields and update the information */
-            for(i = 0; i < (unsigned int)StatusSection.n_fields; i++)
-            {
+            for (i = 0; i < (unsigned int)StatusSection.n_fields; i++) {
                 cur = StatusSection.fields[i];
 
-                if(strncmp(field_buffer(cur, 1), "ld_s", 4) == 0)
-                {
-                    if(load_s > 2 && load_s < 5)
-                        set_field_fore(cur, vccnf.color_win_yellow|A_BOLD);
-                    else if(load_s >= 5)
-                        set_field_fore(cur, vccnf.color_win_red|A_BOLD);
+                if (strncmp(field_buffer(cur, 1), "ld_s", 4) == 0) {
+                    if (load_s > 2 && load_s < 5)
+                        set_field_fore(cur, vccnf.color_win_yellow | A_BOLD);
+                    else if (load_s >= 5)
+                        set_field_fore(cur, vccnf.color_win_red | A_BOLD);
                     else
                         set_field_fore(cur, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_s);
                     set_field_buffer_wrap(cur, 0, load_str);
-                }
-                else if(strncmp(field_buffer(cur, 1), "ld_m", 4) == 0)
-                {
-                    if(load_m > 2 && load_m < 5)
-                        set_field_fore(cur, vccnf.color_win_yellow|A_BOLD);
-                    else if(load_m >= 5)
-                        set_field_fore(cur, vccnf.color_win_red|A_BOLD);
+                } else if (strncmp(field_buffer(cur, 1), "ld_m", 4) == 0) {
+                    if (load_m > 2 && load_m < 5)
+                        set_field_fore(cur, vccnf.color_win_yellow | A_BOLD);
+                    else if (load_m >= 5)
+                        set_field_fore(cur, vccnf.color_win_red | A_BOLD);
                     else
                         set_field_fore(cur, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_m);
                     set_field_buffer_wrap(cur, 0, load_str);
-            }
-                else if(strncmp(field_buffer(cur, 1), "ld_l", 4) == 0)
-                {
-                    if(load_l > 2 && load_l < 5)
-                        set_field_fore(cur, vccnf.color_win_yellow|A_BOLD);
-                    else if(load_l >= 5)
-                        set_field_fore(cur, vccnf.color_win_red|A_BOLD);
+                } else if (strncmp(field_buffer(cur, 1), "ld_l", 4) == 0) {
+                    if (load_l > 2 && load_l < 5)
+                        set_field_fore(cur, vccnf.color_win_yellow | A_BOLD);
+                    else if (load_l >= 5)
+                        set_field_fore(cur, vccnf.color_win_red | A_BOLD);
                     else
                         set_field_fore(cur, vccnf.color_win);
 
                     (void)snprintf(load_str, sizeof(load_str), "%2.2f", load_l);
                     set_field_buffer_wrap(cur, 0, load_str);
-                }
-                else if(strncmp(field_buffer(cur, 1), "mem_t", 5) == 0)
-                {
-                    snprintf(mem_str, sizeof(mem_str), "%6d", mem_total/1024);
+                } else if (strncmp(field_buffer(cur, 1), "mem_t", 5) == 0) {
+                    snprintf(mem_str, sizeof(mem_str), "%6d", mem_total / 1024);
                     set_field_buffer_wrap(cur, 0, mem_str);
-                }
-                else if(strncmp(field_buffer(cur, 1), "mem_f", 5) == 0)
-                {
-                    snprintf(mem_str, sizeof(mem_str), "%6d", mem_free/1024);
+                } else if (strncmp(field_buffer(cur, 1), "mem_f", 5) == 0) {
+                    snprintf(mem_str, sizeof(mem_str), "%6d", mem_free / 1024);
                     set_field_buffer_wrap(cur, 0, mem_str);
-                }
-                else if(strncmp(field_buffer(cur, 1), "mem_c", 5) == 0)
-                {
-                    snprintf(mem_str, sizeof(mem_str), "%6d", mem_cached/1024);
+                } else if (strncmp(field_buffer(cur, 1), "mem_c", 5) == 0) {
+                    snprintf(
+                            mem_str, sizeof(mem_str), "%6d", mem_cached / 1024);
                     set_field_buffer_wrap(cur, 0, mem_str);
-                }
-                else if(strncmp(field_buffer(cur, 1), "mem_b", 5) == 0)
-                {
-                    snprintf(mem_str, sizeof(mem_str), "%6d", mem_bufferd/1024);
+                } else if (strncmp(field_buffer(cur, 1), "mem_b", 5) == 0) {
+                    snprintf(mem_str, sizeof(mem_str), "%6d",
+                            mem_bufferd / 1024);
                     set_field_buffer_wrap(cur, 0, mem_str);
-                }
-                else if(strncmp(field_buffer(cur, 1), "up_d", 4) == 0)
-                {
+                } else if (strncmp(field_buffer(cur, 1), "up_d", 4) == 0) {
                     set_field_buffer_wrap(cur, 0, upt_day);
-                }
-                else if(strncmp(field_buffer(cur, 1), "uh", 2) == 0)
-                {
+                } else if (strncmp(field_buffer(cur, 1), "uh", 2) == 0) {
                     set_field_buffer_wrap(cur, 0, upt_hour);
-                }
-                else if(strncmp(field_buffer(cur, 1), "um", 2) == 0)
-                {
+                } else if (strncmp(field_buffer(cur, 1), "um", 2) == 0) {
                     set_field_buffer_wrap(cur, 0, upt_minute);
-                }
-                else if(strncmp(field_buffer(cur, 1), "us", 2) == 0)
-                {
+                } else if (strncmp(field_buffer(cur, 1), "us", 2) == 0) {
                     set_field_buffer_wrap(cur, 0, upt_second);
-                }
-                else if(strncmp(field_buffer(cur, 1), "con_m", 5) == 0)
-                {
+                } else if (strncmp(field_buffer(cur, 1), "con_m", 5) == 0) {
                     set_field_buffer_wrap(cur, 0, conn_max);
-                }
-                else if(strncmp(field_buffer(cur, 1), "con_c", 5) == 0)
-                {
+                } else if (strncmp(field_buffer(cur, 1), "con_c", 5) == 0) {
                     set_field_buffer_wrap(cur, 0, conn_total);
-                }
-                else if(strncmp(field_buffer(cur, 1), "con_t", 5) == 0)
-                {
+                } else if (strncmp(field_buffer(cur, 1), "con_t", 5) == 0) {
                     set_field_buffer_wrap(cur, 0, conn_tcp);
-                }
-                else if(strncmp(field_buffer(cur, 1), "con_u", 5) == 0)
-                {
+                } else if (strncmp(field_buffer(cur, 1), "con_u", 5) == 0) {
                     set_field_buffer_wrap(cur, 0, conn_udp);
-                }
-                else if(strncmp(field_buffer(cur, 1), "con_o", 5) == 0)
-                {
+                } else if (strncmp(field_buffer(cur, 1), "con_o", 5) == 0) {
                     set_field_buffer_wrap(cur, 0, conn_other);
                 }
             }
 
             /* print interfaces, starting at line 13 */
-            for(cur_interface = 0, y = 13, d_node = interfaces->list.top, shadow_node = shadow_list.top;
-                d_node && y < max_height-8-2;
-                d_node = d_node->next, shadow_node = shadow_node->next)
-            {
-                unsigned long long  tmp_ull;
+            for (cur_interface = 0, y = 13, d_node = interfaces->list.top,
+                shadow_node = shadow_list.top;
+                    d_node && y < max_height - 8 - 2;
+                    d_node = d_node->next, shadow_node = shadow_node->next) {
+                unsigned long long tmp_ull;
 
                 iface_ptr = d_node->data;
                 shadow_ptr = shadow_node->data;
 
                 /* only show real interfaces */
-                if(iface_ptr->device_virtual == FALSE)
-                {
+                if (iface_ptr->device_virtual == FALSE) {
                     /* get the counters for determining speed */
-                    vrmr_get_iface_stats(iface_ptr->device, &recv_bytes, NULL, &trans_bytes, NULL);
+                    vrmr_get_iface_stats(iface_ptr->device, &recv_bytes, NULL,
+                            &trans_bytes, NULL);
 
                     /* get the real counters from iptables */
-                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "INPUT", &shadow_ptr->recv_host_packets, &shadow_ptr->recv_host, &tmp_ull, &tmp_ull);
-                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "OUTPUT", &tmp_ull, &tmp_ull, &shadow_ptr->send_host_packets, &shadow_ptr->send_host);
-                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device, "FORWARD", &shadow_ptr->recv_net_packets, &shadow_ptr->recv_net, &shadow_ptr->send_net_packets, &shadow_ptr->send_net);
+                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device,
+                            "INPUT", &shadow_ptr->recv_host_packets,
+                            &shadow_ptr->recv_host, &tmp_ull, &tmp_ull);
+                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device,
+                            "OUTPUT", &tmp_ull, &tmp_ull,
+                            &shadow_ptr->send_host_packets,
+                            &shadow_ptr->send_host);
+                    vrmr_get_iface_stats_from_ipt(cnf, iface_ptr->device,
+                            "FORWARD", &shadow_ptr->recv_net_packets,
+                            &shadow_ptr->recv_net,
+                            &shadow_ptr->send_net_packets,
+                            &shadow_ptr->send_net);
 
                     /* RECV host/firewall */
-                    if((shadow_ptr->recv_host/(1024*1024)) >= 1000)
-                    {
-                        snprintf(recv_host, sizeof(recv_host), "%7.3f GB", (float)shadow_ptr->recv_host/(1024*1024*1024));
+                    if ((shadow_ptr->recv_host / (1024 * 1024)) >= 1000) {
+                        snprintf(recv_host, sizeof(recv_host), "%7.3f GB",
+                                (float)shadow_ptr->recv_host /
+                                        (1024 * 1024 * 1024));
                         vrmr_debug(HIGH, "recv_host: '%s'.", recv_host);
-                    }
-                    else if((shadow_ptr->recv_host/(1024*1024)) < 1)
-                        snprintf(recv_host, sizeof(recv_host), "%7d kb", (int)shadow_ptr->recv_host/(1024));
+                    } else if ((shadow_ptr->recv_host / (1024 * 1024)) < 1)
+                        snprintf(recv_host, sizeof(recv_host), "%7d kb",
+                                (int)shadow_ptr->recv_host / (1024));
                     else
-                        snprintf(recv_host, sizeof(recv_host), "%7.3f MB", (float)shadow_ptr->recv_host/(1024*1024));
+                        snprintf(recv_host, sizeof(recv_host), "%7.3f MB",
+                                (float)shadow_ptr->recv_host / (1024 * 1024));
 
                     /* SEND host/firewall */
-                    if((shadow_ptr->send_host/(1024*1024)) >= 1000)
-                        snprintf(send_host, sizeof(send_host), "%7.3f GB", (float)shadow_ptr->send_host/(1024*1024*1024));
-                    else if((shadow_ptr->send_host/(1024*1024)) < 1)
-                        snprintf(send_host, sizeof(send_host), "%7d kb", (int)shadow_ptr->send_host/(1024));
+                    if ((shadow_ptr->send_host / (1024 * 1024)) >= 1000)
+                        snprintf(send_host, sizeof(send_host), "%7.3f GB",
+                                (float)shadow_ptr->send_host /
+                                        (1024 * 1024 * 1024));
+                    else if ((shadow_ptr->send_host / (1024 * 1024)) < 1)
+                        snprintf(send_host, sizeof(send_host), "%7d kb",
+                                (int)shadow_ptr->send_host / (1024));
                     else
-                        snprintf(send_host, sizeof(send_host), "%7.3f MB", (float)shadow_ptr->send_host/(1024*1024));
+                        snprintf(send_host, sizeof(send_host), "%7.3f MB",
+                                (float)shadow_ptr->send_host / (1024 * 1024));
 
                     /* RECV net/forward */
-                    if((shadow_ptr->recv_net/(1024*1024)) >= 1000)
-                        snprintf(recv_net, sizeof(recv_net), "%7.3f GB", (float)shadow_ptr->recv_net/(1024*1024*1024));
-                    else if((shadow_ptr->recv_net/(1024*1024)) < 1)
-                        snprintf(recv_net, sizeof(recv_net), "%7d kb", (int)shadow_ptr->recv_net/(1024));
+                    if ((shadow_ptr->recv_net / (1024 * 1024)) >= 1000)
+                        snprintf(recv_net, sizeof(recv_net), "%7.3f GB",
+                                (float)shadow_ptr->recv_net /
+                                        (1024 * 1024 * 1024));
+                    else if ((shadow_ptr->recv_net / (1024 * 1024)) < 1)
+                        snprintf(recv_net, sizeof(recv_net), "%7d kb",
+                                (int)shadow_ptr->recv_net / (1024));
                     else
-                        snprintf(recv_net, sizeof(recv_net), "%7.3f MB", (float)shadow_ptr->recv_net/(1024*1024));
+                        snprintf(recv_net, sizeof(recv_net), "%7.3f MB",
+                                (float)shadow_ptr->recv_net / (1024 * 1024));
 
                     /* SEND net/forward */
-                    if((shadow_ptr->send_net/(1024*1024)) >= 1000)
-                        snprintf(send_net, sizeof(send_net), "%7.3f GB", (float)shadow_ptr->send_net/(1024*1024*1024));
-                    else if((shadow_ptr->send_net/(1024*1024)) < 1)
-                        snprintf(send_net, sizeof(send_net), "%7d kb", (int)shadow_ptr->send_net/(1024));
+                    if ((shadow_ptr->send_net / (1024 * 1024)) >= 1000)
+                        snprintf(send_net, sizeof(send_net), "%7.3f GB",
+                                (float)shadow_ptr->send_net /
+                                        (1024 * 1024 * 1024));
+                    else if ((shadow_ptr->send_net / (1024 * 1024)) < 1)
+                        snprintf(send_net, sizeof(send_net), "%7d kb",
+                                (int)shadow_ptr->send_net / (1024));
                     else
-                        snprintf(send_net, sizeof(send_net), "%7.3f MB", (float)shadow_ptr->send_net/(1024*1024));
+                        snprintf(send_net, sizeof(send_net), "%7.3f MB",
+                                (float)shadow_ptr->send_net / (1024 * 1024));
 
                     /* store the number of bytes */
                     shadow_ptr->cur_recv_bytes = recv_bytes;
@@ -1083,95 +1044,103 @@ status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_in
 
                     /* get the time we needed for our run */
                     gettimeofday(&shadow_ptr->end_tv, 0);
-                    elapse  = (double)shadow_ptr->end_tv.tv_sec + (double)shadow_ptr->end_tv.tv_usec * 1e-6;
-                    elapse -= (double)shadow_ptr->begin_tv.tv_sec + (double)shadow_ptr->begin_tv.tv_usec * 1e-6;
+                    elapse = (double)shadow_ptr->end_tv.tv_sec +
+                             (double)shadow_ptr->end_tv.tv_usec * 1e-6;
+                    elapse -= (double)shadow_ptr->begin_tv.tv_sec +
+                              (double)shadow_ptr->begin_tv.tv_usec * 1e-6;
                     gettimeofday(&shadow_ptr->begin_tv, 0);
 
                     /* this the correction value */
                     correction = elapse;
 
                     /* this is the value to be corrected */
-                    delta_bytes = (shadow_ptr->cur_recv_bytes - shadow_ptr->prev_recv_bytes);
+                    delta_bytes = (shadow_ptr->cur_recv_bytes -
+                                   shadow_ptr->prev_recv_bytes);
                     /* now we correct it */
-                    speed_bytes = (delta_bytes/correction);
+                    speed_bytes = (delta_bytes / correction);
 
-                    vrmr_debug(HIGH, "bytes: %d, corrections: %f", (int)speed_bytes, correction);
+                    vrmr_debug(HIGH, "bytes: %d, corrections: %f",
+                            (int)speed_bytes, correction);
 
                     /* calculating the current connection speed */
-                    if(iface_ptr->up == TRUE)
-                    {
-                        if(shadow_ptr->calc == 1)
+                    if (iface_ptr->up == TRUE) {
+                        if (shadow_ptr->calc == 1)
                             snprintf(recv_speed, sizeof(recv_speed), "calc");
-                        else if((speed_bytes/1024) < 1)
-                            snprintf(recv_speed, sizeof(recv_speed), "%5d b", (int)speed_bytes);
-                        else if((speed_bytes/1024) >= 1024)
-                            snprintf(recv_speed, sizeof(recv_speed), "%5.1f mb", (float)speed_bytes/(1024*1024));
+                        else if ((speed_bytes / 1024) < 1)
+                            snprintf(recv_speed, sizeof(recv_speed), "%5d b",
+                                    (int)speed_bytes);
+                        else if ((speed_bytes / 1024) >= 1024)
+                            snprintf(recv_speed, sizeof(recv_speed), "%5.1f mb",
+                                    (float)speed_bytes / (1024 * 1024));
                         else
-                            snprintf(recv_speed, sizeof(recv_speed), "%5.1f kb", (float)speed_bytes/1024);
-                    }
-                    else
-                    {
+                            snprintf(recv_speed, sizeof(recv_speed), "%5.1f kb",
+                                    (float)speed_bytes / 1024);
+                    } else {
                         snprintf(recv_speed, sizeof(recv_speed), "%5s", "-");
                     }
 
-
                     /* this is the value to be corrected */
-                    delta_bytes = (shadow_ptr->cur_send_bytes - shadow_ptr->prev_send_bytes);
+                    delta_bytes = (shadow_ptr->cur_send_bytes -
+                                   shadow_ptr->prev_send_bytes);
                     /* now we correct it */
-                    delta_bytes = (delta_bytes/correction);
+                    delta_bytes = (delta_bytes / correction);
 
-                    if(iface_ptr->up == TRUE)
-                    {
-                        if(shadow_ptr->calc == 1)
+                    if (iface_ptr->up == TRUE) {
+                        if (shadow_ptr->calc == 1)
                             snprintf(send_speed, sizeof(send_speed), "calc");
-                        else if((delta_bytes/1024) < 1)
-                            snprintf(send_speed, sizeof(send_speed), "%5d b", (int)delta_bytes);
-                        else if((delta_bytes/1024) >= 1024)
-                            snprintf(send_speed, sizeof(send_speed), "%5.1f mb", (float)delta_bytes/(1024*1024));
+                        else if ((delta_bytes / 1024) < 1)
+                            snprintf(send_speed, sizeof(send_speed), "%5d b",
+                                    (int)delta_bytes);
+                        else if ((delta_bytes / 1024) >= 1024)
+                            snprintf(send_speed, sizeof(send_speed), "%5.1f mb",
+                                    (float)delta_bytes / (1024 * 1024));
                         else
-                            snprintf(send_speed, sizeof(send_speed), "%5.1f kb", (float)delta_bytes/1024);
-                    }
-                    else
-                    {
+                            snprintf(send_speed, sizeof(send_speed), "%5.1f kb",
+                                    (float)delta_bytes / 1024);
+                    } else {
                         snprintf(send_speed, sizeof(send_speed), "%5s", "-");
                     }
-        
+
                     /* set the fields to the form */
-                    for(i = cur_interface; i < (unsigned int)StatusSection.n_fields; i++)
-                    {
+                    for (i = cur_interface;
+                            i < (unsigned int)StatusSection.n_fields; i++) {
                         cur = StatusSection.fields[i];
 
-                        if(strncmp(field_buffer(cur, 1), "recv_s", 6) == 0)
+                        if (strncmp(field_buffer(cur, 1), "recv_s", 6) == 0)
                             set_field_buffer_wrap(cur, 0, recv_speed);
-                        else if(strncmp(field_buffer(cur, 1), "send_s", 6) == 0)
+                        else if (strncmp(field_buffer(cur, 1), "send_s", 6) ==
+                                 0)
                             set_field_buffer_wrap(cur, 0, send_speed);
 
-                        else if(strncmp(field_buffer(cur, 1), "rcv_ti", 6) == 0)
+                        else if (strncmp(field_buffer(cur, 1), "rcv_ti", 6) ==
+                                 0)
                             set_field_buffer_wrap(cur, 0, recv_host);
-                        else if(strncmp(field_buffer(cur, 1), "snd_to", 6) == 0)
+                        else if (strncmp(field_buffer(cur, 1), "snd_to", 6) ==
+                                 0)
                             set_field_buffer_wrap(cur, 0, send_host);
 
-                        else if(strncmp(field_buffer(cur, 1), "rcv_tf", 6) == 0)
+                        else if (strncmp(field_buffer(cur, 1), "rcv_tf", 6) ==
+                                 0)
                             set_field_buffer_wrap(cur, 0, recv_net);
-                        else if(strncmp(field_buffer(cur, 1), "snd_tf", 6) == 0)
-                        {
+                        else if (strncmp(field_buffer(cur, 1), "snd_tf", 6) ==
+                                 0) {
                             set_field_buffer_wrap(cur, 0, send_net);
                             break;
                         }
-
                     }
                     cur_interface = i + 1;
 
                     /* draw the interface name */
-                    snprintf(interfacename, sizeof(interfacename), "%s", iface_ptr->name);
-            
-                    if(iface_ptr->up == TRUE)
-                        wattron(StatusSection.win, vccnf.color_win|A_BOLD);
-            
-                    mvwprintw(StatusSection.win, y, 2,  "%s", interfacename);
+                    snprintf(interfacename, sizeof(interfacename), "%s",
+                            iface_ptr->name);
 
-                    if(iface_ptr->up == TRUE)
-                        wattroff(StatusSection.win, vccnf.color_win|A_BOLD);
+                    if (iface_ptr->up == TRUE)
+                        wattron(StatusSection.win, vccnf.color_win | A_BOLD);
+
+                    mvwprintw(StatusSection.win, y, 2, "%s", interfacename);
+
+                    if (iface_ptr->up == TRUE)
+                        wattroff(StatusSection.win, vccnf.color_win | A_BOLD);
 
                     /* store the number of bytes */
                     shadow_ptr->prev_recv_bytes = recv_bytes;
@@ -1181,7 +1150,7 @@ status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_in
 
                     /*  after the first run we are no
                         longer calculating. */
-                    if(shadow_ptr->calc > 0)
+                    if (shadow_ptr->calc > 0)
                         shadow_ptr->calc--;
 
                 } /* end if virtual device */
@@ -1195,8 +1164,7 @@ status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_in
 
         /* process the keyboard input */
         ch = wgetch(StatusSection.win);
-        switch(ch)
-        {
+        switch (ch) {
             /* quit */
             case 27:
             case 'q':
@@ -1213,8 +1181,7 @@ status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_in
                 break;
         }
 
-        if(quit == 0)
-        {
+        if (quit == 0) {
             usleep(10000);
             slept_so_far = slept_so_far + 10000;
 
@@ -1230,9 +1197,9 @@ status_section(struct vrmr_config *cnf, struct vrmr_zones *zones, struct vrmr_in
 
     /* destroy the window and form */
     status_section_destroy();
-    
+
     update_panels();
     doupdate();
 
-    return(retval);
+    return (retval);
 }
