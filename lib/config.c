@@ -487,7 +487,7 @@ int vrmr_init_config(struct vrmr_config *cnf)
         /* ok, found, parse it as an octal mode */
         cnf->max_permission = strtol(answer, &endptr, 8);
 
-        /* If strol fails, it will set endptr to answer. Also check that
+        /* If strtol fails, it will set endptr to answer. Also check that
          * there was no trailing garbage at the end of the string. */
         if (endptr == answer || *endptr != '\0') {
             vrmr_warning("Warning",
