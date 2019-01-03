@@ -130,8 +130,8 @@ int script_rename(struct vuurmuur_script *vr_script)
             return (VRS_ERR_COMMANDLINE);
         }
     } else if (vr_script->type == VRMR_TYPE_SERVICE) {
-        if (vrmr_validate_servicename(vr_script->set,
-                    vr_script->vctx.reg.servicename, VRMR_QUIET) != 0) {
+        if (vrmr_validate_servicename(
+                    vr_script->set, vr_script->vctx.reg.servicename) != 0) {
             vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
                     "invalid service name '%s' (in: %s:%d).", vr_script->set,
                     __FUNC__, __LINE__);

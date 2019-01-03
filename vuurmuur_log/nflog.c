@@ -76,8 +76,8 @@ static char *mac2str(char *mac, char *strmac, size_t len)
  * \retval n.a.
  * \note n.a.
  */
-static int createlogrule_callback(struct nflog_g_handle *gh,
-        struct nfgenmsg *nfmsg, struct nflog_data *nfa, void *data)
+static int createlogrule_callback(struct nflog_g_handle *gh ATTR_UNUSED,
+        struct nfgenmsg *nfmsg ATTR_UNUSED, struct nflog_data *nfa, void *data)
 {
     struct nfulnl_msg_packet_hdr *ph;
     char *hwhdr;

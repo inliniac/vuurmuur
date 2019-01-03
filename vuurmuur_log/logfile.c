@@ -807,8 +807,8 @@ static int close_syslog(const struct vrmr_config *conf, FILE **system_log,
     return (retval);
 }
 
-static int close_vuurmuurlog(const struct vrmr_config *conf,
-        FILE **vuurmuur_log, /*@null@*/ struct file_mon *filemon)
+static int close_vuurmuurlog(
+        const struct vrmr_config *conf, FILE **vuurmuur_log)
 {
     int retval = 0;
 
@@ -961,15 +961,10 @@ int reopen_syslog(const struct vrmr_config *cnf, FILE **system_log)
 
 int reopen_vuurmuurlog(const struct vrmr_config *cnf, FILE **vuurmuur_log)
 {
-    struct file_mon filemon;
-
-    /* clear */
-    memset(&filemon, 0, sizeof(filemon));
-
     vrmr_debug(NONE, "Reopening vuurmuur log");
 
     /* close the logfiles */
-    (void)close_vuurmuurlog(cnf, vuurmuur_log, &filemon);
+    (void)close_vuurmuurlog(cnf, vuurmuur_log);
 
     /* re-open the vuurmuur logfile */
     if (!(*vuurmuur_log = open_logfile(cnf, cnf->trafficlog_location, "a"))) {

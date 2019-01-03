@@ -696,8 +696,7 @@ void VrFormConnectToWin(struct vrmr_gui_form *form, struct vrmr_gui_win *win)
     vrmr_fatal_if(result != E_OK);
 }
 
-static char VrFormTextNavigation(
-        struct vrmr_gui_form *form, FIELD *fld, int key)
+static char VrFormTextNavigation(struct vrmr_gui_form *form, int key)
 {
     char match = FALSE;
 
@@ -845,7 +844,7 @@ char VrFormDefaultNavigation(struct vrmr_gui_form *form, int key)
         return (FALSE);
 
     if (strncmp(buf, "txt", 3) == 0)
-        return (VrFormTextNavigation(form, fld, key));
+        return (VrFormTextNavigation(form, key));
     else if (strncmp(buf, "C", 1) == 0)
         return (VrFormCheckboxNavigation(form, fld, key));
 

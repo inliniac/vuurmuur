@@ -1083,7 +1083,7 @@ int vrmr_rules_parse_line(
                 validate the service name
             */
             if (vrmr_validate_servicename(
-                        rule_ptr->service, reg->servicename, VRMR_QUIET) != 0) {
+                        rule_ptr->service, reg->servicename) != 0) {
                 vrmr_error(-1, "Error",
                         "invalid servicename: '%s' (in: %s:%d).",
                         rule_ptr->service, __FUNC__, __LINE__);

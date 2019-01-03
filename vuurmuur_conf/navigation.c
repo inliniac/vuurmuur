@@ -309,7 +309,7 @@ int nav_field_toggleX(FORM *form, int key)
     return (0);
 }
 
-int validate_commentfield(char *fieldbuffer, regex_t *reg_ex)
+int validate_commentfield(char *fieldbuffer, regex_t *reg_ex ATTR_UNUSED)
 {
     size_t i = 0;
 

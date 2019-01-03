@@ -223,8 +223,7 @@ int reload_services(struct vrmr_ctx *vctx, struct vrmr_services *services,
     /* loop trough the services in the backend */
     while (vctx->sf->list(vctx->serv_backend, name, &zonetype,
                    VRMR_BT_SERVICES) != NULL) {
-        if (vrmr_validate_servicename(name, servicename_regex, VRMR_VERBOSE) ==
-                0) {
+        if (vrmr_validate_servicename(name, servicename_regex) == 0) {
             ser_ptr = vrmr_search_service(services, name);
             if (ser_ptr == NULL) /* not found */
             {

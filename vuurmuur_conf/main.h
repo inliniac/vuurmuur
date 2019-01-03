@@ -316,7 +316,7 @@ int edit_rule(struct vrmr_config *conf, struct vrmr_rules *,
         unsigned int, struct vrmr_regex *);
 int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *,
         struct vrmr_interfaces *, struct vrmr_services *, struct vrmr_rule *,
-        unsigned int, struct vrmr_regex *);
+        struct vrmr_regex *);
 char *VrShapeUnitMenu(char *, int, int, char);
 
 /*
@@ -379,8 +379,7 @@ int validate_commentfield(char *, regex_t *);
 /*
     status section
 */
-int status_section(struct vrmr_config *, struct vrmr_zones *,
-        struct vrmr_interfaces *, struct vrmr_services *);
+int status_section(struct vrmr_config *, struct vrmr_interfaces *);
 
 /*
     connections
@@ -420,8 +419,7 @@ int vc_apply_changes(struct vrmr_ctx *);
 /*
     bandwidth
 */
-int trafvol_section(struct vrmr_config *, struct vrmr_zones *,
-        struct vrmr_interfaces *, struct vrmr_services *);
+int trafvol_section(struct vrmr_config *, struct vrmr_interfaces *);
 
 /*
     about
@@ -478,8 +476,7 @@ int kill_connections_by_name(struct vrmr_config *cnf, struct conntrack *ct,
         char *srcname, char *dstname, char *sername, char connect_status);
 
 struct conntrack *conn_init_ct(struct vrmr_zones *zones,
-        struct vrmr_interfaces *interfaces, struct vrmr_services *services,
-        struct vrmr_blocklist *blocklist);
+        struct vrmr_interfaces *interfaces, struct vrmr_services *services);
 void conn_free_ct(struct conntrack **ct, struct vrmr_zones *zones);
 int conn_ct_get_connections(struct vrmr_config *, struct conntrack *,
         struct vrmr_conntrack_request *);

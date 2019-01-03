@@ -32,15 +32,15 @@ static int sigint_count = 0;
 static int sighup_count = 0;
 static int sigterm_count = 0;
 
-static void handle_sigint(/*@unused@*/ int sig)
+static void handle_sigint(/*@unused@*/ int sig ATTR_UNUSED)
 {
     sigint_count = 1;
 }
-static void handle_sigterm(/*@unused@*/ int sig)
+static void handle_sigterm(/*@unused@*/ int sig ATTR_UNUSED)
 {
     sigterm_count = 1;
 }
-static void handle_sighup(/*@unused@*/ int sig)
+static void handle_sighup(/*@unused@*/ int sig ATTR_UNUSED)
 {
     sighup_count = 1;
 }
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 
             case 'K':
                 vrmr_debug(NONE, "%s asked to stop", SVCNAME);
-                if (vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1) {
+                if (vrmr_check_pidfile(PIDFILE, &pid) == -1) {
                     printf("%s is running. Killing process %u because of -k\n",
                             SVCNAME, pid);
                     kill(pid, 15);
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
 
     /* check if were already running, but not if we want bash output */
     if (vctx.conf.bash_out == FALSE) {
-        if (vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
+        if (vrmr_check_pidfile(PIDFILE, &pid) == -1)
             exit(EXIT_FAILURE);
     }
 

@@ -63,17 +63,17 @@ static int sigint_count = 0;
 static int sighup_count = 0;
 static int sigterm_count = 0;
 
-static void handle_sigint(int sig)
+static void handle_sigint(int sig ATTR_UNUSED)
 {
     sigint_count = 1;
 }
 
-static void handle_sigterm(int sig)
+static void handle_sigterm(int sig ATTR_UNUSED)
 {
     sigterm_count = 1;
 }
 
-static void handle_sighup(int sig)
+static void handle_sighup(int sig ATTR_UNUSED)
 {
     sighup_count = 1;
 }
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
                 break;
 
             case 'K':
-                if (vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1) {
+                if (vrmr_check_pidfile(PIDFILE, &pid) == -1) {
                     vrmr_debug(NONE, "Terminating %u", pid);
                     kill(pid, 15);
                     exit(EXIT_SUCCESS);
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
     }
 
     /* check if the pidfile already exists */
-    if (vrmr_check_pidfile(PIDFILE, SVCNAME, &pid) == -1)
+    if (vrmr_check_pidfile(PIDFILE, &pid) == -1)
         exit(EXIT_FAILURE);
 
     /* init the config file */

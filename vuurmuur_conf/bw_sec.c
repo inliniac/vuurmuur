@@ -584,8 +584,8 @@ static void create_bw_string(unsigned int mb, char *str, size_t len)
         0: ok
         -1: error
 */
-int trafvol_section(struct vrmr_config *conf, struct vrmr_zones *zones,
-        struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+int trafvol_section(
+        struct vrmr_config *conf, struct vrmr_interfaces *interfaces)
 {
     int retval = 0;
     int quit = 0, ch;

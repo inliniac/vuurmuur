@@ -449,8 +449,7 @@ static void update_draw_size_do(
     snprintf(str, strsize, "%%-%ds", *s);
 }
 
-static void update_draw_size(struct vrmr_conntrack_request *connreq, int width,
-        int ser, int from, int to)
+static void update_draw_size(int width, int ser, int from, int to)
 {
     /* max: cnt sp ser sp from sp arrow sp to sp stat sp dir
      *        5  1   15 1   46  1     2  1 46  1    5  1   4 = 129 */
@@ -500,8 +499,7 @@ void conn_free_ct(struct conntrack **ct, struct vrmr_zones *zones)
 }
 
 struct conntrack *ATTR_RETURNS_NONNULL conn_init_ct(struct vrmr_zones *zones,
-        struct vrmr_interfaces *interfaces, struct vrmr_services *services,
-        struct vrmr_blocklist *blocklist)
+        struct vrmr_interfaces *interfaces, struct vrmr_services *services)
 {
     struct conntrack *ct = calloc(1, sizeof(*ct));
     vrmr_fatal_alloc("calloc", ct);
@@ -674,7 +672,7 @@ int connections_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
     /* dont display the cursor */
     curs_set(0);
 
-    ct = conn_init_ct(zones, interfaces, services, blocklist);
+    ct = conn_init_ct(zones, interfaces, services);
     vrmr_fatal_if_null(ct);
 
     draw_top_menu(top_win, gettext("Connections"), key_choices_n, key_choices,
@@ -704,8 +702,7 @@ int connections_section(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
             else
                 print_accounting = 0;
 
-            update_draw_size(&connreq, max_width - 2,
-                    ct->conn_stats.sername_max + 1,
+            update_draw_size(max_width - 2, ct->conn_stats.sername_max + 1,
                     ct->conn_stats.fromname_max + 1,
                     ct->conn_stats.toname_max + 1);
 

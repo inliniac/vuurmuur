@@ -382,9 +382,7 @@ static void draw_rules(struct vrmr_rules *, struct rulebar_form *);
 static int Enter_RuleBar(struct rulebar *, struct vrmr_config *,
         struct vrmr_rules *, struct vrmr_zones *, struct vrmr_interfaces *,
         struct vrmr_services *, struct vrmr_regex *);
-static int edit_rule_separator(struct vrmr_zones *, struct vrmr_interfaces *,
-        struct vrmr_services *, struct vrmr_rule *, unsigned int,
-        struct vrmr_regex *);
+static int edit_rule_separator(struct vrmr_rule *, struct vrmr_regex *);
 static void insert_new_rule(
         struct vrmr_rules *rules, unsigned int rule_num, const char *action);
 
@@ -495,8 +493,7 @@ static void move_rule(
 
     display a screen TODO
 */
-static void MoveRuleBarForm(struct rulebar_form *rbform,
-        struct vrmr_rules *rules, unsigned int cur_rule)
+static void MoveRuleBarForm(struct vrmr_rules *rules, unsigned int cur_rule)
 {
     int ch, quit = 0;
     WINDOW *move_win;
@@ -1862,7 +1859,7 @@ int rules_form(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 cur_rule_num =
                         (unsigned int)atoi(field_buffer(cur_bar->num_field, 0));
                 if (cur_rule_num > 0) {
-                    MoveRuleBarForm(rbform, rules, cur_rule_num);
+                    MoveRuleBarForm(rules, cur_rule_num);
 
                     rules_changed = 1;
                     update_filter = 1;
@@ -2246,11 +2243,10 @@ int edit_rule(struct vrmr_config *conf, struct vrmr_rules *rules,
                     __FUNC__, __LINE__);
             return (-1);
         } else if (rule_ptr->action == VRMR_AT_SEPARATOR) {
-            retval = edit_rule_separator(
-                    zones, interfaces, services, rule_ptr, rule_num, reg);
+            retval = edit_rule_separator(rule_ptr, reg);
         } else {
             retval = edit_rule_normal(
-                    conf, zones, interfaces, services, rule_ptr, rule_num, reg);
+                    conf, zones, interfaces, services, rule_ptr, reg);
         }
     } else {
         vrmr_error(-1, VR_INTERR, "rule not found (in: %s:%d).", __FUNC__,
@@ -2738,8 +2734,7 @@ static int edit_rule_check_action_opts(struct vrmr_rule *rule_ptr)
 */
 int edit_rule_normal(struct vrmr_config *conf, struct vrmr_zones *zones,
         struct vrmr_interfaces *interfaces, struct vrmr_services *services,
-        struct vrmr_rule *rule_ptr, unsigned int rule_num,
-        struct vrmr_regex *reg)
+        struct vrmr_rule *rule_ptr, struct vrmr_regex *reg)
 {
     PANEL *my_panels[1];
     WINDOW *edit_win;
@@ -4366,19 +4361,13 @@ static int edit_seprule_fields_to_rule(FIELD **fields, size_t n_fields,
     return (retval);
 }
 
-/*  edit_rule_normal
-
-    Returncodes:
+/*  Returncodes:
          0: ok, no changes
          1: ok, changes
         -1: error
-
-    TODO: split this beast up
 */
-int edit_rule_separator(struct vrmr_zones *zones,
-        struct vrmr_interfaces *interfaces, struct vrmr_services *services,
-        struct vrmr_rule *rule_ptr, unsigned int rule_num,
-        struct vrmr_regex *reg)
+static int edit_rule_separator(
+        struct vrmr_rule *rule_ptr, struct vrmr_regex *reg)
 {
     PANEL *my_panels[1];
     WINDOW *edit_win;

@@ -85,8 +85,8 @@ char *list_textdir(void *backend, char *name, int *zonetype, int type)
                  * files) and don't open . and .. */
                 if (strncmp(name, ".", 1) != 0 && strcmp(name, "..") != 0) {
                     /* now validate the name */
-                    if (vrmr_validate_servicename(
-                                name, tb->servicename_reg, VRMR_QUIET) == 0) {
+                    if (vrmr_validate_servicename(name, tb->servicename_reg) ==
+                            0) {
                         /* determine the location of the file */
                         if (!(file_location = get_filelocation(
                                       backend, name, VRMR_TYPE_SERVICE)))

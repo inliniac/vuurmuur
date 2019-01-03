@@ -431,7 +431,7 @@ static void statevent_interactivemenu_conn(struct vrmr_ctx *vctx,
         ungroup_conns = TRUE; /* we are ungrouping the list */
         connreq->group_conns = FALSE;
 
-        privct = conn_init_ct(zones, interfaces, services, blocklist);
+        privct = conn_init_ct(zones, interfaces, services);
         vrmr_fatal_if_null(privct);
 
         conn_ct_get_connections(cnf, privct, connreq);
@@ -675,7 +675,8 @@ static void statevent_interactivemenu_conn(struct vrmr_ctx *vctx,
 */
 static void statevent_interactivemenu_log(struct vrmr_ctx *vctx,
         struct vrmr_config *cnf, struct stat_event_ctx *ctl,
-        struct conntrack *ct, struct vrmr_conntrack_request *connreqnull,
+        struct conntrack *ct ATTR_UNUSED,
+        struct vrmr_conntrack_request *connreqnull ATTR_UNUSED,
         struct vrmr_zones *zones, struct vrmr_blocklist *blocklist,
         struct vrmr_interfaces *interfaces, struct vrmr_services *services,
         struct stat_event_generic *gen_ptr)
@@ -716,7 +717,7 @@ static void statevent_interactivemenu_log(struct vrmr_ctx *vctx,
     connreq.draw_details = TRUE;
 
     /* get the connections for killing them later if the user chooses to */
-    ctr = conn_init_ct(zones, interfaces, services, blocklist);
+    ctr = conn_init_ct(zones, interfaces, services);
     conn_ct_get_connections(cnf, ctr, &connreq);
 
     action = vrmr_rules_actiontoi(log->action);
@@ -976,7 +977,7 @@ static void statevent_free_ctl(struct stat_event_ctx **ctl)
 }
 
 static int statevent_menu(struct vrmr_ctx *vctx, struct vrmr_config *cnf,
-        int type, struct stat_event_ctx *ctl, struct conntrack *ct,
+        struct stat_event_ctx *ctl, struct conntrack *ct,
         struct vrmr_conntrack_request *connreq, struct vrmr_zones *zones,
         struct vrmr_blocklist *blocklist, struct vrmr_interfaces *interfaces,
         struct vrmr_services *services)
@@ -1165,8 +1166,8 @@ void statevent(struct vrmr_ctx *vctx, struct vrmr_config *cnf, int type,
         vrmr_error(-1, VR_ERR, "loading data failed.");
     }
 
-    statevent_menu(vctx, cnf, type, ctl, ct, connreq, zones, blocklist,
-            interfaces, services);
+    statevent_menu(vctx, cnf, ctl, ct, connreq, zones, blocklist, interfaces,
+            services);
 
     statevent_free_ctl(&ctl);
 

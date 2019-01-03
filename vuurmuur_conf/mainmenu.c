@@ -28,8 +28,7 @@ static char blocklist_convert_question_asked = FALSE;
 
 static void mm_check_status_zones(
         /*@null@*/ struct vrmr_list *, struct vrmr_zones *);
-static void mm_check_status_services(
-        /*@null@*/ struct vrmr_list *, struct vrmr_services *);
+static void mm_check_status_services(struct vrmr_services *);
 
 static int convert_rulesfile_to_backend(struct vrmr_ctx *vctx,
         struct vrmr_rules *rules, struct vrmr_config *cnf)
@@ -619,8 +618,7 @@ static void mm_check_status_config(
 
 /*
  */
-static void mm_check_status_services(/*@null@*/ struct vrmr_list *status_list,
-        struct vrmr_services *services)
+static void mm_check_status_services(struct vrmr_services *services)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_service *ser_ptr = NULL;
@@ -648,8 +646,8 @@ static void mm_check_status_services(/*@null@*/ struct vrmr_list *status_list,
 
 /*
  */
-static void mm_check_status_rules(struct vrmr_config *conf,
-        /*@null@*/ struct vrmr_list *status_list, struct vrmr_rules *rules)
+static void mm_check_status_rules(
+        struct vrmr_config *conf, struct vrmr_rules *rules)
 {
     struct vrmr_list_node *d_node = NULL;
     struct vrmr_rule *rule_ptr = NULL;
@@ -1807,7 +1805,7 @@ int main_menu(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             if (strcmp(choice_ptr, MM_ITEM_RULES) == 0) {
                 rules_form(vctx, rules, zones, interfaces, services, reg);
 
-                mm_check_status_rules(&vctx->conf, NULL, rules);
+                mm_check_status_rules(&vctx->conf, rules);
                 mm_check_status_interfaces(NULL, interfaces);
             } else if (strcmp(choice_ptr, MM_ITEM_ZONES) == 0) {
                 zones_section(vctx, zones, interfaces, rules, blocklist, reg);
@@ -1822,12 +1820,12 @@ int main_menu(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
             } else if (strcmp(choice_ptr, MM_ITEM_SERVICES) == 0) {
                 services_section(vctx, services, rules, reg);
 
-                mm_check_status_services(NULL, services);
+                mm_check_status_services(services);
             } else if (strcmp(choice_ptr, MM_ITEM_VRCONFIG) == 0) {
                 config_menu(&vctx->conf);
 
                 mm_check_status_config(&vctx->conf, NULL);
-                mm_check_status_rules(&vctx->conf, NULL, rules);
+                mm_check_status_rules(&vctx->conf, rules);
             } else if (strcmp(choice_ptr, "traffic") == 0) {
                 logview_section(vctx, &vctx->conf, zones, blocklist, interfaces,
                         services, NULL);
@@ -1835,14 +1833,14 @@ int main_menu(struct vrmr_ctx *vctx, struct vrmr_rules *rules,
                 mm_select_logfile(vctx, &vctx->conf, zones, blocklist,
                         interfaces, services);
             } else if (strcmp(choice_ptr, MM_ITEM_STATUS) == 0) {
-                status_section(&vctx->conf, zones, interfaces, services);
+                status_section(&vctx->conf, interfaces);
             } else if (strcmp(choice_ptr, MM_ITEM_CONNECTIONS) == 0) {
                 connections_section(vctx, &vctx->conf, zones, interfaces,
                         services, blocklist);
             } else if (strcmp(choice_ptr, MM_ITEM_BLOCKLIST) == 0) {
                 zones_blocklist(vctx, blocklist, zones, reg);
             } else if (strcmp(choice_ptr, MM_ITEM_TRAFVOL) == 0) {
-                trafvol_section(&vctx->conf, zones, interfaces, services);
+                trafvol_section(&vctx->conf, interfaces);
             } else if (strcmp(choice_ptr, MM_ITEM_SETTINGS) == 0) {
                 edit_vcconfig();
                 mm_check_status_settings(NULL);
@@ -1932,9 +1930,9 @@ void mm_status_checkall(struct vrmr_ctx *vctx,
     }
 
     /* check the services */
-    mm_check_status_services(status_list, services);
+    mm_check_status_services(services);
 
-    mm_check_status_rules(&vctx->conf, status_list, rules);
+    mm_check_status_rules(&vctx->conf, rules);
 
     /* check for (active) interfaces */
     mm_check_status_interfaces(status_list, interfaces);

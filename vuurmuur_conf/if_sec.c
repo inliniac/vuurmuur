@@ -486,8 +486,8 @@ int protectrule_loaded(
     return (0);
 }
 
-static void edit_interface_init(struct vrmr_ctx *vctx, char *name, int height,
-        int width, int starty, int startx, struct vrmr_interface *iface_ptr)
+static void edit_interface_init(struct vrmr_ctx *vctx, int height, int width,
+        int starty, int startx, struct vrmr_interface *iface_ptr)
 {
     int rows, cols,
             comment_y = 0, // number of lines of the commentfield
@@ -1243,7 +1243,7 @@ static int edit_interface(
     iface_ptr = vrmr_search_interface(interfaces, name);
     vrmr_fatal_if_null(iface_ptr);
 
-    edit_interface_init(vctx, name, height, width, starty, startx, iface_ptr);
+    edit_interface_init(vctx, height, width, starty, startx, iface_ptr);
     cur = current_field(ifsec_ctx.edit.form);
 
     draw_top_menu(top_win, gettext("Edit Interface"), key_choices_n,

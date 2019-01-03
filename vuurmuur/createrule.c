@@ -256,8 +256,7 @@ static int iptrule_insert(
     This function must _only_ be called from the normal rule creation
     functions, not from pre-rules, post-rules, etc.
     */
-static int queue_rule(struct rule_scratch *rule,
-        /*@null@*/ struct rule_set *ruleset, char *table, char *chain,
+static int queue_rule(struct rule_scratch *rule, char *table, char *chain,
         char *cmd, unsigned long long packets, unsigned long long bytes)
 {
     struct iptables_rule *iptrule = NULL;
@@ -477,8 +476,7 @@ int process_queued_rules(struct vrmr_config *conf,
         -1: error
          0: ok
 */
-int create_rule_input(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+int create_rule_input(struct vrmr_config *conf, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
@@ -545,7 +543,7 @@ int create_rule_input(struct vrmr_config *conf,
             create_state_string(conf, rule->ipv, iptcap), rule->action);
 
     /* add it to the list */
-    if (queue_rule(rule, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if (queue_rule(rule, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         return (-1);
 
     create->iptcount.input++;
@@ -599,7 +597,7 @@ int create_rule_input(struct vrmr_config *conf,
                 rule->temp_dst, rule->temp_dst_port, rule->from_mac,
                 create_state_string(conf, rule->ipv, iptcap), connmark);
 
-        if (queue_rule(rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             return (-1);
 
         if (strcmp(rule->proto, "-p icmp -m icmp") != 0) {
@@ -616,7 +614,7 @@ int create_rule_input(struct vrmr_config *conf,
                     temp_dst_port, rule->temp_dst, temp_src_port,
                     create_state_string(conf, rule->ipv, iptcap), connmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return (-1);
         }
 
@@ -643,7 +641,7 @@ int create_rule_input(struct vrmr_config *conf,
                     rule->from_mac, rule->helper,
                     create_state_string(conf, rule->ipv, iptcap), connmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return (-1);
 
             create_srcdst_string(SRCDST_SOURCE, rule->to_ip, rule->to_netmask,
@@ -658,7 +656,7 @@ int create_rule_input(struct vrmr_config *conf,
                     rule->temp_dst, rule->helper,
                     create_state_string(conf, rule->ipv, iptcap), connmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return (-1);
         }
     }
@@ -735,7 +733,7 @@ int create_rule_input(struct vrmr_config *conf,
                 rule->from_mac, create_state_string(conf, rule->ipv, iptcap),
                 nfmark);
 
-        if (queue_rule(rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             return (-1);
 
         /* related, established */
@@ -751,7 +749,7 @@ int create_rule_input(struct vrmr_config *conf,
                 temp_dst_port, rule->temp_dst, temp_src_port,
                 create_state_string(conf, rule->ipv, iptcap), nfmark);
 
-        if (queue_rule(rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             return (-1);
 
         if (strcmp(rule->helper, "") != 0) {
@@ -777,7 +775,7 @@ int create_rule_input(struct vrmr_config *conf,
                     rule->temp_dst, rule->from_mac, rule->helper,
                     create_state_string(conf, rule->ipv, iptcap), nfmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return (-1);
 
             create_srcdst_string(SRCDST_SOURCE, rule->to_ip, rule->to_netmask,
@@ -792,7 +790,7 @@ int create_rule_input(struct vrmr_config *conf,
                     rule->temp_dst, rule->helper,
                     create_state_string(conf, rule->ipv, iptcap), nfmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return (-1);
         }
     }
@@ -880,8 +878,7 @@ int create_rule_input(struct vrmr_config *conf,
                     create_state_string(conf, rule->ipv, iptcap),
                     rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) <
-                    0)
+            if (queue_rule(rule, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
                 return (-1);
         }
 
@@ -928,8 +925,7 @@ int create_rule_input(struct vrmr_config *conf,
                         create_state_string(conf, rule->ipv, iptcap),
                         rule->from_if_ptr->shape_handle, rule->shape_class_out);
 
-                if (queue_rule(rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0,
-                            0) < 0)
+                if (queue_rule(rule, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
                     return (-1);
             }
         }
@@ -945,8 +941,7 @@ int create_rule_input(struct vrmr_config *conf,
         -1: error
          0: ok
 */
-int create_rule_output(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+int create_rule_output(struct vrmr_config *conf, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
@@ -1010,7 +1005,7 @@ int create_rule_output(struct vrmr_config *conf,
             rule->temp_dst, rule->temp_dst_port, rule->limit, /* log limit */
             create_state_string(conf, rule->ipv, iptcap), rule->action);
 
-    if (queue_rule(rule, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if (queue_rule(rule, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         return (-1);
 
     /* update rule counter */
@@ -1063,7 +1058,7 @@ int create_rule_output(struct vrmr_config *conf,
                 rule->temp_dst, rule->temp_dst_port,
                 create_state_string(conf, rule->ipv, iptcap), connmark);
 
-        if (queue_rule(rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             return (-1);
 
         /* REVERSE! related */
@@ -1080,7 +1075,7 @@ int create_rule_output(struct vrmr_config *conf,
                     temp_dst_port, rule->temp_dst, temp_src_port,
                     create_state_string(conf, rule->ipv, iptcap), connmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return (-1);
         }
 
@@ -1109,7 +1104,7 @@ int create_rule_output(struct vrmr_config *conf,
                     rule->helper, create_state_string(conf, rule->ipv, iptcap),
                     connmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return (-1);
 
             /* REVERSE! */
@@ -1125,7 +1120,7 @@ int create_rule_output(struct vrmr_config *conf,
                     rule->temp_dst, rule->helper,
                     create_state_string(conf, rule->ipv, iptcap), connmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return (-1);
         }
     }
@@ -1199,7 +1194,7 @@ int create_rule_output(struct vrmr_config *conf,
                 rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
                 create_state_string(conf, rule->ipv, iptcap), nfmark);
 
-        if (queue_rule(rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             return (-1);
 
         /* REVERSE! related, established */
@@ -1215,7 +1210,7 @@ int create_rule_output(struct vrmr_config *conf,
                 temp_dst_port, rule->temp_dst, temp_src_port,
                 create_state_string(conf, rule->ipv, iptcap), nfmark);
 
-        if (queue_rule(rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             return (-1);
 
         /* helperrrr */
@@ -1243,7 +1238,7 @@ int create_rule_output(struct vrmr_config *conf,
                     rule->temp_dst, rule->helper,
                     create_state_string(conf, rule->ipv, iptcap), nfmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
                 return (-1);
 
             /* REVERSE! */
@@ -1259,7 +1254,7 @@ int create_rule_output(struct vrmr_config *conf,
                     rule->temp_dst, rule->helper,
                     create_state_string(conf, rule->ipv, iptcap), nfmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
                 return (-1);
         }
     }
@@ -1329,8 +1324,7 @@ int create_rule_output(struct vrmr_config *conf,
                     create_state_string(conf, rule->ipv, iptcap),
                     rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) <
-                    0)
+            if (queue_rule(rule, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
                 return (-1);
         }
 
@@ -1347,7 +1341,7 @@ int create_rule_output(struct vrmr_config *conf,
                 temp_dst_port, rule->temp_dst, temp_src_port, create_state_string(conf, rule->ipv, iptcap),
                 rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
-            if(queue_rule(rule, ruleset, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
+            if(queue_rule(rule, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
                 return(-1);
         }
 #endif
@@ -1381,8 +1375,7 @@ int create_rule_output(struct vrmr_config *conf,
                         create_state_string(conf, rule->ipv, iptcap),
                         rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
-                if (queue_rule(rule, ruleset, TB_MANGLE, CH_SHAPE_OUT, cmd, 0,
-                            0) < 0)
+                if (queue_rule(rule, TB_MANGLE, CH_SHAPE_OUT, cmd, 0, 0) < 0)
                     return (-1);
             }
 
@@ -1399,7 +1392,7 @@ int create_rule_output(struct vrmr_config *conf,
                     rule->temp_dst, rule->helper, create_state_string(conf, rule->ipv, iptcap),
                     rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
-                if(queue_rule(rule, ruleset, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
+                if(queue_rule(rule, TB_MANGLE, CH_SHAPE_IN, cmd, 0, 0) < 0)
                     return(-1);
             }
 #endif
@@ -1409,8 +1402,7 @@ int create_rule_output(struct vrmr_config *conf,
     return (retval);
 }
 
-int create_rule_forward(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
@@ -1483,7 +1475,7 @@ int create_rule_forward(struct vrmr_config *conf,
             rule->from_mac, rule->limit,
             create_state_string(conf, rule->ipv, iptcap), rule->action);
 
-    if (queue_rule(rule, ruleset, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
+    if (queue_rule(rule, TB_FILTER, CH_FORWARD, cmd, 0, 0) < 0)
         return (-1);
 
     create->iptcount.forward++;
@@ -1569,7 +1561,7 @@ int create_rule_forward(struct vrmr_config *conf,
                 rule->from_mac, create_state_string(conf, rule->ipv, iptcap),
                 connmark);
 
-        if (queue_rule(rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             return (-1);
 
         /* REVERSE! related */
@@ -1587,7 +1579,7 @@ int create_rule_forward(struct vrmr_config *conf,
                     temp_src_port, create_state_string(conf, rule->ipv, iptcap),
                     connmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return (-1);
         }
 
@@ -1615,7 +1607,7 @@ int create_rule_forward(struct vrmr_config *conf,
                     rule->temp_dst, rule->from_mac, rule->helper,
                     create_state_string(conf, rule->ipv, iptcap), connmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return (-1);
 
             /* REVERSE! */
@@ -1631,7 +1623,7 @@ int create_rule_forward(struct vrmr_config *conf,
                     rule->temp_src, rule->temp_dst, rule->helper,
                     create_state_string(conf, rule->ipv, iptcap), connmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return (-1);
         }
     }
@@ -1712,7 +1704,7 @@ int create_rule_forward(struct vrmr_config *conf,
                 rule->from_mac, create_state_string(conf, rule->ipv, iptcap),
                 nfmark);
 
-        if (queue_rule(rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             return (-1);
 
         /* REVERSE! related,established */
@@ -1728,7 +1720,7 @@ int create_rule_forward(struct vrmr_config *conf,
                 rule->temp_src, temp_dst_port, rule->temp_dst, temp_src_port,
                 create_state_string(conf, rule->ipv, iptcap), nfmark);
 
-        if (queue_rule(rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
             return (-1);
 
         if (strcmp(rule->helper, "") != 0) {
@@ -1755,7 +1747,7 @@ int create_rule_forward(struct vrmr_config *conf,
                     rule->temp_dst, rule->from_mac, rule->helper,
                     create_state_string(conf, rule->ipv, iptcap), nfmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return (-1);
 
             /* REVERSE! */
@@ -1771,7 +1763,7 @@ int create_rule_forward(struct vrmr_config *conf,
                     rule->temp_src, rule->temp_dst, rule->helper,
                     create_state_string(conf, rule->ipv, iptcap), nfmark);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
+            if (queue_rule(rule, TB_MANGLE, CH_FORWARD, cmd, 0, 0) < 0)
                 return (-1);
         }
     }
@@ -1849,8 +1841,7 @@ int create_rule_forward(struct vrmr_config *conf,
                     create_state_string(conf, rule->ipv, iptcap),
                     rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) <
-                    0)
+            if (queue_rule(rule, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
                 return (-1);
         }
 
@@ -1869,8 +1860,7 @@ int create_rule_forward(struct vrmr_config *conf,
                     temp_src_port, create_state_string(conf, rule->ipv, iptcap),
                     rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
-            if (queue_rule(rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) <
-                    0)
+            if (queue_rule(rule, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
                 return (-1);
         }
 
@@ -1903,8 +1893,7 @@ int create_rule_forward(struct vrmr_config *conf,
                         create_state_string(conf, rule->ipv, iptcap),
                         rule->to_if_ptr->shape_handle, rule->shape_class_out);
 
-                if (queue_rule(rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0,
-                            0) < 0)
+                if (queue_rule(rule, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
                     return (-1);
             }
 
@@ -1926,8 +1915,7 @@ int create_rule_forward(struct vrmr_config *conf,
                         create_state_string(conf, rule->ipv, iptcap),
                         rule->from_if_ptr->shape_handle, rule->shape_class_in);
 
-                if (queue_rule(rule, ruleset, TB_MANGLE, CH_SHAPE_FW, cmd, 0,
-                            0) < 0)
+                if (queue_rule(rule, TB_MANGLE, CH_SHAPE_FW, cmd, 0, 0) < 0)
                     return (-1);
             }
         }
@@ -1935,8 +1923,7 @@ int create_rule_forward(struct vrmr_config *conf,
     return (retval);
 }
 
-int create_rule_masq(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+int create_rule_masq(struct vrmr_config *conf, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -1980,7 +1967,7 @@ int create_rule_masq(struct vrmr_config *conf,
             rule->proto, rule->temp_src, rule->temp_src_port, rule->temp_dst,
             rule->temp_dst_port, rule->limit, rule->action, rule->random);
 
-    if (queue_rule(rule, ruleset, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
+    if (queue_rule(rule, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
         return (-1);
 
     /* update the chain counter */
@@ -1992,8 +1979,7 @@ int create_rule_masq(struct vrmr_config *conf,
 /*
     TODO: maybe we want an option to use only one interface.
 */
-int create_rule_snat(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+int create_rule_snat(struct vrmr_config *conf, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND];
@@ -2044,7 +2030,7 @@ int create_rule_snat(struct vrmr_config *conf,
             rule->proto, rule->temp_src, rule->temp_src_port, rule->temp_dst,
             rule->temp_dst_port, rule->limit, rule->action);
 
-    if (queue_rule(rule, ruleset, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
+    if (queue_rule(rule, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
         return (-1);
 
     /* update the counter */
@@ -2060,8 +2046,7 @@ int create_rule_snat(struct vrmr_config *conf,
 
     For PORTFW we handle both listenport and remoteport options.
 */
-int create_rule_portfw(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+int create_rule_portfw(struct vrmr_config *conf, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
@@ -2162,7 +2147,7 @@ int create_rule_portfw(struct vrmr_config *conf,
                 rule->limit, create_state_string(conf, rule->ipv, iptcap),
                 rule->action);
 
-        if (queue_rule(rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
             return (-1);
 
         create->iptcount.preroute++;
@@ -2204,7 +2189,7 @@ int create_rule_portfw(struct vrmr_config *conf,
         snprintf(rule->action, sizeof(rule->action), "NEWACCEPT");
     }
 
-    if (create_rule_forward(conf, ruleset, rule, create, iptcap) < 0) {
+    if (create_rule_forward(conf, rule, create, iptcap) < 0) {
         vrmr_error(-1, "Error",
                 "creating forward rule for portfw failed (in: %s).", __FUNC__);
         retval = -1;
@@ -2221,8 +2206,7 @@ int create_rule_portfw(struct vrmr_config *conf,
 
     see pp 278 linux firewall 2nd edition 274-275 for redirect
 */
-int create_rule_redirect(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+int create_rule_redirect(struct vrmr_config *conf, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -2274,7 +2258,7 @@ int create_rule_redirect(struct vrmr_config *conf,
                 rule->limit, create_state_string(conf, rule->ipv, iptcap),
                 rule->action);
 
-        if (queue_rule(rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
             return (-1);
 
         create->iptcount.preroute++;
@@ -2317,7 +2301,7 @@ int create_rule_redirect(struct vrmr_config *conf,
     }
 
     /* now create the input rule */
-    if (create_rule_input(conf, ruleset, rule, create, iptcap) < 0) {
+    if (create_rule_input(conf, rule, create, iptcap) < 0) {
         vrmr_error(-1, "Error",
                 "creating input rule for redirect failed (in: %s).", __FUNC__);
         return (-1);
@@ -2342,8 +2326,7 @@ int create_rule_redirect(struct vrmr_config *conf,
 
 
 */
-int create_rule_dnat(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+int create_rule_dnat(struct vrmr_config *conf, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
@@ -2442,7 +2425,7 @@ int create_rule_dnat(struct vrmr_config *conf,
             rule->temp_dst, rule->temp_dst_port, rule->from_mac, rule->limit,
             create_state_string(conf, rule->ipv, iptcap), rule->action);
 
-    if (queue_rule(rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
+    if (queue_rule(rule, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
         return (-1);
 
     create->iptcount.preroute++;
@@ -2453,8 +2436,7 @@ int create_rule_dnat(struct vrmr_config *conf,
 /*  create_rule_bounce
 
 */
-int create_rule_bounce(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
+int create_rule_bounce(struct vrmr_config *conf, struct rule_scratch *rule,
         struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
@@ -2538,7 +2520,7 @@ int create_rule_bounce(struct vrmr_config *conf,
                 rule->limit, create_state_string(conf, rule->ipv, iptcap),
                 rule->action);
 
-        if (queue_rule(rule, ruleset, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_NAT, CH_PREROUTING, cmd, 0, 0) < 0)
             return (-1);
 
         create->iptcount.preroute++;
@@ -2566,7 +2548,7 @@ int create_rule_bounce(struct vrmr_config *conf,
                 rule->temp_dst, rule->temp_dst_port, rule->limit,
                 create_state_string(conf, rule->ipv, iptcap), rule->action);
 
-        if (queue_rule(rule, ruleset, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_NAT, CH_POSTROUTING, cmd, 0, 0) < 0)
             return (-1);
 
         create->iptcount.postroute++;
@@ -2609,7 +2591,7 @@ int create_rule_bounce(struct vrmr_config *conf,
         snprintf(rule->action, sizeof(rule->action), "NEWACCEPT");
     }
 
-    if (create_rule_forward(conf, ruleset, rule, create, iptcap) < 0) {
+    if (create_rule_forward(conf, rule, create, iptcap) < 0) {
         vrmr_error(-1, "Error",
                 "creating forward rule for portfw failed (in: %s).", __FUNC__);
         retval = -1;
@@ -2631,8 +2613,8 @@ int create_rule_bounce(struct vrmr_config *conf,
          0: ok
 */
 int create_rule_input_broadcast(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
-        struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
+        struct rule_scratch *rule, struct vrmr_rule_cache *create,
+        struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "",
@@ -2694,7 +2676,7 @@ int create_rule_input_broadcast(struct vrmr_config *conf,
             rule->temp_dst_port, rule->from_mac, rule->limit, rule->action);
 
     /* add it to the list */
-    if (queue_rule(rule, ruleset, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
+    if (queue_rule(rule, TB_FILTER, CH_INPUT, cmd, 0, 0) < 0)
         return (-1);
 
     create->iptcount.input++;
@@ -2736,7 +2718,7 @@ int create_rule_input_broadcast(struct vrmr_config *conf,
                 stripped_proto, rule->temp_src, rule->temp_src_port,
                 rule->temp_dst, rule->temp_dst_port, rule->from_mac, nfmark);
 
-        if (queue_rule(rule, ruleset, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_MANGLE, CH_INPUT, cmd, 0, 0) < 0)
             return (-1);
     }
     return (retval);
@@ -2751,8 +2733,8 @@ int create_rule_input_broadcast(struct vrmr_config *conf,
          0: ok
 */
 int create_rule_output_broadcast(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct rule_scratch *rule,
-        struct vrmr_rule_cache *create, struct vrmr_iptcaps *iptcap)
+        struct rule_scratch *rule, struct vrmr_rule_cache *create,
+        struct vrmr_iptcaps *iptcap)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "",
@@ -2812,7 +2794,7 @@ int create_rule_output_broadcast(struct vrmr_config *conf,
             rule->temp_dst_port, rule->limit, /* log limit */
             rule->action);
 
-    if (queue_rule(rule, ruleset, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
+    if (queue_rule(rule, TB_FILTER, CH_OUTPUT, cmd, 0, 0) < 0)
         return (-1);
 
     /* update rule counter */
@@ -2853,7 +2835,7 @@ int create_rule_output_broadcast(struct vrmr_config *conf,
                 rule->temp_src_port, rule->temp_dst, rule->temp_dst_port,
                 nfmark);
 
-        if (queue_rule(rule, ruleset, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
+        if (queue_rule(rule, TB_MANGLE, CH_OUTPUT, cmd, 0, 0) < 0)
             return (-1);
     }
 
@@ -2944,8 +2926,7 @@ static char limit[] = "-m limit --limit 1/s --limit-burst 2";
  *  \brief Flush chains (bash output mode)
  */
 static int pre_rules_flush_chains(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct vrmr_interfaces *interfaces,
-        struct vrmr_iptcaps *iptcap)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap)
 {
     if (ruleset == NULL) {
         char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -3387,8 +3368,7 @@ static int pre_rules_shape(struct vrmr_config *conf,
 }
 
 static int pre_rules_loopback(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
-        int ipv)
+        /*@null@*/ struct rule_set *ruleset, int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -3412,8 +3392,7 @@ static int pre_rules_loopback(struct vrmr_config *conf,
 }
 
 static int pre_rules_interface_counters_ipv4(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct vrmr_interfaces *interfaces,
-        struct vrmr_iptcaps *iptcap, int ipv)
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_interfaces *interfaces)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -3536,8 +3515,7 @@ static int pre_rules_interface_counters_ipv4(struct vrmr_config *conf,
 }
 
 static int pre_rules_set_policy(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
-        int ipv)
+        /*@null@*/ struct rule_set *ruleset, int ipv)
 {
     int retval = 0, result = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4453,8 +4431,7 @@ static int pre_rules_nflog(struct vrmr_config *conf,
 }
 
 static int pre_rules_tcpreset(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
-        int ipv)
+        /*@null@*/ struct rule_set *ruleset, int ipv)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4497,7 +4474,7 @@ static int pre_rules_tcpreset(struct vrmr_config *conf,
 }
 
 static int pre_rules_antispoof_ipv4(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap)
+        /*@null@*/ struct rule_set *ruleset)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4538,7 +4515,7 @@ static int pre_rules_antispoof_ipv4(struct vrmr_config *conf,
 
 #ifdef IPV6_ENABLED
 static int pre_rules_icmp_ipv6(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap)
+        /*@null@*/ struct rule_set *ruleset)
 {
     int retval = 0;
     char cmd[VRMR_MAX_PIPE_COMMAND] = "";
@@ -4605,7 +4582,7 @@ int pre_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
     }
 
     /* first flush the chains */
-    if (pre_rules_flush_chains(conf, ruleset, interfaces, iptcap) < 0) {
+    if (pre_rules_flush_chains(conf, ruleset, iptcap) < 0) {
         return (-1);
     }
 
@@ -4618,19 +4595,18 @@ int pre_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
     /* shape rules */
     pre_rules_shape(conf, ruleset, iptcap, VRMR_IPV4);
 
-    pre_rules_loopback(conf, ruleset, iptcap, VRMR_IPV4);
+    pre_rules_loopback(conf, ruleset, VRMR_IPV4);
 #ifdef IPV6_ENABLED
-    pre_rules_loopback(conf, ruleset, iptcap, VRMR_IPV6);
+    pre_rules_loopback(conf, ruleset, VRMR_IPV6);
 #endif
 
     /* interface counters, IPv4 only for now */
-    pre_rules_interface_counters_ipv4(
-            conf, ruleset, interfaces, iptcap, VRMR_IPV4);
+    pre_rules_interface_counters_ipv4(conf, ruleset, interfaces);
 
     /* set the policy */
-    pre_rules_set_policy(conf, ruleset, iptcap, VRMR_IPV4);
+    pre_rules_set_policy(conf, ruleset, VRMR_IPV4);
 #ifdef IPV6_ENABLED
-    pre_rules_set_policy(conf, ruleset, iptcap, VRMR_IPV6);
+    pre_rules_set_policy(conf, ruleset, VRMR_IPV6);
 #endif
 
     /* rules for logging and dropping bad packets */
@@ -4713,18 +4689,18 @@ int pre_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
         retval = -1;
 
     /* create the conntrack invalid log & drop rules */
-    if (pre_rules_tcpreset(conf, ruleset, iptcap, VRMR_IPV4) < 0)
+    if (pre_rules_tcpreset(conf, ruleset, VRMR_IPV4) < 0)
         retval = -1;
 #ifdef IPV6_ENABLED
-    if (pre_rules_tcpreset(conf, ruleset, iptcap, VRMR_IPV6) < 0)
+    if (pre_rules_tcpreset(conf, ruleset, VRMR_IPV6) < 0)
         retval = -1;
 #endif
 
-    if (pre_rules_antispoof_ipv4(conf, ruleset, iptcap) < 0)
+    if (pre_rules_antispoof_ipv4(conf, ruleset) < 0)
         retval = -1;
 
 #ifdef IPV6_ENABLED
-    pre_rules_icmp_ipv6(conf, ruleset, iptcap);
+    pre_rules_icmp_ipv6(conf, ruleset);
 #endif
 
     return (retval);
@@ -5079,7 +5055,7 @@ int post_rules(struct vrmr_config *conf, /*@null@*/ struct rule_set *ruleset,
 
 static int create_interface_rpfilter_rules(struct vrmr_config *conf,
         /*@null@*/ struct rule_set *ruleset, struct vrmr_iptcaps *iptcap,
-        struct vrmr_rule_cache *create, struct vrmr_interface *if_ptr)
+        struct vrmr_interface *if_ptr)
 {
     char input_device[16 + 3] = ""; /* 16 + '-i ' */
     const char my_limit[] = "-m limit --limit 1/s --limit-burst 5";
@@ -5243,8 +5219,8 @@ int create_interface_rules(struct vrmr_config *conf,
                 /* special case: for rp-filter we create iptables rules as well
                  */
                 if (strcasecmp(rule_ptr->danger, "rp-filter") == 0) {
-                    if (create_interface_rpfilter_rules(conf, ruleset, iptcap,
-                                create, create->who_int) < 0) {
+                    if (create_interface_rpfilter_rules(
+                                conf, ruleset, iptcap, create->who_int) < 0) {
                         vrmr_error(-1, "Error",
                                 "creating rpfilter rules failed (in: %s:%d).",
                                 __FUNC__, __LINE__);
@@ -5504,8 +5480,7 @@ static int create_network_antispoof_rule(struct vrmr_config *conf,
     TODO: add some descriptions to each rule. What they do, etc.
 */
 static int create_network_protect_rules_dhcp_server(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct vrmr_zones *zones,
-        struct vrmr_iptcaps *iptcap, struct vrmr_rule_cache *create,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_rule_cache *create,
         struct vrmr_interface *if_ptr)
 {
     int retval = 0;
@@ -5613,8 +5588,7 @@ static int create_network_protect_rules_dhcp_server(struct vrmr_config *conf,
     TODO: add some descriptions to each rule. What they do, etc.
 */
 static int create_network_protect_rules_dhcp_client(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *ruleset, struct vrmr_zones *zones,
-        struct vrmr_iptcaps *iptcap, struct vrmr_rule_cache *create,
+        /*@null@*/ struct rule_set *ruleset, struct vrmr_rule_cache *create,
         struct vrmr_interface *if_ptr)
 {
     int retval = 0;
@@ -5813,9 +5787,8 @@ int create_network_protect_rules(struct vrmr_config *conf,
                                 return (-1);
                             }
 
-                            if (create_network_protect_rules_dhcp_client(conf,
-                                        ruleset, zones, iptcap, create,
-                                        from_if_ptr) < 0)
+                            if (create_network_protect_rules_dhcp_client(
+                                        conf, ruleset, create, from_if_ptr) < 0)
                                 return (-1);
                         }
                     } else if (strcasecmp(rule_ptr->service, "dhcp-server") ==
@@ -5830,9 +5803,8 @@ int create_network_protect_rules(struct vrmr_config *conf,
                                 return (-1);
                             }
 
-                            if (create_network_protect_rules_dhcp_server(conf,
-                                        ruleset, zones, iptcap, create,
-                                        from_if_ptr) < 0)
+                            if (create_network_protect_rules_dhcp_server(
+                                        conf, ruleset, create, from_if_ptr) < 0)
                                 return (-1);
                         }
                     }

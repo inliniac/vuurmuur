@@ -23,11 +23,11 @@
 /* we put this here, because we only use it here in main. */
 static char sigint_recv = FALSE;
 static char sighup_recv = FALSE;
-static void catch_sigint(/*@unused@*/ int signo)
+static void catch_sigint(/*@unused@*/ int signo ATTR_UNUSED)
 {
     sigint_recv = TRUE;
 }
-static void catch_sighup(/*@unused@*/ int signo)
+static void catch_sighup(/*@unused@*/ int signo ATTR_UNUSED)
 {
     sighup_recv = TRUE;
 }
@@ -650,8 +650,8 @@ int main(int argc, char *argv[])
                     vr_script.name, vr_script.name_host, vr_script.name_net,
                     vr_script.name_zone);
         } else if (vr_script.type == VRMR_TYPE_SERVICE) {
-            if (vrmr_validate_servicename(vr_script.name,
-                        vr_script.vctx.reg.servicename, VRMR_QUIET) != 0) {
+            if (vrmr_validate_servicename(
+                        vr_script.name, vr_script.vctx.reg.servicename) != 0) {
                 vrmr_error(VRS_ERR_COMMANDLINE, VR_ERR,
                         "invalid service name '%s' (in: %s:%d).",
                         vr_script.name, __FUNC__, __LINE__);

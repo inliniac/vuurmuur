@@ -575,7 +575,7 @@ static void do_wide_print(WINDOW *printwin, struct vrmr_list *list,
 #endif /* USE_WIDEC */
 
 static void print_list(struct vrmr_list *list, char *title, int height,
-        int width, int starty, int startx, char utf8)
+        int width, int starty, int startx, char utf8 ATTR_UNUSED)
 {
     WINDOW *boxwin = NULL, *printwin = NULL;
     PANEL *panel[2];

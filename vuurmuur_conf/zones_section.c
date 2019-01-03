@@ -130,8 +130,8 @@ struct {
             *warningfld; /* field for the "warning no interfaces" message */
 } HostSec;
 
-static void edit_zone_host_init(struct vrmr_ctx *vctx, char *name, int height,
-        int width, int starty, int startx, struct vrmr_zone *zone_ptr)
+static void edit_zone_host_init(struct vrmr_ctx *vctx, int height, int width,
+        int starty, int startx, struct vrmr_zone *zone_ptr)
 {
     int rows, cols, comment_y = 0, /* for the dimentions of */
             comment_x = 0;         /* the comment field */
@@ -535,7 +535,7 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     vrmr_fatal_if_null(zone_ptr);
 
     /* init */
-    edit_zone_host_init(vctx, name, height, width, starty, startx, zone_ptr);
+    edit_zone_host_init(vctx, height, width, starty, startx, zone_ptr);
 
     cur = current_field(zonessec_ctx.edit_zone.form);
     vrmr_fatal_if_null(cur);
@@ -666,7 +666,7 @@ static void edit_zone_host(struct vrmr_ctx *vctx, struct vrmr_zones *zones,
     status_print(status_win, gettext("Ready."));
 }
 
-static void zones_section_menu_hosts_init(struct vrmr_ctx *vctx,
+static void zones_section_menu_hosts_init(
         struct vrmr_zones *zones, char *zonename, char *networkname)
 {
     struct vrmr_zone *zone_ptr = NULL;
@@ -1017,7 +1017,7 @@ static int zones_section_menu_hosts(struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(blocklist);
 
     /* setup */
-    zones_section_menu_hosts_init(vctx, zones, zonename, networkname);
+    zones_section_menu_hosts_init(zones, zonename, networkname);
 
     draw_top_menu(top_win, gettext("Hosts"), key_choices_n, key_choices,
             cmd_choices_n, cmd_choices);
@@ -1029,7 +1029,7 @@ static int zones_section_menu_hosts(struct vrmr_ctx *vctx,
             /* first destroy */
             zones_section_menu_hosts_destroy();
             /* and setup again */
-            zones_section_menu_hosts_init(vctx, zones, zonename, networkname);
+            zones_section_menu_hosts_init(zones, zonename, networkname);
             /* we are done with reloading */
             reload = 0;
         }
@@ -1343,7 +1343,7 @@ static int zones_section_menu_hosts(struct vrmr_ctx *vctx,
     return (retval);
 }
 
-static void edit_zone_group_members_init(struct vrmr_ctx *vctx,
+static void edit_zone_group_members_init(
         struct vrmr_zones *zones, struct vrmr_zone *group_ptr)
 {
     struct vrmr_list_node *d_node = NULL;
@@ -1616,14 +1616,14 @@ static void edit_zone_group_members(struct vrmr_ctx *vctx,
     vrmr_fatal_if_null(zones);
 
     /* setup the win */
-    edit_zone_group_members_init(vctx, zones, zone_ptr);
+    edit_zone_group_members_init(zones, zone_ptr);
 
     while (quit == 0) {
         if (reload == 1) {
             /* first destroy */
             edit_zone_group_members_destroy();
             /* then init again */
-            edit_zone_group_members_init(vctx, zones, zone_ptr);
+            edit_zone_group_members_init(zones, zone_ptr);
             /* refresh screen */
             update_panels();
             doupdate();
@@ -1729,8 +1729,8 @@ struct {
 
 } GroupSec;
 
-static void edit_zone_group_init(struct vrmr_ctx *vctx,
-        struct vrmr_zones *zones, char *name, struct vrmr_zone *zone_ptr)
+static void edit_zone_group_init(
+        struct vrmr_ctx *vctx, const char *name, struct vrmr_zone *zone_ptr)
 {
     int rows, cols, max_height = 0, height = 0, width = 0, startx = 0,
                     starty = 0, comment_y = 0, comment_x = 0;
@@ -1962,7 +1962,7 @@ static int edit_zone_group(
     /* loop through to get user requests */
     while (quit == 0) {
         /* init */
-        edit_zone_group_init(vctx, zones, name, zone_ptr);
+        edit_zone_group_init(vctx, name, zone_ptr);
 
         /* print (or not) initial warning about the group being empty. */
         if (zone_ptr->GroupList.len == 0) {

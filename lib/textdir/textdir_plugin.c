@@ -156,8 +156,7 @@ char *get_filelocation(void *backend, char *name, const int type)
     */
     else if (type == VRMR_TYPE_SERVICE || type == VRMR_VRMR_TYPE_SERVICEGRP) {
         /* validate the name */
-        if (vrmr_validate_servicename(
-                    name, tb->servicename_reg, VRMR_VERBOSE) != 0) {
+        if (vrmr_validate_servicename(name, tb->servicename_reg) != 0) {
             vrmr_error(-1, "Error", "servicename '%s' is not valid.", name);
             return (NULL);
         }
@@ -231,7 +230,7 @@ char *get_filelocation(void *backend, char *name, const int type)
 /*
     opening the backend
 */
-int open_textdir(void *backend, int mode, int type)
+int open_textdir(void *backend, int mode ATTR_UNUSED, int type)
 {
     struct textdir_backend *tb = NULL;
     char dir_location[PATH_MAX] = "";
@@ -442,7 +441,7 @@ int close_textdir(void *backend, int type)
 }
 
 /* setting up the backend for first use */
-int init_textdir(void *backend, int type)
+int init_textdir(void *backend ATTR_UNUSED, int type ATTR_UNUSED)
 {
     // TODO
     return (0);
@@ -747,7 +746,7 @@ error:
         0: ok
         -1: error
 */
-int del_textdir(void *backend, char *name, int type, int recurs)
+int del_textdir(void *backend, char *name, int type, int recurs ATTR_UNUSED)
 {
     char *file_location = NULL, dir_location[512] = "",
          hostname[VRMR_MAX_HOST] = "", networkname[VRMR_MAX_NETWORK] = "",

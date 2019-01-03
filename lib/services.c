@@ -832,8 +832,7 @@ int vrmr_delete_service(struct vrmr_ctx *vctx, struct vrmr_services *services,
     return (-1);
 }
 
-int vrmr_validate_servicename(
-        const char *servicename, regex_t *reg_ex, char quiet)
+int vrmr_validate_servicename(const char *servicename, regex_t *reg_ex)
 {
     /* safety */
     if (servicename == NULL || reg_ex == NULL) {
@@ -1072,8 +1071,7 @@ int vrmr_init_services(struct vrmr_ctx *vctx, struct vrmr_services *services,
         vrmr_debug(MEDIUM, "loading service '%s' ...", name);
 
         /* but first validate the name */
-        if (vrmr_validate_servicename(name, reg->servicename, VRMR_VERBOSE) ==
-                0) {
+        if (vrmr_validate_servicename(name, reg->servicename) == 0) {
             /* now call vrmr_insert_service, which will gather the info and
              * insert it into the list */
             result = vrmr_insert_service(vctx, services, name);

@@ -1684,8 +1684,7 @@ static int edit_service_save(
 
 #define MAX_RANGES 4
 
-static void edit_service_update_portrangesfld(
-        struct vrmr_ctx *vctx, struct vrmr_service *ser_ptr)
+static void edit_service_update_portrangesfld(struct vrmr_service *ser_ptr)
 {
     struct vrmr_portdata *portrange_ptr = NULL;
     struct vrmr_list_node *d_node = NULL;
@@ -1926,7 +1925,7 @@ static void edit_service_init(
     mvwprintw(sersec_ctx.edit_service.win, 16, 1,
             gettext("Press <F6> to manage the portranges of this service."));
 
-    edit_service_update_portrangesfld(vctx, ser_ptr);
+    edit_service_update_portrangesfld(ser_ptr);
 
     /* position the cursor in the active field */
     pos_form_cursor(sersec_ctx.edit_service.form);
@@ -2033,7 +2032,7 @@ static int edit_service(
                     case 'E':
                         /* open portranges window */
                         edit_serv_portranges(vctx, ser_ptr);
-                        edit_service_update_portrangesfld(vctx, ser_ptr);
+                        edit_service_update_portrangesfld(ser_ptr);
 
                         draw_top_menu(top_win, gettext("Edit Service"),
                                 key_choices_n, key_choices, cmd_choices_n,
@@ -2339,8 +2338,8 @@ void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
                     new_name_ptr = input_box(32, gettext("Rename Service"),
                             STR_PLEASE_ENTER_THE_NAME);
                     if (cur && new_name_ptr != NULL) {
-                        if (vrmr_validate_servicename(new_name_ptr,
-                                    reg->servicename, VRMR_VERBOSE) == 0) {
+                        if (vrmr_validate_servicename(
+                                    new_name_ptr, reg->servicename) == 0) {
                             char *n = (char *)item_name(cur);
 
                             result = rename_service(
@@ -2363,8 +2362,8 @@ void services_section(struct vrmr_ctx *vctx, struct vrmr_services *services,
                             gettext("Please enter the name of the new "
                                     "service"));
                     if (new_name_ptr != NULL) {
-                        if (vrmr_validate_servicename(new_name_ptr,
-                                    reg->servicename, VRMR_QUIET) == 0) {
+                        if (vrmr_validate_servicename(
+                                    new_name_ptr, reg->servicename) == 0) {
                             if ((vrmr_search_service(services, new_name_ptr) !=
                                         NULL)) {
                                 vrmr_error(-1, VR_ERR,

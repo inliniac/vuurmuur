@@ -77,8 +77,9 @@ void vrmr_plugin_register(struct vrmr_plugin_data *plugin_data)
         0: ok
         -1: error
 */
-static int load_plugin(struct vrmr_config *cfg, struct vrmr_list *plugin_list,
-        char *plugin_name, struct vrmr_plugin_data **func_ptr)
+static int load_plugin(struct vrmr_config *cfg ATTR_UNUSED,
+        struct vrmr_list *plugin_list, char *plugin_name,
+        struct vrmr_plugin_data **func_ptr)
 {
     struct vrmr_plugin *plugin = NULL;
     struct vrmr_list_node *d_node = NULL;

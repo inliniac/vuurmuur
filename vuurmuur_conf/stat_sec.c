@@ -661,8 +661,7 @@ static int status_section_destroy(void)
         0: ok
         -1: error
 */
-int status_section(struct vrmr_config *cnf, struct vrmr_zones *zones,
-        struct vrmr_interfaces *interfaces, struct vrmr_services *services)
+int status_section(struct vrmr_config *cnf, struct vrmr_interfaces *interfaces)
 {
     FIELD *cur = NULL;
     int retval = 0;

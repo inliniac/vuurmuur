@@ -117,9 +117,8 @@ static int shaping_ruleinsert(
     This function must _only_ be called from the normal rule creation
     function: shaping_shape_create_rule
     */
-static int shaping_queue_rule(struct rule_scratch *rule,
-        /*@null@*/ struct rule_set *ruleset, uint16_t handle, uint16_t class,
-        char *device, char *cmd)
+static int shaping_queue_rule(struct rule_scratch *rule, uint16_t handle,
+        uint16_t class, char *device, char *cmd)
 {
     struct shape_rule *shape_rule = NULL;
 
@@ -573,9 +572,7 @@ int shaping_create_default_rules(struct vrmr_config *cnf,
 }
 
 int shaping_shape_create_rule(struct vrmr_config *cnf,
-        struct vrmr_interfaces *interfaces, struct rule_scratch *rule,
-        /*@null@*/ struct rule_set *ruleset,
-        struct vrmr_interface *shape_iface_ptr,
+        struct rule_scratch *rule, struct vrmr_interface *shape_iface_ptr,
         struct vrmr_interface *class_iface_ptr, uint16_t class, uint32_t rate,
         char *rate_unit, uint32_t ceil, char *ceil_unit, uint8_t prio)
 {
@@ -629,7 +626,7 @@ int shaping_shape_create_rule(struct vrmr_config *cnf,
 
     vrmr_debug(NONE, "cmd %s", cmd);
 
-    if (shaping_queue_rule(rule, ruleset, shape_iface_ptr->shape_handle, class,
+    if (shaping_queue_rule(rule, shape_iface_ptr->shape_handle, class,
                 shape_iface_ptr->device, cmd) < 0)
         return (-1);
 
@@ -640,8 +637,7 @@ int shaping_shape_create_rule(struct vrmr_config *cnf,
 
     vrmr_debug(NONE, "cmd %s", cmd);
 
-    if (shaping_queue_rule(
-                rule, ruleset, class, 0, shape_iface_ptr->device, cmd) < 0)
+    if (shaping_queue_rule(rule, class, 0, shape_iface_ptr->device, cmd) < 0)
         return (-1);
 
     return (0);

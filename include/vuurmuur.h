@@ -228,20 +228,25 @@
 #if (__clang_major__ * 10000 + __clang_minor__ * 100 +                         \
         __clang_patchlevel__) >= 30800
 #define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
+#define ATTR_UNUSED __attribute__((unused))
 #else
 #define ATTR_RETURNS_NONNULL
+#define ATTR_UNUSED
 #endif
 #elif defined(__GNUC__)
 #define GCC_VERSION                                                            \
     (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #if GCC_VERSION >= 50400
 #define ATTR_RETURNS_NONNULL __attribute__((returns_nonnull))
+#define ATTR_UNUSED
 #else
 #define ATTR_RETURNS_NONNULL
+#define ATTR_UNUSED
 #endif
 #else
 #warn "unknown or very old compiler"
 #define ATTR_RETURNS_NONNULL
+#define ATTR_UNUSED
 #endif
 
 #if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)
@@ -1562,7 +1567,7 @@ void vrmr_portrange_print_dlist(const struct vrmr_list *);
 void vrmr_destroy_serviceslist(struct vrmr_services *);
 int vrmr_new_service(struct vrmr_ctx *, struct vrmr_services *, char *, int);
 int vrmr_delete_service(struct vrmr_ctx *, struct vrmr_services *, char *, int);
-int vrmr_validate_servicename(const char *, regex_t *, char);
+int vrmr_validate_servicename(const char *, regex_t *);
 int vrmr_services_save_portranges(struct vrmr_ctx *, struct vrmr_service *);
 int vrmr_valid_tcpudp_port(int);
 int vrmr_services_check(struct vrmr_service *);
@@ -1683,7 +1688,7 @@ FILE *vuurmuur_fopen(
 DIR *vuurmuur_tryopendir(const struct vrmr_config *cnf, const char *name);
 DIR *vuurmuur_opendir(const struct vrmr_config *, const char *);
 int vrmr_stat_ok(const struct vrmr_config *, const char *, char, char, char);
-int vrmr_check_pidfile(char *pidfile_location, char *service, pid_t *thepid);
+int vrmr_check_pidfile(char *pidfile_location, pid_t *thepid);
 int vrmr_create_pidfile(char *pidfile_location, int shm_id);
 int vrmr_remove_pidfile(char *pidfile_location);
 FILE *vrmr_rules_file_open(const struct vrmr_config *cnf, const char *path,

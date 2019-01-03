@@ -219,7 +219,7 @@ int vrmr_stat_ok(const struct vrmr_config *cnf, const char *file_loc, char type,
  * and check if the PID is indeed running. If neither is the case, return 0.
  *
  */
-int vrmr_check_pidfile(char *pidfile_location, char *service, pid_t *thepid)
+int vrmr_check_pidfile(char *pidfile_location, pid_t *thepid)
 {
     FILE *fp;
     pid_t pid;
@@ -268,7 +268,7 @@ int vrmr_create_pidfile(char *pidfile_location, int shm_id)
     /*
         first check if the pidfile already exists
     */
-    if (vrmr_check_pidfile(pidfile_location, "createsvc", &pid) == -1)
+    if (vrmr_check_pidfile(pidfile_location, &pid) == -1)
         return (-1);
 
     pid = getpid();
@@ -548,8 +548,8 @@ int vrmr_pipe_command(struct vrmr_config *cnf, char *command, char ignore_error)
  *  \retval: -1 if the command failed to start (ie not found)
  *              otherwise the return code of the command.
  */
-int libvuurmuur_exec_command(
-        struct vrmr_config *cnf, char *path, char *argv[], char *output[])
+int libvuurmuur_exec_command(struct vrmr_config *cnf ATTR_UNUSED, char *path,
+        char *argv[], char *output[])
 {
     int retval = 0;
     FILE *fp = NULL;

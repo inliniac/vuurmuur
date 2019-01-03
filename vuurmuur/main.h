@@ -329,29 +329,27 @@ int create_rule(struct vrmr_ctx *, /*@null@*/ struct rule_set *,
 int remove_rule(
         struct vrmr_config *conf, int chaintype, int first_ipt_rule, int rules);
 
-int create_rule_input(struct vrmr_config *conf, /*@null@*/ struct rule_set *,
-        struct rule_scratch *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
-int create_rule_output(struct vrmr_config *conf, /*@null@*/ struct rule_set *,
-        struct rule_scratch *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
-int create_rule_forward(struct vrmr_config *conf, /*@null@*/ struct rule_set *,
-        struct rule_scratch *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
-int create_rule_masq(struct vrmr_config *conf, /*@null@*/ struct rule_set *,
-        struct rule_scratch *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
-int create_rule_snat(struct vrmr_config *conf, /*@null@*/ struct rule_set *,
-        struct rule_scratch *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
-int create_rule_portfw(struct vrmr_config *conf, /*@null@*/ struct rule_set *,
-        struct rule_scratch *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
-int create_rule_redirect(struct vrmr_config *conf, /*@null@*/ struct rule_set *,
-        struct rule_scratch *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
-int create_rule_dnat(struct vrmr_config *conf, /*@null@*/ struct rule_set *,
-        struct rule_scratch *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
-int create_rule_bounce(struct vrmr_config *conf, /*@null@*/ struct rule_set *,
-        struct rule_scratch *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
-int create_rule_output_broadcast(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *, struct rule_scratch *,
+int create_rule_input(struct vrmr_config *conf, struct rule_scratch *,
         struct vrmr_rule_cache *, struct vrmr_iptcaps *);
-int create_rule_input_broadcast(struct vrmr_config *conf,
-        /*@null@*/ struct rule_set *, struct rule_scratch *,
+int create_rule_output(struct vrmr_config *conf, struct rule_scratch *,
+        struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_forward(struct vrmr_config *conf, struct rule_scratch *,
+        struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_masq(struct vrmr_config *conf, struct rule_scratch *,
+        struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_snat(struct vrmr_config *conf, struct rule_scratch *,
+        struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_portfw(struct vrmr_config *conf, struct rule_scratch *,
+        struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_redirect(struct vrmr_config *conf, struct rule_scratch *,
+        struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_dnat(struct vrmr_config *conf, struct rule_scratch *,
+        struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_bounce(struct vrmr_config *conf, struct rule_scratch *,
+        struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_output_broadcast(struct vrmr_config *conf,
+        struct rule_scratch *, struct vrmr_rule_cache *, struct vrmr_iptcaps *);
+int create_rule_input_broadcast(struct vrmr_config *conf, struct rule_scratch *,
         struct vrmr_rule_cache *, struct vrmr_iptcaps *);
 
 int clear_vuurmuur_iptables_rules(struct vrmr_config *cnf);
@@ -407,9 +405,7 @@ int shaping_shape_incoming_rule(/*@null@*/ struct vrmr_rule_options *opt);
 int shaping_shape_outgoing_rule(/*@null@*/ struct vrmr_rule_options *opt);
 int shaping_shape_interface(struct vrmr_interface *iface_ptr);
 int shaping_shape_create_rule(struct vrmr_config *cnf,
-        struct vrmr_interfaces *interfaces, struct rule_scratch *rule,
-        /*@null@*/ struct rule_set *ruleset,
-        struct vrmr_interface *shape_iface_ptr,
+        struct rule_scratch *rule, struct vrmr_interface *shape_iface_ptr,
         struct vrmr_interface *class_iface_ptr, uint16_t class, uint32_t rate,
         char *rate_unit, uint32_t ceil, char *ceil_unit, uint8_t prio);
 int shaping_determine_minimal_default_rates(
